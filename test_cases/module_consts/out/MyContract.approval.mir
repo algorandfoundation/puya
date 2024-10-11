@@ -1,27 +1,23 @@
-// Op                                                                    // Op Description                               Stack (out)                                                           Source code                                       Source line
-
-#pragma version 10
-
+// Op                                                                    Stack (out)
 // test_cases.module_consts.contract.MyContract.approval_program() -> uint64:
 main_block@0:
-    txn NumAppArgs                                                       //                                              {txn}                                                                 Txn.num_app_args                                  module_consts/contract.py:79
-                                                                         // virtual: store tmp%0#0 to l-stack (no copy)  tmp%0#0                                                               Txn.num_app_args                                  module_consts/contract.py:79
-                                                                         // virtual: load tmp%0#0 from l-stack (no copy) tmp%0#0                                                               Txn.num_app_args == 0                             module_consts/contract.py:79
-    !                                                                    //                                              {!}                                                                   Txn.num_app_args == 0                             module_consts/contract.py:79
-                                                                         // virtual: store tmp%1#0 to l-stack (no copy)  tmp%1#0                                                               Txn.num_app_args == 0                             module_consts/contract.py:79
-                                                                         // virtual: load tmp%1#0 from l-stack (no copy) tmp%1#0                                                               assert Txn.num_app_args == 0, MAYBE_MORE          module_consts/contract.py:79
+    // module_consts/contract.py:79
+    // assert Txn.num_app_args == 0, MAYBE_MORE
+    txn NumAppArgs                                                       tmp%0#0
+    !                                                                    tmp%1#0
     assert // yes
-//    or
-//        nooo
-//  maybe not                  //                                                                                                                    assert Txn.num_app_args == 0, MAYBE_MORE          module_consts/contract.py:79
-    txn Sender                                                           //                                              {txn}                                                                 Txn.sender                                        module_consts/contract.py:80
-                                                                         // virtual: store tmp%2#0 to l-stack (no copy)  tmp%2#0                                                               Txn.sender                                        module_consts/contract.py:80
-                                                                         // virtual: load tmp%2#0 from l-stack (no copy) tmp%2#0                                                               Txn.sender != consts.HACKER                       module_consts/contract.py:80
-    addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA      //                                              tmp%2#0,VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA    consts.HACKER                                     module_consts/contract.py:80
-    !=                                                                   //                                              {!=}                                                                  Txn.sender != consts.HACKER                       module_consts/contract.py:80
-                                                                         // virtual: store tmp%3#0 to l-stack (no copy)  tmp%3#0                                                               Txn.sender != consts.HACKER                       module_consts/contract.py:80
-                                                                         // virtual: load tmp%3#0 from l-stack (no copy) tmp%3#0                                                               assert Txn.sender != consts.HACKER, consts.HACKER module_consts/contract.py:80
-    assert // VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA //                                                                                                                    assert Txn.sender != consts.HACKER, consts.HACKER module_consts/contract.py:80
-    int 1                                                                //                                              1                                                                     True                                              module_consts/contract.py:81
-    return                                                               //                                                                                                                    return True                                       module_consts/contract.py:81
+    or
+        nooo
+  maybe not
+    // module_consts/contract.py:80
+    // assert Txn.sender != consts.HACKER, consts.HACKER
+    txn Sender                                                           tmp%2#0
+    addr "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"    tmp%2#0,Address(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
+    !=                                                                   tmp%3#0
+    assert // VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
+    // module_consts/contract.py:81
+    // return True
+    int 1                                                                1
+    return
+
 

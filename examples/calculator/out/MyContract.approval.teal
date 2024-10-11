@@ -50,22 +50,23 @@ main_else_body@2:
     // action = op.btoi(action_b)
     btoi
     bury 2
-    // calculator/contract.py:32
-    // b_bytes = Txn.application_args(2)
-    txna ApplicationArgs 2
     // calculator/contract.py:31
     // a_bytes = Txn.application_args(1)
     txna ApplicationArgs 1
+    // calculator/contract.py:32
+    // b_bytes = Txn.application_args(2)
+    txna ApplicationArgs 2
     // calculator/contract.py:33
     // log(a_bytes)
-    dup
+    dig 1
     log
     // calculator/contract.py:34
     // log(b_bytes)
-    dig 1
+    dup
     log
     // calculator/contract.py:35
     // a = op.btoi(a_bytes)
+    swap
     btoi
     bury 4
     // calculator/contract.py:36
@@ -82,14 +83,14 @@ main_after_if_else@3:
     cover 2
     dig 4
     callsub do_calc
-    cover 3
     // calculator/contract.py:39
     // result_b = itoa(a) + self.op(action) + itoa(b) + b" = " + itoa(result)
-    callsub itoa
     swap
+    callsub itoa
+    uncover 2
     callsub op
     concat
-    swap
+    uncover 2
     callsub itoa
     concat
     pushbytes 0x203d20

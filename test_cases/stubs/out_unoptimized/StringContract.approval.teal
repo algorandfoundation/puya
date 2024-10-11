@@ -1,15 +1,17 @@
 #pragma version 10
 
 test_cases.stubs.string.StringContract.approval_program:
-    pushint 0 // 0
-    pushint 0 // 0
+    intcblock 0 1
+    bytecblock "abcdefg" "" "f" "d" "." "a" "b" "ab" "e" "g" "fg" "d.e.f" "The quick brown fox jumped over the lazy dog" "no args"
+    intc_0 // 0
+    dup
     // stubs/string.py:6
     // empty = String()
-    pushbytes ""
+    bytec_1 // ""
     // stubs/string.py:7
     // assert not empty, "Empty bytes should be False"
     len
-    pushint 0 // 0
+    intc_0 // 0
     ==
     assert // Empty bytes should be False
     // stubs/string.py:8
@@ -18,36 +20,36 @@ test_cases.stubs.string.StringContract.approval_program:
     // stubs/string.py:9
     // assert non_empty, "Non-empty bytes should be True"
     len
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // Non-empty bytes should be True
     // stubs/string.py:11
     // assert String("a") + "b" == "ab"
-    pushbytes "a"
-    pushbytes "b"
+    bytec 5 // "a"
+    bytec 6 // "b"
     concat
-    pushbytes "ab"
+    bytec 7 // "ab"
     ==
     assert
     // stubs/string.py:12
     // assert String("a") + "b" == String("ab")
-    pushbytes "a"
-    pushbytes "b"
+    bytec 5 // "a"
+    bytec 6 // "b"
     concat
-    pushbytes "ab"
+    bytec 7 // "ab"
     ==
     assert
     // stubs/string.py:13
     // assert "a" + String("b") == String("ab")
-    pushbytes "a"
-    pushbytes "b"
+    bytec 5 // "a"
+    bytec 6 // "b"
     concat
-    pushbytes "ab"
+    bytec 7 // "ab"
     ==
     assert
     // stubs/string.py:6
     // empty = String()
-    pushbytes ""
+    bytec_1 // ""
     // stubs/string.py:8
     // non_empty = String(" ")
     pushbytes " "
@@ -60,11 +62,11 @@ test_cases.stubs.string.StringContract.approval_program:
     pushbytes "c"
     // stubs/string.py:18
     // c += "d"
-    pushbytes "d"
+    bytec_3 // "d"
     concat
     // stubs/string.py:19
     // c += String("e")
-    pushbytes "e"
+    bytec 8 // "e"
     concat
     // stubs/string.py:20
     // assert c == "cde"
@@ -74,45 +76,45 @@ test_cases.stubs.string.StringContract.approval_program:
     // stubs/string.py:22
     // assert "brown fox" in String("The quick brown fox jumped over the lazy dog")
     pushbytes "brown fox"
-    pushbytes "The quick brown fox jumped over the lazy dog"
+    bytec 12 // "The quick brown fox jumped over the lazy dog"
     callsub is_substring
     assert
     // stubs/string.py:23
     // assert String("red fox") not in String("The quick brown fox jumped over the lazy dog")
     pushbytes "red fox"
-    pushbytes "The quick brown fox jumped over the lazy dog"
+    bytec 12 // "The quick brown fox jumped over the lazy dog"
     callsub is_substring
     !
     assert
     // stubs/string.py:26
     // assert alpha.startswith("")
-    pushbytes ""
+    bytec_1 // ""
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:26
     // assert alpha.startswith("")
     len
     >
     bz main_ternary_false@2
-    pushint 0 // 0
+    intc_0 // 0
     b main_ternary_merge@3
 
 main_ternary_false@2:
     // stubs/string.py:26
     // assert alpha.startswith("")
-    pushbytes ""
+    bytec_1 // ""
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:26
     // assert alpha.startswith("")
-    pushint 0 // 0
+    intc_0 // 0
     uncover 2
     extract3
-    pushbytes ""
+    bytec_1 // ""
     ==
 
 main_ternary_merge@3:
@@ -121,33 +123,33 @@ main_ternary_merge@3:
     assert
     // stubs/string.py:27
     // assert alpha.startswith("a")
-    pushbytes "a"
+    bytec 5 // "a"
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:27
     // assert alpha.startswith("a")
     len
     >
     bz main_ternary_false@5
-    pushint 0 // 0
+    intc_0 // 0
     b main_ternary_merge@6
 
 main_ternary_false@5:
     // stubs/string.py:27
     // assert alpha.startswith("a")
-    pushbytes "a"
+    bytec 5 // "a"
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:27
     // assert alpha.startswith("a")
-    pushint 0 // 0
+    intc_0 // 0
     uncover 2
     extract3
-    pushbytes "a"
+    bytec 5 // "a"
     ==
 
 main_ternary_merge@6:
@@ -156,33 +158,33 @@ main_ternary_merge@6:
     assert
     // stubs/string.py:28
     // assert alpha.startswith("ab")
-    pushbytes "ab"
+    bytec 7 // "ab"
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:28
     // assert alpha.startswith("ab")
     len
     >
     bz main_ternary_false@8
-    pushint 0 // 0
+    intc_0 // 0
     b main_ternary_merge@9
 
 main_ternary_false@8:
     // stubs/string.py:28
     // assert alpha.startswith("ab")
-    pushbytes "ab"
+    bytec 7 // "ab"
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:28
     // assert alpha.startswith("ab")
-    pushint 0 // 0
+    intc_0 // 0
     uncover 2
     extract3
-    pushbytes "ab"
+    bytec 7 // "ab"
     ==
 
 main_ternary_merge@9:
@@ -191,33 +193,33 @@ main_ternary_merge@9:
     assert
     // stubs/string.py:29
     // assert not alpha.startswith("b")
-    pushbytes "b"
+    bytec 6 // "b"
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:29
     // assert not alpha.startswith("b")
     len
     >
     bz main_ternary_false@11
-    pushint 0 // 0
+    intc_0 // 0
     b main_ternary_merge@12
 
 main_ternary_false@11:
     // stubs/string.py:29
     // assert not alpha.startswith("b")
-    pushbytes "b"
+    bytec 6 // "b"
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:29
     // assert not alpha.startswith("b")
-    pushint 0 // 0
+    intc_0 // 0
     uncover 2
     extract3
-    pushbytes "b"
+    bytec 6 // "b"
     ==
 
 main_ternary_merge@12:
@@ -227,39 +229,39 @@ main_ternary_merge@12:
     assert
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:30
     // assert alpha.startswith(alpha)
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:30
     // assert alpha.startswith(alpha)
     len
     >
     bz main_ternary_false@14
-    pushint 0 // 0
+    intc_0 // 0
     b main_ternary_merge@15
 
 main_ternary_false@14:
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:30
     // assert alpha.startswith(alpha)
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:30
     // assert alpha.startswith(alpha)
-    pushint 0 // 0
+    intc_0 // 0
     uncover 2
     extract3
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:30
     // assert alpha.startswith(alpha)
     ==
@@ -270,24 +272,23 @@ main_ternary_merge@15:
     assert
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:31
     // assert not alpha.startswith(alpha + "!")
     pushbytes "!"
     concat
     dup
-    cover 1
     bury 3
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:31
     // assert not alpha.startswith(alpha + "!")
     len
     >
     bz main_ternary_false@17
-    pushint 0 // 0
+    intc_0 // 0
     b main_ternary_merge@18
 
 main_ternary_false@17:
@@ -295,17 +296,15 @@ main_ternary_false@17:
     // assert not alpha.startswith(alpha + "!")
     dig 1
     dup
-    cover 1
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:31
     // assert not alpha.startswith(alpha + "!")
-    pushint 0 // 0
+    intc_0 // 0
     uncover 2
     extract3
-    uncover 1
     ==
 
 main_ternary_merge@18:
@@ -315,40 +314,40 @@ main_ternary_merge@18:
     assert
     // stubs/string.py:33
     // assert alpha.endswith("")
-    pushbytes ""
+    bytec_1 // ""
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:33
     // assert alpha.endswith("")
     len
     >
     bz main_ternary_false@20
-    pushint 0 // 0
+    intc_0 // 0
     b main_ternary_merge@21
 
 main_ternary_false@20:
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:33
     // assert alpha.endswith("")
     len
-    pushbytes ""
+    bytec_1 // ""
     len
     -
-    pushbytes ""
+    bytec_1 // ""
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:33
     // assert alpha.endswith("")
     uncover 2
     uncover 2
     extract3
-    pushbytes ""
+    bytec_1 // ""
     ==
 
 main_ternary_merge@21:
@@ -357,40 +356,40 @@ main_ternary_merge@21:
     assert
     // stubs/string.py:34
     // assert alpha.endswith("g")
-    pushbytes "g"
+    bytec 9 // "g"
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:34
     // assert alpha.endswith("g")
     len
     >
     bz main_ternary_false@23
-    pushint 0 // 0
+    intc_0 // 0
     b main_ternary_merge@24
 
 main_ternary_false@23:
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:34
     // assert alpha.endswith("g")
     len
-    pushbytes "g"
+    bytec 9 // "g"
     len
     -
-    pushbytes "g"
+    bytec 9 // "g"
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:34
     // assert alpha.endswith("g")
     uncover 2
     uncover 2
     extract3
-    pushbytes "g"
+    bytec 9 // "g"
     ==
 
 main_ternary_merge@24:
@@ -399,40 +398,40 @@ main_ternary_merge@24:
     assert
     // stubs/string.py:35
     // assert alpha.endswith("fg")
-    pushbytes "fg"
+    bytec 10 // "fg"
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:35
     // assert alpha.endswith("fg")
     len
     >
     bz main_ternary_false@26
-    pushint 0 // 0
+    intc_0 // 0
     b main_ternary_merge@27
 
 main_ternary_false@26:
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:35
     // assert alpha.endswith("fg")
     len
-    pushbytes "fg"
+    bytec 10 // "fg"
     len
     -
-    pushbytes "fg"
+    bytec 10 // "fg"
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:35
     // assert alpha.endswith("fg")
     uncover 2
     uncover 2
     extract3
-    pushbytes "fg"
+    bytec 10 // "fg"
     ==
 
 main_ternary_merge@27:
@@ -441,40 +440,40 @@ main_ternary_merge@27:
     assert
     // stubs/string.py:36
     // assert not alpha.endswith("f")
-    pushbytes "f"
+    bytec_2 // "f"
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:36
     // assert not alpha.endswith("f")
     len
     >
     bz main_ternary_false@29
-    pushint 0 // 0
+    intc_0 // 0
     b main_ternary_merge@30
 
 main_ternary_false@29:
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:36
     // assert not alpha.endswith("f")
     len
-    pushbytes "f"
+    bytec_2 // "f"
     len
     -
-    pushbytes "f"
+    bytec_2 // "f"
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:36
     // assert not alpha.endswith("f")
     uncover 2
     uncover 2
     extract3
-    pushbytes "f"
+    bytec_2 // "f"
     ==
 
 main_ternary_merge@30:
@@ -484,44 +483,44 @@ main_ternary_merge@30:
     assert
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:37
     // assert alpha.endswith(alpha)
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:37
     // assert alpha.endswith(alpha)
     len
     >
     bz main_ternary_false@32
-    pushint 0 // 0
+    intc_0 // 0
     b main_ternary_merge@33
 
 main_ternary_false@32:
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:37
     // assert alpha.endswith(alpha)
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:37
     // assert alpha.endswith(alpha)
     len
     -
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:37
     // assert alpha.endswith(alpha)
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:37
     // assert alpha.endswith(alpha)
     uncover 2
@@ -529,7 +528,7 @@ main_ternary_false@32:
     extract3
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:37
     // assert alpha.endswith(alpha)
     ==
@@ -543,29 +542,28 @@ main_ternary_merge@33:
     pushbytes "!"
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:38
     // assert not alpha.endswith("!" + alpha)
     concat
     dup
-    cover 1
     bury 2
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:38
     // assert not alpha.endswith("!" + alpha)
     len
     >
     bz main_ternary_false@35
-    pushint 0 // 0
+    intc_0 // 0
     b main_ternary_merge@36
 
 main_ternary_false@35:
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:38
     // assert not alpha.endswith("!" + alpha)
     len
@@ -578,13 +576,12 @@ main_ternary_false@35:
     len
     // stubs/string.py:25
     // alpha = String("abcdefg")
-    pushbytes "abcdefg"
+    bytec_0 // "abcdefg"
     // stubs/string.py:38
     // assert not alpha.endswith("!" + alpha)
     uncover 2
     uncover 2
     extract3
-    uncover 1
     ==
 
 main_ternary_merge@36:
@@ -594,94 +591,94 @@ main_ternary_merge@36:
     assert
     // stubs/string.py:40
     // d, e, f = String("d"), String("e"), String("f")
-    pushbytes "d"
+    bytec_3 // "d"
     // stubs/string.py:41
     // assert String(".").join((d, e, f)) == "d.e.f"
-    pushbytes "."
+    bytec 4 // "."
     concat
     // stubs/string.py:40
     // d, e, f = String("d"), String("e"), String("f")
-    pushbytes "e"
+    bytec 8 // "e"
     // stubs/string.py:41
     // assert String(".").join((d, e, f)) == "d.e.f"
     concat
-    pushbytes "."
+    bytec 4 // "."
     concat
     // stubs/string.py:40
     // d, e, f = String("d"), String("e"), String("f")
-    pushbytes "f"
+    bytec_2 // "f"
     // stubs/string.py:41
     // assert String(".").join((d, e, f)) == "d.e.f"
     concat
-    pushbytes "d.e.f"
+    bytec 11 // "d.e.f"
     ==
     assert
     // stubs/string.py:40
     // d, e, f = String("d"), String("e"), String("f")
-    pushbytes "d"
+    bytec_3 // "d"
     // stubs/string.py:42
     // assert String(".").join((d, "e", f)) == "d.e.f"
-    pushbytes "."
+    bytec 4 // "."
     concat
-    pushbytes "e"
+    bytec 8 // "e"
     concat
-    pushbytes "."
+    bytec 4 // "."
     concat
     // stubs/string.py:40
     // d, e, f = String("d"), String("e"), String("f")
-    pushbytes "f"
+    bytec_2 // "f"
     // stubs/string.py:42
     // assert String(".").join((d, "e", f)) == "d.e.f"
     concat
-    pushbytes "d.e.f"
+    bytec 11 // "d.e.f"
     ==
     assert
     // stubs/string.py:43
     // assert String(".").join(("d", "e", "f")) == "d.e.f"
-    pushbytes "d"
-    pushbytes "."
+    bytec_3 // "d"
+    bytec 4 // "."
     concat
-    pushbytes "e"
+    bytec 8 // "e"
     concat
-    pushbytes "."
+    bytec 4 // "."
     concat
-    pushbytes "f"
+    bytec_2 // "f"
     concat
-    pushbytes "d.e.f"
+    bytec 11 // "d.e.f"
     ==
     assert
     // stubs/string.py:44
     // assert String(".").join(tuple("def")) == "d.e.f"
-    pushbytes "d"
-    pushbytes "."
+    bytec_3 // "d"
+    bytec 4 // "."
     concat
-    pushbytes "e"
+    bytec 8 // "e"
     concat
-    pushbytes "."
+    bytec 4 // "."
     concat
-    pushbytes "f"
+    bytec_2 // "f"
     concat
-    pushbytes "d.e.f"
+    bytec 11 // "d.e.f"
     ==
     assert
     // stubs/string.py:40
     // d, e, f = String("d"), String("e"), String("f")
-    pushbytes "d"
+    bytec_3 // "d"
     // stubs/string.py:45
     // assert String("").join((d, e, f)) == "def"
-    pushbytes ""
+    bytec_1 // ""
     concat
     // stubs/string.py:40
     // d, e, f = String("d"), String("e"), String("f")
-    pushbytes "e"
+    bytec 8 // "e"
     // stubs/string.py:45
     // assert String("").join((d, e, f)) == "def"
     concat
-    pushbytes ""
+    bytec_1 // ""
     concat
     // stubs/string.py:40
     // d, e, f = String("d"), String("e"), String("f")
-    pushbytes "f"
+    bytec_2 // "f"
     // stubs/string.py:45
     // assert String("").join((d, e, f)) == "def"
     concat
@@ -690,24 +687,24 @@ main_ternary_merge@36:
     assert
     // stubs/string.py:40
     // d, e, f = String("d"), String("e"), String("f")
-    pushbytes "d"
+    bytec_3 // "d"
     // stubs/string.py:46
     // assert String(".").join((d,)) == "d"
-    pushbytes "d"
+    dup
     ==
     assert
     // stubs/string.py:40
     // d, e, f = String("d"), String("e"), String("f")
-    pushbytes "d"
+    bytec_3 // "d"
     // stubs/string.py:47
     // assert String("").join((d,)) == "d"
-    pushbytes "d"
+    dup
     ==
     assert
     // stubs/string.py:49
     // String("args" if Txn.num_app_args else "no args") == "no args"
     txn NumAppArgs
-    pushint 0 // 0
+    intc_0 // 0
     !=
     bz main_ternary_false@38
     pushbytes "args"
@@ -716,12 +713,12 @@ main_ternary_merge@36:
 main_ternary_false@38:
     // stubs/string.py:49
     // String("args" if Txn.num_app_args else "no args") == "no args"
-    pushbytes "no args"
+    bytec 13 // "no args"
 
 main_ternary_merge@39:
     // stubs/string.py:49
     // String("args" if Txn.num_app_args else "no args") == "no args"
-    pushbytes "no args"
+    bytec 13 // "no args"
     ==
     // stubs/string.py:48-50
     // assert (
@@ -730,20 +727,19 @@ main_ternary_merge@39:
     assert // constructor expressions supported
     // stubs/string.py:52
     // return True
-    pushint 1 // 1
+    intc_1 // 1
     return
 
 
 // _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:
 is_substring:
     proto 2 1
-    pushint 0 // 0
+    intc_0 // 0
 
 is_substring_while_top@1:
     frame_dig -2
     len
     frame_dig 0
-    uncover 1
     +
     frame_dig -1
     len
@@ -754,28 +750,26 @@ is_substring_while_top@1:
     frame_dig 0
     dup
     cover 2
-    uncover 1
     +
     frame_dig -1
     uncover 2
     uncover 2
     substring3
     frame_dig -2
-    uncover 1
     ==
     bz is_substring_after_if_else@4
-    pushint 1 // 1
-    uncover 1
+    intc_1 // 1
+    swap
     retsub
 
 is_substring_after_if_else@4:
     frame_dig 0
-    pushint 1 // 1
+    intc_1 // 1
     +
     frame_bury 0
     b is_substring_while_top@1
 
 is_substring_after_while@5:
-    pushint 0 // 0
-    uncover 1
+    intc_0 // 0
+    swap
     retsub

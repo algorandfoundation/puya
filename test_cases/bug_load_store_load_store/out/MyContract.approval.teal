@@ -1,0 +1,73 @@
+#pragma version 10
+
+test_cases.bug_load_store_load_store.contract.MyContract.approval_program:
+    pushbytes ""
+    // bug_load_store_load_store/contract.py:11
+    // val = UInt64(0)
+    pushint 0 // 0
+    // bug_load_store_load_store/contract.py:12
+    // for _idx in urange(2):
+    dup
+
+main_for_header@1:
+    // bug_load_store_load_store/contract.py:12
+    // for _idx in urange(2):
+    dup
+    pushint 2 // 2
+    <
+    bz main_after_for@11
+    // bug_load_store_load_store/contract.py:13
+    // if get_bool():
+    callsub get_bool
+    bnz main_after_if_else@9
+    // bug_load_store_load_store/contract.py:15
+    // elif get_bool():  # noqa: SIM102
+    callsub get_bool
+    dig 2
+    bury 4
+    bz main_after_if_else@8
+    // bug_load_store_load_store/contract.py:16
+    // if not get_bool():
+    callsub get_bool
+    dig 2
+    bury 4
+    bnz main_after_if_else@7
+    // bug_load_store_load_store/contract.py:17
+    // val += UInt64(123)
+    dig 1
+    pushint 123 // 123
+    +
+    bury 3
+
+main_after_if_else@7:
+
+main_after_if_else@8:
+    dig 2
+    bury 2
+
+main_after_if_else@9:
+    // bug_load_store_load_store/contract.py:12
+    // for _idx in urange(2):
+    dup
+    pushint 1 // 1
+    +
+    bury 1
+    b main_for_header@1
+
+main_after_for@11:
+    // bug_load_store_load_store/contract.py:18
+    // return val
+    dig 1
+    return
+
+
+// test_cases.bug_load_store_load_store.contract.get_bool() -> uint64:
+get_bool:
+    // bug_load_store_load_store/contract.py:4-5
+    // @subroutine
+    // def get_bool() -> bool:
+    proto 0 1
+    // bug_load_store_load_store/contract.py:6
+    // return True
+    pushint 1 // 1
+    retsub

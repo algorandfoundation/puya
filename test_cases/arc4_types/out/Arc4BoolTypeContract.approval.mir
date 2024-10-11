@@ -1,75 +1,79 @@
-// Op                          // Op Description                                        Stack (out)                                                            Source code                                                                                         Source line
-
-#pragma version 10
-
+// Op                                                                 Stack (out)
 // test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program() -> uint64:
 main_block@0:
-    byte 0x80                  //                                                       0x80                                                                   ARC4Bool(True)                                                                                      arc4_types/bool.py:13
-    byte 0x00                  //                                                       0x80,0x00                                                              ARC4Bool(False)                                                                                     arc4_types/bool.py:13
-    callsub test_stuff         //                                                       {test_stuff}                                                           self.test_stuff(ARC4Bool(True), ARC4Bool(False))                                                    arc4_types/bool.py:13
-    pop                        //
-    txn NumAppArgs             //                                                       {txn}                                                                  Txn.num_app_args                                                                                    arc4_types/bool.py:15
-                               // virtual: store tmp%0#0 to l-stack (no copy)           tmp%0#0                                                                Txn.num_app_args                                                                                    arc4_types/bool.py:15
-                               // virtual: load tmp%0#0 from l-stack (no copy)          tmp%0#0                                                                False if Txn.num_app_args else True                                                                 arc4_types/bool.py:15
-    !                          //                                                       {!}                                                                    False if Txn.num_app_args else True                                                                 arc4_types/bool.py:15
-                               // virtual: store to_encode%0#0 to l-stack (no copy)     to_encode%0#0                                                          False if Txn.num_app_args else True                                                                 arc4_types/bool.py:15
-    byte 0x00                  //                                                       to_encode%0#0,0x00                                                     ARC4Bool(\nFalse if Txn.num_app_args else True  # noqa: SIM211\n)                                   arc4_types/bool.py:14-16
-    int 0                      //                                                       to_encode%0#0,0x00,0                                                   ARC4Bool(\nFalse if Txn.num_app_args else True  # noqa: SIM211\n)                                   arc4_types/bool.py:14-16
-    uncover 2                  // load to_encode%0#0 from l-stack (no copy)             0x00,0,to_encode%0#0                                                   ARC4Bool(\nFalse if Txn.num_app_args else True  # noqa: SIM211\n)                                   arc4_types/bool.py:14-16
-    setbit                     //                                                       {setbit}                                                               ARC4Bool(\nFalse if Txn.num_app_args else True  # noqa: SIM211\n)                                   arc4_types/bool.py:14-16
-                               // virtual: store encoded_bool%2#0 to l-stack (no copy)  encoded_bool%2#0                                                       ARC4Bool(\nFalse if Txn.num_app_args else True  # noqa: SIM211\n)                                   arc4_types/bool.py:14-16
-                               // virtual: load encoded_bool%2#0 from l-stack (no copy) encoded_bool%2#0                                                       ARC4Bool(\nFalse if Txn.num_app_args else True  # noqa: SIM211\n).native                            arc4_types/bool.py:14-16
-    int 0                      //                                                       encoded_bool%2#0,0
-    getbit                     //                                                       {getbit}                                                               ARC4Bool(\nFalse if Txn.num_app_args else True  # noqa: SIM211\n).native                            arc4_types/bool.py:14-16
-                               // virtual: store tmp%2#0 to l-stack (no copy)           tmp%2#0                                                                ARC4Bool(\nFalse if Txn.num_app_args else True  # noqa: SIM211\n).native                            arc4_types/bool.py:14-16
-                               // virtual: load tmp%2#0 from l-stack (no copy)          tmp%2#0                                                                assert ARC4Bool(\nFalse if Txn.num_app_args else True  # noqa: SIM211\n).native, "conditional expr" arc4_types/bool.py:14-16
-    assert // conditional expr //                                                                                                                              assert ARC4Bool(\nFalse if Txn.num_app_args else True  # noqa: SIM211\n).native, "conditional expr" arc4_types/bool.py:14-16
-    int 1                      //                                                       1                                                                      True                                                                                                arc4_types/bool.py:49
-    return                     //                                                                                                                              return True                                                                                         arc4_types/bool.py:49
+    // arc4_types/bool.py:13
+    // self.test_stuff(ARC4Bool(True), ARC4Bool(False))
+    byte 0x80                                                         0x80
+    byte 0x00                                                         0x80,0x00
+    callsub test_stuff                                                {test_stuff}
+    pop 1
+    // arc4_types/bool.py:15
+    // False if Txn.num_app_args else True  # noqa: SIM211
+    txn NumAppArgs                                                    tmp%0#0
+    !                                                                 to_encode%0#0
+    // arc4_types/bool.py:14-16
+    // assert ARC4Bool(
+    //     False if Txn.num_app_args else True  # noqa: SIM211
+    // ).native, "conditional expr"
+    byte 0x00                                                         to_encode%0#0,0x00
+    int 0                                                             to_encode%0#0,0x00,0
+    l-load to_encode%0#0 2                                            0x00,0,to_encode%0#0
+    setbit                                                            encoded_bool%2#0
+    int 0                                                             encoded_bool%2#0,0
+    getbit                                                            tmp%2#0
+    assert // conditional expr
+    // arc4_types/bool.py:49
+    // return True
+    int 1                                                             1
+    return
 
 
 // test_cases.arc4_types.bool.Arc4BoolTypeContract.test_stuff(true: bytes, false: bytes) -> uint64:
-test_stuff:
-    proto 2 1                  //                                                       (𝕡) true#0,false#0 |                                                   @subroutine\ndef test_stuff(self, true: ARC4Bool, false: ARC4Bool) -> bool:                         arc4_types/bool.py:54-55
+test_stuff:                                                           (𝕡) true#0,false#0 |
+    // arc4_types/bool.py:54-55
+    // @subroutine
+    // def test_stuff(self, true: ARC4Bool, false: ARC4Bool) -> bool:
+    proto 2 1                                                         (𝕡) true#0,false#0 |
 
-test_stuff_block@0:
-    frame_dig -2               // load true#0 from parameters                           (𝕡) true#0,false#0 | true#0 (copy)                                     true.native                                                                                         arc4_types/bool.py:56
-    int 0                      //                                                       (𝕡) true#0,false#0 | true#0 (copy),0
-    getbit                     //                                                       (𝕡) true#0,false#0 | {getbit}                                          true.native                                                                                         arc4_types/bool.py:56
-                               // virtual: store tmp%0#0 to l-stack (no copy)           (𝕡) true#0,false#0 | tmp%0#0                                           true.native                                                                                         arc4_types/bool.py:56
-    dig 0                      // load tmp%0#0 from l-stack (copy)                      (𝕡) true#0,false#0 | tmp%0#0,tmp%0#0 (copy)                            assert true.native                                                                                  arc4_types/bool.py:56
-    assert                     //                                                       (𝕡) true#0,false#0 | tmp%0#0                                           assert true.native                                                                                  arc4_types/bool.py:56
-    frame_dig -1               // load false#0 from parameters                          (𝕡) true#0,false#0 | tmp%0#0,false#0 (copy)                            false.native                                                                                        arc4_types/bool.py:58
-    int 0                      //                                                       (𝕡) true#0,false#0 | tmp%0#0,false#0 (copy),0
-    getbit                     //                                                       (𝕡) true#0,false#0 | tmp%0#0,{getbit}                                  false.native                                                                                        arc4_types/bool.py:58
-                               // virtual: store tmp%1#0 to l-stack (no copy)           (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0                                   false.native                                                                                        arc4_types/bool.py:58
-    dig 0                      // load tmp%1#0 from l-stack (copy)                      (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,tmp%1#0 (copy)                    not false.native                                                                                    arc4_types/bool.py:58
-    !                          //                                                       (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,{!}                               not false.native                                                                                    arc4_types/bool.py:58
-                               // virtual: store tmp%2#0 to l-stack (no copy)           (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,tmp%2#0                           not false.native                                                                                    arc4_types/bool.py:58
-                               // virtual: load tmp%2#0 from l-stack (no copy)          (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,tmp%2#0                           assert not false.native                                                                             arc4_types/bool.py:58
-    assert                     //                                                       (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0                                   assert not false.native                                                                             arc4_types/bool.py:58
-    byte 0x00                  //                                                       (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,0x00                              ARC4Bool(true.native)                                                                               arc4_types/bool.py:60
-    int 0                      //                                                       (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,0x00,0                            ARC4Bool(true.native)                                                                               arc4_types/bool.py:60
-    dig 3                      // load tmp%0#0 from l-stack (copy)                      (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,0x00,0,tmp%0#0 (copy)             ARC4Bool(true.native)                                                                               arc4_types/bool.py:60
-    setbit                     //                                                       (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,{setbit}                          ARC4Bool(true.native)                                                                               arc4_types/bool.py:60
-                               // virtual: store encoded_bool%0#0 to l-stack (no copy)  (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,encoded_bool%0#0                  ARC4Bool(true.native)                                                                               arc4_types/bool.py:60
-    frame_dig -2               // load true#0 from parameters                           (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,encoded_bool%0#0,true#0 (copy)    true == ARC4Bool(true.native)                                                                       arc4_types/bool.py:60
-    uncover 1                  // load encoded_bool%0#0 from l-stack (no copy)          (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,true#0 (copy),encoded_bool%0#0    true == ARC4Bool(true.native)                                                                       arc4_types/bool.py:60
-    ==                         //                                                       (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,{==}                              true == ARC4Bool(true.native)                                                                       arc4_types/bool.py:60
-                               // virtual: store tmp%3#0 to l-stack (no copy)           (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,tmp%3#0                           true == ARC4Bool(true.native)                                                                       arc4_types/bool.py:60
-                               // virtual: load tmp%3#0 from l-stack (no copy)          (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,tmp%3#0                           assert true == ARC4Bool(true.native)                                                                arc4_types/bool.py:60
-    assert                     //                                                       (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0                                   assert true == ARC4Bool(true.native)                                                                arc4_types/bool.py:60
-    byte 0x00                  //                                                       (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,0x00                              ARC4Bool(false.native)                                                                              arc4_types/bool.py:61
-    int 0                      //                                                       (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,0x00,0                            ARC4Bool(false.native)                                                                              arc4_types/bool.py:61
-    uncover 2                  // load tmp%1#0 from l-stack (no copy)                   (𝕡) true#0,false#0 | tmp%0#0,0x00,0,tmp%1#0                            ARC4Bool(false.native)                                                                              arc4_types/bool.py:61
-    setbit                     //                                                       (𝕡) true#0,false#0 | tmp%0#0,{setbit}                                  ARC4Bool(false.native)                                                                              arc4_types/bool.py:61
-                               // virtual: store encoded_bool%1#0 to l-stack (no copy)  (𝕡) true#0,false#0 | tmp%0#0,encoded_bool%1#0                          ARC4Bool(false.native)                                                                              arc4_types/bool.py:61
-    frame_dig -1               // load false#0 from parameters                          (𝕡) true#0,false#0 | tmp%0#0,encoded_bool%1#0,false#0 (copy)           false == ARC4Bool(false.native)                                                                     arc4_types/bool.py:61
-    uncover 1                  // load encoded_bool%1#0 from l-stack (no copy)          (𝕡) true#0,false#0 | tmp%0#0,false#0 (copy),encoded_bool%1#0           false == ARC4Bool(false.native)                                                                     arc4_types/bool.py:61
-    ==                         //                                                       (𝕡) true#0,false#0 | tmp%0#0,{==}                                      false == ARC4Bool(false.native)                                                                     arc4_types/bool.py:61
-                               // virtual: store tmp%4#0 to l-stack (no copy)           (𝕡) true#0,false#0 | tmp%0#0,tmp%4#0                                   false == ARC4Bool(false.native)                                                                     arc4_types/bool.py:61
-                               // virtual: load tmp%4#0 from l-stack (no copy)          (𝕡) true#0,false#0 | tmp%0#0,tmp%4#0                                   assert false == ARC4Bool(false.native)                                                              arc4_types/bool.py:61
-    assert                     //                                                       (𝕡) true#0,false#0 | tmp%0#0                                           assert false == ARC4Bool(false.native)                                                              arc4_types/bool.py:61
-                               // virtual: load tmp%0#0 from l-stack (no copy)          (𝕡) true#0,false#0 | tmp%0#0                                           return true.native                                                                                  arc4_types/bool.py:63
-    retsub                     //                                                       tmp%0#0                                                                return true.native                                                                                  arc4_types/bool.py:63
+test_stuff_block@0:                                                   (𝕡) true#0,false#0 |
+    // arc4_types/bool.py:56
+    // assert true.native
+    p-load true#0                                                     (𝕡) true#0,false#0 | true#0 (copy)
+    int 0                                                             (𝕡) true#0,false#0 | true#0 (copy),0
+    getbit                                                            (𝕡) true#0,false#0 | tmp%0#0
+    l-load-copy tmp%0#0 0                                             (𝕡) true#0,false#0 | tmp%0#0,tmp%0#0 (copy)
+    assert                                                            (𝕡) true#0,false#0 | tmp%0#0
+    // arc4_types/bool.py:58
+    // assert not false.native
+    p-load false#0                                                    (𝕡) true#0,false#0 | tmp%0#0,false#0 (copy)
+    int 0                                                             (𝕡) true#0,false#0 | tmp%0#0,false#0 (copy),0
+    getbit                                                            (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0
+    l-load-copy tmp%1#0 0                                             (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,tmp%1#0 (copy)
+    !                                                                 (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,tmp%2#0
+    assert                                                            (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0
+    // arc4_types/bool.py:60
+    // assert true == ARC4Bool(true.native)
+    byte 0x00                                                         (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,0x00
+    int 0                                                             (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,0x00,0
+    l-load-copy tmp%0#0 3                                             (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,0x00,0,tmp%0#0 (copy)
+    setbit                                                            (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,encoded_bool%0#0
+    p-load true#0                                                     (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,encoded_bool%0#0,true#0 (copy)
+    l-load encoded_bool%0#0 1                                         (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,true#0 (copy),encoded_bool%0#0
+    ==                                                                (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,tmp%3#0
+    assert                                                            (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0
+    // arc4_types/bool.py:61
+    // assert false == ARC4Bool(false.native)
+    byte 0x00                                                         (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,0x00
+    int 0                                                             (𝕡) true#0,false#0 | tmp%0#0,tmp%1#0,0x00,0
+    l-load tmp%1#0 2                                                  (𝕡) true#0,false#0 | tmp%0#0,0x00,0,tmp%1#0
+    setbit                                                            (𝕡) true#0,false#0 | tmp%0#0,encoded_bool%1#0
+    p-load false#0                                                    (𝕡) true#0,false#0 | tmp%0#0,encoded_bool%1#0,false#0 (copy)
+    l-load encoded_bool%1#0 1                                         (𝕡) true#0,false#0 | tmp%0#0,false#0 (copy),encoded_bool%1#0
+    ==                                                                (𝕡) true#0,false#0 | tmp%0#0,tmp%4#0
+    assert                                                            (𝕡) true#0,false#0 | tmp%0#0
+    // arc4_types/bool.py:63
+    // return true.native
+    l-load tmp%0#0 0                                                  (𝕡) true#0,false#0 | tmp%0#0
+    retsub                                                            tmp%0#0
+
 

@@ -1,15 +1,16 @@
 #pragma version 10
 
 test_cases.less_simple.contract.MyContract.approval_program:
+    intcblock 0 1
     // less_simple/contract.py:9
     // a = UInt64(1)
-    pushint 1 // 1
+    intc_1 // 1
     // less_simple/contract.py:10
     // sum_of_evens = UInt64(0)
-    pushint 0 // 0
+    intc_0 // 0
     // less_simple/contract.py:11
     // product_of_odds = UInt64(0)
-    pushint 0 // 0
+    dup
 
 main_while_top@1:
     // less_simple/contract.py:12
@@ -23,7 +24,7 @@ main_while_top@1:
     dig 2
     pushint 5 // 5
     %
-    pushint 0 // 0
+    intc_0 // 0
     ==
     bz main_after_if_else@4
     // less_simple/contract.py:14
@@ -36,7 +37,7 @@ main_after_if_else@4:
     dig 2
     pushint 21 // 21
     %
-    pushint 0 // 0
+    intc_0 // 0
     ==
     bz main_after_if_else@6
     // less_simple/contract.py:16
@@ -49,7 +50,7 @@ main_after_if_else@6:
     dig 2
     pushint 2 // 2
     %
-    pushint 0 // 0
+    intc_0 // 0
     ==
     bz main_else_body@8
     // less_simple/contract.py:18
@@ -63,8 +64,8 @@ main_after_if_else@6:
 main_else_body@8:
     // less_simple/contract.py:20
     // if product_of_odds == 0:
-    dig 0
-    pushint 0 // 0
+    dup
+    intc_0 // 0
     ==
     bz main_else_body@10
     // less_simple/contract.py:21
@@ -76,7 +77,7 @@ main_else_body@8:
 main_else_body@10:
     // less_simple/contract.py:23
     // product_of_odds *= a
-    dig 0
+    dup
     dig 3
     *
     bury 1
@@ -87,7 +88,7 @@ main_after_if_else@12:
     // less_simple/contract.py:24
     // a += 1
     dig 2
-    pushint 1 // 1
+    intc_1 // 1
     +
     bury 3
     b main_while_top@1
@@ -95,7 +96,7 @@ main_after_if_else@12:
 main_after_while@13:
     // less_simple/contract.py:25
     // return product_of_odds - sum_of_evens
-    dig 0
+    dup
     dig 2
     -
     return

@@ -1,7 +1,8 @@
 #pragma version 10
 
 test_cases.compile.apps.HelloPrfx.approval_program:
-    bytecblock PRFX_GREETING
+    intcblock 0 1
+    bytecblock "greeting" PRFX_GREETING
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -17,7 +18,7 @@ __puya_arc4_router__:
     // class HelloPrfx(HelloBase):
     proto 0 1
     txn NumAppArgs
-    pushint 0 // 0
+    intc_0 // 0
     !=
     bz __puya_arc4_router___bare_routing@7
     txna ApplicationArgs 0
@@ -32,15 +33,15 @@ __puya_arc4_router___create_route@2:
     // compile/apps.py:76
     // @arc4.abimethod(create="require")
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     ==
     assert // is creating
     callsub create
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___delete_route@3:
@@ -51,22 +52,22 @@ __puya_arc4_router___delete_route@3:
     ==
     assert // OnCompletion is DeleteApplication
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     callsub delete
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___greet_route@4:
     // compile/apps.py:33
     // @arc4.abimethod()
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     // compile/apps.py:71
@@ -76,17 +77,17 @@ __puya_arc4_router___greet_route@4:
     // compile/apps.py:33
     // @arc4.abimethod()
     callsub greet
-    dig 0
+    dup
     len
     itob
     extract 6 2
-    uncover 1
+    swap
     concat
     pushbytes 0x151f7c75
-    uncover 1
+    swap
     concat
     log
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@5:
@@ -97,7 +98,7 @@ __puya_arc4_router___bare_routing@7:
     // class HelloPrfx(HelloBase):
     txn OnCompletion
     pushint 4 // 4
-    uncover 1
+    swap
     match __puya_arc4_router___update@8
     b __puya_arc4_router___switch_case_default@9
 
@@ -105,14 +106,14 @@ __puya_arc4_router___update@8:
     // compile/apps.py:29
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     // compile/apps.py:29-30
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     // def update(self) -> None:
     callsub update
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@9:
@@ -120,7 +121,7 @@ __puya_arc4_router___switch_case_default@9:
 __puya_arc4_router___after_if_else@11:
     // compile/apps.py:71
     // class HelloPrfx(HelloBase):
-    pushint 0 // 0
+    intc_0 // 0
     retsub
 
 
@@ -150,8 +151,8 @@ greet:
     proto 1 1
     // compile/apps.py:35
     // return self.greeting + " " + name
-    pushint 0 // 0
-    pushbytes "greeting"
+    intc_0 // 0
+    bytec_0 // "greeting"
     app_global_get_ex
     assert // check self.greeting exists
     pushbytes " "
@@ -177,7 +178,7 @@ __init__:
     proto 0 0
     // compile/apps.py:74
     // self.greeting = TemplateVar[String]("GREETING", prefix="PRFX_")
-    pushbytes "greeting"
-    bytec_0 // PRFX_GREETING
+    bytec_0 // "greeting"
+    bytec_1 // PRFX_GREETING
     app_global_put
     retsub

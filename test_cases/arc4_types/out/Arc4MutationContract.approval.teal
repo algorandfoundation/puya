@@ -46,9 +46,9 @@ dynamic_array_fixed_size:
     // popped = dynamic_uint8_array.pop()
     intc_2 // 1
     callsub dynamic_array_pop_fixed_size
-    swap
     // arc4_types/mutation.py:160
     // assert popped == UInt8(90)
+    swap
     pushbytes 0x5a
     b==
     assert
@@ -87,10 +87,9 @@ dynamic_array_bool:
     dup
     intc_0 // 0
     extract_uint16
-    swap
-    dup
+    dig 1
     extract 2 0
-    uncover 2
+    swap
     intc_2 // 1
     callsub dynamic_array_concat_bits
     // arc4_types/mutation.py:177-186
@@ -187,20 +186,15 @@ dynamic_array_string:
     dup
     intc_0 // 0
     extract_uint16
-    swap
-    dup
+    dig 1
     extract 2 0
-    swap
-    dig 2
+    dig 1
     intc_1 // 2
     *
-    swap
-    dig 2
+    dig 1
     len
-    swap
-    cover 3
     substring3
-    uncover 2
+    swap
     callsub dynamic_array_concat_byte_length_head
     // arc4_types/mutation.py:231
     // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
@@ -294,21 +288,17 @@ array_of_array_dynamic:
     // array_of_array[0].append(UInt8(255))
     dup
     extract 2 0
-    swap
-    dup
+    dig 1
     intc_0 // 0
     extract_uint16
     assert // Index access is out of bounds
-    dig 1
+    dup
     intc_0 // 0
     extract_uint16
-    dig 2
-    dig 1
+    dup2
     extract_uint16
     intc_1 // 2
     +
-    uncover 3
-    cover 2
     extract3
     extract 2 0
     bytec_1 // 0xff
@@ -331,21 +321,17 @@ array_of_array_dynamic:
     // array_of_array[0][1] = UInt8(0)
     dup
     extract 2 0
-    swap
-    dup
+    dig 1
     intc_0 // 0
     extract_uint16
     assert // Index access is out of bounds
-    dig 1
+    dup
     intc_0 // 0
     extract_uint16
-    dig 2
-    dig 1
+    dup2
     extract_uint16
     intc_1 // 2
     +
-    uncover 3
-    cover 2
     extract3
     dup
     intc_0 // 0
@@ -467,32 +453,29 @@ struct_assign:
     intc_0 // 0
     dig 2
     extract3
-    swap
     dig 2
     pushint 4 // 4
     extract_uint16
-    swap
     dig 3
     len
-    swap
     uncover 4
-    dig 3
-    uncover 3
+    dig 2
+    uncover 2
     substring3
-    uncover 3
+    uncover 2
     pushbytes 0x0005486d6d6d6d
     concat
     swap
     concat
-    cover 2
-    -
     swap
-    dup
+    uncover 2
+    -
+    dig 1
     pushint 4 // 4
     extract_uint16
     intc_3 // 7
     +
-    uncover 2
+    swap
     -
     itob
     extract 6 2
@@ -564,10 +547,10 @@ dynamic_array_pop_bit:
     intc_0 // 0
     uncover 2
     setbit
-    cover 3
+    cover 2
     intc_0 // 0
     setbit
-    swap
+    uncover 2
     intc_3 // 7
     +
     pushint 8 // 8
@@ -600,9 +583,9 @@ dynamic_array_pop_fixed_size:
     dup2
     frame_dig -1
     extract3
-    cover 2
+    uncover 2
     intc_0 // 0
-    swap
+    uncover 3
     substring3
     retsub
 
@@ -623,24 +606,22 @@ dynamic_array_pop_byte_length_head:
     dup
     dig 2
     extract_uint16
-    swap
-    dup
+    dig 1
     len
-    swap
-    dup
-    dig 3
-    uncover 3
+    dig 2
+    dig 2
+    uncover 2
     substring3
-    cover 3
-    dup
+    dig 2
     intc_0 // 0
-    dig 4
+    dig 5
     substring3
-    cover 2
-    uncover 3
+    uncover 4
     intc_1 // 2
     +
-    uncover 2
+    uncover 4
+    swap
+    uncover 4
     substring3
     concat
     dig 2
@@ -760,14 +741,12 @@ dynamic_array_concat_byte_length_head:
     *
     intc_1 // 2
     +
-    swap
-    dup
+    dig 1
     itob
     extract 6 2
-    swap
     frame_dig -3
     intc_1 // 2
-    dig 4
+    dig 3
     substring3
     frame_dig -1
     intc_1 // 2
@@ -777,13 +756,13 @@ dynamic_array_concat_byte_length_head:
     frame_dig -3
     len
     frame_dig -3
-    uncover 5
+    uncover 4
     uncover 2
     substring3
     concat
     frame_dig -2
     concat
-    swap
+    uncover 2
     intc_0 // 0
     callsub recalculate_head_for_elements_with_byte_length_head
     concat
@@ -827,10 +806,9 @@ static_array_replace_byte_length_head:
     +
     intc_1 // 2
     +
-    swap
     frame_dig -4
     intc_0 // 0
-    uncover 2
+    uncover 3
     substring3
     frame_dig -3
     concat

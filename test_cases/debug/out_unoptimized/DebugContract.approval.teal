@@ -1,7 +1,8 @@
 #pragma version 10
 
 test_cases.debug.contract.DebugContract.approval_program:
-    intcblock TMPL_A_MULT
+    intcblock 0 1 TMPL_A_MULT
+    bytecblock 0x30313233343536373839 " "
     callsub __puya_arc4_router__
     return
 
@@ -12,12 +13,12 @@ __puya_arc4_router__:
     // class DebugContract(arc4.ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    pushint 0 // 0
+    intc_0 // 0
     !=
     bz __puya_arc4_router___bare_routing@5
     txna ApplicationArgs 0
     pushbytes 0x53574bff // method "test(uint64,uint64,uint64)uint64"
-    uncover 1
+    swap
     match __puya_arc4_router___test_route@2
     b __puya_arc4_router___switch_case_default@3
 
@@ -25,11 +26,11 @@ __puya_arc4_router___test_route@2:
     // debug/contract.py:5
     // @arc4.abimethod
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     // debug/contract.py:4
@@ -48,10 +49,10 @@ __puya_arc4_router___test_route@2:
     callsub test
     itob
     pushbytes 0x151f7c75
-    uncover 1
+    swap
     concat
     log
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@3:
@@ -61,8 +62,8 @@ __puya_arc4_router___bare_routing@5:
     // debug/contract.py:4
     // class DebugContract(arc4.ARC4Contract):
     txn OnCompletion
-    pushint 0 // 0
-    uncover 1
+    intc_0 // 0
+    swap
     match __puya_arc4_router_____algopy_default_create@6
     b __puya_arc4_router___switch_case_default@7
 
@@ -70,11 +71,11 @@ __puya_arc4_router_____algopy_default_create@6:
     // debug/contract.py:4
     // class DebugContract(arc4.ARC4Contract):
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     ==
     assert // is creating
     callsub __algopy_default_create
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@7:
@@ -82,7 +83,7 @@ __puya_arc4_router___switch_case_default@7:
 __puya_arc4_router___after_if_else@9:
     // debug/contract.py:4
     // class DebugContract(arc4.ARC4Contract):
-    pushint 0 // 0
+    intc_0 // 0
     retsub
 
 
@@ -92,30 +93,26 @@ test:
     // @arc4.abimethod
     // def test(self, x: UInt64, y: UInt64, z: UInt64) -> UInt64:
     proto 3 1
-    pushint 0 // 0
-    pushint 0 // 0
+    intc_0 // 0
+    dup
     pushbytes ""
-    pushbytes ""
+    dup
     // debug/contract.py:8
     // a = x * TemplateVar[UInt64]("A_MULT")
     frame_dig -3
-    intc_0 // TMPL_A_MULT
+    intc_2 // TMPL_A_MULT
     *
     // debug/contract.py:9
     // b = x + y
     frame_dig -3
     frame_dig -2
     +
-    dup
-    cover 1
-    cover 1
+    dupn 2
     // debug/contract.py:10
     // c = b * z
-    dig 0
     frame_dig -1
     *
     dup
-    cover 1
     cover 2
     // debug/contract.py:11
     // if b < c:
@@ -164,10 +161,9 @@ test_else_body@6:
     // elif b > a:
     frame_dig 5
     dup
-    cover 1
     frame_dig 4
     >
-    uncover 1
+    swap
     frame_bury 3
     bz test_after_if_else@8
     // debug/contract.py:18
@@ -198,7 +194,6 @@ test_after_if_else@11:
     // a *= some_func(a, y)
     frame_dig 4
     dup
-    cover 1
     frame_dig -2
     callsub some_func
     *
@@ -210,7 +205,6 @@ test_else_body@13:
     // b *= some_func(b, z)
     frame_dig 5
     dup
-    cover 1
     frame_dig -1
     callsub some_func
     *
@@ -221,7 +215,6 @@ test_after_if_else@14:
     // bee = itoa(b)
     frame_dig 5
     dup
-    cover 1
     callsub itoa
     frame_bury 0
     // debug/contract.py:26
@@ -229,22 +222,19 @@ test_after_if_else@14:
     frame_dig 4
     dup
     cover 2
-    uncover 1
     +
     dup
-    cover 1
     frame_bury 6
     // debug/contract.py:27
     // cea = itoa(c)
-    dig 0
+    dup
     callsub itoa
     frame_bury 1
     // debug/contract.py:29
     // if a < c:
     dig 1
-    uncover 1
-    <
-    uncover 1
+    >
+    swap
     frame_bury 2
     bz test_after_if_else@16
     // debug/contract.py:30
@@ -257,14 +247,13 @@ test_after_if_else@14:
 test_after_if_else@16:
     frame_dig 2
     dup
-    cover 1
     frame_bury 4
     // debug/contract.py:31
     // if a < b:
-    dig 0
+    dup
     frame_dig 5
     <
-    uncover 1
+    swap
     frame_bury 2
     bz test_after_if_else@18
     // debug/contract.py:32
@@ -277,7 +266,6 @@ test_after_if_else@16:
 test_after_if_else@18:
     frame_dig 2
     dup
-    cover 1
     frame_bury 4
     // debug/contract.py:33
     // if a < b + c:
@@ -285,9 +273,8 @@ test_after_if_else@18:
     frame_dig 6
     +
     dig 1
-    uncover 1
-    <
-    uncover 1
+    >
+    swap
     frame_bury 2
     bz test_after_if_else@20
     // debug/contract.py:34
@@ -301,15 +288,15 @@ test_after_if_else@20:
     frame_dig 2
     // debug/contract.py:36
     // aye = itoa(a)
-    dig 0
+    dup
     callsub itoa
     // debug/contract.py:37
     // log(aye, bee, cea, sep=" ")
-    pushbytes " "
+    bytec_1 // " "
     concat
     frame_dig 0
     concat
-    pushbytes " "
+    bytec_1 // " "
     concat
     frame_dig 1
     concat
@@ -343,16 +330,16 @@ some_func:
     frame_dig -2
     frame_dig -1
     +
+    dup
     frame_bury -2
     // debug/contract.py:47
     // a *= 2
-    frame_dig -2
     pushint 2 // 2
     *
+    dup
     frame_bury -2
     // debug/contract.py:48
     // x = a + b
-    frame_dig -2
     frame_dig -1
     +
     // debug/contract.py:49
@@ -362,10 +349,9 @@ some_func:
     *
     // debug/contract.py:50
     // return x if x < y else y
-    dig 1
-    dig 1
+    dup2
     <
-    cover 1
+    swap
     uncover 2
     uncover 2
     select
@@ -380,33 +366,30 @@ itoa:
     proto 1 1
     // debug/contract.py:55
     // digits = Bytes(b"0123456789")
-    pushbytes 0x30313233343536373839
+    bytec_0 // 0x30313233343536373839
     // debug/contract.py:56
     // radix = digits.length
     len
     dup
-    cover 1
-    cover 1
     // debug/contract.py:57
     // if i < radix:
     frame_dig -1
-    uncover 1
-    <
+    >
     bz itoa_after_if_else@2
     // debug/contract.py:58
     // return digits[i]
     frame_dig -1
-    pushint 1 // 1
+    intc_1 // 1
     +
     // debug/contract.py:55
     // digits = Bytes(b"0123456789")
-    pushbytes 0x30313233343536373839
+    bytec_0 // 0x30313233343536373839
     // debug/contract.py:58
     // return digits[i]
     frame_dig -1
     uncover 2
     substring3
-    uncover 1
+    swap
     retsub
 
 itoa_after_if_else@2:
@@ -418,23 +401,23 @@ itoa_after_if_else@2:
     cover 2
     /
     callsub itoa
-    cover 1
+    swap
     frame_dig -1
-    uncover 1
+    swap
     %
-    dig 0
-    pushint 1 // 1
+    dup
+    intc_1 // 1
     +
     // debug/contract.py:55
     // digits = Bytes(b"0123456789")
-    pushbytes 0x30313233343536373839
+    bytec_0 // 0x30313233343536373839
     // debug/contract.py:59
     // return itoa(i // radix) + digits[i % radix]
     uncover 2
     uncover 2
     substring3
     concat
-    uncover 1
+    swap
     retsub
 
 

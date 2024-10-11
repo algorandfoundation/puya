@@ -2,16 +2,15 @@
 
 test_cases.enumeration.contract.EnumerationContract.approval_program:
     intcblock 1 0 3 21
-    bytecblock 0x
     pushint 10 // 10
     intc_3 // 21
     pushint 5 // 5
     callsub enumerate_urange
-    cover 2
-    swap
+    uncover 2
     pushint 6 // 6
     ==
     assert
+    swap
     pushint 90 // 90
     ==
     assert
@@ -20,11 +19,11 @@ test_cases.enumeration.contract.EnumerationContract.approval_program:
     assert
     pushbytess 0x486f77 0x4e6f77 0x42726f776e 0x436f77 // 0x486f77, 0x4e6f77, 0x42726f776e, 0x436f77
     callsub enumerate_tuple
-    cover 2
-    swap
+    uncover 2
     pushint 8 // 8
     ==
     assert
+    swap
     pushbytes 0x486f774e6f7742726f776e436f77486f774e6f7742726f776e436f77
     ==
     assert
@@ -33,11 +32,11 @@ test_cases.enumeration.contract.EnumerationContract.approval_program:
     assert
     pushbytes 0x61626364656667
     callsub enumerate_bytes
-    cover 2
-    swap
+    uncover 2
     pushint 14 // 14
     ==
     assert
+    swap
     pushbytes 0x6162636465666761626364656667
     ==
     assert
@@ -51,7 +50,7 @@ test_cases.enumeration.contract.EnumerationContract.approval_program:
 // test_cases.enumeration.contract.enumerate_urange(start: uint64, stop: uint64, step: uint64) -> uint64, uint64, uint64:
 enumerate_urange:
     proto 3 3
-    bytec_0 // ""
+    pushbytes ""
     intc_1 // 0
     dupn 2
     frame_dig -1
@@ -127,7 +126,7 @@ enumerate_urange_after_for@8:
 enumerate_tuple:
     proto 4 3
     intc_1 // 0
-    bytec_0 // 0x
+    pushbytes 0x
     intc_1 // 0
     frame_dig -4
     intc_1 // 0
@@ -207,10 +206,9 @@ enumerate_tuple_for_header_3@11:
 // test_cases.enumeration.contract.enumerate_bytes(bytes_: bytes) -> uint64, bytes, uint64:
 enumerate_bytes:
     proto 1 3
-    bytec_0 // ""
+    pushbytes ""
     intc_1 // 0
-    bytec_0 // 0x
-    intc_1 // 0
+    dup2
     frame_dig -1
     len
     intc_1 // 0

@@ -1,6 +1,7 @@
 #pragma version 10
 
 test_cases.application.contract.Reference.approval_program:
+    intcblock 1 0
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -9,7 +10,7 @@ main_entrypoint@2:
     // application/contract.py:27
     // if op.Txn.num_app_args == 1:
     txn NumAppArgs
-    pushint 1 // 1
+    intc_0 // 1
     ==
     bz main_after_if_else@7
     // application/contract.py:28
@@ -34,7 +35,7 @@ main_after_if_else@6:
 main_after_if_else@7:
     // application/contract.py:32
     // return True
-    pushint 1 // 1
+    intc_0 // 1
     return
 
 
@@ -64,7 +65,7 @@ validate_asset:
     frame_dig -1
     app_params_get AppGlobalNumUint
     assert // application exists
-    pushint 1 // 1
+    intc_0 // 1
     ==
     assert // expected global_num_uint
     // application/contract.py:42
@@ -97,7 +98,7 @@ validate_asset:
     app_params_get AppApprovalProgram
     assert // application exists
     len
-    pushint 0 // 0
+    intc_1 // 0
     !=
     assert // expected approval_program
     // application/contract.py:46
@@ -106,14 +107,13 @@ validate_asset:
     app_params_get AppClearStateProgram
     assert // application exists
     len
-    pushint 0 // 0
+    intc_1 // 0
     !=
     assert // expected clear_state_program
     // application/contract.py:47
     // assert app == op.Global.current_application_id, "expected current_application_id"
     global CurrentApplicationID
     frame_dig -1
-    uncover 1
     ==
     assert // expected current_application_id
     // application/contract.py:49
@@ -139,7 +139,7 @@ __init__:
     // application/contract.py:15
     // self.int_1 = UInt64(0)
     pushbytes "int_1"
-    pushint 0 // 0
+    intc_1 // 0
     app_global_put
     // application/contract.py:16
     // self.bytes_1 = Bytes(b"")

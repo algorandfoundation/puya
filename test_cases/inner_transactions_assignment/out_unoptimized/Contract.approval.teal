@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.inner_transactions_assignment.contract.Contract.approval_program:
+    intcblock 0 1 3
+    bytecblock 0x61636667 0x70617932 "pay1" "TEST" "TST" 0x6163666732 0x70617935 "pay3" 0x6869 0x7468657265 0x6d61796265 0x686932 0x746865726532
     callsub __puya_arc4_router__
     return
 
@@ -11,7 +13,7 @@ __puya_arc4_router__:
     // class Contract(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    pushint 0 // 0
+    intc_0 // 0
     !=
     bz __puya_arc4_router___bare_routing@6
     txna ApplicationArgs 0
@@ -25,30 +27,30 @@ __puya_arc4_router___test_itxn_slice_route@2:
     // inner_transactions_assignment/contract.py:13
     // @arc4.abimethod
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     callsub test_itxn_slice
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___test_itxn_nested_route@3:
     // inner_transactions_assignment/contract.py:30
     // @arc4.abimethod
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     callsub test_itxn_nested
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@4:
@@ -58,8 +60,8 @@ __puya_arc4_router___bare_routing@6:
     // inner_transactions_assignment/contract.py:11
     // class Contract(ARC4Contract):
     txn OnCompletion
-    pushint 0 // 0
-    uncover 1
+    intc_0 // 0
+    swap
     match __puya_arc4_router_____algopy_default_create@7
     b __puya_arc4_router___switch_case_default@8
 
@@ -67,11 +69,11 @@ __puya_arc4_router_____algopy_default_create@7:
     // inner_transactions_assignment/contract.py:11
     // class Contract(ARC4Contract):
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     ==
     assert // is creating
     callsub __algopy_default_create
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@8:
@@ -79,7 +81,7 @@ __puya_arc4_router___switch_case_default@8:
 __puya_arc4_router___after_if_else@10:
     // inner_transactions_assignment/contract.py:11
     // class Contract(ARC4Contract):
-    pushint 0 // 0
+    intc_0 // 0
     retsub
 
 
@@ -94,104 +96,102 @@ test_itxn_slice:
     txn Sender
     // inner_transactions_assignment/contract.py:22
     // pay2 = pay1.copy()
-    dig 0
-    dup
-    cover 1
+    dupn 2
     cover 2
     // inner_transactions_assignment/contract.py:24
     // pay3 = pay2.copy()
-    cover 1
+    swap
     // inner_transactions_assignment/contract.py:26
     // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
     itxn_begin
     // inner_transactions_assignment/contract.py:21
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
-    pushbytes "pay1"
+    bytec_2 // "pay1"
     itxn_field Note
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Amount
     itxn_field Receiver
-    pushint 1 // pay
+    intc_1 // pay
     itxn_field TypeEnum
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Fee
     // inner_transactions_assignment/contract.py:26
     // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
     itxn_next
     // inner_transactions_assignment/contract.py:19
     // total=1,
-    pushint 1 // 1
+    intc_1 // 1
     itxn_field ConfigAssetTotal
     // inner_transactions_assignment/contract.py:18
     // note="acfg",
-    pushbytes "acfg"
+    bytec_0 // "acfg"
     itxn_field Note
     // inner_transactions_assignment/contract.py:17
     // asset_name="TEST",
-    pushbytes "TEST"
+    bytec_3 // "TEST"
     itxn_field ConfigAssetName
     // inner_transactions_assignment/contract.py:16
     // unit_name="TST",
-    pushbytes "TST"
+    bytec 4 // "TST"
     itxn_field ConfigAssetUnitName
     // inner_transactions_assignment/contract.py:15
     // acfg = itxn.AssetConfig(
-    pushint 3 // acfg
+    intc_2 // acfg
     itxn_field TypeEnum
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Fee
     // inner_transactions_assignment/contract.py:26
     // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
     itxn_next
     // inner_transactions_assignment/contract.py:21
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
-    pushint 1 // pay
+    intc_1 // pay
     itxn_field TypeEnum
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Amount
     frame_dig 0
     itxn_field Receiver
     // inner_transactions_assignment/contract.py:23
     // pay2.set(note="pay2")
-    pushbytes "pay2"
+    bytec_1 // "pay2"
     itxn_field Note
     // inner_transactions_assignment/contract.py:21
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Fee
     // inner_transactions_assignment/contract.py:26
     // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
     itxn_next
     // inner_transactions_assignment/contract.py:21
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
-    pushint 1 // pay
+    intc_1 // pay
     itxn_field TypeEnum
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Amount
     frame_dig 1
     itxn_field Receiver
     // inner_transactions_assignment/contract.py:25
     // pay3.set(note="pay3")
-    pushbytes "pay3"
+    bytec 7 // "pay3"
     itxn_field Note
     // inner_transactions_assignment/contract.py:21
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Fee
     // inner_transactions_assignment/contract.py:26
     // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
     itxn_submit
     gitxn 1 Note
     gitxn 2 Note
-    cover 1
+    swap
     // inner_transactions_assignment/contract.py:27
     // assert sliced_txns[0].note == b"acfg"
-    pushbytes 0x61636667
+    bytec_0 // 0x61636667
     ==
     assert
     // inner_transactions_assignment/contract.py:28
     // assert sliced_txns[1].note == b"pay2"
-    pushbytes 0x70617932
+    bytec_1 // 0x70617932
     ==
     assert
     retsub
@@ -203,116 +203,106 @@ test_itxn_nested:
     // @arc4.abimethod
     // def test_itxn_nested(self) -> None:
     proto 0 0
-    pushint 0 // 0
-    pushint 0 // 0
-    pushint 0 // 0
-    pushint 0 // 0
-    pushint 0 // 0
-    pushint 0 // 0
-    pushint 0 // 0
+    intc_0 // 0
+    dupn 6
     // inner_transactions_assignment/contract.py:38
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
     txn Sender
-    dup
-    cover 1
-    cover 1
+    dupn 3
     // inner_transactions_assignment/contract.py:39
     // pay2 = pay1.copy()
-    dig 0
-    dup
-    cover 1
     cover 2
     // inner_transactions_assignment/contract.py:41
     // pay3 = pay2.copy()
-    cover 1
+    swap
     // inner_transactions_assignment/contract.py:44
     // echo(Bytes(b"hi")),
-    pushbytes 0x6869
+    bytec 8 // 0x6869
     callsub echo
-    cover 1
+    swap
     // inner_transactions_assignment/contract.py:45
     // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
     itxn_begin
     // inner_transactions_assignment/contract.py:38
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
-    pushbytes "pay1"
+    bytec_2 // "pay1"
     itxn_field Note
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Amount
     itxn_field Receiver
-    pushint 1 // pay
+    intc_1 // pay
     itxn_field TypeEnum
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Fee
     // inner_transactions_assignment/contract.py:45
     // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
     itxn_next
     // inner_transactions_assignment/contract.py:36
     // total=1,
-    pushint 1 // 1
+    intc_1 // 1
     itxn_field ConfigAssetTotal
     // inner_transactions_assignment/contract.py:35
     // note="acfg",
-    pushbytes "acfg"
+    bytec_0 // "acfg"
     itxn_field Note
     // inner_transactions_assignment/contract.py:34
     // asset_name="TEST",
-    pushbytes "TEST"
+    bytec_3 // "TEST"
     itxn_field ConfigAssetName
     // inner_transactions_assignment/contract.py:33
     // unit_name="TST",
-    pushbytes "TST"
+    bytec 4 // "TST"
     itxn_field ConfigAssetUnitName
     // inner_transactions_assignment/contract.py:32
     // acfg = itxn.AssetConfig(
-    pushint 3 // acfg
+    intc_2 // acfg
     itxn_field TypeEnum
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Fee
     // inner_transactions_assignment/contract.py:45
     // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
     itxn_next
     // inner_transactions_assignment/contract.py:38
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
-    pushint 1 // pay
+    intc_1 // pay
     itxn_field TypeEnum
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Amount
     frame_dig 8
     itxn_field Receiver
     // inner_transactions_assignment/contract.py:40
     // pay2.set(note="pay2")
-    pushbytes "pay2"
+    bytec_1 // "pay2"
     itxn_field Note
     // inner_transactions_assignment/contract.py:38
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Fee
     // inner_transactions_assignment/contract.py:45
     // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
     itxn_next
     // inner_transactions_assignment/contract.py:38
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
-    pushint 1 // pay
+    intc_1 // pay
     itxn_field TypeEnum
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Amount
     frame_dig 9
     itxn_field Receiver
     // inner_transactions_assignment/contract.py:42
     // pay3.set(note="pay3")
-    pushbytes "pay3"
+    bytec 7 // "pay3"
     itxn_field Note
     // inner_transactions_assignment/contract.py:38
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Fee
     // inner_transactions_assignment/contract.py:45
     // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
     itxn_submit
     // inner_transactions_assignment/contract.py:46
     // echo(Bytes(b"there")),
-    pushbytes 0x7468657265
+    bytec 9 // 0x7468657265
     callsub echo
     // inner_transactions_assignment/contract.py:43-47
     // nested_tuple = (
@@ -337,39 +327,39 @@ test_itxn_nested:
     frame_bury 2
     // inner_transactions_assignment/contract.py:48
     // assert nested_tuple[0] == b"hi"
-    pushbytes 0x6869
+    bytec 8 // 0x6869
     ==
     assert
     // inner_transactions_assignment/contract.py:49
     // assert nested_tuple[1][0].note == b"acfg"
-    dig 0
-    pushbytes 0x61636667
+    dup
+    bytec_0 // 0x61636667
     ==
     assert
     // inner_transactions_assignment/contract.py:50
     // assert nested_tuple[1][1].note == b"pay2"
     dig 1
-    pushbytes 0x70617932
+    bytec_1 // 0x70617932
     ==
     assert
     // inner_transactions_assignment/contract.py:51
     // assert nested_tuple[2] == b"there"
     uncover 2
-    pushbytes 0x7468657265
+    bytec 9 // 0x7468657265
     ==
     assert
     frame_bury 4
     frame_bury 5
     // inner_transactions_assignment/contract.py:58
     // if echo(Bytes(b"maybe")) == b"maybe":
-    pushbytes 0x6d61796265
+    bytec 10 // 0x6d61796265
     callsub echo
-    pushbytes 0x6d61796265
+    bytec 10 // 0x6d61796265
     ==
     bz test_itxn_nested_after_if_else@9
     // inner_transactions_assignment/contract.py:60
     // echo(Bytes(b"hi2")),
-    pushbytes 0x686932
+    bytec 11 // 0x686932
     callsub echo
     frame_bury 6
     // inner_transactions_assignment/contract.py:61
@@ -377,66 +367,66 @@ test_itxn_nested:
     itxn_begin
     // inner_transactions_assignment/contract.py:38
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
-    pushbytes "pay1"
+    bytec_2 // "pay1"
     itxn_field Note
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Amount
     frame_dig 7
     itxn_field Receiver
-    pushint 1 // pay
+    intc_1 // pay
     itxn_field TypeEnum
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Fee
     // inner_transactions_assignment/contract.py:61
     // itxn.submit_txns(pay1, acfg, pay3)[1:],
     itxn_next
     // inner_transactions_assignment/contract.py:36
     // total=1,
-    pushint 1 // 1
+    intc_1 // 1
     itxn_field ConfigAssetTotal
     // inner_transactions_assignment/contract.py:54
     // acfg.set(note="acfg2")
-    pushbytes "acfg2"
+    bytec 5 // "acfg2"
     itxn_field Note
     // inner_transactions_assignment/contract.py:34
     // asset_name="TEST",
-    pushbytes "TEST"
+    bytec_3 // "TEST"
     itxn_field ConfigAssetName
     // inner_transactions_assignment/contract.py:33
     // unit_name="TST",
-    pushbytes "TST"
+    bytec 4 // "TST"
     itxn_field ConfigAssetUnitName
     // inner_transactions_assignment/contract.py:32
     // acfg = itxn.AssetConfig(
-    pushint 3 // acfg
+    intc_2 // acfg
     itxn_field TypeEnum
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Fee
     // inner_transactions_assignment/contract.py:61
     // itxn.submit_txns(pay1, acfg, pay3)[1:],
     itxn_next
     // inner_transactions_assignment/contract.py:38
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
-    pushint 1 // pay
+    intc_1 // pay
     itxn_field TypeEnum
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Amount
     frame_dig 9
     itxn_field Receiver
     // inner_transactions_assignment/contract.py:56
     // pay3.set(note="pay5")
-    pushbytes "pay5"
+    bytec 6 // "pay5"
     itxn_field Note
     // inner_transactions_assignment/contract.py:38
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Fee
     // inner_transactions_assignment/contract.py:61
     // itxn.submit_txns(pay1, acfg, pay3)[1:],
     itxn_submit
     // inner_transactions_assignment/contract.py:62
     // echo(Bytes(b"there2")),
-    pushbytes 0x746865726532
+    bytec 12 // 0x746865726532
     callsub echo
     // inner_transactions_assignment/contract.py:59-63
     // nested_tuple = (
@@ -456,54 +446,52 @@ test_itxn_nested_after_if_else@9:
     // inner_transactions_assignment/contract.py:64
     // assert nested_tuple[0] == b"hi2"
     frame_dig 0
-    pushbytes 0x686932
+    bytec 11 // 0x686932
     ==
     assert
     // inner_transactions_assignment/contract.py:65
     // assert nested_tuple[1][0].note == b"acfg2"
     frame_dig 1
     dup
-    cover 1
-    pushbytes 0x6163666732
+    bytec 5 // 0x6163666732
     ==
     assert
     // inner_transactions_assignment/contract.py:66
     // assert nested_tuple[1][1].note == b"pay5"
     frame_dig 2
     dup
-    cover 1
-    pushbytes 0x70617935
+    bytec 6 // 0x70617935
     ==
     assert
     // inner_transactions_assignment/contract.py:67
     // assert nested_tuple[2] == b"there2"
     frame_dig 3
-    pushbytes 0x746865726532
+    bytec 12 // 0x746865726532
     ==
     assert
     frame_dig 4
     frame_dig 5
-    cover 1
+    swap
     uncover 3
     cover 2
     // inner_transactions_assignment/contract.py:71
     // assert mish_mash[0].note == b"acfg"
-    pushbytes 0x61636667
+    bytec_0 // 0x61636667
     ==
     assert
     // inner_transactions_assignment/contract.py:72
     // assert mish_mash[1].note == b"pay2"
-    pushbytes 0x70617932
+    bytec_1 // 0x70617932
     ==
     assert
     // inner_transactions_assignment/contract.py:73
     // assert mish_mash[2][0].note == b"acfg2"
-    pushbytes 0x6163666732
+    bytec 5 // 0x6163666732
     ==
     assert
     // inner_transactions_assignment/contract.py:74
     // assert mish_mash[2][1].note == b"pay5"
-    pushbytes 0x70617935
+    bytec 6 // 0x70617935
     ==
     assert
     retsub

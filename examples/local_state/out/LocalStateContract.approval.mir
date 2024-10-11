@@ -1,352 +1,384 @@
-// Op                                                 // Op Description                                        Stack (out)                                                                                 Source code                                                                                    Source line
-
-#pragma version 10
-
+// Op                                                                                    Stack (out)
 // examples.local_state.local_state_contract.LocalStateContract.approval_program() -> uint64:
 main:
-    int 0
-    byte ""                                           // allocate 2 to stack                                   (𝕗) method#0,awst_tmp%0#0 |
+    allocate 2 to stack                                                                  (𝕗) method#0,awst_tmp%0#0 |
 
-main_block@0:
-    txn ApplicationID                                 //                                                       (𝕗) method#0,awst_tmp%0#0 | {txn}                                                           Txn.application_id                                                                             local_state/local_state_contract.py:21
-                                                      // virtual: store tmp%0#0 to l-stack (no copy)           (𝕗) method#0,awst_tmp%0#0 | tmp%0#0                                                         Txn.application_id                                                                             local_state/local_state_contract.py:21
-                                                      // virtual: load tmp%0#0 from l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%0#0                                                         if Txn.application_id == 0:                                                                    local_state/local_state_contract.py:21
-    bnz main_after_if_else@4                          //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 if Txn.application_id == 0:                                                                    local_state/local_state_contract.py:21
-    // Implicit fall through to main_if_body@3        //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 if Txn.application_id == 0:                                                                    local_state/local_state_contract.py:21
+main_block@0:                                                                            (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:21
+    // if Txn.application_id == 0:
+    txn ApplicationID                                                                    (𝕗) method#0,awst_tmp%0#0 | tmp%0#0
+    bnz main_after_if_else@4                                                             (𝕗) method#0,awst_tmp%0#0 |
+    // Implicit fall through to main_if_body@3                                           (𝕗) method#0,awst_tmp%0#0 |
 
-main_if_body@3:
-    int 1                                             //                                                       (𝕗) method#0,awst_tmp%0#0 | 1                                                               True                                                                                           local_state/local_state_contract.py:22
-    return                                            //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 return True                                                                                    local_state/local_state_contract.py:22
+main_if_body@3:                                                                          (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:22
+    // return True
+    int 1                                                                                (𝕗) method#0,awst_tmp%0#0 | 1
+    return                                                                               (𝕗) method#0,awst_tmp%0#0 |
 
-main_after_if_else@4:
-    txn OnCompletion                                  //                                                       (𝕗) method#0,awst_tmp%0#0 | {txn}                                                           Txn.on_completion                                                                              local_state/local_state_contract.py:23
-    dup
-    cover 1                                           // store awst_tmp%0#0 to l-stack (copy)                  (𝕗) method#0,awst_tmp%0#0 | awst_tmp%0#0,awst_tmp%0#0 (copy)                                Txn.on_completion                                                                              local_state/local_state_contract.py:23
-    bury 2                                            // store awst_tmp%0#0 to f-stack                         (𝕗) method#0,awst_tmp%0#0 | awst_tmp%0#0                                                    Txn.on_completion                                                                              local_state/local_state_contract.py:23
-                                                      // virtual: load awst_tmp%0#0 from l-stack (no copy)     (𝕗) method#0,awst_tmp%0#0 | awst_tmp%0#0                                                    Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn)                       local_state/local_state_contract.py:23
-    bz main_after_if_else@7                           //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn)                       local_state/local_state_contract.py:23
-    // Implicit fall through to main_or_contd@5       //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn)                       local_state/local_state_contract.py:23
+main_after_if_else@4:                                                                    (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:23
+    // if Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
+    txn OnCompletion                                                                     (𝕗) method#0,awst_tmp%0#0 | awst_tmp%0#0
+    l-store-copy awst_tmp%0#0 0                                                          (𝕗) method#0,awst_tmp%0#0 | awst_tmp%0#0,awst_tmp%0#0
+    f-store awst_tmp%0#0                                                                 (𝕗) method#0,awst_tmp%0#0 | awst_tmp%0#0
+    l-load awst_tmp%0#0 0                                                                (𝕗) method#0,awst_tmp%0#0 | awst_tmp%0#0
+    bz main_after_if_else@7                                                              (𝕗) method#0,awst_tmp%0#0 |
+    // Implicit fall through to main_or_contd@5                                          (𝕗) method#0,awst_tmp%0#0 |
 
-main_or_contd@5:
-    dig 0                                             // load awst_tmp%0#0 from f-stack                        (𝕗) method#0,awst_tmp%0#0 | awst_tmp%0#0 (copy)                                             Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn)                       local_state/local_state_contract.py:23
-    int OptIn                                         //                                                       (𝕗) method#0,awst_tmp%0#0 | awst_tmp%0#0 (copy),OptIn                                       OnCompleteAction.OptIn                                                                         local_state/local_state_contract.py:23
-    ==                                                //                                                       (𝕗) method#0,awst_tmp%0#0 | {==}                                                            Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn)                       local_state/local_state_contract.py:23
-                                                      // virtual: store tmp%3#0 to l-stack (no copy)           (𝕗) method#0,awst_tmp%0#0 | tmp%3#0                                                         Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn)                       local_state/local_state_contract.py:23
-                                                      // virtual: load tmp%3#0 from l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%3#0                                                         Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn)                       local_state/local_state_contract.py:23
-    bnz main_after_if_else@7                          //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn)                       local_state/local_state_contract.py:23
-    // Implicit fall through to main_if_body@6        //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn)                       local_state/local_state_contract.py:23
+main_or_contd@5:                                                                         (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:23
+    // if Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
+    f-load awst_tmp%0#0                                                                  (𝕗) method#0,awst_tmp%0#0 | awst_tmp%0#0
+    int OptIn                                                                            (𝕗) method#0,awst_tmp%0#0 | awst_tmp%0#0,OptIn
+    ==                                                                                   (𝕗) method#0,awst_tmp%0#0 | tmp%3#0
+    bnz main_after_if_else@7                                                             (𝕗) method#0,awst_tmp%0#0 |
+    // Implicit fall through to main_if_body@6                                           (𝕗) method#0,awst_tmp%0#0 |
 
-main_if_body@6:
-    int 0                                             //                                                       (𝕗) method#0,awst_tmp%0#0 | 0                                                               False                                                                                          local_state/local_state_contract.py:24
-    return                                            //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 return False                                                                                   local_state/local_state_contract.py:24
+main_if_body@6:                                                                          (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:24
+    // return False
+    int 0                                                                                (𝕗) method#0,awst_tmp%0#0 | 0
+    return                                                                               (𝕗) method#0,awst_tmp%0#0 |
 
-main_after_if_else@7:
-    txn NumAppArgs                                    //                                                       (𝕗) method#0,awst_tmp%0#0 | {txn}                                                           Txn.num_app_args                                                                               local_state/local_state_contract.py:25
-                                                      // virtual: store tmp%4#0 to l-stack (no copy)           (𝕗) method#0,awst_tmp%0#0 | tmp%4#0                                                         Txn.num_app_args                                                                               local_state/local_state_contract.py:25
-                                                      // virtual: load tmp%4#0 from l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%4#0                                                         if Txn.num_app_args == 0:                                                                      local_state/local_state_contract.py:25
-    bnz main_after_if_else@9                          //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 if Txn.num_app_args == 0:                                                                      local_state/local_state_contract.py:25
-    // Implicit fall through to main_if_body@8        //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 if Txn.num_app_args == 0:                                                                      local_state/local_state_contract.py:25
+main_after_if_else@7:                                                                    (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:25
+    // if Txn.num_app_args == 0:
+    txn NumAppArgs                                                                       (𝕗) method#0,awst_tmp%0#0 | tmp%4#0
+    bnz main_after_if_else@9                                                             (𝕗) method#0,awst_tmp%0#0 |
+    // Implicit fall through to main_if_body@8                                           (𝕗) method#0,awst_tmp%0#0 |
 
-main_if_body@8:
-    int 0                                             //                                                       (𝕗) method#0,awst_tmp%0#0 | 0                                                               False                                                                                          local_state/local_state_contract.py:26
-    return                                            //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 return False                                                                                   local_state/local_state_contract.py:26
+main_if_body@8:                                                                          (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:26
+    // return False
+    int 0                                                                                (𝕗) method#0,awst_tmp%0#0 | 0
+    return                                                                               (𝕗) method#0,awst_tmp%0#0 |
 
-main_after_if_else@9:
-    txna ApplicationArgs 0                            //                                                       (𝕗) method#0,awst_tmp%0#0 | {txna}                                                          Txn.application_args(0)                                                                        local_state/local_state_contract.py:28
-    bury 2                                            // store method#0 to f-stack                             (𝕗) method#0,awst_tmp%0#0 |                                                                 method = Txn.application_args(0)                                                               local_state/local_state_contract.py:28
-    txn NumAppArgs                                    //                                                       (𝕗) method#0,awst_tmp%0#0 | {txn}                                                           Txn.num_app_args                                                                               local_state/local_state_contract.py:29
-                                                      // virtual: store tmp%6#0 to l-stack (no copy)           (𝕗) method#0,awst_tmp%0#0 | tmp%6#0                                                         Txn.num_app_args                                                                               local_state/local_state_contract.py:29
-                                                      // virtual: load tmp%6#0 from l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%6#0                                                         Txn.num_app_args == 1                                                                          local_state/local_state_contract.py:29
-    int 1                                             //                                                       (𝕗) method#0,awst_tmp%0#0 | tmp%6#0,1                                                       1                                                                                              local_state/local_state_contract.py:29
-    ==                                                //                                                       (𝕗) method#0,awst_tmp%0#0 | {==}                                                            Txn.num_app_args == 1                                                                          local_state/local_state_contract.py:29
-                                                      // virtual: store tmp%7#0 to l-stack (no copy)           (𝕗) method#0,awst_tmp%0#0 | tmp%7#0                                                         Txn.num_app_args == 1                                                                          local_state/local_state_contract.py:29
-                                                      // virtual: load tmp%7#0 from l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%7#0                                                         if Txn.num_app_args == 1:                                                                      local_state/local_state_contract.py:29
-    bz main_else_body@20                              //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 if Txn.num_app_args == 1:                                                                      local_state/local_state_contract.py:29
-    // Implicit fall through to main_if_body@10       //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 if Txn.num_app_args == 1:                                                                      local_state/local_state_contract.py:29
+main_after_if_else@9:                                                                    (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:28
+    // method = Txn.application_args(0)
+    txna ApplicationArgs 0                                                               (𝕗) method#0,awst_tmp%0#0 | method#0
+    f-store method#0                                                                     (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:29
+    // if Txn.num_app_args == 1:
+    txn NumAppArgs                                                                       (𝕗) method#0,awst_tmp%0#0 | tmp%6#0
+    int 1                                                                                (𝕗) method#0,awst_tmp%0#0 | tmp%6#0,1
+    ==                                                                                   (𝕗) method#0,awst_tmp%0#0 | tmp%7#0
+    bz main_else_body@20                                                                 (𝕗) method#0,awst_tmp%0#0 |
+    // Implicit fall through to main_if_body@10                                          (𝕗) method#0,awst_tmp%0#0 |
 
-main_if_body@10:
-    dig 1                                             // load method#0 from f-stack                            (𝕗) method#0,awst_tmp%0#0 | method#0 (copy)                                                 method == b"get_guaranteed_data"                                                               local_state/local_state_contract.py:30
-    byte 0x6765745f67756172616e746565645f64617461     //                                                       (𝕗) method#0,awst_tmp%0#0 | method#0 (copy),0x6765745f67756172616e746565645f64617461        b"get_guaranteed_data"                                                                         local_state/local_state_contract.py:30
-    ==                                                //                                                       (𝕗) method#0,awst_tmp%0#0 | {==}                                                            method == b"get_guaranteed_data"                                                               local_state/local_state_contract.py:30
-                                                      // virtual: store tmp%8#0 to l-stack (no copy)           (𝕗) method#0,awst_tmp%0#0 | tmp%8#0                                                         method == b"get_guaranteed_data"                                                               local_state/local_state_contract.py:30
-                                                      // virtual: load tmp%8#0 from l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%8#0                                                         if method == b"get_guaranteed_data":                                                           local_state/local_state_contract.py:30
-    bz main_else_body@12                              //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 if method == b"get_guaranteed_data":                                                           local_state/local_state_contract.py:30
-    // Implicit fall through to main_if_body@11       //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 if method == b"get_guaranteed_data":                                                           local_state/local_state_contract.py:30
+main_if_body@10:                                                                         (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:30
+    // if method == b"get_guaranteed_data":
+    f-load method#0                                                                      (𝕗) method#0,awst_tmp%0#0 | method#0
+    byte 0x6765745f67756172616e746565645f64617461                                        (𝕗) method#0,awst_tmp%0#0 | method#0,0x6765745f67756172616e746565645f64617461
+    ==                                                                                   (𝕗) method#0,awst_tmp%0#0 | tmp%8#0
+    bz main_else_body@12                                                                 (𝕗) method#0,awst_tmp%0#0 |
+    // Implicit fall through to main_if_body@11                                          (𝕗) method#0,awst_tmp%0#0 |
 
-main_if_body@11:
-    txn Sender                                        //                                                       (𝕗) method#0,awst_tmp%0#0 | {txn}                                                           Txn.sender                                                                                     local_state/local_state_contract.py:31
-                                                      // virtual: store tmp%9#0 to l-stack (no copy)           (𝕗) method#0,awst_tmp%0#0 | tmp%9#0                                                         Txn.sender                                                                                     local_state/local_state_contract.py:31
-                                                      // virtual: load tmp%9#0 from l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%9#0                                                         self.get_guaranteed_data(Txn.sender)                                                           local_state/local_state_contract.py:31
-    callsub get_guaranteed_data                       //                                                       (𝕗) method#0,awst_tmp%0#0 | {get_guaranteed_data}                                           self.get_guaranteed_data(Txn.sender)                                                           local_state/local_state_contract.py:31
-                                                      // virtual: store tmp%10#0 to l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%10#0                                                        self.get_guaranteed_data(Txn.sender)                                                           local_state/local_state_contract.py:31
-                                                      // virtual: load tmp%10#0 from l-stack (no copy)         (𝕗) method#0,awst_tmp%0#0 | tmp%10#0                                                        log(self.get_guaranteed_data(Txn.sender))                                                      local_state/local_state_contract.py:31
-    log                                               //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 log(self.get_guaranteed_data(Txn.sender))                                                      local_state/local_state_contract.py:31
-    b main_after_if_else@19                           //                                                       (𝕗) method#0,awst_tmp%0#0 |
+main_if_body@11:                                                                         (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:31
+    // log(self.get_guaranteed_data(Txn.sender))
+    txn Sender                                                                           (𝕗) method#0,awst_tmp%0#0 | tmp%9#0
+    callsub get_guaranteed_data                                                          (𝕗) method#0,awst_tmp%0#0 | tmp%10#0
+    log                                                                                  (𝕗) method#0,awst_tmp%0#0 |
+    b main_after_if_else@19                                                              (𝕗) method#0,awst_tmp%0#0 |
 
-main_else_body@12:
-    dig 1                                             // load method#0 from f-stack                            (𝕗) method#0,awst_tmp%0#0 | method#0 (copy)                                                 method == b"get_data_or_assert"                                                                local_state/local_state_contract.py:32
-    byte 0x6765745f646174615f6f725f617373657274       //                                                       (𝕗) method#0,awst_tmp%0#0 | method#0 (copy),0x6765745f646174615f6f725f617373657274          b"get_data_or_assert"                                                                          local_state/local_state_contract.py:32
-    ==                                                //                                                       (𝕗) method#0,awst_tmp%0#0 | {==}                                                            method == b"get_data_or_assert"                                                                local_state/local_state_contract.py:32
-                                                      // virtual: store tmp%11#0 to l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%11#0                                                        method == b"get_data_or_assert"                                                                local_state/local_state_contract.py:32
-                                                      // virtual: load tmp%11#0 from l-stack (no copy)         (𝕗) method#0,awst_tmp%0#0 | tmp%11#0                                                        elif method == b"get_data_or_assert":                                                          local_state/local_state_contract.py:32
-    bz main_else_body@14                              //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 elif method == b"get_data_or_assert":                                                          local_state/local_state_contract.py:32
-    // Implicit fall through to main_if_body@13       //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 elif method == b"get_data_or_assert":                                                          local_state/local_state_contract.py:32
+main_else_body@12:                                                                       (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:32
+    // elif method == b"get_data_or_assert":
+    f-load method#0                                                                      (𝕗) method#0,awst_tmp%0#0 | method#0
+    byte 0x6765745f646174615f6f725f617373657274                                          (𝕗) method#0,awst_tmp%0#0 | method#0,0x6765745f646174615f6f725f617373657274
+    ==                                                                                   (𝕗) method#0,awst_tmp%0#0 | tmp%11#0
+    bz main_else_body@14                                                                 (𝕗) method#0,awst_tmp%0#0 |
+    // Implicit fall through to main_if_body@13                                          (𝕗) method#0,awst_tmp%0#0 |
 
-main_if_body@13:
-    txn Sender                                        //                                                       (𝕗) method#0,awst_tmp%0#0 | {txn}                                                           Txn.sender                                                                                     local_state/local_state_contract.py:33
-                                                      // virtual: store tmp%12#0 to l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%12#0                                                        Txn.sender                                                                                     local_state/local_state_contract.py:33
-                                                      // virtual: load tmp%12#0 from l-stack (no copy)         (𝕗) method#0,awst_tmp%0#0 | tmp%12#0                                                        self.get_data_or_assert(Txn.sender)                                                            local_state/local_state_contract.py:33
-    callsub get_data_or_assert                        //                                                       (𝕗) method#0,awst_tmp%0#0 | {get_data_or_assert}                                            self.get_data_or_assert(Txn.sender)                                                            local_state/local_state_contract.py:33
-                                                      // virtual: store tmp%13#0 to l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%13#0                                                        self.get_data_or_assert(Txn.sender)                                                            local_state/local_state_contract.py:33
-                                                      // virtual: load tmp%13#0 from l-stack (no copy)         (𝕗) method#0,awst_tmp%0#0 | tmp%13#0                                                        log(self.get_data_or_assert(Txn.sender))                                                       local_state/local_state_contract.py:33
-    log                                               //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 log(self.get_data_or_assert(Txn.sender))                                                       local_state/local_state_contract.py:33
-    b main_after_if_else@19                           //                                                       (𝕗) method#0,awst_tmp%0#0 |
+main_if_body@13:                                                                         (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:33
+    // log(self.get_data_or_assert(Txn.sender))
+    txn Sender                                                                           (𝕗) method#0,awst_tmp%0#0 | tmp%12#0
+    callsub get_data_or_assert                                                           (𝕗) method#0,awst_tmp%0#0 | tmp%13#0
+    log                                                                                  (𝕗) method#0,awst_tmp%0#0 |
+    b main_after_if_else@19                                                              (𝕗) method#0,awst_tmp%0#0 |
 
-main_else_body@14:
-    dig 1                                             // load method#0 from f-stack                            (𝕗) method#0,awst_tmp%0#0 | method#0 (copy)                                                 method == b"delete_data"                                                                       local_state/local_state_contract.py:34
-    byte 0x64656c6574655f64617461                     //                                                       (𝕗) method#0,awst_tmp%0#0 | method#0 (copy),0x64656c6574655f64617461                        b"delete_data"                                                                                 local_state/local_state_contract.py:34
-    ==                                                //                                                       (𝕗) method#0,awst_tmp%0#0 | {==}                                                            method == b"delete_data"                                                                       local_state/local_state_contract.py:34
-                                                      // virtual: store tmp%14#0 to l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%14#0                                                        method == b"delete_data"                                                                       local_state/local_state_contract.py:34
-                                                      // virtual: load tmp%14#0 from l-stack (no copy)         (𝕗) method#0,awst_tmp%0#0 | tmp%14#0                                                        elif method == b"delete_data":                                                                 local_state/local_state_contract.py:34
-    bz main_else_body@16                              //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 elif method == b"delete_data":                                                                 local_state/local_state_contract.py:34
-    // Implicit fall through to main_if_body@15       //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 elif method == b"delete_data":                                                                 local_state/local_state_contract.py:34
+main_else_body@14:                                                                       (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:34
+    // elif method == b"delete_data":
+    f-load method#0                                                                      (𝕗) method#0,awst_tmp%0#0 | method#0
+    byte 0x64656c6574655f64617461                                                        (𝕗) method#0,awst_tmp%0#0 | method#0,0x64656c6574655f64617461
+    ==                                                                                   (𝕗) method#0,awst_tmp%0#0 | tmp%14#0
+    bz main_else_body@16                                                                 (𝕗) method#0,awst_tmp%0#0 |
+    // Implicit fall through to main_if_body@15                                          (𝕗) method#0,awst_tmp%0#0 |
 
-main_if_body@15:
-    txn Sender                                        //                                                       (𝕗) method#0,awst_tmp%0#0 | {txn}                                                           Txn.sender                                                                                     local_state/local_state_contract.py:35
-                                                      // virtual: store tmp%15#0 to l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%15#0                                                        Txn.sender                                                                                     local_state/local_state_contract.py:35
-                                                      // virtual: load tmp%15#0 from l-stack (no copy)         (𝕗) method#0,awst_tmp%0#0 | tmp%15#0                                                        self.delete_data(Txn.sender)                                                                   local_state/local_state_contract.py:35
-    callsub delete_data                               //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 self.delete_data(Txn.sender)                                                                   local_state/local_state_contract.py:35
-    byte "Deleted"                                    //                                                       (𝕗) method#0,awst_tmp%0#0 | "Deleted"                                                       "Deleted"                                                                                      local_state/local_state_contract.py:36
-    log                                               //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 log("Deleted")                                                                                 local_state/local_state_contract.py:36
-    b main_after_if_else@19                           //                                                       (𝕗) method#0,awst_tmp%0#0 |
+main_if_body@15:                                                                         (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:35
+    // self.delete_data(Txn.sender)
+    txn Sender                                                                           (𝕗) method#0,awst_tmp%0#0 | tmp%15#0
+    callsub delete_data                                                                  (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:36
+    // log("Deleted")
+    byte "Deleted"                                                                       (𝕗) method#0,awst_tmp%0#0 | "Deleted"
+    log                                                                                  (𝕗) method#0,awst_tmp%0#0 |
+    b main_after_if_else@19                                                              (𝕗) method#0,awst_tmp%0#0 |
 
-main_else_body@16:
-    int 0                                             //                                                       (𝕗) method#0,awst_tmp%0#0 | 0                                                               False                                                                                          local_state/local_state_contract.py:38
-    return                                            //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 return False                                                                                   local_state/local_state_contract.py:38
+main_else_body@16:                                                                       (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:38
+    // return False
+    int 0                                                                                (𝕗) method#0,awst_tmp%0#0 | 0
+    return                                                                               (𝕗) method#0,awst_tmp%0#0 |
 
-main_after_if_else@19:
-    int 1                                             //                                                       (𝕗) method#0,awst_tmp%0#0 | 1                                                               True                                                                                           local_state/local_state_contract.py:39
-    return                                            //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 return True                                                                                    local_state/local_state_contract.py:39
+main_after_if_else@19:                                                                   (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:39
+    // return True
+    int 1                                                                                (𝕗) method#0,awst_tmp%0#0 | 1
+    return                                                                               (𝕗) method#0,awst_tmp%0#0 |
 
-main_else_body@20:
-    txn NumAppArgs                                    //                                                       (𝕗) method#0,awst_tmp%0#0 | {txn}                                                           Txn.num_app_args                                                                               local_state/local_state_contract.py:40
-                                                      // virtual: store tmp%16#0 to l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%16#0                                                        Txn.num_app_args                                                                               local_state/local_state_contract.py:40
-                                                      // virtual: load tmp%16#0 from l-stack (no copy)         (𝕗) method#0,awst_tmp%0#0 | tmp%16#0                                                        Txn.num_app_args == 2                                                                          local_state/local_state_contract.py:40
-    int 2                                             //                                                       (𝕗) method#0,awst_tmp%0#0 | tmp%16#0,2                                                      2                                                                                              local_state/local_state_contract.py:40
-    ==                                                //                                                       (𝕗) method#0,awst_tmp%0#0 | {==}                                                            Txn.num_app_args == 2                                                                          local_state/local_state_contract.py:40
-                                                      // virtual: store tmp%17#0 to l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%17#0                                                        Txn.num_app_args == 2                                                                          local_state/local_state_contract.py:40
-                                                      // virtual: load tmp%17#0 from l-stack (no copy)         (𝕗) method#0,awst_tmp%0#0 | tmp%17#0                                                        elif Txn.num_app_args == 2:                                                                    local_state/local_state_contract.py:40
-    bz main_else_body@28                              //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 elif Txn.num_app_args == 2:                                                                    local_state/local_state_contract.py:40
-    // Implicit fall through to main_if_body@21       //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 elif Txn.num_app_args == 2:                                                                    local_state/local_state_contract.py:40
+main_else_body@20:                                                                       (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:40
+    // elif Txn.num_app_args == 2:
+    txn NumAppArgs                                                                       (𝕗) method#0,awst_tmp%0#0 | tmp%16#0
+    int 2                                                                                (𝕗) method#0,awst_tmp%0#0 | tmp%16#0,2
+    ==                                                                                   (𝕗) method#0,awst_tmp%0#0 | tmp%17#0
+    bz main_else_body@28                                                                 (𝕗) method#0,awst_tmp%0#0 |
+    // Implicit fall through to main_if_body@21                                          (𝕗) method#0,awst_tmp%0#0 |
 
-main_if_body@21:
-    dig 1                                             // load method#0 from f-stack                            (𝕗) method#0,awst_tmp%0#0 | method#0 (copy)                                                 method == b"set_data"                                                                          local_state/local_state_contract.py:41
-    byte 0x7365745f64617461                           //                                                       (𝕗) method#0,awst_tmp%0#0 | method#0 (copy),0x7365745f64617461                              b"set_data"                                                                                    local_state/local_state_contract.py:41
-    ==                                                //                                                       (𝕗) method#0,awst_tmp%0#0 | {==}                                                            method == b"set_data"                                                                          local_state/local_state_contract.py:41
-                                                      // virtual: store tmp%18#0 to l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%18#0                                                        method == b"set_data"                                                                          local_state/local_state_contract.py:41
-                                                      // virtual: load tmp%18#0 from l-stack (no copy)         (𝕗) method#0,awst_tmp%0#0 | tmp%18#0                                                        if method == b"set_data":                                                                      local_state/local_state_contract.py:41
-    bz main_else_body@23                              //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 if method == b"set_data":                                                                      local_state/local_state_contract.py:41
-    // Implicit fall through to main_if_body@22       //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 if method == b"set_data":                                                                      local_state/local_state_contract.py:41
+main_if_body@21:                                                                         (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:41
+    // if method == b"set_data":
+    f-load method#0                                                                      (𝕗) method#0,awst_tmp%0#0 | method#0
+    byte 0x7365745f64617461                                                              (𝕗) method#0,awst_tmp%0#0 | method#0,0x7365745f64617461
+    ==                                                                                   (𝕗) method#0,awst_tmp%0#0 | tmp%18#0
+    bz main_else_body@23                                                                 (𝕗) method#0,awst_tmp%0#0 |
+    // Implicit fall through to main_if_body@22                                          (𝕗) method#0,awst_tmp%0#0 |
 
-main_if_body@22:
-    txn Sender                                        //                                                       (𝕗) method#0,awst_tmp%0#0 | {txn}                                                           Txn.sender                                                                                     local_state/local_state_contract.py:42
-                                                      // virtual: store tmp%19#0 to l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%19#0                                                        Txn.sender                                                                                     local_state/local_state_contract.py:42
-    txna ApplicationArgs 1                            //                                                       (𝕗) method#0,awst_tmp%0#0 | tmp%19#0,{txna}                                                 Txn.application_args(1)                                                                        local_state/local_state_contract.py:42
-                                                      // virtual: store tmp%20#0 to l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%19#0,tmp%20#0                                               Txn.application_args(1)                                                                        local_state/local_state_contract.py:42
-                                                      // virtual: load tmp%19#0 from l-stack (no copy)         (𝕗) method#0,awst_tmp%0#0 | tmp%20#0,tmp%19#0                                               self.set_data(Txn.sender, Txn.application_args(1))                                             local_state/local_state_contract.py:42
-                                                      // virtual: load tmp%20#0 from l-stack (no copy)         (𝕗) method#0,awst_tmp%0#0 | tmp%19#0,tmp%20#0                                               self.set_data(Txn.sender, Txn.application_args(1))                                             local_state/local_state_contract.py:42
-    callsub set_data                                  //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 self.set_data(Txn.sender, Txn.application_args(1))                                             local_state/local_state_contract.py:42
-    b main_after_if_else@27                           //                                                       (𝕗) method#0,awst_tmp%0#0 |
+main_if_body@22:                                                                         (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:42
+    // self.set_data(Txn.sender, Txn.application_args(1))
+    txn Sender                                                                           (𝕗) method#0,awst_tmp%0#0 | tmp%19#0
+    txna ApplicationArgs 1                                                               (𝕗) method#0,awst_tmp%0#0 | tmp%19#0,tmp%20#0
+    l-load tmp%19#0 1                                                                    (𝕗) method#0,awst_tmp%0#0 | tmp%20#0,tmp%19#0
+    l-load tmp%20#0 1                                                                    (𝕗) method#0,awst_tmp%0#0 | tmp%19#0,tmp%20#0
+    callsub set_data                                                                     (𝕗) method#0,awst_tmp%0#0 |
+    b main_after_if_else@27                                                              (𝕗) method#0,awst_tmp%0#0 |
 
-main_else_body@23:
-    dig 1                                             // load method#0 from f-stack                            (𝕗) method#0,awst_tmp%0#0 | method#0 (copy)                                                 method == b"get_data_with_default"                                                             local_state/local_state_contract.py:43
-    byte 0x6765745f646174615f776974685f64656661756c74 //                                                       (𝕗) method#0,awst_tmp%0#0 | method#0 (copy),0x6765745f646174615f776974685f64656661756c74    b"get_data_with_default"                                                                       local_state/local_state_contract.py:43
-    ==                                                //                                                       (𝕗) method#0,awst_tmp%0#0 | {==}                                                            method == b"get_data_with_default"                                                             local_state/local_state_contract.py:43
-                                                      // virtual: store tmp%21#0 to l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%21#0                                                        method == b"get_data_with_default"                                                             local_state/local_state_contract.py:43
-                                                      // virtual: load tmp%21#0 from l-stack (no copy)         (𝕗) method#0,awst_tmp%0#0 | tmp%21#0                                                        elif method == b"get_data_with_default":                                                       local_state/local_state_contract.py:43
-    bz main_else_body@25                              //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 elif method == b"get_data_with_default":                                                       local_state/local_state_contract.py:43
-    // Implicit fall through to main_if_body@24       //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 elif method == b"get_data_with_default":                                                       local_state/local_state_contract.py:43
+main_else_body@23:                                                                       (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:43
+    // elif method == b"get_data_with_default":
+    f-load method#0                                                                      (𝕗) method#0,awst_tmp%0#0 | method#0
+    byte 0x6765745f646174615f776974685f64656661756c74                                    (𝕗) method#0,awst_tmp%0#0 | method#0,0x6765745f646174615f776974685f64656661756c74
+    ==                                                                                   (𝕗) method#0,awst_tmp%0#0 | tmp%21#0
+    bz main_else_body@25                                                                 (𝕗) method#0,awst_tmp%0#0 |
+    // Implicit fall through to main_if_body@24                                          (𝕗) method#0,awst_tmp%0#0 |
 
-main_if_body@24:
-    txn Sender                                        //                                                       (𝕗) method#0,awst_tmp%0#0 | {txn}                                                           Txn.sender                                                                                     local_state/local_state_contract.py:44
-                                                      // virtual: store tmp%22#0 to l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%22#0                                                        Txn.sender                                                                                     local_state/local_state_contract.py:44
-    txna ApplicationArgs 1                            //                                                       (𝕗) method#0,awst_tmp%0#0 | tmp%22#0,{txna}                                                 Txn.application_args(1)                                                                        local_state/local_state_contract.py:44
-                                                      // virtual: store tmp%23#0 to l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%22#0,tmp%23#0                                               Txn.application_args(1)                                                                        local_state/local_state_contract.py:44
-                                                      // virtual: load tmp%22#0 from l-stack (no copy)         (𝕗) method#0,awst_tmp%0#0 | tmp%23#0,tmp%22#0                                               self.get_data_with_default(Txn.sender, Txn.application_args(1))                                local_state/local_state_contract.py:44
-                                                      // virtual: load tmp%23#0 from l-stack (no copy)         (𝕗) method#0,awst_tmp%0#0 | tmp%22#0,tmp%23#0                                               self.get_data_with_default(Txn.sender, Txn.application_args(1))                                local_state/local_state_contract.py:44
-    callsub get_data_with_default                     //                                                       (𝕗) method#0,awst_tmp%0#0 | {get_data_with_default}                                         self.get_data_with_default(Txn.sender, Txn.application_args(1))                                local_state/local_state_contract.py:44
-                                                      // virtual: store tmp%24#0 to l-stack (no copy)          (𝕗) method#0,awst_tmp%0#0 | tmp%24#0                                                        self.get_data_with_default(Txn.sender, Txn.application_args(1))                                local_state/local_state_contract.py:44
-                                                      // virtual: load tmp%24#0 from l-stack (no copy)         (𝕗) method#0,awst_tmp%0#0 | tmp%24#0                                                        log(self.get_data_with_default(Txn.sender, Txn.application_args(1)))                           local_state/local_state_contract.py:44
-    log                                               //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 log(self.get_data_with_default(Txn.sender, Txn.application_args(1)))                           local_state/local_state_contract.py:44
-    b main_after_if_else@27                           //                                                       (𝕗) method#0,awst_tmp%0#0 |
+main_if_body@24:                                                                         (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:44
+    // log(self.get_data_with_default(Txn.sender, Txn.application_args(1)))
+    txn Sender                                                                           (𝕗) method#0,awst_tmp%0#0 | tmp%22#0
+    txna ApplicationArgs 1                                                               (𝕗) method#0,awst_tmp%0#0 | tmp%22#0,tmp%23#0
+    l-load tmp%22#0 1                                                                    (𝕗) method#0,awst_tmp%0#0 | tmp%23#0,tmp%22#0
+    l-load tmp%23#0 1                                                                    (𝕗) method#0,awst_tmp%0#0 | tmp%22#0,tmp%23#0
+    callsub get_data_with_default                                                        (𝕗) method#0,awst_tmp%0#0 | tmp%24#0
+    log                                                                                  (𝕗) method#0,awst_tmp%0#0 |
+    b main_after_if_else@27                                                              (𝕗) method#0,awst_tmp%0#0 |
 
-main_else_body@25:
-    int 0                                             //                                                       (𝕗) method#0,awst_tmp%0#0 | 0                                                               False                                                                                          local_state/local_state_contract.py:46
-    return                                            //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 return False                                                                                   local_state/local_state_contract.py:46
+main_else_body@25:                                                                       (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:46
+    // return False
+    int 0                                                                                (𝕗) method#0,awst_tmp%0#0 | 0
+    return                                                                               (𝕗) method#0,awst_tmp%0#0 |
 
-main_after_if_else@27:
-    int 1                                             //                                                       (𝕗) method#0,awst_tmp%0#0 | 1                                                               True                                                                                           local_state/local_state_contract.py:47
-    return                                            //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 return True                                                                                    local_state/local_state_contract.py:47
+main_after_if_else@27:                                                                   (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:47
+    // return True
+    int 1                                                                                (𝕗) method#0,awst_tmp%0#0 | 1
+    return                                                                               (𝕗) method#0,awst_tmp%0#0 |
 
-main_else_body@28:
-    int 0                                             //                                                       (𝕗) method#0,awst_tmp%0#0 | 0                                                               False                                                                                          local_state/local_state_contract.py:49
-    return                                            //                                                       (𝕗) method#0,awst_tmp%0#0 |                                                                 return False                                                                                   local_state/local_state_contract.py:49
+main_else_body@28:                                                                       (𝕗) method#0,awst_tmp%0#0 |
+    // local_state/local_state_contract.py:49
+    // return False
+    int 0                                                                                (𝕗) method#0,awst_tmp%0#0 | 0
+    return                                                                               (𝕗) method#0,awst_tmp%0#0 |
 
 
 // examples.local_state.local_state_contract.LocalStateContract.get_guaranteed_data(for_account: bytes) -> bytes:
-get_guaranteed_data:
-    proto 1 1                                         //                                                       (𝕡) for_account#0 |                                                                         @subroutine\ndef get_guaranteed_data(self, for_account: Account) -> Bytes:                     local_state/local_state_contract.py:54-55
+get_guaranteed_data:                                                                     (𝕡) for_account#0 |
+    // local_state/local_state_contract.py:54-55
+    // @subroutine
+    // def get_guaranteed_data(self, for_account: Account) -> Bytes:
+    proto 1 1                                                                            (𝕡) for_account#0 |
 
-get_guaranteed_data_block@0:
-    frame_dig -1                                      // load for_account#0 from parameters                    (𝕡) for_account#0 | for_account#0 (copy)                                                    self.local[for_account]                                                                        local_state/local_state_contract.py:56
-    int 0                                             //                                                       (𝕡) for_account#0 | for_account#0 (copy),0                                                  self.local[for_account]                                                                        local_state/local_state_contract.py:56
-    byte "local"                                      //                                                       (𝕡) for_account#0 | for_account#0 (copy),0,"local"                                          self.local                                                                                     local_state/local_state_contract.py:56
-    app_local_get_ex                                  //                                                       (𝕡) for_account#0 | {app_local_get_ex}.0,{app_local_get_ex}.1                               self.local[for_account]                                                                        local_state/local_state_contract.py:56
-                                                      // virtual: store maybe_exists%0#0 to l-stack (no copy)  (𝕡) for_account#0 | maybe_exists%0#0,{app_local_get_ex}.0                                   self.local[for_account]                                                                        local_state/local_state_contract.py:56
-                                                      // virtual: store result#0 to l-stack (no copy)          (𝕡) for_account#0 | result#0,maybe_exists%0#0                                               self.local[for_account]                                                                        local_state/local_state_contract.py:56
-                                                      // virtual: load maybe_exists%0#0 from l-stack (no copy) (𝕡) for_account#0 | result#0,maybe_exists%0#0                                               self.local[for_account]                                                                        local_state/local_state_contract.py:56
-    assert // check self.local exists for account     //                                                       (𝕡) for_account#0 | result#0                                                                self.local[for_account]                                                                        local_state/local_state_contract.py:56
-    dig 0                                             // load result#0 from l-stack (copy)                     (𝕡) for_account#0 | result#0,result#0 (copy)                                                result.length                                                                                  local_state/local_state_contract.py:58
-    len                                               //                                                       (𝕡) for_account#0 | result#0,{len}                                                          result.length                                                                                  local_state/local_state_contract.py:58
-                                                      // virtual: store tmp%0#0 to l-stack (no copy)           (𝕡) for_account#0 | result#0,tmp%0#0                                                        result.length                                                                                  local_state/local_state_contract.py:58
-    byte "local"                                      //                                                       (𝕡) for_account#0 | result#0,tmp%0#0,"local"                                                self.local                                                                                     local_state/local_state_contract.py:58
-    frame_dig -1                                      // load for_account#0 from parameters                    (𝕡) for_account#0 | result#0,tmp%0#0,"local",for_account#0 (copy)                           get_local_state_length(self.local, for_account)                                                local_state/local_state_contract.py:58
-    callsub get_local_state_length                    //                                                       (𝕡) for_account#0 | result#0,tmp%0#0,{get_local_state_length}                               get_local_state_length(self.local, for_account)                                                local_state/local_state_contract.py:58
-                                                      // virtual: store tmp%1#0 to l-stack (no copy)           (𝕡) for_account#0 | result#0,tmp%0#0,tmp%1#0                                                get_local_state_length(self.local, for_account)                                                local_state/local_state_contract.py:58
-                                                      // virtual: load tmp%0#0 from l-stack (no copy)          (𝕡) for_account#0 | result#0,tmp%1#0,tmp%0#0                                                result.length == get_local_state_length(self.local, for_account)                               local_state/local_state_contract.py:58
-                                                      // virtual: load tmp%1#0 from l-stack (no copy)          (𝕡) for_account#0 | result#0,tmp%0#0,tmp%1#0                                                result.length == get_local_state_length(self.local, for_account)                               local_state/local_state_contract.py:58
-    ==                                                //                                                       (𝕡) for_account#0 | result#0,{==}                                                           result.length == get_local_state_length(self.local, for_account)                               local_state/local_state_contract.py:58
-                                                      // virtual: store tmp%2#0 to l-stack (no copy)           (𝕡) for_account#0 | result#0,tmp%2#0                                                        result.length == get_local_state_length(self.local, for_account)                               local_state/local_state_contract.py:58
-                                                      // virtual: load tmp%2#0 from l-stack (no copy)          (𝕡) for_account#0 | result#0,tmp%2#0                                                        assert result.length == get_local_state_length(self.local, for_account)                        local_state/local_state_contract.py:58
-    assert                                            //                                                       (𝕡) for_account#0 | result#0                                                                assert result.length == get_local_state_length(self.local, for_account)                        local_state/local_state_contract.py:58
-    frame_dig -1                                      // load for_account#0 from parameters                    (𝕡) for_account#0 | result#0,for_account#0 (copy)                                           local_bytes_exists(for_account, Bytes(b"local"))                                               local_state/local_state_contract.py:60
-    byte 0x6c6f63616c                                 //                                                       (𝕡) for_account#0 | result#0,for_account#0 (copy),0x6c6f63616c                              Bytes(b"local")                                                                                local_state/local_state_contract.py:60
-    callsub local_bytes_exists                        //                                                       (𝕡) for_account#0 | result#0,{local_bytes_exists}                                           local_bytes_exists(for_account, Bytes(b"local"))                                               local_state/local_state_contract.py:60
-                                                      // virtual: store tmp%3#0 to l-stack (no copy)           (𝕡) for_account#0 | result#0,tmp%3#0                                                        local_bytes_exists(for_account, Bytes(b"local"))                                               local_state/local_state_contract.py:60
-                                                      // virtual: load tmp%3#0 from l-stack (no copy)          (𝕡) for_account#0 | result#0,tmp%3#0                                                        assert local_bytes_exists(for_account, Bytes(b"local"))                                        local_state/local_state_contract.py:60
-    assert                                            //                                                       (𝕡) for_account#0 | result#0                                                                assert local_bytes_exists(for_account, Bytes(b"local"))                                        local_state/local_state_contract.py:60
-    frame_dig -1                                      // load for_account#0 from parameters                    (𝕡) for_account#0 | result#0,for_account#0 (copy)                                           read_local_bytes(for_account, String("local"))                                                 local_state/local_state_contract.py:61
-    byte "local"                                      //                                                       (𝕡) for_account#0 | result#0,for_account#0 (copy),"local"                                   String("local")                                                                                local_state/local_state_contract.py:61
-    callsub read_local_bytes                          //                                                       (𝕡) for_account#0 | result#0,{read_local_bytes}                                             read_local_bytes(for_account, String("local"))                                                 local_state/local_state_contract.py:61
-                                                      // virtual: store tmp%4#0 to l-stack (no copy)           (𝕡) for_account#0 | result#0,tmp%4#0                                                        read_local_bytes(for_account, String("local"))                                                 local_state/local_state_contract.py:61
-                                                      // virtual: load tmp%4#0 from l-stack (no copy)          (𝕡) for_account#0 | result#0,tmp%4#0                                                        read_local_bytes(for_account, String("local")) == result                                       local_state/local_state_contract.py:61
-    dig 1                                             // load result#0 from l-stack (copy)                     (𝕡) for_account#0 | result#0,tmp%4#0,result#0 (copy)                                        read_local_bytes(for_account, String("local")) == result                                       local_state/local_state_contract.py:61
-    ==                                                //                                                       (𝕡) for_account#0 | result#0,{==}                                                           read_local_bytes(for_account, String("local")) == result                                       local_state/local_state_contract.py:61
-                                                      // virtual: store tmp%5#0 to l-stack (no copy)           (𝕡) for_account#0 | result#0,tmp%5#0                                                        read_local_bytes(for_account, String("local")) == result                                       local_state/local_state_contract.py:61
-                                                      // virtual: load tmp%5#0 from l-stack (no copy)          (𝕡) for_account#0 | result#0,tmp%5#0                                                        assert read_local_bytes(for_account, String("local")) == result                                local_state/local_state_contract.py:61
-    assert                                            //                                                       (𝕡) for_account#0 | result#0                                                                assert read_local_bytes(for_account, String("local")) == result                                local_state/local_state_contract.py:61
-                                                      // virtual: load result#0 from l-stack (no copy)         (𝕡) for_account#0 | result#0                                                                return result                                                                                  local_state/local_state_contract.py:62
-    retsub                                            //                                                       result#0                                                                                    return result                                                                                  local_state/local_state_contract.py:62
+get_guaranteed_data_block@0:                                                             (𝕡) for_account#0 |
+    // local_state/local_state_contract.py:56
+    // result = self.local[for_account]
+    p-load for_account#0                                                                 (𝕡) for_account#0 | for_account#0 (copy)
+    int 0                                                                                (𝕡) for_account#0 | for_account#0 (copy),0
+    byte "local"                                                                         (𝕡) for_account#0 | for_account#0 (copy),0,"local"
+    app_local_get_ex                                                                     (𝕡) for_account#0 | result#0,maybe_exists%0#0
+    assert // check self.local exists for account                                        (𝕡) for_account#0 | result#0
+    // local_state/local_state_contract.py:58
+    // assert result.length == get_local_state_length(self.local, for_account)
+    l-load-copy result#0 0                                                               (𝕡) for_account#0 | result#0,result#0 (copy)
+    len                                                                                  (𝕡) for_account#0 | result#0,tmp%0#0
+    byte "local"                                                                         (𝕡) for_account#0 | result#0,tmp%0#0,"local"
+    p-load for_account#0                                                                 (𝕡) for_account#0 | result#0,tmp%0#0,"local",for_account#0 (copy)
+    callsub get_local_state_length                                                       (𝕡) for_account#0 | result#0,tmp%0#0,tmp%1#0
+    l-load tmp%0#0 1                                                                     (𝕡) for_account#0 | result#0,tmp%1#0,tmp%0#0
+    l-load tmp%1#0 1                                                                     (𝕡) for_account#0 | result#0,tmp%0#0,tmp%1#0
+    ==                                                                                   (𝕡) for_account#0 | result#0,tmp%2#0
+    assert                                                                               (𝕡) for_account#0 | result#0
+    // local_state/local_state_contract.py:60
+    // assert local_bytes_exists(for_account, Bytes(b"local"))
+    p-load for_account#0                                                                 (𝕡) for_account#0 | result#0,for_account#0 (copy)
+    byte 0x6c6f63616c                                                                    (𝕡) for_account#0 | result#0,for_account#0 (copy),0x6c6f63616c
+    callsub local_bytes_exists                                                           (𝕡) for_account#0 | result#0,tmp%3#0
+    assert                                                                               (𝕡) for_account#0 | result#0
+    // local_state/local_state_contract.py:61
+    // assert read_local_bytes(for_account, String("local")) == result
+    p-load for_account#0                                                                 (𝕡) for_account#0 | result#0,for_account#0 (copy)
+    byte "local"                                                                         (𝕡) for_account#0 | result#0,for_account#0 (copy),"local"
+    callsub read_local_bytes                                                             (𝕡) for_account#0 | result#0,tmp%4#0
+    l-load-copy result#0 1                                                               (𝕡) for_account#0 | result#0,tmp%4#0,result#0 (copy)
+    ==                                                                                   (𝕡) for_account#0 | result#0,tmp%5#0
+    assert                                                                               (𝕡) for_account#0 | result#0
+    // local_state/local_state_contract.py:62
+    // return result
+    l-load result#0 0                                                                    (𝕡) for_account#0 | result#0
+    retsub                                                                               result#0
 
 
 // examples.local_state.local_state_contract.get_local_state_length(state: bytes, account: bytes) -> uint64:
-get_local_state_length:
-    proto 2 1                                         //                                                       (𝕡) state#0,account#0 |                                                                     @subroutine\ndef get_local_state_length(state: LocalState[Bytes], account: Account) -> UInt64: local_state/local_state_contract.py:83-84
+get_local_state_length:                                                                  (𝕡) state#0,account#0 |
+    // local_state/local_state_contract.py:83-84
+    // @subroutine
+    // def get_local_state_length(state: LocalState[Bytes], account: Account) -> UInt64:
+    proto 2 1                                                                            (𝕡) state#0,account#0 |
 
-get_local_state_length_block@0:
-    frame_dig -1                                      // load account#0 from parameters                        (𝕡) state#0,account#0 | account#0 (copy)                                                    state[account]                                                                                 local_state/local_state_contract.py:85
-    int 0                                             //                                                       (𝕡) state#0,account#0 | account#0 (copy),0                                                  state[account]                                                                                 local_state/local_state_contract.py:85
-    frame_dig -2                                      // load state#0 from parameters                          (𝕡) state#0,account#0 | account#0 (copy),0,state#0 (copy)                                   state[account]                                                                                 local_state/local_state_contract.py:85
-    app_local_get_ex                                  //                                                       (𝕡) state#0,account#0 | {app_local_get_ex}.0,{app_local_get_ex}.1                           state[account]                                                                                 local_state/local_state_contract.py:85
-                                                      // virtual: store maybe_exists%0#0 to l-stack (no copy)  (𝕡) state#0,account#0 | maybe_exists%0#0,{app_local_get_ex}.0                               state[account]                                                                                 local_state/local_state_contract.py:85
-                                                      // virtual: store maybe_value%0#0 to l-stack (no copy)   (𝕡) state#0,account#0 | maybe_value%0#0,maybe_exists%0#0                                    state[account]                                                                                 local_state/local_state_contract.py:85
-                                                      // virtual: load maybe_exists%0#0 from l-stack (no copy) (𝕡) state#0,account#0 | maybe_value%0#0,maybe_exists%0#0                                    state[account]                                                                                 local_state/local_state_contract.py:85
-    assert // check LocalState exists for account     //                                                       (𝕡) state#0,account#0 | maybe_value%0#0                                                     state[account]                                                                                 local_state/local_state_contract.py:85
-                                                      // virtual: load maybe_value%0#0 from l-stack (no copy)  (𝕡) state#0,account#0 | maybe_value%0#0                                                     state[account].length                                                                          local_state/local_state_contract.py:85
-    len                                               //                                                       (𝕡) state#0,account#0 | {len}                                                               state[account].length                                                                          local_state/local_state_contract.py:85
-                                                      // virtual: store tmp%0#0 to l-stack (no copy)           (𝕡) state#0,account#0 | tmp%0#0                                                             state[account].length                                                                          local_state/local_state_contract.py:85
-                                                      // virtual: load tmp%0#0 from l-stack (no copy)          (𝕡) state#0,account#0 | tmp%0#0                                                             return state[account].length                                                                   local_state/local_state_contract.py:85
-    retsub                                            //                                                       tmp%0#0                                                                                     return state[account].length                                                                   local_state/local_state_contract.py:85
+get_local_state_length_block@0:                                                          (𝕡) state#0,account#0 |
+    // local_state/local_state_contract.py:85
+    // return state[account].length
+    p-load account#0                                                                     (𝕡) state#0,account#0 | account#0 (copy)
+    int 0                                                                                (𝕡) state#0,account#0 | account#0 (copy),0
+    p-load state#0                                                                       (𝕡) state#0,account#0 | account#0 (copy),0,state#0 (copy)
+    app_local_get_ex                                                                     (𝕡) state#0,account#0 | maybe_value%0#0,maybe_exists%0#0
+    assert // check LocalState exists for account                                        (𝕡) state#0,account#0 | maybe_value%0#0
+    l-load maybe_value%0#0 0                                                             (𝕡) state#0,account#0 | maybe_value%0#0
+    len                                                                                  (𝕡) state#0,account#0 | tmp%0#0
+    retsub                                                                               tmp%0#0
 
 
 // examples.local_state.local_state_contract.local_bytes_exists(account: bytes, key: bytes) -> uint64:
-local_bytes_exists:
-    proto 2 1                                         //                                                       (𝕡) account#0,key#0 |                                                                       @subroutine\ndef local_bytes_exists(account: Account, key: Bytes) -> bool:                     local_state/local_state_contract.py:88-89
+local_bytes_exists:                                                                      (𝕡) account#0,key#0 |
+    // local_state/local_state_contract.py:88-89
+    // @subroutine
+    // def local_bytes_exists(account: Account, key: Bytes) -> bool:
+    proto 2 1                                                                            (𝕡) account#0,key#0 |
 
-local_bytes_exists_block@0:
-    frame_dig -2                                      // load account#0 from parameters                        (𝕡) account#0,key#0 | account#0 (copy)                                                      account in LocalState(Bytes, key=key)                                                          local_state/local_state_contract.py:90
-    int 0                                             //                                                       (𝕡) account#0,key#0 | account#0 (copy),0                                                    account in LocalState(Bytes, key=key)                                                          local_state/local_state_contract.py:90
-    frame_dig -1                                      // load key#0 from parameters                            (𝕡) account#0,key#0 | account#0 (copy),0,key#0 (copy)                                       account in LocalState(Bytes, key=key)                                                          local_state/local_state_contract.py:90
-    app_local_get_ex                                  //                                                       (𝕡) account#0,key#0 | {app_local_get_ex}.0,{app_local_get_ex}.1                             account in LocalState(Bytes, key=key)                                                          local_state/local_state_contract.py:90
-    cover 1                                           // store maybe_exists%0#0 to l-stack (no copy)           (𝕡) account#0,key#0 | maybe_exists%0#0,{app_local_get_ex}.0                                 account in LocalState(Bytes, key=key)                                                          local_state/local_state_contract.py:90
-    pop                                               //                                                       (𝕡) account#0,key#0 | maybe_exists%0#0                                                      account in LocalState(Bytes, key=key)                                                          local_state/local_state_contract.py:90
-                                                      // virtual: load maybe_exists%0#0 from l-stack (no copy) (𝕡) account#0,key#0 | maybe_exists%0#0                                                      return account in LocalState(Bytes, key=key)                                                   local_state/local_state_contract.py:90
-    retsub                                            //                                                       maybe_exists%0#0                                                                            return account in LocalState(Bytes, key=key)                                                   local_state/local_state_contract.py:90
+local_bytes_exists_block@0:                                                              (𝕡) account#0,key#0 |
+    // local_state/local_state_contract.py:90
+    // return account in LocalState(Bytes, key=key)
+    p-load account#0                                                                     (𝕡) account#0,key#0 | account#0 (copy)
+    int 0                                                                                (𝕡) account#0,key#0 | account#0 (copy),0
+    p-load key#0                                                                         (𝕡) account#0,key#0 | account#0 (copy),0,key#0 (copy)
+    app_local_get_ex                                                                     (𝕡) account#0,key#0 | maybe_value%0#0,maybe_exists%0#0
+    l-store maybe_exists%0#0 1                                                           (𝕡) account#0,key#0 | maybe_exists%0#0,maybe_value%0#0
+    pop 1                                                                                (𝕡) account#0,key#0 | maybe_exists%0#0
+    l-load maybe_exists%0#0 0                                                            (𝕡) account#0,key#0 | maybe_exists%0#0
+    retsub                                                                               maybe_exists%0#0
 
 
 // examples.local_state.local_state_contract.read_local_bytes(account: bytes, key: bytes) -> bytes:
-read_local_bytes:
-    proto 2 1                                         //                                                       (𝕡) account#0,key#0 |                                                                       @subroutine\ndef read_local_bytes(account: Account, key: String) -> Bytes:                     local_state/local_state_contract.py:93-94
+read_local_bytes:                                                                        (𝕡) account#0,key#0 |
+    // local_state/local_state_contract.py:93-94
+    // @subroutine
+    // def read_local_bytes(account: Account, key: String) -> Bytes:
+    proto 2 1                                                                            (𝕡) account#0,key#0 |
 
-read_local_bytes_block@0:
-    frame_dig -2                                      // load account#0 from parameters                        (𝕡) account#0,key#0 | account#0 (copy)                                                      LocalState(Bytes, key=key)[account]                                                            local_state/local_state_contract.py:95
-    int 0                                             //                                                       (𝕡) account#0,key#0 | account#0 (copy),0                                                    LocalState(Bytes, key=key)[account]                                                            local_state/local_state_contract.py:95
-    frame_dig -1                                      // load key#0 from parameters                            (𝕡) account#0,key#0 | account#0 (copy),0,key#0 (copy)                                       LocalState(Bytes, key=key)[account]                                                            local_state/local_state_contract.py:95
-    app_local_get_ex                                  //                                                       (𝕡) account#0,key#0 | {app_local_get_ex}.0,{app_local_get_ex}.1                             LocalState(Bytes, key=key)[account]                                                            local_state/local_state_contract.py:95
-                                                      // virtual: store maybe_exists%0#0 to l-stack (no copy)  (𝕡) account#0,key#0 | maybe_exists%0#0,{app_local_get_ex}.0                                 LocalState(Bytes, key=key)[account]                                                            local_state/local_state_contract.py:95
-                                                      // virtual: store maybe_value%0#0 to l-stack (no copy)   (𝕡) account#0,key#0 | maybe_value%0#0,maybe_exists%0#0                                      LocalState(Bytes, key=key)[account]                                                            local_state/local_state_contract.py:95
-                                                      // virtual: load maybe_exists%0#0 from l-stack (no copy) (𝕡) account#0,key#0 | maybe_value%0#0,maybe_exists%0#0                                      LocalState(Bytes, key=key)[account]                                                            local_state/local_state_contract.py:95
-    assert // check LocalState exists for account     //                                                       (𝕡) account#0,key#0 | maybe_value%0#0                                                       LocalState(Bytes, key=key)[account]                                                            local_state/local_state_contract.py:95
-                                                      // virtual: load maybe_value%0#0 from l-stack (no copy)  (𝕡) account#0,key#0 | maybe_value%0#0                                                       return LocalState(Bytes, key=key)[account]                                                     local_state/local_state_contract.py:95
-    retsub                                            //                                                       maybe_value%0#0                                                                             return LocalState(Bytes, key=key)[account]                                                     local_state/local_state_contract.py:95
+read_local_bytes_block@0:                                                                (𝕡) account#0,key#0 |
+    // local_state/local_state_contract.py:95
+    // return LocalState(Bytes, key=key)[account]
+    p-load account#0                                                                     (𝕡) account#0,key#0 | account#0 (copy)
+    int 0                                                                                (𝕡) account#0,key#0 | account#0 (copy),0
+    p-load key#0                                                                         (𝕡) account#0,key#0 | account#0 (copy),0,key#0 (copy)
+    app_local_get_ex                                                                     (𝕡) account#0,key#0 | maybe_value%0#0,maybe_exists%0#0
+    assert // check LocalState exists for account                                        (𝕡) account#0,key#0 | maybe_value%0#0
+    l-load maybe_value%0#0 0                                                             (𝕡) account#0,key#0 | maybe_value%0#0
+    retsub                                                                               maybe_value%0#0
 
 
 // examples.local_state.local_state_contract.LocalStateContract.get_data_or_assert(for_account: bytes) -> bytes:
-get_data_or_assert:
-    proto 1 1                                         //                                                       (𝕡) for_account#0 |                                                                         @subroutine\ndef get_data_or_assert(self, for_account: Account) -> Bytes:                      local_state/local_state_contract.py:68-69
+get_data_or_assert:                                                                      (𝕡) for_account#0 |
+    // local_state/local_state_contract.py:68-69
+    // @subroutine
+    // def get_data_or_assert(self, for_account: Account) -> Bytes:
+    proto 1 1                                                                            (𝕡) for_account#0 |
 
-get_data_or_assert_block@0:
-    frame_dig -1                                      // load for_account#0 from parameters                    (𝕡) for_account#0 | for_account#0 (copy)                                                    self.local.maybe(for_account)                                                                  local_state/local_state_contract.py:70
-    int 0                                             //                                                       (𝕡) for_account#0 | for_account#0 (copy),0                                                  self.local.maybe(for_account)                                                                  local_state/local_state_contract.py:70
-    byte "local"                                      //                                                       (𝕡) for_account#0 | for_account#0 (copy),0,"local"                                          self.local                                                                                     local_state/local_state_contract.py:70
-    app_local_get_ex                                  //                                                       (𝕡) for_account#0 | {app_local_get_ex}.0,{app_local_get_ex}.1                               self.local.maybe(for_account)                                                                  local_state/local_state_contract.py:70
-                                                      // virtual: store exists#0 to l-stack (no copy)          (𝕡) for_account#0 | exists#0,{app_local_get_ex}.0                                           self.local.maybe(for_account)                                                                  local_state/local_state_contract.py:70
-                                                      // virtual: store result#0 to l-stack (no copy)          (𝕡) for_account#0 | result#0,exists#0                                                       self.local.maybe(for_account)                                                                  local_state/local_state_contract.py:70
-                                                      // virtual: load exists#0 from l-stack (no copy)         (𝕡) for_account#0 | result#0,exists#0                                                       assert exists, "no data for account"                                                           local_state/local_state_contract.py:71
-    assert // no data for account                     //                                                       (𝕡) for_account#0 | result#0                                                                assert exists, "no data for account"                                                           local_state/local_state_contract.py:71
-                                                      // virtual: load result#0 from l-stack (no copy)         (𝕡) for_account#0 | result#0                                                                return result                                                                                  local_state/local_state_contract.py:72
-    retsub                                            //                                                       result#0                                                                                    return result                                                                                  local_state/local_state_contract.py:72
+get_data_or_assert_block@0:                                                              (𝕡) for_account#0 |
+    // local_state/local_state_contract.py:70
+    // result, exists = self.local.maybe(for_account)
+    p-load for_account#0                                                                 (𝕡) for_account#0 | for_account#0 (copy)
+    int 0                                                                                (𝕡) for_account#0 | for_account#0 (copy),0
+    byte "local"                                                                         (𝕡) for_account#0 | for_account#0 (copy),0,"local"
+    app_local_get_ex                                                                     (𝕡) for_account#0 | result#0,exists#0
+    // local_state/local_state_contract.py:71
+    // assert exists, "no data for account"
+    assert // no data for account                                                        (𝕡) for_account#0 | result#0
+    // local_state/local_state_contract.py:72
+    // return result
+    l-load result#0 0                                                                    (𝕡) for_account#0 | result#0
+    retsub                                                                               result#0
 
 
 // examples.local_state.local_state_contract.LocalStateContract.delete_data(for_account: bytes) -> void:
-delete_data:
-    proto 1 0                                         //                                                       (𝕡) for_account#0 |                                                                         @subroutine\ndef delete_data(self, for_account: Account) -> None:                              local_state/local_state_contract.py:78-79
+delete_data:                                                                             (𝕡) for_account#0 |
+    // local_state/local_state_contract.py:78-79
+    // @subroutine
+    // def delete_data(self, for_account: Account) -> None:
+    proto 1 0                                                                            (𝕡) for_account#0 |
 
-delete_data_block@0:
-    frame_dig -1                                      // load for_account#0 from parameters                    (𝕡) for_account#0 | for_account#0 (copy)                                                    del self.local[for_account]                                                                    local_state/local_state_contract.py:80
-    byte "local"                                      //                                                       (𝕡) for_account#0 | for_account#0 (copy),"local"                                            self.local                                                                                     local_state/local_state_contract.py:80
-    app_local_del                                     //                                                       (𝕡) for_account#0 |                                                                         del self.local[for_account]                                                                    local_state/local_state_contract.py:80
-    retsub                                            //
+delete_data_block@0:                                                                     (𝕡) for_account#0 |
+    // local_state/local_state_contract.py:80
+    // del self.local[for_account]
+    p-load for_account#0                                                                 (𝕡) for_account#0 | for_account#0 (copy)
+    byte "local"                                                                         (𝕡) for_account#0 | for_account#0 (copy),"local"
+    app_local_del                                                                        (𝕡) for_account#0 |
+    retsub
 
 
 // examples.local_state.local_state_contract.LocalStateContract.set_data(for_account: bytes, value: bytes) -> void:
-set_data:
-    proto 2 0                                         //                                                       (𝕡) for_account#0,value#0 |                                                                 @subroutine\ndef set_data(self, for_account: Account, value: Bytes) -> None:                   local_state/local_state_contract.py:74-75
+set_data:                                                                                (𝕡) for_account#0,value#0 |
+    // local_state/local_state_contract.py:74-75
+    // @subroutine
+    // def set_data(self, for_account: Account, value: Bytes) -> None:
+    proto 2 0                                                                            (𝕡) for_account#0,value#0 |
 
-set_data_block@0:
-    frame_dig -2                                      // load for_account#0 from parameters                    (𝕡) for_account#0,value#0 | for_account#0 (copy)                                            self.local[for_account] = value                                                                local_state/local_state_contract.py:76
-    byte "local"                                      //                                                       (𝕡) for_account#0,value#0 | for_account#0 (copy),"local"                                    self.local                                                                                     local_state/local_state_contract.py:76
-    frame_dig -1                                      // load value#0 from parameters                          (𝕡) for_account#0,value#0 | for_account#0 (copy),"local",value#0 (copy)                     self.local[for_account] = value                                                                local_state/local_state_contract.py:76
-    app_local_put                                     //                                                       (𝕡) for_account#0,value#0 |                                                                 self.local[for_account] = value                                                                local_state/local_state_contract.py:76
-    retsub                                            //
+set_data_block@0:                                                                        (𝕡) for_account#0,value#0 |
+    // local_state/local_state_contract.py:76
+    // self.local[for_account] = value
+    p-load for_account#0                                                                 (𝕡) for_account#0,value#0 | for_account#0 (copy)
+    byte "local"                                                                         (𝕡) for_account#0,value#0 | for_account#0 (copy),"local"
+    p-load value#0                                                                       (𝕡) for_account#0,value#0 | for_account#0 (copy),"local",value#0 (copy)
+    app_local_put                                                                        (𝕡) for_account#0,value#0 |
+    retsub
 
 
 // examples.local_state.local_state_contract.LocalStateContract.get_data_with_default(for_account: bytes, default: bytes) -> bytes:
-get_data_with_default:
-    proto 2 1                                         //                                                       (𝕡) for_account#0,default#0 |                                                               @subroutine\ndef get_data_with_default(self, for_account: Account, default: Bytes) -> Bytes:   local_state/local_state_contract.py:64-65
+get_data_with_default:                                                                   (𝕡) for_account#0,default#0 |
+    // local_state/local_state_contract.py:64-65
+    // @subroutine
+    // def get_data_with_default(self, for_account: Account, default: Bytes) -> Bytes:
+    proto 2 1                                                                            (𝕡) for_account#0,default#0 |
 
-get_data_with_default_block@0:
-    frame_dig -2                                      // load for_account#0 from parameters                    (𝕡) for_account#0,default#0 | for_account#0 (copy)                                          self.local.get(for_account, default)                                                           local_state/local_state_contract.py:66
-    int 0                                             //                                                       (𝕡) for_account#0,default#0 | for_account#0 (copy),0                                        self.local.get(for_account, default)                                                           local_state/local_state_contract.py:66
-    byte "local"                                      //                                                       (𝕡) for_account#0,default#0 | for_account#0 (copy),0,"local"                                self.local                                                                                     local_state/local_state_contract.py:66
-    app_local_get_ex                                  //                                                       (𝕡) for_account#0,default#0 | {app_local_get_ex}.0,{app_local_get_ex}.1                     self.local.get(for_account, default)                                                           local_state/local_state_contract.py:66
-    cover 1                                           // store maybe_exists%0#0 to l-stack (no copy)           (𝕡) for_account#0,default#0 | maybe_exists%0#0,{app_local_get_ex}.0                         self.local.get(for_account, default)                                                           local_state/local_state_contract.py:66
-                                                      // virtual: store maybe_value%0#0 to l-stack (no copy)   (𝕡) for_account#0,default#0 | maybe_exists%0#0,maybe_value%0#0                              self.local.get(for_account, default)                                                           local_state/local_state_contract.py:66
-    frame_dig -1                                      // load default#0 from parameters                        (𝕡) for_account#0,default#0 | maybe_exists%0#0,maybe_value%0#0,default#0 (copy)             self.local.get(for_account, default)                                                           local_state/local_state_contract.py:66
-    uncover 1                                         // load maybe_value%0#0 from l-stack (no copy)           (𝕡) for_account#0,default#0 | maybe_exists%0#0,default#0 (copy),maybe_value%0#0             self.local.get(for_account, default)                                                           local_state/local_state_contract.py:66
-    uncover 2                                         // load maybe_exists%0#0 from l-stack (no copy)          (𝕡) for_account#0,default#0 | default#0 (copy),maybe_value%0#0,maybe_exists%0#0             self.local.get(for_account, default)                                                           local_state/local_state_contract.py:66
-    select                                            //                                                       (𝕡) for_account#0,default#0 | {select}                                                      self.local.get(for_account, default)                                                           local_state/local_state_contract.py:66
-                                                      // virtual: store tmp%0#0 to l-stack (no copy)           (𝕡) for_account#0,default#0 | tmp%0#0                                                       self.local.get(for_account, default)                                                           local_state/local_state_contract.py:66
-                                                      // virtual: load tmp%0#0 from l-stack (no copy)          (𝕡) for_account#0,default#0 | tmp%0#0                                                       return self.local.get(for_account, default)                                                    local_state/local_state_contract.py:66
-    retsub                                            //                                                       tmp%0#0                                                                                     return self.local.get(for_account, default)                                                    local_state/local_state_contract.py:66
+get_data_with_default_block@0:                                                           (𝕡) for_account#0,default#0 |
+    // local_state/local_state_contract.py:66
+    // return self.local.get(for_account, default)
+    p-load for_account#0                                                                 (𝕡) for_account#0,default#0 | for_account#0 (copy)
+    int 0                                                                                (𝕡) for_account#0,default#0 | for_account#0 (copy),0
+    byte "local"                                                                         (𝕡) for_account#0,default#0 | for_account#0 (copy),0,"local"
+    app_local_get_ex                                                                     (𝕡) for_account#0,default#0 | maybe_value%0#0,maybe_exists%0#0
+    p-load default#0                                                                     (𝕡) for_account#0,default#0 | maybe_value%0#0,maybe_exists%0#0,default#0 (copy)
+    l-load maybe_value%0#0 2                                                             (𝕡) for_account#0,default#0 | maybe_exists%0#0,default#0 (copy),maybe_value%0#0
+    l-load maybe_exists%0#0 2                                                            (𝕡) for_account#0,default#0 | default#0 (copy),maybe_value%0#0,maybe_exists%0#0
+    select                                                                               (𝕡) for_account#0,default#0 | tmp%0#0
+    retsub                                                                               tmp%0#0
+
 

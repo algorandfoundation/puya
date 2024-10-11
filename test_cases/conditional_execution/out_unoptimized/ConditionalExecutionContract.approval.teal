@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.conditional_execution.contract.ConditionalExecutionContract.approval_program:
+    intcblock 0 1
+    bytecblock "did_execute_a" "did_execute_b"
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -9,10 +11,10 @@ main_entrypoint@2:
     // conditional_execution/contract.py:10-11
     // # 'or' won't execute rhs if lhs is True
     // self.func_a(True) or self.func_b(True)
-    pushint 1 // 1
+    intc_1 // 1
     callsub func_a
     bnz main_bool_true@4
-    pushint 1 // 1
+    intc_1 // 1
     callsub func_b
     bz main_bool_false@5
 
@@ -24,21 +26,21 @@ main_bool_false@5:
 main_bool_merge@6:
     // conditional_execution/contract.py:13
     // self.did_execute_a and not self.did_execute_b,
-    pushint 0 // 0
-    pushbytes "did_execute_a"
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
     bz main_bool_false@9
-    pushint 0 // 0
-    pushbytes "did_execute_b"
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
     bnz main_bool_false@9
-    pushint 1 // 1
+    intc_1 // 1
     b main_bool_merge@10
 
 main_bool_false@9:
-    pushint 0 // 0
+    intc_0 // 0
 
 main_bool_merge@10:
     // conditional_execution/contract.py:12-14
@@ -49,10 +51,10 @@ main_bool_merge@10:
     // conditional_execution/contract.py:16-17
     // # 'or' executes rhs if lhs is False
     // self.func_a(False) or self.func_b(True)
-    pushint 0 // 0
+    intc_0 // 0
     callsub func_a
     bnz main_bool_true@12
-    pushint 1 // 1
+    intc_1 // 1
     callsub func_b
     bz main_bool_false@13
 
@@ -64,21 +66,21 @@ main_bool_false@13:
 main_bool_merge@14:
     // conditional_execution/contract.py:19
     // self.did_execute_a and self.did_execute_b,
-    pushint 0 // 0
-    pushbytes "did_execute_a"
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
     bz main_bool_false@17
-    pushint 0 // 0
-    pushbytes "did_execute_b"
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
     bz main_bool_false@17
-    pushint 1 // 1
+    intc_1 // 1
     b main_bool_merge@18
 
 main_bool_false@17:
-    pushint 0 // 0
+    intc_0 // 0
 
 main_bool_merge@18:
     // conditional_execution/contract.py:18-20
@@ -89,10 +91,10 @@ main_bool_merge@18:
     // conditional_execution/contract.py:22-23
     // # 'and' won't execute rhs if lhs is False
     // self.func_a(False) and self.func_b(True)
-    pushint 0 // 0
+    intc_0 // 0
     callsub func_a
     bz main_bool_false@21
-    pushint 1 // 1
+    intc_1 // 1
     callsub func_b
     bz main_bool_false@21
     b main_bool_merge@22
@@ -102,21 +104,21 @@ main_bool_false@21:
 main_bool_merge@22:
     // conditional_execution/contract.py:25
     // self.did_execute_a and not self.did_execute_b,
-    pushint 0 // 0
-    pushbytes "did_execute_a"
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
     bz main_bool_false@25
-    pushint 0 // 0
-    pushbytes "did_execute_b"
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
     bnz main_bool_false@25
-    pushint 1 // 1
+    intc_1 // 1
     b main_bool_merge@26
 
 main_bool_false@25:
-    pushint 0 // 0
+    intc_0 // 0
 
 main_bool_merge@26:
     // conditional_execution/contract.py:24-26
@@ -127,10 +129,10 @@ main_bool_merge@26:
     // conditional_execution/contract.py:28-29
     // # 'and' executes rhs if lhs is True
     // self.func_a(True) and self.func_b(True)
-    pushint 1 // 1
+    intc_1 // 1
     callsub func_a
     bz main_bool_false@29
-    pushint 1 // 1
+    intc_1 // 1
     callsub func_b
     bz main_bool_false@29
     b main_bool_merge@30
@@ -140,21 +142,21 @@ main_bool_false@29:
 main_bool_merge@30:
     // conditional_execution/contract.py:31
     // self.did_execute_a and self.did_execute_b,
-    pushint 0 // 0
-    pushbytes "did_execute_a"
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
     bz main_bool_false@33
-    pushint 0 // 0
-    pushbytes "did_execute_b"
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
     bz main_bool_false@33
-    pushint 1 // 1
+    intc_1 // 1
     b main_bool_merge@34
 
 main_bool_false@33:
-    pushint 0 // 0
+    intc_0 // 0
 
 main_bool_merge@34:
     // conditional_execution/contract.py:30-32
@@ -165,29 +167,29 @@ main_bool_merge@34:
     // conditional_execution/contract.py:34-35
     // # Tuples are fully evaluated before indexing is done
     // (self.func_a(True), self.func_b(True))[0]
-    pushint 1 // 1
+    intc_1 // 1
     callsub func_a
     pop
-    pushint 1 // 1
+    intc_1 // 1
     callsub func_b
     pop
     // conditional_execution/contract.py:37
     // self.did_execute_a and self.did_execute_b,
-    pushint 0 // 0
-    pushbytes "did_execute_a"
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
     bz main_bool_false@37
-    pushint 0 // 0
-    pushbytes "did_execute_b"
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
     bz main_bool_false@37
-    pushint 1 // 1
+    intc_1 // 1
     b main_bool_merge@38
 
 main_bool_false@37:
-    pushint 0 // 0
+    intc_0 // 0
 
 main_bool_merge@38:
     // conditional_execution/contract.py:36-38
@@ -198,10 +200,10 @@ main_bool_merge@38:
     // conditional_execution/contract.py:40-41
     // # Ternary condition won't execute <false expr> if condition is True
     // self.func_a(True) if self.func_c(True) else self.func_b(True)
-    pushint 1 // 1
+    intc_1 // 1
     callsub func_c
     bz main_ternary_false@40
-    pushint 1 // 1
+    intc_1 // 1
     callsub func_a
     pop
     b main_ternary_merge@41
@@ -210,28 +212,28 @@ main_ternary_false@40:
     // conditional_execution/contract.py:40-41
     // # Ternary condition won't execute <false expr> if condition is True
     // self.func_a(True) if self.func_c(True) else self.func_b(True)
-    pushint 1 // 1
+    intc_1 // 1
     callsub func_b
     pop
 
 main_ternary_merge@41:
     // conditional_execution/contract.py:43
     // self.did_execute_a and not self.did_execute_b,
-    pushint 0 // 0
-    pushbytes "did_execute_a"
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
     bz main_bool_false@44
-    pushint 0 // 0
-    pushbytes "did_execute_b"
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
     bnz main_bool_false@44
-    pushint 1 // 1
+    intc_1 // 1
     b main_bool_merge@45
 
 main_bool_false@44:
-    pushint 0 // 0
+    intc_0 // 0
 
 main_bool_merge@45:
     // conditional_execution/contract.py:42-44
@@ -242,10 +244,10 @@ main_bool_merge@45:
     // conditional_execution/contract.py:46-47
     // # Ternary condition won't execute <true expr> if condition is False
     // self.func_a(True) if self.func_c(False) else self.func_b(True)
-    pushint 0 // 0
+    intc_0 // 0
     callsub func_c
     bz main_ternary_false@47
-    pushint 1 // 1
+    intc_1 // 1
     callsub func_a
     pop
     b main_ternary_merge@48
@@ -254,28 +256,28 @@ main_ternary_false@47:
     // conditional_execution/contract.py:46-47
     // # Ternary condition won't execute <true expr> if condition is False
     // self.func_a(True) if self.func_c(False) else self.func_b(True)
-    pushint 1 // 1
+    intc_1 // 1
     callsub func_b
     pop
 
 main_ternary_merge@48:
     // conditional_execution/contract.py:49
     // not self.did_execute_a and self.did_execute_b,
-    pushint 0 // 0
-    pushbytes "did_execute_a"
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
     bnz main_bool_false@51
-    pushint 0 // 0
-    pushbytes "did_execute_b"
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
     bz main_bool_false@51
-    pushint 1 // 1
+    intc_1 // 1
     b main_bool_merge@52
 
 main_bool_false@51:
-    pushint 0 // 0
+    intc_0 // 0
 
 main_bool_merge@52:
     // conditional_execution/contract.py:48-50
@@ -285,7 +287,7 @@ main_bool_merge@52:
     callsub assert_and_reset
     // conditional_execution/contract.py:52
     // return True
-    pushint 1 // 1
+    intc_1 // 1
     return
 
 
@@ -297,8 +299,8 @@ func_a:
     proto 1 1
     // conditional_execution/contract.py:65
     // self.did_execute_a = True
-    pushbytes "did_execute_a"
-    pushint 1 // 1
+    bytec_0 // "did_execute_a"
+    intc_1 // 1
     app_global_put
     // conditional_execution/contract.py:66
     // return ret_val
@@ -314,8 +316,8 @@ func_b:
     proto 1 1
     // conditional_execution/contract.py:70
     // self.did_execute_b = True
-    pushbytes "did_execute_b"
-    pushint 1 // 1
+    bytec_1 // "did_execute_b"
+    intc_1 // 1
     app_global_put
     // conditional_execution/contract.py:71
     // return ret_val
@@ -335,13 +337,13 @@ assert_and_reset:
     assert
     // conditional_execution/contract.py:60
     // self.did_execute_b = False
-    pushbytes "did_execute_b"
-    pushint 0 // 0
+    bytec_1 // "did_execute_b"
+    intc_0 // 0
     app_global_put
     // conditional_execution/contract.py:61
     // self.did_execute_a = False
-    pushbytes "did_execute_a"
-    pushint 0 // 0
+    bytec_0 // "did_execute_a"
+    intc_0 // 0
     app_global_put
     retsub
 
@@ -365,12 +367,12 @@ __init__:
     proto 0 0
     // conditional_execution/contract.py:6
     // self.did_execute_a = False
-    pushbytes "did_execute_a"
-    pushint 0 // 0
+    bytec_0 // "did_execute_a"
+    intc_0 // 0
     app_global_put
     // conditional_execution/contract.py:7
     // self.did_execute_b = False
-    pushbytes "did_execute_b"
-    pushint 0 // 0
+    bytec_1 // "did_execute_b"
+    intc_0 // 0
     app_global_put
     retsub

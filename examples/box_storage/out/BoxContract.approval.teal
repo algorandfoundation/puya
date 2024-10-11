@@ -72,28 +72,23 @@ __puya_arc4_router___read_boxes_route@5:
     txn ApplicationID
     assert // is not creating
     callsub read_boxes
-    cover 2
-    swap
+    uncover 2
     itob
-    swap
-    dup
+    dig 2
     len
     itob
     extract 6 2
-    swap
+    uncover 3
     concat
     swap
     pushbytes 0x000c
     concat
-    swap
-    dup
+    dig 1
     len
     pushint 12 // 12
     +
     itob
     extract 6 2
-    uncover 2
-    swap
     concat
     swap
     concat
@@ -115,20 +110,17 @@ __puya_arc4_router___boxes_exist_route@6:
     txn ApplicationID
     assert // is not creating
     callsub boxes_exist
-    cover 2
-    swap
     bytec 5 // 0x00
     intc_1 // 0
-    uncover 2
-    setbit
-    cover 2
-    bytec 5 // 0x00
-    intc_1 // 0
-    uncover 2
+    uncover 4
     setbit
     bytec 5 // 0x00
     intc_1 // 0
-    uncover 3
+    uncover 4
+    setbit
+    bytec 5 // 0x00
+    intc_1 // 0
+    uncover 4
     setbit
     swap
     intc_1 // 0
@@ -403,8 +395,8 @@ set_boxes:
     assert // check self.box_c exists
     frame_dig -1
     len
-    dup
-    cover 2
+    swap
+    dig 1
     ==
     assert
     // box_storage/contract.py:33
@@ -414,8 +406,8 @@ set_boxes:
     assert // check self.box_d exists
     dig 2
     len
-    dup
-    cover 4
+    swap
+    dig 1
     ==
     assert
     // box_storage/contract.py:35-36
@@ -440,7 +432,7 @@ set_boxes:
     swap
     intc_0 // 1
     box_extract
-    dig 1
+    dig 2
     intc_0 // 1
     -
     dup
@@ -459,10 +451,9 @@ set_boxes:
     intc_0 // 1
     dig 1
     <
-    swap
-    dup
+    dig 1
     intc_0 // 1
-    uncover 3
+    uncover 2
     select
     -
     bytec_0 // 0x424f585f43
@@ -470,13 +461,13 @@ set_boxes:
     uncover 2
     box_extract
     intc_0 // 1
-    dig 2
+    dig 3
     >=
     intc_0 // 1
-    dig 3
+    dig 4
     uncover 2
     select
-    dig 2
+    dig 3
     swap
     -
     frame_dig -1
@@ -501,10 +492,10 @@ set_boxes:
     uncover 2
     box_extract
     intc_2 // 2
-    dig 2
+    dig 3
     >=
     intc_2 // 2
-    uncover 3
+    uncover 4
     uncover 2
     select
     frame_dig -1
@@ -520,7 +511,7 @@ set_boxes:
     intc_1 // 0
     intc_0 // 1
     box_extract
-    dig 1
+    dig 2
     extract 0 1
     ==
     assert
@@ -535,13 +526,13 @@ set_boxes:
     swap
     intc_0 // 1
     box_extract
-    dig 2
+    dig 1
     intc_0 // 1
     -
     dup
     intc_0 // 1
     +
-    dig 3
+    dig 4
     cover 2
     substring3
     ==
@@ -554,10 +545,9 @@ set_boxes:
     intc_0 // 1
     dig 1
     <
-    swap
-    dup
+    dig 1
     intc_0 // 1
-    uncover 3
+    uncover 2
     select
     -
     bytec_2 // "box_d"
@@ -565,16 +555,16 @@ set_boxes:
     uncover 2
     box_extract
     intc_0 // 1
-    dig 3
+    dig 2
     >=
     intc_0 // 1
-    dig 4
+    dig 3
     uncover 2
     select
-    dig 3
+    dig 2
     swap
     -
-    dig 2
+    dig 3
     intc_1 // 0
     uncover 2
     substring3
@@ -596,13 +586,13 @@ set_boxes:
     uncover 2
     box_extract
     intc_3 // 5
-    dig 3
+    dig 2
     >=
     intc_3 // 5
-    dig 4
+    dig 3
     uncover 2
     select
-    dig 2
+    dig 3
     intc_1 // 0
     uncover 2
     substring3
@@ -624,10 +614,10 @@ set_boxes:
     uncover 2
     box_extract
     intc_2 // 2
-    dig 3
+    dig 2
     >=
     intc_2 // 2
-    uncover 4
+    uncover 3
     uncover 2
     select
     uncover 2
@@ -700,9 +690,9 @@ delete_boxes:
     box_get
     swap
     btoi
-    swap
     // box_storage/contract.py:63
     // assert not a_exists
+    swap
     !
     assert
     // box_storage/contract.py:64
@@ -804,12 +794,12 @@ slice_box:
     intc_1 // 0
     dig 2
     select
-    swap
     pushint 7 // 7
-    dig 1
+    dig 2
     <
+    uncover 2
     pushint 7 // 7
-    swap
+    uncover 2
     select
     dig 1
     -
@@ -839,17 +829,16 @@ slice_box:
     intc_2 // 2
     dig 1
     <
-    swap
-    dup
-    intc_2 // 2
-    uncover 3
-    select
-    swap
-    pushint 10 // 10
     dig 1
-    <
+    intc_2 // 2
+    uncover 2
+    select
     pushint 10 // 10
-    swap
+    dig 2
+    <
+    uncover 2
+    pushint 10 // 10
+    uncover 2
     select
     dig 1
     -
@@ -982,20 +971,20 @@ test_box_ref:
     box_len
     bury 1
     assert // has data
-    // box_storage/contract.py:111
-    // app_address = Global.current_application_address.bytes
-    global CurrentApplicationAddress
     // box_storage/contract.py:109-110
     // # manipulate data
     // sender_bytes = Txn.sender.bytes
     txn Sender
+    // box_storage/contract.py:111
+    // app_address = Global.current_application_address.bytes
+    global CurrentApplicationAddress
     // box_storage/contract.py:102
     // box_ref = BoxRef(key=String("blob"))
     bytec_1 // "blob"
     // box_storage/contract.py:113
     // box_ref.replace(0, sender_bytes)
     intc_1 // 0
-    dig 2
+    dig 3
     box_replace
     // box_storage/contract.py:102
     // box_ref = BoxRef(key=String("blob"))
@@ -1011,7 +1000,7 @@ test_box_ref:
     // box_ref.splice(0, 0, app_address)
     intc_1 // 0
     dup
-    dig 4
+    dig 3
     box_splice
     // box_storage/contract.py:102
     // box_ref = BoxRef(key=String("blob"))
@@ -1035,8 +1024,8 @@ test_box_ref:
     box_extract
     // box_storage/contract.py:118
     // assert prefix == app_address + sender_bytes + value_3
-    dig 2
-    dig 2
+    dig 1
+    dig 3
     concat
     // box_storage/contract.py:112
     // value_3 = Bytes(b"hello")
@@ -1076,16 +1065,15 @@ test_box_ref:
     // box_storage/contract.py:128
     // assert box_ref.get(default=sender_bytes) == sender_bytes
     box_get
-    dig 2
+    dig 3
     cover 2
     select
-    dig 1
+    dig 2
     ==
     assert
     // box_storage/contract.py:130-131
     // # update
     // box_ref.put(sender_bytes + app_address)
-    swap
     concat
     // box_storage/contract.py:102
     // box_ref = BoxRef(key=String("blob"))

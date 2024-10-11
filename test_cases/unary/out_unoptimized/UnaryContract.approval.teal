@@ -1,6 +1,7 @@
 #pragma version 10
 
 test_cases.unary.contract.UnaryContract.approval_program:
+    intcblock 1 0 18446744073709551615 2
     // unary/contract.py:15
     // uint_unary()
     callsub uint_unary
@@ -12,7 +13,7 @@ test_cases.unary.contract.UnaryContract.approval_program:
     callsub bytes_unary
     // unary/contract.py:19
     // return True
-    pushint 1 // 1
+    intc_0 // 1
     return
 
 
@@ -25,26 +26,25 @@ uint_unary:
     // unary/contract.py:27-28
     // # test not
     // assert not UInt64(0), "not uint"
-    pushint 0 // 0
-    pushint 0 // 0
+    intc_1 // 0
+    dup
     ==
     assert // not uint
-    pushint 0 // 0
+    intc_1 // 0
     // unary/contract.py:30-31
     // # test ~
     // for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):
-    pushint 1 // 1
+    intc_0 // 1
 
 uint_unary_for_body@1:
     // unary/contract.py:32
     // assert ~(MAX_UINT64 - i) == i, "~ uint"
-    pushint 18446744073709551615 // 18446744073709551615
-    uncover 1
+    intc_2 // 18446744073709551615
+    swap
     dup
     cover 2
     -
     ~
-    uncover 1
     ==
     assert // ~ uint
     // unary/contract.py:30-31
@@ -55,16 +55,16 @@ uint_unary_for_body@1:
     b uint_unary_after_for@6
 
 uint_unary_for_header_1@3:
-    pushint 1 // 1
+    intc_0 // 1
     frame_bury 0
     // unary/contract.py:30-31
     // # test ~
     // for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):
-    pushint 2 // 2
+    intc_3 // 2
     b uint_unary_for_body@1
 
 uint_unary_for_header_2@4:
-    pushint 2 // 2
+    intc_3 // 2
     frame_bury 0
     // unary/contract.py:30-31
     // # test ~
@@ -78,7 +78,7 @@ uint_unary_for_header_3@5:
     // unary/contract.py:30-31
     // # test ~
     // for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):
-    pushint 18446744073709551615 // 18446744073709551615
+    intc_2 // 18446744073709551615
     b uint_unary_for_body@1
 
 uint_unary_after_for@6:
@@ -95,7 +95,7 @@ biguint_unary:
     // # test not
     // assert not BigUInt(0), "not biguint"
     pushbytes 0x
-    pushbytes 0x
+    dup
     b==
     assert // not biguint
     retsub
@@ -112,7 +112,7 @@ bytes_unary:
     // assert not Bytes(b""), "not bytes"
     pushbytes 0x
     len
-    pushint 0 // 0
+    intc_1 // 0
     ==
     assert // not bytes
     // unary/contract.py:46-47

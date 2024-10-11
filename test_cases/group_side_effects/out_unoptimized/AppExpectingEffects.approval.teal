@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.group_side_effects.contract.AppExpectingEffects.approval_program:
+    intcblock 0 1 6
+    bytecblock 0x151f7c75
     callsub __puya_arc4_router__
     return
 
@@ -11,7 +13,7 @@ __puya_arc4_router__:
     // class AppExpectingEffects(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    pushint 0 // 0
+    intc_0 // 0
     !=
     bz __puya_arc4_router___bare_routing@6
     txna ApplicationArgs 0
@@ -25,11 +27,11 @@ __puya_arc4_router___create_group_route@2:
     // group_side_effects/contract.py:5
     // @arc4.abimethod
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     // group_side_effects/contract.py:4
@@ -37,64 +39,64 @@ __puya_arc4_router___create_group_route@2:
     txn GroupIndex
     pushint 2 // 2
     -
-    dig 0
+    dup
     gtxns TypeEnum
     pushint 3 // acfg
     ==
     assert // transaction type is acfg
     txn GroupIndex
-    pushint 1 // 1
+    intc_1 // 1
     -
-    dig 0
+    dup
     gtxns TypeEnum
-    pushint 6 // appl
+    intc_2 // appl
     ==
     assert // transaction type is appl
     // group_side_effects/contract.py:5
     // @arc4.abimethod
     callsub create_group
-    cover 1
+    swap
     itob
-    cover 1
+    swap
     itob
-    cover 1
+    swap
     pushbytes 0x
-    uncover 1
+    swap
     concat
-    uncover 1
+    swap
     concat
-    pushbytes 0x151f7c75
-    uncover 1
+    bytec_0 // 0x151f7c75
+    swap
     concat
     log
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___log_group_route@3:
     // group_side_effects/contract.py:22
     // @arc4.abimethod
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
     txn GroupIndex
-    pushint 1 // 1
+    intc_1 // 1
     -
-    dig 0
+    dup
     gtxns TypeEnum
-    pushint 6 // appl
+    intc_2 // appl
     ==
     assert // transaction type is appl
     // group_side_effects/contract.py:22
     // @arc4.abimethod
     callsub log_group
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@4:
@@ -104,8 +106,8 @@ __puya_arc4_router___bare_routing@6:
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
     txn OnCompletion
-    pushint 0 // 0
-    uncover 1
+    intc_0 // 0
+    swap
     match __puya_arc4_router_____algopy_default_create@7
     b __puya_arc4_router___switch_case_default@8
 
@@ -113,11 +115,11 @@ __puya_arc4_router_____algopy_default_create@7:
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     ==
     assert // is creating
     callsub __algopy_default_create
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@8:
@@ -125,7 +127,7 @@ __puya_arc4_router___switch_case_default@8:
 __puya_arc4_router___after_if_else@10:
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
-    pushint 0 // 0
+    intc_0 // 0
     retsub
 
 
@@ -143,7 +145,7 @@ create_group:
     // assert asset_create.created_asset.id, "expected asset created"
     frame_dig -2
     gtxns CreatedAssetID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // expected asset created
     // group_side_effects/contract.py:13
@@ -163,7 +165,7 @@ create_group:
     // assert app_create.created_app.id, "expected app created"
     frame_dig -1
     gtxns CreatedApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // expected app created
     // group_side_effects/contract.py:17
@@ -197,7 +199,7 @@ log_group:
     // group_side_effects/contract.py:24
     // assert app_call.app_args(0) == arc4.arc4_signature(
     frame_dig -1
-    pushint 0 // 0
+    intc_0 // 0
     gtxnsas ApplicationArgs
     // group_side_effects/contract.py:24-26
     // assert app_call.app_args(0) == arc4.arc4_signature(
@@ -210,25 +212,25 @@ log_group:
     // assert app_call.num_logs == 1, "expected logs"
     frame_dig -1
     gtxns NumLogs
-    pushint 1 // 1
+    intc_1 // 1
     ==
     assert // expected logs
     // group_side_effects/contract.py:29
     // arc4.UInt64.from_log(app_call.last_log)
     frame_dig -1
     gtxns LastLog
-    dig 0
+    dup
     extract 4 0
-    cover 1
+    swap
     extract 0 4
-    pushbytes 0x151f7c75
+    bytec_0 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     // group_side_effects/contract.py:30
     // == (app_call.group_index + 1) * Global.group_size
     frame_dig -1
     gtxns GroupIndex
-    pushint 1 // 1
+    intc_1 // 1
     +
     global GroupSize
     *

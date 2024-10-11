@@ -1,127 +1,141 @@
-// Op                                           // Op Description                                Stack (out)                                              Source code                                                                            Source line
-
-#pragma version 10
-
+// Op                                                                                         Stack (out)
 // test_cases.stubs.biguint.BigUIntContract.approval_program() -> uint64:
 main_block@0:
-    byte 0x01                                   //                                               0x01                                                     BigUInt(1)                                                                             stubs/biguint.py:6
-    byte 0x02                                   //                                               0x01,0x02                                                BigUInt(2)                                                                             stubs/biguint.py:7
-    callsub compare_biguints                    //                                                                                                        compare_biguints(one, BigUInt(2))                                                      stubs/biguint.py:7
-    byte 0x01                                   //                                               0x01                                                     BigUInt(1)                                                                             stubs/biguint.py:6
-    int 2                                       //                                               0x01,2                                                   UInt64(2)                                                                              stubs/biguint.py:8
-    callsub compare_biguint_vs_uint64           //                                                                                                        compare_biguint_vs_uint64(one, UInt64(2))                                              stubs/biguint.py:8
-    int 1                                       //                                               1                                                        UInt64(1)                                                                              stubs/biguint.py:9
-    byte 0x02                                   //                                               1,0x02                                                   BigUInt(2)                                                                             stubs/biguint.py:9
-    callsub compare_uint64_vs_biguint           //                                                                                                        compare_uint64_vs_biguint(UInt64(1), BigUInt(2))                                       stubs/biguint.py:9
-    txn NumAppArgs                              //                                               {txn}                                                    Txn.num_app_args                                                                       stubs/biguint.py:10
-                                                // virtual: store tmp%0#0 to l-stack (no copy)   tmp%0#0                                                  Txn.num_app_args                                                                       stubs/biguint.py:10
-    byte 0x05                                   //                                               tmp%0#0,0x05                                             BigUInt(1 if Txn.num_app_args else 5)                                                  stubs/biguint.py:10
-    byte 0x01                                   //                                               tmp%0#0,0x05,0x01                                        BigUInt(1 if Txn.num_app_args else 5)                                                  stubs/biguint.py:10
-    uncover 2                                   // load tmp%0#0 from l-stack (no copy)           0x05,0x01,tmp%0#0                                        1 if Txn.num_app_args else 5                                                           stubs/biguint.py:10
-    select                                      //                                               {select}                                                 1 if Txn.num_app_args else 5                                                           stubs/biguint.py:10
-                                                // virtual: store tmp%2#0 to l-stack (no copy)   tmp%2#0                                                  1 if Txn.num_app_args else 5                                                           stubs/biguint.py:10
-                                                // virtual: load tmp%2#0 from l-stack (no copy)  tmp%2#0                                                  1 if Txn.num_app_args else 5) == 5                                                     stubs/biguint.py:10
-    byte 0x05                                   //                                               tmp%2#0,0x05                                             5                                                                                      stubs/biguint.py:10
-    b==                                         //                                               {b==}                                                    1 if Txn.num_app_args else 5) == 5                                                     stubs/biguint.py:10
-                                                // virtual: store tmp%3#0 to l-stack (no copy)   tmp%3#0                                                  1 if Txn.num_app_args else 5) == 5                                                     stubs/biguint.py:10
-                                                // virtual: load tmp%3#0 from l-stack (no copy)  tmp%3#0                                                  assert BigUInt(1 if Txn.num_app_args else 5) == 5, "constructor expressions supported" stubs/biguint.py:10
-    assert // constructor expressions supported //                                                                                                        assert BigUInt(1 if Txn.num_app_args else 5) == 5, "constructor expressions supported" stubs/biguint.py:10
-    int 1                                       //                                               1                                                        True                                                                                   stubs/biguint.py:13
-    return                                      //                                                                                                        return True                                                                            stubs/biguint.py:13
+    // stubs/biguint.py:6
+    // one = BigUInt(1)
+    byte 0x01                                                                                 0x01
+    // stubs/biguint.py:7
+    // compare_biguints(one, BigUInt(2))
+    byte 0x02                                                                                 0x01,0x02
+    callsub compare_biguints
+    // stubs/biguint.py:6
+    // one = BigUInt(1)
+    byte 0x01                                                                                 0x01
+    // stubs/biguint.py:8
+    // compare_biguint_vs_uint64(one, UInt64(2))
+    int 2                                                                                     0x01,2
+    callsub compare_biguint_vs_uint64
+    // stubs/biguint.py:9
+    // compare_uint64_vs_biguint(UInt64(1), BigUInt(2))
+    int 1                                                                                     1
+    byte 0x02                                                                                 1,0x02
+    callsub compare_uint64_vs_biguint
+    // stubs/biguint.py:10
+    // assert BigUInt(1 if Txn.num_app_args else 5) == 5, "constructor expressions supported"
+    txn NumAppArgs                                                                            tmp%0#0
+    byte 0x05                                                                                 tmp%0#0,0x05
+    byte 0x01                                                                                 tmp%0#0,0x05,0x01
+    l-load tmp%0#0 2                                                                          0x05,0x01,tmp%0#0
+    select                                                                                    tmp%2#0
+    byte 0x05                                                                                 tmp%2#0,0x05
+    b==                                                                                       tmp%3#0
+    assert // constructor expressions supported
+    // stubs/biguint.py:13
+    // return True
+    int 1                                                                                     1
+    return
 
 
 // test_cases.stubs.biguint.compare_biguints(one: bytes, two: bytes) -> void:
-compare_biguints:
-    proto 2 0                                   //                                               (𝕡) one#0,two#0 |                                        @subroutine\ndef compare_biguints(one: BigUInt, two: BigUInt) -> None:                 stubs/biguint.py:20-21
+compare_biguints:                                                                             (𝕡) one#0,two#0 |
+    // stubs/biguint.py:20-21
+    // @subroutine
+    // def compare_biguints(one: BigUInt, two: BigUInt) -> None:
+    proto 2 0                                                                                 (𝕡) one#0,two#0 |
 
-compare_biguints_block@0:
-    frame_dig -2                                // load one#0 from parameters                    (𝕡) one#0,two#0 | one#0 (copy)                           one < two                                                                              stubs/biguint.py:22
-    frame_dig -1                                // load two#0 from parameters                    (𝕡) one#0,two#0 | one#0 (copy),two#0 (copy)              one < two                                                                              stubs/biguint.py:22
-    b<                                          //                                               (𝕡) one#0,two#0 | {b<}                                   one < two                                                                              stubs/biguint.py:22
-                                                // virtual: store tmp%0#0 to l-stack (no copy)   (𝕡) one#0,two#0 | tmp%0#0                                one < two                                                                              stubs/biguint.py:22
-                                                // virtual: load tmp%0#0 from l-stack (no copy)  (𝕡) one#0,two#0 | tmp%0#0                                assert one < two                                                                       stubs/biguint.py:22
-    assert                                      //                                               (𝕡) one#0,two#0 |                                        assert one < two                                                                       stubs/biguint.py:22
-    frame_dig -2                                // load one#0 from parameters                    (𝕡) one#0,two#0 | one#0 (copy)                           one <= two                                                                             stubs/biguint.py:23
-    frame_dig -1                                // load two#0 from parameters                    (𝕡) one#0,two#0 | one#0 (copy),two#0 (copy)              one <= two                                                                             stubs/biguint.py:23
-    b<=                                         //                                               (𝕡) one#0,two#0 | {b<=}                                  one <= two                                                                             stubs/biguint.py:23
-                                                // virtual: store tmp%1#0 to l-stack (no copy)   (𝕡) one#0,two#0 | tmp%1#0                                one <= two                                                                             stubs/biguint.py:23
-                                                // virtual: load tmp%1#0 from l-stack (no copy)  (𝕡) one#0,two#0 | tmp%1#0                                assert one <= two                                                                      stubs/biguint.py:23
-    assert                                      //                                               (𝕡) one#0,two#0 |                                        assert one <= two                                                                      stubs/biguint.py:23
-    frame_dig -1                                // load two#0 from parameters                    (𝕡) one#0,two#0 | two#0 (copy)                           two > one                                                                              stubs/biguint.py:25
-    frame_dig -2                                // load one#0 from parameters                    (𝕡) one#0,two#0 | two#0 (copy),one#0 (copy)              two > one                                                                              stubs/biguint.py:25
-    b>                                          //                                               (𝕡) one#0,two#0 | {b>}                                   two > one                                                                              stubs/biguint.py:25
-                                                // virtual: store tmp%3#0 to l-stack (no copy)   (𝕡) one#0,two#0 | tmp%3#0                                two > one                                                                              stubs/biguint.py:25
-                                                // virtual: load tmp%3#0 from l-stack (no copy)  (𝕡) one#0,two#0 | tmp%3#0                                assert two > one                                                                       stubs/biguint.py:25
-    assert                                      //                                               (𝕡) one#0,two#0 |                                        assert two > one                                                                       stubs/biguint.py:25
-    frame_dig -1                                // load two#0 from parameters                    (𝕡) one#0,two#0 | two#0 (copy)                           two >= one                                                                             stubs/biguint.py:26
-    frame_dig -2                                // load one#0 from parameters                    (𝕡) one#0,two#0 | two#0 (copy),one#0 (copy)              two >= one                                                                             stubs/biguint.py:26
-    b>=                                         //                                               (𝕡) one#0,two#0 | {b>=}                                  two >= one                                                                             stubs/biguint.py:26
-                                                // virtual: store tmp%4#0 to l-stack (no copy)   (𝕡) one#0,two#0 | tmp%4#0                                two >= one                                                                             stubs/biguint.py:26
-                                                // virtual: load tmp%4#0 from l-stack (no copy)  (𝕡) one#0,two#0 | tmp%4#0                                assert two >= one                                                                      stubs/biguint.py:26
-    assert                                      //                                               (𝕡) one#0,two#0 |                                        assert two >= one                                                                      stubs/biguint.py:26
-    frame_dig -2                                // load one#0 from parameters                    (𝕡) one#0,two#0 | one#0 (copy)                           one != two                                                                             stubs/biguint.py:27
-    frame_dig -1                                // load two#0 from parameters                    (𝕡) one#0,two#0 | one#0 (copy),two#0 (copy)              one != two                                                                             stubs/biguint.py:27
-    b!=                                         //                                               (𝕡) one#0,two#0 | {b!=}                                  one != two                                                                             stubs/biguint.py:27
-                                                // virtual: store tmp%5#0 to l-stack (no copy)   (𝕡) one#0,two#0 | tmp%5#0                                one != two                                                                             stubs/biguint.py:27
-                                                // virtual: load tmp%5#0 from l-stack (no copy)  (𝕡) one#0,two#0 | tmp%5#0                                assert one != two                                                                      stubs/biguint.py:27
-    assert                                      //                                               (𝕡) one#0,two#0 |                                        assert one != two                                                                      stubs/biguint.py:27
-    retsub                                      //
+compare_biguints_block@0:                                                                     (𝕡) one#0,two#0 |
+    // stubs/biguint.py:22
+    // assert one < two
+    p-load one#0                                                                              (𝕡) one#0,two#0 | one#0 (copy)
+    p-load two#0                                                                              (𝕡) one#0,two#0 | one#0 (copy),two#0 (copy)
+    b<                                                                                        (𝕡) one#0,two#0 | tmp%0#0
+    assert                                                                                    (𝕡) one#0,two#0 |
+    // stubs/biguint.py:23
+    // assert one <= two
+    p-load one#0                                                                              (𝕡) one#0,two#0 | one#0 (copy)
+    p-load two#0                                                                              (𝕡) one#0,two#0 | one#0 (copy),two#0 (copy)
+    b<=                                                                                       (𝕡) one#0,two#0 | tmp%1#0
+    assert                                                                                    (𝕡) one#0,two#0 |
+    // stubs/biguint.py:25
+    // assert two > one
+    p-load two#0                                                                              (𝕡) one#0,two#0 | two#0 (copy)
+    p-load one#0                                                                              (𝕡) one#0,two#0 | two#0 (copy),one#0 (copy)
+    b>                                                                                        (𝕡) one#0,two#0 | tmp%3#0
+    assert                                                                                    (𝕡) one#0,two#0 |
+    // stubs/biguint.py:26
+    // assert two >= one
+    p-load two#0                                                                              (𝕡) one#0,two#0 | two#0 (copy)
+    p-load one#0                                                                              (𝕡) one#0,two#0 | two#0 (copy),one#0 (copy)
+    b>=                                                                                       (𝕡) one#0,two#0 | tmp%4#0
+    assert                                                                                    (𝕡) one#0,two#0 |
+    // stubs/biguint.py:27
+    // assert one != two
+    p-load one#0                                                                              (𝕡) one#0,two#0 | one#0 (copy)
+    p-load two#0                                                                              (𝕡) one#0,two#0 | one#0 (copy),two#0 (copy)
+    b!=                                                                                       (𝕡) one#0,two#0 | tmp%5#0
+    assert                                                                                    (𝕡) one#0,two#0 |
+    retsub
 
 
 // test_cases.stubs.biguint.compare_biguint_vs_uint64(one: bytes, two: uint64) -> void:
-compare_biguint_vs_uint64:
-    proto 2 0                                   //                                               (𝕡) one#0,two#0 |                                        @subroutine\ndef compare_biguint_vs_uint64(one: BigUInt, two: UInt64) -> None:         stubs/biguint.py:30-31
+compare_biguint_vs_uint64:                                                                    (𝕡) one#0,two#0 |
+    // stubs/biguint.py:30-31
+    // @subroutine
+    // def compare_biguint_vs_uint64(one: BigUInt, two: UInt64) -> None:
+    proto 2 0                                                                                 (𝕡) one#0,two#0 |
 
-compare_biguint_vs_uint64_block@0:
-    frame_dig -1                                // load two#0 from parameters                    (𝕡) one#0,two#0 | two#0 (copy)                           one < two                                                                              stubs/biguint.py:32
-    itob                                        //                                               (𝕡) one#0,two#0 | {itob}                                 one < two                                                                              stubs/biguint.py:32
-                                                // virtual: store tmp%0#0 to l-stack (no copy)   (𝕡) one#0,two#0 | tmp%0#0                                one < two                                                                              stubs/biguint.py:32
-    frame_dig -2                                // load one#0 from parameters                    (𝕡) one#0,two#0 | tmp%0#0,one#0 (copy)                   one < two                                                                              stubs/biguint.py:32
-    dig 1                                       // load tmp%0#0 from l-stack (copy)              (𝕡) one#0,two#0 | tmp%0#0,one#0 (copy),tmp%0#0 (copy)    one < two                                                                              stubs/biguint.py:32
-    b<                                          //                                               (𝕡) one#0,two#0 | tmp%0#0,{b<}                           one < two                                                                              stubs/biguint.py:32
-                                                // virtual: store tmp%1#0 to l-stack (no copy)   (𝕡) one#0,two#0 | tmp%0#0,tmp%1#0                        one < two                                                                              stubs/biguint.py:32
-                                                // virtual: load tmp%1#0 from l-stack (no copy)  (𝕡) one#0,two#0 | tmp%0#0,tmp%1#0                        assert one < two                                                                       stubs/biguint.py:32
-    assert                                      //                                               (𝕡) one#0,two#0 | tmp%0#0                                assert one < two                                                                       stubs/biguint.py:32
-    frame_dig -2                                // load one#0 from parameters                    (𝕡) one#0,two#0 | tmp%0#0,one#0 (copy)                   one <= two                                                                             stubs/biguint.py:33
-    dig 1                                       // load tmp%0#0 from l-stack (copy)              (𝕡) one#0,two#0 | tmp%0#0,one#0 (copy),tmp%0#0 (copy)    one <= two                                                                             stubs/biguint.py:33
-    b<=                                         //                                               (𝕡) one#0,two#0 | tmp%0#0,{b<=}                          one <= two                                                                             stubs/biguint.py:33
-                                                // virtual: store tmp%3#0 to l-stack (no copy)   (𝕡) one#0,two#0 | tmp%0#0,tmp%3#0                        one <= two                                                                             stubs/biguint.py:33
-                                                // virtual: load tmp%3#0 from l-stack (no copy)  (𝕡) one#0,two#0 | tmp%0#0,tmp%3#0                        assert one <= two                                                                      stubs/biguint.py:33
-    assert                                      //                                               (𝕡) one#0,two#0 | tmp%0#0                                assert one <= two                                                                      stubs/biguint.py:33
-    frame_dig -2                                // load one#0 from parameters                    (𝕡) one#0,two#0 | tmp%0#0,one#0 (copy)                   one != two                                                                             stubs/biguint.py:37
-    uncover 1                                   // load tmp%0#0 from l-stack (no copy)           (𝕡) one#0,two#0 | one#0 (copy),tmp%0#0                   one != two                                                                             stubs/biguint.py:37
-    b!=                                         //                                               (𝕡) one#0,two#0 | {b!=}                                  one != two                                                                             stubs/biguint.py:37
-                                                // virtual: store tmp%10#0 to l-stack (no copy)  (𝕡) one#0,two#0 | tmp%10#0                               one != two                                                                             stubs/biguint.py:37
-                                                // virtual: load tmp%10#0 from l-stack (no copy) (𝕡) one#0,two#0 | tmp%10#0                               assert one != two                                                                      stubs/biguint.py:37
-    assert                                      //                                               (𝕡) one#0,two#0 |                                        assert one != two                                                                      stubs/biguint.py:37
-    retsub                                      //
+compare_biguint_vs_uint64_block@0:                                                            (𝕡) one#0,two#0 |
+    // stubs/biguint.py:32
+    // assert one < two
+    p-load two#0                                                                              (𝕡) one#0,two#0 | two#0 (copy)
+    itob                                                                                      (𝕡) one#0,two#0 | tmp%0#0
+    p-load one#0                                                                              (𝕡) one#0,two#0 | tmp%0#0,one#0 (copy)
+    l-load-copy tmp%0#0 1                                                                     (𝕡) one#0,two#0 | tmp%0#0,one#0 (copy),tmp%0#0 (copy)
+    b<                                                                                        (𝕡) one#0,two#0 | tmp%0#0,tmp%1#0
+    assert                                                                                    (𝕡) one#0,two#0 | tmp%0#0
+    // stubs/biguint.py:33
+    // assert one <= two
+    p-load one#0                                                                              (𝕡) one#0,two#0 | tmp%0#0,one#0 (copy)
+    l-load-copy tmp%0#0 1                                                                     (𝕡) one#0,two#0 | tmp%0#0,one#0 (copy),tmp%0#0 (copy)
+    b<=                                                                                       (𝕡) one#0,two#0 | tmp%0#0,tmp%3#0
+    assert                                                                                    (𝕡) one#0,two#0 | tmp%0#0
+    // stubs/biguint.py:37
+    // assert one != two
+    p-load one#0                                                                              (𝕡) one#0,two#0 | tmp%0#0,one#0 (copy)
+    l-load tmp%0#0 1                                                                          (𝕡) one#0,two#0 | one#0 (copy),tmp%0#0
+    b!=                                                                                       (𝕡) one#0,two#0 | tmp%10#0
+    assert                                                                                    (𝕡) one#0,two#0 |
+    retsub
 
 
 // test_cases.stubs.biguint.compare_uint64_vs_biguint(one: uint64, two: bytes) -> void:
-compare_uint64_vs_biguint:
-    proto 2 0                                   //                                               (𝕡) one#0,two#0 |                                        @subroutine\ndef compare_uint64_vs_biguint(one: UInt64, two: BigUInt) -> None:         stubs/biguint.py:40-41
+compare_uint64_vs_biguint:                                                                    (𝕡) one#0,two#0 |
+    // stubs/biguint.py:40-41
+    // @subroutine
+    // def compare_uint64_vs_biguint(one: UInt64, two: BigUInt) -> None:
+    proto 2 0                                                                                 (𝕡) one#0,two#0 |
 
-compare_uint64_vs_biguint_block@0:
-    frame_dig -2                                // load one#0 from parameters                    (𝕡) one#0,two#0 | one#0 (copy)                           one < two                                                                              stubs/biguint.py:42
-    itob                                        //                                               (𝕡) one#0,two#0 | {itob}                                 one < two                                                                              stubs/biguint.py:42
-                                                // virtual: store tmp%0#0 to l-stack (no copy)   (𝕡) one#0,two#0 | tmp%0#0                                one < two                                                                              stubs/biguint.py:42
-    frame_dig -1                                // load two#0 from parameters                    (𝕡) one#0,two#0 | tmp%0#0,two#0 (copy)                   one < two                                                                              stubs/biguint.py:42
-    dig 1                                       // load tmp%0#0 from l-stack (copy)              (𝕡) one#0,two#0 | tmp%0#0,two#0 (copy),tmp%0#0 (copy)    one < two                                                                              stubs/biguint.py:42
-    b>                                          //                                               (𝕡) one#0,two#0 | tmp%0#0,{b>}                           one < two                                                                              stubs/biguint.py:42
-                                                // virtual: store tmp%1#0 to l-stack (no copy)   (𝕡) one#0,two#0 | tmp%0#0,tmp%1#0                        one < two                                                                              stubs/biguint.py:42
-                                                // virtual: load tmp%1#0 from l-stack (no copy)  (𝕡) one#0,two#0 | tmp%0#0,tmp%1#0                        assert one < two                                                                       stubs/biguint.py:42
-    assert                                      //                                               (𝕡) one#0,two#0 | tmp%0#0                                assert one < two                                                                       stubs/biguint.py:42
-    frame_dig -1                                // load two#0 from parameters                    (𝕡) one#0,two#0 | tmp%0#0,two#0 (copy)                   one <= two                                                                             stubs/biguint.py:43
-    dig 1                                       // load tmp%0#0 from l-stack (copy)              (𝕡) one#0,two#0 | tmp%0#0,two#0 (copy),tmp%0#0 (copy)    one <= two                                                                             stubs/biguint.py:43
-    b>=                                         //                                               (𝕡) one#0,two#0 | tmp%0#0,{b>=}                          one <= two                                                                             stubs/biguint.py:43
-                                                // virtual: store tmp%3#0 to l-stack (no copy)   (𝕡) one#0,two#0 | tmp%0#0,tmp%3#0                        one <= two                                                                             stubs/biguint.py:43
-                                                // virtual: load tmp%3#0 from l-stack (no copy)  (𝕡) one#0,two#0 | tmp%0#0,tmp%3#0                        assert one <= two                                                                      stubs/biguint.py:43
-    assert                                      //                                               (𝕡) one#0,two#0 | tmp%0#0                                assert one <= two                                                                      stubs/biguint.py:43
-    frame_dig -1                                // load two#0 from parameters                    (𝕡) one#0,two#0 | tmp%0#0,two#0 (copy)                   one != two                                                                             stubs/biguint.py:47
-    uncover 1                                   // load tmp%0#0 from l-stack (no copy)           (𝕡) one#0,two#0 | two#0 (copy),tmp%0#0                   one != two                                                                             stubs/biguint.py:47
-    b!=                                         //                                               (𝕡) one#0,two#0 | {b!=}                                  one != two                                                                             stubs/biguint.py:47
-                                                // virtual: store tmp%10#0 to l-stack (no copy)  (𝕡) one#0,two#0 | tmp%10#0                               one != two                                                                             stubs/biguint.py:47
-                                                // virtual: load tmp%10#0 from l-stack (no copy) (𝕡) one#0,two#0 | tmp%10#0                               assert one != two                                                                      stubs/biguint.py:47
-    assert                                      //                                               (𝕡) one#0,two#0 |                                        assert one != two                                                                      stubs/biguint.py:47
-    retsub                                      //
+compare_uint64_vs_biguint_block@0:                                                            (𝕡) one#0,two#0 |
+    // stubs/biguint.py:42
+    // assert one < two
+    p-load one#0                                                                              (𝕡) one#0,two#0 | one#0 (copy)
+    itob                                                                                      (𝕡) one#0,two#0 | tmp%0#0
+    p-load two#0                                                                              (𝕡) one#0,two#0 | tmp%0#0,two#0 (copy)
+    l-load-copy tmp%0#0 1                                                                     (𝕡) one#0,two#0 | tmp%0#0,two#0 (copy),tmp%0#0 (copy)
+    b>                                                                                        (𝕡) one#0,two#0 | tmp%0#0,tmp%1#0
+    assert                                                                                    (𝕡) one#0,two#0 | tmp%0#0
+    // stubs/biguint.py:43
+    // assert one <= two
+    p-load two#0                                                                              (𝕡) one#0,two#0 | tmp%0#0,two#0 (copy)
+    l-load-copy tmp%0#0 1                                                                     (𝕡) one#0,two#0 | tmp%0#0,two#0 (copy),tmp%0#0 (copy)
+    b>=                                                                                       (𝕡) one#0,two#0 | tmp%0#0,tmp%3#0
+    assert                                                                                    (𝕡) one#0,two#0 | tmp%0#0
+    // stubs/biguint.py:47
+    // assert one != two
+    p-load two#0                                                                              (𝕡) one#0,two#0 | tmp%0#0,two#0 (copy)
+    l-load tmp%0#0 1                                                                          (𝕡) one#0,two#0 | two#0 (copy),tmp%0#0
+    b!=                                                                                       (𝕡) one#0,two#0 | tmp%10#0
+    assert                                                                                    (𝕡) one#0,two#0 |
+    retsub
+
 
