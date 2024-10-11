@@ -31,6 +31,8 @@ def l_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
         _copy_usage_pairs(ctx, block, usage_pairs)
     for block in ctx.subroutine.body:
         _dead_store_removal(ctx, block)
+        if ctx.options.optimization_level:
+            _implicit_store_removal(block)
     # update vla after dead store removal
     ctx.invalidate_vla()
     # calculate load depths now that l-stack allocations are done
@@ -154,6 +156,29 @@ def _dead_store_removal(ctx: SubroutineCodeGenContext, block: mir.MemoryBasicBlo
             )
             ops[window] = [a]
         op_idx += 1
+
+
+def _implicit_store_removal(block: mir.MemoryBasicBlock) -> None:
+    ops = block.ops
+    op_idx = 0
+    while op_idx < len(ops):
+        op = ops[op_idx]
+        # see if ops immediately after this op are all storing to the l-stack what this op produces
+        next_op_idx = op_idx + 1
+        maybe_remove_window = slice(next_op_idx, next_op_idx + len(op.produces))
+        maybe_remove = [
+            maybe_store
+            for maybe_store in ops[maybe_remove_window]
+            if isinstance(maybe_store, mir.StoreLStack)
+            and not maybe_store.copy
+            and maybe_store.local_id in op.produces
+        ]
+        # if they all match then this means all values are implicitly on the l-stack
+        # and we can safely remove the store ops
+        if len(maybe_remove) == len(op.produces):
+            ops[maybe_remove_window] = []
+        op_idx = next_op_idx
+
 
 def _calculate_load_depths(ctx: SubroutineCodeGenContext, block: mir.MemoryBasicBlock) -> None:
     stack = Stack.begin_block(ctx.subroutine, block)
