@@ -33,7 +33,11 @@ from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.utils import StableSet
 
 from puyapy.awst_build import constants, pytypes
-from puyapy.awst_build.arc4_utils import ARC4ABIMethodData, ARC4BareMethodData, ARC4MethodData
+from puyapy.awst_build.arc4_utils import (
+    ARC4ABIMethodData,
+    ARC4BareMethodData,
+    ARC4MethodData,
+)
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
@@ -437,9 +441,10 @@ def _map_arc4_method_data_to_call(
     match data:
         case ARC4ABIMethodData() as abi_method_data:
             signature = ARC4Signature(
-                abi_method_data.config.name,
-                abi_method_data.arc4_argument_types,
-                abi_method_data.arc4_return_type,
+                method_name=abi_method_data.config.name,
+                arg_types=abi_method_data.arc4_argument_types,
+                return_type=abi_method_data.arc4_return_type,
+                source_location=location,
             )
             return _ARC4MethodCall(
                 config=abi_method_data.config,
@@ -499,7 +504,7 @@ def _method_selector_and_arc4_args(
         BytesExpressionBuilder(
             MethodConstant(value=signature.method_selector, source_location=location)
         ),
-        *signature.convert_args(abi_args, location, expect_itxn_args=True),
+        *signature.convert_args(abi_args, expect_itxn_args=True),
     ]
 
 

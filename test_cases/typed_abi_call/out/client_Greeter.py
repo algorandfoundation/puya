@@ -83,6 +83,18 @@ class Greeter(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
+    def test_native_tuple_method_ref(
+        self,
+        app: algopy.Application,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_nested_tuples(
+        self,
+        app: algopy.Application,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
     def test_no_args(
         self,
         app: algopy.Application,

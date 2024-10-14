@@ -399,7 +399,9 @@ def _map_abi_args(
                 )
             else:
                 if abi_arg.wtype != arg:
-                    abi_arg = _arc4_decode(bytes_arg=abi_arg, target_wtype=arg, location=location)
+                    abi_arg = awst_nodes.ARC4Decode(
+                        value=abi_arg, wtype=arg, source_location=location
+                    )
                 yield abi_arg
 
 
@@ -425,7 +427,11 @@ def route_abi_methods(
                         f"{method.return_type} is not a valid ABI return type",
                         method.source_location,
                     )
-                arc4_encoded = _arc4_encode(method_result, converted_return_type)
+                arc4_encoded = awst_nodes.ARC4Encode(
+                    value=method_result,
+                    wtype=converted_return_type,
+                    source_location=method_result.source_location,
+                )
                 call_and_maybe_log = log_arc4_result(abi_loc, arc4_encoded)
 
         arc4_signature = _get_abi_signature(method, config)
@@ -667,75 +673,6 @@ def create_abi_router(
         arc4_method_config=None,
     )
     return approval_program
-
-
-def _arc4_encode(
-    base: awst_nodes.Expression, target_wtype: wtypes.ARC4Type
-) -> awst_nodes.Expression:
-    """encode, with special handling of native tuples"""
-    location = base.source_location
-    value = base
-    match base.wtype, target_wtype:
-        case wtypes.WTuple(types=source_types), wtypes.ARC4Tuple(types=arc4_types) if len(
-            source_types
-        ) == len(arc4_types):
-            if not isinstance(base, awst_nodes.SingleEvaluation):
-                base = awst_nodes.SingleEvaluation(base)
-            encoded_items = [
-                _maybe_arc4_encode(
-                    awst_nodes.TupleItemExpression(base=base, index=i, source_location=location), t
-                )
-                for i, t in enumerate(arc4_types)
-            ]
-            value = awst_nodes.TupleExpression.from_items(encoded_items, location)
-    return awst_nodes.ARC4Encode(value=value, wtype=target_wtype, source_location=location)
-
-
-def _maybe_arc4_encode(
-    item: awst_nodes.Expression, target_wtype: wtypes.ARC4Type
-) -> awst_nodes.Expression:
-    """Encode as arc4 if wtype is not already an arc4 encoded type"""
-    if isinstance(item.wtype, wtypes.ARC4Type):
-        return item
-    return _arc4_encode(item, target_wtype)
-
-
-def _arc4_decode(
-    bytes_arg: awst_nodes.Expression, target_wtype: wtypes.WType, location: SourceLocation
-) -> awst_nodes.Expression:
-    """decode, with special handling of native tuples"""
-    match bytes_arg.wtype, target_wtype:
-        case wtypes.ARC4Tuple(types=arc4_item_types), wtypes.WTuple(types=target_item_types):
-            decode_expression = awst_nodes.ARC4Decode(
-                value=bytes_arg,
-                wtype=wtypes.WTuple(arc4_item_types, location),
-                source_location=location,
-            )
-            if arc4_item_types == target_item_types:
-                return decode_expression
-            decoded = awst_nodes.SingleEvaluation(decode_expression)
-            decoded_items = [
-                _maybe_arc4_decode(
-                    awst_nodes.TupleItemExpression(
-                        base=decoded, index=idx, source_location=location
-                    ),
-                    target_item_wtype,
-                )
-                for idx, target_item_wtype in enumerate(target_item_types)
-            ]
-            return awst_nodes.TupleExpression.from_items(decoded_items, location)
-        case _:
-            return awst_nodes.ARC4Decode(
-                value=bytes_arg, wtype=target_wtype, source_location=location
-            )
-
-
-def _maybe_arc4_decode(
-    item: awst_nodes.Expression, target_wtype: wtypes.WType
-) -> awst_nodes.Expression:
-    if item.wtype == target_wtype:
-        return item
-    return _arc4_decode(item, target_wtype, item.source_location)
 
 
 def _get_abi_signature(subroutine: awst_nodes.ContractMethod, config: ARC4ABIMethodConfig) -> str:

@@ -11,7 +11,7 @@ __puya_arc4_router__:
     // class Logger(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@19
+    bz __puya_arc4_router___bare_routing@20
     method "is_a_b(byte[],byte[])void"
     method "echo(string)string"
     method "no_args()uint64"
@@ -26,9 +26,10 @@ __puya_arc4_router__:
     method "echo_native_uint64(uint64)uint64"
     method "echo_native_biguint(uint512)uint512"
     method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
     method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]"
     txna ApplicationArgs 0
-    match __puya_arc4_router___is_a_b_route@2 __puya_arc4_router___echo_route@3 __puya_arc4_router___no_args_route@4 __puya_arc4_router___log_route@5 __puya_arc4_router___log_route@6 __puya_arc4_router___log_route@7 __puya_arc4_router___log_route@8 __puya_arc4_router___log_route@9 __puya_arc4_router___log_route@10 __puya_arc4_router___echo_native_string_route@11 __puya_arc4_router___echo_native_bytes_route@12 __puya_arc4_router___echo_native_uint64_route@13 __puya_arc4_router___echo_native_biguint_route@14 __puya_arc4_router___echo_native_tuple_route@15 __puya_arc4_router___return_args_after_14th_route@16
+    match __puya_arc4_router___is_a_b_route@2 __puya_arc4_router___echo_route@3 __puya_arc4_router___no_args_route@4 __puya_arc4_router___log_route@5 __puya_arc4_router___log_route@6 __puya_arc4_router___log_route@7 __puya_arc4_router___log_route@8 __puya_arc4_router___log_route@9 __puya_arc4_router___log_route@10 __puya_arc4_router___echo_native_string_route@11 __puya_arc4_router___echo_native_bytes_route@12 __puya_arc4_router___echo_native_uint64_route@13 __puya_arc4_router___echo_native_biguint_route@14 __puya_arc4_router___echo_native_tuple_route@15 __puya_arc4_router___echo_nested_tuple_route@16 __puya_arc4_router___return_args_after_14th_route@17
     int 0
     retsub
 
@@ -379,8 +380,128 @@ __puya_arc4_router___echo_native_tuple_route@15:
     int 1
     retsub
 
-__puya_arc4_router___return_args_after_14th_route@16:
+__puya_arc4_router___echo_nested_tuple_route@16:
     // typed_abi_call/logger.py:80
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // typed_abi_call/logger.py:20
+    // class Logger(ARC4Contract):
+    txna ApplicationArgs 1
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 4
+    dig 1
+    len
+    substring3
+    cover 2
+    dig 1
+    len
+    substring3
+    dup
+    extract 0 8 // on error: Index access is out of bounds
+    btoi
+    swap
+    dup
+    extract 8 8 // on error: Index access is out of bounds
+    swap
+    dup
+    int 16
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    cover 2
+    substring3
+    extract 2 0
+    // typed_abi_call/logger.py:80
+    // @arc4.abimethod
+    callsub echo_nested_tuple
+    cover 4
+    cover 4
+    cover 2
+    swap
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    dup
+    len
+    int 4
+    +
+    itob
+    extract 6 2
+    byte 0x0004
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    swap
+    itob
+    dig 2
+    len
+    itob
+    extract 6 2
+    uncover 3
+    concat
+    swap
+    uncover 3
+    concat
+    byte 0x0012
+    concat
+    swap
+    concat
+    dig 1
+    len
+    int 4
+    +
+    itob
+    extract 6 2
+    byte 0x0004
+    swap
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    retsub
+
+__puya_arc4_router___return_args_after_14th_route@17:
+    // typed_abi_call/logger.py:91
     // @arc4.abimethod
     txn OnCompletion
     !
@@ -415,7 +536,7 @@ __puya_arc4_router___return_args_after_14th_route@16:
     extract 4 4 // on error: Index access is out of bounds
     txna ApplicationArgs 15
     extract 8 1 // on error: Index access is out of bounds
-    // typed_abi_call/logger.py:80
+    // typed_abi_call/logger.py:91
     // @arc4.abimethod
     callsub return_args_after_14th
     byte 0x151f7c75
@@ -425,18 +546,18 @@ __puya_arc4_router___return_args_after_14th_route@16:
     int 1
     retsub
 
-__puya_arc4_router___bare_routing@19:
+__puya_arc4_router___bare_routing@20:
     // typed_abi_call/logger.py:20
     // class Logger(ARC4Contract):
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@23
+    bnz __puya_arc4_router___after_if_else@24
     txn ApplicationID
     !
     assert // is creating
     int 1
     retsub
 
-__puya_arc4_router___after_if_else@23:
+__puya_arc4_router___after_if_else@24:
     // typed_abi_call/logger.py:20
     // class Logger(ARC4Contract):
     int 0
@@ -673,9 +794,59 @@ echo_native_tuple:
     retsub
 
 
+// test_cases.typed_abi_call.logger.Logger.echo_nested_tuple(tuple_of_tuples.0.0: bytes, tuple_of_tuples.0.1: bytes, tuple_of_tuples.1.0: uint64, tuple_of_tuples.1.1: bytes, tuple_of_tuples.1.2: bytes) -> bytes, bytes, uint64, bytes, bytes:
+echo_nested_tuple:
+    // typed_abi_call/logger.py:80-83
+    // @arc4.abimethod
+    // def echo_nested_tuple(
+    //     self, tuple_of_tuples: tuple[tuple[String, arc4.String], tuple[UInt64, arc4.UInt64, Bytes]]
+    // ) -> tuple[tuple[String, arc4.String], tuple[UInt64, arc4.UInt64, Bytes]]:
+    proto 5 5
+    // typed_abi_call/logger.py:85
+    // return ("echo: " + string, "echo: " + arc4_string), (
+    byte "echo: "
+    frame_dig -5
+    concat
+    frame_dig -4
+    extract 2 0
+    byte 0x6563686f3a20
+    swap
+    concat
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    // typed_abi_call/logger.py:86
+    // u64 + 1,
+    frame_dig -3
+    int 1
+    +
+    // typed_abi_call/logger.py:87
+    // arc4.UInt64(arc4_u64.native + 1),
+    frame_dig -2
+    btoi
+    int 1
+    +
+    itob
+    // typed_abi_call/logger.py:88
+    // b"echo: " + bytez,
+    byte 0x6563686f3a20
+    frame_dig -1
+    concat
+    // typed_abi_call/logger.py:85-89
+    // return ("echo: " + string, "echo: " + arc4_string), (
+    //     u64 + 1,
+    //     arc4.UInt64(arc4_u64.native + 1),
+    //     b"echo: " + bytez,
+    // )
+    retsub
+
+
 // test_cases.typed_abi_call.logger.Logger.return_args_after_14th(_a1: bytes, _a2: bytes, _a3: bytes, _a4: bytes, _a5: bytes, _a6: bytes, _a7: bytes, _a8: bytes, _a9: bytes, _a10: bytes, _a11: bytes, _a12: bytes, _a13: bytes, _a14: bytes, a15: bytes, a16: bytes, a17: bytes, a18: bytes, a19: bytes, a20: bytes) -> bytes:
 return_args_after_14th:
-    // typed_abi_call/logger.py:80-103
+    // typed_abi_call/logger.py:91-114
     // @arc4.abimethod
     // def return_args_after_14th(
     //     self,
@@ -701,7 +872,7 @@ return_args_after_14th:
     //     a20: arc4.UInt8,
     // ) -> arc4.DynamicBytes:
     proto 20 1
-    // typed_abi_call/logger.py:104
+    // typed_abi_call/logger.py:115
     // last_arg = arc4.Tuple((a15, a16, a17, a18, a19, a20))
     frame_dig -6
     frame_dig -5
@@ -714,13 +885,13 @@ return_args_after_14th:
     concat
     frame_dig -1
     concat
-    // typed_abi_call/logger.py:105
+    // typed_abi_call/logger.py:116
     // assert Txn.application_args(15) == last_arg.bytes
     txna ApplicationArgs 15
     dig 1
     ==
     assert
-    // typed_abi_call/logger.py:106
+    // typed_abi_call/logger.py:117
     // return arc4.DynamicBytes(last_arg.bytes)
     dup
     len

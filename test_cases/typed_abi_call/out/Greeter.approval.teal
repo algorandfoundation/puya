@@ -11,7 +11,7 @@ __puya_arc4_router__:
     // class Greeter(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@17
+    bz __puya_arc4_router___bare_routing@19
     method "test_is_a_b(byte[],byte[],application)void"
     method "test_method_selector_kinds(application)void"
     method "test_method_overload(application)void"
@@ -24,9 +24,11 @@ __puya_arc4_router__:
     method "test_native_uint64(application)void"
     method "test_native_biguint(application)void"
     method "test_native_tuple(application)void"
+    method "test_native_tuple_method_ref(application)void"
+    method "test_nested_tuples(application)void"
     method "test_no_args(application)void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___test_is_a_b_route@2 __puya_arc4_router___test_method_selector_kinds_route@3 __puya_arc4_router___test_method_overload_route@4 __puya_arc4_router___test_arg_conversion_route@5 __puya_arc4_router___test_15plus_args_route@6 __puya_arc4_router___test_void_route@7 __puya_arc4_router___test_ref_types_route@8 __puya_arc4_router___test_native_string_route@9 __puya_arc4_router___test_native_bytes_route@10 __puya_arc4_router___test_native_uint64_route@11 __puya_arc4_router___test_native_biguint_route@12 __puya_arc4_router___test_native_tuple_route@13 __puya_arc4_router___test_no_args_route@14
+    match __puya_arc4_router___test_is_a_b_route@2 __puya_arc4_router___test_method_selector_kinds_route@3 __puya_arc4_router___test_method_overload_route@4 __puya_arc4_router___test_arg_conversion_route@5 __puya_arc4_router___test_15plus_args_route@6 __puya_arc4_router___test_void_route@7 __puya_arc4_router___test_ref_types_route@8 __puya_arc4_router___test_native_string_route@9 __puya_arc4_router___test_native_bytes_route@10 __puya_arc4_router___test_native_uint64_route@11 __puya_arc4_router___test_native_biguint_route@12 __puya_arc4_router___test_native_tuple_route@13 __puya_arc4_router___test_native_tuple_method_ref_route@14 __puya_arc4_router___test_nested_tuples_route@15 __puya_arc4_router___test_no_args_route@16
     int 0
     retsub
 
@@ -265,8 +267,8 @@ __puya_arc4_router___test_native_tuple_route@13:
     int 1
     retsub
 
-__puya_arc4_router___test_no_args_route@14:
-    // typed_abi_call/typed_c2c.py:224
+__puya_arc4_router___test_native_tuple_method_ref_route@14:
+    // typed_abi_call/typed_c2c.py:233
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -278,24 +280,62 @@ __puya_arc4_router___test_no_args_route@14:
     txna ApplicationArgs 1
     btoi
     txnas Applications
-    // typed_abi_call/typed_c2c.py:224
+    // typed_abi_call/typed_c2c.py:233
+    // @arc4.abimethod()
+    callsub test_native_tuple_method_ref
+    int 1
+    retsub
+
+__puya_arc4_router___test_nested_tuples_route@15:
+    // typed_abi_call/typed_c2c.py:283
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // typed_abi_call/typed_c2c.py:17
+    // class Greeter(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Applications
+    // typed_abi_call/typed_c2c.py:283
+    // @arc4.abimethod()
+    callsub test_nested_tuples
+    int 1
+    retsub
+
+__puya_arc4_router___test_no_args_route@16:
+    // typed_abi_call/typed_c2c.py:329
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // typed_abi_call/typed_c2c.py:17
+    // class Greeter(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Applications
+    // typed_abi_call/typed_c2c.py:329
     // @arc4.abimethod()
     callsub test_no_args
     int 1
     retsub
 
-__puya_arc4_router___bare_routing@17:
+__puya_arc4_router___bare_routing@19:
     // typed_abi_call/typed_c2c.py:17
     // class Greeter(ARC4Contract):
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@21
+    bnz __puya_arc4_router___after_if_else@23
     txn ApplicationID
     !
     assert // is creating
     int 1
     retsub
 
-__puya_arc4_router___after_if_else@21:
+__puya_arc4_router___after_if_else@23:
     // typed_abi_call/typed_c2c.py:17
     // class Greeter(ARC4Contract):
     int 0
@@ -1450,9 +1490,11 @@ test_native_tuple:
     // @arc4.abimethod()
     // def test_native_tuple(self, app: Application) -> None:
     proto 1 0
-    // typed_abi_call/typed_c2c.py:178-186
-    // # NOTE: the following uses method selectors to work around having nested tuples
-    // txn = arc4.abi_call(
+    // typed_abi_call/typed_c2c.py:176-186
+    // # python literals
+    // result1, txn = arc4.abi_call[
+    //     arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]
+    // ](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     "s1",
     //     b"b1",
@@ -1481,9 +1523,11 @@ test_native_tuple:
     // 2,
     byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:178-186
-    // # NOTE: the following uses method selectors to work around having nested tuples
-    // txn = arc4.abi_call(
+    // typed_abi_call/typed_c2c.py:176-186
+    // # python literals
+    // result1, txn = arc4.abi_call[
+    //     arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]
+    // ](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     "s1",
     //     b"b1",
@@ -1497,10 +1541,6 @@ test_native_tuple:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    // typed_abi_call/typed_c2c.py:187-189
-    // result1 = arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512].from_log(
-    //     txn.last_log
-    // )
     dup
     extract 4 0
     swap
@@ -1508,7 +1548,7 @@ test_native_tuple:
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    // typed_abi_call/typed_c2c.py:190
+    // typed_abi_call/typed_c2c.py:187
     // s, b, u, bu = result1.native
     dup
     int 0
@@ -1534,36 +1574,41 @@ test_native_tuple:
     dup
     extract 12 64 // on error: Index access is out of bounds
     cover 3
-    // typed_abi_call/typed_c2c.py:191
+    // typed_abi_call/typed_c2c.py:188
     // assert s.native == "echo: s1"
     swap
     extract 2 0
+    dup
     byte "echo: s1"
     ==
     assert
-    // typed_abi_call/typed_c2c.py:192
+    // typed_abi_call/typed_c2c.py:189
     // assert b.native == b"echo: b1"
-    swap
+    uncover 2
     extract 2 0
+    dup
     byte 0x6563686f3a206231
     ==
     assert
-    // typed_abi_call/typed_c2c.py:193
+    // typed_abi_call/typed_c2c.py:190
     // assert u.native == 2
-    uncover 2
+    uncover 4
     btoi
+    dup
     int 2
     ==
     assert
-    // typed_abi_call/typed_c2c.py:194
+    // typed_abi_call/typed_c2c.py:191
     // assert bu.native == 3
-    swap
+    dig 4
     byte 0x03
     b==
     assert
-    // typed_abi_call/typed_c2c.py:196-204
+    // typed_abi_call/typed_c2c.py:193-203
     // # test again using native types in arguments
-    // txn = arc4.abi_call(
+    // result2, txn = arc4.abi_call[
+    //     arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]
+    // ](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     String("s1"),
     //     Bytes(b"b1"),
@@ -1572,15 +1617,17 @@ test_native_tuple:
     //     app_id=app,
     // )
     itxn_begin
-    // typed_abi_call/typed_c2c.py:201
+    // typed_abi_call/typed_c2c.py:200
     // UInt64(1),
     int 1
     itob
     frame_dig -1
     itxn_field ApplicationID
-    // typed_abi_call/typed_c2c.py:196-204
+    // typed_abi_call/typed_c2c.py:193-203
     // # test again using native types in arguments
-    // txn = arc4.abi_call(
+    // result2, txn = arc4.abi_call[
+    //     arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]
+    // ](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     String("s1"),
     //     Bytes(b"b1"),
@@ -1590,22 +1637,24 @@ test_native_tuple:
     // )
     method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:199
+    // typed_abi_call/typed_c2c.py:198
     // String("s1"),
     byte 0x00027331
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:200
+    // typed_abi_call/typed_c2c.py:199
     // Bytes(b"b1"),
     byte 0x00026231
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:202
+    // typed_abi_call/typed_c2c.py:201
     // BigUInt(2),
     byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:196-204
+    // typed_abi_call/typed_c2c.py:193-203
     // # test again using native types in arguments
-    // txn = arc4.abi_call(
+    // result2, txn = arc4.abi_call[
+    //     arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]
+    // ](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     String("s1"),
     //     Bytes(b"b1"),
@@ -1619,10 +1668,6 @@ test_native_tuple:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    // typed_abi_call/typed_c2c.py:205-207
-    // result2 = arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512].from_log(
-    //     txn.last_log
-    // )
     dup
     extract 4 0
     swap
@@ -1630,14 +1675,16 @@ test_native_tuple:
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    // typed_abi_call/typed_c2c.py:208
+    // typed_abi_call/typed_c2c.py:204
     // assert result1 == result2
-    dig 1
+    dig 4
     ==
     assert
-    // typed_abi_call/typed_c2c.py:210-218
+    // typed_abi_call/typed_c2c.py:206-216
     // # test again using arc4 types in arguments
-    // txn = arc4.abi_call(
+    // result3, txn = arc4.abi_call[
+    //     arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]
+    // ](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     arc4.String("s1"),
     //     arc4.DynamicBytes(b"b1"),
@@ -1650,25 +1697,27 @@ test_native_tuple:
     itxn_field ApplicationID
     method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:213
+    // typed_abi_call/typed_c2c.py:211
     // arc4.String("s1"),
     byte 0x00027331
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:214
+    // typed_abi_call/typed_c2c.py:212
     // arc4.DynamicBytes(b"b1"),
     byte 0x00026231
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:215
+    // typed_abi_call/typed_c2c.py:213
     // arc4.UInt64(1),
     byte 0x0000000000000001
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:216
+    // typed_abi_call/typed_c2c.py:214
     // arc4.UInt512(2),
     byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:210-218
+    // typed_abi_call/typed_c2c.py:206-216
     // # test again using arc4 types in arguments
-    // txn = arc4.abi_call(
+    // result3, txn = arc4.abi_call[
+    //     arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]
+    // ](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     arc4.String("s1"),
     //     arc4.DynamicBytes(b"b1"),
@@ -1682,10 +1731,6 @@ test_native_tuple:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    // typed_abi_call/typed_c2c.py:219-221
-    // result3 = arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512].from_log(
-    //     txn.last_log
-    // )
     dup
     extract 4 0
     swap
@@ -1693,8 +1738,890 @@ test_native_tuple:
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    // typed_abi_call/typed_c2c.py:222
+    // typed_abi_call/typed_c2c.py:217
     // assert result1 == result3
+    uncover 4
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:219-227
+    // # test again using native result type
+    // result_native, txn = arc4.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
+    //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
+    //     arc4.String("s1"),
+    //     arc4.DynamicBytes(b"b1"),
+    //     arc4.UInt64(1),
+    //     arc4.UInt512(2),
+    //     app_id=app,
+    // )
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:222
+    // arc4.String("s1"),
+    byte 0x00027331
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:223
+    // arc4.DynamicBytes(b"b1"),
+    byte 0x00026231
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:224
+    // arc4.UInt64(1),
+    byte 0x0000000000000001
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:225
+    // arc4.UInt512(2),
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:219-227
+    // # test again using native result type
+    // result_native, txn = arc4.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
+    //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
+    //     arc4.String("s1"),
+    //     arc4.DynamicBytes(b"b1"),
+    //     arc4.UInt64(1),
+    //     arc4.UInt512(2),
+    //     app_id=app,
+    // )
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 2
+    dig 1
+    len
+    dig 2
+    cover 2
+    substring3
+    extract 2 0
+    swap
+    dup
+    extract 4 8 // on error: Index access is out of bounds
+    btoi
+    cover 2
+    extract 12 64 // on error: Index access is out of bounds
+    cover 2
+    // typed_abi_call/typed_c2c.py:228
+    // assert result1.native[0].native == result_native[0]
+    uncover 6
+    uncover 4
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:229
+    // assert result1.native[1].native == result_native[1]
+    uncover 4
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:230
+    // assert result1.native[2].native == result_native[2]
+    uncover 2
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:231
+    // assert result1.native[3].native == result_native[3]
+    b==
+    assert
+    retsub
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref(app: uint64) -> void:
+test_native_tuple_method_ref:
+    // typed_abi_call/typed_c2c.py:233-234
+    // @arc4.abimethod()
+    // def test_native_tuple_method_ref(self, app: Application) -> None:
+    proto 1 0
+    // typed_abi_call/typed_c2c.py:235-243
+    // # test with literal args
+    // result, txn = arc4.abi_call(
+    //     Logger.echo_native_tuple,
+    //     "s1",
+    //     b"b1",
+    //     1,
+    //     2,
+    //     app_id=app,
+    // )
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:238
+    // "s1",
+    byte 0x00027331
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:239
+    // b"b1",
+    byte 0x00026231
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:240
+    // 1,
+    byte 0x0000000000000001
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:241
+    // 2,
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:235-243
+    // # test with literal args
+    // result, txn = arc4.abi_call(
+    //     Logger.echo_native_tuple,
+    //     "s1",
+    //     b"b1",
+    //     1,
+    //     2,
+    //     app_id=app,
+    // )
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 2
+    dig 1
+    len
+    dig 2
+    cover 2
+    substring3
+    extract 2 0
+    swap
+    dup
+    extract 4 8 // on error: Index access is out of bounds
+    btoi
+    cover 2
+    extract 12 64 // on error: Index access is out of bounds
+    cover 2
+    // typed_abi_call/typed_c2c.py:245
+    // assert s == "echo: s1"
+    dig 3
+    byte "echo: s1"
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:246
+    // assert b == b"echo: b1"
+    dup
+    byte 0x6563686f3a206231
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:247
+    // assert u == 2
+    dig 1
+    int 2
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:248
+    // assert bu == 3
+    dig 2
+    byte 0x03
+    b==
+    assert
+    // typed_abi_call/typed_c2c.py:250-258
+    // # test with native args
+    // result_2, txn = arc4.abi_call(
+    //     Logger.echo_native_tuple,
+    //     String("s1"),
+    //     Bytes(b"b1"),
+    //     UInt64(1),
+    //     BigUInt(2),
+    //     app_id=app,
+    // )
+    itxn_begin
+    // typed_abi_call/typed_c2c.py:255
+    // UInt64(1),
+    int 1
+    itob
+    frame_dig -1
+    itxn_field ApplicationID
+    // typed_abi_call/typed_c2c.py:250-258
+    // # test with native args
+    // result_2, txn = arc4.abi_call(
+    //     Logger.echo_native_tuple,
+    //     String("s1"),
+    //     Bytes(b"b1"),
+    //     UInt64(1),
+    //     BigUInt(2),
+    //     app_id=app,
+    // )
+    method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:253
+    // String("s1"),
+    byte 0x00027331
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:254
+    // Bytes(b"b1"),
+    byte 0x00026231
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:256
+    // BigUInt(2),
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:250-258
+    // # test with native args
+    // result_2, txn = arc4.abi_call(
+    //     Logger.echo_native_tuple,
+    //     String("s1"),
+    //     Bytes(b"b1"),
+    //     UInt64(1),
+    //     BigUInt(2),
+    //     app_id=app,
+    // )
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 2
+    dig 1
+    len
+    dig 2
+    cover 2
+    substring3
+    extract 2 0
+    swap
+    dup
+    extract 4 8 // on error: Index access is out of bounds
+    btoi
+    cover 2
+    extract 12 64 // on error: Index access is out of bounds
+    cover 3
+    // typed_abi_call/typed_c2c.py:259
+    // assert result_2 == result, "expected native arguments to give the same result"
+    uncover 2
+    dig 7
+    ==
+    swap
+    dig 4
+    ==
+    &&
+    swap
+    dig 4
+    ==
+    &&
+    swap
+    dig 4
+    b==
+    &&
+    assert // expected native arguments to give the same result
+    // typed_abi_call/typed_c2c.py:261-269
+    // # test with arc4 args
+    // result_3, txn = arc4.abi_call(
+    //     Logger.echo_native_tuple,
+    //     arc4.String("s1"),
+    //     arc4.DynamicBytes(b"b1"),
+    //     arc4.UInt64(1),
+    //     arc4.UInt512(2),
+    //     app_id=app,
+    // )
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:264
+    // arc4.String("s1"),
+    byte 0x00027331
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:265
+    // arc4.DynamicBytes(b"b1"),
+    byte 0x00026231
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:266
+    // arc4.UInt64(1),
+    byte 0x0000000000000001
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:267
+    // arc4.UInt512(2),
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:261-269
+    // # test with arc4 args
+    // result_3, txn = arc4.abi_call(
+    //     Logger.echo_native_tuple,
+    //     arc4.String("s1"),
+    //     arc4.DynamicBytes(b"b1"),
+    //     arc4.UInt64(1),
+    //     arc4.UInt512(2),
+    //     app_id=app,
+    // )
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 2
+    dig 1
+    len
+    dig 2
+    cover 2
+    substring3
+    extract 2 0
+    swap
+    dup
+    extract 4 8 // on error: Index access is out of bounds
+    btoi
+    cover 2
+    extract 12 64 // on error: Index access is out of bounds
+    cover 3
+    // typed_abi_call/typed_c2c.py:270
+    // assert result_3 == result, "expected arc4 arguments to give the same result"
+    uncover 2
+    dig 7
+    ==
+    swap
+    dig 4
+    ==
+    &&
+    swap
+    dig 4
+    ==
+    &&
+    swap
+    dig 4
+    b==
+    &&
+    assert // expected arc4 arguments to give the same result
+    // typed_abi_call/typed_c2c.py:272-280
+    // # test again using native result type
+    // result_native, txn = arc4.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
+    //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
+    //     arc4.String("s1"),
+    //     arc4.DynamicBytes(b"b1"),
+    //     arc4.UInt64(1),
+    //     arc4.UInt512(2),
+    //     app_id=app,
+    // )
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:275
+    // arc4.String("s1"),
+    byte 0x00027331
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:276
+    // arc4.DynamicBytes(b"b1"),
+    byte 0x00026231
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:277
+    // arc4.UInt64(1),
+    byte 0x0000000000000001
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:278
+    // arc4.UInt512(2),
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:272-280
+    // # test again using native result type
+    // result_native, txn = arc4.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
+    //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
+    //     arc4.String("s1"),
+    //     arc4.DynamicBytes(b"b1"),
+    //     arc4.UInt64(1),
+    //     arc4.UInt512(2),
+    //     app_id=app,
+    // )
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 2
+    dig 1
+    len
+    dig 2
+    cover 2
+    substring3
+    extract 2 0
+    swap
+    dup
+    extract 4 8 // on error: Index access is out of bounds
+    btoi
+    cover 2
+    extract 12 64 // on error: Index access is out of bounds
+    cover 3
+    // typed_abi_call/typed_c2c.py:281
+    // assert result_native == result
+    uncover 2
+    uncover 7
+    ==
+    swap
+    uncover 4
+    ==
+    &&
+    swap
+    uncover 3
+    ==
+    &&
+    swap
+    uncover 2
+    b==
+    &&
+    assert
+    retsub
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: uint64) -> void:
+test_nested_tuples:
+    // typed_abi_call/typed_c2c.py:283-284
+    // @arc4.abimethod()
+    // def test_nested_tuples(self, app: Application) -> None:
+    proto 1 0
+    // typed_abi_call/typed_c2c.py:285-290
+    // # literal args
+    // result, txn = arc4.abi_call(
+    //     Logger.echo_nested_tuple,
+    //     (("s1", "s2"), (1, 2, b"3")),
+    //     app_id=app,
+    // )
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:288
+    // (("s1", "s2"), (1, 2, b"3")),
+    byte 0x00040010000400080002733100027332000000000000000100000000000000020012000133
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:285-290
+    // # literal args
+    // result, txn = arc4.abi_call(
+    //     Logger.echo_nested_tuple,
+    //     (("s1", "s2"), (1, 2, b"3")),
+    //     app_id=app,
+    // )
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 4
+    dig 1
+    len
+    substring3
+    cover 2
+    dig 1
+    len
+    substring3
+    dup
+    extract 0 8 // on error: Index access is out of bounds
+    btoi
+    swap
+    dup
+    extract 8 8 // on error: Index access is out of bounds
+    cover 2
+    dup
+    int 16
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    cover 2
+    substring3
+    extract 2 0
+    // typed_abi_call/typed_c2c.py:292
+    // assert s1 == "echo: s1"
+    uncover 4
+    byte "echo: s1"
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:293
+    // assert s2 == "echo: s2"
+    uncover 3
+    byte 0x00086563686f3a207332
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:294
+    // assert u64_1 == 2
+    swap
+    int 2
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:295
+    // assert u64_2 == 3
+    swap
+    byte 0x0000000000000003
+    b==
+    assert
+    // typed_abi_call/typed_c2c.py:296
+    // assert bytez == b"echo: 3"
+    byte 0x6563686f3a2033
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:298-303
+    // # native args
+    // result, txn = arc4.abi_call(
+    //     Logger.echo_nested_tuple,
+    //     ((String("s1"), arc4.String("s2")), (UInt64(1), arc4.UInt64(2), Bytes(b"3"))),
+    //     app_id=app,
+    // )
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:301
+    // ((String("s1"), arc4.String("s2")), (UInt64(1), arc4.UInt64(2), Bytes(b"3"))),
+    byte 0x00040010000400080002733100027332000000000000000100000000000000020012000133
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:298-303
+    // # native args
+    // result, txn = arc4.abi_call(
+    //     Logger.echo_nested_tuple,
+    //     ((String("s1"), arc4.String("s2")), (UInt64(1), arc4.UInt64(2), Bytes(b"3"))),
+    //     app_id=app,
+    // )
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 4
+    dig 1
+    len
+    substring3
+    cover 2
+    dig 1
+    len
+    substring3
+    dup
+    extract 0 8 // on error: Index access is out of bounds
+    btoi
+    swap
+    dup
+    extract 8 8 // on error: Index access is out of bounds
+    cover 2
+    dup
+    int 16
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    cover 2
+    substring3
+    extract 2 0
+    // typed_abi_call/typed_c2c.py:305
+    // assert s1 == "echo: s1"
+    uncover 4
+    byte "echo: s1"
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:306
+    // assert s2 == "echo: s2"
+    uncover 3
+    byte 0x00086563686f3a207332
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:307
+    // assert u64_1 == 2
+    swap
+    int 2
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:308
+    // assert u64_2 == 3
+    swap
+    byte 0x0000000000000003
+    b==
+    assert
+    // typed_abi_call/typed_c2c.py:309
+    // assert bytez == b"echo: 3"
+    byte 0x6563686f3a2033
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:311-321
+    // # arc4 args
+    // result, txn = arc4.abi_call(
+    //     Logger.echo_nested_tuple,
+    //     arc4.Tuple(
+    //         (
+    //             arc4.Tuple((arc4.String("s1b"), arc4.String("s2b"))),
+    //             arc4.Tuple((arc4.UInt64(11), arc4.UInt64(21), arc4.DynamicBytes(b"3b"))),
+    //         )
+    //     ),
+    //     app_id=app,
+    // )
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:314-319
+    // arc4.Tuple(
+    //     (
+    //         arc4.Tuple((arc4.String("s1b"), arc4.String("s2b"))),
+    //         arc4.Tuple((arc4.UInt64(11), arc4.UInt64(21), arc4.DynamicBytes(b"3b"))),
+    //     )
+    // ),
+    byte 0x000400120004000900037331620003733262000000000000000b0000000000000015001200023362
+    itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:311-321
+    // # arc4 args
+    // result, txn = arc4.abi_call(
+    //     Logger.echo_nested_tuple,
+    //     arc4.Tuple(
+    //         (
+    //             arc4.Tuple((arc4.String("s1b"), arc4.String("s2b"))),
+    //             arc4.Tuple((arc4.UInt64(11), arc4.UInt64(21), arc4.DynamicBytes(b"3b"))),
+    //         )
+    //     ),
+    //     app_id=app,
+    // )
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 4
+    dig 1
+    len
+    substring3
+    cover 2
+    dig 1
+    len
+    substring3
+    dup
+    extract 0 8 // on error: Index access is out of bounds
+    btoi
+    swap
+    dup
+    extract 8 8 // on error: Index access is out of bounds
+    cover 2
+    dup
+    int 16
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    cover 2
+    substring3
+    extract 2 0
+    // typed_abi_call/typed_c2c.py:323
+    // assert s1 == "echo: s1b"
+    uncover 4
+    byte "echo: s1b"
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:324
+    // assert s2 == "echo: s2b"
+    uncover 3
+    byte 0x00096563686f3a20733262
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:325
+    // assert u64_1 == 12
+    swap
+    int 12
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:326
+    // assert u64_2 == 22
+    swap
+    byte 0x0000000000000016
+    b==
+    assert
+    // typed_abi_call/typed_c2c.py:327
+    // assert bytez == b"echo: 3b"
+    byte 0x6563686f3a203362
     ==
     assert
     retsub
@@ -1702,11 +2629,11 @@ test_native_tuple:
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args(app: uint64) -> void:
 test_no_args:
-    // typed_abi_call/typed_c2c.py:224-225
+    // typed_abi_call/typed_c2c.py:329-330
     // @arc4.abimethod()
     // def test_no_args(self, app: Application) -> None:
     proto 1 0
-    // typed_abi_call/typed_c2c.py:226
+    // typed_abi_call/typed_c2c.py:331
     // result, _txn = arc4.abi_call(Logger.no_args, app_id=app)
     itxn_begin
     frame_dig -1
@@ -1727,12 +2654,12 @@ test_no_args:
     ==
     assert // ARC4 prefix is valid
     btoi
-    // typed_abi_call/typed_c2c.py:227
+    // typed_abi_call/typed_c2c.py:332
     // assert result == 42
     int 42
     ==
     assert
-    // typed_abi_call/typed_c2c.py:228
+    // typed_abi_call/typed_c2c.py:333
     // arc4_result, _txn = arc4.abi_call[arc4.UInt64]("no_args()uint64", app_id=app)
     itxn_begin
     frame_dig -1
@@ -1752,12 +2679,12 @@ test_no_args:
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    // typed_abi_call/typed_c2c.py:229
+    // typed_abi_call/typed_c2c.py:334
     // assert arc4_result == 42
     byte 0x000000000000002a
     b==
     assert
-    // typed_abi_call/typed_c2c.py:231
+    // typed_abi_call/typed_c2c.py:336
     // arc4.abi_call(Logger.no_args, app_id=app)
     itxn_begin
     frame_dig -1
@@ -1774,7 +2701,7 @@ test_no_args:
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    // typed_abi_call/typed_c2c.py:232
+    // typed_abi_call/typed_c2c.py:337
     // assert arc4.UInt64.from_log(op.ITxn.last_log()) == 42
     itxn LastLog
     dup

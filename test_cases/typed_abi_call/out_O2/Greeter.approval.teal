@@ -9,7 +9,7 @@ test_cases.typed_abi_call.typed_c2c.Greeter.approval_program:
 __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@17
+    bz __puya_arc4_router___bare_routing@19
     method "test_is_a_b(byte[],byte[],application)void"
     method "test_method_selector_kinds(application)void"
     method "test_method_overload(application)void"
@@ -22,9 +22,11 @@ __puya_arc4_router__:
     method "test_native_uint64(application)void"
     method "test_native_biguint(application)void"
     method "test_native_tuple(application)void"
+    method "test_native_tuple_method_ref(application)void"
+    method "test_nested_tuples(application)void"
     method "test_no_args(application)void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___test_is_a_b_route@2 __puya_arc4_router___test_method_selector_kinds_route@3 __puya_arc4_router___test_method_overload_route@4 __puya_arc4_router___test_arg_conversion_route@5 __puya_arc4_router___test_15plus_args_route@6 __puya_arc4_router___test_void_route@7 __puya_arc4_router___test_ref_types_route@8 __puya_arc4_router___test_native_string_route@9 __puya_arc4_router___test_native_bytes_route@10 __puya_arc4_router___test_native_uint64_route@11 __puya_arc4_router___test_native_biguint_route@12 __puya_arc4_router___test_native_tuple_route@13 __puya_arc4_router___test_no_args_route@14
+    match __puya_arc4_router___test_is_a_b_route@2 __puya_arc4_router___test_method_selector_kinds_route@3 __puya_arc4_router___test_method_overload_route@4 __puya_arc4_router___test_arg_conversion_route@5 __puya_arc4_router___test_15plus_args_route@6 __puya_arc4_router___test_void_route@7 __puya_arc4_router___test_ref_types_route@8 __puya_arc4_router___test_native_string_route@9 __puya_arc4_router___test_native_bytes_route@10 __puya_arc4_router___test_native_uint64_route@11 __puya_arc4_router___test_native_biguint_route@12 __puya_arc4_router___test_native_tuple_route@13 __puya_arc4_router___test_native_tuple_method_ref_route@14 __puya_arc4_router___test_nested_tuples_route@15 __puya_arc4_router___test_no_args_route@16
     int 0
     retsub
 
@@ -191,7 +193,33 @@ __puya_arc4_router___test_native_tuple_route@13:
     int 1
     retsub
 
-__puya_arc4_router___test_no_args_route@14:
+__puya_arc4_router___test_native_tuple_method_ref_route@14:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Applications
+    callsub test_native_tuple_method_ref
+    int 1
+    retsub
+
+__puya_arc4_router___test_nested_tuples_route@15:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Applications
+    callsub test_nested_tuples
+    int 1
+    retsub
+
+__puya_arc4_router___test_no_args_route@16:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -204,16 +232,16 @@ __puya_arc4_router___test_no_args_route@14:
     int 1
     retsub
 
-__puya_arc4_router___bare_routing@17:
+__puya_arc4_router___bare_routing@19:
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@21
+    bnz __puya_arc4_router___after_if_else@23
     txn ApplicationID
     !
     assert // is creating
     int 1
     retsub
 
-__puya_arc4_router___after_if_else@21:
+__puya_arc4_router___after_if_else@23:
     int 0
     retsub
 
@@ -1105,20 +1133,23 @@ test_native_tuple:
     cover 3
     swap
     extract 2 0
+    dup
     byte "echo: s1"
     ==
     assert
-    swap
+    uncover 2
     extract 2 0
+    dup
     byte 0x6563686f3a206231
     ==
     assert
-    uncover 2
+    uncover 4
     btoi
+    dup
     int 2
     ==
     assert
-    swap
+    dig 4
     byte 0x03
     b==
     assert
@@ -1149,7 +1180,7 @@ test_native_tuple:
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    dig 1
+    dig 4
     ==
     assert
     itxn_begin
@@ -1178,6 +1209,617 @@ test_native_tuple:
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
+    uncover 4
+    ==
+    assert
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    itxn_field ApplicationArgs
+    byte 0x00027331
+    itxn_field ApplicationArgs
+    byte 0x00026231
+    itxn_field ApplicationArgs
+    byte 0x0000000000000001
+    itxn_field ApplicationArgs
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 2
+    dig 1
+    len
+    dig 2
+    cover 2
+    substring3
+    extract 2 0
+    swap
+    dup
+    extract 4 8 // on error: Index access is out of bounds
+    btoi
+    cover 2
+    extract 12 64 // on error: Index access is out of bounds
+    cover 2
+    uncover 6
+    uncover 4
+    ==
+    assert
+    uncover 4
+    ==
+    assert
+    uncover 2
+    ==
+    assert
+    b==
+    assert
+    retsub
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref(app: uint64) -> void:
+test_native_tuple_method_ref:
+    proto 1 0
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    itxn_field ApplicationArgs
+    byte 0x00027331
+    itxn_field ApplicationArgs
+    byte 0x00026231
+    itxn_field ApplicationArgs
+    byte 0x0000000000000001
+    itxn_field ApplicationArgs
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 2
+    dig 1
+    len
+    dig 2
+    cover 2
+    substring3
+    extract 2 0
+    swap
+    dup
+    extract 4 8 // on error: Index access is out of bounds
+    btoi
+    cover 2
+    extract 12 64 // on error: Index access is out of bounds
+    cover 2
+    dig 3
+    byte "echo: s1"
+    ==
+    assert
+    dup
+    byte 0x6563686f3a206231
+    ==
+    assert
+    dig 1
+    int 2
+    ==
+    assert
+    dig 2
+    byte 0x03
+    b==
+    assert
+    itxn_begin
+    int 1
+    itob
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    itxn_field ApplicationArgs
+    byte 0x00027331
+    itxn_field ApplicationArgs
+    byte 0x00026231
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 2
+    dig 1
+    len
+    dig 2
+    cover 2
+    substring3
+    extract 2 0
+    swap
+    dup
+    extract 4 8 // on error: Index access is out of bounds
+    btoi
+    cover 2
+    extract 12 64 // on error: Index access is out of bounds
+    cover 3
+    uncover 2
+    dig 7
+    ==
+    swap
+    dig 4
+    ==
+    &&
+    swap
+    dig 4
+    ==
+    &&
+    swap
+    dig 4
+    b==
+    &&
+    assert // expected native arguments to give the same result
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    itxn_field ApplicationArgs
+    byte 0x00027331
+    itxn_field ApplicationArgs
+    byte 0x00026231
+    itxn_field ApplicationArgs
+    byte 0x0000000000000001
+    itxn_field ApplicationArgs
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 2
+    dig 1
+    len
+    dig 2
+    cover 2
+    substring3
+    extract 2 0
+    swap
+    dup
+    extract 4 8 // on error: Index access is out of bounds
+    btoi
+    cover 2
+    extract 12 64 // on error: Index access is out of bounds
+    cover 3
+    uncover 2
+    dig 7
+    ==
+    swap
+    dig 4
+    ==
+    &&
+    swap
+    dig 4
+    ==
+    &&
+    swap
+    dig 4
+    b==
+    &&
+    assert // expected arc4 arguments to give the same result
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    itxn_field ApplicationArgs
+    byte 0x00027331
+    itxn_field ApplicationArgs
+    byte 0x00026231
+    itxn_field ApplicationArgs
+    byte 0x0000000000000001
+    itxn_field ApplicationArgs
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 2
+    dig 1
+    len
+    dig 2
+    cover 2
+    substring3
+    extract 2 0
+    swap
+    dup
+    extract 4 8 // on error: Index access is out of bounds
+    btoi
+    cover 2
+    extract 12 64 // on error: Index access is out of bounds
+    cover 3
+    uncover 2
+    uncover 7
+    ==
+    swap
+    uncover 4
+    ==
+    &&
+    swap
+    uncover 3
+    ==
+    &&
+    swap
+    uncover 2
+    b==
+    &&
+    assert
+    retsub
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: uint64) -> void:
+test_nested_tuples:
+    proto 1 0
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
+    itxn_field ApplicationArgs
+    byte 0x00040010000400080002733100027332000000000000000100000000000000020012000133
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 4
+    dig 1
+    len
+    substring3
+    cover 2
+    dig 1
+    len
+    substring3
+    dup
+    extract 0 8 // on error: Index access is out of bounds
+    btoi
+    swap
+    dup
+    extract 8 8 // on error: Index access is out of bounds
+    cover 2
+    dup
+    int 16
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    cover 2
+    substring3
+    extract 2 0
+    uncover 4
+    byte "echo: s1"
+    ==
+    assert
+    uncover 3
+    byte 0x00086563686f3a207332
+    ==
+    assert
+    swap
+    int 2
+    ==
+    assert
+    swap
+    byte 0x0000000000000003
+    b==
+    assert
+    byte 0x6563686f3a2033
+    ==
+    assert
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
+    itxn_field ApplicationArgs
+    byte 0x00040010000400080002733100027332000000000000000100000000000000020012000133
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 4
+    dig 1
+    len
+    substring3
+    cover 2
+    dig 1
+    len
+    substring3
+    dup
+    extract 0 8 // on error: Index access is out of bounds
+    btoi
+    swap
+    dup
+    extract 8 8 // on error: Index access is out of bounds
+    cover 2
+    dup
+    int 16
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    cover 2
+    substring3
+    extract 2 0
+    uncover 4
+    byte "echo: s1"
+    ==
+    assert
+    uncover 3
+    byte 0x00086563686f3a207332
+    ==
+    assert
+    swap
+    int 2
+    ==
+    assert
+    swap
+    byte 0x0000000000000003
+    b==
+    assert
+    byte 0x6563686f3a2033
+    ==
+    assert
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
+    itxn_field ApplicationArgs
+    byte 0x000400120004000900037331620003733262000000000000000b0000000000000015001200023362
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 4
+    dig 1
+    len
+    substring3
+    cover 2
+    dig 1
+    len
+    substring3
+    dup
+    extract 0 8 // on error: Index access is out of bounds
+    btoi
+    swap
+    dup
+    extract 8 8 // on error: Index access is out of bounds
+    cover 2
+    dup
+    int 16
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    cover 2
+    substring3
+    extract 2 0
+    uncover 4
+    byte "echo: s1b"
+    ==
+    assert
+    uncover 3
+    byte 0x00096563686f3a20733262
+    ==
+    assert
+    swap
+    int 12
+    ==
+    assert
+    swap
+    byte 0x0000000000000016
+    b==
+    assert
+    byte 0x6563686f3a203362
     ==
     assert
     retsub

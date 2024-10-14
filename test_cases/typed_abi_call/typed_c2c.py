@@ -174,18 +174,15 @@ class Greeter(ARC4Contract):
     @arc4.abimethod()
     def test_native_tuple(self, app: Application) -> None:
         # python literals
-
-        # NOTE: the following uses method selectors to work around having nested tuples
-        txn = arc4.abi_call(
+        result1, txn = arc4.abi_call[
+            arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]
+        ](
             "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
             "s1",
             b"b1",
             1,
             2,
             app_id=app,
-        )
-        result1 = arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512].from_log(
-            txn.last_log
         )
         s, b, u, bu = result1.native
         assert s.native == "echo: s1"
@@ -194,7 +191,9 @@ class Greeter(ARC4Contract):
         assert bu.native == 3
 
         # test again using native types in arguments
-        txn = arc4.abi_call(
+        result2, txn = arc4.abi_call[
+            arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]
+        ](
             "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
             String("s1"),
             Bytes(b"b1"),
@@ -202,13 +201,12 @@ class Greeter(ARC4Contract):
             BigUInt(2),
             app_id=app,
         )
-        result2 = arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512].from_log(
-            txn.last_log
-        )
         assert result1 == result2
 
         # test again using arc4 types in arguments
-        txn = arc4.abi_call(
+        result3, txn = arc4.abi_call[
+            arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]
+        ](
             "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
             arc4.String("s1"),
             arc4.DynamicBytes(b"b1"),
@@ -216,10 +214,117 @@ class Greeter(ARC4Contract):
             arc4.UInt512(2),
             app_id=app,
         )
-        result3 = arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512].from_log(
-            txn.last_log
-        )
         assert result1 == result3
+
+        # test again using native result type
+        result_native, txn = arc4.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
+            "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
+            arc4.String("s1"),
+            arc4.DynamicBytes(b"b1"),
+            arc4.UInt64(1),
+            arc4.UInt512(2),
+            app_id=app,
+        )
+        assert result1.native[0].native == result_native[0]
+        assert result1.native[1].native == result_native[1]
+        assert result1.native[2].native == result_native[2]
+        assert result1.native[3].native == result_native[3]
+
+    @arc4.abimethod()
+    def test_native_tuple_method_ref(self, app: Application) -> None:
+        # test with literal args
+        result, txn = arc4.abi_call(
+            Logger.echo_native_tuple,
+            "s1",
+            b"b1",
+            1,
+            2,
+            app_id=app,
+        )
+        (s, b, u, bu) = result
+        assert s == "echo: s1"
+        assert b == b"echo: b1"
+        assert u == 2
+        assert bu == 3
+
+        # test with native args
+        result_2, txn = arc4.abi_call(
+            Logger.echo_native_tuple,
+            String("s1"),
+            Bytes(b"b1"),
+            UInt64(1),
+            BigUInt(2),
+            app_id=app,
+        )
+        assert result_2 == result, "expected native arguments to give the same result"
+
+        # test with arc4 args
+        result_3, txn = arc4.abi_call(
+            Logger.echo_native_tuple,
+            arc4.String("s1"),
+            arc4.DynamicBytes(b"b1"),
+            arc4.UInt64(1),
+            arc4.UInt512(2),
+            app_id=app,
+        )
+        assert result_3 == result, "expected arc4 arguments to give the same result"
+
+        # test again using native result type
+        result_native, txn = arc4.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
+            "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
+            arc4.String("s1"),
+            arc4.DynamicBytes(b"b1"),
+            arc4.UInt64(1),
+            arc4.UInt512(2),
+            app_id=app,
+        )
+        assert result_native == result
+
+    @arc4.abimethod()
+    def test_nested_tuples(self, app: Application) -> None:
+        # literal args
+        result, txn = arc4.abi_call(
+            Logger.echo_nested_tuple,
+            (("s1", "s2"), (1, 2, b"3")),
+            app_id=app,
+        )
+        ((s1, s2), (u64_1, u64_2, bytez)) = result
+        assert s1 == "echo: s1"
+        assert s2 == "echo: s2"
+        assert u64_1 == 2
+        assert u64_2 == 3
+        assert bytez == b"echo: 3"
+
+        # native args
+        result, txn = arc4.abi_call(
+            Logger.echo_nested_tuple,
+            ((String("s1"), arc4.String("s2")), (UInt64(1), arc4.UInt64(2), Bytes(b"3"))),
+            app_id=app,
+        )
+        ((s1, s2), (u64_1, u64_2, bytez)) = result
+        assert s1 == "echo: s1"
+        assert s2 == "echo: s2"
+        assert u64_1 == 2
+        assert u64_2 == 3
+        assert bytez == b"echo: 3"
+
+        # arc4 args
+        result, txn = arc4.abi_call(
+            Logger.echo_nested_tuple,
+            arc4.Tuple(
+                (
+                    arc4.Tuple((arc4.String("s1b"), arc4.String("s2b"))),
+                    arc4.Tuple((arc4.UInt64(11), arc4.UInt64(21), arc4.DynamicBytes(b"3b"))),
+                )
+            ),
+            app_id=app,
+        )
+        ((s1, s2), (u64_1, u64_2, bytez)) = result
+        assert s1 == "echo: s1b"
+        assert s2 == "echo: s2b"
+        assert u64_1 == 12
+        assert u64_2 == 22
+        assert bytez == b"echo: 3b"
 
     @arc4.abimethod()
     def test_no_args(self, app: Application) -> None:

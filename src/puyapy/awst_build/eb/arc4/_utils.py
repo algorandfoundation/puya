@@ -21,11 +21,31 @@ logger = log.get_logger(__name__)
 _VALID_NAME_PATTERN = re.compile("^[_A-Za-z][A-Za-z0-9_]*$")
 
 
-@attrs.frozen
+def _pytype_to_arc4_pytype(typ: pytypes.PyType, sig: attrs.AttrsInstance) -> pytypes.PyType:
+    assert isinstance(sig, ARC4Signature)
+
+    def on_error(bad_type: pytypes.PyType) -> typing.Never:
+        raise CodeError(f"invalid return type for an ARC4 method: {bad_type}", sig.source_location)
+
+    return arc4_utils.pytype_to_arc4_pytype(typ, on_error)
+
+
+def _pytypes_to_arc4_pytypes(
+    types: Sequence[pytypes.PyType], sig: attrs.AttrsInstance
+) -> Sequence[pytypes.PyType]:
+    return tuple(_pytype_to_arc4_pytype(t, sig) for t in types)
+
+
+@attrs.frozen(kw_only=True)
 class ARC4Signature:
+    source_location: SourceLocation | None
     method_name: str
-    arg_types: Sequence[pytypes.PyType] = attrs.field(converter=tuple[pytypes.PyType, ...])
-    return_type: pytypes.PyType
+    arg_types: Sequence[pytypes.PyType] = attrs.field(
+        converter=attrs.Converter(_pytypes_to_arc4_pytypes, takes_self=True)  # type: ignore[misc]
+    )
+    return_type: pytypes.PyType = attrs.field(
+        converter=attrs.Converter(_pytype_to_arc4_pytype, takes_self=True)  # type: ignore[misc]
+    )
 
     @property
     def method_selector(self) -> str:
@@ -36,7 +56,6 @@ class ARC4Signature:
     def convert_args(
         self,
         native_args: Sequence[NodeBuilder],
-        location: SourceLocation,
         *,
         expect_itxn_args: bool = False,
     ) -> Sequence[InstanceBuilder]:
@@ -46,7 +65,7 @@ class ARC4Signature:
             logger.error(
                 f"expected {num_sig_args} ABI argument{'' if num_sig_args == 1 else 's'},"
                 f" got {num_args}",
-                location=location,
+                location=self.source_location,
             )
         arg_types = (
             list(map(_gtxn_to_itxn, self.arg_types)) if expect_itxn_args else self.arg_types
@@ -95,7 +114,9 @@ def get_arc4_signature(
     return_type = (
         arc4_utils.arc4_to_pytype(maybe_returns, loc) if maybe_returns else pytypes.NoneType
     )
-    return method_sig, ARC4Signature(method_name, arg_types, return_type)
+    return method_sig, ARC4Signature(
+        method_name=method_name, arg_types=arg_types, return_type=return_type, source_location=loc
+    )
 
 
 def _implicit_arc4_type_conversion(typ: pytypes.PyType, loc: SourceLocation) -> pytypes.PyType:
@@ -135,7 +156,7 @@ def _implicit_arc4_conversion(
     from puya.awst.wtypes import ARC4Type
 
     instance = expect.instance_builder(operand, default=expect.default_dummy_value(target_type))
-    instance = maybe_resolve_literal(instance, target_type)
+    instance = _maybe_resolve_arc4_literal(instance, target_type)
     if instance.pytype == target_type:
         return instance
     target_wtype = target_type.wtype
@@ -160,7 +181,7 @@ def _implicit_arc4_conversion(
             location=instance.source_location,
         )
         return dummy_value(target_type, instance.source_location)
-    if instance.pytype.wtype not in target_wtype.encodeable_types:
+    if not target_wtype.can_encode_type(instance.pytype.wtype):
         logger.error(
             f"cannot encode {instance.pytype} to {target_type}", location=instance.source_location
         )
@@ -172,6 +193,25 @@ def _implicit_arc4_conversion(
         arg_kinds=[mypy.nodes.ARG_POS],
         location=instance.source_location,
     )
+
+
+def _maybe_resolve_arc4_literal(
+    operand: InstanceBuilder, target_type: pytypes.PyType
+) -> InstanceBuilder:
+    """Handles special case of resolving a literal tuple into an arc4 tuple"""
+    from puyapy.awst_build.eb.tuple import TupleLiteralBuilder
+
+    if (
+        isinstance(operand, TupleLiteralBuilder)
+        and target_type.generic is pytypes.GenericARC4TupleType
+    ):
+        assert isinstance(target_type, pytypes.TupleType), "expected TupleType"
+        resolved_items = [
+            _maybe_resolve_arc4_literal(item, item_type)
+            for item, item_type in zip(operand.iterate_static(), target_type.items, strict=True)
+        ]
+        return TupleLiteralBuilder(resolved_items, operand.source_location)
+    return maybe_resolve_literal(operand, target_type)
 
 
 def _split_signature(

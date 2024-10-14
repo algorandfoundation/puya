@@ -45,7 +45,7 @@ class EmitBuilder(FunctionBuilder):
                         "event signatures cannot include return types",
                         location=first.source_location,
                     )
-                arc4_args = signature.convert_args(rest, location)
+                arc4_args = signature.convert_args(rest)
                 event_name = signature.method_name
                 event_arg_eb = ARC4TupleGenericTypeBuilder(location).call(
                     args=[TupleLiteralBuilder(items=arc4_args, location=location)],
