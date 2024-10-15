@@ -1,4 +1,4 @@
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 
 import attrs
 
@@ -33,3 +33,5 @@ class AVMOp:
 class AssembledProgram:
     bytecode: bytes
     debug_info: DebugInfo
+    template_variables: Mapping[str, int | bytes | None]
+    """Indicates template variable values used in compilation"""

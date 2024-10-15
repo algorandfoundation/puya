@@ -684,6 +684,7 @@ def _process_struct(
     struct_typ = pytypes.StructType(
         base=base,
         name=cdef.fullname,
+        desc=cdef.docstring,
         fields=fields,
         frozen=frozen,
         source_location=cls_loc,
@@ -701,6 +702,7 @@ def _process_named_tuple(
     cls_loc = context.node_location(cdef)
     named_tuple_type = pytypes.NamedTupleType(
         name=cdef.fullname,
+        desc=cdef.docstring,
         fields=fields,
         source_location=cls_loc,
     )

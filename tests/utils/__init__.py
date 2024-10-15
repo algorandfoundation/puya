@@ -20,7 +20,7 @@ from puyapy.utils import determine_out_dir
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 
-APPROVAL_EXTENSIONS = frozenset((".teal", ".awst", ".ir", ".mir", ".arc32.json"))
+APPROVAL_EXTENSIONS = frozenset((".teal", ".awst", ".ir", ".mir", ".arc32.json", ".arc56.json"))
 UNSTABLE_LOG_PREFIXES = {
     LogLevel.debug: (
         "Building AWST for ",

@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import subprocess
@@ -40,6 +41,7 @@ def _should_output(path: Path, puyapy_options: PuyaPyOptions) -> bool:
     for pattern, include_in_output in {
         "*.teal": puyapy_options.output_teal,
         "*.arc32.json": puyapy_options.output_arc32,
+        "*.arc56.json": puyapy_options.output_arc56,
         "*.awst": puyapy_options.output_awst,
         "*.ssa.ir": puyapy_options.output_ssa_ir,
         "*.ssa.opt_pass_*.ir": puyapy_options.output_optimization_ir,
@@ -80,6 +82,10 @@ def compile_test_case(
             "\n".join(map(_normalize_log, logs)),
             encoding="utf8",
         )
+
+    # normalize ARC-56 output
+    for arc56_file in dst_out_dir.rglob("*.arc56.json"):
+        _normalize_arc56(arc56_file)
 
 
 def _normalize_path(path: Path | str) -> str:
@@ -124,6 +130,7 @@ def compile_with_level1_optimizations(test_case: PuyaTestCase) -> None:
         output_bytecode=True,
         output_source_map=True,
         output_arc32=True,
+        output_arc56=True,
         output_awst=True,
         output_ssa_ir=True,
         output_optimization_ir=True,
@@ -173,3 +180,12 @@ def check_for_diff(path: Path) -> str | None:
         )
         stdout += result.stdout.decode("utf8")
     return stdout or None
+
+
+def _normalize_arc56(path: Path) -> None:
+    arc56 = json.loads(path.read_text())
+    compiler_version = arc56.get("compilerInfo", {}).get("compilerVersion", {})
+    compiler_version["major"] = 99
+    compiler_version["minor"] = 99
+    compiler_version["patch"] = 99
+    path.write_text(json.dumps(arc56, indent=4), encoding="utf8")

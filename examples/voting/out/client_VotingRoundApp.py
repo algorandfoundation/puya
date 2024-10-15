@@ -40,7 +40,7 @@ class VotingRoundApp(algopy.arc4.ARC4Client, typing.Protocol):
     def get_preconditions(
         self,
         signature: algopy.arc4.DynamicBytes,
-    ) -> VotingPreconditions: ...
+    ) -> algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]]]: ...
 
     @algopy.arc4.abimethod
     def vote(
