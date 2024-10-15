@@ -45,6 +45,7 @@ def run_puyapy(
 
 def run_puyapy_clientgen(
     path: Path,
+    *flags: str,
 ) -> subprocess.CompletedProcess[str]:
     puyapy_clientgen = shutil.which("puyapy-clientgen")
     assert puyapy_clientgen is not None
@@ -52,6 +53,7 @@ def run_puyapy_clientgen(
         [
             puyapy_clientgen,
             str(path),
+            *flags,
         ],
         text=True,
         # capture stdout
@@ -104,9 +106,23 @@ def test_run_directory() -> None:
     "case",
     [
         pytest.param(path, id=str(path.relative_to(VCS_ROOT)))
-        for test_dir in (EXAMPLES_DIR, TEST_CASES_DIR)
-        for path in test_dir.rglob("out/*.arc32.json")
+        for test_dir in ("arc_56", "abi_routing")
+        for path in (TEST_CASES_DIR / test_dir).rglob("out/*.arc32.json")
     ],
 )
-def test_puyapy_clientgen(case: Path) -> None:
+def test_puyapy_clientgen_arc32(case: Path, tmpdir: Path) -> None:
+    # ARC-32 output differs slightly from ARC-56, so we are just checking it doesn't error
+    # and ignore the generated artifact
+    run_puyapy_clientgen(case, "--out-dir", str(tmpdir))
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        pytest.param(path, id=str(path.relative_to(VCS_ROOT)))
+        for test_dir in (EXAMPLES_DIR, TEST_CASES_DIR)
+        for path in test_dir.rglob("out/*.arc56.json")
+    ],
+)
+def test_puyapy_clientgen_arc56(case: Path) -> None:
     run_puyapy_clientgen(case)

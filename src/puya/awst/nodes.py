@@ -501,6 +501,7 @@ class ARC4Decode(Expression):
             wtypes.arc4_bool_wtype,
             wtypes.ARC4UIntN,
             wtypes.ARC4Tuple,
+            wtypes.ARC4Struct,
             wtypes.ARC4DynamicArray,  # only if element type is bytes for now
         )
     )
@@ -1371,6 +1372,16 @@ class BytesAugmentedAssignment(Statement):
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_bytes_augmented_assignment(self)
+
+
+@attrs.frozen
+class Emit(Expression):
+    signature: str
+    value: Expression = attrs.field(validator=expression_has_wtype(wtypes.ARC4Struct))
+    wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_emit(self)
 
 
 @attrs.frozen

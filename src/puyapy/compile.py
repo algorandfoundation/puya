@@ -16,7 +16,7 @@ import mypy.options
 import mypy.util
 from packaging import version
 from puya import log, models
-from puya.arc32 import create_arc32_json
+from puya.arc56 import create_arc56_json
 from puya.awst.nodes import AWST
 from puya.awst.serialize import awst_to_json
 from puya.awst.to_code_visitor import ToCodeVisitor
@@ -24,9 +24,9 @@ from puya.compile import awst_to_teal
 from puya.errors import log_exceptions
 from puya.utils import make_path_relative_to_cwd
 
-from puyapy.awst_build.arc32_client_gen import write_arc32_client
+from puyapy.awst_build.arc4_client_gen import write_arc4_client
 from puyapy.awst_build.main import transform_ast
-from puyapy.client_gen import parse_app_spec_methods
+from puyapy.client_gen import parse_arc56
 from puyapy.options import PuyaPyOptions
 from puyapy.parse import TYPESHED_PATH, ParseResult, parse_and_typecheck
 from puyapy.utils import determine_out_dir
@@ -79,12 +79,13 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
         )
         log_ctx.exit_if_errors()
         if puyapy_options.output_client:
-            write_arc32_clients(compilation_set, teal)
+            write_arc32_clients(puyapy_options.template_vars_prefix, compilation_set, teal)
     # needs to be outside the with block
     log_ctx.exit_if_errors()
 
 
 def write_arc32_clients(
+    template_prefix: str,
     compilation_set: Mapping[models.ContractReference | models.LogicSigReference, Path],
     artifacts: Sequence[models.CompilationArtifact],
 ) -> None:
@@ -92,16 +93,17 @@ def write_arc32_clients(
         if isinstance(artifact, models.CompiledContract) and artifact.metadata.is_arc4:
             contract_out_dir = compilation_set.get(artifact.id)
             if contract_out_dir:
-                app_spec_json = create_arc32_json(
-                    artifact.approval_program.teal_src,
-                    artifact.clear_program.teal_src,
-                    artifact.metadata,
+                app_spec_json = create_arc56_json(
+                    approval_program=artifact.approval_program,
+                    clear_program=artifact.clear_program,
+                    metadata=artifact.metadata,
+                    template_prefix=template_prefix,
                 )
-                # use round trip of ARC32 -> reparse to ensure consistency
-                # of client output regardless if generating from ARC32 or
+                # use round trip of ARC-56 -> reparse to ensure consistency
+                # of client output regardless if generating from ARC-56 or
                 # Puya ARC4Contract
-                name, methods = parse_app_spec_methods(app_spec_json)
-                write_arc32_client(name, methods, contract_out_dir)
+                contract = parse_arc56(app_spec_json)
+                write_arc4_client(contract, contract_out_dir)
 
 
 def parse_with_mypy(paths: Sequence[Path]) -> ParseResult:

@@ -4,6 +4,8 @@ from algopy import BigUInt, Bytes, String, Txn, UInt64, arc4, subroutine
 
 
 class TestTuple(typing.NamedTuple):
+    """This is a test tuple"""
+
     a: UInt64
     b: BigUInt
     c: String

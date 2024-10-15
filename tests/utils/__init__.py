@@ -20,7 +20,7 @@ from puyapy.utils import determine_out_dir
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 
-APPROVAL_EXTENSIONS = frozenset((".teal", ".awst", ".ir", ".mir", ".arc32.json"))
+APPROVAL_EXTENSIONS = frozenset((".teal", ".awst", ".ir", ".mir", ".arc32.json", ".arc56.json"))
 UNSTABLE_LOG_PREFIXES = {
     LogLevel.debug: (
         "Building AWST for ",
@@ -188,7 +188,9 @@ def compile_src_from_options(options: PuyaPyOptions) -> CompilationResult:
             filtered_teal = [t for t in teal if t.id in narrow_compilation_set]
 
             if options.output_client:
-                write_arc32_clients(narrow_compilation_set, filtered_teal)
+                write_arc32_clients(
+                    options.template_vars_prefix, narrow_compilation_set, filtered_teal
+                )
 
         return CompilationResult(
             module_awst=awst,

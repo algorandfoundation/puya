@@ -15,9 +15,9 @@ contract test_cases.group_side_effects.contract.AppExpectingEffects:
             block@2: // create_group_route_L5
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (! tmp%3#0)
-                (assert tmp%4#0) // OnCompletion is NoOp
+                (assert tmp%4#0) // OnCompletion is not NoOp
                 let tmp%5#0: uint64 = (txn ApplicationID)
-                (assert tmp%5#0) // is not creating
+                (assert tmp%5#0) // can only call when not creating
                 let tmp%7#0: uint64 = (txn GroupIndex)
                 let gtxn_idx%0#0: uint64 = (- tmp%7#0 2u)
                 let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
@@ -38,9 +38,9 @@ contract test_cases.group_side_effects.contract.AppExpectingEffects:
             block@3: // log_group_route_L22
                 let tmp%10#0: uint64 = (txn OnCompletion)
                 let tmp%11#0: bool = (! tmp%10#0)
-                (assert tmp%11#0) // OnCompletion is NoOp
+                (assert tmp%11#0) // OnCompletion is not NoOp
                 let tmp%12#0: uint64 = (txn ApplicationID)
-                (assert tmp%12#0) // is not creating
+                (assert tmp%12#0) // can only call when not creating
                 let tmp%14#0: uint64 = (txn GroupIndex)
                 let gtxn_idx%2#0: uint64 = (- tmp%14#0 1u)
                 let gtxn_type%2#0: uint64 = ((gtxns TypeEnum) gtxn_idx%2#0)
@@ -54,7 +54,7 @@ contract test_cases.group_side_effects.contract.AppExpectingEffects:
             block@7: // __algopy_default_create_L1
                 let tmp%16#0: uint64 = (txn ApplicationID)
                 let tmp%17#0: bool = (! tmp%16#0)
-                (assert tmp%17#0) // is creating
+                (assert tmp%17#0) // can only call when creating
                 return 1u
             block@10: // after_if_else_L4
                 return 0u

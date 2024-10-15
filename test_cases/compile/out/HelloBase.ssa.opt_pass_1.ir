@@ -26,16 +26,16 @@ contract test_cases.compile.apps.HelloBase:
             block@2: // delete_route_L25
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (== tmp%3#0 DeleteApplication)
-                (assert tmp%4#0) // OnCompletion is DeleteApplication
+                (assert tmp%4#0) // OnCompletion is not DeleteApplication
                 let tmp%5#0: uint64 = (txn ApplicationID)
-                (assert tmp%5#0) // is not creating
+                (assert tmp%5#0) // can only call when not creating
                 return 1u
             block@3: // greet_route_L33
                 let tmp%7#0: uint64 = (txn OnCompletion)
                 let tmp%8#0: bool = (! tmp%7#0)
-                (assert tmp%8#0) // OnCompletion is NoOp
+                (assert tmp%8#0) // OnCompletion is not NoOp
                 let tmp%9#0: uint64 = (txn ApplicationID)
-                (assert tmp%9#0) // is not creating
+                (assert tmp%9#0) // can only call when not creating
                 let tmp%11#0: bytes = (txna ApplicationArgs 1)
                 let tmp%12#0: bytes = ((extract 2 0) tmp%11#0)
                 let to_encode%0#0: bytes = test_cases.compile.apps.HelloBase.greet(tmp%12#0)
@@ -51,12 +51,12 @@ contract test_cases.compile.apps.HelloBase:
                 switch tmp%14#0 {4u => block@7, 0u => block@8, * => return 0u}
             block@7: // update_L29
                 let tmp%15#0: uint64 = (txn ApplicationID)
-                (assert tmp%15#0) // is not creating
+                (assert tmp%15#0) // can only call when not creating
                 return 1u
             block@8: // __algopy_default_create_L1
                 let tmp%17#0: uint64 = (txn ApplicationID)
                 let tmp%18#0: bool = (! tmp%17#0)
-                (assert tmp%18#0) // is creating
+                (assert tmp%18#0) // can only call when creating
                 return 1u
         
         subroutine test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:

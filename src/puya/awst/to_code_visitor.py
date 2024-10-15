@@ -641,6 +641,10 @@ class ToCodeVisitor(
     def visit_arc4_router(self, expr: nodes.ARC4Router) -> str:
         return "arc4_router()"
 
+    @typing.override
+    def visit_emit(self, expr: nodes.Emit) -> str:
+        return f"emit({expr.signature!r}, {expr.value.accept(self)})"
+
 
 def _indent(lines: Iterable[str], indent_size: str = "  ") -> Iterator[str]:
     yield from (f"{indent_size}{line}" for line in lines)

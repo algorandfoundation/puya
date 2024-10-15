@@ -18,6 +18,7 @@ class PuyaOptions:
     output_teal: bool = False
     output_source_map: bool = False
     output_arc32: bool = False
+    output_arc56: bool = False
     output_ssa_ir: bool = False
     output_optimization_ir: bool = False
     output_destructured_ir: bool = False

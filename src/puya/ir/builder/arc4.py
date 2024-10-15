@@ -12,6 +12,7 @@ from puya.awst import (
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import (
+    OpFactory,
     assert_value,
     assign_intrinsic_op,
     assign_targets,
@@ -22,7 +23,6 @@ from puya.ir.builder._utils import (
 from puya.ir.builder.assignment import handle_assignment
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
-    BytesConstant,
     Intrinsic,
     Register,
     UInt64Constant,
@@ -30,7 +30,7 @@ from puya.ir.models import (
     ValueProvider,
     ValueTuple,
 )
-from puya.ir.types_ import AVMBytesEncoding, IRType, get_wtype_arity
+from puya.ir.types_ import IRType, get_wtype_arity
 from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.utils import bits_to_bytes, round_bits_to_nearest_bytes
 
@@ -93,9 +93,10 @@ def _decode_arc4_value(
                 args=[value],
                 source_location=loc,
             )
-        case wtypes.ARC4Tuple() as arc4_tuple, wtypes.WTuple() as native_tuple if (
-            len(arc4_tuple.types) == len(native_tuple.types)
-        ):
+        case (
+            wtypes.ARC4Tuple() | wtypes.ARC4Struct() as arc4_tuple,
+            wtypes.WTuple() as native_tuple,
+        ) if (len(arc4_tuple.types) == len(native_tuple.types)):
             return _visit_arc4_tuple_decode(
                 context, arc4_tuple, value, target_wtype=native_tuple, source_location=loc
             )
@@ -150,11 +151,22 @@ def _encode_expr(
                 context, elements, value_wtype.types, arc4_item_types, loc
             )
             return _visit_arc4_tuple_encode(context, arc4_items, arc4_item_types, loc)
+        case wtypes.ARC4Struct(types=arc4_item_types):
+            assert isinstance(
+                value_wtype, wtypes.WTuple
+            ), f"expected WTuple argument, got {value_wtype.name}"
+            elements = context.visitor.materialise_value_provider(
+                value_provider, description="elements_to_encode"
+            )
+            arc4_items = _encode_arc4_tuple_items(
+                context, elements, value_wtype.types, arc4_item_types, loc
+            )
+            return _visit_arc4_tuple_encode(context, arc4_items, arc4_item_types, loc)
         case wtypes.ARC4DynamicArray(element_type=wtypes.ARC4UIntN(n=8)):
             (value,) = context.visitor.materialise_value_provider(
                 value_provider, description="to_encode"
             )
-            factory = _OpFactory(context, loc)
+            factory = OpFactory(context, loc)
             length = factory.len(value, "length")
             length_uint16 = factory.as_u16_bytes(length, "length_uint16")
             return factory.concat(length_uint16, value, "encoded_value")
@@ -217,7 +229,7 @@ def encode_arc4_array(context: IRFunctionBuildContext, expr: awst_nodes.NewArray
         else b""
     )
 
-    factory = _OpFactory(context, expr.source_location)
+    factory = OpFactory(context, expr.source_location)
     elements = [context.visitor.visit_and_materialise_single(value) for value in expr.values]
     element_type = expr.wtype.element_type
 
@@ -254,7 +266,7 @@ def arc4_array_index(
     source_location: SourceLocation,
     assert_bounds: bool = True,
 ) -> ValueProvider:
-    factory = _OpFactory(context, source_location)
+    factory = OpFactory(context, source_location)
     array_length_vp = _get_arc4_array_length(array_wtype, array, source_location)
     array_head_and_tail_vp = _get_arc4_array_head_and_tail(array_wtype, array, source_location)
     array_head_and_tail = factory.assign(array_head_and_tail_vp, "array_head_and_tail")
@@ -446,7 +458,7 @@ def concat_values(
     right_expr: awst_nodes.Expression,
     source_location: SourceLocation,
 ) -> Value:
-    factory = _OpFactory(context, source_location)
+    factory = OpFactory(context, source_location)
     # check left is a valid ARC4 array to concat with
     left_wtype = left_expr.wtype
     if not isinstance(left_wtype, wtypes.ARC4DynamicArray):
@@ -600,14 +612,14 @@ ARC4_FALSE = 0b00000000.to_bytes(1, "big")
 def _encode_arc4_bool(
     context: IRFunctionBuildContext, bit: Value, source_location: SourceLocation
 ) -> Value:
-    factory = _OpFactory(context, source_location)
+    factory = OpFactory(context, source_location)
     value = factory.constant(0x00.to_bytes(1, "big"))
     return factory.set_bit(value=value, index=0, bit=bit, temp_desc="encoded_bool")
 
 
 def _visit_arc4_tuple_decode(
     context: IRFunctionBuildContext,
-    wtype: wtypes.ARC4Tuple,
+    wtype: wtypes.ARC4Tuple | wtypes.ARC4Struct,
     value: Value,
     target_wtype: wtypes.WTuple,
     source_location: SourceLocation,
@@ -666,7 +678,7 @@ def _read_dynamic_item_using_length_from_arc4_container(
     index: Value,
     source_location: SourceLocation,
 ) -> ValueProvider:
-    factory = _OpFactory(context, source_location)
+    factory = OpFactory(context, source_location)
     item_offset_offset = factory.mul(index, 2, "item_offset_offset")
     item_start_offset = factory.extract_uint16(
         array_head_and_tail, item_offset_offset, "item_offset"
@@ -689,7 +701,7 @@ def _read_dynamic_item_using_end_offset_from_arc4_container(
     index: Value,
     source_location: SourceLocation,
 ) -> ValueProvider:
-    factory = _OpFactory(context, source_location)
+    factory = OpFactory(context, source_location)
     item_offset_offset = factory.mul(index, 2, "item_offset_offset")
     item_start_offset = factory.extract_uint16(
         array_head_and_tail, item_offset_offset, "item_offset"
@@ -739,7 +751,7 @@ def _visit_arc4_tuple_encode(
     expr_loc: SourceLocation,
 ) -> ValueProvider:
     header_size = _determine_arc4_tuple_head_size(tuple_items, round_end_result=True)
-    factory = _OpFactory(context, expr_loc)
+    factory = OpFactory(context, expr_loc)
     current_tail_offset = factory.assign(factory.constant(header_size // 8), "current_tail_offset")
     encoded_tuple_buffer = factory.assign(factory.constant(b""), "encoded_tuple_buffer")
 
@@ -811,7 +823,7 @@ def _arc4_replace_tuple_item(
     value: ValueProvider,
     source_location: SourceLocation,
 ) -> Value:
-    factory = _OpFactory(context, source_location)
+    factory = OpFactory(context, source_location)
     base = context.visitor.visit_and_materialise_single(base_expr)
     value = factory.assign(value, "assigned_value")
     element_type = wtype.types[index_int]
@@ -1010,7 +1022,7 @@ def _get_arc4_array_tail_data_and_item_count(
     For native tuples will return the tuple items packed into the equivalent static array
     of tail data and item count
     """
-    factory = _OpFactory(context, source_location)
+    factory = OpFactory(context, source_location)
     match expr:
         case awst_nodes.Expression(
             wtype=wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray() as arr_wtype
@@ -1236,7 +1248,7 @@ def _concat_dynamic_array_fixed_size(
     source_location: SourceLocation,
     byte_size: int,
 ) -> Value:
-    factory = _OpFactory(context, source_location)
+    factory = OpFactory(context, source_location)
 
     def array_data(expr: awst_nodes.Expression) -> Value:
         match expr.wtype:
@@ -1281,7 +1293,7 @@ def _arc4_items_as_arc4_tuple(
     items: Sequence[Value],
     source_location: SourceLocation,
 ) -> Value:
-    factory = _OpFactory(context, source_location)
+    factory = OpFactory(context, source_location)
     result = factory.constant(b"")
     if is_arc4_dynamic_size(item_wtype):
         tail_offset: Value = UInt64Constant(value=len(items) * 2, source_location=source_location)
@@ -1386,7 +1398,7 @@ def _get_arc4_array_tail(
         # no header for static sized elements
         return array_head_and_tail
 
-    factory = _OpFactory(context, source_location)
+    factory = OpFactory(context, source_location)
     # special case to use extract with immediate length of 0 where possible
     # TODO: have an IR pseudo op, extract_to_end that handles this for non constant values?
     if isinstance(array_length, UInt64Constant) and array_length.value <= 127:
@@ -1394,216 +1406,6 @@ def _get_arc4_array_tail(
     start_of_tail = factory.mul(array_length, 2, "start_of_tail")
     total_length = factory.len(array_head_and_tail, "total_length")
     return factory.substring3(array_head_and_tail, start_of_tail, total_length, "data")
-
-
-@attrs.frozen
-class _OpFactory:
-    context: IRFunctionBuildContext
-    source_location: SourceLocation | None
-
-    def assign(self, value: ValueProvider, temp_desc: str) -> Register:
-        register = assign_temp(
-            self.context, value, temp_description=temp_desc, source_location=self.source_location
-        )
-        return register
-
-    def assign_multiple(self, **values: ValueProvider) -> Sequence[Register]:
-        return [self.assign(value, desc) for desc, value in values.items()]
-
-    def add(self, a: Value, b: Value | int, temp_desc: str) -> Register:
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.add,
-            args=[a, b],
-            source_location=self.source_location,
-        )
-        return result
-
-    def sub(self, a: Value, b: Value | int, temp_desc: str) -> Register:
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.sub,
-            args=[a, b],
-            source_location=self.source_location,
-        )
-        return result
-
-    def mul(self, a: Value, b: Value | int, temp_desc: str) -> Register:
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.mul,
-            args=[a, b],
-            source_location=self.source_location,
-        )
-        return result
-
-    def len(self, value: Value, temp_desc: str) -> Register:
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.len_,
-            args=[value],
-            source_location=self.source_location,
-        )
-        return result
-
-    def eq(self, a: Value, b: Value, temp_desc: str) -> Register:
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.eq,
-            args=[a, b],
-            source_location=self.source_location,
-        )
-        return result
-
-    def select(self, false: Value, true: Value, condition: Value, temp_desc: str) -> Register:
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.select,
-            args=[false, true, condition],
-            return_type=true.ir_type,
-            source_location=self.source_location,
-        )
-        return result
-
-    def extract_uint16(self, a: Value, b: Value | int, temp_desc: str) -> Register:
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.extract_uint16,
-            args=[a, b],
-            source_location=self.source_location,
-        )
-        return result
-
-    def itob(self, value: Value | int, temp_desc: str) -> Register:
-        itob = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.itob,
-            args=[value],
-            source_location=self.source_location,
-        )
-        return itob
-
-    def as_u16_bytes(self, a: Value | int, temp_desc: str) -> Register:
-        as_bytes = self.itob(a, "as_bytes")
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.extract,
-            immediates=[6, 2],
-            args=[as_bytes],
-            source_location=self.source_location,
-        )
-        return result
-
-    def concat(self, a: Value | bytes, b: Value | bytes, temp_desc: str) -> Register:
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.concat,
-            args=[a, b],
-            source_location=self.source_location,
-        )
-        return result
-
-    def constant(self, value: int | bytes) -> Value:
-        if isinstance(value, int):
-            return UInt64Constant(value=value, source_location=self.source_location)
-        else:
-            return BytesConstant(
-                value=value, encoding=AVMBytesEncoding.base16, source_location=self.source_location
-            )
-
-    def set_bit(self, *, value: Value, index: int, bit: Value | int, temp_desc: str) -> Register:
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.setbit,
-            args=[value, index, bit],
-            return_type=value.ir_type,
-            source_location=self.source_location,
-        )
-        return result
-
-    def get_bit(self, value: Value, index: Value | int, temp_desc: str) -> Register:
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.getbit,
-            args=[value, index],
-            source_location=self.source_location,
-        )
-        return result
-
-    def extract_to_end(self, value: Value, start: int, temp_desc: str) -> Register:
-        if start > 255:
-            raise InternalError(
-                "Cannot use extract with a length of 0 if start > 255", self.source_location
-            )
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.extract,
-            immediates=[start, 0],
-            args=[value],
-            source_location=self.source_location,
-        )
-        return result
-
-    def substring3(
-        self,
-        value: Value | bytes,
-        start: Value | int,
-        end_ex: Value | int,
-        temp_desc: str,
-    ) -> Register:
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.substring3,
-            args=[value, start, end_ex],
-            source_location=self.source_location,
-        )
-        return result
-
-    def replace(
-        self,
-        value: Value | bytes,
-        index: Value | int,
-        replacement: Value | bytes,
-        temp_desc: str,
-    ) -> Register:
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            source_location=self.source_location,
-            op=AVMOp.replace3,
-            args=[value, index, replacement],
-        )
-        return result
-
-    def extract3(
-        self,
-        value: Value | bytes,
-        index: Value | int,
-        length: Value | int,
-        temp_desc: str,
-    ) -> Register:
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.extract3,
-            args=[value, index, length],
-            source_location=self.source_location,
-        )
-        return result
 
 
 def is_arc4_dynamic_size(wtype: wtypes.ARC4Type) -> bool:

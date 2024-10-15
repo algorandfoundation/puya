@@ -67,7 +67,7 @@ class Reference(algopy.arc4.ARC4Client, typing.Protocol):
         self,
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
-    @algopy.arc4.abimethod(default_args={'asset_from_storage': 'asa', 'asset_from_function': 'get_asset', 'account_from_storage': 'creator', 'account_from_function': 'get_address', 'application_from_storage': 'app', 'application_from_function': 'get_application', 'bytes_from_storage': 'some_bytes', 'int_from_storage': 'an_int', 'int_from_function': 'get_an_int'})
+    @algopy.arc4.abimethod
     def method_with_default_args(
         self,
         asset_from_storage: algopy.Asset,

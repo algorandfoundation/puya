@@ -6,20 +6,20 @@ contract test_cases.named_tuples.contract.NamedTuplesContract:
                 return tmp%0#0
         
         subroutine test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__() -> bool:
-            block@0: // L13
+            block@0: // L15
                 let tmp%0#0: uint64 = (txn NumAppArgs)
                 let tmp%1#0: bool = (!= tmp%0#0 0u)
                 goto tmp%1#0 ? block@1 : block@6
-            block@1: // abi_routing_L13
+            block@1: // abi_routing_L15
                 let tmp%2#0: bytes = (txna ApplicationArgs 0)
                 switch tmp%2#0 {method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])" => block@2, method "test_tuple((uint64,uint512,string,byte[]))void" => block@3, * => block@4}
-            block@2: // build_tuple_route_L15
+            block@2: // build_tuple_route_L17
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (== tmp%3#0 NoOp)
-                (assert tmp%4#0) // OnCompletion is NoOp
+                (assert tmp%4#0) // OnCompletion is not NoOp
                 let tmp%5#0: uint64 = (txn ApplicationID)
                 let tmp%6#0: bool = (!= tmp%5#0 0u)
-                (assert tmp%6#0) // is not creating
+                (assert tmp%6#0) // can only call when not creating
                 let tmp%7#0: bytes = (txna ApplicationArgs 1)
                 let tmp%8#0: uint64 = (btoi tmp%7#0)
                 let tmp%9#0: bytes = (txna ApplicationArgs 2)
@@ -61,13 +61,13 @@ contract test_cases.named_tuples.contract.NamedTuplesContract:
                 let tmp%14#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%6#0)
                 (log tmp%14#0)
                 return 1u
-            block@3: // test_tuple_route_L30
+            block@3: // test_tuple_route_L32
                 let tmp%15#0: uint64 = (txn OnCompletion)
                 let tmp%16#0: bool = (== tmp%15#0 NoOp)
-                (assert tmp%16#0) // OnCompletion is NoOp
+                (assert tmp%16#0) // OnCompletion is not NoOp
                 let tmp%17#0: uint64 = (txn ApplicationID)
                 let tmp%18#0: bool = (!= tmp%17#0 0u)
-                (assert tmp%18#0) // is not creating
+                (assert tmp%18#0) // can only call when not creating
                 let tmp%19#0: bytes = (txna ApplicationArgs 1)
                 let item0%0#0: bytes = (extract3 tmp%19#0 0u 8u) // on error: Index access is out of bounds
                 let item0%0%0#0: uint64 = (btoi item0%0#0)
@@ -82,28 +82,28 @@ contract test_cases.named_tuples.contract.NamedTuplesContract:
                 let item3%0%0#0: bytes = ((extract 2 0) item3%0#0)
                 test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(item0%0%0#0, item1%0#0, item2%0%0#0, item3%0%0#0)
                 return 1u
-            block@4: // switch_case_default_L13
+            block@4: // switch_case_default_L15
                 goto block@5
-            block@5: // switch_case_next_L13
+            block@5: // switch_case_next_L15
                 goto block@10
-            block@6: // bare_routing_L13
+            block@6: // bare_routing_L15
                 let tmp%20#0: uint64 = (txn OnCompletion)
                 switch tmp%20#0 {0u => block@7, * => block@8}
             block@7: // __algopy_default_create_L1
                 let tmp%21#0: uint64 = (txn ApplicationID)
                 let tmp%22#0: bool = (== tmp%21#0 0u)
-                (assert tmp%22#0) // is creating
+                (assert tmp%22#0) // can only call when creating
                 test_cases.named_tuples.contract.NamedTuplesContract.__algopy_default_create()
                 return 1u
-            block@8: // switch_case_default_L13
+            block@8: // switch_case_default_L15
                 goto block@9
-            block@9: // switch_case_next_L13
+            block@9: // switch_case_next_L15
                 goto block@10
-            block@10: // after_if_else_L13
+            block@10: // after_if_else_L15
                 return 0u
         
         subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple(a: uint64, b: biguint, c: bytes, d: bytes) -> <uint64, biguint, bytes, bytes>:
-            block@0: // L15
+            block@0: // L17
                 let (t1.a#0: uint64, t1.b#0: biguint, t1.c#0: bytes, t1.d#0: bytes) = test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_by_name(a#0, b#0, c#0, d#0)
                 let (t2.a#0: uint64, t2.b#0: biguint, t2.c#0: bytes, t2.d#0: bytes) = test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_by_position(a#0, b#0, c#0, d#0)
                 let tmp%0#0: bool = (== t1.a#0 t2.a#0)
@@ -117,15 +117,15 @@ contract test_cases.named_tuples.contract.NamedTuplesContract:
                 return t1.a#0 t1.b#0 t1.c#0 t1.d#0
         
         subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_by_name(a: uint64, b: biguint, c: bytes, d: bytes) -> <uint64, biguint, bytes, bytes>:
-            block@0: // L22
+            block@0: // L24
                 return a#0 b#0 c#0 d#0
         
         subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_by_position(a: uint64, b: biguint, c: bytes, d: bytes) -> <uint64, biguint, bytes, bytes>:
-            block@0: // L26
+            block@0: // L28
                 return a#0 b#0 c#0 d#0
         
         subroutine test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(value.a: uint64, value.b: biguint, value.c: bytes, value.d: bytes) -> void:
-            block@0: // L30
+            block@0: // L32
                 let tmp%0#0: bool = (< value.a#0 1000u)
                 (assert tmp%0#0)
                 let tmp%1#0: bool = (b< value.b#0 36893488147419103232b)

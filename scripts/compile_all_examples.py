@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import json
 import operator
 import os
 import re
@@ -235,6 +236,11 @@ def checked_compile(
     )
     bin_files_written = re.findall(r"info: Writing (.+\.bin)", result.stdout)
 
+    # normalize ARC-56 output
+    arc56_files_written = re.findall(r"info: Writing (.+\.arc56\.json)", result.stdout)
+    for arc56_file in arc56_files_written:
+        _normalize_arc56(root / arc56_file)
+
     if write_logs:
         if p.is_dir():
             log_path = p / "puya.log"
@@ -250,6 +256,15 @@ def checked_compile(
         bin_files=[root / p for p in bin_files_written],
         stdout=result.stdout if not ok else "",  # don't thunk stdout if no errors
     )
+
+
+def _normalize_arc56(path: Path) -> None:
+    arc56 = json.loads(path.read_text())
+    compiler_version = arc56.get("compilerInfo", {}).get("compilerVersion", {})
+    compiler_version["major"] = 99
+    compiler_version["minor"] = 99
+    compiler_version["patch"] = 99
+    path.write_text(json.dumps(arc56, indent=4), encoding="utf8")
 
 
 def _load_template_vars(path: Path) -> Iterable[str]:
@@ -294,6 +309,7 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
             "--output-memory-ir",
             "--output-client",
             "--output-source-map",
+            "--output-arc56",
         ]
         out_suffix = SUFFIX_O1
         write_logs = True

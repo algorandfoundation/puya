@@ -26,9 +26,9 @@ contract test_cases.tuple_support.nested_tuples.NestedTuples:
             block@2: // run_tests_route_L22
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (! tmp%3#0)
-                (assert tmp%4#0) // OnCompletion is NoOp
+                (assert tmp%4#0) // OnCompletion is not NoOp
                 let tmp%5#0: uint64 = (txn ApplicationID)
-                (assert tmp%5#0) // is not creating
+                (assert tmp%5#0) // can only call when not creating
                 let to_encode%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.run_tests()
                 let encoded_bool%0#0: bytes = (setbit 0x00 0u to_encode%0#0)
                 let tmp%7#0: bytes = (concat 0x151f7c75 encoded_bool%0#0)
@@ -37,9 +37,9 @@ contract test_cases.tuple_support.nested_tuples.NestedTuples:
             block@3: // nested_tuple_params_route_L51
                 let tmp%8#0: uint64 = (txn OnCompletion)
                 let tmp%9#0: bool = (! tmp%8#0)
-                (assert tmp%9#0) // OnCompletion is NoOp
+                (assert tmp%9#0) // OnCompletion is not NoOp
                 let tmp%10#0: uint64 = (txn ApplicationID)
-                (assert tmp%10#0) // is not creating
+                (assert tmp%10#0) // can only call when not creating
                 let tmp%12#0: bytes = (txna ApplicationArgs 1)
                 let item_start_offset%0#0: uint64 = (extract_uint16 tmp%12#0 0u)
                 let item_end_offset%0#0: uint64 = (extract_uint16 tmp%12#0 2u)
@@ -83,9 +83,9 @@ contract test_cases.tuple_support.nested_tuples.NestedTuples:
             block@4: // named_tuple_route_L58
                 let tmp%14#0: uint64 = (txn OnCompletion)
                 let tmp%15#0: bool = (! tmp%14#0)
-                (assert tmp%15#0) // OnCompletion is NoOp
+                (assert tmp%15#0) // OnCompletion is not NoOp
                 let tmp%16#0: uint64 = (txn ApplicationID)
-                (assert tmp%16#0) // is not creating
+                (assert tmp%16#0) // can only call when not creating
                 let tmp%18#0: bytes = (txna ApplicationArgs 1)
                 let item0%3#0: bytes = ((extract 0 8) tmp%18#0) // on error: Index access is out of bounds
                 let item0%3%0#0: uint64 = (btoi item0%3#0)
@@ -122,9 +122,9 @@ contract test_cases.tuple_support.nested_tuples.NestedTuples:
             block@5: // nested_named_tuple_params_route_L63
                 let tmp%20#0: uint64 = (txn OnCompletion)
                 let tmp%21#0: bool = (! tmp%20#0)
-                (assert tmp%21#0) // OnCompletion is NoOp
+                (assert tmp%21#0) // OnCompletion is not NoOp
                 let tmp%22#0: uint64 = (txn ApplicationID)
-                (assert tmp%22#0) // is not creating
+                (assert tmp%22#0) // can only call when not creating
                 let tmp%24#0: bytes = (txna ApplicationArgs 1)
                 let item0%4#0: bytes = ((extract 0 8) tmp%24#0) // on error: Index access is out of bounds
                 let item0%4%0#0: uint64 = (btoi item0%4#0)
@@ -176,7 +176,7 @@ contract test_cases.tuple_support.nested_tuples.NestedTuples:
             block@9: // __algopy_default_create_L1
                 let tmp%27#0: uint64 = (txn ApplicationID)
                 let tmp%28#0: bool = (! tmp%27#0)
-                (assert tmp%28#0) // is creating
+                (assert tmp%28#0) // can only call when creating
                 return 1u
             block@12: // after_if_else_L18
                 return 0u
