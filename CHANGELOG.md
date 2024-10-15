@@ -1,4 +1,10 @@
 # CHANGELOG
+## v3.2.3 (2024-10-15)
+
+### Fix
+
+* native tuples now supported as arguments and return value when using `algopy.arc4.abi_call`, `algopy.arc4.arc4_create` or `algopy.arc4.arc4_update` (#324) ([`6dfd68b`](https://github.com/algorandfoundation/puya/commit/6dfd68b6d44ce5f39c5d96b1b383e95241c7559b))
+
 ## v3.2.2 (2024-10-08)
 
 ### Fix
