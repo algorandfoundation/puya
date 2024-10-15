@@ -568,7 +568,7 @@ def extract_arc4_methods(
     *,
     global_state: Mapping[str, ContractState],
     local_state: Mapping[str, ContractState],
-) -> list[ARC4Method]:
+) -> dict[awst_nodes.ContractMethod, ARC4Method]:
     abi_methods = {}
     bare_methods = {}
     known_sources: dict[str, ContractState | awst_nodes.ContractMethod] = {
@@ -587,68 +587,55 @@ def extract_arc4_methods(
 
     _validate_default_args(abi_methods.keys(), known_sources)
 
-    arc4_method_metadata = list[ARC4Method]()
+    arc4_method_metadata = dict[awst_nodes.ContractMethod, ARC4Method]()
     for m, bare_method_config in bare_methods.items():
-        arc4_method_metadata.append(
-            ARC4BareMethod(
-                desc=m.documentation.description,
-                config=bare_method_config,
-            )
+        arc4_method_metadata[m] = ARC4BareMethod(
+            desc=m.documentation.description,
+            config=bare_method_config,
         )
     for m, abi_method_config in abi_methods.items():
-        arc4_method_metadata.append(
-            ARC4ABIMethod(
-                name=m.member_name,
-                desc=m.documentation.description,
-                args=[
-                    ARC4MethodArg(
-                        name=a.name,
-                        type_=_wtype_to_arc4(a.wtype),
-                        desc=m.documentation.args.get(a.name),
-                    )
-                    for a in m.args
-                ],
-                returns=ARC4Returns(
-                    desc=m.documentation.returns,
-                    type_=_wtype_to_arc4(m.return_type),
+        arc4_method_metadata[m] = ARC4ABIMethod(
+            name=m.member_name,
+            desc=m.documentation.description,
+            args=[
+                ARC4MethodArg(
+                    name=a.name,
+                    type_=_wtype_to_arc4(a.wtype),
+                    struct=a.wtype.name if isinstance(a.wtype, wtypes.ARC4Struct) else None,
+                    desc=m.documentation.args.get(a.name),
+                )
+                for a in m.args
+            ],
+            returns=ARC4Returns(
+                desc=m.documentation.returns,
+                type_=_wtype_to_arc4(m.return_type),
+                struct=(
+                    m.return_type.name if isinstance(m.return_type, wtypes.ARC4Struct) else None
                 ),
-                config=abi_method_config,
-            )
+            ),
+            events=[],
+            config=abi_method_config,
         )
+
     return arc4_method_metadata
 
 
 def create_abi_router(
     contract: awst_nodes.ContractFragment,
-    arc4_methods_with_configs: dict[awst_nodes.ContractMethod, ARC4MethodConfig],
+    arc4_methods_with_configs: dict[awst_nodes.ContractMethod, ARC4Method],
 ) -> awst_nodes.ContractMethod:
     router_location = contract.source_location
     abi_methods = {}
     bare_methods = {}
-    arc4_method_metadata = list[ARC4Method]()
-    for m, arc4_config in arc4_methods_with_configs.items():
-        doc = m.documentation
+    for m, arc4_method in arc4_methods_with_configs.items():
+        arc4_config = arc4_method.config
         assert arc4_config is m.arc4_method_config
         if isinstance(arc4_config, ARC4BareMethodConfig):
             bare_methods[m] = arc4_config
-            metadata: ARC4Method = ARC4BareMethod(desc=doc.description, config=arc4_config)
         elif isinstance(arc4_config, ARC4ABIMethodConfig):
             abi_methods[m] = arc4_config
-            metadata = ARC4ABIMethod(
-                name=m.member_name,
-                desc=doc.description,
-                args=[
-                    ARC4MethodArg(
-                        name=a.name, type_=_wtype_to_arc4(a.wtype), desc=doc.args.get(a.name)
-                    )
-                    for a in m.args
-                ],
-                returns=ARC4Returns(desc=doc.returns, type_=_wtype_to_arc4(m.return_type)),
-                config=arc4_config,
-            )
         else:
             typing.assert_never(arc4_config)
-        arc4_method_metadata.append(metadata)
 
     abi_routing = route_abi_methods(router_location, abi_methods)
     bare_routing = route_bare_methods(router_location, bare_methods)

@@ -33,6 +33,10 @@ class ARC4CopyValidator(AWSTTraverser):
         if _HasAssignmentVisitor.check(call):
             super().visit_intrinsic_call(call)
 
+    def visit_emit(self, emit: awst_nodes.Emit) -> None:
+        if _HasAssignmentVisitor.check(emit):
+            super().visit_emit(emit)
+
     def visit_assignment_statement(self, statement: awst_nodes.AssignmentStatement) -> None:
         _check_assignment(statement.target, statement.value)
         statement.value.accept(self)

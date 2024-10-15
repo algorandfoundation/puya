@@ -163,6 +163,7 @@ class WStructType(WType):
     fields: Mapping[str, WType] = attrs.field(converter=immutabledict)
     scalar_type: None = attrs.field(default=None, init=False)
     source_location: SourceLocation | None = attrs.field(eq=False)
+    desc: str | None = None
 
     @fields.validator
     def _fields_validator(self, _: object, fields: Mapping[str, WType]) -> None:
@@ -423,6 +424,7 @@ class ARC4Struct(ARC4Type):
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
     arc4_name: str = attrs.field(init=False, eq=False)
     decode_type: WType | None = None
+    desc: str | None = None
 
     @immutable.default
     def _immutable(self) -> bool:

@@ -100,8 +100,8 @@ def write_arc32_clients(
                 # use round trip of ARC32 -> reparse to ensure consistency
                 # of client output regardless if generating from ARC32 or
                 # Puya ARC4Contract
-                name, methods = parse_app_spec_methods(app_spec_json)
-                write_arc32_client(name, methods, contract_out_dir)
+                name, structs, methods = parse_app_spec_methods(app_spec_json)
+                write_arc32_client(name, structs, methods, contract_out_dir)
 
 
 def parse_with_mypy(paths: Sequence[Path]) -> ParseResult:

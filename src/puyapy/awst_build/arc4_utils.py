@@ -16,7 +16,8 @@ from puya.models import (
     ARC4ABIMethodConfig,
     ARC4BareMethodConfig,
     ARC4CreateOption,
-    ARC32StructDef,
+    ARC4Struct,
+    ARC4StructField,
     OnCompletionAction,
     TransactionType,
 )
@@ -255,9 +256,6 @@ def get_arc4_abimethod_data(
         case invalid_default_args_option:
             context.error(f"invalid default_args option: {invalid_default_args_option}", dec_loc)
 
-    structs = immutabledict[str, ARC32StructDef](
-        {n: _pytype_to_struct_def(pt) for n, pt in func_types.items() if _is_arc4_struct(pt)}
-    )
     config = ARC4ABIMethodConfig(
         source_location=dec_loc,
         allowed_completion_types=allowed_completion_types,
@@ -265,7 +263,6 @@ def get_arc4_abimethod_data(
         name=name,
         readonly=readonly,
         default_args=immutabledict(default_args),
-        structs=structs,
     )
     return ARC4ABIMethodData(config=config, signature=func_types)
 
@@ -354,10 +351,17 @@ class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
         return {key.accept(self) if key else None: value.accept(self) for key, value in o.items}
 
 
-def _pytype_to_struct_def(typ: pytypes.StructType) -> ARC32StructDef:
-    return ARC32StructDef(
-        name=typ.name.rsplit(".", maxsplit=1)[-1],
-        elements=[(n, pytype_to_arc4(t)) for n, t in typ.fields.items()],
+def _pytype_to_struct_def(typ: pytypes.StructType) -> ARC4Struct:
+    return ARC4Struct(
+        fullname=typ.name,
+        fields=[
+            ARC4StructField(
+                name=n,
+                type=pytype_to_arc4(t),
+                struct=t.name if pytypes.ARC4StructBaseType in t.mro else None,
+            )
+            for n, t in typ.fields.items()
+        ],
     )
 
 

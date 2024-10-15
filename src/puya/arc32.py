@@ -10,6 +10,7 @@ from puya.models import (
     ARC4BareMethod,
     ARC4CreateOption,
     ARC4MethodConfig,
+    ARC4Struct,
     ContractMetaData,
     ContractState,
     OnCompletionAction,
@@ -39,7 +40,7 @@ def _encode_source(teal_text: str) -> str:
 def _encode_schema_declaration(state: ContractState) -> JSONDict:
     return {
         "type": state.storage_type.name,
-        "key": state.key.decode("utf-8"),  # TODO: support not utf8 keys?
+        "key": state.key_or_prefix.decode("utf-8"),  # TODO: support not utf8 keys?
         "descr": state.description,
     }
 
@@ -97,12 +98,12 @@ def _encode_default_arg(
         return {
             "source": "global-state",
             # TODO: handle non utf-8 bytes
-            "data": state.key.decode("utf-8"),
+            "data": state.key_or_prefix.decode("utf-8"),
         }
     if state := metadata.local_state.get(source):
         return {
             "source": "local-state",
-            "data": state.key.decode("utf-8"),
+            "data": state.key_or_prefix.decode("utf-8"),
         }
     for method in metadata.arc4_methods:
         if isinstance(method, ARC4ABIMethod) and method.name == source:
@@ -115,6 +116,9 @@ def _encode_default_arg(
 
 
 def _encode_arc32_method_hint(metadata: ContractMetaData, method: ARC4ABIMethod) -> JSONDict:
+    structs = {a.name: metadata.structs[a.struct] for a in method.args if a.struct}
+    if method.returns.struct:
+        structs["output"] = metadata.structs[method.returns.struct]
     return {
         # deprecated by ARC-22
         "read_only": True if method.config.readonly else None,
@@ -127,18 +131,18 @@ def _encode_arc32_method_hint(metadata: ContractMetaData, method: ARC4ABIMethod)
             else None
         ),
         "call_config": _encode_call_config(method.config),
-        "structs": _encode_arc32_method_structs(method),
+        "structs": _encode_arc32_method_structs(structs),
     }
 
 
-def _encode_arc32_method_structs(method: ARC4ABIMethod) -> JSONDict | None:
-    if len(method.config.structs):
+def _encode_arc32_method_structs(structs: Mapping[str, ARC4Struct]) -> JSONDict | None:
+    if len(structs):
         return {
             struct_purpose: {
                 "name": struct_def.name,
-                "elements": struct_def.elements,
+                "elements": [[f.name, f.type] for f in struct_def.fields],
             }
-            for struct_purpose, struct_def in method.config.structs.items()
+            for struct_purpose, struct_def in structs.items()
         }
     return None
 

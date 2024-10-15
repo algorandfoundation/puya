@@ -40,6 +40,7 @@ def _should_output(path: Path, puyapy_options: PuyaPyOptions) -> bool:
     for pattern, include_in_output in {
         "*.teal": puyapy_options.output_teal,
         "*.arc32.json": puyapy_options.output_arc32,
+        "*.arc56.json": puyapy_options.output_arc56,
         "*.awst": puyapy_options.output_awst,
         "*.ssa.ir": puyapy_options.output_ssa_ir,
         "*.ssa.opt_pass_*.ir": puyapy_options.output_optimization_ir,
@@ -113,6 +114,7 @@ def compile_no_optimization(test_case: PuyaTestCase) -> None:
         output_awst=False,
         output_destructured_ir=True,
         output_arc32=False,
+        output_arc56=False,
     )
 
 
@@ -125,6 +127,7 @@ def compile_with_level1_optimizations(test_case: PuyaTestCase) -> None:
         output_teal=True,
         output_bytecode=True,
         output_arc32=True,
+        output_arc56=True,
         output_awst=True,
         output_ssa_ir=True,
         output_optimization_ir=True,
@@ -143,6 +146,7 @@ def compile_with_level2_optimizations(test_case: PuyaTestCase) -> None:
         output_teal=True,
         output_bytecode=True,
         output_arc32=False,
+        output_arc56=False,
         output_destructured_ir=True,
         output_optimization_ir=False,
         output_awst=False,

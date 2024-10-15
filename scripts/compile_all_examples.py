@@ -273,6 +273,7 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
             "-O0",
             "--output-destructured-ir",
             "--no-output-arc32",
+            "--no-output-arc56",
         ]
         out_suffix = SUFFIX_O0
         write_logs = False
@@ -281,6 +282,7 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
             "-O2",
             "--output-destructured-ir",
             "--no-output-arc32",
+            "--no-output-arc56",
             "-g0",
         ]
         out_suffix = SUFFIX_O2
@@ -295,6 +297,8 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
             "--output-destructured-ir",
             "--output-memory-ir",
             "--output-client",
+            "--output-arc32",
+            "--output-arc56",
         ]
         out_suffix = SUFFIX_O1
         write_logs = True
