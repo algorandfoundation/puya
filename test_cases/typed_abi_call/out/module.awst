@@ -75,6 +75,12 @@ contract Logger extends (algopy.arc4.ARC4Contract)
     return ('echo: ' + s, hex<"6563686F3A20"> + b, u + 1u, bu b+ 1n)
   }
   
+  abimethod echo_nested_tuple(tuple_of_tuples: tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>): tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>
+  {
+    ((string, arc4_string), (u64, arc4_u64, bytez)): tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>> = tuple_of_tuples
+    return (('echo: ' + string, arc4_encode('echo: ', arc4.dynamic_array<arc4.uint8>) + arc4_string), (u64 + 1u, arc4_encode(arc4_decode(arc4_u64, uint64) + 1u, arc4.uint64), hex<"6563686F3A20"> + bytez))
+  }
+  
   abimethod return_args_after_14th(_a1: arc4.uint64, _a2: arc4.uint64, _a3: arc4.uint64, _a4: arc4.uint64, _a5: arc4.uint64, _a6: arc4.uint64, _a7: arc4.uint64, _a8: arc4.uint64, _a9: arc4.uint64, _a10: arc4.uint64, _a11: arc4.uint64, _a12: arc4.uint64, _a13: arc4.uint64, _a14: arc4.uint64, a15: arc4.uint8, a16: arc4.uint8, a17: arc4.uint8, a18: arc4.uint8, a19: arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>, a20: arc4.uint8): arc4.dynamic_array<arc4.uint8>
   {
     last_arg: arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8> = arc4_encode((a15, a16, a17, a18, a19, a20), arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8>)
@@ -201,28 +207,71 @@ contract Greeter extends (algopy.arc4.ARC4Contract)
   
   abimethod test_native_tuple(app: application): void
   {
-    txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"), arc4_encode('s1', arc4.dynamic_array<arc4.uint8>), arc4_encode(hex<"6231">, arc4.dynamic_array<arc4.uint8>), 1arc4u64, 2arc4n512), ApplicationID=app))
-    result1: arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512> = checked_maybe((extract<4, 0>(SINGLE_EVAL(id=44, source=txn.LastLog)), extract<0, 4>(SINGLE_EVAL(id=44)) == hex<"151F7C75">))
+    (result1, txn): tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=45, source=SINGLE_EVAL(id=44, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"), arc4_encode('s1', arc4.dynamic_array<arc4.uint8>), arc4_encode(hex<"6231">, arc4.dynamic_array<arc4.uint8>), 1arc4u64, 2arc4n512), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=45)) == hex<"151F7C75">)), SINGLE_EVAL(id=44))
     (s, b, u, bu): tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512> = arc4_decode(result1, tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>)
     assert(arc4_decode(s, string) == 'echo: s1')
     assert(arc4_decode(b, bytes) == hex<"6563686F3A206231">)
     assert(arc4_decode(u, uint64) == 2u)
     assert(arc4_decode(bu, biguint) == 3n)
-    txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"), arc4_encode('s1', arc4.dynamic_array<arc4.uint8>), arc4_encode(hex<"6231">, arc4.dynamic_array<arc4.uint8>), arc4_encode(1u, arc4.uint64), arc4_encode(2n, arc4.uint512)), ApplicationID=app))
-    result2: arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512> = checked_maybe((extract<4, 0>(SINGLE_EVAL(id=45, source=txn.LastLog)), extract<0, 4>(SINGLE_EVAL(id=45)) == hex<"151F7C75">))
+    (result2, txn): tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=47, source=SINGLE_EVAL(id=46, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"), arc4_encode('s1', arc4.dynamic_array<arc4.uint8>), arc4_encode(hex<"6231">, arc4.dynamic_array<arc4.uint8>), arc4_encode(1u, arc4.uint64), arc4_encode(2n, arc4.uint512)), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=47)) == hex<"151F7C75">)), SINGLE_EVAL(id=46))
     assert(result1 == result2)
-    txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"), arc4_encode('s1', arc4.dynamic_array<arc4.uint8>), arc4_encode(hex<"6231">, arc4.dynamic_array<arc4.uint8>), 1arc4u64, 2arc4n512), ApplicationID=app))
-    result3: arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512> = checked_maybe((extract<4, 0>(SINGLE_EVAL(id=46, source=txn.LastLog)), extract<0, 4>(SINGLE_EVAL(id=46)) == hex<"151F7C75">))
+    (result3, txn): tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=49, source=SINGLE_EVAL(id=48, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"), arc4_encode('s1', arc4.dynamic_array<arc4.uint8>), arc4_encode(hex<"6231">, arc4.dynamic_array<arc4.uint8>), 1arc4u64, 2arc4n512), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=49)) == hex<"151F7C75">)), SINGLE_EVAL(id=48))
     assert(result1 == result3)
+    (result_native, txn): tuple<tuple<string,bytes,uint64,biguint>,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=51, source=SINGLE_EVAL(id=50, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"), arc4_encode('s1', arc4.dynamic_array<arc4.uint8>), arc4_encode(hex<"6231">, arc4.dynamic_array<arc4.uint8>), 1arc4u64, 2arc4n512), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=51)) == hex<"151F7C75">)), tuple<string,bytes,uint64,biguint>), SINGLE_EVAL(id=50))
+    assert(arc4_decode(arc4_decode(result1, tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>)[0], string) == result_native[0])
+    assert(arc4_decode(arc4_decode(result1, tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>)[1], bytes) == result_native[1])
+    assert(arc4_decode(arc4_decode(result1, tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>)[2], uint64) == result_native[2])
+    assert(arc4_decode(arc4_decode(result1, tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>)[3], biguint) == result_native[3])
+  }
+  
+  abimethod test_native_tuple_method_ref(app: application): void
+  {
+    (result, txn): tuple<tuple<string,bytes,uint64,biguint>,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=53, source=SINGLE_EVAL(id=52, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"), arc4_encode('s1', arc4.dynamic_array<arc4.uint8>), arc4_encode(hex<"6231">, arc4.dynamic_array<arc4.uint8>), 1arc4u64, 2arc4n512), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=53)) == hex<"151F7C75">)), tuple<string,bytes,uint64,biguint>), SINGLE_EVAL(id=52))
+    (s, b, u, bu): tuple<string,bytes,uint64,biguint> = result
+    assert(s == 'echo: s1')
+    assert(b == hex<"6563686F3A206231">)
+    assert(u == 2u)
+    assert(bu == 3n)
+    (result_2, txn): tuple<tuple<string,bytes,uint64,biguint>,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=55, source=SINGLE_EVAL(id=54, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"), arc4_encode('s1', arc4.dynamic_array<arc4.uint8>), arc4_encode(hex<"6231">, arc4.dynamic_array<arc4.uint8>), arc4_encode(1u, arc4.uint64), arc4_encode(2n, arc4.uint512)), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=55)) == hex<"151F7C75">)), tuple<string,bytes,uint64,biguint>), SINGLE_EVAL(id=54))
+    assert(&&(&&(&&(result_2[0] == result[0], result_2[1] == result[1]), result_2[2] == result[2]), result_2[3] == result[3]), comment="expected native arguments to give the same result")
+    (result_3, txn): tuple<tuple<string,bytes,uint64,biguint>,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=57, source=SINGLE_EVAL(id=56, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"), arc4_encode('s1', arc4.dynamic_array<arc4.uint8>), arc4_encode(hex<"6231">, arc4.dynamic_array<arc4.uint8>), 1arc4u64, 2arc4n512), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=57)) == hex<"151F7C75">)), tuple<string,bytes,uint64,biguint>), SINGLE_EVAL(id=56))
+    assert(&&(&&(&&(result_3[0] == result[0], result_3[1] == result[1]), result_3[2] == result[2]), result_3[3] == result[3]), comment="expected arc4 arguments to give the same result")
+    (result_native, txn): tuple<tuple<string,bytes,uint64,biguint>,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=59, source=SINGLE_EVAL(id=58, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"), arc4_encode('s1', arc4.dynamic_array<arc4.uint8>), arc4_encode(hex<"6231">, arc4.dynamic_array<arc4.uint8>), 1arc4u64, 2arc4n512), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=59)) == hex<"151F7C75">)), tuple<string,bytes,uint64,biguint>), SINGLE_EVAL(id=58))
+    assert(&&(&&(&&(result_native[0] == result[0], result_native[1] == result[1]), result_native[2] == result[2]), result_native[3] == result[3]))
+  }
+  
+  abimethod test_nested_tuples(app: application): void
+  {
+    (result, txn): tuple<tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=61, source=SINGLE_EVAL(id=60, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"), arc4_encode(((arc4_encode('s1', arc4.dynamic_array<arc4.uint8>), arc4_encode('s2', arc4.dynamic_array<arc4.uint8>)), (1arc4u64, 2arc4u64, arc4_encode(hex<"33">, arc4.dynamic_array<arc4.uint8>))), arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>)), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=61)) == hex<"151F7C75">)), tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>), SINGLE_EVAL(id=60))
+    ((s1, s2), (u64_1, u64_2, bytez)): tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>> = result
+    assert(s1 == 'echo: s1')
+    assert(s2 == arc4_encode('echo: s2', arc4.dynamic_array<arc4.uint8>))
+    assert(u64_1 == 2u)
+    assert(reinterpret_cast<biguint>(u64_2) == reinterpret_cast<biguint>(3arc4u64))
+    assert(bytez == hex<"6563686F3A2033">)
+    (result, txn): tuple<tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=63, source=SINGLE_EVAL(id=62, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"), arc4_encode((('s1', arc4_encode('s2', arc4.dynamic_array<arc4.uint8>)), (1u, 2arc4u64, hex<"33">)), arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>)), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=63)) == hex<"151F7C75">)), tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>), SINGLE_EVAL(id=62))
+    ((s1, s2), (u64_1, u64_2, bytez)): tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>> = result
+    assert(s1 == 'echo: s1')
+    assert(s2 == arc4_encode('echo: s2', arc4.dynamic_array<arc4.uint8>))
+    assert(u64_1 == 2u)
+    assert(reinterpret_cast<biguint>(u64_2) == reinterpret_cast<biguint>(3arc4u64))
+    assert(bytez == hex<"6563686F3A2033">)
+    (result, txn): tuple<tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=65, source=SINGLE_EVAL(id=64, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"), arc4_encode((arc4_encode((arc4_encode('s1b', arc4.dynamic_array<arc4.uint8>), arc4_encode('s2b', arc4.dynamic_array<arc4.uint8>)), arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>), arc4_encode((11arc4u64, 21arc4u64, arc4_encode(hex<"3362">, arc4.dynamic_array<arc4.uint8>)), arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>)), arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>)), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=65)) == hex<"151F7C75">)), tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>), SINGLE_EVAL(id=64))
+    ((s1, s2), (u64_1, u64_2, bytez)): tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>> = result
+    assert(s1 == 'echo: s1b')
+    assert(s2 == arc4_encode('echo: s2b', arc4.dynamic_array<arc4.uint8>))
+    assert(u64_1 == 12u)
+    assert(reinterpret_cast<biguint>(u64_2) == reinterpret_cast<biguint>(22arc4u64))
+    assert(bytez == hex<"6563686F3A203362">)
   }
   
   abimethod test_no_args(app: application): void
   {
-    (result, _txn): tuple<uint64,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=48, source=SINGLE_EVAL(id=47, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("no_args()uint64")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=48)) == hex<"151F7C75">)), uint64), SINGLE_EVAL(id=47))
+    (result, _txn): tuple<uint64,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=67, source=SINGLE_EVAL(id=66, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("no_args()uint64")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=67)) == hex<"151F7C75">)), uint64), SINGLE_EVAL(id=66))
     assert(result == 42u)
-    (arc4_result, _txn): tuple<arc4.uint64,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=50, source=SINGLE_EVAL(id=49, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("no_args()uint64")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=50)) == hex<"151F7C75">)), SINGLE_EVAL(id=49))
+    (arc4_result, _txn): tuple<arc4.uint64,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=69, source=SINGLE_EVAL(id=68, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("no_args()uint64")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=69)) == hex<"151F7C75">)), SINGLE_EVAL(id=68))
     assert(reinterpret_cast<biguint>(arc4_result) == reinterpret_cast<biguint>(42arc4u64))
-    (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=52, source=SINGLE_EVAL(id=51, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("no_args()uint64")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=52)) == hex<"151F7C75">)), uint64), SINGLE_EVAL(id=51))
-    assert(reinterpret_cast<biguint>(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=53, source=itxn<LastLog>())), extract<0, 4>(SINGLE_EVAL(id=53)) == hex<"151F7C75">))) == reinterpret_cast<biguint>(42arc4u64))
+    (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=71, source=SINGLE_EVAL(id=70, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("no_args()uint64")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=71)) == hex<"151F7C75">)), uint64), SINGLE_EVAL(id=70))
+    assert(reinterpret_cast<biguint>(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=72, source=itxn<LastLog>())), extract<0, 4>(SINGLE_EVAL(id=72)) == hex<"151F7C75">))) == reinterpret_cast<biguint>(42arc4u64))
   }
 }

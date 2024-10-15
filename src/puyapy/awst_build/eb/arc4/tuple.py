@@ -68,9 +68,13 @@ class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleType]):
     ) -> InstanceBuilder:
         typ = self.produces()
         native_type = pytypes.GenericTupleType.parameterise(typ.items, location)
-        arg = expect.exactly_one_arg_of_type_else_dummy(args, native_type, location)
+        arg = expect.exactly_one_arg(
+            args, location, default=expect.default_dummy_value(native_type)
+        )
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4Tuple)
+        if not wtype.can_encode_type(arg.pytype.wtype):
+            arg = expect.not_this_type(arg, default=expect.default_dummy_value(native_type))
         return ARC4TupleExpressionBuilder(
             ARC4Encode(value=arg.resolve(), wtype=wtype, source_location=location), typ
         )

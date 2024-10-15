@@ -218,12 +218,8 @@ class ARC4Type(WType):
     arc4_name: str = attrs.field(eq=False)  # exclude from equality in case of aliasing
     decode_type: WType | None
 
-    @property
-    def encodeable_types(self) -> Sequence[WType]:
-        if self.decode_type:
-            return (self.decode_type,)
-        else:
-            return ()
+    def can_encode_type(self, wtype: WType) -> bool:
+        return wtype == self.decode_type
 
 
 arc4_bool_wtype: typing.Final = ARC4Type(
@@ -275,9 +271,8 @@ class ARC4UIntN(ARC4Type):
     def _name(self) -> str:
         return f"arc4.{self._arc4_name()}"
 
-    @property
-    def encodeable_types(self) -> Sequence[WType]:
-        return *super().encodeable_types, bool_wtype, uint64_wtype, biguint_wtype
+    def can_encode_type(self, wtype: WType) -> bool:
+        return wtype in (bool_wtype, uint64_wtype, biguint_wtype)
 
 
 @typing.final
@@ -346,6 +341,16 @@ class ARC4Tuple(ARC4Type):
     @decode_type.default
     def _decode_type(self) -> WTuple:
         return WTuple(self.types, self.source_location)
+
+    def can_encode_type(self, wtype: WType) -> bool:
+        if wtype == self.decode_type:
+            return True
+        elif not isinstance(wtype, WTuple) or len(wtype.types) != len(self.types):
+            return False
+        return all(
+            arc4_wtype == encode_wtype or arc4_wtype.can_encode_type(encode_wtype)
+            for arc4_wtype, encode_wtype in zip(self.types, wtype.types, strict=True)
+        )
 
 
 def _expect_arc4_type(wtype: WType) -> ARC4Type:

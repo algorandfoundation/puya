@@ -65,17 +65,17 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
                 let item_index_internal%1#2: uint64 = (+ item_index_internal%1#1 1u)
                 goto block@5
             block@8: // after_for_L25
-                let tmp%9#0: bytes = ((extract 2 0) dynamic_bytes2#0)
-                let length%1#0: uint64 = (len tmp%9#0)
+                let to_encode%0#0: bytes = ((extract 2 0) dynamic_bytes2#0)
+                let length%1#0: uint64 = (len to_encode%0#0)
                 let as_bytes%1#0: bytes = (itob length%1#0)
                 let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-                let encoded_value%1#0: bytes = (concat length_uint16%1#0 tmp%9#0)
+                let encoded_value%1#0: bytes = (concat length_uint16%1#0 to_encode%0#0)
                 let dynamic_bytes3#0: bytes = encoded_value%1#0
-                let tmp%10#0: bytes = ((extract 2 0) dynamic_bytes3#0)
-                let tmp%11#0: bool = (== tmp%10#0 0x0304)
+                let tmp%9#0: bytes = ((extract 2 0) dynamic_bytes3#0)
+                let tmp%10#0: bool = (== tmp%9#0 0x0304)
+                (assert tmp%10#0)
+                let tmp%11#0: bool = (== dynamic_bytes3#0 0x00020304)
                 (assert tmp%11#0)
-                let tmp%12#0: bool = (== dynamic_bytes3#0 0x00020304)
-                (assert tmp%12#0)
                 let array_length%2#0: uint64 = (extract_uint16 dynamic_bytes3#0 0u)
                 let item_index_internal%2#0: uint64 = 0u
                 let reverse_index_internal%2#0: uint64 = array_length%2#0
@@ -89,15 +89,15 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
                 let array_head_and_tail%2#0: bytes = ((extract 2 0) dynamic_bytes3#0)
                 let item_offset%2#0: uint64 = (* item_index_internal%2#1 1u)
                 let uint8_item#2: bytes = (extract3 array_head_and_tail%2#0 item_offset%2#0 1u) // on error: Index access is out of bounds
-                let tmp%13#0: uint64 = (btoi uint8_item#2)
-                let total#6: uint64 = (+ total#5 tmp%13#0)
+                let tmp%12#0: uint64 = (btoi uint8_item#2)
+                let total#6: uint64 = (+ total#5 tmp%12#0)
                 goto block@11
             block@11: // for_footer_L32
                 let item_index_internal%2#2: uint64 = (+ item_index_internal%2#1 1u)
                 goto block@9
             block@12: // after_for_L32
-                let tmp%14#0: bool = (== total#5 20u)
-                (assert tmp%14#0) // Total should now include sum of dynamic_bytes3 items
+                let tmp%13#0: bool = (== total#5 20u)
+                (assert tmp%13#0) // Total should now include sum of dynamic_bytes3 items
                 let expr_value_trimmed%0#0: bytes = ((extract 2 0) dynamic_bytes3#0)
                 let length%2#0: uint64 = (len 0x616263)
                 let as_bytes%2#0: bytes = (itob length%2#0)
@@ -110,25 +110,25 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
                 let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%3#0)
                 let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
                 let dynamic_bytes3#2: bytes = concat_result%0#0
-                let tmp%15#0: bool = (== dynamic_bytes3#2 0x00050304616263)
-                (assert tmp%15#0)
-                let tmp%16#0: bytes = ((extract 2 0) dynamic_bytes3#2)
-                let tmp%17#0: bool = (== tmp%16#0 0x0304616263)
-                (assert tmp%17#0)
-                let tmp%18#0: uint64 = (txn NumAppArgs)
-                let tmp%19#0: bool = (!= tmp%18#0 0u)
-                let tmp%20#0: bytes = (select 0x03 0x02 tmp%19#0)
-                let result%3#0: bytes = (concat 0x tmp%20#0)
+                let tmp%14#0: bool = (== dynamic_bytes3#2 0x00050304616263)
+                (assert tmp%14#0)
+                let tmp%15#0: bytes = ((extract 2 0) dynamic_bytes3#2)
+                let tmp%16#0: bool = (== tmp%15#0 0x0304616263)
+                (assert tmp%16#0)
+                let tmp%17#0: uint64 = (txn NumAppArgs)
+                let tmp%18#0: bool = (!= tmp%17#0 0u)
+                let tmp%19#0: bytes = (select 0x03 0x02 tmp%18#0)
+                let result%3#0: bytes = (concat 0x tmp%19#0)
                 let result%4#0: bytes = (concat result%3#0 0x03)
                 let result%5#0: bytes = (concat result%4#0 0x01)
                 let array_data%1#0: bytes = (concat 0x0003 result%5#0)
                 let dynamic_bytes#1: bytes = array_data%1#0
-                let tmp%21#0: bytes = ((extract 2 0) dynamic_bytes#1)
-                let tmp%22#0: bool = (== tmp%21#0 0x030301)
-                (assert tmp%22#0)
-                let tmp%23#0: uint64 = (txn NumAppArgs)
-                let tmp%24#0: bool = (!= tmp%23#0 0u)
-                goto tmp%24#0 ? block@13 : block@14
+                let tmp%20#0: bytes = ((extract 2 0) dynamic_bytes#1)
+                let tmp%21#0: bool = (== tmp%20#0 0x030301)
+                (assert tmp%21#0)
+                let tmp%22#0: uint64 = (txn NumAppArgs)
+                let tmp%23#0: bool = (!= tmp%22#0 0u)
+                goto tmp%23#0 ? block@13 : block@14
             block@13: // ternary_true_L44
                 let length%3#0: uint64 = (len 0x32)
                 let as_bytes%4#0: bytes = (itob length%3#0)
@@ -146,9 +146,9 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
             block@15: // ternary_merge_L44
                 let ternary_result%0#2: bytes = φ(ternary_result%0#0 <- block@13, ternary_result%0#1 <- block@14)
                 let dynamic_bytes#2: bytes = ternary_result%0#2
-                let tmp%25#0: bytes = ((extract 2 0) dynamic_bytes#2)
-                let tmp%26#0: bool = (== tmp%25#0 0x33)
-                (assert tmp%26#0)
+                let tmp%24#0: bytes = ((extract 2 0) dynamic_bytes#2)
+                let tmp%25#0: bool = (== tmp%24#0 0x33)
+                (assert tmp%25#0)
                 return 1u
     
     program clear-state:

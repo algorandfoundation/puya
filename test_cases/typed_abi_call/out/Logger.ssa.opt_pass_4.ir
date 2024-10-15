@@ -8,10 +8,10 @@ contract test_cases.typed_abi_call.logger.Logger:
         subroutine test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__() -> bool:
             block@0: // L20
                 let tmp%0#0: uint64 = (txn NumAppArgs)
-                goto tmp%0#0 ? block@1 : block@19
+                goto tmp%0#0 ? block@1 : block@20
             block@1: // abi_routing_L20
                 let tmp%2#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%2#0 {method "is_a_b(byte[],byte[])void" => block@2, method "echo(string)string" => block@3, method "no_args()uint64" => block@4, method "log(uint64)void" => block@5, method "log(uint512)void" => block@6, method "log(string)void" => block@7, method "log(bool)void" => block@8, method "log(byte[])void" => block@9, method "log(asset,account,application)void" => block@10, method "echo_native_string(string)string" => block@11, method "echo_native_bytes(byte[])byte[]" => block@12, method "echo_native_uint64(uint64)uint64" => block@13, method "echo_native_biguint(uint512)uint512" => block@14, method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)" => block@15, method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]" => block@16, * => return 0u}
+                switch tmp%2#0 {method "is_a_b(byte[],byte[])void" => block@2, method "echo(string)string" => block@3, method "no_args()uint64" => block@4, method "log(uint64)void" => block@5, method "log(uint512)void" => block@6, method "log(string)void" => block@7, method "log(bool)void" => block@8, method "log(byte[])void" => block@9, method "log(asset,account,application)void" => block@10, method "echo_native_string(string)string" => block@11, method "echo_native_bytes(byte[])byte[]" => block@12, method "echo_native_uint64(uint64)uint64" => block@13, method "echo_native_biguint(uint512)uint512" => block@14, method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)" => block@15, method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))" => block@16, method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]" => block@17, * => return 0u}
             block@2: // is_a_b_route_L21
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (! tmp%3#0)
@@ -41,175 +41,230 @@ contract test_cases.typed_abi_call.logger.Logger:
                 (assert tmp%19#0) // OnCompletion is NoOp
                 let tmp%20#0: uint64 = (txn ApplicationID)
                 (assert tmp%20#0) // is not creating
-                let tmp%22#0: uint64 = test_cases.typed_abi_call.logger.Logger.no_args()
-                let val_as_bytes%0#0: bytes = (itob tmp%22#0)
-                let tmp%23#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
-                (log tmp%23#0)
+                let to_encode%0#0: uint64 = test_cases.typed_abi_call.logger.Logger.no_args()
+                let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
+                let tmp%22#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
+                (log tmp%22#0)
                 return 1u
             block@5: // log_route_L34
-                let tmp%24#0: uint64 = (txn OnCompletion)
-                let tmp%25#0: bool = (! tmp%24#0)
-                (assert tmp%25#0) // OnCompletion is NoOp
-                let tmp%26#0: uint64 = (txn ApplicationID)
-                (assert tmp%26#0) // is not creating
-                let tmp%28#0: bytes = (txna ApplicationArgs 1)
-                test_cases.typed_abi_call.logger.Logger.log_uint64(tmp%28#0)
+                let tmp%23#0: uint64 = (txn OnCompletion)
+                let tmp%24#0: bool = (! tmp%23#0)
+                (assert tmp%24#0) // OnCompletion is NoOp
+                let tmp%25#0: uint64 = (txn ApplicationID)
+                (assert tmp%25#0) // is not creating
+                let tmp%27#0: bytes = (txna ApplicationArgs 1)
+                test_cases.typed_abi_call.logger.Logger.log_uint64(tmp%27#0)
                 return 1u
             block@6: // log_route_L38
-                let tmp%29#0: uint64 = (txn OnCompletion)
-                let tmp%30#0: bool = (! tmp%29#0)
-                (assert tmp%30#0) // OnCompletion is NoOp
-                let tmp%31#0: uint64 = (txn ApplicationID)
-                (assert tmp%31#0) // is not creating
-                let tmp%33#0: bytes = (txna ApplicationArgs 1)
-                test_cases.typed_abi_call.logger.Logger.log_uint512(tmp%33#0)
+                let tmp%28#0: uint64 = (txn OnCompletion)
+                let tmp%29#0: bool = (! tmp%28#0)
+                (assert tmp%29#0) // OnCompletion is NoOp
+                let tmp%30#0: uint64 = (txn ApplicationID)
+                (assert tmp%30#0) // is not creating
+                let tmp%32#0: bytes = (txna ApplicationArgs 1)
+                test_cases.typed_abi_call.logger.Logger.log_uint512(tmp%32#0)
                 return 1u
             block@7: // log_route_L42
-                let tmp%34#0: uint64 = (txn OnCompletion)
-                let tmp%35#0: bool = (! tmp%34#0)
-                (assert tmp%35#0) // OnCompletion is NoOp
-                let tmp%36#0: uint64 = (txn ApplicationID)
-                (assert tmp%36#0) // is not creating
-                let tmp%38#0: bytes = (txna ApplicationArgs 1)
-                test_cases.typed_abi_call.logger.Logger.log_string(tmp%38#0)
+                let tmp%33#0: uint64 = (txn OnCompletion)
+                let tmp%34#0: bool = (! tmp%33#0)
+                (assert tmp%34#0) // OnCompletion is NoOp
+                let tmp%35#0: uint64 = (txn ApplicationID)
+                (assert tmp%35#0) // is not creating
+                let tmp%37#0: bytes = (txna ApplicationArgs 1)
+                test_cases.typed_abi_call.logger.Logger.log_string(tmp%37#0)
                 return 1u
             block@8: // log_route_L46
-                let tmp%39#0: uint64 = (txn OnCompletion)
-                let tmp%40#0: bool = (! tmp%39#0)
-                (assert tmp%40#0) // OnCompletion is NoOp
-                let tmp%41#0: uint64 = (txn ApplicationID)
-                (assert tmp%41#0) // is not creating
-                let tmp%43#0: bytes = (txna ApplicationArgs 1)
-                test_cases.typed_abi_call.logger.Logger.log_bool(tmp%43#0)
+                let tmp%38#0: uint64 = (txn OnCompletion)
+                let tmp%39#0: bool = (! tmp%38#0)
+                (assert tmp%39#0) // OnCompletion is NoOp
+                let tmp%40#0: uint64 = (txn ApplicationID)
+                (assert tmp%40#0) // is not creating
+                let tmp%42#0: bytes = (txna ApplicationArgs 1)
+                test_cases.typed_abi_call.logger.Logger.log_bool(tmp%42#0)
                 return 1u
             block@9: // log_route_L50
-                let tmp%44#0: uint64 = (txn OnCompletion)
-                let tmp%45#0: bool = (! tmp%44#0)
-                (assert tmp%45#0) // OnCompletion is NoOp
-                let tmp%46#0: uint64 = (txn ApplicationID)
-                (assert tmp%46#0) // is not creating
-                let tmp%48#0: bytes = (txna ApplicationArgs 1)
-                test_cases.typed_abi_call.logger.Logger.log_bytes(tmp%48#0)
+                let tmp%43#0: uint64 = (txn OnCompletion)
+                let tmp%44#0: bool = (! tmp%43#0)
+                (assert tmp%44#0) // OnCompletion is NoOp
+                let tmp%45#0: uint64 = (txn ApplicationID)
+                (assert tmp%45#0) // is not creating
+                let tmp%47#0: bytes = (txna ApplicationArgs 1)
+                test_cases.typed_abi_call.logger.Logger.log_bytes(tmp%47#0)
                 return 1u
             block@10: // log_route_L54
-                let tmp%49#0: uint64 = (txn OnCompletion)
-                let tmp%50#0: bool = (! tmp%49#0)
-                (assert tmp%50#0) // OnCompletion is NoOp
-                let tmp%51#0: uint64 = (txn ApplicationID)
-                (assert tmp%51#0) // is not creating
-                let tmp%53#0: bytes = (txna ApplicationArgs 1)
-                let tmp%54#0: uint64 = (btoi tmp%53#0)
-                let tmp%55#0: uint64 = ((txnas Assets) tmp%54#0)
-                let tmp%56#0: bytes = (txna ApplicationArgs 2)
-                let tmp%57#0: uint64 = (btoi tmp%56#0)
-                let tmp%58#0: bytes = ((txnas Accounts) tmp%57#0)
-                let tmp%59#0: bytes = (txna ApplicationArgs 3)
-                let tmp%60#0: uint64 = (btoi tmp%59#0)
-                let tmp%61#0: uint64 = ((txnas Applications) tmp%60#0)
-                test_cases.typed_abi_call.logger.Logger.log_asset_account_app(tmp%55#0, tmp%58#0, tmp%61#0)
+                let tmp%48#0: uint64 = (txn OnCompletion)
+                let tmp%49#0: bool = (! tmp%48#0)
+                (assert tmp%49#0) // OnCompletion is NoOp
+                let tmp%50#0: uint64 = (txn ApplicationID)
+                (assert tmp%50#0) // is not creating
+                let tmp%52#0: bytes = (txna ApplicationArgs 1)
+                let tmp%53#0: uint64 = (btoi tmp%52#0)
+                let tmp%54#0: uint64 = ((txnas Assets) tmp%53#0)
+                let tmp%55#0: bytes = (txna ApplicationArgs 2)
+                let tmp%56#0: uint64 = (btoi tmp%55#0)
+                let tmp%57#0: bytes = ((txnas Accounts) tmp%56#0)
+                let tmp%58#0: bytes = (txna ApplicationArgs 3)
+                let tmp%59#0: uint64 = (btoi tmp%58#0)
+                let tmp%60#0: uint64 = ((txnas Applications) tmp%59#0)
+                test_cases.typed_abi_call.logger.Logger.log_asset_account_app(tmp%54#0, tmp%57#0, tmp%60#0)
                 return 1u
             block@11: // echo_native_string_route_L58
-                let tmp%62#0: uint64 = (txn OnCompletion)
-                let tmp%63#0: bool = (! tmp%62#0)
-                (assert tmp%63#0) // OnCompletion is NoOp
-                let tmp%64#0: uint64 = (txn ApplicationID)
-                (assert tmp%64#0) // is not creating
-                let tmp%66#0: bytes = (txna ApplicationArgs 1)
-                let tmp%67#0: bytes = ((extract 2 0) tmp%66#0)
-                let tmp%68#0: bytes = test_cases.typed_abi_call.logger.Logger.echo_native_string(tmp%67#0)
-                let length%0#0: uint64 = (len tmp%68#0)
+                let tmp%61#0: uint64 = (txn OnCompletion)
+                let tmp%62#0: bool = (! tmp%61#0)
+                (assert tmp%62#0) // OnCompletion is NoOp
+                let tmp%63#0: uint64 = (txn ApplicationID)
+                (assert tmp%63#0) // is not creating
+                let tmp%65#0: bytes = (txna ApplicationArgs 1)
+                let tmp%66#0: bytes = ((extract 2 0) tmp%65#0)
+                let to_encode%1#0: bytes = test_cases.typed_abi_call.logger.Logger.echo_native_string(tmp%66#0)
+                let length%0#0: uint64 = (len to_encode%1#0)
                 let as_bytes%0#0: bytes = (itob length%0#0)
                 let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-                let encoded_value%0#0: bytes = (concat length_uint16%0#0 tmp%68#0)
-                let tmp%69#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
-                (log tmp%69#0)
+                let encoded_value%0#0: bytes = (concat length_uint16%0#0 to_encode%1#0)
+                let tmp%67#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
+                (log tmp%67#0)
                 return 1u
             block@12: // echo_native_bytes_route_L62
-                let tmp%70#0: uint64 = (txn OnCompletion)
-                let tmp%71#0: bool = (! tmp%70#0)
-                (assert tmp%71#0) // OnCompletion is NoOp
-                let tmp%72#0: uint64 = (txn ApplicationID)
-                (assert tmp%72#0) // is not creating
-                let tmp%74#0: bytes = (txna ApplicationArgs 1)
-                let tmp%75#0: bytes = ((extract 2 0) tmp%74#0)
-                let tmp%76#0: bytes = test_cases.typed_abi_call.logger.Logger.echo_native_bytes(tmp%75#0)
-                let length%1#0: uint64 = (len tmp%76#0)
+                let tmp%68#0: uint64 = (txn OnCompletion)
+                let tmp%69#0: bool = (! tmp%68#0)
+                (assert tmp%69#0) // OnCompletion is NoOp
+                let tmp%70#0: uint64 = (txn ApplicationID)
+                (assert tmp%70#0) // is not creating
+                let tmp%72#0: bytes = (txna ApplicationArgs 1)
+                let tmp%73#0: bytes = ((extract 2 0) tmp%72#0)
+                let to_encode%2#0: bytes = test_cases.typed_abi_call.logger.Logger.echo_native_bytes(tmp%73#0)
+                let length%1#0: uint64 = (len to_encode%2#0)
                 let as_bytes%1#0: bytes = (itob length%1#0)
                 let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-                let encoded_value%1#0: bytes = (concat length_uint16%1#0 tmp%76#0)
-                let tmp%77#0: bytes = (concat 0x151f7c75 encoded_value%1#0)
-                (log tmp%77#0)
+                let encoded_value%1#0: bytes = (concat length_uint16%1#0 to_encode%2#0)
+                let tmp%74#0: bytes = (concat 0x151f7c75 encoded_value%1#0)
+                (log tmp%74#0)
                 return 1u
             block@13: // echo_native_uint64_route_L66
-                let tmp%78#0: uint64 = (txn OnCompletion)
-                let tmp%79#0: bool = (! tmp%78#0)
-                (assert tmp%79#0) // OnCompletion is NoOp
-                let tmp%80#0: uint64 = (txn ApplicationID)
-                (assert tmp%80#0) // is not creating
-                let tmp%82#0: bytes = (txna ApplicationArgs 1)
-                let tmp%83#0: uint64 = (btoi tmp%82#0)
-                let tmp%84#0: uint64 = test_cases.typed_abi_call.logger.Logger.echo_native_uint64(tmp%83#0)
-                let val_as_bytes%1#0: bytes = (itob tmp%84#0)
-                let tmp%85#0: bytes = (concat 0x151f7c75 val_as_bytes%1#0)
-                (log tmp%85#0)
+                let tmp%75#0: uint64 = (txn OnCompletion)
+                let tmp%76#0: bool = (! tmp%75#0)
+                (assert tmp%76#0) // OnCompletion is NoOp
+                let tmp%77#0: uint64 = (txn ApplicationID)
+                (assert tmp%77#0) // is not creating
+                let tmp%79#0: bytes = (txna ApplicationArgs 1)
+                let tmp%80#0: uint64 = (btoi tmp%79#0)
+                let to_encode%3#0: uint64 = test_cases.typed_abi_call.logger.Logger.echo_native_uint64(tmp%80#0)
+                let val_as_bytes%1#0: bytes = (itob to_encode%3#0)
+                let tmp%81#0: bytes = (concat 0x151f7c75 val_as_bytes%1#0)
+                (log tmp%81#0)
                 return 1u
             block@14: // echo_native_biguint_route_L70
-                let tmp%86#0: uint64 = (txn OnCompletion)
-                let tmp%87#0: bool = (! tmp%86#0)
-                (assert tmp%87#0) // OnCompletion is NoOp
-                let tmp%88#0: uint64 = (txn ApplicationID)
-                (assert tmp%88#0) // is not creating
-                let tmp%90#0: bytes = (txna ApplicationArgs 1)
-                let tmp%91#0: biguint = test_cases.typed_abi_call.logger.Logger.echo_native_biguint(tmp%90#0)
-                let len_%0#0: uint64 = (len tmp%91#0)
+                let tmp%82#0: uint64 = (txn OnCompletion)
+                let tmp%83#0: bool = (! tmp%82#0)
+                (assert tmp%83#0) // OnCompletion is NoOp
+                let tmp%84#0: uint64 = (txn ApplicationID)
+                (assert tmp%84#0) // is not creating
+                let tmp%86#0: bytes = (txna ApplicationArgs 1)
+                let to_encode%4#0: biguint = test_cases.typed_abi_call.logger.Logger.echo_native_biguint(tmp%86#0)
+                let len_%0#0: uint64 = (len to_encode%4#0)
                 let no_overflow%0#0: bool = (<= len_%0#0 64u)
                 (assert no_overflow%0#0) // overflow
                 let b_zeros%0#0: bytes = (bzero 64u)
-                let tmp%92#0: bytes = (b| tmp%91#0 b_zeros%0#0)
-                let tmp%93#0: bytes = (concat 0x151f7c75 tmp%92#0)
-                (log tmp%93#0)
+                let tmp%87#0: bytes = (b| to_encode%4#0 b_zeros%0#0)
+                let tmp%88#0: bytes = (concat 0x151f7c75 tmp%87#0)
+                (log tmp%88#0)
                 return 1u
             block@15: // echo_native_tuple_route_L74
-                let tmp%94#0: uint64 = (txn OnCompletion)
-                let tmp%95#0: bool = (! tmp%94#0)
-                (assert tmp%95#0) // OnCompletion is NoOp
-                let tmp%96#0: uint64 = (txn ApplicationID)
-                (assert tmp%96#0) // is not creating
-                let tmp%98#0: bytes = (txna ApplicationArgs 1)
-                let tmp%99#0: bytes = ((extract 2 0) tmp%98#0)
-                let tmp%100#0: bytes = (txna ApplicationArgs 2)
-                let tmp%101#0: bytes = ((extract 2 0) tmp%100#0)
-                let tmp%102#0: bytes = (txna ApplicationArgs 3)
-                let tmp%103#0: uint64 = (btoi tmp%102#0)
-                let tmp%104#0: bytes = (txna ApplicationArgs 4)
-                let (awst_tmp%0#0: bytes, awst_tmp%1#0: bytes, awst_tmp%2#0: uint64, awst_tmp%3#0: biguint) = test_cases.typed_abi_call.logger.Logger.echo_native_tuple(tmp%99#0, tmp%101#0, tmp%103#0, tmp%104#0)
-                let length%2#0: uint64 = (len awst_tmp%0#0)
+                let tmp%89#0: uint64 = (txn OnCompletion)
+                let tmp%90#0: bool = (! tmp%89#0)
+                (assert tmp%90#0) // OnCompletion is NoOp
+                let tmp%91#0: uint64 = (txn ApplicationID)
+                (assert tmp%91#0) // is not creating
+                let tmp%93#0: bytes = (txna ApplicationArgs 1)
+                let tmp%94#0: bytes = ((extract 2 0) tmp%93#0)
+                let tmp%95#0: bytes = (txna ApplicationArgs 2)
+                let tmp%96#0: bytes = ((extract 2 0) tmp%95#0)
+                let tmp%97#0: bytes = (txna ApplicationArgs 3)
+                let tmp%98#0: uint64 = (btoi tmp%97#0)
+                let tmp%99#0: bytes = (txna ApplicationArgs 4)
+                let (elements_to_encode%0#0: bytes, elements_to_encode%1#0: bytes, elements_to_encode%2#0: uint64, elements_to_encode%3#0: biguint) = test_cases.typed_abi_call.logger.Logger.echo_native_tuple(tmp%94#0, tmp%96#0, tmp%98#0, tmp%99#0)
+                let length%2#0: uint64 = (len elements_to_encode%0#0)
                 let as_bytes%2#0: bytes = (itob length%2#0)
                 let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
-                let encoded_value%2#0: bytes = (concat length_uint16%2#0 awst_tmp%0#0)
-                let length%3#0: uint64 = (len awst_tmp%1#0)
+                let encoded_value%2#0: bytes = (concat length_uint16%2#0 elements_to_encode%0#0)
+                let length%3#0: uint64 = (len elements_to_encode%1#0)
                 let as_bytes%3#0: bytes = (itob length%3#0)
                 let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%3#0)
-                let encoded_value%3#0: bytes = (concat length_uint16%3#0 awst_tmp%1#0)
-                let val_as_bytes%2#0: bytes = (itob awst_tmp%2#0)
-                let len_%1#0: uint64 = (len awst_tmp%3#0)
+                let encoded_value%3#0: bytes = (concat length_uint16%3#0 elements_to_encode%1#0)
+                let val_as_bytes%2#0: bytes = (itob elements_to_encode%2#0)
+                let len_%1#0: uint64 = (len elements_to_encode%3#0)
                 let no_overflow%1#0: bool = (<= len_%1#0 64u)
                 (assert no_overflow%1#0) // overflow
                 let b_zeros%1#0: bytes = (bzero 64u)
-                let tmp%105#0: bytes = (b| awst_tmp%3#0 b_zeros%1#0)
+                let arc4_item%0#0: bytes = (b| elements_to_encode%3#0 b_zeros%1#0)
                 let data_length%0#0: uint64 = (len encoded_value%2#0)
                 let current_tail_offset%1#0: uint64 = (+ 76u data_length%0#0)
                 let as_bytes%5#0: bytes = (itob current_tail_offset%1#0)
                 let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%5#0)
                 let encoded_tuple_buffer%2#0: bytes = (concat 0x004c offset_as_uint16%1#0)
                 let encoded_tuple_buffer%3#0: bytes = (concat encoded_tuple_buffer%2#0 val_as_bytes%2#0)
-                let encoded_tuple_buffer%4#0: bytes = (concat encoded_tuple_buffer%3#0 tmp%105#0)
+                let encoded_tuple_buffer%4#0: bytes = (concat encoded_tuple_buffer%3#0 arc4_item%0#0)
                 let encoded_tuple_buffer%5#0: bytes = (concat encoded_tuple_buffer%4#0 encoded_value%2#0)
                 let encoded_tuple_buffer%6#0: bytes = (concat encoded_tuple_buffer%5#0 encoded_value%3#0)
-                let tmp%106#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%6#0)
+                let tmp%100#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%6#0)
+                (log tmp%100#0)
+                return 1u
+            block@16: // echo_nested_tuple_route_L80
+                let tmp%101#0: uint64 = (txn OnCompletion)
+                let tmp%102#0: bool = (! tmp%101#0)
+                (assert tmp%102#0) // OnCompletion is NoOp
+                let tmp%103#0: uint64 = (txn ApplicationID)
+                (assert tmp%103#0) // is not creating
+                let tmp%105#0: bytes = (txna ApplicationArgs 1)
+                let item_start_offset%0#0: uint64 = (extract_uint16 tmp%105#0 0u)
+                let item_end_offset%0#0: uint64 = (extract_uint16 tmp%105#0 2u)
+                let item0%0#0: bytes = (substring3 tmp%105#0 item_start_offset%0#0 item_end_offset%0#0)
+                let item_start_offset%1#0: uint64 = (extract_uint16 item0%0#0 0u)
+                let item_end_offset%1#0: uint64 = (extract_uint16 item0%0#0 2u)
+                let item0%1#0: bytes = (substring3 item0%0#0 item_start_offset%1#0 item_end_offset%1#0)
+                let item0%1%0#0: bytes = ((extract 2 0) item0%1#0)
+                let item_end_offset%2#0: uint64 = (len item0%0#0)
+                let item1%0#0: bytes = (substring3 item0%0#0 item_end_offset%1#0 item_end_offset%2#0)
+                let item_end_offset%3#0: uint64 = (len tmp%105#0)
+                let item1%1#0: bytes = (substring3 tmp%105#0 item_end_offset%0#0 item_end_offset%3#0)
+                let item0%2#0: bytes = ((extract 0 8) item1%1#0) // on error: Index access is out of bounds
+                let item0%2%0#0: uint64 = (btoi item0%2#0)
+                let item1%2#0: bytes = ((extract 8 8) item1%1#0) // on error: Index access is out of bounds
+                let item_start_offset%4#0: uint64 = (extract_uint16 item1%1#0 16u)
+                let item_end_offset%4#0: uint64 = (len item1%1#0)
+                let item2%0#0: bytes = (substring3 item1%1#0 item_start_offset%4#0 item_end_offset%4#0)
+                let item2%0%0#0: bytes = ((extract 2 0) item2%0#0)
+                let (elements_to_encode%4#0: bytes, elements_to_encode%5#0: bytes, elements_to_encode%6#0: uint64, elements_to_encode%7#0: bytes, elements_to_encode%8#0: bytes) = test_cases.typed_abi_call.logger.Logger.echo_nested_tuple(item0%1%0#0, item1%0#0, item0%2%0#0, item1%2#0, item2%0%0#0)
+                let length%4#0: uint64 = (len elements_to_encode%4#0)
+                let as_bytes%6#0: bytes = (itob length%4#0)
+                let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%6#0)
+                let encoded_value%4#0: bytes = (concat length_uint16%4#0 elements_to_encode%4#0)
+                let data_length%2#0: uint64 = (len encoded_value%4#0)
+                let current_tail_offset%4#0: uint64 = (+ 4u data_length%2#0)
+                let as_bytes%8#0: bytes = (itob current_tail_offset%4#0)
+                let offset_as_uint16%3#0: bytes = ((extract 6 2) as_bytes%8#0)
+                let encoded_tuple_buffer%9#0: bytes = (concat 0x0004 offset_as_uint16%3#0)
+                let encoded_tuple_buffer%10#0: bytes = (concat encoded_tuple_buffer%9#0 encoded_value%4#0)
+                let encoded_tuple_buffer%11#0: bytes = (concat encoded_tuple_buffer%10#0 elements_to_encode%5#0)
+                let val_as_bytes%3#0: bytes = (itob elements_to_encode%6#0)
+                let length%5#0: uint64 = (len elements_to_encode%8#0)
+                let as_bytes%9#0: bytes = (itob length%5#0)
+                let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%9#0)
+                let encoded_value%5#0: bytes = (concat length_uint16%5#0 elements_to_encode%8#0)
+                let encoded_tuple_buffer%14#0: bytes = (concat val_as_bytes%3#0 elements_to_encode%7#0)
+                let encoded_tuple_buffer%15#0: bytes = (concat encoded_tuple_buffer%14#0 0x0012)
+                let encoded_tuple_buffer%16#0: bytes = (concat encoded_tuple_buffer%15#0 encoded_value%5#0)
+                let data_length%5#0: uint64 = (len encoded_tuple_buffer%11#0)
+                let current_tail_offset%9#0: uint64 = (+ 4u data_length%5#0)
+                let as_bytes%12#0: bytes = (itob current_tail_offset%9#0)
+                let offset_as_uint16%6#0: bytes = ((extract 6 2) as_bytes%12#0)
+                let encoded_tuple_buffer%19#0: bytes = (concat 0x0004 offset_as_uint16%6#0)
+                let encoded_tuple_buffer%20#0: bytes = (concat encoded_tuple_buffer%19#0 encoded_tuple_buffer%11#0)
+                let encoded_tuple_buffer%21#0: bytes = (concat encoded_tuple_buffer%20#0 encoded_tuple_buffer%16#0)
+                let tmp%106#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%21#0)
                 (log tmp%106#0)
                 return 1u
-            block@16: // return_args_after_14th_route_L80
+            block@17: // return_args_after_14th_route_L91
                 let tmp%107#0: uint64 = (txn OnCompletion)
                 let tmp%108#0: bool = (! tmp%107#0)
                 (assert tmp%108#0) // OnCompletion is NoOp
@@ -245,15 +300,15 @@ contract test_cases.typed_abi_call.logger.Logger:
                 let tmp%138#0: bytes = (concat 0x151f7c75 tmp%137#0)
                 (log tmp%138#0)
                 return 1u
-            block@19: // bare_routing_L20
+            block@20: // bare_routing_L20
                 let tmp%139#0: uint64 = (txn OnCompletion)
-                goto tmp%139#0 ? block@23 : block@20
-            block@20: // __algopy_default_create_L20
+                goto tmp%139#0 ? block@24 : block@21
+            block@21: // __algopy_default_create_L20
                 let tmp%140#0: uint64 = (txn ApplicationID)
                 let tmp%141#0: bool = (! tmp%140#0)
                 (assert tmp%141#0) // is creating
                 return 1u
-            block@23: // after_if_else_L20
+            block@24: // after_if_else_L20
                 return 0u
         
         subroutine test_cases.typed_abi_call.logger.Logger.is_a_b(a: bytes, b: bytes) -> void:
@@ -347,8 +402,25 @@ contract test_cases.typed_abi_call.logger.Logger:
                 let tmp%3#0: biguint = (b+ bu#0 1b)
                 return tmp%0#0 tmp%1#0 tmp%2#0 tmp%3#0
         
-        subroutine test_cases.typed_abi_call.logger.Logger.return_args_after_14th(_a1: bytes, _a2: bytes, _a3: bytes, _a4: bytes, _a5: bytes, _a6: bytes, _a7: bytes, _a8: bytes, _a9: bytes, _a10: bytes, _a11: bytes, _a12: bytes, _a13: bytes, _a14: bytes, a15: bytes, a16: bytes, a17: bytes, a18: bytes, a19: bytes, a20: bytes) -> bytes:
+        subroutine test_cases.typed_abi_call.logger.Logger.echo_nested_tuple(tuple_of_tuples.0.0: bytes, tuple_of_tuples.0.1: bytes, tuple_of_tuples.1.0: uint64, tuple_of_tuples.1.1: bytes, tuple_of_tuples.1.2: bytes) -> <bytes, bytes, uint64, bytes, bytes>:
             block@0: // L80
+                let tmp%0#0: bytes = (concat "echo: " tuple_of_tuples.0.0#0)
+                let expr_value_trimmed%0#0: bytes = 0x6563686f3a20
+                let expr_value_trimmed%1#0: bytes = ((extract 2 0) tuple_of_tuples.0.1#0)
+                let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 expr_value_trimmed%1#0)
+                let len_%0#0: uint64 = (len concatenated%0#0)
+                let as_bytes%1#0: bytes = (itob len_%0#0)
+                let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
+                let tmp%1#0: uint64 = (+ tuple_of_tuples.1.0#0 1u)
+                let tmp%2#0: uint64 = (btoi tuple_of_tuples.1.1#0)
+                let to_encode%0#0: uint64 = (+ tmp%2#0 1u)
+                let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
+                let tmp%3#0: bytes = (concat 0x6563686f3a20 tuple_of_tuples.1.2#0)
+                return tmp%0#0 concat_result%0#0 tmp%1#0 val_as_bytes%0#0 tmp%3#0
+        
+        subroutine test_cases.typed_abi_call.logger.Logger.return_args_after_14th(_a1: bytes, _a2: bytes, _a3: bytes, _a4: bytes, _a5: bytes, _a6: bytes, _a7: bytes, _a8: bytes, _a9: bytes, _a10: bytes, _a11: bytes, _a12: bytes, _a13: bytes, _a14: bytes, a15: bytes, a16: bytes, a17: bytes, a18: bytes, a19: bytes, a20: bytes) -> bytes:
+            block@0: // L91
                 let encoded_tuple_buffer%2#0: bytes = (concat a15#0 a16#0)
                 let encoded_tuple_buffer%3#0: bytes = (concat encoded_tuple_buffer%2#0 a17#0)
                 let encoded_tuple_buffer%4#0: bytes = (concat encoded_tuple_buffer%3#0 a18#0)

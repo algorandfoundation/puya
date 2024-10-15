@@ -78,6 +78,17 @@ class Logger(ARC4Contract):
         return "echo: " + s, b"echo: " + b, u + 1, bu + 1
 
     @arc4.abimethod
+    def echo_nested_tuple(
+        self, tuple_of_tuples: tuple[tuple[String, arc4.String], tuple[UInt64, arc4.UInt64, Bytes]]
+    ) -> tuple[tuple[String, arc4.String], tuple[UInt64, arc4.UInt64, Bytes]]:
+        (string, arc4_string), (u64, arc4_u64, bytez) = tuple_of_tuples
+        return ("echo: " + string, "echo: " + arc4_string), (
+            u64 + 1,
+            arc4.UInt64(arc4_u64.native + 1),
+            b"echo: " + bytez,
+        )
+
+    @arc4.abimethod
     def return_args_after_14th(
         self,
         _a1: arc4.UInt64,

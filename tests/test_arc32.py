@@ -946,6 +946,18 @@ def test_typed_abi_call(
     )
 
     app_client.call(
+        "test_native_tuple_method_ref",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+    )
+
+    app_client.call(
+        "test_nested_tuples",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+    )
+
+    app_client.call(
         "test_native_string",
         transaction_parameters=txn_params,
         app=logger.app_id,

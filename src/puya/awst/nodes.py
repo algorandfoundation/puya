@@ -420,7 +420,7 @@ class ARC4Encode(Expression):
 
     @wtype.validator
     def _wtype_validator(self, _attribute: object, wtype: wtypes.ARC4Type) -> None:
-        if self.value.wtype not in wtype.encodeable_types:
+        if not wtype.can_encode_type(self.value.wtype):
             raise InternalError(
                 f"cannot ARC4 encode {self.value.wtype} to {wtype}", self.source_location
             )
@@ -493,10 +493,9 @@ class ARC4Decode(Expression):
                 f"ARC4Decode should only be used with expressions of ARC4Type, got {value.wtype}",
                 self.source_location,
             )
-        if self.wtype != value.wtype.decode_type:
+        if not value.wtype.can_encode_type(self.wtype):
             raise InternalError(
-                f"ARC4Decode from {value.wtype} should have target type {value.wtype.decode_type},"
-                f" got {self.wtype}",
+                f"ARC4Decode from {value.wtype} should have non ARC4 target type {self.wtype}",
                 self.source_location,
             )
 
