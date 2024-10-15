@@ -945,29 +945,19 @@ class AssignmentStatement(Statement):
 @attrs.frozen
 class AssignmentExpression(Expression):
     """
-    This both assigns value to target and returns the target as the result of the expression.
-
-    Note that tuple expressions aren't valid here as the target, but tuple variables obviously are.
+    This both assigns value to target and returns the value as the result of the expression.
 
     Will validate that target and value are of the same type, and that said type is usable
     as an l-value.
     """
 
-    target: Lvalue = attrs.field()  # annoyingly, we can't do Lvalue "minus" TupleExpression
+    target: Lvalue = attrs.field()
     value: Expression = attrs.field()
     wtype: wtypes.WType = attrs.field(init=False)
 
     @wtype.default
     def _wtype(self) -> wtypes.WType:
         return self.target.wtype
-
-    @target.validator
-    def _target_validator(self, _attribute: object, target: Lvalue) -> None:
-        if isinstance(target, TupleExpression):
-            raise CodeError(
-                "tuple unpacking in assignment expressions is not supported",
-                target.source_location,
-            )
 
     @value.validator
     def _value_validator(self, _attribute: object, value: Expression) -> None:
