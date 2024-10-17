@@ -16,8 +16,12 @@ def build_debug_info(
         for idx, (pc, node) in enumerate(pc_ops.items()):
             # stop at first op that is not a constant block
             if node.op_code not in ("intcblock", "bytecblock"):
-                op_pc_offset = idx
-                pc_offset = pc
+                # only need to set pc_offset if there was a constant block present (i.e. idx != 0)
+                # this is because the first op will be after the version byte and so will always
+                # have a pc of 1, but a op_pc_offset of 0 means the values are not offset
+                if idx:
+                    op_pc_offset = idx
+                    pc_offset = pc
                 break
     events = {pc - pc_offset: event for pc, event in pc_events.items() if pc >= pc_offset}
     source_map = {
