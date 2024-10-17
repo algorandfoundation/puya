@@ -49,6 +49,7 @@ jobs:
           
           # build compiler
           poetry build --format wheel
+
   tests:
     runs-on: "ubuntu-latest"
     steps:
@@ -84,6 +85,40 @@ jobs:
         with:
           pytest-coverage-path: ./pytest-coverage.txt
           junitxml-path: ./pytest-junit.xml
+
+  compile-all:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.6"
+          cache: "poetry"
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Compile all
+        run: poetry run scripts/compile_all_examples.py
+
+      - name: Check for any changes
+        run: test -z "$(git status --porcelain examples/ test_cases/)"
+
+      - name: Show changed files summary
+        if: failure()
+        run: git status --porcelain examples/ test_cases/
+
+      - name: Show diff
+        if: failure()
+        run: git diff examples/ test_cases/
+
+
   compile-all-windows:
     runs-on: "windows-latest"
     steps:
@@ -108,32 +143,6 @@ jobs:
         env:
           PYTHONUTF8: 1
 
-      - name: Check diff
-        run: git diff --exit-code examples/ test_cases/
-
-  compile-all:
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Install poetry
-        run: pipx install poetry
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12.6"
-          cache: "poetry"
-
-      - name: Install dependencies
-        run: poetry install --no-interaction --with cicd
-
-      - name: Start LocalNet
-        run: poetry run algokit localnet start
-
-      - name: Compile all
-        run: poetry run scripts/compile_all_examples.py
-
+      # simple diff check here as line endings mess with git status
       - name: Check diff
         run: git diff --exit-code examples/ test_cases/
