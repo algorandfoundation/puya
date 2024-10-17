@@ -194,10 +194,11 @@ class WArray(WType):
 @typing.final
 @attrs.frozen
 class WTuple(WType):
+    names: Sequence[str] | None = attrs.field(default=None, kw_only=True)
     types: Sequence[WType] = attrs.field(converter=tuple[WType, ...])
     scalar_type: None = attrs.field(default=None, init=False)
     immutable: bool = attrs.field(default=True, init=False)
-    name: str = attrs.field(init=False)
+    name: str = attrs.field(eq=False, kw_only=True)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
 
     @types.validator
@@ -210,6 +211,16 @@ class WTuple(WType):
     @name.default
     def _name(self) -> str:
         return f"tuple<{','.join([t.name for t in self.types])}>"
+
+    def name_to_index(self, name: str, source_location: SourceLocation) -> int:
+        try:
+            if self.names is None:
+                raise CodeError(
+                    "Cannot access tuple item by name of an unnamed tuple", source_location
+                )
+            return next(idx for idx, n in enumerate(self.names) if n == name)
+        except StopIteration as ex:
+            raise CodeError(f"{name} is not a member of {self.name}") from ex
 
 
 @attrs.frozen(kw_only=True)

@@ -13,10 +13,12 @@ def get_tuple_item_values(
     *,
     tuple_values: Sequence[Value],
     tuple_wtype: wtypes.WTuple,
-    index: int | tuple[int, int | None],
+    index: int | tuple[int, int | None] | str,
     target_wtype: wtypes.WType,
     source_location: SourceLocation,
 ) -> ValueProvider:
+    if isinstance(index, str):
+        index = tuple_wtype.name_to_index(index, source_location)
     if isinstance(index, tuple):
         skip_values = sum_wtypes_arity(tuple_wtype.types[: index[0]])
         target_arity = sum_wtypes_arity(tuple_wtype.types[index[0] : index[1]])
@@ -59,6 +61,6 @@ def build_tuple_item_names(
         reg
         for idx, item_type in enumerate(wtype.types)
         for reg in build_tuple_item_names(
-            format_tuple_index(base_name, idx), item_type, source_location
+            format_tuple_index(wtype, base_name, idx), item_type, source_location
         )
     ]

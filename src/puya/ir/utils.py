@@ -2,6 +2,8 @@ import base64
 from collections.abc import Sequence
 
 from puya.awst import nodes as awst_nodes
+from puya.awst.wtypes import WTuple, WType
+from puya.errors import InternalError
 from puya.ir.types_ import AVMBytesEncoding
 
 
@@ -52,7 +54,13 @@ def format_bytes(b: bytes, encoding: AVMBytesEncoding) -> str:
             return f"0x{b.hex()}"
 
 
-def format_tuple_index(var_name: str, index: int | str) -> str:
+def format_tuple_index(var_type: WType, var_name: str, index: int | str) -> str:
+    if isinstance(var_type, WTuple) and var_type.names is not None:
+        # If a named tuple is indexed numerical, convert this to the item name
+        name = index if isinstance(index, str) else var_type.names[index]
+        return f"{var_name}.{name}"
+    if isinstance(index, str):
+        raise InternalError(f"Cannot index {var_type} by name")
     return f"{var_name}.{index}"
 
 

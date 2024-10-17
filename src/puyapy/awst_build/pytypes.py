@@ -242,7 +242,12 @@ class UnionType(PyType):
 class _TupleWTypeFactory(typing.Protocol):
 
     def __call__(
-        self, *, types: Iterable[wtypes.WType], source_location: SourceLocation | None
+        self,
+        *,
+        types: Iterable[wtypes.WType],
+        names: Iterable[str] | None,
+        name: str,
+        source_location: SourceLocation | None,
     ) -> wtypes.WTuple | wtypes.ARC4Tuple: ...
 
 
@@ -262,7 +267,10 @@ class TupleType(PyType):
     @property
     def wtype(self) -> wtypes.WTuple | wtypes.ARC4Tuple:
         return self._wtype_factory(
-            types=(i.wtype for i in self.items), source_location=self.source_location
+            types=(i.wtype for i in self.items),
+            source_location=self.source_location,
+            names=self.names,
+            name=self.name,
         )
 
 
@@ -647,14 +655,48 @@ def _make_tuple_parameterise(
     return parameterise
 
 
+def make_wtuple(
+    *,
+    types: Iterable[wtypes.WType],
+    names: Iterable[str] | None,
+    name: str,
+    source_location: SourceLocation | None,
+) -> wtypes.WTuple | wtypes.ARC4Tuple:
+    if names is not None:
+        return wtypes.WTuple(
+            types=types,
+            names=tuple(names),
+            name=name,
+            source_location=source_location,
+        )
+    else:
+        return wtypes.WTuple(
+            types=types,
+            names=None,
+            source_location=source_location,
+        )
+
+
 GenericTupleType: typing.Final = _GenericType(
     name="builtins.tuple",
-    parameterise=_make_tuple_parameterise(wtypes.WTuple),
+    parameterise=_make_tuple_parameterise(make_wtuple),
 )
+
+
+def _make_arc4_tuple(
+    *,
+    types: Iterable[wtypes.WType],
+    names: Iterable[str] | None,
+    name: str,  # noqa: ARG001
+    source_location: SourceLocation | None,
+) -> wtypes.WTuple | wtypes.ARC4Tuple:
+    assert names is None, "arc4 tuple cannot have names"
+    return wtypes.ARC4Tuple(types=types, source_location=source_location)
+
 
 GenericARC4TupleType: typing.Final = _GenericType(
     name="algopy.arc4.Tuple",
-    parameterise=_make_tuple_parameterise(wtypes.ARC4Tuple),
+    parameterise=_make_tuple_parameterise(_make_arc4_tuple),
 )
 
 
@@ -671,7 +713,11 @@ def _flattened_named_tuple(name: str, items: Mapping[str, PyType]) -> TupleType:
                 yield item
 
     def _wtuple_factory(
-        *, types: Iterable[wtypes.WType], source_location: SourceLocation | None
+        *,
+        types: Iterable[wtypes.WType],
+        names: Iterable[str] | None,  # noqa: ARG001
+        name: str,  # noqa: ARG001
+        source_location: SourceLocation | None,
     ) -> wtypes.WTuple:
         return wtypes.WTuple(types=_flatten(types), source_location=source_location)
 
