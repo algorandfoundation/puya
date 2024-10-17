@@ -19,6 +19,7 @@ from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.contract import ContractASTConverter
 from puyapy.awst_build.contract_data import ContractClassOptions
 from puyapy.awst_build.exceptions import UnsupportedASTError
+from puyapy.awst_build.pytypes import make_wtuple
 from puyapy.awst_build.subroutine import FunctionASTConverter
 from puyapy.awst_build.utils import (
     extract_bytes_literal_from_mypy,
@@ -142,7 +143,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             case mypy.nodes.TypedDictExpr():
                 self._unsupported(cdef, "TypedDict classes are not supported")
             case mypy.nodes.NamedTupleExpr():
-                self._unsupported(cdef, "NamedTuple classes are not supported")
+                return _process_named_tuple(self.context, cdef)
             case unrecognised_analysis_expression:
                 self.context.warning(
                     "Analyzed class expression of type"
@@ -636,6 +637,52 @@ def _process_contract_class_options(
         scratch_slot_reservations=scratch_slot_reservations,
         state_totals=state_totals,
     )
+
+
+def _process_named_tuple(
+    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
+) -> StatementResult:
+    fields = dict[str, pytypes.PyType]()
+    has_error = False
+    for stmt in cdef.defs.body:
+        match stmt:
+            case mypy.nodes.ExpressionStmt(expr=mypy.nodes.StrExpr()):
+                # ignore class docstring, already extracted
+                # TODO: should we capture field "docstrings"?
+                pass
+            case mypy.nodes.AssignmentStmt(
+                lvalues=[mypy.nodes.NameExpr(name=field_name)],
+                rvalue=mypy.nodes.TempNode(),
+                type=mypy.types.Type() as mypy_type,
+            ):
+                stmt_loc = context.node_location(stmt)
+                pytype = context.type_to_pytype(mypy_type, source_location=stmt_loc)
+                fields[field_name] = pytype
+            case mypy.nodes.SymbolNode(name=symbol_name) if (
+                cdef.info.names[symbol_name].plugin_generated
+            ):
+                pass
+            case mypy.nodes.PassStmt():
+                pass
+            case _:
+                context.error("Unsupported syntax for member declaration", stmt)
+                has_error = True
+    if has_error:
+        return []
+
+    if not fields:
+        context.error("NamedTuple must have at least one member", cdef)
+    cls_loc = context.node_location(cdef)
+
+    named_tuple_type = pytypes.TupleType(
+        name=cdef.fullname,
+        names=tuple(fields.keys()),
+        items=tuple(fields.values()),
+        source_location=cls_loc,
+        wtype_factory=make_wtuple,
+    )
+    context.register_pytype(named_tuple_type)
+    return []
 
 
 def _process_struct(

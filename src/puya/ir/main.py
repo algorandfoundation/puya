@@ -339,7 +339,7 @@ def _expand_tuple_parameters(
 ) -> Iterator[Parameter]:
     if isinstance(typ, wtypes.WTuple):
         for item_idx, item_type in enumerate(typ.types):
-            item_name = format_tuple_index(name, item_idx)
+            item_name = format_tuple_index(typ, name, item_idx)
             yield from _expand_tuple_parameters(
                 item_name,
                 item_type,
