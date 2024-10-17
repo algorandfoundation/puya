@@ -18,6 +18,7 @@ from puya.awst.nodes import (
     TupleItemExpression,
     UInt64Constant,
 )
+from puya.awst.wtypes import WTuple
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puya.utils import clamp, positive_index
@@ -39,7 +40,8 @@ from puyapy.awst_build.eb.interface import (
     StaticSizedCollectionBuilder,
     TypeBuilder,
 )
-from puyapy.awst_build.utils import determine_base_type
+from puyapy.awst_build.pytypes import PyType, TupleType
+from puyapy.awst_build.utils import determine_base_type, get_arg_mapping
 
 logger = log.get_logger(__name__)
 
@@ -59,7 +61,7 @@ class GenericTupleTypeExpressionBuilder(GenericTypeBuilder):
 class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.TupleType)
-        assert typ.generic == pytypes.GenericTupleType
+        #        assert typ.generic == pytypes.GenericTupleType
         super().__init__(typ, location)
 
     @typing.override
@@ -70,10 +72,47 @@ class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
+        pytype = self.produces()
+        if isinstance(pytype, pytypes.TupleType) and pytype.names is not None:
+            return _init_named(args, arg_names, pytype, location)
+
         result = _init(args, location)
         if result.pytype != self.produces():
             raise CodeError("type mismatch between tuple parameters and argument types", location)
         return result
+
+
+def _init_named(
+    args: Sequence[NodeBuilder],
+    arg_names: list[str | None],
+    pytype: TupleType,
+    location: SourceLocation,
+) -> InstanceBuilder:
+    assert pytype.names is not None, "_init_named should only be called on named tuples"
+    field_mapping, any_missing = get_arg_mapping(
+        required_positional_names=list(pytype.names),
+        args=args,
+        arg_names=arg_names,
+        call_location=location,
+        raise_on_missing=False,
+    )
+    if any_missing:
+        return dummy_value(pytype, location)
+    wtype = pytype.wtype
+    assert isinstance(wtype, WTuple), "wtype for named tuple must be WTuple"
+
+    def _get_item(name: str, typ: PyType) -> Expression:
+        val = field_mapping.get(name)
+        if val is None:
+            return dummy_value(typ, location).resolve()
+        return expect.argument_of_type_else_dummy(val, typ).resolve()
+
+    tuple_expr = TupleExpression(
+        items=[_get_item(n, t) for n, t in zip(pytype.names, pytype.items, strict=True)],
+        wtype=wtype,
+        source_location=location,
+    )
+    return TupleExpressionBuilder(tuple_expr, pytype)
 
 
 def _init(args: Sequence[NodeBuilder], location: SourceLocation) -> InstanceBuilder:
@@ -250,9 +289,27 @@ class TupleExpressionBuilder(
         raise CodeError(f"cannot serialize {self.pytype}", location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> typing.Never:
+    def member_access(self, name: str, location: SourceLocation) -> InstanceBuilder:
         if name in dir(tuple()):  # noqa: C408
             raise CodeError("method is not currently supported", location)
+        if self.pytype.names is not None and name in self.pytype.names:
+            try:
+                item_typ = next(
+                    item_type
+                    for item_name, item_type in zip(
+                        self.pytype.names, self.pytype.items, strict=True
+                    )
+                    if item_name == name
+                )
+                item_expr = TupleItemExpression(
+                    base=self.resolve(),
+                    index=name,
+                    source_location=location,
+                )
+                return builder_for_instance(item_typ, item_expr)
+            except StopIteration:
+                pass  # Return unrecognised member below
+
         raise CodeError("unrecognised member access", location)
 
     @typing.override

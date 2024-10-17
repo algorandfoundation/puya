@@ -24,6 +24,7 @@ from puya.parse import SourceLocation
 
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import ASTConversionModuleContext
+from puyapy.awst_build.pytypes import ARC4StructBaseType
 from puyapy.awst_build.utils import extract_bytes_literal_from_mypy, get_unaliased_fullname
 
 __all__ = [
@@ -255,8 +256,11 @@ def get_arc4_abimethod_data(
         case invalid_default_args_option:
             context.error(f"invalid default_args option: {invalid_default_args_option}", dec_loc)
 
+    mapped_return_types = (
+        (n, pytype_to_arc4_pytype(t, on_error=lambda t: t)) for n, t in func_types.items()
+    )
     structs = immutabledict[str, ARC32StructDef](
-        {n: _pytype_to_struct_def(pt) for n, pt in func_types.items() if _is_arc4_struct(pt)}
+        {n: _pytype_to_struct_def(pt) for n, pt in mapped_return_types if _is_arc4_struct(pt)}
     )
     config = ARC4ABIMethodConfig(
         source_location=dec_loc,
@@ -419,6 +423,24 @@ def pytype_to_arc4_pytype(
             return pytypes.ARC4DynamicBytesType
         case pytypes.StringType:
             return pytypes.ARC4StringType
+        case pytypes.TupleType(
+            name=tuple_name,
+            generic=None,
+            items=tuple_item_types,
+            names=tuple_item_names,
+            source_location=tuple_location,
+        ) if tuple_item_names:
+            # Named tuples can be encoded as ARC4 Struct
+            return pytypes.StructType(
+                base=ARC4StructBaseType,
+                name=tuple_name,
+                fields={
+                    name: pytype_to_arc4_pytype(t, on_error)
+                    for name, t in zip(tuple_item_names, tuple_item_types, strict=True)
+                },
+                frozen=True,
+                source_location=tuple_location,
+            )
         case pytypes.TupleType(
             generic=pytypes.GenericTupleType,
             items=tuple_item_types,
