@@ -61,7 +61,6 @@ class GenericTupleTypeExpressionBuilder(GenericTypeBuilder):
 class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.TupleType)
-        #        assert typ.generic == pytypes.GenericTupleType
         super().__init__(typ, location)
 
     @typing.override
@@ -74,9 +73,9 @@ class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
     ) -> InstanceBuilder:
         pytype = self.produces()
         if isinstance(pytype, pytypes.TupleType) and pytype.names is not None:
-            return _init_named(args, arg_names, pytype, location)
-
-        result = _init(args, location)
+            result = _init_named(args, arg_names, pytype, location)
+        else:
+            result = _init(args, location)
         if result.pytype != self.produces():
             raise CodeError("type mismatch between tuple parameters and argument types", location)
         return result
