@@ -607,7 +607,7 @@ class FunctionIRBuilder(
             base = self.visit_and_materialise_single(expr.base)
             if isinstance(expr.index, str):
                 raise InternalError(
-                    f"{expr.base.wtype} cannot be index by name", expr.source_location
+                    f"Cannot index {expr.base.wtype} by name", expr.source_location
                 )
             return arc4.arc4_tuple_index(
                 self.context,

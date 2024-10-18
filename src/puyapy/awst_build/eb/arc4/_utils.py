@@ -5,7 +5,6 @@ from collections.abc import Sequence
 import attrs
 import mypy.nodes
 from puya import arc4_util, log
-from puya.awst.wtypes import ARC4Struct
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
@@ -16,7 +15,6 @@ from puyapy.awst_build.eb._literals import LiteralBuilderImpl
 from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.factories import builder_for_type
 from puyapy.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
-from puyapy.awst_build.pytypes import PyType
 from puyapy.awst_build.utils import maybe_resolve_literal
 
 logger = log.get_logger(__name__)
@@ -193,6 +191,7 @@ def _implicit_arc4_conversion(
     if isinstance(target_type, pytypes.StructType) and isinstance(
         instance.pytype, pytypes.TupleType
     ):
+        # Special handling to map tuples (named and unnamed) to arc4 structs
         num_fields = len(target_type.types)
         return target_type_builder.call(
             args=[
