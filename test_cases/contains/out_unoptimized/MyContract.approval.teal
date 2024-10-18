@@ -1,31 +1,33 @@
 #pragma version 10
 
 test_cases.contains.contract.MyContract.approval_program:
+    intcblock 0 1 3 2
+    bytecblock 0x666f6f 0x626172 0x1d65e22bcbbf 0x66697665 0x68656c6c6f 0x626f6e6a6f7572 0x07acf5cae41e
     // contains/contract.py:10
     // one_true = self.is_in_tuple_1(UInt64(10), (UInt64(10), not_ten, Bytes(b"five")))
-    int 10
-    int 10
+    pushint 10 // 10
+    dup
     // contains/contract.py:8
     // not_ten = UInt64(15)
-    int 15
+    pushint 15 // 15
     // contains/contract.py:10
     // one_true = self.is_in_tuple_1(UInt64(10), (UInt64(10), not_ten, Bytes(b"five")))
-    byte 0x66697665
+    bytec_3 // 0x66697665
     callsub is_in_tuple_1
     // contains/contract.py:11
     // one_false = self.is_in_tuple_1(UInt64(5), (UInt64(10), not_ten, Bytes(b"five")))
-    int 5
-    int 10
+    pushint 5 // 5
+    pushint 10 // 10
     // contains/contract.py:8
     // not_ten = UInt64(15)
-    int 15
+    pushint 15 // 15
     // contains/contract.py:11
     // one_false = self.is_in_tuple_1(UInt64(5), (UInt64(10), not_ten, Bytes(b"five")))
-    byte 0x66697665
+    bytec_3 // 0x66697665
     callsub is_in_tuple_1
     // contains/contract.py:12
     // assert one_true, "Should be true"
-    uncover 1
+    swap
     assert // Should be true
     // contains/contract.py:13
     // assert not one_false, "Should be false"
@@ -33,10 +35,10 @@ test_cases.contains.contract.MyContract.approval_program:
     assert // Should be false
     // contains/contract.py:16
     // Bytes(b"hello"), (Bytes(b"hello"), UInt64(0), Bytes(b"bonjour"))
-    byte 0x68656c6c6f
-    byte 0x68656c6c6f
-    int 0
-    byte 0x626f6e6a6f7572
+    bytec 4 // 0x68656c6c6f
+    dup
+    intc_0 // 0
+    bytec 5 // 0x626f6e6a6f7572
     // contains/contract.py:15-17
     // two_true = self.is_in_tuple_2(
     //     Bytes(b"hello"), (Bytes(b"hello"), UInt64(0), Bytes(b"bonjour"))
@@ -44,10 +46,10 @@ test_cases.contains.contract.MyContract.approval_program:
     callsub is_in_tuple_2
     // contains/contract.py:19
     // Bytes(b"ciao"), (Bytes(b"hello"), UInt64(0), Bytes(b"bonjour"))
-    byte 0x6369616f
-    byte 0x68656c6c6f
-    int 0
-    byte 0x626f6e6a6f7572
+    pushbytes 0x6369616f
+    bytec 4 // 0x68656c6c6f
+    intc_0 // 0
+    bytec 5 // 0x626f6e6a6f7572
     // contains/contract.py:18-20
     // two_false = self.is_in_tuple_2(
     //     Bytes(b"ciao"), (Bytes(b"hello"), UInt64(0), Bytes(b"bonjour"))
@@ -55,7 +57,7 @@ test_cases.contains.contract.MyContract.approval_program:
     callsub is_in_tuple_2
     // contains/contract.py:21
     // assert two_true, "Should be true"
-    uncover 1
+    swap
     assert // Should be true
     // contains/contract.py:22
     // assert not two_false, "Should be false"
@@ -63,9 +65,9 @@ test_cases.contains.contract.MyContract.approval_program:
     assert // Should be false
     // contains/contract.py:25
     // BigUInt(32323423423423), (BigUInt(32323423423423), BigUInt(8439439483934))
-    byte 0x1d65e22bcbbf
-    byte 0x1d65e22bcbbf
-    byte 0x07acf5cae41e
+    bytec_2 // 0x1d65e22bcbbf
+    dup
+    bytec 6 // 0x07acf5cae41e
     // contains/contract.py:24-26
     // three_true = self.is_in_tuple_3(
     //     BigUInt(32323423423423), (BigUInt(32323423423423), BigUInt(8439439483934))
@@ -73,13 +75,13 @@ test_cases.contains.contract.MyContract.approval_program:
     callsub is_in_tuple_3
     // contains/contract.py:28
     // BigUInt(32323423423423) + BigUInt(32323423423423),
-    byte 0x1d65e22bcbbf
-    byte 0x1d65e22bcbbf
+    bytec_2 // 0x1d65e22bcbbf
+    dup
     b+
     // contains/contract.py:29
     // (BigUInt(32323423423423), BigUInt(8439439483934)),
-    byte 0x1d65e22bcbbf
-    byte 0x07acf5cae41e
+    bytec_2 // 0x1d65e22bcbbf
+    bytec 6 // 0x07acf5cae41e
     // contains/contract.py:27-30
     // three_false = self.is_in_tuple_3(
     //     BigUInt(32323423423423) + BigUInt(32323423423423),
@@ -88,7 +90,7 @@ test_cases.contains.contract.MyContract.approval_program:
     callsub is_in_tuple_3
     // contains/contract.py:31
     // assert three_true, "Should be true"
-    uncover 1
+    swap
     assert // Should be true
     // contains/contract.py:32
     // assert not three_false, "Should be false"
@@ -102,7 +104,7 @@ test_cases.contains.contract.MyContract.approval_program:
     callsub test_numeric_types
     // contains/contract.py:37
     // return UInt64(1)
-    int 1
+    intc_1 // 1
     return
 
 
@@ -124,11 +126,11 @@ is_in_tuple_1:
     bz is_in_tuple_1_bool_false@3
 
 is_in_tuple_1_bool_true@2:
-    int 1
+    intc_1 // 1
     b is_in_tuple_1_bool_merge@4
 
 is_in_tuple_1_bool_false@3:
-    int 0
+    intc_0 // 0
 
 is_in_tuple_1_bool_merge@4:
     // contains/contract.py:44
@@ -154,11 +156,11 @@ is_in_tuple_2:
     bz is_in_tuple_2_bool_false@3
 
 is_in_tuple_2_bool_true@2:
-    int 1
+    intc_1 // 1
     b is_in_tuple_2_bool_merge@4
 
 is_in_tuple_2_bool_false@3:
-    int 0
+    intc_0 // 0
 
 is_in_tuple_2_bool_merge@4:
     // contains/contract.py:48
@@ -184,11 +186,11 @@ is_in_tuple_3:
     bz is_in_tuple_3_bool_false@3
 
 is_in_tuple_3_bool_true@2:
-    int 1
+    intc_1 // 1
     b is_in_tuple_3_bool_merge@4
 
 is_in_tuple_3_bool_false@3:
-    int 0
+    intc_0 // 0
 
 is_in_tuple_3_bool_merge@4:
     // contains/contract.py:52
@@ -202,13 +204,12 @@ test_string_types:
     // @subroutine
     // def test_string_types(self) -> None:
     proto 0 0
-    int 0
+    intc_0 // 0
     dupn 21
     // contains/contract.py:56
     // assert foo_string() in (foo_string(), baz_string()), "foo in (foo, baz)"
     callsub foo_string
     dup
-    cover 1
     callsub foo_string
     callsub baz_string
     cover 2
@@ -220,11 +221,11 @@ test_string_types:
     bz test_string_types_bool_false@3
 
 test_string_types_bool_true@2:
-    int 1
+    intc_1 // 1
     b test_string_types_bool_merge@4
 
 test_string_types_bool_false@3:
-    int 0
+    intc_0 // 0
 
 test_string_types_bool_merge@4:
     // contains/contract.py:56
@@ -246,11 +247,11 @@ test_string_types_bool_merge@4:
     bz test_string_types_bool_false@7
 
 test_string_types_bool_true@6:
-    int 1
+    intc_1 // 1
     b test_string_types_bool_merge@8
 
 test_string_types_bool_false@7:
-    int 0
+    intc_0 // 0
 
 test_string_types_bool_merge@8:
     // contains/contract.py:57
@@ -280,11 +281,11 @@ test_string_types_bool_merge@8:
     bz test_string_types_bool_false@12
 
 test_string_types_bool_true@11:
-    int 1
+    intc_1 // 1
     b test_string_types_bool_merge@13
 
 test_string_types_bool_false@12:
-    int 0
+    intc_0 // 0
 
 test_string_types_bool_merge@13:
     // contains/contract.py:58
@@ -315,11 +316,11 @@ test_string_types_bool_merge@13:
     bz test_string_types_bool_false@17
 
 test_string_types_bool_true@16:
-    int 1
+    intc_1 // 1
     b test_string_types_bool_merge@18
 
 test_string_types_bool_false@17:
-    int 0
+    intc_0 // 0
 
 test_string_types_bool_merge@18:
     // contains/contract.py:59
@@ -342,11 +343,11 @@ test_string_types_bool_merge@18:
     bz test_string_types_bool_false@21
 
 test_string_types_bool_true@20:
-    int 1
+    intc_1 // 1
     b test_string_types_bool_merge@22
 
 test_string_types_bool_false@21:
-    int 0
+    intc_0 // 0
 
 test_string_types_bool_merge@22:
     // contains/contract.py:60
@@ -370,11 +371,11 @@ test_string_types_bool_merge@22:
     bz test_string_types_bool_false@25
 
 test_string_types_bool_true@24:
-    int 1
+    intc_1 // 1
     b test_string_types_bool_merge@26
 
 test_string_types_bool_false@25:
-    int 0
+    intc_0 // 0
 
 test_string_types_bool_merge@26:
     // contains/contract.py:61
@@ -428,11 +429,11 @@ test_string_types_bool_merge@26:
     bz test_string_types_bool_false@30
 
 test_string_types_bool_true@29:
-    int 1
+    intc_1 // 1
     b test_string_types_bool_merge@31
 
 test_string_types_bool_false@30:
-    int 0
+    intc_0 // 0
 
 test_string_types_bool_merge@31:
     // contains/contract.py:62-67
@@ -502,11 +503,11 @@ test_string_types_bool_merge@31:
     bz test_string_types_bool_false@35
 
 test_string_types_bool_true@34:
-    int 1
+    intc_1 // 1
     b test_string_types_bool_merge@36
 
 test_string_types_bool_false@35:
-    int 0
+    intc_0 // 0
 
 test_string_types_bool_merge@36:
     // contains/contract.py:68-73
@@ -554,11 +555,11 @@ test_string_types_bool_merge@36:
     bz test_string_types_bool_false@39
 
 test_string_types_bool_true@38:
-    int 1
+    intc_1 // 1
     b test_string_types_bool_merge@40
 
 test_string_types_bool_false@39:
-    int 0
+    intc_0 // 0
 
 test_string_types_bool_merge@40:
     // contains/contract.py:74-78
@@ -588,11 +589,11 @@ test_string_types_bool_merge@40:
     bz test_string_types_bool_false@43
 
 test_string_types_bool_true@42:
-    int 1
+    intc_1 // 1
     b test_string_types_bool_merge@44
 
 test_string_types_bool_false@43:
-    int 0
+    intc_0 // 0
 
 test_string_types_bool_merge@44:
     // contains/contract.py:79
@@ -609,10 +610,10 @@ test_string_types_bool_merge@44:
     pop
     // contains/contract.py:80
     // assert Bytes(b"foo") not in (
-    byte 0x666f6f
+    bytec_0 // 0x666f6f
     // contains/contract.py:83
     // Bytes(b"bar"),
-    byte 0x626172
+    bytec_1 // 0x626172
     // contains/contract.py:80-84
     // assert Bytes(b"foo") not in (
     //     foo_string(),
@@ -633,7 +634,7 @@ foo_string:
     proto 0 1
     // contains/contract.py:169
     // return String("foo")
-    byte "foo"
+    bytec_0 // "foo"
     retsub
 
 
@@ -645,7 +646,7 @@ baz_string:
     proto 0 1
     // contains/contract.py:189
     // return String("baz")
-    byte "baz"
+    pushbytes "baz"
     retsub
 
 
@@ -657,7 +658,7 @@ bar_string:
     proto 0 1
     // contains/contract.py:179
     // return String("bar")
-    byte "bar"
+    bytec_1 // "bar"
     retsub
 
 
@@ -669,11 +670,11 @@ foo_arc4:
     proto 0 1
     // contains/contract.py:174
     // return arc4.String("foo")
-    byte "foo"
+    bytec_0 // "foo"
     len
     itob
     extract 6 2
-    byte "foo"
+    bytec_0 // "foo"
     concat
     retsub
 
@@ -686,11 +687,11 @@ bar_arc4:
     proto 0 1
     // contains/contract.py:184
     // return arc4.String("bar")
-    byte "bar"
+    bytec_1 // "bar"
     len
     itob
     extract 6 2
-    byte "bar"
+    bytec_1 // "bar"
     concat
     retsub
 
@@ -703,7 +704,7 @@ one_u64:
     proto 0 1
     // contains/contract.py:139
     // return UInt64(1)
-    int 1
+    intc_1 // 1
     retsub
 
 
@@ -713,15 +714,14 @@ test_numeric_types:
     // @subroutine
     // def test_numeric_types(self) -> None:
     proto 0 0
-    int 0
+    intc_0 // 0
     dupn 22
-    byte ""
+    pushbytes ""
     dupn 9
     // contains/contract.py:88
     // assert one_u64() in (one_u64(), two_u64()), "1 in (1, 2)"
     callsub one_u64
     dup
-    cover 1
     callsub one_u64
     callsub two_u64
     cover 2
@@ -733,11 +733,11 @@ test_numeric_types:
     bz test_numeric_types_bool_false@3
 
 test_numeric_types_bool_true@2:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@4
 
 test_numeric_types_bool_false@3:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@4:
     // contains/contract.py:88
@@ -750,7 +750,7 @@ test_numeric_types_bool_merge@4:
     frame_bury 23
     callsub two_u64
     frame_bury 32
-    int 3
+    intc_2 // 3
     ==
     bnz test_numeric_types_bool_true@6
     frame_dig 23
@@ -759,11 +759,11 @@ test_numeric_types_bool_merge@4:
     bz test_numeric_types_bool_false@7
 
 test_numeric_types_bool_true@6:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@8
 
 test_numeric_types_bool_false@7:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@8:
     // contains/contract.py:89
@@ -781,7 +781,7 @@ test_numeric_types_bool_merge@8:
     ==
     bnz test_numeric_types_bool_true@11
     frame_dig 27
-    int 3
+    intc_2 // 3
     ==
     bnz test_numeric_types_bool_true@11
     frame_dig 20
@@ -791,11 +791,11 @@ test_numeric_types_bool_merge@8:
     bz test_numeric_types_bool_false@12
 
 test_numeric_types_bool_true@11:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@13
 
 test_numeric_types_bool_false@12:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@13:
     // contains/contract.py:91
@@ -813,7 +813,7 @@ test_numeric_types_bool_merge@13:
     b==
     bnz test_numeric_types_bool_true@16
     frame_dig 29
-    int 4
+    pushint 4 // 4
     ==
     bnz test_numeric_types_bool_true@16
     frame_dig 14
@@ -823,11 +823,11 @@ test_numeric_types_bool_merge@13:
     bz test_numeric_types_bool_false@17
 
 test_numeric_types_bool_true@16:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@18
 
 test_numeric_types_bool_false@17:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@18:
     // contains/contract.py:92
@@ -838,26 +838,26 @@ test_numeric_types_bool_merge@18:
     callsub one_arc4u64
     callsub two_u8
     frame_bury 15
-    int 2
+    intc_3 // 2
     itob
     b==
     bnz test_numeric_types_bool_true@21
-    int 2
-    int 3
+    intc_3 // 2
+    intc_2 // 3
     ==
     bnz test_numeric_types_bool_true@21
     frame_dig 15
-    int 2
+    intc_3 // 2
     itob
     b==
     bz test_numeric_types_bool_false@22
 
 test_numeric_types_bool_true@21:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@23
 
 test_numeric_types_bool_false@22:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@23:
     // contains/contract.py:93
@@ -874,7 +874,7 @@ test_numeric_types_bool_merge@23:
     b==
     bnz test_numeric_types_bool_true@26
     frame_dig 7
-    int 3
+    intc_2 // 3
     itob
     b==
     bnz test_numeric_types_bool_true@26
@@ -884,11 +884,11 @@ test_numeric_types_bool_merge@23:
     bz test_numeric_types_bool_false@27
 
 test_numeric_types_bool_true@26:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@28
 
 test_numeric_types_bool_false@27:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@28:
     // contains/contract.py:94
@@ -903,22 +903,22 @@ test_numeric_types_bool_merge@28:
     b==
     bnz test_numeric_types_bool_true@31
     frame_dig 8
-    int 2
+    intc_3 // 2
     itob
     b==
     bnz test_numeric_types_bool_true@31
     frame_dig 8
-    int 3
+    intc_2 // 3
     itob
     b==
     bz test_numeric_types_bool_false@32
 
 test_numeric_types_bool_true@31:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@33
 
 test_numeric_types_bool_false@32:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@33:
     // contains/contract.py:95
@@ -929,22 +929,22 @@ test_numeric_types_bool_merge@33:
     callsub three_u512
     dup
     frame_bury 9
-    int 3
+    intc_2 // 3
     itob
     b==
     bnz test_numeric_types_bool_true@35
     frame_dig 9
-    int 4
+    pushint 4 // 4
     itob
     b==
     bz test_numeric_types_bool_false@36
 
 test_numeric_types_bool_true@35:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@37
 
 test_numeric_types_bool_false@36:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@37:
     // contains/contract.py:96
@@ -955,23 +955,22 @@ test_numeric_types_bool_merge@37:
     callsub four_biguint
     dup
     frame_bury 10
-    int 5
+    pushint 5 // 5
     itob
     b==
     bnz test_numeric_types_bool_true@39
-    int 4
+    pushint 4 // 4
     itob
     frame_dig 10
-    uncover 1
     b==
     bz test_numeric_types_bool_false@40
 
 test_numeric_types_bool_true@39:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@41
 
 test_numeric_types_bool_false@40:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@41:
     // contains/contract.py:97
@@ -984,7 +983,7 @@ test_numeric_types_bool_merge@41:
     frame_bury 30
     callsub two_u8
     frame_bury 17
-    int 5
+    pushint 5 // 5
     ==
     bnz test_numeric_types_bool_true@43
     frame_dig 17
@@ -994,11 +993,11 @@ test_numeric_types_bool_merge@41:
     bz test_numeric_types_bool_false@44
 
 test_numeric_types_bool_true@43:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@45
 
 test_numeric_types_bool_false@44:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@45:
     // contains/contract.py:99
@@ -1012,7 +1011,7 @@ test_numeric_types_bool_merge@45:
     frame_bury 31
     callsub two_u8
     frame_bury 18
-    int 3
+    intc_2 // 3
     ==
     bnz test_numeric_types_bool_true@47
     frame_dig 18
@@ -1022,11 +1021,11 @@ test_numeric_types_bool_merge@45:
     bz test_numeric_types_bool_false@48
 
 test_numeric_types_bool_true@47:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@49
 
 test_numeric_types_bool_false@48:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@49:
     // contains/contract.py:100
@@ -1040,7 +1039,7 @@ test_numeric_types_bool_merge@49:
     frame_bury 24
     callsub two_u8
     frame_bury 19
-    int 3
+    intc_2 // 3
     ==
     bnz test_numeric_types_bool_true@51
     frame_dig 19
@@ -1050,11 +1049,11 @@ test_numeric_types_bool_merge@49:
     bz test_numeric_types_bool_false@52
 
 test_numeric_types_bool_true@51:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@53
 
 test_numeric_types_bool_false@52:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@53:
     // contains/contract.py:101
@@ -1064,21 +1063,21 @@ test_numeric_types_bool_merge@53:
     // contains/contract.py:102
     // assert UInt64(2) not in (one_arc4u64(), UInt64(3)), "2 not in (1, 3)"
     callsub one_arc4u64
-    int 2
+    intc_3 // 2
     itob
     b==
     bnz test_numeric_types_bool_true@55
-    int 2
-    int 3
+    intc_3 // 2
+    intc_2 // 3
     ==
     bz test_numeric_types_bool_false@56
 
 test_numeric_types_bool_true@55:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@57
 
 test_numeric_types_bool_false@56:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@57:
     // contains/contract.py:102
@@ -1094,17 +1093,17 @@ test_numeric_types_bool_merge@57:
     b==
     bnz test_numeric_types_bool_true@59
     frame_dig 0
-    int 3
+    intc_2 // 3
     itob
     b==
     bz test_numeric_types_bool_false@60
 
 test_numeric_types_bool_true@59:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@61
 
 test_numeric_types_bool_false@60:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@61:
     // contains/contract.py:103
@@ -1120,17 +1119,17 @@ test_numeric_types_bool_merge@61:
     b==
     bnz test_numeric_types_bool_true@63
     frame_dig 1
-    int 3
+    intc_2 // 3
     itob
     b==
     bz test_numeric_types_bool_false@64
 
 test_numeric_types_bool_true@63:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@65
 
 test_numeric_types_bool_false@64:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@65:
     // contains/contract.py:104
@@ -1142,22 +1141,22 @@ test_numeric_types_bool_merge@65:
     callsub three_u512
     dup
     frame_bury 2
-    int 5
+    pushint 5 // 5
     itob
     b==
     bnz test_numeric_types_bool_true@67
     frame_dig 2
-    int 7
+    pushint 7 // 7
     itob
     b==
     bz test_numeric_types_bool_false@68
 
 test_numeric_types_bool_true@67:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@69
 
 test_numeric_types_bool_false@68:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@69:
     // contains/contract.py:105
@@ -1169,23 +1168,22 @@ test_numeric_types_bool_merge@69:
     callsub four_biguint
     dup
     frame_bury 3
-    int 2
+    intc_3 // 2
     itob
     b==
     bnz test_numeric_types_bool_true@71
-    int 9
+    pushint 9 // 9
     itob
     frame_dig 3
-    uncover 1
     b==
     bz test_numeric_types_bool_false@72
 
 test_numeric_types_bool_true@71:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@73
 
 test_numeric_types_bool_false@72:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@73:
     // contains/contract.py:106
@@ -1220,7 +1218,7 @@ test_numeric_types_bool_merge@73:
     frame_dig 25
     // contains/contract.py:111
     // UInt64(3),
-    int 3
+    intc_2 // 3
     // contains/contract.py:108-113
     // assert one_u64() in (
     //     foo_string(),
@@ -1237,11 +1235,11 @@ test_numeric_types_bool_merge@73:
     bz test_numeric_types_bool_false@77
 
 test_numeric_types_bool_true@76:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@78
 
 test_numeric_types_bool_false@77:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@78:
     // contains/contract.py:108-113
@@ -1272,11 +1270,11 @@ test_numeric_types_bool_merge@78:
     bz test_numeric_types_bool_false@81
 
 test_numeric_types_bool_true@80:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@82
 
 test_numeric_types_bool_false@81:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@82:
     // contains/contract.py:114
@@ -1288,22 +1286,22 @@ test_numeric_types_bool_merge@82:
     pop
     callsub two_u8
     frame_bury 11
-    int 2
-    int 3
+    intc_3 // 2
+    intc_2 // 3
     ==
     bnz test_numeric_types_bool_true@84
     frame_dig 11
-    int 2
+    intc_3 // 2
     itob
     b==
     bz test_numeric_types_bool_false@85
 
 test_numeric_types_bool_true@84:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@86
 
 test_numeric_types_bool_false@85:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@86:
     // contains/contract.py:115
@@ -1318,7 +1316,7 @@ test_numeric_types_bool_merge@86:
     pop
     callsub two_u8
     frame_bury 12
-    int 3
+    intc_2 // 3
     itob
     b==
     bnz test_numeric_types_bool_true@88
@@ -1328,11 +1326,11 @@ test_numeric_types_bool_merge@86:
     bz test_numeric_types_bool_false@89
 
 test_numeric_types_bool_true@88:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@90
 
 test_numeric_types_bool_false@89:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@90:
     // contains/contract.py:116
@@ -1345,22 +1343,22 @@ test_numeric_types_bool_merge@90:
     frame_bury 5
     callsub foo_string
     pop
-    int 2
+    intc_3 // 2
     itob
     b==
     bnz test_numeric_types_bool_true@92
     frame_dig 5
-    int 3
+    intc_2 // 3
     itob
     b==
     bz test_numeric_types_bool_false@93
 
 test_numeric_types_bool_true@92:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@94
 
 test_numeric_types_bool_false@93:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@94:
     // contains/contract.py:117
@@ -1373,22 +1371,22 @@ test_numeric_types_bool_merge@94:
     frame_bury 6
     callsub foo_string
     pop
-    int 5
+    pushint 5 // 5
     itob
     b==
     bnz test_numeric_types_bool_true@96
     frame_dig 6
-    int 3
+    intc_2 // 3
     itob
     b==
     bz test_numeric_types_bool_false@97
 
 test_numeric_types_bool_true@96:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@98
 
 test_numeric_types_bool_false@97:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@98:
     // contains/contract.py:118
@@ -1409,7 +1407,7 @@ test_numeric_types_bool_merge@98:
     frame_bury 13
     // contains/contract.py:122
     // UInt64(3),
-    int 3
+    intc_2 // 3
     // contains/contract.py:120-124
     // assert one_u64() not in (
     //     foo_string(),
@@ -1425,11 +1423,11 @@ test_numeric_types_bool_merge@98:
     bz test_numeric_types_bool_false@101
 
 test_numeric_types_bool_true@100:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@102
 
 test_numeric_types_bool_false@101:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@102:
     // contains/contract.py:120-124
@@ -1454,8 +1452,8 @@ test_numeric_types_bool_merge@102:
     // assert UInt64(2) not in (foo_arc4(), UInt64(3)), "2 not in (foo, 3)"
     callsub foo_arc4
     pop
-    int 2
-    int 3
+    intc_3 // 2
+    intc_2 // 3
     ==
     !
     assert // 2 not in (foo, 3)
@@ -1464,7 +1462,7 @@ test_numeric_types_bool_merge@102:
     callsub two_u8
     callsub bar_arc4
     pop
-    int 3
+    intc_2 // 3
     itob
     b==
     !
@@ -1474,7 +1472,7 @@ test_numeric_types_bool_merge@102:
     callsub two_u8
     callsub foo_string
     pop
-    int 3
+    intc_2 // 3
     itob
     b==
     !
@@ -1484,14 +1482,14 @@ test_numeric_types_bool_merge@102:
     callsub three_u512
     callsub foo_string
     pop
-    int 5
+    pushint 5 // 5
     itob
     b==
     !
     assert // 3 not in (5, foo)
     // contains/contract.py:132
     // UInt64(64),
-    int 64
+    pushint 64 // 64
     // contains/contract.py:130-134
     // assert arc4.UInt8(65) not in (
     //     Bytes(b"A"),
@@ -1501,19 +1499,18 @@ test_numeric_types_bool_merge@102:
     itob
     // contains/contract.py:130
     // assert arc4.UInt8(65) not in (
-    byte 0x41
+    pushbytes 0x41
     // contains/contract.py:130-134
     // assert arc4.UInt8(65) not in (
     //     Bytes(b"A"),
     //     UInt64(64),
     //     UInt64(66),
     // ), "65 not in (b'A', 64, 66)"
-    uncover 1
     b==
     bnz test_numeric_types_bool_true@104
     // contains/contract.py:133
     // UInt64(66),
-    int 66
+    pushint 66 // 66
     // contains/contract.py:130-134
     // assert arc4.UInt8(65) not in (
     //     Bytes(b"A"),
@@ -1523,23 +1520,22 @@ test_numeric_types_bool_merge@102:
     itob
     // contains/contract.py:130
     // assert arc4.UInt8(65) not in (
-    byte 0x41
+    pushbytes 0x41
     // contains/contract.py:130-134
     // assert arc4.UInt8(65) not in (
     //     Bytes(b"A"),
     //     UInt64(64),
     //     UInt64(66),
     // ), "65 not in (b'A', 64, 66)"
-    uncover 1
     b==
     bz test_numeric_types_bool_false@105
 
 test_numeric_types_bool_true@104:
-    int 1
+    intc_1 // 1
     b test_numeric_types_bool_merge@106
 
 test_numeric_types_bool_false@105:
-    int 0
+    intc_0 // 0
 
 test_numeric_types_bool_merge@106:
     // contains/contract.py:130-134
@@ -1561,7 +1557,7 @@ two_u64:
     proto 0 1
     // contains/contract.py:149
     // return UInt64(2)
-    int 2
+    intc_3 // 2
     retsub
 
 
@@ -1573,7 +1569,7 @@ two_u8:
     proto 0 1
     // contains/contract.py:154
     // return arc4.UInt8(2)
-    byte 0x02
+    pushbytes 0x02
     retsub
 
 
@@ -1585,7 +1581,7 @@ one_arc4u64:
     proto 0 1
     // contains/contract.py:144
     // return arc4.UInt64(1)
-    byte 0x0000000000000001
+    pushbytes 0x0000000000000001
     retsub
 
 
@@ -1597,7 +1593,7 @@ three_u512:
     proto 0 1
     // contains/contract.py:159
     // return arc4.UInt512(3)
-    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003
+    pushbytes 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003
     retsub
 
 
@@ -1609,5 +1605,5 @@ four_biguint:
     proto 0 1
     // contains/contract.py:164
     // return BigUInt(4)
-    byte 0x04
+    pushbytes 0x04
     retsub

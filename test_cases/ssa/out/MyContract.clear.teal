@@ -3,7 +3,7 @@
 test_cases.ssa.contract.MyContract.clear_state_program:
     // ssa/contract.py:44
     // return one_hundred(UInt64(40))
-    int 40
+    pushint 40 // 40
     callsub one_hundred
     return
 
@@ -14,15 +14,10 @@ one_hundred:
     // @subroutine
     // def one_hundred(c: UInt64) -> UInt64:
     proto 1 1
-    // ssa/contract.py:49
+    // ssa/contract.py:49-50
     // a = UInt64(25)
-    int 25
-    // ssa/contract.py:50
     // b = UInt64(2)
-    int 2
-    // ssa/contract.py:49
-    // a = UInt64(25)
-    int 25
+    pushints 25 2 25 // 25, 2, 25
     // ssa/contract.py:51
     // if a < c:
     frame_dig -1
@@ -30,11 +25,11 @@ one_hundred:
     bz one_hundred_after_if_else@2
     // ssa/contract.py:52
     // b = UInt64(1)
-    int 1
+    pushint 1 // 1
     frame_bury 1
     // ssa/contract.py:53
     // a = UInt64(100)
-    int 100
+    pushint 100 // 100
     frame_bury 0
 
 one_hundred_after_if_else@2:

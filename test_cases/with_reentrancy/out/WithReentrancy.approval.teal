@@ -1,20 +1,22 @@
 #pragma version 10
 
 test_cases.with_reentrancy.contract.WithReentrancy.approval_program:
+    intcblock 2 1 10
+    bytecblock 0x30313233343536373839
     // with_reentrancy/contract.py:8
     // log(op.itob(fibonacci(UInt64(5))))
-    int 5
+    pushint 5 // 5
     callsub fibonacci
     itob
     log
     // with_reentrancy/contract.py:9
     // silly(UInt64(2))
-    int 2
+    intc_0 // 2
     callsub silly
     pop
     // with_reentrancy/contract.py:10
     // return True
-    int 1
+    intc_1 // 1
     return
 
 
@@ -27,7 +29,7 @@ fibonacci:
     // with_reentrancy/contract.py:27
     // if n <= 1:
     frame_dig -1
-    int 1
+    intc_1 // 1
     <=
     bz fibonacci_after_if_else@2
     // with_reentrancy/contract.py:28
@@ -39,11 +41,11 @@ fibonacci_after_if_else@2:
     // with_reentrancy/contract.py:29
     // return fibonacci(n - 1) + fibonacci(n - 2)
     frame_dig -1
-    int 1
+    intc_1 // 1
     -
     callsub fibonacci
     frame_dig -1
-    int 2
+    intc_0 // 2
     -
     callsub fibonacci
     +
@@ -59,7 +61,7 @@ silly:
     // with_reentrancy/contract.py:34
     // x = x + 1
     frame_dig -1
-    int 1
+    intc_1 // 1
     +
     dup
     frame_bury -1
@@ -70,7 +72,7 @@ silly:
     // log(Bytes(b"silly = ") + itoa(x))
     frame_dig -1
     callsub itoa
-    byte 0x73696c6c79203d20
+    pushbytes 0x73696c6c79203d20
     swap
     concat
     log
@@ -88,7 +90,7 @@ silly2:
     // with_reentrancy/contract.py:42
     // x = x + 2
     frame_dig -1
-    int 2
+    intc_0 // 2
     +
     dup
     frame_bury -1
@@ -99,7 +101,7 @@ silly2:
     // log(Bytes(b"silly2 = ") + itoa(x))
     frame_dig -1
     callsub itoa
-    byte 0x73696c6c7932203d20
+    pushbytes 0x73696c6c7932203d20
     swap
     concat
     log
@@ -114,17 +116,17 @@ silly3:
     // @subroutine
     // def silly3(x: UInt64) -> UInt64:
     proto 1 1
-    byte ""
+    pushbytes ""
     // with_reentrancy/contract.py:50
     // is_even = x % 2 == 0
     frame_dig -1
-    int 2
+    intc_0 // 2
     %
     dup
     // with_reentrancy/contract.py:51
     // a = x + 2
     frame_dig -1
-    int 2
+    intc_0 // 2
     +
     swap
     // with_reentrancy/contract.py:52
@@ -133,15 +135,15 @@ silly3:
     // with_reentrancy/contract.py:53
     // result = a * 2
     frame_dig 2
-    int 2
+    intc_0 // 2
     *
     dup
     frame_bury 0
     // with_reentrancy/contract.py:54
     // a = result // 2 - 2
-    int 2
+    intc_0 // 2
     /
-    int 2
+    intc_0 // 2
     -
     frame_bury 2
     b silly3_after_if_else@3
@@ -166,7 +168,7 @@ silly3_after_if_else@5:
     // log(Bytes(b"silly3 = ") + itoa(x))
     frame_dig -1
     callsub itoa
-    byte 0x73696c6c7933203d20
+    pushbytes 0x73696c6c7933203d20
     swap
     concat
     log
@@ -186,7 +188,7 @@ itoa:
     frame_dig -1
     // with_reentrancy/contract.py:19
     // radix = digits.length
-    int 10
+    intc_2 // 10
     // with_reentrancy/contract.py:20
     // if i < radix:
     <
@@ -194,11 +196,11 @@ itoa:
     // with_reentrancy/contract.py:21
     // return digits[i]
     frame_dig -1
-    int 1
+    intc_1 // 1
     +
     // with_reentrancy/contract.py:18
     // digits = Bytes(b"0123456789")
-    byte 0x30313233343536373839
+    bytec_0 // 0x30313233343536373839
     // with_reentrancy/contract.py:21
     // return digits[i]
     frame_dig -1
@@ -212,7 +214,7 @@ itoa_after_if_else@2:
     frame_dig -1
     // with_reentrancy/contract.py:19
     // radix = digits.length
-    int 10
+    intc_2 // 10
     // with_reentrancy/contract.py:22
     // return itoa(i // radix) + digits[i % radix]
     /
@@ -220,16 +222,16 @@ itoa_after_if_else@2:
     frame_dig -1
     // with_reentrancy/contract.py:19
     // radix = digits.length
-    int 10
+    intc_2 // 10
     // with_reentrancy/contract.py:22
     // return itoa(i // radix) + digits[i % radix]
     %
     dup
-    int 1
+    intc_1 // 1
     +
     // with_reentrancy/contract.py:18
     // digits = Bytes(b"0123456789")
-    byte 0x30313233343536373839
+    bytec_0 // 0x30313233343536373839
     // with_reentrancy/contract.py:22
     // return itoa(i // radix) + digits[i % radix]
     cover 2

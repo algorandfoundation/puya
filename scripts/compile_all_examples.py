@@ -94,10 +94,10 @@ class ProgramSizes:
 
     @classmethod
     def read_file(cls, path: Path) -> "ProgramSizes":
-        lines = path.read_text("utf-8").splitlines()
+        lines = list(filter(None, path.read_text("utf-8").splitlines()))
         program_sizes = ProgramSizes()
         sizes = program_sizes.sizes
-        for line in lines[1:]:
+        for line in lines[1:-1]:
             name, o0, o1, o2, _, o0_ops, o1_ops, o2_ops = line.rsplit(maxsplit=7)
             name = name.strip()
             for opt, (bin_str, ops_str) in enumerate(((o0, o0_ops), (o1, o1_ops), (o2, o2_ops))):
@@ -116,7 +116,6 @@ class ProgramSizes:
     def __str__(self) -> str:
         writer = prettytable.PrettyTable(
             field_names=["Name", "O0", "O1", "O2", "|", "O0#Ops", "O1#Ops", "O2#Ops"],
-            sortby="Name",
             header=True,
             border=False,
             min_width=6,
@@ -126,7 +125,17 @@ class ProgramSizes:
         )
         writer.align["Name"] = "l"
         writer.align["|"] = "c"
-        for name, prog_sizes in self.sizes.items():
+        # copy sizes and sort by name
+        sizes = defaultdict(
+            self.sizes.default_factory, {p: self.sizes[p].copy() for p in sorted(self.sizes)}
+        )
+        totals = {i: Size() for i in range(3)}
+        for prog_sizes in sizes.values():
+            for i in range(3):
+                totals[i] += prog_sizes[i]
+        # Add totals at end
+        sizes["Total"].update(totals)
+        for name, prog_sizes in sizes.items():
             o0, o1, o2 = (prog_sizes[i] for i in range(3))
             row = list(
                 map(

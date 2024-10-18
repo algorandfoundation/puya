@@ -34,6 +34,12 @@ def main() -> None:
         help="Output TEAL code",
     )
     parser.add_argument(
+        "--output-source-map",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Output debug source maps",
+    )
+    parser.add_argument(
         "--output-arc32",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -107,9 +113,10 @@ def main() -> None:
     )
     parser.add_argument(
         "--match-algod-bytecode",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="When outputting bytecode, ensure bytecode matches algod output",
+        action=_EmitDeprecated,
+        dest=argparse.SUPPRESS,
+        nargs=0,
+        help="Deprecated: When outputting bytecode, ensure bytecode matches algod output",
     )
     parser.add_argument(
         "-T",
@@ -149,6 +156,18 @@ def main() -> None:
     parser.parse_args(namespace=options)
     configure_logging(min_log_level=options.log_level)
     compile_to_teal(options)
+
+
+class _EmitDeprecated(argparse.Action):
+    @typing.override
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str | Sequence[typing.Any] | None,
+        option_string: str | None = None,
+    ) -> None:
+        print(f"warning: {option_string} is deprecated and no longer does anything")  # noqa: T201
 
 
 class _ParseAndStoreTemplateVar(argparse.Action):

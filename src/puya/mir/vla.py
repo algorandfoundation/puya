@@ -43,9 +43,9 @@ class VariableLifetimeAnalysis:
             for op in block.ops:
                 used = StableSet[str]()
                 defined = StableSet[str]()
-                if isinstance(op, models.StoreVirtual):
+                if isinstance(op, models.AbstractStore):
                     defined.add(op.local_id)
-                elif isinstance(op, models.LoadVirtual):
+                elif isinstance(op, models.AbstractLoad):
                     used.add(op.local_id)
                 result[op] = _OpLifetime(
                     block=block,

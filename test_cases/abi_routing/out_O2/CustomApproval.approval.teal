@@ -1,22 +1,23 @@
 #pragma version 10
 
 test_cases.abi_routing.custom_approval.CustomApproval.approval_program:
-    byte ""
+    intcblock 1 0
+    pushbytes ""
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
 
 main_entrypoint@2:
     txn NumAppArgs
-    int 2
+    pushint 2 // 2
     ==
     bz main_after_if_else@5
     txna ApplicationArgs 1
-    int 42
+    pushint 42 // 42
     itob
     ==
     bz main_after_if_else@5
-    byte "\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89"
+    pushbytes "\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89"
     log
 
 main_after_if_else@5:
@@ -24,7 +25,7 @@ main_after_if_else@5:
     dup
     bury 2
     bnz main_after_if_else@7
-    byte "this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here"
+    pushbytes "this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here"
     log
 
 main_after_if_else@7:
@@ -37,10 +38,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___bare_routing@5
-    method "add_one(uint64)uint64"
+    pushbytes 0x03b5c0af // method "add_one(uint64)uint64"
     txna ApplicationArgs 0
     match __puya_arc4_router___add_one_route@2
-    int 0
+    intc_1 // 0
     retsub
 
 __puya_arc4_router___add_one_route@2:
@@ -53,11 +54,11 @@ __puya_arc4_router___add_one_route@2:
     btoi
     callsub add_one
     itob
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___bare_routing@5:
@@ -66,11 +67,11 @@ __puya_arc4_router___bare_routing@5:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___after_if_else@9:
-    int 0
+    intc_1 // 0
     retsub
 
 
@@ -78,7 +79,7 @@ __puya_arc4_router___after_if_else@9:
 add_one:
     proto 1 1
     frame_dig -1
-    int 1
+    intc_0 // 1
     +
     retsub
 
