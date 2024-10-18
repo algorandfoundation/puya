@@ -1,6 +1,6 @@
 import typing
 
-from algopy import arc4, UInt64, BigUInt, String, Bytes, Txn, subroutine
+from algopy import BigUInt, Bytes, String, Txn, UInt64, arc4, subroutine
 
 
 class TestTuple(typing.NamedTuple):
