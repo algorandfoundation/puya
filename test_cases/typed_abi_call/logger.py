@@ -17,6 +17,11 @@ from algopy import (
 LOG_METHOD_NAME = "log"
 
 
+class LogMessage(typing.NamedTuple):
+    level: UInt64
+    message: String
+
+
 class Logger(ARC4Contract):
     @arc4.abimethod
     def is_a_b(self, a: Bytes, b: Bytes) -> None:
@@ -115,6 +120,10 @@ class Logger(ARC4Contract):
         last_arg = arc4.Tuple((a15, a16, a17, a18, a19, a20))
         assert Txn.application_args(15) == last_arg.bytes
         return arc4.DynamicBytes(last_arg.bytes)
+
+    @arc4.abimethod
+    def logs_are_equal(self, log_1: LogMessage, log_2: LogMessage) -> bool:
+        return log_1 == log_2
 
 
 class LoggerClient(arc4.ARC4Client, typing.Protocol):

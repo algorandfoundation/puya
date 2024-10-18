@@ -9,7 +9,7 @@ test_cases.typed_abi_call.logger.Logger.approval_program:
 __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@20
+    bz __puya_arc4_router___bare_routing@21
     method "is_a_b(byte[],byte[])void"
     method "echo(string)string"
     method "no_args()uint64"
@@ -26,8 +26,9 @@ __puya_arc4_router__:
     method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
     method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]"
+    method "logs_are_equal((uint64,string),(uint64,string))bool"
     txna ApplicationArgs 0
-    match __puya_arc4_router___is_a_b_route@2 __puya_arc4_router___echo_route@3 __puya_arc4_router___no_args_route@4 __puya_arc4_router___log_route@5 __puya_arc4_router___log_route@6 __puya_arc4_router___log_route@7 __puya_arc4_router___log_route@8 __puya_arc4_router___log_route@9 __puya_arc4_router___log_route@10 __puya_arc4_router___echo_native_string_route@11 __puya_arc4_router___echo_native_bytes_route@12 __puya_arc4_router___echo_native_uint64_route@13 __puya_arc4_router___echo_native_biguint_route@14 __puya_arc4_router___echo_native_tuple_route@15 __puya_arc4_router___echo_nested_tuple_route@16 __puya_arc4_router___return_args_after_14th_route@17
+    match __puya_arc4_router___is_a_b_route@2 __puya_arc4_router___echo_route@3 __puya_arc4_router___no_args_route@4 __puya_arc4_router___log_route@5 __puya_arc4_router___log_route@6 __puya_arc4_router___log_route@7 __puya_arc4_router___log_route@8 __puya_arc4_router___log_route@9 __puya_arc4_router___log_route@10 __puya_arc4_router___echo_native_string_route@11 __puya_arc4_router___echo_native_bytes_route@12 __puya_arc4_router___echo_native_uint64_route@13 __puya_arc4_router___echo_native_biguint_route@14 __puya_arc4_router___echo_native_tuple_route@15 __puya_arc4_router___echo_nested_tuple_route@16 __puya_arc4_router___return_args_after_14th_route@17 __puya_arc4_router___logs_are_equal_route@18
     int 0
     retsub
 
@@ -451,16 +452,64 @@ __puya_arc4_router___return_args_after_14th_route@17:
     int 1
     retsub
 
-__puya_arc4_router___bare_routing@20:
+__puya_arc4_router___logs_are_equal_route@18:
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@24
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    dup
+    extract 0 8 // on error: Index access is out of bounds
+    btoi
+    swap
+    dup
+    int 8
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    cover 2
+    substring3
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    extract 0 8 // on error: Index access is out of bounds
+    btoi
+    swap
+    dup
+    int 8
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    cover 2
+    substring3
+    extract 2 0
+    callsub logs_are_equal
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    retsub
+
+__puya_arc4_router___bare_routing@21:
+    txn OnCompletion
+    bnz __puya_arc4_router___after_if_else@25
     txn ApplicationID
     !
     assert // is creating
     int 1
     retsub
 
-__puya_arc4_router___after_if_else@24:
+__puya_arc4_router___after_if_else@25:
     int 0
     retsub
 
@@ -676,4 +725,17 @@ return_args_after_14th:
     extract 6 2
     swap
     concat
+    retsub
+
+
+// test_cases.typed_abi_call.logger.Logger.logs_are_equal(log_1.level: uint64, log_1.message: bytes, log_2.level: uint64, log_2.message: bytes) -> uint64:
+logs_are_equal:
+    proto 4 1
+    frame_dig -4
+    frame_dig -2
+    ==
+    frame_dig -3
+    frame_dig -1
+    ==
+    &&
     retsub
