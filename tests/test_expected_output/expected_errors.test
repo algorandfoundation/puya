@@ -292,7 +292,8 @@ class Derived3(Base):
 class Derived4(Base):
     def __init__(self) -> None:
         super().__init__()
-        self.bar_p = GlobalState(Bytes(b"bbb")) # type: ignore[arg-type] ## E: redefinition of bar_p
+        self.bar_p = GlobalState(Bytes(b"bbb")) # type: ignore[arg-type] ## E: redefinition of bar_p \
+                                                                         ## E: assignment target type differs from expression value type
 
 class Base2(ARC4Contract):
     def __init__(self) -> None:
@@ -308,8 +309,7 @@ class Base2(ARC4Contract):
 from algopy import *
 
 class Con(Contract):
-    x: None ## E: None is not supported as a value, only a return type \
-            ## E: type is not suitable for storage
+    x: None ## E: type is not suitable for storage
 
     def approval_program(self) -> bool:
         self.x = log(b"")  # type: ignore[func-returns-value] ## E: None indicates an empty return and cannot be assigned

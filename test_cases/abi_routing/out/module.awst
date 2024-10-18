@@ -1,28 +1,73 @@
-contract MinimumARC4 extends (algopy.arc4.ARC4Contract)
+contract MinimumARC4
 {
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
   globals {
     ['gvalue']: uint64
   }
   
-  constructor()
+  subroutine test_cases.abi_routing.minimal.MinimumARC4.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.abi_routing.minimal.MinimumARC4.__init__(): void
   {
     GlobalState['gvalue']: uint64 = 4u
   }
   
-  baremethod __algopy_default_create(): void
+  baremethod test_cases.abi_routing.minimal.MinimumARC4.__algopy_default_create(): void
   {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
   }
 }
 
-contract CustomApproval extends (algopy.arc4.ARC4Contract)
+contract CustomApproval
 {
-  constructor()
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine test_cases.abi_routing.custom_approval.CustomApproval.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    if (txn<NumAppArgs>() == 2u and txna<ApplicationArgs, 1>() == itob(42u)) {
+      log('\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89')
+    }
+    result: bool = super::approval_program()
+    if (!(result)) {
+      log("this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here")
+    }
+    return result
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.abi_routing.custom_approval.CustomApproval.__init__(): void
   {
     void
     assert(txn<ApplicationID>() == reinterpret_cast<application>(0u), comment="nonsense assert just to generate an init method")
   }
   
-  approval_program(): bool
+  subroutine test_cases.abi_routing.custom_approval.CustomApproval.approval_program(): bool
   {
     if (txn<NumAppArgs>() == 2u and txna<ApplicationArgs, 1>() == itob(42u)) {
       log('\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89')
@@ -34,18 +79,26 @@ contract CustomApproval extends (algopy.arc4.ARC4Contract)
     return result
   }
   
-  baremethod __algopy_default_create(): void
-  {
-  }
-  
-  abimethod add_one(x: uint64): uint64
+  abimethod test_cases.abi_routing.custom_approval.CustomApproval.add_one(x: uint64): uint64
   {
     return x + 1u
   }
+  
+  baremethod test_cases.abi_routing.custom_approval.CustomApproval.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
 }
 
-contract Reference extends (algopy.arc4.ARC4Contract)
+contract Reference
 {
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
   globals {
     ['asa']: asset
     ['an_int']: uint64
@@ -54,7 +107,20 @@ contract Reference extends (algopy.arc4.ARC4Contract)
     ['app']: application
   }
   
-  constructor()
+  subroutine test_cases.abi_routing.contract.Reference.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.abi_routing.contract.Reference.__init__(): void
   {
     GlobalState['asa']: asset = reinterpret_cast<asset>(123u)
     GlobalState['an_int']: uint64 = 2u
@@ -64,30 +130,30 @@ contract Reference extends (algopy.arc4.ARC4Contract)
     assert(len(Method("get(uint64,byte[])byte[]")) != 0u, comment="has method selector")
   }
   
-  abimethod noop_with_uint64(a: arc4.uint64): arc4.uint8
+  abimethod test_cases.abi_routing.contract.Reference.noop_with_uint64(a: arc4.uint64): arc4.uint8
   {
     result: uint64 = 1u + arc4_decode(a, uint64)
     return arc4_encode(result, arc4.uint8)
   }
   
-  abimethod[name_override=all_the_things] full_abi_config(a: arc4.uint64): arc4.uint8
+  abimethod[name_override=all_the_things] test_cases.abi_routing.contract.Reference.full_abi_config(a: arc4.uint64): arc4.uint8
   {
     result: uint64 = 1u + arc4_decode(a, uint64)
     return arc4_encode(result, arc4.uint8)
   }
   
-  abimethod mixed_oca(a: arc4.uint64): arc4.uint8
+  abimethod test_cases.abi_routing.contract.Reference.mixed_oca(a: arc4.uint64): arc4.uint8
   {
     result: uint64 = 1u + arc4_decode(a, uint64)
     return arc4_encode(result, arc4.uint8)
   }
   
-  baremethod bare_abi_config(): void
+  baremethod test_cases.abi_routing.contract.Reference.bare_abi_config(): void
   {
     log('Hello World')
   }
   
-  abimethod opt_into_asset(asset: asset): void
+  abimethod test_cases.abi_routing.contract.Reference.opt_into_asset(asset: asset): void
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
     assert(!(reinterpret_cast<bool>(GlobalState['asa'])), comment="ASA already opted in")
@@ -100,7 +166,7 @@ contract Reference extends (algopy.arc4.ARC4Contract)
     itxn_submit()
   }
   
-  abimethod with_transactions(asset: asset, an_int: arc4.uint64, pay: group_transaction_pay, another_int: arc4.uint64): void
+  abimethod test_cases.abi_routing.contract.Reference.with_transactions(asset: asset, an_int: arc4.uint64, pay: group_transaction_pay, another_int: arc4.uint64): void
   {
     assert(GlobalState['asa'] == asset, comment="is correct asset")
     assert(arc4_decode(an_int, uint64) == 1u, comment="is correct int")
@@ -108,32 +174,32 @@ contract Reference extends (algopy.arc4.ARC4Contract)
     assert(arc4_decode(another_int, uint64) == 2u, comment="is correct int")
   }
   
-  abimethod compare_assets(asset_a: asset, asset_b: asset): void
+  abimethod test_cases.abi_routing.contract.Reference.compare_assets(asset_a: asset, asset_b: asset): void
   {
     assert(asset_a == asset_b, comment="asset a == b")
   }
   
-  abimethod get_address(): arc4.static_array<arc4.uint8, 32>
+  abimethod test_cases.abi_routing.contract.Reference.get_address(): arc4.static_array<arc4.uint8, 32>
   {
     return global<ZeroAddress>()
   }
   
-  abimethod get_asset(): arc4.uint64
+  abimethod test_cases.abi_routing.contract.Reference.get_asset(): arc4.uint64
   {
     return 456arc4u64
   }
   
-  abimethod[name_override=get_application] get_app(): arc4.uint64
+  abimethod[name_override=get_application] test_cases.abi_routing.contract.Reference.get_app(): arc4.uint64
   {
     return 456arc4u64
   }
   
-  abimethod[name_override=get_an_int] get_a_int(): arc4.uint64
+  abimethod[name_override=get_an_int] test_cases.abi_routing.contract.Reference.get_a_int(): arc4.uint64
   {
     return 3arc4u64
   }
   
-  abimethod method_with_default_args(asset_from_storage: asset, asset_from_function: asset, account_from_storage: account, account_from_function: account, application_from_storage: application, application_from_function: application, bytes_from_storage: arc4.static_array<arc4.uint8, 3>, int_from_storage: arc4.uint64, int_from_function: arc4.uint64): void
+  abimethod test_cases.abi_routing.contract.Reference.method_with_default_args(asset_from_storage: asset, asset_from_function: asset, account_from_storage: account, account_from_function: account, application_from_storage: application, application_from_function: application, bytes_from_storage: arc4.static_array<arc4.uint8, 3>, int_from_storage: arc4.uint64, int_from_function: arc4.uint64): void
   {
     assert(asset_from_storage == reinterpret_cast<asset>(123u), comment="wrong asset from storage")
     assert(asset_from_function == reinterpret_cast<asset>(456u), comment="wrong asset from function")
@@ -148,13 +214,13 @@ contract Reference extends (algopy.arc4.ARC4Contract)
     assert(arc4_decode(int_from_function, uint64) == 3u, comment="wrong int from function")
   }
   
-  abimethod method_with_15_args(one: uint64, two: uint64, three: uint64, four: uint64, five: uint64, six: uint64, seven: uint64, eight: uint64, nine: uint64, ten: uint64, eleven: uint64, twelve: uint64, thirteen: uint64, fourteen: uint64, fifteen: bytes): bytes
+  abimethod test_cases.abi_routing.contract.Reference.method_with_15_args(one: uint64, two: uint64, three: uint64, four: uint64, five: uint64, six: uint64, seven: uint64, eight: uint64, nine: uint64, ten: uint64, eleven: uint64, twelve: uint64, thirteen: uint64, fourteen: uint64, fifteen: bytes): bytes
   {
     assert(one + two + three + four + five + six + seven + eight + nine + ten + eleven + twelve + thirteen + fourteen != 0u)
     return fifteen
   }
   
-  abimethod method_with_more_than_15_args(a: arc4.uint64, b: arc4.uint64, c: arc4.uint64, d: uint64, asset: asset, e: arc4.uint64, f: arc4.uint64, pay: group_transaction_pay, g: arc4.uint64, h: arc4.uint64, i: arc4.uint64, j: arc4.uint64, k: arc4.uint64, l: arc4.uint64, m: arc4.uint64, n: arc4.uint64, o: arc4.uint64, p: uint64, q: arc4.uint64, r: arc4.uint64, s: bytes, t: bytes, asset2: asset, pay2: group_transaction_pay, u: arc4.uint64, v: arc4.uint64): arc4.uint64
+  abimethod test_cases.abi_routing.contract.Reference.method_with_more_than_15_args(a: arc4.uint64, b: arc4.uint64, c: arc4.uint64, d: uint64, asset: asset, e: arc4.uint64, f: arc4.uint64, pay: group_transaction_pay, g: arc4.uint64, h: arc4.uint64, i: arc4.uint64, j: arc4.uint64, k: arc4.uint64, l: arc4.uint64, m: arc4.uint64, n: arc4.uint64, o: arc4.uint64, p: uint64, q: arc4.uint64, r: arc4.uint64, s: bytes, t: bytes, asset2: asset, pay2: group_transaction_pay, u: arc4.uint64, v: arc4.uint64): arc4.uint64
   {
     assert(txn<NumAppArgs>() == 16u)
     assert(gtxns<Amount>(pay) == 100000u)
@@ -165,8 +231,13 @@ contract Reference extends (algopy.arc4.ARC4Contract)
     return arc4_encode(arc4_decode(a, uint64) + arc4_decode(b, uint64) + arc4_decode(c, uint64) + d + arc4_decode(e, uint64) + arc4_decode(f, uint64) + arc4_decode(g, uint64) + arc4_decode(h, uint64) + arc4_decode(i, uint64) + arc4_decode(j, uint64) + arc4_decode(k, uint64) + arc4_decode(l, uint64) + arc4_decode(m, uint64) + arc4_decode(n, uint64) + arc4_decode(o, uint64) + p + arc4_decode(q, uint64) + arc4_decode(r, uint64) + arc4_decode(u, uint64) + arc4_decode(v, uint64), arc4.uint64)
   }
   
-  abimethod hello_with_algopy_string(name: string): string
+  abimethod test_cases.abi_routing.contract.Reference.hello_with_algopy_string(name: string): string
   {
     return 'Hello ' + name + '!'
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
   }
 }

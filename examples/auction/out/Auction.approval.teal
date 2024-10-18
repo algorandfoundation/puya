@@ -2,12 +2,45 @@
 
 examples.auction.contract.Auction.approval_program:
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// examples.auction.contract.Auction.__init__() -> void:
+__init__:
+    // auction/contract.py:17
+    // def __init__(self) -> None:
+    proto 0 0
+    // auction/contract.py:18
+    // self.auction_end = UInt64(0)
+    byte "auction_end"
+    int 0
+    app_global_put
+    // auction/contract.py:19
+    // self.previous_bid = UInt64(0)
+    byte "previous_bid"
+    int 0
+    app_global_put
+    // auction/contract.py:20
+    // self.asa_amount = UInt64(0)
+    byte "asa_amount"
+    int 0
+    app_global_put
+    // auction/contract.py:21
+    // self.asa = Asset()
+    byte "asa"
+    int 0
+    app_global_put
+    // auction/contract.py:22
+    // self.previous_bidder = Account()
+    byte "previous_bidder"
+    global ZeroAddress
+    app_global_put
+    retsub
 
 
 // examples.auction.contract.Auction.__puya_arc4_router__() -> uint64:
@@ -474,37 +507,4 @@ claim_asset:
     //     asset_amount=self.asa_amount,
     // ).submit()
     itxn_submit
-    retsub
-
-
-// examples.auction.contract.Auction.__init__() -> void:
-__init__:
-    // auction/contract.py:17
-    // def __init__(self) -> None:
-    proto 0 0
-    // auction/contract.py:18
-    // self.auction_end = UInt64(0)
-    byte "auction_end"
-    int 0
-    app_global_put
-    // auction/contract.py:19
-    // self.previous_bid = UInt64(0)
-    byte "previous_bid"
-    int 0
-    app_global_put
-    // auction/contract.py:20
-    // self.asa_amount = UInt64(0)
-    byte "asa_amount"
-    int 0
-    app_global_put
-    // auction/contract.py:21
-    // self.asa = Asset()
-    byte "asa"
-    int 0
-    app_global_put
-    // auction/contract.py:22
-    // self.previous_bidder = Account()
-    byte "previous_bidder"
-    global ZeroAddress
-    app_global_put
     retsub

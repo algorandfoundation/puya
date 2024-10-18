@@ -2,10 +2,10 @@
 
 test_cases.inner_transactions.contract.MyContract.approval_program:
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     // inner_transactions/contract.py:27
     // if op.Txn.num_app_args:
     txn NumAppArgs
@@ -74,6 +74,19 @@ main_after_if_else@10:
     // return True
     int 1
     return
+
+
+// test_cases.inner_transactions.contract.MyContract.__init__() -> void:
+__init__:
+    // inner_transactions/contract.py:23
+    // def __init__(self) -> None:
+    proto 0 0
+    // inner_transactions/contract.py:24
+    // self.name = Bytes(b"")
+    byte "name"
+    byte 0x
+    app_global_put
+    retsub
 
 
 // test_cases.inner_transactions.contract.MyContract.test1() -> void:
@@ -1271,17 +1284,4 @@ test4:
     byte 0x098101
     ==
     assert // expected clear_state_pages
-    retsub
-
-
-// test_cases.inner_transactions.contract.MyContract.__init__() -> void:
-__init__:
-    // inner_transactions/contract.py:23
-    // def __init__(self) -> None:
-    proto 0 0
-    // inner_transactions/contract.py:24
-    // self.name = Bytes(b"")
-    byte "name"
-    byte 0x
-    app_global_put
     retsub

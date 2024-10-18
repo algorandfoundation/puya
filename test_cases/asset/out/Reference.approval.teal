@@ -2,10 +2,10 @@
 
 test_cases.asset.contract.Reference.approval_program:
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     // asset/contract.py:21
     // if Txn.num_app_args == 1:
     txn NumAppArgs
@@ -45,6 +45,19 @@ main_after_if_else@10:
     // return True
     int 1
     return
+
+
+// test_cases.asset.contract.Reference.__init__() -> void:
+__init__:
+    // asset/contract.py:17
+    // def __init__(self) -> None:
+    proto 0 0
+    // asset/contract.py:18
+    // self.asa = Asset()
+    byte "asa"
+    int 0
+    app_global_put
+    retsub
 
 
 // test_cases.asset.contract.Reference.opt_into_asset(asset: uint64) -> void:
@@ -218,17 +231,4 @@ is_opted_asset:
     asset_holding_get AssetBalance
     bury 1
     assert // asset opted in
-    retsub
-
-
-// test_cases.asset.contract.Reference.__init__() -> void:
-__init__:
-    // asset/contract.py:17
-    // def __init__(self) -> None:
-    proto 0 0
-    // asset/contract.py:18
-    // self.asa = Asset()
-    byte "asa"
-    int 0
-    app_global_put
     retsub

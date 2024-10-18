@@ -3,21 +3,24 @@ from __future__ import annotations
 import abc
 import enum
 import typing
+from collections.abc import Sequence
 
+import attrs
 import mypy.nodes
 import typing_extensions
 from puya import log
-from puya.awst.nodes import BinaryBooleanOperator, ConstantValue, Expression, Lvalue, Statement
+from puya.awst.nodes import (
+    BinaryBooleanOperator,
+    ConstantValue,
+    Expression,
+    Lvalue,
+    Statement,
+)
 from puya.errors import CodeError
-from puya.models import ContractReference
 from puya.parse import SourceLocation
 from puya.utils import invert_ordered_binary_op
 
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.contract_data import AppStorageDeclaration
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
 
 logger = log.get_logger(__name__)
 
@@ -317,18 +320,17 @@ class TypeBuilder(CallableBuilder, typing.Generic[_TPyType_co], abc.ABC):
         raise CodeError(f"unrecognised member {name!r} of type '{self._pytype}'", location)
 
 
+@attrs.frozen(kw_only=True)
+class StorageProxyConstructorArgs:
+    key: Expression | None
+    key_arg_name: str
+    description: str | None
+    initial_value: InstanceBuilder | None = None
+
+
 class StorageProxyConstructorResult(
     InstanceBuilder[pytypes.StorageProxyType | pytypes.StorageMapProxyType], abc.ABC
 ):
     @property
     @abc.abstractmethod
-    def initial_value(self) -> InstanceBuilder | None: ...
-
-    @abc.abstractmethod
-    def build_definition(
-        self,
-        member_name: str,
-        defined_in: ContractReference,
-        typ: pytypes.PyType,
-        location: SourceLocation,
-    ) -> AppStorageDeclaration: ...
+    def args(self) -> StorageProxyConstructorArgs: ...

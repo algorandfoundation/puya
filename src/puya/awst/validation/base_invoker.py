@@ -17,14 +17,14 @@ logger = log.get_logger(__name__)
 
 class BaseInvokerValidator(AWSTTraverser):
     def __init__(self) -> None:
-        self._contract: awst_nodes.ContractFragment | None = None
+        self._contract: awst_nodes.Contract | None = None
 
     @property
-    def contract(self) -> awst_nodes.ContractFragment | None:
+    def contract(self) -> awst_nodes.Contract | None:
         return self._contract
 
     @contextlib.contextmanager
-    def _enter_contract(self, contract: awst_nodes.ContractFragment) -> Iterator[None]:
+    def _enter_contract(self, contract: awst_nodes.Contract) -> Iterator[None]:
         assert self._contract is None
         self._contract = contract
         try:
@@ -39,9 +39,9 @@ class BaseInvokerValidator(AWSTTraverser):
             module_statement.accept(validator)
 
     @typing.override
-    def visit_contract_fragment(self, statement: awst_nodes.ContractFragment) -> None:
+    def visit_contract(self, statement: awst_nodes.Contract) -> None:
         with self._enter_contract(statement):
-            super().visit_contract_fragment(statement)
+            super().visit_contract(statement)
 
     @typing.override
     def visit_subroutine_call_expression(self, expr: awst_nodes.SubroutineCallExpression) -> None:
@@ -65,7 +65,10 @@ class BaseInvokerValidator(AWSTTraverser):
                     )
                 else:
                     caller_ref = caller_class.id
-                    if target_class != caller_ref and target_class not in caller_class.bases:
+                    if (
+                        target_class != caller_ref
+                        and target_class not in caller_class.method_resolution_order
+                    ):
                         logger.error(
                             "invocation of a contract method outside of current hierarchy",
                             location=expr.source_location,

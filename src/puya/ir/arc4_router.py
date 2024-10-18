@@ -619,7 +619,7 @@ def extract_arc4_methods(
 
 
 def create_abi_router(
-    contract: awst_nodes.ContractFragment,
+    contract: awst_nodes.Contract,
     arc4_methods_with_configs: dict[awst_nodes.ContractMethod, ARC4MethodConfig],
 ) -> awst_nodes.ContractMethod:
     router_location = contract.source_location

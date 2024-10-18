@@ -1,16 +1,16 @@
 contract Overloaded
 {
+  method_resolution_order: (
+  )
   globals {
     ['key']: uint64
   }
   
-  constructor()
+  subroutine test_cases.intrinsics.overloaded.Overloaded.approval_program(): bool
   {
-    GlobalState['key']: uint64 = 0u
-  }
-  
-  approval_program(): bool
-  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
     assert(app_global_get(hex<"6B6579">) == app_global_get(hex<"6B6579">))
     assert(STATE_GET_EX(GlobalState['key'])[0] == STATE_GET_EX(GlobalState['key'])[0])
     assert(setbit(0u, 0u, 1u) == setbit(0u, 0u, 1u))
@@ -18,15 +18,32 @@ contract Overloaded
     return true
   }
   
-  clear_state_program(): bool
+  subroutine test_cases.intrinsics.overloaded.Overloaded.clear_state_program(): bool
   {
+    return true
+  }
+  
+  subroutine test_cases.intrinsics.overloaded.Overloaded.__init__(): void
+  {
+    GlobalState['key']: uint64 = 0u
+  }
+  
+  subroutine test_cases.intrinsics.overloaded.Overloaded.approval_program(): bool
+  {
+    assert(app_global_get(hex<"6B6579">) == app_global_get(hex<"6B6579">))
+    assert(STATE_GET_EX(GlobalState['key'])[0] == STATE_GET_EX(GlobalState['key'])[0])
+    assert(setbit(0u, 0u, 1u) == setbit(0u, 0u, 1u))
+    assert(select(0u, 1u, true) == select(1u, 0u, false))
     return true
   }
 }
 
 contract ImmediateVariants
 {
-  approval_program(): bool
+  method_resolution_order: (
+  )
+  
+  subroutine test_cases.intrinsics.immediate_variants.ImmediateVariants.approval_program(): bool
   {
     num_app_args: uint64 = txn<NumAppArgs>()
     assert(gtxn<0, NumAppArgs>() == num_app_args)
@@ -59,7 +76,7 @@ contract ImmediateVariants
     return true
   }
   
-  clear_state_program(): bool
+  subroutine test_cases.intrinsics.immediate_variants.ImmediateVariants.clear_state_program(): bool
   {
     return true
   }

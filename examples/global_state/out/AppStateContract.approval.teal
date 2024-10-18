@@ -2,10 +2,10 @@
 
 examples.global_state.contract.AppStateContract.approval_program:
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     // global_state/contract.py:33
     // assert self.global_int_simplified == 33
     int 0
@@ -216,6 +216,44 @@ main_entrypoint@2:
     return
 
 
+// examples.global_state.contract.AppStateContract.__init__() -> void:
+__init__:
+    // global_state/contract.py:15
+    // def __init__(self) -> None:
+    proto 0 0
+    // global_state/contract.py:16
+    // self.global_int_full = GlobalState(UInt64(55))
+    byte "global_int_full"
+    int 55
+    app_global_put
+    // global_state/contract.py:17
+    // self.global_int_simplified = UInt64(33)
+    byte "global_int_simplified"
+    int 33
+    app_global_put
+    // global_state/contract.py:20
+    // self.global_bytes_full = GlobalState(Bytes(b"Hello"))
+    byte "global_bytes_full"
+    byte 0x48656c6c6f
+    app_global_put
+    // global_state/contract.py:21
+    // self.global_bytes_simplified = Bytes(b"Hello")
+    byte "global_bytes_simplified"
+    byte 0x48656c6c6f
+    app_global_put
+    // global_state/contract.py:24
+    // self.global_bool_full = GlobalState(False)
+    byte "global_bool_full"
+    int 0
+    app_global_put
+    // global_state/contract.py:25
+    // self.global_bool_simplified = True
+    byte "global_bool_simplified"
+    int 1
+    app_global_put
+    retsub
+
+
 // examples.global_state.contract.read_global_uint64(key: bytes) -> uint64:
 read_global_uint64:
     // global_state/contract.py:84-85
@@ -260,42 +298,4 @@ get_global_state_plus_1:
     assert // check GlobalState exists
     int 1
     +
-    retsub
-
-
-// examples.global_state.contract.AppStateContract.__init__() -> void:
-__init__:
-    // global_state/contract.py:15
-    // def __init__(self) -> None:
-    proto 0 0
-    // global_state/contract.py:16
-    // self.global_int_full = GlobalState(UInt64(55))
-    byte "global_int_full"
-    int 55
-    app_global_put
-    // global_state/contract.py:17
-    // self.global_int_simplified = UInt64(33)
-    byte "global_int_simplified"
-    int 33
-    app_global_put
-    // global_state/contract.py:20
-    // self.global_bytes_full = GlobalState(Bytes(b"Hello"))
-    byte "global_bytes_full"
-    byte 0x48656c6c6f
-    app_global_put
-    // global_state/contract.py:21
-    // self.global_bytes_simplified = Bytes(b"Hello")
-    byte "global_bytes_simplified"
-    byte 0x48656c6c6f
-    app_global_put
-    // global_state/contract.py:24
-    // self.global_bool_full = GlobalState(False)
-    byte "global_bool_full"
-    int 0
-    app_global_put
-    // global_state/contract.py:25
-    // self.global_bool_simplified = True
-    byte "global_bool_simplified"
-    int 1
-    app_global_put
     retsub

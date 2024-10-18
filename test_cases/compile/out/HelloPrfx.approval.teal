@@ -2,12 +2,25 @@
 
 test_cases.compile.apps.HelloPrfx.approval_program:
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// test_cases.compile.apps.HelloPrfx.__init__() -> void:
+__init__:
+    // compile/apps.py:73
+    // def __init__(self) -> None:
+    proto 0 0
+    // compile/apps.py:74
+    // self.greeting = TemplateVar[String]("GREETING", prefix="PRFX_")
+    byte "greeting"
+    byte PRFX_GREETING
+    app_global_put
+    retsub
 
 
 // test_cases.compile.apps.HelloPrfx.__puya_arc4_router__() -> uint64:
@@ -114,17 +127,4 @@ greet:
     concat
     frame_dig -1
     concat
-    retsub
-
-
-// test_cases.compile.apps.HelloPrfx.__init__() -> void:
-__init__:
-    // compile/apps.py:73
-    // def __init__(self) -> None:
-    proto 0 0
-    // compile/apps.py:74
-    // self.greeting = TemplateVar[String]("GREETING", prefix="PRFX_")
-    byte "greeting"
-    byte PRFX_GREETING
-    app_global_put
     retsub

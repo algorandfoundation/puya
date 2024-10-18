@@ -1,15 +1,20 @@
 contract test_cases.compile.apps.HelloTmpl:
     program approval:
-        subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+        subroutine test_cases.compile.apps.HelloTmpl.approval_program() -> bool:
             block@0: // L1
-                let app_id%0#0: uint64 = (txn ApplicationID)
-                goto app_id%0#0 ? block@2 : block@1
-            block@1: // on_create_L63
+                let tmp%0#0: bool = (txn ApplicationID)
+                goto tmp%0#0 ? block@2 : block@1
+            block@1: // call __init___L1
                 test_cases.compile.apps.HelloTmpl.__init__()
                 goto block@2
-            block@2: // entrypoint_L63
-                let tmp%0#0: bool = test_cases.compile.apps.HelloTmpl.__puya_arc4_router__()
-                return tmp%0#0
+            block@2: // after_if_else_L1
+                let tmp%1#0: bool = test_cases.compile.apps.HelloTmpl.__puya_arc4_router__()
+                return tmp%1#0
+        
+        subroutine test_cases.compile.apps.HelloTmpl.__init__() -> void:
+            block@0: // L63
+                (app_global_put "greeting" TemplateVar[bytes](TMPL_GREETING))
+                return 
         
         subroutine test_cases.compile.apps.HelloTmpl.__puya_arc4_router__() -> bool:
             block@0: // L61
@@ -92,11 +97,6 @@ contract test_cases.compile.apps.HelloTmpl:
         
         subroutine test_cases.compile.apps.HelloBase.update() -> void:
             block@0: // L29
-                return 
-        
-        subroutine test_cases.compile.apps.HelloTmpl.__init__() -> void:
-            block@0: // L63
-                (app_global_put "greeting" TemplateVar[bytes](TMPL_GREETING))
                 return 
     
     program clear-state:

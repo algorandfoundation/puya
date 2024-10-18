@@ -301,10 +301,12 @@ class FuncArg:
 @typing.final
 @attrs.frozen(kw_only=True)
 class FuncType(PyType):
-    generic: None = None
     ret_type: PyType
     args: Sequence[FuncArg] = attrs.field(converter=tuple[FuncArg, ...])
-    bound_arg_types: Sequence[PyType] = attrs.field(converter=tuple[PyType, ...])
+    # static data
+    generic: None = None
+    bases: Sequence[PyType] = attrs.field(default=(), init=False)
+    mro: Sequence[PyType] = attrs.field(default=(), init=False)
 
     @typing.override
     @property

@@ -2,12 +2,25 @@
 
 test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// test_cases.tuple_support.nested_tuples.NestedTuples.__init__() -> void:
+__init__:
+    // tuple_support/nested_tuples.py:5
+    // def __init__(self) -> None:
+    proto 0 0
+    // tuple_support/nested_tuples.py:6
+    // self.build_nested_call_count = UInt64(0)
+    byte "build_nested_call_count"
+    int 0
+    app_global_put
+    retsub
 
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__() -> uint64:
@@ -640,17 +653,4 @@ nested_tuple_params:
     frame_dig -2
     frame_dig -3
     frame_dig -1
-    retsub
-
-
-// test_cases.tuple_support.nested_tuples.NestedTuples.__init__() -> void:
-__init__:
-    // tuple_support/nested_tuples.py:5
-    // def __init__(self) -> None:
-    proto 0 0
-    // tuple_support/nested_tuples.py:6
-    // self.build_nested_call_count = UInt64(0)
-    byte "build_nested_call_count"
-    int 0
-    app_global_put
     retsub

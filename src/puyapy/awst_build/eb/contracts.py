@@ -10,7 +10,6 @@ from puya.parse import SourceLocation
 
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import ASTConversionModuleContext
-from puyapy.awst_build.contract_data import AppStorageDeclaration
 from puyapy.awst_build.eb._utils import constant_bool_and_error
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
@@ -25,11 +24,7 @@ from puyapy.awst_build.eb.subroutine import (
     BaseClassSubroutineInvokerExpressionBuilder,
     SubroutineInvokerExpressionBuilder,
 )
-from puyapy.awst_build.utils import (
-    require_callable_type,
-    resolve_member_node,
-    symbol_node_is_function,
-)
+from puyapy.models import AppStorageDeclaration, ContractFragmentBase
 
 logger = log.get_logger(__name__)
 
@@ -39,12 +34,12 @@ class ContractTypeExpressionBuilder(TypeBuilder[pytypes.ContractType]):
         self,
         context: ASTConversionModuleContext,
         pytype: pytypes.ContractType,
-        type_info: mypy.nodes.TypeInfo,
+        fragment: ContractFragmentBase,
         location: SourceLocation,
     ):
         super().__init__(pytype, location)
         self.context: typing.Final = context
-        self.type_info: typing.Final = type_info
+        self.fragment: typing.Final = fragment
         self.cref: typing.Final = pytype.name
 
     @typing.override
@@ -59,34 +54,40 @@ class ContractTypeExpressionBuilder(TypeBuilder[pytypes.ContractType]):
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        node = resolve_member_node(self.type_info, name, location)
-        if node is None:
+        sym_type = self.fragment.resolve_symbol(name)
+        if sym_type is None:
             return super().member_access(name, location)
-        if symbol_node_is_function(node):
-            func_mypy_type = require_callable_type(node, location)
-            func_type = self.context.type_to_pytype(func_mypy_type, source_location=location)
-            assert isinstance(func_type, pytypes.FuncType)  # can't have nested classes
-            return BaseClassSubroutineInvokerExpressionBuilder(
-                context=self.context,
-                cref=self.cref,
-                member_name=name,
-                func_type=func_type,
-                location=location,
-            )
-        raise CodeError("static references are only supported for methods", location)
+        if not isinstance(sym_type, pytypes.FuncType):
+            raise CodeError("static references are only supported for methods", location)
+        func_type = attrs.evolve(
+            sym_type,
+            args=[
+                pytypes.FuncArg(
+                    type=self.fragment.pytype, name=None, kind=mypy.nodes.ArgKind.ARG_POS
+                ),
+                *sym_type.args,
+            ],
+        )
+        return BaseClassSubroutineInvokerExpressionBuilder(
+            context=self.context,
+            cref=self.cref,
+            member_name=name,
+            func_type=func_type,
+            location=location,
+        )
 
 
 class ContractSelfExpressionBuilder(NodeBuilder):  # TODO: this _is_ an instance, technically
     def __init__(
         self,
         context: ASTConversionModuleContext,
-        type_info: mypy.nodes.TypeInfo,
+        fragment: ContractFragmentBase,
         pytype: pytypes.ContractType,
         location: SourceLocation,
     ):
         super().__init__(location)
         self.context = context
-        self._type_info = type_info
+        self._fragment = fragment
         self._pytype = pytype
 
     @typing.override
@@ -96,27 +97,17 @@ class ContractSelfExpressionBuilder(NodeBuilder):  # TODO: this _is_ an instance
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        node = resolve_member_node(self._type_info, name, location)
-        if node is None:
+        sym_type = self._fragment.resolve_symbol(name)
+        if sym_type is None:
             raise CodeError(f"unrecognised member of {self.pytype}: {name}", location)
-        if symbol_node_is_function(node):
-            func_mypy_type = require_callable_type(node, location)
-            func_type = self.context.type_to_pytype(func_mypy_type, source_location=location)
-            assert isinstance(func_type, pytypes.FuncType)  # can't have nested classes
-            is_static = (
-                node.func.is_static
-                if isinstance(node, mypy.nodes.Decorator)
-                else node.is_static  # type: ignore[attr-defined]
-            )
-            if not is_static:
-                func_type = attrs.evolve(func_type, args=func_type.args[1:])
+        if isinstance(sym_type, pytypes.FuncType):
             return SubroutineInvokerExpressionBuilder(
                 target=InstanceMethodTarget(member_name=name),
-                func_type=func_type,
+                func_type=sym_type,
                 location=location,
             )
         else:
-            state_decl = self.context.state_defs(self._pytype.name).get(name)
+            state_decl = self.context.contract_fragments[self._pytype.name].resolve_state(name)
             if state_decl is not None:
                 return _builder_for_storage_access(state_decl, location)
             raise CodeError("cannot resolve state member", location)
@@ -129,6 +120,8 @@ class ContractSelfExpressionBuilder(NodeBuilder):  # TODO: this _is_ an instance
 def _builder_for_storage_access(
     storage_decl: AppStorageDeclaration, location: SourceLocation
 ) -> NodeBuilder:
+    if storage_decl.key is None:
+        raise CodeError("use of storage proxy before definition", location)
     key = attrs.evolve(storage_decl.key, source_location=location)
     match storage_decl.typ:
         case pytypes.PyType(generic=pytypes.GenericLocalStateType):

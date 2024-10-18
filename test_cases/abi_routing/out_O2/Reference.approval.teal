@@ -2,12 +2,36 @@
 
 test_cases.abi_routing.contract.Reference.approval_program:
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// test_cases.abi_routing.contract.Reference.__init__() -> void:
+__init__:
+    proto 0 0
+    byte "asa"
+    int 123
+    app_global_put
+    byte "an_int"
+    int 2
+    app_global_put
+    byte "some_bytes"
+    byte 0x070809
+    app_global_put
+    byte "creator"
+    txn Sender
+    app_global_put
+    byte "app"
+    int 123
+    app_global_put
+    method "get(uint64,byte[])byte[]"
+    len
+    assert // has method selector
+    retsub
 
 
 // test_cases.abi_routing.contract.Reference.__puya_arc4_router__() -> uint64:
@@ -719,28 +743,4 @@ bare_abi_config:
     proto 0 0
     byte "Hello World"
     log
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.__init__() -> void:
-__init__:
-    proto 0 0
-    byte "asa"
-    int 123
-    app_global_put
-    byte "an_int"
-    int 2
-    app_global_put
-    byte "some_bytes"
-    byte 0x070809
-    app_global_put
-    byte "creator"
-    txn Sender
-    app_global_put
-    byte "app"
-    int 123
-    app_global_put
-    method "get(uint64,byte[])byte[]"
-    len
-    assert // has method selector
     retsub

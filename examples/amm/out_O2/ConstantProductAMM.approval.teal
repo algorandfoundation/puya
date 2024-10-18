@@ -2,12 +2,33 @@
 
 examples.amm.contract.ConstantProductAMM.approval_program:
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// examples.amm.contract.ConstantProductAMM.__init__() -> void:
+__init__:
+    proto 0 0
+    byte "asset_a"
+    int 0
+    app_global_put
+    byte "asset_b"
+    int 0
+    app_global_put
+    byte "governor"
+    txn Sender
+    app_global_put
+    byte "pool_token"
+    int 0
+    app_global_put
+    byte "ratio"
+    int 0
+    app_global_put
+    retsub
 
 
 // examples.amm.contract.ConstantProductAMM.__puya_arc4_router__() -> uint64:
@@ -730,25 +751,4 @@ tokens_to_swap:
     *
     swap
     /
-    retsub
-
-
-// examples.amm.contract.ConstantProductAMM.__init__() -> void:
-__init__:
-    proto 0 0
-    byte "asset_a"
-    int 0
-    app_global_put
-    byte "asset_b"
-    int 0
-    app_global_put
-    byte "governor"
-    txn Sender
-    app_global_put
-    byte "pool_token"
-    int 0
-    app_global_put
-    byte "ratio"
-    int 0
-    app_global_put
     retsub

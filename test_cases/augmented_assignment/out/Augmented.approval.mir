@@ -7,26 +7,26 @@ main:
     int 0                                            // allocate 1 to stack                                       (𝕗) me#0 |
 
 main_block@0:
-    txn ApplicationID                                //                                                           (𝕗) me#0 | {txn}
-                                                     // virtual: store app_id%0#0 to l-stack (no copy)            (𝕗) me#0 | app_id%0#0
-                                                     // virtual: load app_id%0#0 from l-stack (no copy)           (𝕗) me#0 | app_id%0#0
-    bnz main_entrypoint@2                            //                                                           (𝕗) me#0 |
-    // Implicit fall through to main_on_create@1     //                                                           (𝕗) me#0 |
+    txn ApplicationID                                //                                                           (𝕗) me#0 | {txn}                                                                                                                   INTERNAL:1
+                                                     // virtual: store tmp%0#0 to l-stack (no copy)               (𝕗) me#0 | tmp%0#0                                                                                                                 INTERNAL:1
+                                                     // virtual: load tmp%0#0 from l-stack (no copy)              (𝕗) me#0 | tmp%0#0                                                                                                                 INTERNAL:1
+    bnz main_after_if_else@2                         //                                                           (𝕗) me#0 |                                                                                                                         INTERNAL:1
+    // Implicit fall through to main_call___init__@1 //                                                           (𝕗) me#0 |                                                                                                                         INTERNAL:1
 
-main_on_create@1:
-    callsub __init__                                 //                                                           (𝕗) me#0 |
-    // Implicit fall through to main_entrypoint@2    //                                                           (𝕗) me#0 |
+main_call___init__@1:
+    callsub __init__                                 //                                                           (𝕗) me#0 |                                                                                                                         INTERNAL:1
+    // Implicit fall through to main_after_if_else@2 //                                                           (𝕗) me#0 |
 
-main_entrypoint@2:
+main_after_if_else@2:
     txn Sender                                       //                                                           (𝕗) me#0 | {txn}                                                                op.Txn.sender                                      augmented_assignment/contract.py:20
     bury 1                                           // store me#0 to f-stack                                     (𝕗) me#0 |                                                                      me = op.Txn.sender                                 augmented_assignment/contract.py:20
     txn OnCompletion                                 //                                                           (𝕗) me#0 | {txn}                                                                op.Txn.on_completion                               augmented_assignment/contract.py:22
-                                                     // virtual: store tmp%0#0 to l-stack (no copy)               (𝕗) me#0 | tmp%0#0                                                              op.Txn.on_completion                               augmented_assignment/contract.py:22
-                                                     // virtual: load tmp%0#0 from l-stack (no copy)              (𝕗) me#0 | tmp%0#0                                                              op.Txn.on_completion == OnCompleteAction.OptIn     augmented_assignment/contract.py:22
-    int OptIn                                        //                                                           (𝕗) me#0 | tmp%0#0,OptIn                                                        OnCompleteAction.OptIn                             augmented_assignment/contract.py:22
+                                                     // virtual: store tmp%1#0 to l-stack (no copy)               (𝕗) me#0 | tmp%1#0                                                              op.Txn.on_completion                               augmented_assignment/contract.py:22
+                                                     // virtual: load tmp%1#0 from l-stack (no copy)              (𝕗) me#0 | tmp%1#0                                                              op.Txn.on_completion == OnCompleteAction.OptIn     augmented_assignment/contract.py:22
+    int OptIn                                        //                                                           (𝕗) me#0 | tmp%1#0,OptIn                                                        OnCompleteAction.OptIn                             augmented_assignment/contract.py:22
     ==                                               //                                                           (𝕗) me#0 | {==}                                                                 op.Txn.on_completion == OnCompleteAction.OptIn     augmented_assignment/contract.py:22
-                                                     // virtual: store tmp%1#0 to l-stack (no copy)               (𝕗) me#0 | tmp%1#0                                                              op.Txn.on_completion == OnCompleteAction.OptIn     augmented_assignment/contract.py:22
-                                                     // virtual: load tmp%1#0 from l-stack (no copy)              (𝕗) me#0 | tmp%1#0                                                              if op.Txn.on_completion == OnCompleteAction.OptIn: augmented_assignment/contract.py:22
+                                                     // virtual: store tmp%2#0 to l-stack (no copy)               (𝕗) me#0 | tmp%2#0                                                              op.Txn.on_completion == OnCompleteAction.OptIn     augmented_assignment/contract.py:22
+                                                     // virtual: load tmp%2#0 from l-stack (no copy)              (𝕗) me#0 | tmp%2#0                                                              if op.Txn.on_completion == OnCompleteAction.OptIn: augmented_assignment/contract.py:22
     bz main_after_if_else@4                          //                                                           (𝕗) me#0 |                                                                      if op.Txn.on_completion == OnCompleteAction.OptIn: augmented_assignment/contract.py:22
     // Implicit fall through to main_if_body@3       //                                                           (𝕗) me#0 |                                                                      if op.Txn.on_completion == OnCompleteAction.OptIn: augmented_assignment/contract.py:22
 

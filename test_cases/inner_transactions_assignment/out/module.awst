@@ -1,10 +1,20 @@
-contract Contract extends (algopy.arc4.ARC4Contract)
+contract Contract
 {
-  baremethod __algopy_default_create(): void
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
   {
+    return arc4_router()
   }
   
-  abimethod test_itxn_slice(): void
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.inner_transactions_assignment.contract.Contract.test_itxn_slice(): void
   {
     acfg: inner_transaction_fields_acfg = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetUnitName='TST', ConfigAssetName='TEST', Note='acfg', ConfigAssetTotal=1u)
     pay1: inner_transaction_fields_pay = create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=txn<Sender>(), Amount=0u, Note='pay1')
@@ -17,7 +27,7 @@ contract Contract extends (algopy.arc4.ARC4Contract)
     assert(sliced_txns[1].Note == hex<"70617932">)
   }
   
-  abimethod test_itxn_nested(): void
+  abimethod test_cases.inner_transactions_assignment.contract.Contract.test_itxn_nested(): void
   {
     acfg: inner_transaction_fields_acfg = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetUnitName='TST', ConfigAssetName='TEST', Note='acfg', ConfigAssetTotal=1u)
     pay1: inner_transaction_fields_pay = create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=txn<Sender>(), Amount=0u, Note='pay1')
@@ -46,6 +56,10 @@ contract Contract extends (algopy.arc4.ARC4Contract)
     assert(mish_mash[1].Note == hex<"70617932">)
     assert(mish_mash[2][0].Note == hex<"6163666732">)
     assert(mish_mash[2][1].Note == hex<"70617935">)
+  }
+  
+  baremethod test_cases.inner_transactions_assignment.contract.Contract.__algopy_default_create(): void
+  {
   }
 }
 

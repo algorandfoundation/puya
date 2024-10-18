@@ -1,14 +1,14 @@
 contract test_cases.state_mutations.contract.Contract:
     program approval:
-        subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+        subroutine test_cases.state_mutations.contract.Contract.approval_program() -> bool:
             block@0: // L1
-                let app_id%0#0: uint64 = (txn ApplicationID)
-                goto app_id%0#0 ? block@2 : block@1
-            block@1: // on_create_L23
+                let tmp%0#0: bool = (txn ApplicationID)
+                goto tmp%0#0 ? block@2 : block@1
+            block@1: // call __init___L1
                 goto block@2
-            block@2: // entrypoint_L23
-                let tmp%0#0: bool = test_cases.state_mutations.contract.Contract.__puya_arc4_router__()
-                return tmp%0#0
+            block@2: // after_if_else_L1
+                let tmp%1#0: bool = test_cases.state_mutations.contract.Contract.__puya_arc4_router__()
+                return tmp%1#0
         
         subroutine test_cases.state_mutations.contract.Contract.__puya_arc4_router__() -> bool:
             block@0: // L22
@@ -45,16 +45,16 @@ contract test_cases.state_mutations.contract.Contract:
                 return 1u
             block@7: // bare_routing_L22
                 let tmp%17#0: uint64 = (txn OnCompletion)
-                goto_nth [block@8, block@9][tmp%17#0] else return 0u
-            block@8: // __algopy_default_create_L22
+                goto_nth [block@9, block@8][tmp%17#0] else return 0u
+            block@8: // opt_in_L29
                 let tmp%18#0: uint64 = (txn ApplicationID)
-                let tmp%19#0: bool = (! tmp%18#0)
-                (assert tmp%19#0) // is creating
-                return 1u
-            block@9: // opt_in_L29
-                let tmp%20#0: uint64 = (txn ApplicationID)
-                (assert tmp%20#0) // is not creating
+                (assert tmp%18#0) // is not creating
                 test_cases.state_mutations.contract.Contract.opt_in()
+                return 1u
+            block@9: // __algopy_default_create_L1
+                let tmp%20#0: uint64 = (txn ApplicationID)
+                let tmp%21#0: bool = (! tmp%20#0)
+                (assert tmp%21#0) // is creating
                 return 1u
         
         subroutine test_cases.state_mutations.contract.Contract.append() -> void:

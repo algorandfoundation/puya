@@ -1,5 +1,7 @@
 contract Reference
 {
+  method_resolution_order: (
+  )
   globals {
     ['int_1']: uint64
     ['bytes_1']: bytes
@@ -15,14 +17,34 @@ contract Reference
     ['bytes_l4']: bytes
   }
   
-  constructor()
+  subroutine test_cases.application.contract.Reference.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    if (txn<NumAppArgs>() == 1u) {
+      if (txna<ApplicationArgs, 0>() == hex<"76616C6964617465">) {
+        this::validate_asset(global<CurrentApplicationID>())
+      } else {
+        assert(false, comment="Expected validate")
+      }
+    }
+    return true
+  }
+  
+  subroutine test_cases.application.contract.Reference.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.application.contract.Reference.__init__(): void
   {
     GlobalState['int_1']: uint64 = 0u
     GlobalState['bytes_1']: bytes = hex<"">
     GlobalState['bytes_2']: bytes = hex<"">
   }
   
-  approval_program(): bool
+  subroutine test_cases.application.contract.Reference.approval_program(): bool
   {
     if (txn<NumAppArgs>() == 1u) {
       if (txna<ApplicationArgs, 0>() == hex<"76616C6964617465">) {
@@ -34,12 +56,7 @@ contract Reference
     return true
   }
   
-  clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine validate_asset(app: application): void
+  subroutine test_cases.application.contract.Reference.validate_asset(app: application): void
   {
     assert(!(app_opted_in(txn<Sender>(), app)), comment="app opted in")
     assert(checked_maybe(app_params_get<AppCreator>(app)) == global<CreatorAddress>(), comment="expected creator")
