@@ -217,6 +217,7 @@ def checked_compile(
         "puyapy",
         *flags,
         f"--out-dir={out_dir}",
+        "--output-destructured-ir",
         "--output-bytecode",
         "--log-level=debug",
         *_load_template_vars(template_vars_path),
@@ -271,7 +272,6 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
     if optimization_level == 0:
         flags = [
             "-O0",
-            "--output-destructured-ir",
             "--no-output-arc32",
         ]
         out_suffix = SUFFIX_O0
@@ -279,7 +279,6 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
     elif optimization_level == 2:
         flags = [
             "-O2",
-            "--output-destructured-ir",
             "--no-output-arc32",
             "-g0",
         ]
@@ -292,9 +291,9 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
             "--output-awst",
             "--output-ssa-ir",
             "--output-optimization-ir",
-            "--output-destructured-ir",
             "--output-memory-ir",
             "--output-client",
+            "--output-source-map",
         ]
         out_suffix = SUFFIX_O1
         write_logs = True

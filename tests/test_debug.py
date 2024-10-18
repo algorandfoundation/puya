@@ -27,9 +27,6 @@ def test_debug(algod_client: AlgodClient, account: algokit_utils.Account) -> Non
             paths=(contract_src,),
             optimization_level=1,
             debug_level=2,
-            output_source_map=False,
-            output_arc32=False,
-            output_teal=False,
         )
     )
     (contract,) = result.teal

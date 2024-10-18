@@ -21,7 +21,12 @@ def run_puyapy(
     result = subprocess.run(
         [
             puyapy,
-            "--no-output-teal",  # we don't want to overwrite outputs, just check the CLI works
+            # we don't want to overwrite outputs, just check the CLI works,
+            "--no-output-teal",
+            "--no-output-bytecode",
+            "--no-output-source-map",
+            "--no-output-client",
+            "--no-output-arc32",
             *map(str, args),
         ],
         text=text,

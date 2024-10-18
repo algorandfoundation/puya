@@ -6,7 +6,7 @@ from puya.log import LogLevel
 from puya.options import PuyaOptions
 
 
-@attrs.define(kw_only=True)
+@attrs.frozen(kw_only=True)
 class PuyaPyOptions(PuyaOptions):
     paths: Sequence[Path] = attrs.field(default=(), repr=lambda p: str(list(map(str, p))))
     output_awst: bool = False
