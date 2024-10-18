@@ -105,9 +105,7 @@ def compile_no_optimization(test_case: PuyaExample) -> None:
         optimization_level=0,
         output_teal=True,
         output_bytecode=True,
-        output_awst=False,
         output_destructured_ir=True,
-        output_arc32=False,
     )
 
 
@@ -119,6 +117,7 @@ def compile_with_level1_optimizations(test_case: PuyaExample) -> None:
         optimization_level=1,
         output_teal=True,
         output_bytecode=True,
+        output_source_map=True,
         output_arc32=True,
         output_awst=True,
         output_ssa_ir=True,
@@ -137,10 +136,7 @@ def compile_with_level2_optimizations(test_case: PuyaExample) -> None:
         debug_level=0,
         output_teal=True,
         output_bytecode=True,
-        output_arc32=False,
         output_destructured_ir=True,
-        output_optimization_ir=False,
-        output_awst=False,
     )
 
 
