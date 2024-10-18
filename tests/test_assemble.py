@@ -1,12 +1,12 @@
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
 from pathlib import Path
 
 import algosdk.error
 import pytest
-from _pytest.mark import ParameterSet
 from algokit_utils import Program
 from algosdk.v2client.algod import AlgodClient
 from puya.context import CompileContext
+from puya.mir.models import Signature
 from puya.models import CompiledContract, CompiledLogicSig, CompiledProgram
 from puya.options import PuyaOptions
 from puya.teal import models as teal
@@ -14,42 +14,23 @@ from puya.ussemble.main import assemble_program
 from puyapy.options import PuyaPyOptions
 
 from tests.utils import (
-    PuyaExample,
+    PuyaTestCase,
     compile_src_from_options,
-    get_all_examples,
     load_template_vars,
 )
-
-
-def get_test_cases() -> Iterable[ParameterSet]:
-    for example in get_all_examples():
-        marks = []
-        if example.name == "stress_tests":
-            marks.append(pytest.mark.slow)
-        yield ParameterSet.param(example, marks=marks, id=example.id)
-
-
-def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
-    if metafunc.definition.name == "test_assemble_last_op_jump":
-        pass
-    else:
-        metafunc.parametrize("case", get_test_cases())
 
 
 @pytest.mark.parametrize("optimization_level", [0, 1, 2])
 @pytest.mark.localnet()
 def test_assemble_matches_algod(
-    algod_client: AlgodClient, case: PuyaExample, optimization_level: int
+    algod_client: AlgodClient, test_case: PuyaTestCase, optimization_level: int
 ) -> None:
-    prefix, template_vars = load_template_vars(case.template_vars_path)
+    prefix, template_vars = load_template_vars(test_case.template_vars_path)
     options = PuyaPyOptions(
-        paths=(case.path,),
+        paths=(test_case.path,),
         optimization_level=optimization_level,
         debug_level=0,
-        output_teal=False,
-        output_arc32=False,
         output_bytecode=True,
-        match_algod_bytecode=True,
         out_dir=Path("out"),
         template_vars_prefix=prefix,
         cli_template_definitions=template_vars,
@@ -68,34 +49,6 @@ def test_assemble_matches_algod(
                 assemble_and_compare_program(
                     options, algod_client, logic_sig, f"{artifact.metadata.ref}-logicsig"
                 )
-
-
-@pytest.mark.parametrize("optimization_level", [0, 1, 2])
-def test_assemble(case: PuyaExample, optimization_level: int) -> None:
-    prefix, template_vars = load_template_vars(case.template_vars_path)
-    compile_src_from_options(
-        PuyaPyOptions(
-            paths=(case.path,),
-            optimization_level=optimization_level,
-            debug_level=0,
-            output_teal=False,
-            output_arc32=False,
-            output_bytecode=True,
-            out_dir=Path("out"),
-            template_vars_prefix=prefix,
-            cli_template_definitions=template_vars,
-        )
-    )
-
-
-def _value_as_tmpl_str(value: int | bytes | str) -> str:
-    match value:
-        case int(int_value):
-            return str(int_value)
-        case bytes(bytes_value):
-            return f"0x{bytes_value.hex()}"
-        case str(str_value):
-            return repr(str_value)
 
 
 def assemble_and_compare_program(
@@ -156,6 +109,7 @@ def test_assemble_last_op_jump() -> None:
                 source_location=None,
             )
         ],
+        x_stack_in=(),
         entry_stack_height=0,
         exit_stack_height=0,
     )
@@ -168,9 +122,11 @@ def test_assemble_last_op_jump() -> None:
             sources_by_path={},
         ),
         program=teal.TealProgram(
+            id="",
             target_avm_version=10,
             main=teal.TealSubroutine(
-                signature="",
+                is_main=True,
+                signature=Signature(name="", parameters=(), returns=()),
                 blocks=[looping_block],
             ),
             subroutines=[],

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import json
 import operator
 import os
 import re
@@ -94,10 +95,10 @@ class ProgramSizes:
 
     @classmethod
     def read_file(cls, path: Path) -> "ProgramSizes":
-        lines = path.read_text("utf-8").splitlines()
+        lines = list(filter(None, path.read_text("utf-8").splitlines()))
         program_sizes = ProgramSizes()
         sizes = program_sizes.sizes
-        for line in lines[1:]:
+        for line in lines[1:-1]:
             name, o0, o1, o2, _, o0_ops, o1_ops, o2_ops = line.rsplit(maxsplit=7)
             name = name.strip()
             for opt, (bin_str, ops_str) in enumerate(((o0, o0_ops), (o1, o1_ops), (o2, o2_ops))):
@@ -116,7 +117,6 @@ class ProgramSizes:
     def __str__(self) -> str:
         writer = prettytable.PrettyTable(
             field_names=["Name", "O0", "O1", "O2", "|", "O0#Ops", "O1#Ops", "O2#Ops"],
-            sortby="Name",
             header=True,
             border=False,
             min_width=6,
@@ -126,7 +126,17 @@ class ProgramSizes:
         )
         writer.align["Name"] = "l"
         writer.align["|"] = "c"
-        for name, prog_sizes in self.sizes.items():
+        # copy sizes and sort by name
+        sizes = defaultdict(
+            self.sizes.default_factory, {p: self.sizes[p].copy() for p in sorted(self.sizes)}
+        )
+        totals = {i: Size() for i in range(3)}
+        for prog_sizes in sizes.values():
+            for i in range(3):
+                totals[i] += prog_sizes[i]
+        # Add totals at end
+        sizes["Total"].update(totals)
+        for name, prog_sizes in sizes.items():
             o0, o1, o2 = (prog_sizes[i] for i in range(3))
             row = list(
                 map(
@@ -208,7 +218,6 @@ def checked_compile(
         "puyapy",
         *flags,
         f"--out-dir={out_dir}",
-        "--output-bytecode",
         "--log-level=debug",
         *_load_template_vars(template_vars_path),
         rel_path,
@@ -225,6 +234,11 @@ def checked_compile(
     )
     bin_files_written = re.findall(r"info: Writing (.+\.bin)", result.stdout)
 
+    # normalize ARC-56 output
+    arc56_files_written = re.findall(r"info: Writing (.+\.arc56\.json)", result.stdout)
+    for arc56_file in arc56_files_written:
+        _normalize_arc56(root / arc56_file)
+
     if write_logs:
         if p.is_dir():
             log_path = p / "puya.log"
@@ -240,6 +254,15 @@ def checked_compile(
         bin_files=[root / p for p in bin_files_written],
         stdout=result.stdout if not ok else "",  # don't thunk stdout if no errors
     )
+
+
+def _normalize_arc56(path: Path) -> None:
+    arc56 = json.loads(path.read_text())
+    compiler_version = arc56.get("compilerInfo", {}).get("compilerVersion", {})
+    compiler_version["major"] = 99
+    compiler_version["minor"] = 99
+    compiler_version["patch"] = 99
+    path.write_text(json.dumps(arc56, indent=4), encoding="utf8")
 
 
 def _load_template_vars(path: Path) -> Iterable[str]:
@@ -263,7 +286,8 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
         flags = [
             "-O0",
             "--output-destructured-ir",
-            "--no-output-arc32",
+            "--output-bytecode",
+            "--no-output-arc56",
         ]
         out_suffix = SUFFIX_O0
         write_logs = False
@@ -271,7 +295,8 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
         flags = [
             "-O2",
             "--output-destructured-ir",
-            "--no-output-arc32",
+            "--output-bytecode",
+            "--no-output-arc56",
             "-g0",
         ]
         out_suffix = SUFFIX_O2
@@ -286,6 +311,8 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
             "--output-destructured-ir",
             "--output-memory-ir",
             "--output-client",
+            "--output-arc32",
+            "--output-bytecode",
         ]
         out_suffix = SUFFIX_O1
         write_logs = True

@@ -15,14 +15,15 @@ class LocalsCoalescingStrategy(enum.StrEnum):
 
 @attrs.define(kw_only=True)
 class PuyaOptions:
-    output_teal: bool = True
-    output_arc32: bool = True
+    output_teal: bool = False
+    output_source_map: bool = False
+    output_arc32: bool = False
+    output_arc56: bool = False
     output_ssa_ir: bool = False
     output_optimization_ir: bool = False
     output_destructured_ir: bool = False
     output_memory_ir: bool = False
     output_bytecode: bool = False
-    match_algod_bytecode: bool = False
     debug_level: int = 1
     optimization_level: int = 1
     target_avm_version: int = MAINNET_TEAL_LANGUAGE_VERSION

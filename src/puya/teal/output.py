@@ -14,7 +14,7 @@ def emit_teal(context: CompileContext, program: models.TealProgram) -> str:
         "",
     ]
     for subroutine in program.all_subroutines:
-        if subroutine.signature:
+        if not subroutine.is_main:
             result.append("")
             result.append(f"// {subroutine.signature}")
 

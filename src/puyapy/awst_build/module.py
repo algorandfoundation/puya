@@ -674,6 +674,7 @@ def _process_struct(
     struct_typ = pytypes.StructType(
         base=base,
         name=cdef.fullname,
+        desc=cdef.docstring,
         fields=fields,
         frozen=frozen,
         source_location=cls_loc,

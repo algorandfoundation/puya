@@ -1,46 +1,48 @@
 #pragma version 10
 
 test_cases.scratch_slots.contract.MyContract.approval_program:
+    intcblock 5 1
+    bytecblock 0x48656c6c6f20576f726c64 0x6c617374
     txn ApplicationID
     !
-    int 5
+    intc_0 // 5
     *
     store 1
-    byte 0x48656c6c6f20576f726c64
+    bytec_0 // 0x48656c6c6f20576f726c64
     store 2
-    int 3
+    pushint 3 // 3
 
 main_for_header@1:
     dup
-    int 20
+    pushint 20 // 20
     <
     bz main_after_for@4
     dupn 2
     dig 1
     stores
-    int 1
+    intc_1 // 1
     +
     bury 1
     b main_for_header@1
 
 main_after_for@4:
     load 1
-    int 5
+    intc_0 // 5
     ==
     assert
     load 2
-    byte 0x48656c6c6f20576f726c64
+    bytec_0 // 0x48656c6c6f20576f726c64
     ==
     assert
     load 5
-    int 5
+    intc_0 // 5
     ==
     assert
-    byte 0x6c617374
+    bytec_1 // 0x6c617374
     store 19
     load 19
-    byte 0x6c617374
+    bytec_1 // 0x6c617374
     ==
     assert
-    int 1
+    intc_1 // 1
     return

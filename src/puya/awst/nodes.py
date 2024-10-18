@@ -1356,6 +1356,16 @@ class BytesAugmentedAssignment(Statement):
 
 
 @attrs.frozen
+class Emit(Expression):
+    signature: str
+    value: Expression = attrs.field(validator=expression_has_wtype(wtypes.ARC4Struct))
+    wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_emit(self)
+
+
+@attrs.frozen
 class Range(Expression):
     wtype: WType = attrs.field(default=wtypes.uint64_range_wtype, init=False)
     start: Expression = attrs.field(validator=[wtype_is_uint64])

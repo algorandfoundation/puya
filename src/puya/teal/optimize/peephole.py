@@ -1,6 +1,7 @@
 import attrs
 
 from puya.teal import models
+from puya.teal._util import preserve_stack_manipulations
 from puya.teal.optimize._data import (
     COMMUTATIVE_OPS,
     LOAD_OP_CODES,
@@ -11,33 +12,30 @@ from puya.teal.optimize._data import (
 from puya.utils import invert_ordered_binary_op
 
 
-def peephole(block: models.TealBlock) -> bool:
+def peephole(block: models.TealBlock, opt_level: int) -> bool:
     start_idx = 0
     stack_height = block.entry_stack_height
     any_modified = False
     result = block.ops.copy()
-    while start_idx < len(result) - 1:
+    while start_idx < len(result):
         modified = False
-        window_size = -1
-        if not modified and start_idx < len(result) - 3:
-            window_size = 4
-            new_values, modified = _optimize_quadruplet(
-                *result[start_idx : start_idx + window_size],
-            )
-        if not modified and start_idx < len(result) - 2:
-            window_size = 3
-            new_values, modified = _optimize_triplet(
-                *result[start_idx : start_idx + window_size],
-                stack_height=stack_height,
-            )
+        window: slice | None = None
+        if opt_level > 0 and not modified and start_idx < len(result) - 3:
+            window = slice(start_idx, start_idx + 4)
+            new_values, modified = _optimize_quadruplet(*result[window])
+        if opt_level > 0 and not modified and start_idx < len(result) - 2:
+            window = slice(start_idx, start_idx + 3)
+            new_values, modified = _optimize_triplet(*result[window], stack_height=stack_height)
+        if not modified and start_idx < len(result) - 1:
+            window = slice(start_idx, start_idx + 2)
+            new_values, modified = _optimize_pair(*result[window])
         if not modified:
-            window_size = 2
-            new_values, modified = _optimize_pair(
-                *result[start_idx : start_idx + window_size],
-            )
+            window = slice(start_idx, start_idx + 1)
+            new_values, modified = optimize_single(*result[window])
         if modified:
+            assert window is not None
             any_modified = True
-            result[start_idx : start_idx + window_size] = new_values
+            preserve_stack_manipulations(result, window, new_values)
         else:
             stack_height += result[start_idx].stack_height_delta
             start_idx += 1  # go to next
@@ -59,6 +57,26 @@ def is_stack_swap(op: models.TealOp) -> bool:
     return op.op_code == "swap" or (op.op_code in ("cover", "uncover") and op.immediates[0] == 1)
 
 
+def optimize_single(a: models.TealOp) -> tuple[list[models.TealOp], bool]:
+    if a.op_code in ("cover", "uncover") and a.immediates == (0,):
+        return [], True
+    if a.op_code == "dig" and a.immediates == (0,):
+        return [
+            models.Dup(
+                source_location=a.source_location,
+                stack_manipulations=a.stack_manipulations,
+            )
+        ], True
+    if a.op_code == "popn" and a.immediates == (1,):
+        return [
+            models.Pop(
+                source_location=a.source_location,
+                stack_manipulations=a.stack_manipulations,
+            )
+        ], True
+    return [a], False
+
+
 def _optimize_pair(a: models.TealOp, b: models.TealOp) -> tuple[list[models.TealOp], bool]:
     if is_redundant_rotate(a, b):
         return [], True
@@ -77,6 +95,9 @@ def _optimize_pair(a: models.TealOp, b: models.TealOp) -> tuple[list[models.Teal
         # `frame_dig n; frame_bury n` is redundant
         case models.FrameDig(n=dig_n), models.FrameBury(n=bury_n) if dig_n == bury_n:
             return [], True
+        # `frame_bury n; frame_dig n` can be simplified to dup; frame_bury n
+        case models.FrameBury(n=dig_n), models.FrameDig(n=bury_n) if dig_n == bury_n:
+            return [models.Dup(source_location=None), a], True
         # `dup; swap` -> `dup`
         case models.TealOp(op_code="dup" | "dupn"), maybe_swap if is_stack_swap(maybe_swap):
             return [a], True
@@ -156,13 +177,10 @@ def _optimize_triplet(
             (b.op_code == "frame_bury" and int(b.immediates[0]) >= height_below_swap)
             or (c.op_code == "frame_bury" and int(c.immediates[0]) >= height_below_swap)
             or (
-                b.op_code == "frame_bury"
-                and c.op_code == "frame_bury"
-                and b.immediates == c.immediates
-            )
-            or (  # can't swap itxn_field if they refer to the same field e.g. ApplicationArgs
-                b.op_code == "itxn_field"
-                and c.op_code == "itxn_field"
+                # can't swap ops if store order is important
+                # e.g. itxn_field ApplicationArgs or frame_bury -1
+                b.op_code in ("frame_bury", "itxn_field")
+                and b.op_code == c.op_code
                 and b.immediates == c.immediates
             )
         ):

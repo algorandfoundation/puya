@@ -34,10 +34,22 @@ def main() -> None:
         help="Output TEAL code",
     )
     parser.add_argument(
-        "--output-arc32",
+        "--output-source-map",
         action=argparse.BooleanOptionalAction,
         default=True,
+        help="Output debug source maps",
+    )
+    parser.add_argument(
+        "--output-arc32",
+        action=argparse.BooleanOptionalAction,
+        default=False,
         help="Output {contract}.arc32.json ARC-32 app spec file",
+    )
+    parser.add_argument(
+        "--output-arc56",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Output {contract}.arc56.json ARC-56 app spec file",
     )
     parser.add_argument(
         "--output-client",
@@ -107,9 +119,10 @@ def main() -> None:
     )
     parser.add_argument(
         "--match-algod-bytecode",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="When outputting bytecode, ensure bytecode matches algod output",
+        action=_EmitDeprecated,
+        dest=argparse.SUPPRESS,
+        nargs=0,
+        help="Deprecated: When outputting bytecode, ensure bytecode matches algod output",
     )
     parser.add_argument(
         "-T",
@@ -117,6 +130,7 @@ def main() -> None:
         dest="cli_template_definitions",
         metavar="VAR=VALUE",
         action=_ParseAndStoreTemplateVar,
+        default={},
         nargs="+",
         help="Define template vars for use when assembling via --output-bytecode"
         " should be specified without the prefix (see --template-vars-prefix), e.g."
@@ -145,10 +159,23 @@ def main() -> None:
     )
 
     parser.add_argument("paths", type=Path, nargs="+", metavar="PATH")
-    options = PuyaPyOptions()
-    parser.parse_args(namespace=options)
+
+    namespace = parser.parse_args()
+    options = PuyaPyOptions(**vars(namespace))
     configure_logging(min_log_level=options.log_level)
     compile_to_teal(options)
+
+
+class _EmitDeprecated(argparse.Action):
+    @typing.override
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str | Sequence[typing.Any] | None,
+        option_string: str | None = None,
+    ) -> None:
+        print(f"warning: {option_string} is deprecated and no longer does anything")  # noqa: T201
 
 
 class _ParseAndStoreTemplateVar(argparse.Action):

@@ -1,31 +1,33 @@
 #pragma version 10
 
 test_cases.logic_signature.signature.pre_approved_sale:
-    int 0
+    intcblock 1 0 TMPL_PRICE TMPL_ASSET_ID
+    bytecblock TMPL_SELLER
+    intc_1 // 0
     gtxns TypeEnum
-    int pay
+    intc_0 // pay
     ==
     assert // transaction type is pay
-    int 1
+    intc_0 // 1
     gtxns TypeEnum
-    int axfer
+    pushint 4 // axfer
     ==
     assert // transaction type is axfer
-    int 0
+    intc_1 // 0
     callsub assert_correct_payment
-    int 1
+    intc_0 // 1
     callsub assert_correct_asset
-    int 0
+    intc_1 // 0
     gtxns Sender
-    int 1
+    intc_0 // 1
     gtxns AssetReceiver
     ==
     assert
     global GroupSize
-    int 2
+    pushint 2 // 2
     ==
     assert
-    int 1
+    intc_0 // 1
     return
 
 
@@ -34,19 +36,19 @@ assert_correct_payment:
     proto 1 0
     frame_dig -1
     gtxns Receiver
-    byte TMPL_SELLER
+    bytec_0 // TMPL_SELLER
     ==
     bz assert_correct_payment_bool_false@3
     frame_dig -1
     gtxns Amount
-    int TMPL_PRICE
+    intc_2 // TMPL_PRICE
     ==
     bz assert_correct_payment_bool_false@3
-    int 1
+    intc_0 // 1
     b assert_correct_payment_bool_merge@4
 
 assert_correct_payment_bool_false@3:
-    int 0
+    intc_1 // 0
 
 assert_correct_payment_bool_merge@4:
     assert
@@ -58,17 +60,17 @@ assert_correct_asset:
     proto 1 0
     frame_dig -1
     gtxns AssetAmount
-    int 1
+    intc_0 // 1
     ==
     bz assert_correct_asset_bool_false@6
     frame_dig -1
     gtxns Sender
-    byte TMPL_SELLER
+    bytec_0 // TMPL_SELLER
     ==
     bz assert_correct_asset_bool_false@6
     frame_dig -1
     gtxns XferAsset
-    int TMPL_ASSET_ID
+    intc_3 // TMPL_ASSET_ID
     ==
     bz assert_correct_asset_bool_false@6
     frame_dig -1
@@ -81,11 +83,11 @@ assert_correct_asset:
     global ZeroAddress
     ==
     bz assert_correct_asset_bool_false@6
-    int 1
+    intc_0 // 1
     b assert_correct_asset_bool_merge@7
 
 assert_correct_asset_bool_false@6:
-    int 0
+    intc_1 // 0
 
 assert_correct_asset_bool_merge@7:
     assert

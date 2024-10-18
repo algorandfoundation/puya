@@ -20,7 +20,7 @@ from puyapy.utils import determine_out_dir
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 
-APPROVAL_EXTENSIONS = frozenset((".teal", ".awst", ".ir", ".mir", ".arc32.json"))
+APPROVAL_EXTENSIONS = frozenset((".teal", ".awst", ".ir", ".mir", ".arc32.json", ".arc56.json"))
 UNSTABLE_LOG_PREFIXES = {
     LogLevel.debug: (
         "Building AWST for ",
@@ -153,8 +153,6 @@ def compile_src(path: Path, *, optimization_level: int, debug_level: int) -> Com
             paths=(path,),
             optimization_level=optimization_level,
             debug_level=debug_level,
-            output_arc32=False,
-            output_teal=False,
         )
     )
 
@@ -202,7 +200,7 @@ def compile_src_from_options(options: PuyaPyOptions) -> CompilationResult:
 
 
 @attrs.frozen
-class PuyaExample:
+class PuyaTestCase:
     root: Path
     name: str
 
@@ -218,15 +216,6 @@ class PuyaExample:
     @property
     def id(self) -> str:
         return f"{self.root.stem}_{self.name}"
-
-
-def get_all_examples() -> list[PuyaExample]:
-    return [
-        PuyaExample(root, item.name)
-        for root in (EXAMPLES_DIR, TEST_CASES_DIR)
-        for item in root.iterdir()
-        if item.is_dir() and any(item.glob("*.py"))
-    ]
 
 
 def load_template_vars(path: Path | None) -> tuple[str, dict[str, int | bytes]]:

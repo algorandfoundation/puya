@@ -1,7 +1,7 @@
 import itertools
 import textwrap
 import typing
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 
 from puya import log
@@ -10,7 +10,7 @@ from puya.models import (
     ARC4CreateOption,
     ARC4Method,
     ARC4MethodArg,
-    ARC32StructDef,
+    ARC4Struct,
     OnCompletionAction,
 )
 from puya.utils import make_path_relative_to_cwd, unique
@@ -24,11 +24,13 @@ _AUTO_GENERATED_COMMENT = "# This file is auto-generated, do not modify"
 _INDENT = " " * 4
 
 
-def write_arc32_client(name: str, methods: Sequence[ARC4Method], out_dir: Path) -> None:
+def write_arc32_client(
+    name: str, structs: Mapping[str, ARC4Struct], methods: Sequence[ARC4Method], out_dir: Path
+) -> None:
     stub_path = out_dir / f"client_{name}.py"
     if _can_overwrite_auto_generated_file(stub_path):
         logger.info(f"writing {make_path_relative_to_cwd(stub_path)}")
-        stub_text = _create_arc32_stub(name, methods)
+        stub_text = _create_arc32_stub(name, structs, methods)
         stub_path.write_text(stub_text)
     else:
         logger.error(
@@ -41,7 +43,9 @@ def _can_overwrite_auto_generated_file(path: Path) -> bool:
     return not path.exists() or path.read_text().startswith(_AUTO_GENERATED_COMMENT)
 
 
-def _create_arc32_stub(name: str, methods: Sequence[ARC4Method]) -> str:
+def _create_arc32_stub(
+    name: str, structs: Mapping[str, ARC4Struct], methods: Sequence[ARC4Method]
+) -> str:
     abi_methods = [m for m in methods if isinstance(m, ARC4ABIMethod)]
     return "\n".join(
         (
@@ -52,31 +56,23 @@ def _create_arc32_stub(name: str, methods: Sequence[ARC4Method]) -> str:
             "",
             "import algopy",
             "",
-            *itertools.chain(
-                *(
-                    _abi_struct_to_class(s)
-                    for s in unique(s for m in abi_methods for s in m.config.structs.values())
-                )
-            ),
+            *itertools.chain(*(_abi_struct_to_class(s) for s in unique(structs.values()))),
             "",
             f"class {name}(algopy.arc4.ARC4Client, typing.Protocol):",
             *([_indent(["pass"]), ""] if not abi_methods else []),
-            *(_abi_method_to_signature(m) for m in abi_methods),
+            *(_abi_method_to_signature(structs, m) for m in abi_methods),
         )
     )
 
 
-def _abi_struct_to_class(s: ARC32StructDef) -> Iterable[str]:
+def _abi_struct_to_class(s: ARC4Struct) -> Iterable[str]:
     return (
         f"class {s.name}(algopy.arc4.Struct):",
-        _indent(
-            f"{name}: {_arc4_type_to_algopy_cls(elem_type)}" for name, elem_type in s.elements
-        ),
+        _indent(f"{elem.name}: {_arc4_type_to_algopy_cls(elem.type)}" for elem in s.fields),
     )
 
 
-def _abi_method_to_signature(m: ARC4ABIMethod) -> str:
-    structs = dict(m.config.structs)
+def _abi_method_to_signature(structs: Mapping[str, ARC4Struct], m: ARC4ABIMethod) -> str:
     try:
         output_struct = structs["output"]
     except KeyError:
@@ -91,7 +87,7 @@ def _abi_method_to_signature(m: ARC4ABIMethod) -> str:
             _indent(
                 (
                     "self,",
-                    *(_abi_arg(arg, structs.get(arg.name)) for arg in m.args),
+                    *(_abi_arg(arg, structs.get(arg.struct or "")) for arg in m.args),
                 )
             ),
             f") -> {return_type}: ...",
@@ -100,7 +96,7 @@ def _abi_method_to_signature(m: ARC4ABIMethod) -> str:
     )
 
 
-def _abi_arg(arg: ARC4MethodArg, struct: ARC32StructDef | None) -> str:
+def _abi_arg(arg: ARC4MethodArg, struct: ARC4Struct | None) -> str:
     python_type = struct.name if struct else _arc4_type_to_algopy_cls(arg.type_)
     return f"{arg.name}: {python_type},"
 
