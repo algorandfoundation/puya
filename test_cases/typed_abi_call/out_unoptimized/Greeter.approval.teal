@@ -13,7 +13,7 @@ __puya_arc4_router__:
     txn NumAppArgs
     int 0
     !=
-    bz __puya_arc4_router___bare_routing@19
+    bz __puya_arc4_router___bare_routing@20
     txna ApplicationArgs 0
     method "test_is_a_b(byte[],byte[],application)void"
     method "test_method_selector_kinds(application)void"
@@ -30,9 +30,10 @@ __puya_arc4_router__:
     method "test_native_tuple_method_ref(application)void"
     method "test_nested_tuples(application)void"
     method "test_no_args(application)void"
-    uncover 15
-    match __puya_arc4_router___test_is_a_b_route@2 __puya_arc4_router___test_method_selector_kinds_route@3 __puya_arc4_router___test_method_overload_route@4 __puya_arc4_router___test_arg_conversion_route@5 __puya_arc4_router___test_15plus_args_route@6 __puya_arc4_router___test_void_route@7 __puya_arc4_router___test_ref_types_route@8 __puya_arc4_router___test_native_string_route@9 __puya_arc4_router___test_native_bytes_route@10 __puya_arc4_router___test_native_uint64_route@11 __puya_arc4_router___test_native_biguint_route@12 __puya_arc4_router___test_native_tuple_route@13 __puya_arc4_router___test_native_tuple_method_ref_route@14 __puya_arc4_router___test_nested_tuples_route@15 __puya_arc4_router___test_no_args_route@16
-    b __puya_arc4_router___switch_case_default@17
+    method "test_named_tuples(application)void"
+    uncover 16
+    match __puya_arc4_router___test_is_a_b_route@2 __puya_arc4_router___test_method_selector_kinds_route@3 __puya_arc4_router___test_method_overload_route@4 __puya_arc4_router___test_arg_conversion_route@5 __puya_arc4_router___test_15plus_args_route@6 __puya_arc4_router___test_void_route@7 __puya_arc4_router___test_ref_types_route@8 __puya_arc4_router___test_native_string_route@9 __puya_arc4_router___test_native_bytes_route@10 __puya_arc4_router___test_native_uint64_route@11 __puya_arc4_router___test_native_biguint_route@12 __puya_arc4_router___test_native_tuple_route@13 __puya_arc4_router___test_native_tuple_method_ref_route@14 __puya_arc4_router___test_nested_tuples_route@15 __puya_arc4_router___test_no_args_route@16 __puya_arc4_router___test_named_tuples_route@17
+    b __puya_arc4_router___switch_case_default@18
 
 __puya_arc4_router___test_is_a_b_route@2:
     // typed_abi_call/typed_c2c.py:18
@@ -374,19 +375,41 @@ __puya_arc4_router___test_no_args_route@16:
     int 1
     retsub
 
-__puya_arc4_router___switch_case_default@17:
-    b __puya_arc4_router___after_if_else@23
+__puya_arc4_router___test_named_tuples_route@17:
+    // typed_abi_call/typed_c2c.py:339
+    // @arc4.abimethod()
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    int 0
+    !=
+    assert // is not creating
+    // typed_abi_call/typed_c2c.py:17
+    // class Greeter(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Applications
+    // typed_abi_call/typed_c2c.py:339
+    // @arc4.abimethod()
+    callsub test_named_tuples
+    int 1
+    retsub
 
-__puya_arc4_router___bare_routing@19:
+__puya_arc4_router___switch_case_default@18:
+    b __puya_arc4_router___after_if_else@24
+
+__puya_arc4_router___bare_routing@20:
     // typed_abi_call/typed_c2c.py:17
     // class Greeter(ARC4Contract):
     txn OnCompletion
     int 0
     uncover 1
-    match __puya_arc4_router_____algopy_default_create@20
-    b __puya_arc4_router___switch_case_default@21
+    match __puya_arc4_router_____algopy_default_create@21
+    b __puya_arc4_router___switch_case_default@22
 
-__puya_arc4_router_____algopy_default_create@20:
+__puya_arc4_router_____algopy_default_create@21:
     // typed_abi_call/typed_c2c.py:17
     // class Greeter(ARC4Contract):
     txn ApplicationID
@@ -397,9 +420,9 @@ __puya_arc4_router_____algopy_default_create@20:
     int 1
     retsub
 
-__puya_arc4_router___switch_case_default@21:
+__puya_arc4_router___switch_case_default@22:
 
-__puya_arc4_router___after_if_else@23:
+__puya_arc4_router___after_if_else@24:
     // typed_abi_call/typed_c2c.py:17
     // class Greeter(ARC4Contract):
     int 0
@@ -3813,6 +3836,180 @@ test_no_args:
     assert // ARC4 prefix is valid
     byte 0x000000000000002a
     b==
+    assert
+    retsub
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples(app: uint64) -> void:
+test_named_tuples:
+    // typed_abi_call/typed_c2c.py:339-340
+    // @arc4.abimethod()
+    // def test_named_tuples(self, app: Application) -> None:
+    proto 1 0
+    // typed_abi_call/typed_c2c.py:341-346
+    // result, _txn = arc4.abi_call(
+    //     Logger.logs_are_equal,
+    //     (UInt64(1), String("log 1")),
+    //     LogMessage(level=UInt64(1), message=String("log 1")),
+    //     app_id=app,
+    // )
+    itxn_begin
+    // typed_abi_call/typed_c2c.py:343
+    // (UInt64(1), String("log 1")),
+    int 1
+    itob
+    byte "log 1"
+    len
+    itob
+    extract 6 2
+    byte "log 1"
+    concat
+    cover 1
+    byte 0x
+    uncover 1
+    concat
+    int 10
+    itob
+    extract 6 2
+    concat
+    uncover 1
+    concat
+    // typed_abi_call/typed_c2c.py:344
+    // LogMessage(level=UInt64(1), message=String("log 1")),
+    int 1
+    itob
+    byte "log 1"
+    len
+    itob
+    extract 6 2
+    byte "log 1"
+    concat
+    cover 1
+    byte 0x
+    uncover 1
+    concat
+    int 10
+    itob
+    extract 6 2
+    concat
+    uncover 1
+    concat
+    cover 1
+    // typed_abi_call/typed_c2c.py:340
+    // def test_named_tuples(self, app: Application) -> None:
+    frame_dig -1
+    itxn_field ApplicationID
+    // typed_abi_call/typed_c2c.py:341-346
+    // result, _txn = arc4.abi_call(
+    //     Logger.logs_are_equal,
+    //     (UInt64(1), String("log 1")),
+    //     LogMessage(level=UInt64(1), message=String("log 1")),
+    //     app_id=app,
+    // )
+    method "logs_are_equal((uint64,string),(uint64,string))bool"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    cover 1
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    int 0
+    getbit
+    // typed_abi_call/typed_c2c.py:347
+    // assert result
+    assert
+    // typed_abi_call/typed_c2c.py:348-353
+    // result, _txn = arc4.abi_call(
+    //     Logger.logs_are_equal,
+    //     (UInt64(2), String("log 2")),
+    //     LogMessage(level=UInt64(1), message=String("log 1")),
+    //     app_id=app,
+    // )
+    itxn_begin
+    // typed_abi_call/typed_c2c.py:350
+    // (UInt64(2), String("log 2")),
+    int 2
+    itob
+    byte "log 2"
+    len
+    itob
+    extract 6 2
+    byte "log 2"
+    concat
+    cover 1
+    byte 0x
+    uncover 1
+    concat
+    int 10
+    itob
+    extract 6 2
+    concat
+    uncover 1
+    concat
+    // typed_abi_call/typed_c2c.py:351
+    // LogMessage(level=UInt64(1), message=String("log 1")),
+    int 1
+    itob
+    byte "log 1"
+    len
+    itob
+    extract 6 2
+    byte "log 1"
+    concat
+    cover 1
+    byte 0x
+    uncover 1
+    concat
+    int 10
+    itob
+    extract 6 2
+    concat
+    uncover 1
+    concat
+    cover 1
+    // typed_abi_call/typed_c2c.py:340
+    // def test_named_tuples(self, app: Application) -> None:
+    frame_dig -1
+    itxn_field ApplicationID
+    // typed_abi_call/typed_c2c.py:348-353
+    // result, _txn = arc4.abi_call(
+    //     Logger.logs_are_equal,
+    //     (UInt64(2), String("log 2")),
+    //     LogMessage(level=UInt64(1), message=String("log 1")),
+    //     app_id=app,
+    // )
+    method "logs_are_equal((uint64,string),(uint64,string))bool"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    cover 1
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    int 0
+    getbit
+    // typed_abi_call/typed_c2c.py:354
+    // assert not result
+    !
     assert
     retsub
 

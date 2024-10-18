@@ -9,7 +9,7 @@ test_cases.typed_abi_call.typed_c2c.Greeter.approval_program:
 __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@19
+    bz __puya_arc4_router___bare_routing@20
     method "test_is_a_b(byte[],byte[],application)void"
     method "test_method_selector_kinds(application)void"
     method "test_method_overload(application)void"
@@ -25,8 +25,9 @@ __puya_arc4_router__:
     method "test_native_tuple_method_ref(application)void"
     method "test_nested_tuples(application)void"
     method "test_no_args(application)void"
+    method "test_named_tuples(application)void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___test_is_a_b_route@2 __puya_arc4_router___test_method_selector_kinds_route@3 __puya_arc4_router___test_method_overload_route@4 __puya_arc4_router___test_arg_conversion_route@5 __puya_arc4_router___test_15plus_args_route@6 __puya_arc4_router___test_void_route@7 __puya_arc4_router___test_ref_types_route@8 __puya_arc4_router___test_native_string_route@9 __puya_arc4_router___test_native_bytes_route@10 __puya_arc4_router___test_native_uint64_route@11 __puya_arc4_router___test_native_biguint_route@12 __puya_arc4_router___test_native_tuple_route@13 __puya_arc4_router___test_native_tuple_method_ref_route@14 __puya_arc4_router___test_nested_tuples_route@15 __puya_arc4_router___test_no_args_route@16
+    match __puya_arc4_router___test_is_a_b_route@2 __puya_arc4_router___test_method_selector_kinds_route@3 __puya_arc4_router___test_method_overload_route@4 __puya_arc4_router___test_arg_conversion_route@5 __puya_arc4_router___test_15plus_args_route@6 __puya_arc4_router___test_void_route@7 __puya_arc4_router___test_ref_types_route@8 __puya_arc4_router___test_native_string_route@9 __puya_arc4_router___test_native_bytes_route@10 __puya_arc4_router___test_native_uint64_route@11 __puya_arc4_router___test_native_biguint_route@12 __puya_arc4_router___test_native_tuple_route@13 __puya_arc4_router___test_native_tuple_method_ref_route@14 __puya_arc4_router___test_nested_tuples_route@15 __puya_arc4_router___test_no_args_route@16 __puya_arc4_router___test_named_tuples_route@17
     int 0
     retsub
 
@@ -232,16 +233,29 @@ __puya_arc4_router___test_no_args_route@16:
     int 1
     retsub
 
-__puya_arc4_router___bare_routing@19:
+__puya_arc4_router___test_named_tuples_route@17:
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@23
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Applications
+    callsub test_named_tuples
+    int 1
+    retsub
+
+__puya_arc4_router___bare_routing@20:
+    txn OnCompletion
+    bnz __puya_arc4_router___after_if_else@24
     txn ApplicationID
     !
     assert // is creating
     int 1
     retsub
 
-__puya_arc4_router___after_if_else@23:
+__puya_arc4_router___after_if_else@24:
     int 0
     retsub
 
@@ -1896,5 +1910,62 @@ test_no_args:
     assert // ARC4 prefix is valid
     byte 0x000000000000002a
     b==
+    assert
+    retsub
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples(app: uint64) -> void:
+test_named_tuples:
+    proto 1 0
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "logs_are_equal((uint64,string),(uint64,string))bool"
+    itxn_field ApplicationArgs
+    byte 0x0000000000000001000a00056c6f672031
+    itxn_field ApplicationArgs
+    byte 0x0000000000000001000a00056c6f672031
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    int 0
+    getbit
+    assert
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "logs_are_equal((uint64,string),(uint64,string))bool"
+    itxn_field ApplicationArgs
+    byte 0x0000000000000002000a00056c6f672032
+    itxn_field ApplicationArgs
+    byte 0x0000000000000001000a00056c6f672031
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    int 0
+    getbit
+    !
     assert
     retsub
