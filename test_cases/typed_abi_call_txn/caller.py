@@ -2,6 +2,7 @@ from algopy import (
     Application,
     ARC4Contract,
     Bytes,
+    UInt64,
     arc4,
     itxn,
     op,
@@ -36,6 +37,21 @@ class Caller(ARC4Contract):
         )
         arc4.abi_call(
             TxnContract.call_with_acfg,
+            a,
+            txn,
+            b,
+            app_id=app,
+        )
+
+    @arc4.abimethod
+    def test_call_with_infer(self, a: Bytes, b: Bytes, app: Application) -> None:
+        txn = itxn.AssetConfig(
+            unit_name="TST",
+            asset_name="TEST",
+            total=1,
+        )
+        arc4.abi_call[UInt64](
+            "call_with_acfg",
             a,
             txn,
             b,
