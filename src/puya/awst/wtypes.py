@@ -451,6 +451,24 @@ class ARC4Struct(ARC4Type):
     def types(self) -> Sequence[ARC4Type]:
         return list(self.fields.values())
 
+    def can_encode_type(self, wtype: WType) -> bool:
+        if wtype == self.decode_type:
+            return True
+        elif not isinstance(wtype, WTuple) or len(wtype.types) != len(self.types):
+            return False
+        elif wtype.names is not None:
+            # Named tuple must have same fields and types
+            return len(wtype.names) == len(self.fields) and all(
+                n == f and (t == ft or ft.can_encode_type(t))
+                for n, t, (f, ft) in zip(
+                    wtype.names, wtype.types, self.fields.items(), strict=True
+                )
+            )
+        return all(
+            arc4_wtype == encode_wtype or arc4_wtype.can_encode_type(encode_wtype)
+            for arc4_wtype, encode_wtype in zip(self.types, wtype.types, strict=True)
+        )
+
 
 arc4_byte_alias: typing.Final = ARC4UIntN(
     n=8,

@@ -99,3 +99,9 @@ class Greeter(algopy.arc4.ARC4Client, typing.Protocol):
         self,
         app: algopy.Application,
     ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_named_tuples(
+        self,
+        app: algopy.Application,
+    ) -> None: ...

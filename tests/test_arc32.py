@@ -995,6 +995,12 @@ def test_typed_abi_call(
         app=logger.app_id,
     )
 
+    app_client.call(
+        "test_named_tuples",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+    )
+
 
 def test_arc28(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     app_client = algokit_utils.ApplicationClient(
@@ -1538,6 +1544,28 @@ def test_nested_tuples(
     assert bytes(response.return_value[0]) == b"World"
     assert response.return_value[1][0] == "Hello"
     assert response.return_value[1][1] == 123
+
+
+def test_named_tuples(
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+) -> None:
+    example = TEST_CASES_DIR / "named_tuples" / "contract.py"
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+
+    # create
+    app_client.create()
+
+    result = app_client.call("build_tuple", a=12, b=343459043, c="hello 123", d=account.public_key)
+
+    (a, b, c, d) = result.return_value
+
+    app_client.call("test_tuple", value=(a, b, c, d))
+
+    app_client.call(
+        "test_tuple", value={"a": 34, "b": 53934433, "c": "hmmmm", "d": account.public_key}
+    )
 
 
 def test_group_side_effects(
