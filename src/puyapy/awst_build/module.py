@@ -639,9 +639,9 @@ def _process_contract_class_options(
     )
 
 
-def _process_named_tuple(
-    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
-) -> StatementResult:
+def _process_struct_like_fields(
+    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef, type_name: str
+) -> tuple[bool, dict[str, pytypes.PyType]]:
     fields = dict[str, pytypes.PyType]()
     has_error = False
     for stmt in cdef.defs.body:
@@ -665,8 +665,15 @@ def _process_named_tuple(
             case mypy.nodes.PassStmt():
                 pass
             case _:
-                context.error("Unsupported syntax for member declaration", stmt)
+                context.error(f"Unsupported syntax for {type_name} member declaration", stmt)
                 has_error = True
+    return (has_error, fields)
+
+
+def _process_named_tuple(
+    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
+) -> StatementResult:
+    has_error, fields = _process_struct_like_fields(context, cdef, "NamedTuple")
     if has_error:
         return []
 
@@ -688,31 +695,7 @@ def _process_named_tuple(
 def _process_struct(
     context: ASTConversionModuleContext, base: pytypes.PyType, cdef: mypy.nodes.ClassDef
 ) -> StatementResult:
-    fields = dict[str, pytypes.PyType]()
-    has_error = False
-    for stmt in cdef.defs.body:
-        match stmt:
-            case mypy.nodes.ExpressionStmt(expr=mypy.nodes.StrExpr()):
-                # ignore class docstring, already extracted
-                # TODO: should we capture field "docstrings"?
-                pass
-            case mypy.nodes.AssignmentStmt(
-                lvalues=[mypy.nodes.NameExpr(name=field_name)],
-                rvalue=mypy.nodes.TempNode(),
-                type=mypy.types.Type() as mypy_type,
-            ):
-                stmt_loc = context.node_location(stmt)
-                pytype = context.type_to_pytype(mypy_type, source_location=stmt_loc)
-                fields[field_name] = pytype
-            case mypy.nodes.SymbolNode(name=symbol_name) if (
-                cdef.info.names[symbol_name].plugin_generated
-            ):
-                pass
-            case mypy.nodes.PassStmt():
-                pass
-            case _:
-                context.error(f"Unsupported syntax for {base} member declaration", stmt)
-                has_error = True
+    has_error, fields = _process_struct_like_fields(context, cdef, str(base))
     if has_error:
         return []
     cls_loc = context.node_location(cdef)
