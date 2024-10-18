@@ -7,28 +7,29 @@ test_cases.typed_abi_call_txn.caller.Caller.approval_program:
 
 // test_cases.typed_abi_call_txn.caller.Caller.__puya_arc4_router__() -> uint64:
 __puya_arc4_router__:
-    // typed_abi_call_txn/caller.py:13
+    // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@7
+    bz __puya_arc4_router___bare_routing@8
     method "test_call_with_txn(byte[],byte[],application)void"
     method "test_call_with_acfg(byte[],byte[],application)void"
+    method "test_call_with_infer(byte[],byte[],application)void"
     method "test_call_with_acfg_no_return(byte[],byte[],application)void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___test_call_with_txn_route@2 __puya_arc4_router___test_call_with_acfg_route@3 __puya_arc4_router___test_call_with_acfg_no_return_route@4
+    match __puya_arc4_router___test_call_with_txn_route@2 __puya_arc4_router___test_call_with_acfg_route@3 __puya_arc4_router___test_call_with_infer_route@4 __puya_arc4_router___test_call_with_acfg_no_return_route@5
     int 0
     retsub
 
 __puya_arc4_router___test_call_with_txn_route@2:
-    // typed_abi_call_txn/caller.py:14
+    // typed_abi_call_txn/caller.py:15
     // @arc4.abimethod
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
     txn ApplicationID
     assert // is not creating
-    // typed_abi_call_txn/caller.py:13
+    // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     txna ApplicationArgs 1
     extract 2 0
@@ -37,21 +38,21 @@ __puya_arc4_router___test_call_with_txn_route@2:
     txna ApplicationArgs 3
     btoi
     txnas Applications
-    // typed_abi_call_txn/caller.py:14
+    // typed_abi_call_txn/caller.py:15
     // @arc4.abimethod
     callsub test_call_with_txn
     int 1
     retsub
 
 __puya_arc4_router___test_call_with_acfg_route@3:
-    // typed_abi_call_txn/caller.py:30
+    // typed_abi_call_txn/caller.py:31
     // @arc4.abimethod
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
     txn ApplicationID
     assert // is not creating
-    // typed_abi_call_txn/caller.py:13
+    // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     txna ApplicationArgs 1
     extract 2 0
@@ -60,21 +61,21 @@ __puya_arc4_router___test_call_with_acfg_route@3:
     txna ApplicationArgs 3
     btoi
     txnas Applications
-    // typed_abi_call_txn/caller.py:30
+    // typed_abi_call_txn/caller.py:31
     // @arc4.abimethod
     callsub test_call_with_acfg
     int 1
     retsub
 
-__puya_arc4_router___test_call_with_acfg_no_return_route@4:
-    // typed_abi_call_txn/caller.py:45
+__puya_arc4_router___test_call_with_infer_route@4:
+    // typed_abi_call_txn/caller.py:46
     // @arc4.abimethod
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
     txn ApplicationID
     assert // is not creating
-    // typed_abi_call_txn/caller.py:13
+    // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     txna ApplicationArgs 1
     extract 2 0
@@ -83,25 +84,48 @@ __puya_arc4_router___test_call_with_acfg_no_return_route@4:
     txna ApplicationArgs 3
     btoi
     txnas Applications
-    // typed_abi_call_txn/caller.py:45
+    // typed_abi_call_txn/caller.py:46
+    // @arc4.abimethod
+    callsub test_call_with_infer
+    int 1
+    retsub
+
+__puya_arc4_router___test_call_with_acfg_no_return_route@5:
+    // typed_abi_call_txn/caller.py:61
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // typed_abi_call_txn/caller.py:14
+    // class Caller(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    txna ApplicationArgs 3
+    btoi
+    txnas Applications
+    // typed_abi_call_txn/caller.py:61
     // @arc4.abimethod
     callsub test_call_with_acfg_no_return
     int 1
     retsub
 
-__puya_arc4_router___bare_routing@7:
-    // typed_abi_call_txn/caller.py:13
+__puya_arc4_router___bare_routing@8:
+    // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@11
+    bnz __puya_arc4_router___after_if_else@12
     txn ApplicationID
     !
     assert // is creating
     int 1
     retsub
 
-__puya_arc4_router___after_if_else@11:
-    // typed_abi_call_txn/caller.py:13
+__puya_arc4_router___after_if_else@12:
+    // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     int 0
     retsub
@@ -109,11 +133,11 @@ __puya_arc4_router___after_if_else@11:
 
 // test_cases.typed_abi_call_txn.caller.Caller.test_call_with_txn(a: bytes, b: bytes, app: uint64) -> void:
 test_call_with_txn:
-    // typed_abi_call_txn/caller.py:14-15
+    // typed_abi_call_txn/caller.py:15-16
     // @arc4.abimethod
     // def test_call_with_txn(self, a: Bytes, b: Bytes, app: Application) -> None:
     proto 3 0
-    // typed_abi_call_txn/caller.py:21-27
+    // typed_abi_call_txn/caller.py:22-28
     // asset_id, _txn = arc4.abi_call(
     //     TxnContract.call_with_txn,
     //     a,
@@ -122,25 +146,25 @@ test_call_with_txn:
     //     app_id=app,
     // )
     itxn_begin
-    // typed_abi_call_txn/caller.py:19
+    // typed_abi_call_txn/caller.py:20
     // total=1,
     int 1
     itxn_field ConfigAssetTotal
-    // typed_abi_call_txn/caller.py:18
+    // typed_abi_call_txn/caller.py:19
     // asset_name="TEST",
     byte "TEST"
     itxn_field ConfigAssetName
-    // typed_abi_call_txn/caller.py:17
+    // typed_abi_call_txn/caller.py:18
     // unit_name="TST",
     byte "TST"
     itxn_field ConfigAssetUnitName
-    // typed_abi_call_txn/caller.py:16
+    // typed_abi_call_txn/caller.py:17
     // txn = itxn.AssetConfig(
     int acfg
     itxn_field TypeEnum
     int 0
     itxn_field Fee
-    // typed_abi_call_txn/caller.py:21-27
+    // typed_abi_call_txn/caller.py:22-28
     // asset_id, _txn = arc4.abi_call(
     //     TxnContract.call_with_txn,
     //     a,
@@ -149,7 +173,7 @@ test_call_with_txn:
     //     app_id=app,
     // )
     itxn_next
-    // typed_abi_call_txn/caller.py:23
+    // typed_abi_call_txn/caller.py:24
     // a,
     frame_dig -3
     len
@@ -157,7 +181,7 @@ test_call_with_txn:
     extract 6 2
     frame_dig -3
     concat
-    // typed_abi_call_txn/caller.py:25
+    // typed_abi_call_txn/caller.py:26
     // b,
     frame_dig -2
     len
@@ -167,7 +191,7 @@ test_call_with_txn:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    // typed_abi_call_txn/caller.py:21-27
+    // typed_abi_call_txn/caller.py:22-28
     // asset_id, _txn = arc4.abi_call(
     //     TxnContract.call_with_txn,
     //     a,
@@ -194,7 +218,7 @@ test_call_with_txn:
     ==
     assert // ARC4 prefix is valid
     btoi
-    // typed_abi_call_txn/caller.py:28
+    // typed_abi_call_txn/caller.py:29
     // assert asset_id, "expected asset id"
     assert // expected asset id
     retsub
@@ -202,11 +226,11 @@ test_call_with_txn:
 
 // test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg(a: bytes, b: bytes, app: uint64) -> void:
 test_call_with_acfg:
-    // typed_abi_call_txn/caller.py:30-31
+    // typed_abi_call_txn/caller.py:31-32
     // @arc4.abimethod
     // def test_call_with_acfg(self, a: Bytes, b: Bytes, app: Application) -> None:
     proto 3 0
-    // typed_abi_call_txn/caller.py:37-43
+    // typed_abi_call_txn/caller.py:38-44
     // arc4.abi_call(
     //     TxnContract.call_with_acfg,
     //     a,
@@ -215,25 +239,25 @@ test_call_with_acfg:
     //     app_id=app,
     // )
     itxn_begin
-    // typed_abi_call_txn/caller.py:35
+    // typed_abi_call_txn/caller.py:36
     // total=1,
     int 1
     itxn_field ConfigAssetTotal
-    // typed_abi_call_txn/caller.py:34
+    // typed_abi_call_txn/caller.py:35
     // asset_name="TEST",
     byte "TEST"
     itxn_field ConfigAssetName
-    // typed_abi_call_txn/caller.py:33
+    // typed_abi_call_txn/caller.py:34
     // unit_name="TST",
     byte "TST"
     itxn_field ConfigAssetUnitName
-    // typed_abi_call_txn/caller.py:32
+    // typed_abi_call_txn/caller.py:33
     // txn = itxn.AssetConfig(
     int acfg
     itxn_field TypeEnum
     int 0
     itxn_field Fee
-    // typed_abi_call_txn/caller.py:37-43
+    // typed_abi_call_txn/caller.py:38-44
     // arc4.abi_call(
     //     TxnContract.call_with_acfg,
     //     a,
@@ -242,7 +266,7 @@ test_call_with_acfg:
     //     app_id=app,
     // )
     itxn_next
-    // typed_abi_call_txn/caller.py:39
+    // typed_abi_call_txn/caller.py:40
     // a,
     frame_dig -3
     len
@@ -250,7 +274,7 @@ test_call_with_acfg:
     extract 6 2
     frame_dig -3
     concat
-    // typed_abi_call_txn/caller.py:41
+    // typed_abi_call_txn/caller.py:42
     // b,
     frame_dig -2
     len
@@ -260,7 +284,7 @@ test_call_with_acfg:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    // typed_abi_call_txn/caller.py:37-43
+    // typed_abi_call_txn/caller.py:38-44
     // arc4.abi_call(
     //     TxnContract.call_with_acfg,
     //     a,
@@ -286,41 +310,127 @@ test_call_with_acfg:
     retsub
 
 
+// test_cases.typed_abi_call_txn.caller.Caller.test_call_with_infer(a: bytes, b: bytes, app: uint64) -> void:
+test_call_with_infer:
+    // typed_abi_call_txn/caller.py:46-47
+    // @arc4.abimethod
+    // def test_call_with_infer(self, a: Bytes, b: Bytes, app: Application) -> None:
+    proto 3 0
+    // typed_abi_call_txn/caller.py:53-59
+    // arc4.abi_call[UInt64](
+    //     "call_with_acfg",
+    //     a,
+    //     txn,
+    //     b,
+    //     app_id=app,
+    // )
+    itxn_begin
+    // typed_abi_call_txn/caller.py:51
+    // total=1,
+    int 1
+    itxn_field ConfigAssetTotal
+    // typed_abi_call_txn/caller.py:50
+    // asset_name="TEST",
+    byte "TEST"
+    itxn_field ConfigAssetName
+    // typed_abi_call_txn/caller.py:49
+    // unit_name="TST",
+    byte "TST"
+    itxn_field ConfigAssetUnitName
+    // typed_abi_call_txn/caller.py:48
+    // txn = itxn.AssetConfig(
+    int acfg
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    // typed_abi_call_txn/caller.py:53-59
+    // arc4.abi_call[UInt64](
+    //     "call_with_acfg",
+    //     a,
+    //     txn,
+    //     b,
+    //     app_id=app,
+    // )
+    itxn_next
+    // typed_abi_call_txn/caller.py:55
+    // a,
+    frame_dig -3
+    len
+    itob
+    extract 6 2
+    frame_dig -3
+    concat
+    // typed_abi_call_txn/caller.py:57
+    // b,
+    frame_dig -2
+    len
+    itob
+    extract 6 2
+    frame_dig -2
+    concat
+    frame_dig -1
+    itxn_field ApplicationID
+    // typed_abi_call_txn/caller.py:53-59
+    // arc4.abi_call[UInt64](
+    //     "call_with_acfg",
+    //     a,
+    //     txn,
+    //     b,
+    //     app_id=app,
+    // )
+    method "call_with_acfg(byte[],acfg,byte[])uint64"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    gitxn 1 LastLog
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    retsub
+
+
 // test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg_no_return(a: bytes, b: bytes, app: uint64) -> void:
 test_call_with_acfg_no_return:
-    // typed_abi_call_txn/caller.py:45-46
+    // typed_abi_call_txn/caller.py:61-62
     // @arc4.abimethod
     // def test_call_with_acfg_no_return(self, a: Bytes, b: Bytes, app: Application) -> None:
     proto 3 0
-    // typed_abi_call_txn/caller.py:52-54
+    // typed_abi_call_txn/caller.py:68-70
     // txn1 = arc4.abi_call(
     //     TxnContract.call_with_acfg_no_return, a, acfg, b, app_id=app, note=b"1"
     // )
     itxn_begin
-    // typed_abi_call_txn/caller.py:50
+    // typed_abi_call_txn/caller.py:66
     // total=1,
     int 1
     itxn_field ConfigAssetTotal
-    // typed_abi_call_txn/caller.py:49
+    // typed_abi_call_txn/caller.py:65
     // asset_name="TEST",
     byte "TEST"
     itxn_field ConfigAssetName
-    // typed_abi_call_txn/caller.py:48
+    // typed_abi_call_txn/caller.py:64
     // unit_name="TST",
     byte "TST"
     itxn_field ConfigAssetUnitName
-    // typed_abi_call_txn/caller.py:47
+    // typed_abi_call_txn/caller.py:63
     // acfg = itxn.AssetConfig(
     int acfg
     itxn_field TypeEnum
     int 0
     itxn_field Fee
-    // typed_abi_call_txn/caller.py:52-54
+    // typed_abi_call_txn/caller.py:68-70
     // txn1 = arc4.abi_call(
     //     TxnContract.call_with_acfg_no_return, a, acfg, b, app_id=app, note=b"1"
     // )
     itxn_next
-    // typed_abi_call_txn/caller.py:53
+    // typed_abi_call_txn/caller.py:69
     // TxnContract.call_with_acfg_no_return, a, acfg, b, app_id=app, note=b"1"
     frame_dig -3
     len
@@ -338,7 +448,7 @@ test_call_with_acfg_no_return:
     itxn_field Note
     frame_dig -1
     itxn_field ApplicationID
-    // typed_abi_call_txn/caller.py:52-54
+    // typed_abi_call_txn/caller.py:68-70
     // txn1 = arc4.abi_call(
     //     TxnContract.call_with_acfg_no_return, a, acfg, b, app_id=app, note=b"1"
     // )
@@ -353,15 +463,15 @@ test_call_with_acfg_no_return:
     itxn_field Fee
     itxn_submit
     itxn Note
-    // typed_abi_call_txn/caller.py:55
+    // typed_abi_call_txn/caller.py:71
     // assert txn1.note == b"1"
     byte 0x31
     ==
     assert
-    // typed_abi_call_txn/caller.py:58
+    // typed_abi_call_txn/caller.py:74
     // asset_id = op.GITxn.created_asset_id(0)
     gitxn 0 CreatedAssetID
-    // typed_abi_call_txn/caller.py:59
+    // typed_abi_call_txn/caller.py:75
     // assert asset_id, "expected asset to be created"
     assert // expected asset to be created
     retsub

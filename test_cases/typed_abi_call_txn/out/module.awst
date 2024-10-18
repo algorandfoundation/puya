@@ -48,10 +48,16 @@ contract Caller extends (algopy.arc4.ARC4Contract)
     (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=5, source=SINGLE_EVAL(id=4, source=SINGLE_EVAL(id=3, source=submit_txn(txn, create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("call_with_acfg(byte[],acfg,byte[])uint64"), arc4_encode(a, arc4.dynamic_array<arc4.uint8>), arc4_encode(b, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app)))[-1]).LastLog)), extract<0, 4>(SINGLE_EVAL(id=5)) == hex<"151F7C75">)), uint64), SINGLE_EVAL(id=4))
   }
   
+  abimethod test_call_with_infer(a: bytes, b: bytes, app: application): void
+  {
+    txn: inner_transaction_fields_acfg = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetUnitName='TST', ConfigAssetName='TEST', ConfigAssetTotal=1u)
+    (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=8, source=SINGLE_EVAL(id=7, source=SINGLE_EVAL(id=6, source=submit_txn(txn, create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("call_with_acfg(byte[],acfg,byte[])uint64"), arc4_encode(a, arc4.dynamic_array<arc4.uint8>), arc4_encode(b, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app)))[-1]).LastLog)), extract<0, 4>(SINGLE_EVAL(id=8)) == hex<"151F7C75">)), uint64), SINGLE_EVAL(id=7))
+  }
+  
   abimethod test_call_with_acfg_no_return(a: bytes, b: bytes, app: application): void
   {
     acfg: inner_transaction_fields_acfg = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetUnitName='TST', ConfigAssetName='TEST', ConfigAssetTotal=1u)
-    txn1: inner_transaction_appl = SINGLE_EVAL(id=6, source=submit_txn(acfg, create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("call_with_acfg_no_return(byte[],acfg,byte[])void"), arc4_encode(a, arc4.dynamic_array<arc4.uint8>), arc4_encode(b, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app, Note=hex<"31">)))[-1]
+    txn1: inner_transaction_appl = SINGLE_EVAL(id=9, source=submit_txn(acfg, create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("call_with_acfg_no_return(byte[],acfg,byte[])void"), arc4_encode(a, arc4.dynamic_array<arc4.uint8>), arc4_encode(b, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app, Note=hex<"31">)))[-1]
     assert(txn1.Note == hex<"31">)
     txn1_copy1: inner_transaction_appl = txn1
     assert(txn1_copy1.Note == txn1.Note)
