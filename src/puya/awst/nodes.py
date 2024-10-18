@@ -640,7 +640,7 @@ class TupleItemExpression(Expression):
     """
 
     base: Expression
-    index: int
+    index: int | str
     wtype: wtypes.WType = attrs.field(init=False)
 
     @wtype.default
@@ -652,7 +652,14 @@ class TupleItemExpression(Expression):
                 self.source_location,
             )
         try:
-            wtype = base_wtype.types[self.index]
+            if isinstance(self.index, str):
+                if not isinstance(base_wtype, wtypes.WTuple):
+                    raise InternalError(f"{self.wtype} cannot be indexed by name")
+                wtype = base_wtype.types[
+                    base_wtype.name_to_index(self.index, self.source_location)
+                ]
+            else:
+                wtype = base_wtype.types[self.index]
         except IndexError as ex:
             raise CodeError("invalid index into tuple expression", self.source_location) from ex
         return wtype

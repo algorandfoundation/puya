@@ -1,0 +1,32 @@
+contract NamedTuplesContract extends (algopy.arc4.ARC4Contract)
+{
+  baremethod __algopy_default_create(): void
+  {
+  }
+  
+  abimethod build_tuple(a: uint64, b: biguint, c: string, d: bytes): test_cases.named_tuples.contract.TestTuple
+  {
+    t1: test_cases.named_tuples.contract.TestTuple = this::build_tuple_by_name(a, b, c, d)
+    t2: test_cases.named_tuples.contract.TestTuple = this::build_tuple_by_position(a, b, c, d)
+    assert(&&(&&(&&(t1[0] == t2[0], t1[1] == t2[1]), t1[2] == t2[2]), t1[3] == t2[3]))
+    return t1
+  }
+  
+  subroutine build_tuple_by_name(a: uint64, b: biguint, c: string, d: bytes): test_cases.named_tuples.contract.TestTuple
+  {
+    return (a, b, c, d)
+  }
+  
+  subroutine build_tuple_by_position(a: uint64, b: biguint, c: string, d: bytes): test_cases.named_tuples.contract.TestTuple
+  {
+    return (a, b, c, d)
+  }
+  
+  abimethod test_tuple(value: test_cases.named_tuples.contract.TestTuple): void
+  {
+    assert(value[a] < 1000u)
+    assert(value[b] < 36893488147419103232n)
+    assert(len(reinterpret_cast<bytes>(value[c])) > 1u)
+    assert(value[d] == reinterpret_cast<bytes>(txn<Sender>()))
+  }
+}

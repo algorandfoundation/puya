@@ -5,6 +5,9 @@ import typing
 
 import algopy
 
+class LogMessage(algopy.arc4.Struct):
+    level: algopy.arc4.UIntN[typing.Literal[64]]
+    message: algopy.arc4.String
 
 class Logger(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
@@ -126,3 +129,10 @@ class Logger(algopy.arc4.ARC4Client, typing.Protocol):
         a19: algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.UIntN[typing.Literal[8]]],
         a20: algopy.arc4.UIntN[typing.Literal[8]],
     ) -> algopy.arc4.DynamicBytes: ...
+
+    @algopy.arc4.abimethod
+    def logs_are_equal(
+        self,
+        log_1: LogMessage,
+        log_2: LogMessage,
+    ) -> algopy.arc4.Bool: ...

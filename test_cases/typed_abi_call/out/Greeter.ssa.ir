@@ -9,10 +9,10 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
             block@0: // L17
                 let tmp%0#0: uint64 = (txn NumAppArgs)
                 let tmp%1#0: bool = (!= tmp%0#0 0u)
-                goto tmp%1#0 ? block@1 : block@19
+                goto tmp%1#0 ? block@1 : block@20
             block@1: // abi_routing_L17
                 let tmp%2#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%2#0 {method "test_is_a_b(byte[],byte[],application)void" => block@2, method "test_method_selector_kinds(application)void" => block@3, method "test_method_overload(application)void" => block@4, method "test_arg_conversion(application)void" => block@5, method "test_15plus_args(application)void" => block@6, method "test_void(application)void" => block@7, method "test_ref_types(application,asset)void" => block@8, method "test_native_string(application)void" => block@9, method "test_native_bytes(application)void" => block@10, method "test_native_uint64(application)void" => block@11, method "test_native_biguint(application)void" => block@12, method "test_native_tuple(application)void" => block@13, method "test_native_tuple_method_ref(application)void" => block@14, method "test_nested_tuples(application)void" => block@15, method "test_no_args(application)void" => block@16, * => block@17}
+                switch tmp%2#0 {method "test_is_a_b(byte[],byte[],application)void" => block@2, method "test_method_selector_kinds(application)void" => block@3, method "test_method_overload(application)void" => block@4, method "test_arg_conversion(application)void" => block@5, method "test_15plus_args(application)void" => block@6, method "test_void(application)void" => block@7, method "test_ref_types(application,asset)void" => block@8, method "test_native_string(application)void" => block@9, method "test_native_bytes(application)void" => block@10, method "test_native_uint64(application)void" => block@11, method "test_native_biguint(application)void" => block@12, method "test_native_tuple(application)void" => block@13, method "test_native_tuple_method_ref(application)void" => block@14, method "test_nested_tuples(application)void" => block@15, method "test_no_args(application)void" => block@16, method "test_named_tuples(application)void" => block@17, * => block@18}
             block@2: // test_is_a_b_route_L18
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (== tmp%3#0 NoOp)
@@ -200,24 +200,36 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 let tmp%114#0: uint64 = ((txnas Applications) tmp%113#0)
                 test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args(tmp%114#0)
                 return 1u
-            block@17: // switch_case_default_L17
-                goto block@18
-            block@18: // switch_case_next_L17
-                goto block@23
-            block@19: // bare_routing_L17
+            block@17: // test_named_tuples_route_L339
                 let tmp%115#0: uint64 = (txn OnCompletion)
-                switch tmp%115#0 {0u => block@20, * => block@21}
-            block@20: // __algopy_default_create_L17
-                let tmp%116#0: uint64 = (txn ApplicationID)
-                let tmp%117#0: bool = (== tmp%116#0 0u)
-                (assert tmp%117#0) // is creating
+                let tmp%116#0: bool = (== tmp%115#0 NoOp)
+                (assert tmp%116#0) // OnCompletion is NoOp
+                let tmp%117#0: uint64 = (txn ApplicationID)
+                let tmp%118#0: bool = (!= tmp%117#0 0u)
+                (assert tmp%118#0) // is not creating
+                let tmp%119#0: bytes = (txna ApplicationArgs 1)
+                let tmp%120#0: uint64 = (btoi tmp%119#0)
+                let tmp%121#0: uint64 = ((txnas Applications) tmp%120#0)
+                test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples(tmp%121#0)
+                return 1u
+            block@18: // switch_case_default_L17
+                goto block@19
+            block@19: // switch_case_next_L17
+                goto block@24
+            block@20: // bare_routing_L17
+                let tmp%122#0: uint64 = (txn OnCompletion)
+                switch tmp%122#0 {0u => block@21, * => block@22}
+            block@21: // __algopy_default_create_L17
+                let tmp%123#0: uint64 = (txn ApplicationID)
+                let tmp%124#0: bool = (== tmp%123#0 0u)
+                (assert tmp%124#0) // is creating
                 test_cases.typed_abi_call.typed_c2c.Greeter.__algopy_default_create()
                 return 1u
-            block@21: // switch_case_default_L17
-                goto block@22
-            block@22: // switch_case_next_L17
+            block@22: // switch_case_default_L17
                 goto block@23
-            block@23: // after_if_else_L17
+            block@23: // switch_case_next_L17
+                goto block@24
+            block@24: // after_if_else_L17
                 return 0u
         
         subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_is_a_b(a: bytes, b: bytes, app: uint64) -> void:
@@ -7159,6 +7171,345 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 let reinterpret_biguint%3#0: biguint = 0x000000000000002a
                 let tmp%16#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
                 (assert tmp%16#0)
+                return 
+        
+        subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples(app: uint64) -> void:
+            block@0: // L339
+                itxn_begin
+                let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
+                let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
+                let inner_txn_params%0%%Fee_length#0: uint64 = 1u
+                let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
+                let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
+                let val_as_bytes%0#0: bytes = (itob 1u)
+                let length%0#0: uint64 = (len "log 1")
+                let as_bytes%0#0: bytes = (itob length%0#0)
+                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "log 1")
+                let current_tail_offset%0#0: uint64 = 10u
+                let encoded_tuple_buffer%0#0: bytes = 0x
+                let encoded_tuple_buffer%1#0: bytes = (concat encoded_tuple_buffer%0#0 val_as_bytes%0#0)
+                let as_bytes%1#0: bytes = (itob current_tail_offset%0#0)
+                let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let encoded_tuple_buffer%2#0: bytes = (concat encoded_tuple_buffer%1#0 offset_as_uint16%0#0)
+                let data_length%0#0: uint64 = (len encoded_value%0#0)
+                let current_tail_offset%1#0: uint64 = (+ current_tail_offset%0#0 data_length%0#0)
+                let encoded_tuple_buffer%3#0: bytes = (concat encoded_tuple_buffer%2#0 encoded_value%0#0)
+                let val_as_bytes%1#0: bytes = (itob 1u)
+                let length%1#0: uint64 = (len "log 1")
+                let as_bytes%2#0: bytes = (itob length%1#0)
+                let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%2#0)
+                let encoded_value%1#0: bytes = (concat length_uint16%1#0 "log 1")
+                let current_tail_offset%2#0: uint64 = 10u
+                let encoded_tuple_buffer%4#0: bytes = 0x
+                let encoded_tuple_buffer%5#0: bytes = (concat encoded_tuple_buffer%4#0 val_as_bytes%1#0)
+                let as_bytes%3#0: bytes = (itob current_tail_offset%2#0)
+                let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%3#0)
+                let encoded_tuple_buffer%6#0: bytes = (concat encoded_tuple_buffer%5#0 offset_as_uint16%1#0)
+                let data_length%1#0: uint64 = (len encoded_value%1#0)
+                let current_tail_offset%3#0: uint64 = (+ current_tail_offset%2#0 data_length%1#0)
+                let encoded_tuple_buffer%7#0: bytes = (concat encoded_tuple_buffer%6#0 encoded_value%1#0)
+                let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes = method "logs_are_equal((uint64,string),(uint64,string))bool"
+                let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = encoded_tuple_buffer%3#0
+                let inner_txn_params%0%%param_ApplicationArgs_idx_2#0: bytes = encoded_tuple_buffer%7#0
+                let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 3u
+                let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
+                let inner_txn_params%0%%ApplicationID_length#0: uint64 = 1u
+                let inner_txn_params%0%%Sender_length#0: uint64 = 0u
+                let inner_txn_params%0%%Note_length#0: uint64 = 0u
+                let inner_txn_params%0%%Receiver_length#0: uint64 = 0u
+                let inner_txn_params%0%%Amount_length#0: uint64 = 0u
+                let inner_txn_params%0%%CloseRemainderTo_length#0: uint64 = 0u
+                let inner_txn_params%0%%VotePK_length#0: uint64 = 0u
+                let inner_txn_params%0%%SelectionPK_length#0: uint64 = 0u
+                let inner_txn_params%0%%VoteFirst_length#0: uint64 = 0u
+                let inner_txn_params%0%%VoteLast_length#0: uint64 = 0u
+                let inner_txn_params%0%%VoteKeyDilution_length#0: uint64 = 0u
+                let inner_txn_params%0%%Type_length#0: uint64 = 0u
+                let inner_txn_params%0%%XferAsset_length#0: uint64 = 0u
+                let inner_txn_params%0%%AssetAmount_length#0: uint64 = 0u
+                let inner_txn_params%0%%AssetSender_length#0: uint64 = 0u
+                let inner_txn_params%0%%AssetReceiver_length#0: uint64 = 0u
+                let inner_txn_params%0%%AssetCloseTo_length#0: uint64 = 0u
+                let inner_txn_params%0%%OnCompletion_length#0: uint64 = 0u
+                let inner_txn_params%0%%ApprovalProgram_length#0: uint64 = 0u
+                let inner_txn_params%0%%ClearStateProgram_length#0: uint64 = 0u
+                let inner_txn_params%0%%RekeyTo_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAsset_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetTotal_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetDecimals_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetUnitName_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetName_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetURL_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetManager_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetReserve_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetFreeze_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetClawback_length#0: uint64 = 0u
+                let inner_txn_params%0%%FreezeAsset_length#0: uint64 = 0u
+                let inner_txn_params%0%%FreezeAssetAccount_length#0: uint64 = 0u
+                let inner_txn_params%0%%FreezeAssetFrozen_length#0: uint64 = 0u
+                let inner_txn_params%0%%GlobalNumUint_length#0: uint64 = 0u
+                let inner_txn_params%0%%GlobalNumByteSlice_length#0: uint64 = 0u
+                let inner_txn_params%0%%LocalNumUint_length#0: uint64 = 0u
+                let inner_txn_params%0%%LocalNumByteSlice_length#0: uint64 = 0u
+                let inner_txn_params%0%%ExtraProgramPages_length#0: uint64 = 0u
+                let inner_txn_params%0%%Nonparticipation_length#0: uint64 = 0u
+                let inner_txn_params%0%%StateProofPK_length#0: uint64 = 0u
+                let inner_txn_params%0%%Accounts_length#0: uint64 = 0u
+                let inner_txn_params%0%%Assets_length#0: uint64 = 0u
+                let inner_txn_params%0%%Applications_length#0: uint64 = 0u
+                let inner_txn_params%0%%ApprovalProgramPages_length#0: uint64 = 0u
+                let inner_txn_params%0%%ClearStateProgramPages_length#0: uint64 = 0u
+                ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_0#0)
+                ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_2#0)
+                ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
+                goto block@1
+            block@1: // next_txn_L341
+                itxn_submit
+                let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
+                let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+                let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
+                let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+                (assert tmp%2#0) // ARC4 prefix is valid
+                let tmp%3#0: bool = (getbit tmp%0#0 0u)
+                let result#0: bool = tmp%3#0
+                let _txn#0: itxn_group_idx = itxn_group_idx(0)
+                let _txn._is_last#0: bool = 1u
+                let _txn.Sender#0: bytes = itxn[_txn#0].Sender
+                let _txn.Fee#0: uint64 = itxn[_txn#0].Fee
+                let _txn.FirstValid#0: uint64 = itxn[_txn#0].FirstValid
+                let _txn.FirstValidTime#0: uint64 = itxn[_txn#0].FirstValidTime
+                let _txn.LastValid#0: uint64 = itxn[_txn#0].LastValid
+                let _txn.Note#0: bytes = itxn[_txn#0].Note
+                let _txn.Lease#0: bytes = itxn[_txn#0].Lease
+                let _txn.Receiver#0: bytes = itxn[_txn#0].Receiver
+                let _txn.Amount#0: uint64 = itxn[_txn#0].Amount
+                let _txn.CloseRemainderTo#0: bytes = itxn[_txn#0].CloseRemainderTo
+                let _txn.VotePK#0: bytes = itxn[_txn#0].VotePK
+                let _txn.SelectionPK#0: bytes = itxn[_txn#0].SelectionPK
+                let _txn.VoteFirst#0: uint64 = itxn[_txn#0].VoteFirst
+                let _txn.VoteLast#0: uint64 = itxn[_txn#0].VoteLast
+                let _txn.VoteKeyDilution#0: uint64 = itxn[_txn#0].VoteKeyDilution
+                let _txn.Type#0: bytes = itxn[_txn#0].Type
+                let _txn.TypeEnum#0: uint64 = itxn[_txn#0].TypeEnum
+                let _txn.XferAsset#0: uint64 = itxn[_txn#0].XferAsset
+                let _txn.AssetAmount#0: uint64 = itxn[_txn#0].AssetAmount
+                let _txn.AssetSender#0: bytes = itxn[_txn#0].AssetSender
+                let _txn.AssetReceiver#0: bytes = itxn[_txn#0].AssetReceiver
+                let _txn.AssetCloseTo#0: bytes = itxn[_txn#0].AssetCloseTo
+                let _txn.GroupIndex#0: uint64 = itxn[_txn#0].GroupIndex
+                let _txn.TxID#0: bytes = itxn[_txn#0].TxID
+                let _txn.ApplicationID#0: uint64 = itxn[_txn#0].ApplicationID
+                let _txn.OnCompletion#0: uint64 = itxn[_txn#0].OnCompletion
+                let _txn.NumAppArgs#0: uint64 = itxn[_txn#0].NumAppArgs
+                let _txn.NumAccounts#0: uint64 = itxn[_txn#0].NumAccounts
+                let _txn.ApprovalProgram#0: bytes = itxn[_txn#0].ApprovalProgram
+                let _txn.ClearStateProgram#0: bytes = itxn[_txn#0].ClearStateProgram
+                let _txn.RekeyTo#0: bytes = itxn[_txn#0].RekeyTo
+                let _txn.ConfigAsset#0: uint64 = itxn[_txn#0].ConfigAsset
+                let _txn.ConfigAssetTotal#0: uint64 = itxn[_txn#0].ConfigAssetTotal
+                let _txn.ConfigAssetDecimals#0: uint64 = itxn[_txn#0].ConfigAssetDecimals
+                let _txn.ConfigAssetDefaultFrozen#0: bool = itxn[_txn#0].ConfigAssetDefaultFrozen
+                let _txn.ConfigAssetUnitName#0: bytes = itxn[_txn#0].ConfigAssetUnitName
+                let _txn.ConfigAssetName#0: bytes = itxn[_txn#0].ConfigAssetName
+                let _txn.ConfigAssetURL#0: bytes = itxn[_txn#0].ConfigAssetURL
+                let _txn.ConfigAssetMetadataHash#0: bytes = itxn[_txn#0].ConfigAssetMetadataHash
+                let _txn.ConfigAssetManager#0: bytes = itxn[_txn#0].ConfigAssetManager
+                let _txn.ConfigAssetReserve#0: bytes = itxn[_txn#0].ConfigAssetReserve
+                let _txn.ConfigAssetFreeze#0: bytes = itxn[_txn#0].ConfigAssetFreeze
+                let _txn.ConfigAssetClawback#0: bytes = itxn[_txn#0].ConfigAssetClawback
+                let _txn.FreezeAsset#0: uint64 = itxn[_txn#0].FreezeAsset
+                let _txn.FreezeAssetAccount#0: bytes = itxn[_txn#0].FreezeAssetAccount
+                let _txn.FreezeAssetFrozen#0: bool = itxn[_txn#0].FreezeAssetFrozen
+                let _txn.NumAssets#0: uint64 = itxn[_txn#0].NumAssets
+                let _txn.NumApplications#0: uint64 = itxn[_txn#0].NumApplications
+                let _txn.GlobalNumUint#0: uint64 = itxn[_txn#0].GlobalNumUint
+                let _txn.GlobalNumByteSlice#0: uint64 = itxn[_txn#0].GlobalNumByteSlice
+                let _txn.LocalNumUint#0: uint64 = itxn[_txn#0].LocalNumUint
+                let _txn.LocalNumByteSlice#0: uint64 = itxn[_txn#0].LocalNumByteSlice
+                let _txn.ExtraProgramPages#0: uint64 = itxn[_txn#0].ExtraProgramPages
+                let _txn.Nonparticipation#0: bool = itxn[_txn#0].Nonparticipation
+                let _txn.NumLogs#0: uint64 = itxn[_txn#0].NumLogs
+                let _txn.CreatedAssetID#0: uint64 = itxn[_txn#0].CreatedAssetID
+                let _txn.CreatedApplicationID#0: uint64 = itxn[_txn#0].CreatedApplicationID
+                let _txn.LastLog#0: bytes = itxn[_txn#0].LastLog
+                let _txn.StateProofPK#0: bytes = itxn[_txn#0].StateProofPK
+                let _txn.NumApprovalProgramPages#0: uint64 = itxn[_txn#0].NumApprovalProgramPages
+                let _txn.NumClearStateProgramPages#0: uint64 = itxn[_txn#0].NumClearStateProgramPages
+                (assert result#0)
+                itxn_begin
+                let inner_txn_params%1#0: itxn_field_set = itxn_field_set(1)
+                let inner_txn_params%1%%param_Fee_idx_0#0: uint64 = 0u
+                let inner_txn_params%1%%Fee_length#0: uint64 = 1u
+                let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
+                let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
+                let val_as_bytes%2#0: bytes = (itob 2u)
+                let length%2#0: uint64 = (len "log 2")
+                let as_bytes%4#0: bytes = (itob length%2#0)
+                let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%4#0)
+                let encoded_value%2#0: bytes = (concat length_uint16%2#0 "log 2")
+                let current_tail_offset%4#0: uint64 = 10u
+                let encoded_tuple_buffer%8#0: bytes = 0x
+                let encoded_tuple_buffer%9#0: bytes = (concat encoded_tuple_buffer%8#0 val_as_bytes%2#0)
+                let as_bytes%5#0: bytes = (itob current_tail_offset%4#0)
+                let offset_as_uint16%2#0: bytes = ((extract 6 2) as_bytes%5#0)
+                let encoded_tuple_buffer%10#0: bytes = (concat encoded_tuple_buffer%9#0 offset_as_uint16%2#0)
+                let data_length%2#0: uint64 = (len encoded_value%2#0)
+                let current_tail_offset%5#0: uint64 = (+ current_tail_offset%4#0 data_length%2#0)
+                let encoded_tuple_buffer%11#0: bytes = (concat encoded_tuple_buffer%10#0 encoded_value%2#0)
+                let val_as_bytes%3#0: bytes = (itob 1u)
+                let length%3#0: uint64 = (len "log 1")
+                let as_bytes%6#0: bytes = (itob length%3#0)
+                let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%6#0)
+                let encoded_value%3#0: bytes = (concat length_uint16%3#0 "log 1")
+                let current_tail_offset%6#0: uint64 = 10u
+                let encoded_tuple_buffer%12#0: bytes = 0x
+                let encoded_tuple_buffer%13#0: bytes = (concat encoded_tuple_buffer%12#0 val_as_bytes%3#0)
+                let as_bytes%7#0: bytes = (itob current_tail_offset%6#0)
+                let offset_as_uint16%3#0: bytes = ((extract 6 2) as_bytes%7#0)
+                let encoded_tuple_buffer%14#0: bytes = (concat encoded_tuple_buffer%13#0 offset_as_uint16%3#0)
+                let data_length%3#0: uint64 = (len encoded_value%3#0)
+                let current_tail_offset%7#0: uint64 = (+ current_tail_offset%6#0 data_length%3#0)
+                let encoded_tuple_buffer%15#0: bytes = (concat encoded_tuple_buffer%14#0 encoded_value%3#0)
+                let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes = method "logs_are_equal((uint64,string),(uint64,string))bool"
+                let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = encoded_tuple_buffer%11#0
+                let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: bytes = encoded_tuple_buffer%15#0
+                let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 3u
+                let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
+                let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
+                let inner_txn_params%1%%Sender_length#0: uint64 = 0u
+                let inner_txn_params%1%%Note_length#0: uint64 = 0u
+                let inner_txn_params%1%%Receiver_length#0: uint64 = 0u
+                let inner_txn_params%1%%Amount_length#0: uint64 = 0u
+                let inner_txn_params%1%%CloseRemainderTo_length#0: uint64 = 0u
+                let inner_txn_params%1%%VotePK_length#0: uint64 = 0u
+                let inner_txn_params%1%%SelectionPK_length#0: uint64 = 0u
+                let inner_txn_params%1%%VoteFirst_length#0: uint64 = 0u
+                let inner_txn_params%1%%VoteLast_length#0: uint64 = 0u
+                let inner_txn_params%1%%VoteKeyDilution_length#0: uint64 = 0u
+                let inner_txn_params%1%%Type_length#0: uint64 = 0u
+                let inner_txn_params%1%%XferAsset_length#0: uint64 = 0u
+                let inner_txn_params%1%%AssetAmount_length#0: uint64 = 0u
+                let inner_txn_params%1%%AssetSender_length#0: uint64 = 0u
+                let inner_txn_params%1%%AssetReceiver_length#0: uint64 = 0u
+                let inner_txn_params%1%%AssetCloseTo_length#0: uint64 = 0u
+                let inner_txn_params%1%%OnCompletion_length#0: uint64 = 0u
+                let inner_txn_params%1%%ApprovalProgram_length#0: uint64 = 0u
+                let inner_txn_params%1%%ClearStateProgram_length#0: uint64 = 0u
+                let inner_txn_params%1%%RekeyTo_length#0: uint64 = 0u
+                let inner_txn_params%1%%ConfigAsset_length#0: uint64 = 0u
+                let inner_txn_params%1%%ConfigAssetTotal_length#0: uint64 = 0u
+                let inner_txn_params%1%%ConfigAssetDecimals_length#0: uint64 = 0u
+                let inner_txn_params%1%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+                let inner_txn_params%1%%ConfigAssetUnitName_length#0: uint64 = 0u
+                let inner_txn_params%1%%ConfigAssetName_length#0: uint64 = 0u
+                let inner_txn_params%1%%ConfigAssetURL_length#0: uint64 = 0u
+                let inner_txn_params%1%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+                let inner_txn_params%1%%ConfigAssetManager_length#0: uint64 = 0u
+                let inner_txn_params%1%%ConfigAssetReserve_length#0: uint64 = 0u
+                let inner_txn_params%1%%ConfigAssetFreeze_length#0: uint64 = 0u
+                let inner_txn_params%1%%ConfigAssetClawback_length#0: uint64 = 0u
+                let inner_txn_params%1%%FreezeAsset_length#0: uint64 = 0u
+                let inner_txn_params%1%%FreezeAssetAccount_length#0: uint64 = 0u
+                let inner_txn_params%1%%FreezeAssetFrozen_length#0: uint64 = 0u
+                let inner_txn_params%1%%GlobalNumUint_length#0: uint64 = 0u
+                let inner_txn_params%1%%GlobalNumByteSlice_length#0: uint64 = 0u
+                let inner_txn_params%1%%LocalNumUint_length#0: uint64 = 0u
+                let inner_txn_params%1%%LocalNumByteSlice_length#0: uint64 = 0u
+                let inner_txn_params%1%%ExtraProgramPages_length#0: uint64 = 0u
+                let inner_txn_params%1%%Nonparticipation_length#0: uint64 = 0u
+                let inner_txn_params%1%%StateProofPK_length#0: uint64 = 0u
+                let inner_txn_params%1%%Accounts_length#0: uint64 = 0u
+                let inner_txn_params%1%%Assets_length#0: uint64 = 0u
+                let inner_txn_params%1%%Applications_length#0: uint64 = 0u
+                let inner_txn_params%1%%ApprovalProgramPages_length#0: uint64 = 0u
+                let inner_txn_params%1%%ClearStateProgramPages_length#0: uint64 = 0u
+                ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_0#0)
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_2#0)
+                ((itxn_field TypeEnum) inner_txn_params%1%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) inner_txn_params%1%%param_Fee_idx_0#0)
+                goto block@2
+            block@2: // next_txn_L348
+                itxn_submit
+                let awst_tmp%1#0: bytes = itxn[itxn_group_idx(0)].LastLog
+                let tmp%4#0: bytes = ((extract 4 0) awst_tmp%1#0)
+                let tmp%5#0: bytes = ((extract 0 4) awst_tmp%1#0)
+                let tmp%6#0: bool = (== tmp%5#0 0x151f7c75)
+                (assert tmp%6#0) // ARC4 prefix is valid
+                let tmp%7#0: bool = (getbit tmp%4#0 0u)
+                let result#1: bool = tmp%7#0
+                let _txn#1: itxn_group_idx = itxn_group_idx(0)
+                let _txn._is_last#1: bool = 1u
+                let _txn.Sender#1: bytes = itxn[_txn#1].Sender
+                let _txn.Fee#1: uint64 = itxn[_txn#1].Fee
+                let _txn.FirstValid#1: uint64 = itxn[_txn#1].FirstValid
+                let _txn.FirstValidTime#1: uint64 = itxn[_txn#1].FirstValidTime
+                let _txn.LastValid#1: uint64 = itxn[_txn#1].LastValid
+                let _txn.Note#1: bytes = itxn[_txn#1].Note
+                let _txn.Lease#1: bytes = itxn[_txn#1].Lease
+                let _txn.Receiver#1: bytes = itxn[_txn#1].Receiver
+                let _txn.Amount#1: uint64 = itxn[_txn#1].Amount
+                let _txn.CloseRemainderTo#1: bytes = itxn[_txn#1].CloseRemainderTo
+                let _txn.VotePK#1: bytes = itxn[_txn#1].VotePK
+                let _txn.SelectionPK#1: bytes = itxn[_txn#1].SelectionPK
+                let _txn.VoteFirst#1: uint64 = itxn[_txn#1].VoteFirst
+                let _txn.VoteLast#1: uint64 = itxn[_txn#1].VoteLast
+                let _txn.VoteKeyDilution#1: uint64 = itxn[_txn#1].VoteKeyDilution
+                let _txn.Type#1: bytes = itxn[_txn#1].Type
+                let _txn.TypeEnum#1: uint64 = itxn[_txn#1].TypeEnum
+                let _txn.XferAsset#1: uint64 = itxn[_txn#1].XferAsset
+                let _txn.AssetAmount#1: uint64 = itxn[_txn#1].AssetAmount
+                let _txn.AssetSender#1: bytes = itxn[_txn#1].AssetSender
+                let _txn.AssetReceiver#1: bytes = itxn[_txn#1].AssetReceiver
+                let _txn.AssetCloseTo#1: bytes = itxn[_txn#1].AssetCloseTo
+                let _txn.GroupIndex#1: uint64 = itxn[_txn#1].GroupIndex
+                let _txn.TxID#1: bytes = itxn[_txn#1].TxID
+                let _txn.ApplicationID#1: uint64 = itxn[_txn#1].ApplicationID
+                let _txn.OnCompletion#1: uint64 = itxn[_txn#1].OnCompletion
+                let _txn.NumAppArgs#1: uint64 = itxn[_txn#1].NumAppArgs
+                let _txn.NumAccounts#1: uint64 = itxn[_txn#1].NumAccounts
+                let _txn.ApprovalProgram#1: bytes = itxn[_txn#1].ApprovalProgram
+                let _txn.ClearStateProgram#1: bytes = itxn[_txn#1].ClearStateProgram
+                let _txn.RekeyTo#1: bytes = itxn[_txn#1].RekeyTo
+                let _txn.ConfigAsset#1: uint64 = itxn[_txn#1].ConfigAsset
+                let _txn.ConfigAssetTotal#1: uint64 = itxn[_txn#1].ConfigAssetTotal
+                let _txn.ConfigAssetDecimals#1: uint64 = itxn[_txn#1].ConfigAssetDecimals
+                let _txn.ConfigAssetDefaultFrozen#1: bool = itxn[_txn#1].ConfigAssetDefaultFrozen
+                let _txn.ConfigAssetUnitName#1: bytes = itxn[_txn#1].ConfigAssetUnitName
+                let _txn.ConfigAssetName#1: bytes = itxn[_txn#1].ConfigAssetName
+                let _txn.ConfigAssetURL#1: bytes = itxn[_txn#1].ConfigAssetURL
+                let _txn.ConfigAssetMetadataHash#1: bytes = itxn[_txn#1].ConfigAssetMetadataHash
+                let _txn.ConfigAssetManager#1: bytes = itxn[_txn#1].ConfigAssetManager
+                let _txn.ConfigAssetReserve#1: bytes = itxn[_txn#1].ConfigAssetReserve
+                let _txn.ConfigAssetFreeze#1: bytes = itxn[_txn#1].ConfigAssetFreeze
+                let _txn.ConfigAssetClawback#1: bytes = itxn[_txn#1].ConfigAssetClawback
+                let _txn.FreezeAsset#1: uint64 = itxn[_txn#1].FreezeAsset
+                let _txn.FreezeAssetAccount#1: bytes = itxn[_txn#1].FreezeAssetAccount
+                let _txn.FreezeAssetFrozen#1: bool = itxn[_txn#1].FreezeAssetFrozen
+                let _txn.NumAssets#1: uint64 = itxn[_txn#1].NumAssets
+                let _txn.NumApplications#1: uint64 = itxn[_txn#1].NumApplications
+                let _txn.GlobalNumUint#1: uint64 = itxn[_txn#1].GlobalNumUint
+                let _txn.GlobalNumByteSlice#1: uint64 = itxn[_txn#1].GlobalNumByteSlice
+                let _txn.LocalNumUint#1: uint64 = itxn[_txn#1].LocalNumUint
+                let _txn.LocalNumByteSlice#1: uint64 = itxn[_txn#1].LocalNumByteSlice
+                let _txn.ExtraProgramPages#1: uint64 = itxn[_txn#1].ExtraProgramPages
+                let _txn.Nonparticipation#1: bool = itxn[_txn#1].Nonparticipation
+                let _txn.NumLogs#1: uint64 = itxn[_txn#1].NumLogs
+                let _txn.CreatedAssetID#1: uint64 = itxn[_txn#1].CreatedAssetID
+                let _txn.CreatedApplicationID#1: uint64 = itxn[_txn#1].CreatedApplicationID
+                let _txn.LastLog#1: bytes = itxn[_txn#1].LastLog
+                let _txn.StateProofPK#1: bytes = itxn[_txn#1].StateProofPK
+                let _txn.NumApprovalProgramPages#1: uint64 = itxn[_txn#1].NumApprovalProgramPages
+                let _txn.NumClearStateProgramPages#1: uint64 = itxn[_txn#1].NumClearStateProgramPages
+                let tmp%8#0: bool = (! result#1)
+                (assert tmp%8#0)
                 return 
         
         subroutine test_cases.typed_abi_call.typed_c2c.Greeter.__algopy_default_create() -> void:

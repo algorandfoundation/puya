@@ -87,6 +87,11 @@ contract Logger extends (algopy.arc4.ARC4Contract)
     assert(txna<ApplicationArgs, 15>() == reinterpret_cast<bytes>(last_arg))
     return arc4_encode(reinterpret_cast<bytes>(last_arg), arc4.dynamic_array<arc4.uint8>)
   }
+  
+  abimethod logs_are_equal(log_1: test_cases.typed_abi_call.logger.LogMessage, log_2: test_cases.typed_abi_call.logger.LogMessage): bool
+  {
+    return &&(log_1[0] == log_2[0], log_1[1] == log_2[1])
+  }
 }
 
 contract Greeter extends (algopy.arc4.ARC4Contract)
@@ -273,5 +278,13 @@ contract Greeter extends (algopy.arc4.ARC4Contract)
     assert(reinterpret_cast<biguint>(arc4_result) == reinterpret_cast<biguint>(42arc4u64))
     (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=71, source=SINGLE_EVAL(id=70, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("no_args()uint64")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=71)) == hex<"151F7C75">)), uint64), SINGLE_EVAL(id=70))
     assert(reinterpret_cast<biguint>(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=72, source=itxn<LastLog>())), extract<0, 4>(SINGLE_EVAL(id=72)) == hex<"151F7C75">))) == reinterpret_cast<biguint>(42arc4u64))
+  }
+  
+  abimethod test_named_tuples(app: application): void
+  {
+    (result, _txn): tuple<bool,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=74, source=SINGLE_EVAL(id=73, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("logs_are_equal((uint64,string),(uint64,string))bool"), new test_cases.typed_abi_call.logger.LogMessage(level=arc4_encode((1u, 'log 1')[0], arc4.uint64), message=arc4_encode((1u, 'log 1')[1], arc4.dynamic_array<arc4.uint8>)), new test_cases.typed_abi_call.logger.LogMessage(level=arc4_encode((1u, 'log 1')[0], arc4.uint64), message=arc4_encode((1u, 'log 1')[1], arc4.dynamic_array<arc4.uint8>))), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=74)) == hex<"151F7C75">)), bool), SINGLE_EVAL(id=73))
+    assert(result)
+    (result, _txn): tuple<bool,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=76, source=SINGLE_EVAL(id=75, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("logs_are_equal((uint64,string),(uint64,string))bool"), new test_cases.typed_abi_call.logger.LogMessage(level=arc4_encode((2u, 'log 2')[0], arc4.uint64), message=arc4_encode((2u, 'log 2')[1], arc4.dynamic_array<arc4.uint8>)), new test_cases.typed_abi_call.logger.LogMessage(level=arc4_encode((1u, 'log 1')[0], arc4.uint64), message=arc4_encode((1u, 'log 1')[1], arc4.dynamic_array<arc4.uint8>))), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=76)) == hex<"151F7C75">)), bool), SINGLE_EVAL(id=75))
+    assert(!(result))
   }
 }

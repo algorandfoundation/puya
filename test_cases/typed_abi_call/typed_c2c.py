@@ -11,7 +11,7 @@ from algopy import (
     op,
 )
 
-from test_cases.typed_abi_call.logger import LOG_METHOD_NAME, Logger, LoggerClient
+from test_cases.typed_abi_call.logger import LOG_METHOD_NAME, Logger, LoggerClient, LogMessage
 
 
 class Greeter(ARC4Contract):
@@ -335,3 +335,20 @@ class Greeter(ARC4Contract):
 
         arc4.abi_call(Logger.no_args, app_id=app)
         assert arc4.UInt64.from_log(op.ITxn.last_log()) == 42
+
+    @arc4.abimethod()
+    def test_named_tuples(self, app: Application) -> None:
+        result, _txn = arc4.abi_call(
+            Logger.logs_are_equal,
+            (UInt64(1), String("log 1")),
+            LogMessage(level=UInt64(1), message=String("log 1")),
+            app_id=app,
+        )
+        assert result
+        result, _txn = arc4.abi_call(
+            Logger.logs_are_equal,
+            (UInt64(2), String("log 2")),
+            LogMessage(level=UInt64(1), message=String("log 1")),
+            app_id=app,
+        )
+        assert not result

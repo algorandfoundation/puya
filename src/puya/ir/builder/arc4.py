@@ -398,8 +398,15 @@ def handle_arc4_assign(
                 is_mutation=True,
             )
         case awst_nodes.TupleItemExpression(
+            base=awst_nodes.Expression(wtype=wtypes.ARC4Tuple() as base_type),
+            index=str(),
+        ):
+            raise InternalError(
+                f"{base_type} does not support indexing by name", target.source_location
+            )
+        case awst_nodes.TupleItemExpression(
             base=awst_nodes.Expression(wtype=wtypes.ARC4Tuple() as tuple_wtype) as base_expr,
-            index=index_value,
+            index=int(index_value),
         ):
             return handle_arc4_assign(
                 context,
@@ -442,9 +449,9 @@ def handle_arc4_assign(
 
 def _get_tuple_var_name(expr: awst_nodes.TupleItemExpression) -> str:
     if isinstance(expr.base, awst_nodes.TupleItemExpression):
-        return format_tuple_index(_get_tuple_var_name(expr.base), expr.index)
+        return format_tuple_index(expr.base.wtype, _get_tuple_var_name(expr.base), expr.index)
     if isinstance(expr.base, awst_nodes.VarExpression):
-        return format_tuple_index(expr.base.name, expr.index)
+        return format_tuple_index(expr.base.wtype, expr.base.name, expr.index)
     raise CodeError("Invalid assignment target", expr.base.source_location)
 
 

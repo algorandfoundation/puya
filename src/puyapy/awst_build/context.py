@@ -246,6 +246,8 @@ def type_to_pytype(
             generic = registry.get(true_type.type.fullname)
             if generic is None:
                 raise CodeError(f"Unknown tuple base type: {true_type.type.fullname}", loc)
+            if isinstance(generic, pytypes.TupleType):
+                return generic  # Named tuples extend generic tuples but are not themselves generic
             return _maybe_parameterise_pytype(registry, generic, items, loc)
         case mypy.types.LiteralType(fallback=fallback, value=literal_value) as mypy_literal_type:
             if not in_type_args:

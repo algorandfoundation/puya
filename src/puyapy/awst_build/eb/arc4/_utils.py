@@ -11,6 +11,7 @@ from puya.parse import SourceLocation
 from puyapy.awst_build import arc4_utils, pytypes
 from puyapy.awst_build.arc4_utils import pytype_to_arc4_pytype
 from puyapy.awst_build.eb import _expect as expect
+from puyapy.awst_build.eb._literals import LiteralBuilderImpl
 from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.factories import builder_for_type
 from puyapy.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
@@ -187,6 +188,25 @@ def _implicit_arc4_conversion(
         )
         return dummy_value(target_type, instance.source_location)
     target_type_builder = builder_for_type(target_type, instance.source_location)
+    if isinstance(target_type, pytypes.StructType) and isinstance(
+        instance.pytype, pytypes.TupleType
+    ):
+        # Special handling to map tuples (named and unnamed) to arc4 structs
+        num_fields = len(target_type.types)
+        return target_type_builder.call(
+            args=[
+                _implicit_arc4_conversion(
+                    instance.index(
+                        LiteralBuilderImpl(idx, instance.source_location), instance.source_location
+                    ),
+                    typ,
+                )
+                for idx, typ in enumerate(target_type.types)
+            ],
+            arg_names=[None] * num_fields,
+            arg_kinds=[mypy.nodes.ARG_POS] * num_fields,
+            location=instance.source_location,
+        )
     return target_type_builder.call(
         args=[instance],
         arg_names=[None],

@@ -191,13 +191,22 @@ class WArray(WType):
         return f"array<{self.element_type.name}>"
 
 
+def _names_converter(val: Iterable[str] | None) -> tuple[str, ...] | None:
+    return None if val is None else tuple[str, ...](val)
+
+
 @typing.final
 @attrs.frozen
 class WTuple(WType):
+    names: Sequence[str] | None = attrs.field(
+        default=None,
+        kw_only=True,
+        converter=_names_converter,
+    )
     types: Sequence[WType] = attrs.field(converter=tuple[WType, ...])
     scalar_type: None = attrs.field(default=None, init=False)
     immutable: bool = attrs.field(default=True, init=False)
-    name: str = attrs.field(init=False)
+    name: str = attrs.field(eq=False, kw_only=True)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
 
     @types.validator
@@ -210,6 +219,16 @@ class WTuple(WType):
     @name.default
     def _name(self) -> str:
         return f"tuple<{','.join([t.name for t in self.types])}>"
+
+    def name_to_index(self, name: str, source_location: SourceLocation) -> int:
+        try:
+            if self.names is None:
+                raise CodeError(
+                    "Cannot access tuple item by name of an unnamed tuple", source_location
+                )
+            return next(idx for idx, n in enumerate(self.names) if n == name)
+        except StopIteration as ex:
+            raise CodeError(f"{name} is not a member of {self.name}") from ex
 
 
 @attrs.frozen(kw_only=True)
@@ -439,6 +458,24 @@ class ARC4Struct(ARC4Type):
     @cached_property
     def types(self) -> Sequence[ARC4Type]:
         return list(self.fields.values())
+
+    def can_encode_type(self, wtype: WType) -> bool:
+        if wtype == self.decode_type:
+            return True
+        elif not isinstance(wtype, WTuple) or len(wtype.types) != len(self.types):
+            return False
+        elif wtype.names is not None:
+            # Named tuple must have same fields and types
+            return len(wtype.names) == len(self.fields) and all(
+                n == f and (t == ft or ft.can_encode_type(t))
+                for n, t, (f, ft) in zip(
+                    wtype.names, wtype.types, self.fields.items(), strict=True
+                )
+            )
+        return all(
+            arc4_wtype == encode_wtype or arc4_wtype.can_encode_type(encode_wtype)
+            for arc4_wtype, encode_wtype in zip(self.types, wtype.types, strict=True)
+        )
 
 
 arc4_byte_alias: typing.Final = ARC4UIntN(
