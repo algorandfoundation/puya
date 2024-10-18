@@ -191,10 +191,18 @@ class WArray(WType):
         return f"array<{self.element_type.name}>"
 
 
+def _names_converter(val: Iterable[str] | None) -> tuple[str, ...] | None:
+    return None if val is None else tuple[str, ...](val)
+
+
 @typing.final
 @attrs.frozen
 class WTuple(WType):
-    names: Sequence[str] | None = attrs.field(default=None, kw_only=True)
+    names: Sequence[str] | None = attrs.field(
+        default=None,
+        kw_only=True,
+        converter=_names_converter,
+    )
     types: Sequence[WType] = attrs.field(converter=tuple[WType, ...])
     scalar_type: None = attrs.field(default=None, init=False)
     immutable: bool = attrs.field(default=True, init=False)
