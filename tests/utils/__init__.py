@@ -153,9 +153,6 @@ def compile_src(path: Path, *, optimization_level: int, debug_level: int) -> Com
             paths=(path,),
             optimization_level=optimization_level,
             debug_level=debug_level,
-            output_arc32=False,
-            output_source_map=False,
-            output_teal=False,
         )
     )
 

@@ -15,10 +15,10 @@ class LocalsCoalescingStrategy(enum.StrEnum):
 
 @attrs.define(kw_only=True)
 class PuyaOptions:
-    output_teal: bool = True
-    output_source_map: bool = True
+    output_teal: bool = False
+    output_source_map: bool = False
     output_arc32: bool = False
-    output_arc56: bool = True
+    output_arc56: bool = False
     output_ssa_ir: bool = False
     output_optimization_ir: bool = False
     output_destructured_ir: bool = False

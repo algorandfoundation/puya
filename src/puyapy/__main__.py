@@ -130,6 +130,7 @@ def main() -> None:
         dest="cli_template_definitions",
         metavar="VAR=VALUE",
         action=_ParseAndStoreTemplateVar,
+        default={},
         nargs="+",
         help="Define template vars for use when assembling via --output-bytecode"
         " should be specified without the prefix (see --template-vars-prefix), e.g."
@@ -158,8 +159,9 @@ def main() -> None:
     )
 
     parser.add_argument("paths", type=Path, nargs="+", metavar="PATH")
-    options = PuyaPyOptions()
-    parser.parse_args(namespace=options)
+
+    namespace = parser.parse_args()
+    options = PuyaPyOptions(**vars(namespace))
     configure_logging(min_log_level=options.log_level)
     compile_to_teal(options)
 
