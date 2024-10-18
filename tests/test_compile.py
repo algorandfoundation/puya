@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import subprocess
@@ -81,6 +82,10 @@ def compile_test_case(
             "\n".join(map(_normalize_log, logs)),
             encoding="utf8",
         )
+
+    # normalize ARC-56 output
+    for arc56_file in dst_out_dir.rglob("*.arc56.json"):
+        _normalize_arc56(arc56_file)
 
 
 def _normalize_path(path: Path | str) -> str:
@@ -175,3 +180,12 @@ def check_for_diff(path: Path) -> str | None:
         )
         stdout += result.stdout.decode("utf8")
     return stdout or None
+
+
+def _normalize_arc56(path: Path) -> None:
+    arc56 = json.loads(path.read_text())
+    compiler_version = arc56.get("compilerInfo", {}).get("compilerVersion", {})
+    compiler_version["major"] = 99
+    compiler_version["minor"] = 99
+    compiler_version["patch"] = 99
+    path.write_text(json.dumps(arc56, indent=4), encoding="utf8")
