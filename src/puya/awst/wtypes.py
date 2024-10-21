@@ -221,14 +221,14 @@ class WTuple(WType):
         return f"tuple<{','.join([t.name for t in self.types])}>"
 
     def name_to_index(self, name: str, source_location: SourceLocation) -> int:
+        if self.names is None:
+            raise CodeError(
+                "Cannot access tuple item by name of an unnamed tuple", source_location
+            )
         try:
-            if self.names is None:
-                raise CodeError(
-                    "Cannot access tuple item by name of an unnamed tuple", source_location
-                )
-            return next(idx for idx, n in enumerate(self.names) if n == name)
-        except StopIteration as ex:
-            raise CodeError(f"{name} is not a member of {self.name}") from ex
+            return self.names.index(name)
+        except ValueError:
+            raise CodeError(f"{name} is not a member of {self.name}") from None
 
 
 @attrs.frozen(kw_only=True)
