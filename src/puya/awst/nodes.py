@@ -727,16 +727,12 @@ class FieldExpression(Expression):
 
     @wtype.default
     def _wtype_factory(self) -> wtypes.WType:
-        struct_wtype = self.base.wtype
-        if isinstance(struct_wtype, wtypes.WTuple) and struct_wtype.names:
-            index = struct_wtype.name_to_index(self.name, self.source_location)
-            return struct_wtype.types[index]
-        if not isinstance(struct_wtype, wtypes.WStructType | wtypes.ARC4Struct):
-            raise InternalError("invalid struct wtype")
+        dataclass_type = self.base.wtype
+        assert isinstance(dataclass_type, wtypes.WStructType | wtypes.ARC4Struct | wtypes.WTuple)
         try:
-            return struct_wtype.fields[self.name]
+            return dataclass_type.fields[self.name]
         except KeyError:
-            raise CodeError(f"invalid field for {struct_wtype}", self.source_location) from None
+            raise CodeError(f"invalid field for {dataclass_type}", self.source_location) from None
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_field_expression(self)

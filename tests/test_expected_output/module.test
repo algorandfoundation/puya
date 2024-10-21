@@ -36,6 +36,27 @@ import typing
 class NotAllowed(typing.TypedDict): ## E: Unsupported construct ClassDef: TypedDict classes are not supported
     an_int: UInt64
 
+## case: no_collections_namedtuple
+import collections
+
+from algopy import UInt64
+
+NotAllowed = collections.namedtuple("NotAllowed", ["x", "y"]) ## E: Unsupported construct CallExpr: not supported at module level \
+                                                              ## E: Module has no attribute "namedtuple"  [attr-defined] \
+                                                              ## E: Expression has type "Any"  [misc]
+
+
+## case: empty_namedtuple
+import typing
+from algopy import *
+
+class MyTuple(typing.NamedTuple): ## E: empty tuples are not supported
+    pass
+
+@subroutine
+def my_sub(t: MyTuple) -> None:
+    pass
+
 ## case: unsupported_class
 from algopy import Contract, UInt64
 

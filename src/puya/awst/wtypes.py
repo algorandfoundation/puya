@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Iterable, Mapping
 from functools import cached_property
 
 import attrs
@@ -10,6 +10,7 @@ from puya.avm_type import AVMType
 from puya.errors import CodeError, InternalError
 from puya.models import TransactionType
 from puya.parse import SourceLocation
+from puya.utils import unique
 
 logger = log.get_logger(__name__)
 
@@ -160,12 +161,12 @@ class WInnerTransaction(_TransactionRelatedWType):
 @typing.final
 @attrs.frozen
 class WStructType(WType):
-    fields: Mapping[str, WType] = attrs.field(converter=immutabledict)
+    fields: immutabledict[str, WType] = attrs.field(converter=immutabledict)
     scalar_type: None = attrs.field(default=None, init=False)
     source_location: SourceLocation | None = attrs.field(eq=False)
 
     @fields.validator
-    def _fields_validator(self, _: object, fields: Mapping[str, WType]) -> None:
+    def _fields_validator(self, _: object, fields: immutabledict[str, WType]) -> None:
         if not fields:
             raise CodeError("struct needs fields", self.source_location)
         if void_wtype in fields.values():
@@ -191,26 +192,18 @@ class WArray(WType):
         return f"array<{self.element_type.name}>"
 
 
-def _names_converter(val: Iterable[str] | None) -> tuple[str, ...] | None:
-    return None if val is None else tuple[str, ...](val)
-
-
 @typing.final
 @attrs.frozen
 class WTuple(WType):
-    names: Sequence[str] | None = attrs.field(
-        default=None,
-        kw_only=True,
-        converter=_names_converter,
-    )
-    types: Sequence[WType] = attrs.field(converter=tuple[WType, ...])
+    types: tuple[WType, ...] = attrs.field(converter=tuple[WType, ...])
+    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
     scalar_type: None = attrs.field(default=None, init=False)
     immutable: bool = attrs.field(default=True, init=False)
     name: str = attrs.field(eq=False, kw_only=True)
-    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
+    names: tuple[str, ...] | None = attrs.field(default=None)
 
     @types.validator
-    def _types_validator(self, _attribute: object, types: Sequence[WType]) -> None:
+    def _types_validator(self, _attribute: object, types: tuple[WType, ...]) -> None:
         if not types:
             raise CodeError("empty tuples are not supported", self.source_location)
         if void_wtype in types:
@@ -220,10 +213,26 @@ class WTuple(WType):
     def _name(self) -> str:
         return f"tuple<{','.join([t.name for t in self.types])}>"
 
+    @names.validator
+    def _names_validator(self, _attribute: object, names: tuple[str, ...] | None) -> None:
+        if names is None:
+            return
+        if len(names) != len(self.types):
+            raise InternalError("mismatch between tuple item names length and types")
+        if len(names) != len(unique(names)):
+            raise CodeError("tuple item names are not unique", self.source_location)
+
+    @cached_property
+    def fields(self) -> Mapping[str, WType]:
+        """Mapping of item names to types if `names` is defined, otherwise empty."""
+        if self.names is None:
+            return {}
+        return dict(zip(self.names, self.types, strict=True))
+
     def name_to_index(self, name: str, source_location: SourceLocation) -> int:
         if self.names is None:
             raise CodeError(
-                "Cannot access tuple item by name of an unnamed tuple", source_location
+                "cannot access tuple item by name of an unnamed tuple", source_location
             )
         try:
             return self.names.index(name)
@@ -326,7 +335,7 @@ class ARC4UFixedNxM(ARC4Type):
             raise CodeError("Precision must be between 1 and 160 inclusive", self.source_location)
 
 
-def _required_arc4_wtypes(wtypes: Iterable[WType]) -> Sequence[ARC4Type]:
+def _required_arc4_wtypes(wtypes: Iterable[WType]) -> tuple[ARC4Type, ...]:
     result = []
     for wtype in wtypes:
         if not isinstance(wtype, ARC4Type):
@@ -339,7 +348,7 @@ def _required_arc4_wtypes(wtypes: Iterable[WType]) -> Sequence[ARC4Type]:
 @attrs.frozen(kw_only=True)
 class ARC4Tuple(ARC4Type):
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
-    types: Sequence[ARC4Type] = attrs.field(converter=_required_arc4_wtypes)
+    types: tuple[ARC4Type, ...] = attrs.field(converter=_required_arc4_wtypes)
     name: str = attrs.field(init=False)
     arc4_name: str = attrs.field(init=False, eq=False)
     immutable: bool = attrs.field(init=False)
@@ -362,14 +371,20 @@ class ARC4Tuple(ARC4Type):
         return WTuple(self.types, self.source_location)
 
     def can_encode_type(self, wtype: WType) -> bool:
-        if wtype == self.decode_type:
-            return True
-        elif not isinstance(wtype, WTuple) or len(wtype.types) != len(self.types):
-            return False
-        return all(
+        return super().can_encode_type(wtype) or _is_arc4_encodeable_tuple(wtype, self.types)
+
+
+def _is_arc4_encodeable_tuple(
+    wtype: WType, target_types: tuple[ARC4Type, ...]
+) -> typing.TypeGuard[WTuple]:
+    return (
+        isinstance(wtype, WTuple)
+        and len(wtype.types) == len(target_types)
+        and all(
             arc4_wtype == encode_wtype or arc4_wtype.can_encode_type(encode_wtype)
-            for arc4_wtype, encode_wtype in zip(self.types, wtype.types, strict=True)
+            for arc4_wtype, encode_wtype in zip(target_types, wtype.types, strict=True)
         )
+    )
 
 
 def _expect_arc4_type(wtype: WType) -> ARC4Type:
@@ -428,7 +443,7 @@ def _require_arc4_fields(fields: Mapping[str, WType]) -> immutabledict[str, ARC4
     ]
     if non_arc4_fields:
         raise CodeError(
-            "Invalid ARC4 Struct declaration,"
+            "invalid ARC4 Struct declaration,"
             f" the following fields are not ARC4 encoded types: {', '.join(non_arc4_fields)}",
         )
     return immutabledict(fields)
@@ -437,7 +452,7 @@ def _require_arc4_fields(fields: Mapping[str, WType]) -> immutabledict[str, ARC4
 @typing.final
 @attrs.frozen(kw_only=True)
 class ARC4Struct(ARC4Type):
-    fields: Mapping[str, ARC4Type] = attrs.field(converter=_require_arc4_fields)
+    fields: immutabledict[str, ARC4Type] = attrs.field(converter=_require_arc4_fields)
     immutable: bool = attrs.field()
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
     arc4_name: str = attrs.field(init=False, eq=False)
@@ -452,29 +467,17 @@ class ARC4Struct(ARC4Type):
         return f"({','.join(item.arc4_name for item in self.types)})"
 
     @cached_property
-    def names(self) -> Sequence[str]:
-        return list(self.fields.keys())
+    def names(self) -> tuple[str, ...]:
+        return tuple(self.fields.keys())
 
     @cached_property
-    def types(self) -> Sequence[ARC4Type]:
-        return list(self.fields.values())
+    def types(self) -> tuple[ARC4Type, ...]:
+        return tuple(self.fields.values())
 
     def can_encode_type(self, wtype: WType) -> bool:
-        if wtype == self.decode_type:
-            return True
-        elif not isinstance(wtype, WTuple) or len(wtype.types) != len(self.types):
-            return False
-        elif wtype.names is not None:
-            # Named tuple must have same fields and types
-            return len(wtype.names) == len(self.fields) and all(
-                n == f and (t == ft or ft.can_encode_type(t))
-                for n, t, (f, ft) in zip(
-                    wtype.names, wtype.types, self.fields.items(), strict=True
-                )
-            )
-        return all(
-            arc4_wtype == encode_wtype or arc4_wtype.can_encode_type(encode_wtype)
-            for arc4_wtype, encode_wtype in zip(self.types, wtype.types, strict=True)
+        return super().can_encode_type(wtype) or (
+            _is_arc4_encodeable_tuple(wtype, self.types)
+            and (wtype.names is None or wtype.names == self.names)
         )
 
 

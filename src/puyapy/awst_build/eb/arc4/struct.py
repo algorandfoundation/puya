@@ -55,7 +55,7 @@ class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
             for field_name, field_type in pytype.fields.items()
         }
         assert isinstance(pytype.wtype, wtypes.ARC4Struct)
-        expr: Expression = NewStruct(wtype=pytype.wtype, values=values, source_location=location)
+        expr = NewStruct(wtype=pytype.wtype, values=values, source_location=location)
         return ARC4StructExpressionBuilder(expr, pytype)
 
 

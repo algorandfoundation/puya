@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import abc
 import typing
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from functools import cached_property
 
 import attrs
@@ -34,18 +34,18 @@ class PyType(abc.ABC):
     """The canonical fully qualified type name"""
     generic: PyType | None = None
     """The generic type that this type was parameterised from, if any."""
-    bases: Sequence[PyType] = attrs.field(default=(), converter=tuple["PyType", ...])
+    bases: tuple[PyType, ...] = attrs.field(default=(), converter=tuple["PyType", ...])
     """Direct base classes. probably excluding the implicit builtins.object?"""
-    mro: Sequence[PyType] = attrs.field(default=(), converter=tuple["PyType", ...])
+    mro: tuple[PyType, ...] = attrs.field(default=(), converter=tuple["PyType", ...])
     """All base cases, in Method Resolution Order"""
 
     @bases.validator
-    def _bases_validate(self, _attribute: object, bases: Sequence[PyType]) -> None:
+    def _bases_validate(self, _attribute: object, bases: tuple[PyType, ...]) -> None:
         if len(set(bases)) != len(bases):
             raise InternalError(f"Duplicate bases in {self}: [{', '.join(map(str, bases))}]")
 
     @mro.validator
-    def _mro_validate(self, _attribute: object, mro: Sequence[PyType]) -> None:
+    def _mro_validate(self, _attribute: object, mro: tuple[PyType, ...]) -> None:
         bases_missing_from_mro = set(self.bases).difference(mro)
         if bases_missing_from_mro:
             raise InternalError(
@@ -194,8 +194,8 @@ class TypingLiteralType(PyType):
     source_location: SourceLocation | None
     name: str = attrs.field(init=False)
     generic: None = attrs.field(default=None, init=False)
-    bases: Sequence[PyType] = attrs.field(default=(), init=False)
-    mro: Sequence[PyType] = attrs.field(default=(), init=False)
+    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
+    mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
 
     @name.default
     def _name_default(self) -> str:
@@ -207,26 +207,26 @@ class TypingLiteralType(PyType):
         raise CodeError(f"{self} is not usable as a value", self.source_location)
 
 
-def _flatten_nested_unions(types: Sequence[PyType]) -> Sequence[PyType]:
+def _flatten_nested_unions(types: Sequence[PyType]) -> tuple[PyType, ...]:
     result = list[PyType]()
     for t in types:
         if isinstance(t, UnionType):
             result.extend(t.types)
         else:
             result.append(t)
-    return unique(result)
+    return tuple(unique(result))
 
 
 @typing.final
 @attrs.frozen
 class UnionType(PyType):
-    types: Sequence[PyType] = attrs.field(
+    types: tuple[PyType, ...] = attrs.field(
         converter=_flatten_nested_unions, validator=attrs.validators.min_len(2)
     )
     name: str = attrs.field(init=False)
     generic: None = attrs.field(default=None, init=False)
-    bases: Sequence[PyType] = attrs.field(default=(), init=False)
-    mro: Sequence[PyType] = attrs.field(default=(), init=False)
+    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
+    mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
     source_location: SourceLocation
 
     @name.default
@@ -239,48 +239,75 @@ class UnionType(PyType):
         raise CodeError("type unions are unsupported at this location", self.source_location)
 
 
-class _TupleWTypeFactory(typing.Protocol):
+@attrs.frozen
+class _BaseType(PyType):
+    """Type that is only usable as a base type"""
 
-    def __call__(
-        self,
-        *,
-        types: Iterable[wtypes.WType],
-        names: Iterable[str] | None,
-        name: str,
-        source_location: SourceLocation | None,
-    ) -> wtypes.WTuple | wtypes.ARC4Tuple: ...
+    @typing.override
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError(f"{self} is only usable as a base type")
+
+    def __attrs_post_init__(self) -> None:
+        _register_builtin(self)
 
 
-@typing.final
-@attrs.frozen(kw_only=True)
-class TupleType(PyType):
-    names: tuple[str, ...] | None = attrs.field()
+@attrs.frozen
+class TupleLikeType(PyType, abc.ABC):
     items: tuple[PyType, ...]
-    _wtype_factory: _TupleWTypeFactory
     source_location: SourceLocation | None
 
-    @names.validator
-    def _validate_names(self, _attribute: object, names: tuple[str, ...]) -> None:
-        if names is not None and len(names) != len(self.items):
-            raise InternalError("names length must match items length", self.source_location)
 
-    def name_to_index(self, name: str, source_location: SourceLocation) -> int:
-        if self.names is None:
-            raise CodeError(
-                "Cannot access tuple item by name of an unnamed tuple", source_location
-            )
-        try:
-            return self.names.index(name)
-        except ValueError:
-            raise CodeError(f"{name} is not a member of {self.name}") from None
+def _parameterise_tuple(
+    self: _GenericType[TupleType], args: _TypeArgs, source_location: SourceLocation | None
+) -> TupleType:
+    name = f"{self.name}[{', '.join(pyt.name for pyt in args)}]"
+    return TupleType(name=name, items=tuple(args), source_location=source_location)
+
+
+GenericTupleType: typing.Final = _GenericType(
+    name="builtins.tuple",
+    parameterise=_parameterise_tuple,
+)
+
+
+@attrs.frozen(kw_only=True)
+class TupleType(TupleLikeType):
+    generic: PyType | None = attrs.field(default=GenericTupleType, init=False)
+    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
+    mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
 
     @property
-    def wtype(self) -> wtypes.WTuple | wtypes.ARC4Tuple:
-        return self._wtype_factory(
+    def wtype(self) -> wtypes.WTuple:
+        return wtypes.WTuple(
             types=(i.wtype for i in self.items),
             source_location=self.source_location,
-            names=self.names,
+        )
+
+
+NamedTupleBaseType: typing.Final[PyType] = _BaseType(name="typing.NamedTuple")
+
+
+@attrs.frozen
+class NamedTupleType(TupleType):
+    fields: immutabledict[str, PyType] = attrs.field(converter=immutabledict)
+    items: tuple[PyType, ...] = attrs.field(init=False)
+    generic: None = attrs.field(default=None, init=False)
+    bases: tuple[PyType, ...] = attrs.field(default=(NamedTupleBaseType,), init=False)
+    mro: tuple[PyType, ...] = attrs.field(default=(NamedTupleBaseType,), init=False)
+
+    @items.default
+    def _items(self) -> tuple[PyType, ...]:
+        return tuple(self.fields.values())
+
+    @typing.override
+    @property
+    def wtype(self) -> wtypes.WTuple:
+        return wtypes.WTuple(
             name=self.name,
+            types=(i.wtype for i in self.items),
+            names=tuple(self.fields),
+            source_location=self.source_location,
         )
 
 
@@ -321,8 +348,8 @@ class FuncArg:
 class FuncType(PyType):
     generic: None = None
     ret_type: PyType
-    args: Sequence[FuncArg] = attrs.field(converter=tuple[FuncArg, ...])
-    bound_arg_types: Sequence[PyType] = attrs.field(converter=tuple[PyType, ...])
+    args: tuple[FuncArg, ...] = attrs.field(converter=tuple[FuncArg, ...])
+    bound_arg_types: tuple[PyType, ...] = attrs.field(converter=tuple[PyType, ...])
 
     @typing.override
     @property
@@ -364,7 +391,7 @@ ObjectType: typing.Final[PyType] = _register_builtin(StaticType(name="builtins.o
 @typing.final
 @attrs.frozen(init=False)
 class StructType(PyType):
-    fields: Mapping[str, PyType] = attrs.field(
+    fields: immutabledict[str, PyType] = attrs.field(
         converter=immutabledict, validator=[attrs.validators.min_len(1)]
     )
     frozen: bool
@@ -373,11 +400,11 @@ class StructType(PyType):
     generic: None = None
 
     @cached_property
-    def names(self) -> Sequence[str]:
+    def names(self) -> tuple[str, ...]:
         return tuple(self.fields.keys())
 
     @cached_property
-    def types(self) -> Sequence[PyType]:
+    def types(self) -> tuple[PyType, ...]:
         return tuple(self.fields.values())
 
     def __init__(
@@ -646,116 +673,61 @@ GenericARC4BigUFixedNxMType: typing.Final = _GenericType(
 )
 
 
-def _make_tuple_parameterise(
-    wtype_factory: _TupleWTypeFactory,
-) -> _Parameterise[TupleType]:
-    def parameterise(
-        self: _GenericType[TupleType], args: _TypeArgs, source_location: SourceLocation | None
-    ) -> TupleType:
-        name = f"{self.name}[{', '.join(pyt.name for pyt in args)}]"
-        return TupleType(
-            generic=self,
-            name=name,
-            names=None,
-            items=tuple(args),
-            wtype_factory=wtype_factory,
-            source_location=source_location,
+@typing.final
+@attrs.frozen(kw_only=True)
+class ARC4TupleType(TupleLikeType):
+    generic: PyType
+    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
+    mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
+
+    @property
+    def wtype(self) -> wtypes.ARC4Tuple:
+        return wtypes.ARC4Tuple(
+            types=(i.wtype for i in self.items),
+            source_location=self.source_location,
         )
 
-    return parameterise
 
-
-def make_wtuple(
-    *,
-    types: Iterable[wtypes.WType],
-    names: Iterable[str] | None,
-    name: str,
-    source_location: SourceLocation | None,
-) -> wtypes.WTuple | wtypes.ARC4Tuple:
-    return wtypes.WTuple(
-        types=types,
-        names=names,
-        name=attrs.NOTHING if names is None else name,  # type: ignore[arg-type]
+def _parameterise_arc4_tuple(
+    self: _GenericType[ARC4TupleType], args: _TypeArgs, source_location: SourceLocation | None
+) -> ARC4TupleType:
+    name = f"{self.name}[{', '.join(pyt.name for pyt in args)}]"
+    return ARC4TupleType(
+        generic=self,
+        name=name,
+        items=tuple(args),
         source_location=source_location,
     )
 
 
-GenericTupleType: typing.Final = _GenericType(
-    name="builtins.tuple",
-    parameterise=_make_tuple_parameterise(make_wtuple),
-)
-
-
-def _make_arc4_tuple(
-    *,
-    types: Iterable[wtypes.WType],
-    names: Iterable[str] | None,
-    name: str,  # noqa: ARG001
-    source_location: SourceLocation | None,
-) -> wtypes.WTuple | wtypes.ARC4Tuple:
-    assert names is None, "arc4 tuple cannot have names"
-    return wtypes.ARC4Tuple(types=types, source_location=source_location)
-
-
 GenericARC4TupleType: typing.Final = _GenericType(
     name="algopy.arc4.Tuple",
-    parameterise=_make_tuple_parameterise(_make_arc4_tuple),
+    parameterise=_parameterise_arc4_tuple,
 )
 
-
-def _flattened_named_tuple(name: str, items: Mapping[str, PyType]) -> TupleType:
-    """
-    Produces a TupleType with an underlying WType that is a linear WTuple of provided items
-    """
-
-    def _flatten(items: Iterable[wtypes.WType]) -> Iterable[wtypes.WType]:
-        for item in items:
-            if isinstance(item, wtypes.WTuple):
-                yield from _flatten(item.types)
-            else:
-                yield item
-
-    def _wtuple_factory(
-        *,
-        types: Iterable[wtypes.WType],
-        names: Iterable[str] | None,  # noqa: ARG001
-        name: str,  # noqa: ARG001
-        source_location: SourceLocation | None,
-    ) -> wtypes.WTuple:
-        return wtypes.WTuple(types=_flatten(types), source_location=source_location)
-
-    pytype = TupleType(
-        name=name,
-        generic=None,
-        names=tuple(items.keys()),
-        items=tuple(items.values()),
-        wtype_factory=_wtuple_factory,
+CompiledContractType: typing.Final = _register_builtin(
+    NamedTupleType(
+        name="algopy._compiled.CompiledContract",
+        fields={
+            "approval_program": GenericTupleType.parameterise([BytesType, BytesType], None),
+            "clear_state_program": GenericTupleType.parameterise([BytesType, BytesType], None),
+            "extra_program_pages": UInt64Type,
+            "global_uints": UInt64Type,
+            "global_bytes": UInt64Type,
+            "local_uints": UInt64Type,
+            "local_bytes": UInt64Type,
+        },
         source_location=None,
     )
-    _register_builtin(pytype)
-    return pytype
-
-
-# TODO: The CompiledContract and CompiledLogicSig types are currently just protocols in the stubs,
-#       however the should become named tuples once nested tuples are supported.
-#       For now it is convenient to represent them as named tuples at the pytypes level
-CompiledContractType: typing.Final[TupleType] = _flattened_named_tuple(
-    name="algopy._compiled.CompiledContract",
-    items={
-        "approval_program": GenericTupleType.parameterise([BytesType, BytesType], None),
-        "clear_state_program": GenericTupleType.parameterise([BytesType, BytesType], None),
-        "extra_program_pages": UInt64Type,
-        "global_uints": UInt64Type,
-        "global_bytes": UInt64Type,
-        "local_uints": UInt64Type,
-        "local_bytes": UInt64Type,
-    },
 )
-CompiledLogicSigType: typing.Final[TupleType] = _flattened_named_tuple(
-    name="algopy._compiled.CompiledLogicSig",
-    items={
-        "account": AccountType,
-    },
+CompiledLogicSigType: typing.Final = _register_builtin(
+    NamedTupleType(
+        name="algopy._compiled.CompiledLogicSig",
+        fields={
+            "account": AccountType,
+        },
+        source_location=None,
+    )
 )
 
 
@@ -764,8 +736,8 @@ CompiledLogicSigType: typing.Final[TupleType] = _flattened_named_tuple(
 class VariadicTupleType(PyType):
     items: PyType
     generic: _GenericType = attrs.field(default=GenericTupleType, init=False)
-    bases: Sequence[PyType] = attrs.field(default=(), init=False)
-    mro: Sequence[PyType] = attrs.field(default=(), init=False)
+    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
+    mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
     name: str = attrs.field(init=False)
 
     @name.default
@@ -1055,12 +1027,12 @@ BytesBackedType: typing.Final[PyType] = _CompileTimeType(
 @attrs.frozen(kw_only=True)
 class IntrinsicEnumType(PyType):
     generic: None = attrs.field(default=None, init=False)
-    bases: Sequence[PyType] = attrs.field(
+    bases: tuple[PyType, ...] = attrs.field(
         default=(StrLiteralType,),  # strictly true, but not sure if we want this?
         init=False,
     )
-    mro: Sequence[PyType] = attrs.field(default=(StrLiteralType,), init=False)
-    members: Mapping[str, str] = attrs.field(converter=immutabledict)
+    mro: tuple[PyType, ...] = attrs.field(default=(StrLiteralType,), init=False)
+    members: immutabledict[str, str] = attrs.field(converter=immutabledict)
 
     @property
     def wtype(self) -> wtypes.WType:
@@ -1084,9 +1056,9 @@ def _make_intrinsic_enum_types() -> Sequence[IntrinsicEnumType]:
 @attrs.frozen(kw_only=True)
 class IntrinsicNamespaceType(PyType):
     generic: None = attrs.field(default=None, init=False)
-    bases: Sequence[PyType] = attrs.field(default=(), init=False)
-    mro: Sequence[PyType] = attrs.field(default=(), init=False)
-    members: Mapping[str, PropertyOpMapping | OpMappingWithOverloads] = attrs.field(
+    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
+    mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
+    members: immutabledict[str, PropertyOpMapping | OpMappingWithOverloads] = attrs.field(
         converter=immutabledict
     )
 
@@ -1147,19 +1119,6 @@ LogicSigType: typing.Final[PyType] = _CompileTimeType(
 )
 
 
-@attrs.frozen
-class _BaseType(PyType):
-    """Type that is only usable as a base type"""
-
-    @typing.override
-    @property
-    def wtype(self) -> typing.Never:
-        raise CodeError(f"{self} is only usable as a base type")
-
-    def __attrs_post_init__(self) -> None:
-        _register_builtin(self)
-
-
 ContractBaseType: typing.Final[PyType] = _BaseType(name=constants.CONTRACT_BASE)
 ARC4ContractBaseType: typing.Final[PyType] = _BaseType(
     name=constants.ARC4_CONTRACT_BASE,
@@ -1176,8 +1135,8 @@ StructBaseType: typing.Final[PyType] = _BaseType(name="algopy._struct.Struct")
 class PseudoGenericFunctionType(PyType):
     return_type: PyType
     generic: _GenericType[PseudoGenericFunctionType]
-    bases: Sequence[PyType] = attrs.field(default=(), init=False)
-    mro: Sequence[PyType] = attrs.field(default=(), init=False)
+    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
+    mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
 
     @property
     def wtype(self) -> typing.Never:

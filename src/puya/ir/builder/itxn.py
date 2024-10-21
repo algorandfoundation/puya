@@ -551,7 +551,8 @@ class InnerTransactionBuilder:
             case awst_nodes.VarExpression(name=var_name):
                 pass
             case awst_nodes.TupleItemExpression(
-                base=awst_nodes.VarExpression(name=name, wtype=base_wtype), index=index
+                base=awst_nodes.VarExpression(name=name, wtype=wtypes.WTuple() as base_wtype),
+                index=index,
             ):
                 return format_tuple_index(base_wtype, name, index)
             case awst_nodes.Copy(value=value):
@@ -570,7 +571,7 @@ def _get_assignment_target_local_names(
     match target:
         case awst_nodes.VarExpression(name=var_name) if expected_number == 1:
             return [(var_name, target.source_location)]
-        case awst_nodes.VarExpression(name=var_name, wtype=var_wtype):
+        case awst_nodes.VarExpression(name=var_name, wtype=wtypes.WTuple() as var_wtype):
             return [
                 (format_tuple_index(var_wtype, var_name, idx), target.source_location)
                 for idx in range(expected_number)
@@ -581,8 +582,7 @@ def _get_assignment_target_local_names(
             items = typing.cast(Sequence[awst_nodes.VarExpression], items)
             return [(expr.name, expr.source_location) for expr in items]
         case awst_nodes.TupleItemExpression(
-            base=awst_nodes.TupleExpression(wtype=tuple_wtype) as base,
-            index=index,
+            base=awst_nodes.TupleExpression(wtype=tuple_wtype) as base, index=index
         ):
             tuple_names = _get_assignment_target_local_names(base, len(tuple_wtype.types))
             return [tuple_names[index]]
@@ -646,18 +646,12 @@ class SourceActionExtractor(FunctionTraverser):
         pass
 
     def visit_tuple_item_expression(self, expr: awst_nodes.TupleItemExpression) -> None:
-        if isinstance(expr.index, str):
-            assert isinstance(expr.base.wtype, wtypes.WTuple), "Tuple item must index tuple"
-            idx_num = expr.base.wtype.name_to_index(expr.index, expr.source_location)
-        else:
-            idx_num = expr.index
-
         start_len = len(self._actions)
         super().visit_tuple_item_expression(expr)
         added = self._actions[start_len:]
         # only keep the relevant action
         if isinstance(expr.wtype, wtypes.WInnerTransaction):
-            self._actions[start_len:] = [added[idx_num]]
+            self._actions[start_len:] = [added[expr.index]]
 
     def visit_slice_expression(self, expr: awst_nodes.SliceExpression) -> None:
         start_len = len(self._actions)
@@ -700,13 +694,13 @@ def _is_last_itxn(expr: awst_nodes.Expression) -> bool:
     if not isinstance(base.wtype, wtypes.WTuple):
         return False
 
-    idx_num = (
+    index = (
         expr.index
         if isinstance(expr, awst_nodes.TupleItemExpression)
         else base.wtype.name_to_index(expr.name, expr.source_location)
     )
     tuple_size = len(base.wtype.types)
-    if idx_num == -1 or (idx_num + 1) == tuple_size:
+    if index == -1 or (index + 1) == tuple_size:
         return _is_submit_expr_of_size(base, tuple_size)
     else:
         return False

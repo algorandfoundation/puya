@@ -11,10 +11,14 @@ from puya.parse import SourceLocation
 from puyapy.awst_build import arc4_utils, pytypes
 from puyapy.awst_build.arc4_utils import pytype_to_arc4_pytype
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._literals import LiteralBuilderImpl
 from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.factories import builder_for_type
-from puyapy.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
+from puyapy.awst_build.eb.interface import (
+    InstanceBuilder,
+    LiteralBuilder,
+    NodeBuilder,
+    StaticSizedCollectionBuilder,
+)
 from puyapy.awst_build.utils import maybe_resolve_literal
 
 logger = log.get_logger(__name__)
@@ -187,30 +191,27 @@ def _implicit_arc4_conversion(
             f"cannot encode {instance.pytype} to {target_type}", location=instance.source_location
         )
         return dummy_value(target_type, instance.source_location)
-    target_type_builder = builder_for_type(target_type, instance.source_location)
-    if isinstance(target_type, pytypes.StructType) and isinstance(
-        instance.pytype, pytypes.TupleType
+    if (
+        isinstance(target_type, pytypes.StructType)
+        and isinstance(instance.pytype, pytypes.TupleType)
+        and len(target_type.types) == len(instance.pytype.items)
     ):
         # Special handling to map tuples (named and unnamed) to arc4 structs
-        num_fields = len(target_type.types)
-        return target_type_builder.call(
-            args=[
-                _implicit_arc4_conversion(
-                    instance.index(
-                        LiteralBuilderImpl(idx, instance.source_location), instance.source_location
-                    ),
-                    typ,
-                )
-                for idx, typ in enumerate(target_type.types)
-            ],
-            arg_names=[None] * num_fields,
-            arg_kinds=[mypy.nodes.ARG_POS] * num_fields,
-            location=instance.source_location,
-        )
+        # instance builder for TupleType should be a StaticSizedCollectionBuilder
+        assert isinstance(instance, StaticSizedCollectionBuilder)
+        conversion_args = [
+            _implicit_arc4_conversion(item, item_target_typ)
+            for item, item_target_typ in zip(
+                instance.iterate_static(), target_type.types, strict=True
+            )
+        ]
+    else:
+        conversion_args = [instance]
+    target_type_builder = builder_for_type(target_type, instance.source_location)
     return target_type_builder.call(
-        args=[instance],
-        arg_names=[None],
-        arg_kinds=[mypy.nodes.ARG_POS],
+        args=conversion_args,
+        arg_names=[None] * len(conversion_args),
+        arg_kinds=[mypy.nodes.ARG_POS] * len(conversion_args),
         location=instance.source_location,
     )
 
@@ -221,11 +222,7 @@ def _maybe_resolve_arc4_literal(
     """Handles special case of resolving a literal tuple into an arc4 tuple"""
     from puyapy.awst_build.eb.tuple import TupleLiteralBuilder
 
-    if (
-        isinstance(operand, TupleLiteralBuilder)
-        and target_type.generic is pytypes.GenericARC4TupleType
-    ):
-        assert isinstance(target_type, pytypes.TupleType), "expected TupleType"
+    if isinstance(operand, TupleLiteralBuilder) and isinstance(target_type, pytypes.ARC4TupleType):
         resolved_items = [
             _maybe_resolve_arc4_literal(item, item_type)
             for item, item_type in zip(operand.iterate_static(), target_type.items, strict=True)

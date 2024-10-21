@@ -19,7 +19,6 @@ from puya.awst.nodes import (
     TupleItemExpression,
     UInt64Constant,
 )
-from puya.awst.wtypes import WTuple
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puya.utils import clamp, positive_index
@@ -41,13 +40,12 @@ from puyapy.awst_build.eb.interface import (
     StaticSizedCollectionBuilder,
     TypeBuilder,
 )
-from puyapy.awst_build.pytypes import PyType, TupleType
 from puyapy.awst_build.utils import determine_base_type, get_arg_mapping
 
 logger = log.get_logger(__name__)
 
 
-class GenericTupleTypeExpressionBuilder(GenericTypeBuilder):
+class GenericTupleTypeBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
@@ -59,9 +57,10 @@ class GenericTupleTypeExpressionBuilder(GenericTypeBuilder):
         return _init(args, location)
 
 
-class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
+class TupleTypeBuilder(TypeBuilder[pytypes.TupleType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.TupleType)
+        assert typ.generic == pytypes.GenericTupleType
         super().__init__(typ, location)
 
     @typing.override
@@ -72,47 +71,10 @@ class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        pytype = self.produces()
-        if isinstance(pytype, pytypes.TupleType) and pytype.names is not None:
-            result = _init_named(args, arg_names, pytype, location)
-        else:
-            result = _init(args, location)
+        result = _init(args, location)
         if result.pytype != self.produces():
             raise CodeError("type mismatch between tuple parameters and argument types", location)
         return result
-
-
-def _init_named(
-    args: Sequence[NodeBuilder],
-    arg_names: list[str | None],
-    pytype: TupleType,
-    location: SourceLocation,
-) -> InstanceBuilder:
-    assert pytype.names is not None, "_init_named should only be called on named tuples"
-    field_mapping, any_missing = get_arg_mapping(
-        required_positional_names=list(pytype.names),
-        args=args,
-        arg_names=arg_names,
-        call_location=location,
-        raise_on_missing=False,
-    )
-    if any_missing:
-        return dummy_value(pytype, location)
-    wtype = pytype.wtype
-    assert isinstance(wtype, WTuple), "wtype for named tuple must be WTuple"
-
-    def _get_item(name: str, typ: PyType) -> Expression:
-        val = field_mapping.get(name)
-        if val is None:
-            return dummy_value(typ, location).resolve()
-        return expect.argument_of_type_else_dummy(val, typ).resolve()
-
-    tuple_expr = TupleExpression(
-        items=[_get_item(n, t) for n, t in zip(pytype.names, pytype.items, strict=True)],
-        wtype=wtype,
-        source_location=location,
-    )
-    return TupleExpressionBuilder(tuple_expr, pytype)
 
 
 def _init(args: Sequence[NodeBuilder], location: SourceLocation) -> InstanceBuilder:
@@ -135,6 +97,42 @@ def _init(args: Sequence[NodeBuilder], location: SourceLocation) -> InstanceBuil
             )
         case _:
             raise CodeError("unhandled argument type", arg.source_location)
+
+
+class NamedTupleTypeBuilder(TypeBuilder[pytypes.NamedTupleType]):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        assert isinstance(typ, pytypes.NamedTupleType)
+        super().__init__(typ, location)
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        pytype = self.produces()
+        field_mapping, any_missing = get_arg_mapping(
+            required_positional_names=list(pytype.fields),
+            args=args,
+            arg_names=arg_names,
+            call_location=location,
+            raise_on_missing=False,
+        )
+        if any_missing:
+            return dummy_value(pytype, location)
+
+        values = [
+            expect.argument_of_type_else_dummy(field_mapping[field_name], field_type).resolve()
+            for field_name, field_type in pytype.fields.items()
+        ]
+        expr = TupleExpression(
+            items=values,
+            wtype=pytype.wtype,
+            source_location=location,
+        )
+        return TupleExpressionBuilder(expr, pytype)
 
 
 class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType], StaticSizedCollectionBuilder):
@@ -290,18 +288,18 @@ class TupleExpressionBuilder(
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> InstanceBuilder:
+        if isinstance(self.pytype, pytypes.NamedTupleType):
+            item_typ = self.pytype.fields.get(name)
+            if item_typ is not None:
+                item_expr = FieldExpression(
+                    base=self.resolve(),
+                    name=name,
+                    source_location=location,
+                )
+                return builder_for_instance(item_typ, item_expr)
         if name in dir(tuple()):  # noqa: C408
             raise CodeError("method is not currently supported", location)
-        if self.pytype.names is None or name not in self.pytype.names:
-            raise CodeError("unrecognised member access", location)
-        item_index = self.pytype.name_to_index(name, location)
-        item_typ = self.pytype.items[item_index]
-        item_expr = FieldExpression(
-            base=self.resolve(),
-            name=name,
-            source_location=location,
-        )
-        return builder_for_instance(item_typ, item_expr)
+        raise CodeError("unrecognised member access", location)
 
     @typing.override
     def binary_op(

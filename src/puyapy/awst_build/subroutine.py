@@ -379,7 +379,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                         items=homogenous_type
                     ):
                         tuple_item_types = (homogenous_type,) * len(lval_items)
-                    case pytypes.TupleType(items=tuple_item_types):
+                    case pytypes.TupleLikeType(items=tuple_item_types):
                         if len(tuple_item_types) != len(lval_items):
                             raise CodeError(
                                 f"length mismatch source size of {len(tuple_item_types)}"
