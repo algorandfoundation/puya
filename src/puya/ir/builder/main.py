@@ -626,7 +626,17 @@ class FunctionIRBuilder(
     def visit_field_expression(self, expr: awst_nodes.FieldExpression) -> TExpression:
         if isinstance(expr.base.wtype, wtypes.WStructType):
             raise NotImplementedError
-        elif isinstance(expr.base.wtype, wtypes.ARC4Struct):  # noqa: RET506
+        if isinstance(expr.base.wtype, wtypes.WTuple) and expr.base.wtype.names:
+            index = expr.base.wtype.name_to_index(expr.name, expr.source_location)
+            tup = self.visit_and_materialise(expr.base)
+            return get_tuple_item_values(
+                tuple_values=tup,
+                tuple_wtype=expr.base.wtype,
+                index=index,
+                target_wtype=expr.wtype,
+                source_location=expr.source_location,
+            )
+        if isinstance(expr.base.wtype, wtypes.ARC4Struct):
             base = self.visit_and_materialise_single(expr.base)
             index = expr.base.wtype.names.index(expr.name)
             return arc4.arc4_tuple_index(

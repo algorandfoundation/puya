@@ -640,7 +640,7 @@ class TupleItemExpression(Expression):
     """
 
     base: Expression
-    index: int | str
+    index: int
     wtype: wtypes.WType = attrs.field(init=False)
 
     @wtype.default
@@ -652,14 +652,7 @@ class TupleItemExpression(Expression):
                 self.source_location,
             )
         try:
-            if isinstance(self.index, str):
-                if not isinstance(base_wtype, wtypes.WTuple):
-                    raise InternalError(f"{self.wtype} cannot be indexed by name")
-                wtype = base_wtype.types[
-                    base_wtype.name_to_index(self.index, self.source_location)
-                ]
-            else:
-                wtype = base_wtype.types[self.index]
+            wtype = base_wtype.types[self.index]
         except IndexError as ex:
             raise CodeError("invalid index into tuple expression", self.source_location) from ex
         return wtype
@@ -727,7 +720,7 @@ class SubmitInnerTransaction(Expression):
 @attrs.frozen
 class FieldExpression(Expression):
     base: Expression = attrs.field(
-        validator=expression_has_wtype(wtypes.WStructType, wtypes.ARC4Struct)
+        validator=expression_has_wtype(wtypes.WStructType, wtypes.ARC4Struct, wtypes.WTuple)
     )
     name: str
     wtype: wtypes.WType = attrs.field(init=False)
@@ -735,6 +728,9 @@ class FieldExpression(Expression):
     @wtype.default
     def _wtype_factory(self) -> wtypes.WType:
         struct_wtype = self.base.wtype
+        if isinstance(struct_wtype, wtypes.WTuple) and struct_wtype.names:
+            index = struct_wtype.name_to_index(self.name, self.source_location)
+            return struct_wtype.types[index]
         if not isinstance(struct_wtype, wtypes.WStructType | wtypes.ARC4Struct):
             raise InternalError("invalid struct wtype")
         try:

@@ -9,6 +9,7 @@ from puya.awst.nodes import (
     BinaryBooleanOperator,
     BooleanBinaryOperation,
     Expression,
+    FieldExpression,
     IntegerConstant,
     IntrinsicCall,
     Lvalue,
@@ -291,25 +292,16 @@ class TupleExpressionBuilder(
     def member_access(self, name: str, location: SourceLocation) -> InstanceBuilder:
         if name in dir(tuple()):  # noqa: C408
             raise CodeError("method is not currently supported", location)
-        if self.pytype.names is not None and name in self.pytype.names:
-            try:
-                item_typ = next(
-                    item_type
-                    for item_name, item_type in zip(
-                        self.pytype.names, self.pytype.items, strict=True
-                    )
-                    if item_name == name
-                )
-                item_expr = TupleItemExpression(
-                    base=self.resolve(),
-                    index=name,
-                    source_location=location,
-                )
-                return builder_for_instance(item_typ, item_expr)
-            except StopIteration:
-                pass  # Return unrecognised member below
-
-        raise CodeError("unrecognised member access", location)
+        if self.pytype.names is None or name not in self.pytype.names:
+            raise CodeError("unrecognised member access", location)
+        item_index = self.pytype.name_to_index(name, location)
+        item_typ = self.pytype.items[item_index]
+        item_expr = FieldExpression(
+            base=self.resolve(),
+            name=name,
+            source_location=location,
+        )
+        return builder_for_instance(item_typ, item_expr)
 
     @typing.override
     def binary_op(
