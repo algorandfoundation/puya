@@ -62,7 +62,7 @@ FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
 PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromSourceFactory] = {
     pytypes.NoneType: none.NoneTypeBuilder,
     pytypes.BoolType: bool_.BoolTypeBuilder,
-    pytypes.GenericTupleType: tuple_.GenericTupleTypeExpressionBuilder,
+    pytypes.GenericTupleType: tuple_.GenericTupleTypeBuilder,
     pytypes.reversedGenericType: unsigned_builtins.ReversedFunctionExpressionBuilder,
     pytypes.urangeType: unsigned_builtins.UnsignedRangeBuilder,
     pytypes.uenumerateGenericType: unsigned_builtins.UnsignedEnumerateBuilder,
@@ -143,7 +143,7 @@ PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
     pytypes.GenericBoxType: storage.BoxTypeBuilder,
     pytypes.GenericBoxMapType: storage.BoxMapTypeBuilder,
     pytypes.GenericARC4TupleType: arc4.ARC4TupleTypeBuilder,
-    pytypes.GenericTupleType: tuple_.TupleTypeExpressionBuilder,
+    pytypes.GenericTupleType: tuple_.TupleTypeBuilder,
     pytypes.GenericArrayType: array.ArrayTypeBuilder,
     pytypes.GenericARC4UFixedNxMType: arc4.UFixedNxMTypeBuilder,
     pytypes.GenericARC4BigUFixedNxMType: arc4.UFixedNxMTypeBuilder,
@@ -156,6 +156,7 @@ PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
 PYTYPE_BASE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromPyTypeAndSourceFactory] = {
     pytypes.ARC4StructBaseType: arc4.ARC4StructTypeBuilder,
     pytypes.StructBaseType: struct.StructSubclassExpressionBuilder,
+    pytypes.NamedTupleBaseType: tuple_.NamedTupleTypeBuilder,
 }
 
 PYTYPE_TO_BUILDER: dict[pytypes.PyType, Callable[[Expression], InstanceBuilder]] = {
@@ -236,6 +237,7 @@ PYTYPE_GENERIC_TO_BUILDER: dict[
 PYTYPE_BASE_TO_BUILDER: dict[pytypes.PyType, InstanceBuilderFromExpressionAndPyTypeFactory] = {
     pytypes.ARC4StructBaseType: arc4.ARC4StructExpressionBuilder,
     pytypes.StructBaseType: struct.StructExpressionBuilder,
+    pytypes.NamedTupleBaseType: tuple_.TupleExpressionBuilder,
 }
 
 
@@ -247,9 +249,6 @@ def builder_for_instance(pytyp: pytypes.PyType, expr: Expression) -> InstanceBui
     for base in pytyp.mro:
         if eb_base := PYTYPE_BASE_TO_BUILDER.get(base):
             return eb_base(expr, pytyp)
-    if isinstance(pytyp, pytypes.TupleType) and pytyp.names is not None:
-        return tuple_.TupleExpressionBuilder(expr, pytyp)
-
     if isinstance(pytyp, pytypes.UnionType):
         raise CodeError("type unions are unsupported at this location", expr.source_location)
     raise InternalError(f"no builder for instance: {pytyp}", expr.source_location)
@@ -263,9 +262,6 @@ def builder_for_type(pytyp: pytypes.PyType, expr_loc: SourceLocation) -> Callabl
     for base in pytyp.mro:
         if tb_base := PYTYPE_BASE_TO_TYPE_BUILDER.get(base):
             return tb_base(pytyp, expr_loc)
-
-    if isinstance(pytyp, pytypes.TupleType) and pytyp.names is not None:
-        return tuple_.TupleTypeExpressionBuilder(pytyp, expr_loc)
     if isinstance(pytyp, pytypes.UnionType):
         raise CodeError("type unions are unsupported at this location", expr_loc)
     raise InternalError(f"no builder for type: {pytyp}", expr_loc)

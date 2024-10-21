@@ -1,27 +1,18 @@
-import itertools
 import typing
 from collections.abc import Mapping, Sequence
 
 import mypy.nodes
-from puya.awst.nodes import (
-    CompiledContract,
-    CompiledLogicSig,
-    Expression,
-    TupleExpression,
-    TupleItemExpression,
-)
+from puya.awst.nodes import CompiledContract, CompiledLogicSig, Expression
 from puya.awst.txn_fields import TxnField
-from puya.errors import CodeError
 from puya.log import get_logger
 from puya.models import LogicSigReference
 from puya.parse import SourceLocation
 
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
-from puyapy.awst_build.eb._utils import constant_bool_and_error, dummy_value
+from puyapy.awst_build.eb._base import FunctionBuilder
+from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.dict_ import DictLiteralBuilder
-from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puyapy.awst_build.eb.logicsig import LogicSigExpressionBuilder
 from puyapy.awst_build.eb.tuple import TupleExpressionBuilder
@@ -43,82 +34,12 @@ APP_ALLOCATION_FIELDS = {
 }
 
 
-class _LinearizedNamedTuple(NotIterableInstanceExpressionBuilder):
-    def __init__(self, expr: Expression, pytype: pytypes.TupleType):
-        names = pytype.names
-        assert names is not None
-        self._item_map = {name: (idx, pytype.items[idx]) for idx, name in enumerate(names)}
-        super().__init__(pytype, expr)
-
-    @typing.override
-    @typing.final
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        return constant_bool_and_error(value=True, location=location, negate=negate)
-
-    @typing.override
-    @typing.final
-    def to_bytes(self, location: SourceLocation) -> Expression:
-        raise CodeError(f"cannot serialize {self.pytype}", location)
-
-    @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        try:
-            item_index, item_type = self._item_map[name]
-        except KeyError:
-            return super().member_access(name, location)
-        if isinstance(item_type, pytypes.TupleType):
-            return self._read_tuple_slice(item_index, item_type, location)
-        else:
-            return self._read_tuple_index(item_index, item_type, location)
-
-    def _read_tuple_slice(
-        self, item_index: int, item_type: pytypes.TupleType, location: SourceLocation
-    ) -> InstanceBuilder:
-        start_index = self._get_linear_index(item_index)
-        end_index = start_index + _get_linear_tuple_size(item_type)
-        expr = self.resolve()
-        return TupleExpressionBuilder(
-            TupleExpression.from_items(
-                [
-                    TupleItemExpression(base=expr, index=index, source_location=location)
-                    for index in range(start_index, end_index)
-                ],
-                location,
-            ),
-            item_type,
-        )
-
-    def _read_tuple_index(
-        self, item_index: int, item_type: pytypes.PyType, location: SourceLocation
-    ) -> InstanceBuilder:
-        return builder_for_instance(
-            item_type,
-            TupleItemExpression(
-                base=self.resolve(),
-                index=self._get_linear_index(item_index),
-                source_location=location,
-            ),
-        )
-
-    def _get_linear_index(self, index: int) -> int:
-        length = 0
-        for _, item_type in itertools.islice(self._item_map.values(), index):
-            length += _get_linear_tuple_size(item_type)
-        return length
-
-
-def _get_linear_tuple_size(pytyp: pytypes.PyType) -> int:
-    if isinstance(pytyp, pytypes.TupleType):
-        return sum(map(_get_linear_tuple_size, pytyp.items))
-    return 1
-
-
-class CompiledContractExpressionBuilder(_LinearizedNamedTuple):
+class CompiledContractExpressionBuilder(TupleExpressionBuilder):
     def __init__(self, expr: Expression) -> None:
         super().__init__(expr, pytypes.CompiledContractType)
 
 
-class CompiledLogicSigExpressionBuilder(_LinearizedNamedTuple):
+class CompiledLogicSigExpressionBuilder(TupleExpressionBuilder):
     def __init__(self, expr: Expression) -> None:
         super().__init__(expr, pytypes.CompiledLogicSigType)
 

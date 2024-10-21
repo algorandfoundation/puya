@@ -19,7 +19,6 @@ from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.contract import ContractASTConverter
 from puyapy.awst_build.contract_data import ContractClassOptions
 from puyapy.awst_build.exceptions import UnsupportedASTError
-from puyapy.awst_build.pytypes import make_wtuple
 from puyapy.awst_build.subroutine import FunctionASTConverter
 from puyapy.awst_build.utils import (
     extract_bytes_literal_from_mypy,
@@ -639,12 +638,13 @@ def _process_contract_class_options(
     )
 
 
-def _process_struct_like_fields(
-    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef, type_name: str
-) -> tuple[bool, dict[str, pytypes.PyType]]:
+def _process_dataclass_like_fields(
+    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef, base_type: pytypes.PyType
+) -> dict[str, pytypes.PyType] | None:
     fields = dict[str, pytypes.PyType]()
     has_error = False
     for stmt in cdef.defs.body:
+        stmt_loc = context.node_location(stmt)
         match stmt:
             case mypy.nodes.ExpressionStmt(expr=mypy.nodes.StrExpr()):
                 # ignore class docstring, already extracted
@@ -655,7 +655,7 @@ def _process_struct_like_fields(
                 rvalue=mypy.nodes.TempNode(),
                 type=mypy.types.Type() as mypy_type,
             ):
-                stmt_loc = context.node_location(stmt)
+
                 pytype = context.type_to_pytype(mypy_type, source_location=stmt_loc)
                 fields[field_name] = pytype
             case mypy.nodes.SymbolNode(name=symbol_name) if (
@@ -665,38 +665,18 @@ def _process_struct_like_fields(
             case mypy.nodes.PassStmt():
                 pass
             case _:
-                context.error(f"Unsupported syntax for {type_name} member declaration", stmt)
+                logger.error(
+                    f"unsupported syntax for {base_type} member declaration", location=stmt_loc
+                )
                 has_error = True
-    return (has_error, fields)
-
-
-def _process_named_tuple(
-    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
-) -> StatementResult:
-    has_error, fields = _process_struct_like_fields(context, cdef, "NamedTuple")
-    if has_error:
-        return []
-
-    if not fields:
-        context.error("NamedTuple must have at least one member", cdef)
-    cls_loc = context.node_location(cdef)
-
-    named_tuple_type = pytypes.TupleType(
-        name=cdef.fullname,
-        names=tuple(fields.keys()),
-        items=tuple(fields.values()),
-        source_location=cls_loc,
-        wtype_factory=make_wtuple,
-    )
-    context.register_pytype(named_tuple_type)
-    return []
+    return fields if not has_error else None
 
 
 def _process_struct(
     context: ASTConversionModuleContext, base: pytypes.PyType, cdef: mypy.nodes.ClassDef
 ) -> StatementResult:
-    has_error, fields = _process_struct_like_fields(context, cdef, str(base))
-    if has_error:
+    fields = _process_dataclass_like_fields(context, cdef, base)
+    if fields is None:
         return []
     cls_loc = context.node_location(cdef)
     frozen = cdef.info.metadata["dataclass"]["frozen"]
@@ -709,6 +689,22 @@ def _process_struct(
         source_location=cls_loc,
     )
     context.register_pytype(struct_typ)
+    return []
+
+
+def _process_named_tuple(
+    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
+) -> StatementResult:
+    fields = _process_dataclass_like_fields(context, cdef, pytypes.NamedTupleBaseType)
+    if fields is None:
+        return []
+    cls_loc = context.node_location(cdef)
+    named_tuple_type = pytypes.NamedTupleType(
+        name=cdef.fullname,
+        fields=fields,
+        source_location=cls_loc,
+    )
+    context.register_pytype(named_tuple_type)
     return []
 
 

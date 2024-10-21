@@ -152,14 +152,14 @@ def test_txn_fields(builtins_registry: Mapping[str, pytypes.PyType]) -> None:
                 if isinstance(arg.type, pytypes.UnionType):
                     arg_types = arg.type.types
                 else:
-                    arg_types = [arg.type]
+                    arg_types = (arg.type,)
                 assert set(txn_field_param.literal_overrides.keys()).issubset(arg_types)
                 if txn_field.is_array:
-                    arg_types = [
+                    arg_types = tuple(
                         vt.items for vt in arg_types if isinstance(vt, pytypes.VariadicTupleType)
-                    ]
+                    )
                 if txn_field_param.auto_serialize_bytes:
-                    assert list(arg_types) == [pytypes.ObjectType]
+                    assert arg_types == (pytypes.ObjectType,)
                 else:
                     non_literal_arg_types = {
                         at for at in arg_types if not isinstance(at, pytypes.LiteralOnlyType)

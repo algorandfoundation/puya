@@ -242,7 +242,7 @@ def _check_array_concat_arg(arg: InstanceBuilder, arr_type: pytypes.ArrayType) -
     match arg:
         case InstanceBuilder(pytype=pytypes.ArrayType(items=arr_type.items)):
             return True
-        case InstanceBuilder(pytype=pytypes.TupleType(items=tup_items)) if all(
+        case InstanceBuilder(pytype=pytypes.TupleLikeType(items=tup_items)) if all(
             ti == arr_type.items for ti in tup_items
         ):
             return True

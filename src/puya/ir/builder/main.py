@@ -605,10 +605,6 @@ class FunctionIRBuilder(
             )
         elif isinstance(expr.base.wtype, wtypes.ARC4Tuple):
             base = self.visit_and_materialise_single(expr.base)
-            if isinstance(expr.index, str):
-                raise InternalError(
-                    f"Cannot index {expr.base.wtype} by name", expr.source_location
-                )
             return arc4.arc4_tuple_index(
                 self.context,
                 base=base,
@@ -626,7 +622,7 @@ class FunctionIRBuilder(
     def visit_field_expression(self, expr: awst_nodes.FieldExpression) -> TExpression:
         if isinstance(expr.base.wtype, wtypes.WStructType):
             raise NotImplementedError
-        if isinstance(expr.base.wtype, wtypes.WTuple) and expr.base.wtype.names:
+        if isinstance(expr.base.wtype, wtypes.WTuple):
             index = expr.base.wtype.name_to_index(expr.name, expr.source_location)
             tup = self.visit_and_materialise(expr.base)
             return get_tuple_item_values(

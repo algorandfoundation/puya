@@ -38,24 +38,19 @@ class ARC4TupleGenericTypeBuilder(GenericTypeBuilder):
     ) -> InstanceBuilder:
         arg = expect.exactly_one_arg(args, location, default=expect.default_raise)
         match arg:
-            case InstanceBuilder(
-                pytype=pytypes.TupleType(items=items, generic=pytypes.GenericTupleType)
-            ):
+            case InstanceBuilder(pytype=pytypes.TupleType(items=items)):
                 typ = pytypes.GenericARC4TupleType.parameterise(items, location)
-                wtype = typ.wtype
-                assert isinstance(wtype, wtypes.ARC4Tuple)
                 return ARC4TupleExpressionBuilder(
-                    ARC4Encode(value=arg.resolve(), wtype=wtype, source_location=location), typ
+                    ARC4Encode(value=arg.resolve(), wtype=typ.wtype, source_location=location), typ
                 )
             case _:
                 # don't know expected type, so raise
                 expect.not_this_type(arg, default=expect.default_raise)
 
 
-class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleType]):
+class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.ARC4TupleType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
-        assert isinstance(typ, pytypes.TupleType)
-        assert typ.generic == pytypes.GenericARC4TupleType
+        assert isinstance(typ, pytypes.ARC4TupleType)
         super().__init__(typ, location)
 
     @typing.override
@@ -81,11 +76,10 @@ class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleType]):
 
 
 class ARC4TupleExpressionBuilder(
-    BytesBackedInstanceExpressionBuilder[pytypes.TupleType], StaticSizedCollectionBuilder
+    BytesBackedInstanceExpressionBuilder[pytypes.ARC4TupleType], StaticSizedCollectionBuilder
 ):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
-        assert isinstance(typ, pytypes.TupleType)
-        assert typ.generic == pytypes.GenericARC4TupleType
+        assert isinstance(typ, pytypes.ARC4TupleType)
         super().__init__(typ, expr)
 
     @typing.override

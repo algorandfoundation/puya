@@ -227,7 +227,7 @@ def _validate_lvalue(typ: pytypes.PyType, resolved: Expression) -> Lvalue:
                 resolved.source_location,
             )
     elif isinstance(resolved, TupleExpression):
-        assert isinstance(typ, pytypes.TupleType)
+        assert isinstance(typ, pytypes.TupleLikeType)
         for item_typ, item in zip(typ.items, resolved.items, strict=True):
             _validate_lvalue(item_typ, item)
     return resolved
