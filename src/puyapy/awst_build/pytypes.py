@@ -264,6 +264,16 @@ class TupleType(PyType):
         if names is not None and len(names) != len(self.items):
             raise InternalError("names length must match items length", self.source_location)
 
+    def name_to_index(self, name: str, source_location: SourceLocation) -> int:
+        if self.names is None:
+            raise CodeError(
+                "Cannot access tuple item by name of an unnamed tuple", source_location
+            )
+        try:
+            return self.names.index(name)
+        except ValueError:
+            raise CodeError(f"{name} is not a member of {self.name}") from None
+
     @property
     def wtype(self) -> wtypes.WTuple | wtypes.ARC4Tuple:
         return self._wtype_factory(
@@ -662,19 +672,12 @@ def make_wtuple(
     name: str,
     source_location: SourceLocation | None,
 ) -> wtypes.WTuple | wtypes.ARC4Tuple:
-    if names is not None:
-        return wtypes.WTuple(
-            types=types,
-            names=tuple(names),
-            name=name,
-            source_location=source_location,
-        )
-    else:
-        return wtypes.WTuple(
-            types=types,
-            names=None,
-            source_location=source_location,
-        )
+    return wtypes.WTuple(
+        types=types,
+        names=names,
+        name=attrs.NOTHING if names is None else name,  # type: ignore[arg-type]
+        source_location=source_location,
+    )
 
 
 GenericTupleType: typing.Final = _GenericType(

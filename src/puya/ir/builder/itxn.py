@@ -583,13 +583,17 @@ def _get_assignment_target_local_names(
         case awst_nodes.TupleItemExpression(
             base=awst_nodes.TupleExpression(wtype=tuple_wtype) as base,
             index=index,
-            source_location=index_loc,
         ):
-            idx_num = (
-                index if isinstance(index, int) else tuple_wtype.name_to_index(index, index_loc)
-            )
             tuple_names = _get_assignment_target_local_names(base, len(tuple_wtype.types))
-            return [tuple_names[idx_num]]
+            return [tuple_names[index]]
+        case awst_nodes.FieldExpression(
+            base=awst_nodes.TupleExpression(wtype=tuple_wtype) as base,
+            name=name,
+            source_location=name_loc,
+        ):
+            tuple_names = _get_assignment_target_local_names(base, len(tuple_wtype.types))
+            index = tuple_wtype.name_to_index(name, name_loc)
+            return [tuple_names[index]]
     raise CodeError(
         "Inner Transactions can only be assigned to local variables",
         target.source_location,
@@ -688,7 +692,7 @@ def _get_uint64_const(expr: awst_nodes.Expression) -> int | None:
 
 def _is_last_itxn(expr: awst_nodes.Expression) -> bool:
     # is last itxn if expr is a submit expr of size 1 OR
-    if not isinstance(expr, awst_nodes.TupleItemExpression):
+    if not isinstance(expr, awst_nodes.TupleItemExpression | awst_nodes.FieldExpression):
         return _is_submit_expr_of_size(expr, 1)
 
     # if expr is a tuple item expression with an index into the last item of a submit expr
@@ -698,8 +702,8 @@ def _is_last_itxn(expr: awst_nodes.Expression) -> bool:
 
     idx_num = (
         expr.index
-        if isinstance(expr.index, int)
-        else base.wtype.name_to_index(expr.index, expr.source_location)
+        if isinstance(expr, awst_nodes.TupleItemExpression)
+        else base.wtype.name_to_index(expr.name, expr.source_location)
     )
     tuple_size = len(base.wtype.types)
     if idx_num == -1 or (idx_num + 1) == tuple_size:

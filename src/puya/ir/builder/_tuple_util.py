@@ -13,12 +13,10 @@ def get_tuple_item_values(
     *,
     tuple_values: Sequence[Value],
     tuple_wtype: wtypes.WTuple,
-    index: int | tuple[int, int | None] | str,
+    index: int | tuple[int, int | None],
     target_wtype: wtypes.WType,
     source_location: SourceLocation,
 ) -> ValueProvider:
-    if isinstance(index, str):
-        index = tuple_wtype.name_to_index(index, source_location)
     if isinstance(index, tuple):
         skip_values = sum_wtypes_arity(tuple_wtype.types[: index[0]])
         target_arity = sum_wtypes_arity(tuple_wtype.types[index[0] : index[1]])
