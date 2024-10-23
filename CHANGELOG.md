@@ -1,4 +1,16 @@
 # CHANGELOG
+## v3.4.0 (2024-10-23)
+
+### Feature
+
+* Named tuple support in contract to contract calls ([`c742281`](https://github.com/algorandfoundation/puya/commit/c7422817d45187db960a1cb2a09d618c668429ee))
+
+* Named tuples ([`e0abe5c`](https://github.com/algorandfoundation/puya/commit/e0abe5c572d5dbd0049ea34ed77000333b1e6d57))
+
+### Fix
+
+* Round trip serialization of names property on WTuple ([`dd7b679`](https://github.com/algorandfoundation/puya/commit/dd7b679389b77db4b7d1e73335ed23c6672d64ca))
+
 ## v3.3.0 (2024-10-16)
 
 ## v3.2.3 (2024-10-15)
