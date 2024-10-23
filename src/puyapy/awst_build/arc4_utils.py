@@ -1,6 +1,6 @@
 import re
 import typing
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 
 import attrs
 import mypy.nodes
@@ -8,7 +8,6 @@ import mypy.types
 import mypy.visitor
 from immutabledict import immutabledict
 from puya import log
-from puya.arc4_util import split_tuple_types
 from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
 from puya.models import (
@@ -469,3 +468,21 @@ def pytype_to_arc4(typ: pytypes.PyType, loc: SourceLocation | None = None) -> st
     if not isinstance(wtype, wtypes.ARC4Type):
         raise CodeError(f"not an ARC4 type or native equivalent: {wtype}", loc)
     return wtype.arc4_name
+
+
+def split_tuple_types(types: str) -> Iterable[str]:
+    """Splits inner tuple types into individual elements.
+
+    e.g. "uint64,(uint8,string),bool" becomes ["uint64", "(uint8,string)", "bool"]
+    """
+    tuple_level = 0
+    last_idx = 0
+    for idx, tok in enumerate(types):
+        if tok == "(":
+            tuple_level += 1
+        elif tok == ")":
+            tuple_level -= 1
+        if tok == "," and tuple_level == 0:
+            yield types[last_idx:idx]
+            last_idx = idx + 1
+    yield types[last_idx:]
