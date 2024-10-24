@@ -14,11 +14,13 @@ main_entrypoint@2:
 __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@6
+    bz __puya_arc4_router___bare_routing@8
     method "run_tests()bool"
     method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))"
+    method "named_tuple((uint64,byte[],string))(uint64,byte[],string)"
+    method "nested_named_tuple_params((uint64,uint64,(uint64,byte[],string)))(uint64,uint64,(uint64,byte[],string))"
     txna ApplicationArgs 0
-    match __puya_arc4_router___run_tests_route@2 __puya_arc4_router___nested_tuple_params_route@3
+    match __puya_arc4_router___run_tests_route@2 __puya_arc4_router___nested_tuple_params_route@3 __puya_arc4_router___named_tuple_route@4 __puya_arc4_router___nested_named_tuple_params_route@5
     int 0
     retsub
 
@@ -122,16 +124,176 @@ __puya_arc4_router___nested_tuple_params_route@3:
     int 1
     retsub
 
-__puya_arc4_router___bare_routing@6:
+__puya_arc4_router___named_tuple_route@4:
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@10
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    dup
+    extract 0 8 // on error: Index access is out of bounds
+    btoi
+    swap
+    dup
+    int 8
+    extract_uint16
+    swap
+    dup
+    int 10
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 2
+    dig 1
+    len
+    substring3
+    extract 2 0
+    callsub named_tuple
+    cover 2
+    swap
+    itob
+    cover 2
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    dig 1
+    len
+    itob
+    extract 6 2
+    uncover 2
+    concat
+    cover 2
+    swap
+    byte 0x000c
+    concat
+    dig 1
+    len
+    int 12
+    +
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    retsub
+
+__puya_arc4_router___nested_named_tuple_params_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    dup
+    extract 0 8 // on error: Index access is out of bounds
+    btoi
+    swap
+    dup
+    extract 8 8 // on error: Index access is out of bounds
+    swap
+    dup
+    int 16
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    cover 2
+    substring3
+    dup
+    extract 0 8 // on error: Index access is out of bounds
+    btoi
+    swap
+    dup
+    int 8
+    extract_uint16
+    swap
+    dup
+    int 10
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    extract 2 0
+    cover 2
+    dig 1
+    len
+    substring3
+    extract 2 0
+    callsub nested_named_tuple_params
+    swap
+    uncover 2
+    uncover 4
+    itob
+    cover 3
+    itob
+    cover 2
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    dig 1
+    len
+    itob
+    extract 6 2
+    uncover 2
+    concat
+    cover 2
+    swap
+    byte 0x000c
+    concat
+    dig 1
+    len
+    int 12
+    +
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    swap
+    concat
+    swap
+    uncover 2
+    concat
+    byte 0x0012
+    concat
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    retsub
+
+__puya_arc4_router___bare_routing@8:
+    txn OnCompletion
+    bnz __puya_arc4_router___after_if_else@12
     txn ApplicationID
     !
     assert // is creating
     int 1
     retsub
 
-__puya_arc4_router___after_if_else@10:
+__puya_arc4_router___after_if_else@12:
     int 0
     retsub
 
@@ -422,6 +584,26 @@ nested_tuple_params:
     proto 3 3
     frame_dig -2
     frame_dig -3
+    frame_dig -1
+    retsub
+
+
+// test_cases.tuple_support.nested_tuples.NestedTuples.named_tuple(args.a: uint64, args.b: bytes, args.c: bytes) -> uint64, bytes, bytes:
+named_tuple:
+    proto 3 3
+    frame_dig -3
+    frame_dig -2
+    frame_dig -1
+    retsub
+
+
+// test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tuple_params(args.foo: uint64, args.foo_arc: bytes, args.child.a: uint64, args.child.b: bytes, args.child.c: bytes) -> uint64, bytes, uint64, bytes, bytes:
+nested_named_tuple_params:
+    proto 5 5
+    frame_dig -5
+    frame_dig -4
+    frame_dig -3
+    frame_dig -2
     frame_dig -1
     retsub
 

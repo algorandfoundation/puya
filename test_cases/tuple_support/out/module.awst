@@ -256,6 +256,18 @@ contract NestedTuples extends (algopy.arc4.ARC4Contract)
     return (b, (s, u))
   }
   
+  abimethod named_tuple(args: test_cases.tuple_support.nested_tuples.Child): test_cases.tuple_support.nested_tuples.Child
+  {
+    (a, b, c): tuple<uint64,bytes,string> = args
+    return (a, b, c)
+  }
+  
+  abimethod nested_named_tuple_params(args: test_cases.tuple_support.nested_tuples.Parent): test_cases.tuple_support.nested_tuples.Parent
+  {
+    (foo, foo_arc, (a, b, c)): tuple<uint64,arc4.uint64,tuple<uint64,bytes,string>> = args
+    return (foo, foo_arc, (a, b, c))
+  }
+  
   subroutine build_nested(): tuple<tuple<string,uint64>,bytes>
   {
     GlobalState['build_nested_call_count'] += 1u

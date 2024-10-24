@@ -193,14 +193,27 @@ class WArray(WType):
 
 
 @typing.final
-@attrs.frozen
+@attrs.frozen(eq=False)
 class WTuple(WType):
     types: tuple[WType, ...] = attrs.field(converter=tuple[WType, ...])
-    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
+    source_location: SourceLocation | None = attrs.field(default=None)
     scalar_type: None = attrs.field(default=None, init=False)
     immutable: bool = attrs.field(default=True, init=False)
-    name: str = attrs.field(eq=False, kw_only=True)
+    name: str = attrs.field(kw_only=True)
     names: tuple[str, ...] | None = attrs.field(default=None)
+
+    def __eq__(self, other: object) -> bool:
+        # this custom equality check ensures that
+        # tuple field names are only considered when both sides
+        # have defined names
+        if not isinstance(other, WTuple):
+            return False
+        return self.types == other.types and (
+            self.names == other.names or None in (self.names, other.names)
+        )
+
+    def __hash__(self) -> int:
+        return hash(self.types)
 
     @types.validator
     def _types_validator(self, _attribute: object, types: tuple[WType, ...]) -> None:
