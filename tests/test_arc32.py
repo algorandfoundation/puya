@@ -1545,6 +1545,12 @@ def test_nested_tuples(
     assert response.return_value[1][0] == "Hello"
     assert response.return_value[1][1] == 123
 
+    response = app_client.call("named_tuple", args=(1, b"2", "3"))
+    assert response.return_value == [1, [50], "3"]
+
+    response = app_client.call("nested_named_tuple_params", args=(1, 2, (3, b"4", "5")))
+    assert response.return_value == [1, 2, [3, [52], "5"]]
+
 
 def test_named_tuples(
     algod_client: AlgodClient,

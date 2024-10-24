@@ -1,4 +1,18 @@
+import typing
+
 from algopy import ARC4Contract, Bytes, String, UInt64, arc4, op, subroutine
+
+
+class Child(typing.NamedTuple):
+    a: UInt64
+    b: Bytes
+    c: String
+
+
+class Parent(typing.NamedTuple):
+    foo: UInt64
+    foo_arc: arc4.UInt64
+    child: Child
 
 
 class NestedTuples(ARC4Contract):
@@ -40,6 +54,16 @@ class NestedTuples(ARC4Contract):
     ) -> tuple[Bytes, tuple[String, UInt64]]:
         (s, (b, (u,))) = args
         return b, (s, u)
+
+    @arc4.abimethod()
+    def named_tuple(self, args: Child) -> Child:
+        a, b, c = args
+        return Child(a, b, c)
+
+    @arc4.abimethod()
+    def nested_named_tuple_params(self, args: Parent) -> Parent:
+        foo, foo_arc, (a, b, c) = args
+        return Parent(foo, foo_arc, Child(a, b, c))
 
     @subroutine
     def build_nested(self) -> tuple[tuple[String, UInt64], Bytes]:
