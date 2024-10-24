@@ -5,6 +5,7 @@ from algopy import (
     Global,
     OnCompleteAction,
     String,
+    UInt64,
     arc4,
     compile_contract,
     compile_logicsig,
@@ -232,6 +233,33 @@ class HelloFactory(ARC4Contract):
             LargeProgram.delete,
             app_id=app,
         )
+
+    @arc4.abimethod()
+    def test_arc4_create_modified_compiled(self) -> None:
+        compiled = compile_contract(Hello)
+        compiled = compiled._replace(
+            local_uints=UInt64(3),
+            global_uints=UInt64(4),
+            local_bytes=UInt64(5),
+            global_bytes=UInt64(6),
+        )
+        app = arc4.arc4_create(
+            Hello.create,
+            String("hey"),
+            compiled=compiled,
+        ).created_app
+
+        assert app.local_num_uint == 3
+        assert app.global_num_uint == 4
+        assert app.local_num_bytes == 5
+        assert app.global_num_bytes == 6
+
+        result, _txn = arc4.abi_call(Hello.greet, "there", app_id=app)
+
+        assert result == "hey there"
+
+        # delete the app
+        arc4.abi_call(Hello.delete, app_id=app)
 
     @arc4.abimethod()
     def test_arc4_update(self) -> None:

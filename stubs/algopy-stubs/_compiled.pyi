@@ -8,73 +8,65 @@ from algopy import (
     UInt64,
 )
 
-class CompiledContract(typing.Protocol):
+class CompiledContract(typing.NamedTuple):
     """
     Provides compiled programs and state allocation values for a Contract.
     Create by calling [`compile_contract`](#algopy.compile_contract).
     """
 
-    @property
-    def approval_program(self) -> tuple[Bytes, Bytes]:
-        """
-        Approval program pages for a contract, after template variables have been replaced
-        and compiled to AVM bytecode
-        """
+    approval_program: tuple[Bytes, Bytes]
+    """
+    Approval program pages for a contract, after template variables have been replaced
+    and compiled to AVM bytecode
+    """
 
-    @property
-    def clear_state_program(self) -> tuple[Bytes, Bytes]:
-        """
-        Clear state program pages for a contract, after template variables have been replaced
-        and compiled to AVM bytecode
-        """
+    clear_state_program: tuple[Bytes, Bytes]
+    """
+    Clear state program pages for a contract, after template variables have been replaced
+    and compiled to AVM bytecode
+    """
 
-    @property
-    def extra_program_pages(self) -> UInt64:
-        """
-        By default, provides extra program pages required based on approval and clear state program
-        size, can be overridden when calling compile_contract
-        """
+    extra_program_pages: UInt64
+    """
+    By default, provides extra program pages required based on approval and clear state program
+    size, can be overridden when calling compile_contract
+    """
 
-    @property
-    def global_uints(self) -> UInt64:
-        """
-        By default, provides global num uints based on contract state totals, can be overridden
-        when calling compile_contract
-        """
+    global_uints: UInt64
+    """
+    By default, provides global num uints based on contract state totals, can be overridden
+    when calling compile_contract
+    """
 
-    @property
-    def global_bytes(self) -> UInt64:
-        """
-        By default, provides global num bytes based on contract state totals, can be overridden
-        when calling compile_contract
-        """
+    global_bytes: UInt64
+    """
+    By default, provides global num bytes based on contract state totals, can be overridden
+    when calling compile_contract
+    """
 
-    @property
-    def local_uints(self) -> UInt64:
-        """
-        By default, provides local num uints based on contract state totals, can be overridden
-        when calling compile_contract
-        """
+    local_uints: UInt64
+    """
+    By default, provides local num uints based on contract state totals, can be overridden
+    when calling compile_contract
+    """
 
-    @property
-    def local_bytes(self) -> UInt64:
-        """
-        By default, provides local num bytes based on contract state totals, can be overridden
-        when calling compile_contract
-        """
+    local_bytes: UInt64
+    """
+    By default, provides local num bytes based on contract state totals, can be overridden
+    when calling compile_contract
+    """
 
-class CompiledLogicSig(typing.Protocol):
+class CompiledLogicSig(typing.NamedTuple):
     """
     Provides account for a Logic Signature.
     Create by calling [`compile_logicsig`](#algopy.compile_logicsig).
     """
 
-    @property
-    def account(self) -> Account:
-        """
-        Address of a logic sig program, after template variables have been replaced and compiled
-        to AVM bytecode
-        """
+    account: Account
+    """
+    Address of a logic sig program, after template variables have been replaced and compiled
+    to AVM bytecode
+    """
 
 def compile_contract(
     contract: type[Contract],
