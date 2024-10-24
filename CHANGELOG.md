@@ -1,4 +1,12 @@
 # CHANGELOG
+## v3.4.1 (2024-10-24)
+
+### Fix
+
+* allow named tuples to be unpacked ([`320efd2`](https://github.com/algorandfoundation/puya/commit/320efd283292abab1d234610101715f808954730))
+
+* itxn arguments are now inferred correctly when using only a method name in `algopy.arc4.abi_call` ([`04fe6d7`](https://github.com/algorandfoundation/puya/commit/04fe6d798e58939fd07028f07d15b2e25b9427e4))
+
 ## v3.4.0 (2024-10-23)
 
 ### Feature
