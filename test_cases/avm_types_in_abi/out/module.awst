@@ -1,13 +1,27 @@
-contract TestContract extends (algopy.arc4.ARC4Contract)
+contract TestContract
 {
-  abimethod create(bool_param: bool, uint64_param: uint64, bytes_param: bytes, biguint_param: biguint, string_param: string, tuple_param: tuple<bool,uint64,bytes,biguint,string>): tuple<bool,uint64,bytes,biguint,string>
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: bool, uint64_param: uint64, bytes_param: bytes, biguint_param: biguint, string_param: string, tuple_param: tuple<bool,uint64,bytes,biguint,string>): tuple<bool,uint64,bytes,biguint,string>
   {
     result: tuple<bool,uint64,bytes,biguint,string> = (bool_param, uint64_param, bytes_param, biguint_param, string_param)
     assert(&&(&&(&&(&&(result[0] == tuple_param[0], result[1] == tuple_param[1]), result[2] == tuple_param[2]), result[3] == tuple_param[3]), result[4] == tuple_param[4]))
     return result
   }
   
-  abimethod tuple_of_arc4(args: tuple<arc4.uint8,arc4.static_array<arc4.uint8, 32>>): tuple<arc4.uint8,arc4.static_array<arc4.uint8, 32>>
+  abimethod test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(args: tuple<arc4.uint8,arc4.static_array<arc4.uint8, 32>>): tuple<arc4.uint8,arc4.static_array<arc4.uint8, 32>>
   {
     assert(len(reinterpret_cast<bytes>(args[0])) == 1u)
     assert(len(reinterpret_cast<bytes>(args[1])) == 32u)

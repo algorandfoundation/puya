@@ -1,37 +1,37 @@
 // Op                                                                                            Stack (out)
 // test_cases.inner_transactions.contract.MyContract.approval_program() -> uint64:
 main_block@0:
-    txn ApplicationID                                                                            app_id%0#0
-    bnz main_entrypoint@2
-    // Implicit fall through to main_on_create@1
+    txn ApplicationID                                                                            tmp%0#0
+    bnz main_after_if_else@2
+    // Implicit fall through to main_call___init__@1
 
-main_on_create@1:
+main_call___init__@1:
     callsub __init__
-    // Implicit fall through to main_entrypoint@2
+    // Implicit fall through to main_after_if_else@2
 
-main_entrypoint@2:
+main_after_if_else@2:
     // inner_transactions/contract.py:27
     // if op.Txn.num_app_args:
-    txn NumAppArgs                                                                               tmp%0#0
+    txn NumAppArgs                                                                               tmp%1#0
     bz main_after_if_else@10
     // Implicit fall through to main_if_body@3
 
 main_if_body@3:
     // inner_transactions/contract.py:28
     // match op.Txn.application_args(0):
-    txna ApplicationArgs 0                                                                       tmp%2#0
+    txna ApplicationArgs 0                                                                       tmp%3#0
     // inner_transactions/contract.py:29
     // case Bytes(b"test1"):
-    byte 0x7465737431                                                                            tmp%2#0,0x7465737431
+    byte 0x7465737431                                                                            tmp%3#0,0x7465737431
     // inner_transactions/contract.py:31
     // case Bytes(b"test2"):
-    byte 0x7465737432                                                                            tmp%2#0,0x7465737431,0x7465737432
+    byte 0x7465737432                                                                            tmp%3#0,0x7465737431,0x7465737432
     // inner_transactions/contract.py:33
     // case Bytes(b"test3"):
-    byte 0x7465737433                                                                            tmp%2#0,0x7465737431,0x7465737432,0x7465737433
+    byte 0x7465737433                                                                            tmp%3#0,0x7465737431,0x7465737432,0x7465737433
     // inner_transactions/contract.py:35
     // case Bytes(b"test4"):
-    byte 0x7465737434                                                                            tmp%2#0,0x7465737431,0x7465737432,0x7465737433,0x7465737434
+    byte 0x7465737434                                                                            tmp%3#0,0x7465737431,0x7465737432,0x7465737433,0x7465737434
     // inner_transactions/contract.py:28-36
     // match op.Txn.application_args(0):
     //     case Bytes(b"test1"):
@@ -42,7 +42,7 @@ main_if_body@3:
     //         self.test3()
     //     case Bytes(b"test4"):
     //         self.test4()
-    l-load tmp%2#0 4                                                                             0x7465737431,0x7465737432,0x7465737433,0x7465737434,tmp%2#0
+    l-load tmp%3#0 4                                                                             0x7465737431,0x7465737432,0x7465737433,0x7465737434,tmp%3#0
     match main_switch_case_0@4 main_switch_case_1@5 main_switch_case_2@6 main_switch_case_3@7 
     // inner_transactions/contract.py:37
     // return True
@@ -78,6 +78,21 @@ main_after_if_else@10:
     // return True
     int 1                                                                                        1
     return
+
+
+// test_cases.inner_transactions.contract.MyContract.__init__() -> void:
+__init__:
+    // inner_transactions/contract.py:23
+    // def __init__(self) -> None:
+    proto 0 0
+
+__init___block@0:
+    // inner_transactions/contract.py:24
+    // self.name = Bytes(b"")
+    byte "name"                                                                                  "name"
+    byte 0x                                                                                      "name",0x
+    app_global_put
+    retsub
 
 
 // test_cases.inner_transactions.contract.MyContract.test1() -> void:
@@ -1226,21 +1241,6 @@ test4_block@0:
     byte 0x098101                                                                                tmp%13#0,0x098101
     ==                                                                                           tmp%14#0
     assert // expected clear_state_pages
-    retsub
-
-
-// test_cases.inner_transactions.contract.MyContract.__init__() -> void:
-__init__:
-    // inner_transactions/contract.py:23
-    // def __init__(self) -> None:
-    proto 0 0
-
-__init___block@0:
-    // inner_transactions/contract.py:24
-    // self.name = Bytes(b"")
-    byte "name"                                                                                  "name"
-    byte 0x                                                                                      "name",0x
-    app_global_put
     retsub
 
 

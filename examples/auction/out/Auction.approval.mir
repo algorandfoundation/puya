@@ -1,17 +1,53 @@
 // Op                                                                                    Stack (out)
 // examples.auction.contract.Auction.approval_program() -> uint64:
 main_block@0:
-    txn ApplicationID                                                                    app_id%0#0
-    bnz main_entrypoint@2
-    // Implicit fall through to main_on_create@1
+    txn ApplicationID                                                                    tmp%0#0
+    bnz main_after_if_else@2
+    // Implicit fall through to main_call___init__@1
 
-main_on_create@1:
+main_call___init__@1:
     callsub __init__
-    // Implicit fall through to main_entrypoint@2
+    // Implicit fall through to main_after_if_else@2
 
-main_entrypoint@2:
-    callsub __puya_arc4_router__                                                         tmp%0#0
+main_after_if_else@2:
+    callsub __puya_arc4_router__                                                         tmp%1#0
     return
+
+
+// examples.auction.contract.Auction.__init__() -> void:
+__init__:
+    // auction/contract.py:17
+    // def __init__(self) -> None:
+    proto 0 0
+
+__init___block@0:
+    // auction/contract.py:18
+    // self.auction_end = UInt64(0)
+    byte "auction_end"                                                                   "auction_end"
+    int 0                                                                                "auction_end",0
+    app_global_put
+    // auction/contract.py:19
+    // self.previous_bid = UInt64(0)
+    byte "previous_bid"                                                                  "previous_bid"
+    int 0                                                                                "previous_bid",0
+    app_global_put
+    // auction/contract.py:20
+    // self.asa_amount = UInt64(0)
+    byte "asa_amount"                                                                    "asa_amount"
+    int 0                                                                                "asa_amount",0
+    app_global_put
+    // auction/contract.py:21
+    // self.asa = Asset()
+    byte "asa"                                                                           "asa"
+    int 0                                                                                "asa",0
+    app_global_put
+    // auction/contract.py:22
+    // self.previous_bidder = Account()
+    global ZeroAddress                                                                   new_state_value%0#0
+    byte "previous_bidder"                                                               new_state_value%0#0,"previous_bidder"
+    l-load new_state_value%0#0 1                                                         "previous_bidder",new_state_value%0#0
+    app_global_put
+    retsub
 
 
 // examples.auction.contract.Auction.__puya_arc4_router__() -> uint64:
@@ -167,8 +203,6 @@ __puya_arc4_router___bare_routing@10:
     // Implicit fall through to __puya_arc4_router_____algopy_default_create@11
 
 __puya_arc4_router_____algopy_default_create@11:
-    // auction/contract.py:16
-    // class Auction(ARC4Contract):
     txn ApplicationID                                                                    tmp%40#0
     !                                                                                    tmp%41#0
     assert // is creating
@@ -519,42 +553,6 @@ claim_asset_block@0:                                                            
     //     asset_amount=self.asa_amount,
     // ).submit()
     itxn_submit                                                                          (𝕡) asset#0 |
-    retsub
-
-
-// examples.auction.contract.Auction.__init__() -> void:
-__init__:
-    // auction/contract.py:17
-    // def __init__(self) -> None:
-    proto 0 0
-
-__init___block@0:
-    // auction/contract.py:18
-    // self.auction_end = UInt64(0)
-    byte "auction_end"                                                                   "auction_end"
-    int 0                                                                                "auction_end",0
-    app_global_put
-    // auction/contract.py:19
-    // self.previous_bid = UInt64(0)
-    byte "previous_bid"                                                                  "previous_bid"
-    int 0                                                                                "previous_bid",0
-    app_global_put
-    // auction/contract.py:20
-    // self.asa_amount = UInt64(0)
-    byte "asa_amount"                                                                    "asa_amount"
-    int 0                                                                                "asa_amount",0
-    app_global_put
-    // auction/contract.py:21
-    // self.asa = Asset()
-    byte "asa"                                                                           "asa"
-    int 0                                                                                "asa",0
-    app_global_put
-    // auction/contract.py:22
-    // self.previous_bidder = Account()
-    global ZeroAddress                                                                   new_state_value%0#0
-    byte "previous_bidder"                                                               new_state_value%0#0,"previous_bidder"
-    l-load new_state_value%0#0 1                                                         "previous_bidder",new_state_value%0#0
-    app_global_put
     retsub
 
 

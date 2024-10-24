@@ -2,14 +2,42 @@
 
 test_cases.compile.apps.HelloOtherConstants.approval_program:
     intcblock 0 1
-    bytecblock "num" 0x151f7c75 0x30 "greeting" "address" "method" TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
+    bytecblock "num" "greeting" "address" "method" 0x151f7c75 TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// test_cases.compile.apps.HelloOtherConstants.__init__() -> void:
+__init__:
+    // compile/apps.py:83
+    // def __init__(self) -> None:
+    proto 0 0
+    // compile/apps.py:84
+    // self.greeting = TemplateVar[String]("GREETING")
+    bytec_1 // "greeting"
+    bytec 5 // TMPL_GREETING
+    app_global_put
+    // compile/apps.py:85
+    // self.num = TemplateVar[BigUInt]("NUM")
+    bytec_0 // "num"
+    bytec 6 // TMPL_NUM
+    app_global_put
+    // compile/apps.py:86
+    // self.address = TemplateVar[Account]("ACCOUNT")
+    bytec_2 // "address"
+    bytec 7 // TMPL_ACCOUNT
+    app_global_put
+    // compile/apps.py:87
+    // self.method = TemplateVar[Bytes]("METHOD")
+    bytec_3 // "method"
+    bytec 8 // TMPL_METHOD
+    app_global_put
+    retsub
 
 
 // test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__() -> uint64:
@@ -36,7 +64,7 @@ __puya_arc4_router___create_route@2:
     assert // is creating
     callsub create
     itob
-    bytec_1 // 0x151f7c75
+    bytec 4 // 0x151f7c75
     swap
     concat
     log
@@ -76,7 +104,7 @@ __puya_arc4_router___greet_route@4:
     extract 6 2
     swap
     concat
-    bytec_1 // 0x151f7c75
+    bytec 4 // 0x151f7c75
     swap
     concat
     log
@@ -114,7 +142,7 @@ greet:
     bytec_0 // "num"
     app_global_get_ex
     assert // check self.num exists
-    bytec_2 // 0x30
+    pushbytes 0x30
     b+
     len
     intc_1 // 1
@@ -123,7 +151,7 @@ greet:
     bytec_0 // "num"
     app_global_get_ex
     assert // check self.num exists
-    bytec_2 // 0x30
+    pushbytes 0x30
     b+
     dig 1
     intc_1 // 1
@@ -134,7 +162,7 @@ greet:
     // compile/apps.py:101
     // self.greeting.bytes + b" " + name.bytes + num_alpha + self.address.bytes + self.method
     intc_0 // 0
-    bytec_3 // "greeting"
+    bytec_1 // "greeting"
     app_global_get_ex
     assert // check self.greeting exists
     pushbytes 0x20
@@ -144,12 +172,12 @@ greet:
     swap
     concat
     intc_0 // 0
-    bytec 4 // "address"
+    bytec_2 // "address"
     app_global_get_ex
     assert // check self.address exists
     concat
     intc_0 // 0
-    bytec 5 // "method"
+    bytec_3 // "method"
     app_global_get_ex
     assert // check self.method exists
     concat
@@ -157,32 +185,4 @@ greet:
     // return (
     //     self.greeting.bytes + b" " + name.bytes + num_alpha + self.address.bytes + self.method
     // )
-    retsub
-
-
-// test_cases.compile.apps.HelloOtherConstants.__init__() -> void:
-__init__:
-    // compile/apps.py:83
-    // def __init__(self) -> None:
-    proto 0 0
-    // compile/apps.py:84
-    // self.greeting = TemplateVar[String]("GREETING")
-    bytec_3 // "greeting"
-    bytec 6 // TMPL_GREETING
-    app_global_put
-    // compile/apps.py:85
-    // self.num = TemplateVar[BigUInt]("NUM")
-    bytec_0 // "num"
-    bytec 7 // TMPL_NUM
-    app_global_put
-    // compile/apps.py:86
-    // self.address = TemplateVar[Account]("ACCOUNT")
-    bytec 4 // "address"
-    bytec 8 // TMPL_ACCOUNT
-    app_global_put
-    // compile/apps.py:87
-    // self.method = TemplateVar[Bytes]("METHOD")
-    bytec 5 // "method"
-    bytec 9 // TMPL_METHOD
-    app_global_put
     retsub

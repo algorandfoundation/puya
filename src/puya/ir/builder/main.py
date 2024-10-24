@@ -36,14 +36,13 @@ from puya.ir.builder.callsub import (
 )
 from puya.ir.builder.iteration import handle_for_in_loop
 from puya.ir.builder.itxn import InnerTransactionBuilder
-from puya.ir.context import IRBuildContext, IRFunctionBuildContext
+from puya.ir.context import IRBuildContext
 from puya.ir.models import (
     AddressConstant,
     BigUIntConstant,
     BytesConstant,
     CompiledContractReference,
     CompiledLogicSigReference,
-    ConditionalBranch,
     Fail,
     Intrinsic,
     InvokeSubroutine,
@@ -91,13 +90,10 @@ class FunctionIRBuilder(
         ctx: IRBuildContext,
         function: awst_nodes.Function,
         subroutine: Subroutine,
-        on_create: Subroutine | None,
     ) -> None:
         builder = cls(ctx, function, subroutine)
         func_ctx = builder.context
         with func_ctx.log_exceptions():
-            if on_create is not None:
-                insert_on_create_call(func_ctx, to=on_create)
             function.body.accept(builder)
             block_builder = func_ctx.block_builder
             final_block = block_builder.active_block
@@ -955,8 +951,7 @@ class FunctionIRBuilder(
         return_types = [r.ir_type for r in result]
         if return_types != self.context.subroutine.returns:
             raise CodeError(
-                f"invalid return type {return_types} in {self.context.function.full_name},"
-                f" should be {self.context.subroutine.returns}",
+                f"invalid return type {return_types}, expected {self.context.subroutine.returns}",
                 statement.source_location,
             )
         self.context.block_builder.terminate(
@@ -1092,7 +1087,7 @@ class FunctionIRBuilder(
 
     def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> TExpression:
         root = self.context.root
-        if not isinstance(root, awst_nodes.ContractFragment):
+        if not isinstance(root, awst_nodes.Contract):
             raise CodeError(
                 "cannot create ARC4 router outside of a contract", expr.source_location
             )
@@ -1266,32 +1261,3 @@ def get_comparison_op_for_wtype(
     raise InternalError(
         f"unsupported operation of {numeric_comparison_equivalent} on type of {wtype}"
     )
-
-
-def insert_on_create_call(context: IRFunctionBuildContext, to: Subroutine) -> None:
-    txn_app_id_intrinsic = Intrinsic(
-        source_location=None, op=AVMOp("txn"), immediates=["ApplicationID"]
-    )
-    app_id_r = assign_temp(
-        context,
-        source=txn_app_id_intrinsic,
-        temp_description="app_id",
-        source_location=None,
-    )
-    on_create_block, entrypoint_block = context.block_builder.mkblocks(
-        "on_create",
-        "entrypoint",
-        source_location=to.source_location or context.function.source_location,
-    )
-    context.block_builder.terminate(
-        ConditionalBranch(
-            source_location=None,
-            condition=app_id_r,
-            zero=on_create_block,
-            non_zero=entrypoint_block,
-        )
-    )
-    context.block_builder.activate_block(on_create_block)
-    context.block_builder.add(InvokeSubroutine(source_location=None, target=to, args=[]))
-    context.block_builder.goto(entrypoint_block)
-    context.block_builder.activate_block(entrypoint_block)

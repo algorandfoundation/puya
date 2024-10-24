@@ -4,12 +4,50 @@ examples.amm.contract.ConstantProductAMM.approval_program:
     intcblock 0 1 1000 4 10000000000
     bytecblock "asset_a" "asset_b" "pool_token" "governor" "ratio"
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// examples.amm.contract.ConstantProductAMM.__init__() -> void:
+__init__:
+    // amm/contract.py:28
+    // def __init__(self) -> None:
+    proto 0 0
+    // amm/contract.py:32-33
+    // # The asset id of asset A
+    // self.asset_a = Asset()
+    bytec_0 // "asset_a"
+    intc_0 // 0
+    app_global_put
+    // amm/contract.py:34-35
+    // # The asset id of asset B
+    // self.asset_b = Asset()
+    bytec_1 // "asset_b"
+    intc_0 // 0
+    app_global_put
+    // amm/contract.py:36-37
+    // # The current governor of this contract, allowed to do admin type actions
+    // self.governor = Txn.sender
+    bytec_3 // "governor"
+    txn Sender
+    app_global_put
+    // amm/contract.py:38-39
+    // # The asset id of the Pool Token, used to track share of pool the holder may recover
+    // self.pool_token = Asset()
+    bytec_2 // "pool_token"
+    intc_0 // 0
+    app_global_put
+    // amm/contract.py:40-41
+    // # The ratio between assets (A*Scale/B)
+    // self.ratio = UInt64(0)
+    bytec 4 // "ratio"
+    intc_0 // 0
+    app_global_put
+    retsub
 
 
 // examples.amm.contract.ConstantProductAMM.__puya_arc4_router__() -> uint64:
@@ -1211,42 +1249,4 @@ tokens_to_swap:
     // return out_total // in_total
     swap
     /
-    retsub
-
-
-// examples.amm.contract.ConstantProductAMM.__init__() -> void:
-__init__:
-    // amm/contract.py:28
-    // def __init__(self) -> None:
-    proto 0 0
-    // amm/contract.py:32-33
-    // # The asset id of asset A
-    // self.asset_a = Asset()
-    bytec_0 // "asset_a"
-    intc_0 // 0
-    app_global_put
-    // amm/contract.py:34-35
-    // # The asset id of asset B
-    // self.asset_b = Asset()
-    bytec_1 // "asset_b"
-    intc_0 // 0
-    app_global_put
-    // amm/contract.py:36-37
-    // # The current governor of this contract, allowed to do admin type actions
-    // self.governor = Txn.sender
-    bytec_3 // "governor"
-    txn Sender
-    app_global_put
-    // amm/contract.py:38-39
-    // # The asset id of the Pool Token, used to track share of pool the holder may recover
-    // self.pool_token = Asset()
-    bytec_2 // "pool_token"
-    intc_0 // 0
-    app_global_put
-    // amm/contract.py:40-41
-    // # The ratio between assets (A*Scale/B)
-    // self.ratio = UInt64(0)
-    bytec 4 // "ratio"
-    intc_0 // 0
-    app_global_put
     retsub

@@ -3,10 +3,10 @@
 test_cases.application.contract.Reference.approval_program:
     intcblock 1 0
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     // application/contract.py:27
     // if op.Txn.num_app_args == 1:
     txn NumAppArgs
@@ -37,6 +37,29 @@ main_after_if_else@7:
     // return True
     intc_0 // 1
     return
+
+
+// test_cases.application.contract.Reference.__init__() -> void:
+__init__:
+    // application/contract.py:14
+    // def __init__(self) -> None:
+    proto 0 0
+    // application/contract.py:15
+    // self.int_1 = UInt64(0)
+    pushbytes "int_1"
+    intc_1 // 0
+    app_global_put
+    // application/contract.py:16
+    // self.bytes_1 = Bytes(b"")
+    pushbytes "bytes_1"
+    pushbytes 0x
+    app_global_put
+    // application/contract.py:17
+    // self.bytes_2 = Bytes(b"")
+    pushbytes "bytes_2"
+    pushbytes 0x
+    app_global_put
+    retsub
 
 
 // test_cases.application.contract.Reference.validate_asset(app: uint64) -> void:
@@ -128,27 +151,4 @@ validate_asset:
     //     app.address == op.Global.current_application_address
     // ), "expected current_application_address"
     assert // expected current_application_address
-    retsub
-
-
-// test_cases.application.contract.Reference.__init__() -> void:
-__init__:
-    // application/contract.py:14
-    // def __init__(self) -> None:
-    proto 0 0
-    // application/contract.py:15
-    // self.int_1 = UInt64(0)
-    pushbytes "int_1"
-    intc_1 // 0
-    app_global_put
-    // application/contract.py:16
-    // self.bytes_1 = Bytes(b"")
-    pushbytes "bytes_1"
-    pushbytes 0x
-    app_global_put
-    // application/contract.py:17
-    // self.bytes_2 = Bytes(b"")
-    pushbytes "bytes_2"
-    pushbytes 0x
-    app_global_put
     retsub

@@ -2,12 +2,21 @@
 
 test_cases.abi_routing.minimal.MinimumARC4.approval_program:
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// test_cases.abi_routing.minimal.MinimumARC4.__init__() -> void:
+__init__:
+    proto 0 0
+    pushbytes "gvalue"
+    pushint 4 // 4
+    app_global_put
+    retsub
 
 
 // test_cases.abi_routing.minimal.MinimumARC4.__puya_arc4_router__() -> uint64:
@@ -25,13 +34,4 @@ __puya_arc4_router__:
 
 __puya_arc4_router___after_if_else@6:
     pushint 0 // 0
-    retsub
-
-
-// test_cases.abi_routing.minimal.MinimumARC4.__init__() -> void:
-__init__:
-    proto 0 0
-    pushbytes "gvalue"
-    pushint 4 // 4
-    app_global_put
     retsub

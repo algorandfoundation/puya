@@ -3,12 +3,24 @@
 test_cases.diamond_mro.gp.GP.approval_program:
     intcblock 0 1
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// test_cases.diamond_mro.gp.GP.__init__() -> void:
+__init__:
+    // diamond_mro/gp.py:7
+    // def __init__(self) -> None:
+    proto 0 0
+    // diamond_mro/gp.py:8
+    // log("gp.__init__")
+    pushbytes "gp.__init__"
+    log
+    retsub
 
 
 // test_cases.diamond_mro.gp.GP.__puya_arc4_router__() -> uint64:
@@ -87,17 +99,5 @@ method:
     // diamond_mro/gp.py:17
     // log("gp.method")
     pushbytes "gp.method"
-    log
-    retsub
-
-
-// test_cases.diamond_mro.gp.GP.__init__() -> void:
-__init__:
-    // diamond_mro/gp.py:7
-    // def __init__(self) -> None:
-    proto 0 0
-    // diamond_mro/gp.py:8
-    // log("gp.__init__")
-    pushbytes "gp.__init__"
     log
     retsub

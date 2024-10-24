@@ -2,14 +2,65 @@
 
 test_cases.abi_routing.contract.Reference.approval_program:
     intcblock 0 1 8 2
-    bytecblock 0x151f7c75 "asa" 0x00000000000001c8 0x07
+    bytecblock 0x151f7c75 "asa" 0x 0x07 0x00000000000001c8
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// test_cases.abi_routing.contract.Reference.__init__() -> void:
+__init__:
+    // abi_routing/contract.py:23
+    // def __init__(self) -> None:
+    proto 0 0
+    // abi_routing/contract.py:24
+    // self.asa = Asset(123)
+    bytec_1 // "asa"
+    pushint 123 // 123
+    app_global_put
+    // abi_routing/contract.py:25
+    // self.an_int = UInt64(2)
+    pushbytes "an_int"
+    intc_3 // 2
+    app_global_put
+    // abi_routing/contract.py:26
+    // self.some_bytes = Bytes3(arc4.Byte(7), arc4.Byte(8), arc4.Byte(9))
+    bytec_2 // 0x
+    bytec_3 // 0x07
+    concat
+    pushbytes 0x08
+    concat
+    pushbytes 0x09
+    concat
+    bytec_2 // 0x
+    swap
+    concat
+    pushbytes "some_bytes"
+    swap
+    app_global_put
+    // abi_routing/contract.py:27
+    // self.creator = op.Txn.sender
+    txn Sender
+    pushbytes "creator"
+    swap
+    app_global_put
+    // abi_routing/contract.py:28
+    // self.app = Application(123)
+    pushbytes "app"
+    pushint 123 // 123
+    app_global_put
+    // abi_routing/contract.py:30
+    // assert arc4.arc4_signature("get(uint64,byte[])byte[]"), "has method selector"
+    pushbytes 0x189392c5 // method "get(uint64,byte[])byte[]"
+    len
+    intc_0 // 0
+    !=
+    assert // has method selector
+    retsub
 
 
 // test_cases.abi_routing.contract.Reference.__puya_arc4_router__() -> uint64:
@@ -878,7 +929,7 @@ get_asset:
     proto 0 1
     // abi_routing/contract.py:119
     // return arc4.UInt64(456)
-    bytec_2 // 0x00000000000001c8
+    bytec 4 // 0x00000000000001c8
     retsub
 
 
@@ -890,7 +941,7 @@ get_app:
     proto 0 1
     // abi_routing/contract.py:123
     // return arc4.UInt64(456)
-    bytec_2 // 0x00000000000001c8
+    bytec 4 // 0x00000000000001c8
     retsub
 
 
@@ -1670,55 +1721,4 @@ bare_abi_config:
     // log("Hello World")
     pushbytes "Hello World"
     log
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.__init__() -> void:
-__init__:
-    // abi_routing/contract.py:23
-    // def __init__(self) -> None:
-    proto 0 0
-    // abi_routing/contract.py:24
-    // self.asa = Asset(123)
-    bytec_1 // "asa"
-    pushint 123 // 123
-    app_global_put
-    // abi_routing/contract.py:25
-    // self.an_int = UInt64(2)
-    pushbytes "an_int"
-    intc_3 // 2
-    app_global_put
-    // abi_routing/contract.py:26
-    // self.some_bytes = Bytes3(arc4.Byte(7), arc4.Byte(8), arc4.Byte(9))
-    pushbytes 0x
-    bytec_3 // 0x07
-    concat
-    pushbytes 0x08
-    concat
-    pushbytes 0x09
-    concat
-    pushbytes 0x
-    swap
-    concat
-    pushbytes "some_bytes"
-    swap
-    app_global_put
-    // abi_routing/contract.py:27
-    // self.creator = op.Txn.sender
-    txn Sender
-    pushbytes "creator"
-    swap
-    app_global_put
-    // abi_routing/contract.py:28
-    // self.app = Application(123)
-    pushbytes "app"
-    pushint 123 // 123
-    app_global_put
-    // abi_routing/contract.py:30
-    // assert arc4.arc4_signature("get(uint64,byte[])byte[]"), "has method selector"
-    pushbytes 0x189392c5 // method "get(uint64,byte[])byte[]"
-    len
-    intc_0 // 0
-    !=
-    assert // has method selector
     retsub

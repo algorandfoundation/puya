@@ -36,7 +36,7 @@ def main(*, options_json: str, awst_json: str, source_annotations_json: str | No
         awst_lookup = {n.id: n for n in awst}
         for target_id, path in options.compilation_set.items():
             match awst_lookup.get(target_id):
-                case awst_nodes.ContractFragment(id=contract_id):
+                case awst_nodes.Contract(id=contract_id):
                     compilation_set[contract_id] = path
                 case awst_nodes.LogicSignature(id=lsig_id):
                     compilation_set[lsig_id] = path

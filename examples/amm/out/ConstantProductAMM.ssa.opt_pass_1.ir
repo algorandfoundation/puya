@@ -1,15 +1,25 @@
 contract examples.amm.contract.ConstantProductAMM:
     program approval:
-        subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+        subroutine examples.amm.contract.ConstantProductAMM.approval_program() -> bool:
             block@0: // L1
-                let app_id%0#0: uint64 = (txn ApplicationID)
-                goto app_id%0#0 ? block@2 : block@1
-            block@1: // on_create_L28
+                let tmp%0#0: bool = (txn ApplicationID)
+                goto tmp%0#0 ? block@2 : block@1
+            block@1: // call __init___L1
                 examples.amm.contract.ConstantProductAMM.__init__()
                 goto block@2
-            block@2: // entrypoint_L28
-                let tmp%0#0: bool = examples.amm.contract.ConstantProductAMM.__puya_arc4_router__()
-                return tmp%0#0
+            block@2: // after_if_else_L1
+                let tmp%1#0: bool = examples.amm.contract.ConstantProductAMM.__puya_arc4_router__()
+                return tmp%1#0
+        
+        subroutine examples.amm.contract.ConstantProductAMM.__init__() -> void:
+            block@0: // L28
+                (app_global_put "asset_a" 0u)
+                (app_global_put "asset_b" 0u)
+                let new_state_value%0#0: bytes = (txn Sender)
+                (app_global_put "governor" new_state_value%0#0)
+                (app_global_put "pool_token" 0u)
+                (app_global_put "ratio" 0u)
+                return 
         
         subroutine examples.amm.contract.ConstantProductAMM.__puya_arc4_router__() -> bool:
             block@0: // L27
@@ -122,7 +132,7 @@ contract examples.amm.contract.ConstantProductAMM:
             block@9: // bare_routing_L27
                 let tmp%62#0: uint64 = (txn OnCompletion)
                 goto tmp%62#0 ? block@13 : block@10
-            block@10: // __algopy_default_create_L27
+            block@10: // __algopy_default_create_L1
                 let tmp%63#0: uint64 = (txn ApplicationID)
                 let tmp%64#0: bool = (! tmp%63#0)
                 (assert tmp%64#0) // is creating
@@ -472,16 +482,6 @@ contract examples.amm.contract.ConstantProductAMM:
                 let out_total#0: uint64 = (* tmp%2#0 out_supply#0)
                 let tmp%4#0: uint64 = (/ out_total#0 in_total#0)
                 return tmp%4#0
-        
-        subroutine examples.amm.contract.ConstantProductAMM.__init__() -> void:
-            block@0: // L28
-                (app_global_put "asset_a" 0u)
-                (app_global_put "asset_b" 0u)
-                let new_state_value%0#0: bytes = (txn Sender)
-                (app_global_put "governor" new_state_value%0#0)
-                (app_global_put "pool_token" 0u)
-                (app_global_put "ratio" 0u)
-                return 
     
     program clear-state:
         subroutine algopy.arc4.ARC4Contract.clear_state_program() -> bool:

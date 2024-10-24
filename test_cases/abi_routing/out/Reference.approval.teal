@@ -1,15 +1,52 @@
 #pragma version 10
 
 test_cases.abi_routing.contract.Reference.approval_program:
-    intcblock 1 0 2 123
+    intcblock 1 0 123 2
     bytecblock 0x151f7c75 "asa" 0x00000000000001c8
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// test_cases.abi_routing.contract.Reference.__init__() -> void:
+__init__:
+    // abi_routing/contract.py:23
+    // def __init__(self) -> None:
+    proto 0 0
+    // abi_routing/contract.py:24
+    // self.asa = Asset(123)
+    bytec_1 // "asa"
+    intc_2 // 123
+    app_global_put
+    // abi_routing/contract.py:25
+    // self.an_int = UInt64(2)
+    pushbytes "an_int"
+    intc_3 // 2
+    app_global_put
+    // abi_routing/contract.py:26
+    // self.some_bytes = Bytes3(arc4.Byte(7), arc4.Byte(8), arc4.Byte(9))
+    pushbytess "some_bytes" 0x070809 // "some_bytes", 0x070809
+    app_global_put
+    // abi_routing/contract.py:27
+    // self.creator = op.Txn.sender
+    pushbytes "creator"
+    txn Sender
+    app_global_put
+    // abi_routing/contract.py:28
+    // self.app = Application(123)
+    pushbytes "app"
+    intc_2 // 123
+    app_global_put
+    // abi_routing/contract.py:30
+    // assert arc4.arc4_signature("get(uint64,byte[])byte[]"), "has method selector"
+    pushbytes 0x189392c5 // method "get(uint64,byte[])byte[]"
+    len
+    assert // has method selector
+    retsub
 
 
 // test_cases.abi_routing.contract.Reference.__puya_arc4_router__() -> uint64:
@@ -383,7 +420,7 @@ __puya_arc4_router___method_with_more_than_15_args_route@14:
     txna ApplicationArgs 6
     txna ApplicationArgs 7
     txn GroupIndex
-    intc_2 // 2
+    intc_3 // 2
     -
     dup
     gtxns TypeEnum
@@ -694,7 +731,7 @@ with_transactions:
     // assert another_int.native == 2, "is correct int"
     frame_dig -1
     btoi
-    intc_2 // 2
+    intc_3 // 2
     ==
     assert // is correct int
     retsub
@@ -795,7 +832,7 @@ method_with_default_args:
     // abi_routing/contract.py:154
     // assert asset_from_storage == Asset(123), "wrong asset from storage"
     frame_dig -9
-    intc_3 // 123
+    intc_2 // 123
     ==
     assert // wrong asset from storage
     // abi_routing/contract.py:155
@@ -819,7 +856,7 @@ method_with_default_args:
     // abi_routing/contract.py:158
     // assert application_from_storage == Application(123), "wrong application from storage"
     frame_dig -5
-    intc_3 // 123
+    intc_2 // 123
     ==
     assert // wrong application from storage
     // abi_routing/contract.py:159
@@ -853,7 +890,7 @@ method_with_default_args:
     // assert int_from_storage.native == 2, "wrong int from storage"
     frame_dig -2
     btoi
-    intc_2 // 2
+    intc_3 // 2
     ==
     assert // wrong int from storage
     // abi_routing/contract.py:164
@@ -1509,41 +1546,4 @@ bare_abi_config:
     // log("Hello World")
     pushbytes "Hello World"
     log
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.__init__() -> void:
-__init__:
-    // abi_routing/contract.py:23
-    // def __init__(self) -> None:
-    proto 0 0
-    // abi_routing/contract.py:24
-    // self.asa = Asset(123)
-    bytec_1 // "asa"
-    intc_3 // 123
-    app_global_put
-    // abi_routing/contract.py:25
-    // self.an_int = UInt64(2)
-    pushbytes "an_int"
-    intc_2 // 2
-    app_global_put
-    // abi_routing/contract.py:26
-    // self.some_bytes = Bytes3(arc4.Byte(7), arc4.Byte(8), arc4.Byte(9))
-    pushbytess "some_bytes" 0x070809 // "some_bytes", 0x070809
-    app_global_put
-    // abi_routing/contract.py:27
-    // self.creator = op.Txn.sender
-    pushbytes "creator"
-    txn Sender
-    app_global_put
-    // abi_routing/contract.py:28
-    // self.app = Application(123)
-    pushbytes "app"
-    intc_3 // 123
-    app_global_put
-    // abi_routing/contract.py:30
-    // assert arc4.arc4_signature("get(uint64,byte[])byte[]"), "has method selector"
-    pushbytes 0x189392c5 // method "get(uint64,byte[])byte[]"
-    len
-    assert // has method selector
     retsub

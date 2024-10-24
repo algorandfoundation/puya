@@ -4,10 +4,10 @@ test_cases.abi_routing.custom_approval.CustomApproval.approval_program:
     intcblock 1 0
     pushbytes ""
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     txn NumAppArgs
     pushint 2 // 2
     ==
@@ -31,6 +31,22 @@ main_after_if_else@5:
 main_after_if_else@7:
     dup
     return
+
+
+// test_cases.abi_routing.custom_approval.CustomApproval.__init__() -> void:
+__init__:
+    proto 0 0
+    txn ApplicationID
+    !
+    assert // nonsense assert just to generate an init method
+    retsub
+
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+approval_program:
+    proto 0 1
+    callsub __puya_arc4_router__
+    retsub
 
 
 // test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__() -> uint64:
@@ -81,20 +97,4 @@ add_one:
     frame_dig -1
     intc_0 // 1
     +
-    retsub
-
-
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
-approval_program:
-    proto 0 1
-    callsub __puya_arc4_router__
-    retsub
-
-
-// test_cases.abi_routing.custom_approval.CustomApproval.__init__() -> void:
-__init__:
-    proto 0 0
-    txn ApplicationID
-    !
-    assert // nonsense assert just to generate an init method
     retsub

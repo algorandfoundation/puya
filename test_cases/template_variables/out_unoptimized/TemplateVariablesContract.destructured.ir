@@ -45,24 +45,24 @@ contract test_cases.template_variables.contract.TemplateVariablesContract:
                 goto block@12
             block@6: // bare_routing_L5
                 let tmp%14#0: uint64 = (txn OnCompletion)
-                switch tmp%14#0 {0u => block@7, 4u => block@8, 5u => block@9, * => block@10}
-            block@7: // __algopy_default_create_L5
+                switch tmp%14#0 {4u => block@7, 5u => block@8, 0u => block@9, * => block@10}
+            block@7: // on_update_L15
                 let tmp%15#0: uint64 = (txn ApplicationID)
-                let tmp%16#0: bool = (== tmp%15#0 0u)
-                (assert tmp%16#0) // is creating
-                test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create()
+                let tmp%16#0: bool = (!= tmp%15#0 0u)
+                (assert tmp%16#0) // is not creating
+                test_cases.template_variables.contract.TemplateVariablesContract.on_update()
                 return 1u
-            block@8: // on_update_L15
+            block@8: // on_delete_L19
                 let tmp%17#0: uint64 = (txn ApplicationID)
                 let tmp%18#0: bool = (!= tmp%17#0 0u)
                 (assert tmp%18#0) // is not creating
-                test_cases.template_variables.contract.TemplateVariablesContract.on_update()
-                return 1u
-            block@9: // on_delete_L19
-                let tmp%19#0: uint64 = (txn ApplicationID)
-                let tmp%20#0: bool = (!= tmp%19#0 0u)
-                (assert tmp%20#0) // is not creating
                 test_cases.template_variables.contract.TemplateVariablesContract.on_delete()
+                return 1u
+            block@9: // __algopy_default_create_L1
+                let tmp%19#0: uint64 = (txn ApplicationID)
+                let tmp%20#0: bool = (== tmp%19#0 0u)
+                (assert tmp%20#0) // is creating
+                test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create()
                 return 1u
             block@10: // switch_case_default_L5
                 goto block@11
@@ -85,10 +85,6 @@ contract test_cases.template_variables.contract.TemplateVariablesContract:
                 let tmp%0#0: bytes = (b| x#0 b_zeros%0#0)
                 return tmp%0#0
         
-        subroutine test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create() -> void:
-            block@0: // L5
-                return 
-        
         subroutine test_cases.template_variables.contract.TemplateVariablesContract.on_update() -> void:
             block@0: // L15
                 (assert TemplateVar[bool](TMPL_UPDATABLE))
@@ -98,6 +94,10 @@ contract test_cases.template_variables.contract.TemplateVariablesContract:
             block@0: // L19
                 let tmp%0#0: bool = (!= TemplateVar[uint64](TMPL_DELETABLE) 0u)
                 (assert tmp%0#0)
+                return 
+        
+        subroutine test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create() -> void:
+            block@0: // L1
                 return 
     
     program clear-state:

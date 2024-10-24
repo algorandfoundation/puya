@@ -1,15 +1,28 @@
 contract test_cases.abi_routing.contract.Reference:
     program approval:
-        subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+        subroutine test_cases.abi_routing.contract.Reference.approval_program() -> bool:
             block@0: // L1
-                let app_id%0#0: uint64 = (txn ApplicationID)
-                goto app_id%0#0 ? block@2 : block@1
-            block@1: // on_create_L23
+                let tmp%0#0: bool = (txn ApplicationID)
+                goto tmp%0#0 ? block@2 : block@1
+            block@1: // call __init___L1
                 test_cases.abi_routing.contract.Reference.__init__()
                 goto block@2
-            block@2: // entrypoint_L23
-                let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__()
-                return tmp%0#0
+            block@2: // after_if_else_L1
+                let tmp%1#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__()
+                return tmp%1#0
+        
+        subroutine test_cases.abi_routing.contract.Reference.__init__() -> void:
+            block@0: // L23
+                (app_global_put "asa" 123u)
+                (app_global_put "an_int" 2u)
+                let result%2#0: bytes = 0x070809
+                (app_global_put "some_bytes" result%2#0)
+                let new_state_value%0#0: bytes = (txn Sender)
+                (app_global_put "creator" new_state_value%0#0)
+                (app_global_put "app" 123u)
+                let tmp%0#0: uint64 = (len method "get(uint64,byte[])byte[]")
+                (assert tmp%0#0) // has method selector
+                return 
         
         subroutine test_cases.abi_routing.contract.Reference.__puya_arc4_router__() -> bool:
             block@0: // L22
@@ -497,19 +510,6 @@ contract test_cases.abi_routing.contract.Reference:
         subroutine test_cases.abi_routing.contract.Reference.bare_abi_config() -> void:
             block@0: // L66
                 (log "Hello World")
-                return 
-        
-        subroutine test_cases.abi_routing.contract.Reference.__init__() -> void:
-            block@0: // L23
-                (app_global_put "asa" 123u)
-                (app_global_put "an_int" 2u)
-                let result%2#0: bytes = 0x070809
-                (app_global_put "some_bytes" result%2#0)
-                let new_state_value%0#0: bytes = (txn Sender)
-                (app_global_put "creator" new_state_value%0#0)
-                (app_global_put "app" 123u)
-                let tmp%0#0: uint64 = (len method "get(uint64,byte[])byte[]")
-                (assert tmp%0#0) // has method selector
                 return 
     
     program clear-state:

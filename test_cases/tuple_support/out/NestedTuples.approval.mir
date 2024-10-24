@@ -1,17 +1,32 @@
 // Op                                                                                                Stack (out)
 // test_cases.tuple_support.nested_tuples.NestedTuples.approval_program() -> uint64:
 main_block@0:
-    txn ApplicationID                                                                                app_id%0#0
-    bnz main_entrypoint@2
-    // Implicit fall through to main_on_create@1
+    txn ApplicationID                                                                                tmp%0#0
+    bnz main_after_if_else@2
+    // Implicit fall through to main_call___init__@1
 
-main_on_create@1:
+main_call___init__@1:
     callsub __init__
-    // Implicit fall through to main_entrypoint@2
+    // Implicit fall through to main_after_if_else@2
 
-main_entrypoint@2:
-    callsub __puya_arc4_router__                                                                     tmp%0#0
+main_after_if_else@2:
+    callsub __puya_arc4_router__                                                                     tmp%1#0
     return
+
+
+// test_cases.tuple_support.nested_tuples.NestedTuples.__init__() -> void:
+__init__:
+    // tuple_support/nested_tuples.py:19
+    // def __init__(self) -> None:
+    proto 0 0
+
+__init___block@0:
+    // tuple_support/nested_tuples.py:20
+    // self.build_nested_call_count = UInt64(0)
+    byte "build_nested_call_count"                                                                   "build_nested_call_count"
+    int 0                                                                                            "build_nested_call_count",0
+    app_global_put
+    retsub
 
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__() -> uint64:
@@ -333,8 +348,6 @@ __puya_arc4_router___bare_routing@8:
     // Implicit fall through to __puya_arc4_router_____algopy_default_create@9
 
 __puya_arc4_router_____algopy_default_create@9:
-    // tuple_support/nested_tuples.py:18
-    // class NestedTuples(ARC4Contract):
     txn ApplicationID                                                                                tmp%27#0
     !                                                                                                tmp%28#0
     assert // is creating
@@ -947,20 +960,5 @@ nested_named_tuple_params_block@0:                                              
     p-load args.child.b#0                                                                            (𝕡) args.foo#0,args.foo_arc#0,args.child.a#0,args.child.b#0,args.child.c#0 | args.foo#0 (copy),args.foo_arc#0 (copy),args.child.a#0 (copy),args.child.b#0 (copy)
     p-load args.child.c#0                                                                            (𝕡) args.foo#0,args.foo_arc#0,args.child.a#0,args.child.b#0,args.child.c#0 | args.foo#0 (copy),args.foo_arc#0 (copy),args.child.a#0 (copy),args.child.b#0 (copy),args.child.c#0 (copy)
     retsub                                                                                           args.foo#0 (copy),args.foo_arc#0 (copy),args.child.a#0 (copy),args.child.b#0 (copy),args.child.c#0 (copy)
-
-
-// test_cases.tuple_support.nested_tuples.NestedTuples.__init__() -> void:
-__init__:
-    // tuple_support/nested_tuples.py:19
-    // def __init__(self) -> None:
-    proto 0 0
-
-__init___block@0:
-    // tuple_support/nested_tuples.py:20
-    // self.build_nested_call_count = UInt64(0)
-    byte "build_nested_call_count"                                                                   "build_nested_call_count"
-    int 0                                                                                            "build_nested_call_count",0
-    app_global_put
-    retsub
 
 

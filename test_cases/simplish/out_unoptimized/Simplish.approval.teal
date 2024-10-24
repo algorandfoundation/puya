@@ -8,10 +8,10 @@ test_cases.simplish.contract.Simplish.approval_program:
     pushbytes ""
     dupn 3
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     // simplish/contract.py:31
     // if Txn.application_id == 0:
     txn ApplicationID
@@ -205,6 +205,19 @@ main_after_if_else@24:
     // return result
     dup
     return
+
+
+// test_cases.simplish.base_class.CallCounter.__init__() -> void:
+__init__:
+    // simplish/base_class.py:7
+    // def __init__(self) -> None:
+    proto 0 0
+    // simplish/base_class.py:8
+    // self.counter = UInt64(0)
+    bytec_0 // "counter"
+    intc_0 // 0
+    app_global_put
+    retsub
 
 
 // test_cases.simplish.contract.itoa(i: uint64) -> bytes:
@@ -515,18 +528,5 @@ test_cases.simplish.base_class.CallCounter.increment_counter:
     +
     bytec_0 // "counter"
     swap
-    app_global_put
-    retsub
-
-
-// test_cases.simplish.base_class.CallCounter.__init__() -> void:
-__init__:
-    // simplish/base_class.py:7
-    // def __init__(self) -> None:
-    proto 0 0
-    // simplish/base_class.py:8
-    // self.counter = UInt64(0)
-    bytec_0 // "counter"
-    intc_0 // 0
     app_global_put
     retsub

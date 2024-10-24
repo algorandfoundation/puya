@@ -1,10 +1,20 @@
-contract NamedTuplesContract extends (algopy.arc4.ARC4Contract)
+contract NamedTuplesContract
 {
-  baremethod __algopy_default_create(): void
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
   {
+    return arc4_router()
   }
   
-  abimethod build_tuple(a: uint64, b: biguint, c: string, d: bytes): test_cases.named_tuples.contract.TestTuple
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.named_tuples.contract.NamedTuplesContract.build_tuple(a: uint64, b: biguint, c: string, d: bytes): test_cases.named_tuples.contract.TestTuple
   {
     t1: test_cases.named_tuples.contract.TestTuple = this::build_tuple_by_name(a, b, c, d)
     t2: test_cases.named_tuples.contract.TestTuple = this::build_tuple_by_position(a, b, c, d)
@@ -12,21 +22,25 @@ contract NamedTuplesContract extends (algopy.arc4.ARC4Contract)
     return t1
   }
   
-  subroutine build_tuple_by_name(a: uint64, b: biguint, c: string, d: bytes): test_cases.named_tuples.contract.TestTuple
+  subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_by_name(a: uint64, b: biguint, c: string, d: bytes): test_cases.named_tuples.contract.TestTuple
   {
     return (a, b, c, d)
   }
   
-  subroutine build_tuple_by_position(a: uint64, b: biguint, c: string, d: bytes): test_cases.named_tuples.contract.TestTuple
+  subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_by_position(a: uint64, b: biguint, c: string, d: bytes): test_cases.named_tuples.contract.TestTuple
   {
     return (a, b, c, d)
   }
   
-  abimethod test_tuple(value: test_cases.named_tuples.contract.TestTuple): void
+  abimethod test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(value: test_cases.named_tuples.contract.TestTuple): void
   {
     assert(value.a < 1000u)
     assert(value.b < 36893488147419103232n)
     assert(len(reinterpret_cast<bytes>(value.c)) > 1u)
     assert(value.d == reinterpret_cast<bytes>(txn<Sender>()))
+  }
+  
+  baremethod test_cases.named_tuples.contract.NamedTuplesContract.__algopy_default_create(): void
+  {
   }
 }

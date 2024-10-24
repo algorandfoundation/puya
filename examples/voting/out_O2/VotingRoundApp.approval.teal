@@ -2,14 +2,26 @@
 
 examples.voting.voting.VotingRoundApp.approval_program:
     intcblock 0 1 10 8
-    bytecblock "vote_id" "option_counts" "is_bootstrapped" "voter_count" "V" "close_time" "snapshot_public_key" "metadata_ipfs_cid" "start_time" "end_time" "quorum" "nft_image_url" "total_options" 0x30313233343536373839 0x068101
+    bytecblock "is_bootstrapped" "voter_count" "vote_id" "option_counts" "V" "close_time" "snapshot_public_key" "metadata_ipfs_cid" "start_time" "end_time" "quorum" "nft_image_url" "total_options" 0x30313233343536373839 0x068101
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// examples.voting.voting.VotingRoundApp.__init__() -> void:
+__init__:
+    proto 0 0
+    bytec_0 // "is_bootstrapped"
+    intc_0 // 0
+    app_global_put
+    bytec_1 // "voter_count"
+    intc_0 // 0
+    app_global_put
+    retsub
 
 
 // examples.voting.voting.VotingRoundApp.__puya_arc4_router__() -> uint64:
@@ -130,7 +142,7 @@ create:
     global LatestTimestamp
     >=
     assert // End time should be in the future
-    bytec_0 // "vote_id"
+    bytec_2 // "vote_id"
     frame_dig -8
     app_global_put
     bytec 6 // "snapshot_public_key"
@@ -198,7 +210,7 @@ store_option_counts_after_for@4:
     pushint 128 // 128
     <=
     assert // Can't have more than 128 vote options
-    bytec_1 // "option_counts"
+    bytec_3 // "option_counts"
     frame_dig -1
     app_global_put
     bytec 12 // "total_options"
@@ -213,12 +225,12 @@ store_option_counts_after_for@4:
 bootstrap:
     proto 1 0
     intc_0 // 0
-    bytec_2 // "is_bootstrapped"
+    bytec_0 // "is_bootstrapped"
     app_global_get_ex
     assert // check self.is_bootstrapped exists
     !
     assert // Must not be already bootstrapped
-    bytec_2 // "is_bootstrapped"
+    bytec_0 // "is_bootstrapped"
     intc_1 // 1
     app_global_put
     frame_dig -1
@@ -271,7 +283,7 @@ close:
     global LatestTimestamp
     app_global_put
     intc_0 // 0
-    bytec_0 // "vote_id"
+    bytec_2 // "vote_id"
     app_global_get_ex
     assert // check self.vote_id exists
     pushbytes "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID "
@@ -287,7 +299,7 @@ close:
     pushbytes "\",\"id\":\""
     concat
     intc_0 // 0
-    bytec_0 // "vote_id"
+    bytec_2 // "vote_id"
     app_global_get_ex
     assert // check self.vote_id exists
     concat
@@ -302,7 +314,7 @@ close:
     pushbytes ",\"voterCount\":"
     concat
     intc_0 // 0
-    bytec_3 // "voter_count"
+    bytec_1 // "voter_count"
     app_global_get_ex
     assert // check self.voter_count exists
     callsub itoa
@@ -311,7 +323,7 @@ close:
     concat
     intc_0 // 0
     dup
-    bytec_1 // "option_counts"
+    bytec_3 // "option_counts"
     app_global_get_ex
     swap
     dup
@@ -422,7 +434,7 @@ close_after_for@14:
     itxn_begin
     global MinTxnFee
     intc_0 // 0
-    bytec_0 // "vote_id"
+    bytec_2 // "vote_id"
     app_global_get_ex
     assert // check self.vote_id exists
     pushbytes "[VOTE RESULT] "
@@ -526,7 +538,7 @@ voting_open:
     proto 0 1
     pushbytes ""
     intc_0 // 0
-    bytec_2 // "is_bootstrapped"
+    bytec_0 // "is_bootstrapped"
     app_global_get_ex
     assert // check self.is_bootstrapped exists
     bz voting_open_bool_false@5
@@ -603,7 +615,7 @@ vote:
     !
     assert // Already voted
     intc_0 // 0
-    bytec_1 // "option_counts"
+    bytec_3 // "option_counts"
     app_global_get_ex
     assert // check self.option_counts exists
     intc_0 // 0
@@ -651,7 +663,7 @@ vote_for_header@1:
     extract3 // on error: Index access is out of bounds
     btoi
     intc_0 // 0
-    bytec_1 // "option_counts"
+    bytec_3 // "option_counts"
     app_global_get_ex
     assert // check self.option_counts exists
     extract 2 0
@@ -676,12 +688,12 @@ vote_for_header@1:
     frame_dig -1
     box_put
     intc_0 // 0
-    bytec_3 // "voter_count"
+    bytec_1 // "voter_count"
     app_global_get_ex
     assert // check self.voter_count exists
     intc_1 // 1
     +
-    bytec_3 // "voter_count"
+    bytec_1 // "voter_count"
     swap
     app_global_put
     intc_1 // 1
@@ -705,18 +717,6 @@ increment_vote_in_box:
     frame_dig -1
     uncover 2
     box_replace
-    retsub
-
-
-// examples.voting.voting.VotingRoundApp.__init__() -> void:
-__init__:
-    proto 0 0
-    bytec_2 // "is_bootstrapped"
-    intc_0 // 0
-    app_global_put
-    bytec_3 // "voter_count"
-    intc_0 // 0
-    app_global_put
     retsub
 
 

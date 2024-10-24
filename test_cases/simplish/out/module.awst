@@ -1,5 +1,8 @@
-contract CallCounter
+contract Simplish
 {
+  method_resolution_order: (
+    test_cases.simplish.base_class.CallCounter,
+  )
   globals {
     ['counter']: uint64
   }
@@ -7,26 +10,11 @@ contract CallCounter
     ['name']: bytes
   }
   
-  constructor()
+  subroutine test_cases.simplish.contract.Simplish.approval_program(): bool
   {
-    GlobalState['counter']: uint64 = 0u
-  }
-  
-  subroutine increment_counter(): void
-  {
-    GlobalState['counter'] += 1u
-  }
-  
-  subroutine set_sender_nickname(nickname: bytes): void
-  {
-    LocalState['name', 0u]: bytes = nickname
-  }
-}
-
-contract Simplish extends (test_cases.simplish.base_class.CallCounter)
-{
-  approval_program(): bool
-  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
     if (txn<ApplicationID>() == reinterpret_cast<application>(0u)) {
       return true
     }
@@ -69,12 +57,56 @@ contract Simplish extends (test_cases.simplish.base_class.CallCounter)
     return result
   }
   
-  clear_state_program(): bool
+  subroutine test_cases.simplish.contract.Simplish.clear_state_program(): bool
   {
     return true
   }
   
-  subroutine call(method_name: bytes, num_app_args: uint64): tuple<bytes,bool>
+  subroutine test_cases.simplish.contract.Simplish.approval_program(): bool
+  {
+    if (txn<ApplicationID>() == reinterpret_cast<application>(0u)) {
+      return true
+    }
+    oca: uint64 = txn<OnCompletion>()
+    sender: account = txn<Sender>()
+    if (oca == SINGLE_EVAL(id=0)[0] or oca == SINGLE_EVAL(id=0)[1]) {
+      if (oca == DeleteApplication) {
+        log(hex<"4920776173207573656420"> + test_cases.simplish.contract.itoa(GlobalState['counter']) + hex<"2074696D65287329206265666F726520492064696564">)
+      }
+      return global<CreatorAddress>() == sender
+    }
+    if (oca == OptIn) {
+      if (txn<NumAppArgs>() > 0u) {
+        this::set_sender_nickname(txna<ApplicationArgs, 0>())
+      }
+      return true
+    }
+    if (oca != NoOp) {
+      return false
+    }
+    if (num_app_args: uint64 := txn<NumAppArgs>() > 0u) {
+      method_name: bytes = txna<ApplicationArgs, 0>()
+      (msg, result): tuple<bytes,bool> = this::call(method_name, num_app_args)
+    } else {
+      if (txn<NumAssets>() == 1u) {
+        (asset_balance, asset_exists): tuple<uint64,bool> = asset_holding_get<AssetBalance>(sender, reinterpret_cast<asset>(0u))
+        if (!(asset_exists)) {
+          msg: bytes = hex<"596F7520646F206E6F74206861766520616E79206F6620746865206173736574">
+        } else {
+          msg: bytes = hex<"596F7520686176652061737365742062616C616E63653A20"> + test_cases.simplish.contract.itoa(asset_balance)
+        }
+        result: bool = true
+      } else {
+        msg: bytes = hex<"6E6F7420656E6F756768206170702061726773206F7220666F726569676E20617373657473">
+        result: bool = false
+      }
+    }
+    log(msg)
+    this::increment_counter()
+    return result
+  }
+  
+  subroutine test_cases.simplish.contract.Simplish.call(method_name: bytes, num_app_args: uint64): tuple<bytes,bool>
   {
     assert(num_app_args == 2u, comment="insufficient arguments")
     radius: uint64 = btoi(txna<ApplicationArgs, 1>())
@@ -99,10 +131,25 @@ contract Simplish extends (test_cases.simplish.base_class.CallCounter)
     return (result, status)
   }
   
-  subroutine increment_counter(): void
+  subroutine test_cases.simplish.contract.Simplish.increment_counter(): void
   {
     log('Incrementing counter!')
     super::increment_counter()
+  }
+  
+  subroutine test_cases.simplish.base_class.CallCounter.__init__(): void
+  {
+    GlobalState['counter']: uint64 = 0u
+  }
+  
+  subroutine test_cases.simplish.base_class.CallCounter.increment_counter(): void
+  {
+    GlobalState['counter'] += 1u
+  }
+  
+  subroutine test_cases.simplish.base_class.CallCounter.set_sender_nickname(nickname: bytes): void
+  {
+    LocalState['name', 0u]: bytes = nickname
   }
 }
 

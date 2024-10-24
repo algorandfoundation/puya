@@ -1,8 +1,12 @@
-contract VotingRoundApp extends (algopy.arc4.ARC4Contract)
+contract VotingRoundApp
 {
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
   globals {
     ['is_bootstrapped']: bool
     ['voter_count']: uint64
+    ['close_time']: uint64
     ['vote_id']: string
     ['snapshot_public_key']: bytes
     ['metadata_ipfs_cid']: string
@@ -13,20 +17,32 @@ contract VotingRoundApp extends (algopy.arc4.ARC4Contract)
     ['nft_asset_id']: uint64
     ['option_counts']: arc4.dynamic_array<arc4.uint8>
     ['total_options']: uint64
-    ['close_time']: uint64
   }
   boxes {
     ['V']: bytes
     ['']: account => arc4.dynamic_array<arc4.uint8>
   }
   
-  constructor()
+  subroutine examples.voting.voting.VotingRoundApp.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine examples.voting.voting.VotingRoundApp.__init__(): void
   {
     GlobalState['is_bootstrapped']: bool = false
     GlobalState['voter_count']: uint64 = 0u
   }
   
-  abimethod create(vote_id: string, snapshot_public_key: bytes, metadata_ipfs_cid: string, start_time: uint64, end_time: uint64, option_counts: arc4.dynamic_array<arc4.uint8>, quorum: uint64, nft_image_url: string): void
+  abimethod examples.voting.voting.VotingRoundApp.create(vote_id: string, snapshot_public_key: bytes, metadata_ipfs_cid: string, start_time: uint64, end_time: uint64, option_counts: arc4.dynamic_array<arc4.uint8>, quorum: uint64, nft_image_url: string): void
   {
     assert(start_time < end_time, comment="End time should be after start time")
     assert(end_time >= global<LatestTimestamp>(), comment="End time should be in the future")
@@ -40,7 +56,7 @@ contract VotingRoundApp extends (algopy.arc4.ARC4Contract)
     this::store_option_counts(option_counts.copy())
   }
   
-  abimethod bootstrap(fund_min_bal_req: group_transaction_pay): void
+  abimethod examples.voting.voting.VotingRoundApp.bootstrap(fund_min_bal_req: group_transaction_pay): void
   {
     assert(!(GlobalState['is_bootstrapped']), comment="Must not be already bootstrapped")
     GlobalState['is_bootstrapped']: bool = true
@@ -52,7 +68,7 @@ contract VotingRoundApp extends (algopy.arc4.ARC4Contract)
     assert(box_create('V', tally_box_size))
   }
   
-  abimethod close(): void
+  abimethod examples.voting.voting.VotingRoundApp.close(): void
   {
     _puya_lib.util.ensure_budget(required_budget=20000u, fee_source=0u)
     assert(!(STATE_EXISTS(GlobalState['close_time'])), comment="Already closed")
@@ -80,12 +96,12 @@ contract VotingRoundApp extends (algopy.arc4.ARC4Contract)
     GlobalState['nft_asset_id']: uint64 = reinterpret_cast<uint64>(submit_txn(create_inner_transaction(Fee=global<MinTxnFee>(), TypeEnum=acfg, ConfigAssetTotal=1u, ConfigAssetDecimals=0u, ConfigAssetDefaultFrozen=false, ConfigAssetName='[VOTE RESULT] ' + GlobalState['vote_id'], ConfigAssetUnitName='VOTERSLT', ConfigAssetURL=GlobalState['nft_image_url'], Note=note)).CreatedAssetID)
   }
   
-  abimethod get_preconditions(signature: bytes): examples.voting.voting.VotingPreconditions
+  abimethod examples.voting.voting.VotingRoundApp.get_preconditions(signature: bytes): examples.voting.voting.VotingPreconditions
   {
     return new examples.voting.voting.VotingPreconditions(is_voting_open=arc4_encode(this::voting_open(), arc4.uint64), is_allowed_to_vote=arc4_encode(this::allowed_to_vote(signature), arc4.uint64), has_already_voted=arc4_encode(this::already_voted(), arc4.uint64), current_time=arc4_encode(global<LatestTimestamp>(), arc4.uint64))
   }
   
-  abimethod vote(fund_min_bal_req: group_transaction_pay, signature: bytes, answer_ids: arc4.dynamic_array<arc4.uint8>): void
+  abimethod examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: group_transaction_pay, signature: bytes, answer_ids: arc4.dynamic_array<arc4.uint8>): void
   {
     _puya_lib.util.ensure_budget(required_budget=7700u, fee_source=0u)
     assert(this::allowed_to_vote(signature), comment="Not allowed to vote")
@@ -109,17 +125,17 @@ contract VotingRoundApp extends (algopy.arc4.ARC4Contract)
     }
   }
   
-  subroutine voting_open(): bool
+  subroutine examples.voting.voting.VotingRoundApp.voting_open(): bool
   {
     return GlobalState['is_bootstrapped'] and !(STATE_EXISTS(GlobalState['close_time'])) and GlobalState['start_time'] <= SINGLE_EVAL(id=0, source=global<LatestTimestamp>()) and SINGLE_EVAL(id=0) <= GlobalState['end_time']
   }
   
-  subroutine already_voted(): bool
+  subroutine examples.voting.voting.VotingRoundApp.already_voted(): bool
   {
     return STATE_EXISTS(Box[concat('', reinterpret_cast<bytes>(txn<Sender>()))])
   }
   
-  subroutine store_option_counts(option_counts: arc4.dynamic_array<arc4.uint8>): void
+  subroutine examples.voting.voting.VotingRoundApp.store_option_counts(option_counts: arc4.dynamic_array<arc4.uint8>): void
   {
     assert(extract_uint16(option_counts, 0u) != 0u, comment="option_counts should be non-empty")
     assert(extract_uint16(option_counts, 0u) <= 112u, comment="Can't have more than 112 questions")
@@ -132,21 +148,26 @@ contract VotingRoundApp extends (algopy.arc4.ARC4Contract)
     GlobalState['total_options']: uint64 = total_options
   }
   
-  subroutine allowed_to_vote(signature: bytes): bool
+  subroutine examples.voting.voting.VotingRoundApp.allowed_to_vote(signature: bytes): bool
   {
     _puya_lib.util.ensure_budget(required_budget=2000u, fee_source=0u)
     return ed25519verify_bare(reinterpret_cast<bytes>(txn<Sender>()), signature, GlobalState['snapshot_public_key'])
   }
   
-  subroutine get_vote_from_box(index: uint64): uint64
+  subroutine examples.voting.voting.VotingRoundApp.get_vote_from_box(index: uint64): uint64
   {
     return btoi(box_extract('V', index, 8u))
   }
   
-  subroutine increment_vote_in_box(index: uint64): void
+  subroutine examples.voting.voting.VotingRoundApp.increment_vote_in_box(index: uint64): void
   {
     current_vote: uint64 = this::get_vote_from_box(index)
     box_replace('V', index, itob(current_vote + 1u))
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
   }
 }
 

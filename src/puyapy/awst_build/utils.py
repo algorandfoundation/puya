@@ -19,11 +19,7 @@ from puya.utils import unique
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb.factories import builder_for_type
-from puyapy.awst_build.eb.interface import (
-    InstanceBuilder,
-    NodeBuilder,
-    TypeBuilder,
-)
+from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 
 logger = log.get_logger(__name__)
 
@@ -243,35 +239,6 @@ def snake_case(s: str) -> str:
     s = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", s)
     s = re.sub(r"([a-z\d])([A-Z])", r"\1_\2", s)
     return re.sub(r"[-\s]", "_", s).lower()
-
-
-def resolve_member_node(
-    type_info: mypy.nodes.TypeInfo,
-    name: str,
-    location: SourceLocation,
-    *,
-    include_inherited: bool = True,
-) -> mypy.nodes.SymbolNode | None:
-    if include_inherited:
-        member = type_info.get(name)
-    else:
-        member = type_info.names.get(name)
-    if member is None:
-        return None
-    if member.node is None:
-        raise InternalError(
-            "mypy cross reference remains unresolved:"
-            f" member {name!r} of {type_info.fullname!r}",
-            location,
-        )
-    return member.node
-
-
-def symbol_node_is_function(
-    node: mypy.nodes.SymbolNode,
-) -> typing.TypeGuard[mypy.nodes.FuncBase | mypy.nodes.Decorator]:
-    # matching types taken from mypy.nodes.TypeInfo.get_method
-    return isinstance(node, mypy.nodes.FuncBase | mypy.nodes.Decorator)
 
 
 def require_callable_type(

@@ -28,16 +28,14 @@ class IRBuildContext(CompileContext):
     awst: awst_nodes.AWST
     subroutines: dict[awst_nodes.Function, Subroutine]
     embedded_funcs_lookup: Mapping[str, Subroutine] = attrs.field(default=dict)
-    root: awst_nodes.ContractFragment | awst_nodes.LogicSignature | None = None
+    root: awst_nodes.Contract | awst_nodes.LogicSignature | None = None
     routers: dict[puya.models.ContractReference, Subroutine] = attrs.field(factory=dict)
 
     @cached_property
     def _awst_lookup(self) -> Mapping[str, awst_nodes.RootNode]:
         return {node.id: node for node in self.awst}
 
-    def for_root(
-        self, root: awst_nodes.ContractFragment | awst_nodes.LogicSignature
-    ) -> typing.Self:
+    def for_root(self, root: awst_nodes.Contract | awst_nodes.LogicSignature) -> typing.Self:
         return attrs.evolve(
             self,
             root=root,
@@ -51,14 +49,6 @@ class IRBuildContext(CompileContext):
         return attrs_extend(
             IRFunctionBuildContext, self, visitor=visitor, function=function, subroutine=subroutine
         )
-
-    def resolve_contract_reference(
-        self, cref: puya.models.ContractReference
-    ) -> awst_nodes.ContractFragment:
-        contract = self._awst_lookup[cref]
-        if not isinstance(contract, awst_nodes.ContractFragment):
-            raise InternalError(f"contract reference {cref} resolved to {contract}")
-        return contract
 
     def resolve_function_reference(
         self,
@@ -116,12 +106,12 @@ class IRBuildContext(CompileContext):
         skip: bool = False,
     ) -> awst_nodes.ContractMethod | None:
         root = self.root
-        if not isinstance(root, awst_nodes.ContractFragment):
+        if not isinstance(root, awst_nodes.Contract):
             raise InternalError(
                 f"cannot resolve contract member {name} as there is no current contract",
                 source_location,
             )
-        mro = [root.id, *root.bases]
+        mro = [root.id, *root.method_resolution_order]
         if start:
             try:
                 curr_idx = mro.index(start)
@@ -133,10 +123,8 @@ class IRBuildContext(CompileContext):
         if skip:
             mro = mro[1:]
         for cref in mro:
-            contract = self.resolve_contract_reference(cref)
-            with contextlib.suppress(KeyError):
-                method = contract.methods[name]
-                if method.inheritable or cref == root.id:
+            for method in root.methods:
+                if method.member_name == name and method.cref == cref:
                     return method
         return None
 

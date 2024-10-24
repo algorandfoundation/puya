@@ -4,10 +4,10 @@ test_cases.inner_transactions.contract.MyContract.approval_program:
     intcblock 0 6 5 3 1000
     bytecblock 0x098101 0x09361a00b08101 "name" 0x31 0x756e6974 0x32 0x41535431 0x41535432 0x41535433 0x33 0x34 0x35 0x337264 0x77697468206172677320706172616d20736574 0x3432 0x3130 0x3131 0x3132 0x3133 0x3134 0x3135 0x3136
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     // inner_transactions/contract.py:27
     // if op.Txn.num_app_args:
     txn NumAppArgs
@@ -62,6 +62,19 @@ main_after_if_else@10:
     // return True
     pushint 1 // 1
     return
+
+
+// test_cases.inner_transactions.contract.MyContract.__init__() -> void:
+__init__:
+    // inner_transactions/contract.py:23
+    // def __init__(self) -> None:
+    proto 0 0
+    // inner_transactions/contract.py:24
+    // self.name = Bytes(b"")
+    bytec_2 // "name"
+    pushbytes 0x
+    app_global_put
+    retsub
 
 
 // test_cases.inner_transactions.contract.MyContract.test1() -> void:
@@ -1176,17 +1189,4 @@ test4:
     bytec_0 // 0x098101
     ==
     assert // expected clear_state_pages
-    retsub
-
-
-// test_cases.inner_transactions.contract.MyContract.__init__() -> void:
-__init__:
-    // inner_transactions/contract.py:23
-    // def __init__(self) -> None:
-    proto 0 0
-    // inner_transactions/contract.py:24
-    // self.name = Bytes(b"")
-    bytec_2 // "name"
-    pushbytes 0x
-    app_global_put
     retsub

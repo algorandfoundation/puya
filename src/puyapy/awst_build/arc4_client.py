@@ -1,33 +1,97 @@
 import typing
+from collections.abc import Iterator, Mapping, Sequence
 
+import attrs
 import mypy.nodes
 import mypy.types
 import mypy.visitor
 from puya import log
 from puya.errors import InternalError
 from puya.models import ContractReference
+from puya.parse import SourceLocation
 
-from puyapy.awst_build import constants
+from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.arc4_utils import get_arc4_abimethod_data
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.utils import get_decorators_by_fullname
+from puyapy.models import (
+    ARC4ABIMethodData,
+    ContractFragmentBase,
+    ContractFragmentMethod,
+    ContractFragmentStorage,
+)
 
 logger = log.get_logger(__name__)
 
 
-class ARC4ClientASTVisitor(BaseMyPyStatementVisitor[None]):
-    def __init__(self, context: ASTConversionModuleContext, cref: ContractReference):
-        super().__init__(context=context)
-        self.cref: typing.Final = cref
+@attrs.frozen
+class _ARC4ClientFragment(ContractFragmentBase):
+    id: ContractReference
+    _methods: dict[str, ContractFragmentMethod] = attrs.field(factory=dict, init=False)
+    mro: Sequence[ContractFragmentBase] = attrs.field(default=(), init=False)
+    _symbols: dict[str, pytypes.PyType] = attrs.field(factory=dict, init=False)
 
+    def add_method(self, data: ARC4ABIMethodData, source_location: SourceLocation) -> None:
+        method = ContractFragmentMethod(
+            member_name=data.member_name,
+            metadata=data,
+            is_trivial=True,
+            source_location=source_location,
+        )
+        set_result = self._methods.setdefault(method.member_name, method)
+        if set_result is method:
+            self._symbols[data.member_name] = data.pytype
+        else:
+            logger.info(
+                f"previous definition of {method.member_name} was here",
+                location=set_result.source_location,
+            )
+            logger.error(
+                f"redefinition of {method.member_name}",
+                location=method.source_location,
+            )
+
+    @typing.override
+    @property
+    def symbols(self) -> Mapping[str, pytypes.PyType | None]:
+        return self._symbols
+
+    @typing.override
+    def resolve_method(
+        self, name: str, *, include_inherited: bool = True
+    ) -> ContractFragmentMethod | None:
+        return self._methods.get(name)
+
+    @typing.override
+    def methods(
+        self, *, include_inherited: bool = True, include_overridden: bool = False
+    ) -> Iterator[ContractFragmentMethod]:
+        yield from self._methods.values()
+
+    @typing.override
+    def resolve_storage(
+        self, name: str, *, include_inherited: bool = True
+    ) -> ContractFragmentStorage | None:
+        return None
+
+    @typing.override
+    def state(self, *, include_inherited: bool = True) -> Iterator[ContractFragmentStorage]:
+        yield from ()
+
+
+class ARC4ClientASTVisitor(BaseMyPyStatementVisitor[ARC4ABIMethodData | None]):
     @classmethod
     def visit(cls, context: ASTConversionModuleContext, class_def: mypy.nodes.ClassDef) -> None:
+        visitor = ARC4ClientASTVisitor(context)
         cref = ContractReference(class_def.info.fullname)
-        visitor = ARC4ClientASTVisitor(context, cref)
+        fragment = _ARC4ClientFragment(id=cref)
         for stmt in class_def.defs.body:
-            with context.log_exceptions(fallback_location=stmt):
-                stmt.accept(visitor)
+            stmt_loc = context.node_location(stmt)
+            with context.log_exceptions(fallback_location=stmt_loc):
+                if (abi_method_data := stmt.accept(visitor)) is not None:
+                    fragment.add_method(abi_method_data, stmt_loc)
+        context.add_contract_fragment(fragment)
 
     def empty_statement(self, _stmt: mypy.nodes.Statement) -> None:
         return None
@@ -36,7 +100,7 @@ class ARC4ClientASTVisitor(BaseMyPyStatementVisitor[None]):
         self,
         func_def: mypy.nodes.FuncDef,
         decorator: mypy.nodes.Decorator | None,
-    ) -> None:
+    ) -> ARC4ABIMethodData | None:
         func_loc = self._location(func_def)
         if decorator is not None:
             dec_by_fullname = get_decorators_by_fullname(self.context, decorator, original=True)
@@ -47,11 +111,9 @@ class ARC4ClientASTVisitor(BaseMyPyStatementVisitor[None]):
                     location=self._location(dec),
                 )
             if abimethod_dec is not None:
-                arc4_method_data = get_arc4_abimethod_data(self.context, abimethod_dec, func_def)
-                return self.context.add_arc4_method_data(
-                    self.cref, func_def.name, arc4_method_data
-                )
+                return get_arc4_abimethod_data(self.context, abimethod_dec, func_def)
         logger.error(f"expected an {constants.ABIMETHOD_DECORATOR} decorator", location=func_loc)
+        return None
 
     def visit_block(self, o: mypy.nodes.Block) -> None:
         raise InternalError("shouldn't get here", self._location(o))

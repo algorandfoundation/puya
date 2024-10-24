@@ -2,14 +2,33 @@
 
 examples.voting.voting.VotingRoundApp.approval_program:
     intcblock 0 1 8 400
-    bytecblock 0x "vote_id" "option_counts" "is_bootstrapped" "voter_count" "V" "close_time" 0x30313233343536373839 "snapshot_public_key" "metadata_ipfs_cid" "start_time" "end_time" "quorum" "nft_image_url" "total_options" 0x068101
+    bytecblock 0x "is_bootstrapped" "voter_count" "vote_id" "option_counts" "V" "close_time" 0x30313233343536373839 "snapshot_public_key" "metadata_ipfs_cid" "start_time" "end_time" "quorum" "nft_image_url" "total_options" 0x068101
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// examples.voting.voting.VotingRoundApp.__init__() -> void:
+__init__:
+    // voting/voting.py:50
+    // def __init__(self) -> None:
+    proto 0 0
+    // voting/voting.py:51
+    // self.is_bootstrapped = False
+    bytec_1 // "is_bootstrapped"
+    intc_0 // 0
+    app_global_put
+    // voting/voting.py:52-53
+    // # The minimum number of voters who have voted
+    // self.voter_count = UInt64(0)
+    bytec_2 // "voter_count"
+    intc_0 // 0
+    app_global_put
+    retsub
 
 
 // examples.voting.voting.VotingRoundApp.__puya_arc4_router__() -> uint64:
@@ -215,7 +234,7 @@ create:
     assert // End time should be in the future
     // voting/voting.py:73
     // self.vote_id = vote_id
-    bytec_1 // "vote_id"
+    bytec_3 // "vote_id"
     frame_dig -8
     app_global_put
     // voting/voting.py:74
@@ -325,7 +344,7 @@ store_option_counts_after_for@4:
     // voting/voting.py:227
     // self.option_counts = option_counts.copy()
     frame_dig -1
-    bytec_2 // "option_counts"
+    bytec 4 // "option_counts"
     swap
     app_global_put
     // voting/voting.py:228
@@ -347,14 +366,14 @@ bootstrap:
     // voting/voting.py:84
     // assert not self.is_bootstrapped, "Must not be already bootstrapped"
     intc_0 // 0
-    bytec_3 // "is_bootstrapped"
+    bytec_1 // "is_bootstrapped"
     app_global_get_ex
     assert // check self.is_bootstrapped exists
     !
     assert // Must not be already bootstrapped
     // voting/voting.py:85
     // self.is_bootstrapped = True
-    bytec_3 // "is_bootstrapped"
+    bytec_1 // "is_bootstrapped"
     intc_1 // 1
     app_global_put
     // voting/voting.py:88
@@ -460,7 +479,7 @@ close:
     // voting/voting.py:119
     // + self.vote_id
     intc_0 // 0
-    bytec_1 // "vote_id"
+    bytec_3 // "vote_id"
     app_global_get_ex
     assert // check self.vote_id exists
     // voting/voting.py:117-118
@@ -509,7 +528,7 @@ close:
     // voting/voting.py:123
     // + self.vote_id
     intc_0 // 0
-    bytec_1 // "vote_id"
+    bytec_3 // "vote_id"
     app_global_get_ex
     assert // check self.vote_id exists
     // voting/voting.py:117-123
@@ -570,7 +589,7 @@ close:
     // voting/voting.py:127
     // + itoa(self.voter_count)
     intc_0 // 0
-    bytec 4 // "voter_count"
+    bytec_2 // "voter_count"
     app_global_get_ex
     assert // check self.voter_count exists
     callsub itoa
@@ -610,7 +629,7 @@ close:
     // voting/voting.py:132
     // for question_index, question_options in uenumerate(self.option_counts):
     dup
-    bytec_2 // "option_counts"
+    bytec 4 // "option_counts"
     app_global_get_ex
     swap
     dup
@@ -777,7 +796,7 @@ close_after_for@14:
     // voting/voting.py:150
     // asset_name="[VOTE RESULT] " + self.vote_id,
     intc_0 // 0
-    bytec_1 // "vote_id"
+    bytec_3 // "vote_id"
     app_global_get_ex
     assert // check self.vote_id exists
     pushbytes "[VOTE RESULT] "
@@ -997,7 +1016,7 @@ voting_open:
     // voting/voting.py:208
     // self.is_bootstrapped
     intc_0 // 0
-    bytec_3 // "is_bootstrapped"
+    bytec_1 // "is_bootstrapped"
     app_global_get_ex
     assert // check self.is_bootstrapped exists
     // voting/voting.py:208-210
@@ -1131,7 +1150,7 @@ vote:
     // voting/voting.py:181
     // questions_count = self.option_counts.length
     intc_0 // 0
-    bytec_2 // "option_counts"
+    bytec 4 // "option_counts"
     app_global_get_ex
     assert // check self.option_counts exists
     intc_0 // 0
@@ -1221,7 +1240,7 @@ vote_for_header@1:
     // voting/voting.py:198
     // options_count = self.option_counts[question_index].native
     intc_0 // 0
-    bytec_2 // "option_counts"
+    bytec 4 // "option_counts"
     app_global_get_ex
     assert // check self.option_counts exists
     extract 2 0
@@ -1262,12 +1281,12 @@ vote_for_header@1:
     // voting/voting.py:203
     // self.voter_count += 1
     intc_0 // 0
-    bytec 4 // "voter_count"
+    bytec_2 // "voter_count"
     app_global_get_ex
     assert // check self.voter_count exists
     intc_1 // 1
     +
-    bytec 4 // "voter_count"
+    bytec_2 // "voter_count"
     swap
     app_global_put
     // voting/voting.py:195
@@ -1301,25 +1320,6 @@ increment_vote_in_box:
     frame_dig -1
     uncover 2
     box_replace
-    retsub
-
-
-// examples.voting.voting.VotingRoundApp.__init__() -> void:
-__init__:
-    // voting/voting.py:50
-    // def __init__(self) -> None:
-    proto 0 0
-    // voting/voting.py:51
-    // self.is_bootstrapped = False
-    bytec_3 // "is_bootstrapped"
-    intc_0 // 0
-    app_global_put
-    // voting/voting.py:52-53
-    // # The minimum number of voters who have voted
-    // self.voter_count = UInt64(0)
-    bytec 4 // "voter_count"
-    intc_0 // 0
-    app_global_put
     retsub
 
 

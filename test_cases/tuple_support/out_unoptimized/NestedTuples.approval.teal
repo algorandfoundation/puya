@@ -4,12 +4,25 @@ test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
     intcblock 0 1 2 8
     bytecblock 0x "Hi" "There" "build_nested_call_count" 0x151f7c75 "hi"
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// test_cases.tuple_support.nested_tuples.NestedTuples.__init__() -> void:
+__init__:
+    // tuple_support/nested_tuples.py:19
+    // def __init__(self) -> None:
+    proto 0 0
+    // tuple_support/nested_tuples.py:20
+    // self.build_nested_call_count = UInt64(0)
+    bytec_3 // "build_nested_call_count"
+    intc_0 // 0
+    app_global_put
+    retsub
 
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__() -> uint64:
@@ -404,8 +417,6 @@ __puya_arc4_router___bare_routing@8:
     b __puya_arc4_router___switch_case_default@10
 
 __puya_arc4_router_____algopy_default_create@9:
-    // tuple_support/nested_tuples.py:18
-    // class NestedTuples(ARC4Contract):
     txn ApplicationID
     intc_0 // 0
     ==
@@ -1229,20 +1240,5 @@ nested_named_tuple_params:
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_default_create() -> void:
 __algopy_default_create:
-    // tuple_support/nested_tuples.py:18
-    // class NestedTuples(ARC4Contract):
     proto 0 0
-    retsub
-
-
-// test_cases.tuple_support.nested_tuples.NestedTuples.__init__() -> void:
-__init__:
-    // tuple_support/nested_tuples.py:19
-    // def __init__(self) -> None:
-    proto 0 0
-    // tuple_support/nested_tuples.py:20
-    // self.build_nested_call_count = UInt64(0)
-    bytec_3 // "build_nested_call_count"
-    intc_0 // 0
-    app_global_put
     retsub

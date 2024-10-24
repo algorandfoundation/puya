@@ -1,15 +1,38 @@
 contract test_cases.diamond_mro.derived.Derived:
     program approval:
-        subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+        subroutine test_cases.diamond_mro.derived.Derived.approval_program() -> bool:
             block@0: // L1
-                let app_id%0#0: uint64 = (txn ApplicationID)
-                goto app_id%0#0 ? block@2 : block@1
-            block@1: // on_create_L8
+                let tmp%0#0: bool = (txn ApplicationID)
+                goto tmp%0#0 ? block@2 : block@1
+            block@1: // call __init___L1
                 test_cases.diamond_mro.derived.Derived.__init__()
                 goto block@2
-            block@2: // entrypoint_L8
-                let tmp%0#0: bool = test_cases.diamond_mro.derived.Derived.__puya_arc4_router__()
-                return tmp%0#0
+            block@2: // after_if_else_L1
+                let tmp%1#0: bool = test_cases.diamond_mro.derived.Derived.__puya_arc4_router__()
+                return tmp%1#0
+        
+        subroutine test_cases.diamond_mro.derived.Derived.__init__() -> void:
+            block@0: // L8
+                (log "derived.__init__")
+                test_cases.diamond_mro.base1.Base1.__init__()
+                return 
+        
+        subroutine test_cases.diamond_mro.base1.Base1.__init__() -> void:
+            block@0: // L7
+                (log "base1.__init__")
+                test_cases.diamond_mro.base2.Base2.__init__()
+                return 
+        
+        subroutine test_cases.diamond_mro.base2.Base2.__init__() -> void:
+            block@0: // L7
+                (log "base2.__init__")
+                test_cases.diamond_mro.gp.GP.__init__()
+                return 
+        
+        subroutine test_cases.diamond_mro.gp.GP.__init__() -> void:
+            block@0: // L7
+                (log "gp.__init__")
+                return 
         
         subroutine test_cases.diamond_mro.derived.Derived.__puya_arc4_router__() -> bool:
             block@0: // L7
@@ -71,29 +94,6 @@ contract test_cases.diamond_mro.derived.Derived:
         
         subroutine test_cases.diamond_mro.gp.GP.create() -> void:
             block@0: // L11
-                return 
-        
-        subroutine test_cases.diamond_mro.derived.Derived.__init__() -> void:
-            block@0: // L8
-                (log "derived.__init__")
-                test_cases.diamond_mro.base1.Base1.__init__()
-                return 
-        
-        subroutine test_cases.diamond_mro.base1.Base1.__init__() -> void:
-            block@0: // L7
-                (log "base1.__init__")
-                test_cases.diamond_mro.base2.Base2.__init__()
-                return 
-        
-        subroutine test_cases.diamond_mro.base2.Base2.__init__() -> void:
-            block@0: // L7
-                (log "base2.__init__")
-                test_cases.diamond_mro.gp.GP.__init__()
-                return 
-        
-        subroutine test_cases.diamond_mro.gp.GP.__init__() -> void:
-            block@0: // L7
-                (log "gp.__init__")
                 return 
     
     program clear-state:

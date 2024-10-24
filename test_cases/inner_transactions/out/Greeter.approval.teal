@@ -4,12 +4,25 @@ test_cases.inner_transactions.c2c.Greeter.approval_program:
     intcblock 0 1 6
     bytecblock "hello_app" 0x151f7c75
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// test_cases.inner_transactions.c2c.Greeter.__init__() -> void:
+__init__:
+    // inner_transactions/c2c.py:7
+    // def __init__(self) -> None:
+    proto 0 0
+    // inner_transactions/c2c.py:8
+    // self.hello_app = Application()
+    bytec_0 // "hello_app"
+    intc_0 // 0
+    app_global_put
+    retsub
 
 
 // test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__() -> uint64:
@@ -203,17 +216,4 @@ log_greetings:
     swap
     concat
     log
-    retsub
-
-
-// test_cases.inner_transactions.c2c.Greeter.__init__() -> void:
-__init__:
-    // inner_transactions/c2c.py:7
-    // def __init__(self) -> None:
-    proto 0 0
-    // inner_transactions/c2c.py:8
-    // self.hello_app = Application()
-    bytec_0 // "hello_app"
-    intc_0 // 0
-    app_global_put
     retsub

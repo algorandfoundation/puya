@@ -1,7 +1,6 @@
 import re
 import typing
-from collections.abc import Callable, Mapping, Sequence
-from functools import cached_property
+from collections.abc import Callable
 
 import attrs
 import mypy.nodes
@@ -25,11 +24,9 @@ from puya.parse import SourceLocation
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.utils import extract_bytes_literal_from_mypy, get_unaliased_fullname
+from puyapy.models import ARC4ABIMethodData, ARC4BareMethodData
 
 __all__ = [
-    "ARC4ABIMethodData",
-    "ARC4BareMethodData",
-    "ARC4MethodData",
     "get_arc4_abimethod_data",
     "get_arc4_baremethod_data",
     "arc4_to_pytype",
@@ -61,58 +58,6 @@ def _is_arc4_struct(typ: pytypes.PyType) -> typing.TypeGuard[pytypes.StructType]
             f" but structure type is {type(typ).__name__!r}"
         )
     return True
-
-
-@attrs.frozen
-class ARC4BareMethodData:
-    config: ARC4BareMethodConfig
-    is_synthetic_create: bool
-    is_bare: bool = attrs.field(default=True, init=False)
-
-
-@attrs.frozen
-class ARC4ABIMethodData:
-    config: ARC4ABIMethodConfig
-    is_synthetic_create: bool = attrs.field(default=False, init=False)
-    is_bare: bool = attrs.field(default=False, init=False)
-    _signature: dict[str, pytypes.PyType]
-    _arc4_signature: Mapping[str, pytypes.PyType] = attrs.field(init=False)
-
-    @_arc4_signature.default
-    def _arc4_signature_default(self) -> Mapping[str, pytypes.PyType]:
-        def on_error(bad_type: pytypes.PyType) -> typing.Never:
-            raise CodeError(
-                f"invalid type for an ARC4 method: {bad_type}", self.config.source_location
-            )
-
-        return {k: pytype_to_arc4_pytype(v, on_error=on_error) for k, v in self._signature.items()}
-
-    @property
-    def signature(self) -> Mapping[str, pytypes.PyType]:
-        return self._signature
-
-    @cached_property
-    def return_type(self) -> pytypes.PyType:
-        return self._signature["output"]
-
-    @cached_property
-    def arc4_return_type(self) -> pytypes.PyType:
-        return self._arc4_signature["output"]
-
-    @cached_property
-    def argument_types(self) -> Sequence[pytypes.PyType]:
-        names, types = zip(*self._signature.items(), strict=True)
-        assert names[-1] == "output"
-        return tuple(types[:-1])
-
-    @cached_property
-    def arc4_argument_types(self) -> Sequence[pytypes.PyType]:
-        names, types = zip(*self._arc4_signature.items(), strict=True)
-        assert names[-1] == "output"
-        return tuple(types[:-1])
-
-
-ARC4MethodData: typing.TypeAlias = ARC4BareMethodData | ARC4ABIMethodData
 
 
 @attrs.frozen
@@ -180,7 +125,7 @@ def get_arc4_baremethod_data(
     func_def: mypy.nodes.FuncDef,
 ) -> ARC4BareMethodData:
     dec_loc = context.node_location(decorator, func_def.info)
-    func_types = _get_func_types(context, func_def, dec_loc)
+    pytype, func_types = _get_func_types(context, func_def, dec_loc)
     if func_types != {"output": pytypes.NoneType}:
         logger.error("bare methods should have no arguments or return values", location=dec_loc)
 
@@ -195,12 +140,14 @@ def get_arc4_baremethod_data(
         )
 
     return ARC4BareMethodData(
+        member_name=func_def.name,
+        pytype=pytype,
         config=ARC4BareMethodConfig(
             allowed_completion_types=allowed_completion_types,
             create=create,
             source_location=dec_loc,
         ),
-        is_synthetic_create=False,
+        source_location=dec_loc,
     )
 
 
@@ -210,7 +157,7 @@ def get_arc4_abimethod_data(
     func_def: mypy.nodes.FuncDef,
 ) -> ARC4ABIMethodData:
     dec_loc = context.node_location(decorator, func_def.info)
-    func_types = _get_func_types(context, func_def, dec_loc)
+    pytype, func_types = _get_func_types(context, func_def, dec_loc)
     visitor = _ARC4DecoratorArgEvaluator(context)
     evaluated_args = {n: a.accept(visitor) for n, a in _extract_decorator_args(decorator, dec_loc)}
 
@@ -271,7 +218,13 @@ def get_arc4_abimethod_data(
         default_args=immutabledict(default_args),
         structs=immutabledict(structs),
     )
-    return ARC4ABIMethodData(config=config, signature=func_types)
+    return ARC4ABIMethodData(
+        member_name=func_def.name,
+        pytype=pytype,
+        config=config,
+        signature=func_types,
+        source_location=dec_loc,
+    )
 
 
 class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
@@ -367,7 +320,7 @@ def _pytype_to_struct_def(typ: pytypes.StructType) -> ARC32StructDef:
 
 def _get_func_types(
     context: ASTConversionModuleContext, func_def: mypy.nodes.FuncDef, location: SourceLocation
-) -> dict[str, pytypes.PyType]:
+) -> tuple[pytypes.FuncType, dict[str, pytypes.PyType]]:
     if func_def.type is None:
         raise CodeError("typing error", location)
     func_type = context.type_to_pytype(
@@ -386,18 +339,7 @@ def _get_func_types(
             )
         return arg.name
 
-    if not (
-        func_type.args
-        and set(func_type.args[0].type.mro).intersection(
-            (pytypes.ARC4ContractBaseType, pytypes.ARC4ClientBaseType)
-        )
-    ):
-        raise CodeError(
-            f"ARC-4 method decorators can only be applied to"
-            f" instance methods of classes derived from {pytypes.ARC4ContractBaseType}",
-            location,
-        )
-    result = {require_arg_name(arg): arg.type for arg in func_type.args[1:]}
+    result = {require_arg_name(arg): arg.type for arg in func_type.args}
     if "output" in result:
         # https://github.com/algorandfoundation/ARCs/blob/main/assets/arc-0032/application.schema.json
         raise CodeError(
@@ -405,7 +347,7 @@ def _get_func_types(
             location,
         )
     result["output"] = func_type.ret_type
-    return result
+    return func_type, result
 
 
 def pytype_to_arc4_pytype(
