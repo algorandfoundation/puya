@@ -25,7 +25,11 @@ from puya.utils import clamp, positive_index
 
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import GenericTypeBuilder, InstanceExpressionBuilder
+from puyapy.awst_build.eb._base import (
+    FunctionBuilder,
+    GenericTypeBuilder,
+    InstanceExpressionBuilder,
+)
 from puyapy.awst_build.eb._literals import LiteralBuilderImpl
 from puyapy.awst_build.eb._utils import constant_bool_and_error, dummy_value
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
@@ -287,7 +291,7 @@ class TupleExpressionBuilder(
         raise CodeError(f"cannot serialize {self.pytype}", location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> InstanceBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if isinstance(self.pytype, pytypes.NamedTupleType):
             item_typ = self.pytype.fields.get(name)
             if item_typ is not None:
@@ -297,6 +301,8 @@ class TupleExpressionBuilder(
                     source_location=location,
                 )
                 return builder_for_instance(item_typ, item_expr)
+            elif name == "_replace":
+                return _Replace(self, self.pytype, location)
         if name in dir(tuple()):  # noqa: C408
             raise CodeError("method is not currently supported", location)
         raise CodeError("unrecognised member access", location)
@@ -460,6 +466,47 @@ class TupleExpressionBuilder(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         return _compare(self, other, op, location)
+
+
+class _Replace(FunctionBuilder):
+    def __init__(
+        self,
+        instance: TupleExpressionBuilder,
+        named_tuple_type: pytypes.NamedTupleType,
+        location: SourceLocation,
+    ):
+        super().__init__(location)
+        self.instance = instance
+        self.named_tuple_type = named_tuple_type
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        pytype = self.named_tuple_type
+        field_mapping, _ = get_arg_mapping(
+            optional_kw_only=list(pytype.fields),
+            args=args,
+            arg_names=arg_names,
+            call_location=location,
+            raise_on_missing=False,
+        )
+        base_expr = self.instance.single_eval().resolve()
+        items = list[Expression]()
+        for idx, (field_name, field_pytype) in enumerate(pytype.fields.items()):
+            new_value = field_mapping.get(field_name)
+            if new_value is not None:
+                item_builder = expect.argument_of_type_else_dummy(new_value, field_pytype)
+                item = item_builder.resolve()
+            else:
+                item = TupleItemExpression(base=base_expr, index=idx, source_location=location)
+            items.append(item)
+        new_tuple = TupleExpression(items=items, wtype=pytype.wtype, source_location=location)
+        return TupleExpressionBuilder(new_tuple, pytype)
 
 
 def _compare(
