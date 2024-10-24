@@ -3,7 +3,6 @@ from collections.abc import Sequence
 
 import mypy.nodes
 from puya import algo_constants, log
-from puya.awst import wtypes
 from puya.awst.nodes import Expression, GroupTransactionReference, IntrinsicCall, UInt64Constant
 from puya.awst.txn_fields import TxnField
 from puya.parse import SourceLocation
@@ -22,7 +21,7 @@ from puyapy.awst_build.eb.transaction.base import BaseTransactionExpressionBuild
 logger = log.get_logger(__name__)
 
 
-class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
+class GroupTransactionTypeBuilder(TypeBuilder[pytypes.GroupTransactionType]):
     @typing.override
     def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
@@ -41,11 +40,9 @@ class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
                         location=literal.source_location,
                     )
                 typ = self.produces()
-                wtype = typ.wtype
-                assert isinstance(wtype, wtypes.WGroupTransaction)
                 group_index = UInt64Constant(value=int_value, source_location=location)
                 txn = GroupTransactionReference(
-                    index=group_index, wtype=wtype, source_location=location
+                    index=group_index, wtype=typ.wtype, source_location=location
                 )
                 return GroupTransactionExpressionBuilder(txn, typ)
         return None
@@ -64,10 +61,10 @@ class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
         typ = self.produces()
         if arg.pytype == pytypes.IntLiteralType:
             return arg.resolve_literal(GroupTransactionTypeBuilder(typ, location))
-        wtype = typ.wtype
-        assert isinstance(wtype, wtypes.WGroupTransaction)
         group_index = expect.argument_of_type_else_dummy(arg, pytypes.UInt64Type).resolve()
-        txn = GroupTransactionReference(index=group_index, wtype=wtype, source_location=location)
+        txn = GroupTransactionReference(
+            index=group_index, wtype=typ.wtype, source_location=location
+        )
         return GroupTransactionExpressionBuilder(txn, typ)
 
 

@@ -132,8 +132,8 @@ def _implicit_arc4_type_conversion(typ: pytypes.PyType, loc: SourceLocation) -> 
             return pytypes.ARC4DynamicBytesType
         case pytypes.IntLiteralType:
             return pytypes.ARC4UIntN_Aliases[64]
-        # convert a txn type to it's equivalent group txn type
-        case pytypes.TransactionRelatedType(transaction_type=txn_type):
+        # convert an inner txn type to the equivalent group txn type
+        case pytypes.InnerTransactionFieldsetType(transaction_type=txn_type):
             return pytypes.GroupTransactionTypes[txn_type]
 
     def on_error(invalid_pytype: pytypes.PyType) -> typing.Never:

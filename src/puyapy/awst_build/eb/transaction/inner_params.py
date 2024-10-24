@@ -4,7 +4,6 @@ from collections.abc import Sequence
 
 import mypy.nodes
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import (
     Copy,
     CreateInnerTransaction,
@@ -29,7 +28,7 @@ from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 logger = log.get_logger(__name__)
 
 
-class InnerTxnParamsTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
+class InnerTxnParamsTypeBuilder(TypeBuilder[pytypes.InnerTransactionFieldsetType]):
     @typing.override
     def call(
         self,
@@ -38,31 +37,27 @@ class InnerTxnParamsTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        typ = self.produces()
-        transaction_type = typ.transaction_type
-        wtype = typ.wtype
-        assert isinstance(wtype, wtypes.WInnerTransactionFields)
-
         transaction_fields = dict[TxnField, Expression]()
         transaction_fields[TxnField.Fee] = UInt64Constant(
             value=0, source_location=self.source_location
         )
-        if transaction_type is not None:
+        typ = self.produces()
+        if typ.transaction_type is not None:
             transaction_fields[TxnField.TypeEnum] = UInt64Constant(
-                value=transaction_type.value,
-                teal_alias=transaction_type.name,
+                value=typ.transaction_type.value,
+                teal_alias=typ.transaction_type.name,
                 source_location=self.source_location,
             )
         transaction_fields.update(_map_itxn_args(arg_names, args))
 
         create_expr = CreateInnerTransaction(
-            fields=transaction_fields, wtype=wtype, source_location=location
+            fields=transaction_fields, wtype=typ.wtype, source_location=location
         )
         return InnerTxnParamsExpressionBuilder(typ, create_expr)
 
 
 class InnerTxnParamsExpressionBuilder(
-    NotIterableInstanceExpressionBuilder[pytypes.TransactionRelatedType]
+    NotIterableInstanceExpressionBuilder[pytypes.InnerTransactionFieldsetType]
 ):
     @typing.override
     def to_bytes(self, location: SourceLocation) -> Expression:
