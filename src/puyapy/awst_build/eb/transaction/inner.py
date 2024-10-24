@@ -16,7 +16,7 @@ from puyapy.awst_build.eb.transaction.base import BaseTransactionExpressionBuild
 from puyapy.awst_build.eb.tuple import TupleExpressionBuilder
 
 
-class InnerTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
+class InnerTransactionTypeBuilder(TypeBuilder[pytypes.InnerTransactionResultType]):
     @typing.override
     def call(
         self,
@@ -35,7 +35,7 @@ class InnerTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
 
 class InnerTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
-        assert isinstance(typ, pytypes.TransactionRelatedType)
+        assert isinstance(typ, pytypes.InnerTransactionResultType)
         super().__init__(typ, expr)
 
     @typing.override
@@ -83,14 +83,15 @@ class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
         for arg in args:
             match arg:
                 case InstanceBuilder(
-                    pytype=pytypes.TransactionRelatedType() as arg_pytype
-                ) if arg_pytype in pytypes.InnerTransactionFieldsetTypes.values():
+                    pytype=pytypes.InnerTransactionFieldsetType(transaction_type=txn_type)
+                ):
                     pass
                 case other:
+                    txn_type = None
                     expect.not_this_type(other, default=expect.default_raise)
 
             arg_exprs.append(arg.resolve())
-            arg_result_type = pytypes.InnerTransactionResultTypes[arg_pytype.transaction_type]
+            arg_result_type = pytypes.InnerTransactionResultTypes[txn_type]
             result_types.append(arg_result_type)
         result_typ = pytypes.GenericTupleType.parameterise(result_types, location)
         return TupleExpressionBuilder(
