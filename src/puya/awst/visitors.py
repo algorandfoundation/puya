@@ -289,3 +289,6 @@ class ExpressionVisitor[T](ABC):
 
     @abstractmethod
     def visit_range(self, node: puya.awst.nodes.Range) -> T: ...
+
+    @abstractmethod
+    def visit_emit(self, emit: puya.awst.nodes.Emit) -> T: ...

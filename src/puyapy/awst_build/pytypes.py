@@ -295,6 +295,7 @@ class NamedTupleType(TupleType):
     generic: None = attrs.field(default=None, init=False)
     bases: tuple[PyType, ...] = attrs.field(default=(NamedTupleBaseType,), init=False)
     mro: tuple[PyType, ...] = attrs.field(default=(NamedTupleBaseType,), init=False)
+    desc: str | None = None
 
     @items.default
     def _items(self) -> tuple[PyType, ...]:
@@ -308,6 +309,7 @@ class NamedTupleType(TupleType):
             types=(i.wtype for i in self.items),
             names=tuple(self.fields),
             source_location=self.source_location,
+            desc=self.desc,
         )
 
 
@@ -398,6 +400,7 @@ class StructType(PyType):
     wtype: wtypes.WType
     source_location: SourceLocation | None
     generic: None = None
+    desc: str | None = None
 
     @cached_property
     def names(self) -> tuple[str, ...]:
@@ -412,6 +415,7 @@ class StructType(PyType):
         *,
         base: PyType,
         name: str,
+        desc: str | None,
         fields: Mapping[str, PyType],
         frozen: bool,
         source_location: SourceLocation | None,
@@ -426,12 +430,17 @@ class StructType(PyType):
         else:
             raise InternalError(f"Unknown struct base type: {base}", source_location)
         wtype = wtype_cls(
-            fields=field_wtypes, name=name, immutable=frozen, source_location=source_location
+            fields=field_wtypes,
+            name=name,
+            desc=desc,
+            immutable=frozen,
+            source_location=source_location,
         )
         self.__attrs_init__(
             bases=[base],
             mro=[base],
             name=name,
+            desc=desc,
             wtype=wtype,
             fields=fields,
             frozen=frozen,

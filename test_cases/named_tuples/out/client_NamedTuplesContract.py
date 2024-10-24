@@ -19,7 +19,7 @@ class NamedTuplesContract(algopy.arc4.ARC4Client, typing.Protocol):
         b: algopy.arc4.BigUIntN[typing.Literal[512]],
         c: algopy.arc4.String,
         d: algopy.arc4.DynamicBytes,
-    ) -> TestTuple: ...
+    ) -> algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.BigUIntN[typing.Literal[512]], algopy.arc4.String, algopy.arc4.DynamicBytes]: ...
 
     @algopy.arc4.abimethod
     def test_tuple(

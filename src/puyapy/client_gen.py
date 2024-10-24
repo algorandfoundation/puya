@@ -16,7 +16,8 @@ from puya.models import (
     ARC4Method,
     ARC4MethodArg,
     ARC4Returns,
-    ARC32StructDef,
+    ARC4Struct,
+    ARC4StructField,
     OnCompletionAction,
 )
 
@@ -50,8 +51,8 @@ def output_stubs(paths: Sequence[Path]) -> None:
     try:
         app_spec_paths = resolve_app_specs(paths)
         for app_spec_path in app_spec_paths:
-            name, methods = parse_app_spec_methods(app_spec_path.read_text("utf8"))
-            write_arc32_client(name, methods, app_spec_path.parent)
+            name, structs, methods = parse_app_spec_methods(app_spec_path.read_text("utf8"))
+            write_arc32_client(name, structs, methods, app_spec_path.parent)
     except PuyaError as ex:
         logger.error(str(ex))  # noqa: TRY400
 
@@ -74,22 +75,39 @@ def resolve_app_specs(paths: Sequence[Path]) -> Sequence[Path]:
     return app_specs
 
 
-def parse_app_spec_methods(app_spec_json: str) -> tuple[str, Sequence[ARC4Method]]:
+def parse_app_spec_methods(
+    app_spec_json: str,
+) -> tuple[str, dict[str, ARC4Struct], Sequence[ARC4Method]]:
     app_spec = json.loads(app_spec_json)
     contract = app_spec["contract"]
     hints = app_spec["hints"]
     contract_name = contract["name"]
     methods = list[ARC4Method]()
     arc4_methods = {m.signature: m for m in _parse_methods(contract["methods"])}
+    known_structs = dict[str, ARC4Struct]()
     for arc4_method in arc4_methods.values():
         method_hints = hints[str(arc4_method.signature)]
         create_option, allowed_oca = _call_config(method_hints["call_config"])
+        arg_to_struct = dict[str, str]()
+        for param, struct in _structs(method_hints.get("structs", {})):
+            for known_struct_name, known_struct in known_structs.items():
+                if known_struct == struct:
+                    arg_to_struct[param] = known_struct_name
+                    break
+            else:
+                known_structs[struct.name] = struct
+                arg_to_struct[param] = struct.name
         methods.append(
             ARC4ABIMethod(
                 name=arc4_method.python_name,
                 desc=arc4_method.desc,
-                args=arc4_method.signature.args,
-                returns=arc4_method.signature.returns,
+                args=[
+                    attrs.evolve(a, struct=arg_to_struct.get(a.name))
+                    for a in arc4_method.signature.args
+                ],
+                returns=attrs.evolve(
+                    arc4_method.signature.returns, struct=arg_to_struct.get("output")
+                ),
                 config=ARC4ABIMethodConfig(
                     source_location=None,
                     name=arc4_method.signature.name,
@@ -99,11 +117,11 @@ def parse_app_spec_methods(app_spec_json: str) -> tuple[str, Sequence[ARC4Method
                     default_args=immutabledict(
                         _default_args(method_hints.get("default_arguments", {}), arc4_methods)
                     ),
-                    structs=immutabledict(_structs(method_hints.get("structs", {}))),
                 ),
+                events=[],  # ARC-32 does not specify events
             )
         )
-    return contract_name, methods
+    return contract_name, known_structs, methods
 
 
 @attrs.frozen(kw_only=True)
@@ -147,12 +165,14 @@ def _parse_signature(method: dict[str, typing.Any]) -> _MethodSignature:
                 name=arg["name"],
                 type_=arg["type"],
                 desc=arg.get("desc"),
+                struct=arg.get("struct"),
             )
             for arg in method["args"]
         ),
         returns=ARC4Returns(
             type_=returns["type"],
             desc=returns.get("desc"),
+            struct=returns.get("struct"),
         ),
     )
 
@@ -195,9 +215,15 @@ def _default_args(
                 raise PuyaError(f"Unsupported source '{source}' for default argument: {param}")
 
 
-def _structs(structs: dict[str, dict[str, typing.Any]]) -> Iterable[tuple[str, ARC32StructDef]]:
+def _structs(structs: dict[str, dict[str, typing.Any]]) -> Iterable[tuple[str, ARC4Struct]]:
     for param, struct_config in structs.items():
-        yield param, ARC32StructDef(name=struct_config["name"], elements=struct_config["elements"])
+        yield param, ARC4Struct(
+            fullname=struct_config["name"],
+            fields=[
+                ARC4StructField(name=f[0], type=f[1], struct=None)
+                for f in struct_config["elements"]
+            ],
+        )
 
 
 if __name__ == "__main__":
