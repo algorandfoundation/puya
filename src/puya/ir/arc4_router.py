@@ -716,12 +716,12 @@ def _maybe_avm_to_arc4_equivalent_type(wtype: wtypes.WType) -> wtypes.ARC4Type |
         case wtypes.bool_wtype:
             return wtypes.arc4_bool_wtype
         case wtypes.uint64_wtype:
-            return wtypes.ARC4UIntN(n=64, decode_type=wtype, source_location=None)
+            return wtypes.ARC4UIntN(n=64, source_location=None)
         case wtypes.biguint_wtype:
-            return wtypes.ARC4UIntN(n=512, decode_type=wtype, source_location=None)
+            return wtypes.ARC4UIntN(n=512, source_location=None)
         case wtypes.bytes_wtype:
             return wtypes.ARC4DynamicArray(
-                element_type=wtypes.arc4_byte_alias, decode_type=wtype, source_location=None
+                element_type=wtypes.arc4_byte_alias, native_type=wtype, source_location=None
             )
         case wtypes.string_wtype:
             return wtypes.arc4_string_alias

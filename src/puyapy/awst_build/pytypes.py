@@ -586,9 +586,7 @@ def _make_arc4_unsigned_int_parameterise(
             name=name,
             bits=bits,
             native_type=native_type,
-            wtype=wtypes.ARC4UIntN(
-                n=bits, decode_type=native_type.wtype, source_location=source_location
-            ),
+            wtype=wtypes.ARC4UIntN(n=bits, source_location=source_location),
         )
 
     return parameterise
@@ -790,7 +788,7 @@ ARC4DynamicBytesType: typing.Final = _register_builtin(
         name="algopy.arc4.DynamicBytes",
         wtype=wtypes.ARC4DynamicArray(
             element_type=ARC4ByteType.wtype,
-            decode_type=wtypes.bytes_wtype,
+            native_type=wtypes.bytes_wtype,
             source_location=None,
         ),
         size=None,

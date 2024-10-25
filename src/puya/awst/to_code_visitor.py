@@ -320,12 +320,8 @@ class ToCodeVisitor(
                 suffix = "u"
             case wtypes.biguint_wtype:
                 suffix = "n"
-            case wtypes.ARC4UIntN(n=n, decode_type=decode_type):
-                if decode_type == wtypes.uint64_wtype:
-                    suffix = f"arc4u{n}"
-                else:
-                    assert decode_type == wtypes.biguint_wtype
-                    suffix = f"arc4n{n}"
+            case wtypes.ARC4UIntN(n=n):
+                suffix = f"_arc4u{n}"
             case _:
                 raise InternalError(
                     f"Numeric type not implemented: {expr.wtype}", expr.source_location

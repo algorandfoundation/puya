@@ -72,39 +72,40 @@ def _decode_arc4_value(
     target_wtype: wtypes.WType,
     loc: SourceLocation,
 ) -> ValueProvider:
-    match arc4_wtype:
-        case wtypes.ARC4UIntN(n=scale) | wtypes.ARC4UFixedNxM(n=scale):
-            if scale > 64:
-                return value
-            else:
-                return Intrinsic(
-                    op=AVMOp.btoi,
-                    args=[value],
-                    source_location=loc,
-                )
-        case wtypes.arc4_bool_wtype:
+    match arc4_wtype, target_wtype:
+        case wtypes.ARC4UIntN(), wtypes.biguint_wtype:
+            return value
+        case wtypes.ARC4UIntN(), (wtypes.uint64_wtype | wtypes.bool_wtype):
+            return Intrinsic(
+                op=AVMOp.btoi,
+                args=[value],
+                source_location=loc,
+            )
+        case wtypes.arc4_bool_wtype, wtypes.bool_wtype:
             return Intrinsic(
                 op=AVMOp.getbit,
                 args=[value, UInt64Constant(value=0, source_location=None)],
                 source_location=loc,
                 types=(IRType.bool,),
             )
-        case wtypes.ARC4DynamicArray(element_type=wtypes.ARC4UIntN(n=8)):
+        case wtypes.ARC4DynamicArray(element_type=wtypes.ARC4UIntN(n=8)), (
+            wtypes.bytes_wtype | wtypes.string_wtype
+        ):
             return Intrinsic(
                 op=AVMOp.extract,
                 immediates=[2, 0],
                 args=[value],
                 source_location=loc,
             )
-        case wtypes.ARC4Tuple() as arc4_tuple:
+        case wtypes.ARC4Tuple() as arc4_tuple, wtypes.WTuple() as native_tuple if (
+            len(arc4_tuple.types) == len(native_tuple.types)
+        ):
             return _visit_arc4_tuple_decode(
-                context, arc4_tuple, value, target_wtype=target_wtype, source_location=loc
+                context, arc4_tuple, value, target_wtype=native_tuple, source_location=loc
             )
-        case _:
-            raise InternalError(
-                f"Unsupported wtype for ARC4Decode: {arc4_wtype}",
-                location=loc,
-            )
+    raise InternalError(
+        f"unsupported ARC4Decode operation from {arc4_wtype} to {target_wtype}", loc
+    )
 
 
 def encode_arc4_struct(
@@ -608,13 +609,10 @@ def _visit_arc4_tuple_decode(
     context: IRFunctionBuildContext,
     wtype: wtypes.ARC4Tuple,
     value: Value,
-    target_wtype: wtypes.WType,
+    target_wtype: wtypes.WTuple,
     source_location: SourceLocation,
 ) -> ValueProvider:
     items = list[Value]()
-    if not isinstance(target_wtype, wtypes.WTuple):
-        raise InternalError("expected ARC4Decode of a tuple to target a WTuple", source_location)
-
     for index, (target_item_wtype, item_wtype) in enumerate(
         zip(target_wtype.types, wtype.types, strict=True)
     ):
