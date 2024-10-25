@@ -510,8 +510,11 @@ class _ContractFragment(_UserContractBase):
     @typing.override
     def state(self, *, include_inherited: bool = True) -> Iterator[ContractFragmentStorage]:
         result = self._state_defs
-        for ancestor in self.mro:
-            result = {s.member_name: s for s in ancestor.state(include_inherited=False)} | result
+        if include_inherited:
+            for ancestor in self.mro:
+                result = {
+                    s.member_name: s for s in ancestor.state(include_inherited=False)
+                } | result
         yield from result.values()
 
     @property
