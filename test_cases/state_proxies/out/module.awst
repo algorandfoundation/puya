@@ -1,5 +1,8 @@
-contract StateProxyContract extends (algopy.arc4.ARC4Contract)
+contract StateProxyContract
 {
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
   globals {
     ['g1']: uint64
     [hex<"6732">]: uint64
@@ -9,17 +12,35 @@ contract StateProxyContract extends (algopy.arc4.ARC4Contract)
     [hex<"6C32">]: uint64
   }
   
-  constructor()
+  subroutine test_cases.state_proxies.contract.StateProxyContract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.state_proxies.contract.StateProxyContract.__init__(): void
   {
     GlobalState[hex<"6732">]: uint64 = 0u
     funky_town: state_key = (txn<NumAppArgs>() != 0u) ? ('funky') : ('town')
     GlobalState[funky_town]: uint64 = 123u
   }
   
-  abimethod create(): void
+  abimethod test_cases.state_proxies.contract.StateProxyContract.create(): void
   {
     GlobalState['g1']: uint64 = 1u
     LocalState['l1', txn<Sender>()]: uint64 = 2u
     LocalState[hex<"6C32">, txn<Sender>()]: uint64 = 3u
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
   }
 }

@@ -4,18 +4,18 @@ main:
     allocate 5 to stack                                                                (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
 
 main_block@0:                                                                          (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
-    txn ApplicationID                                                                  (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | app_id%0#0
-    bnz main_entrypoint@2                                                              (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
-    // Implicit fall through to main_on_create@1                                       (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
+    txn ApplicationID                                                                  (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%0#0
+    bnz main_after_if_else@2                                                           (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
+    // Implicit fall through to main_call___init__@1                                   (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
 
-main_on_create@1:                                                                      (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
+main_call___init__@1:                                                                  (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
     callsub __init__                                                                   (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
-    // Implicit fall through to main_entrypoint@2                                      (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
+    // Implicit fall through to main_after_if_else@2                                   (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
 
-main_entrypoint@2:                                                                     (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
+main_after_if_else@2:                                                                  (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
     // simplish/contract.py:31
     // if Txn.application_id == 0:
-    txn ApplicationID                                                                  (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%0#0
+    txn ApplicationID                                                                  (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%1#0
     bnz main_after_if_else@4                                                           (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
     // Implicit fall through to main_if_body@3                                         (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
 
@@ -49,7 +49,7 @@ main_after_if_else@4:                                                           
     //     OnCompleteAction.UpdateApplication,
     //     OnCompleteAction.DeleteApplication,
     // ):
-    ==                                                                                 (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%2#0
+    ==                                                                                 (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%3#0
     bnz main_if_body@6                                                                 (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
     // Implicit fall through to main_or_contd@5                                        (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
 
@@ -68,7 +68,7 @@ main_or_contd@5:                                                                
     //     OnCompleteAction.UpdateApplication,
     //     OnCompleteAction.DeleteApplication,
     // ):
-    ==                                                                                 (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%3#0
+    ==                                                                                 (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%4#0
     bz main_after_if_else@9                                                            (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
     // Implicit fall through to main_if_body@6                                         (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
 
@@ -77,7 +77,7 @@ main_if_body@6:                                                                 
     // if oca == OnCompleteAction.DeleteApplication:
     f-load oca#0                                                                       (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | oca#0
     int DeleteApplication                                                              (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | oca#0,DeleteApplication
-    ==                                                                                 (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%4#0
+    ==                                                                                 (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%5#0
     bz main_after_if_else@8                                                            (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
     // Implicit fall through to main_if_body@7                                         (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
 
@@ -89,21 +89,21 @@ main_if_body@7:                                                                 
     app_global_get_ex                                                                  (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | maybe_value%0#0,maybe_exists%0#0
     assert // check self.counter exists                                                (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | maybe_value%0#0
     l-load maybe_value%0#0 0                                                           (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | maybe_value%0#0
-    callsub itoa                                                                       (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%5#0
-    byte 0x4920776173207573656420                                                      (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%5#0,0x4920776173207573656420
-    l-load tmp%5#0 1                                                                   (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | 0x4920776173207573656420,tmp%5#0
-    concat                                                                             (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%6#0
-    byte 0x2074696d65287329206265666f726520492064696564                                (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%6#0,0x2074696d65287329206265666f726520492064696564
+    callsub itoa                                                                       (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%6#0
+    byte 0x4920776173207573656420                                                      (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%6#0,0x4920776173207573656420
+    l-load tmp%6#0 1                                                                   (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | 0x4920776173207573656420,tmp%6#0
     concat                                                                             (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%7#0
+    byte 0x2074696d65287329206265666f726520492064696564                                (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%7#0,0x2074696d65287329206265666f726520492064696564
+    concat                                                                             (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%8#0
     log                                                                                (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
     // Implicit fall through to main_after_if_else@8                                   (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
 
 main_after_if_else@8:                                                                  (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
     // simplish/contract.py:41
     // return Global.creator_address == sender
-    global CreatorAddress                                                              (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%8#0
-    f-load sender#0                                                                    (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%8#0,sender#0
-    ==                                                                                 (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%9#0
+    global CreatorAddress                                                              (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%9#0
+    f-load sender#0                                                                    (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%9#0,sender#0
+    ==                                                                                 (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%10#0
     return                                                                             (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
 
 main_after_if_else@9:                                                                  (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
@@ -111,21 +111,21 @@ main_after_if_else@9:                                                           
     // if oca == OnCompleteAction.OptIn:
     f-load oca#0                                                                       (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | oca#0
     int OptIn                                                                          (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | oca#0,OptIn
-    ==                                                                                 (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%10#0
+    ==                                                                                 (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%11#0
     bz main_after_if_else@13                                                           (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
     // Implicit fall through to main_if_body@10                                        (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
 
 main_if_body@10:                                                                       (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
     // simplish/contract.py:44
     // if Txn.num_app_args > 0:
-    txn NumAppArgs                                                                     (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%11#0
+    txn NumAppArgs                                                                     (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%12#0
     bz main_after_if_else@12                                                           (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
     // Implicit fall through to main_if_body@11                                        (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
 
 main_if_body@11:                                                                       (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
     // simplish/contract.py:45
     // self.set_sender_nickname(Txn.application_args(0))
-    txna ApplicationArgs 0                                                             (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%13#0
+    txna ApplicationArgs 0                                                             (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%14#0
     callsub set_sender_nickname                                                        (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
     // Implicit fall through to main_after_if_else@12                                  (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
 
@@ -173,9 +173,9 @@ main_if_body@16:                                                                
 main_else_body@17:                                                                     (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
     // simplish/contract.py:53
     // elif Txn.num_assets == 1:
-    txn NumAssets                                                                      (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%16#0
-    int 1                                                                              (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%16#0,1
-    ==                                                                                 (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%17#0
+    txn NumAssets                                                                      (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%17#0
+    int 1                                                                              (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%17#0,1
+    ==                                                                                 (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%18#0
     bz main_else_body@22                                                               (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
     // Implicit fall through to main_if_body@18                                        (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
 
@@ -204,9 +204,9 @@ main_else_body@20:                                                              
     // simplish/contract.py:58
     // msg = Bytes(b"You have asset balance: ") + itoa(asset_balance)
     f-load asset_balance#0                                                             (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | asset_balance#0
-    callsub itoa                                                                       (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%18#0
-    byte 0x596f7520686176652061737365742062616c616e63653a20                            (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%18#0,0x596f7520686176652061737365742062616c616e63653a20
-    l-load tmp%18#0 1                                                                  (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | 0x596f7520686176652061737365742062616c616e63653a20,tmp%18#0
+    callsub itoa                                                                       (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%19#0
+    byte 0x596f7520686176652061737365742062616c616e63653a20                            (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | tmp%19#0,0x596f7520686176652061737365742062616c616e63653a20
+    l-load tmp%19#0 1                                                                  (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | 0x596f7520686176652061737365742062616c616e63653a20,tmp%19#0
     concat                                                                             (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | msg#0
     f-store msg#0                                                                      (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
     // Implicit fall through to main_after_if_else@21                                  (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
@@ -241,6 +241,21 @@ main_after_if_else@24:                                                          
     // return result
     x-load result#0                                                                    (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 | result#0
     return                                                                             (𝕗) msg#0,sender#0,asset_balance#0,num_app_args#0,oca#0 |
+
+
+// test_cases.simplish.base_class.CallCounter.__init__() -> void:
+__init__:
+    // simplish/base_class.py:7
+    // def __init__(self) -> None:
+    proto 0 0
+
+__init___block@0:
+    // simplish/base_class.py:8
+    // self.counter = UInt64(0)
+    byte "counter"                                                                     "counter"
+    int 0                                                                              "counter",0
+    app_global_put
+    retsub
 
 
 // test_cases.simplish.contract.itoa(i: uint64) -> bytes:
@@ -591,21 +606,6 @@ test_cases.simplish.base_class.CallCounter.increment_counter_block@0:
     +                                                                                  new_state_value%0#0
     byte "counter"                                                                     new_state_value%0#0,"counter"
     l-load new_state_value%0#0 1                                                       "counter",new_state_value%0#0
-    app_global_put
-    retsub
-
-
-// test_cases.simplish.base_class.CallCounter.__init__() -> void:
-__init__:
-    // simplish/base_class.py:7
-    // def __init__(self) -> None:
-    proto 0 0
-
-__init___block@0:
-    // simplish/base_class.py:8
-    // self.counter = UInt64(0)
-    byte "counter"                                                                     "counter"
-    int 0                                                                              "counter",0
     app_global_put
     retsub
 

@@ -1,10 +1,24 @@
-contract TransactionContract extends (algopy.arc4.ARC4Contract)
+contract TransactionContract
 {
-  abimethod create(): void
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.transaction.contract.TransactionContract.create(): void
   {
   }
   
-  subroutine _common_checks(txn: group_transaction_base): void
+  subroutine test_cases.transaction.contract.TransactionContract._common_checks(txn: group_transaction_base): void
   {
     assert(len(gtxns<TxID>(txn)) != 0u, comment="txn_id")
     assert(gtxns<Sender>(txn) == global<CreatorAddress>(), comment="sender")
@@ -19,7 +33,7 @@ contract TransactionContract extends (algopy.arc4.ARC4Contract)
     assert(gtxns<RekeyTo>(txn) == global<ZeroAddress>(), comment="rekey_to")
   }
   
-  abimethod pay(txn: group_transaction_pay): void
+  abimethod test_cases.transaction.contract.TransactionContract.pay(txn: group_transaction_pay): void
   {
     this::_common_checks(txn)
     assert(gtxns<Receiver>(txn) == global<CurrentApplicationAddress>(), comment="Payment should be for this app")
@@ -27,7 +41,7 @@ contract TransactionContract extends (algopy.arc4.ARC4Contract)
     assert(gtxns<CloseRemainderTo>(txn) == global<ZeroAddress>(), comment="close_remainder_to")
   }
   
-  abimethod key(txn: group_transaction_keyreg): void
+  abimethod test_cases.transaction.contract.TransactionContract.key(txn: group_transaction_keyreg): void
   {
     this::_common_checks(txn)
     assert(len(gtxns<VotePK>(txn)) != 0u, comment="vote_key")
@@ -39,7 +53,7 @@ contract TransactionContract extends (algopy.arc4.ARC4Contract)
     assert(len(gtxns<StateProofPK>(txn)) != 0u, comment="state_proof_key")
   }
   
-  abimethod asset_config(txn: group_transaction_acfg): void
+  abimethod test_cases.transaction.contract.TransactionContract.asset_config(txn: group_transaction_acfg): void
   {
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(gtxns<ConfigAsset>(txn)), comment="config_asset")
@@ -56,7 +70,7 @@ contract TransactionContract extends (algopy.arc4.ARC4Contract)
     assert(gtxns<ConfigAssetClawback>(txn) != global<ZeroAddress>(), comment="clawback")
   }
   
-  abimethod asset_transfer(txn: group_transaction_axfer): void
+  abimethod test_cases.transaction.contract.TransactionContract.asset_transfer(txn: group_transaction_axfer): void
   {
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(gtxns<XferAsset>(txn)), comment="xfer_asset")
@@ -66,7 +80,7 @@ contract TransactionContract extends (algopy.arc4.ARC4Contract)
     assert(gtxns<AssetCloseTo>(txn) != global<ZeroAddress>(), comment="asset_close_to")
   }
   
-  abimethod asset_freeze(txn: group_transaction_afrz): void
+  abimethod test_cases.transaction.contract.TransactionContract.asset_freeze(txn: group_transaction_afrz): void
   {
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(gtxns<FreezeAsset>(txn)), comment="freeze_asset")
@@ -74,7 +88,7 @@ contract TransactionContract extends (algopy.arc4.ARC4Contract)
     assert(gtxns<FreezeAssetFrozen>(txn), comment="frozen")
   }
   
-  abimethod application_call(txn: group_transaction_appl): void
+  abimethod test_cases.transaction.contract.TransactionContract.application_call(txn: group_transaction_appl): void
   {
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(gtxns<ApplicationID>(txn)), comment="app_id")
@@ -101,21 +115,21 @@ contract TransactionContract extends (algopy.arc4.ARC4Contract)
     assert(len(gtxnsas<ClearStateProgramPages>(txn, 0u)) != 0u, comment="clear_state_program_pages(0)")
   }
   
-  abimethod multiple_txns(txn1: group_transaction_appl, txn2: group_transaction_appl, txn3: group_transaction_appl): void
+  abimethod test_cases.transaction.contract.TransactionContract.multiple_txns(txn1: group_transaction_appl, txn2: group_transaction_appl, txn3: group_transaction_appl): void
   {
     for (index, app) in enumerate((txn1, txn2, txn3)) {
       assert(gtxns<GroupIndex>(app) == index)
     }
   }
   
-  abimethod any_txn(txn1: group_transaction, txn2: group_transaction, txn3: group_transaction): void
+  abimethod test_cases.transaction.contract.TransactionContract.any_txn(txn1: group_transaction, txn2: group_transaction, txn3: group_transaction): void
   {
     for (index, txn) in enumerate((txn1, txn2, txn3)) {
       assert(gtxns<GroupIndex>(txn) == index)
     }
   }
   
-  abimethod group_init(txn1: group_transaction, txn2: group_transaction, txn3: group_transaction): void
+  abimethod test_cases.transaction.contract.TransactionContract.group_init(txn1: group_transaction, txn2: group_transaction, txn3: group_transaction): void
   {
     for txn in (txn1, txn2, txn3) {
       txn_from_index: group_transaction = group_transaction(index=gtxns<GroupIndex>(txn), type=any)

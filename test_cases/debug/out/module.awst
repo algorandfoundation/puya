@@ -1,10 +1,20 @@
-contract DebugContract extends (algopy.arc4.ARC4Contract)
+contract DebugContract
 {
-  baremethod __algopy_default_create(): void
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
   {
+    return arc4_router()
   }
   
-  abimethod test(x: uint64, y: uint64, z: uint64): uint64
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.debug.contract.DebugContract.test(x: uint64, y: uint64, z: uint64): uint64
   {
     a: uint64 = x * TemplateVar[uint64](TMPL_A_MULT)
     b: uint64 = x + y
@@ -44,6 +54,10 @@ contract DebugContract extends (algopy.arc4.ARC4Contract)
     aye: bytes = test_cases.debug.contract.itoa(a)
     log(concat(concat(concat(concat(aye, ' '), bee), ' '), cea))
     return a
+  }
+  
+  baremethod test_cases.debug.contract.DebugContract.__algopy_default_create(): void
+  {
   }
 }
 

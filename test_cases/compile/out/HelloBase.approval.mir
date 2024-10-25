@@ -1,17 +1,32 @@
 // Op                                                                            Stack (out)
 // test_cases.compile.apps.HelloBase.approval_program() -> uint64:
 main_block@0:
-    txn ApplicationID                                                            app_id%0#0
-    bnz main_entrypoint@2
-    // Implicit fall through to main_on_create@1
+    txn ApplicationID                                                            tmp%0#0
+    bnz main_after_if_else@2
+    // Implicit fall through to main_call___init__@1
 
-main_on_create@1:
+main_call___init__@1:
     callsub __init__
-    // Implicit fall through to main_entrypoint@2
+    // Implicit fall through to main_after_if_else@2
 
-main_entrypoint@2:
-    callsub __puya_arc4_router__                                                 tmp%0#0
+main_after_if_else@2:
+    callsub __puya_arc4_router__                                                 tmp%1#0
     return
+
+
+// test_cases.compile.apps.HelloBase.__init__() -> void:
+__init__:
+    // compile/apps.py:22
+    // def __init__(self) -> None:
+    proto 0 0
+
+__init___block@0:
+    // compile/apps.py:23
+    // self.greeting = String()
+    byte "greeting"                                                              "greeting"
+    byte ""                                                                      "greeting",""
+    app_global_put
+    retsub
 
 
 // test_cases.compile.apps.HelloBase.__puya_arc4_router__() -> uint64:
@@ -82,30 +97,28 @@ __puya_arc4_router___bare_routing@6:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
     txn OnCompletion                                                             tmp%14#0
-    int 0                                                                        tmp%14#0,0
-    int 4                                                                        tmp%14#0,0,4
-    l-load tmp%14#0 2                                                            0,4,tmp%14#0
-    match __puya_arc4_router_____algopy_default_create@7 __puya_arc4_router___update@8 
+    int 4                                                                        tmp%14#0,4
+    int 0                                                                        tmp%14#0,4,0
+    l-load tmp%14#0 2                                                            4,0,tmp%14#0
+    match __puya_arc4_router___update@7 __puya_arc4_router_____algopy_default_create@8 
     int 0                                                                        0
     retsub                                                                       0
 
-__puya_arc4_router_____algopy_default_create@7:
-    // compile/apps.py:20
-    // class HelloBase(ARC4Contract):
-    txn ApplicationID                                                            tmp%15#0
-    !                                                                            tmp%16#0
-    assert // is creating
-    int 1                                                                        1
-    retsub                                                                       1
-
-__puya_arc4_router___update@8:
+__puya_arc4_router___update@7:
     // compile/apps.py:29
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
-    txn ApplicationID                                                            tmp%17#0
+    txn ApplicationID                                                            tmp%15#0
     assert // is not creating
     // compile/apps.py:29-30
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     // def update(self) -> None:
+    int 1                                                                        1
+    retsub                                                                       1
+
+__puya_arc4_router_____algopy_default_create@8:
+    txn ApplicationID                                                            tmp%17#0
+    !                                                                            tmp%18#0
+    assert // is creating
     int 1                                                                        1
     retsub                                                                       1
 
@@ -130,20 +143,5 @@ greet_block@0:                                                                  
     p-load name#0                                                                (𝕡) name#0 | tmp%0#0,name#0 (copy)
     concat                                                                       (𝕡) name#0 | tmp%1#0
     retsub                                                                       tmp%1#0
-
-
-// test_cases.compile.apps.HelloBase.__init__() -> void:
-__init__:
-    // compile/apps.py:22
-    // def __init__(self) -> None:
-    proto 0 0
-
-__init___block@0:
-    // compile/apps.py:23
-    // self.greeting = String()
-    byte "greeting"                                                              "greeting"
-    byte ""                                                                      "greeting",""
-    app_global_put
-    retsub
 
 

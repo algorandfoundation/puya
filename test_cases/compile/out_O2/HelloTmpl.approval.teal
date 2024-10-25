@@ -4,12 +4,21 @@ test_cases.compile.apps.HelloTmpl.approval_program:
     intcblock 1 0
     bytecblock "greeting" TMPL_GREETING
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// test_cases.compile.apps.HelloTmpl.__init__() -> void:
+__init__:
+    proto 0 0
+    bytec_0 // "greeting"
+    bytec_1 // TMPL_GREETING
+    app_global_put
+    retsub
 
 
 // test_cases.compile.apps.HelloTmpl.__puya_arc4_router__() -> uint64:
@@ -90,13 +99,4 @@ greet:
     concat
     frame_dig -1
     concat
-    retsub
-
-
-// test_cases.compile.apps.HelloTmpl.__init__() -> void:
-__init__:
-    proto 0 0
-    bytec_0 // "greeting"
-    bytec_1 // TMPL_GREETING
-    app_global_put
     retsub

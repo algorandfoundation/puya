@@ -13,11 +13,9 @@ from puya.awst.nodes import (
     Statement,
 )
 from puya.errors import CodeError
-from puya.models import ContractReference
 from puya.parse import SourceLocation
 
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.contract_data import AppStorageDeclaration
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -25,6 +23,7 @@ from puyapy.awst_build.eb.interface import (
     BuilderUnaryOp,
     InstanceBuilder,
     NodeBuilder,
+    StorageProxyConstructorArgs,
     StorageProxyConstructorResult,
     TypeBuilder,
 )
@@ -36,41 +35,23 @@ logger = log.get_logger(__name__)
 class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
     def __init__(
         self,
+        args: StorageProxyConstructorArgs,
         typ: pytypes.StorageProxyType | pytypes.StorageMapProxyType,
         location: SourceLocation,
-        description: str | None,
-        initial_value: InstanceBuilder | None = None,
     ):
         super().__init__(location)
         self._typ = typ
-        self.description = description
-        self._initial_value = initial_value
+        self._args = args
 
+    @typing.override
+    @property
+    def args(self) -> StorageProxyConstructorArgs:
+        return self._args
+
+    @typing.override
     @property
     def pytype(self) -> pytypes.StorageProxyType | pytypes.StorageMapProxyType:
         return self._typ
-
-    @typing.override
-    @property
-    def initial_value(self) -> InstanceBuilder | None:
-        return self._initial_value
-
-    @typing.override
-    def build_definition(
-        self,
-        member_name: str,
-        defined_in: ContractReference,
-        typ: pytypes.PyType,
-        location: SourceLocation,
-    ) -> AppStorageDeclaration:
-        return AppStorageDeclaration(
-            description=self.description,
-            member_name=member_name,
-            key_override=None,
-            source_location=location,
-            typ=typ,
-            defined_in=defined_in,
-        )
 
     @typing.override
     def to_bytes(self, location: SourceLocation) -> Expression:
@@ -173,11 +154,12 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
 
     @typing.override
     def single_eval(self) -> InstanceBuilder:
+        if self._args.initial_value is None:
+            return self
         return StorageProxyDefinitionBuilder(
+            attrs.evolve(self._args, initial_value=self._args.initial_value.single_eval()),
             typ=self._typ,
             location=self.source_location,
-            description=self.description,
-            initial_value=(self._initial_value and self._initial_value.single_eval()),
         )
 
 
@@ -211,3 +193,27 @@ def extract_description(descr_arg: NodeBuilder | None) -> str | None:
     if descr_arg is None:
         return None
     return expect.simple_string_literal(descr_arg, default=expect.default_none)
+
+
+def parse_storage_proxy_constructor_args(
+    arg_mapping: dict[str, NodeBuilder],
+    key_wtype: wtypes.WType,
+    key_arg_name: str,
+    descr_arg_name: str | None,
+    location: SourceLocation,
+    initial_value: InstanceBuilder | None = None,
+) -> StorageProxyConstructorArgs:
+    key_arg = arg_mapping.get(key_arg_name)
+    key_override = extract_key_override(key_arg, location, typ=key_wtype)
+
+    description = None
+    if descr_arg_name is not None:
+        descr_arg = arg_mapping.get(descr_arg_name)
+        description = extract_description(descr_arg)
+
+    return StorageProxyConstructorArgs(
+        key=key_override,
+        description=description,
+        initial_value=initial_value,
+        key_arg_name=key_arg_name,
+    )

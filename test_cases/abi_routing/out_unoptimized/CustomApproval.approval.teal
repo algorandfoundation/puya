@@ -4,10 +4,10 @@ test_cases.abi_routing.custom_approval.CustomApproval.approval_program:
     intcblock 0 1
     pushbytes ""
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     // abi_routing/custom_approval.py:13
     // if Txn.num_app_args == 2 and Txn.application_args(1) == op.itob(42):
     txn NumAppArgs
@@ -49,6 +49,27 @@ main_after_if_else@7:
     // return result
     dup
     return
+
+
+// test_cases.abi_routing.custom_approval.CustomApproval.__init__() -> void:
+__init__:
+    // abi_routing/custom_approval.py:7
+    // def __init__(self) -> None:
+    proto 0 0
+    // abi_routing/custom_approval.py:9
+    // assert Txn.application_id == 0, "nonsense assert just to generate an init method"
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    assert // nonsense assert just to generate an init method
+    retsub
+
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+approval_program:
+    proto 0 1
+    callsub __puya_arc4_router__
+    retsub
 
 
 // test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__() -> uint64:
@@ -105,8 +126,6 @@ __puya_arc4_router___bare_routing@5:
     b __puya_arc4_router___switch_case_default@7
 
 __puya_arc4_router_____algopy_default_create@6:
-    // abi_routing/custom_approval.py:6
-    // class CustomApproval(ARC4Contract):
     txn ApplicationID
     intc_0 // 0
     ==
@@ -140,28 +159,5 @@ add_one:
 
 // test_cases.abi_routing.custom_approval.CustomApproval.__algopy_default_create() -> void:
 __algopy_default_create:
-    // abi_routing/custom_approval.py:6
-    // class CustomApproval(ARC4Contract):
     proto 0 0
-    retsub
-
-
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
-approval_program:
-    proto 0 1
-    callsub __puya_arc4_router__
-    retsub
-
-
-// test_cases.abi_routing.custom_approval.CustomApproval.__init__() -> void:
-__init__:
-    // abi_routing/custom_approval.py:7
-    // def __init__(self) -> None:
-    proto 0 0
-    // abi_routing/custom_approval.py:9
-    // assert Txn.application_id == 0, "nonsense assert just to generate an init method"
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    assert // nonsense assert just to generate an init method
     retsub

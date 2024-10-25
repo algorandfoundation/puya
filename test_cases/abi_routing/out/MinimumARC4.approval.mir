@@ -1,17 +1,32 @@
 // Op                                                                          Stack (out)
 // test_cases.abi_routing.minimal.MinimumARC4.approval_program() -> uint64:
 main_block@0:
-    txn ApplicationID                                                          app_id%0#0
-    bnz main_entrypoint@2
-    // Implicit fall through to main_on_create@1
+    txn ApplicationID                                                          tmp%0#0
+    bnz main_after_if_else@2
+    // Implicit fall through to main_call___init__@1
 
-main_on_create@1:
+main_call___init__@1:
     callsub __init__
-    // Implicit fall through to main_entrypoint@2
+    // Implicit fall through to main_after_if_else@2
 
-main_entrypoint@2:
-    callsub __puya_arc4_router__                                               tmp%0#0
+main_after_if_else@2:
+    callsub __puya_arc4_router__                                               tmp%1#0
     return
+
+
+// test_cases.abi_routing.minimal.MinimumARC4.__init__() -> void:
+__init__:
+    // abi_routing/minimal.py:5
+    // def __init__(self) -> None:
+    proto 0 0
+
+__init___block@0:
+    // abi_routing/minimal.py:6
+    // self.gvalue = UInt64(4)
+    byte "gvalue"                                                              "gvalue"
+    int 4                                                                      "gvalue",4
+    app_global_put
+    retsub
 
 
 // test_cases.abi_routing.minimal.MinimumARC4.__puya_arc4_router__() -> uint64:
@@ -35,8 +50,6 @@ __puya_arc4_router___bare_routing@2:
     // Implicit fall through to __puya_arc4_router_____algopy_default_create@3
 
 __puya_arc4_router_____algopy_default_create@3:
-    // abi_routing/minimal.py:4
-    // class MinimumARC4(ARC4Contract):
     txn ApplicationID                                                          tmp%3#0
     !                                                                          tmp%4#0
     assert // is creating
@@ -48,20 +61,5 @@ __puya_arc4_router___after_if_else@6:
     // class MinimumARC4(ARC4Contract):
     int 0                                                                      0
     retsub                                                                     0
-
-
-// test_cases.abi_routing.minimal.MinimumARC4.__init__() -> void:
-__init__:
-    // abi_routing/minimal.py:5
-    // def __init__(self) -> None:
-    proto 0 0
-
-__init___block@0:
-    // abi_routing/minimal.py:6
-    // self.gvalue = UInt64(4)
-    byte "gvalue"                                                              "gvalue"
-    int 4                                                                      "gvalue",4
-    app_global_put
-    retsub
 
 

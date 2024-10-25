@@ -12,7 +12,13 @@ from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb._base import GenericTypeBuilder, NotIterableInstanceExpressionBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
-from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
+from puyapy.awst_build.eb.interface import (
+    InstanceBuilder,
+    NodeBuilder,
+    StorageProxyConstructorArgs,
+    StorageProxyConstructorResult,
+    TypeBuilder,
+)
 from puyapy.awst_build.eb.storage._common import (
     BoxGetExpressionBuilder,
     BoxMaybeExpressionBuilder,
@@ -20,9 +26,9 @@ from puyapy.awst_build.eb.storage._common import (
 )
 from puyapy.awst_build.eb.storage._storage import (
     StorageProxyDefinitionBuilder,
-    extract_key_override,
+    parse_storage_proxy_constructor_args,
 )
-from puyapy.awst_build.eb.storage._util import BoxProxyConstructorResult, box_length_checked
+from puyapy.awst_build.eb.storage._util import box_length_checked
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puyapy.awst_build.utils import get_arg_mapping
 
@@ -82,8 +88,6 @@ def _init(
         case _:
             raise CodeError("first argument must be a type reference", location)
 
-    key_arg = arg_mapping.get(key_arg_name)
-
     if result_type is None:
         result_type = pytypes.GenericBoxType.parameterise([content], location)
     elif result_type.content != content:
@@ -93,10 +97,17 @@ def _init(
             location=location,
         )
 
-    key_override = extract_key_override(key_arg, location, typ=wtypes.box_key)
-    if key_override is None:
-        return StorageProxyDefinitionBuilder(result_type, location=location, description=None)
-    return _BoxProxyExpressionBuilderFromConstructor(key_override=key_override, typ=result_type)
+    typed_args = parse_storage_proxy_constructor_args(
+        arg_mapping,
+        key_wtype=wtypes.box_key,
+        key_arg_name=key_arg_name,
+        descr_arg_name=None,
+        location=location,
+    )
+
+    if typed_args.key is None:
+        return StorageProxyDefinitionBuilder(typed_args, result_type, location)
+    return _BoxProxyExpressionBuilderFromConstructor(typed_args, result_type)
 
 
 class BoxProxyExpressionBuilder(
@@ -156,7 +167,14 @@ class BoxProxyExpressionBuilder(
 
 
 class _BoxProxyExpressionBuilderFromConstructor(
-    BoxProxyExpressionBuilder, BoxProxyConstructorResult
+    BoxProxyExpressionBuilder, StorageProxyConstructorResult
 ):
-    def __init__(self, key_override: Expression, typ: pytypes.StorageProxyType):
-        super().__init__(key_override, typ, member_name=None)
+    def __init__(self, args: StorageProxyConstructorArgs, typ: pytypes.StorageProxyType):
+        assert args.key is not None
+        super().__init__(args.key, typ, member_name=None)
+        self._args = args
+
+    @typing.override
+    @property
+    def args(self) -> StorageProxyConstructorArgs:
+        return self._args

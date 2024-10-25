@@ -1,32 +1,40 @@
-contract BaseContract
+contract ChainedAssignment
 {
+  method_resolution_order: (
+    test_cases.chained_assignment.contract.BaseContract,
+  )
   globals {
     ['state1']: bytes
     ['state2']: bytes
   }
   
-  constructor()
+  subroutine test_cases.chained_assignment.contract.ChainedAssignment.approval_program(): bool
   {
-    GlobalState['state2']: bytes = SINGLE_EVAL(id=0, source=test_cases.chained_assignment.contract.join_log_and_return(left=hex<"48656C6C6F2C20776F726C6421">, right=hex<"F09F918B">))
-    GlobalState['state1']: bytes = SINGLE_EVAL(id=0)
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return true
   }
-}
-
-contract ChainedAssignment extends (test_cases.chained_assignment.contract.BaseContract)
-{
-  constructor()
+  
+  subroutine test_cases.chained_assignment.contract.ChainedAssignment.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.chained_assignment.contract.ChainedAssignment.__init__(): void
   {
     super::__init__()
   }
   
-  approval_program(): bool
+  subroutine test_cases.chained_assignment.contract.ChainedAssignment.approval_program(): bool
   {
     return true
   }
   
-  clear_state_program(): bool
+  subroutine test_cases.chained_assignment.contract.BaseContract.__init__(): void
   {
-    return true
+    GlobalState['state2']: bytes = SINGLE_EVAL(id=0, source=test_cases.chained_assignment.contract.join_log_and_return(left=hex<"48656C6C6F2C20776F726C6421">, right=hex<"F09F918B">))
+    GlobalState['state1']: bytes = SINGLE_EVAL(id=0)
   }
 }
 

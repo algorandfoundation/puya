@@ -2,10 +2,10 @@
 
 test_cases.application.contract.Reference.approval_program:
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     txn NumAppArgs
     pushint 1 // 1
     ==
@@ -20,6 +20,19 @@ main_entrypoint@2:
 main_after_if_else@7:
     pushint 1 // 1
     return
+
+
+// test_cases.application.contract.Reference.__init__() -> void:
+__init__:
+    proto 0 0
+    pushbytes "int_1"
+    pushint 0 // 0
+    app_global_put
+    pushbytess "bytes_1" 0x // "bytes_1", 0x
+    app_global_put
+    pushbytess "bytes_2" 0x // "bytes_2", 0x
+    app_global_put
+    retsub
 
 
 // test_cases.application.contract.Reference.validate_asset(app: uint64) -> void:
@@ -80,17 +93,4 @@ validate_asset:
     global CurrentApplicationAddress
     ==
     assert // expected current_application_address
-    retsub
-
-
-// test_cases.application.contract.Reference.__init__() -> void:
-__init__:
-    proto 0 0
-    pushbytes "int_1"
-    pushint 0 // 0
-    app_global_put
-    pushbytess "bytes_1" 0x // "bytes_1", 0x
-    app_global_put
-    pushbytess "bytes_2" 0x // "bytes_2", 0x
-    app_global_put
     retsub

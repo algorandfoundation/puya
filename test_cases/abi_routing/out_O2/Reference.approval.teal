@@ -1,15 +1,38 @@
 #pragma version 10
 
 test_cases.abi_routing.contract.Reference.approval_program:
-    intcblock 1 0 2 123
+    intcblock 1 0 123 2
     bytecblock 0x151f7c75 "asa" 0x00000000000001c8
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// test_cases.abi_routing.contract.Reference.__init__() -> void:
+__init__:
+    proto 0 0
+    bytec_1 // "asa"
+    intc_2 // 123
+    app_global_put
+    pushbytes "an_int"
+    intc_3 // 2
+    app_global_put
+    pushbytess "some_bytes" 0x070809 // "some_bytes", 0x070809
+    app_global_put
+    pushbytes "creator"
+    txn Sender
+    app_global_put
+    pushbytes "app"
+    intc_2 // 123
+    app_global_put
+    pushbytes 0x189392c5 // method "get(uint64,byte[])byte[]"
+    len
+    assert // has method selector
+    retsub
 
 
 // test_cases.abi_routing.contract.Reference.__puya_arc4_router__() -> uint64:
@@ -272,7 +295,7 @@ __puya_arc4_router___method_with_more_than_15_args_route@14:
     txna ApplicationArgs 6
     txna ApplicationArgs 7
     txn GroupIndex
-    intc_2 // 2
+    intc_3 // 2
     -
     dup
     gtxns TypeEnum
@@ -466,7 +489,7 @@ with_transactions:
     assert // is payment to app
     frame_dig -1
     btoi
-    intc_2 // 2
+    intc_3 // 2
     ==
     assert // is correct int
     retsub
@@ -514,7 +537,7 @@ get_a_int:
 method_with_default_args:
     proto 9 0
     frame_dig -9
-    intc_3 // 123
+    intc_2 // 123
     ==
     assert // wrong asset from storage
     frame_dig -8
@@ -530,7 +553,7 @@ method_with_default_args:
     ==
     assert // wrong account from function
     frame_dig -5
-    intc_3 // 123
+    intc_2 // 123
     ==
     assert // wrong application from storage
     frame_dig -4
@@ -554,7 +577,7 @@ method_with_default_args:
     assert // wrong 2nd byte from storage
     frame_dig -2
     btoi
-    intc_2 // 2
+    intc_3 // 2
     ==
     assert // wrong int from storage
     frame_dig -1
@@ -702,27 +725,4 @@ bare_abi_config:
     proto 0 0
     pushbytes "Hello World"
     log
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.__init__() -> void:
-__init__:
-    proto 0 0
-    bytec_1 // "asa"
-    intc_3 // 123
-    app_global_put
-    pushbytes "an_int"
-    intc_2 // 2
-    app_global_put
-    pushbytess "some_bytes" 0x070809 // "some_bytes", 0x070809
-    app_global_put
-    pushbytes "creator"
-    txn Sender
-    app_global_put
-    pushbytes "app"
-    intc_3 // 123
-    app_global_put
-    pushbytes 0x189392c5 // method "get(uint64,byte[])byte[]"
-    len
-    assert // has method selector
     retsub

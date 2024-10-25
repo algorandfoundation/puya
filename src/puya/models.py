@@ -57,7 +57,7 @@ class ARC32StructDef:
 
 @attrs.frozen(kw_only=True)
 class ARC4BareMethodConfig:
-    source_location: SourceLocation | None
+    source_location: SourceLocation
     allowed_completion_types: Sequence[OnCompletionAction] = attrs.field(
         default=(OnCompletionAction.NoOp,),
         converter=tuple[OnCompletionAction],
@@ -68,7 +68,7 @@ class ARC4BareMethodConfig:
 
 @attrs.frozen(kw_only=True)
 class ARC4ABIMethodConfig:
-    source_location: SourceLocation | None
+    source_location: SourceLocation
     allowed_completion_types: Sequence[OnCompletionAction] = attrs.field(
         default=(OnCompletionAction.NoOp,),
         converter=tuple[OnCompletionAction],

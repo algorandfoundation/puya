@@ -4,24 +4,24 @@ main:
     allocate 1 to stack                                   (𝕗) me#0 |
 
 main_block@0:                                             (𝕗) me#0 |
-    txn ApplicationID                                     (𝕗) me#0 | app_id%0#0
-    bnz main_entrypoint@2                                 (𝕗) me#0 |
-    // Implicit fall through to main_on_create@1          (𝕗) me#0 |
+    txn ApplicationID                                     (𝕗) me#0 | tmp%0#0
+    bnz main_after_if_else@2                              (𝕗) me#0 |
+    // Implicit fall through to main_call___init__@1      (𝕗) me#0 |
 
-main_on_create@1:                                         (𝕗) me#0 |
+main_call___init__@1:                                     (𝕗) me#0 |
     callsub __init__                                      (𝕗) me#0 |
-    // Implicit fall through to main_entrypoint@2         (𝕗) me#0 |
+    // Implicit fall through to main_after_if_else@2      (𝕗) me#0 |
 
-main_entrypoint@2:                                        (𝕗) me#0 |
+main_after_if_else@2:                                     (𝕗) me#0 |
     // augmented_assignment/contract.py:20
     // me = op.Txn.sender
     txn Sender                                            (𝕗) me#0 | me#0
     f-store me#0                                          (𝕗) me#0 |
     // augmented_assignment/contract.py:22
     // if op.Txn.on_completion == OnCompleteAction.OptIn:
-    txn OnCompletion                                      (𝕗) me#0 | tmp%0#0
-    int OptIn                                             (𝕗) me#0 | tmp%0#0,OptIn
-    ==                                                    (𝕗) me#0 | tmp%1#0
+    txn OnCompletion                                      (𝕗) me#0 | tmp%1#0
+    int OptIn                                             (𝕗) me#0 | tmp%1#0,OptIn
+    ==                                                    (𝕗) me#0 | tmp%2#0
     bz main_after_if_else@4                               (𝕗) me#0 |
     // Implicit fall through to main_if_body@3            (𝕗) me#0 |
 

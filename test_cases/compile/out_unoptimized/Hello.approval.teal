@@ -4,12 +4,25 @@ test_cases.compile.apps.Hello.approval_program:
     intcblock 0 1
     bytecblock "greeting"
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// test_cases.compile.apps.HelloBase.__init__() -> void:
+__init__:
+    // compile/apps.py:22
+    // def __init__(self) -> None:
+    proto 0 0
+    // compile/apps.py:23
+    // self.greeting = String()
+    bytec_0 // "greeting"
+    pushbytes ""
+    app_global_put
+    retsub
 
 
 // test_cases.compile.apps.Hello.__puya_arc4_router__() -> uint64:
@@ -179,17 +192,4 @@ update:
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     // def update(self) -> None:
     proto 0 0
-    retsub
-
-
-// test_cases.compile.apps.HelloBase.__init__() -> void:
-__init__:
-    // compile/apps.py:22
-    // def __init__(self) -> None:
-    proto 0 0
-    // compile/apps.py:23
-    // self.greeting = String()
-    bytec_0 // "greeting"
-    pushbytes ""
-    app_global_put
     retsub

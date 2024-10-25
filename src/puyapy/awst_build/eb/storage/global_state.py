@@ -7,8 +7,6 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
-    BytesConstant,
-    BytesEncoding,
     Expression,
     ExpressionStatement,
     Not,
@@ -19,11 +17,9 @@ from puya.awst.nodes import (
     Statement,
 )
 from puya.errors import CodeError
-from puya.models import ContractReference
 from puya.parse import SourceLocation
 
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.contract_data import AppStorageDeclaration
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import (
     FunctionBuilder,
@@ -36,13 +32,13 @@ from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
     NodeBuilder,
+    StorageProxyConstructorArgs,
     StorageProxyConstructorResult,
     TypeBuilder,
 )
 from puyapy.awst_build.eb.storage._storage import (
     StorageProxyDefinitionBuilder,
-    extract_description,
-    extract_key_override,
+    parse_storage_proxy_constructor_args,
 )
 from puyapy.awst_build.eb.storage._value_proxy import ValueProxyExpressionBuilder
 from puyapy.awst_build.eb.tuple import TupleExpressionBuilder
@@ -118,22 +114,18 @@ def _init(
             location=location,
         )
 
-    key_arg = arg_mapping.get(key_arg_name)
-    key_override = extract_key_override(key_arg, location, typ=wtypes.state_key)
-
-    descr_arg = arg_mapping.get(descr_arg_name)
-    description = extract_description(descr_arg)
-
-    if key_override is None:
-        return StorageProxyDefinitionBuilder(
-            result_type, location=location, description=description, initial_value=iv_builder
-        )
-    return _GlobalStateExpressionBuilderFromConstructor(
-        key_override=key_override,
-        typ=result_type,
-        description=description,
+    typed_args = parse_storage_proxy_constructor_args(
+        arg_mapping,
+        key_wtype=wtypes.state_key,
+        key_arg_name=key_arg_name,
+        descr_arg_name=descr_arg_name,
         initial_value=iv_builder,
+        location=location,
     )
+
+    if typed_args.key is None:
+        return StorageProxyDefinitionBuilder(typed_args, result_type, location)
+    return _GlobalStateExpressionBuilderFromConstructor(typed_args, result_type)
 
 
 class GlobalStateExpressionBuilder(
@@ -190,60 +182,24 @@ def _build_field(
 class _GlobalStateExpressionBuilderFromConstructor(
     GlobalStateExpressionBuilder, StorageProxyConstructorResult
 ):
-    def __init__(
-        self,
-        key_override: Expression,
-        typ: pytypes.StorageProxyType,
-        description: str | None,
-        initial_value: InstanceBuilder | None,
-    ):
-        self._key_override = key_override
-        super().__init__(key_override, typ, member_name=None)
-        self.description = description
-        self._initial_value = initial_value
+    def __init__(self, args: StorageProxyConstructorArgs, typ: pytypes.StorageProxyType):
+        assert args.key is not None
+        super().__init__(args.key, typ, member_name=None)
+        self._args = args
 
     @typing.override
     @property
-    def initial_value(self) -> InstanceBuilder | None:
-        return self._initial_value
+    def args(self) -> StorageProxyConstructorArgs:
+        return self._args
 
     @typing.override
     def resolve(self) -> Expression:
-        if self._initial_value is not None:
+        if self._args.initial_value is not None:
             logger.error(
                 "providing an initial value is only allowed when assigning to a member variable",
                 location=self.source_location,
             )
         return super().resolve()
-
-    @typing.override
-    def build_definition(
-        self,
-        member_name: str,
-        defined_in: ContractReference,
-        typ: pytypes.PyType,
-        location: SourceLocation,
-    ) -> AppStorageDeclaration:
-        key_override = self._key_override
-        if not isinstance(key_override, BytesConstant):
-            logger.error(
-                f"assigning {typ} to a member variable requires a constant value for key",
-                location=location,
-            )
-            key_override = BytesConstant(
-                value=b"",
-                wtype=wtypes.box_key,
-                encoding=BytesEncoding.unknown,
-                source_location=key_override.source_location,
-            )
-        return AppStorageDeclaration(
-            description=self.description,
-            member_name=member_name,
-            key_override=key_override,
-            source_location=location,
-            typ=typ,
-            defined_in=defined_in,
-        )
 
 
 class _MemberFunction(FunctionBuilder, abc.ABC):

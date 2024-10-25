@@ -1,40 +1,111 @@
 contract GreatGrandParentContract
 {
-  approval_program(): bool
+  method_resolution_order: (
+  )
+  
+  subroutine test_cases.inheritance.grandparent.GreatGrandParentContract.approval_program(): bool
   {
     return this::method()
   }
   
-  clear_state_program(): bool
+  subroutine test_cases.inheritance.grandparent.GreatGrandParentContract.clear_state_program(): bool
   {
     return true
   }
   
-  subroutine method(): bool
+  subroutine test_cases.inheritance.grandparent.GreatGrandParentContract.method(): bool
   {
     log('GrandParentContract.method called')
     return true
   }
 }
 
-contract GrandParentContract extends (test_cases.inheritance.grandparent.GreatGrandParentContract)
+contract GrandParentContract
 {
+  method_resolution_order: (
+    test_cases.inheritance.grandparent.GreatGrandParentContract,
+  )
+  
+  subroutine test_cases.inheritance.grandparent.GreatGrandParentContract.approval_program(): bool
+  {
+    return this::method()
+  }
+  
+  subroutine test_cases.inheritance.grandparent.GreatGrandParentContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.inheritance.grandparent.GreatGrandParentContract.method(): bool
+  {
+    log('GrandParentContract.method called')
+    return true
+  }
 }
 
-contract ParentContract extends (test_cases.inheritance.grandparent.GrandParentContract, test_cases.inheritance.grandparent.GreatGrandParentContract)
+contract ParentContract
 {
-  subroutine method(): bool
+  method_resolution_order: (
+    test_cases.inheritance.grandparent.GrandParentContract,
+    test_cases.inheritance.grandparent.GreatGrandParentContract,
+  )
+  
+  subroutine test_cases.inheritance.grandparent.GreatGrandParentContract.approval_program(): bool
+  {
+    return this::method()
+  }
+  
+  subroutine test_cases.inheritance.grandparent.GreatGrandParentContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.inheritance.parent.ParentContract.method(): bool
   {
     log('ParentContract.method called')
     return super::method()
   }
+  
+  subroutine test_cases.inheritance.grandparent.GreatGrandParentContract.method(): bool
+  {
+    log('GrandParentContract.method called')
+    return true
+  }
 }
 
-contract ChildContract extends (test_cases.inheritance.parent.ParentContract, test_cases.inheritance.grandparent.GrandParentContract, test_cases.inheritance.grandparent.GreatGrandParentContract)
+contract ChildContract
 {
-  subroutine method(): bool
+  method_resolution_order: (
+    test_cases.inheritance.parent.ParentContract,
+    test_cases.inheritance.grandparent.GrandParentContract,
+    test_cases.inheritance.grandparent.GreatGrandParentContract,
+  )
+  
+  subroutine test_cases.inheritance.grandparent.GreatGrandParentContract.approval_program(): bool
+  {
+    return this::method()
+  }
+  
+  subroutine test_cases.inheritance.grandparent.GreatGrandParentContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.inheritance.child.ChildContract.method(): bool
   {
     log('ChildContract.method called')
     return test_cases.inheritance.grandparent.GrandParentContract::method()
+  }
+  
+  subroutine test_cases.inheritance.parent.ParentContract.method(): bool
+  {
+    log('ParentContract.method called')
+    return super::method()
+  }
+  
+  subroutine test_cases.inheritance.grandparent.GreatGrandParentContract.method(): bool
+  {
+    log('GrandParentContract.method called')
+    return true
   }
 }

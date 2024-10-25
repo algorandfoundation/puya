@@ -1,15 +1,43 @@
 contract Reference
 {
+  method_resolution_order: (
+  )
   globals {
     ['asa']: asset
   }
   
-  constructor()
+  subroutine test_cases.asset.contract.Reference.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    if (txn<NumAppArgs>() == 1u) {
+      if (txna<ApplicationArgs, 0>() == hex<"6F70745F696E">) {
+        asset: asset = txna<Assets, 0>()
+        this::opt_into_asset(asset)
+      } else {
+        if (txna<ApplicationArgs, 0>() == hex<"69735F6F707465645F696E">) {
+          asset: asset = txna<Assets, 0>()
+          this::is_opted_asset(asset)
+        } else {
+          assert(false, comment="Expected opt_in or is_opted_in")
+        }
+      }
+    }
+    return true
+  }
+  
+  subroutine test_cases.asset.contract.Reference.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.asset.contract.Reference.__init__(): void
   {
     GlobalState['asa']: asset = reinterpret_cast<asset>(0u)
   }
   
-  approval_program(): bool
+  subroutine test_cases.asset.contract.Reference.approval_program(): bool
   {
     if (txn<NumAppArgs>() == 1u) {
       if (txna<ApplicationArgs, 0>() == hex<"6F70745F696E">) {
@@ -27,12 +55,7 @@ contract Reference
     return true
   }
   
-  clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine opt_into_asset(asset: asset): void
+  subroutine test_cases.asset.contract.Reference.opt_into_asset(asset: asset): void
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
     assert(!(reinterpret_cast<bool>(GlobalState['asa'])), comment="ASA already opted in")
@@ -45,7 +68,7 @@ contract Reference
     itxn_submit()
   }
   
-  subroutine is_opted_asset(asset: asset): void
+  subroutine test_cases.asset.contract.Reference.is_opted_asset(asset: asset): void
   {
     assert(GlobalState['asa'] == asset, comment="asset self.asa == asset")
     assert(checked_maybe(asset_params_get<AssetTotal>(asset)) == 10000000u, comment="total")

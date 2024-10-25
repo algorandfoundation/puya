@@ -1,18 +1,18 @@
 contract test_cases.inner_transactions.contract.MyContract:
     program approval:
         subroutine test_cases.inner_transactions.contract.MyContract.approval_program() -> bool:
-            block@0: // L26
-                let app_id%0#0: uint64 = (txn ApplicationID)
-                goto app_id%0#0 ? block@2 : block@1
-            block@1: // on_create_L23
+            block@0: // L1
+                let tmp%0#0: bool = (txn ApplicationID)
+                goto tmp%0#0 ? block@2 : block@1
+            block@1: // call __init___L1
                 test_cases.inner_transactions.contract.MyContract.__init__()
                 goto block@2
-            block@2: // entrypoint_L23
-                let tmp%0#0: uint64 = (txn NumAppArgs)
-                goto tmp%0#0 ? block@3 : block@10
+            block@2: // after_if_else_L1
+                let tmp%1#0: uint64 = (txn NumAppArgs)
+                goto tmp%1#0 ? block@3 : block@10
             block@3: // if_body_L28
-                let tmp%2#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%2#0 {0x7465737431 => block@4, 0x7465737432 => block@5, 0x7465737433 => block@6, 0x7465737434 => block@7, * => return 1u}
+                let tmp%3#0: bytes = (txna ApplicationArgs 0)
+                switch tmp%3#0 {0x7465737431 => block@4, 0x7465737432 => block@5, 0x7465737433 => block@6, 0x7465737434 => block@7, * => return 1u}
             block@4: // switch_case_0_L30
                 test_cases.inner_transactions.contract.MyContract.test1()
                 goto block@10
@@ -27,6 +27,11 @@ contract test_cases.inner_transactions.contract.MyContract:
                 goto block@10
             block@10: // after_if_else_L27
                 return 1u
+        
+        subroutine test_cases.inner_transactions.contract.MyContract.__init__() -> void:
+            block@0: // L23
+                (app_global_put "name" 0x)
+                return 
         
         subroutine test_cases.inner_transactions.contract.MyContract.test1() -> void:
             block@0: // L42
@@ -419,11 +424,6 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let tmp%13#0: bytes = ((itxnas ClearStateProgramPages) 0u)
                 let tmp%14#0: bool = (== tmp%13#0 0x098101)
                 (assert tmp%14#0) // expected clear_state_pages
-                return 
-        
-        subroutine test_cases.inner_transactions.contract.MyContract.__init__() -> void:
-            block@0: // L23
-                (app_global_put "name" 0x)
                 return 
     
     program clear-state:

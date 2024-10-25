@@ -2,14 +2,35 @@
 
 examples.auction.contract.Auction.approval_program:
     intcblock 0 1 4
-    bytecblock "auction_end" "previous_bid" "previous_bidder" "asa" "asa_amount" "claim"
+    bytecblock "auction_end" "previous_bid" "previous_bidder" "asa_amount" "asa" "claim"
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// examples.auction.contract.Auction.__init__() -> void:
+__init__:
+    proto 0 0
+    bytec_0 // "auction_end"
+    intc_0 // 0
+    app_global_put
+    bytec_1 // "previous_bid"
+    intc_0 // 0
+    app_global_put
+    bytec_3 // "asa_amount"
+    intc_0 // 0
+    app_global_put
+    bytec 4 // "asa"
+    intc_0 // 0
+    app_global_put
+    bytec_2 // "previous_bidder"
+    global ZeroAddress
+    app_global_put
+    retsub
 
 
 // examples.auction.contract.Auction.__puya_arc4_router__() -> uint64:
@@ -130,12 +151,12 @@ opt_into_asset:
     ==
     assert // Only creator can opt in to ASA
     intc_0 // 0
-    bytec_3 // "asa"
+    bytec 4 // "asa"
     app_global_get_ex
     assert // check self.asa exists
     !
     assert // ASA already opted in
-    bytec_3 // "asa"
+    bytec 4 // "asa"
     frame_dig -1
     app_global_put
     itxn_begin
@@ -171,7 +192,7 @@ start_auction:
     assert // axfer must transfer to this app
     frame_dig -1
     gtxns AssetAmount
-    bytec 4 // "asa_amount"
+    bytec_3 // "asa_amount"
     swap
     app_global_put
     global LatestTimestamp
@@ -293,7 +314,7 @@ claim_asset:
     app_global_get_ex
     assert // check self.previous_bidder exists
     intc_0 // 0
-    bytec 4 // "asa_amount"
+    bytec_3 // "asa_amount"
     app_global_get_ex
     assert // check self.asa_amount exists
     itxn_field AssetAmount
@@ -306,25 +327,4 @@ claim_asset:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    retsub
-
-
-// examples.auction.contract.Auction.__init__() -> void:
-__init__:
-    proto 0 0
-    bytec_0 // "auction_end"
-    intc_0 // 0
-    app_global_put
-    bytec_1 // "previous_bid"
-    intc_0 // 0
-    app_global_put
-    bytec 4 // "asa_amount"
-    intc_0 // 0
-    app_global_put
-    bytec_3 // "asa"
-    intc_0 // 0
-    app_global_put
-    bytec_2 // "previous_bidder"
-    global ZeroAddress
-    app_global_put
     retsub

@@ -4,12 +4,25 @@ test_cases.compile.apps.HelloBase.approval_program:
     intcblock 0 1
     bytecblock "greeting"
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// test_cases.compile.apps.HelloBase.__init__() -> void:
+__init__:
+    // compile/apps.py:22
+    // def __init__(self) -> None:
+    proto 0 0
+    // compile/apps.py:23
+    // self.greeting = String()
+    bytec_0 // "greeting"
+    pushbytes ""
+    app_global_put
+    retsub
 
 
 // test_cases.compile.apps.HelloBase.__puya_arc4_router__() -> uint64:
@@ -81,24 +94,13 @@ __puya_arc4_router___bare_routing@6:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
     txn OnCompletion
-    intc_0 // 0
     pushint 4 // 4
+    intc_0 // 0
     uncover 2
-    match __puya_arc4_router_____algopy_default_create@7 __puya_arc4_router___update@8
+    match __puya_arc4_router___update@7 __puya_arc4_router_____algopy_default_create@8
     b __puya_arc4_router___switch_case_default@9
 
-__puya_arc4_router_____algopy_default_create@7:
-    // compile/apps.py:20
-    // class HelloBase(ARC4Contract):
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    assert // is creating
-    callsub __algopy_default_create
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___update@8:
+__puya_arc4_router___update@7:
     // compile/apps.py:29
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID
@@ -109,6 +111,15 @@ __puya_arc4_router___update@8:
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     // def update(self) -> None:
     callsub update
+    intc_1 // 1
+    retsub
+
+__puya_arc4_router_____algopy_default_create@8:
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    assert // is creating
+    callsub __algopy_default_create
     intc_1 // 1
     retsub
 
@@ -149,14 +160,6 @@ greet:
     retsub
 
 
-// test_cases.compile.apps.HelloBase.__algopy_default_create() -> void:
-__algopy_default_create:
-    // compile/apps.py:20
-    // class HelloBase(ARC4Contract):
-    proto 0 0
-    retsub
-
-
 // test_cases.compile.apps.HelloBase.update() -> void:
 update:
     // compile/apps.py:29-30
@@ -166,14 +169,7 @@ update:
     retsub
 
 
-// test_cases.compile.apps.HelloBase.__init__() -> void:
-__init__:
-    // compile/apps.py:22
-    // def __init__(self) -> None:
+// test_cases.compile.apps.HelloBase.__algopy_default_create() -> void:
+__algopy_default_create:
     proto 0 0
-    // compile/apps.py:23
-    // self.greeting = String()
-    bytec_0 // "greeting"
-    pushbytes ""
-    app_global_put
     retsub

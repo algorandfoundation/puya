@@ -103,5 +103,5 @@ def _build_ir_and_return_errors(expr: awst.Expression) -> list[str]:
         body=[],
     )
     with logging_context() as log_ctx:
-        FunctionIRBuilder.build_body(ctx, function, subroutine, on_create=None)
+        FunctionIRBuilder.build_body(ctx, function, subroutine)
     return [log.message for log in log_ctx.logs if log.level == LogLevel.error]

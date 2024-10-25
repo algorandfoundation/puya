@@ -4,10 +4,10 @@ test_cases.tuple_support.tuple_support.TupleSupport.approval_program:
     intcblock 1 2 0 4
     bytecblock "state"
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     pushints 101 102 103 // 101, 102, 103
     callsub add_three_values
     itob
@@ -71,6 +71,15 @@ main_entrypoint@2:
     log
     pushint 3 // 3
     return
+
+
+// test_cases.tuple_support.tuple_support.TupleSupport.__init__() -> void:
+__init__:
+    proto 0 0
+    bytec_0 // "state"
+    intc_2 // 0
+    app_global_put
+    retsub
 
 
 // test_cases.tuple_support.tuple_support.add_three_values(values.0: uint64, values.1: uint64, values.2: uint64) -> uint64:
@@ -216,13 +225,4 @@ get_uint_with_side_effect:
     pushbytes "get_uint_with_side_effect called"
     log
     intc_3 // 4
-    retsub
-
-
-// test_cases.tuple_support.tuple_support.TupleSupport.__init__() -> void:
-__init__:
-    proto 0 0
-    bytec_0 // "state"
-    intc_2 // 0
-    app_global_put
     retsub

@@ -2,14 +2,23 @@
 
 test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
     intcblock 1 2 0 3
-    bytecblock "Hi" "build_nested_call_count" 0x151f7c75 "There" 0x000c "hi"
+    bytecblock "build_nested_call_count" "Hi" 0x151f7c75 "There" 0x000c "hi"
     txn ApplicationID
-    bnz main_entrypoint@2
+    bnz main_after_if_else@2
     callsub __init__
 
-main_entrypoint@2:
+main_after_if_else@2:
     callsub __puya_arc4_router__
     return
+
+
+// test_cases.tuple_support.nested_tuples.NestedTuples.__init__() -> void:
+__init__:
+    proto 0 0
+    bytec_0 // "build_nested_call_count"
+    intc_2 // 0
+    app_global_put
+    retsub
 
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__() -> uint64:
@@ -284,27 +293,27 @@ __puya_arc4_router___after_if_else@12:
 // test_cases.tuple_support.nested_tuples.NestedTuples.run_tests() -> uint64:
 run_tests:
     proto 0 1
-    bytec_0 // "Hi"
+    bytec_1 // "Hi"
     bytec_3 // "There"
     callsub test_swap
     swap
     bytec_3 // "There"
     ==
     swap
-    bytec_0 // "Hi"
+    bytec_1 // "Hi"
     ==
     &&
     assert
-    bytec_0 // "Hi"
+    bytec_1 // "Hi"
     intc_2 // 0
     intc_1 // 2
     intc_0 // 1
-    bytec_0 // "Hi"
+    bytec_1 // "Hi"
     bytec_3 // "There"
     dup
     callsub test_rearrange
     uncover 4
-    bytec_0 // "Hi"
+    bytec_1 // "Hi"
     ==
     uncover 4
     !
@@ -524,7 +533,7 @@ test_nested_iteration_after_for@12:
 // test_cases.tuple_support.nested_tuples.NestedTuples.test_single_evaluation_nested() -> void:
 test_single_evaluation_nested:
     proto 0 0
-    bytec_1 // "build_nested_call_count"
+    bytec_0 // "build_nested_call_count"
     intc_2 // 0
     app_global_put
     callsub build_nested
@@ -533,7 +542,7 @@ test_single_evaluation_nested:
     ==
     assert
     intc_2 // 0
-    bytec_1 // "build_nested_call_count"
+    bytec_0 // "build_nested_call_count"
     app_global_get_ex
     assert // check self.build_nested_call_count exists
     intc_0 // 1
@@ -546,12 +555,12 @@ test_single_evaluation_nested:
 build_nested:
     proto 0 3
     intc_2 // 0
-    bytec_1 // "build_nested_call_count"
+    bytec_0 // "build_nested_call_count"
     app_global_get_ex
     assert // check self.build_nested_call_count exists
     intc_0 // 1
     +
-    bytec_1 // "build_nested_call_count"
+    bytec_0 // "build_nested_call_count"
     swap
     app_global_put
     bytec 5 // "hi"
@@ -586,13 +595,4 @@ nested_named_tuple_params:
     frame_dig -3
     frame_dig -2
     frame_dig -1
-    retsub
-
-
-// test_cases.tuple_support.nested_tuples.NestedTuples.__init__() -> void:
-__init__:
-    proto 0 0
-    bytec_1 // "build_nested_call_count"
-    intc_2 // 0
-    app_global_put
     retsub

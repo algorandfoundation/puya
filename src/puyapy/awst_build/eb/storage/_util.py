@@ -1,12 +1,7 @@
-import abc
-import typing
-
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     BoxValueExpression,
-    BytesConstant,
-    BytesEncoding,
     CheckedMaybe,
     Expression,
     IntrinsicCall,
@@ -17,11 +12,9 @@ from puya.awst.nodes import (
     UInt64BinaryOperator,
     UInt64Constant,
 )
-from puya.models import ContractReference
 from puya.parse import SourceLocation
 
 from puyapy.awst_build import intrinsic_factory, pytypes
-from puyapy.awst_build.contract_data import AppStorageDeclaration
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._utils import resolve_negative_literal_index
 from puyapy.awst_build.eb.bytes import BytesExpressionBuilder
@@ -30,7 +23,6 @@ from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
     LiteralBuilder,
     NodeBuilder,
-    StorageProxyConstructorResult,
 )
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 
@@ -167,40 +159,3 @@ def _eval_slice_component(
             source_location=location,
         )
     )
-
-
-class BoxProxyConstructorResult(StorageProxyConstructorResult, abc.ABC):
-    @typing.override
-    @property
-    def initial_value(self) -> None:
-        return None
-
-    @typing.override
-    def build_definition(
-        self,
-        member_name: str,
-        defined_in: ContractReference,
-        typ: pytypes.PyType,
-        location: SourceLocation,
-    ) -> AppStorageDeclaration:
-        key_override = self.resolve()
-        if not isinstance(key_override, BytesConstant):
-            logger.error(
-                f"assigning {typ} to a member variable requires a constant value for"
-                f" key{'_prefix' if isinstance(typ, pytypes.StorageMapProxyType) else ''}",
-                location=location,
-            )
-            key_override = BytesConstant(
-                value=b"0",
-                wtype=wtypes.box_key,
-                encoding=BytesEncoding.unknown,
-                source_location=key_override.source_location,
-            )
-        return AppStorageDeclaration(
-            description=None,
-            member_name=member_name,
-            key_override=key_override,
-            source_location=location,
-            typ=typ,
-            defined_in=defined_in,
-        )
