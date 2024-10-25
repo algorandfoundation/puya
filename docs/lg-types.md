@@ -201,8 +201,11 @@ if a:
 
 ### Account
 
-[`Account`](#algopy.Account) represents a logical Account, backed by a `bytes[]` representing the
-public key. It has various account related methods that can be called from the type.
+[`Account`](#algopy.Account) represents a logical Account, backed by a `bytes[32]` representing the
+bytes of the public key (without the checksum). It has various account related methods that can be called from the type.
+
+Also see [`algopy.arc4.Address`](#algopy.arc4.Address) if needing to represent the address as a distinct type.
+
 
 ### Asset
 
@@ -230,8 +233,26 @@ In saying that, there are many places where built-in Python types can be used an
 
 ### tuple
 
-Python tuples are supported as arguments to subroutines, local variables, return types. Nested tuples
-are _not_ currently supported.
+Python tuples are supported as arguments to subroutines, local variables, return types.
+
+### typing.NamedTuple
+
+Python named tuples are also supported using [`typing.NamedTuple`](https://docs.python.org/3/library/typing.html#typing.NamedTuple).
+
+```{note}
+Default field values and subclassing a NamedTuple are not supported
+```
+
+```python
+import typing
+
+import algopy
+
+
+class Pair(typing.NamedTuple):
+    foo: algopy.Bytes
+    bar: algopy.Bytes
+```
 
 ### None
 
