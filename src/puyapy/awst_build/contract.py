@@ -12,7 +12,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.nodes import AppStorageDefinition, AppStorageKind, BytesEncoding
+from puya.awst.nodes import AppStorageDefinition, AppStorageKind, BytesEncoding, ContractMethod
 from puya.errors import CodeError, InternalError
 from puya.models import (
     ARC4BareMethodConfig,
@@ -183,50 +183,9 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         elif approval_method.implementation is None:
             pass  # error during method construction, already logged
         else:
-            init_method = self.fragment.resolve_method(_INIT_METHOD)
-            if init_method is None:
-                approval_program = approval_method.implementation
-            else:
-                approval_program = attrs.evolve(
-                    approval_method.implementation,
-                    cref=self.fragment.id,
-                    source_location=_SYNTHETIC_LOCATION,
-                    body=attrs.evolve(
-                        approval_method.implementation.body,
-                        source_location=_SYNTHETIC_LOCATION,
-                        body=[
-                            awst_nodes.IfElse(
-                                source_location=_SYNTHETIC_LOCATION,
-                                condition=awst_nodes.Not(
-                                    _SYNTHETIC_LOCATION,
-                                    intrinsic_factory.txn(
-                                        "ApplicationID", wtypes.bool_wtype, _SYNTHETIC_LOCATION
-                                    ),
-                                ),
-                                if_branch=awst_nodes.Block(
-                                    body=[
-                                        awst_nodes.ExpressionStatement(
-                                            expr=awst_nodes.SubroutineCallExpression(
-                                                wtype=wtypes.void_wtype,
-                                                source_location=_SYNTHETIC_LOCATION,
-                                                args=[],
-                                                target=awst_nodes.InstanceMethodTarget(
-                                                    member_name=_INIT_METHOD
-                                                ),
-                                            )
-                                        )
-                                    ],
-                                    comment="call __init__",
-                                    source_location=_SYNTHETIC_LOCATION,
-                                ),
-                                else_branch=None,
-                            ),
-                            # TODO: once method inlining is supported, call this as
-                            #       a subroutine instead of this body inlining
-                            *approval_method.implementation.body.body,
-                        ],
-                    ),
-                )
+            approval_program = approval_method.implementation
+            if self.fragment.resolve_method(_INIT_METHOD) is not None:
+                approval_program = _insert_init_call_on_create(self.fragment.id, approval_program)
 
         clear_method = self.fragment.resolve_method(constants.CLEAR_STATE_METHOD)
         if clear_method is None or clear_method.is_trivial:
@@ -563,6 +522,46 @@ class _ContractFragment(_UserContractBase):
             if c.options and c.options.scratch_slot_reservations
             for num in c.options.scratch_slot_reservations
         )
+
+
+def _insert_init_call_on_create(
+    current_contract: ContractReference, approval_method: ContractMethod
+) -> ContractMethod:
+    call_init = awst_nodes.Block(
+        comment="call __init__",
+        body=[
+            awst_nodes.ExpressionStatement(
+                expr=awst_nodes.SubroutineCallExpression(
+                    target=awst_nodes.InstanceMethodTarget(member_name=_INIT_METHOD),
+                    args=[],
+                    wtype=wtypes.void_wtype,
+                    source_location=_SYNTHETIC_LOCATION,
+                )
+            )
+        ],
+        source_location=_SYNTHETIC_LOCATION,
+    )
+    call_init_on_create = awst_nodes.IfElse(
+        condition=awst_nodes.Not(
+            expr=intrinsic_factory.txn("ApplicationID", wtypes.bool_wtype, _SYNTHETIC_LOCATION),
+            source_location=_SYNTHETIC_LOCATION,
+        ),
+        if_branch=call_init,
+        else_branch=None,
+        source_location=_SYNTHETIC_LOCATION,
+    )
+    return attrs.evolve(
+        approval_method,
+        cref=current_contract,
+        body=attrs.evolve(
+            approval_method.body,
+            # TODO: once method inlining is supported, call this as
+            #       a subroutine instead of this body inlining
+            body=[call_init_on_create, *approval_method.body.body],
+            source_location=_SYNTHETIC_LOCATION,
+        ),
+        source_location=_SYNTHETIC_LOCATION,
+    )
 
 
 def _build_resolved_mro(
