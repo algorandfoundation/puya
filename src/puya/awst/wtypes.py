@@ -257,17 +257,17 @@ class WTuple(WType):
 class ARC4Type(WType):
     scalar_type: typing.Literal[AVMType.bytes] = attrs.field(default=AVMType.bytes, init=False)
     arc4_name: str = attrs.field(eq=False)  # exclude from equality in case of aliasing
-    decode_type: WType | None
+    native_type: WType | None
 
     def can_encode_type(self, wtype: WType) -> bool:
-        return wtype == self.decode_type
+        return wtype == self.native_type
 
 
 arc4_bool_wtype: typing.Final = ARC4Type(
     name="arc4.bool",
     arc4_name="bool",
     immutable=True,
-    decode_type=bool_wtype,
+    native_type=bool_wtype,
 )
 
 
@@ -275,7 +275,7 @@ arc4_bool_wtype: typing.Final = ARC4Type(
 @attrs.frozen(kw_only=True)
 class ARC4UIntN(ARC4Type):
     immutable: bool = attrs.field(default=True, init=False)
-    decode_type: WType = attrs.field()
+    native_type: WType = attrs.field(default=biguint_wtype, init=False)
     n: int = attrs.field()
     arc4_name: str = attrs.field(eq=False)
     name: str = attrs.field(init=False)
@@ -287,22 +287,6 @@ class ARC4UIntN(ARC4Type):
             raise CodeError("Bit size must be multiple of 8", self.source_location)
         if not (8 <= n <= 512):
             raise CodeError("Bit size must be between 8 and 512 inclusive", self.source_location)
-
-    @decode_type.validator
-    def _decode_type_validator(self, _attribute: object, decode_type: WType) -> None:
-        if decode_type == uint64_wtype:
-            if self.n > 64:
-                raise InternalError(
-                    f"ARC-4 UIntN type received decode type {decode_type},"
-                    f" which is smaller than size {self.n}",
-                    self.source_location,
-                )
-        elif decode_type == biguint_wtype:
-            pass
-        else:
-            raise InternalError(
-                f"Unhandled decode_type for ARC-4 UIntN: {decode_type}", self.source_location
-            )
 
     @arc4_name.default
     def _arc4_name(self) -> str:
@@ -325,7 +309,7 @@ class ARC4UFixedNxM(ARC4Type):
     arc4_name: str = attrs.field(init=False, eq=False)
     name: str = attrs.field(init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
-    decode_type = attrs.field(default=None, init=False)
+    native_type: None = attrs.field(default=None, init=False)
 
     @arc4_name.default
     def _arc4_name(self) -> str:
@@ -365,7 +349,7 @@ class ARC4Tuple(ARC4Type):
     name: str = attrs.field(init=False)
     arc4_name: str = attrs.field(init=False, eq=False)
     immutable: bool = attrs.field(init=False)
-    decode_type: WTuple = attrs.field(init=False)
+    native_type: WTuple = attrs.field(init=False)
 
     @name.default
     def _name(self) -> str:
@@ -379,8 +363,8 @@ class ARC4Tuple(ARC4Type):
     def _immutable(self) -> bool:
         return all(typ.immutable for typ in self.types)
 
-    @decode_type.default
-    def _decode_type(self) -> WTuple:
+    @native_type.default
+    def _native_type(self) -> WTuple:
         return WTuple(self.types, self.source_location)
 
     def can_encode_type(self, wtype: WType) -> bool:
@@ -409,7 +393,7 @@ def _expect_arc4_type(wtype: WType) -> ARC4Type:
 @attrs.frozen(kw_only=True)
 class ARC4Array(ARC4Type):
     element_type: ARC4Type = attrs.field(converter=_expect_arc4_type)
-    decode_type: WType | None = None
+    native_type: WType | None = None
     immutable: bool = False
 
 
@@ -469,7 +453,7 @@ class ARC4Struct(ARC4Type):
     immutable: bool = attrs.field()
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
     arc4_name: str = attrs.field(init=False, eq=False)
-    decode_type: WType | None = None
+    native_type: None = attrs.field(default=None, init=False)
 
     @immutable.default
     def _immutable(self) -> bool:
@@ -497,14 +481,13 @@ class ARC4Struct(ARC4Type):
 arc4_byte_alias: typing.Final = ARC4UIntN(
     n=8,
     arc4_name="byte",
-    decode_type=uint64_wtype,
     source_location=None,
 )
 
 arc4_string_alias: typing.Final = ARC4DynamicArray(
     arc4_name="string",
     element_type=arc4_byte_alias,
-    decode_type=string_wtype,
+    native_type=string_wtype,
     immutable=True,
     source_location=None,
 )
@@ -512,7 +495,7 @@ arc4_string_alias: typing.Final = ARC4DynamicArray(
 arc4_address_alias: typing.Final = ARC4StaticArray(
     arc4_name="address",
     element_type=arc4_byte_alias,
-    decode_type=account_wtype,
+    native_type=account_wtype,
     array_size=32,
     immutable=True,
     source_location=None,

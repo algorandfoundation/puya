@@ -20,6 +20,8 @@ Decimal: t.TypeAlias = UFixedNxM[t.Literal[64], t.Literal[10]]
 
 ARC4BigUInt: t.TypeAlias = BigUIntN[t.Literal[128]]
 
+ARC4BiggieSmalls: t.TypeAlias = BigUIntN[t.Literal[32]]
+
 
 sixty_four_byte_num = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF  # noqa: E501
 
@@ -103,6 +105,8 @@ class Arc4NumericTypesContract(Contract):
         # check UInt64 sub-types are converted properly
         tup = Tuple((ARC4UInt64(OnCompleteAction.ClearState),))
         assert tup[0].native == OnCompleteAction.ClearState
+
+        assert ARC4BiggieSmalls(1).native == BigUInt(1)
 
         return True
 

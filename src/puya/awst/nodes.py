@@ -484,15 +484,18 @@ class ArrayExtend(Expression):
 
 @attrs.frozen
 class ARC4Decode(Expression):
-    value: Expression = attrs.field()
+    value: Expression = attrs.field(
+        validator=expression_has_wtype(
+            wtypes.arc4_bool_wtype,
+            wtypes.ARC4UIntN,
+            wtypes.ARC4Tuple,
+            wtypes.ARC4DynamicArray,  # only if element type is bytes for now
+        )
+    )
 
     @value.validator
     def _value_wtype_validator(self, _attribute: object, value: Expression) -> None:
-        if not isinstance(value.wtype, wtypes.ARC4Type):
-            raise InternalError(
-                f"ARC4Decode should only be used with expressions of ARC4Type, got {value.wtype}",
-                self.source_location,
-            )
+        assert isinstance(value.wtype, wtypes.ARC4Type)  # validated by `value`
         if not value.wtype.can_encode_type(self.wtype):
             raise InternalError(
                 f"ARC4Decode from {value.wtype} should have non ARC4 target type {self.wtype}",
