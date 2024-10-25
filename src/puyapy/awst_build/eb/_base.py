@@ -7,7 +7,6 @@ from puya.awst.nodes import (
     BinaryBooleanOperator,
     CompileTimeConstantExpression,
     Expression,
-    FieldExpression,
     Lvalue,
     SingleEvaluation,
     Statement,
@@ -220,13 +219,7 @@ def _validate_lvalue(typ: pytypes.PyType, resolved: Expression) -> Lvalue:
         raise CodeError(
             "expression is not valid as an assignment target", resolved.source_location
         )
-    if isinstance(resolved, FieldExpression):
-        if resolved.base.wtype.immutable:
-            raise CodeError(
-                "expression is not valid as an assignment target - object is immutable",
-                resolved.source_location,
-            )
-    elif isinstance(resolved, TupleExpression):
+    if isinstance(resolved, TupleExpression):
         assert isinstance(typ, pytypes.TupleLikeType)
         for item_typ, item in zip(typ.items, resolved.items, strict=True):
             _validate_lvalue(item_typ, item)

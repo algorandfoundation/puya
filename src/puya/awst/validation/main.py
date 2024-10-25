@@ -1,6 +1,7 @@
 from puya.awst import nodes as awst_nodes
 from puya.awst.validation.arc4_copy import ARC4CopyValidator
 from puya.awst.validation.base_invoker import BaseInvokerValidator
+from puya.awst.validation.immutable import ImmutableValidator
 from puya.awst.validation.inner_transactions import (
     InnerTransactionsValidator,
     InnerTransactionUsedInALoopValidator,
@@ -20,3 +21,4 @@ def validate_awst(module: awst_nodes.AWST) -> None:
     BaseInvokerValidator.validate(module)
     StorageTypesValidator.validate(module)
     LabelsValidator.validate(module)
+    ImmutableValidator.validate(module)

@@ -107,12 +107,12 @@ contract Arc4StringTypesContract
     world: arc4.dynamic_array<arc4.uint8> = arc4_encode('World!', arc4.dynamic_array<arc4.uint8>)
     assert(arc4_encode('Hello World!', arc4.dynamic_array<arc4.uint8>) == hello + space + world)
     thing: arc4.dynamic_array<arc4.uint8> = arc4_encode('hi', arc4.dynamic_array<arc4.uint8>)
-    thing.extend(thing)
+    thing: arc4.dynamic_array<arc4.uint8> = thing + thing
     assert(thing == arc4_encode('hihi', arc4.dynamic_array<arc4.uint8>))
     value: arc4.dynamic_array<arc4.uint8> = arc4_encode('a', arc4.dynamic_array<arc4.uint8>) + arc4_encode('b', arc4.dynamic_array<arc4.uint8>) + arc4_encode('cd', arc4.dynamic_array<arc4.uint8>)
-    value.extend(arc4_encode('e', arc4.dynamic_array<arc4.uint8>))
-    value.extend(arc4_encode('f', arc4.dynamic_array<arc4.uint8>))
-    value.extend(arc4_encode('g', arc4.dynamic_array<arc4.uint8>))
+    value: arc4.dynamic_array<arc4.uint8> = value + arc4_encode('e', arc4.dynamic_array<arc4.uint8>)
+    value: arc4.dynamic_array<arc4.uint8> = value + arc4_encode('f', arc4.dynamic_array<arc4.uint8>)
+    value: arc4.dynamic_array<arc4.uint8> = value + arc4_encode('g', arc4.dynamic_array<arc4.uint8>)
     assert(arc4_encode('abcdefg', arc4.dynamic_array<arc4.uint8>) == value)
     assert(arc4_decode(arc4_encode('', arc4.dynamic_array<arc4.uint8>), string) == '')
     assert(arc4_decode(arc4_encode('hello', arc4.dynamic_array<arc4.uint8>), string) == 'hello')
@@ -667,8 +667,8 @@ contract Arc4AddressContract
     assert(reinterpret_cast<bytes>(zero_address) == reinterpret_cast<bytes>(global<ZeroAddress>()))
     some_address: arc4.static_array<arc4.uint8, 32> = Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA")
     assert(some_address == Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"))
-    some_address[0u]: arc4.uint8 = 123_arc4u8
-    assert(some_address != Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"))
+    address_copy: arc4.static_array<arc4.uint8, 32> = some_address
+    assert(some_address == address_copy)
     return true
   }
   

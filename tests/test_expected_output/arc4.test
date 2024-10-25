@@ -541,3 +541,15 @@ def constant_bool() -> None:
     assert MyStruct(x=arc4.UInt512(0)) ## E: expression is always True
 
     assert arc4.Tuple((arc4.Bool(False),)) ## E: expression is always True
+
+## case: test_address_immutable
+from algopy import *
+
+class MyTest(ARC4Contract):
+    @arc4.abimethod
+    def test(self) -> None:
+        some_address = arc4.Address()
+
+        this_is_ok = some_address[0]
+        assert this_is_ok == 0
+        some_address[0] = arc4.Byte(123) ## E: expression is not valid as an assignment target - object is immutable

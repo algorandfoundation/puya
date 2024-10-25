@@ -8,9 +8,8 @@ from puya.awst.nodes import (
     ARC4Decode,
     ARC4Encode,
     ArrayConcat,
-    ArrayExtend,
+    AssignmentStatement,
     Expression,
-    ExpressionStatement,
     Statement,
     StringConstant,
 )
@@ -104,13 +103,15 @@ class ARC4StringExpressionBuilder(
         else:
             value = expect.argument_of_type_else_dummy(rhs, self.pytype).resolve()
 
-        return ExpressionStatement(
-            ArrayExtend(
-                base=self.resolve(),
-                other=value,
+        return AssignmentStatement(
+            target=self.resolve_lvalue(),
+            value=ArrayConcat(
+                left=self.resolve(),
+                right=value,
                 wtype=wtypes.arc4_string_alias,
                 source_location=location,
-            )
+            ),
+            source_location=location,
         )
 
     @typing.override
