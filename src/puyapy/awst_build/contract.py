@@ -286,7 +286,6 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             logger.error(f"{method_name} should take a self parameter", location=func_loc)
 
         dec_by_fullname = get_decorators_by_fullname(self.context, decorator) if decorator else {}
-        dec_by_fullname.pop("abc.abstractmethod", None)  # TODO: does this appear?
         subroutine_dec = dec_by_fullname.pop(constants.SUBROUTINE_HINT, None)
         abimethod_dec = dec_by_fullname.pop(constants.ABIMETHOD_DECORATOR, None)
         baremethod_dec = dec_by_fullname.pop(constants.BAREMETHOD_DECORATOR, None)
