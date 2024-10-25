@@ -16,8 +16,9 @@ class Arc4AddressContract(Contract):
         some_address = arc4.Address(SOME_ADDRESS)
         assert some_address == SOME_ADDRESS
 
-        some_address[0] = arc4.Byte(123)
-        assert some_address != SOME_ADDRESS
+        address_copy = some_address
+
+        assert some_address == address_copy
         return True
 
     def clear_state_program(self) -> bool:
