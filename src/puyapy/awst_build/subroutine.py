@@ -1182,8 +1182,11 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         ):
             raise CodeError("the only dunder method supported for calling is init", super_loc)
         for base in self.contract_method_info.fragment.mro:
-            base_sym_typ = base.symbols.get(super_expr.name)
-            if base_sym_typ is not None:
+            try:
+                base_sym_typ = base.symbols[super_expr.name]
+            except KeyError:
+                pass
+            else:
                 if not isinstance(base_sym_typ, pytypes.FuncType):
                     raise CodeError("super() is only supported for calling functions", super_loc)
                 func_type = base_sym_typ
