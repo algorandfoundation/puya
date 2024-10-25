@@ -109,6 +109,15 @@ from algopy import arc4
 FourBytes: t.TypeAlias = arc4.StaticArray[arc4.Byte, t.Literal[4]]
 ```
 
+
+### Address
+**Type:** `algopy.arc4.Address`  
+**Encoding:** A byte array 32 bytes long
+**Native equivalent:** [`algopy.Account`](#algopy.Account)  
+
+Address represents an Algorand address's public key, and can be used instead of `algopy.Account` when needing to
+reference an address in an ARC4 struct, tuple or return type. It is a subclass of `arc4.StaticArray[arc4.Byte, typing.Literal[32]]`
+
 ### Dynamic arrays
 
 **Type:** `algopy.arc4.DynamicArray`  
@@ -138,9 +147,11 @@ ARC4 Tuples are immutable statically sized arrays of mixed item types. Item type
 
 **Type:** `algopy.arc4.Struct`  
 **Encoding:** See [ARC4 Container Packing](#ARC4-Container-Packing)  
-**Native equivalent:** _none_  
+**Native equivalent:** `typing.NamedTuple`
 
-ARC4 Structs are mutable named tuples. Items can be accessed and mutated via names instead of indexes.
+ARC4 Structs are named tuples. The class keyword `frozen` can be used to indicate if a struct can be mutated. 
+Items can be accessed and mutated via names instead of indexes. Structs do not have a `.native` property,
+but a NamedTuple can be used in ABI methods are will be encoded/decode to an ARC4 struct automatically.
 
 ```python
 import typing
@@ -149,7 +160,7 @@ from algopy import arc4
 
 Decimal: typing.TypeAlias = arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
 
-class Vector(arc4.Struct, kw_only=True):
+class Vector(arc4.Struct, kw_only=True, frozen=True):
     x: Decimal
     y: Decimal
 ```
@@ -200,7 +211,16 @@ class Reference(ARC4Contract):
         ...
 
 ```
+### Mutability
 
+To ensure semantic compatability the compiler will also check for any usages of mutable ARC4 types (arrays and structs) and ensure that any additional references are copied using the `.copy()` method.
+
+Python values are passed by reference, and when an object (eg. an array or struct) is mutated in one place, all references to that object see the mutated version. In Python this is managed via the heap. 
+In Algorand Python these mutable values are instead stored on the stack, so when an additional reference is made (i.e. by assigning to another variable) a copy is added to the stack.
+Which means if one reference is mutated, the other references would not see the change.
+In order to keep the semantics the same, the compiler forces the addition of `.copy()` each time a new reference to the same object to match what will happen on the AVM.
+
+Struct types can be indicated as `frozen` which will eliminate the need for a `.copy()` as long as the struct also contains no mutable fields (such as arrays or another mutable struct)
 
 ## Typed clients
 
