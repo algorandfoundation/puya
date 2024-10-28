@@ -119,21 +119,18 @@ class UIntNExpressionBuilder(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = other.resolve_literal(UIntNTypeBuilder(self.pytype, other.source_location))
-        match other.pytype:
-            case pytypes.BigUIntType:
-                other_expr = other.resolve()
-            case pytypes.UInt64Type | pytypes.BoolType:
-                other_expr = intrinsic_factory.itob_as(
-                    other.resolve(), wtypes.biguint_wtype, location
-                )
-            case pytypes.ARC4UIntNType():
-                other_expr = ReinterpretCast(
-                    expr=other.resolve(),
-                    wtype=wtypes.biguint_wtype,
-                    source_location=other.source_location,
-                )
-            case _:
-                return NotImplemented
+        if pytypes.BigUIntType <= other.pytype:
+            other_expr = other.resolve()
+        elif other.pytype.is_type_or_subtype(pytypes.BoolType, pytypes.UInt64Type):
+            other_expr = intrinsic_factory.itob_as(other.resolve(), wtypes.biguint_wtype, location)
+        elif isinstance(other.pytype, pytypes.ARC4UIntNType):
+            other_expr = ReinterpretCast(
+                expr=other.resolve(),
+                wtype=wtypes.biguint_wtype,
+                source_location=other.source_location,
+            )
+        else:
+            return NotImplemented
         cmp_expr = NumericComparisonExpression(
             operator=NumericComparison(op.value),
             lhs=ReinterpretCast(

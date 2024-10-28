@@ -31,11 +31,7 @@ from puyapy.awst_build.eb._utils import (
     resolve_negative_literal_index,
 )
 from puyapy.awst_build.eb.factories import builder_for_instance
-from puyapy.awst_build.eb.interface import (
-    BuilderComparisonOp,
-    InstanceBuilder,
-    NodeBuilder,
-)
+from puyapy.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
 
 logger = log.get_logger(__name__)
 
@@ -65,7 +61,7 @@ class ARC4FromLogBuilder(FunctionBuilder):
     ) -> Expression:
         tmp_value = value.single_eval().resolve()
         arc4_value = intrinsic_factory.extract(
-            tmp_value, start=4, loc=location, result_type=typ.wtype
+            tmp_value, start=4, loc=location, result_type=typ.checked_wtype(location)
         )
         arc4_prefix = intrinsic_factory.extract(tmp_value, start=0, length=4, loc=location)
         arc4_prefix_is_valid = compare_expr_bytes(
@@ -120,15 +116,16 @@ class CopyBuilder(FunctionBuilder):
 def arc4_bool_bytes(
     builder: InstanceBuilder, false_bytes: bytes, location: SourceLocation, *, negate: bool
 ) -> InstanceBuilder:
+    lhs = builder.resolve()
     false_value = BytesConstant(
         value=false_bytes,
         encoding=BytesEncoding.base16,
-        wtype=builder.pytype.wtype,
+        wtype=lhs.wtype,
         source_location=location,
     )
     return compare_expr_bytes(
         op=BuilderComparisonOp.eq if negate else BuilderComparisonOp.ne,
-        lhs=builder.resolve(),
+        lhs=lhs,
         rhs=false_value,
         source_location=location,
     )
@@ -137,7 +134,7 @@ def arc4_bool_bytes(
 class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.ArrayType], ABC):
     @typing.override
     def iterate(self) -> Expression:
-        if not self.pytype.items.wtype.immutable:
+        if not self.pytype.items_wtype.immutable:
             # this case is an error raised during AWST validation
             # adding a front end specific message here to compliment the error message
             # raise across all front ends
@@ -158,7 +155,7 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
         result_expr = IndexExpression(
             base=self.resolve(),
             index=index.resolve(),
-            wtype=self.pytype.items.wtype,
+            wtype=self.pytype.items_wtype,
             source_location=location,
         )
         return builder_for_instance(self.pytype.items, result_expr)
@@ -180,7 +177,7 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
+        return compare_bytes(self=self, op=op, other=other, source_location=location)
 
     @typing.override
     @typing.final

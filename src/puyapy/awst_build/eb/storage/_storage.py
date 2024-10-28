@@ -168,7 +168,7 @@ def extract_key_override(
 ) -> Expression | None:
     if key_arg is None:
         return None
-    elif isinstance(key_arg, InstanceBuilder) and key_arg.pytype in (
+    if isinstance(key_arg, InstanceBuilder) and key_arg.pytype.is_type_or_subtype(
         pytypes.StringType,
         pytypes.StrLiteralType,
         pytypes.BytesType,

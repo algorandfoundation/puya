@@ -597,7 +597,7 @@ def _arc4_contract_fragment() -> _UserContractBase:
         name: str,
         body: Sequence[awst_nodes.Statement],
         *,
-        return_type: pytypes.PyType = pytypes.BoolType,
+        return_type: pytypes.RuntimeType = pytypes.BoolType,
     ) -> None:
         result.symbols[name] = pytypes.FuncType(
             name=".".join((_ARC4_CONTRACT_BASE_CREF, name)),
@@ -670,7 +670,7 @@ def _build_symbols_and_state(
         if pytyp and not isinstance(pytyp, pytypes.FuncType):
             definition = None
             if isinstance(pytyp, pytypes.StorageProxyType):
-                wtypes.validate_persistable(pytyp.content.wtype, node_loc)
+                wtypes.validate_persistable(pytyp.content_wtype, node_loc)
                 match pytyp.generic:
                     case pytypes.GenericLocalStateType:
                         kind = AppStorageKind.account_local
@@ -683,13 +683,14 @@ def _build_symbols_and_state(
                     case _:
                         raise InternalError(f"unhandled StorageProxyType: {pytyp}", node_loc)
             elif isinstance(pytyp, pytypes.StorageMapProxyType):
-                wtypes.validate_persistable(pytyp.key.wtype, node_loc)
-                wtypes.validate_persistable(pytyp.content.wtype, node_loc)
+                wtypes.validate_persistable(pytyp.key_wtype, node_loc)
+                wtypes.validate_persistable(pytyp.content_wtype, node_loc)
                 if pytyp.generic != pytypes.GenericBoxMapType:
                     raise InternalError(f"unhandled StorageMapProxyType: {pytyp}", node_loc)
                 kind = AppStorageKind.box
             else:  # global state, direct
-                wtypes.validate_persistable(pytyp.wtype, node_loc)
+                wtype = pytyp.checked_wtype(node_loc)
+                wtypes.validate_persistable(wtype, node_loc)
                 key = awst_nodes.BytesConstant(
                     value=name.encode("utf8"),
                     encoding=BytesEncoding.utf8,
@@ -701,7 +702,7 @@ def _build_symbols_and_state(
                     source_location=node_loc,
                     member_name=name,
                     kind=kind,
-                    storage_wtype=pytyp.wtype,
+                    storage_wtype=wtype,
                     key_wtype=None,
                     key=key,
                     description=None,

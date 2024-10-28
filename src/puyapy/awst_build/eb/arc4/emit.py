@@ -32,7 +32,7 @@ class EmitBuilder(FunctionBuilder):
         match first:
             case InstanceBuilder(
                 pytype=pytypes.StructType() as struct_type
-            ) as event_arg_eb if pytypes.ARC4StructBaseType in struct_type.mro:
+            ) as event_arg_eb if pytypes.ARC4StructBaseType < struct_type:
                 event_name = struct_type.name.split(".")[-1]
                 if rest:
                     logger.error(

@@ -59,7 +59,7 @@ class GroupTransactionTypeBuilder(TypeBuilder[pytypes.GroupTransactionType]):
             args, location, default=expect.default_dummy_value(pytypes.UInt64Type)
         )
         typ = self.produces()
-        if arg.pytype == pytypes.IntLiteralType:
+        if arg.pytype == pytypes.IntLiteralType:  # exact type, exclude bool
             return arg.resolve_literal(GroupTransactionTypeBuilder(typ, location))
         group_index = expect.argument_of_type_else_dummy(arg, pytypes.UInt64Type).resolve()
         txn = GroupTransactionReference(
@@ -75,7 +75,7 @@ class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
 
     @typing.override
     def get_field_value(
-        self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
+        self, field: TxnField, typ: pytypes.RuntimeType, location: SourceLocation
     ) -> InstanceBuilder:
         assert not field.is_array
         assert typ.wtype.scalar_type == field.avm_type
@@ -92,12 +92,12 @@ class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
     def get_array_field_value(
         self,
         field: TxnField,
-        typ: pytypes.PyType,
+        typ: pytypes.RuntimeType,
         index: InstanceBuilder,
         location: SourceLocation,
     ) -> InstanceBuilder:
         assert field.is_array
-        assert index.pytype == pytypes.UInt64Type
+        assert pytypes.UInt64Type <= index.pytype
         assert typ.wtype.scalar_type == field.avm_type
         expr = IntrinsicCall(
             op_code="gtxnsas",

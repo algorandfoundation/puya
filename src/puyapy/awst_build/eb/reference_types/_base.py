@@ -33,16 +33,16 @@ class ReferenceValueExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.
         expr: Expression,
         *,
         typ: pytypes.PyType,
-        native_type: pytypes.PyType,
+        native_type: pytypes.RuntimeType,
         native_access_member: str,
-        field_mapping: Mapping[str, tuple[str, pytypes.PyType]],
+        field_mapping: Mapping[str, tuple[str, pytypes.RuntimeType]],
         field_op_code: str,
         field_bool_comment: str,
     ):
         super().__init__(typ, expr)
         self.native_type = native_type
         self.native_access_member = native_access_member
-        self.field_mapping = immutabledict[str, tuple[str, pytypes.PyType]](field_mapping)
+        self.field_mapping = immutabledict[str, tuple[str, pytypes.RuntimeType]](field_mapping)
         self.field_op_code = field_op_code
         self.field_bool_comment = field_bool_comment
 
@@ -75,7 +75,7 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
         typ: pytypes.PyType,
         typ_literal_converter: Callable[[SourceLocation], TypeBuilder],
         native_access_member: str,
-        field_mapping: Mapping[str, tuple[str, pytypes.PyType]],
+        field_mapping: Mapping[str, tuple[str, pytypes.RuntimeType]],
         field_op_code: str,
         field_bool_comment: str,
     ):

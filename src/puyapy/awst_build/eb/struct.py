@@ -12,7 +12,7 @@ from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBui
 class StructSubclassExpressionBuilder(TypeBuilder[pytypes.StructType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.StructType)
-        assert pytypes.StructBaseType in typ.mro
+        assert pytypes.StructBaseType < typ
         super().__init__(typ, location)
 
     def call(

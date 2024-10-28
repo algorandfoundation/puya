@@ -1,7 +1,9 @@
 import abc
+import typing
 
 from algopy import UInt64, urange
 
+@typing.final
 class StateTotals:
     """
     Options class to manually define the total amount of global and local state contract will use,

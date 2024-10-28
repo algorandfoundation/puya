@@ -81,6 +81,7 @@ class BigUIntExpressionBuilder(
     def __init__(self, expr: Expression):
         super().__init__(pytypes.BigUIntType, expr)
 
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         cmp_expr = NumericComparisonExpression(
             lhs=self.resolve(),
@@ -90,6 +91,7 @@ class BigUIntExpressionBuilder(
         )
         return BoolExpressionBuilder(cmp_expr)
 
+    @typing.override
     def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> InstanceBuilder:
         if op == BuilderUnaryOp.positive:
             # unary + is allowed, but for the current types it has no real impact
@@ -97,13 +99,14 @@ class BigUIntExpressionBuilder(
             return BigUIntExpressionBuilder(attrs.evolve(self.resolve(), source_location=location))
         return super().unary_op(op, location)
 
+    @typing.override
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = other.resolve_literal(converter=BigUIntTypeBuilder(other.source_location))
-        if other.pytype == self.pytype:
+        if pytypes.BigUIntType <= other.pytype:
             other_expr = other.resolve()
-        elif other.pytype == pytypes.UInt64Type:
+        elif pytypes.UInt64Type <= other.pytype:
             other_expr = _uint64_to_biguint(other, location)
         else:
             return NotImplemented
@@ -115,6 +118,7 @@ class BigUIntExpressionBuilder(
         )
         return BoolExpressionBuilder(cmp_expr)
 
+    @typing.override
     def binary_op(
         self,
         other: InstanceBuilder,
@@ -127,9 +131,9 @@ class BigUIntExpressionBuilder(
         if biguint_op is None:
             return NotImplemented
         other = other.resolve_literal(converter=BigUIntTypeBuilder(other.source_location))
-        if other.pytype == self.pytype:
+        if pytypes.BigUIntType <= other.pytype:
             other_expr = other.resolve()
-        elif other.pytype == pytypes.UInt64Type:
+        elif pytypes.UInt64Type <= other.pytype:
             other_expr = _uint64_to_biguint(other, location)
         else:
             return NotImplemented
@@ -142,6 +146,7 @@ class BigUIntExpressionBuilder(
         )
         return BigUIntExpressionBuilder(bin_op_expr)
 
+    @typing.override
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
@@ -149,7 +154,7 @@ class BigUIntExpressionBuilder(
         if biguint_op is None:
             logger.error(f"unsupported operator for type: {op.value!r}", location=location)
             return dummy_statement(location)
-        if rhs.pytype == pytypes.UInt64Type:
+        if pytypes.UInt64Type <= rhs.pytype:
             value = _uint64_to_biguint(rhs, location)
         else:
             value = expect.argument_of_type_else_dummy(

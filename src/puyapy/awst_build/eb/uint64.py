@@ -123,7 +123,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = _resolve_literal_and_upcast_bool(other)
-        if not _is_uint64_or_enum_type(other):
+        if not (pytypes.UInt64Type <= other.pytype):
             return NotImplemented
         cmp_expr = NumericComparisonExpression(
             source_location=location,
@@ -146,7 +146,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
         if uint64_op is None:
             return NotImplemented
         other = _resolve_literal_and_upcast_bool(other)
-        if not _is_uint64_or_enum_type(other):
+        if not (pytypes.UInt64Type <= other.pytype):
             return NotImplemented
 
         lhs = self.resolve()
@@ -196,22 +196,18 @@ def _translate_uint64_math_operator(
 
 def _resolve_literal_and_upcast_bool(other: InstanceBuilder) -> InstanceBuilder:
     other = other.resolve_literal(converter=UInt64TypeBuilder(other.source_location))
-    other = _upcast_bool(other)
+    if other.pytype == pytypes.BoolType:
+        return _upcast_bool(other)
     return other
 
 
 def _upcast_bool(
     builder: InstanceBuilder, location: SourceLocation | None = None
 ) -> InstanceBuilder:
-    if builder.pytype == pytypes.BoolType:
-        expr = ReinterpretCast(
-            expr=builder.resolve(),
-            wtype=wtypes.uint64_wtype,
-            source_location=location or builder.source_location,
-        )
-        return UInt64ExpressionBuilder(expr)
-    return builder
-
-
-def _is_uint64_or_enum_type(other: InstanceBuilder) -> bool:
-    return other.pytype == pytypes.UInt64Type or isinstance(other.pytype, pytypes.UInt64EnumType)
+    assert builder.pytype == pytypes.BoolType
+    expr = ReinterpretCast(
+        expr=builder.resolve(),
+        wtype=wtypes.uint64_wtype,
+        source_location=location or builder.source_location,
+    )
+    return UInt64ExpressionBuilder(expr)

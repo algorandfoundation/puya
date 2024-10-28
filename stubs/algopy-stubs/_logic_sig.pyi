@@ -3,6 +3,7 @@ from collections.abc import Callable
 
 from algopy import UInt64
 
+@typing.final
 class LogicSig:
     """A logic signature"""
 

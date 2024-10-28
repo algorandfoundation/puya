@@ -101,4 +101,4 @@ class ARC4BoolExpressionBuilder(
         if other.pytype == pytypes.BoolType:
             lhs = self._native(self.source_location)
             return lhs.compare(other, op, location)
-        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
+        return compare_bytes(self=self, op=op, other=other, source_location=location)
