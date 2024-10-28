@@ -428,7 +428,7 @@ class StructType(PyType):
         else:
             raise InternalError(f"Unknown struct base type: {base}", source_location)
         wtype = wtype_cls(
-            fields=field_wtypes, name=name, immutable=frozen, source_location=source_location
+            fields=field_wtypes, name=name, frozen=frozen, source_location=source_location
         )
         self.__attrs_init__(
             bases=[base],

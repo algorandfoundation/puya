@@ -8,16 +8,22 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
                 let loop_counter%0#0: uint64 = 0u
                 goto block@1
             block@1: // for_body_L40
-                (log val#0)
-                goto loop_counter%0#0 ? block@4 : block@3
+                let loop_counter%0#1: uint64 = φ(loop_counter%0#0 <- block@0, loop_counter%0#2 <- block@3)
+                let val#1: bytes = φ(val#0 <- block@0, val#2 <- block@3)
+                (log val#1)
+                goto loop_counter%0#1 ? block@4 : block@3
             block@3: // for_header_1_L39
-                let loop_counter%0#0: uint64 = 1u
-                let val#0: bytes = val#2
+                let loop_counter%0#2: uint64 = 1u
                 goto block@1
             block@4: // after_for_L39
                 let check%0#0: bytes = test_cases.arc4_types.structs.check(0xa0)
                 (log 0xa0)
                 let nested_decode%0#0: bytes = test_cases.arc4_types.structs.nested_decode(0x000000083cfbf217000000230384b842a0)
+                let len_16_bit%0#0: bytes = 0x0001
+                let concat_result%0#0: bytes = (concat len_16_bit%0#0 0x2a)
+                let copy#1: bytes = (concat 0x0002 concat_result%0#0)
+                let tmp%4#0: bool = (!= 0x00020000 copy#1)
+                (assert tmp%4#0) // expected copy is different
                 return 1u
         
         subroutine test_cases.arc4_types.structs.add(v1: bytes, v2: bytes) -> <bytes, bytes, bytes>:

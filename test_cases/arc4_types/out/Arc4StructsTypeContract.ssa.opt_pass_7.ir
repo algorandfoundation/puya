@@ -1,28 +1,36 @@
 contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
     program approval:
         subroutine test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program() -> bool:
-            block@0: // L26
+            block@0: // L35
                 let (coord_3#0: bytes, add%1#0: bytes, add%2#0: bytes) = test_cases.arc4_types.structs.add(0x000000083cfbf217000000230384b842, 0x000000083cfbf217000000230384b842)
                 let val#0: bytes = ((extract 0 8) coord_3#0) // on error: Index access is out of bounds
                 let val#2: bytes = ((extract 8 8) coord_3#0) // on error: Index access is out of bounds
                 let loop_counter%0#0: uint64 = 0u
                 goto block@1
-            block@1: // for_body_L31
+            block@1: // for_body_L40
                 let loop_counter%0#1: uint64 = φ(loop_counter%0#0 <- block@0, loop_counter%0#2 <- block@3)
                 let val#1: bytes = φ(val#0 <- block@0, val#2 <- block@3)
                 (log val#1)
                 goto loop_counter%0#1 ? block@4 : block@3
-            block@3: // for_header_1_L30
+            block@3: // for_header_1_L39
                 let loop_counter%0#2: uint64 = 1u
                 goto block@1
-            block@4: // after_for_L30
+            block@4: // after_for_L39
                 let check%0#0: bytes = test_cases.arc4_types.structs.check(0xa0)
                 (log 0xa0)
                 let nested_decode%0#0: bytes = test_cases.arc4_types.structs.nested_decode(0x000000083cfbf217000000230384b842a0)
+                let concatenated%0#0: bytes = 0x2a
+                let len_%0#0: uint64 = (len concatenated%0#0)
+                let as_bytes%2#0: bytes = (itob len_%0#0)
+                let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%2#0)
+                let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
+                let copy#1: bytes = (concat 0x0002 concat_result%0#0)
+                let tmp%4#0: bool = (!= 0x00020000 copy#1)
+                (assert tmp%4#0) // expected copy is different
                 return 1u
         
         subroutine test_cases.arc4_types.structs.add(v1: bytes, v2: bytes) -> <bytes, bytes, bytes>:
-            block@0: // L46
+            block@0: // L64
                 let tmp%0#0: bytes = ((extract 0 8) v1#0) // on error: Index access is out of bounds
                 let tmp%1#0: bytes = ((extract 0 8) v2#0) // on error: Index access is out of bounds
                 let tmp%2#0: bytes = test_cases.arc4_types.structs.add_decimal(tmp%0#0, tmp%1#0)
@@ -33,7 +41,7 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
                 return encoded_tuple_buffer%2#0 v1#0 v2#0
         
         subroutine test_cases.arc4_types.structs.add_decimal(x: bytes, y: bytes) -> bytes:
-            block@0: // L68
+            block@0: // L86
                 let tmp%0#0: uint64 = (btoi x#0)
                 let tmp%1#0: uint64 = (btoi y#0)
                 let tmp%2#0: uint64 = (+ tmp%0#0 tmp%1#0)
@@ -41,7 +49,7 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
                 return tmp%3#0
         
         subroutine test_cases.arc4_types.structs.check(flags: bytes) -> bytes:
-            block@0: // L54
+            block@0: // L72
                 let is_true%0#0: uint64 = (getbit flags#0 0u)
                 let encoded_bool%0#0: bytes = (setbit 0x00 0u is_true%0#0)
                 let tmp%0#0: bool = (getbit encoded_bool%0#0 0u)
@@ -63,7 +71,7 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
                 return flags#0
         
         subroutine test_cases.arc4_types.structs.nested_decode(vector_flags: bytes) -> bytes:
-            block@0: // L62
+            block@0: // L80
                 let tmp%0#0: bytes = ((extract 0 16) vector_flags#0) // on error: Index access is out of bounds
                 let tmp%1#0: bytes = ((extract 0 8) tmp%0#0) // on error: Index access is out of bounds
                 let tmp%2#0: bytes = (itob 35382882839u)
@@ -78,5 +86,5 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
     
     program clear-state:
         subroutine test_cases.arc4_types.structs.Arc4StructsTypeContract.clear_state_program() -> bool:
-            block@0: // L42
+            block@0: // L60
                 return 1u

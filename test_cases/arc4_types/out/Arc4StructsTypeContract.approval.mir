@@ -1,19 +1,19 @@
 // Op                                                                                              Stack (out)
 // test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program() -> uint64:
 main_block@0:
-    // arc4_types/structs.py:27
+    // arc4_types/structs.py:36
     // coord_1 = Vector(x=Decimal("35.382882839"), y=Decimal("150.382884930"))
     byte 0x000000083cfbf217000000230384b842                                                        0x000000083cfbf217000000230384b842
-    // arc4_types/structs.py:28
+    // arc4_types/structs.py:37
     // coord_2 = Vector(y=Decimal("150.382884930"), x=Decimal("35.382882839"))
     byte 0x000000083cfbf217000000230384b842                                                        0x000000083cfbf217000000230384b842,0x000000083cfbf217000000230384b842
-    // arc4_types/structs.py:29
+    // arc4_types/structs.py:38
     // coord_3 = add(coord_1.copy(), coord_2.copy())
     callsub add                                                                                    coord_3#0,add%1#0,add%2#0
     pop 1                                                                                          coord_3#0,add%1#0
     pop 1                                                                                          coord_3#0
     l-store coord_3#0 0                                                                            coord_3#0
-    // arc4_types/structs.py:30
+    // arc4_types/structs.py:39
     // for val in (coord_3.x, coord_3.y):
     l-load-copy coord_3#0 0                                                                        coord_3#0,coord_3#0 (copy)
     extract 0 8 // on error: Index access is out of bounds                                         coord_3#0,val#0
@@ -26,11 +26,11 @@ main_block@0:
     // Implicit fall through to main_for_body@1                                                    (𝕗) val#2,loop_counter%0#0 | (𝕏) val#0 |
 
 main_for_body@1:                                                                                   (𝕗) val#2,loop_counter%0#0 | (𝕏) val#0 |
-    // arc4_types/structs.py:31
+    // arc4_types/structs.py:40
     // log(val.bytes)
     x-load val#0                                                                                   (𝕗) val#2,loop_counter%0#0 | val#0
     log                                                                                            (𝕗) val#2,loop_counter%0#0 |
-    // arc4_types/structs.py:30
+    // arc4_types/structs.py:39
     // for val in (coord_3.x, coord_3.y):
     f-load loop_counter%0#0                                                                        (𝕗) val#2,loop_counter%0#0 | loop_counter%0#0
     bnz main_after_for@4                                                                           (𝕗) val#2,loop_counter%0#0 |
@@ -44,25 +44,25 @@ main_for_header_1@3:                                                            
     b main_for_body@1                                                                              (𝕗) val#2,loop_counter%0#0 | (𝕏) val#0 |
 
 main_after_for@4:                                                                                  (𝕗) val#2,loop_counter%0#0 |
-    // arc4_types/structs.py:33
+    // arc4_types/structs.py:42
     // flags = Flags(a=arc4.Bool(True), b=arc4.Bool(False), c=arc4.Bool(True), d=arc4.Bool(False))
     byte 0xa0                                                                                      (𝕗) val#2,loop_counter%0#0 | 0xa0
-    // arc4_types/structs.py:34
+    // arc4_types/structs.py:43
     // check(flags.copy())
     callsub check                                                                                  (𝕗) val#2,loop_counter%0#0 | check%0#0
     pop 1                                                                                          (𝕗) val#2,loop_counter%0#0 |
-    // arc4_types/structs.py:33
+    // arc4_types/structs.py:42
     // flags = Flags(a=arc4.Bool(True), b=arc4.Bool(False), c=arc4.Bool(True), d=arc4.Bool(False))
     byte 0xa0                                                                                      (𝕗) val#2,loop_counter%0#0 | 0xa0
-    // arc4_types/structs.py:35
+    // arc4_types/structs.py:44
     // log(flags.bytes)
     log                                                                                            (𝕗) val#2,loop_counter%0#0 |
-    // arc4_types/structs.py:38
+    // arc4_types/structs.py:47
     // nested_decode(VectorFlags(coord_1.copy(), flags.copy()))
     byte 0x000000083cfbf217000000230384b842a0                                                      (𝕗) val#2,loop_counter%0#0 | 0x000000083cfbf217000000230384b842a0
     callsub nested_decode                                                                          (𝕗) val#2,loop_counter%0#0 | nested_decode%0#0
     pop 1                                                                                          (𝕗) val#2,loop_counter%0#0 |
-    // arc4_types/structs.py:40
+    // arc4_types/structs.py:58
     // return True
     int 1                                                                                          (𝕗) val#2,loop_counter%0#0 | 1
     return                                                                                         (𝕗) val#2,loop_counter%0#0 |
@@ -70,13 +70,13 @@ main_after_for@4:                                                               
 
 // test_cases.arc4_types.structs.add(v1: bytes, v2: bytes) -> bytes, bytes, bytes:
 add:                                                                                               (𝕡) v1#0,v2#0 |
-    // arc4_types/structs.py:46-47
+    // arc4_types/structs.py:64-65
     // @subroutine
     // def add(v1: Vector, v2: Vector) -> Vector:
     proto 2 3                                                                                      (𝕡) v1#0,v2#0 |
 
 add_block@0:                                                                                       (𝕡) v1#0,v2#0 |
-    // arc4_types/structs.py:49
+    // arc4_types/structs.py:67
     // x=add_decimal(v1.x, v2.x),
     p-load v1#0                                                                                    (𝕡) v1#0,v2#0 | v1#0 (copy)
     extract 0 8 // on error: Index access is out of bounds                                         (𝕡) v1#0,v2#0 | tmp%0#0
@@ -85,7 +85,7 @@ add_block@0:                                                                    
     l-load tmp%0#0 1                                                                               (𝕡) v1#0,v2#0 | tmp%1#0,tmp%0#0
     l-load tmp%1#0 1                                                                               (𝕡) v1#0,v2#0 | tmp%0#0,tmp%1#0
     callsub add_decimal                                                                            (𝕡) v1#0,v2#0 | tmp%2#0
-    // arc4_types/structs.py:50
+    // arc4_types/structs.py:68
     // y=add_decimal(v1.y, v2.y),
     p-load v1#0                                                                                    (𝕡) v1#0,v2#0 | tmp%2#0,v1#0 (copy)
     extract 8 8 // on error: Index access is out of bounds                                         (𝕡) v1#0,v2#0 | tmp%2#0,tmp%3#0
@@ -94,7 +94,7 @@ add_block@0:                                                                    
     l-load tmp%3#0 1                                                                               (𝕡) v1#0,v2#0 | tmp%2#0,tmp%4#0,tmp%3#0
     l-load tmp%4#0 1                                                                               (𝕡) v1#0,v2#0 | tmp%2#0,tmp%3#0,tmp%4#0
     callsub add_decimal                                                                            (𝕡) v1#0,v2#0 | tmp%2#0,tmp%5#0
-    // arc4_types/structs.py:48-51
+    // arc4_types/structs.py:66-69
     // return Vector(
     //     x=add_decimal(v1.x, v2.x),
     //     y=add_decimal(v1.y, v2.y),
@@ -109,13 +109,13 @@ add_block@0:                                                                    
 
 // test_cases.arc4_types.structs.add_decimal(x: bytes, y: bytes) -> bytes:
 add_decimal:                                                                                       (𝕡) x#0,y#0 |
-    // arc4_types/structs.py:68-69
+    // arc4_types/structs.py:86-87
     // @subroutine
     // def add_decimal(x: Decimal, y: Decimal) -> Decimal:
     proto 2 1                                                                                      (𝕡) x#0,y#0 |
 
 add_decimal_block@0:                                                                               (𝕡) x#0,y#0 |
-    // arc4_types/structs.py:70
+    // arc4_types/structs.py:88
     // return Decimal.from_bytes(op.itob(op.btoi(x.bytes) + op.btoi(y.bytes)))
     p-load x#0                                                                                     (𝕡) x#0,y#0 | x#0 (copy)
     btoi                                                                                           (𝕡) x#0,y#0 | tmp%0#0
@@ -130,13 +130,13 @@ add_decimal_block@0:                                                            
 
 // test_cases.arc4_types.structs.check(flags: bytes) -> bytes:
 check:                                                                                             (𝕡) flags#0 |
-    // arc4_types/structs.py:54-55
+    // arc4_types/structs.py:72-73
     // @subroutine
     // def check(flags: Flags) -> None:
     proto 1 1                                                                                      (𝕡) flags#0 |
 
 check_block@0:                                                                                     (𝕡) flags#0 |
-    // arc4_types/structs.py:56
+    // arc4_types/structs.py:74
     // assert flags.a.native
     p-load flags#0                                                                                 (𝕡) flags#0 | flags#0 (copy)
     int 0                                                                                          (𝕡) flags#0 | flags#0 (copy),0
@@ -148,7 +148,7 @@ check_block@0:                                                                  
     int 0                                                                                          (𝕡) flags#0 | encoded_bool%0#0,0
     getbit                                                                                         (𝕡) flags#0 | tmp%0#0
     assert                                                                                         (𝕡) flags#0 |
-    // arc4_types/structs.py:57
+    // arc4_types/structs.py:75
     // assert not flags.b.native
     p-load flags#0                                                                                 (𝕡) flags#0 | flags#0 (copy)
     int 1                                                                                          (𝕡) flags#0 | flags#0 (copy),1
@@ -161,7 +161,7 @@ check_block@0:                                                                  
     getbit                                                                                         (𝕡) flags#0 | tmp%1#0
     !                                                                                              (𝕡) flags#0 | tmp%2#0
     assert                                                                                         (𝕡) flags#0 |
-    // arc4_types/structs.py:58
+    // arc4_types/structs.py:76
     // assert flags.c.native
     p-load flags#0                                                                                 (𝕡) flags#0 | flags#0 (copy)
     int 2                                                                                          (𝕡) flags#0 | flags#0 (copy),2
@@ -173,7 +173,7 @@ check_block@0:                                                                  
     int 0                                                                                          (𝕡) flags#0 | encoded_bool%2#0,0
     getbit                                                                                         (𝕡) flags#0 | tmp%3#0
     assert                                                                                         (𝕡) flags#0 |
-    // arc4_types/structs.py:59
+    // arc4_types/structs.py:77
     // assert not flags.d.native
     p-load flags#0                                                                                 (𝕡) flags#0 | flags#0 (copy)
     int 3                                                                                          (𝕡) flags#0 | flags#0 (copy),3
@@ -192,13 +192,13 @@ check_block@0:                                                                  
 
 // test_cases.arc4_types.structs.nested_decode(vector_flags: bytes) -> bytes:
 nested_decode:                                                                                     (𝕡) vector_flags#0 |
-    // arc4_types/structs.py:62-63
+    // arc4_types/structs.py:80-81
     // @subroutine
     // def nested_decode(vector_flags: VectorFlags) -> None:
     proto 1 1                                                                                      (𝕡) vector_flags#0 |
 
 nested_decode_block@0:                                                                             (𝕡) vector_flags#0 |
-    // arc4_types/structs.py:64
+    // arc4_types/structs.py:82
     // assert vector_flags.vector.x.bytes == op.itob(35382882839)
     p-load vector_flags#0                                                                          (𝕡) vector_flags#0 | vector_flags#0 (copy)
     extract 0 16 // on error: Index access is out of bounds                                        (𝕡) vector_flags#0 | tmp%0#0
@@ -209,7 +209,7 @@ nested_decode_block@0:                                                          
     l-load tmp%2#0 1                                                                               (𝕡) vector_flags#0 | tmp%1#0,tmp%2#0
     ==                                                                                             (𝕡) vector_flags#0 | tmp%3#0
     assert                                                                                         (𝕡) vector_flags#0 |
-    // arc4_types/structs.py:65
+    // arc4_types/structs.py:83
     // assert vector_flags.flags.c.native
     p-load vector_flags#0                                                                          (𝕡) vector_flags#0 | vector_flags#0 (copy)
     extract 16 1 // on error: Index access is out of bounds                                        (𝕡) vector_flags#0 | tmp%4#0

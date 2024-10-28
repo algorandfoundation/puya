@@ -1,7 +1,7 @@
 contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
     program approval:
         subroutine test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program() -> bool:
-            block@0: // L26
+            block@0: // L35
                 let encoded_tuple_buffer%1#0: bytes = (concat 0x 0x000000083cfbf217)
                 let encoded_tuple_buffer%2#0: bytes = (concat encoded_tuple_buffer%1#0 0x000000230384b842)
                 let coord_1#0: bytes = encoded_tuple_buffer%2#0
@@ -17,16 +17,16 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
                 let loop_counter%0#0: uint64 = 0u
                 let val#0: bytes = tmp%0#0
                 goto block@1
-            block@1: // for_body_L31
+            block@1: // for_body_L40
                 (log val#0)
                 goto block@2
-            block@2: // for_footer_L30
+            block@2: // for_footer_L39
                 goto_nth [block@3][loop_counter%0#0] else goto block@4
-            block@3: // for_header_1_L30
+            block@3: // for_header_1_L39
                 let loop_counter%0#0: uint64 = 1u
                 let val#0: bytes = tmp%1#0
                 goto block@1
-            block@4: // after_for_L30
+            block@4: // after_for_L39
                 let encoded_bool%0#0: bytes = (setbit 0x00 0u 1u)
                 let encoded_bool%1#0: bytes = (setbit 0x00 0u 0u)
                 let encoded_bool%2#0: bytes = (setbit 0x00 0u 1u)
@@ -49,10 +49,44 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
                 let encoded_tuple_buffer%12#0: bytes = (concat 0x copy%3#0)
                 let encoded_tuple_buffer%13#0: bytes = (concat encoded_tuple_buffer%12#0 copy%4#0)
                 let nested_decode%0#0: bytes = test_cases.arc4_types.structs.nested_decode(encoded_tuple_buffer%13#0)
+                let length%0#0: uint64 = (len 0x)
+                let as_bytes%0#0: bytes = (itob length%0#0)
+                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+                let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x)
+                let as_bytes%1#0: bytes = (itob 2u)
+                let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let encoded_tuple_buffer%15#0: bytes = (concat 0x offset_as_uint16%0#0)
+                let encoded_tuple_buffer%16#0: bytes = (concat encoded_tuple_buffer%15#0 encoded_value%0#0)
+                let mutable#0: bytes = encoded_tuple_buffer%16#0
+                let copy%5#0: bytes = mutable#0
+                let copy#0: bytes = copy%5#0
+                let item_start_offset%0#0: uint64 = (extract_uint16 copy#0 0u)
+                let item_end_offset%0#0: uint64 = (len copy#0)
+                let tmp%3#0: bytes = (substring3 copy#0 item_start_offset%0#0 item_end_offset%0#0)
+                let expr_value_trimmed%0#0: bytes = ((extract 2 0) tmp%3#0)
+                let data%0#0: bytes = (concat 0x 0x2a)
+                let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 data%0#0)
+                let len_%0#0: uint64 = (len concatenated%0#0)
+                let as_bytes%2#0: bytes = (itob len_%0#0)
+                let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%2#0)
+                let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
+                let assigned_value%0#0: bytes = concat_result%0#0
+                let item_offset%0#0: uint64 = (extract_uint16 copy#0 0u)
+                let data_up_to_item%0#0: bytes = (extract3 copy#0 0u item_offset%0#0)
+                let updated_data%0#0: bytes = (concat data_up_to_item%0#0 assigned_value%0#0)
+                let copy#0: bytes = updated_data%0#0
+                let tmp%4#0: bool = (!= mutable#0 copy#0)
+                (assert tmp%4#0) // expected copy is different
+                let encoded_tuple_buffer%18#0: bytes = (concat 0x 0x000000000000000c)
+                let encoded_tuple_buffer%19#0: bytes = (concat encoded_tuple_buffer%18#0 0x0000000000000022)
+                let immutable#0: bytes = encoded_tuple_buffer%19#0
+                let no_copy#0: bytes = immutable#0
+                let tmp%5#0: bool = (== no_copy#0 immutable#0)
+                (assert tmp%5#0)
                 return 1u
         
         subroutine test_cases.arc4_types.structs.add(v1: bytes, v2: bytes) -> <bytes, bytes, bytes>:
-            block@0: // L46
+            block@0: // L64
                 let tmp%0#0: bytes = (extract3 v1#0 0u 8u) // on error: Index access is out of bounds
                 let tmp%1#0: bytes = (extract3 v2#0 0u 8u) // on error: Index access is out of bounds
                 let tmp%2#0: bytes = test_cases.arc4_types.structs.add_decimal(tmp%0#0, tmp%1#0)
@@ -64,7 +98,7 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
                 return encoded_tuple_buffer%2#0 v1#0 v2#0
         
         subroutine test_cases.arc4_types.structs.add_decimal(x: bytes, y: bytes) -> bytes:
-            block@0: // L68
+            block@0: // L86
                 let tmp%0#0: uint64 = (btoi x#0)
                 let tmp%1#0: uint64 = (btoi y#0)
                 let tmp%2#0: uint64 = (+ tmp%0#0 tmp%1#0)
@@ -72,7 +106,7 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
                 return tmp%3#0
         
         subroutine test_cases.arc4_types.structs.check(flags: bytes) -> bytes:
-            block@0: // L54
+            block@0: // L72
                 let is_true%0#0: uint64 = (getbit flags#0 0u)
                 let encoded_bool%0#0: bytes = (setbit 0x00 0u is_true%0#0)
                 let tmp%0#0: bool = (getbit encoded_bool%0#0 0u)
@@ -94,7 +128,7 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
                 return flags#0
         
         subroutine test_cases.arc4_types.structs.nested_decode(vector_flags: bytes) -> bytes:
-            block@0: // L62
+            block@0: // L80
                 let tmp%0#0: bytes = (extract3 vector_flags#0 0u 16u) // on error: Index access is out of bounds
                 let tmp%1#0: bytes = (extract3 tmp%0#0 0u 8u) // on error: Index access is out of bounds
                 let tmp%2#0: bytes = (itob 35382882839u)
@@ -109,5 +143,5 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
     
     program clear-state:
         subroutine test_cases.arc4_types.structs.Arc4StructsTypeContract.clear_state_program() -> bool:
-            block@0: // L42
+            block@0: // L60
                 return 1u
