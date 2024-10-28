@@ -8,6 +8,7 @@ from algopy import (
     UInt64,
 )
 
+@typing.final
 class CompiledContract(typing.NamedTuple):
     """
     Provides compiled programs and state allocation values for a Contract.
@@ -56,6 +57,7 @@ class CompiledContract(typing.NamedTuple):
     when calling compile_contract
     """
 
+@typing.final
 class CompiledLogicSig(typing.NamedTuple):
     """
     Provides account for a Logic Signature.

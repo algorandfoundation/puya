@@ -79,9 +79,7 @@ class BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        if other.pytype == self.pytype:
-            pass
-        else:
+        if other.pytype != pytypes.BoolType:
             return NotImplemented
         cmp_expr = NumericComparisonExpression(
             source_location=location,
@@ -95,7 +93,7 @@ class BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def bool_binary_op(
         self, other: InstanceBuilder, op: BinaryBooleanOperator, location: SourceLocation
     ) -> InstanceBuilder:
-        if other.pytype != self.pytype:
+        if other.pytype != pytypes.BoolType:
             return super().bool_binary_op(other, op, location)
         result = BooleanBinaryOperation(
             left=self.resolve(),

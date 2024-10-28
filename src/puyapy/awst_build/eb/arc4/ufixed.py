@@ -135,4 +135,4 @@ class UFixedNxMExpressionBuilder(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = other.resolve_literal(UFixedNxMTypeBuilder(self.pytype, other.source_location))
-        return compare_bytes(op=op, lhs=self, rhs=other, source_location=location)
+        return compare_bytes(op=op, self=self, other=other, source_location=location)

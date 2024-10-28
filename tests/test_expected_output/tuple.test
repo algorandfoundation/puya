@@ -153,3 +153,12 @@ def iterate_tuple(base: gtxn.TransactionBase) -> None:
         assert a.fee > 0
     for b in (gtxn.PaymentTransaction(1), gtxn.KeyRegistrationTransaction(2)): ## E: unable to iterate heterogeneous tuple without common base type
         assert b.fee > 0
+
+## case: bad_named_tuple
+from algopy import UInt64
+import typing
+
+class NotAllowed(typing.NamedTuple):
+    an_int: UInt64
+    id: int ## E: Python literals of type int cannot be used as runtime values
+    flag: bool = True ## E: unsupported syntax for typing.NamedTuple member declaration

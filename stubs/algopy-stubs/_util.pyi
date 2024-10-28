@@ -1,5 +1,7 @@
+import typing
 from algopy import Bytes, BytesBacked, String, UInt64
 
+@typing.final
 class OpUpFeeSource(UInt64):
     """Defines the source of fees for the OpUp utility."""
 

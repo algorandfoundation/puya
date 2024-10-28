@@ -81,6 +81,7 @@ class TupleTypeBuilder(TypeBuilder[pytypes.TupleType]):
         location: SourceLocation,
     ) -> InstanceBuilder:
         result = _init(args, location)
+        # equality comparison okay because type constrained to TupleType
         if result.pytype != self.produces():
             raise CodeError("type mismatch between tuple parameters and argument types", location)
         return result
@@ -387,7 +388,7 @@ class TupleExpressionBuilder(
             raise CodeError("empty slices are not supported", location)
 
         updated_type = pytypes.GenericTupleType.parameterise(slice_types, location)
-        updated_wtype = updated_type.wtype
+        updated_wtype = updated_type.checked_wtype(location)
         return TupleExpressionBuilder(
             SliceExpression(
                 source_location=location,

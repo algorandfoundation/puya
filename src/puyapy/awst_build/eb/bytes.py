@@ -156,7 +156,7 @@ class _FromEncodedStr(FunctionBuilder):
         return dummy_value(pytypes.BytesType, location)
 
 
-class BytesExpressionBuilder(InstanceExpressionBuilder):
+class BytesExpressionBuilder(InstanceExpressionBuilder[pytypes.RuntimeType]):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.BytesType, expr)
 
@@ -250,7 +250,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = other.resolve_literal(converter=BytesTypeBuilder(other.source_location))
-        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
+        return compare_bytes(self=self, op=op, other=other, source_location=location)
 
     @typing.override
     def binary_op(
@@ -266,7 +266,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
             return NotImplemented
 
         other = other.resolve_literal(converter=BytesTypeBuilder(other.source_location))
-        if other.pytype != self.pytype:
+        if not (pytypes.BytesType <= other.pytype):
             return NotImplemented
 
         lhs = self.resolve()

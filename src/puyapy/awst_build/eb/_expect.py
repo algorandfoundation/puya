@@ -8,7 +8,7 @@ from puya.parse import SourceLocation
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
-from puyapy.awst_build.utils import is_type_or_subtype, maybe_resolve_literal
+from puyapy.awst_build.utils import maybe_resolve_literal
 
 _T = typing.TypeVar("_T")
 _TBuilder = typing.TypeVar("_TBuilder", bound=NodeBuilder)
@@ -35,7 +35,7 @@ def at_most_one_arg_of_type(
     first, *rest = args
     if rest:
         logger.error(f"expected at most 1 argument, got {len(args)}", location=location)
-    if isinstance(first, InstanceBuilder) and is_type_or_subtype(first.pytype, of_any=valid_types):
+    if isinstance(first, InstanceBuilder) and first.pytype.is_type_or_subtype(*valid_types):
         return first
     return not_this_type(first, default=default_none)
 
@@ -111,7 +111,7 @@ def exactly_one_arg(
 
 def exactly_one_arg_of_type(
     args: Sequence[NodeBuilder],
-    pytype: pytypes.PyType,
+    expected: pytypes.PyType,
     location: SourceLocation,
     *,
     default: Callable[[str, SourceLocation], _T],
@@ -126,8 +126,8 @@ def exactly_one_arg_of_type(
     if rest:
         logger.error(f"expected 1 argument, got {len(args)}", location=location)
     if resolve_literal:
-        first = maybe_resolve_literal(first, pytype)
-    if isinstance(first, InstanceBuilder) and is_type_or_subtype(first.pytype, of=pytype):
+        first = maybe_resolve_literal(first, expected)
+    if isinstance(first, InstanceBuilder) and expected <= first.pytype:
         return first
     return not_this_type(first, default=default)
 
@@ -183,8 +183,8 @@ def argument_of_type(
     if resolve_literal:
         builder = maybe_resolve_literal(builder, target_type)
 
-    if isinstance(builder, InstanceBuilder) and is_type_or_subtype(
-        builder.pytype, of_any=(target_type, *additional_types)
+    if isinstance(builder, InstanceBuilder) and builder.pytype.is_type_or_subtype(
+        target_type, *additional_types
     ):
         return builder
     return not_this_type(builder, default=default)

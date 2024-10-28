@@ -99,20 +99,22 @@ def _init(
     match arg_mapping[type_or_value_arg_name]:
         case NodeBuilder(pytype=pytypes.TypeType(typ=content)):
             iv_builder = None
+            if result_type is None:
+                result_type = pytypes.GenericGlobalStateType.parameterise([content], location)
+            elif result_type.content != content:
+                logger.error(
+                    "explicit type annotation does not match first argument"
+                    " - suggest to remove the explicit type annotation, it shouldn't be required",
+                    location=location,
+                )
+        case value_arg if result_type is not None:
+            iv_builder = expect.argument_of_type_else_dummy(value_arg, result_type.content)
         case InstanceBuilder(pytype=content) as iv_builder:
-            pass
+            result_type = pytypes.GenericGlobalStateType.parameterise([content], location)
         case _:
             raise CodeError(
                 "first argument must be a type reference or an initial value", location
             )
-    if result_type is None:
-        result_type = pytypes.GenericGlobalStateType.parameterise([content], location)
-    elif result_type.content != content:
-        logger.error(
-            "explicit type annotation does not match first argument"
-            " - suggest to remove the explicit type annotation, it shouldn't be required",
-            location=location,
-        )
 
     typed_args = parse_storage_proxy_constructor_args(
         arg_mapping,
@@ -173,7 +175,7 @@ def _build_field(
         exists_assertion_message = "check GlobalState exists"
     return AppStateExpression(
         key=self.resolve(),
-        wtype=self.pytype.content.wtype,
+        wtype=self.pytype.content_wtype,
         exists_assertion_message=exists_assertion_message,
         source_location=location,
     )

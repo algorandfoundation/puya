@@ -35,7 +35,7 @@ class LogBuilder(FunctionBuilder):
             sep = empty_utf8
         else:
             sep_arg = args.pop(sep_index)
-            if isinstance(sep_arg, InstanceBuilder) and sep_arg.pytype in (
+            if isinstance(sep_arg, InstanceBuilder) and sep_arg.pytype.is_type_or_subtype(
                 pytypes.StringType,
                 pytypes.StrLiteralType,
                 pytypes.BytesType,
@@ -51,7 +51,7 @@ class LogBuilder(FunctionBuilder):
             if not isinstance(arg, InstanceBuilder):
                 expect.not_this_type(arg, default=expect.default_none)
             else:
-                if arg.pytype == pytypes.IntLiteralType:
+                if arg.pytype == pytypes.IntLiteralType:  # match int exactly, ie exclude bool
                     arg = arg.resolve_literal(UInt64TypeBuilder(arg.source_location))
                 # TODO: make to_bytes non-throwing
                 bytes_expr = arg.to_bytes(arg.source_location)

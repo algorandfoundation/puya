@@ -15,7 +15,6 @@ from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.factories import builder_for_type
 from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
-    LiteralBuilder,
     NodeBuilder,
     StaticSizedCollectionBuilder,
 )
@@ -83,25 +82,15 @@ class ARC4Signature:
 
 
 def _gtxn_to_itxn(pytype: pytypes.PyType) -> pytypes.PyType:
-    if (
-        isinstance(pytype, pytypes.TransactionRelatedType)
-        and pytypes.GroupTransactionBaseType in pytype.mro
-    ):
-        txn_type = pytype.transaction_type
-        return pytypes.InnerTransactionFieldsetTypes[txn_type]
+    if isinstance(pytype, pytypes.GroupTransactionType):
+        return pytypes.InnerTransactionFieldsetTypes[pytype.transaction_type]
     return pytype
 
 
 def get_arc4_signature(
     method: NodeBuilder, native_args: Sequence[NodeBuilder], loc: SourceLocation
 ) -> tuple[str, ARC4Signature]:
-    method = expect.argument_of_type(method, pytypes.StrLiteralType, default=expect.default_raise)
-    match method:
-        case LiteralBuilder(value=str(method_sig)):
-            pass
-        case _:
-            raise CodeError("method selector must be a simple str literal", method.source_location)
-
+    method_sig = expect.simple_string_literal(method, default=expect.default_raise)
     method_name, maybe_args, maybe_returns = _split_signature(method_sig, method.source_location)
     if maybe_args is None:
         arg_types = [
@@ -145,16 +134,14 @@ def _implicit_arc4_type_conversion(typ: pytypes.PyType, loc: SourceLocation) -> 
 
 
 def _inner_transaction_type_matches(instance: pytypes.PyType, target: pytypes.PyType) -> bool:
-    from puya.awst.wtypes import WInnerTransactionFields
-
-    if not isinstance(instance.wtype, WInnerTransactionFields):
+    if not isinstance(instance, pytypes.InnerTransactionFieldsetType):
         return False
-    if not isinstance(target.wtype, WInnerTransactionFields):
+    if not isinstance(target, pytypes.InnerTransactionFieldsetType):
         return False
     return (
-        instance.wtype == target.wtype
-        or instance.wtype.transaction_type is None
-        or target.wtype.transaction_type is None
+        instance.transaction_type == target.transaction_type
+        or instance.transaction_type is None
+        or target.transaction_type is None
     )
 
 
@@ -165,7 +152,7 @@ def _implicit_arc4_conversion(
 
     instance = expect.instance_builder(operand, default=expect.default_dummy_value(target_type))
     instance = _maybe_resolve_arc4_literal(instance, target_type)
-    if instance.pytype == target_type:
+    if target_type <= instance.pytype:
         return instance
     target_wtype = target_type.wtype
     if isinstance(target_type, pytypes.TransactionRelatedType):
@@ -189,7 +176,7 @@ def _implicit_arc4_conversion(
             location=instance.source_location,
         )
         return dummy_value(target_type, instance.source_location)
-    if not target_wtype.can_encode_type(instance.pytype.wtype):
+    if not target_wtype.can_encode_type(instance.pytype.checked_wtype(instance.source_location)):
         logger.error(
             f"cannot encode {instance.pytype} to {target_type}", location=instance.source_location
         )
@@ -278,8 +265,3 @@ def _split_signature(
     if not name or not _VALID_NAME_PATTERN.match(name):
         logger.error(f"invalid signature: {name=}", location=location)
     return name, args, returns
-
-
-def no_literal_items(array_type: pytypes.ArrayType, location: SourceLocation) -> None:
-    if isinstance(array_type.items, pytypes.LiteralOnlyType):
-        raise CodeError("arrays of literals are not supported", location)

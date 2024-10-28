@@ -50,7 +50,7 @@ def _allowed_oca(name: object) -> OnCompletionAction | None:
 
 
 def _is_arc4_struct(typ: pytypes.PyType) -> typing.TypeGuard[pytypes.StructType]:
-    if pytypes.ARC4StructBaseType not in typ.mro:
+    if not (pytypes.ARC4StructBaseType < typ):
         return False
     if not isinstance(typ, pytypes.StructType):
         raise InternalError(
@@ -357,14 +357,6 @@ def pytype_to_arc4_pytype(
     match pytype:
         case pytypes.BoolType:
             return pytypes.ARC4BoolType
-        case pytypes.UInt64Type:
-            return pytypes.ARC4UIntN_Aliases[64]
-        case pytypes.BigUIntType:
-            return pytypes.ARC4UIntN_Aliases[512]
-        case pytypes.BytesType:
-            return pytypes.ARC4DynamicBytesType
-        case pytypes.StringType:
-            return pytypes.ARC4StringType
         case pytypes.NamedTupleType():
             return pytypes.StructType(
                 base=pytypes.ARC4StructBaseType,
@@ -379,21 +371,23 @@ def pytype_to_arc4_pytype(
             return pytypes.GenericARC4TupleType.parameterise(
                 [pytype_to_arc4_pytype(t, on_error) for t in pytype.items], pytype.source_location
             )
+        case pytypes.NoneType | pytypes.GroupTransactionType():
+            return pytype
 
-        case (
-            pytypes.NoneType
-            | pytypes.ApplicationType
-            | pytypes.AssetType
-            | pytypes.AccountType
-            | pytypes.GroupTransactionBaseType
-        ):
-            return pytype
-        case maybe_gtxn if maybe_gtxn in pytypes.GroupTransactionTypes.values():
-            return pytype
-        case pytypes.PyType(wtype=wtypes.ARC4Type()):
-            return pytype
-        case unsupported:
-            return on_error(unsupported)
+    if pytypes.UInt64Type <= pytype:
+        return pytypes.ARC4UIntN_Aliases[64]
+    elif pytypes.BigUIntType <= pytype:
+        return pytypes.ARC4UIntN_Aliases[512]
+    elif pytypes.BytesType <= pytype:
+        return pytypes.ARC4DynamicBytesType
+    elif pytypes.StringType <= pytype:
+        return pytypes.ARC4StringType
+    elif pytype.is_type_or_subtype(
+        pytypes.ApplicationType, pytypes.AssetType, pytypes.AccountType
+    ) or isinstance(pytype.wtype, wtypes.ARC4Type):
+        return pytype
+    else:
+        return on_error(pytype)
 
 
 _UINT_REGEX = re.compile(r"^uint(?P<n>[0-9]+)$")

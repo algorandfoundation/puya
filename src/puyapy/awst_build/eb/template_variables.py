@@ -70,7 +70,7 @@ class TemplateVariableExpressionBuilder(FunctionBuilder):
 
         result_expr = TemplateVar(
             name=prefix_value + var_name,
-            wtype=self.result_type.wtype,
+            wtype=self.result_type.checked_wtype(location),
             source_location=location,
         )
         return builder_for_instance(self.result_type, result_expr)

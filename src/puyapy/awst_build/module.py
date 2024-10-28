@@ -186,23 +186,42 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             for ti in info.mro[1:]
             if ti.fullname not in _BUILTIN_INHERITABLE
         ]
+        # create a static type, but don't register it yet,
+        # it might end up being a struct instead
+        static_type = pytypes.StaticType(
+            name=cdef.fullname, bases=direct_base_types, mro=mro_types
+        )
         for struct_base in (pytypes.StructBaseType, pytypes.ARC4StructBaseType):
             # note that since these struct bases aren't protocols, any subclasses
             # cannot be protocols
-            if direct_base_types == [struct_base]:
+            if struct_base < static_type:
+                if direct_base_types != [struct_base]:
+                    self._error(
+                        f"{struct_base} classes must only inherit directly from {struct_base}",
+                        cdef_loc,
+                    )
                 return _process_struct(self.context, struct_base, cdef)
-            if struct_base in mro_types:
-                self._error(
-                    f"{struct_base} classes must only inherit directly from {struct_base}",
-                    cdef_loc,
-                )
-                return []
+
+        if pytypes.ContractBaseType < static_type:
+            module_name = cdef.info.module_name
+            class_name = cdef.name
+            assert "." not in class_name
+            assert cdef.fullname == f"{module_name}.{class_name}"
+            contract_type = pytypes.ContractType(
+                module_name=module_name,
+                class_name=class_name,
+                bases=direct_base_types,
+                mro=mro_types,
+                source_location=cdef_loc,
+            )
+            self.context.register_pytype(contract_type)
+
+            class_options = _process_contract_class_options(self.context, self, cdef)
+            converter = ContractASTConverter(self.context, cdef, class_options, contract_type)
+            return [converter.build]
 
         if info.is_protocol:
-            protocol_type = pytypes.StaticType(
-                name=cdef.fullname, bases=direct_base_types, mro=mro_types
-            )
-            self.context.register_pytype(protocol_type)
+            self.context.register_pytype(static_type)
             if pytypes.ARC4ClientBaseType in direct_base_types:
                 ARC4ClientASTVisitor.visit(self.context, cdef)
             else:
@@ -212,31 +231,13 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 )
             return []
 
-        if pytypes.ContractBaseType not in mro_types:
-            logger.error(
-                f"Unsupported class declaration."
-                f" Contract classes must inherit either directly"
-                f" or indirectly from {pytypes.ContractBaseType}.",
-                location=cdef_loc,
-            )
-            return []
-
-        module_name = cdef.info.module_name
-        class_name = cdef.name
-        assert "." not in class_name
-        assert cdef.fullname == f"{module_name}.{class_name}"
-        contract_type = pytypes.ContractType(
-            module_name=module_name,
-            class_name=class_name,
-            bases=direct_base_types,
-            mro=mro_types,
-            source_location=cdef_loc,
+        logger.error(
+            f"Unsupported class declaration."
+            f" Contract classes must inherit either directly"
+            f" or indirectly from {pytypes.ContractBaseType}.",
+            location=cdef_loc,
         )
-        self.context.register_pytype(contract_type)
-
-        class_options = _process_contract_class_options(self.context, self, cdef)
-        converter = ContractASTConverter(self.context, cdef, class_options, contract_type)
-        return [converter.build]
+        return []
 
     def visit_operator_assignment_stmt(
         self, stmt: mypy.nodes.OperatorAssignmentStmt
@@ -650,9 +651,11 @@ def _process_dataclass_like_fields(
                 rvalue=mypy.nodes.TempNode(),
                 type=mypy.types.Type() as mypy_type,
             ):
-
                 pytype = context.type_to_pytype(mypy_type, source_location=stmt_loc)
                 fields[field_name] = pytype
+                if isinstance((maybe_err := pytype.wtype), str):
+                    logger.error(maybe_err, location=stmt_loc)
+                    has_error = True
             case mypy.nodes.SymbolNode(name=symbol_name) if (
                 cdef.info.names[symbol_name].plugin_generated
             ):

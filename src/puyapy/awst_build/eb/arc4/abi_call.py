@@ -217,7 +217,7 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
                 method_call = _get_arc4_method_call(fmethod, abi_args, location)
             case ContractTypeExpressionBuilder(
                 fragment=fragment, pytype=pytypes.TypeType(typ=typ)
-            ) if pytypes.ARC4ContractBaseType in typ.mro:
+            ) if pytypes.ARC4ContractBaseType < typ:
                 contract_ref = fragment.id
                 method_call = _get_lifecycle_method_call(
                     fragment,
@@ -503,17 +503,16 @@ def _create_abi_call_expr(
         )
 
     for arg_b in abi_args:
+        arg_expr = None
         match arg_b.pytype:
-            case pytypes.TransactionRelatedType() as txn_pytype:
-                if isinstance(txn_pytype.wtype, wtypes.WInnerTransactionFields):
-                    group.append(arg_b.resolve())
-                else:
-                    logger.error(
-                        "only inner transaction types can be used to call another contract",
-                        location=arg_b.source_location,
-                    )
-                # continue to next arg as txn aren't part of the app args
-                continue
+            case pytypes.InnerTransactionFieldsetType():
+                group.append(arg_b.resolve())
+                # no arg_expr as txn aren't part of the app args
+            case pytypes.TransactionRelatedType():
+                logger.error(
+                    "only inner transaction types can be used to call another contract",
+                    location=arg_b.source_location,
+                )
             case pytypes.AssetType:
                 arg_expr = ref_to_arg(TxnField.Assets, arg_b)
             case pytypes.AccountType:
@@ -522,7 +521,8 @@ def _create_abi_call_expr(
                 arg_expr = ref_to_arg(TxnField.Applications, arg_b)
             case _:
                 arg_expr = arg_b.resolve()
-        array_fields[TxnField.ApplicationArgs].append(arg_expr)
+        if arg_expr is not None:
+            array_fields[TxnField.ApplicationArgs].append(arg_expr)
 
     txn_type_appl = TransactionType.appl
     fields: dict[TxnField, Expression] = {
@@ -552,7 +552,7 @@ def _create_abi_call_expr(
     itxn_result_pytype = pytypes.InnerTransactionResultTypes[txn_type_appl]
     create_itxn = CreateInnerTransaction(
         fields=fields,
-        wtype=wtypes.WInnerTransactionFields.from_type(txn_type_appl),
+        wtype=pytypes.InnerTransactionFieldsetTypes[txn_type_appl].wtype,
         source_location=location,
     )
     group.append(create_itxn)
@@ -588,11 +588,13 @@ def _create_abi_call_expr(
     assert isinstance(itxn_builder, InnerTransactionExpressionBuilder)
     last_log = itxn_builder.get_field_value(TxnField.LastLog, pytypes.BytesType, location)
     abi_result = ARC4FromLogBuilder.abi_expr_from_log(arc4_return_type, last_log, location)
-    # the declared result wtype may be different to the arc4 signature return wtype
+    # the declared result type may be different to the arc4 signature return type
     # due to automatic conversion of ARC4 -> native types
     if declared_result_type != arc4_return_type:
         abi_result = ARC4Decode(
-            value=abi_result, wtype=declared_result_type.wtype, source_location=location
+            value=abi_result,
+            wtype=declared_result_type.checked_wtype(location),
+            source_location=location,
         )
 
     abi_result_builder = builder_for_instance(declared_result_type, abi_result)

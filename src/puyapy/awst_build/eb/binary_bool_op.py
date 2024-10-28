@@ -120,6 +120,8 @@ class BinaryBoolOpBuilder(InstanceBuilder):
                 " which isn't supported unless evaluating a boolean condition",
                 self.source_location,
             )
+        result_wtype = self.pytype.checked_wtype(self.source_location)
+
         # (left:uint64 and right:uint64) => left_cache if not bool(left_cache := left) else right
         # (left:uint64 or right:uint64) => left_cache if bool(left_cache := left) else right
         left_cache = self._left.single_eval()
@@ -130,7 +132,7 @@ class BinaryBoolOpBuilder(InstanceBuilder):
             condition=condition.resolve(),
             true_expr=left_cache.resolve(),
             false_expr=self._right.resolve(),
-            wtype=self.pytype.wtype,
+            wtype=result_wtype,
             source_location=self.source_location,
         )
         return expr_result

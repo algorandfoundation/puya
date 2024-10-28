@@ -3,7 +3,6 @@ from collections.abc import Sequence
 
 import mypy.nodes
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import ARC4Decode, ARC4Encode, Expression, TupleItemExpression
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -67,8 +66,7 @@ class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.ARC4TupleType]):
             args, location, default=expect.default_dummy_value(native_type)
         )
         wtype = typ.wtype
-        assert isinstance(wtype, wtypes.ARC4Tuple)
-        if not wtype.can_encode_type(arg.pytype.wtype):
+        if not wtype.can_encode_type(arg.pytype.checked_wtype(location)):
             arg = expect.not_this_type(arg, default=expect.default_dummy_value(native_type))
         return ARC4TupleExpressionBuilder(
             ARC4Encode(value=arg.resolve(), wtype=wtype, source_location=location), typ
@@ -113,9 +111,10 @@ class ARC4TupleExpressionBuilder(
         match name:
             case "native":
                 native_pytype = pytypes.GenericTupleType.parameterise(self.pytype.items, location)
+                native_wtype = native_pytype.checked_wtype(location)
                 result_expr: Expression = ARC4Decode(
                     value=self.resolve(),
-                    wtype=native_pytype.wtype,
+                    wtype=native_wtype,
                     source_location=location,
                 )
                 return TupleExpressionBuilder(result_expr, native_pytype)
@@ -126,7 +125,7 @@ class ARC4TupleExpressionBuilder(
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
+        return compare_bytes(self=self, op=op, other=other, source_location=location)
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:

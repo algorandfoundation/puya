@@ -154,7 +154,7 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = other.resolve_literal(converter=AccountTypeBuilder(other.source_location))
-        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
+        return compare_bytes(self=self, op=op, other=other, source_location=location)
 
 
 class _IsOptedIn(FunctionBuilder):
@@ -171,32 +171,29 @@ class _IsOptedIn(FunctionBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         arg = expect.exactly_one_arg(args, location, default=expect.default_none)
-        match arg:
-            case None:
-                return dummy_value(pytypes.BoolType, location)
-            case InstanceBuilder(pytype=pytypes.AssetType):
-                return BoolExpressionBuilder(
-                    TupleItemExpression(
-                        base=IntrinsicCall(
-                            op_code="asset_holding_get",
-                            immediates=["AssetBalance"],
-                            stack_args=[self.expr, arg.resolve()],
-                            wtype=wtypes.WTuple(
-                                (wtypes.uint64_wtype, wtypes.bool_wtype), location
-                            ),
-                            source_location=location,
-                        ),
-                        index=1,
-                        source_location=location,
-                    )
-                )
-            case _:
-                arg = expect.argument_of_type_else_dummy(arg, pytypes.ApplicationType)
-                return BoolExpressionBuilder(
-                    IntrinsicCall(
-                        op_code="app_opted_in",
+        if arg is None:
+            return dummy_value(pytypes.BoolType, location)
+        elif pytypes.AssetType <= arg.pytype:
+            return BoolExpressionBuilder(
+                TupleItemExpression(
+                    base=IntrinsicCall(
+                        op_code="asset_holding_get",
+                        immediates=["AssetBalance"],
                         stack_args=[self.expr, arg.resolve()],
+                        wtype=wtypes.WTuple((wtypes.uint64_wtype, wtypes.bool_wtype), location),
                         source_location=location,
-                        wtype=wtypes.bool_wtype,
-                    )
+                    ),
+                    index=1,
+                    source_location=location,
                 )
+            )
+        else:
+            arg = expect.argument_of_type_else_dummy(arg, pytypes.ApplicationType)
+            return BoolExpressionBuilder(
+                IntrinsicCall(
+                    op_code="app_opted_in",
+                    stack_args=[self.expr, arg.resolve()],
+                    source_location=location,
+                    wtype=wtypes.bool_wtype,
+                )
+            )

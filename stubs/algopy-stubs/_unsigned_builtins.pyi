@@ -10,6 +10,7 @@ from collections.abc import Iterable, Iterator, Reversible
 
 from algopy import UInt64
 
+@typing.final
 class urange(Reversible[UInt64]):  # noqa: N801
     """Produces a sequence of UInt64 from start (inclusive) to stop (exclusive) by step.
 
@@ -29,6 +30,7 @@ class urange(Reversible[UInt64]):  # noqa: N801
 
 _T = typing.TypeVar("_T")
 
+@typing.final
 class uenumerate(Reversible[tuple[UInt64, _T]]):  # noqa: N801
     """Yields pairs containing a count (from zero) and a value yielded by the iterable argument.
 

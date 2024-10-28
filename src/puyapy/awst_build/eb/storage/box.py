@@ -128,7 +128,7 @@ class BoxProxyExpressionBuilder(
             exists_assertion_message = "check Box exists"
         return BoxValueExpression(
             key=self.resolve(),
-            wtype=self.pytype.content.wtype,
+            wtype=self.pytype.content_wtype,
             exists_assertion_message=exists_assertion_message,
             source_location=location,
         )
