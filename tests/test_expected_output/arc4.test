@@ -212,6 +212,11 @@ class Arc4CopyContract(arc4.ARC4Contract):
 ## case: copy_arc4_struct
 from algopy import GlobalState, LocalState, Txn, arc4, subroutine, uenumerate
 
+class FrozenMutable(arc4.Struct, frozen=True):
+    mutable: arc4.DynamicBytes
+
+class FrozenImmutable(arc4.Struct, frozen=True):
+    number: arc4.UInt64
 
 class InnerStruct(arc4.Struct):
     number: arc4.UInt64
@@ -241,6 +246,18 @@ def method_tup(tup: tuple[InnerStruct, bool]) -> None:
     pass
 
 @subroutine
+def method_mutable_struct(mut: FrozenMutable) -> None:
+    pass
+
+@subroutine
+def method_immutable_struct(mut: FrozenImmutable) -> None:
+    pass
+
+@subroutine
+def method_immutable(tup: tuple[InnerStruct, bool]) -> None:
+    pass
+
+@subroutine
 def new_inner() -> InnerStruct:
     return InnerStruct(number=arc4.UInt64(1))
 
@@ -257,6 +274,9 @@ class Arc4StructCopyTests(arc4.ARC4Contract):
         self.global_inner = InnerStruct(number=arc4.UInt64(1))
         self.global_outer = OuterStruct(number=arc4.UInt64(2), inner=InnerStruct(number=arc4.UInt64(3)))
         self.global_proxy = GlobalState(OuterStruct(number=arc4.UInt64(1), inner=InnerStruct(number=arc4.UInt64(2))))
+        self.global_mutable = FrozenMutable(arc4.DynamicBytes())
+        self.global_immutable = FrozenImmutable(arc4.UInt64(42))
+        self.global_mutable_proxy = GlobalState(FrozenMutable(arc4.DynamicBytes()))
         self.local = LocalState(OuterStruct)
 
     @arc4.abimethod
@@ -264,10 +284,14 @@ class Arc4StructCopyTests(arc4.ARC4Contract):
         # **INIT**
         var_inner = InnerStruct(number=arc4.UInt64(4))
         var_outer = OuterStruct(number=arc4.UInt64(5), inner=InnerStruct(number=arc4.UInt64(6)))
+        var_mutable_struct = FrozenMutable(arc4.DynamicBytes())
+        var_immutable_struct = FrozenImmutable(arc4.UInt64(12))
 
         number = arc4.UInt64(42)
         bad_outer_from_locals = OuterStruct(number, var_inner) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a struct constructor
         ok_outer_from_locals = OuterStruct(number, var_inner.copy())
+        ok_immutable = var_immutable_struct
+        ok_mutable = var_mutable_struct.copy()
 
         # **FUNCTION LOCALS**
         bad_inner = var_inner ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
@@ -283,6 +307,14 @@ class Arc4StructCopyTests(arc4.ARC4Contract):
         method_num(var_inner.number)
         method_num(var_outer.number)
         method_num(var_outer.inner.number)
+
+        method_mutable_struct(var_mutable_struct)
+        method_mutable_struct(var_mutable_struct.copy())
+        method_immutable_struct(var_immutable_struct)
+        method_mutable_struct(self.global_mutable) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine from state
+        method_mutable_struct(self.global_mutable_proxy.value) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine from state
+        method_mutable_struct(self.global_mutable_proxy.value.copy())
+        method_immutable_struct(self.global_immutable)
 
         method_inner(var_outer.inner) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine
         method_inner(var_outer.inner.copy())
@@ -315,6 +347,10 @@ class Arc4StructCopyTests(arc4.ARC4Contract):
         bol = self.global_proxy.maybe()[1]
         bad_outer = self.global_proxy.get(new_outer()) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
         var_outer = self.global_proxy.get(new_outer()).copy()
+        bad_mutable = self.global_mutable ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
+        bad_mutable = self.global_mutable.copy()
+        bad_mutable = self.global_mutable_proxy.value ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
+        bad_mutable = self.global_mutable_proxy.value.copy()
 
         method_outer(self.local[Txn.sender]) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine from state
         method_outer(self.local[Txn.sender].copy())

@@ -57,6 +57,13 @@ contract Arc4StructsTypeContract
     log(reinterpret_cast<bytes>(flags))
     assert(reinterpret_cast<bytes>(reinterpret_cast<test_cases.arc4_types.structs.Vector>(reinterpret_cast<bytes>(coord_1))) == reinterpret_cast<bytes>(coord_1))
     test_cases.arc4_types.structs.nested_decode(new test_cases.arc4_types.structs.VectorFlags(vector=coord_1.copy(), flags=flags.copy()))
+    mutable: test_cases.arc4_types.structs.FrozenButMutable = new test_cases.arc4_types.structs.FrozenButMutable(mutable=arc4_encode(hex<"">, arc4.dynamic_array<arc4.uint8>))
+    copy: test_cases.arc4_types.structs.FrozenButMutable = mutable.copy()
+    copy.mutable.extend((42_arc4u8))
+    assert(mutable != copy, comment="expected copy is different")
+    immutable: test_cases.arc4_types.structs.FrozenAndImmutable = new test_cases.arc4_types.structs.FrozenAndImmutable(one=12_arc4u64, two=34_arc4u64)
+    no_copy: test_cases.arc4_types.structs.FrozenAndImmutable = immutable
+    assert(no_copy == immutable)
     return true
   }
   

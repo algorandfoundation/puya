@@ -2,27 +2,27 @@
 
 test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
     intcblock 0 8 1 2
-    bytecblock 0x00 0x 0x000000083cfbf217 0x000000230384b842
-    // arc4_types/structs.py:27
+    bytecblock 0x 0x00 0x000000083cfbf217 0x000000230384b842
+    // arc4_types/structs.py:36
     // coord_1 = Vector(x=Decimal("35.382882839"), y=Decimal("150.382884930"))
-    bytec_1 // 0x
+    bytec_0 // 0x
     bytec_2 // 0x000000083cfbf217
     concat
     bytec_3 // 0x000000230384b842
     concat
     dup
-    // arc4_types/structs.py:28
+    // arc4_types/structs.py:37
     // coord_2 = Vector(y=Decimal("150.382884930"), x=Decimal("35.382882839"))
-    bytec_1 // 0x
+    bytec_0 // 0x
     bytec_2 // 0x000000083cfbf217
     concat
     bytec_3 // 0x000000230384b842
     concat
-    // arc4_types/structs.py:29
+    // arc4_types/structs.py:38
     // coord_3 = add(coord_1.copy(), coord_2.copy())
     callsub add
     popn 2
-    // arc4_types/structs.py:30
+    // arc4_types/structs.py:39
     // for val in (coord_3.x, coord_3.y):
     dup
     intc_0 // 0
@@ -37,10 +37,10 @@ test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
     swap
 
 main_for_body@1:
-    // arc4_types/structs.py:31
+    // arc4_types/structs.py:40
     // log(val.bytes)
     log
-    // arc4_types/structs.py:30
+    // arc4_types/structs.py:39
     // for val in (coord_3.x, coord_3.y):
     dup
     switch main_for_header_1@3
@@ -49,33 +49,33 @@ main_for_body@1:
 main_for_header_1@3:
     intc_2 // 1
     bury 1
-    // arc4_types/structs.py:30
+    // arc4_types/structs.py:39
     // for val in (coord_3.x, coord_3.y):
     dig 1
     b main_for_body@1
 
 main_after_for@4:
-    // arc4_types/structs.py:33
+    // arc4_types/structs.py:42
     // flags = Flags(a=arc4.Bool(True), b=arc4.Bool(False), c=arc4.Bool(True), d=arc4.Bool(False))
-    bytec_0 // 0x00
+    bytec_1 // 0x00
     intc_0 // 0
     intc_2 // 1
     setbit
-    bytec_0 // 0x00
+    bytec_1 // 0x00
     intc_0 // 0
     dup
     setbit
-    bytec_0 // 0x00
+    bytec_1 // 0x00
     intc_0 // 0
     intc_2 // 1
     setbit
     cover 2
-    bytec_0 // 0x00
+    bytec_1 // 0x00
     intc_0 // 0
     dup
     setbit
     cover 3
-    bytec_1 // 0x
+    bytec_0 // 0x
     uncover 2
     concat
     swap
@@ -99,32 +99,101 @@ main_after_for@4:
     pushint 3 // 3
     uncover 2
     setbit
-    // arc4_types/structs.py:34
+    // arc4_types/structs.py:43
     // check(flags.copy())
     dup
     callsub check
     pop
-    // arc4_types/structs.py:35
+    // arc4_types/structs.py:44
     // log(flags.bytes)
     dup
     log
-    // arc4_types/structs.py:36
+    // arc4_types/structs.py:45
     // assert Vector.from_bytes(coord_1.bytes).bytes == coord_1.bytes
     dig 3
     dup
     dig 1
     ==
     assert
-    // arc4_types/structs.py:38
+    // arc4_types/structs.py:47
     // nested_decode(VectorFlags(coord_1.copy(), flags.copy()))
-    bytec_1 // 0x
+    bytec_0 // 0x
     swap
     concat
     swap
     concat
     callsub nested_decode
     pop
-    // arc4_types/structs.py:40
+    // arc4_types/structs.py:49
+    // mutable = FrozenButMutable(arc4.DynamicBytes())
+    bytec_0 // 0x
+    len
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    concat
+    intc_3 // 2
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    concat
+    // arc4_types/structs.py:50
+    // copy = mutable.copy()
+    dupn 2
+    // arc4_types/structs.py:51
+    // copy.mutable.append(arc4.Byte(42))
+    intc_0 // 0
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    dup
+    uncover 3
+    uncover 3
+    substring3
+    extract 2 0
+    bytec_0 // 0x
+    pushbytes 0x2a
+    concat
+    concat
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    dig 1
+    intc_0 // 0
+    extract_uint16
+    uncover 2
+    intc_0 // 0
+    uncover 2
+    extract3
+    swap
+    concat
+    // arc4_types/structs.py:52
+    // assert mutable != copy, "expected copy is different"
+    !=
+    assert // expected copy is different
+    // arc4_types/structs.py:54
+    // immutable = FrozenAndImmutable(arc4.UInt64(12), arc4.UInt64(34))
+    bytec_0 // 0x
+    pushbytes 0x000000000000000c
+    concat
+    pushbytes 0x0000000000000022
+    concat
+    // arc4_types/structs.py:55
+    // no_copy = immutable
+    dup
+    // arc4_types/structs.py:56
+    // assert no_copy == immutable
+    ==
+    assert
+    // arc4_types/structs.py:58
     // return True
     intc_2 // 1
     return
@@ -132,11 +201,11 @@ main_after_for@4:
 
 // test_cases.arc4_types.structs.add(v1: bytes, v2: bytes) -> bytes, bytes, bytes:
 add:
-    // arc4_types/structs.py:46-47
+    // arc4_types/structs.py:64-65
     // @subroutine
     // def add(v1: Vector, v2: Vector) -> Vector:
     proto 2 3
-    // arc4_types/structs.py:49
+    // arc4_types/structs.py:67
     // x=add_decimal(v1.x, v2.x),
     frame_dig -2
     intc_0 // 0
@@ -147,7 +216,7 @@ add:
     intc_1 // 8
     extract3 // on error: Index access is out of bounds
     callsub add_decimal
-    // arc4_types/structs.py:50
+    // arc4_types/structs.py:68
     // y=add_decimal(v1.y, v2.y),
     frame_dig -2
     intc_1 // 8
@@ -158,12 +227,12 @@ add:
     dup
     extract3 // on error: Index access is out of bounds
     callsub add_decimal
-    // arc4_types/structs.py:48-51
+    // arc4_types/structs.py:66-69
     // return Vector(
     //     x=add_decimal(v1.x, v2.x),
     //     y=add_decimal(v1.y, v2.y),
     // )
-    bytec_1 // 0x
+    bytec_0 // 0x
     uncover 2
     concat
     swap
@@ -175,11 +244,11 @@ add:
 
 // test_cases.arc4_types.structs.add_decimal(x: bytes, y: bytes) -> bytes:
 add_decimal:
-    // arc4_types/structs.py:68-69
+    // arc4_types/structs.py:86-87
     // @subroutine
     // def add_decimal(x: Decimal, y: Decimal) -> Decimal:
     proto 2 1
-    // arc4_types/structs.py:70
+    // arc4_types/structs.py:88
     // return Decimal.from_bytes(op.itob(op.btoi(x.bytes) + op.btoi(y.bytes)))
     frame_dig -2
     btoi
@@ -192,28 +261,28 @@ add_decimal:
 
 // test_cases.arc4_types.structs.check(flags: bytes) -> bytes:
 check:
-    // arc4_types/structs.py:54-55
+    // arc4_types/structs.py:72-73
     // @subroutine
     // def check(flags: Flags) -> None:
     proto 1 1
-    // arc4_types/structs.py:56
+    // arc4_types/structs.py:74
     // assert flags.a.native
     frame_dig -1
     intc_0 // 0
     getbit
-    bytec_0 // 0x00
+    bytec_1 // 0x00
     intc_0 // 0
     uncover 2
     setbit
     intc_0 // 0
     getbit
     assert
-    // arc4_types/structs.py:57
+    // arc4_types/structs.py:75
     // assert not flags.b.native
     frame_dig -1
     intc_2 // 1
     getbit
-    bytec_0 // 0x00
+    bytec_1 // 0x00
     intc_0 // 0
     uncover 2
     setbit
@@ -221,24 +290,24 @@ check:
     getbit
     !
     assert
-    // arc4_types/structs.py:58
+    // arc4_types/structs.py:76
     // assert flags.c.native
     frame_dig -1
     intc_3 // 2
     getbit
-    bytec_0 // 0x00
+    bytec_1 // 0x00
     intc_0 // 0
     uncover 2
     setbit
     intc_0 // 0
     getbit
     assert
-    // arc4_types/structs.py:59
+    // arc4_types/structs.py:77
     // assert not flags.d.native
     frame_dig -1
     pushint 3 // 3
     getbit
-    bytec_0 // 0x00
+    bytec_1 // 0x00
     intc_0 // 0
     uncover 2
     setbit
@@ -252,11 +321,11 @@ check:
 
 // test_cases.arc4_types.structs.nested_decode(vector_flags: bytes) -> bytes:
 nested_decode:
-    // arc4_types/structs.py:62-63
+    // arc4_types/structs.py:80-81
     // @subroutine
     // def nested_decode(vector_flags: VectorFlags) -> None:
     proto 1 1
-    // arc4_types/structs.py:64
+    // arc4_types/structs.py:82
     // assert vector_flags.vector.x.bytes == op.itob(35382882839)
     frame_dig -1
     intc_0 // 0
@@ -269,7 +338,7 @@ nested_decode:
     itob
     ==
     assert
-    // arc4_types/structs.py:65
+    // arc4_types/structs.py:83
     // assert vector_flags.flags.c.native
     frame_dig -1
     pushint 16 // 16
@@ -277,7 +346,7 @@ nested_decode:
     extract3 // on error: Index access is out of bounds
     intc_3 // 2
     getbit
-    bytec_0 // 0x00
+    bytec_1 // 0x00
     intc_0 // 0
     uncover 2
     setbit
