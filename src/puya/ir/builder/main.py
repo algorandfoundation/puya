@@ -1,6 +1,8 @@
 import typing
 from collections.abc import Iterator, Sequence
 
+import attrs
+
 import puya.awst.visitors
 import puya.ir.builder.storage
 from puya import algo_constants, log, utils
@@ -23,9 +25,14 @@ from puya.ir.builder._utils import (
     assign_targets,
     assign_temp,
     extract_const_int,
+    get_implicit_return_is_original,
+    get_implicit_return_out,
     mktemp,
 )
-from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
+from puya.ir.builder.assignment import (
+    handle_assignment,
+    handle_assignment_expr,
+)
 from puya.ir.builder.bytes import (
     visit_bytes_intersection_slice_expression,
     visit_bytes_slice_expression,
@@ -94,8 +101,22 @@ class FunctionIRBuilder(
         builder = cls(ctx, function, subroutine)
         func_ctx = builder.context
         with func_ctx.log_exceptions():
-            function.body.accept(builder)
             block_builder = func_ctx.block_builder
+            for p in subroutine.parameters:
+                if p.implicit_return:
+                    assign(
+                        func_ctx,
+                        UInt64Constant(value=1, ir_type=IRType.bool, source_location=None),
+                        name=get_implicit_return_is_original(p.name),
+                        assignment_location=None,
+                    )
+                    assign(
+                        func_ctx,
+                        p,
+                        name=get_implicit_return_out(p.name),
+                        assignment_location=None,
+                    )
+            function.body.accept(builder)
             final_block = block_builder.active_block
             if not final_block.terminated:
                 if function.return_type != wtypes.void_wtype:
@@ -110,7 +131,9 @@ class FunctionIRBuilder(
                 block_builder.terminate(
                     SubroutineReturn(
                         result=[
-                            block_builder.ssa.read_variable(p.name, p.ir_type, final_block)
+                            block_builder.ssa.read_variable(
+                                get_implicit_return_out(p.name), p.ir_type, final_block
+                            )
                             for p in subroutine.parameters
                             if p.implicit_return
                         ],
@@ -262,6 +285,7 @@ class FunctionIRBuilder(
             self.context,
             target=expr.target,
             value=new_value,
+            is_nested_update=False,
             assignment_location=expr.source_location,
         )
         return target_value
@@ -285,6 +309,7 @@ class FunctionIRBuilder(
             self.context,
             target=expr.target,
             value=new_value,
+            is_nested_update=False,
             assignment_location=expr.source_location,
         )
         return target_value
@@ -1006,6 +1031,7 @@ class FunctionIRBuilder(
             self.context,
             target=statement.target,
             value=expr,
+            is_nested_update=False,
             assignment_location=statement.source_location,
         )
 
@@ -1020,6 +1046,7 @@ class FunctionIRBuilder(
             self.context,
             target=statement.target,
             value=expr,
+            is_nested_update=False,
             assignment_location=statement.source_location,
         )
 
@@ -1034,6 +1061,7 @@ class FunctionIRBuilder(
             self.context,
             target=statement.target,
             value=expr,
+            is_nested_update=False,
             assignment_location=statement.source_location,
         )
 
@@ -1074,15 +1102,17 @@ class FunctionIRBuilder(
         )
 
     def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> TExpression:
+        concat_result = arc4.concat_values(
+            self.context,
+            left_expr=expr.base,
+            right_expr=expr.other,
+            source_location=expr.source_location,
+        )
         return arc4.handle_arc4_assign(
             self.context,
             target=expr.base,
-            value=arc4.concat_values(
-                self.context,
-                left_expr=expr.base,
-                right_expr=expr.other,
-                source_location=expr.source_location,
-            ),
+            value=concat_result,
+            is_nested_update=True,
             source_location=expr.source_location,
         )
 

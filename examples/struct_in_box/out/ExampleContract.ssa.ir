@@ -87,10 +87,12 @@ contract examples.struct_in_box.contract.ExampleContract:
         
         subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: bytes) -> bytes:
             block@0: // L18
+                let user%is_original#0: bool = 1u
+                let user%out#0: bytes = user#0
                 let box_key#0: bytes = (extract3 user#0 2u 8u) // on error: Index access is out of bounds
                 (box_del box_key#0)
                 (box_put box_key#0 user#0)
-                return user#0
+                return user%out#0
         
         subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(user_id: bytes, asset: uint64) -> void:
             block@0: // L36
