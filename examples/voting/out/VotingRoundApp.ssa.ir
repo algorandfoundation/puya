@@ -132,6 +132,8 @@ contract examples.voting.voting.VotingRoundApp:
         
         subroutine examples.voting.voting.VotingRoundApp.store_option_counts(option_counts: bytes) -> bytes:
             block@0: // L217
+                let option_counts%is_original#0: bool = 1u
+                let option_counts%out#0: bytes = option_counts#0
                 let tmp%0#0: uint64 = (extract_uint16 option_counts#0 0u)
                 let tmp%1#0: bool = (!= tmp%0#0 0u)
                 (assert tmp%1#0) // option_counts should be non-empty
@@ -164,7 +166,7 @@ contract examples.voting.voting.VotingRoundApp:
                 let copy%0#0: bytes = option_counts#0
                 (app_global_put "option_counts" copy%0#0)
                 (app_global_put "total_options" total_options#1)
-                return option_counts#0
+                return option_counts%out#0
         
         subroutine examples.voting.voting.VotingRoundApp.bootstrap(fund_min_bal_req: uint64) -> void:
             block@0: // L82

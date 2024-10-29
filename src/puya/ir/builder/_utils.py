@@ -3,10 +3,13 @@ from collections.abc import Sequence
 
 import attrs
 
-from puya.awst import nodes as awst_nodes
+from puya.awst import (
+    nodes as awst_nodes,
+    wtypes,
+)
 from puya.errors import InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.context import IRFunctionBuildContext
+from puya.ir.context import TMP_VAR_INDICATOR, IRFunctionBuildContext
 from puya.ir.models import (
     Assignment,
     BytesConstant,
@@ -76,6 +79,55 @@ def assign_targets(
     context.block_builder.add(
         Assignment(targets=targets, source=source, source_location=assignment_location)
     )
+    # also update any implicitly returned variables
+    implicit_params = {p.name for p in context.subroutine.parameters if p.implicit_return}
+    for target in targets:
+        if target.name in implicit_params:
+            _update_implicit_out_var(context, target.name, target.ir_type)
+
+
+def _update_implicit_out_var(context: IRFunctionBuildContext, var: str, ir_type: IRType) -> None:
+    # emit conditional assignment equivalent to
+    # if var%is_original:
+    #   var%out = var
+    loc = SourceLocation(file=None, line=1)
+    wtype = wtypes.bytes_wtype if ir_type == IRType.bytes else wtypes.uint64_wtype
+    node = awst_nodes.IfElse(
+        condition=awst_nodes.VarExpression(
+            name=get_implicit_return_is_original(var),
+            wtype=wtypes.bool_wtype,
+            source_location=loc,
+        ),
+        if_branch=awst_nodes.Block(
+            body=[
+                awst_nodes.AssignmentStatement(
+                    target=awst_nodes.VarExpression(
+                        name=get_implicit_return_out(var),
+                        wtype=wtype,
+                        source_location=loc,
+                    ),
+                    value=awst_nodes.VarExpression(
+                        name=var,
+                        wtype=wtype,
+                        source_location=loc,
+                    ),
+                    source_location=loc,
+                )
+            ],
+            source_location=loc,
+        ),
+        else_branch=None,
+        source_location=loc,
+    )
+    node.accept(context.visitor)
+
+
+def get_implicit_return_is_original(var_name: str) -> str:
+    return f"{var_name}{TMP_VAR_INDICATOR}is_original"
+
+
+def get_implicit_return_out(var_name: str) -> str:
+    return f"{var_name}{TMP_VAR_INDICATOR}out"
 
 
 def mktemp(

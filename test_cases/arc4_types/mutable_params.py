@@ -1,6 +1,6 @@
 import typing
 
-from algopy import Contract, subroutine
+from algopy import Contract, UInt64, subroutine
 from algopy.arc4 import (
     Bool,
     StaticArray,
@@ -79,8 +79,37 @@ class Arc4MutableParamsContract(Contract):
         self.other_routine_2(my_array_copy_2)
         assert my_array_copy_2[0] == UInt8(10), "my_array_copy_2 should have mutated value"
 
-        # tuples of mutable types only work with a .copy()
-        self.other_routine_3((my_array.copy(), my_array_copy_2.copy(), my_array_copy_2.copy()))
+        my_array_copy_3 = my_array_copy.copy()
+
+        originals = (my_array.copy(), my_array_copy_2.copy(), my_array_copy_3.copy())
+        self.mutate_tuple_items_and_reassign(
+            (my_array.copy(), my_array_copy_2.copy(), my_array_copy_3.copy()),
+            start=UInt64(0),
+            reassign=True,
+        )
+        assert originals == (my_array, my_array_copy_2, my_array_copy_3)
+
+        self.mutate_tuple_items_and_reassign(
+            (my_array, my_array_copy_2, my_array_copy_3), start=UInt64(100), reassign=True
+        )
+
+        assert my_array[0] == 100
+        assert my_array_copy_2[0] == 101
+        assert my_array_copy_3[0] == 102
+        assert my_array[1] == 103
+        assert my_array_copy_2[1] == 104
+        assert my_array_copy_3[1] == 105
+
+        self.mutate_tuple_items_and_reassign(
+            (my_array, my_array_copy_2, my_array_copy_3), start=UInt64(200), reassign=False
+        )
+
+        assert my_array[0] == 200
+        assert my_array_copy_2[0] == 201
+        assert my_array_copy_3[0] == 202
+        assert my_array[1] == 206
+        assert my_array_copy_2[1] == 207
+        assert my_array_copy_3[1] == 208
 
         # Nested array items should still require a copy
         nested = StructWithArray(test_array=my_array.copy())
@@ -99,14 +128,32 @@ class Arc4MutableParamsContract(Contract):
         return copy
 
     @subroutine
-    def other_routine_3(self, arrays: tuple[TestArray, TestArray, TestArray]) -> None:
-        # this modifies the local copy
-        for array in arrays:
-            array[0] = UInt8(99)
+    def mutate_tuple_items_and_reassign(
+        self, arrays: tuple[TestArray, TestArray, TestArray], *, start: UInt64, reassign: bool
+    ) -> None:
+        arrays[0][0] = UInt8(start)
+        arrays[1][0] = UInt8(start + 1)
+        arrays[2][0] = UInt8(start + 2)
 
-        arrays[0][0] = UInt8(99)
-        arrays[1][0] = UInt8(99)
-        arrays[2][0] = UInt8(99)
+        assert arrays[0][0] == start
+        assert arrays[1][0] == start + 1
+        assert arrays[2][0] == start + 2
+
+        arrays[0][1] = UInt8(start + 3)
+        arrays[1][1] = UInt8(start + 4)
+        arrays[2][1] = UInt8(start + 5)
+
+        # overwrite params
+        if reassign:
+            arrays = (arrays[0].copy(), arrays[1].copy(), arrays[2].copy())
+
+        arrays[0][1] = UInt8(start + 6)
+        arrays[1][1] = UInt8(start + 7)
+        arrays[2][1] = UInt8(start + 8)
+
+        assert arrays[0][1] == start + 6
+        assert arrays[1][1] == start + 7
+        assert arrays[2][1] == start + 8
 
     def clear_state_program(self) -> bool:
         return True

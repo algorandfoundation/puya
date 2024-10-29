@@ -53,18 +53,18 @@ class ARC4CopyValidator(AWSTTraverser):
         expr.value.accept(self)
 
     def visit_subroutine_call_expression(self, expr: awst_nodes.SubroutineCallExpression) -> None:
-        super().visit_subroutine_call_expression(expr)
-        for arg in expr.args:
-            match arg.value:
-                case awst_nodes.VarExpression():
-                    # Var expressions don't need copy as we implicitly return the latest value and
-                    # update the var
-                    continue
-                case awst_nodes.AppStateExpression() | awst_nodes.AppAccountStateExpression():
-                    message = "being passed to a subroutine from state"
-                case _:
-                    message = "being passed to a subroutine"
-            _check_for_arc4_copy(arg.value, message)
+        for arg_ in expr.args:
+            for arg in _expand_tuple_items(arg_.value):
+                match arg:
+                    case awst_nodes.VarExpression():
+                        # Var expressions don't need copy as we implicitly return the latest value
+                        # and update the var
+                        continue
+                    case awst_nodes.AppStateExpression() | awst_nodes.AppAccountStateExpression():
+                        message = "being passed to a subroutine from state"
+                    case _:
+                        message = "being passed to a subroutine"
+                _check_for_arc4_copy(arg, message)
 
     def visit_new_array(self, expr: awst_nodes.NewArray) -> None:
         super().visit_new_array(expr)
@@ -131,7 +131,8 @@ def _check_for_arc4_copy(expr: awst_nodes.Expression, context_desc: str) -> None
 def _expand_tuple_items(expr: awst_nodes.Expression) -> Iterator[awst_nodes.Expression]:
     match expr:
         case awst_nodes.TupleExpression(items=items):
-            yield from items
+            for item in items:
+                yield from _expand_tuple_items(item)
         case _:
             yield expr
 

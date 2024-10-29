@@ -2,6 +2,7 @@ from collections.abc import Sequence
 
 import attrs
 
+from puya import log
 from puya.arc4_util import (
     determine_arc4_tuple_head_size,
     get_arc4_fixed_bit_size,
@@ -17,7 +18,6 @@ from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import (
     assert_value,
-    assign,
     assign_intrinsic_op,
     assign_targets,
     assign_temp,
@@ -36,9 +36,10 @@ from puya.ir.models import (
     ValueTuple,
 )
 from puya.ir.types_ import AVMBytesEncoding, IRType, get_wtype_arity
-from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.utils import bits_to_bytes
+
+logger = log.get_logger(__name__)
 
 
 @attrs.frozen(kw_only=True)
@@ -356,7 +357,7 @@ def handle_arc4_assign(
     value: ValueProvider,
     source_location: SourceLocation,
     *,
-    is_mutation: bool = False,
+    is_nested_update: bool,
 ) -> Value:
     result: Value
     match target:
@@ -366,68 +367,71 @@ def handle_arc4_assign(
             ) as base_expr,
             index=index_value,
         ):
+            item = _arc4_replace_array_item(
+                context,
+                base_expr=base_expr,
+                index_value_expr=index_value,
+                wtype=array_wtype,
+                value=value,
+                source_location=source_location,
+            )
             return handle_arc4_assign(
                 context,
                 target=base_expr,
-                value=_arc4_replace_array_item(
-                    context,
-                    base_expr=base_expr,
-                    index_value_expr=index_value,
-                    wtype=array_wtype,
-                    value=value,
-                    source_location=source_location,
-                ),
+                value=item,
                 source_location=source_location,
-                is_mutation=True,
+                is_nested_update=True,
             )
         case awst_nodes.FieldExpression(
             base=awst_nodes.Expression(wtype=wtypes.ARC4Struct() as struct_wtype) as base_expr,
             name=field_name,
         ):
+            item = _arc4_replace_struct_item(
+                context,
+                base_expr=base_expr,
+                field_name=field_name,
+                wtype=struct_wtype,
+                value=value,
+                source_location=source_location,
+            )
             return handle_arc4_assign(
                 context,
                 target=base_expr,
-                value=_arc4_replace_struct_item(
-                    context,
-                    base_expr=base_expr,
-                    field_name=field_name,
-                    wtype=struct_wtype,
-                    value=value,
-                    source_location=source_location,
-                ),
+                value=item,
                 source_location=source_location,
-                is_mutation=True,
+                is_nested_update=True,
             )
         case awst_nodes.TupleItemExpression(
             base=awst_nodes.Expression(wtype=wtypes.ARC4Tuple() as tuple_wtype) as base_expr,
             index=index_value,
         ):
+            item = _arc4_replace_tuple_item(
+                context,
+                base_expr=base_expr,
+                index_int=index_value,
+                wtype=tuple_wtype,
+                value=value,
+                source_location=source_location,
+            )
             return handle_arc4_assign(
                 context,
                 target=base_expr,
-                value=_arc4_replace_tuple_item(
-                    context,
-                    base_expr=base_expr,
-                    index_int=index_value,
-                    wtype=tuple_wtype,
-                    value=value,
-                    source_location=source_location,
-                ),
+                value=item,
                 source_location=source_location,
-                is_mutation=True,
+                is_nested_update=True,
             )
         # this function is sometimes invoked outside an assignment expr/stmt, which
         # is how a non l-value expression can be possible
         # TODO: refactor this so that this special case is handled where it originates
         case awst_nodes.TupleItemExpression(
             wtype=item_wtype,
-        ) as ti_expr if not item_wtype.immutable:
-            result = assign(
-                context=context,
-                name=_get_tuple_var_name(ti_expr),
-                source=value,
-                register_location=ti_expr.source_location,
+        ) if not item_wtype.immutable:
+            (result,) = handle_assignment(
+                context,
+                target,
+                value=value,
                 assignment_location=source_location,
+                is_nested_update=True,
             )
             return result
         case _:
@@ -436,18 +440,9 @@ def handle_arc4_assign(
                 target,
                 value=value,
                 assignment_location=source_location,
-                is_mutation=is_mutation,
+                is_nested_update=is_nested_update,
             )
             return result
-
-
-def _get_tuple_var_name(expr: awst_nodes.TupleItemExpression) -> str:
-    if isinstance(expr.base.wtype, wtypes.WTuple):
-        if isinstance(expr.base, awst_nodes.TupleItemExpression):
-            return format_tuple_index(expr.base.wtype, _get_tuple_var_name(expr.base), expr.index)
-        if isinstance(expr.base, awst_nodes.VarExpression):
-            return format_tuple_index(expr.base.wtype, expr.base.name, expr.index)
-    raise CodeError("invalid assignment target", expr.base.source_location)
 
 
 def concat_values(
@@ -592,7 +587,13 @@ def pop_arc4_array(
         assignment_location=source_location,
     )
 
-    handle_arc4_assign(context, target=expr.base, value=data, source_location=source_location)
+    handle_arc4_assign(
+        context,
+        target=expr.base,
+        value=data,
+        is_nested_update=True,
+        source_location=source_location,
+    )
 
     return popped
 

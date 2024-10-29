@@ -1,0 +1,87 @@
+contract test_cases.arc4_types.mutable_params2.MutableParams2:
+    program approval:
+        subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+            block@0: // L1
+                let tmp%0#0: bool = test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__()
+                return tmp%0#0
+        
+        subroutine test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__() -> bool:
+            block@0: // L4
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                goto tmp%0#0 ? block@1 : block@5
+            block@1: // abi_routing_L4
+                let tmp%2#0: bytes = (txna ApplicationArgs 0)
+                switch tmp%2#0 {method "test_array_rebinding()void" => block@2, * => return 0u}
+            block@2: // test_array_rebinding_route_L5
+                let tmp%3#0: uint64 = (txn OnCompletion)
+                let tmp%4#0: bool = (! tmp%3#0)
+                (assert tmp%4#0) // OnCompletion is NoOp
+                let tmp%5#0: uint64 = (txn ApplicationID)
+                (assert tmp%5#0) // is not creating
+                test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding()
+                return 1u
+            block@5: // bare_routing_L4
+                let tmp%7#0: uint64 = (txn OnCompletion)
+                goto tmp%7#0 ? block@9 : block@6
+            block@6: // __algopy_default_create_L1
+                let tmp%8#0: uint64 = (txn ApplicationID)
+                let tmp%9#0: bool = (! tmp%8#0)
+                (assert tmp%9#0) // is creating
+                return 1u
+            block@9: // after_if_else_L4
+                return 0u
+        
+        subroutine test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding() -> void:
+            block@0: // L5
+                let a#1: bytes = test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array(0x000100, 1u)
+                let tmp%0#0: bool = (== a#1 0x00020001)
+                (assert tmp%0#0)
+                let a#1: bytes = test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array(0x000101, 0u)
+                let tmp%1#0: bool = (== a#1 0x0003012a04)
+                (assert tmp%1#0)
+                return 
+        
+        subroutine test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array(a: bytes, assign_local: bool) -> bytes:
+            block@0: // L15
+                let a%is_original#0: bool = 1u
+                goto assign_local#0 ? block@1 : block@10
+            block@1: // if_body_L18
+                let expr_value_trimmed%0#0: bytes = ((extract 2 0) a#0)
+                let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 0x01)
+                let len_%0#0: uint64 = (len concatenated%0#0)
+                let as_bytes%0#0: bytes = (itob len_%0#0)
+                let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+                let a#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
+                let a#5: bytes = 0x0003010204
+                let a%is_original#0: bool = 0u
+                let a%out#7: bytes = a#0
+                let a#0: bytes = a#5
+                goto block@13
+            block@10: // else_body_L23
+                let expr_value_trimmed%2#0: bytes = ((extract 2 0) a#0)
+                let concatenated%2#0: bytes = (concat expr_value_trimmed%2#0 0x2a)
+                let len_%2#0: uint64 = (len concatenated%2#0)
+                let as_bytes%2#0: bytes = (itob len_%2#0)
+                let len_16_bit%2#0: bytes = ((extract 6 2) as_bytes%2#0)
+                let a#0: bytes = (concat len_16_bit%2#0 concatenated%2#0)
+                let a%out#7: bytes = a#0
+                let a#0: bytes = a%out#7
+                goto block@13
+            block@13: // after_if_else_L17
+                let expr_value_trimmed%3#0: bytes = ((extract 2 0) a#0)
+                let concatenated%3#0: bytes = (concat expr_value_trimmed%3#0 0x04)
+                let len_%3#0: uint64 = (len concatenated%3#0)
+                let as_bytes%3#0: bytes = (itob len_%3#0)
+                let len_16_bit%3#0: bytes = ((extract 6 2) as_bytes%3#0)
+                let a#0: bytes = (concat len_16_bit%3#0 concatenated%3#0)
+                goto a%is_original#0 ? block@14 : block@15
+            block@14: // if_body_L1
+                let a%out#7: bytes = a#0
+                goto block@15
+            block@15: // after_if_else_L1
+                return a%out#7
+    
+    program clear-state:
+        subroutine algopy.arc4.ARC4Contract.clear_state_program() -> bool:
+            block@0: // L1
+                return 1u

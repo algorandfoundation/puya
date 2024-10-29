@@ -617,6 +617,21 @@ def test_dynamic_array_of_string(
     assert xyz_raw_result.return_value == list("XYZ")
 
 
+def test_array_rebinding(
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+) -> None:
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(TEST_CASES_DIR / "arc4_types/mutable_params2.py")
+    )
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+
+    create_response = app_client.create()
+    assert create_response.confirmed_round
+
+    app_client.call("test_array_rebinding")
+
+
 def test_avm_types_in_abi(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     example = TEST_CASES_DIR / "avm_types_in_abi" / "contract.py"
     app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
