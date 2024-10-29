@@ -36,7 +36,7 @@ def main() -> None:
     parser.add_argument(
         "--output-source-map",
         action=argparse.BooleanOptionalAction,
-        default=False,
+        default=True,
         help="Output debug source maps",
     )
     parser.add_argument(
