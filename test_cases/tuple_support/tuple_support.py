@@ -61,7 +61,7 @@ class TupleSupport(Contract):
         x = tuple[UInt64, Bytes]((UInt64(), Bytes()))
         assert x[0] == 0
         assert x[1] == b""
-
+        test_empty()
         return a + b
 
     def clear_state_program(self) -> UInt64:
@@ -173,3 +173,13 @@ def slicing(values: tuple[UInt64, UInt64, UInt64, UInt64, UInt64, UInt64, UInt64
     assert one_to_three[-2:-1][0] == one_to_three[1]
 
     assert one_to_three == one_to_three[:]
+
+
+@subroutine
+def test_empty() -> None:
+    empty = ()
+    empty2 = empty
+    () = empty
+    () = ()
+    assert not empty
+    assert not empty2

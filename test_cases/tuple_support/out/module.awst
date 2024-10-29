@@ -54,6 +54,7 @@ contract TupleSupport
     x: tuple<uint64,bytes> = (0u, hex<"">)
     assert(x[0] == 0u)
     assert(x[1] == hex<"">)
+    test_cases.tuple_support.tuple_support.test_empty()
     return a + b
   }
   
@@ -112,6 +113,7 @@ contract TupleSupport
     x: tuple<uint64,bytes> = (0u, hex<"">)
     assert(x[0] == 0u)
     assert(x[1] == hex<"">)
+    test_cases.tuple_support.tuple_support.test_empty()
     return a + b
   }
 }
@@ -217,6 +219,16 @@ subroutine slicing(values: tuple<uint64,uint64,uint64,uint64,uint64,uint64,uint6
   assert(test_cases.tuple_support.tuple_support.add_three_values(one_to_three) == values[0] + values[1] + values[2])
   assert(one_to_three[1u:2u][0] == one_to_three[1])
   assert(&&(&&(one_to_three[0] == SINGLE_EVAL(id=7, source=one_to_three[:])[0], one_to_three[1] == SINGLE_EVAL(id=7)[1]), one_to_three[2] == SINGLE_EVAL(id=7)[2]))
+}
+
+subroutine test_empty(): void
+{
+  empty: tuple<> = ()
+  empty2: tuple<> = empty
+  (): tuple<> = empty
+  (): tuple<> = ()
+  assert(true)
+  assert(true)
 }
 
 contract TupleComparisons
