@@ -227,7 +227,7 @@ def too_long() -> arc4.DynamicBytes:
     return arc4.DynamicBytes(b"a" * 4096) ## E: encoded bytes exceed max length
 
 
-## case: test_tuple
+## case: test_tuple1
 import typing
 from algopy import *
 
@@ -235,7 +235,12 @@ from algopy import *
 def wrong_type() -> None:
     a = tuple(arc4.DynamicBytes(b"as")) ## E: unhandled argument type
 
+## case: test_tuple2
+import typing
+from algopy import *
 
-@subroutine
-def empty_tuple() -> None:
-    a: tuple[typing.Never, ...] = tuple() ## E: empty tuples are not supported
+
+class MyContract(ARC4Contract):
+    @arc4.abimethod
+    def empty_tuple(self) -> None:
+        a: tuple[typing.Never, ...] = tuple()

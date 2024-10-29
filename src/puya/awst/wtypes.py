@@ -224,8 +224,6 @@ class WTuple(WType):
 
     @types.validator
     def _types_validator(self, _attribute: object, types: tuple[WType, ...]) -> None:
-        if not types:
-            raise CodeError("empty tuples are not supported", self.source_location)
         if void_wtype in types:
             raise CodeError("tuple should not contain void types", self.source_location)
 

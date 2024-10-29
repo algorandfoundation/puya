@@ -74,6 +74,8 @@ def assign_targets(
     targets: list[Register],
     assignment_location: SourceLocation | None,
 ) -> None:
+    if not (source.types or targets):
+        return
     for target in targets:
         context.ssa.write_variable(target.name, context.block_builder.active_block, target)
     context.block_builder.add(
