@@ -276,7 +276,7 @@ def type_to_pytype(
                     name = func_like.definition.fullname
                 else:
                     name = repr(func_like)
-                if "first_arg" in func_like.def_extras:
+                if func_like.def_extras.get("first_arg"):
                     _self_arg, *func_args = func_args
                 return pytypes.FuncType(
                     name=name,
