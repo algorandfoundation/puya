@@ -373,9 +373,24 @@ class FunctionIRBuilder(
                 )
 
     def visit_bool_constant(self, expr: awst_nodes.BoolConstant) -> TExpression:
-        return UInt64Constant(
-            value=int(expr.value), ir_type=IRType.bool, source_location=expr.source_location
-        )
+        match expr.wtype:
+            case wtypes.bool_wtype:
+                return UInt64Constant(
+                    value=int(expr.value),
+                    ir_type=IRType.bool,
+                    source_location=expr.source_location,
+                )
+            case wtypes.arc4_bool_wtype:
+                return BytesConstant(
+                    value=(128 if expr.value else 0).to_bytes(1),
+                    encoding=AVMBytesEncoding.base16,
+                    ir_type=IRType.bytes,
+                    source_location=expr.source_location,
+                )
+            case _:
+                raise InternalError(
+                    f"Unexpected wtype {expr.wtype} for BoolConstant", expr.source_location
+                )
 
     def visit_bytes_constant(self, expr: awst_nodes.BytesConstant) -> BytesConstant:
         if len(expr.value) > algo_constants.MAX_BYTES_LENGTH:
