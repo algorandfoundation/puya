@@ -370,8 +370,8 @@ test_compile_contract:
     extract 6 2
     bytec_3 // "world"
     concat
-    // compile/factory.py:35
-    // hello_app = (
+    // compile/factory.py:49
+    // app_id=hello_app,
     swap
     itxn_field ApplicationID
     // compile/factory.py:48
@@ -550,8 +550,8 @@ test_compile_contract_tmpl:
     extract 6 2
     bytec_3 // "world"
     concat
-    // compile/factory.py:67
-    // hello_app = (
+    // compile/factory.py:84
+    // app_id=hello_app,
     swap
     itxn_field ApplicationID
     // compile/factory.py:83
@@ -715,8 +715,8 @@ test_compile_contract_prfx:
     extract 6 2
     bytec_3 // "world"
     concat
-    // compile/factory.py:103
-    // hello_app = (
+    // compile/factory.py:117
+    // app_id=hello_app,
     swap
     itxn_field ApplicationID
     // compile/factory.py:116
@@ -992,14 +992,8 @@ test_arc4_create:
     extract 6 2
     bytec_3 // "world"
     concat
-    // compile/factory.py:163-164
-    // # create app
-    // hello_app = arc4.arc4_create(Hello.create, "hello").created_app
     swap
     itxn_field ApplicationID
-    // compile/factory.py:166-167
-    // # call the new app
-    // result, _txn = arc4.abi_call(Hello.greet, "world", app_id=hello_app)
     bytec 5 // method "greet(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
@@ -1101,13 +1095,8 @@ test_arc4_create_tmpl:
     extract 6 2
     bytec_3 // "world"
     concat
-    // compile/factory.py:182
-    // hello_app = arc4.arc4_create(
     swap
     itxn_field ApplicationID
-    // compile/factory.py:187-188
-    // # call the new app
-    // result, _txn = arc4.abi_call(HelloTmpl.greet, "world", app_id=hello_app)
     bytec 5 // method "greet(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
@@ -1211,13 +1200,8 @@ test_arc4_create_prfx:
     extract 6 2
     bytec_3 // "world"
     concat
-    // compile/factory.py:205
-    // hello_app = arc4.arc4_create(
     swap
     itxn_field ApplicationID
-    // compile/factory.py:210-211
-    // # call the new app
-    // result, _txn = arc4.abi_call(HelloPrfx.greet, "world", app_id=hello_app)
     bytec 5 // method "greet(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
@@ -1448,12 +1432,8 @@ test_arc4_create_modified_compiled:
     extract 6 2
     bytec 6 // "there"
     concat
-    // compile/factory.py:246
-    // app = arc4.arc4_create(
     swap
     itxn_field ApplicationID
-    // compile/factory.py:257
-    // result, _txn = arc4.abi_call(Hello.greet, "there", app_id=app)
     bytec 5 // method "greet(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
@@ -1589,14 +1569,8 @@ test_arc4_update:
     extract 6 2
     bytec 6 // "there"
     concat
-    // compile/factory.py:266-267
-    // # create app
-    // app = arc4.arc4_create(
     swap
     itxn_field ApplicationID
-    // compile/factory.py:280-281
-    // # call the new app
-    // result, _txn = arc4.abi_call(HelloTmpl.greet, "there", app_id=app)
     bytec 5 // method "greet(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
@@ -1623,13 +1597,7 @@ test_arc4_update:
     // # update the app
     // arc4.arc4_update(Hello, app_id=app)
     itxn_begin
-    // compile/factory.py:266-267
-    // # create app
-    // app = arc4.arc4_create(
     frame_dig 0
-    // compile/factory.py:284-285
-    // # update the app
-    // arc4.arc4_update(Hello, app_id=app)
     bytec_2 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
     bytec_0 // 0x
@@ -1656,14 +1624,8 @@ test_arc4_update:
     extract 6 2
     bytec 6 // "there"
     concat
-    // compile/factory.py:266-267
-    // # create app
-    // app = arc4.arc4_create(
     frame_dig 0
     itxn_field ApplicationID
-    // compile/factory.py:287-288
-    // # call the updated app
-    // result, _txn = arc4.abi_call(Hello.greet, "there", app_id=app)
     bytec 5 // method "greet(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
@@ -1694,9 +1656,8 @@ test_arc4_update:
     //     # on_complete is inferred from Hello.delete ARC4 definition
     // )
     itxn_begin
-    // compile/factory.py:266-267
-    // # create app
-    // app = arc4.arc4_create(
+    // compile/factory.py:294
+    // app_id=app,
     frame_dig 0
     // compile/factory.py:291-296
     // # delete the app
@@ -1805,12 +1766,8 @@ test_other_constants:
     extract 6 2
     bytec 21 // "Johnny"
     concat
-    // compile/factory.py:300
-    // app = arc4.arc4_create(
     swap
     itxn_field ApplicationID
-    // compile/factory.py:315
-    // result, _txn = arc4.abi_call(HelloOtherConstants.greet, "Johnny", app_id=app)
     pushbytes 0x5b0c2375 // method "greet(string)byte[]"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
@@ -1940,12 +1897,8 @@ test_abi_call_create_params:
     extract 6 2
     bytec 6 // "there"
     concat
-    // compile/factory.py:327
-    // app = arc4.abi_call(
     swap
     itxn_field ApplicationID
-    // compile/factory.py:339
-    // result, _txn = arc4.abi_call(Hello.greet, "there", app_id=app)
     bytec 5 // method "greet(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs

@@ -470,6 +470,7 @@ class FunctionIRBuilder(
         variable = self.context.ssa.read_variable(
             expr.name, ir_type, self.context.block_builder.active_block
         )
+        variable = attrs.evolve(variable, source_location=expr.source_location)
         return variable
 
     def visit_intrinsic_call(self, call: awst_nodes.IntrinsicCall) -> TExpression:
