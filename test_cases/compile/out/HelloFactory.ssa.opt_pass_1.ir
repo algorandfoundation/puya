@@ -140,29 +140,21 @@ contract test_cases.compile.factory.HelloFactory:
                 let compiled.clear_state_program.0#0: bytes = CoEBQw==
                 let compiled.clear_state_program.1#0: bytes = 
                 itxn_begin
-                let length%0#0: uint64 = 5u
-                let as_bytes%0#0: bytes = (itob length%0#0)
-                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "hello")
                 ((itxn_field GlobalNumByteSlice) 1u)
                 ((itxn_field ClearStateProgramPages) compiled.clear_state_program.0#0)
                 ((itxn_field ClearStateProgramPages) compiled.clear_state_program.1#0)
                 ((itxn_field ApprovalProgramPages) compiled.approval_program.0#0)
                 ((itxn_field ApprovalProgramPages) compiled.approval_program.1#0)
                 ((itxn_field ApplicationArgs) method "create(string)void")
-                ((itxn_field ApplicationArgs) encoded_value%0#0)
+                ((itxn_field ApplicationArgs) "\x00\x05hello")
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
                 let hello_app#0: uint64 = (itxn CreatedApplicationID)
                 itxn_begin
-                let length%1#0: uint64 = 5u
-                let as_bytes%1#0: bytes = (itob length%1#0)
-                let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-                let encoded_value%1#0: bytes = (concat length_uint16%1#0 "world")
                 ((itxn_field ApplicationID) hello_app#0)
                 ((itxn_field ApplicationArgs) method "greet(string)string")
-                ((itxn_field ApplicationArgs) encoded_value%1#0)
+                ((itxn_field ApplicationArgs) "\x00\x05world")
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
@@ -178,11 +170,7 @@ contract test_cases.compile.factory.HelloFactory:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
-                let length%2#0: uint64 = 11u
-                let as_bytes%2#0: bytes = (itob length%2#0)
-                let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
-                let encoded_value%2#0: bytes = (concat length_uint16%2#0 "hello world")
-                let tmp%3#0: bool = (== result#0 encoded_value%2#0)
+                let tmp%3#0: bool = (== result#0 "\x00\x0bhello world")
                 (assert tmp%3#0)
                 return 
         
@@ -211,13 +199,9 @@ contract test_cases.compile.factory.HelloFactory:
                 itxn_submit
                 let hello_app#0: uint64 = (itxn CreatedApplicationID)
                 itxn_begin
-                let length%0#0: uint64 = 5u
-                let as_bytes%0#0: bytes = (itob length%0#0)
-                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "world")
                 ((itxn_field ApplicationID) hello_app#0)
                 ((itxn_field ApplicationArgs) method "greet(string)string")
-                ((itxn_field ApplicationArgs) encoded_value%0#0)
+                ((itxn_field ApplicationArgs) "\x00\x05world")
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
@@ -233,11 +217,7 @@ contract test_cases.compile.factory.HelloFactory:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
-                let length%1#0: uint64 = 9u
-                let as_bytes%1#0: bytes = (itob length%1#0)
-                let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-                let encoded_value%1#0: bytes = (concat length_uint16%1#0 "hey world")
-                let tmp%3#0: bool = (== result#0 encoded_value%1#0)
+                let tmp%3#0: bool = (== result#0 "\x00\they world")
                 (assert tmp%3#0)
                 return 
         
@@ -260,13 +240,9 @@ contract test_cases.compile.factory.HelloFactory:
                 itxn_submit
                 let hello_app#0: uint64 = (itxn CreatedApplicationID)
                 itxn_begin
-                let length%0#0: uint64 = 5u
-                let as_bytes%0#0: bytes = (itob length%0#0)
-                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "world")
                 ((itxn_field ApplicationID) hello_app#0)
                 ((itxn_field ApplicationArgs) method "greet(string)string")
-                ((itxn_field ApplicationArgs) encoded_value%0#0)
+                ((itxn_field ApplicationArgs) "\x00\x05world")
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
@@ -282,11 +258,7 @@ contract test_cases.compile.factory.HelloFactory:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
-                let length%1#0: uint64 = 8u
-                let as_bytes%1#0: bytes = (itob length%1#0)
-                let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-                let encoded_value%1#0: bytes = (concat length_uint16%1#0 "hi world")
-                let tmp%3#0: bool = (== result#0 encoded_value%1#0)
+                let tmp%3#0: bool = (== result#0 "\x00\x08hi world")
                 (assert tmp%3#0)
                 return 
         
@@ -334,10 +306,6 @@ contract test_cases.compile.factory.HelloFactory:
         subroutine test_cases.compile.factory.HelloFactory.test_arc4_create() -> void:
             block@0: // L161
                 itxn_begin
-                let length%0#0: uint64 = 5u
-                let as_bytes%0#0: bytes = (itob length%0#0)
-                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "hello")
                 let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = CiACAQAmAQhncmVldGluZzEYQAADiAAEiAAJQ4oAACiAAGeJigABMRtBAF+CAwQg3zpUBCQ3jTwE0KKCADYaAI4DAAIAFQAgI4kxGRREMRgURDYaAVcCAIgAPyKJMRmBBRJEMRhEIokxGRREMRhENhoBVwIAiAAqSRUWVwYCTFCABBUffHVMULAiiYEEMRmOAQACI4kxGEQiiYoBACiL/2eJigEBIyhlRIABIFCL/1CJ
                 let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = 
                 let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = CoEBQw==
@@ -357,19 +325,15 @@ contract test_cases.compile.factory.HelloFactory:
                 ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0)
                 ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0)
                 ((itxn_field ApplicationArgs) method "create(string)void")
-                ((itxn_field ApplicationArgs) encoded_value%0#0)
+                ((itxn_field ApplicationArgs) "\x00\x05hello")
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
                 let hello_app#0: uint64 = (itxn CreatedApplicationID)
                 itxn_begin
-                let length%1#0: uint64 = 5u
-                let as_bytes%1#0: bytes = (itob length%1#0)
-                let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-                let encoded_value%1#0: bytes = (concat length_uint16%1#0 "world")
                 ((itxn_field ApplicationID) hello_app#0)
                 ((itxn_field ApplicationArgs) method "greet(string)string")
-                ((itxn_field ApplicationArgs) encoded_value%1#0)
+                ((itxn_field ApplicationArgs) "\x00\x05world")
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
@@ -417,13 +381,9 @@ contract test_cases.compile.factory.HelloFactory:
                 itxn_submit
                 let hello_app#0: uint64 = (itxn CreatedApplicationID)
                 itxn_begin
-                let length%0#0: uint64 = 5u
-                let as_bytes%0#0: bytes = (itob length%0#0)
-                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "world")
                 ((itxn_field ApplicationID) hello_app#0)
                 ((itxn_field ApplicationArgs) method "greet(string)string")
-                ((itxn_field ApplicationArgs) encoded_value%0#0)
+                ((itxn_field ApplicationArgs) "\x00\x05world")
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
@@ -471,13 +431,9 @@ contract test_cases.compile.factory.HelloFactory:
                 itxn_submit
                 let hello_app#0: uint64 = (itxn CreatedApplicationID)
                 itxn_begin
-                let length%0#0: uint64 = 5u
-                let as_bytes%0#0: bytes = (itob length%0#0)
-                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "world")
                 ((itxn_field ApplicationID) hello_app#0)
                 ((itxn_field ApplicationArgs) method "greet(string)string")
-                ((itxn_field ApplicationArgs) encoded_value%0#0)
+                ((itxn_field ApplicationArgs) "\x00\x05world")
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
@@ -590,13 +546,9 @@ contract test_cases.compile.factory.HelloFactory:
                 let tmp%3#0: bool = (== value%3#0 6u)
                 (assert tmp%3#0)
                 itxn_begin
-                let length%1#0: uint64 = 5u
-                let as_bytes%1#0: bytes = (itob length%1#0)
-                let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-                let encoded_value%1#0: bytes = (concat length_uint16%1#0 "there")
                 ((itxn_field ApplicationID) app#0)
                 ((itxn_field ApplicationArgs) method "greet(string)string")
-                ((itxn_field ApplicationArgs) encoded_value%1#0)
+                ((itxn_field ApplicationArgs) "\x00\x05there")
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
@@ -639,13 +591,9 @@ contract test_cases.compile.factory.HelloFactory:
                 itxn_submit
                 let app#0: uint64 = (itxn CreatedApplicationID)
                 itxn_begin
-                let length%0#0: uint64 = 5u
-                let as_bytes%0#0: bytes = (itob length%0#0)
-                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "there")
                 ((itxn_field ApplicationID) app#0)
                 ((itxn_field ApplicationArgs) method "greet(string)string")
-                ((itxn_field ApplicationArgs) encoded_value%0#0)
+                ((itxn_field ApplicationArgs) "\x00\x05there")
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
@@ -672,13 +620,9 @@ contract test_cases.compile.factory.HelloFactory:
                 ((itxn_field Fee) 0u)
                 itxn_submit
                 itxn_begin
-                let length%1#0: uint64 = 5u
-                let as_bytes%1#0: bytes = (itob length%1#0)
-                let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-                let encoded_value%1#0: bytes = (concat length_uint16%1#0 "there")
                 ((itxn_field ApplicationID) app#0)
                 ((itxn_field ApplicationArgs) method "greet(string)string")
-                ((itxn_field ApplicationArgs) encoded_value%1#0)
+                ((itxn_field ApplicationArgs) "\x00\x05there")
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
@@ -726,13 +670,9 @@ contract test_cases.compile.factory.HelloFactory:
                 itxn_submit
                 let app#0: uint64 = (itxn CreatedApplicationID)
                 itxn_begin
-                let length%0#0: uint64 = 6u
-                let as_bytes%0#0: bytes = (itob length%0#0)
-                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "Johnny")
                 ((itxn_field ApplicationID) app#0)
                 ((itxn_field ApplicationArgs) method "greet(string)byte[]")
-                ((itxn_field ApplicationArgs) encoded_value%0#0)
+                ((itxn_field ApplicationArgs) "\x00\x06Johnny")
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
@@ -787,13 +727,9 @@ contract test_cases.compile.factory.HelloFactory:
                 itxn_submit
                 let app#0: uint64 = (itxn CreatedApplicationID)
                 itxn_begin
-                let length%1#0: uint64 = 5u
-                let as_bytes%1#0: bytes = (itob length%1#0)
-                let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-                let encoded_value%1#0: bytes = (concat length_uint16%1#0 "there")
                 ((itxn_field ApplicationID) app#0)
                 ((itxn_field ApplicationArgs) method "greet(string)string")
-                ((itxn_field ApplicationArgs) encoded_value%1#0)
+                ((itxn_field ApplicationArgs) "\x00\x05there")
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit

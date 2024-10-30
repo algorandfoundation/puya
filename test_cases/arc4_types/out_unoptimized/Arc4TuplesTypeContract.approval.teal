@@ -2,22 +2,9 @@
 
 test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     intcblock 0 1 9 10
-    bytecblock 0x00 0x "hello" "world"
+    bytecblock 0x00 0x "\x00\x05hello"
     // arc4_types/tuples.py:15
     // my_tuple = Tuple((UInt8(1), UInt8(2), String("hello"), String("world"), UInt8(255)))
-    bytec_2 // "hello"
-    len
-    itob
-    extract 6 2
-    bytec_2 // "hello"
-    concat
-    bytec_3 // "world"
-    len
-    itob
-    extract 6 2
-    bytec_3 // "world"
-    concat
-    swap
     bytec_1 // 0x
     pushbytes 0x01
     concat
@@ -27,7 +14,7 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     itob
     extract 6 2
     concat
-    dig 1
+    bytec_2 // "\x00\x05hello"
     len
     pushint 7 // 7
     +
@@ -36,9 +23,9 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     concat
     pushbytes 0xff
     concat
-    swap
+    bytec_2 // "\x00\x05hello"
     concat
-    swap
+    pushbytes "\x00\x05world"
     concat
     dup
     // arc4_types/tuples.py:18

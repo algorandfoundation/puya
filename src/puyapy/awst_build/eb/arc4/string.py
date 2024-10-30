@@ -62,7 +62,7 @@ class ARC4StringTypeBuilder(ARC4TypeBuilder):
                             "encoded string exceeds max byte array length",
                             location=literal.source_location,
                         )
-                return _arc4_encode_str_literal(literal_value, location)
+                return _arc4_str_literal(literal_value, location)
         return None
 
     @typing.override
@@ -78,7 +78,7 @@ class ARC4StringTypeBuilder(ARC4TypeBuilder):
             case InstanceBuilder(pytype=pytypes.StrLiteralType):
                 return arg.resolve_literal(ARC4StringTypeBuilder(location))
             case None:
-                return _arc4_encode_str_literal("", location)
+                return _arc4_str_literal("", location)
             case _:
                 arg = expect.argument_of_type_else_dummy(arg, pytypes.StringType)
                 return _from_native(arg, location)
@@ -198,13 +198,9 @@ def _string_to_native(
     )
 
 
-def _arc4_encode_str_literal(value: str, location: SourceLocation) -> InstanceBuilder:
+def _arc4_str_literal(value: str, location: SourceLocation) -> InstanceBuilder:
     return ARC4StringExpressionBuilder(
-        ARC4Encode(
-            value=StringConstant(value=value, source_location=location),
-            wtype=wtypes.arc4_string_alias,
-            source_location=location,
-        )
+        StringConstant(value=value, source_location=location, wtype=wtypes.arc4_string_alias)
     )
 
 

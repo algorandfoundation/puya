@@ -367,8 +367,16 @@ class BytesConstant(Expression):
 
 @attrs.frozen
 class StringConstant(Expression):
-    wtype: WType = attrs.field(default=wtypes.string_wtype, init=False)
     value: str = attrs.field()
+    wtype: WType = attrs.field(
+        default=wtypes.string_wtype,
+        validator=[
+            wtype_is_one_of(
+                wtypes.string_wtype,
+                wtypes.arc4_string_alias,
+            )
+        ],
+    )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_string_constant(self)

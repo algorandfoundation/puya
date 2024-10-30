@@ -308,11 +308,9 @@ contract examples.box_storage.contract.BoxContract:
                 let tmp%3#0: bytes = ((extract 2 0) tmp%2#0)
                 let tmp%4#0: bool = (== tmp%3#0 0x3432)
                 (assert tmp%4#0)
-                let encoded_value%1#0: bytes = 0x00023432
                 let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get 0x424f585f43)
-                let tmp%5#0: bytes = (select encoded_value%1#0 maybe_value%2#0 maybe_exists%2#0)
-                let encoded_value%2#0: bytes = 0x00023432
-                let tmp%6#0: bool = (== tmp%5#0 encoded_value%2#0)
+                let tmp%5#0: bytes = (select "\x00\x0242" maybe_value%2#0 maybe_exists%2#0)
+                let tmp%6#0: bool = (== tmp%5#0 "\x00\x0242")
                 (assert tmp%6#0)
                 let (maybe_value%3#0: bytes, a_exists#0: bool) = (box_get "box_a")
                 let a#0: uint64 = (btoi maybe_value%3#0)
@@ -360,9 +358,8 @@ contract examples.box_storage.contract.BoxContract:
                 let tmp%9#0: bytes = (box_extract "0" tmp%3#0 tmp%8#0)
                 let tmp%10#0: bool = (== tmp%9#0 0x54657374696e67)
                 (assert tmp%10#0)
-                let encoded_value%0#0: bytes = 0x000548656c6c6f
                 (box_del 0x424f585f43)
-                (box_put 0x424f585f43 encoded_value%0#0)
+                (box_put 0x424f585f43 "\x00\x05Hello")
                 let (tmp%11#0: uint64, tmp%12#0: bool) = (box_len 0x424f585f43)
                 let tmp%13#0: bool = (< 2u tmp%11#0)
                 let tmp%14#0: uint64 = (select tmp%11#0 2u tmp%13#0)

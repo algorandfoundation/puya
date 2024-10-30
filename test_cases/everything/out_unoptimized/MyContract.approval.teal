@@ -2,7 +2,7 @@
 
 test_cases.everything.contract.Everything.approval_program:
     intcblock 0 1
-    bytecblock "counter" "name" 0x151f7c75 "Howdy stranger!" "Hello, "
+    bytecblock "counter" "name" 0x151f7c75
     txn ApplicationID
     bnz main_after_if_else@2
     callsub __init__
@@ -293,24 +293,14 @@ say_hello:
     bnz say_hello_after_if_else@2
     // everything/contract.py:61
     // return String("Howdy stranger!")
-    bytec_3 // "Howdy stranger!"
-    len
-    itob
-    extract 6 2
-    bytec_3 // "Howdy stranger!"
-    concat
+    pushbytes "\x00\x0fHowdy stranger!"
     swap
     retsub
 
 say_hello_after_if_else@2:
     // everything/contract.py:62
     // return "Hello, " + name + "!"
-    bytec 4 // "Hello, "
-    len
-    itob
-    extract 6 2
-    bytec 4 // "Hello, "
-    concat
+    pushbytes "\x00\x07Hello, "
     extract 2 0
     frame_dig 0
     extract 2 0
@@ -322,12 +312,7 @@ say_hello_after_if_else@2:
     swap
     concat
     extract 2 0
-    pushbytes "!"
-    len
-    itob
-    extract 6 2
-    pushbytes "!"
-    concat
+    pushbytes "\x00\x01!"
     extract 2 0
     concat
     dup

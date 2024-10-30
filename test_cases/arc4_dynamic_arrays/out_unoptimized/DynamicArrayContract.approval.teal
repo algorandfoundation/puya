@@ -2,7 +2,7 @@
 
 test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.approval_program:
     intcblock 0 2 1 4
-    bytecblock 0x 0x0002 "a" "bee" "Hello World" 0x0000 0x0003 0x0004
+    bytecblock 0x 0x0002 0x0000 0x0003 0x0004
     callsub __puya_arc4_router__
     return
 
@@ -609,12 +609,7 @@ get_string1:
     proto 0 1
     // arc4_dynamic_arrays/contract.py:175
     // return arc4.String("a")
-    bytec_2 // "a"
-    len
-    itob
-    extract 6 2
-    bytec_2 // "a"
-    concat
+    pushbytes "\x00\x01a"
     retsub
 
 
@@ -626,12 +621,7 @@ get_string2:
     proto 0 1
     // arc4_dynamic_arrays/contract.py:180
     // return arc4.String("bee")
-    bytec_3 // "bee"
-    len
-    itob
-    extract 6 2
-    bytec_3 // "bee"
-    concat
+    pushbytes "\x00\x03bee"
     retsub
 
 
@@ -643,12 +633,7 @@ get_string3:
     proto 0 1
     // arc4_dynamic_arrays/contract.py:185
     // return arc4.String("Hello World")
-    bytec 4 // "Hello World"
-    len
-    itob
-    extract 6 2
-    bytec 4 // "Hello World"
-    concat
+    pushbytes "\x00\x0bHello World"
     retsub
 
 
@@ -696,7 +681,7 @@ test_mixed_single_dynamic_elements:
     concat
     // arc4_dynamic_arrays/contract.py:79
     // array = arc4.DynamicArray[MixedSingleStruct]()
-    bytec 5 // 0x0000
+    bytec_2 // 0x0000
     bytec_0 // 0x
     concat
     swap
@@ -1070,11 +1055,11 @@ get_u16_arr1:
     bytec_0 // 0x
     pushbytes 0xffff
     concat
-    bytec 5 // 0x0000
+    bytec_2 // 0x0000
     concat
     pushbytes 0x002a
     concat
-    bytec 6 // 0x0003
+    bytec_3 // 0x0003
     swap
     concat
     retsub
@@ -1093,11 +1078,11 @@ get_u16_arr2:
     concat
     bytec_1 // 0x0002
     concat
-    bytec 6 // 0x0003
+    bytec_3 // 0x0003
     concat
-    bytec 7 // 0x0004
+    bytec 4 // 0x0004
     concat
-    bytec 7 // 0x0004
+    bytec 4 // 0x0004
     swap
     concat
     retsub

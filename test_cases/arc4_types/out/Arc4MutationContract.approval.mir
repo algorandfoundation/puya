@@ -182,8 +182,8 @@ dynamic_array_string_block@0:
     byte 0x00020004000b000548656c6c6f0005576f726c64                                                    0x00020004000b000548656c6c6f0005576f726c64
     // arc4_types/mutation.py:223
     // dynamic_string_array.extend((foo, bar))
-    byte 0x0003466f6f0003426172                                                                        0x00020004000b000548656c6c6f0005576f726c64,0x0003466f6f0003426172
-    int 2                                                                                              0x00020004000b000548656c6c6f0005576f726c64,0x0003466f6f0003426172,2
+    byte "\x00\x03Foo\x00\x03Bar"                                                                      0x00020004000b000548656c6c6f0005576f726c64,"\x00\x03Foo\x00\x03Bar"
+    int 2                                                                                              0x00020004000b000548656c6c6f0005576f726c64,"\x00\x03Foo\x00\x03Bar",2
     callsub dynamic_array_concat_byte_length_head                                                      dynamic_string_array#1
     // arc4_types/mutation.py:225-227
     // assert dynamic_string_array.bytes == Bytes(
@@ -218,20 +218,22 @@ dynamic_array_string_block@0:
     byte 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172 dynamic_string_array#1,0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
     ==                                                                                                 tmp%2#0
     assert
+    // arc4_types/mutation.py:232
+    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
     byte 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
     // arc4_types/mutation.py:215
     // hello = String("Hello")
-    byte 0x000548656c6c6f                                                                              0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172,0x000548656c6c6f
+    byte "\x00\x05Hello"                                                                               0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172,"\x00\x05Hello"
     // arc4_types/mutation.py:233
     // dynamic_string_array[3] = hello
-    int 3                                                                                              0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172,0x000548656c6c6f,3
+    int 3                                                                                              0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172,"\x00\x05Hello",3
     callsub dynamic_array_replace_byte_length_head                                                     dynamic_string_array#1
     // arc4_types/mutation.py:215
     // hello = String("Hello")
-    byte 0x000548656c6c6f                                                                              dynamic_string_array#1,0x000548656c6c6f
+    byte "\x00\x05Hello"                                                                               dynamic_string_array#1,"\x00\x05Hello"
     // arc4_types/mutation.py:234
     // dynamic_string_array[5] = hello
-    int 5                                                                                              dynamic_string_array#1,0x000548656c6c6f,5
+    int 5                                                                                              dynamic_string_array#1,"\x00\x05Hello",5
     callsub dynamic_array_replace_byte_length_head                                                     dynamic_string_array#1
     // arc4_types/mutation.py:236-238
     // assert dynamic_string_array == DynamicArray(
@@ -248,7 +250,7 @@ dynamic_array_string_block@0:
     l-load popped%0#0 1                                                                                dynamic_string_array#1,popped%0#0
     // arc4_types/mutation.py:218
     // bar = String("Bar")
-    byte 0x0003426172                                                                                  dynamic_string_array#1,popped%0#0,0x0003426172
+    byte "\x00\x03Bar"                                                                                 dynamic_string_array#1,popped%0#0,"\x00\x03Bar"
     // arc4_types/mutation.py:240
     // assert dynamic_string_array.pop() == bar
     ==                                                                                                 dynamic_string_array#1,tmp%4#0
@@ -260,7 +262,7 @@ dynamic_array_string_block@0:
     l-load popped%1#0 1                                                                                dynamic_string_array#1,popped%1#0
     // arc4_types/mutation.py:217
     // foo = String("Foo")
-    byte 0x0003466f6f                                                                                  dynamic_string_array#1,popped%1#0,0x0003466f6f
+    byte "\x00\x03Foo"                                                                                 dynamic_string_array#1,popped%1#0,"\x00\x03Foo"
     // arc4_types/mutation.py:241
     // assert dynamic_string_array.pop() == foo
     ==                                                                                                 dynamic_string_array#1,tmp%5#0
@@ -510,7 +512,7 @@ struct_assign_block@0:
     l-load total_data_length%0#0 2                                                                     item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,test_struct#2,next_item_offset%0#0 (copy),total_data_length%0#0
     substring3                                                                                         item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,data_beyond_item%0#0
     l-load data_up_to_item%0#0 2                                                                       item_offset%0#0,next_item_offset%0#0,data_beyond_item%0#0,data_up_to_item%0#0
-    byte 0x0005486d6d6d6d                                                                              item_offset%0#0,next_item_offset%0#0,data_beyond_item%0#0,data_up_to_item%0#0,0x0005486d6d6d6d
+    byte "\x00\x05Hmmmm"                                                                               item_offset%0#0,next_item_offset%0#0,data_beyond_item%0#0,data_up_to_item%0#0,"\x00\x05Hmmmm"
     concat                                                                                             item_offset%0#0,next_item_offset%0#0,data_beyond_item%0#0,updated_data%2#0
     l-load data_beyond_item%0#0 1                                                                      item_offset%0#0,next_item_offset%0#0,updated_data%2#0,data_beyond_item%0#0
     concat                                                                                             item_offset%0#0,next_item_offset%0#0,updated_data%3#0
@@ -524,7 +526,7 @@ struct_assign_block@0:
     +                                                                                                  updated_data%3#0,item_length%0#0,tail_offset%1#0
     l-load item_length%0#0 1                                                                           updated_data%3#0,tail_offset%1#0,item_length%0#0
     -                                                                                                  updated_data%3#0,tail_offset%2#0
-    itob                                                                                               updated_data%3#0,as_bytes%9#0
+    itob                                                                                               updated_data%3#0,as_bytes%4#0
     extract 6 2                                                                                        updated_data%3#0,tail_offset_bytes%0#0
     l-load updated_data%3#0 1                                                                          tail_offset_bytes%0#0,updated_data%3#0
     l-load tail_offset_bytes%0#0 1                                                                     updated_data%3#0,tail_offset_bytes%0#0
@@ -538,7 +540,7 @@ struct_assign_block@0:
     int 0                                                                                              item_offset%1#0,test_struct#2,0
     l-load item_offset%1#0 2                                                                           test_struct#2,0,item_offset%1#0
     extract3                                                                                           data_up_to_item%1#0
-    byte 0x00074f682077656c6c                                                                          data_up_to_item%1#0,0x00074f682077656c6c
+    byte "\x00\x07Oh well"                                                                             data_up_to_item%1#0,"\x00\x07Oh well"
     concat                                                                                             test_struct#2
     // arc4_types/mutation.py:136-141
     // assert test_struct == TestStruct(

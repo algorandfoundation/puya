@@ -2,7 +2,7 @@
 
 test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
     intcblock 0 2 1 7
-    bytecblock 0x00 0xff 0x80 0x00020004000b000548656c6c6f0005576f726c64 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172 0x000548656c6c6f
+    bytecblock 0x00 0xff 0x80 0x00020004000b000548656c6c6f0005576f726c64 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172 "\x00\x05Hello"
     // arc4_types/mutation.py:35
     // self.dynamic_array_fixed_size()
     callsub dynamic_array_fixed_size
@@ -170,7 +170,7 @@ dynamic_array_string:
     bytec_3 // 0x00020004000b000548656c6c6f0005576f726c64
     // arc4_types/mutation.py:223
     // dynamic_string_array.extend((foo, bar))
-    pushbytes 0x0003466f6f0003426172
+    pushbytes "\x00\x03Foo\x00\x03Bar"
     intc_1 // 2
     callsub dynamic_array_concat_byte_length_head
     // arc4_types/mutation.py:225-227
@@ -201,17 +201,19 @@ dynamic_array_string:
     bytec 4 // 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
     ==
     assert
+    // arc4_types/mutation.py:232
+    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
     bytec 4 // 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
     // arc4_types/mutation.py:215
     // hello = String("Hello")
-    bytec 5 // 0x000548656c6c6f
+    bytec 5 // "\x00\x05Hello"
     // arc4_types/mutation.py:233
     // dynamic_string_array[3] = hello
     pushint 3 // 3
     callsub dynamic_array_replace_byte_length_head
     // arc4_types/mutation.py:215
     // hello = String("Hello")
-    bytec 5 // 0x000548656c6c6f
+    bytec 5 // "\x00\x05Hello"
     // arc4_types/mutation.py:234
     // dynamic_string_array[5] = hello
     pushint 5 // 5
@@ -230,7 +232,7 @@ dynamic_array_string:
     swap
     // arc4_types/mutation.py:218
     // bar = String("Bar")
-    pushbytes 0x0003426172
+    pushbytes "\x00\x03Bar"
     // arc4_types/mutation.py:240
     // assert dynamic_string_array.pop() == bar
     ==
@@ -241,7 +243,7 @@ dynamic_array_string:
     swap
     // arc4_types/mutation.py:217
     // foo = String("Foo")
-    pushbytes 0x0003466f6f
+    pushbytes "\x00\x03Foo"
     // arc4_types/mutation.py:241
     // assert dynamic_string_array.pop() == foo
     ==
@@ -463,7 +465,7 @@ struct_assign:
     uncover 2
     substring3
     uncover 2
-    pushbytes 0x0005486d6d6d6d
+    pushbytes "\x00\x05Hmmmm"
     concat
     swap
     concat
@@ -488,7 +490,7 @@ struct_assign:
     intc_0 // 0
     swap
     extract3
-    pushbytes 0x00074f682077656c6c
+    pushbytes "\x00\x07Oh well"
     concat
     // arc4_types/mutation.py:136-141
     // assert test_struct == TestStruct(

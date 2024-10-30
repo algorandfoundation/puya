@@ -2,7 +2,7 @@
 
 test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     intcblock 0 1 2 4
-    bytecblock 0x "Hello" 0x0002 0x0001 "World" "Ping" "Pong"
+    bytecblock 0x "\x00\x05Hello" 0x0002 0x0001 "\x00\x04Ping"
     intc_0 // 0
     dupn 4
     bytec_0 // ""
@@ -113,35 +113,22 @@ main_after_for@8:
     assert // Total should now include sum of aliased_dynamic items
     // arc4_types/array.py:35
     // dynamic_string_array = DynamicArray[ARC4String](ARC4String("Hello"), ARC4String("World"))
-    bytec_1 // "Hello"
-    len
-    itob
-    extract 6 2
-    bytec_1 // "Hello"
-    concat
-    bytec 4 // "World"
-    len
-    itob
-    extract 6 2
-    bytec 4 // "World"
-    concat
-    swap
     intc_3 // 4
     itob
     extract 6 2
     bytec_0 // 0x
     swap
     concat
-    dig 1
+    bytec_1 // "\x00\x05Hello"
     len
     intc_3 // 4
     +
     itob
     extract 6 2
     concat
-    swap
+    bytec_1 // "\x00\x05Hello"
     concat
-    swap
+    pushbytes "\x00\x05World"
     concat
     bytec_2 // 0x0002
     swap
@@ -184,12 +171,7 @@ main_after_for@8:
     uncover 2
     uncover 2
     extract3
-    bytec_1 // "Hello"
-    len
-    itob
-    extract 6 2
-    bytec_1 // "Hello"
-    concat
+    bytec_1 // "\x00\x05Hello"
     ==
     assert
     // arc4_types/array.py:38
@@ -353,35 +335,22 @@ main_after_for@19:
     assert
     // arc4_types/array.py:60
     // static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
-    bytec 5 // "Ping"
-    len
-    itob
-    extract 6 2
-    bytec 5 // "Ping"
-    concat
-    bytec 6 // "Pong"
-    len
-    itob
-    extract 6 2
-    bytec 6 // "Pong"
-    concat
-    swap
     intc_3 // 4
     itob
     extract 6 2
     bytec_0 // 0x
     swap
     concat
-    dig 1
+    bytec 4 // "\x00\x04Ping"
     len
     intc_3 // 4
     +
     itob
     extract 6 2
     concat
-    swap
+    bytec 4 // "\x00\x04Ping"
     concat
-    swap
+    pushbytes "\x00\x04Pong"
     concat
     bytec_0 // 0x
     swap

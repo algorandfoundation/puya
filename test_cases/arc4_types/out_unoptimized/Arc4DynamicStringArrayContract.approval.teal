@@ -2,7 +2,7 @@
 
 test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.approval_program:
     intcblock 0 6 1
-    bytecblock 0x 0x58 0x59 0x5a 0x0001 0x151f7c75 0x0003
+    bytecblock 0x 0x0001 0x151f7c75 "\x00\x01X" "\x00\x01Y" 0x0003
     callsub __puya_arc4_router__
     return
 
@@ -35,7 +35,7 @@ __puya_arc4_router___xyz_route@2:
     !=
     assert // is not creating
     callsub xyz
-    bytec 5 // 0x151f7c75
+    bytec_2 // 0x151f7c75
     swap
     concat
     log
@@ -54,7 +54,7 @@ __puya_arc4_router___xyz_raw_route@3:
     !=
     assert // is not creating
     callsub xyz_raw
-    bytec 5 // 0x151f7c75
+    bytec_2 // 0x151f7c75
     swap
     concat
     log
@@ -97,32 +97,6 @@ xyz:
     // @arc4.abimethod
     // def xyz(self) -> arc4.DynamicArray[arc4.String]:
     proto 0 1
-    // arc4_types/dynamic_string_array.py:8
-    // arc4.String("X"),
-    bytec_1 // "X"
-    len
-    itob
-    extract 6 2
-    bytec_1 // "X"
-    concat
-    // arc4_types/dynamic_string_array.py:9
-    // arc4.String("Y"),
-    bytec_2 // "Y"
-    len
-    itob
-    extract 6 2
-    bytec_2 // "Y"
-    concat
-    swap
-    // arc4_types/dynamic_string_array.py:10
-    // arc4.String("Z"),
-    bytec_3 // "Z"
-    len
-    itob
-    extract 6 2
-    bytec_3 // "Z"
-    concat
-    cover 2
     // arc4_types/dynamic_string_array.py:7-11
     // return arc4.DynamicArray(
     //     arc4.String("X"),
@@ -135,7 +109,15 @@ xyz:
     bytec_0 // 0x
     swap
     concat
-    dig 1
+    // arc4_types/dynamic_string_array.py:8
+    // arc4.String("X"),
+    bytec_3 // "\x00\x01X"
+    // arc4_types/dynamic_string_array.py:7-11
+    // return arc4.DynamicArray(
+    //     arc4.String("X"),
+    //     arc4.String("Y"),
+    //     arc4.String("Z"),
+    // )
     len
     intc_1 // 6
     +
@@ -146,19 +128,51 @@ xyz:
     swap
     concat
     swap
-    dig 3
+    // arc4_types/dynamic_string_array.py:9
+    // arc4.String("Y"),
+    bytec 4 // "\x00\x01Y"
+    // arc4_types/dynamic_string_array.py:7-11
+    // return arc4.DynamicArray(
+    //     arc4.String("X"),
+    //     arc4.String("Y"),
+    //     arc4.String("Z"),
+    // )
     len
     +
     itob
     extract 6 2
     concat
-    swap
+    // arc4_types/dynamic_string_array.py:8
+    // arc4.String("X"),
+    bytec_3 // "\x00\x01X"
+    // arc4_types/dynamic_string_array.py:7-11
+    // return arc4.DynamicArray(
+    //     arc4.String("X"),
+    //     arc4.String("Y"),
+    //     arc4.String("Z"),
+    // )
     concat
-    swap
+    // arc4_types/dynamic_string_array.py:9
+    // arc4.String("Y"),
+    bytec 4 // "\x00\x01Y"
+    // arc4_types/dynamic_string_array.py:7-11
+    // return arc4.DynamicArray(
+    //     arc4.String("X"),
+    //     arc4.String("Y"),
+    //     arc4.String("Z"),
+    // )
     concat
-    swap
+    // arc4_types/dynamic_string_array.py:10
+    // arc4.String("Z"),
+    pushbytes "\x00\x01Z"
+    // arc4_types/dynamic_string_array.py:7-11
+    // return arc4.DynamicArray(
+    //     arc4.String("X"),
+    //     arc4.String("Y"),
+    //     arc4.String("Z"),
+    // )
     concat
-    bytec 6 // 0x0003
+    bytec 5 // 0x0003
     swap
     concat
     retsub
@@ -173,26 +187,26 @@ xyz_raw:
     // arc4_types/dynamic_string_array.py:16
     // arc4.DynamicArray(arc4.Byte(88)),
     bytec_0 // 0x
-    bytec_1 // 0x58
+    pushbytes 0x58
     concat
-    bytec 4 // 0x0001
+    bytec_1 // 0x0001
     swap
     concat
     // arc4_types/dynamic_string_array.py:17
     // arc4.DynamicArray(arc4.Byte(89)),
     bytec_0 // 0x
-    bytec_2 // 0x59
+    pushbytes 0x59
     concat
-    bytec 4 // 0x0001
+    bytec_1 // 0x0001
     swap
     concat
     swap
     // arc4_types/dynamic_string_array.py:18
     // arc4.DynamicArray(arc4.Byte(90)),
     bytec_0 // 0x
-    bytec_3 // 0x5a
+    pushbytes 0x5a
     concat
-    bytec 4 // 0x0001
+    bytec_1 // 0x0001
     swap
     concat
     cover 2
@@ -231,7 +245,7 @@ xyz_raw:
     concat
     swap
     concat
-    bytec 6 // 0x0003
+    bytec 5 // 0x0003
     swap
     concat
     // arc4_types/dynamic_string_array.py:20

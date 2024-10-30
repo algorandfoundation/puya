@@ -394,6 +394,15 @@ class FunctionIRBuilder(
             value = None
         if value is None or len(value) > algo_constants.MAX_BYTES_LENGTH:
             raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
+        match expr.wtype:
+            case wtypes.string_wtype:
+                pass
+            case wtypes.arc4_string_alias:
+                value = len(value).to_bytes(2) + value
+            case _:
+                raise InternalError(
+                    f"Unexpected wtype {expr.wtype} for StringConstant", expr.source_location
+                )
 
         return BytesConstant(
             value=value,
