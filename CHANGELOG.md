@@ -1,4 +1,22 @@
 # CHANGELOG
+## v3.5.0 (2024-10-30)
+
+### Feature
+
+* add `_replace` implementation for named tuples, make `algopy.CompiledContract` and `algopy.CompiledLogicSig` named tuples ([`93a47f2`](https://github.com/algorandfoundation/puya/commit/93a47f25d3904275b7bfba6fd25595a6c8b88b95))
+
+* reduce stack manipulations ops when subroutine/op results are directly assigned ([`fbe6ebb`](https://github.com/algorandfoundation/puya/commit/fbe6ebbd1744a3eb07653f8cc1ccd28fad6b3006))
+
+* add CLI option `--output_source_map` to produce debug information that can be used with the next release of AVM debugger ([`3009822`](https://github.com/algorandfoundation/puya/commit/300982218ce67c204cc6c719c96fe2609c69eb7a))
+
+* add optimization to include constant blocks in TEAL output ([`671677b`](https://github.com/algorandfoundation/puya/commit/671677b4a5c0656a247feb7fa4baa4c05c528d5e))
+
+### Fix
+
+* check target type for ARC4Decode ([`9704011`](https://github.com/algorandfoundation/puya/commit/9704011e6a28f0edab113cb3b3b0e8e3153bd9a7))
+
+* deprecate `--match-algod-bytecode` option as there is now no difference between algod and puya bytecode output ([`de0fd58`](https://github.com/algorandfoundation/puya/commit/de0fd58cf7107303ef512b3a67ee8bd24fce9fe6))
+
 ## v3.4.1 (2024-10-24)
 
 ### Fix
