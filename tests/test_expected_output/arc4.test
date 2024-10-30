@@ -589,3 +589,21 @@ class MyTest(ARC4Contract):
         this_is_ok = some_address[0]
         assert this_is_ok == 0
         some_address[0] = arc4.Byte(123) ## E: expression is not valid as an assignment target - object is immutable
+
+## case: test_mutable_params_passed_only_once
+from algopy import *
+
+class MyTest(ARC4Contract):
+    @arc4.abimethod
+    def test(self) -> None:
+        my_array = arc4.DynamicBytes()
+        self.double_use_not_allowed(my_array, my_array) ## E: mutable values cannot be passed more than once to a subroutine
+        # if we allowed this, the following would fail
+        assert my_array[0] == 42
+        assert my_array[1] == 43
+
+
+    @subroutine
+    def double_use_not_allowed(self, arr1: arc4.DynamicBytes, arr2: arc4.DynamicBytes) -> None:
+        arr1.append(arc4.Byte(42))
+        arr2.append(arc4.Byte(43))
