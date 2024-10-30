@@ -2,6 +2,7 @@ from collections.abc import Sequence
 
 import attrs
 
+from puya import log
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -12,6 +13,8 @@ from puya.ir.builder._utils import assign_targets, new_register_version
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import InvokeSubroutine, Register, Subroutine, Value, ValueProvider, ValueTuple
 from puya.parse import SourceLocation
+
+logger = log.get_logger(__name__)
 
 
 def visit_subroutine_call_expression(
@@ -46,6 +49,11 @@ def _call_subroutine(
         arg_val = arg_lookup.get(index=idx, param_name=param.name)
         resolved_args.append(arg_val)
         if param.implicit_return:
+            if arg_val in implicit_args:
+                logger.error(
+                    "mutable values cannot be passed more than once to a subroutine",
+                    location=arg_val.source_location,
+                )
             implicit_args.append(arg_val)
     if not arg_lookup.is_empty:
         raise CodeError("function call arguments do not match signature", call_location) from None
