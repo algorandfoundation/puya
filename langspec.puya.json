@@ -4079,6 +4079,49 @@
                 }
             ]
         },
+        "falcon_verify": {
+            "name": "falcon_verify",
+            "code": 133,
+            "size": 1,
+            "doc": [
+                "for (data A, compressed-format signature B, pubkey C) verify the signature of data against the pubkey"
+            ],
+            "cost": {
+                "value": 1700,
+                "doc": "1700"
+            },
+            "min_avm_version": 11,
+            "halts": false,
+            "mode": "any",
+            "groups": [
+                "Cryptography"
+            ],
+            "stack_inputs": [
+                {
+                    "name": "A",
+                    "stack_type": "[]byte",
+                    "doc": null
+                },
+                {
+                    "name": "B",
+                    "stack_type": "[1232]byte",
+                    "doc": null
+                },
+                {
+                    "name": "C",
+                    "stack_type": "[1793]byte",
+                    "doc": null
+                }
+            ],
+            "immediate_args": [],
+            "stack_outputs": [
+                {
+                    "name": "X",
+                    "stack_type": "bool",
+                    "doc": null
+                }
+            ]
+        },
         "frame_bury": {
             "name": "frame_bury",
             "code": 140,
@@ -5650,6 +5693,33 @@
                 }
             ]
         },
+        "online_stake": {
+            "name": "online_stake",
+            "code": 117,
+            "size": 1,
+            "doc": [
+                "the total online stake in the agreement round"
+            ],
+            "cost": {
+                "value": 1,
+                "doc": "1"
+            },
+            "min_avm_version": 11,
+            "halts": false,
+            "mode": "app",
+            "groups": [
+                "State Access"
+            ],
+            "stack_inputs": [],
+            "immediate_args": [],
+            "stack_outputs": [
+                {
+                    "name": "X",
+                    "stack_type": "uint64",
+                    "doc": null
+                }
+            ]
+        },
         "pop": {
             "name": "pop",
             "code": 72,
@@ -6522,6 +6592,39 @@
                 }
             ]
         },
+        "sumhash512": {
+            "name": "sumhash512",
+            "code": 134,
+            "size": 1,
+            "doc": [
+                "sumhash512 of value A, yields [64]byte"
+            ],
+            "cost": {
+                "value": null,
+                "doc": "150 + 7 per 4 bytes of A"
+            },
+            "min_avm_version": 11,
+            "halts": false,
+            "mode": "any",
+            "groups": [
+                "Cryptography"
+            ],
+            "stack_inputs": [
+                {
+                    "name": "A",
+                    "stack_type": "[]byte",
+                    "doc": null
+                }
+            ],
+            "immediate_args": [],
+            "stack_outputs": [
+                {
+                    "name": "X",
+                    "stack_type": "[64]byte",
+                    "doc": null
+                }
+            ]
+        },
         "swap": {
             "name": "swap",
             "code": 76,
@@ -6766,6 +6869,53 @@
                 }
             ]
         },
+        "voter_params_get": {
+            "name": "voter_params_get",
+            "code": 116,
+            "size": 2,
+            "doc": [
+                "X is field F from online account A as of the balance round: 320 rounds before the current round. Y is 1 if A had positive algos online in the agreement round, else Y is 0 and X is a type specific zero-value"
+            ],
+            "cost": {
+                "value": 1,
+                "doc": "1"
+            },
+            "min_avm_version": 11,
+            "halts": false,
+            "mode": "app",
+            "groups": [
+                "State Access"
+            ],
+            "stack_inputs": [
+                {
+                    "name": "A",
+                    "stack_type": "any",
+                    "doc": null
+                }
+            ],
+            "immediate_args": [
+                {
+                    "name": "F",
+                    "immediate_type": "arg_enum",
+                    "arg_enum": "voter_params",
+                    "modifies_stack_input": null,
+                    "modifies_stack_output": 0,
+                    "doc": "voter params field index"
+                }
+            ],
+            "stack_outputs": [
+                {
+                    "name": "X",
+                    "stack_type": "any",
+                    "doc": null
+                },
+                {
+                    "name": "Y",
+                    "stack_type": "bool",
+                    "doc": null
+                }
+            ]
+        },
         "vrf_verify": {
             "name": "vrf_verify",
             "code": 208,
@@ -6941,84 +7091,120 @@
                 "doc": "Account balance in microalgos",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 0
+                "value": 0,
+                "min_avm_version": 6
             },
             {
                 "name": "AcctMinBalance",
                 "doc": "Minimum required balance for account, in microalgos",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 1
+                "value": 1,
+                "min_avm_version": 6
             },
             {
                 "name": "AcctAuthAddr",
                 "doc": "Address the account is rekeyed to.",
                 "stack_type": "address",
                 "mode": "app",
-                "value": 2
+                "value": 2,
+                "min_avm_version": 6
             },
             {
                 "name": "AcctTotalNumUint",
                 "doc": "The total number of uint64 values allocated by this account in Global and Local States.",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 3
+                "value": 3,
+                "min_avm_version": 8
             },
             {
                 "name": "AcctTotalNumByteSlice",
                 "doc": "The total number of byte array values allocated by this account in Global and Local States.",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 4
+                "value": 4,
+                "min_avm_version": 8
             },
             {
                 "name": "AcctTotalExtraAppPages",
                 "doc": "The number of extra app code pages used by this account.",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 5
+                "value": 5,
+                "min_avm_version": 8
             },
             {
                 "name": "AcctTotalAppsCreated",
                 "doc": "The number of existing apps created by this account.",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 6
+                "value": 6,
+                "min_avm_version": 8
             },
             {
                 "name": "AcctTotalAppsOptedIn",
                 "doc": "The number of apps this account is opted into.",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 7
+                "value": 7,
+                "min_avm_version": 8
             },
             {
                 "name": "AcctTotalAssetsCreated",
                 "doc": "The number of existing ASAs created by this account.",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 8
+                "value": 8,
+                "min_avm_version": 8
             },
             {
                 "name": "AcctTotalAssets",
                 "doc": "The numbers of ASAs held by this account (including ASAs this account created).",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 9
+                "value": 9,
+                "min_avm_version": 8
             },
             {
                 "name": "AcctTotalBoxes",
                 "doc": "The number of existing boxes created by this account's app.",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 10
+                "value": 10,
+                "min_avm_version": 8
             },
             {
                 "name": "AcctTotalBoxBytes",
                 "doc": "The total number of bytes used by this account's app's box keys and values.",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 11
+                "value": 11,
+                "min_avm_version": 8
+            },
+            {
+                "name": "AcctIncentiveEligible",
+                "doc": "Has this account opted into block payouts",
+                "stack_type": "bool",
+                "mode": "app",
+                "value": 12,
+                "min_avm_version": 11
+            },
+            {
+                "name": "AcctLastProposed",
+                "doc": "The round number of the last block this account proposed.",
+                "stack_type": "uint64",
+                "mode": "app",
+                "value": 13,
+                "min_avm_version": 11
+            },
+            {
+                "name": "AcctLastHeartbeat",
+                "doc": "The round number of the last block this account sent a heartbeat.",
+                "stack_type": "uint64",
+                "mode": "app",
+                "value": 14,
+                "min_avm_version": 11
             }
         ],
         "app_params": [
@@ -7027,63 +7213,72 @@
                 "doc": "Bytecode of Approval Program",
                 "stack_type": "[]byte",
                 "mode": "app",
-                "value": 0
+                "value": 0,
+                "min_avm_version": 5
             },
             {
                 "name": "AppClearStateProgram",
                 "doc": "Bytecode of Clear State Program",
                 "stack_type": "[]byte",
                 "mode": "app",
-                "value": 1
+                "value": 1,
+                "min_avm_version": 5
             },
             {
                 "name": "AppGlobalNumUint",
                 "doc": "Number of uint64 values allowed in Global State",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 2
+                "value": 2,
+                "min_avm_version": 5
             },
             {
                 "name": "AppGlobalNumByteSlice",
                 "doc": "Number of byte array values allowed in Global State",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 3
+                "value": 3,
+                "min_avm_version": 5
             },
             {
                 "name": "AppLocalNumUint",
                 "doc": "Number of uint64 values allowed in Local State",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 4
+                "value": 4,
+                "min_avm_version": 5
             },
             {
                 "name": "AppLocalNumByteSlice",
                 "doc": "Number of byte array values allowed in Local State",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 5
+                "value": 5,
+                "min_avm_version": 5
             },
             {
                 "name": "AppExtraProgramPages",
                 "doc": "Number of Extra Program Pages of code space",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 6
+                "value": 6,
+                "min_avm_version": 5
             },
             {
                 "name": "AppCreator",
                 "doc": "Creator address",
                 "stack_type": "address",
                 "mode": "app",
-                "value": 7
+                "value": 7,
+                "min_avm_version": 5
             },
             {
                 "name": "AppAddress",
                 "doc": "Address for which this application has authority",
                 "stack_type": "address",
                 "mode": "app",
-                "value": 8
+                "value": 8,
+                "min_avm_version": 5
             }
         ],
         "asset_holding": [
@@ -7092,14 +7287,16 @@
                 "doc": "Amount of the asset unit held by this account",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 0
+                "value": 0,
+                "min_avm_version": 2
             },
             {
                 "name": "AssetFrozen",
                 "doc": "Is the asset frozen or not",
                 "stack_type": "bool",
                 "mode": "app",
-                "value": 1
+                "value": 1,
+                "min_avm_version": 2
             }
         ],
         "asset_params": [
@@ -7108,84 +7305,96 @@
                 "doc": "Total number of units of this asset",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 0
+                "value": 0,
+                "min_avm_version": 2
             },
             {
                 "name": "AssetDecimals",
                 "doc": "See AssetParams.Decimals",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 1
+                "value": 1,
+                "min_avm_version": 2
             },
             {
                 "name": "AssetDefaultFrozen",
                 "doc": "Frozen by default or not",
                 "stack_type": "bool",
                 "mode": "app",
-                "value": 2
+                "value": 2,
+                "min_avm_version": 2
             },
             {
                 "name": "AssetUnitName",
                 "doc": "Asset unit name",
                 "stack_type": "[]byte",
                 "mode": "app",
-                "value": 3
+                "value": 3,
+                "min_avm_version": 2
             },
             {
                 "name": "AssetName",
                 "doc": "Asset name",
                 "stack_type": "[]byte",
                 "mode": "app",
-                "value": 4
+                "value": 4,
+                "min_avm_version": 2
             },
             {
                 "name": "AssetURL",
                 "doc": "URL with additional info about the asset",
                 "stack_type": "[]byte",
                 "mode": "app",
-                "value": 5
+                "value": 5,
+                "min_avm_version": 2
             },
             {
                 "name": "AssetMetadataHash",
                 "doc": "Arbitrary commitment",
                 "stack_type": "[32]byte",
                 "mode": "app",
-                "value": 6
+                "value": 6,
+                "min_avm_version": 2
             },
             {
                 "name": "AssetManager",
                 "doc": "Manager address",
                 "stack_type": "address",
                 "mode": "app",
-                "value": 7
+                "value": 7,
+                "min_avm_version": 2
             },
             {
                 "name": "AssetReserve",
                 "doc": "Reserve address",
                 "stack_type": "address",
                 "mode": "app",
-                "value": 8
+                "value": 8,
+                "min_avm_version": 2
             },
             {
                 "name": "AssetFreeze",
                 "doc": "Freeze address",
                 "stack_type": "address",
                 "mode": "app",
-                "value": 9
+                "value": 9,
+                "min_avm_version": 2
             },
             {
                 "name": "AssetClawback",
                 "doc": "Clawback address",
                 "stack_type": "address",
                 "mode": "app",
-                "value": 10
+                "value": 10,
+                "min_avm_version": 2
             },
             {
                 "name": "AssetCreator",
                 "doc": "Creator address",
                 "stack_type": "address",
                 "mode": "app",
-                "value": 11
+                "value": 11,
+                "min_avm_version": 5
             }
         ],
         "base64": [
@@ -7194,30 +7403,98 @@
                 "doc": null,
                 "stack_type": null,
                 "mode": "any",
-                "value": 0
+                "value": 0,
+                "min_avm_version": 6
             },
             {
                 "name": "StdEncoding",
                 "doc": null,
                 "stack_type": null,
                 "mode": "any",
-                "value": 1
+                "value": 1,
+                "min_avm_version": 6
             }
         ],
         "block": [
             {
                 "name": "BlkSeed",
                 "doc": null,
-                "stack_type": "[]byte",
+                "stack_type": "[32]byte",
                 "mode": "any",
-                "value": 0
+                "value": 0,
+                "min_avm_version": 7
             },
             {
                 "name": "BlkTimestamp",
                 "doc": null,
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 1
+                "value": 1,
+                "min_avm_version": 7
+            },
+            {
+                "name": "BlkProposer",
+                "doc": null,
+                "stack_type": "address",
+                "mode": "any",
+                "value": 2,
+                "min_avm_version": 11
+            },
+            {
+                "name": "BlkFeesCollected",
+                "doc": null,
+                "stack_type": "uint64",
+                "mode": "any",
+                "value": 3,
+                "min_avm_version": 11
+            },
+            {
+                "name": "BlkBonus",
+                "doc": null,
+                "stack_type": "uint64",
+                "mode": "any",
+                "value": 4,
+                "min_avm_version": 11
+            },
+            {
+                "name": "BlkBranch",
+                "doc": null,
+                "stack_type": "[32]byte",
+                "mode": "any",
+                "value": 5,
+                "min_avm_version": 11
+            },
+            {
+                "name": "BlkFeeSink",
+                "doc": null,
+                "stack_type": "address",
+                "mode": "any",
+                "value": 6,
+                "min_avm_version": 11
+            },
+            {
+                "name": "BlkProtocol",
+                "doc": null,
+                "stack_type": "[]byte",
+                "mode": "any",
+                "value": 7,
+                "min_avm_version": 11
+            },
+            {
+                "name": "BlkTxnCounter",
+                "doc": null,
+                "stack_type": "uint64",
+                "mode": "any",
+                "value": 8,
+                "min_avm_version": 11
+            },
+            {
+                "name": "BlkProposerPayout",
+                "doc": null,
+                "stack_type": "uint64",
+                "mode": "any",
+                "value": 9,
+                "min_avm_version": 11
             }
         ],
         "EC": [
@@ -7226,28 +7503,32 @@
                 "doc": "G1 of the BN254 curve. Points encoded as 32 byte X following by 32 byte Y",
                 "stack_type": null,
                 "mode": "any",
-                "value": 0
+                "value": 0,
+                "min_avm_version": 10
             },
             {
                 "name": "BN254g2",
                 "doc": "G2 of the BN254 curve. Points encoded as 64 byte X following by 64 byte Y",
                 "stack_type": null,
                 "mode": "any",
-                "value": 1
+                "value": 1,
+                "min_avm_version": 10
             },
             {
                 "name": "BLS12_381g1",
                 "doc": "G1 of the BLS 12-381 curve. Points encoded as 48 byte X following by 48 byte Y",
                 "stack_type": null,
                 "mode": "any",
-                "value": 2
+                "value": 2,
+                "min_avm_version": 10
             },
             {
                 "name": "BLS12_381g2",
                 "doc": "G2 of the BLS 12-381 curve. Points encoded as 96 byte X following by 96 byte Y",
                 "stack_type": null,
                 "mode": "any",
-                "value": 3
+                "value": 3,
+                "min_avm_version": 10
             }
         ],
         "ECDSA": [
@@ -7256,14 +7537,16 @@
                 "doc": "secp256k1 curve, used in Bitcoin",
                 "stack_type": null,
                 "mode": "any",
-                "value": 0
+                "value": 0,
+                "min_avm_version": 5
             },
             {
                 "name": "Secp256r1",
                 "doc": "secp256r1 curve, NIST standard",
                 "stack_type": null,
                 "mode": "any",
-                "value": 1
+                "value": 1,
+                "min_avm_version": 7
             }
         ],
         "txn": [
@@ -7272,476 +7555,544 @@
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 0
+                "value": 0,
+                "min_avm_version": 0
             },
             {
                 "name": "Fee",
                 "doc": "microalgos",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 1
+                "value": 1,
+                "min_avm_version": 0
             },
             {
                 "name": "FirstValid",
                 "doc": "round number",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 2
+                "value": 2,
+                "min_avm_version": 0
             },
             {
                 "name": "FirstValidTime",
                 "doc": "UNIX timestamp of block before txn.FirstValid. Fails if negative",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 3
+                "value": 3,
+                "min_avm_version": 7
             },
             {
                 "name": "LastValid",
                 "doc": "round number",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 4
+                "value": 4,
+                "min_avm_version": 0
             },
             {
                 "name": "Note",
                 "doc": "Any data up to 1024 bytes",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 5
+                "value": 5,
+                "min_avm_version": 0
             },
             {
                 "name": "Lease",
                 "doc": "32 byte lease value",
                 "stack_type": "[32]byte",
                 "mode": "any",
-                "value": 6
+                "value": 6,
+                "min_avm_version": 0
             },
             {
                 "name": "Receiver",
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 7
+                "value": 7,
+                "min_avm_version": 0
             },
             {
                 "name": "Amount",
                 "doc": "microalgos",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 8
+                "value": 8,
+                "min_avm_version": 0
             },
             {
                 "name": "CloseRemainderTo",
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 9
+                "value": 9,
+                "min_avm_version": 0
             },
             {
                 "name": "VotePK",
                 "doc": "32 byte address",
                 "stack_type": "[32]byte",
                 "mode": "any",
-                "value": 10
+                "value": 10,
+                "min_avm_version": 0
             },
             {
                 "name": "SelectionPK",
                 "doc": "32 byte address",
                 "stack_type": "[32]byte",
                 "mode": "any",
-                "value": 11
+                "value": 11,
+                "min_avm_version": 0
             },
             {
                 "name": "VoteFirst",
                 "doc": "The first round that the participation key is valid.",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 12
+                "value": 12,
+                "min_avm_version": 0
             },
             {
                 "name": "VoteLast",
                 "doc": "The last round that the participation key is valid.",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 13
+                "value": 13,
+                "min_avm_version": 0
             },
             {
                 "name": "VoteKeyDilution",
                 "doc": "Dilution for the 2-level participation key",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 14
+                "value": 14,
+                "min_avm_version": 0
             },
             {
                 "name": "Type",
                 "doc": "Transaction type as bytes",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 15
+                "value": 15,
+                "min_avm_version": 0
             },
             {
                 "name": "TypeEnum",
                 "doc": "Transaction type as integer",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 16
+                "value": 16,
+                "min_avm_version": 0
             },
             {
                 "name": "XferAsset",
                 "doc": "Asset ID",
                 "stack_type": "asset",
                 "mode": "any",
-                "value": 17
+                "value": 17,
+                "min_avm_version": 0
             },
             {
                 "name": "AssetAmount",
                 "doc": "value in Asset's units",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 18
+                "value": 18,
+                "min_avm_version": 0
             },
             {
                 "name": "AssetSender",
                 "doc": "32 byte address. Source of assets if Sender is the Asset's Clawback address.",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 19
+                "value": 19,
+                "min_avm_version": 0
             },
             {
                 "name": "AssetReceiver",
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 20
+                "value": 20,
+                "min_avm_version": 0
             },
             {
                 "name": "AssetCloseTo",
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 21
+                "value": 21,
+                "min_avm_version": 0
             },
             {
                 "name": "GroupIndex",
                 "doc": "Position of this transaction within an atomic transaction group. A stand-alone transaction is implicitly element 0 in a group of 1",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 22
+                "value": 22,
+                "min_avm_version": 0
             },
             {
                 "name": "TxID",
                 "doc": "The computed ID for this transaction. 32 bytes.",
                 "stack_type": "[32]byte",
                 "mode": "any",
-                "value": 23
+                "value": 23,
+                "min_avm_version": 0
             },
             {
                 "name": "ApplicationID",
                 "doc": "ApplicationID from ApplicationCall transaction",
                 "stack_type": "application",
                 "mode": "any",
-                "value": 24
+                "value": 24,
+                "min_avm_version": 2
             },
             {
                 "name": "OnCompletion",
                 "doc": "ApplicationCall transaction on completion action",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 25
+                "value": 25,
+                "min_avm_version": 2
             },
             {
                 "name": "ApplicationArgs",
                 "doc": "Arguments passed to the application in the ApplicationCall transaction",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 26
+                "value": 26,
+                "min_avm_version": 2
             },
             {
                 "name": "NumAppArgs",
                 "doc": "Number of ApplicationArgs",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 27
+                "value": 27,
+                "min_avm_version": 2
             },
             {
                 "name": "Accounts",
                 "doc": "Accounts listed in the ApplicationCall transaction",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 28
+                "value": 28,
+                "min_avm_version": 2
             },
             {
                 "name": "NumAccounts",
                 "doc": "Number of Accounts",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 29
+                "value": 29,
+                "min_avm_version": 2
             },
             {
                 "name": "ApprovalProgram",
                 "doc": "Approval program",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 30
+                "value": 30,
+                "min_avm_version": 2
             },
             {
                 "name": "ClearStateProgram",
                 "doc": "Clear state program",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 31
+                "value": 31,
+                "min_avm_version": 2
             },
             {
                 "name": "RekeyTo",
                 "doc": "32 byte Sender's new AuthAddr",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 32
+                "value": 32,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAsset",
                 "doc": "Asset ID in asset config transaction",
                 "stack_type": "asset",
                 "mode": "any",
-                "value": 33
+                "value": 33,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetTotal",
                 "doc": "Total number of units of this asset created",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 34
+                "value": 34,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetDecimals",
                 "doc": "Number of digits to display after the decimal place when displaying the asset",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 35
+                "value": 35,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetDefaultFrozen",
                 "doc": "Whether the asset's slots are frozen by default or not, 0 or 1",
                 "stack_type": "bool",
                 "mode": "any",
-                "value": 36
+                "value": 36,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetUnitName",
                 "doc": "Unit name of the asset",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 37
+                "value": 37,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetName",
                 "doc": "The asset name",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 38
+                "value": 38,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetURL",
                 "doc": "URL",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 39
+                "value": 39,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetMetadataHash",
                 "doc": "32 byte commitment to unspecified asset metadata",
                 "stack_type": "[32]byte",
                 "mode": "any",
-                "value": 40
+                "value": 40,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetManager",
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 41
+                "value": 41,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetReserve",
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 42
+                "value": 42,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetFreeze",
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 43
+                "value": 43,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetClawback",
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 44
+                "value": 44,
+                "min_avm_version": 2
             },
             {
                 "name": "FreezeAsset",
                 "doc": "Asset ID being frozen or un-frozen",
                 "stack_type": "asset",
                 "mode": "any",
-                "value": 45
+                "value": 45,
+                "min_avm_version": 2
             },
             {
                 "name": "FreezeAssetAccount",
                 "doc": "32 byte address of the account whose asset slot is being frozen or un-frozen",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 46
+                "value": 46,
+                "min_avm_version": 2
             },
             {
                 "name": "FreezeAssetFrozen",
                 "doc": "The new frozen value, 0 or 1",
                 "stack_type": "bool",
                 "mode": "any",
-                "value": 47
+                "value": 47,
+                "min_avm_version": 2
             },
             {
                 "name": "Assets",
                 "doc": "Foreign Assets listed in the ApplicationCall transaction",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 48
+                "value": 48,
+                "min_avm_version": 3
             },
             {
                 "name": "NumAssets",
                 "doc": "Number of Assets",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 49
+                "value": 49,
+                "min_avm_version": 3
             },
             {
                 "name": "Applications",
                 "doc": "Foreign Apps listed in the ApplicationCall transaction",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 50
+                "value": 50,
+                "min_avm_version": 3
             },
             {
                 "name": "NumApplications",
                 "doc": "Number of Applications",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 51
+                "value": 51,
+                "min_avm_version": 3
             },
             {
                 "name": "GlobalNumUint",
                 "doc": "Number of global state integers in ApplicationCall",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 52
+                "value": 52,
+                "min_avm_version": 3
             },
             {
                 "name": "GlobalNumByteSlice",
                 "doc": "Number of global state byteslices in ApplicationCall",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 53
+                "value": 53,
+                "min_avm_version": 3
             },
             {
                 "name": "LocalNumUint",
                 "doc": "Number of local state integers in ApplicationCall",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 54
+                "value": 54,
+                "min_avm_version": 3
             },
             {
                 "name": "LocalNumByteSlice",
                 "doc": "Number of local state byteslices in ApplicationCall",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 55
+                "value": 55,
+                "min_avm_version": 3
             },
             {
                 "name": "ExtraProgramPages",
                 "doc": "Number of additional pages for each of the application's approval and clear state programs. An ExtraProgramPages of 1 means 2048 more total bytes, or 1024 for each program.",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 56
+                "value": 56,
+                "min_avm_version": 4
             },
             {
                 "name": "Nonparticipation",
                 "doc": "Marks an account nonparticipating for rewards",
                 "stack_type": "bool",
                 "mode": "any",
-                "value": 57
+                "value": 57,
+                "min_avm_version": 5
             },
             {
                 "name": "Logs",
                 "doc": "Log messages emitted by an application call (only with `itxn` in v5). Application mode only",
                 "stack_type": "[]byte",
                 "mode": "app",
-                "value": 58
+                "value": 58,
+                "min_avm_version": 5
             },
             {
                 "name": "NumLogs",
                 "doc": "Number of Logs (only with `itxn` in v5). Application mode only",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 59
+                "value": 59,
+                "min_avm_version": 5
             },
             {
                 "name": "CreatedAssetID",
                 "doc": "Asset ID allocated by the creation of an ASA (only with `itxn` in v5). Application mode only",
                 "stack_type": "asset",
                 "mode": "app",
-                "value": 60
+                "value": 60,
+                "min_avm_version": 5
             },
             {
                 "name": "CreatedApplicationID",
                 "doc": "ApplicationID allocated by the creation of an application (only with `itxn` in v5). Application mode only",
                 "stack_type": "application",
                 "mode": "app",
-                "value": 61
+                "value": 61,
+                "min_avm_version": 5
             },
             {
                 "name": "LastLog",
                 "doc": "The last message emitted. Empty bytes if none were emitted. Application mode only",
                 "stack_type": "[]byte",
                 "mode": "app",
-                "value": 62
+                "value": 62,
+                "min_avm_version": 6
             },
             {
                 "name": "StateProofPK",
                 "doc": "64 byte state proof public key",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 63
+                "value": 63,
+                "min_avm_version": 6
             },
             {
                 "name": "ApprovalProgramPages",
                 "doc": "Approval Program as an array of pages",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 64
+                "value": 64,
+                "min_avm_version": 7
             },
             {
                 "name": "NumApprovalProgramPages",
                 "doc": "Number of Approval Program pages",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 65
+                "value": 65,
+                "min_avm_version": 7
             },
             {
                 "name": "ClearStateProgramPages",
                 "doc": "ClearState Program as an array of pages",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 66
+                "value": 66,
+                "min_avm_version": 7
             },
             {
                 "name": "NumClearStateProgramPages",
                 "doc": "Number of ClearState Program pages",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 67
+                "value": 67,
+                "min_avm_version": 7
             }
         ],
         "txna": [
@@ -7750,49 +8101,56 @@
                 "doc": "Arguments passed to the application in the ApplicationCall transaction",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 26
+                "value": 26,
+                "min_avm_version": 2
             },
             {
                 "name": "Accounts",
                 "doc": "Accounts listed in the ApplicationCall transaction",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 28
+                "value": 28,
+                "min_avm_version": 2
             },
             {
                 "name": "Assets",
                 "doc": "Foreign Assets listed in the ApplicationCall transaction",
                 "stack_type": "asset",
                 "mode": "any",
-                "value": 48
+                "value": 48,
+                "min_avm_version": 3
             },
             {
                 "name": "Applications",
                 "doc": "Foreign Apps listed in the ApplicationCall transaction",
                 "stack_type": "application",
                 "mode": "any",
-                "value": 50
+                "value": 50,
+                "min_avm_version": 3
             },
             {
                 "name": "Logs",
                 "doc": "Log messages emitted by an application call (only with `itxn` in v5). Application mode only",
                 "stack_type": "[]byte",
                 "mode": "app",
-                "value": 58
+                "value": 58,
+                "min_avm_version": 5
             },
             {
                 "name": "ApprovalProgramPages",
                 "doc": "Approval Program as an array of pages",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 64
+                "value": 64,
+                "min_avm_version": 7
             },
             {
                 "name": "ClearStateProgramPages",
                 "doc": "ClearState Program as an array of pages",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 66
+                "value": 66,
+                "min_avm_version": 7
             }
         ],
         "global": [
@@ -7801,126 +8159,184 @@
                 "doc": "microalgos",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 0
+                "value": 0,
+                "min_avm_version": 0
             },
             {
                 "name": "MinBalance",
                 "doc": "microalgos",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 1
+                "value": 1,
+                "min_avm_version": 0
             },
             {
                 "name": "MaxTxnLife",
                 "doc": "rounds",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 2
+                "value": 2,
+                "min_avm_version": 0
             },
             {
                 "name": "ZeroAddress",
                 "doc": "32 byte address of all zero bytes",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 3
+                "value": 3,
+                "min_avm_version": 0
             },
             {
                 "name": "GroupSize",
                 "doc": "Number of transactions in this atomic transaction group. At least 1",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 4
+                "value": 4,
+                "min_avm_version": 0
             },
             {
                 "name": "LogicSigVersion",
                 "doc": "Maximum supported version",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 5
+                "value": 5,
+                "min_avm_version": 2
             },
             {
                 "name": "Round",
                 "doc": "Current round number. Application mode only.",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 6
+                "value": 6,
+                "min_avm_version": 2
             },
             {
                 "name": "LatestTimestamp",
                 "doc": "Last confirmed block UNIX timestamp. Fails if negative. Application mode only.",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 7
+                "value": 7,
+                "min_avm_version": 2
             },
             {
                 "name": "CurrentApplicationID",
                 "doc": "ID of current application executing. Application mode only.",
                 "stack_type": "application",
                 "mode": "app",
-                "value": 8
+                "value": 8,
+                "min_avm_version": 2
             },
             {
                 "name": "CreatorAddress",
                 "doc": "Address of the creator of the current application. Application mode only.",
                 "stack_type": "address",
                 "mode": "app",
-                "value": 9
+                "value": 9,
+                "min_avm_version": 3
             },
             {
                 "name": "CurrentApplicationAddress",
                 "doc": "Address that the current application controls. Application mode only.",
                 "stack_type": "address",
                 "mode": "app",
-                "value": 10
+                "value": 10,
+                "min_avm_version": 5
             },
             {
                 "name": "GroupID",
                 "doc": "ID of the transaction group. 32 zero bytes if the transaction is not part of a group.",
                 "stack_type": "[32]byte",
                 "mode": "any",
-                "value": 11
+                "value": 11,
+                "min_avm_version": 5
             },
             {
                 "name": "OpcodeBudget",
                 "doc": "The remaining cost that can be spent by opcodes in this program.",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 12
+                "value": 12,
+                "min_avm_version": 6
             },
             {
                 "name": "CallerApplicationID",
                 "doc": "The application ID of the application that called this application. 0 if this application is at the top-level. Application mode only.",
                 "stack_type": "uint64",
                 "mode": "app",
-                "value": 13
+                "value": 13,
+                "min_avm_version": 6
             },
             {
                 "name": "CallerApplicationAddress",
                 "doc": "The application address of the application that called this application. ZeroAddress if this application is at the top-level. Application mode only.",
                 "stack_type": "address",
                 "mode": "app",
-                "value": 14
+                "value": 14,
+                "min_avm_version": 6
             },
             {
                 "name": "AssetCreateMinBalance",
                 "doc": "The additional minimum balance required to create (and opt-in to) an asset.",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 15
+                "value": 15,
+                "min_avm_version": 10
             },
             {
                 "name": "AssetOptInMinBalance",
                 "doc": "The additional minimum balance required to opt-in to an asset.",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 16
+                "value": 16,
+                "min_avm_version": 10
             },
             {
                 "name": "GenesisHash",
                 "doc": "The Genesis Hash for the network.",
                 "stack_type": "[32]byte",
                 "mode": "any",
-                "value": 17
+                "value": 17,
+                "min_avm_version": 10
+            },
+            {
+                "name": "PayoutsEnabled",
+                "doc": "Whether block proposal payouts are enabled.",
+                "stack_type": "bool",
+                "mode": "any",
+                "value": 18,
+                "min_avm_version": 11
+            },
+            {
+                "name": "PayoutsGoOnlineFee",
+                "doc": "The fee required in a keyreg transaction to make an account incentive eligible.",
+                "stack_type": "uint64",
+                "mode": "any",
+                "value": 19,
+                "min_avm_version": 11
+            },
+            {
+                "name": "PayoutsPercent",
+                "doc": "The percentage of transaction fees in a block that can be paid to the block proposer.",
+                "stack_type": "uint64",
+                "mode": "any",
+                "value": 20,
+                "min_avm_version": 11
+            },
+            {
+                "name": "PayoutsMinBalance",
+                "doc": "The minimum algo balance an account must have in the agreement round to receive block payouts in the proposal round.",
+                "stack_type": "uint64",
+                "mode": "any",
+                "value": 21,
+                "min_avm_version": 11
+            },
+            {
+                "name": "PayoutsMaxBalance",
+                "doc": "The maximum algo balance an account can have in the agreement round to receive block payouts in the proposal round.",
+                "stack_type": "uint64",
+                "mode": "any",
+                "value": 22,
+                "min_avm_version": 11
             }
         ],
         "itxn_field": [
@@ -7929,357 +8345,408 @@
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 0
+                "value": 0,
+                "min_avm_version": 0
             },
             {
                 "name": "Fee",
                 "doc": "microalgos",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 1
+                "value": 1,
+                "min_avm_version": 0
             },
             {
                 "name": "Note",
                 "doc": "Any data up to 1024 bytes",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 5
+                "value": 5,
+                "min_avm_version": 0
             },
             {
                 "name": "Receiver",
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 7
+                "value": 7,
+                "min_avm_version": 0
             },
             {
                 "name": "Amount",
                 "doc": "microalgos",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 8
+                "value": 8,
+                "min_avm_version": 0
             },
             {
                 "name": "CloseRemainderTo",
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 9
+                "value": 9,
+                "min_avm_version": 0
             },
             {
                 "name": "VotePK",
                 "doc": "32 byte address",
                 "stack_type": "[32]byte",
                 "mode": "any",
-                "value": 10
+                "value": 10,
+                "min_avm_version": 0
             },
             {
                 "name": "SelectionPK",
                 "doc": "32 byte address",
                 "stack_type": "[32]byte",
                 "mode": "any",
-                "value": 11
+                "value": 11,
+                "min_avm_version": 0
             },
             {
                 "name": "VoteFirst",
                 "doc": "The first round that the participation key is valid.",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 12
+                "value": 12,
+                "min_avm_version": 0
             },
             {
                 "name": "VoteLast",
                 "doc": "The last round that the participation key is valid.",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 13
+                "value": 13,
+                "min_avm_version": 0
             },
             {
                 "name": "VoteKeyDilution",
                 "doc": "Dilution for the 2-level participation key",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 14
+                "value": 14,
+                "min_avm_version": 0
             },
             {
                 "name": "Type",
                 "doc": "Transaction type as bytes",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 15
+                "value": 15,
+                "min_avm_version": 0
             },
             {
                 "name": "TypeEnum",
                 "doc": "Transaction type as integer",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 16
+                "value": 16,
+                "min_avm_version": 0
             },
             {
                 "name": "XferAsset",
                 "doc": "Asset ID",
                 "stack_type": "asset",
                 "mode": "any",
-                "value": 17
+                "value": 17,
+                "min_avm_version": 0
             },
             {
                 "name": "AssetAmount",
                 "doc": "value in Asset's units",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 18
+                "value": 18,
+                "min_avm_version": 0
             },
             {
                 "name": "AssetSender",
                 "doc": "32 byte address. Source of assets if Sender is the Asset's Clawback address.",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 19
+                "value": 19,
+                "min_avm_version": 0
             },
             {
                 "name": "AssetReceiver",
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 20
+                "value": 20,
+                "min_avm_version": 0
             },
             {
                 "name": "AssetCloseTo",
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 21
+                "value": 21,
+                "min_avm_version": 0
             },
             {
                 "name": "ApplicationID",
                 "doc": "ApplicationID from ApplicationCall transaction",
                 "stack_type": "application",
                 "mode": "any",
-                "value": 24
+                "value": 24,
+                "min_avm_version": 2
             },
             {
                 "name": "OnCompletion",
                 "doc": "ApplicationCall transaction on completion action",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 25
+                "value": 25,
+                "min_avm_version": 2
             },
             {
                 "name": "ApplicationArgs",
                 "doc": "Arguments passed to the application in the ApplicationCall transaction",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 26
+                "value": 26,
+                "min_avm_version": 2
             },
             {
                 "name": "Accounts",
                 "doc": "Accounts listed in the ApplicationCall transaction",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 28
+                "value": 28,
+                "min_avm_version": 2
             },
             {
                 "name": "ApprovalProgram",
                 "doc": "Approval program",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 30
+                "value": 30,
+                "min_avm_version": 2
             },
             {
                 "name": "ClearStateProgram",
                 "doc": "Clear state program",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 31
+                "value": 31,
+                "min_avm_version": 2
             },
             {
                 "name": "RekeyTo",
                 "doc": "32 byte Sender's new AuthAddr",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 32
+                "value": 32,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAsset",
                 "doc": "Asset ID in asset config transaction",
                 "stack_type": "asset",
                 "mode": "any",
-                "value": 33
+                "value": 33,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetTotal",
                 "doc": "Total number of units of this asset created",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 34
+                "value": 34,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetDecimals",
                 "doc": "Number of digits to display after the decimal place when displaying the asset",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 35
+                "value": 35,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetDefaultFrozen",
                 "doc": "Whether the asset's slots are frozen by default or not, 0 or 1",
                 "stack_type": "bool",
                 "mode": "any",
-                "value": 36
+                "value": 36,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetUnitName",
                 "doc": "Unit name of the asset",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 37
+                "value": 37,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetName",
                 "doc": "The asset name",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 38
+                "value": 38,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetURL",
                 "doc": "URL",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 39
+                "value": 39,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetMetadataHash",
                 "doc": "32 byte commitment to unspecified asset metadata",
                 "stack_type": "[32]byte",
                 "mode": "any",
-                "value": 40
+                "value": 40,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetManager",
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 41
+                "value": 41,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetReserve",
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 42
+                "value": 42,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetFreeze",
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 43
+                "value": 43,
+                "min_avm_version": 2
             },
             {
                 "name": "ConfigAssetClawback",
                 "doc": "32 byte address",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 44
+                "value": 44,
+                "min_avm_version": 2
             },
             {
                 "name": "FreezeAsset",
                 "doc": "Asset ID being frozen or un-frozen",
                 "stack_type": "asset",
                 "mode": "any",
-                "value": 45
+                "value": 45,
+                "min_avm_version": 2
             },
             {
                 "name": "FreezeAssetAccount",
                 "doc": "32 byte address of the account whose asset slot is being frozen or un-frozen",
                 "stack_type": "address",
                 "mode": "any",
-                "value": 46
+                "value": 46,
+                "min_avm_version": 2
             },
             {
                 "name": "FreezeAssetFrozen",
                 "doc": "The new frozen value, 0 or 1",
                 "stack_type": "bool",
                 "mode": "any",
-                "value": 47
+                "value": 47,
+                "min_avm_version": 2
             },
             {
                 "name": "Assets",
                 "doc": "Foreign Assets listed in the ApplicationCall transaction",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 48
+                "value": 48,
+                "min_avm_version": 3
             },
             {
                 "name": "Applications",
                 "doc": "Foreign Apps listed in the ApplicationCall transaction",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 50
+                "value": 50,
+                "min_avm_version": 3
             },
             {
                 "name": "GlobalNumUint",
                 "doc": "Number of global state integers in ApplicationCall",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 52
+                "value": 52,
+                "min_avm_version": 3
             },
             {
                 "name": "GlobalNumByteSlice",
                 "doc": "Number of global state byteslices in ApplicationCall",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 53
+                "value": 53,
+                "min_avm_version": 3
             },
             {
                 "name": "LocalNumUint",
                 "doc": "Number of local state integers in ApplicationCall",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 54
+                "value": 54,
+                "min_avm_version": 3
             },
             {
                 "name": "LocalNumByteSlice",
                 "doc": "Number of local state byteslices in ApplicationCall",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 55
+                "value": 55,
+                "min_avm_version": 3
             },
             {
                 "name": "ExtraProgramPages",
                 "doc": "Number of additional pages for each of the application's approval and clear state programs. An ExtraProgramPages of 1 means 2048 more total bytes, or 1024 for each program.",
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 56
+                "value": 56,
+                "min_avm_version": 4
             },
             {
                 "name": "Nonparticipation",
                 "doc": "Marks an account nonparticipating for rewards",
                 "stack_type": "bool",
                 "mode": "any",
-                "value": 57
+                "value": 57,
+                "min_avm_version": 5
             },
             {
                 "name": "StateProofPK",
                 "doc": "64 byte state proof public key",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 63
+                "value": 63,
+                "min_avm_version": 6
             },
             {
                 "name": "ApprovalProgramPages",
                 "doc": "Approval Program as an array of pages",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 64
+                "value": 64,
+                "min_avm_version": 7
             },
             {
                 "name": "ClearStateProgramPages",
                 "doc": "ClearState Program as an array of pages",
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 66
+                "value": 66,
+                "min_avm_version": 7
             }
         ],
         "json_ref": [
@@ -8288,21 +8755,42 @@
                 "doc": null,
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 0
+                "value": 0,
+                "min_avm_version": 7
             },
             {
                 "name": "JSONUint64",
                 "doc": null,
                 "stack_type": "uint64",
                 "mode": "any",
-                "value": 1
+                "value": 1,
+                "min_avm_version": 7
             },
             {
                 "name": "JSONObject",
                 "doc": null,
                 "stack_type": "[]byte",
                 "mode": "any",
-                "value": 2
+                "value": 2,
+                "min_avm_version": 7
+            }
+        ],
+        "voter_params": [
+            {
+                "name": "VoterBalance",
+                "doc": "Online stake in microalgos",
+                "stack_type": "uint64",
+                "mode": "app",
+                "value": 0,
+                "min_avm_version": 6
+            },
+            {
+                "name": "VoterIncentiveEligible",
+                "doc": "Had this account opted into block payouts",
+                "stack_type": "bool",
+                "mode": "app",
+                "value": 1,
+                "min_avm_version": 11
             }
         ],
         "vrf_verify": [
@@ -8311,7 +8799,8 @@
                 "doc": null,
                 "stack_type": null,
                 "mode": "any",
-                "value": 0
+                "value": 0,
+                "min_avm_version": 7
             }
         ]
     }

@@ -41,7 +41,7 @@ from puya.models import (
     StateTotals,
 )
 from puya.parse import SourceLocation
-from puya.utils import StableSet, attrs_extend, set_remove
+from puya.utils import StableSet, attrs_extend, coalesce, set_remove
 
 logger = log.get_logger(__name__)
 
@@ -244,6 +244,7 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
         if not sub.body:  # in case something is pre-built (ie from embedded lib)
             FunctionIRBuilder.build_body(ctx, function=func, subroutine=sub)
 
+    avm_version = coalesce(contract.avm_version, ctx.options.target_avm_version)
     approval_ir = _make_program(
         ctx,
         contract.approval_program,
@@ -252,6 +253,7 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
             *ctx.embedded_funcs_lookup.values(),
         ),
         program_id=".".join((contract.id, contract.approval_program.short_name)),
+        avm_version=avm_version,
     )
     clear_state_ir = _make_program(
         ctx,
@@ -261,6 +263,7 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
             *ctx.embedded_funcs_lookup.values(),
         ),
         program_id=".".join((contract.id, contract.clear_program.short_name)),
+        avm_version=avm_version,
     )
     result = Contract(
         source_location=contract.source_location,
@@ -307,6 +310,7 @@ def _build_logic_sig_ir(
             *ctx.embedded_funcs_lookup.values(),
         ),
         program_id=logic_sig.id,
+        avm_version=coalesce(logic_sig.avm_version, ctx.options.target_avm_version),
     )
     result = LogicSignature(
         source_location=logic_sig.source_location,
@@ -391,6 +395,7 @@ def _make_program(
     references: Iterable[Subroutine],
     *,
     program_id: str,
+    avm_version: int,
 ) -> Program:
     if main.args:
         raise InternalError("main method should not have args")
@@ -410,6 +415,7 @@ def _make_program(
         id=program_id,
         main=main_sub,
         subroutines=tuple(references),
+        avm_version=avm_version,
     )
 
 

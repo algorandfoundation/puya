@@ -1,0 +1,50 @@
+logicsig test_cases.avm_11.contract.avm_11_sig
+{
+  return len(sumhash512(hex<"">))
+}
+
+contract Contract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.avm_11.contract.Contract.test_new_ops(): void
+  {
+    assert(!(falcon_verify(hex<"">, hex<"">, bzero(1793u))))
+    assert(len(sumhash512(hex<"">)) != 0u)
+    assert(online_stake() != 0u)
+    (a, b): tuple<bool,bool> = acct_params_get<AcctIncentiveEligible>(txn<Sender>())
+    (c, d): tuple<uint64,bool> = acct_params_get<AcctLastProposed>(txn<Sender>())
+    (e, f): tuple<uint64,bool> = acct_params_get<AcctLastHeartbeat>(txn<Sender>())
+    assert(block<BlkProposer>(0u) == global<ZeroAddress>(), comment="proposer")
+    assert(block<BlkFeesCollected>(0u) != 0u, comment="fees collected")
+    assert(block<BlkBonus>(0u) != 0u, comment="bonus")
+    assert(len(block<BlkBranch>(0u)) != 0u, comment="branch")
+    assert(block<BlkFeeSink>(0u) != global<ZeroAddress>(), comment="fee sink")
+    assert(len(block<BlkProtocol>(0u)) != 0u, comment="protocol")
+    assert(block<BlkTxnCounter>(0u) != 0u, comment="txn counter")
+    assert(block<BlkProposerPayout>(0u) != 0u, comment="proposer payout")
+    assert(global<PayoutsEnabled>(), comment="payouts_enabled")
+    assert(global<PayoutsGoOnlineFee>() != 0u, comment="payouts_go_online_fee")
+    assert(global<PayoutsPercent>() != 0u, comment="payouts_percent")
+    assert(global<PayoutsMinBalance>() != 0u, comment="payouts_min_balance")
+    assert(global<PayoutsMaxBalance>() != 0u, comment="payouts_max_balance")
+    (g, h): tuple<uint64,bool> = voter_params_get<VoterBalance>(0u)
+    (i, j): tuple<bool,bool> = voter_params_get<VoterIncentiveEligible>(0u)
+  }
+  
+  baremethod test_cases.avm_11.contract.Contract.__algopy_default_create(): void
+  {
+  }
+}

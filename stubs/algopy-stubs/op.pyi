@@ -15,9 +15,21 @@ class EC(str):
     """Available values for the `EC` enum"""
 
     BN254g1: EC = ...
+    """
+    G1 of the BN254 curve. Points encoded as 32 byte X following by 32 byte Y
+    """
     BN254g2: EC = ...
+    """
+    G2 of the BN254 curve. Points encoded as 64 byte X following by 64 byte Y
+    """
     BLS12_381g1: EC = ...
+    """
+    G1 of the BLS 12-381 curve. Points encoded as 48 byte X following by 48 byte Y
+    """
     BLS12_381g2: EC = ...
+    """
+    G2 of the BLS 12-381 curve. Points encoded as 96 byte X following by 96 byte Y
+    """
 
 class Base64(str):
     """Available values for the `base64` enum"""
@@ -29,7 +41,13 @@ class ECDSA(str):
     """Available values for the `ECDSA` enum"""
 
     Secp256k1: ECDSA = ...
+    """
+    secp256k1 curve, used in Bitcoin
+    """
     Secp256r1: ECDSA = ...
+    """
+    secp256r1 curve, NIST standard
+    """
 
 class VrfVerify(str):
     """Available values for the `vrf_verify` enum"""
@@ -244,6 +262,14 @@ def extract_uint64(a: Bytes | bytes, b: UInt64 | int, /) -> UInt64:
     Native TEAL opcode: [`extract_uint64`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#extract_uint64)
     """
 
+def falcon_verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bool:
+    """
+    for (data A, compressed-format signature B, pubkey C) verify the signature of data against the pubkey
+    Min AVM version: 11
+
+    Native TEAL opcode: [`falcon_verify`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#falcon_verify)
+    """
+
 def gaid(a: UInt64 | int, /) -> UInt64:
     """
     ID of the asset or application created in the Ath transaction of the current group
@@ -308,6 +334,14 @@ def mulw(a: UInt64 | int, b: UInt64 | int, /) -> tuple[UInt64, UInt64]:
     A times B as a 128-bit result in two uint64s. X is the high 64 bits, Y is the low
 
     Native TEAL opcode: [`mulw`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#mulw)
+    """
+
+def online_stake() -> UInt64:
+    """
+    the total online stake in the agreement round
+    Min AVM version: 11
+
+    Native TEAL opcode: [`online_stake`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#online_stake)
     """
 
 def replace(a: Bytes | bytes, b: UInt64 | int, c: Bytes | bytes, /) -> Bytes:
@@ -402,6 +436,14 @@ def substring(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
     A range of bytes from A starting at B up to but not including C. If C < B, or either is larger than the array length, the program fails
 
     Native TEAL opcode: [`substring`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#substring), [`substring3`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#substring3)
+    """
+
+def sumhash512(a: Bytes | bytes, /) -> Bytes:
+    """
+    sumhash512 of value A, yields [64]byte
+    Min AVM version: 11
+
+    Native TEAL opcode: [`sumhash512`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#sumhash512)
     """
 
 def vrf_verify(
@@ -513,6 +555,33 @@ class AcctParamsGet:
     def acct_total_box_bytes(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         The total number of bytes used by this account's app's box keys and values.
+
+        Native TEAL opcode: [`acct_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#acct_params_get)
+        """
+
+    @staticmethod
+    def acct_incentive_eligible(a: Account | UInt64 | int, /) -> tuple[bool, bool]:
+        """
+        Min AVM version: 11
+        :returns tuple[bool, bool]: Has this account opted into block payouts
+
+        Native TEAL opcode: [`acct_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#acct_params_get)
+        """
+
+    @staticmethod
+    def acct_last_proposed(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
+        """
+        Min AVM version: 11
+        :returns tuple[UInt64, bool]: The round number of the last block this account proposed.
+
+        Native TEAL opcode: [`acct_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#acct_params_get)
+        """
+
+    @staticmethod
+    def acct_last_heartbeat(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
+        """
+        Min AVM version: 11
+        :returns tuple[UInt64, bool]: The round number of the last block this account sent a heartbeat.
 
         Native TEAL opcode: [`acct_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#acct_params_get)
         """
@@ -866,6 +935,70 @@ class Block:
     @staticmethod
     def blk_timestamp(a: UInt64 | int, /) -> UInt64:
         """
+
+        Native TEAL opcode: [`block`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#block)
+        """
+
+    @staticmethod
+    def blk_proposer(a: UInt64 | int, /) -> Account:
+        """
+        Min AVM version: 11
+
+        Native TEAL opcode: [`block`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#block)
+        """
+
+    @staticmethod
+    def blk_fees_collected(a: UInt64 | int, /) -> UInt64:
+        """
+        Min AVM version: 11
+
+        Native TEAL opcode: [`block`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#block)
+        """
+
+    @staticmethod
+    def blk_bonus(a: UInt64 | int, /) -> UInt64:
+        """
+        Min AVM version: 11
+
+        Native TEAL opcode: [`block`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#block)
+        """
+
+    @staticmethod
+    def blk_branch(a: UInt64 | int, /) -> Bytes:
+        """
+        Min AVM version: 11
+
+        Native TEAL opcode: [`block`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#block)
+        """
+
+    @staticmethod
+    def blk_fee_sink(a: UInt64 | int, /) -> Account:
+        """
+        Min AVM version: 11
+
+        Native TEAL opcode: [`block`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#block)
+        """
+
+    @staticmethod
+    def blk_protocol(a: UInt64 | int, /) -> Bytes:
+        """
+        Min AVM version: 11
+
+        Native TEAL opcode: [`block`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#block)
+        """
+
+    @staticmethod
+    def blk_txn_counter(a: UInt64 | int, /) -> UInt64:
+        """
+        Min AVM version: 11
+
+        Native TEAL opcode: [`block`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#block)
+        """
+
+    @staticmethod
+    def blk_proposer_payout(a: UInt64 | int, /) -> UInt64:
+        """
+        Min AVM version: 11
 
         Native TEAL opcode: [`block`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#block)
         """
@@ -2294,6 +2427,36 @@ class Global:
     The Genesis Hash for the network.
     """
 
+    payouts_enabled: typing.Final[bool] = ...
+    """
+    Whether block proposal payouts are enabled.
+    Min AVM version: 11
+    """
+
+    payouts_go_online_fee: typing.Final[UInt64] = ...
+    """
+    The fee required in a keyreg transaction to make an account incentive eligible.
+    Min AVM version: 11
+    """
+
+    payouts_percent: typing.Final[UInt64] = ...
+    """
+    The percentage of transaction fees in a block that can be paid to the block proposer.
+    Min AVM version: 11
+    """
+
+    payouts_min_balance: typing.Final[UInt64] = ...
+    """
+    The minimum algo balance an account must have in the agreement round to receive block payouts in the proposal round.
+    Min AVM version: 11
+    """
+
+    payouts_max_balance: typing.Final[UInt64] = ...
+    """
+    The maximum algo balance an account can have in the agreement round to receive block payouts in the proposal round.
+    Min AVM version: 11
+    """
+
 class ITxn:
     """
     Get values for the last inner transaction
@@ -3701,3 +3864,27 @@ class Txn:
     """
     Number of ClearState Program pages
     """
+
+class VoterParamsGet:
+    """
+    X is field F from online account A as of the balance round: 320 rounds before the current round. Y is 1 if A had positive algos online in the agreement round, else Y is 0 and X is a type specific zero-value
+    Native TEAL op: [`voter_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#voter_params_get)
+    """
+
+    @staticmethod
+    def voter_balance(a: Bytes | UInt64 | bytes | int, /) -> tuple[UInt64, bool]:
+        """
+        Min AVM version: 11
+        :returns tuple[UInt64, bool]: Online stake in microalgos
+
+        Native TEAL opcode: [`voter_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#voter_params_get)
+        """
+
+    @staticmethod
+    def voter_incentive_eligible(a: Bytes | UInt64 | bytes | int, /) -> tuple[bool, bool]:
+        """
+        Min AVM version: 11
+        :returns tuple[bool, bool]: Had this account opted into block payouts
+
+        Native TEAL opcode: [`voter_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#voter_params_get)
+        """

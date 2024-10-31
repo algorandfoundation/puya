@@ -39,6 +39,7 @@ StatementResult: typing.TypeAlias = list[DeferredRootNode]
 @attrs.frozen(kw_only=True)
 class _LogicSigDecoratorInfo:
     name_override: str | None
+    avm_version: int | None
 
 
 _BUILTIN_INHERITABLE: typing.Final = frozenset(
@@ -99,6 +100,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                     short_name=coalesce(info.name_override, program.name),
                     docstring=func_def.docstring,
                     source_location=self._location(logicsig_dec),
+                    avm_version=info.avm_version,
                 )
 
             return [deferred]
@@ -120,19 +122,33 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
     def _process_logic_sig_decorator(
         self, decorator: mypy.nodes.Expression
     ) -> _LogicSigDecoratorInfo:
+        name_override = None
+        avm_version = None
         match decorator:
-            case mypy.nodes.NameExpr() | mypy.nodes.CallExpr(args=[]):
+            case mypy.nodes.NameExpr():
                 pass
-            case mypy.nodes.CallExpr(arg_names=["name"], args=[name_arg]):
-                name_const = name_arg.accept(self)
-                if isinstance(name_const, str):
-                    return _LogicSigDecoratorInfo(name_override=name_const)
-                self.context.error(f"Expected a string, got {name_const!r}", name_arg)
+            case mypy.nodes.CallExpr(arg_names=arg_names, args=args):
+                for arg_name, arg in zip(arg_names, args, strict=True):
+                    match arg_name:
+                        case "name":
+                            name_const = arg.accept(self)
+                            if isinstance(name_const, str):
+                                name_override = name_const
+                            else:
+                                self.context.error("expected a str", arg)
+                        case "avm_version":
+                            version_const = arg.accept(self)
+                            if isinstance(version_const, int):
+                                avm_version = version_const
+                            else:
+                                self.context.error("expected an int", arg)
+                        case _:
+                            self.context.error("unexpected argument", arg)
             case _:
                 self.context.error(
-                    f"Invalid {constants.LOGICSIG_DECORATOR_ALIAS} usage", decorator
+                    f"invalid {constants.LOGICSIG_DECORATOR_ALIAS} usage", decorator
                 )
-        return _LogicSigDecoratorInfo(name_override=None)
+        return _LogicSigDecoratorInfo(name_override=name_override, avm_version=avm_version)
 
     def visit_class_def(self, cdef: mypy.nodes.ClassDef) -> StatementResult:
         self.check_fatal_decorators(cdef.decorators)
@@ -582,6 +598,7 @@ def _process_contract_class_options(
     name_override: str | None = None
     scratch_slot_reservations = set[int]()
     state_totals = None
+    avm_version = None
     for kw_name, kw_expr in cdef.keywords.items():
         with context.log_exceptions(kw_expr):
             match kw_name:
@@ -623,6 +640,12 @@ def _process_contract_class_options(
                                 else:
                                     arg_map[arg_name] = arg_value
                         state_totals = StateTotals(**arg_map)
+                case "avm_version":
+                    version_value = kw_expr.accept(expr_visitor)
+                    if isinstance(version_value, int):
+                        avm_version = version_value
+                    else:
+                        context.error("unexpected argument type", kw_expr)
                 case "metaclass":
                     context.error("metaclass option is unsupported", kw_expr)
                 case _:
@@ -631,6 +654,7 @@ def _process_contract_class_options(
         name_override=name_override,
         scratch_slot_reservations=scratch_slot_reservations,
         state_totals=state_totals,
+        avm_version=avm_version,
     )
 
 

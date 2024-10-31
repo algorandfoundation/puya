@@ -4,7 +4,7 @@ from collections.abc import Sequence
 from importlib.metadata import version
 from pathlib import Path
 
-from puya.algo_constants import MAINNET_TEAL_LANGUAGE_VERSION, SUPPORTED_TEAL_LANGUAGE_VERSIONS
+from puya.algo_constants import MAINNET_AVM_VERSION, SUPPORTED_AVM_VERSIONS
 from puya.log import LogLevel, configure_logging
 from puya.options import LocalsCoalescingStrategy
 
@@ -138,8 +138,8 @@ def main() -> None:
     parser.add_argument(
         "--target-avm-version",
         type=int,
-        choices=SUPPORTED_TEAL_LANGUAGE_VERSIONS,
-        default=MAINNET_TEAL_LANGUAGE_VERSION,
+        choices=SUPPORTED_AVM_VERSIONS,
+        default=MAINNET_AVM_VERSION,
     )
     parser.add_argument(
         "--locals-coalescing-strategy",

@@ -27,7 +27,7 @@ def assemble_bytecode_and_debug_info(
 ) -> models.AssembledProgram:
     function_block_ids = {s.blocks[0].label: s.signature.name for s in program.all_subroutines}
 
-    version_bytes = _encode_varuint(ctx.options.target_avm_version)
+    version_bytes = _encode_varuint(program.avm_version)
     pc_events = defaultdict[int, DebugEvent](DebugEvent)  # type: ignore[arg-type]
     pc_ops = dict[int, models.AVMOp]()
     label_pcs = dict[str, int]()

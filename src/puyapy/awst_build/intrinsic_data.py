@@ -324,6 +324,16 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
             ),
         ],
     ),
+    falcon_verify=OpMappingWithOverloads(
+        result=pytypes.BoolType,
+        arity=3,
+        overloads=[
+            FunctionOpMapping(
+                "falcon_verify",
+                args=[(pytypes.BytesType,), (pytypes.BytesType,), (pytypes.BytesType,)],
+            ),
+        ],
+    ),
     gaid=OpMappingWithOverloads(
         result=pytypes.UInt64Type,
         arity=1,
@@ -438,6 +448,15 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
             FunctionOpMapping(
                 "mulw",
                 args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+            ),
+        ],
+    ),
+    online_stake=OpMappingWithOverloads(
+        result=pytypes.UInt64Type,
+        arity=0,
+        overloads=[
+            FunctionOpMapping(
+                "online_stake",
             ),
         ],
     ),
@@ -586,6 +605,16 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
                 "substring",
                 immediates=[int, int],
                 args=[(pytypes.BytesType,), 0, 1],
+            ),
+        ],
+    ),
+    sumhash512=OpMappingWithOverloads(
+        result=pytypes.BytesType,
+        arity=1,
+        overloads=[
+            FunctionOpMapping(
+                "sumhash512",
+                args=[(pytypes.BytesType,)],
             ),
         ],
     ),
@@ -759,6 +788,45 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "acct_params_get",
                     immediates=["AcctTotalBoxBytes"],
+                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
+                ),
+            ],
+        ),
+        acct_incentive_eligible=OpMappingWithOverloads(
+            result=pytypes.GenericTupleType.parameterise(
+                (pytypes.BoolType, pytypes.BoolType), source_location=None
+            ),
+            arity=1,
+            overloads=[
+                FunctionOpMapping(
+                    "acct_params_get",
+                    immediates=["AcctIncentiveEligible"],
+                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
+                ),
+            ],
+        ),
+        acct_last_proposed=OpMappingWithOverloads(
+            result=pytypes.GenericTupleType.parameterise(
+                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
+            ),
+            arity=1,
+            overloads=[
+                FunctionOpMapping(
+                    "acct_params_get",
+                    immediates=["AcctLastProposed"],
+                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
+                ),
+            ],
+        ),
+        acct_last_heartbeat=OpMappingWithOverloads(
+            result=pytypes.GenericTupleType.parameterise(
+                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
+            ),
+            arity=1,
+            overloads=[
+                FunctionOpMapping(
+                    "acct_params_get",
+                    immediates=["AcctLastHeartbeat"],
                     args=[(pytypes.AccountType, pytypes.UInt64Type)],
                 ),
             ],
@@ -1234,6 +1302,94 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "block",
                     immediates=["BlkTimestamp"],
+                    args=[(pytypes.UInt64Type,)],
+                ),
+            ],
+        ),
+        blk_proposer=OpMappingWithOverloads(
+            result=pytypes.AccountType,
+            arity=1,
+            overloads=[
+                FunctionOpMapping(
+                    "block",
+                    immediates=["BlkProposer"],
+                    args=[(pytypes.UInt64Type,)],
+                ),
+            ],
+        ),
+        blk_fees_collected=OpMappingWithOverloads(
+            result=pytypes.UInt64Type,
+            arity=1,
+            overloads=[
+                FunctionOpMapping(
+                    "block",
+                    immediates=["BlkFeesCollected"],
+                    args=[(pytypes.UInt64Type,)],
+                ),
+            ],
+        ),
+        blk_bonus=OpMappingWithOverloads(
+            result=pytypes.UInt64Type,
+            arity=1,
+            overloads=[
+                FunctionOpMapping(
+                    "block",
+                    immediates=["BlkBonus"],
+                    args=[(pytypes.UInt64Type,)],
+                ),
+            ],
+        ),
+        blk_branch=OpMappingWithOverloads(
+            result=pytypes.BytesType,
+            arity=1,
+            overloads=[
+                FunctionOpMapping(
+                    "block",
+                    immediates=["BlkBranch"],
+                    args=[(pytypes.UInt64Type,)],
+                ),
+            ],
+        ),
+        blk_fee_sink=OpMappingWithOverloads(
+            result=pytypes.AccountType,
+            arity=1,
+            overloads=[
+                FunctionOpMapping(
+                    "block",
+                    immediates=["BlkFeeSink"],
+                    args=[(pytypes.UInt64Type,)],
+                ),
+            ],
+        ),
+        blk_protocol=OpMappingWithOverloads(
+            result=pytypes.BytesType,
+            arity=1,
+            overloads=[
+                FunctionOpMapping(
+                    "block",
+                    immediates=["BlkProtocol"],
+                    args=[(pytypes.UInt64Type,)],
+                ),
+            ],
+        ),
+        blk_txn_counter=OpMappingWithOverloads(
+            result=pytypes.UInt64Type,
+            arity=1,
+            overloads=[
+                FunctionOpMapping(
+                    "block",
+                    immediates=["BlkTxnCounter"],
+                    args=[(pytypes.UInt64Type,)],
+                ),
+            ],
+        ),
+        blk_proposer_payout=OpMappingWithOverloads(
+            result=pytypes.UInt64Type,
+            arity=1,
+            overloads=[
+                FunctionOpMapping(
+                    "block",
+                    immediates=["BlkProposerPayout"],
                     args=[(pytypes.UInt64Type,)],
                 ),
             ],
@@ -3445,6 +3601,31 @@ NAMESPACE_CLASSES: typing.Final[
             "GenesisHash",
             pytypes.BytesType,
         ),
+        payouts_enabled=PropertyOpMapping(
+            "global",
+            "PayoutsEnabled",
+            pytypes.BoolType,
+        ),
+        payouts_go_online_fee=PropertyOpMapping(
+            "global",
+            "PayoutsGoOnlineFee",
+            pytypes.UInt64Type,
+        ),
+        payouts_percent=PropertyOpMapping(
+            "global",
+            "PayoutsPercent",
+            pytypes.UInt64Type,
+        ),
+        payouts_min_balance=PropertyOpMapping(
+            "global",
+            "PayoutsMinBalance",
+            pytypes.UInt64Type,
+        ),
+        payouts_max_balance=PropertyOpMapping(
+            "global",
+            "PayoutsMaxBalance",
+            pytypes.UInt64Type,
+        ),
     ),
     ITxn=dict(
         sender=OpMappingWithOverloads(
@@ -5189,6 +5370,34 @@ NAMESPACE_CLASSES: typing.Final[
             "txn",
             "NumClearStateProgramPages",
             pytypes.UInt64Type,
+        ),
+    ),
+    VoterParamsGet=dict(
+        voter_balance=OpMappingWithOverloads(
+            result=pytypes.GenericTupleType.parameterise(
+                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
+            ),
+            arity=1,
+            overloads=[
+                FunctionOpMapping(
+                    "voter_params_get",
+                    immediates=["VoterBalance"],
+                    args=[(pytypes.BytesType, pytypes.UInt64Type)],
+                ),
+            ],
+        ),
+        voter_incentive_eligible=OpMappingWithOverloads(
+            result=pytypes.GenericTupleType.parameterise(
+                (pytypes.BoolType, pytypes.BoolType), source_location=None
+            ),
+            arity=1,
+            overloads=[
+                FunctionOpMapping(
+                    "voter_params_get",
+                    immediates=["VoterIncentiveEligible"],
+                    args=[(pytypes.BytesType, pytypes.UInt64Type)],
+                ),
+            ],
         ),
     ),
 )
