@@ -194,7 +194,7 @@ def _dummy_program() -> _CompiledProgram:
     return _CompiledProgram(
         teal=TealProgram(
             id="",
-            target_avm_version=0,
+            avm_version=0,
             main=TealSubroutine(
                 is_main=True,
                 signature=Signature(

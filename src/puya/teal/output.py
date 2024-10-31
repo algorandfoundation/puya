@@ -10,7 +10,7 @@ def emit_teal(context: CompileContext, program: models.TealProgram) -> str:
     indent = " " * 4
 
     result = [
-        f"#pragma version {context.options.target_avm_version}",
+        f"#pragma version {program.avm_version}",
         "",
     ]
     for subroutine in program.all_subroutines:

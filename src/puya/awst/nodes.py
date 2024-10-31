@@ -9,6 +9,7 @@ from functools import cached_property
 import attrs
 from immutabledict import immutabledict
 
+from puya.algo_constants import SUPPORTED_AVM_VERSIONS
 from puya.avm_type import AVMType
 from puya.awst import wtypes
 from puya.awst.txn_fields import TxnField
@@ -1601,12 +1602,21 @@ class AppStorageDefinition(ContractMemberNode):
         return visitor.visit_app_storage_definition(self)
 
 
+def _validate_avm_version(node: Node, _: object, avm_version: int | None) -> None:
+    if avm_version is not None and avm_version not in SUPPORTED_AVM_VERSIONS:
+        raise CodeError(
+            "unsupported AVM version",
+            node.source_location,
+        )
+
+
 @attrs.frozen(kw_only=True)
 class LogicSignature(RootNode):
     id: LogicSigReference
     short_name: str
     program: Subroutine = attrs.field()
     docstring: str | None
+    avm_version: int | None = attrs.field(validator=_validate_avm_version)
 
     @program.validator
     def _validate_program(self, _instance: object, program: Subroutine) -> None:
@@ -1733,6 +1743,8 @@ class Contract(RootNode):
     """State totals which can override in part or in full those implied by `app_state`."""
     reserved_scratch_space: Set[int]
     """Scratch slots that the contract is explicitly setting aside for direct/explicit usage."""
+    avm_version: int | None = attrs.field(validator=_validate_avm_version)
+    """AVM version to target, defaults to options.target_avm_version"""
 
     @approval_program.validator
     def check_approval(self, _attribute: object, approval: ContractMethod) -> None:

@@ -11,6 +11,7 @@ from pathlib import Path
 
 import attrs
 from puya import log
+from puya.algo_constants import SUPPORTED_AVM_VERSIONS
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.intrinsic_models import FunctionOpMapping, OpMappingWithOverloads
 from puyapy.awst_build.utils import snake_case
@@ -28,6 +29,7 @@ from scripts.transform_lang_spec import (
 logger = log.get_logger(__name__)
 INDENT = " " * 4
 VCS_ROOT = Path(__file__).parent.parent
+MIN_SUPPORTED_VERSION = min(SUPPORTED_AVM_VERSIONS)
 
 
 PYTYPE_TO_LITERAL: dict[pytypes.PyType, pytypes.LiteralOnlyType | None] = {
@@ -56,6 +58,8 @@ STACK_TYPE_MAPPING: dict[StackType, Sequence[pytypes.PyType]] = {
     StackType.bytes_33: [pytypes.BytesType],
     StackType.bytes_64: [pytypes.BytesType],
     StackType.bytes_80: [pytypes.BytesType],
+    StackType.bytes_1232: [pytypes.BytesType],
+    StackType.bytes_1793: [pytypes.BytesType],
     StackType.bool: [pytypes.BoolType, pytypes.UInt64Type],
     StackType.uint64: [pytypes.UInt64Type],
     StackType.any: [pytypes.BytesType, pytypes.UInt64Type],
@@ -344,6 +348,7 @@ class FunctionDef:
     args: list[TypedName] = attrs.field(factory=list)
     return_docs: list[str] = attrs.field(factory=list)
     op_mapping: OpMappingWithOverloads
+    min_avm_version: int
 
 
 @attrs.define
@@ -523,6 +528,7 @@ def build_class_var_stub(function: FunctionDef, indent: str) -> Iterable[str]:
     returns = pytype_stub_repr(function.op_mapping.result)
     return_docs = function.return_docs
     doc = return_docs if return_docs else function.doc[:]
+    _maybe_add_min_version_doc(doc, function.min_avm_version)
     yield f"{indent}{function.name}: typing.Final[{returns}] = ..."
     yield f'{indent}"""'
     for doc_line in doc:
@@ -577,6 +583,9 @@ def build_class_from_overriding_immediate(
         method = build_operation_method(
             op, snake_case(value.name), aliases, const_immediate_value=(immediate, value)
         )
+        # some enums are reused across ops, so need to take the max minimum of op and enum version
+        method.min_avm_version = max(op.min_avm_version, value.min_avm_version)
+        _maybe_add_min_version_doc(method.doc, method.min_avm_version)
 
         for op_mapping in method.op_mapping.overloads:
             class_ops.add(op_mapping.op_code)
@@ -588,7 +597,7 @@ def build_class_from_overriding_immediate(
 
 def get_op_doc(op: Op) -> list[str]:
     doc = [d.replace("\\", "\\\\") for d in op.doc]
-
+    _maybe_add_min_version_doc(doc, op.min_avm_version)
     return doc
 
 
@@ -618,7 +627,22 @@ def build_enum(spec: LanguageSpec, arg_enum: str) -> Iterable[str]:
     yield f'{INDENT}"""Available values for the `{arg_enum}` enum"""'
     for value in values:
         yield f"{INDENT}{value.name}: {enum_name} = ..."
+        enum_doc = []
+        if value.doc:
+            enum_doc.append(value.doc)
+        _maybe_add_min_version_doc(enum_doc, value.min_avm_version)
+        if enum_doc:
+            yield f'{INDENT}"""'
+            for doc_line in enum_doc:
+                yield f"{INDENT}{doc_line}"
+            yield f'{INDENT}"""'
     yield ""
+
+
+def _maybe_add_min_version_doc(doc: list[str], version: int) -> None:
+    # only output min AVM version if it is greater than our min supported version
+    if version > MIN_SUPPORTED_VERSION:
+        doc.append(f"Min AVM version: {version}")
 
 
 def build_operation_method(
@@ -722,6 +746,7 @@ def build_operation_method(
             result=result_typ,
             overloads=op_mappings,
         ),
+        min_avm_version=op.min_avm_version,
     )
 
     return proto_function

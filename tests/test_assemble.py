@@ -123,7 +123,7 @@ def test_assemble_last_op_jump() -> None:
         ),
         program=teal.TealProgram(
             id="",
-            target_avm_version=10,
+            avm_version=10,
             main=teal.TealSubroutine(
                 is_main=True,
                 signature=Signature(name="", parameters=(), returns=()),

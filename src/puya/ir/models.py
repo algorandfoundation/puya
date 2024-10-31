@@ -913,7 +913,7 @@ class Subroutine(Context):
         attrs.validate(self)
 
 
-@attrs.define(eq=False)
+@attrs.define(kw_only=True, eq=False)
 class Program(Context):
     """An individual compilation unit - ie either an Approval or a Clear State program"""
 
@@ -938,6 +938,7 @@ class Program(Context):
     main: Subroutine
     subroutines: Sequence[Subroutine]
     source_location: SourceLocation | None = None
+    avm_version: int
 
     def __attrs_post_init__(self) -> None:
         if self.source_location is None:

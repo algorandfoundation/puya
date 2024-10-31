@@ -27,6 +27,7 @@ class ContractClassOptions:
     name_override: str | None
     scratch_slot_reservations: Set[int] | None
     state_totals: StateTotals | None
+    avm_version: int | None
 
 
 @attrs.frozen

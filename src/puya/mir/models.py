@@ -624,6 +624,7 @@ class Program:
     id: str
     main: MemorySubroutine
     subroutines: list[MemorySubroutine]
+    avm_version: int
 
     @property
     def all_subroutines(self) -> Iterator[MemorySubroutine]:

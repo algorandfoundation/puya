@@ -164,6 +164,11 @@ OP_SPECS = {
                     "AssetCreateMinBalance": 15,
                     "AssetOptInMinBalance": 16,
                     "GenesisHash": 17,
+                    "PayoutsEnabled": 18,
+                    "PayoutsGoOnlineFee": 19,
+                    "PayoutsPercent": 20,
+                    "PayoutsMinBalance": 21,
+                    "PayoutsMaxBalance": 22,
                 }
             )
         ],
@@ -506,16 +511,27 @@ OP_SPECS = {
                     "AcctTotalAssets": 9,
                     "AcctTotalBoxes": 10,
                     "AcctTotalBoxBytes": 11,
+                    "AcctIncentiveEligible": 12,
+                    "AcctLastProposed": 13,
+                    "AcctLastHeartbeat": 14,
                 }
             )
         ],
     ),
+    "voter_params_get": OpSpec(
+        name="voter_params_get",
+        code=116,
+        immediates=[ImmediateEnum(codes={"VoterBalance": 0, "VoterIncentiveEligible": 1})],
+    ),
+    "online_stake": OpSpec(name="online_stake", code=117, immediates=[]),
     "min_balance": OpSpec(name="min_balance", code=120, immediates=[]),
     "pushbytes": OpSpec(name="pushbytes", code=128, immediates=[ImmediateKind.bytes]),
     "pushint": OpSpec(name="pushint", code=129, immediates=[ImmediateKind.varuint]),
     "pushbytess": OpSpec(name="pushbytess", code=130, immediates=[ImmediateKind.bytes_array]),
     "pushints": OpSpec(name="pushints", code=131, immediates=[ImmediateKind.varuint_array]),
     "ed25519verify_bare": OpSpec(name="ed25519verify_bare", code=132, immediates=[]),
+    "falcon_verify": OpSpec(name="falcon_verify", code=133, immediates=[]),
+    "sumhash512": OpSpec(name="sumhash512", code=134, immediates=[]),
     "callsub": OpSpec(name="callsub", code=136, immediates=[ImmediateKind.label]),
     "retsub": OpSpec(name="retsub", code=137, immediates=[]),
     "proto": OpSpec(name="proto", code=138, immediates=[ImmediateKind.uint8, ImmediateKind.uint8]),
@@ -907,7 +923,24 @@ OP_SPECS = {
         name="vrf_verify", code=208, immediates=[ImmediateEnum(codes={"VrfAlgorand": 0})]
     ),
     "block": OpSpec(
-        name="block", code=209, immediates=[ImmediateEnum(codes={"BlkSeed": 0, "BlkTimestamp": 1})]
+        name="block",
+        code=209,
+        immediates=[
+            ImmediateEnum(
+                codes={
+                    "BlkSeed": 0,
+                    "BlkTimestamp": 1,
+                    "BlkProposer": 2,
+                    "BlkFeesCollected": 3,
+                    "BlkBonus": 4,
+                    "BlkBranch": 5,
+                    "BlkFeeSink": 6,
+                    "BlkProtocol": 7,
+                    "BlkTxnCounter": 8,
+                    "BlkProposerPayout": 9,
+                }
+            )
+        ],
     ),
     "box_splice": OpSpec(name="box_splice", code=210, immediates=[]),
     "box_resize": OpSpec(name="box_resize", code=211, immediates=[]),
