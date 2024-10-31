@@ -12,6 +12,7 @@ from immutabledict import immutabledict
 
 from puya import log
 from puya.awst import nodes, txn_fields, wtypes
+from puya.errors import PuyaError
 
 logger = log.get_logger(__name__)
 
@@ -79,10 +80,20 @@ def awst_to_json(awst: nodes.AWST) -> str:
     return _get_converter().dumps(awst, indent=4)
 
 
+def _find_and_log_puya_errors(err: ClassValidationError | IterableValidationError) -> None:
+    for ex in err.exceptions:
+        match ex:
+            case PuyaError():
+                logger.error(ex.msg, location=ex.location)
+            case ClassValidationError() | IterableValidationError():
+                _find_and_log_puya_errors(ex)
+
+
 def awst_from_json(json: str) -> nodes.AWST:
     try:
         return _get_converter().loads(json, nodes.AWST)  # type: ignore[type-abstract]
     except (ClassValidationError, IterableValidationError) as err:
+        _find_and_log_puya_errors(err)
         logger.debug("Deserialization error: \n" + "\n".join(transform_error(err)))
         raise ValueError(
             "Error during deserialization of AWST json. See debug log for details"
