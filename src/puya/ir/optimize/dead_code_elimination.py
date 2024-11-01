@@ -222,7 +222,7 @@ def remove_unused_variables(_context: CompileContext, subroutine: models.Subrout
             isinstance(ass.source, models.Intrinsic)
             and ass.source.op.code in SIDE_EFFECT_FREE_AVM_OPS
         ):
-            for reg in registers:
+            for reg in sorted(registers, key=lambda r: r.local_id):
                 logger.debug(f"Removing unused variable {reg.local_id}")
             block.ops.remove(ass)
             modified += 1
