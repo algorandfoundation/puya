@@ -83,7 +83,8 @@ def okay1() -> None:
 @subroutine
 def baddie1() -> None:
     arr_of_arr = arc4.DynamicArray[arc4.DynamicBytes]()
-    for arr in arr_of_arr: ## E: cannot directly iterate an ARC4 array of mutable objects, construct a for-loop over the indexes via urange(<array>.length) instead
+    for arr in arr_of_arr: ## E: cannot directly iterate an ARC4 array of mutable objects, construct a for-loop over the indexes instead \
+                           ## N: use `algopy.urange(<array>.length)` to iterate by index
         arr.append(arc4.Byte(1))
 
 
@@ -97,7 +98,8 @@ def okay2() -> None:
 @subroutine
 def baddie2() -> None:
     arr_of_tup_with_arr = arc4.DynamicArray[arc4.Tuple[arc4.DynamicBytes, arc4.UInt64]]()
-    for tup in arr_of_tup_with_arr: ## E: cannot directly iterate an ARC4 array of mutable objects, construct a for-loop over the indexes via urange(<array>.length) instead
+    for tup in arr_of_tup_with_arr: ## E: cannot directly iterate an ARC4 array of mutable objects, construct a for-loop over the indexes instead \
+                                    ## N: use `algopy.urange(<array>.length)` to iterate by index
         tup[0].append(arc4.Byte(1))
 
 
@@ -366,3 +368,67 @@ def unresolveable() -> None:
     one = UInt64(1)
     assert bool(op.bitlen(empty or one)) ## E: type unions are unsupported at this location
     bad = empty or one ## E: expression would produce a union type, which isn't supported unless evaluating a boolean condition
+
+
+## case: iterate_tuple_mutable_types
+
+from algopy import *
+
+
+class TupleIterationMutation(ARC4Contract):
+
+    @arc4.abimethod()
+    def test_iteration_mutation(self, param: tuple[arc4.DynamicBytes, arc4.DynamicBytes, arc4.DynamicBytes]) -> None:
+        items = get_dynamic_bytes()
+        a, b, c = get_dynamic_bytes()
+
+        # not ok as both item and items[n] refer to the same values
+        for item in items: ## E: tuple of mutable ARC4 values cannot be iterated
+            item.append(arc4.Byte())
+
+        for item in param: ## E: tuple of mutable ARC4 values cannot be iterated
+            item.append(arc4.Byte())
+
+        for item in (a, b, c): ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a tuple expression
+            item.append(arc4.Byte())
+
+        for outer in Bytes(b" "):
+            for item in items: ## E: tuple of mutable ARC4 values cannot be iterated
+                item.append(arc4.Byte())
+
+        for item in items: ## E: tuple of mutable ARC4 values cannot be iterated
+            for inner in Bytes(b" "):
+                item.append(arc4.Byte())
+
+        for item in reversed(items): ## E: tuple of mutable ARC4 values cannot be iterated
+            item.append(arc4.Byte())
+
+        for idx, item in uenumerate(items): ## E: tuple of mutable ARC4 values cannot be iterated
+            item.append(arc4.Byte(idx + 1))
+
+        # scenarios that are ok as there is no other reference
+        for item in (a.copy(), b.copy(), c.copy()):
+            item.append(arc4.Byte())
+
+        for item in get_dynamic_bytes():
+            item.append(arc4.Byte())
+
+        for outer in Bytes(b" "):
+            for item in get_dynamic_bytes():
+                item.append(arc4.Byte())
+
+        for item in get_dynamic_bytes():
+            for inner in Bytes(b" "):
+                item.append(arc4.Byte())
+
+        for item in reversed(get_dynamic_bytes()):
+            item.append(arc4.Byte())
+
+        for idx, item in uenumerate(get_dynamic_bytes()):
+                item.append(arc4.Byte(idx + 1))
+
+
+
+@subroutine
+def get_dynamic_bytes() -> tuple[arc4.DynamicBytes, arc4.DynamicBytes, arc4.DynamicBytes]:
+    return (arc4.DynamicBytes(), arc4.DynamicBytes(), arc4.DynamicBytes())

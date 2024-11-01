@@ -44,9 +44,35 @@ class ARC4CopyValidator(AWSTTraverser):
                 _check_for_arc4_copy(item, "being passed to a tuple expression")
 
     def visit_for_in_loop(self, statement: awst_nodes.ForInLoop) -> None:
+        # statement.items is immediately checked before entering the for body
+        # so don't need to worry about preserving _for_items through multiple loops
         self._for_items = statement.items
         super().visit_for_in_loop(statement)
         self._for_items = None
+
+        # looping is essentially assigning so check sequence
+        sequence = statement.sequence
+        while isinstance(sequence, awst_nodes.Enumeration | awst_nodes.Reversed):
+            sequence = sequence.expr
+        if (  # mutable tuples cannot be iterated in a semantically correct way
+            isinstance(sequence.wtype, wtypes.WTuple)
+            and _is_referable_expression(sequence)
+            and _is_arc4_mutable(sequence.wtype)
+        ):
+            logger.error(
+                "tuple of mutable ARC4 values cannot be iterated",
+                location=sequence.source_location,
+            )
+        elif (  # arrays of mutable types, must be modified and iterated by index
+            isinstance(sequence.wtype, wtypes.ARC4Array)
+            and _is_referable_expression(sequence)
+            and _is_arc4_mutable(sequence.wtype.element_type)
+        ):
+            logger.error(
+                "cannot directly iterate an ARC4 array of mutable objects,"
+                " construct a for-loop over the indexes instead",
+                location=sequence.source_location,
+            )
 
     def visit_assignment_expression(self, expr: awst_nodes.AssignmentExpression) -> None:
         _check_assignment(expr.target, expr.value)

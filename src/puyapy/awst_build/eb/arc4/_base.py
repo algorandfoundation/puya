@@ -138,9 +138,8 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
     @typing.override
     def iterate(self) -> Expression:
         if not self.pytype.items.wtype.immutable:
-            logger.error(
-                "cannot directly iterate an ARC4 array of mutable objects,"
-                " construct a for-loop over the indexes via urange(<array>.length) instead",
+            logger.info(
+                "use `algopy.urange(<array>.length)` to iterate by index",
                 location=self.source_location,
             )
         return self.resolve()
