@@ -138,14 +138,14 @@ def attrs_extend[
 
 
 @functools.cache
-def _make_path_relative(*, to: Path, path: Path) -> str:
+def make_path_relative_to(*, to: Path, path: Path, walk_up: bool = False) -> str:
     with contextlib.suppress(ValueError):
-        path = path.relative_to(to)
-    return str(path).replace(os.sep, "/")
+        path = path.relative_to(to, walk_up=walk_up)
+    return normalize_path(path)
 
 
 def make_path_relative_to_cwd(path: Path) -> str:
-    return _make_path_relative(to=Path.cwd(), path=path)
+    return make_path_relative_to(to=Path.cwd(), path=path)
 
 
 def unique[T](items: Iterable[T]) -> list[T]:
@@ -324,3 +324,7 @@ def set_remove[T](set_: MutableSet[T], value: T) -> bool:
     removed = value in set_
     set_.discard(value)
     return removed
+
+
+def normalize_path(path: Path) -> str:
+    return str(path).replace(os.sep, "/")
