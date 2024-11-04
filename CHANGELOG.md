@@ -1,4 +1,10 @@
 # CHANGELOG
+## v3.6.0 (2024-11-04)
+
+### Fix
+
+* ensure paths are normalised in Puya source maps ([`29224ef`](https://github.com/algorandfoundation/puya/commit/29224ef7c689d9b7cc837c27367af0bfd1e447c0))
+
 ## v3.5.0 (2024-10-30)
 
 ### Feature
