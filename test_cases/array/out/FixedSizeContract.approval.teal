@@ -1,0 +1,204 @@
+#pragma version 10
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 1 16 0
+    // array/fixed_size.py:11
+    // class FixedSizeContract(arc4.ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@6
+    pushbytes 0x28d7c1b8 // method "test_array(uint64,uint64,uint64,uint64)uint64"
+    txna ApplicationArgs 0
+    match main_test_array_route@3
+
+main_after_if_else@10:
+    // array/fixed_size.py:11
+    // class FixedSizeContract(arc4.ARC4Contract):
+    intc_2 // 0
+    return
+
+main_test_array_route@3:
+    // array/fixed_size.py:12
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // array/fixed_size.py:11
+    // class FixedSizeContract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    btoi
+    txna ApplicationArgs 3
+    txna ApplicationArgs 4
+    btoi
+    // array/fixed_size.py:12
+    // @arc4.abimethod()
+    callsub test_array
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_bare_routing@6:
+    // array/fixed_size.py:11
+    // class FixedSizeContract(arc4.ARC4Contract):
+    txn OnCompletion
+    bnz main_after_if_else@10
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return
+
+
+// test_cases.array.fixed_size.FixedSizeContract.test_array(x1: bytes, y1: uint64, x2: bytes, y2: uint64) -> uint64:
+test_array:
+    // array/fixed_size.py:12-13
+    // @arc4.abimethod()
+    // def test_array(self, x1: arc4.UInt64, y1: UInt64, x2: arc4.UInt64, y2: UInt64) -> UInt64:
+    proto 4 1
+    pushbytes ""
+    dup
+    // array/fixed_size.py:18
+    // path.append(Point(x=x1, y=y1))
+    frame_dig -3
+    itob
+    frame_dig -4
+    swap
+    concat
+    // array/fixed_size.py:17
+    // path.append(Point(x=arc4.UInt64(), y=UInt64()))
+    pushbytes 0x00000000000000000000000000000000
+    // array/fixed_size.py:18
+    // path.append(Point(x=x1, y=y1))
+    swap
+    concat // on error: max array length exceeded
+    // array/fixed_size.py:19
+    // path.append(Point(x=x2, y=y2))
+    frame_dig -1
+    itob
+    frame_dig -2
+    swap
+    concat
+    concat // on error: max array length exceeded
+    dupn 2
+    // array/fixed_size.py:26
+    // last_point = path[0]
+    extract 0 16
+    dup
+    extract 0 8
+    cover 2
+    extract 8 8
+    btoi
+    swap
+    // array/fixed_size.py:27
+    // length = UInt64()
+    intc_2 // 0
+    swap
+    // array/fixed_size.py:28
+    // for point_idx in urange(1, path.length):
+    len
+    intc_1 // 16
+    /
+    intc_0 // 1
+
+test_array_for_header@2:
+    // array/fixed_size.py:28
+    // for point_idx in urange(1, path.length):
+    frame_dig 7
+    frame_dig 6
+    <
+    bz test_array_after_for@11
+    frame_dig 2
+    // array/fixed_size.py:29
+    // point = path[point_idx]
+    frame_dig 7
+    intc_1 // 16
+    *
+    intc_1 // 16
+    extract3
+    dup
+    extract 0 8
+    dup
+    uncover 2
+    extract 8 8
+    btoi
+    frame_bury 1
+    // array/fixed_size.py:30
+    // if point.x < last_point.x:
+    frame_dig 3
+    b<
+    bz test_array_else_body@5
+    // array/fixed_size.py:31
+    // dx = last_point.x.native - point.x.native
+    frame_dig 3
+    btoi
+    swap
+    btoi
+    -
+    frame_bury 0
+
+test_array_after_if_else@6:
+    // array/fixed_size.py:34
+    // if point.y < last_point.y:
+    frame_dig 1
+    frame_dig 4
+    <
+    bz test_array_else_body@8
+    // array/fixed_size.py:35
+    // dy = last_point.y - point.y
+    frame_dig 4
+    frame_dig 1
+    -
+
+test_array_after_if_else@9:
+    // array/fixed_size.py:38
+    // length += op.sqrt(dx * dx + dy * dy)
+    frame_dig 0
+    dup
+    *
+    swap
+    dup
+    *
+    +
+    sqrt
+    frame_dig 5
+    +
+    frame_bury 5
+    // array/fixed_size.py:28
+    // for point_idx in urange(1, path.length):
+    frame_dig 7
+    intc_0 // 1
+    +
+    frame_bury 7
+    b test_array_for_header@2
+
+test_array_else_body@8:
+    // array/fixed_size.py:37
+    // dy = point.y - last_point.y
+    frame_dig 1
+    frame_dig 4
+    -
+    b test_array_after_if_else@9
+
+test_array_else_body@5:
+    // array/fixed_size.py:33
+    // dx = point.x.native - last_point.x.native
+    btoi
+    frame_dig 3
+    btoi
+    -
+    frame_bury 0
+    b test_array_after_if_else@6
+
+test_array_after_for@11:
+    // array/fixed_size.py:21
+    // return path_length(path)
+    frame_dig 5
+    frame_bury 0
+    retsub

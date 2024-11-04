@@ -8,7 +8,7 @@ from puya.awst import (
 from puya.awst.nodes import Expression
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4
+from puya.ir.builder import arc4, arrays
 from puya.ir.builder._tuple_util import build_tuple_registers, get_tuple_item_values
 from puya.ir.builder._utils import (
     assert_value,
@@ -26,7 +26,7 @@ from puya.ir.models import (
     Value,
     ValueProvider,
 )
-from puya.ir.types_ import IRType
+from puya.ir.types_ import PrimitiveIRType
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
 
@@ -185,10 +185,26 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_index=reverse_index,
                 reverse_items=reverse_items,
             )
-        case awst_nodes.Expression(wtype=wtypes.ARC4Array() as array_wtype):
+        case awst_nodes.Expression(wtype=wtypes.ARC4Array() as arc4_array_wtype):
             iterator = arc4.build_for_in_array(
                 context,
-                array_wtype,
+                arc4_array_wtype,
+                sequence,
+                statement.source_location,
+            )
+            _iterate_indexable(
+                context,
+                loop_body=statement.loop_body,
+                indexable_size=iterator.array_length,
+                get_value_at_index=iterator.get_value_at_index,
+                assigner=assign_user_loop_vars,
+                statement_loc=statement.source_location,
+                reverse_index=reverse_index,
+                reverse_items=reverse_items,
+            )
+        case awst_nodes.Expression(wtype=wtypes.WArray()):
+            iterator = arrays.build_for_in_array(
+                context,
                 sequence,
                 statement.source_location,
             )
@@ -560,7 +576,7 @@ def _iterate_tuple(
     loop_counter_name = context.next_tmp_name("loop_counter")
 
     def assign_counter_and_user_vars(loop_count: int) -> Register:
-        counter_reg = context.ssa.new_register(loop_counter_name, IRType.uint64, None)
+        counter_reg = context.ssa.new_register(loop_counter_name, PrimitiveIRType.uint64, None)
         assign_targets(
             context,
             source=UInt64Constant(value=loop_count, source_location=None),

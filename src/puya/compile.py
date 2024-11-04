@@ -16,12 +16,13 @@ from puya.awst.nodes import AWST
 from puya.awst.validation.main import validate_awst
 from puya.context import ArtifactCompileContext, CompileContext
 from puya.errors import CodeError, InternalError
-from puya.ir.main import awst_to_ir, optimize_and_destructure_ir
+from puya.ir.main import awst_to_ir, transform_ir
 from puya.ir.models import (
     Contract as ContractIR,
     LogicSignature,
     ModuleArtifact,
 )
+from puya.ir.to_text_visitor import render_program
 from puya.log import LoggingContext
 from puya.mir.main import program_ir_to_mir
 from puya.models import (
@@ -137,12 +138,17 @@ def _ir_to_teal(
             metadata=artifact.ir.metadata,
         )
 
-        num_errors_before_optimization = log_ctx.num_errors
-        artifact_ir = optimize_and_destructure_ir(artifact_context, artifact.ir)
+        num_errors_before_transforms = log_ctx.num_errors
+        artifact_ir = artifact.ir
+        if artifact_context.options.output_ssa_ir:
+            for program in artifact_ir.all_programs():
+                render_program(artifact_context, program, qualifier="ssa")
+        artifact_ir = transform_ir(artifact_context, artifact_ir)
+
         # IR validation that occurs at the end of optimize_and_destructure_ir may have revealed
         # further errors, add dummy artifacts and continue so other artifacts can still be lowered
         # and report any errors they encounter
-        errors_in_optimization = log_ctx.num_errors > num_errors_before_optimization
+        errors_in_optimization = log_ctx.num_errors > num_errors_before_transforms
 
         compiled: _CompiledContract | _CompiledLogicSig
         match artifact_ir:

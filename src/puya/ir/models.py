@@ -1,4 +1,5 @@
 import abc
+import enum
 import typing
 import typing as t
 from collections.abc import Iterable, Iterator, Mapping, Sequence, Set
@@ -12,7 +13,16 @@ from puya.awst.txn_fields import TxnField
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.avm_ops_models import ImmediateKind, OpSignature, StackType, Variant
-from puya.ir.types_ import AVMBytesEncoding, IRType, stack_type_to_avm_type, stack_type_to_ir_type
+from puya.ir.types_ import (
+    ArrayType,
+    AVMBytesEncoding,
+    EncodedTupleType,
+    IRType,
+    PrimitiveIRType,
+    SlotType,
+    stack_type_to_avm_type,
+    stack_type_to_ir_type,
+)
 from puya.ir.visitor import IRVisitor
 from puya.models import (
     ContractMetaData,
@@ -27,6 +37,7 @@ from puya.utils import unique
 
 logger = log.get_logger(__name__)
 
+TMP_VAR_INDICATOR = "%"
 T = t.TypeVar("T")
 
 
@@ -76,7 +87,7 @@ class ValueProvider(IRVisitable, _Freezable, abc.ABC):
         return tuple(t.avm_type for t in self.types)
 
 
-@attrs.frozen
+@attrs.define
 class Value(ValueProvider, abc.ABC):
     """Base class for value types.
 
@@ -97,6 +108,28 @@ class Value(ValueProvider, abc.ABC):
 
     def _frozen_data(self) -> object:
         return self
+
+
+def is_array_type(_op: Context, _attribute: object, value: Value) -> None:
+    if not isinstance(value.ir_type, ArrayType):
+        raise InternalError("expected array type", value.source_location)
+
+
+def is_uint64_type(_op: Context, _attribute: object, value: Value) -> None:
+    if value.ir_type != PrimitiveIRType.uint64:
+        raise InternalError("expected uint64 type", value.source_location)
+
+
+def is_slot_type(_op: Context, _attribute: object, value: Value) -> None:
+    (typ,) = value.types
+    if not isinstance(typ, SlotType):
+        raise InternalError(f"expected SlotType, received: {typ}", value.source_location)
+
+
+def narrow_to_slot_type(typ: IRType) -> SlotType:
+    if not isinstance(typ, SlotType):
+        raise InternalError(f"expected SlotType, received: {typ}")
+    return typ
 
 
 @attrs.frozen
@@ -216,7 +249,7 @@ class Phi(IRVisitable, _Freezable):
 @attrs.frozen(kw_only=True)
 class UInt64Constant(Constant):
     value: int
-    ir_type: IRType = attrs.field(default=IRType.uint64)
+    ir_type: IRType = attrs.field(default=PrimitiveIRType.uint64)
     teal_alias: str | None = None
 
     @ir_type.validator
@@ -232,22 +265,54 @@ class UInt64Constant(Constant):
 
 @attrs.frozen(kw_only=True)
 class ITxnConstant(Constant):
+    """
+    Represents a static value relating to inner transactions, used to ensure static parameters
+    such as gitxn group indexes are resolved to immediates, as there are no stack variant ops.
+
+    During optimization will be moved into immediate fields as appropriate, if optimizations
+    fail to do this, then this will result in a code error during the MIR lowering.
+
+    TODO: maybe this could just be a UInt64Constant of the appropriate IRType?
+    """
+
     value: int
     ir_type: IRType = attrs.field()
 
     @ir_type.validator
     def _validate_ir_type(self, _attribute: object, ir_type: IRType) -> None:
-        if ir_type not in (IRType.itxn_group_idx, IRType.itxn_field_set):
+        if ir_type not in (
+            PrimitiveIRType.itxn_group_idx,
+            PrimitiveIRType.itxn_field_set,
+        ):
             raise InternalError(f"invalid type for ITxnConstant: {ir_type}", self.source_location)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_itxn_constant(self)
 
 
+@attrs.frozen(kw_only=True)
+class SlotConstant(Constant):
+    """
+    Represents a local (local to a function) and static (i.e. compile time constant) "slot"
+    Introduced only if a NewSlot op is determined to be static and local to a function, in which
+    case it is replaced with this node so that during MIR the value can instead be allocated on
+    the frame stack
+
+    TODO: maybe this could just be a UInt64Constant of the appropriate IRType?
+    """
+
+    value: int
+    """Used to determine a unique slot in a functions f-stack for this variable"""
+    ir_type: SlotType = attrs.field(converter=narrow_to_slot_type)
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_slot_constant(self)
+
+
 @attrs.frozen
 class BigUIntConstant(Constant):
     value: int
-    ir_type: IRType = attrs.field(default=IRType.biguint, init=False)
+    ir_type: IRType = attrs.field(default=PrimitiveIRType.biguint, init=False)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_biguint_constant(self)
@@ -266,7 +331,7 @@ class TemplateVar(Value):
 class BytesConstant(Constant):
     """Constant for types that are logically bytes"""
 
-    ir_type: IRType = attrs.field(default=IRType.bytes)
+    ir_type: IRType = attrs.field(default=PrimitiveIRType.bytes)
 
     encoding: AVMBytesEncoding
     value: bytes
@@ -282,11 +347,17 @@ class BytesConstant(Constant):
 
 @attrs.define
 class CompiledContractReference(Value):
+    """
+    Represents static information about a contract after it is fully compiled,
+    Used when creating or updating contracts using inner transactions
+    """
+
     artifact: ContractReference
+    """Reference to the contract being compiled"""
     field: TxnField
     template_variables: Mapping[str, Value] = attrs.field(converter=immutabledict)
     """
-    template variable keys here are fully qualified with their appropriate prefix
+    template variable keys here are fully qualified with their appropriate prefix,
     """
     source_location: SourceLocation | None = attrs.field(eq=False)
     program_page: int | None = None  # used for approval and clear_state fields
@@ -309,7 +380,7 @@ class CompiledLogicSigReference(Value):
 class AddressConstant(Constant):
     """Constant for address literals"""
 
-    ir_type: IRType = attrs.field(default=IRType.bytes, init=False)
+    ir_type: IRType = attrs.field(default=PrimitiveIRType.bytes, init=False)
     value: str = attrs.field()
 
     def accept(self, visitor: IRVisitor[T]) -> T:
@@ -320,7 +391,7 @@ class AddressConstant(Constant):
 class MethodConstant(Constant):
     """Constant for method literals"""
 
-    ir_type: IRType = attrs.field(default=IRType.bytes, init=False)
+    ir_type: IRType = attrs.field(default=PrimitiveIRType.bytes, init=False)
     value: str
 
     def accept(self, visitor: IRVisitor[T]) -> T:
@@ -344,6 +415,188 @@ class InnerTransactionField(ValueProvider):
     @property
     def types(self) -> Sequence[IRType]:
         return (self.type,)
+
+
+class ArrayOp(typing.Protocol):
+    @property
+    def array(self) -> Value: ...
+
+
+def is_array_element_type(op: ArrayOp, _attribute: object, value: "Value | ValueTuple") -> None:
+    array_ir_type = _array_type(op.array)
+    element_type = array_ir_type.element
+    if isinstance(value, Value):
+        if value.ir_type != element_type:
+            raise InternalError(
+                f"expected {element_type} type, received: {value.ir_type}",
+                value.source_location,
+            )
+    else:
+        encoded_type = EncodedTupleType(elements=[v.ir_type for v in value.values])
+        if encoded_type != element_type:
+            raise InternalError(
+                f"expected {element_type} type, received: {encoded_type}",
+                value.source_location,
+            )
+
+
+def _array_type(value: Value) -> ArrayType:
+    assert isinstance(value.ir_type, ArrayType)
+    return value.ir_type
+
+
+@attrs.define(eq=False)
+class ArrayReadIndex(Op, ValueProvider):
+    array: Value = attrs.field(validator=is_array_type)
+    index: Value = attrs.field(validator=is_uint64_type)
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        element_type = _array_type(self.array).element
+        return EncodedTupleType.expand_types(element_type)
+
+    def _frozen_data(self) -> object:
+        return self.array, self.index
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_array_read_index(self)
+
+
+@attrs.define(eq=False)
+class ArrayWriteIndex(Op, ValueProvider):
+    array: Value = attrs.field(validator=is_array_type)
+    index: Value = attrs.field(validator=is_uint64_type)
+    value: "Value | ValueTuple" = attrs.field(validator=is_array_element_type)
+
+    def _frozen_data(self) -> object:
+        return self.array, self.index, self.value
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return self.array.types
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_array_write_index(self)
+
+
+@attrs.define(eq=False)
+class ArrayExtend(Op, ValueProvider):
+    array: Value = attrs.field(validator=is_array_type)
+    values: Value = attrs.field()
+
+    @values.validator
+    def _values_validation(self, _: object, values: Value) -> None:
+        if not _equivalent_types(values.ir_type, self.array.ir_type):
+            raise InternalError(
+                f"expected array ({self.array.ir_type!r}) to be extended by an array of the "
+                f"same type, received: {values.ir_type!r}",
+                self.source_location,
+            )
+
+    def _frozen_data(self) -> object:
+        return self.array, self.values
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (_array_type(self.array),)
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_array_extend(self)
+
+
+@attrs.define(eq=False)
+class ArrayPop(Op, ValueProvider):
+    array: Value = attrs.field(validator=is_array_type)
+    # TODO: maybe allow pop with an index?
+
+    def _frozen_data(self) -> object:
+        return self.array
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        array_type = _array_type(self.array)
+        element_type = array_type.element
+        return array_type, *EncodedTupleType.expand_types(element_type)
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_array_pop(self)
+
+
+@attrs.define(eq=False)
+class ArrayLength(Op, ValueProvider):
+    array: Value = attrs.field(validator=is_array_type)
+
+    def _frozen_data(self) -> object:
+        return self.array
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (PrimitiveIRType.uint64,)
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_array_length(self)
+
+
+@enum.unique
+class SlotScope(enum.StrEnum):
+    local = enum.auto()
+    """Slot is only accessed within local function"""
+    program = enum.auto()
+    """Slot is used across program"""
+
+
+@attrs.define(eq=False)
+class NewSlot(Op, ValueProvider):
+    ir_type: SlotType = attrs.field(converter=narrow_to_slot_type)
+
+    def _frozen_data(self) -> object:
+        return self.ir_type
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_new_slot(self)
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (self.ir_type,)
+
+
+@attrs.define(eq=False)
+class ReadSlot(Op, ValueProvider):
+    slot: Value = attrs.field(validator=is_slot_type)
+
+    def _frozen_data(self) -> object:
+        return self.slot
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_read_slot(self)
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        slot_type = self.slot.ir_type
+        assert isinstance(slot_type, SlotType)
+        return (slot_type.contents,)
+
+
+@attrs.define(eq=False)
+class WriteSlot(Op):
+    slot: Value = attrs.field(validator=is_slot_type)
+    value: Value = attrs.field()
+    source_location: SourceLocation | None
+
+    @value.validator
+    def _value(self, _: object, value: Value) -> None:
+        assert isinstance(self.slot.ir_type, SlotType)
+        if not _equivalent_types(self.slot.ir_type.contents, value.ir_type):
+            raise InternalError(
+                f"type mismatch: expected value of type: {self.slot.ir_type.contents},"
+                f" but {value} has type {value.ir_type}",
+            )
+
+    def _frozen_data(self) -> object:
+        return self.slot, self.value
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_write_slot(self)
 
 
 @attrs.define(eq=False)
@@ -510,7 +763,7 @@ class Assignment(Op):
             source_atypes = [st.maybe_avm_type for st in source_ir_types]
             if target_atypes != source_atypes:
                 raise CodeError(
-                    f"Incompatible types on assignment:"
+                    f"incompatible types on assignment:"
                     f" source = ({', '.join(map(str, source_ir_types))}),"
                     f" target = ({', '.join(map(str, target_ir_types))})",
                     self.source_location,
@@ -877,6 +1130,18 @@ def _get_used_registers(blocks: Sequence[BasicBlock]) -> Set[Register]:
     return collector.used_registers
 
 
+class SlotAllocationStrategy(enum.StrEnum):
+    none = enum.auto()
+    dynamic = enum.auto()
+    # TODO: sequential = enum.auto()
+
+
+@attrs.define(kw_only=True)
+class SlotAllocation:
+    reserved: Set[int]
+    strategy: SlotAllocationStrategy
+
+
 @attrs.define(kw_only=True, eq=False)
 class Program(Context):
     """An individual compilation unit - ie either an Approval or a Clear State program"""
@@ -902,6 +1167,7 @@ class Program(Context):
     main: Subroutine
     subroutines: Sequence[Subroutine]
     avm_version: int
+    slot_allocation: SlotAllocation
     source_location: SourceLocation | None = None
 
     @property
@@ -953,3 +1219,8 @@ class LogicSignature(Context):
 
 
 ModuleArtifact: t.TypeAlias = Contract | LogicSignature
+
+
+def _equivalent_types(lhs: IRType, rhs: IRType) -> bool:
+    # TODO: determine best way to determine IR type equivalence
+    return lhs.maybe_avm_type == rhs.maybe_avm_type

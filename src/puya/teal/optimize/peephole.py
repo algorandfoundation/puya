@@ -101,6 +101,9 @@ def _optimize_pair(a: models.TealOp, b: models.TealOp) -> tuple[list[models.Teal
         # `dup; swap` -> `dup`
         case models.TealOp(op_code="dup" | "dupn"), maybe_swap if is_stack_swap(maybe_swap):
             return [a], True
+        # `dup; pop`
+        case models.TealOp(op_code="dup"), models.TealOp(op_code="pop"):
+            return [], True
         # combine consecutive dup/dupn's
         case models.TealOp(op_code="dup" | "dupn"), models.TealOp(op_code="dup" | "dupn"):
             (n1,) = a.immediates or (1,)

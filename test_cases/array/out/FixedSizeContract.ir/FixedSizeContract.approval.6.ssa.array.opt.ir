@@ -1,0 +1,108 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@2 : block@6
+    block@2: // abi_routing_L11
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "test_array(uint64,uint64,uint64,uint64)uint64" => block@3, * => block@10}
+    block@3: // test_array_route_L12
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (! tmp%3#0)
+        (assert tmp%4#0) // OnCompletion is not NoOp
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        (assert tmp%5#0) // can only call when not creating
+        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 1)
+        let reinterpret_bytes[8]%1#0: bytes[8] = (txna ApplicationArgs 2)
+        let tmp%7#0: uint64 = (btoi reinterpret_bytes[8]%1#0)
+        let reinterpret_bytes[8]%2#0: bytes[8] = (txna ApplicationArgs 3)
+        let reinterpret_bytes[8]%3#0: bytes[8] = (txna ApplicationArgs 4)
+        let tmp%8#0: uint64 = (btoi reinterpret_bytes[8]%3#0)
+        let to_encode%0#0: uint64 = test_cases.array.fixed_size.FixedSizeContract.test_array(reinterpret_bytes[8]%0#0, tmp%7#0, reinterpret_bytes[8]%2#0, tmp%8#0)
+        let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
+        let tmp%9#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
+        (log tmp%9#0)
+        let test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__%0#0: bool = 1u
+        goto block@11
+    block@6: // bare_routing_L11
+        let tmp%10#0: uint64 = (txn OnCompletion)
+        goto tmp%10#0 ? block@10 : block@7
+    block@7: // __algopy_default_create_L1
+        let tmp%11#0: uint64 = (txn ApplicationID)
+        let tmp%12#0: bool = (! tmp%11#0)
+        (assert tmp%12#0) // can only call when creating
+        let test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__%0#1: bool = 1u
+        goto block@11
+    block@10: // after_if_else_L11
+        let test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__%0#2: bool = 0u
+        goto block@11
+    block@11: // after_inlined_test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router___L1
+        let tmp%0#0: bool = φ(test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__%0#0 <- block@3, test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__%0#1 <- block@7, test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__%0#2 <- block@10)
+        return tmp%0#0
+
+subroutine test_cases.array.fixed_size.FixedSizeContract.test_array(x1: bytes[8], y1: uint64, x2: bytes[8], y2: uint64) -> uint64:
+    block@0: // L12
+        let path#0: (bytes[8],uint64)[]* = new()
+        let array%array_len%0#1: uint64 = 0u
+        let tmp%1#0: bool = (! array%array_len%0#1)
+        (assert tmp%1#0)
+        let sub_item%1#0: (bytes[8],uint64)[] = (itob y1#0)
+        let encoded%3#0: (bytes[8],uint64)[] = (concat x1#0 sub_item%1#0)
+        let array%array_contents%1#1: (bytes[8],uint64)[] = (concat 0x00000000000000000000000000000000 encoded%3#0) // on error: max array length exceeded
+        let sub_item%2#0: (bytes[8],uint64)[] = (itob y2#0)
+        let encoded%5#0: (bytes[8],uint64)[] = (concat x2#0 sub_item%2#0)
+        let array%array_contents%2#1: (bytes[8],uint64)[] = (concat array%array_contents%1#1 encoded%5#0) // on error: max array length exceeded
+        write(path#0, array%array_contents%2#1)
+        let array%value%0#1: bytes = ((extract 0 16) array%array_contents%2#1)
+        let last_point.x#0: bytes[8] = ((extract 0 8) array%value%0#1)
+        let array%sub_item%1#1: bytes = ((extract 8 8) array%value%0#1)
+        let last_point.y#0: uint64 = (btoi array%sub_item%1#1)
+        let length#0: uint64 = 0u
+        let array%bytes_len%1#1: uint64 = (len array%array_contents%2#1)
+        let array%array_len%1#1: uint64 = (/ array%bytes_len%1#1 16u)
+        let point_idx#0: uint64 = 1u
+        goto block@2
+    block@2: // for_header_L28
+        let point_idx#1: uint64 = φ(point_idx#0 <- block@0, point_idx#2 <- block@9)
+        let length#3: uint64 = φ(length#0 <- block@0, length#4 <- block@9)
+        let continue_looping%0#0: bool = (< point_idx#1 array%array_len%1#1)
+        goto continue_looping%0#0 ? block@3 : block@11
+    block@3: // for_body_L29
+        let slot_contents%2#1: (bytes[8],uint64)[] = read(path#0)
+        let array%bytes_index%1#1: uint64 = (* point_idx#1 16u)
+        let array%value%1#1: bytes = (extract3 slot_contents%2#1 array%bytes_index%1#1 16u)
+        let point.x#0: bytes[8] = ((extract 0 8) array%value%1#1)
+        let array%sub_item%4#1: bytes = ((extract 8 8) array%value%1#1)
+        let point.y#0: uint64 = (btoi array%sub_item%4#1)
+        let tmp%1#1: bool = (b< point.x#0 last_point.x#0)
+        goto tmp%1#1 ? block@4 : block@5
+    block@4: // if_body_L31
+        let tmp%2#1: uint64 = (btoi last_point.x#0)
+        let tmp%3#0: uint64 = (btoi point.x#0)
+        let dx#0: uint64 = (- tmp%2#1 tmp%3#0)
+        goto block@6
+    block@5: // else_body_L33
+        let tmp%4#0: uint64 = (btoi point.x#0)
+        let tmp%5#0: uint64 = (btoi last_point.x#0)
+        let dx#1: uint64 = (- tmp%4#0 tmp%5#0)
+        goto block@6
+    block@6: // after_if_else_L30
+        let dx#3: uint64 = φ(dx#0 <- block@4, dx#1 <- block@5)
+        let tmp%6#0: bool = (< point.y#0 last_point.y#0)
+        goto tmp%6#0 ? block@7 : block@8
+    block@7: // if_body_L35
+        let dy#0: uint64 = (- last_point.y#0 point.y#0)
+        goto block@9
+    block@8: // else_body_L37
+        let dy#1: uint64 = (- point.y#0 last_point.y#0)
+        goto block@9
+    block@9: // after_if_else_L34
+        let dy#2: uint64 = φ(dy#0 <- block@7, dy#1 <- block@8)
+        let tmp%7#0: uint64 = (* dx#3 dx#3)
+        let tmp%8#0: uint64 = (* dy#2 dy#2)
+        let tmp%9#0: uint64 = (+ tmp%7#0 tmp%8#0)
+        let tmp%10#0: uint64 = (sqrt tmp%9#0)
+        let length#4: uint64 = (+ length#3 tmp%10#0)
+        let point_idx#2: uint64 = (+ point_idx#1 1u)
+        goto block@2
+    block@11: // after_for_L28
+        return length#3

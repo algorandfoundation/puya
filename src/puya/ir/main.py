@@ -1,8 +1,9 @@
 import contextlib
+import functools
 import itertools
 import typing
 from collections import Counter, defaultdict
-from collections.abc import Collection, Iterable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Collection, Iterable, Iterator, Mapping, Sequence, Set
 from copy import deepcopy
 from pathlib import Path
 
@@ -22,6 +23,7 @@ from puya.context import ArtifactCompileContext, CompileContext
 from puya.errors import InternalError
 from puya.ir import arc4_router
 from puya.ir.arc4_router import extract_arc4_methods, maybe_avm_to_arc4_equivalent_type
+from puya.ir.builder.lower_array import lower_array_nodes
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
 from puya.ir.destructure.main import destructure_ssa
@@ -31,10 +33,13 @@ from puya.ir.models import (
     ModuleArtifact,
     Parameter,
     Program,
+    SlotAllocation,
+    SlotAllocationStrategy,
     Subroutine,
 )
 from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
 from puya.ir.optimize.main import optimize_program_ir
+from puya.ir.optimize.slot_elimination import slot_elimination
 from puya.ir.to_text_visitor import render_program
 from puya.ir.types_ import wtype_to_ir_type, wtype_to_ir_types
 from puya.ir.utils import format_tuple_index
@@ -181,23 +186,36 @@ def awst_to_ir(context: CompileContext, awst: awst_nodes.AWST) -> list[ModuleArt
     return result
 
 
-def optimize_and_destructure_ir(
-    context: ArtifactCompileContext, artifact_ir: ModuleArtifact
-) -> ModuleArtifact:
-    match artifact_ir:
-        case Contract() as contract_ir:
-            contract_ir.approval_program = _optimize_and_destructure_program_ir(
-                context, contract_ir.metadata.ref, contract_ir.approval_program
-            )
-            contract_ir.clear_program = _optimize_and_destructure_program_ir(
-                context, contract_ir.metadata.ref, contract_ir.clear_program
-            )
-        case LogicSignature() as lsig_ir:
-            lsig_ir.program = _optimize_and_destructure_program_ir(
-                context, lsig_ir.metadata.ref, lsig_ir.program
-            )
-        case unexpected:
-            typing.assert_never(unexpected)
+def get_transform_pipeline(
+    ref: ContractReference | LogicSigReference,
+) -> list[Callable[[ArtifactCompileContext, Program], Program]]:
+    return [
+        # copy program so subroutines shared between programs are independent since some transforms
+        # are different based on the program
+        lambda _, p: deepcopy(p),
+        functools.partial(_optimize_program_ir, ref=ref, qualifier="ssa.opt"),
+        functools.partial(_lower_array_ir, ref=ref),
+        functools.partial(_optimize_program_ir, ref=ref, qualifier="ssa.array.opt"),
+        functools.partial(slot_elimination, ref=ref),
+        _destructure_ssa,
+    ]
+
+
+def _destructure_ssa(context: ArtifactCompileContext, program: Program) -> Program:
+    destructure_ssa(context, program)
+    return program
+
+
+def transform_ir(context: ArtifactCompileContext, artifact_ir: ModuleArtifact) -> ModuleArtifact:
+    for transform in get_transform_pipeline(artifact_ir.metadata.ref):
+        match artifact_ir:
+            case Contract() as contract_ir:
+                contract_ir.approval_program = transform(context, contract_ir.approval_program)
+                contract_ir.clear_program = transform(context, contract_ir.clear_program)
+            case LogicSignature() as lsig_ir:
+                lsig_ir.program = transform(context, lsig_ir.program)
+            case unexpected:
+                typing.assert_never(unexpected)
     # validation is run as the last step, in case we've accidentally inserted something,
     # and in particular post subroutine removal, because some things that are "linked"
     # are not necessarily used from the current artifact
@@ -205,20 +223,32 @@ def optimize_and_destructure_ir(
     return artifact_ir
 
 
-def _optimize_and_destructure_program_ir(
-    context: ArtifactCompileContext, ref: ContractReference | LogicSigReference, program: Program
+def _optimize_program_ir(
+    context: ArtifactCompileContext,
+    program: Program,
+    *,
+    ref: ContractReference | LogicSigReference,
+    qualifier: str,
 ) -> Program:
-    if context.options.output_ssa_ir:
-        render_program(context, program, qualifier="ssa")
     logger.info(
         f"optimizing {program.kind} program of {ref} at level {context.options.optimization_level}"
     )
-    program = deepcopy(program)
-    optimize_program_ir(context, program)
-    destructure_ssa(context, program)
-    if context.options.output_destructured_ir:
-        render_program(context, program, qualifier="destructured")
+    optimize_program_ir(context, program, qualifier=qualifier)
+    return program
 
+
+def _lower_array_ir(
+    context: ArtifactCompileContext,
+    program: Program,
+    *,
+    ref: ContractReference | LogicSigReference,
+) -> Program:
+    logger.info(f"lowering array IR nodes in {program.kind} program of {ref}")
+    for sub in program.all_subroutines:
+        lower_array_nodes(context, sub)
+        sub.validate_with_ssa()
+    if context.options.output_ssa_ir:
+        render_program(context, program, qualifier="ssa.array")
     return program
 
 
@@ -308,6 +338,7 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
             kind=ProgramKind.approval,
         ),
         avm_version=avm_version,
+        reserved_scratch_space=contract.reserved_scratch_space,
     )
     clear_state_ir = _make_program(
         ctx,
@@ -322,6 +353,7 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
             kind=ProgramKind.clear_state,
         ),
         avm_version=avm_version,
+        reserved_scratch_space=contract.reserved_scratch_space,
     )
     result = Contract(
         source_location=contract.source_location,
@@ -374,6 +406,7 @@ def _build_logic_sig_ir(
         ),
         ref=LogicSigProgramReference(reference=logic_sig.id),
         avm_version=coalesce(logic_sig.avm_version, ctx.options.target_avm_version),
+        reserved_scratch_space=logic_sig.reserved_scratch_space,
     )
     result = LogicSignature(
         source_location=logic_sig.source_location,
@@ -404,7 +437,9 @@ def _expand_tuple_parameters(
             name=name,
             ir_type=wtype_to_ir_type(typ),
             version=0,
-            implicit_return=allow_implicits and not typ.immutable,
+            implicit_return=allow_implicits
+            and not typ.immutable
+            and isinstance(typ, wtypes.ARC4Type),
             source_location=source_location,
         )
 
@@ -460,6 +495,7 @@ def _make_program(
     *,
     ref: ProgramReference,
     avm_version: int,
+    reserved_scratch_space: Set[int],
 ) -> Program:
     if main.args:
         raise InternalError("main method should not have args")
@@ -481,6 +517,10 @@ def _make_program(
         main=main_sub,
         subroutines=tuple(references),
         avm_version=avm_version,
+        slot_allocation=SlotAllocation(
+            reserved=reserved_scratch_space,
+            strategy=SlotAllocationStrategy.none,
+        ),
     )
     remove_unused_subroutines(program)
     return program
