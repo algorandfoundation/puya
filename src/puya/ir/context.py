@@ -12,15 +12,28 @@ import puya.models
 from puya.context import CompileContext
 from puya.errors import CodeError, InternalError, log_exceptions
 from puya.ir.builder.blocks import BlocksBuilder
-from puya.ir.models import Subroutine
+from puya.ir.models import TMP_VAR_INDICATOR, Assignment, Op, Register, Subroutine, ValueProvider
 from puya.ir.ssa import BraunSSA
+from puya.ir.types_ import IRType
 from puya.parse import SourceLocation
 from puya.utils import attrs_extend
 
 if typing.TYPE_CHECKING:
     from puya.ir.builder.main import FunctionIRBuilder
 
-TMP_VAR_INDICATOR = "%"
+
+class IRRegisterContext(typing.Protocol):
+    def next_tmp_name(self, description: str) -> str: ...
+
+    def new_register(
+        self, name: str, ir_type: IRType, location: SourceLocation | None
+    ) -> Register: ...
+
+    def add_assignment(
+        self, targets: list[Register], source: ValueProvider, loc: SourceLocation | None
+    ) -> None: ...
+
+    def add_op(self, op: Op) -> None: ...
 
 
 @attrs.frozen(kw_only=True)
@@ -141,7 +154,7 @@ class IRBuildContext(CompileContext):
 
 
 @attrs.frozen(kw_only=True)
-class IRFunctionBuildContext(IRBuildContext):
+class IRFunctionBuildContext(IRBuildContext, IRRegisterContext):
     """Context when building from an awst Function node"""
 
     function: awst_nodes.Function
@@ -163,6 +176,28 @@ class IRFunctionBuildContext(IRBuildContext):
     def next_tmp_name(self, description: str) -> str:
         counter_value = next(self._tmp_counters[description])
         return f"{description}{TMP_VAR_INDICATOR}{counter_value}"
+
+    def new_register(
+        self, name: str, ir_type: IRType, location: SourceLocation | None
+    ) -> Register:
+        return self.ssa.new_register(name, ir_type, location)
+
+    def add_assignment(
+        self, targets: list[Register], source: ValueProvider, loc: SourceLocation | None
+    ) -> None:
+        from puya.ir.builder._utils import update_implicit_out_var
+
+        for target in targets:
+            self.ssa.write_variable(target.name, self.block_builder.active_block, target)
+        self.add_op(Assignment(targets=targets, source=source, source_location=loc))
+        # also update any implicitly returned variables
+        implicit_params = {p.name for p in self.subroutine.parameters if p.implicit_return}
+        for target in targets:
+            if target.name in implicit_params:
+                update_implicit_out_var(self, target.name, target.ir_type)
+
+    def add_op(self, op: Op) -> None:
+        self.block_builder.add(op)
 
     @property
     def default_fallback(self) -> SourceLocation | None:

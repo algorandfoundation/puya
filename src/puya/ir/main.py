@@ -1,8 +1,9 @@
 import contextlib
+import functools
 import itertools
 import typing
 from collections import Counter, defaultdict
-from collections.abc import Collection, Iterable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Collection, Iterable, Iterator, Mapping, Sequence, Set
 from pathlib import Path
 
 import attrs
@@ -21,6 +22,7 @@ from puya.context import ArtifactCompileContext, CompileContext
 from puya.errors import InternalError
 from puya.ir import arc4_router
 from puya.ir.arc4_router import extract_arc4_methods, maybe_avm_to_arc4_equivalent_type
+from puya.ir.builder.lower_array import lower_array_nodes
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
 from puya.ir.destructure.main import destructure_ssa
@@ -177,23 +179,26 @@ def awst_to_ir(context: CompileContext, awst: awst_nodes.AWST) -> list[ModuleArt
     return result
 
 
-def optimize_and_destructure_ir(
-    context: ArtifactCompileContext, artifact_ir: ModuleArtifact
-) -> ModuleArtifact:
-    match artifact_ir:
-        case Contract() as contract_ir:
-            contract_ir.approval_program = _optimize_and_destructure_program_ir(
-                context, contract_ir.metadata.ref, contract_ir.approval_program
-            )
-            contract_ir.clear_program = _optimize_and_destructure_program_ir(
-                context, contract_ir.metadata.ref, contract_ir.clear_program
-            )
-        case LogicSignature() as lsig_ir:
-            lsig_ir.program = _optimize_and_destructure_program_ir(
-                context, lsig_ir.metadata.ref, lsig_ir.program
-            )
-        case unexpected:
-            typing.assert_never(unexpected)
+def get_transform_pipeline(
+    ref: ContractReference | LogicSigReference,
+) -> list[Callable[[ArtifactCompileContext, Program], Program]]:
+    return [
+        functools.partial(_optimize_program_ir, ref=ref, qualifier_prefix="ssa.opt_pass_"),
+        functools.partial(_lower_and_optimize_array_ir, ref=ref),
+        destructure_ssa,
+    ]
+
+
+def transform_ir(context: ArtifactCompileContext, artifact_ir: ModuleArtifact) -> ModuleArtifact:
+    for transform in get_transform_pipeline(artifact_ir.metadata.ref):
+        match artifact_ir:
+            case Contract() as contract_ir:
+                contract_ir.approval_program = transform(context, contract_ir.approval_program)
+                contract_ir.clear_program = transform(context, contract_ir.clear_program)
+            case LogicSignature() as lsig_ir:
+                lsig_ir.program = transform(context, lsig_ir.program)
+            case unexpected:
+                typing.assert_never(unexpected)
     # validation is run as the last step, in case we've accidentally inserted something,
     # and in particular post subroutine removal, because some things that are "linked"
     # are not necessarily used from the current artifact
@@ -201,19 +206,36 @@ def optimize_and_destructure_ir(
     return artifact_ir
 
 
-def _optimize_and_destructure_program_ir(
-    context: ArtifactCompileContext, ref: ContractReference | LogicSigReference, program: Program
+def _optimize_program_ir(
+    context: ArtifactCompileContext,
+    program: Program,
+    *,
+    ref: ContractReference | LogicSigReference,
+    qualifier_prefix: str,
 ) -> Program:
-    if context.options.output_ssa_ir:
-        render_program(context, program, qualifier="ssa")
     logger.info(
         f"optimizing {program.kind} program of {ref} at level {context.options.optimization_level}"
     )
-    program = optimize_program_ir(context, program)
-    program = destructure_ssa(context, program)
-    if context.options.output_destructured_ir:
-        render_program(context, program, qualifier="destructured")
+    program = optimize_program_ir(context, program, qualifier_prefix=qualifier_prefix)
+    return program
 
+
+def _lower_and_optimize_array_ir(
+    context: ArtifactCompileContext,
+    program: Program,
+    *,
+    ref: ContractReference | LogicSigReference,
+) -> Program:
+    logger.info(f"lowering array IR nodes in {program.kind} program of {ref}")
+    modified = False
+    for sub in program.all_subroutines:
+        modified = lower_array_nodes(context, sub) or modified
+    if context.options.output_ssa_ir:
+        render_program(context, program, qualifier="ssa.array")
+    if modified:
+        program = _optimize_program_ir(
+            context, program, ref=ref, qualifier_prefix="ssa.array.opt_pass_"
+        )
     return program
 
 
@@ -299,6 +321,7 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
         ),
         ProgramKind.approval,
         avm_version=avm_version,
+        reserved_scratch_space=contract.reserved_scratch_space,
     )
     clear_state_ir = _make_program(
         ctx,
@@ -309,6 +332,7 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
         ),
         ProgramKind.clear_state,
         avm_version=avm_version,
+        reserved_scratch_space=contract.reserved_scratch_space,
     )
     result = Contract(
         source_location=contract.source_location,
@@ -361,6 +385,7 @@ def _build_logic_sig_ir(
         ),
         ProgramKind.logic_signature,
         avm_version=coalesce(logic_sig.avm_version, ctx.options.target_avm_version),
+        reserved_scratch_space=logic_sig.reserved_scratch_space,
     )
     result = LogicSignature(
         source_location=logic_sig.source_location,
@@ -391,7 +416,9 @@ def _expand_tuple_parameters(
             name=name,
             ir_type=wtype_to_ir_type(typ),
             version=0,
-            implicit_return=allow_implicits and not typ.immutable,
+            implicit_return=allow_implicits
+            and not typ.immutable
+            and isinstance(typ, wtypes.ARC4Type),
             source_location=source_location,
         )
 
@@ -447,6 +474,7 @@ def _make_program(
     kind: ProgramKind,
     *,
     avm_version: int,
+    reserved_scratch_space: Set[int],
 ) -> Program:
     if main.args:
         raise InternalError("main method should not have args")
@@ -468,6 +496,7 @@ def _make_program(
         main=main_sub,
         subroutines=tuple(references),
         avm_version=avm_version,
+        reserved_scratch_space=reserved_scratch_space,
     )
     remove_unused_subroutines(program)
     return program

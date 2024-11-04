@@ -80,6 +80,10 @@ class SourceLocation:
             comment_lines=0,
         )
 
+    def is_equal_or_contains(self, other: "SourceLocation | None") -> bool:
+        merged = self.try_merge(other)
+        return self == merged
+
     def try_merge(self, other: "SourceLocation | None") -> "SourceLocation":
         """Attempt to merge this source location with another, if they are either adjacent
         or overlapping in lines. If not, the source location is returned unmodified."""

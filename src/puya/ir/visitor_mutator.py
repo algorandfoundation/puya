@@ -4,6 +4,11 @@ import attrs
 
 from puya.ir.models import (
     AddressConstant,
+    ArrayExtend,
+    ArrayLength,
+    ArrayPop,
+    ArrayReadIndex,
+    ArrayWriteIndex,
     Assignment,
     BasicBlock,
     BigUIntConstant,
@@ -20,22 +25,34 @@ from puya.ir.models import (
     InvokeSubroutine,
     ITxnConstant,
     MethodConstant,
+    NewSlot,
+    Op,
     Phi,
     PhiArgument,
     ProgramExit,
+    ReadSlot,
     Register,
     SubroutineReturn,
     Switch,
     TemplateVar,
     UInt64Constant,
     Undefined,
+    ValueProvider,
     ValueTuple,
+    WriteSlot,
 )
 from puya.ir.visitor import IRVisitor
 
 
 @attrs.define
 class IRMutator(IRVisitor[t.Any]):
+    _current_block_ops: list[Op] | None = attrs.field(default=None, init=False)
+
+    @property
+    def current_block_ops(self) -> list[Op]:
+        assert self._current_block_ops is not None
+        return self._current_block_ops
+
     def visit_block(self, block: BasicBlock) -> None:
         new_phis = []
         for phi in block.phis:
@@ -43,11 +60,12 @@ class IRMutator(IRVisitor[t.Any]):
             if new_phi is not None:
                 new_phis.append(new_phi)
         block.phis = new_phis
-        new_ops = []
+        self._current_block_ops = new_ops = []
         for op in block.ops:
             new_op = op.accept(self)
             if new_op is not None:
                 new_ops.append(new_op)
+        self._current_block_ops = None
         block.ops = new_ops
         if block.terminator is not None:
             block.terminator = block.terminator.accept(self)
@@ -102,6 +120,45 @@ class IRMutator(IRVisitor[t.Any]):
             template_variables={
                 var: value.accept(self) for var, value in const.template_variables.items()
             },
+        )
+
+    def visit_new_slot(self, new_slot: NewSlot) -> NewSlot:
+        return new_slot
+
+    def visit_read_slot(self, read: ReadSlot) -> ReadSlot:
+        return attrs.evolve(read, slot=read.slot.accept(self))
+
+    def visit_write_slot(self, write: WriteSlot) -> WriteSlot:
+        return attrs.evolve(write, slot=write.slot.accept(self), value=write.value.accept(self))
+
+    def visit_array_read_index(self, read: ArrayReadIndex) -> ArrayReadIndex | ValueProvider:
+        return attrs.evolve(read, array=read.array.accept(self), index=read.index.accept(self))
+
+    def visit_array_write_index(self, write: ArrayWriteIndex) -> ArrayWriteIndex | ValueProvider:
+        return attrs.evolve(
+            write,
+            array=write.array.accept(self),
+            index=write.index.accept(self),
+            value=write.value.accept(self),
+        )
+
+    def visit_array_extend(self, append: ArrayExtend) -> ArrayExtend | ValueProvider:
+        return attrs.evolve(
+            append,
+            array=append.array.accept(self),
+            values=append.values.accept(self),
+        )
+
+    def visit_array_pop(self, pop: ArrayPop) -> ArrayPop | ValueProvider:
+        return attrs.evolve(
+            pop,
+            array=pop.array.accept(self),
+        )
+
+    def visit_array_length(self, length: ArrayLength) -> ArrayLength | ValueProvider:
+        return attrs.evolve(
+            length,
+            array=length.array.accept(self),
         )
 
     def visit_phi(self, phi: Phi) -> Phi | None:

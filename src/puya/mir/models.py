@@ -626,7 +626,7 @@ class MemoryBasicBlock:
     mem_ops: list[Op]
     terminator: ControlOp
     predecessors: list[str]
-    source_location: SourceLocation
+    source_location: SourceLocation | None
     # the ordering of values on the stack is used by debug maps
     # the assumption is lower levels won't change the order of variables in the stack
     # however they can introduce changes that do that ordering more efficiently

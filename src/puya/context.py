@@ -1,9 +1,11 @@
+import itertools
 import typing
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from pathlib import Path
 
 import attrs
 from immutabledict import immutabledict
+from mypy.checkexpr import defaultdict
 
 from puya import log
 from puya.models import (
@@ -63,9 +65,21 @@ class ProgramBytecodeProtocol(typing.Protocol):
     ) -> bytes: ...
 
 
-@attrs.define
+@attrs.define(kw_only=True)
 class ArtifactCompileContext(CompileContext):
     metadata: ContractMetaData | LogicSignatureMetaData
     out_dir: Path | None
     get_program_bytecode: ProgramBytecodeProtocol
     state_totals: Mapping[ContractReference, StateTotals]
+    _output_seq: defaultdict[str, Iterator[int]] = attrs.field(
+        factory=lambda: defaultdict(itertools.count)
+    )
+
+    def sequential_path(self, kind: str, qualifier: str, suffix: str) -> Path:
+        assert self.out_dir is not None
+        if qualifier:
+            qualifier = f".{qualifier}"
+        qualifier = f"{next(self._output_seq[kind])}{qualifier}"
+        if kind is not ProgramKind.logic_signature:
+            qualifier = f"{kind}.{qualifier}"
+        return self.out_dir / f"{self.metadata.name}.{qualifier}.{suffix}"

@@ -1,8 +1,6 @@
 from collections.abc import Sequence
 from itertools import zip_longest
 
-import attrs
-
 from puya import log
 from puya.avm_type import AVMType
 from puya.awst import (
@@ -20,6 +18,7 @@ from puya.ir.builder._utils import (
     invoke_puya_lib_subroutine,
     mktemp,
 )
+from puya.ir.builder.arrays import ArrayIterator
 from puya.ir.builder.assignment import handle_assignment
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
@@ -30,30 +29,11 @@ from puya.ir.models import (
     ValueProvider,
     ValueTuple,
 )
-from puya.ir.types_ import IRType, get_wtype_arity
+from puya.ir.types_ import PrimitiveIRType, get_wtype_arity
 from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.utils import bits_to_bytes, round_bits_to_nearest_bytes
 
 logger = log.get_logger(__name__)
-
-
-@attrs.frozen(kw_only=True)
-class ArrayIterator:
-    context: IRFunctionBuildContext
-    array_wtype: wtypes.ARC4Array
-    array: Value
-    array_length: Value
-    source_location: SourceLocation
-
-    def get_value_at_index(self, index: Value) -> ValueProvider:
-        return arc4_array_index(
-            self.context,
-            array_wtype=self.array_wtype,
-            array=self.array,
-            index=index,
-            source_location=self.source_location,
-            assert_bounds=False,  # iteration is always within bounds
-        )
 
 
 def decode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Decode) -> ValueProvider:
@@ -82,7 +62,7 @@ def _decode_arc4_value(
                 op=AVMOp.getbit,
                 args=[value, UInt64Constant(value=0, source_location=None)],
                 source_location=loc,
-                types=(IRType.bool,),
+                types=(PrimitiveIRType.bool,),
             )
         case wtypes.ARC4DynamicArray(element_type=wtypes.ARC4UIntN(n=8)), (
             wtypes.bytes_wtype
@@ -352,11 +332,15 @@ def build_for_in_array(
         source_location=source_location,
     )
     return ArrayIterator(
-        context=context,
-        array=array,
         array_length=array_length,
-        array_wtype=array_wtype,
-        source_location=source_location,
+        get_value_at_index=lambda index: arc4_array_index(
+            context,
+            array_wtype=array_wtype,
+            array=array,
+            index=index,
+            source_location=source_location,
+            assert_bounds=False,
+        ),
     )
 
 
@@ -582,8 +566,8 @@ def pop_arc4_array(
         method_name = "dynamic_array_pop_fixed_size"
         args.append(fixed_size // 8)
 
-    popped = mktemp(context, IRType.bytes, source_location, description="popped")
-    data = mktemp(context, IRType.bytes, source_location, description="data")
+    popped = mktemp(context, PrimitiveIRType.bytes, source_location, description="popped")
+    data = mktemp(context, PrimitiveIRType.bytes, source_location, description="data")
     assign_targets(
         context,
         targets=[popped, data],

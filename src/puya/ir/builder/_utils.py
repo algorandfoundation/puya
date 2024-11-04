@@ -9,9 +9,9 @@ from puya.awst import (
 )
 from puya.errors import InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.context import TMP_VAR_INDICATOR, IRFunctionBuildContext
+from puya.ir.context import IRFunctionBuildContext, IRRegisterContext
 from puya.ir.models import (
-    Assignment,
+    TMP_VAR_INDICATOR,
     BytesConstant,
     Intrinsic,
     InvokeSubroutine,
@@ -20,12 +20,12 @@ from puya.ir.models import (
     Value,
     ValueProvider,
 )
-from puya.ir.types_ import AVMBytesEncoding, IRType
+from puya.ir.types_ import AVMBytesEncoding, IRType, PrimitiveIRType
 from puya.parse import SourceLocation
 
 
 def assign(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     source: ValueProvider,
     *,
     name: str,
@@ -33,7 +33,7 @@ def assign(
     register_location: SourceLocation | None = None,
 ) -> Register:
     (ir_type,) = source.types
-    target = context.ssa.new_register(name, ir_type, register_location or assignment_location)
+    target = context.new_register(name, ir_type, register_location or assignment_location)
     assign_targets(
         context=context,
         source=source,
@@ -43,14 +43,12 @@ def assign(
     return target
 
 
-def new_register_version(context: IRFunctionBuildContext, reg: Register) -> Register:
-    return context.ssa.new_register(
-        name=reg.name, ir_type=reg.ir_type, location=reg.source_location
-    )
+def new_register_version(context: IRRegisterContext, reg: Register) -> Register:
+    return context.new_register(name=reg.name, ir_type=reg.ir_type, location=reg.source_location)
 
 
 def assign_temp(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     source: ValueProvider,
     *,
     temp_description: str,
@@ -68,7 +66,7 @@ def assign_temp(
 
 
 def assign_targets(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     *,
     source: ValueProvider,
     targets: list[Register],
@@ -76,24 +74,16 @@ def assign_targets(
 ) -> None:
     if not (source.types or targets):
         return
-    for target in targets:
-        context.ssa.write_variable(target.name, context.block_builder.active_block, target)
-    context.block_builder.add(
-        Assignment(targets=targets, source=source, source_location=assignment_location)
-    )
-    # also update any implicitly returned variables
-    implicit_params = {p.name for p in context.subroutine.parameters if p.implicit_return}
-    for target in targets:
-        if target.name in implicit_params:
-            _update_implicit_out_var(context, target.name, target.ir_type)
+    context.add_assignment(targets, source, assignment_location)
 
 
-def _update_implicit_out_var(context: IRFunctionBuildContext, var: str, ir_type: IRType) -> None:
+# TODO: move this into context?
+def update_implicit_out_var(context: IRFunctionBuildContext, var: str, ir_type: IRType) -> None:
     # emit conditional assignment equivalent to
     # if var%is_original:
     #   var%out = var
     loc = SourceLocation(file=None, line=1)
-    wtype = wtypes.bytes_wtype if ir_type == IRType.bytes else wtypes.uint64_wtype
+    wtype = wtypes.bytes_wtype if ir_type == PrimitiveIRType.bytes else wtypes.uint64_wtype
     node = awst_nodes.IfElse(
         condition=awst_nodes.VarExpression(
             name=get_implicit_return_is_original(var),
@@ -133,18 +123,18 @@ def get_implicit_return_out(var_name: str) -> str:
 
 
 def mktemp(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     ir_type: IRType,
     source_location: SourceLocation | None,
     *,
     description: str,
 ) -> Register:
     name = context.next_tmp_name(description)
-    return context.ssa.new_register(name, ir_type, source_location)
+    return context.new_register(name, ir_type, source_location)
 
 
 def assign_intrinsic_op(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     *,
     target: str | Register,
     op: AVMOp,
@@ -152,6 +142,7 @@ def assign_intrinsic_op(
     source_location: SourceLocation | None,
     immediates: list[int | str] | None = None,
     return_type: IRType | None = None,
+    error_message: str | None = None,
 ) -> Register:
     intrinsic = Intrinsic(
         op=op,
@@ -162,6 +153,7 @@ def assign_intrinsic_op(
             if return_type is not None
             else typing.cast(Sequence[IRType], attrs.NOTHING)
         ),
+        error_message=error_message,
         source_location=source_location,
     )
     if isinstance(target, str):
@@ -205,9 +197,9 @@ def invoke_puya_lib_subroutine(
 
 
 def assert_value(
-    context: IRFunctionBuildContext, value: Value, *, source_location: SourceLocation, comment: str
+    context: IRRegisterContext, value: Value, *, source_location: SourceLocation, comment: str
 ) -> None:
-    context.block_builder.add(
+    context.add_op(
         Intrinsic(
             op=AVMOp.assert_,
             source_location=source_location,
@@ -237,7 +229,7 @@ def extract_const_int(expr: awst_nodes.Expression | int | None) -> int | None:
 
 @attrs.frozen
 class OpFactory:
-    context: IRFunctionBuildContext
+    context: IRRegisterContext
     source_location: SourceLocation | None
 
     def assign(self, value: ValueProvider, temp_desc: str) -> Register:
@@ -279,11 +271,31 @@ class OpFactory:
         )
         return result
 
+    def div_floor(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+        result = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.div_floor,
+            args=[a, b],
+            source_location=self.source_location,
+        )
+        return result
+
     def len(self, value: Value, temp_desc: str) -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.len_,
+            args=[value],
+            source_location=self.source_location,
+        )
+        return result
+
+    def btoi(self, value: Value, temp_desc: str) -> Register:
+        result = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.btoi,
             args=[value],
             source_location=self.source_location,
         )
@@ -320,12 +332,25 @@ class OpFactory:
         )
         return result
 
-    def itob(self, value: Value | int, temp_desc: str) -> Register:
+    def extract_uint64(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+        result = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.extract_uint64,
+            args=[a, b],
+            source_location=self.source_location,
+        )
+        return result
+
+    def itob(
+        self, value: Value | int, temp_desc: str, return_type: IRType | None = None
+    ) -> Register:
         itob = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.itob,
             args=[value],
+            return_type=return_type,
             source_location=self.source_location,
         )
         return itob
@@ -342,22 +367,39 @@ class OpFactory:
         )
         return result
 
-    def concat(self, a: Value | bytes, b: Value | bytes, temp_desc: str) -> Register:
+    def concat(
+        self,
+        a: Value | bytes,
+        b: Value | bytes,
+        temp_desc: str,
+        *,
+        return_type: IRType | None = None,
+        error_message: str | None = None,
+    ) -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.concat,
             args=[a, b],
             source_location=self.source_location,
+            return_type=return_type,
+            error_message=error_message,
         )
         return result
 
-    def constant(self, value: int | bytes) -> Value:
+    def constant(self, value: int | bytes, ir_type: IRType | None = None) -> Value:
         if isinstance(value, int):
-            return UInt64Constant(value=value, source_location=self.source_location)
+            return UInt64Constant(
+                value=value,
+                source_location=self.source_location,
+                ir_type=ir_type or PrimitiveIRType.uint64,
+            )
         else:
             return BytesConstant(
-                value=value, encoding=AVMBytesEncoding.base16, source_location=self.source_location
+                value=value,
+                encoding=AVMBytesEncoding.base16,
+                ir_type=ir_type or PrimitiveIRType.bytes,
+                source_location=self.source_location,
             )
 
     def set_bit(self, *, value: Value, index: int, bit: Value | int, temp_desc: str) -> Register:
@@ -425,6 +467,7 @@ class OpFactory:
             source_location=self.source_location,
             op=AVMOp.replace3,
             args=[value, index, replacement],
+            return_type=value.ir_type if isinstance(value, Value) else PrimitiveIRType.bytes,
         )
         return result
 
@@ -434,12 +477,14 @@ class OpFactory:
         index: Value | int,
         length: Value | int,
         temp_desc: str,
+        return_type: IRType | None = None,
     ) -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.extract3,
             args=[value, index, length],
+            return_type=return_type,
             source_location=self.source_location,
         )
         return result

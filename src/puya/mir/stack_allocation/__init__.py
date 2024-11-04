@@ -24,7 +24,7 @@ def global_stack_allocation(ctx: ProgramMIRContext, program: models.Program) -> 
             sub_ctx = ctx.for_subroutine(mir_sub)
             method(sub_ctx)
         if ctx.options.output_memory_ir:
-            output_memory_ir(ctx, program, qualifier=f"{idx}.{desc}")
+            output_memory_ir(ctx, program, qualifier=desc)
     if ctx.options.output_memory_ir:
         output_memory_ir(ctx, program, qualifier="")
 

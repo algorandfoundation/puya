@@ -9,7 +9,7 @@ from puya.awst import (
 )
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4
+from puya.ir.builder import arc4, arrays, mem
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import (
     assign,
@@ -25,7 +25,7 @@ from puya.ir.models import (
     ValueProvider,
     ValueTuple,
 )
-from puya.ir.types_ import IRType, get_wtype_arity
+from puya.ir.types_ import PrimitiveIRType, get_wtype_arity
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
@@ -186,8 +186,30 @@ def handle_assignment(
             return [mat_value]
         case awst_nodes.IndexExpression() as ix_expr:
             if isinstance(ix_expr.base.wtype, wtypes.WArray):
-                raise NotImplementedError
-            elif isinstance(ix_expr.base.wtype, wtypes.ARC4Type):  # noqa: RET506
+                array_slot = context.visitor.visit_and_materialise_single(
+                    ix_expr.base, "array_slot"
+                )
+                index = context.visitor.visit_and_materialise_single(ix_expr.index, "index")
+                array = mem.read_slot(context, array_slot, ix_expr.source_location)
+                (mat_value,) = context.visitor.materialise_value_provider(
+                    value, description="new_box_value"
+                )
+                updated_array_vp = arrays.assign_array_index(
+                    context,
+                    array=array,
+                    index=index,
+                    value=mat_value,
+                    loc=ix_expr.source_location,
+                )
+                updated_array = assign_temp(
+                    context,
+                    updated_array_vp,
+                    temp_description="updated_array",
+                    source_location=value.source_location,
+                )
+                mem.write_slot(context, array_slot, updated_array, ix_expr.source_location)
+                return (mat_value,)
+            elif isinstance(ix_expr.base.wtype, wtypes.ARC4Type):
                 return (
                     arc4.handle_arc4_assign(
                         context,
@@ -248,7 +270,7 @@ def _handle_maybe_implicit_return_assignment(
         if is_implicit_return and not is_nested_update:
             assign(
                 context,
-                UInt64Constant(value=0, ir_type=IRType.bool, source_location=None),
+                UInt64Constant(value=0, ir_type=PrimitiveIRType.bool, source_location=None),
                 name=get_implicit_return_is_original(register.name),
                 assignment_location=None,
             )

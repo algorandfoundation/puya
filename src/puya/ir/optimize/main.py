@@ -22,6 +22,8 @@ from puya.ir.optimize.inlining import analyse_subroutines_for_inlining, perform_
 from puya.ir.optimize.inner_txn import inner_txn_field_replacer
 from puya.ir.optimize.intrinsic_simplification import intrinsic_simplifier
 from puya.ir.optimize.repeated_code_elimination import repeated_expression_elimination
+from puya.ir.optimize.repeated_extends_simplification import repeated_extends_simplification
+from puya.ir.optimize.repeated_loads_elimination import repeated_loads_elimination
 from puya.ir.to_text_visitor import render_program
 from puya.utils import attrs_extend
 
@@ -70,6 +72,8 @@ def get_subroutine_optimizations(optimization_level: int) -> Iterable[Subroutine
             SubroutineOptimization.from_function(remove_empty_blocks),
             SubroutineOptimization.from_function(remove_unreachable_blocks),
             SubroutineOptimization.from_function(repeated_expression_elimination),
+            SubroutineOptimization.from_function(repeated_loads_elimination),
+            SubroutineOptimization.from_function(repeated_extends_simplification),
         ]
     else:
         return [
@@ -108,7 +112,9 @@ def _split_parallel_copies(_ctx: ArtifactCompileContext, sub: models.Subroutine)
 
 
 def optimize_program_ir(
-    compile_context: ArtifactCompileContext, program: models.Program
+    compile_context: ArtifactCompileContext,
+    program: models.Program,
+    qualifier_prefix: str,
 ) -> models.Program:
     context = attrs_extend(IROptimizationContext, compile_context)
     level = context.options.optimization_level
@@ -132,5 +138,5 @@ def optimize_program_ir(
             logger.debug(f"No optimizations performed in pass {pass_num}, ending loop")
             break
         if context.options.output_optimization_ir:
-            render_program(context, program, qualifier=f"ssa.opt_pass_{pass_num}")
+            render_program(context, program, qualifier=f"{qualifier_prefix}{pass_num}")
     return program

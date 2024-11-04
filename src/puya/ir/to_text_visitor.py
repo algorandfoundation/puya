@@ -8,7 +8,6 @@ from puya.ir import models
 from puya.ir.types_ import IRType
 from puya.ir.utils import format_bytes, format_error_comment
 from puya.ir.visitor import IRVisitor
-from puya.models import ProgramKind
 from puya.utils import make_path_relative_to_cwd
 
 logger = log.get_logger(__name__)
@@ -86,6 +85,43 @@ class ToTextVisitor(IRVisitor[str]):
             )
             + ")"
         )
+
+    @typing.override
+    def visit_new_slot(self, new_slot: models.NewSlot) -> str:
+        return f"new({new_slot.type.contents})"
+
+    @typing.override
+    def visit_read_slot(self, read: models.ReadSlot) -> str:
+        slot = read.slot.accept(self)
+        return f"read({slot})"
+
+    @typing.override
+    def visit_write_slot(self, write: models.WriteSlot) -> str:
+        slot = write.slot.accept(self)
+        value = write.value.accept(self)
+        return f"write({slot}, {value})"
+
+    @typing.override
+    def visit_array_read_index(self, read: models.ArrayReadIndex) -> str:
+        return f"{read.array.accept(self)}[{read.index.accept(self)}]"
+
+    @typing.override
+    def visit_array_write_index(self, write: models.ArrayWriteIndex) -> str:
+        return (
+            f"{write.array.accept(self)}[{write.index.accept(self)}] = {write.value.accept(self)}"
+        )
+
+    @typing.override
+    def visit_array_extend(self, append: models.ArrayExtend) -> str:
+        return f"{append.array.accept(self)}.extend({append.values.accept(self)})"
+
+    @typing.override
+    def visit_array_pop(self, pop: models.ArrayPop) -> str:
+        return f"{pop.array.accept(self)}.pop()"
+
+    @typing.override
+    def visit_array_length(self, pop: models.ArrayLength) -> str:
+        return f"{pop.array.accept(self)}.length"
 
     @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> str:
@@ -229,8 +265,6 @@ def render_program(
         emitter.append(f"subroutine {sub.id}({args}) -> {returns}:")
         with emitter.indent():
             _render_body(emitter, sub.body)
-    if program.kind is not ProgramKind.logic_signature:
-        qualifier = f"{program.kind}.{qualifier}"
-    path = out_dir / f"{context.metadata.name}.{qualifier}.ir"
+    path = context.sequential_path(program.kind, qualifier, "ir")
     path.write_text("\n".join(emitter.lines), encoding="utf-8")
     logger.debug(f"Output IR to {make_path_relative_to_cwd(path)}")

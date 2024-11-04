@@ -3,7 +3,7 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import assign_intrinsic_op, assign_temp
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import Intrinsic, UInt64Constant, Value, ValueProvider
-from puya.ir.types_ import IRType
+from puya.ir.types_ import PrimitiveIRType
 from puya.parse import SourceLocation
 
 
@@ -94,7 +94,7 @@ def visit_bytes_intersection_slice_expression(
             op=AVMOp.select,
             args=[end, start, end_before_start],
             source_location=expr.source_location,
-            return_type=IRType.uint64,
+            return_type=PrimitiveIRType.uint64,
         )
     return Intrinsic(
         op=AVMOp.substring3,
@@ -166,7 +166,7 @@ def get_bounded_value(
             args=[abs(value), length, is_out_of_bounds],
             source_location=source_location,
             target="bounded_offset",
-            return_type=IRType.uint64,
+            return_type=PrimitiveIRType.uint64,
         )
         # length - bounded_offset
         bounded_index = assign_intrinsic_op(
@@ -197,6 +197,6 @@ def get_bounded_value(
         args=[unbounded, length, is_out_of_bounds],
         source_location=source_location,
         target="bounded_index",
-        return_type=IRType.uint64,
+        return_type=PrimitiveIRType.uint64,
     )
     return bounded_index

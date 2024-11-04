@@ -1,7 +1,7 @@
 import abc
 import typing
 import typing as t
-from collections.abc import Iterable, Iterator, Mapping, Sequence
+from collections.abc import Iterable, Iterator, Mapping, Sequence, Set
 
 import attrs
 from immutabledict import immutabledict
@@ -12,7 +12,15 @@ from puya.awst.txn_fields import TxnField
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.avm_ops_models import ImmediateKind, OpSignature, StackType, Variant
-from puya.ir.types_ import AVMBytesEncoding, IRType, stack_type_to_avm_type, stack_type_to_ir_type
+from puya.ir.types_ import (
+    ArrayType,
+    AVMBytesEncoding,
+    IRType,
+    PrimitiveIRType,
+    SlotType,
+    stack_type_to_avm_type,
+    stack_type_to_ir_type,
+)
 from puya.ir.visitor import IRVisitor
 from puya.models import (
     ContractMetaData,
@@ -26,6 +34,7 @@ from puya.utils import unique
 
 logger = log.get_logger(__name__)
 
+TMP_VAR_INDICATOR = "%"
 T = t.TypeVar("T")
 
 
@@ -215,7 +224,7 @@ class Phi(IRVisitable, _Freezable):
 @attrs.frozen(kw_only=True)
 class UInt64Constant(Constant):
     value: int
-    ir_type: IRType = attrs.field(default=IRType.uint64)
+    ir_type: IRType = attrs.field(default=PrimitiveIRType.uint64)
     teal_alias: str | None = None
 
     @ir_type.validator
@@ -236,7 +245,10 @@ class ITxnConstant(Constant):
 
     @ir_type.validator
     def _validate_ir_type(self, _attribute: object, ir_type: IRType) -> None:
-        if ir_type not in (IRType.itxn_group_idx, IRType.itxn_field_set):
+        if ir_type not in (
+            PrimitiveIRType.itxn_group_idx,
+            PrimitiveIRType.itxn_field_set,
+        ):
             raise InternalError(f"invalid type for ITxnConstant: {ir_type}", self.source_location)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
@@ -246,7 +258,7 @@ class ITxnConstant(Constant):
 @attrs.frozen
 class BigUIntConstant(Constant):
     value: int
-    ir_type: IRType = attrs.field(default=IRType.biguint, init=False)
+    ir_type: IRType = attrs.field(default=PrimitiveIRType.biguint, init=False)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_biguint_constant(self)
@@ -265,7 +277,7 @@ class TemplateVar(Value):
 class BytesConstant(Constant):
     """Constant for types that are logically bytes"""
 
-    ir_type: IRType = attrs.field(default=IRType.bytes)
+    ir_type: IRType = attrs.field(default=PrimitiveIRType.bytes)
 
     encoding: AVMBytesEncoding
     value: bytes
@@ -308,7 +320,7 @@ class CompiledLogicSigReference(Value):
 class AddressConstant(Constant):
     """Constant for address literals"""
 
-    ir_type: IRType = attrs.field(default=IRType.bytes, init=False)
+    ir_type: IRType = attrs.field(default=PrimitiveIRType.bytes, init=False)
     value: str = attrs.field()
 
     def accept(self, visitor: IRVisitor[T]) -> T:
@@ -319,7 +331,7 @@ class AddressConstant(Constant):
 class MethodConstant(Constant):
     """Constant for method literals"""
 
-    ir_type: IRType = attrs.field(default=IRType.bytes, init=False)
+    ir_type: IRType = attrs.field(default=PrimitiveIRType.bytes, init=False)
     value: str
 
     def accept(self, visitor: IRVisitor[T]) -> T:
@@ -343,6 +355,199 @@ class InnerTransactionField(Op, ValueProvider):
     @property
     def types(self) -> Sequence[IRType]:
         return (self.type,)
+
+
+def is_array_type(_op: Context, _attribute: object, value: Value) -> None:
+    if not isinstance(value.ir_type, ArrayType):
+        raise InternalError("expected array type", value.source_location)
+
+
+def is_uint64_type(_op: Context, _attribute: object, value: Value) -> None:
+    if value.ir_type != PrimitiveIRType.uint64:
+        raise InternalError("expected uint64 type", value.source_location)
+
+
+class ArrayOp(typing.Protocol):
+    @property
+    def array(self) -> Value: ...
+
+
+def is_array_element_type(op: ArrayOp, _attribute: object, value: Value) -> None:
+    array_ir_type = _array_type(op.array)
+    if value.ir_type != array_ir_type.element:
+        raise InternalError(
+            f"expected {array_ir_type.element} type, received: {value.ir_type}",
+            value.source_location,
+        )
+
+
+def _array_type(value: Value) -> ArrayType:
+    assert isinstance(value.ir_type, ArrayType)
+    return value.ir_type
+
+
+@attrs.define(eq=False)
+class ArrayReadIndex(Op, ValueProvider):
+    array: Value = attrs.field(validator=is_array_type)
+    index: Value = attrs.field(validator=is_uint64_type)
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (_array_type(self.array).element,)
+
+    def _frozen_data(self) -> object:
+        return self.array, self.index
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_array_read_index(self)
+
+
+@attrs.define(eq=False)
+class ArrayWriteIndex(Op, ValueProvider):
+    array: Value = attrs.field(validator=is_array_type)
+    index: Value = attrs.field(validator=is_uint64_type)
+    value: Value = attrs.field(validator=is_array_element_type)
+
+    def _frozen_data(self) -> object:
+        return self.array, self.index, self.value
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return self.array.types
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_array_write_index(self)
+
+
+@attrs.define(eq=False)
+class ArrayExtend(Op, ValueProvider):
+    array: Value = attrs.field(validator=is_array_type)
+    values: Value = attrs.field()
+
+    @values.validator
+    def _values_validation(self, _: object, values: Value) -> None:
+        if values.ir_type != self.array.ir_type:
+            raise InternalError(
+                f"expected array ({self.array.ir_type!r}) to be extended by an array of the "
+                f"same type, received: {values.ir_type!r}",
+                self.source_location,
+            )
+
+    def _frozen_data(self) -> object:
+        return self.array, self.values
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (_array_type(self.array),)
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_array_extend(self)
+
+
+@attrs.define(eq=False)
+class ArrayPop(Op, ValueProvider):
+    array: Value = attrs.field(validator=is_array_type)
+    # TODO: maybe allow pop with an index?
+
+    def _frozen_data(self) -> object:
+        return self.array
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        array_type = self.array.ir_type
+        assert isinstance(array_type, ArrayType)
+        return array_type, array_type.element
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_array_pop(self)
+
+
+@attrs.define(eq=False)
+class ArrayLength(Op, ValueProvider):
+    array: Value = attrs.field(validator=is_array_type)
+
+    def _frozen_data(self) -> object:
+        return self.array
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (PrimitiveIRType.uint64,)
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_array_length(self)
+
+
+def has_slot_type(
+    inst: Context,
+    attr: attrs.Attribute,  # type: ignore[type-arg]
+    value: ValueProvider,
+) -> None:
+    (typ,) = value.types
+    if not isinstance(typ, SlotType):
+        raise InternalError(
+            f"{type(inst).__name__}.{attr.name}: expected SlotType, received: {typ}",
+            inst.source_location,
+        )
+
+
+def narrow_to_slot_type(typ: IRType) -> SlotType:
+    if not isinstance(typ, SlotType):
+        raise InternalError(f"expected SlotType, received: {typ}")
+    return typ
+
+
+@attrs.define(eq=False)
+class NewSlot(Op, ValueProvider):
+    type: SlotType = attrs.field(converter=narrow_to_slot_type)
+
+    def _frozen_data(self) -> object:
+        return self.type
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_new_slot(self)
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (self.type,)
+
+
+@attrs.define(eq=False)
+class ReadSlot(Op, ValueProvider):
+    slot: Value = attrs.field(validator=has_slot_type)
+
+    def _frozen_data(self) -> object:
+        return self.slot
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_read_slot(self)
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        slot_type = self.slot.ir_type
+        assert isinstance(slot_type, SlotType)
+        return (slot_type.contents,)
+
+
+@attrs.define(eq=False)
+class WriteSlot(Op):
+    slot: Value = attrs.field(validator=has_slot_type)
+    value: Value = attrs.field()
+    source_location: SourceLocation | None
+
+    @value.validator
+    def _value(self, _: object, value: Value) -> None:
+        assert isinstance(self.slot.ir_type, SlotType)
+        if self.slot.ir_type.contents != value.ir_type:
+            raise InternalError(
+                f"type mismatch: expected value of type: {self.slot.ir_type.contents},"
+                f" but {value} has type {value.ir_type}",
+            )
+
+    def _frozen_data(self) -> object:
+        return self.slot, self.value
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_write_slot(self)
 
 
 @attrs.define(eq=False)
@@ -509,7 +714,7 @@ class Assignment(Op):
             source_atypes = [st.maybe_avm_type for st in source_ir_types]
             if target_atypes != source_atypes:
                 raise CodeError(
-                    f"Incompatible types on assignment:"
+                    f"incompatible types on assignment:"
                     f" source = ({', '.join(map(str, source_ir_types))}),"
                     f" target = ({', '.join(map(str, target_ir_types))})",
                     self.source_location,
@@ -913,6 +1118,7 @@ class Program(Context):
     main: Subroutine
     subroutines: Sequence[Subroutine]
     avm_version: int
+    reserved_scratch_space: Set[int]
     source_location: SourceLocation | None = None
 
     def __attrs_post_init__(self) -> None:

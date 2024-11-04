@@ -7,7 +7,6 @@ from puya.context import ArtifactCompileContext, CompileContext
 from puya.mir import models
 from puya.mir.aligned_writer import AlignedWriter
 from puya.mir.stack import Stack
-from puya.models import ProgramKind
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -20,11 +19,7 @@ def output_memory_ir(
     if out_dir is None:
         return
     out_dir.mkdir(exist_ok=True)
-    if qualifier:
-        qualifier = f".{qualifier}"
-    if program.kind is not ProgramKind.logic_signature:
-        qualifier = f".{program.kind}{qualifier}"
-    output_path = out_dir / f"{ctx.metadata.name}{qualifier}.mir"
+    output_path = ctx.sequential_path(program.kind, qualifier, "mir")
     writer = AlignedWriter()
     writer.add_header("// Op")
     writer.add_header("Stack (out)", 4)
