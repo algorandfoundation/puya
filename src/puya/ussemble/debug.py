@@ -4,6 +4,7 @@ from puya.models import DebugEvent, DebugInfo
 from puya.parse import SourceLocation
 from puya.ussemble import models
 from puya.ussemble.context import AssembleContext
+from puya.utils import normalize_path
 
 
 def build_debug_info(
@@ -28,7 +29,7 @@ def build_debug_info(
         pc - pc_offset: node.source_location for pc, node in pc_ops.items() if pc >= pc_offset
     }
 
-    files = sorted(map(str, {s.file for s in source_map.values() if s and s.file}))
+    files = sorted(map(normalize_path, {s.file for s in source_map.values() if s and s.file}))
     mappings = _get_src_mappings(source_map, files)
 
     return DebugInfo(
@@ -53,7 +54,7 @@ def _get_src_mappings(
         if not loc or not loc.file:
             mappings.append("")
             continue
-        source_index = files.index(str(loc.file))
+        source_index = files.index(normalize_path(loc.file))
         line = loc.line - 1  # make 0-indexed
         column = loc.column or 0
 
