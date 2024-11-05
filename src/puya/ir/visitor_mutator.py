@@ -22,16 +22,19 @@ from puya.ir.models import (
     InvokeSubroutine,
     ITxnConstant,
     MethodConstant,
+    NewSlot,
     Op,
     Phi,
     PhiArgument,
     ProgramExit,
+    ReadSlot,
     Register,
     SubroutineReturn,
     Switch,
     TemplateVar,
     UInt64Constant,
     ValueTuple,
+    WriteSlot,
 )
 from puya.ir.visitor import IRVisitor
 
@@ -120,6 +123,15 @@ class IRMutator(IRVisitor[t.Any]):
                 var: value.accept(self) for var, value in const.template_variables.items()
             },
         )
+
+    def visit_new_slot(self, new_slot: NewSlot) -> NewSlot:
+        return new_slot
+
+    def visit_read_slot(self, read: ReadSlot) -> ReadSlot:
+        return attrs.evolve(read, slot=read.slot.accept(self))
+
+    def visit_write_slot(self, write: WriteSlot) -> WriteSlot:
+        return attrs.evolve(write, slot=write.slot.accept(self), value=write.value.accept(self))
 
     def visit_phi(self, phi: Phi) -> Phi | None:
         with self._enter_target_context():

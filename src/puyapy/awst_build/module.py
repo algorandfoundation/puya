@@ -101,6 +101,8 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                     docstring=func_def.docstring,
                     source_location=self._location(logicsig_dec),
                     avm_version=info.avm_version,
+                    # TODO: add scratch space decls to decorator
+                    reserved_scratch_space=set(),
                 )
 
             return [deferred]

@@ -9,6 +9,7 @@ import attrs
 from immutabledict import immutabledict
 
 from puya import algo_constants, log
+from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -21,15 +22,27 @@ from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import arc4_router
 from puya.ir.arc4_router import extract_arc4_methods, maybe_avm_to_arc4_equivalent_type
+from puya.ir.avm_ops import AVMOp
 from puya.ir.builder.main import FunctionIRBuilder
-from puya.ir.context import IRBuildContext
+from puya.ir.context import IRBuildContext, Allocation
 from puya.ir.destructure.main import destructure_ssa
-from puya.ir.models import Contract, LogicSignature, ModuleArtifact, Parameter, Program, Subroutine
+from puya.ir.models import (
+    Contract,
+    LogicSignature,
+    ModuleArtifact,
+    Parameter,
+    Program,
+    Subroutine,
+    WriteSlot,
+    UInt64Constant,
+    BytesConstant,
+    Intrinsic,
+)
 from puya.ir.optimize.context import IROptimizeContext
 from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
 from puya.ir.optimize.main import optimize_contract_ir
 from puya.ir.to_text_visitor import output_artifact_ir_to_path
-from puya.ir.types_ import wtype_to_ir_type, wtype_to_ir_types
+from puya.ir.types_ import wtype_to_ir_type, wtype_to_ir_types, AVMBytesEncoding
 from puya.ir.utils import format_tuple_index
 from puya.ir.validation.main import validate_module_artifact
 from puya.models import (
@@ -276,6 +289,7 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
         ),
         program_id=".".join((contract.id, contract.approval_program.short_name)),
         avm_version=avm_version,
+        allocation=ctx.allocation,
     )
     clear_state_ir = _make_program(
         ctx,
@@ -286,6 +300,7 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
         ),
         program_id=".".join((contract.id, contract.clear_program.short_name)),
         avm_version=avm_version,
+        allocation=ctx.allocation,
     )
     result = Contract(
         source_location=contract.source_location,
@@ -338,6 +353,7 @@ def _build_logic_sig_ir(
         ),
         program_id=logic_sig.id,
         avm_version=coalesce(logic_sig.avm_version, ctx.options.target_avm_version),
+        allocation=ctx.allocation,
     )
     result = LogicSignature(
         source_location=logic_sig.source_location,
@@ -423,6 +439,7 @@ def _make_program(
     *,
     program_id: str,
     avm_version: int,
+    allocation: Allocation | None = None,
 ) -> Program:
     if main.args:
         raise InternalError("main method should not have args")
@@ -437,7 +454,7 @@ def _make_program(
         body=[],
         source_location=main.source_location,
     )
-    FunctionIRBuilder.build_body(ctx, function=main, subroutine=main_sub)
+    FunctionIRBuilder.build_body(ctx, function=main, subroutine=main_sub, allocation=allocation)
     return Program(
         id=program_id,
         main=main_sub,

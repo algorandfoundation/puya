@@ -15,7 +15,7 @@ from puya.awst.nodes import (
     NewArray,
     Statement,
     TupleExpression,
-    UInt64Constant,
+    UInt64Constant, ArrayLength,
 )
 from puya.parse import SourceLocation
 
@@ -128,9 +128,7 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
         return _not_supported(pytypes.BytesType, location).resolve()
 
     def length(self, location: SourceLocation) -> InstanceBuilder:
-        # TODO: add length AWST node?
-        length = UInt64Constant(value=0, source_location=location)
-        return UInt64ExpressionBuilder(length)
+        return UInt64ExpressionBuilder(ArrayLength(array=self.resolve(), source_location=location))
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:

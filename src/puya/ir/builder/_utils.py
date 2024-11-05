@@ -279,11 +279,31 @@ class OpFactory:
         )
         return result
 
+    def div_floor(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+        result = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.div_floor,
+            args=[a, b],
+            source_location=self.source_location,
+        )
+        return result
+
     def len(self, value: Value, temp_desc: str) -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.len_,
+            args=[value],
+            source_location=self.source_location,
+        )
+        return result
+
+    def btoi(self, value: Value, temp_desc: str) -> Register:
+        result = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.btoi,
             args=[value],
             source_location=self.source_location,
         )
@@ -315,6 +335,16 @@ class OpFactory:
             self.context,
             target=temp_desc,
             op=AVMOp.extract_uint16,
+            args=[a, b],
+            source_location=self.source_location,
+        )
+        return result
+
+    def extract_uint64(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+        result = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.extract_uint64,
             args=[a, b],
             source_location=self.source_location,
         )

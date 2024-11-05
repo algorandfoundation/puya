@@ -1,5 +1,7 @@
 import contextlib
+import functools
 import itertools
+import operator
 import typing
 from collections import defaultdict
 from collections.abc import Iterator, Mapping
@@ -9,18 +11,25 @@ import attrs
 
 import puya.awst.nodes as awst_nodes
 import puya.models
+from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
 from puya.context import CompileContext
 from puya.errors import CodeError, InternalError, log_exceptions
 from puya.ir.builder.blocks import BlocksBuilder
 from puya.ir.models import Subroutine
 from puya.ir.ssa import BraunSSA
 from puya.parse import SourceLocation
-from puya.utils import attrs_extend
+from puya.utils import attrs_extend, bits_to_bytes
 
 if typing.TYPE_CHECKING:
     from puya.ir.builder.main import FunctionIRBuilder
 
 TMP_VAR_INDICATOR = "%"
+
+
+@attrs.frozen
+class Allocation:
+    slot: int
+    init: bytes
 
 
 @attrs.frozen(kw_only=True)
@@ -30,17 +39,32 @@ class IRBuildContext(CompileContext):
     embedded_funcs_lookup: Mapping[str, Subroutine] = attrs.field(default=dict)
     root: awst_nodes.Contract | awst_nodes.LogicSignature | None = None
     routers: dict[puya.models.ContractReference, Subroutine] = attrs.field(factory=dict)
+    allocation: Allocation | None = None
 
     @cached_property
     def _awst_lookup(self) -> Mapping[str, awst_nodes.RootNode]:
         return {node.id: node for node in self.awst}
 
     def for_root(self, root: awst_nodes.Contract | awst_nodes.LogicSignature) -> typing.Self:
+        available_slots = set(range(MAX_SCRATCH_SLOT_NUMBER + 1))
+        available_slots = available_slots - root.reserved_scratch_space
+        allocation = None
+        # need at least two slots for allocations to be possible at all
+        # 1 for the allocation_slot, and 1 for some actual data
+        if len(available_slots) > 1:
+            allocation_slot = min(available_slots)
+            available_slots.remove(allocation_slot)
+            init = functools.reduce(operator.or_, (1 << (a - 1) for a in available_slots), 0)
+            allocation = Allocation(
+                slot=allocation_slot,
+                init=init.to_bytes(bits_to_bytes(init.bit_length())),
+            )
         return attrs.evolve(
             self,
             root=root,
             # copy subroutines so that contract specific subroutines do not pollute other passes
             subroutines=self.subroutines.copy(),
+            allocation=allocation,
         )
 
     def for_function(

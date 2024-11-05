@@ -1723,3 +1723,21 @@ def test_diamond_mro(
     method_logs_raw = method_response.tx_info["logs"]
     method_logs = decode_logs(method_logs_raw, len(method_logs_raw) * "u")
     assert method_logs == expected_method_log
+
+
+def test_array(
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+) -> None:
+    example = TEST_CASES_DIR / "array"
+    algokit_utils.config.config.configure(
+        debug=True,
+        trace_all=True,
+        project_root=example,
+    )
+
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    app_client.call("test_array")

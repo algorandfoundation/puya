@@ -769,6 +769,7 @@ class IndexExpression(Expression):
             wtypes.bytes_wtype,
             wtypes.ARC4StaticArray,
             wtypes.ARC4DynamicArray,
+            wtypes.WArray,
             # NOTE: tuples (native or arc4) use TupleItemExpression instead
         )
     )
@@ -911,6 +912,15 @@ class NewArray(Expression):
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_new_array(self)
+
+
+@attrs.frozen
+class ArrayLength(Expression):
+    array: Expression = attrs.field(validator=expression_has_wtype(wtypes.WArray))
+    wtype: wtypes.WType = attrs.field(default=wtypes.uint64_wtype, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_array_length(self)
 
 
 @attrs.frozen
@@ -1646,6 +1656,8 @@ class LogicSignature(RootNode):
     short_name: str
     program: Subroutine = attrs.field()
     docstring: str | None
+    reserved_scratch_space: Set[int]
+    """Scratch slots that the logicsig is explicitly setting aside for direct/explicit usage."""
     avm_version: int | None = attrs.field(validator=_validate_avm_version)
 
     @program.validator

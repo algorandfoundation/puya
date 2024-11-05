@@ -28,6 +28,7 @@ class IRType(enum.StrEnum):
     uint64 = enum.auto()
     bool = enum.auto()
     biguint = enum.auto()
+    slot = enum.auto()
     itxn_group_idx = enum.auto()  # the group index of the result
     itxn_field_set = enum.auto()  # a collection of fields for a pending itxn submit
 
@@ -41,7 +42,7 @@ class IRType(enum.StrEnum):
     @property
     def maybe_avm_type(self) -> typing.Literal[AVMType.uint64, AVMType.bytes] | str:
         match self:
-            case IRType.uint64 | IRType.bool:
+            case IRType.uint64 | IRType.bool | IRType.slot:
                 return AVMType.uint64
             case IRType.bytes | IRType.biguint:
                 return AVMType.bytes
@@ -77,6 +78,8 @@ def wtype_to_ir_type(
             return IRType.itxn_group_idx
         case wtypes.WInnerTransactionFields():
             return IRType.itxn_field_set
+        case wtypes.WArray():
+            return IRType.slot
         case wtypes.void_wtype:
             raise InternalError("can't translate void wtype to irtype", source_location)
         # case wtypes.state_key:

@@ -96,6 +96,56 @@ class MemoryIRBuilder(IRVisitor[None]):
                 )
             )
 
+    def visit_new_slot(self, new_slot: ir.NewSlot) -> None:
+        """
+        bitlen¶
+        The highest set bit in A. If A is a byte-array,
+        it is interpreted as a big-endian unsigned integer. bitlen of 0 is 0, bitlen of 8 is 4
+        bitlen interprets arrays as big-endian integers, unlike setbit/getbit
+        """
+        # if slots required
+        #   statically determine slot for storing reserved slots (allocation_slot)
+        #   initialize entire array to 0, then set available slots to 1
+        # on new_slot
+        #   allocation = loads(allocation_slot)
+        #   new_slot = bitlen(allocation)
+        #   allocation = setbit(allocation, new_slot, 0)
+        #   stores(allocation_slot, allocation)
+
+        # bitlen
+        # 111111..11 -> 4095, 011111..11
+        # 011111..11 -> 4094, 001111..11
+        # 001111..11 -> 4093, 000111..11
+        # 000111..11 -> 4092, 000011..11
+        # 010111..11 -> 4094, 000111..11
+        # 010101..11 -> 4094, 000101..11
+
+        # TODO return new free slot
+        raise NotImplementedError
+
+    def visit_read_slot(self, read: ir.ReadSlot) -> None:
+        read.slot.accept(self)
+        self._add_op(
+            models.IntrinsicOp(
+                op_code="loads",
+                source_location=read.source_location,
+                consumes=1,
+                produces=_produces_from_op("loads", 1, self.active_op),
+            )
+        )
+
+    def visit_write_slot(self, write: ir.WriteSlot) -> None:
+        write.slot.accept(self)
+        write.value.accept(self)
+        self._add_op(
+            models.IntrinsicOp(
+                op_code="stores",
+                source_location=write.source_location,
+                consumes=2,
+                produces=(),
+            )
+        )
+
     def visit_template_var(self, deploy_var: ir.TemplateVar) -> None:
         self._add_op(
             models.TemplateVar(

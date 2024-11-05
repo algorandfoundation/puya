@@ -6,6 +6,7 @@ import attrs
 import puya.awst.visitors
 import puya.ir.builder.storage
 from puya import algo_constants, log, utils
+from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -29,6 +30,7 @@ from puya.ir.builder._utils import (
     extract_const_int,
     get_implicit_return_is_original,
     get_implicit_return_out,
+    invoke_puya_lib_subroutine,
     mktemp,
 )
 from puya.ir.builder.arc4 import ARC4_FALSE, ARC4_TRUE
@@ -46,7 +48,7 @@ from puya.ir.builder.callsub import (
 )
 from puya.ir.builder.iteration import handle_for_in_loop
 from puya.ir.builder.itxn import InnerTransactionBuilder
-from puya.ir.context import IRBuildContext
+from puya.ir.context import IRBuildContext, Allocation
 from puya.ir.models import (
     AddressConstant,
     BigUIntConstant,
@@ -59,6 +61,7 @@ from puya.ir.models import (
     MethodConstant,
     Op,
     ProgramExit,
+    ReadSlot,
     Subroutine,
     SubroutineReturn,
     TemplateVar,
@@ -66,6 +69,7 @@ from puya.ir.models import (
     Value,
     ValueProvider,
     ValueTuple,
+    WriteSlot,
 )
 from puya.ir.types_ import (
     AVMBytesEncoding,
@@ -101,11 +105,14 @@ class FunctionIRBuilder(
         ctx: IRBuildContext,
         function: awst_nodes.Function,
         subroutine: Subroutine,
+        allocation: Allocation | None = None,
     ) -> None:
         builder = cls(ctx, function, subroutine)
         func_ctx = builder.context
         with func_ctx.log_exceptions():
             block_builder = func_ctx.block_builder
+            if allocation:
+                builder.allocate_slots(allocation)
             for p in subroutine.parameters:
                 if p.implicit_return:
                     assign(
@@ -146,6 +153,37 @@ class FunctionIRBuilder(
                 )
             subroutine.body = block_builder.finalise()
             subroutine.validate_with_ssa()
+
+    def allocate_slots(self, allocation: Allocation) -> None:
+        loc = SourceLocation(file=None, line=1)
+        slot_allocation_node = awst_nodes.BytesBinaryOperation(
+            op=awst_nodes.BytesBinaryOperator.bit_or,
+            left=awst_nodes.IntrinsicCall(
+                op_code="bzero",
+                stack_args=[
+                    awst_nodes.IntegerConstant(
+                        value=MAX_SCRATCH_SLOT_NUMBER,
+                        wtype=wtypes.uint64_wtype,
+                        source_location=loc,
+                    )
+                ],
+                wtype=wtypes.bytes_wtype,
+                source_location=loc,
+            ),
+            right=awst_nodes.BytesConstant(
+                value=allocation.init,
+                encoding=awst_nodes.BytesEncoding.base16,
+                source_location=loc,
+            ),
+            source_location=loc,
+        )
+        slot_allocation = self.visit_and_materialise_single(slot_allocation_node)
+        write = WriteSlot(
+            slot=UInt64Constant(value=allocation.slot, source_location=None),
+            value=slot_allocation,
+            source_location=None,
+        )
+        self.context.block_builder.add(write)
 
     def visit_copy(self, expr: awst_nodes.Copy) -> TExpression:
         # For reference types, we need to clone the data
@@ -781,7 +819,17 @@ class FunctionIRBuilder(
                     source_location=expr.source_location,
                 )
         elif isinstance(expr.base.wtype, wtypes.WArray):
-            raise NotImplementedError
+            if expr.base.wtype.element_type != wtypes.uint64_wtype:
+                raise CodeError("only uint64 arrays supported", expr.source_location)
+            factory = OpFactory(self.context, expr.source_location)
+            slot = self.visit_and_materialise_single(expr.base)
+            index = self.visit_and_materialise_single(expr.index)
+            contents = factory.assign(
+                ReadSlot(slot=slot, type=IRType.bytes, source_location=expr.source_location),
+                "array_contents",
+            )
+            contents_index = factory.mul(index, 8, "contents_index")
+            return factory.extract_uint64(contents, contents_index, "value")
         elif isinstance(expr.base.wtype, wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray):
             return arc4.arc4_array_index(
                 self.context,
@@ -843,8 +891,47 @@ class FunctionIRBuilder(
         match expr.wtype:
             case wtypes.ARC4Array():
                 return arc4.encode_arc4_array(self.context, expr)
-            case wtypes.WArray():
-                raise NotImplementedError
+            case wtypes.WArray() as arr:
+                if arr.element_type != wtypes.uint64_wtype:
+                    raise CodeError(
+                        "only uint64 elements supported currently", expr.source_location
+                    )
+                if self.context.allocation is None:
+                    raise CodeError("no available slots to allocate array", expr.source_location)
+                factory = OpFactory(self.context, expr.source_location)
+                slot = factory.assign(
+                    invoke_puya_lib_subroutine(
+                        self.context,
+                        full_name="_puya_lib.mem.new_slot",
+                        args=[
+                            UInt64Constant(
+                                value=self.context.allocation.slot, source_location=None
+                            )
+                        ],
+                        source_location=expr.source_location,
+                    ),
+                    "slot",
+                )
+                array_contents = factory.assign(
+                    BytesConstant(
+                        value=b"",
+                        encoding=AVMBytesEncoding.base16,
+                        source_location=expr.source_location,
+                    ),
+                    "array_contents",
+                )
+                for item in expr.values:
+                    value = self.visit_and_materialise_single(item, "item")
+                    value_bytes = factory.itob(value, "item_bytes")
+                    array_contents = factory.concat(array_contents, value_bytes, "array_contents")
+                self.context.block_builder.add(
+                    WriteSlot(
+                        slot=slot,
+                        value=array_contents,
+                        source_location=expr.source_location,
+                    )
+                )
+                return slot
             case _:
                 typing.assert_never(expr.wtype)
 
@@ -1137,36 +1224,109 @@ class FunctionIRBuilder(
 
     def visit_array_pop(self, expr: awst_nodes.ArrayPop) -> TExpression:
         source_location = expr.source_location
-        match expr.base.wtype:
-            case wtypes.ARC4DynamicArray() as array_wtype:
-                return arc4.pop_arc4_array(self.context, expr, array_wtype)
-            case _:
-                raise InternalError(
-                    f"Unsupported target for array pop: {expr.base.wtype}", source_location
+        if isinstance(expr.base.wtype, wtypes.ARC4DynamicArray):
+            return arc4.pop_arc4_array(self.context, expr, expr.base.wtype)
+        elif isinstance(expr.base.wtype, wtypes.WArray):
+            if expr.base.wtype.element_type != wtypes.uint64_wtype:
+                raise CodeError("only uint64 arrays currently supported", expr.source_location)
+            factory = OpFactory(self.context, expr.source_location)
+            slot = self.visit_and_materialise_single(expr.base)
+            contents = factory.assign(
+                ReadSlot(slot=slot, source_location=expr.base.source_location, type=IRType.bytes),
+                "array_contents",
+            )
+            length = factory.len(contents, "length")
+            # TODO: derive from element wtype
+            element_size = 8
+            new_length = factory.sub(length, element_size, "new_length")
+            popped = factory.extract_uint64(contents, new_length, "popped")
+            contents = factory.assign(
+                factory.extract3(contents, 0, new_length, "new_contents"), "array_contents"
+            )
+            self.context.block_builder.add(
+                WriteSlot(
+                    slot=slot,
+                    value=contents,
+                    source_location=expr.source_location,
                 )
+            )
+            return popped
+        else:
+            raise InternalError(
+                f"Unsupported target for array pop: {expr.base.wtype}", source_location
+            )
 
     def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> TExpression:
-        return arc4.concat_values(
-            self.context,
-            left_expr=expr.left,
-            right_expr=expr.right,
-            source_location=expr.source_location,
-        )
+        if isinstance(expr.wtype, wtypes.ARC4Array):
+            return arc4.concat_values(
+                self.context,
+                left_expr=expr.left,
+                right_expr=expr.right,
+                source_location=expr.source_location,
+            )
+        elif isinstance(expr.wtype, wtypes.WArray):
+            raise CodeError("TODO: support concat", expr.source_location)
+        else:
+            raise InternalError("unsupported array type", expr.source_location)
 
     def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> TExpression:
-        concat_result = arc4.concat_values(
-            self.context,
-            left_expr=expr.base,
-            right_expr=expr.other,
-            source_location=expr.source_location,
-        )
-        return arc4.handle_arc4_assign(
-            self.context,
-            target=expr.base,
-            value=concat_result,
-            is_nested_update=True,
-            source_location=expr.source_location,
-        )
+        if isinstance(expr.base.wtype, wtypes.ARC4Array):
+            concat_result = arc4.concat_values(
+                self.context,
+                left_expr=expr.base,
+                right_expr=expr.other,
+                source_location=expr.source_location,
+            )
+            return arc4.handle_arc4_assign(
+                self.context,
+                target=expr.base,
+                value=concat_result,
+                is_nested_update=True,
+                source_location=expr.source_location,
+            )
+        elif isinstance(expr.base.wtype, wtypes.WArray):
+            if expr.base.wtype.element_type != wtypes.uint64_wtype:
+                raise CodeError("only uint64 arrays currently supported", expr.source_location)
+            factory = OpFactory(self.context, expr.source_location)
+            slot = self.visit_and_materialise_single(expr.base)
+            contents = factory.assign(
+                ReadSlot(slot=slot, source_location=expr.base.source_location, type=IRType.bytes),
+                "array_contents",
+            )
+            items = self.visit_and_materialise(expr.other, temp_description="other")
+            for item in items:
+                item_bytes = factory.itob(item, "item_bytes")
+                contents = factory.assign(
+                    factory.concat(contents, item_bytes, "concat"), "array_contents"
+                )
+            self.context.block_builder.add(
+                WriteSlot(
+                    slot=slot,
+                    value=contents,
+                    source_location=expr.source_location,
+                )
+            )
+            return None
+        else:
+            raise InternalError("unsupported array type", expr.source_location)
+
+    def visit_array_length(self, expr: awst_nodes.ArrayLength) -> TExpression:
+        # TODO: ARC4 array
+        if isinstance(expr.array.wtype, wtypes.WArray):
+            if expr.array.wtype.element_type != wtypes.uint64_wtype:
+                raise CodeError("only uint64 arrays currently supported", expr.source_location)
+            factory = OpFactory(self.context, expr.source_location)
+            slot = self.visit_and_materialise_single(expr.array)
+            contents = factory.assign(
+                ReadSlot(slot=slot, source_location=expr.array.source_location, type=IRType.bytes),
+                "array_contents",
+            )
+            contents_length = factory.len(contents, "contents_length")
+            # TODO: derive from wtype
+            element_length = 8
+            return factory.div_floor(contents_length, element_length, "array_length")
+        else:
+            raise InternalError("unsupported array type", expr.source_location)
 
     def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> TExpression:
         root = self.context.root

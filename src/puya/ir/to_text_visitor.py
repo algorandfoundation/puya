@@ -72,6 +72,18 @@ class ToTextVisitor(IRVisitor[str]):
             + ")"
         )
 
+    def visit_new_slot(self, _: models.NewSlot) -> str:
+        return "new()"
+
+    def visit_read_slot(self, read: models.ReadSlot) -> str:
+        slot = read.slot.accept(self)
+        return f"read({slot})"
+
+    def visit_write_slot(self, write: models.WriteSlot) -> str:
+        slot = write.slot.accept(self)
+        value = write.value.accept(self)
+        return f"write({slot}, {value})"
+
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> str:
         callee = intrinsic.op.code
         immediates = list(map(str, intrinsic.immediates))

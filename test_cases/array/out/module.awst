@@ -1,0 +1,59 @@
+contract Contract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.array.contract.Contract.test_array(): void
+  {
+    arr: array<uint64> = new array<uint64>()
+    assert(arr.length == 0u)
+    arr.extend((42u))
+    assert(arr.length == 1u)
+    assert(arr[arr.length - 1u] == 42u)
+    test_cases.array.contract.add_x(arr, 5u)
+    assert(arr.length == 6u)
+    assert(arr[arr.length - 1u] == 4u)
+    arr.extend((43u))
+    assert(arr.length == 7u)
+    assert(arr[arr.length - 1u] == 43u)
+    assert(arr[0u] == 42u)
+    test_cases.array.contract.pop_x(arr, 3u)
+    assert(arr.length == 4u)
+    assert(arr[arr.length - 1u] == 2u)
+    test_cases.array.contract.add_x(arr, 10u)
+    assert(arr.length == 14u)
+    assert(arr[arr.length - 1u] == 9u)
+    arr.extend((44u))
+    assert(arr.length == 15u)
+    assert(arr[arr.length - 1u] == 44u)
+  }
+  
+  baremethod test_cases.array.contract.Contract.__algopy_default_create(): void
+  {
+  }
+}
+
+subroutine add_x(arr: array<uint64>, x: uint64): void
+{
+  for i in range(0u, x, 1u) {
+    arr.extend((i))
+  }
+}
+
+subroutine pop_x(arr: array<uint64>, x: uint64): void
+{
+  for _i in range(0u, x, 1u) {
+    arr.pop()
+  }
+}

@@ -64,6 +64,15 @@ class IRVisitor(t.Generic[T], ABC):
     ) -> T: ...
 
     @abstractmethod
+    def visit_new_slot(self, new_slot: puya.ir.models.NewSlot) -> T: ...
+
+    @abstractmethod
+    def visit_read_slot(self, read_slot: puya.ir.models.ReadSlot) -> T: ...
+
+    @abstractmethod
+    def visit_write_slot(self, write_slot: puya.ir.models.WriteSlot) -> T: ...
+
+    @abstractmethod
     def visit_invoke_subroutine(self, callsub: puya.ir.models.InvokeSubroutine) -> T: ...
 
     @abstractmethod
@@ -143,6 +152,16 @@ class IRTraverser(IRVisitor[None]):
     ) -> None:
         for var in const.template_variables.values():
             var.accept(self)
+
+    def visit_new_slot(self, _: puya.ir.models.NewSlot) -> None:
+        pass
+
+    def visit_read_slot(self, read: puya.ir.models.ReadSlot) -> None:
+        read.slot.accept(self)
+
+    def visit_write_slot(self, write: puya.ir.models.WriteSlot) -> None:
+        write.slot.accept(self)
+        write.value.accept(self)
 
     def visit_itxn_constant(self, const: puya.ir.models.ITxnConstant) -> None:
         pass
@@ -233,6 +252,15 @@ class NoOpIRVisitor(typing.Generic[T], IRVisitor[T | None]):
     def visit_compiled_logicsig_reference(
         self, const: puya.ir.models.CompiledLogicSigReference
     ) -> T | None:
+        return None
+
+    def visit_new_slot(self, new_slot: puya.ir.models.NewSlot) -> T | None:
+        return None
+
+    def visit_read_slot(self, read: puya.ir.models.ReadSlot) -> T | None:
+        return None
+
+    def visit_write_slot(self, write: puya.ir.models.WriteSlot) -> T | None:
         return None
 
     def visit_phi(self, phi: puya.ir.models.Phi) -> T | None:

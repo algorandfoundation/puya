@@ -346,6 +346,52 @@ class InnerTransactionField(Op, ValueProvider):
 
 
 @attrs.define(eq=False)
+class NewSlot(Op, ValueProvider):
+    type: IRType = attrs.field(default=IRType.slot, init=False)
+    slot_type: IRType
+
+    def _frozen_data(self) -> object:
+        # TODO: do we need an id?
+        return self.type, self.slot_type
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_new_slot(self)
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (self.type,)
+
+
+@attrs.define(eq=False)
+class ReadSlot(Op, ValueProvider):
+    slot: Value
+    type: IRType
+
+    def _frozen_data(self) -> object:
+        return self.slot, self.type
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_read_slot(self)
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (self.type,)
+
+
+@attrs.define(eq=False)
+class WriteSlot(Op):
+    slot: Value
+    value: Value
+    source_location: SourceLocation | None
+
+    def _frozen_data(self) -> object:
+        return self.slot, self.value
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_write_slot(self)
+
+
+@attrs.define(eq=False)
 class Intrinsic(Op, ValueProvider):
     """Any TEAL op (or pseudo-op) that doesn't interrupt control flow, in the "basic block" sense.
 
@@ -509,7 +555,7 @@ class Assignment(Op):
             source_atypes = [st.maybe_avm_type for st in source_ir_types]
             if target_atypes != source_atypes:
                 raise CodeError(
-                    f"Incompatible types on assignment:"
+                    f"incompatible types on assignment:"
                     f" source = ({', '.join(map(str, source_ir_types))}),"
                     f" target = ({', '.join(map(str, target_ir_types))})",
                     self.source_location,
