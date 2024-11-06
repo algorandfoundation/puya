@@ -12,6 +12,8 @@ from puya import log
 from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
 from puya.models import (
+    ABIMethodArgDefault,
+    ABIMethodArgMemberDefault,
     ARC4ABIMethodConfig,
     ARC4BareMethodConfig,
     ARC4CreateOption,
@@ -175,7 +177,7 @@ def get_arc4_abimethod_data(
             readonly = default_readonly
 
     # map "default_args" param
-    default_args = dict[str, str]()
+    default_args = dict[str, ABIMethodArgDefault]()
     match evaluated_args.pop("default_args", {}):
         case {**options}:
             method_arg_names = func_types.keys() - {"output"}
@@ -190,7 +192,7 @@ def get_arc4_abimethod_data(
                 else:
                     # if it's in method_arg_names, it's a str
                     assert isinstance(parameter, str)
-                    default_args[parameter] = value
+                    default_args[parameter] = ABIMethodArgMemberDefault(name=value)
         case invalid_default_args_option:
             context.error(f"invalid default_args option: {invalid_default_args_option}", dec_loc)
 
