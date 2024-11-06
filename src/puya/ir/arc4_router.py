@@ -11,6 +11,7 @@ from puya.awst import (
 )
 from puya.errors import CodeError, InternalError
 from puya.models import (
+    ABIMethodArgConstantDefault,
     ARC4ABIMethod,
     ARC4ABIMethodConfig,
     ARC4BareMethod,
@@ -474,7 +475,7 @@ def _validate_default_args(
         args_by_name = {a.name: a for a in method.args}
         for (
             parameter_name,
-            source_name,
+            default_source,
         ) in method.arc4_method_config.default_args.items():
             # any invalid parameter matches should have been caught earlier
             parameter = args_by_name[parameter_name]
@@ -486,6 +487,17 @@ def _validate_default_args(
                 case "account":
                     param_arc4_type = "address"
 
+            if isinstance(default_source, ABIMethodArgConstantDefault):
+                if not _is_valid_client_literal_for_arc4_type(
+                    default_source.value, param_arc4_type
+                ):
+                    logger.warning(
+                        f"'{default_source.value}' is not a valid"
+                        f" default value for parameter '{parameter_name}'"
+                    )
+                continue
+
+            source_name = default_source.name
             try:
                 source = known_sources[source_name]
             except KeyError as ex:
@@ -669,6 +681,18 @@ def _get_abi_signature(subroutine: awst_nodes.ContractMethod, config: ARC4ABIMet
     arg_types = [_wtype_to_arc4(a.wtype, a.source_location) for a in subroutine.args]
     return_type = _wtype_to_arc4(subroutine.return_type, subroutine.source_location)
     return f"{config.name}({','.join(arg_types)}){return_type}"
+
+
+def _is_valid_client_literal_for_arc4_type(literal: str | int, arc4_type_alias: str) -> bool:
+    if arc4_type_alias.startswith(("uint", "ufixed")):
+        return isinstance(literal, int)
+
+    match arc4_type_alias:
+        case "byte" | "bool":
+            return isinstance(literal, int)
+        case "address" | "string":
+            return isinstance(literal, str)
+    return False
 
 
 def _wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> str:
