@@ -138,6 +138,9 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
     @typing.override
     def iterate(self) -> Expression:
         if not self.pytype.items.wtype.immutable:
+            # this case is an error raised during AWST validation
+            # adding a front end specific message here to compliment the error message
+            # raise across all front ends
             logger.info(
                 "use `algopy.urange(<array>.length)` to iterate by index",
                 location=self.source_location,

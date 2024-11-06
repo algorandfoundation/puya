@@ -103,10 +103,13 @@ class ARC4StringExpressionBuilder(
         else:
             value = expect.argument_of_type_else_dummy(rhs, self.pytype).resolve()
 
+        # TODO: does this actually need to be a AugmentedAssignment node to ensure LHS is only
+        #       evaluated once
+        lhs = self.single_eval().resolve_lvalue()
         return AssignmentStatement(
-            target=self.resolve_lvalue(),
+            target=lhs,
             value=ArrayConcat(
-                left=self.resolve(),
+                left=lhs,
                 right=value,
                 wtype=wtypes.arc4_string_alias,
                 source_location=location,
