@@ -1337,11 +1337,15 @@ class BigUIntAugmentedAssignment(Statement):
 @attrs.frozen
 class BytesAugmentedAssignment(Statement):
     target: Lvalue = attrs.field(
-        validator=[expression_has_wtype(wtypes.bytes_wtype, wtypes.string_wtype)]
+        validator=[
+            expression_has_wtype(wtypes.bytes_wtype, wtypes.string_wtype, wtypes.arc4_string_alias)
+        ]
     )
     op: BytesBinaryOperator
     value: Expression = attrs.field(
-        validator=[expression_has_wtype(wtypes.bytes_wtype, wtypes.string_wtype)]
+        validator=[
+            expression_has_wtype(wtypes.bytes_wtype, wtypes.string_wtype, wtypes.arc4_string_alias)
+        ]
     )
 
     @value.validator
