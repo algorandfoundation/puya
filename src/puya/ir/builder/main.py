@@ -1053,14 +1053,21 @@ class FunctionIRBuilder(
     def visit_bytes_augmented_assignment(
         self, statement: awst_nodes.BytesAugmentedAssignment
     ) -> TStatement:
-        target_value = self.visit_and_materialise_single(statement.target)
-        rhs = self.visit_and_materialise_single(statement.value)
-        expr = create_bytes_binary_op(statement.op, target_value, rhs, statement.source_location)
+        if statement.target.wtype == wtypes.arc4_string_alias:
+            value: ValueProvider = arc4.concat_values(
+                self.context, statement.target, statement.value, statement.source_location
+            )
+        else:
+            target_value = self.visit_and_materialise_single(statement.target)
+            rhs = self.visit_and_materialise_single(statement.value)
+            value = create_bytes_binary_op(
+                statement.op, target_value, rhs, statement.source_location
+            )
 
         handle_assignment(
             self.context,
             target=statement.target,
-            value=expr,
+            value=value,
             is_nested_update=False,
             assignment_location=statement.source_location,
         )

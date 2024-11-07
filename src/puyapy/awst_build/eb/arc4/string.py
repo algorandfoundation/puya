@@ -8,7 +8,8 @@ from puya.awst.nodes import (
     ARC4Decode,
     ARC4Encode,
     ArrayConcat,
-    AssignmentStatement,
+    BytesAugmentedAssignment,
+    BytesBinaryOperator,
     Expression,
     Statement,
     StringConstant,
@@ -103,17 +104,10 @@ class ARC4StringExpressionBuilder(
         else:
             value = expect.argument_of_type_else_dummy(rhs, self.pytype).resolve()
 
-        # TODO: does this actually need to be a AugmentedAssignment node to ensure LHS is only
-        #       evaluated once
-        lhs = self.single_eval().resolve_lvalue()
-        return AssignmentStatement(
-            target=lhs,
-            value=ArrayConcat(
-                left=lhs,
-                right=value,
-                wtype=wtypes.arc4_string_alias,
-                source_location=location,
-            ),
+        return BytesAugmentedAssignment(
+            target=self.resolve_lvalue(),
+            op=BytesBinaryOperator.add,
+            value=value,
             source_location=location,
         )
 
