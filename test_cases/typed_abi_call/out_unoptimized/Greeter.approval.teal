@@ -2,7 +2,7 @@
 
 test_cases.typed_abi_call.typed_c2c.Greeter.approval_program:
     intcblock 0 6 2 1
-    bytecblock 0x151f7c75 0x 0x6231 0x0000000000000001 0x9bf81913 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x16e03919 "\x00\x02s1" 0x62 0x02 "s1" "log 1" 0xb4b4334e 0x0000000000000002 "echo: s1" 0x33 0x34 0x0000000000000003 0x4a444c77 0x2659e818 0xa9fb6cf1 0xd8cc363b 0x03 0xab271ce4 0xb862ee19 "\x00\x0becho: tuple" 0x000000000000000b "\x00\x01s" 0x6563686f3a206231 "\x00\x02s2" "\x00\x08echo: s2" 0x6563686f3a2033 "\x00\x03s1b" 0x3362 0x000000000000002a 0xddd07185 "log 2"
+    bytecblock 0x151f7c75 0x 0x6231 0x0000000000000001 0x9bf81913 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x16e03919 0x00027331 0x62 0x02 "s1" "log 1" 0xb4b4334e 0x0000000000000002 "echo: s1" 0x33 0x34 0x0000000000000003 0x4a444c77 0x2659e818 0xa9fb6cf1 0xd8cc363b 0x03 0xab271ce4 0xb862ee19 0x000b6563686f3a207475706c65 0x000000000000000b 0x000173 0x6563686f3a206231 0x00027332 0x00086563686f3a207332 0x6563686f3a2033 0x0003733162 0x3362 0x000000000000002a 0xddd07185 "log 2"
     callsub __puya_arc4_router__
     return
 
@@ -500,7 +500,7 @@ test_method_selector_kinds:
     // result, _txn = arc4.abi_call(Logger.echo, arc4.String("test1"), app_id=app)
     bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
-    pushbytes "\x00\x05test1"
+    pushbytes 0x00057465737431
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -517,7 +517,7 @@ test_method_selector_kinds:
     assert // ARC4 prefix is valid
     // typed_abi_call/typed_c2c.py:30
     // assert result == "echo: test1"
-    pushbytes "\x00\x0becho: test1"
+    pushbytes 0x000b6563686f3a207465737431
     ==
     assert
     // typed_abi_call/typed_c2c.py:31
@@ -531,7 +531,7 @@ test_method_selector_kinds:
     // result, _txn = arc4.abi_call(LoggerClient.echo, "test2", app_id=app)
     bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
-    pushbytes "\x00\x05test2"
+    pushbytes 0x00057465737432
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -548,7 +548,7 @@ test_method_selector_kinds:
     assert // ARC4 prefix is valid
     // typed_abi_call/typed_c2c.py:32
     // assert result == "echo: test2"
-    pushbytes "\x00\x0becho: test2"
+    pushbytes 0x000b6563686f3a207465737432
     ==
     assert
     // typed_abi_call/typed_c2c.py:33
@@ -562,7 +562,7 @@ test_method_selector_kinds:
     // result, _txn = arc4.abi_call[arc4.String]("echo", "test3", app_id=app)
     bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
-    pushbytes "\x00\x05test3"
+    pushbytes 0x00057465737433
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -579,7 +579,7 @@ test_method_selector_kinds:
     assert // ARC4 prefix is valid
     // typed_abi_call/typed_c2c.py:34
     // assert result == "echo: test3"
-    pushbytes "\x00\x0becho: test3"
+    pushbytes 0x000b6563686f3a207465737433
     ==
     assert
     // typed_abi_call/typed_c2c.py:35
@@ -593,7 +593,7 @@ test_method_selector_kinds:
     // result, _txn = arc4.abi_call[arc4.String]("echo(string)", "test4", app_id=app)
     bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
-    pushbytes "\x00\x05test4"
+    pushbytes 0x00057465737434
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -610,7 +610,7 @@ test_method_selector_kinds:
     assert // ARC4 prefix is valid
     // typed_abi_call/typed_c2c.py:36
     // assert result == "echo: test4"
-    pushbytes "\x00\x0becho: test4"
+    pushbytes 0x000b6563686f3a207465737434
     ==
     assert
     // typed_abi_call/typed_c2c.py:37
@@ -624,7 +624,7 @@ test_method_selector_kinds:
     // result, _txn = arc4.abi_call[arc4.String]("echo(string)string", "test5", app_id=app)
     bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
-    pushbytes "\x00\x05test5"
+    pushbytes 0x00057465737435
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -641,7 +641,7 @@ test_method_selector_kinds:
     assert // ARC4 prefix is valid
     // typed_abi_call/typed_c2c.py:38
     // assert result == "echo: test5"
-    pushbytes "\x00\x0becho: test5"
+    pushbytes 0x000b6563686f3a207465737435
     ==
     assert
     retsub
@@ -664,7 +664,7 @@ test_method_overload:
     // arc4.abi_call[arc4.String]("echo(string)string", "typed + ignore", app_id=app)
     bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
-    pushbytes "\x00\x0etyped + ignore"
+    pushbytes 0x000e7479706564202b2069676e6f7265
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -686,7 +686,7 @@ test_method_overload:
     bytec_0 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    pushbytes "\x00\x14echo: typed + ignore"
+    pushbytes 0x00146563686f3a207479706564202b2069676e6f7265
     ==
     assert
     // typed_abi_call/typed_c2c.py:45
@@ -700,7 +700,7 @@ test_method_overload:
     // arc4.abi_call("echo(string)string", "untyped + ignore", app_id=app)
     bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
-    pushbytes "\x00\x10untyped + ignore"
+    pushbytes 0x0010756e7479706564202b2069676e6f7265
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -717,7 +717,7 @@ test_method_overload:
     bytec_0 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    pushbytes "\x00\x16echo: untyped + ignore"
+    pushbytes 0x00166563686f3a20756e7479706564202b2069676e6f7265
     ==
     assert
     // typed_abi_call/typed_c2c.py:48
@@ -731,7 +731,7 @@ test_method_overload:
     // result = arc4.abi_call[arc4.String]("echo(string)string", "tuple", app_id=app)
     bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
-    pushbytes "\x00\x05tuple"
+    pushbytes 0x00057475706c65
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -750,7 +750,7 @@ test_method_overload:
     swap
     // typed_abi_call/typed_c2c.py:49
     // assert result[0] == "echo: tuple"
-    bytec 25 // "\x00\x0becho: tuple"
+    bytec 25 // 0x000b6563686f3a207475706c65
     ==
     assert
     // typed_abi_call/typed_c2c.py:50
@@ -762,7 +762,7 @@ test_method_overload:
     bytec_0 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    bytec 25 // "\x00\x0becho: tuple"
+    bytec 25 // 0x000b6563686f3a207475706c65
     ==
     assert
     // typed_abi_call/typed_c2c.py:52
@@ -776,7 +776,7 @@ test_method_overload:
     // txn_result = arc4.abi_call("echo(string)string", "untyped", app_id=app)
     bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
-    pushbytes "\x00\x07untyped"
+    pushbytes 0x0007756e7479706564
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -793,7 +793,7 @@ test_method_overload:
     bytec_0 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    pushbytes "\x00\recho: untyped"
+    pushbytes 0x000d6563686f3a20756e7479706564
     ==
     assert
     retsub
@@ -816,7 +816,7 @@ test_arg_conversion:
     // txn = arc4.abi_call(Logger.log_string, "converted1", app_id=app)
     bytec 12 // method "log(string)void"
     itxn_field ApplicationArgs
-    pushbytes "\x00\nconverted1"
+    pushbytes 0x000a636f6e76657274656431
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -1198,7 +1198,7 @@ test_void:
     // txn = arc4.abi_call(LOG_METHOD_NAME + "(string)void", "World1", app_id=app)
     bytec 12 // method "log(string)void"
     itxn_field ApplicationArgs
-    pushbytes "\x00\x06World1"
+    pushbytes 0x0006576f726c6431
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -1222,7 +1222,7 @@ test_void:
     // txn = arc4.abi_call(LOG_METHOD_NAME + "(string)", "World2", app_id=app)
     bytec 12 // method "log(string)void"
     itxn_field ApplicationArgs
-    pushbytes "\x00\x06World2"
+    pushbytes 0x0006576f726c6432
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -1246,7 +1246,7 @@ test_void:
     // txn = arc4.abi_call(LOG_METHOD_NAME, arc4.String("World3"), app_id=app)
     bytec 12 // method "log(string)void"
     itxn_field ApplicationArgs
-    pushbytes "\x00\x06World3"
+    pushbytes 0x0006576f726c6433
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -1270,7 +1270,7 @@ test_void:
     // txn = arc4.abi_call(Logger.log_string, "World4", app_id=app)
     bytec 12 // method "log(string)void"
     itxn_field ApplicationArgs
-    pushbytes "\x00\x06World4"
+    pushbytes 0x0006576f726c6434
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -1391,7 +1391,7 @@ test_native_string:
     // result1, _txn = arc4.abi_call(Logger.echo_native_string, "s", app_id=app)
     bytec 18 // method "echo_native_string(string)string"
     itxn_field ApplicationArgs
-    bytec 27 // "\x00\x01s"
+    bytec 27 // 0x000173
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -1462,7 +1462,7 @@ test_native_string:
     // result3, _txn = arc4.abi_call(Logger.echo_native_string, arc4.String("s"), app_id=app)
     bytec 18 // method "echo_native_string(string)string"
     itxn_field ApplicationArgs
-    bytec 27 // "\x00\x01s"
+    bytec 27 // 0x000173
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -1885,7 +1885,7 @@ test_native_tuple:
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:181
     // "s1",
-    bytec 7 // "\x00\x02s1"
+    bytec 7 // 0x00027331
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:183
@@ -2121,7 +2121,7 @@ test_native_tuple:
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:211
     // arc4.String("s1"),
-    bytec 7 // "\x00\x02s1"
+    bytec 7 // 0x00027331
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:213
@@ -2199,7 +2199,7 @@ test_native_tuple:
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:222
     // arc4.String("s1"),
-    bytec 7 // "\x00\x02s1"
+    bytec 7 // 0x00027331
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:224
@@ -2374,7 +2374,7 @@ test_native_tuple_method_ref:
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:238
     // "s1",
-    bytec 7 // "\x00\x02s1"
+    bytec 7 // 0x00027331
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:240
@@ -2664,7 +2664,7 @@ test_native_tuple_method_ref:
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:264
     // arc4.String("s1"),
-    bytec 7 // "\x00\x02s1"
+    bytec 7 // 0x00027331
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:266
@@ -2792,7 +2792,7 @@ test_native_tuple_method_ref:
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:275
     // arc4.String("s1"),
-    bytec 7 // "\x00\x02s1"
+    bytec 7 // 0x00027331
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:277
@@ -2914,16 +2914,16 @@ test_nested_tuples:
     bytec_1 // 0x
     swap
     concat
-    bytec 7 // "\x00\x02s1"
+    bytec 7 // 0x00027331
     len
     pushint 4 // 4
     +
     itob
     extract 6 2
     concat
-    bytec 7 // "\x00\x02s1"
+    bytec 7 // 0x00027331
     concat
-    bytec 29 // "\x00\x02s2"
+    bytec 29 // 0x00027332
     concat
     bytec_1 // 0x
     bytec_3 // 0x0000000000000001
@@ -3069,7 +3069,7 @@ test_nested_tuples:
     assert
     // typed_abi_call/typed_c2c.py:293
     // assert s2 == "echo: s2"
-    bytec 30 // "\x00\x08echo: s2"
+    bytec 30 // 0x00086563686f3a207332
     ==
     assert
     // typed_abi_call/typed_c2c.py:294
@@ -3121,7 +3121,7 @@ test_nested_tuples:
     concat
     swap
     concat
-    bytec 29 // "\x00\x02s2"
+    bytec 29 // 0x00027332
     concat
     intc_3 // 1
     itob
@@ -3275,7 +3275,7 @@ test_nested_tuples:
     assert
     // typed_abi_call/typed_c2c.py:306
     // assert s2 == "echo: s2"
-    bytec 30 // "\x00\x08echo: s2"
+    bytec 30 // 0x00086563686f3a207332
     ==
     assert
     // typed_abi_call/typed_c2c.py:307
@@ -3314,16 +3314,16 @@ test_nested_tuples:
     bytec_1 // 0x
     swap
     concat
-    bytec 32 // "\x00\x03s1b"
+    bytec 32 // 0x0003733162
     len
     pushint 4 // 4
     +
     itob
     extract 6 2
     concat
-    bytec 32 // "\x00\x03s1b"
+    bytec 32 // 0x0003733162
     concat
-    pushbytes "\x00\x03s2b"
+    pushbytes 0x0003733262
     concat
     // typed_abi_call/typed_c2c.py:317
     // arc4.Tuple((arc4.UInt64(11), arc4.UInt64(21), arc4.DynamicBytes(b"3b"))),
@@ -3488,7 +3488,7 @@ test_nested_tuples:
     assert
     // typed_abi_call/typed_c2c.py:324
     // assert s2 == "echo: s2b"
-    pushbytes "\x00\techo: s2b"
+    pushbytes 0x00096563686f3a20733262
     ==
     assert
     // typed_abi_call/typed_c2c.py:325

@@ -25,6 +25,7 @@ from puya.ir.builder._utils import (
     extract_const_int,
     mktemp,
 )
+from puya.ir.builder.arc4 import ARC4_TRUE, ARC4_FALSE
 from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
 from puya.ir.builder.bytes import (
     visit_bytes_intersection_slice_expression,
@@ -382,7 +383,7 @@ class FunctionIRBuilder(
                 )
             case wtypes.arc4_bool_wtype:
                 return BytesConstant(
-                    value=(128 if expr.value else 0).to_bytes(1),
+                    value=(ARC4_TRUE if expr.value else ARC4_FALSE),
                     encoding=AVMBytesEncoding.base16,
                     ir_type=IRType.bytes,
                     source_location=expr.source_location,
@@ -407,21 +408,27 @@ class FunctionIRBuilder(
             value = expr.value.encode("utf8")
         except UnicodeError:
             value = None
-        if value is None or len(value) > algo_constants.MAX_BYTES_LENGTH:
+        if value is None:
             raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
+
         match expr.wtype:
             case wtypes.string_wtype:
+                encoding = AVMBytesEncoding.utf8
                 pass
             case wtypes.arc4_string_alias:
+                encoding = AVMBytesEncoding.base16
                 value = len(value).to_bytes(2) + value
             case _:
                 raise InternalError(
                     f"Unexpected wtype {expr.wtype} for StringConstant", expr.source_location
                 )
 
+        if len(value) > algo_constants.MAX_BYTES_LENGTH:
+            raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
+
         return BytesConstant(
             value=value,
-            encoding=AVMBytesEncoding.utf8,
+            encoding=encoding,
             source_location=expr.source_location,
         )
 

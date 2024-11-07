@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Sequence
 
 import attrs
@@ -595,6 +596,10 @@ def pop_arc4_array(
     handle_arc4_assign(context, target=expr.base, value=data, source_location=source_location)
 
     return popped
+
+
+ARC4_TRUE = 0b10000000.to_bytes(1, "big")
+ARC4_FALSE = 0b00000000.to_bytes(1, "big")
 
 
 def _encode_arc4_bool(

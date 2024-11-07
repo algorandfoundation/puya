@@ -2,7 +2,7 @@
 
 examples.box_storage.contract.BoxContract.approval_program:
     intcblock 0 1 2 5
-    bytecblock 0x 0x424f585f43 0x626c6f62 "box_d" "box_a" "b" 0x00 0x64 0x68656c6c6f 0x151f7c75 "0" 0x3432 "box_ref" "Hmmmmm" "\x00\x0242" "default"
+    bytecblock 0x 0x424f585f43 0x626c6f62 "box_d" "box_a" "b" 0x00 0x64 0x68656c6c6f 0x151f7c75 "0" 0x3432 "box_ref" "Hmmmmm" 0x00023432 "default"
     txn ApplicationID
     bnz main_after_if_else@2
     callsub __init__
@@ -845,11 +845,11 @@ delete_boxes:
     bytec_1 // 0x424f585f43
     box_get
     swap
-    bytec 14 // "\x00\x0242"
+    bytec 14 // 0x00023432
     swap
     uncover 2
     select
-    bytec 14 // "\x00\x0242"
+    bytec 14 // 0x00023432
     ==
     assert
     // box_storage/contract.py:62
@@ -1008,7 +1008,7 @@ slice_box:
     box_del
     pop
     bytec_1 // 0x424f585f43
-    pushbytes "\x00\x05Hello"
+    pushbytes 0x000548656c6c6f
     box_put
     // box_storage/contract.py:81
     // assert self.box_c.value.bytes[2:10] == b"Hello"

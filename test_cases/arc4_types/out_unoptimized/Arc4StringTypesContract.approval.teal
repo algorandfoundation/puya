@@ -1,7 +1,7 @@
 #pragma version 10
 
 test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
-    bytecblock 0x48656c6c6f20576f726c6421 "\x00\x02hi" "\x00\x03bee"
+    bytecblock 0x48656c6c6f20576f726c6421 0x00026869 0x0003626565
     // arc4_types/string.py:8
     // some_bytes_as_string = arc4.String(String.from_bytes(HELLO_WORLD))
     bytec_0 // 0x48656c6c6f20576f726c6421
@@ -54,13 +54,13 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     assert
     // arc4_types/string.py:22
     // hello = arc4.String("Hello")
-    pushbytes "\x00\x05Hello"
+    pushbytes 0x000548656c6c6f
     // arc4_types/string.py:26
     // assert arc4.String("Hello World!") == (hello + space + world)
     extract 2 0
     // arc4_types/string.py:23
     // space = arc4.String(" ")
-    pushbytes "\x00\x01 "
+    pushbytes 0x000120
     // arc4_types/string.py:26
     // assert arc4.String("Hello World!") == (hello + space + world)
     extract 2 0
@@ -74,7 +74,7 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     extract 2 0
     // arc4_types/string.py:24
     // world = arc4.String("World!")
-    pushbytes "\x00\x06World!"
+    pushbytes 0x0006576f726c6421
     // arc4_types/string.py:26
     // assert arc4.String("Hello World!") == (hello + space + world)
     extract 2 0
@@ -85,18 +85,18 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     extract 6 2
     swap
     concat
-    pushbytes "\x00\x0cHello World!"
+    pushbytes 0x000c48656c6c6f20576f726c6421
     ==
     assert
     // arc4_types/string.py:28
     // thing = arc4.String("hi")
-    bytec_1 // "\x00\x02hi"
+    bytec_1 // 0x00026869
     // arc4_types/string.py:29
     // thing += thing
     extract 2 0
     // arc4_types/string.py:28
     // thing = arc4.String("hi")
-    bytec_1 // "\x00\x02hi"
+    bytec_1 // 0x00026869
     // arc4_types/string.py:29
     // thing += thing
     extract 2 0
@@ -109,14 +109,14 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     concat
     // arc4_types/string.py:30
     // assert thing == arc4.String("hihi")
-    pushbytes "\x00\x04hihi"
+    pushbytes 0x000468696869
     ==
     assert
     // arc4_types/string.py:32
     // value = arc4.String("a") + arc4.String("b") + "cd"
-    pushbytes "\x00\x01a"
+    pushbytes 0x000161
     extract 2 0
-    pushbytes "\x00\x01b"
+    pushbytes 0x000162
     extract 2 0
     concat
     dup
@@ -126,7 +126,7 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     swap
     concat
     extract 2 0
-    pushbytes "\x00\x02cd"
+    pushbytes 0x00026364
     extract 2 0
     concat
     dup
@@ -138,7 +138,7 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     // arc4_types/string.py:33
     // value += "e"
     extract 2 0
-    pushbytes "\x00\x01e"
+    pushbytes 0x000165
     extract 2 0
     concat
     dup
@@ -150,7 +150,7 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     // arc4_types/string.py:34
     // value += arc4.String("f")
     extract 2 0
-    pushbytes "\x00\x01f"
+    pushbytes 0x000166
     extract 2 0
     concat
     dup
@@ -162,7 +162,7 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     // arc4_types/string.py:35
     // value += arc4.String("g")
     extract 2 0
-    pushbytes "\x00\x01g"
+    pushbytes 0x000167
     extract 2 0
     concat
     dup
@@ -173,19 +173,19 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     concat
     // arc4_types/string.py:36
     // assert arc4.String("abcdefg") == value
-    pushbytes "\x00\x07abcdefg"
+    pushbytes 0x000761626364656667
     ==
     assert
     // arc4_types/string.py:38
     // assert arc4.String().native == ""
-    pushbytes "\x00\x00"
+    pushbytes 0x0000
     extract 2 0
     pushbytes ""
     ==
     assert
     // arc4_types/string.py:39
     // assert arc4.String("hello") == String("hello")
-    pushbytes "\x00\x05hello"
+    pushbytes 0x000568656c6c6f
     extract 2 0
     pushbytes "hello"
     ==
@@ -196,18 +196,18 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     pushint 0 // 0
     !=
     bz main_ternary_false@2
-    pushbytes "\x00\x03aye"
+    pushbytes 0x0003617965
     b main_ternary_merge@3
 
 main_ternary_false@2:
     // arc4_types/string.py:41
     // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
-    bytec_2 // "\x00\x03bee"
+    bytec_2 // 0x0003626565
 
 main_ternary_merge@3:
     // arc4_types/string.py:41
     // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
-    bytec_2 // "\x00\x03bee"
+    bytec_2 // 0x0003626565
     ==
     assert
     // arc4_types/string.py:42
