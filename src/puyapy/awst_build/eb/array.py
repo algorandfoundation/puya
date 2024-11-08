@@ -8,14 +8,15 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     ArrayConcat,
     ArrayExtend,
+    ArrayLength,
     ArrayPop,
     Expression,
     ExpressionStatement,
     IndexExpression,
+    IntrinsicCall,
     NewArray,
     Statement,
     TupleExpression,
-    UInt64Constant, ArrayLength,
 )
 from puya.parse import SourceLocation
 
@@ -34,7 +35,7 @@ from puyapy.awst_build.eb._utils import (
 
 # TODO: move these out of ARC4 ?
 from puyapy.awst_build.eb.arc4._base import CopyBuilder
-from puyapy.awst_build.eb.arc4._utils import no_literal_items
+from puyapy.awst_build.eb.bytes import BytesExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -79,7 +80,6 @@ class ArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
         location: SourceLocation,
     ) -> InstanceBuilder:
         typ = self.produces()
-        no_literal_items(typ, location)
         values = tuple(expect.argument_of_type_else_dummy(a, typ.items).resolve() for a in args)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.WArray)
@@ -110,7 +110,7 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
         result_expr = IndexExpression(
             base=self.resolve(),
             index=index.resolve(),
-            wtype=self.pytype.items.wtype,
+            wtype=self.pytype.items_wtype,
             source_location=location,
         )
         return builder_for_instance(self.pytype.items, result_expr)
@@ -125,7 +125,12 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
         return _not_supported(self.pytype, location)
 
     def to_bytes(self, location: SourceLocation) -> Expression:
-        return _not_supported(pytypes.BytesType, location).resolve()
+        return IntrinsicCall(
+            op_code="loads",
+            stack_args=[self.resolve()],
+            source_location=location,
+            wtype=wtypes.bytes_wtype,
+        )
 
     def length(self, location: SourceLocation) -> InstanceBuilder:
         return UInt64ExpressionBuilder(ArrayLength(array=self.resolve(), source_location=location))
@@ -133,6 +138,8 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
+            case "bytes":
+                return BytesExpressionBuilder(self.to_bytes(location))
             case "length":
                 return self.length(location)
             case "append":
@@ -232,7 +239,7 @@ class _Pop(_ArrayFunc):
     ) -> InstanceBuilder:
         expect.no_args(args, location)
         result_expr = ArrayPop(
-            base=self.expr, wtype=self.typ.items.wtype, source_location=location
+            base=self.expr, wtype=self.typ.items_wtype, source_location=location
         )
         return builder_for_instance(self.typ.items, result_expr)
 

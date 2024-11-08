@@ -152,6 +152,7 @@ def assign_intrinsic_op(
     source_location: SourceLocation | None,
     immediates: list[int | str] | None = None,
     return_type: IRType | None = None,
+    error_message: str | None = None,
 ) -> Register:
     intrinsic = Intrinsic(
         op=op,
@@ -162,6 +163,7 @@ def assign_intrinsic_op(
             if return_type is not None
             else typing.cast(Sequence[IRType], attrs.NOTHING)
         ),
+        error_message=error_message,
         source_location=source_location,
     )
     if isinstance(target, str):
@@ -372,13 +374,21 @@ class OpFactory:
         )
         return result
 
-    def concat(self, a: Value | bytes, b: Value | bytes, temp_desc: str) -> Register:
+    def concat(
+        self,
+        a: Value | bytes,
+        b: Value | bytes,
+        temp_desc: str,
+        *,
+        error_message: str | None = None,
+    ) -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.concat,
             args=[a, b],
             source_location=self.source_location,
+            error_message=error_message,
         )
         return result
 

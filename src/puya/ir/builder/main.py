@@ -18,7 +18,7 @@ from puya.awst.txn_fields import TxnField
 from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, flow_control, storage
+from puya.ir.builder import arc4, arrays, flow_control, storage
 from puya.ir.builder._tuple_util import get_tuple_item_values
 from puya.ir.builder._utils import (
     OpFactory,
@@ -48,7 +48,7 @@ from puya.ir.builder.callsub import (
 )
 from puya.ir.builder.iteration import handle_for_in_loop
 from puya.ir.builder.itxn import InnerTransactionBuilder
-from puya.ir.context import IRBuildContext, Allocation
+from puya.ir.context import Allocation, IRBuildContext
 from puya.ir.models import (
     AddressConstant,
     BigUIntConstant,
@@ -819,17 +819,9 @@ class FunctionIRBuilder(
                     source_location=expr.source_location,
                 )
         elif isinstance(expr.base.wtype, wtypes.WArray):
-            if expr.base.wtype.element_type != wtypes.uint64_wtype:
-                raise CodeError("only uint64 arrays supported", expr.source_location)
-            factory = OpFactory(self.context, expr.source_location)
-            slot = self.visit_and_materialise_single(expr.base)
-            index = self.visit_and_materialise_single(expr.index)
-            contents = factory.assign(
-                ReadSlot(slot=slot, type=IRType.bytes, source_location=expr.source_location),
-                "array_contents",
+            return arrays.read_array_index(
+                self.context, expr.base, expr.index, expr.source_location
             )
-            contents_index = factory.mul(index, 8, "contents_index")
-            return factory.extract_uint64(contents, contents_index, "value")
         elif isinstance(expr.base.wtype, wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray):
             return arc4.arc4_array_index(
                 self.context,
@@ -1155,6 +1147,7 @@ class FunctionIRBuilder(
     def visit_uint64_augmented_assignment(
         self, statement: awst_nodes.UInt64AugmentedAssignment
     ) -> TStatement:
+        # TODO: this potentially gets evaluated twice! once here, and again in handle_assignment
         target_value = self.visit_and_materialise_single(statement.target)
         rhs = self.visit_and_materialise_single(statement.value)
         expr = create_uint64_binary_op(statement.op, target_value, rhs, statement.source_location)
@@ -1285,27 +1278,7 @@ class FunctionIRBuilder(
                 source_location=expr.source_location,
             )
         elif isinstance(expr.base.wtype, wtypes.WArray):
-            if expr.base.wtype.element_type != wtypes.uint64_wtype:
-                raise CodeError("only uint64 arrays currently supported", expr.source_location)
-            factory = OpFactory(self.context, expr.source_location)
-            slot = self.visit_and_materialise_single(expr.base)
-            contents = factory.assign(
-                ReadSlot(slot=slot, source_location=expr.base.source_location, type=IRType.bytes),
-                "array_contents",
-            )
-            items = self.visit_and_materialise(expr.other, temp_description="other")
-            for item in items:
-                item_bytes = factory.itob(item, "item_bytes")
-                contents = factory.assign(
-                    factory.concat(contents, item_bytes, "concat"), "array_contents"
-                )
-            self.context.block_builder.add(
-                WriteSlot(
-                    slot=slot,
-                    value=contents,
-                    source_location=expr.source_location,
-                )
-            )
+            arrays.extend_array(self.context, expr.base, expr.other, expr.source_location)
             return None
         else:
             raise InternalError("unsupported array type", expr.source_location)
@@ -1313,18 +1286,7 @@ class FunctionIRBuilder(
     def visit_array_length(self, expr: awst_nodes.ArrayLength) -> TExpression:
         # TODO: ARC4 array
         if isinstance(expr.array.wtype, wtypes.WArray):
-            if expr.array.wtype.element_type != wtypes.uint64_wtype:
-                raise CodeError("only uint64 arrays currently supported", expr.source_location)
-            factory = OpFactory(self.context, expr.source_location)
-            slot = self.visit_and_materialise_single(expr.array)
-            contents = factory.assign(
-                ReadSlot(slot=slot, source_location=expr.array.source_location, type=IRType.bytes),
-                "array_contents",
-            )
-            contents_length = factory.len(contents, "contents_length")
-            # TODO: derive from wtype
-            element_length = 8
-            return factory.div_floor(contents_length, element_length, "array_length")
+            return arrays.array_length(self.context, expr.array, expr.source_location)
         else:
             raise InternalError("unsupported array type", expr.source_location)
 

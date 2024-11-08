@@ -9,7 +9,7 @@ from puya.awst import (
 )
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4
+from puya.ir.builder import arc4, arrays
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import (
     assign,
@@ -186,8 +186,10 @@ def handle_assignment(
             return [mat_value]
         case awst_nodes.IndexExpression() as ix_expr:
             if isinstance(ix_expr.base.wtype, wtypes.WArray):
-                raise NotImplementedError
-            elif isinstance(ix_expr.base.wtype, wtypes.ARC4Type):  # noqa: RET506
+                return arrays.assign_array_index(
+                    context, ix_expr.base, ix_expr.index, value, ix_expr.source_location
+                )
+            elif isinstance(ix_expr.base.wtype, wtypes.ARC4Type):
                 return (
                     arc4.handle_arc4_assign(
                         context,

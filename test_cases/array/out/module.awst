@@ -37,11 +37,98 @@ contract Contract
     arr.extend((44u))
     assert(arr.length == 15u)
     assert(arr[arr.length - 1u] == 44u)
+    test_cases.array.contract.return_ref(arr, arr)[0u] += 2u
+    assert(arr.length == 17u)
+    assert(arr[0u] == 44u)
+    assert(arr[arr.length - 2u] == 99u)
+    assert(arr[arr.length - 1u] == 100u)
+  }
+  
+  abimethod test_cases.array.contract.Contract.overhead(): void
+  {
+  }
+  
+  abimethod test_cases.array.contract.Contract.test_array_too_long(): void
+  {
+    array: array<uint64> = new array<uint64>()
+    for i in range(0u, 512u, 1u) {
+      array.extend((i))
+    }
+    assert(array.length == 512u, comment="array is expected length")
+    assert(len(loads(array)) == 4096u, comment="array bytes is expected length")
+    array.extend((512u))
+  }
+  
+  abimethod test_cases.array.contract.Contract.test_quicksort(): void
+  {
+    rnd: array<uint64> = new array<uint64>()
+    for b in reinterpret_cast<bytes>(txn<Sender>()) {
+      rnd.extend((btoi(b)))
+    }
+    assert(rnd.length == 32u, comment="expected array of length 32")
+    test_cases.array.contract.quicksort_window(rnd, 0u, rnd.length - 1u)
+    last: uint64 = 0u
+    for idx in range(0u, rnd.length, 1u) {
+      assert(rnd[idx] >= last)
+      last: uint64 = rnd[idx]
+    }
   }
   
   baremethod test_cases.array.contract.Contract.__algopy_default_create(): void
   {
   }
+}
+
+subroutine quicksort_window(arr: array<uint64>, window_left: uint64, window_right: uint64): void
+{
+  left: uint64 = window_left
+  right: uint64 = window_right
+  pivot: uint64 = arr[window_left + window_right // 2u]
+  while (true) {
+    while (arr[left] < pivot) {
+      left += 1u
+    }
+    while (pivot < arr[right]) {
+      if (right == 0u) {
+        goto after_loop_L88
+      }
+      right -= 1u
+    }
+    if (left < right) {
+      (arr[left], arr[right]): tuple<uint64,uint64> = (arr[right], arr[left])
+      left += 1u
+      if (right == 0u) {
+        break
+      }
+      right -= 1u
+      if (left <= right) {
+        continue
+      }
+      break
+    }
+    if (left == right) {
+      left += 1u
+      if (right != 0u) {
+        right -= 1u
+      }
+      break
+    }
+    after_loop_L88:
+    break
+  }
+  if (window_left < right) {
+    test_cases.array.contract.quicksort_window(arr, window_left, right)
+  }
+  if (left < window_right) {
+    test_cases.array.contract.quicksort_window(arr, left, window_right)
+  }
+}
+
+subroutine return_ref(arr: array<uint64>, arr2: array<uint64>): array<uint64>
+{
+  arr.extend((99u))
+  arr2.extend((100u))
+  return arr
 }
 
 subroutine add_x(arr: array<uint64>, x: uint64): void

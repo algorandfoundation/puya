@@ -21,6 +21,10 @@ class Array(typing.Generic[T], Reversible[T]):
     def length(self) -> algopy.UInt64:
         """Returns the current length of the array"""
 
+    @property
+    def bytes(self) -> algopy.Bytes:
+        """Returns a copy of the underlying bytes of the array"""
+
     def __getitem__(self, index: algopy.UInt64 | int) -> T:
         """Gets the item of the array at provided index"""
 

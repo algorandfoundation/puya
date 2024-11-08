@@ -9,7 +9,6 @@ import attrs
 from immutabledict import immutabledict
 
 from puya import algo_constants, log
-from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -22,9 +21,8 @@ from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import arc4_router
 from puya.ir.arc4_router import extract_arc4_methods, maybe_avm_to_arc4_equivalent_type
-from puya.ir.avm_ops import AVMOp
 from puya.ir.builder.main import FunctionIRBuilder
-from puya.ir.context import IRBuildContext, Allocation
+from puya.ir.context import Allocation, IRBuildContext
 from puya.ir.destructure.main import destructure_ssa
 from puya.ir.models import (
     Contract,
@@ -33,16 +31,12 @@ from puya.ir.models import (
     Parameter,
     Program,
     Subroutine,
-    WriteSlot,
-    UInt64Constant,
-    BytesConstant,
-    Intrinsic,
 )
 from puya.ir.optimize.context import IROptimizeContext
 from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
 from puya.ir.optimize.main import optimize_contract_ir
 from puya.ir.to_text_visitor import output_artifact_ir_to_path
-from puya.ir.types_ import wtype_to_ir_type, wtype_to_ir_types, AVMBytesEncoding
+from puya.ir.types_ import wtype_to_ir_type, wtype_to_ir_types
 from puya.ir.utils import format_tuple_index
 from puya.ir.validation.main import validate_module_artifact
 from puya.models import (
@@ -384,7 +378,9 @@ def _expand_tuple_parameters(
             name=name,
             ir_type=wtype_to_ir_type(typ),
             version=0,
-            implicit_return=allow_implicits and not typ.immutable,
+            implicit_return=allow_implicits
+            and not typ.immutable
+            and isinstance(typ, wtypes.ARC4Type),
             source_location=source_location,
         )
 

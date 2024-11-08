@@ -22,6 +22,7 @@ from puya.ir.optimize.dead_code_elimination import (
 from puya.ir.optimize.inner_txn import inner_txn_field_replacer
 from puya.ir.optimize.intrinsic_simplification import intrinsic_simplifier
 from puya.ir.optimize.repeated_code_elimination import repeated_expression_elimination
+from puya.ir.optimize.repeated_loads_elimination import repeated_loads_elimination
 from puya.ir.to_text_visitor import output_artifact_ir_to_path
 
 MAX_PASSES = 100
@@ -68,6 +69,7 @@ def get_subroutine_optimizations(optimization_level: int) -> Iterable[Subroutine
             SubroutineOptimization.from_function(remove_unreachable_blocks),
             SubroutineOptimization.from_function(repeated_expression_elimination),
             SubroutineOptimization.from_function(remove_calls_to_no_op_subroutines),
+            SubroutineOptimization.from_function(repeated_loads_elimination),
         ]
     else:
         return [

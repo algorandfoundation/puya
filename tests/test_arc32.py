@@ -1,3 +1,4 @@
+import json
 import math
 import random
 from pathlib import Path
@@ -10,10 +11,12 @@ from algokit_utils import LogicError
 from algosdk import abi, constants, transaction
 from algosdk.atomic_transaction_composer import (
     AtomicTransactionComposer,
+    SimulateAtomicTransactionResponse,
     TransactionWithSigner,
 )
 from algosdk.transaction import OnComplete
 from algosdk.v2client.algod import AlgodClient
+from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
 from nacl.signing import SigningKey
 from puya.arc32 import create_arc32_json
 from puya.models import CompiledContract
@@ -1741,3 +1744,40 @@ def test_array(
     app_client.create()
 
     app_client.call("test_array")
+
+    simulate_call(app_client, "test_array_too_long", 20_000)
+
+    simulate_response = simulate_call(app_client, "overhead", 20_000)
+    overhead = simulate_response.simulate_response["txn-groups"][0]["app-budget-consumed"]
+
+    simulate_response = simulate_call(app_client, "test_quicksort", 20_000)
+    consumed = (
+        simulate_response.simulate_response["txn-groups"][0]["app-budget-consumed"] - overhead
+    )
+    assert consumed == 7059
+
+
+def simulate_call(
+    app_client: algokit_utils.ApplicationClient, method: str, extra_budget: int
+) -> SimulateAtomicTransactionResponse:
+    atc = algosdk.atomic_transaction_composer.AtomicTransactionComposer()
+    app_client.compose_call(atc, method)
+    simulate_response = atc.simulate(
+        app_client.algod_client,
+        SimulateRequest(
+            txn_groups=[],
+            extra_opcode_budget=extra_budget,
+            exec_trace_config=SimulateTraceConfig(
+                enable=True,
+                stack_change=True,
+                scratch_change=True,
+                state_change=True,
+            ),
+        ),
+    )
+    simulate_json = json.dumps(simulate_response.simulate_response)
+    (TEST_CASES_DIR / "array" / "debug_traces" / method).with_suffix(".trace.avm.json").write_text(
+        simulate_json
+    )
+    assert not simulate_response.failure_message
+    return simulate_response
