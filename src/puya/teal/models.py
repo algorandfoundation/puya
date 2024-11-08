@@ -110,7 +110,7 @@ class RetSub(TealOp):
 
 @attrs.frozen
 class TealOpN(TealOp):
-    n: int
+    n: int = attrs.field(validator=[attrs.validators.ge(0), attrs.validators.le(255)])
 
     @property
     def immediates(self) -> Sequence[int | str]:
@@ -118,7 +118,17 @@ class TealOpN(TealOp):
 
 
 @attrs.frozen
-class Cover(TealOpN):
+class TealOpUInt8(TealOpN):
+    n: int = attrs.field(validator=[attrs.validators.ge(0), attrs.validators.le(255)])
+
+
+@attrs.frozen
+class TealOpInt8(TealOpN):
+    n: int = attrs.field(validator=[attrs.validators.ge(-128), attrs.validators.le(127)])
+
+
+@attrs.frozen
+class Cover(TealOpUInt8):
     op_code: str = attrs.field(default="cover", init=False)
     consumes: int = attrs.field(init=False)
     produces: int = attrs.field(init=False)
@@ -133,7 +143,7 @@ class Cover(TealOpN):
 
 
 @attrs.frozen
-class Uncover(TealOpN):
+class Uncover(TealOpUInt8):
     op_code: str = attrs.field(default="uncover", init=False)
     consumes: int = attrs.field(init=False)
     produces: int = attrs.field(init=False)
@@ -155,7 +165,7 @@ class Swap(TealOp):
 
 
 @attrs.frozen
-class Dig(TealOpN):
+class Dig(TealOpUInt8):
     op_code: str = attrs.field(default="dig", init=False)
     consumes: int = attrs.field(init=False)
     produces: int = attrs.field(init=False)
@@ -170,7 +180,7 @@ class Dig(TealOpN):
 
 
 @attrs.frozen
-class Bury(TealOpN):
+class Bury(TealOpUInt8):
     op_code: str = attrs.field(default="bury", init=False)
     consumes: int = attrs.field(init=False)
     produces: int = attrs.field(init=False)
@@ -342,14 +352,14 @@ class PushBytess(TealOp):
 
 
 @attrs.frozen
-class FrameDig(TealOpN):
+class FrameDig(TealOpInt8):
     op_code: str = attrs.field(default="frame_dig", init=False)
     consumes: int = attrs.field(default=0, init=False)
     produces: int = attrs.field(default=1, init=False)
 
 
 @attrs.frozen
-class FrameBury(TealOpN):
+class FrameBury(TealOpInt8):
     op_code: str = attrs.field(default="frame_bury", init=False)
     consumes: int = attrs.field(default=1, init=False)
     produces: int = attrs.field(default=0, init=False)
@@ -368,7 +378,7 @@ class Int(TealOp):
 
 
 @attrs.frozen
-class PopN(TealOpN):
+class PopN(TealOpUInt8):
     op_code: str = attrs.field(default="popn", init=False)
     consumes: int = attrs.field(init=False)
     produces: int = attrs.field(default=0, init=False)
@@ -379,7 +389,7 @@ class PopN(TealOpN):
 
 
 @attrs.frozen
-class DupN(TealOpN):
+class DupN(TealOpUInt8):
     op_code: str = attrs.field(default="dupn", init=False)
     consumes: int = attrs.field(default=1, init=False)
     produces: int = attrs.field(init=False)
