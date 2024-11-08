@@ -469,6 +469,9 @@ class Tuple(_ABIEncoded, tuple[typing.Unpack[_TTuple]]):
         """Convert to a native Python tuple - note that the elements of the tuple
         should be considered to be copies of the original elements"""
 
+    def copy(self) -> typing.Self:
+        """Create a copy of this tuple"""
+
 @typing.dataclass_transform(
     eq_default=False, order_default=False, kw_only_default=False, field_specifiers=()
 )
