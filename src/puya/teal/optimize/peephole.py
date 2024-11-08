@@ -116,7 +116,7 @@ def _optimize_pair(a: models.TealOp, b: models.TealOp) -> tuple[list[models.Teal
             assert isinstance(n2, int)
             return [models.PopN(n=n1 + n2, source_location=a.source_location)], True
         # `dig 1; dig 1` -> `dup2`
-        case models.TealOpN(op_code="dig", n=1), models.TealOpN(op_code="dig", n=1):
+        case models.TealOpUInt8(op_code="dig", n=1), models.TealOpUInt8(op_code="dig", n=1):
             return [models.Dup2(source_location=a.source_location or b.source_location)], True
     return [a, b], False
 
@@ -155,6 +155,8 @@ def _optimize_triplet(
         is_stack_swap(c)
         and a.op_code in LOAD_OP_CODES_INCL_OFFSET
         and b.op_code in LOAD_OP_CODES_INCL_OFFSET
+        # cant swap dig 0, which will become a dup anyway
+        and (not isinstance(b, models.Dig) or b.n)
     ):
         if isinstance(a, models.Dig):
             a = attrs.evolve(a, n=a.n + 1)
