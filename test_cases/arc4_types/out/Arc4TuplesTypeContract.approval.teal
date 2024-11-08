@@ -1,6 +1,7 @@
 #pragma version 10
 
 test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
+    bytecblock 0x000100
     // arc4_types/tuples.py:15
     // my_tuple = Tuple((UInt8(1), UInt8(2), String("hello"), String("world"), UInt8(255)))
     pushbytes 0x01020007000eff000568656c6c6f0005776f726c64
@@ -19,6 +20,9 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     ==
     assert
     // arc4_types/tuples.py:49
+    // self.test_copy()
+    callsub test_copy
+    // arc4_types/tuples.py:51
     // return True
     pushint 1 // 1
     return
@@ -26,11 +30,11 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
 
 // test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_stuff(test_tuple: bytes) -> uint64, bytes:
 test_stuff:
-    // arc4_types/tuples.py:54-55
+    // arc4_types/tuples.py:56-57
     // @subroutine
     // def test_stuff(self, test_tuple: TestTuple) -> tuple[UInt64, String]:
     proto 1 2
-    // arc4_types/tuples.py:56
+    // arc4_types/tuples.py:58
     // a, b, c, d, e = test_tuple.native
     frame_dig -1
     extract 0 1 // on error: Index access is out of bounds
@@ -54,7 +58,7 @@ test_stuff:
     substring3
     frame_dig -1
     extract 6 1 // on error: Index access is out of bounds
-    // arc4_types/tuples.py:62
+    // arc4_types/tuples.py:64
     // total = a.native + b.native + e.native
     uncover 4
     btoi
@@ -64,7 +68,7 @@ test_stuff:
     swap
     btoi
     +
-    // arc4_types/tuples.py:63
+    // arc4_types/tuples.py:65
     // text = c.native + " " + d.native
     uncover 2
     extract 2 0
@@ -73,7 +77,7 @@ test_stuff:
     uncover 2
     extract 2 0
     concat
-    // arc4_types/tuples.py:65
+    // arc4_types/tuples.py:67
     // return total, String(text)
     dup
     len
@@ -81,4 +85,38 @@ test_stuff:
     extract 6 2
     swap
     concat
+    retsub
+
+
+// test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_copy() -> void:
+test_copy:
+    // arc4_types/tuples.py:69-70
+    // @subroutine
+    // def test_copy(self) -> None:
+    proto 0 0
+    // arc4_types/tuples.py:74
+    // assert tup[1] == DynamicBytes(0)
+    bytec_0 // 0x000100
+    // arc4_types/tuples.py:77
+    // tup[1][0] = Byte(1)
+    pushbytes 0x01
+    replace2 2
+    pushbytes 0x000003
+    swap
+    concat
+    // arc4_types/tuples.py:79
+    // assert tup[1] != tup2[1]
+    dup
+    pushint 1 // 1
+    extract_uint16
+    dig 1
+    len
+    substring3
+    // arc4_types/tuples.py:74
+    // assert tup[1] == DynamicBytes(0)
+    bytec_0 // 0x000100
+    // arc4_types/tuples.py:79
+    // assert tup[1] != tup2[1]
+    !=
+    assert
     retsub

@@ -563,6 +563,9 @@ main_bool_merge@13:
     ==
     assert
     // arc4_types/tuples.py:49
+    // self.test_copy()
+    callsub test_copy
+    // arc4_types/tuples.py:51
     // return True
     intc_1 // 1
     return
@@ -570,11 +573,11 @@ main_bool_merge@13:
 
 // test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_stuff(test_tuple: bytes) -> uint64, bytes:
 test_stuff:
-    // arc4_types/tuples.py:54-55
+    // arc4_types/tuples.py:56-57
     // @subroutine
     // def test_stuff(self, test_tuple: TestTuple) -> tuple[UInt64, String]:
     proto 1 2
-    // arc4_types/tuples.py:56
+    // arc4_types/tuples.py:58
     // a, b, c, d, e = test_tuple.native
     frame_dig -1
     intc_0 // 0
@@ -614,7 +617,7 @@ test_stuff:
     swap
     cover 2
     swap
-    // arc4_types/tuples.py:58
+    // arc4_types/tuples.py:60
     // assert test_tuple[-0] == a
     frame_dig -1
     intc_0 // 0
@@ -623,7 +626,7 @@ test_stuff:
     dig 1
     b==
     assert
-    // arc4_types/tuples.py:59
+    // arc4_types/tuples.py:61
     // assert test_tuple[-1] == e
     frame_dig -1
     pushint 6 // 6
@@ -632,7 +635,7 @@ test_stuff:
     dig 2
     b==
     assert
-    // arc4_types/tuples.py:60
+    // arc4_types/tuples.py:62
     // assert test_tuple[-2] == d
     frame_dig -1
     pushint 4 // 4
@@ -646,7 +649,7 @@ test_stuff:
     dig 3
     ==
     assert
-    // arc4_types/tuples.py:62
+    // arc4_types/tuples.py:64
     // total = a.native + b.native + e.native
     btoi
     uncover 3
@@ -655,7 +658,7 @@ test_stuff:
     swap
     btoi
     +
-    // arc4_types/tuples.py:63
+    // arc4_types/tuples.py:65
     // text = c.native + " " + d.native
     uncover 2
     extract 2 0
@@ -664,7 +667,7 @@ test_stuff:
     uncover 2
     extract 2 0
     concat
-    // arc4_types/tuples.py:65
+    // arc4_types/tuples.py:67
     // return total, String(text)
     dup
     len
@@ -672,4 +675,142 @@ test_stuff:
     extract 6 2
     swap
     concat
+    retsub
+
+
+// test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_copy() -> void:
+test_copy:
+    // arc4_types/tuples.py:69-70
+    // @subroutine
+    // def test_copy(self) -> None:
+    proto 0 0
+    // arc4_types/tuples.py:71
+    // tup = Tuple((UInt8(), DynamicBytes()))
+    bytec_1 // 0x
+    len
+    itob
+    extract 6 2
+    bytec_1 // 0x
+    concat
+    bytec_1 // 0x
+    bytec_0 // 0x00
+    concat
+    pushint 3 // 3
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    // arc4_types/tuples.py:72
+    // tup[1].append(Byte())
+    dup
+    intc_1 // 1
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    dup
+    uncover 3
+    uncover 3
+    substring3
+    extract 2 0
+    bytec_1 // 0x
+    bytec_0 // 0x00
+    concat
+    concat
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    dig 1
+    intc_1 // 1
+    extract_uint16
+    uncover 2
+    intc_0 // 0
+    uncover 2
+    extract3
+    swap
+    concat
+    // arc4_types/tuples.py:74
+    // assert tup[1] == DynamicBytes(0)
+    dup
+    intc_1 // 1
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    dup
+    uncover 3
+    uncover 3
+    substring3
+    bytec_1 // 0x
+    bytec_0 // 0x00
+    concat
+    pushbytes 0x0001
+    swap
+    concat
+    ==
+    assert
+    // arc4_types/tuples.py:76
+    // tup2 = tup.copy()
+    dupn 2
+    // arc4_types/tuples.py:77
+    // tup[1][0] = Byte(1)
+    intc_1 // 1
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    dup
+    uncover 3
+    uncover 3
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_0 // 0
+    >
+    assert // Index access is out of bounds
+    pushint 2 // 2
+    pushbytes 0x01
+    replace3
+    dig 1
+    intc_1 // 1
+    extract_uint16
+    uncover 2
+    intc_0 // 0
+    uncover 2
+    extract3
+    swap
+    concat
+    // arc4_types/tuples.py:79
+    // assert tup[1] != tup2[1]
+    dup
+    intc_1 // 1
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    uncover 2
+    uncover 2
+    substring3
+    dig 1
+    intc_1 // 1
+    extract_uint16
+    swap
+    dig 2
+    len
+    swap
+    uncover 3
+    uncover 3
+    uncover 3
+    substring3
+    !=
+    assert
     retsub
