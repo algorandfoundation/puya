@@ -5,6 +5,7 @@ from algopy import Bytes, UInt64, String
 _TKey = typing.TypeVar("_TKey")
 _TValue = typing.TypeVar("_TValue")
 
+@typing.final
 class Box(typing.Generic[_TValue]):
     """
     Box abstracts the reading and writing of a single value to a single box.
@@ -58,6 +59,7 @@ class Box(typing.Generic[_TValue]):
         Get the length of this Box. Fails if the box does not exist
         """
 
+@typing.final
 class BoxRef:
     """
     BoxRef abstracts the reading and writing of boxes containing raw binary data. The size is
@@ -158,6 +160,7 @@ class BoxRef:
         Get the length of this Box. Fails if the box does not exist
         """
 
+@typing.final
 class BoxMap(typing.Generic[_TKey, _TValue]):
     """
     BoxMap abstracts the reading and writing of a set of boxes using a common key and content type.

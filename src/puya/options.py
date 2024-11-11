@@ -4,7 +4,7 @@ from functools import cached_property
 
 import attrs
 
-from puya.algo_constants import MAINNET_TEAL_LANGUAGE_VERSION
+from puya.algo_constants import MAINNET_AVM_VERSION
 
 
 class LocalsCoalescingStrategy(enum.StrEnum):
@@ -25,7 +25,7 @@ class PuyaOptions:
     output_bytecode: bool = False
     debug_level: int = 1
     optimization_level: int = 1
-    target_avm_version: int = MAINNET_TEAL_LANGUAGE_VERSION
+    target_avm_version: int = MAINNET_AVM_VERSION
     cli_template_definitions: Mapping[str, int | bytes] = attrs.field(factory=dict)
     template_vars_prefix: str = "TMPL_"
     # TODO: the below is probably not scalable as a set of optimisation on/off flags,

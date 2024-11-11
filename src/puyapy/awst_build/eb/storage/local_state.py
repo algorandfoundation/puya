@@ -205,7 +205,7 @@ def _build_field(
     return AppAccountStateExpression(
         key=self.resolve(),
         account=index_expr,
-        wtype=self.pytype.content.wtype,
+        wtype=self.pytype.content_wtype,
         exists_assertion_message=exists_assertion_message,
         source_location=location,
     )

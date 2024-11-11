@@ -34,7 +34,7 @@ class LiteralBuilderImpl(LiteralBuilder):
         self._value = value
         match value:
             case bool():
-                typ = pytypes.BoolType
+                typ: pytypes.PyType = pytypes.BoolType
             case int():
                 typ = pytypes.IntLiteralType
             case str():

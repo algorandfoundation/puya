@@ -43,7 +43,7 @@ class PythonITxnArgument:
         if self.array_promote:
             assert self.field.is_array
         if self.auto_serialize_bytes:
-            assert self.type == pytypes.BytesType
+            assert self.type is pytypes.BytesType
             assert not self.additional_types
             assert not self.literal_overrides
 
@@ -75,13 +75,13 @@ class PythonITxnArgument:
 
     def _validate_and_convert_item(self, item: InstanceBuilder) -> InstanceBuilder:
         if self.field == TxnField.ApplicationArgs:
-            if item.pytype == pytypes.AccountType:
+            if pytypes.AccountType <= item.pytype:
                 logger.warning(
                     f"{item.pytype} will not be added to foreign array,"
                     f" use .bytes to suppress this warning",
                     location=item.source_location,
                 )
-            elif item.pytype in (pytypes.AssetType, pytypes.ApplicationType):
+            elif item.pytype.is_type_or_subtype(pytypes.AssetType, pytypes.ApplicationType):
                 logger.warning(
                     f"{item.pytype} will not be added to foreign array,"
                     f" use .id to suppress this warning",

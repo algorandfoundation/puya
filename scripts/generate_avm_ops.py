@@ -138,11 +138,13 @@ def generate_op_node(
     stack_returns = [get_stack_type(out.stack_type) for out in op.stack_outputs]
     if dynamic_im_index is None:
         variant = Variant(
+            enum=None,
             signature=OpSignature(
                 args=stack_args,
                 returns=stack_returns,
             ),
             supported_modes=_map_run_mode(op.mode),
+            min_avm_version=op.min_avm_version,
         )
     else:
         im = op.immediate_args[dynamic_im_index]
@@ -162,11 +164,13 @@ def generate_op_node(
             assert arg_enum.stack_type is not None, "🤕"
             to_mod[list_index] = get_stack_type(arg_enum.stack_type)
             variant.variant_map[arg_enum.name] = Variant(
+                enum=arg_enum.name,
                 signature=OpSignature(
                     args=list(stack_args),
                     returns=list(stack_returns),
                 ),
                 supported_modes=_map_run_mode(arg_enum.mode),
+                min_avm_version=arg_enum.min_avm_version,
             )
 
     data = AVMOpData(
@@ -201,13 +205,7 @@ def _map_run_mode(mode: langspec.RunMode) -> RunMode:
 
 
 def get_stack_type(stack_type: langspec.StackType) -> StackType:
-    if stack_type in (
-        langspec.StackType.bytes_8,
-        langspec.StackType.bytes_32,
-        langspec.StackType.bytes_33,
-        langspec.StackType.bytes_64,
-        langspec.StackType.bytes_80,
-    ):
+    if stack_type.name.startswith("bytes_"):
         return StackType.bytes
     else:
         return StackType[stack_type.name]

@@ -162,8 +162,15 @@ class WInnerTransaction(_TransactionRelatedWType):
 @attrs.frozen
 class WStructType(WType):
     fields: immutabledict[str, WType] = attrs.field(converter=immutabledict)
+    frozen: bool
+    immutable: bool = attrs.field(init=False)
     scalar_type: None = attrs.field(default=None, init=False)
     source_location: SourceLocation | None = attrs.field(eq=False)
+
+    @immutable.default
+    def _immutable(self) -> bool:
+        # TODO: determine correct behaviour when implementing native structs
+        raise NotImplementedError
 
     @fields.validator
     def _fields_validator(self, _: object, fields: immutabledict[str, WType]) -> None:
@@ -217,8 +224,6 @@ class WTuple(WType):
 
     @types.validator
     def _types_validator(self, _attribute: object, types: tuple[WType, ...]) -> None:
-        if not types:
-            raise CodeError("empty tuples are not supported", self.source_location)
         if void_wtype in types:
             raise CodeError("tuple should not contain void types", self.source_location)
 
@@ -450,14 +455,15 @@ def _require_arc4_fields(fields: Mapping[str, WType]) -> immutabledict[str, ARC4
 @attrs.frozen(kw_only=True)
 class ARC4Struct(ARC4Type):
     fields: immutabledict[str, ARC4Type] = attrs.field(converter=_require_arc4_fields)
-    immutable: bool = attrs.field()
+    frozen: bool
+    immutable: bool = attrs.field(init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
     arc4_name: str = attrs.field(init=False, eq=False)
     native_type: None = attrs.field(default=None, init=False)
 
     @immutable.default
     def _immutable(self) -> bool:
-        return all(typ.immutable for typ in self.fields.values())
+        return self.frozen and all(typ.immutable for typ in self.fields.values())
 
     @arc4_name.default
     def _arc4_name(self) -> str:

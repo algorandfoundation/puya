@@ -106,6 +106,7 @@ class Operation(typing.TypedDict, total=False):
     ArgEnumTypes: list[str]
     ArgEnumBytes: list[int]
     ArgModes: list[int]
+    ArgEnumVersion: list[int]
     ImmediateNote: list[ImmediateNote]
 
     # the following values are not in the original langspec.json
@@ -131,6 +132,8 @@ class StackType(enum.StrEnum):
     bytes_33 = "[33]byte"
     bytes_64 = "[64]byte"
     bytes_80 = "[80]byte"
+    bytes_1232 = "[1232]byte"
+    bytes_1793 = "[1793]byte"
     bool = enum.auto()
     address = enum.auto()
     address_or_index = enum.auto()
@@ -163,6 +166,7 @@ class ArgEnum:
     stack_type: StackType | None
     mode: RunMode
     value: int
+    min_avm_version: int
 
 
 class ImmediateKind(enum.StrEnum):
@@ -373,13 +377,14 @@ def create_indexed_enum(op: Operation) -> list[ArgEnum]:
     enum_docs = op["ArgEnumDoc"]
     enum_bytes = op["ArgEnumBytes"]
     enum_modes = op["ArgModes"]
+    enum_versions = op["ArgEnumVersion"]
 
     if not enum_types:
         enum_types = [None] * len(enum_names)
 
     result = list[ArgEnum]()
-    for enum_name, enum_type, enum_doc, enum_mode, enum_byte in zip(
-        enum_names, enum_types, enum_docs, enum_modes, enum_bytes, strict=True
+    for enum_name, enum_type, enum_doc, enum_mode, enum_byte, enum_version in zip(
+        enum_names, enum_types, enum_docs, enum_modes, enum_bytes, enum_versions, strict=True
     ):
         stack_type = None if enum_type is None else StackType(enum_type)
         enum_value = ArgEnum(
@@ -388,6 +393,7 @@ def create_indexed_enum(op: Operation) -> list[ArgEnum]:
             stack_type=stack_type,
             mode=_map_enum_mode(op["Modes"], enum_mode),
             value=enum_byte,
+            min_avm_version=enum_version,
         )
         result.append(enum_value)
     return result

@@ -91,7 +91,7 @@ class IntrinsicNamespaceTypeBuilder(TypeBuilder[pytypes.IntrinsicNamespaceType])
             intrinsic_expr = IntrinsicCall(
                 op_code=mapping.op_code,
                 immediates=[mapping.immediate],
-                wtype=mapping.typ.wtype,
+                wtype=mapping.wtype,
                 source_location=location,
             )
             return builder_for_instance(mapping.typ, intrinsic_expr)
@@ -189,7 +189,7 @@ def _map_call(
             stack_args.append(expect.argument_of_type_else_dummy(arg_in, *allowed_pytypes))
     return IntrinsicCall(
         op_code=op_mapping.op_code,
-        wtype=ast_mapper.result.wtype,
+        wtype=ast_mapper.result_wtype,
         immediates=typing.cast(list[str | int], immediates),
         stack_args=[a.resolve() for a in stack_args],
         source_location=location,

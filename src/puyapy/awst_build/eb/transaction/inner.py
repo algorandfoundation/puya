@@ -40,7 +40,7 @@ class InnerTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
 
     @typing.override
     def get_field_value(
-        self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
+        self, field: TxnField, typ: pytypes.RuntimeType, location: SourceLocation
     ) -> InstanceBuilder:
         expr = InnerTransactionField(
             itxn=self.resolve(),
@@ -54,11 +54,11 @@ class InnerTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
     def get_array_field_value(
         self,
         field: TxnField,
-        typ: pytypes.PyType,
+        typ: pytypes.RuntimeType,
         index: InstanceBuilder,
         location: SourceLocation,
     ) -> InstanceBuilder:
-        assert index.pytype == pytypes.UInt64Type
+        assert pytypes.UInt64Type <= index.pytype
         expr = InnerTransactionField(
             itxn=self.resolve(),
             field=field,
@@ -85,14 +85,11 @@ class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
                 case InstanceBuilder(
                     pytype=pytypes.InnerTransactionFieldsetType(transaction_type=txn_type)
                 ):
-                    pass
+                    arg_exprs.append(arg.resolve())
+                    arg_result_type = pytypes.InnerTransactionResultTypes[txn_type]
+                    result_types.append(arg_result_type)
                 case other:
-                    txn_type = None
                     expect.not_this_type(other, default=expect.default_raise)
-
-            arg_exprs.append(arg.resolve())
-            arg_result_type = pytypes.InnerTransactionResultTypes[txn_type]
-            result_types.append(arg_result_type)
         result_typ = pytypes.GenericTupleType.parameterise(result_types, location)
         return TupleExpressionBuilder(
             SubmitInnerTransaction(itxns=arg_exprs, source_location=location),

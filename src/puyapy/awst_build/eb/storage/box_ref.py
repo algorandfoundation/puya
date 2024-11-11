@@ -185,7 +185,7 @@ class _IntrinsicMethod(FunctionBuilder):
         box_proxy: Expression,
         op_code: str,
         args: dict[str, pytypes.PyType],
-        return_type: pytypes.PyType,
+        return_type: pytypes.RuntimeType,
     ) -> None:
         super().__init__(location)
         self.box_proxy = box_proxy

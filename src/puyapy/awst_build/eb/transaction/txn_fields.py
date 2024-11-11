@@ -10,7 +10,7 @@ logger = log.get_logger(__name__)
 @attrs.frozen
 class PythonTxnField:
     field: TxnField
-    type: pytypes.PyType
+    type: pytypes.RuntimeType
 
 
 PYTHON_TXN_FIELDS = {

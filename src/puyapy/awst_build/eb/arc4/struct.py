@@ -26,7 +26,7 @@ logger = log.get_logger(__name__)
 class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.StructType)
-        assert pytypes.ARC4StructBaseType in typ.mro
+        assert pytypes.ARC4StructBaseType < typ
         super().__init__(typ, location)
 
     @typing.override
@@ -84,7 +84,7 @@ class ARC4StructExpressionBuilder(
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
+        return compare_bytes(self=self, op=op, other=other, source_location=location)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return constant_bool_and_error(value=True, location=location, negate=negate)

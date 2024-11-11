@@ -22,6 +22,15 @@ class VectorFlags(arc4.Struct):
     flags: Flags
 
 
+class FrozenButMutable(arc4.Struct, frozen=True):
+    mutable: arc4.DynamicBytes
+
+
+class FrozenAndImmutable(arc4.Struct, frozen=True):
+    one: arc4.UInt64
+    two: arc4.UInt64
+
+
 class Arc4StructsTypeContract(Contract):
     def approval_program(self) -> bool:
         coord_1 = Vector(x=Decimal("35.382882839"), y=Decimal("150.382884930"))
@@ -36,6 +45,15 @@ class Arc4StructsTypeContract(Contract):
         assert Vector.from_bytes(coord_1.bytes).bytes == coord_1.bytes
 
         nested_decode(VectorFlags(coord_1.copy(), flags.copy()))
+
+        mutable = FrozenButMutable(arc4.DynamicBytes())
+        copy = mutable.copy()
+        copy.mutable.append(arc4.Byte(42))
+        assert mutable != copy, "expected copy is different"
+
+        immutable = FrozenAndImmutable(arc4.UInt64(12), arc4.UInt64(34))
+        no_copy = immutable
+        assert no_copy == immutable
 
         return True
 

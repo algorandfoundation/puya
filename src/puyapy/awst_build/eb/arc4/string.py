@@ -8,9 +8,9 @@ from puya.awst.nodes import (
     ARC4Decode,
     ARC4Encode,
     ArrayConcat,
-    ArrayExtend,
+    BytesAugmentedAssignment,
+    BytesBinaryOperator,
     Expression,
-    ExpressionStatement,
     Statement,
     StringConstant,
 )
@@ -99,18 +99,16 @@ class ARC4StringExpressionBuilder(
             return dummy_statement(location)
 
         rhs = rhs.resolve_literal(ARC4StringTypeBuilder(rhs.source_location))
-        if rhs.pytype == pytypes.StringType:
+        if pytypes.StringType <= rhs.pytype:
             value = _from_native(rhs, rhs.source_location).resolve()
         else:
             value = expect.argument_of_type_else_dummy(rhs, self.pytype).resolve()
 
-        return ExpressionStatement(
-            ArrayExtend(
-                base=self.resolve(),
-                other=value,
-                wtype=wtypes.arc4_string_alias,
-                source_location=location,
-            )
+        return BytesAugmentedAssignment(
+            target=self.resolve_lvalue(),
+            op=BytesBinaryOperator.add,
+            value=value,
+            source_location=location,
         )
 
     @typing.override
@@ -126,9 +124,9 @@ class ARC4StringExpressionBuilder(
             return NotImplemented
 
         other = other.resolve_literal(ARC4StringTypeBuilder(other.source_location))
-        if other.pytype == self.pytype:
+        if pytypes.ARC4StringType <= other.pytype:
             other_expr = other.resolve()
-        elif other.pytype == pytypes.StringType:
+        elif pytypes.StringType <= other.pytype:
             other_expr = _from_native(other, other.source_location).resolve()
         else:
             return NotImplemented
@@ -152,14 +150,13 @@ class ARC4StringExpressionBuilder(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = other.resolve_literal(ARC4StringTypeBuilder(other.source_location))
-        match other:
-            case InstanceBuilder(pytype=pytypes.ARC4StringType):
-                lhs: InstanceBuilder = self
-            case InstanceBuilder(pytype=pytypes.StringType):
-                # when comparing arc4 to native, easier to convert by stripping length prefix
-                lhs = _string_to_native(self, self.source_location)
-            case _:
-                return NotImplemented
+        if pytypes.ARC4StringType <= other.pytype:
+            lhs: InstanceBuilder = self
+        elif pytypes.StringType <= other.pytype:
+            # when comparing arc4 to native, easier to convert by stripping length prefix
+            lhs = _string_to_native(self, self.source_location)
+        else:
+            return NotImplemented
         return compare_expr_bytes(
             lhs=lhs.resolve(),
             op=op,
@@ -188,7 +185,7 @@ class ARC4StringExpressionBuilder(
 def _string_to_native(
     builder: InstanceBuilder, location: SourceLocation
 ) -> StringExpressionBuilder:
-    assert builder.pytype == pytypes.ARC4StringType
+    assert pytypes.ARC4StringType <= builder.pytype
     return StringExpressionBuilder(
         ARC4Decode(
             value=builder.resolve(),
@@ -205,7 +202,7 @@ def _arc4_str_literal(value: str, location: SourceLocation) -> InstanceBuilder:
 
 
 def _from_native(eb: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-    assert eb.pytype == pytypes.StringType
+    assert pytypes.StringType <= eb.pytype
     return ARC4StringExpressionBuilder(
         ARC4Encode(
             value=eb.resolve(),

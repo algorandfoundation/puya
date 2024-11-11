@@ -136,7 +136,8 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
             return NotImplemented
 
         other = other.resolve_literal(converter=StringTypeBuilder(other.source_location))
-        if other.pytype != self.pytype:
+        # defer to most derived if not equal
+        if not (other.pytype <= pytypes.StringType):
             return NotImplemented
 
         lhs = self.resolve()
@@ -157,7 +158,7 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = other.resolve_literal(converter=StringTypeBuilder(other.source_location))
-        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
+        return compare_bytes(self=self, op=op, other=other, source_location=location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

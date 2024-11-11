@@ -126,7 +126,7 @@ def _builder_for_storage_access(
     if not isinstance(typ, pytypes.StorageProxyType | pytypes.StorageMapProxyType):
         app_global_expr = AppStateExpression(
             key=key,
-            wtype=typ.wtype,
+            wtype=typ.checked_wtype(location),
             exists_assertion_message=f"check self.{member_name} exists",
             source_location=location,
         )

@@ -14,7 +14,6 @@ from puyapy.awst_build.eb._base import GenericTypeBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puyapy.awst_build.eb._utils import constant_bool_and_error
 from puyapy.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder
-from puyapy.awst_build.eb.arc4._utils import no_literal_items
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
@@ -49,7 +48,6 @@ class StaticArrayGenericTypeBuilder(GenericTypeBuilder):
             [element_type, pytypes.TypingLiteralType(value=array_size, source_location=None)],
             location,
         )
-        no_literal_items(typ, location)
         values = tuple(expect.argument_of_type_else_dummy(a, element_type).resolve() for a in args)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4StaticArray)
@@ -75,7 +73,6 @@ class StaticArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         location: SourceLocation,
     ) -> InstanceBuilder:
         typ = self.produces()
-        no_literal_items(typ, location)
         n_args = expect.exactly_n_args_of_type_else_dummy(args, typ.items, location, self._size)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4StaticArray)
@@ -108,14 +105,13 @@ class StaticArrayExpressionBuilder(_ARC4ArrayExpressionBuilder, StaticSizedColle
     @typing.override
     def iterate_static(self) -> Sequence[InstanceBuilder]:
         base = self.single_eval().resolve()
-        item_type = self.pytype.items
         return [
             builder_for_instance(
-                item_type,
+                self.pytype.items,
                 IndexExpression(
                     base=base,
                     index=UInt64Constant(value=idx, source_location=self.source_location),
-                    wtype=item_type.wtype,
+                    wtype=self.pytype.items_wtype,
                     source_location=self.source_location,
                 ),
             )

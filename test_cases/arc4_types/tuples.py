@@ -1,7 +1,7 @@
 import typing
 
 from algopy import Bytes, Contract, UInt64, subroutine
-from algopy.arc4 import Bool, String, Tuple, UInt8
+from algopy.arc4 import Bool, Byte, DynamicBytes, String, Tuple, UInt8
 
 TestTuple: typing.TypeAlias = Tuple[UInt8, UInt8, String, String, UInt8]
 
@@ -46,6 +46,8 @@ class Arc4TuplesTypeContract(Contract):
         assert concat.native == "hello world"
         assert total == 258
 
+        self.test_copy()
+
         return True
 
     def clear_state_program(self) -> bool:
@@ -63,3 +65,15 @@ class Arc4TuplesTypeContract(Contract):
         text = c.native + " " + d.native
 
         return total, String(text)
+
+    @subroutine
+    def test_copy(self) -> None:
+        tup = Tuple((UInt8(), DynamicBytes()))
+        tup[1].append(Byte())
+
+        assert tup[1] == DynamicBytes(0)
+
+        tup2 = tup.copy()
+        tup[1][0] = Byte(1)
+
+        assert tup[1] != tup2[1]

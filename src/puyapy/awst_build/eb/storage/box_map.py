@@ -107,7 +107,7 @@ def _init(
             location=location,
         )
     # the type of the key is not retained in the AWST, so to
-    wtypes.validate_persistable(key.wtype, location)
+    wtypes.validate_persistable(result_type.key_wtype, location)
 
     typed_args = parse_storage_proxy_constructor_args(
         arg_mapping,
@@ -136,7 +136,6 @@ class BoxMapProxyExpressionBuilder(
     ) -> BoxValueExpression:
         key_data = key.to_bytes(location)
         key_prefix = self.resolve()
-        content_wtype = self.pytype.content.wtype
         full_key = intrinsic_factory.concat(
             key_prefix, key_data, location, result_type=wtypes.box_key
         )
@@ -146,7 +145,7 @@ class BoxMapProxyExpressionBuilder(
             exists_assertion_message = "check BoxMap entry exists"
         return BoxValueExpression(
             key=full_key,
-            wtype=content_wtype,
+            wtype=self.pytype.content_wtype,
             exists_assertion_message=exists_assertion_message,
             source_location=location,
         )

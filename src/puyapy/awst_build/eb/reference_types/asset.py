@@ -28,7 +28,7 @@ from puyapy.awst_build.eb.reference_types._base import UInt64BackedReferenceValu
 logger = log.get_logger(__name__)
 
 
-class AssetTypeBuilder(TypeBuilder):
+class AssetTypeBuilder(TypeBuilder[pytypes.RuntimeType]):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.AssetType, location)
 

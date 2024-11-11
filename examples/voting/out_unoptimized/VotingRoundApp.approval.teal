@@ -281,9 +281,10 @@ store_option_counts:
     // @subroutine
     // def store_option_counts(self, option_counts: VoteIndexArray) -> None:
     proto 1 1
+    frame_dig -1
     // voting/voting.py:219
     // assert option_counts.length, "option_counts should be non-empty"
-    frame_dig -1
+    dup
     intc_0 // 0
     extract_uint16
     intc_0 // 0
@@ -310,13 +311,13 @@ store_option_counts:
 store_option_counts_for_header@1:
     // voting/voting.py:223
     // for item in option_counts:
+    frame_dig 3
     frame_dig 2
-    frame_dig 1
     <
     bz store_option_counts_after_for@4
     frame_dig -1
     extract 2 0
-    frame_dig 2
+    frame_dig 3
     intc_1 // 1
     *
     intc_1 // 1
@@ -324,19 +325,19 @@ store_option_counts_for_header@1:
     // voting/voting.py:224
     // total_options += item.native
     btoi
-    frame_dig 0
+    frame_dig 1
     +
-    frame_bury 0
-    frame_dig 2
+    frame_bury 1
+    frame_dig 3
     intc_1 // 1
     +
-    frame_bury 2
+    frame_bury 3
     b store_option_counts_for_header@1
 
 store_option_counts_after_for@4:
     // voting/voting.py:225
     // assert total_options <= 128, "Can't have more than 128 vote options"
-    frame_dig 0
+    frame_dig 1
     dup
     pushint 128 // 128
     <=
@@ -352,8 +353,6 @@ store_option_counts_after_for@4:
     bytec 14 // "total_options"
     swap
     app_global_put
-    frame_dig -1
-    frame_bury 0
     retsub
 
 
@@ -808,8 +807,8 @@ close_after_for@14:
     bytec 13 // "nft_image_url"
     app_global_get_ex
     assert // check self.nft_image_url exists
-    // voting/voting.py:144
-    // note += "]}}"
+    // voting/voting.py:153
+    // note=note,
     uncover 2
     itxn_field Note
     itxn_field ConfigAssetURL

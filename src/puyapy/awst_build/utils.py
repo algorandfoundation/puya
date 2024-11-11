@@ -260,7 +260,7 @@ def maybe_resolve_literal(
 ) -> TBuilder | InstanceBuilder:
     if not isinstance(operand, InstanceBuilder):
         return operand
-    if operand.pytype != target_type:
+    if not (target_type <= operand.pytype):
         target_type_builder = builder_for_type(target_type, operand.source_location)
         if isinstance(target_type_builder, TypeBuilder):
             return operand.resolve_literal(target_type_builder)
@@ -280,33 +280,6 @@ def determine_base_type(
     if len(operands) == 1:
         return first
     for candidate in operands:
-        if all(is_type_or_subtype(operand, of=candidate) for operand in operands):
+        if all(candidate <= operand for operand in operands):
             return candidate
     return pytypes.UnionType(operands, location)
-
-
-@typing.overload
-def is_type_or_subtype(typ: pytypes.PyType | None, *, of: pytypes.PyType) -> bool: ...
-
-
-@typing.overload
-def is_type_or_subtype(
-    typ: pytypes.PyType | None, *, of_any: Sequence[pytypes.PyType]
-) -> bool: ...
-
-
-def is_type_or_subtype(
-    typ: pytypes.PyType | None,
-    *,
-    of: pytypes.PyType | None = None,
-    of_any: Sequence[pytypes.PyType] | None = None,
-) -> bool:
-    if typ is None:
-        return False
-    if of is not None:
-        target = of
-        return typ == target or target in typ.mro
-    else:
-        assert of_any is not None
-        targets = of_any
-        return typ in targets or any(target in typ.mro for target in targets)

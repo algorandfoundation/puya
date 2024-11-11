@@ -34,8 +34,7 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         location: SourceLocation
     ):
         super().__init__(location)
-        assert true_literal.pytype == false_literal.pytype  # TODO: fixme
-        self._pytype = true_literal.pytype
+        self._pytype = _common_base(true_literal.pytype, false_literal.pytype, location)
         self._true_literal = true_literal
         self._false_literal = false_literal
         self._condition = condition
@@ -82,7 +81,7 @@ class ConditionalLiteralBuilder(InstanceBuilder):
     def _resolve_literals(
         self, true_b: InstanceBuilder, false_b: InstanceBuilder
     ) -> InstanceBuilder:
-        assert true_b.pytype == false_b.pytype  # TODO: fixme
+        result_pytype = _common_base(true_b.pytype, false_b.pytype, self.source_location)
         result_pytype = true_b.pytype
         true_expr = true_b.resolve()
         false_expr = false_b.resolve()
@@ -268,3 +267,12 @@ class ConditionalLiteralBuilder(InstanceBuilder):
             condition=condition,
             location=self.source_location,
         )
+
+
+def _common_base(a: pytypes.PyType, b: pytypes.PyType, location: SourceLocation) -> pytypes.PyType:
+    if a <= b:
+        return a
+    elif b < a:
+        return b
+    else:
+        raise CodeError("type mismatch", location)

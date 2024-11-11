@@ -39,6 +39,7 @@ StatementResult: typing.TypeAlias = list[DeferredRootNode]
 @attrs.frozen(kw_only=True)
 class _LogicSigDecoratorInfo:
     name_override: str | None
+    avm_version: int | None
 
 
 _BUILTIN_INHERITABLE: typing.Final = frozenset(
@@ -99,6 +100,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                     short_name=coalesce(info.name_override, program.name),
                     docstring=func_def.docstring,
                     source_location=self._location(logicsig_dec),
+                    avm_version=info.avm_version,
                 )
 
             return [deferred]
@@ -120,19 +122,33 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
     def _process_logic_sig_decorator(
         self, decorator: mypy.nodes.Expression
     ) -> _LogicSigDecoratorInfo:
+        name_override = None
+        avm_version = None
         match decorator:
-            case mypy.nodes.NameExpr() | mypy.nodes.CallExpr(args=[]):
+            case mypy.nodes.NameExpr():
                 pass
-            case mypy.nodes.CallExpr(arg_names=["name"], args=[name_arg]):
-                name_const = name_arg.accept(self)
-                if isinstance(name_const, str):
-                    return _LogicSigDecoratorInfo(name_override=name_const)
-                self.context.error(f"Expected a string, got {name_const!r}", name_arg)
+            case mypy.nodes.CallExpr(arg_names=arg_names, args=args):
+                for arg_name, arg in zip(arg_names, args, strict=True):
+                    match arg_name:
+                        case "name":
+                            name_const = arg.accept(self)
+                            if isinstance(name_const, str):
+                                name_override = name_const
+                            else:
+                                self.context.error("expected a str", arg)
+                        case "avm_version":
+                            version_const = arg.accept(self)
+                            if isinstance(version_const, int):
+                                avm_version = version_const
+                            else:
+                                self.context.error("expected an int", arg)
+                        case _:
+                            self.context.error("unexpected argument", arg)
             case _:
                 self.context.error(
-                    f"Invalid {constants.LOGICSIG_DECORATOR_ALIAS} usage", decorator
+                    f"invalid {constants.LOGICSIG_DECORATOR_ALIAS} usage", decorator
                 )
-        return _LogicSigDecoratorInfo(name_override=None)
+        return _LogicSigDecoratorInfo(name_override=name_override, avm_version=avm_version)
 
     def visit_class_def(self, cdef: mypy.nodes.ClassDef) -> StatementResult:
         self.check_fatal_decorators(cdef.decorators)
@@ -186,23 +202,42 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             for ti in info.mro[1:]
             if ti.fullname not in _BUILTIN_INHERITABLE
         ]
+        # create a static type, but don't register it yet,
+        # it might end up being a struct instead
+        static_type = pytypes.StaticType(
+            name=cdef.fullname, bases=direct_base_types, mro=mro_types
+        )
         for struct_base in (pytypes.StructBaseType, pytypes.ARC4StructBaseType):
             # note that since these struct bases aren't protocols, any subclasses
             # cannot be protocols
-            if direct_base_types == [struct_base]:
+            if struct_base < static_type:
+                if direct_base_types != [struct_base]:
+                    self._error(
+                        f"{struct_base} classes must only inherit directly from {struct_base}",
+                        cdef_loc,
+                    )
                 return _process_struct(self.context, struct_base, cdef)
-            if struct_base in mro_types:
-                self._error(
-                    f"{struct_base} classes must only inherit directly from {struct_base}",
-                    cdef_loc,
-                )
-                return []
+
+        if pytypes.ContractBaseType < static_type:
+            module_name = cdef.info.module_name
+            class_name = cdef.name
+            assert "." not in class_name
+            assert cdef.fullname == f"{module_name}.{class_name}"
+            contract_type = pytypes.ContractType(
+                module_name=module_name,
+                class_name=class_name,
+                bases=direct_base_types,
+                mro=mro_types,
+                source_location=cdef_loc,
+            )
+            self.context.register_pytype(contract_type)
+
+            class_options = _process_contract_class_options(self.context, self, cdef)
+            converter = ContractASTConverter(self.context, cdef, class_options, contract_type)
+            return [converter.build]
 
         if info.is_protocol:
-            protocol_type = pytypes.StaticType(
-                name=cdef.fullname, bases=direct_base_types, mro=mro_types
-            )
-            self.context.register_pytype(protocol_type)
+            self.context.register_pytype(static_type)
             if pytypes.ARC4ClientBaseType in direct_base_types:
                 ARC4ClientASTVisitor.visit(self.context, cdef)
             else:
@@ -212,31 +247,13 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 )
             return []
 
-        if pytypes.ContractBaseType not in mro_types:
-            logger.error(
-                f"Unsupported class declaration."
-                f" Contract classes must inherit either directly"
-                f" or indirectly from {pytypes.ContractBaseType}.",
-                location=cdef_loc,
-            )
-            return []
-
-        module_name = cdef.info.module_name
-        class_name = cdef.name
-        assert "." not in class_name
-        assert cdef.fullname == f"{module_name}.{class_name}"
-        contract_type = pytypes.ContractType(
-            module_name=module_name,
-            class_name=class_name,
-            bases=direct_base_types,
-            mro=mro_types,
-            source_location=cdef_loc,
+        logger.error(
+            f"Unsupported class declaration."
+            f" Contract classes must inherit either directly"
+            f" or indirectly from {pytypes.ContractBaseType}.",
+            location=cdef_loc,
         )
-        self.context.register_pytype(contract_type)
-
-        class_options = _process_contract_class_options(self.context, self, cdef)
-        converter = ContractASTConverter(self.context, cdef, class_options, contract_type)
-        return [converter.build]
+        return []
 
     def visit_operator_assignment_stmt(
         self, stmt: mypy.nodes.OperatorAssignmentStmt
@@ -581,6 +598,7 @@ def _process_contract_class_options(
     name_override: str | None = None
     scratch_slot_reservations = set[int]()
     state_totals = None
+    avm_version = None
     for kw_name, kw_expr in cdef.keywords.items():
         with context.log_exceptions(kw_expr):
             match kw_name:
@@ -622,6 +640,12 @@ def _process_contract_class_options(
                                 else:
                                     arg_map[arg_name] = arg_value
                         state_totals = StateTotals(**arg_map)
+                case "avm_version":
+                    version_value = kw_expr.accept(expr_visitor)
+                    if isinstance(version_value, int):
+                        avm_version = version_value
+                    else:
+                        context.error("unexpected argument type", kw_expr)
                 case "metaclass":
                     context.error("metaclass option is unsupported", kw_expr)
                 case _:
@@ -630,6 +654,7 @@ def _process_contract_class_options(
         name_override=name_override,
         scratch_slot_reservations=scratch_slot_reservations,
         state_totals=state_totals,
+        avm_version=avm_version,
     )
 
 
@@ -650,9 +675,11 @@ def _process_dataclass_like_fields(
                 rvalue=mypy.nodes.TempNode(),
                 type=mypy.types.Type() as mypy_type,
             ):
-
                 pytype = context.type_to_pytype(mypy_type, source_location=stmt_loc)
                 fields[field_name] = pytype
+                if isinstance((maybe_err := pytype.wtype), str):
+                    logger.error(maybe_err, location=stmt_loc)
+                    has_error = True
             case mypy.nodes.SymbolNode(name=symbol_name) if (
                 cdef.info.names[symbol_name].plugin_generated
             ):

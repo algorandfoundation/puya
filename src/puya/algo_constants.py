@@ -19,6 +19,6 @@ HASH_PREFIX_PROGRAM = b"Program"
 # Which language versions does this version of puya support targeting
 # This will typically just be the current mainnet version and potentially the vNext if it doesn't
 # contain breaking changes
-SUPPORTED_TEAL_LANGUAGE_VERSIONS = [10]
+SUPPORTED_AVM_VERSIONS = [10, 11]
 # Which language version is currently deployed to mainnet
-MAINNET_TEAL_LANGUAGE_VERSION = 10
+MAINNET_AVM_VERSION = 10

@@ -19,6 +19,7 @@ contract Arc4TuplesTypeContract
     (total, concat): tuple<uint64,arc4.dynamic_array<arc4.uint8>> = this::test_stuff(my_tuple)
     assert(arc4_decode(concat, string) == 'hello world')
     assert(total == 258u)
+    this::test_copy()
     return true
   }
   
@@ -36,6 +37,16 @@ contract Arc4TuplesTypeContract
     total: uint64 = arc4_decode(a, uint64) + arc4_decode(b, uint64) + arc4_decode(e, uint64)
     text: string = arc4_decode(c, string) + ' ' + arc4_decode(d, string)
     return (total, arc4_encode(text, arc4.dynamic_array<arc4.uint8>))
+  }
+  
+  subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_copy(): void
+  {
+    tup: arc4.tuple<arc4.uint8,arc4.dynamic_array<arc4.uint8>> = arc4_encode((0_arc4u8, arc4_encode(hex<"">, arc4.dynamic_array<arc4.uint8>)), arc4.tuple<arc4.uint8,arc4.dynamic_array<arc4.uint8>>)
+    tup[1].extend((0_arc4u8))
+    assert(tup[1] == new arc4.dynamic_array<arc4.uint8>(0_arc4u8))
+    tup2: arc4.tuple<arc4.uint8,arc4.dynamic_array<arc4.uint8>> = tup.copy()
+    tup[1][0u]: arc4.uint8 = 1_arc4u8
+    assert(tup[1] != tup2[1])
   }
 }
 
@@ -57,6 +68,13 @@ contract Arc4StructsTypeContract
     log(reinterpret_cast<bytes>(flags))
     assert(reinterpret_cast<bytes>(reinterpret_cast<test_cases.arc4_types.structs.Vector>(reinterpret_cast<bytes>(coord_1))) == reinterpret_cast<bytes>(coord_1))
     test_cases.arc4_types.structs.nested_decode(new test_cases.arc4_types.structs.VectorFlags(vector=coord_1.copy(), flags=flags.copy()))
+    mutable: test_cases.arc4_types.structs.FrozenButMutable = new test_cases.arc4_types.structs.FrozenButMutable(mutable=arc4_encode(hex<"">, arc4.dynamic_array<arc4.uint8>))
+    copy: test_cases.arc4_types.structs.FrozenButMutable = mutable.copy()
+    copy.mutable.extend((42_arc4u8))
+    assert(mutable != copy, comment="expected copy is different")
+    immutable: test_cases.arc4_types.structs.FrozenAndImmutable = new test_cases.arc4_types.structs.FrozenAndImmutable(one=12_arc4u64, two=34_arc4u64)
+    no_copy: test_cases.arc4_types.structs.FrozenAndImmutable = immutable
+    assert(no_copy == immutable)
     return true
   }
   
@@ -107,12 +125,12 @@ contract Arc4StringTypesContract
     world: arc4.dynamic_array<arc4.uint8> = 'World!'
     assert('Hello World!' == hello + space + world)
     thing: arc4.dynamic_array<arc4.uint8> = 'hi'
-    thing.extend(thing)
+    thing += thing
     assert(thing == 'hihi')
     value: arc4.dynamic_array<arc4.uint8> = 'a' + 'b' + 'cd'
-    value.extend('e')
-    value.extend('f')
-    value.extend('g')
+    value += 'e'
+    value += 'f'
+    value += 'g'
     assert('abcdefg' == value)
     assert(arc4_decode('', string) == '')
     assert(arc4_decode('hello', string) == 'hello')
@@ -359,6 +377,50 @@ contract Arc4MutationContract
   }
 }
 
+contract MutableParams2
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding(): void
+  {
+    a: arc4.dynamic_array<arc4.uint8> = new arc4.dynamic_array<arc4.uint8>(0_arc4u8)
+    this::maybe_modify_array(a, assign_local=true)
+    assert(a == new arc4.dynamic_array<arc4.uint8>(0_arc4u8, 1_arc4u8))
+    a: arc4.dynamic_array<arc4.uint8> = new arc4.dynamic_array<arc4.uint8>(1_arc4u8)
+    this::maybe_modify_array(a, assign_local=false)
+    assert(a == new arc4.dynamic_array<arc4.uint8>(1_arc4u8, 42_arc4u8, 4_arc4u8))
+  }
+  
+  subroutine test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array(a: arc4.dynamic_array<arc4.uint8>, assign_local: bool): void
+  {
+    if (assign_local) {
+      a.extend((1_arc4u8))
+      a: arc4.dynamic_array<arc4.uint8> = new arc4.dynamic_array<arc4.uint8>(1_arc4u8, 2_arc4u8, 3_arc4u8)
+      a.extend((4_arc4u8))
+      a: arc4.dynamic_array<arc4.uint8> = new arc4.dynamic_array<arc4.uint8>(1_arc4u8, 2_arc4u8, 4_arc4u8)
+    } else {
+      a.extend((42_arc4u8))
+    }
+    a.extend((4_arc4u8))
+  }
+  
+  baremethod test_cases.arc4_types.mutable_params2.MutableParams2.__algopy_default_create(): void
+  {
+  }
+}
+
 contract Arc4MutableParamsContract
 {
   method_resolution_order: (
@@ -397,7 +459,24 @@ contract Arc4MutableParamsContract
     assert(reinterpret_cast<biguint>(my_array_copy_2[0u]) == reinterpret_cast<biguint>(1_arc4u8), comment="my_array_copy_2 should have original value")
     this::other_routine_2(my_array_copy_2)
     assert(reinterpret_cast<biguint>(my_array_copy_2[0u]) == reinterpret_cast<biguint>(10_arc4u8), comment="my_array_copy_2 should have mutated value")
-    this::other_routine_3((my_array.copy(), my_array_copy_2.copy(), my_array_copy_2.copy()))
+    my_array_copy_3: arc4.static_array<arc4.uint8, 4> = my_array_copy.copy()
+    originals: tuple<arc4.static_array<arc4.uint8, 4>,arc4.static_array<arc4.uint8, 4>,arc4.static_array<arc4.uint8, 4>> = (my_array.copy(), my_array_copy_2.copy(), my_array_copy_3.copy())
+    this::mutate_tuple_items_and_reassign((my_array.copy(), my_array_copy_2.copy(), my_array_copy_3.copy()), start=0u, reassign=true)
+    assert(&&(&&(originals[0] == my_array, originals[1] == my_array_copy_2), originals[2] == my_array_copy_3))
+    this::mutate_tuple_items_and_reassign((my_array, my_array_copy_2, my_array_copy_3), start=100u, reassign=true)
+    assert(reinterpret_cast<biguint>(my_array[0u]) == reinterpret_cast<biguint>(100_arc4u8))
+    assert(reinterpret_cast<biguint>(my_array_copy_2[0u]) == reinterpret_cast<biguint>(101_arc4u8))
+    assert(reinterpret_cast<biguint>(my_array_copy_3[0u]) == reinterpret_cast<biguint>(102_arc4u8))
+    assert(reinterpret_cast<biguint>(my_array[1u]) == reinterpret_cast<biguint>(103_arc4u8))
+    assert(reinterpret_cast<biguint>(my_array_copy_2[1u]) == reinterpret_cast<biguint>(104_arc4u8))
+    assert(reinterpret_cast<biguint>(my_array_copy_3[1u]) == reinterpret_cast<biguint>(105_arc4u8))
+    this::mutate_tuple_items_and_reassign((my_array, my_array_copy_2, my_array_copy_3), start=200u, reassign=false)
+    assert(reinterpret_cast<biguint>(my_array[0u]) == reinterpret_cast<biguint>(200_arc4u8))
+    assert(reinterpret_cast<biguint>(my_array_copy_2[0u]) == reinterpret_cast<biguint>(201_arc4u8))
+    assert(reinterpret_cast<biguint>(my_array_copy_3[0u]) == reinterpret_cast<biguint>(202_arc4u8))
+    assert(reinterpret_cast<biguint>(my_array[1u]) == reinterpret_cast<biguint>(206_arc4u8))
+    assert(reinterpret_cast<biguint>(my_array_copy_2[1u]) == reinterpret_cast<biguint>(207_arc4u8))
+    assert(reinterpret_cast<biguint>(my_array_copy_3[1u]) == reinterpret_cast<biguint>(208_arc4u8))
     nested: test_cases.arc4_types.mutable_params.StructWithArray = new test_cases.arc4_types.mutable_params.StructWithArray(test_array=my_array.copy())
     this::other_routine_2(nested.test_array.copy())
   }
@@ -416,14 +495,26 @@ contract Arc4MutableParamsContract
     return copy
   }
   
-  subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_3(arrays: tuple<arc4.static_array<arc4.uint8, 4>,arc4.static_array<arc4.uint8, 4>,arc4.static_array<arc4.uint8, 4>>): void
+  subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(arrays: tuple<arc4.static_array<arc4.uint8, 4>,arc4.static_array<arc4.uint8, 4>,arc4.static_array<arc4.uint8, 4>>, start: uint64, reassign: bool): void
   {
-    for array in arrays {
-      array[0u]: arc4.uint8 = 99_arc4u8
+    arrays[0][0u]: arc4.uint8 = arc4_encode(start, arc4.uint8)
+    arrays[1][0u]: arc4.uint8 = arc4_encode(start + 1u, arc4.uint8)
+    arrays[2][0u]: arc4.uint8 = arc4_encode(start + 2u, arc4.uint8)
+    assert(reinterpret_cast<biguint>(arrays[0][0u]) == itob(start))
+    assert(reinterpret_cast<biguint>(arrays[1][0u]) == itob(start + 1u))
+    assert(reinterpret_cast<biguint>(arrays[2][0u]) == itob(start + 2u))
+    arrays[0][1u]: arc4.uint8 = arc4_encode(start + 3u, arc4.uint8)
+    arrays[1][1u]: arc4.uint8 = arc4_encode(start + 4u, arc4.uint8)
+    arrays[2][1u]: arc4.uint8 = arc4_encode(start + 5u, arc4.uint8)
+    if (reassign) {
+      arrays: tuple<arc4.static_array<arc4.uint8, 4>,arc4.static_array<arc4.uint8, 4>,arc4.static_array<arc4.uint8, 4>> = (arrays[0].copy(), arrays[1].copy(), arrays[2].copy())
     }
-    arrays[0][0u]: arc4.uint8 = 99_arc4u8
-    arrays[1][0u]: arc4.uint8 = 99_arc4u8
-    arrays[2][0u]: arc4.uint8 = 99_arc4u8
+    arrays[0][1u]: arc4.uint8 = arc4_encode(start + 6u, arc4.uint8)
+    arrays[1][1u]: arc4.uint8 = arc4_encode(start + 7u, arc4.uint8)
+    arrays[2][1u]: arc4.uint8 = arc4_encode(start + 8u, arc4.uint8)
+    assert(reinterpret_cast<biguint>(arrays[0][1u]) == itob(start + 6u))
+    assert(reinterpret_cast<biguint>(arrays[1][1u]) == itob(start + 7u))
+    assert(reinterpret_cast<biguint>(arrays[2][1u]) == itob(start + 8u))
   }
 }
 
@@ -667,8 +758,8 @@ contract Arc4AddressContract
     assert(reinterpret_cast<bytes>(zero_address) == reinterpret_cast<bytes>(global<ZeroAddress>()))
     some_address: arc4.static_array<arc4.uint8, 32> = Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA")
     assert(some_address == Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"))
-    some_address[0u]: arc4.uint8 = 123_arc4u8
-    assert(some_address != Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"))
+    address_copy: arc4.static_array<arc4.uint8, 32> = some_address
+    assert(some_address == address_copy)
     return true
   }
   

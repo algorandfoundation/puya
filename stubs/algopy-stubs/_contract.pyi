@@ -1,7 +1,9 @@
 import abc
+import typing
 
 from algopy import UInt64, urange
 
+@typing.final
 class StateTotals:
     """
     Options class to manually define the total amount of global and local state contract will use,
@@ -38,6 +40,7 @@ class Contract(abc.ABC):
         name: str = ...,
         scratch_slots: urange | tuple[int | urange, ...] | list[int | urange] = ...,
         state_totals: StateTotals = ...,
+        avm_version: int = ...,
     ):
         """
         When declaring a Contract subclass, options and configuration are passed in
@@ -80,6 +83,9 @@ class Contract(abc.ABC):
          specified. Note that it is valid to not provide any arguments to the `StateTotals`
          constructor, like so `state_totals=StateTotals()`, in which case all values will be
          automatically calculated.
+        :param avm_version:
+         Determines which AVM version to use, this affects what operations are supported.
+         Defaults to value provided supplied on command line (which defaults to current mainnet version)
         """
 
     @abc.abstractmethod

@@ -149,14 +149,6 @@ def example() -> None:
     ).submit()
     # extract result
     hello_world_result = arc4.String.from_log(call_txn.last_log)
-    
-    # OR, call it automatic ARC4 encoding, type validation and result handling
-    hello_world_result, call_txn = arc4.abi_call[arc4.String]( # declare return type
-        "hello(string)string", # method signature to call 
-        "again", # abi method arguments
-        fee=0, # other transaction parameters
-        app_id=app
-    )
 ```
 
 #### Create and submit transactions in a loop
@@ -173,37 +165,6 @@ def example(receivers: tuple[Account, Account, Account]) -> None:
             receiver=receiver,
             fee=0,
         ).submit()
-```
-
-### ARC4 Application calls
-
-#### `algopy.arc4.abi_call`
-
-[`algopy.arc4.abi_call`](#algopy.arc4.abi_call) can be used to call other ARC4 contracts, the first argument should refer to
-an ARC4 method either by referencing an Algorand Python [`algopy.arc4.ARC4Contract`](#algopy.arc4.ARC4Contract) method,
-an [`algopy.arc4.ARC4Client`](#algopy.arc4.ARC4Client) method generated from an ARC-32 app spec, or a string representing
-the ARC4 method signature or name.
-The following arguments should then be the arguments required for the call, these arguments will be type checked and converted where appropriate.
-Any other related transaction parameters such as `app_id`, `fee` etc. can also be provided as keyword arguments.
-
-If the ARC4 method returns an ARC4 result then the result will be a tuple of the ARC4 result and the inner transaction.
-If the ARC4 method does not return a result, or if the result type is not fully qualified then just the inner transaction is returned.
-
-```python
-from algopy import Application, ARC4Contract, String, arc4, subroutine
-
-class HelloWorld(ARC4Contract):
-    
-    @arc4.abimethod()
-    def greet(self, name: String) -> String:
-        return "Hello " + name
-
-@subroutine
-def call_existing_application(app: Application) -> None:
-    greeting, greet_txn = arc4.abi_call(HelloWorld.greet, "there", app_id=app)
-    
-    assert greeting == "Hello there"
-    assert greet_txn.app_id == 1234
 ```
 
 ### Limitations

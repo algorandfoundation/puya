@@ -22,6 +22,7 @@ def program_ir_to_mir(
             _lower_subroutine_to_mir(ctx, ir_sub, is_main=False, name=ir_sub.full_name)
             for ir_sub in program_ir.subroutines
         ],
+        avm_version=program_ir.avm_version,
     )
     global_stack_allocation(ctx, result, mir_output_path)
     return result

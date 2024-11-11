@@ -1,0 +1,107 @@
+#pragma version 11
+
+test_cases.avm_11.contract.Contract.approval_program:
+    intcblock 0 1
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.avm_11.contract.Contract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
+    txn NumAppArgs
+    bz __puya_arc4_router___bare_routing@5
+    pushbytes 0xc2b8dd8a // method "test_new_ops()void"
+    txna ApplicationArgs 0
+    match __puya_arc4_router___test_new_ops_route@2
+    intc_0 // 0
+    retsub
+
+__puya_arc4_router___test_new_ops_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_new_ops
+    intc_1 // 1
+    retsub
+
+__puya_arc4_router___bare_routing@5:
+    txn OnCompletion
+    bnz __puya_arc4_router___after_if_else@9
+    txn ApplicationID
+    !
+    assert // is creating
+    intc_1 // 1
+    retsub
+
+__puya_arc4_router___after_if_else@9:
+    intc_0 // 0
+    retsub
+
+
+// test_cases.avm_11.contract.Contract.test_new_ops() -> void:
+test_new_ops:
+    proto 0 0
+    pushint 1793 // 1793
+    bzero
+    pushbytes 0x
+    dup
+    uncover 2
+    falcon_verify
+    !
+    assert
+    pushbytes 0x
+    sumhash512
+    len
+    assert
+    online_stake
+    assert
+    intc_0 // 0
+    block BlkProposer
+    global ZeroAddress
+    ==
+    assert // proposer
+    intc_0 // 0
+    block BlkFeesCollected
+    assert // fees collected
+    intc_0 // 0
+    block BlkBonus
+    assert // bonus
+    intc_0 // 0
+    block BlkBranch
+    len
+    assert // branch
+    intc_0 // 0
+    block BlkFeeSink
+    global ZeroAddress
+    !=
+    assert // fee sink
+    intc_0 // 0
+    block BlkProtocol
+    len
+    assert // protocol
+    intc_0 // 0
+    block BlkTxnCounter
+    assert // txn counter
+    intc_0 // 0
+    block BlkProposerPayout
+    assert // proposer payout
+    global PayoutsEnabled
+    assert // payouts_enabled
+    global PayoutsGoOnlineFee
+    assert // payouts_go_online_fee
+    global PayoutsPercent
+    assert // payouts_percent
+    global PayoutsMinBalance
+    assert // payouts_min_balance
+    global PayoutsMaxBalance
+    assert // payouts_max_balance
+    intc_0 // 0
+    voter_params_get VoterBalance
+    popn 2
+    intc_0 // 0
+    voter_params_get VoterIncentiveEligible
+    popn 2
+    retsub

@@ -29,7 +29,6 @@ from puyapy.awst_build.eb._utils import (
     dummy_value,
 )
 from puyapy.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder, arc4_bool_bytes
-from puyapy.awst_build.eb.arc4._utils import no_literal_items
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import BuilderBinaryOp, InstanceBuilder, NodeBuilder
 from puyapy.awst_build.eb.none import NoneExpressionBuilder
@@ -57,7 +56,6 @@ class DynamicArrayGenericTypeBuilder(GenericTypeBuilder):
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
         element_type = expect.instance_builder(args[0], default=expect.default_raise).pytype
         typ = pytypes.GenericARC4DynamicArrayType.parameterise([element_type], location)
-        no_literal_items(typ, location)
         values = tuple(expect.argument_of_type_else_dummy(a, element_type).resolve() for a in args)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
@@ -82,7 +80,6 @@ class DynamicArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         location: SourceLocation,
     ) -> InstanceBuilder:
         typ = self.produces()
-        no_literal_items(typ, location)
         values = tuple(expect.argument_of_type_else_dummy(a, typ.items).resolve() for a in args)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
@@ -143,19 +140,15 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
         *,
         reverse: bool,
     ) -> InstanceBuilder:
-        if op != BuilderBinaryOp.add:
-            return NotImplemented
-        if not _check_array_concat_arg(other, self.pytype):
+        # only __add__ is implemented, not __radd__
+        if op != BuilderBinaryOp.add or reverse:
             return NotImplemented
 
-        lhs: InstanceBuilder = self
-        rhs = other
-        if reverse:
-            (lhs, rhs) = (rhs, lhs)
+        other = _match_array_concat_arg(other, self.pytype)
         return DynamicArrayExpressionBuilder(
             ArrayConcat(
-                left=lhs.resolve(),
-                right=rhs.resolve(),
+                left=self.resolve(),
+                right=other.resolve(),
                 wtype=self.pytype.wtype,
                 source_location=location,
             ),
@@ -209,7 +202,7 @@ class _Pop(_ArrayFunc):
     ) -> InstanceBuilder:
         expect.no_args(args, location)
         result_expr = ArrayPop(
-            base=self.expr, wtype=self.typ.items.wtype, source_location=location
+            base=self.expr, wtype=self.typ.items_wtype, source_location=location
         )
         return builder_for_instance(self.typ.items, result_expr)
 
@@ -238,19 +231,16 @@ class _Extend(_ArrayFunc):
         )
 
 
-def _check_array_concat_arg(arg: InstanceBuilder, arr_type: pytypes.ArrayType) -> bool:
-    match arg:
-        case InstanceBuilder(pytype=pytypes.ArrayType(items=arr_type.items)):
-            return True
-        case InstanceBuilder(pytype=pytypes.TupleLikeType(items=tup_items)) if all(
-            ti == arr_type.items for ti in tup_items
-        ):
-            return True
-    return False
-
-
 def _match_array_concat_arg(arg: InstanceBuilder, arr_type: pytypes.ArrayType) -> InstanceBuilder:
-    if _check_array_concat_arg(arg, arr_type):
+    expected_item_type = arr_type.items
+    match arg.pytype:
+        case pytypes.SequenceType(items=array_items):
+            okay = expected_item_type <= array_items
+        case pytypes.TupleLikeType(items=tuple_items):
+            okay = all(expected_item_type <= ti for ti in tuple_items)
+        case _:
+            okay = False
+    if okay:
         return arg
     logger.error(
         "expected an array or tuple of the same element type", location=arg.source_location

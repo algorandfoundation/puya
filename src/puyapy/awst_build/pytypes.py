@@ -28,7 +28,10 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-@attrs.frozen(kw_only=True, str=False)
+ErrorMessage = typing.NewType("ErrorMessage", str)
+
+
+@attrs.frozen(kw_only=True, str=False, order=False)
 class PyType(abc.ABC):
     name: str
     """The canonical fully qualified type name"""
@@ -72,8 +75,17 @@ class PyType(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def wtype(self) -> wtypes.WType:
+    def wtype(self) -> wtypes.WType | ErrorMessage:
         """The WType that this type represents, if any."""
+
+    def checked_wtype(self, location: SourceLocation | None) -> wtypes.WType:
+        match self.wtype:
+            case wtypes.WType() as wtype:
+                return wtype
+            case str(msg):
+                raise CodeError(msg, location)
+            case _:
+                typing.assert_never(self.wtype)
 
     def parameterise(
         self,
@@ -83,8 +95,46 @@ class PyType(abc.ABC):
         """Produce parameterised type.
         Throws if not a generic type of if a parameterised generic type."""
         if self.generic:
-            raise CodeError(f"Type already has parameters: {self}", source_location)
-        raise CodeError(f"Not a generic type: {self}", source_location)
+            raise CodeError(f"type already has parameters: {self}", source_location)
+        raise CodeError(f"not a generic type: {self}", source_location)
+
+    @typing.final
+    def __lt__(self, other: object) -> bool:
+        if not isinstance(other, PyType):
+            return NotImplemented
+        # self < other -> self is a supertype of other
+        return self in other.mro
+
+    @typing.final
+    def __le__(self, other: object) -> bool:
+        if not isinstance(other, PyType):
+            return NotImplemented
+        return self == other or self < other
+
+    @typing.final
+    def __gt__(self, other: object) -> bool:
+        if not isinstance(other, PyType):
+            return NotImplemented
+        raise TypeError("types are partial ordered")
+
+    @typing.final
+    def __ge__(self, other: object) -> bool:
+        if not isinstance(other, PyType):
+            return NotImplemented
+        raise TypeError("types are partial ordered")
+
+    def is_type_or_subtype(self, *of_any: PyType) -> bool:
+        return any(of <= self for of in of_any)
+
+    def is_type_or_supertype(self, *of_any: PyType) -> bool:
+        return any(self <= of for of in of_any)
+
+
+class RuntimeType(PyType, abc.ABC):
+    @typing.override
+    @property
+    @abc.abstractmethod
+    def wtype(self) -> wtypes.WType: ...
 
 
 _builtins_registry: typing.Final = dict[str, PyType]()
@@ -126,7 +176,7 @@ _Parameterise = typing_extensions.TypeAliasType(
 
 
 @typing.final
-@attrs.frozen
+@attrs.frozen(order=False)
 class _GenericType(PyType, abc.ABC, typing.Generic[_TPyType]):
     """Represents a typing.Generic type with unknown parameters"""
 
@@ -138,8 +188,8 @@ class _GenericType(PyType, abc.ABC, typing.Generic[_TPyType]):
 
     @typing.override
     @property
-    def wtype(self) -> typing.Never:
-        raise CodeError("Generic type usage requires parameters")
+    def wtype(self) -> ErrorMessage:
+        return ErrorMessage("generic type usage requires parameters")
 
     @typing.override
     def parameterise(
@@ -159,7 +209,7 @@ def _parameterise_type_type(
         (arg,) = args
     except ValueError:
         raise CodeError(
-            f"Expected a single type parameter, got {len(args)} parameters", source_location
+            f"expected a single type parameter, got {len(args)} parameters", source_location
         ) from None
     return TypeType(typ=arg)
 
@@ -171,7 +221,7 @@ GenericTypeType: typing.Final[PyType] = _GenericType(
 
 
 @typing.final
-@attrs.frozen
+@attrs.frozen(order=False)
 class TypeType(PyType):
     typ: PyType
     generic: PyType = attrs.field(default=GenericTypeType, init=False)
@@ -183,12 +233,12 @@ class TypeType(PyType):
 
     @typing.override
     @property
-    def wtype(self) -> typing.Never:
-        raise CodeError("type objects are not usable as values")
+    def wtype(self) -> ErrorMessage:
+        return ErrorMessage("type objects are not usable as values")
 
 
 @typing.final
-@attrs.frozen
+@attrs.frozen(order=False)
 class TypingLiteralType(PyType):
     value: TypingLiteralValue
     source_location: SourceLocation | None
@@ -203,8 +253,8 @@ class TypingLiteralType(PyType):
 
     @typing.override
     @property
-    def wtype(self) -> typing.Never:
-        raise CodeError(f"{self} is not usable as a value", self.source_location)
+    def wtype(self) -> ErrorMessage:
+        return ErrorMessage(f"{self} is not usable as a value")
 
 
 def _flatten_nested_unions(types: Sequence[PyType]) -> tuple[PyType, ...]:
@@ -218,7 +268,7 @@ def _flatten_nested_unions(types: Sequence[PyType]) -> tuple[PyType, ...]:
 
 
 @typing.final
-@attrs.frozen
+@attrs.frozen(order=False)
 class UnionType(PyType):
     types: tuple[PyType, ...] = attrs.field(
         converter=_flatten_nested_unions, validator=attrs.validators.min_len(2)
@@ -235,24 +285,24 @@ class UnionType(PyType):
 
     @typing.override
     @property
-    def wtype(self) -> typing.Never:
-        raise CodeError("type unions are unsupported at this location", self.source_location)
+    def wtype(self) -> ErrorMessage:
+        return ErrorMessage("type unions are unsupported at this location")
 
 
-@attrs.frozen
+@attrs.frozen(order=False)
 class _BaseType(PyType):
     """Type that is only usable as a base type"""
 
     @typing.override
     @property
-    def wtype(self) -> typing.Never:
-        raise CodeError(f"{self} is only usable as a base type")
+    def wtype(self) -> ErrorMessage:
+        return ErrorMessage(f"{self} is only usable as a base type")
 
     def __attrs_post_init__(self) -> None:
         _register_builtin(self)
 
 
-@attrs.frozen
+@attrs.frozen(kw_only=True, order=False)
 class TupleLikeType(PyType, abc.ABC):
     items: tuple[PyType, ...]
     source_location: SourceLocation | None
@@ -271,16 +321,25 @@ GenericTupleType: typing.Final = _GenericType(
 )
 
 
-@attrs.frozen(kw_only=True)
+@attrs.frozen(kw_only=True, order=False)
 class TupleType(TupleLikeType):
     generic: PyType | None = attrs.field(default=GenericTupleType, init=False)
     bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
     mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
 
     @property
-    def wtype(self) -> wtypes.WTuple:
+    def wtype(self) -> wtypes.WTuple | ErrorMessage:
+        item_wtypes = []
+        for i in self.items:
+            match i.wtype:
+                case wtypes.WType() as wtype:
+                    item_wtypes.append(wtype)
+                case ErrorMessage() as err:
+                    return err
+                case other:
+                    typing.assert_never(other)
         return wtypes.WTuple(
-            types=(i.wtype for i in self.items),
+            types=item_wtypes,
             source_location=self.source_location,
         )
 
@@ -288,51 +347,64 @@ class TupleType(TupleLikeType):
 NamedTupleBaseType: typing.Final[PyType] = _BaseType(name="typing.NamedTuple")
 
 
-@attrs.frozen
-class NamedTupleType(TupleType):
+@attrs.frozen(kw_only=True, order=False)
+class NamedTupleType(TupleType, RuntimeType):
     fields: immutabledict[str, PyType] = attrs.field(converter=immutabledict)
     items: tuple[PyType, ...] = attrs.field(init=False)
     generic: None = attrs.field(default=None, init=False)
     bases: tuple[PyType, ...] = attrs.field(default=(NamedTupleBaseType,), init=False)
     mro: tuple[PyType, ...] = attrs.field(default=(NamedTupleBaseType,), init=False)
+    wtype: wtypes.WTuple = attrs.field(init=False)
 
     @items.default
     def _items(self) -> tuple[PyType, ...]:
         return tuple(self.fields.values())
 
-    @typing.override
-    @property
-    def wtype(self) -> wtypes.WTuple:
-        return wtypes.WTuple(
+    @wtype.default
+    def _wtype(self) -> wtypes.WTuple:
+        unnamed_type = super().wtype
+        if isinstance(unnamed_type, str):
+            raise CodeError(unnamed_type, self.source_location)
+        return attrs.evolve(
+            unnamed_type,
             name=self.name,
-            types=(i.wtype for i in self.items),
             names=tuple(self.fields),
-            source_location=self.source_location,
         )
 
 
-@typing.final
-@attrs.frozen
-class ArrayType(PyType):
+@attrs.frozen(order=False)
+class SequenceType(PyType, abc.ABC):
     items: PyType
+
+
+@typing.final
+@attrs.frozen(order=False)
+class ArrayType(SequenceType, RuntimeType):
     size: int | None
     wtype: wtypes.WType
+    # convenience accessors
+    items_wtype: wtypes.WType
 
 
 @typing.final
-@attrs.frozen
-class StorageProxyType(PyType):
+@attrs.frozen(order=False)
+class StorageProxyType(RuntimeType):
     content: PyType
     wtype: wtypes.WType
+    # convenience accessors
+    content_wtype: wtypes.WType
 
 
 @typing.final
-@attrs.frozen
-class StorageMapProxyType(PyType):
+@attrs.frozen(order=False)
+class StorageMapProxyType(RuntimeType):
     generic: PyType
     key: PyType
     content: PyType
     wtype: wtypes.WType
+    # convenience accessors
+    key_wtype: wtypes.WType
+    content_wtype: wtypes.WType
 
 
 @typing.final
@@ -344,7 +416,7 @@ class FuncArg:
 
 
 @typing.final
-@attrs.frozen(kw_only=True)
+@attrs.frozen(kw_only=True, order=False)
 class FuncType(PyType):
     ret_type: PyType
     args: tuple[FuncArg, ...] = attrs.field(converter=tuple[FuncArg, ...])
@@ -355,21 +427,21 @@ class FuncType(PyType):
 
     @typing.override
     @property
-    def wtype(self) -> typing.Never:
-        raise CodeError("function objects are not usable as values")
+    def wtype(self) -> ErrorMessage:
+        return ErrorMessage("function objects are not usable as values")
 
 
 @typing.final
-@attrs.frozen
+@attrs.frozen(order=False)
 class StaticType(PyType):
     @typing.override
     @property
-    def wtype(self) -> typing.Never:
-        raise CodeError(f"{self} is only usable as a type and cannot be instantiated")
+    def wtype(self) -> ErrorMessage:
+        return ErrorMessage(f"{self} is only usable as a type and cannot be instantiated")
 
 
 @typing.final
-@attrs.frozen(kw_only=True)
+@attrs.frozen(kw_only=True, order=False)
 class ContractType(PyType):
     generic: None = attrs.field(default=None, init=False)
     module_name: str
@@ -383,16 +455,16 @@ class ContractType(PyType):
 
     @typing.override
     @property
-    def wtype(self) -> typing.Never:
-        raise CodeError(f"{self} is only usable as a type and cannot be instantiated")
+    def wtype(self) -> ErrorMessage:
+        return ErrorMessage(f"{self} is only usable as a type and cannot be instantiated")
 
 
 ObjectType: typing.Final[PyType] = _register_builtin(StaticType(name="builtins.object"))
 
 
 @typing.final
-@attrs.frozen(init=False)
-class StructType(PyType):
+@attrs.frozen(init=False, order=False)
+class StructType(RuntimeType):
     fields: immutabledict[str, PyType] = attrs.field(
         converter=immutabledict, validator=[attrs.validators.min_len(1)]
     )
@@ -418,8 +490,9 @@ class StructType(PyType):
         frozen: bool,
         source_location: SourceLocation | None,
     ):
-        field_wtypes = {name: field_typ.wtype for name, field_typ in fields.items()}
-        # TODO: this is a bit of a kludge
+        field_wtypes = {
+            name: field_typ.checked_wtype(source_location) for name, field_typ in fields.items()
+        }  # TODO: this is a bit of a kludge
         wtype_cls: type[wtypes.ARC4Struct | wtypes.WStructType]
         if base is ARC4StructBaseType:
             wtype_cls = wtypes.ARC4Struct
@@ -428,7 +501,7 @@ class StructType(PyType):
         else:
             raise InternalError(f"Unknown struct base type: {base}", source_location)
         wtype = wtype_cls(
-            fields=field_wtypes, name=name, immutable=frozen, source_location=source_location
+            fields=field_wtypes, name=name, frozen=frozen, source_location=source_location
         )
         self.__attrs_init__(
             bases=[base],
@@ -442,8 +515,8 @@ class StructType(PyType):
 
 
 @typing.final
-@attrs.frozen
-class _SimpleType(PyType):
+@attrs.frozen(order=False)
+class _SimpleType(RuntimeType):
     wtype: wtypes.WType
 
     def __attrs_post_init__(self) -> None:
@@ -451,7 +524,7 @@ class _SimpleType(PyType):
 
 
 @typing.final
-@attrs.frozen
+@attrs.frozen(order=False)
 class LiteralOnlyType(PyType):
     python_type: type[int | bytes | str]
     name: str = attrs.field(init=False)
@@ -462,49 +535,54 @@ class LiteralOnlyType(PyType):
 
     @typing.override
     @property
-    def wtype(self) -> typing.Never:
-        raise CodeError(f"Python literals of type {self} cannot be used as runtime values")
+    def wtype(self) -> ErrorMessage:
+        return ErrorMessage(f"Python literals of type {self} cannot be used as runtime values")
 
 
-NoneType: typing.Final[PyType] = _SimpleType(name="types.NoneType", wtype=wtypes.void_wtype)
+NoneType: typing.Final[RuntimeType] = _SimpleType(name="types.NoneType", wtype=wtypes.void_wtype)
 NeverType: typing.Final[PyType] = _SimpleType(name="typing.Never", wtype=wtypes.void_wtype)
-BoolType: typing.Final[PyType] = _SimpleType(name="builtins.bool", wtype=wtypes.bool_wtype)
 IntLiteralType: typing.Final = _register_builtin(LiteralOnlyType(int))
 StrLiteralType: typing.Final = _register_builtin(LiteralOnlyType(str))
 BytesLiteralType: typing.Final = _register_builtin(LiteralOnlyType(bytes))
+BoolType: typing.Final[RuntimeType] = _SimpleType(
+    name="builtins.bool",
+    wtype=wtypes.bool_wtype,
+    bases=[IntLiteralType],
+    mro=[IntLiteralType],
+)
 
-UInt64Type: typing.Final[PyType] = _SimpleType(
+UInt64Type: typing.Final[RuntimeType] = _SimpleType(
     name="algopy._primitives.UInt64",
     wtype=wtypes.uint64_wtype,
 )
-BigUIntType: typing.Final[PyType] = _SimpleType(
+BigUIntType: typing.Final[RuntimeType] = _SimpleType(
     name="algopy._primitives.BigUInt",
     wtype=wtypes.biguint_wtype,
 )
-BytesType: typing.Final[PyType] = _SimpleType(
+BytesType: typing.Final[RuntimeType] = _SimpleType(
     name="algopy._primitives.Bytes",
     wtype=wtypes.bytes_wtype,
 )
-StringType: typing.Final[PyType] = _SimpleType(
+StringType: typing.Final[RuntimeType] = _SimpleType(
     name="algopy._primitives.String",
     wtype=wtypes.string_wtype,
 )
-AccountType: typing.Final[PyType] = _SimpleType(
+AccountType: typing.Final[RuntimeType] = _SimpleType(
     name="algopy._reference.Account",
     wtype=wtypes.account_wtype,
 )
-AssetType: typing.Final[PyType] = _SimpleType(
+AssetType: typing.Final[RuntimeType] = _SimpleType(
     name="algopy._reference.Asset",
     wtype=wtypes.asset_wtype,
 )
-ApplicationType: typing.Final[PyType] = _SimpleType(
+ApplicationType: typing.Final[RuntimeType] = _SimpleType(
     name="algopy._reference.Application",
     wtype=wtypes.application_wtype,
 )
 
 
-@attrs.frozen(init=False)
-class UInt64EnumType(PyType):
+@attrs.frozen(init=False, order=False)
+class UInt64EnumType(RuntimeType):
     def __init__(self, name: str):
         self.__attrs_init__(
             name=name,
@@ -528,21 +606,21 @@ OpUpFeeSourceType: typing.Final = UInt64EnumType(
     name="algopy._util.OpUpFeeSource",
 )
 
-ARC4StringType: typing.Final[PyType] = _SimpleType(
+ARC4StringType: typing.Final[RuntimeType] = _SimpleType(
     name="algopy.arc4.String",
     wtype=wtypes.arc4_string_alias,
 )
-ARC4BoolType: typing.Final[PyType] = _SimpleType(
+ARC4BoolType: typing.Final[RuntimeType] = _SimpleType(
     name="algopy.arc4.Bool",
     wtype=wtypes.arc4_bool_wtype,
 )
 
 
-@attrs.frozen
-class ARC4UIntNType(PyType):
+@attrs.frozen(order=False)
+class ARC4UIntNType(RuntimeType):
     bits: int
     wtype: wtypes.ARC4UIntN
-    native_type: PyType
+    native_type: RuntimeType
 
 
 def _require_int_literal(
@@ -565,7 +643,7 @@ def _require_int_literal(
 
 
 def _make_arc4_unsigned_int_parameterise(
-    *, native_type: PyType, max_bits: int | None = None
+    *, native_type: RuntimeType, max_bits: int | None = None
 ) -> _Parameterise:
     def parameterise(
         self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None
@@ -574,11 +652,11 @@ def _make_arc4_unsigned_int_parameterise(
             (bits_t,) = args
         except ValueError:
             raise CodeError(
-                f"Expected a single type parameter, got {len(args)} parameters", source_location
+                f"expected a single type parameter, got {len(args)} parameters", source_location
             ) from None
         bits = _require_int_literal(self, bits_t, source_location)
         if (max_bits is not None) and bits > max_bits:
-            raise CodeError(f"Max bit size of {self} is {max_bits}, got {bits}", source_location)
+            raise CodeError(f"max bit size of {self} is {max_bits}, got {bits}", source_location)
 
         name = f"{self.name}[{bits_t.name}]"
         return ARC4UIntNType(
@@ -626,8 +704,8 @@ ARC4ByteType: typing.Final = _register_builtin(
 )
 
 
-@attrs.frozen
-class ARC4UFixedNxMType(PyType):
+@attrs.frozen(order=False)
+class ARC4UFixedNxMType(RuntimeType):
     generic: _GenericType
     bits: int
     precision: int
@@ -642,14 +720,14 @@ def _make_arc4_unsigned_fixed_parameterise(*, max_bits: int | None = None) -> _P
             bits_t, precision_t = args
         except ValueError:
             raise CodeError(
-                f"Expected two type parameters, got {len(args)} parameters", source_location
+                f"expected two type parameters, got {len(args)} parameters", source_location
             ) from None
         bits = _require_int_literal(self, bits_t, source_location, position_qualifier="first")
         precision = _require_int_literal(
             self, precision_t, source_location, position_qualifier="second"
         )
         if (max_bits is not None) and bits > max_bits:
-            raise CodeError(f"Max bit size of {self} is {max_bits}, got {bits}", source_location)
+            raise CodeError(f"max bit size of {self} is {max_bits}, got {bits}", source_location)
 
         name = f"{self.name}[{bits_t.name}, {precision_t.name}]"
         return ARC4UFixedNxMType(
@@ -673,37 +751,35 @@ GenericARC4BigUFixedNxMType: typing.Final = _GenericType(
 )
 
 
-@typing.final
-@attrs.frozen(kw_only=True)
-class ARC4TupleType(TupleLikeType):
-    generic: PyType
-    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
-    mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
-
-    @property
-    def wtype(self) -> wtypes.ARC4Tuple:
-        return wtypes.ARC4Tuple(
-            types=(i.wtype for i in self.items),
-            source_location=self.source_location,
-        )
-
-
 def _parameterise_arc4_tuple(
-    self: _GenericType[ARC4TupleType], args: _TypeArgs, source_location: SourceLocation | None
+    self: _GenericType[ARC4TupleType],  # noqa: ARG001
+    args: _TypeArgs,
+    source_location: SourceLocation | None,
 ) -> ARC4TupleType:
-    name = f"{self.name}[{', '.join(pyt.name for pyt in args)}]"
-    return ARC4TupleType(
-        generic=self,
-        name=name,
-        items=tuple(args),
-        source_location=source_location,
-    )
+    item_wtypes = tuple(arg.checked_wtype(source_location) for arg in args)
+    wtype = wtypes.ARC4Tuple(types=item_wtypes, source_location=source_location)
+    return ARC4TupleType(items=tuple(args), wtype=wtype, source_location=source_location)
 
 
 GenericARC4TupleType: typing.Final = _GenericType(
     name="algopy.arc4.Tuple",
     parameterise=_parameterise_arc4_tuple,
 )
+
+
+@typing.final
+@attrs.frozen(kw_only=True, order=False)
+class ARC4TupleType(TupleLikeType, RuntimeType):
+    generic: _GenericType = attrs.field(default=GenericARC4TupleType, init=False)
+    name: str = attrs.field(init=False)
+    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
+    mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
+    wtype: wtypes.ARC4Tuple
+
+    @name.default
+    def _name(self) -> str:
+        return f"{self.generic.name}[{', '.join(pyt.name for pyt in self.items)}]"
+
 
 CompiledContractType: typing.Final = _register_builtin(
     NamedTupleType(
@@ -732,8 +808,8 @@ CompiledLogicSigType: typing.Final = _register_builtin(
 
 
 @typing.final
-@attrs.frozen
-class VariadicTupleType(PyType):
+@attrs.frozen(order=False)
+class VariadicTupleType(SequenceType):
     items: PyType
     generic: _GenericType = attrs.field(default=GenericTupleType, init=False)
     bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
@@ -746,8 +822,8 @@ class VariadicTupleType(PyType):
 
     @typing.override
     @property
-    def wtype(self) -> typing.Never:
-        raise CodeError("variadic tuples cannot be used as runtime values")
+    def wtype(self) -> ErrorMessage:
+        return ErrorMessage("variadic tuples cannot be used as runtime values")
 
 
 def _make_array_parameterise(
@@ -760,15 +836,18 @@ def _make_array_parameterise(
             (arg,) = args
         except ValueError:
             raise CodeError(
-                f"Expected a single type parameter, got {len(args)} parameters", source_location
+                f"expected a single type parameter, got {len(args)} parameters", source_location
             ) from None
         name = f"{self.name}[{arg.name}]"
+        items_wtype = arg.checked_wtype(source_location)
+
         return ArrayType(
             generic=self,
             name=name,
             size=None,
             items=arg,
-            wtype=typ(element_type=arg.wtype, source_location=source_location),
+            wtype=typ(element_type=items_wtype, source_location=source_location),
+            items_wtype=items_wtype,
         )
 
     return parameterise
@@ -793,6 +872,7 @@ ARC4DynamicBytesType: typing.Final = _register_builtin(
         ),
         size=None,
         items=ARC4ByteType,
+        items_wtype=ARC4ByteType.wtype,
         bases=[GenericARC4DynamicArrayType.parameterise([ARC4ByteType], source_location=None)],
         mro=[GenericARC4DynamicArrayType.parameterise([ARC4ByteType], source_location=None)],
     )
@@ -806,21 +886,24 @@ def _parameterise_arc4_static_array(
         items, size_t = args
     except ValueError:
         raise CodeError(
-            f"Expected a single type parameter, got {len(args)} parameters", source_location
+            f"expected a single type parameter, got {len(args)} parameters", source_location
         ) from None
     size = _require_int_literal(self, size_t, source_location, position_qualifier="second")
     if size < 0:
-        raise CodeError("Array size should be non-negative", source_location)
+        raise CodeError("array size should be non-negative", source_location)
 
     name = f"{self.name}[{items.name}, {size_t.name}]"
+    items_wtype = items.checked_wtype(source_location)
+
     return ArrayType(
         generic=self,
         name=name,
         size=size,
         items=items,
         wtype=wtypes.ARC4StaticArray(
-            element_type=items.wtype, array_size=size, source_location=source_location
+            element_type=items_wtype, array_size=size, source_location=source_location
         ),
+        items_wtype=items_wtype,
     )
 
 
@@ -835,6 +918,7 @@ ARC4AddressType: typing.Final = _register_builtin(
         size=32,
         generic=None,
         items=ARC4ByteType,
+        items_wtype=ARC4ByteType.wtype,
         bases=[
             GenericARC4StaticArrayType.parameterise(
                 [ARC4ByteType, TypingLiteralType(value=32, source_location=None)],
@@ -851,7 +935,7 @@ ARC4AddressType: typing.Final = _register_builtin(
 )
 
 
-def _make_storage_parameterise(key_wtype: wtypes.WType) -> _Parameterise[StorageProxyType]:
+def _make_storage_parameterise(wtype: wtypes.WType) -> _Parameterise[StorageProxyType]:
     def parameterise(
         self: _GenericType[StorageProxyType],
         args: _TypeArgs,
@@ -861,14 +945,16 @@ def _make_storage_parameterise(key_wtype: wtypes.WType) -> _Parameterise[Storage
             (arg,) = args
         except ValueError:
             raise CodeError(
-                f"Expected a single type parameter, got {len(args)} parameters", source_location
+                f"expected a single type parameter, got {len(args)} parameters", source_location
             ) from None
         name = f"{self.name}[{arg.name}]"
+        content_wtype = arg.checked_wtype(source_location)
         return StorageProxyType(
             generic=self,
             name=name,
             content=arg,
-            wtype=key_wtype,
+            wtype=wtype,
+            content_wtype=content_wtype,
         )
 
     return parameterise
@@ -883,15 +969,19 @@ def _parameterise_storage_map(
         key, content = args
     except ValueError:
         raise CodeError(
-            f"Expected two type parameters, got {len(args)} parameters", source_location
+            f"expected two type parameters, got {len(args)} parameters", source_location
         ) from None
     name = f"{self.name}[{key.name}, {content.name}]"
+    key_wtype = key.checked_wtype(source_location)
+    content_wtype = content.checked_wtype(source_location)
     return StorageMapProxyType(
         generic=self,
         name=name,
         key=key,
         content=content,
         wtype=wtypes.box_key,
+        key_wtype=key_wtype,
+        content_wtype=content_wtype,
     )
 
 
@@ -911,6 +1001,7 @@ BoxRefType: typing.Final = _register_builtin(
     StorageProxyType(
         name="algopy._box.BoxRef",
         content=BytesType,
+        content_wtype=BytesType.wtype,
         wtype=wtypes.box_key,
         generic=None,
     )
@@ -922,7 +1013,7 @@ GenericBoxMapType: typing.Final = _GenericType(
 )
 
 
-@attrs.frozen
+@attrs.frozen(order=False)
 class TransactionRelatedType(PyType, abc.ABC):
     transaction_type: TransactionType | None
     """None implies "any" type, which may be considered as either union or an intersection"""
@@ -932,19 +1023,19 @@ class TransactionRelatedType(PyType, abc.ABC):
 
 
 @typing.final
-@attrs.frozen
+@attrs.frozen(order=False)
 class GroupTransactionType(TransactionRelatedType):
     wtype: wtypes.WGroupTransaction
 
 
 @typing.final
-@attrs.frozen
+@attrs.frozen(order=False)
 class InnerTransactionFieldsetType(TransactionRelatedType):
     wtype: wtypes.WInnerTransactionFields
 
 
 @typing.final
-@attrs.frozen
+@attrs.frozen(order=False)
 class InnerTransactionResultType(TransactionRelatedType):
     wtype: wtypes.WInnerTransaction
 
@@ -1021,15 +1112,15 @@ InnerTransactionResultTypes: typing.Final[
 ] = {kind: _make_itxn_result_type(kind) for kind in _all_txn_kinds}
 
 
-@attrs.frozen(kw_only=True)
+@attrs.frozen(kw_only=True, order=False)
 class _CompileTimeType(PyType):
     _wtype_error: str
 
     @typing.override
     @property
-    def wtype(self) -> typing.Never:
+    def wtype(self) -> ErrorMessage:
         msg = self._wtype_error.format(self=self)
-        raise CodeError(msg)
+        return ErrorMessage(msg)
 
     def __attrs_post_init__(self) -> None:
         _register_builtin(self)
@@ -1041,7 +1132,7 @@ BytesBackedType: typing.Final[PyType] = _CompileTimeType(
 )
 
 
-@attrs.frozen(kw_only=True)
+@attrs.frozen(kw_only=True, order=False)
 class IntrinsicEnumType(PyType):
     generic: None = attrs.field(default=None, init=False)
     bases: tuple[PyType, ...] = attrs.field(
@@ -1052,8 +1143,8 @@ class IntrinsicEnumType(PyType):
     members: immutabledict[str, str] = attrs.field(converter=immutabledict)
 
     @property
-    def wtype(self) -> wtypes.WType:
-        raise CodeError(f"{self} is only valid as a literal argument to an algopy.op function")
+    def wtype(self) -> ErrorMessage:
+        return ErrorMessage(f"{self} is only valid as a literal argument to an algopy.op function")
 
 
 def _make_intrinsic_enum_types() -> Sequence[IntrinsicEnumType]:
@@ -1070,7 +1161,7 @@ def _make_intrinsic_enum_types() -> Sequence[IntrinsicEnumType]:
     ]
 
 
-@attrs.frozen(kw_only=True)
+@attrs.frozen(kw_only=True, order=False)
 class IntrinsicNamespaceType(PyType):
     generic: None = attrs.field(default=None, init=False)
     bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
@@ -1080,8 +1171,8 @@ class IntrinsicNamespaceType(PyType):
     )
 
     @property
-    def wtype(self) -> wtypes.WType:
-        raise CodeError(f"{self} is a namespace type only and not usable at runtime")
+    def wtype(self) -> ErrorMessage:
+        return ErrorMessage(f"{self} is a namespace type only and not usable at runtime")
 
 
 def _make_intrinsic_namespace_types() -> Sequence[IntrinsicNamespaceType]:
@@ -1148,7 +1239,7 @@ StructBaseType: typing.Final[PyType] = _BaseType(name="algopy._struct.Struct")
 
 
 @typing.final
-@attrs.frozen
+@attrs.frozen(order=False)
 class PseudoGenericFunctionType(PyType):
     return_type: PyType
     generic: _GenericType[PseudoGenericFunctionType]
@@ -1156,8 +1247,8 @@ class PseudoGenericFunctionType(PyType):
     mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
 
     @property
-    def wtype(self) -> typing.Never:
-        raise CodeError(f"{self} is not a value")
+    def wtype(self) -> ErrorMessage:
+        return ErrorMessage(f"{self} is not a value")
 
 
 def _parameterise_pseudo_generic_function_type(
@@ -1169,7 +1260,7 @@ def _parameterise_pseudo_generic_function_type(
         (arg,) = args
     except ValueError:
         raise CodeError(
-            f"Expected a single type parameter, got {len(args)} parameters", source_location
+            f"expected a single type parameter, got {len(args)} parameters", source_location
         ) from None
     name = f"{self.name}[{arg.name}]"
     return PseudoGenericFunctionType(generic=self, name=name, return_type=arg)

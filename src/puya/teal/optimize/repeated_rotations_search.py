@@ -9,7 +9,7 @@ from puya import log
 from puya.teal import models
 from puya.teal._util import preserve_stack_manipulations
 
-TealOpSequence = tuple[models.TealOpN, ...]
+TealOpSequence = tuple[models.TealOpUInt8, ...]
 logger = log.get_logger(__name__)
 
 
@@ -25,7 +25,7 @@ class TealStack:
     def from_stack_size(cls, stack_size: int) -> "TealStack":
         return cls(stack=list(range(stack_size)))
 
-    def apply(self, ops: Sequence[models.TealOpN]) -> "TealStack":
+    def apply(self, ops: Sequence[models.TealOpUInt8]) -> "TealStack":
         stack = TealStack(self.stack.copy())
         for op in ops:
             n = op.n
@@ -75,7 +75,7 @@ def simplify_rotation_ops(original_ops: TealOpSequence) -> TealOpSequence | None
 
 @functools.cache
 def get_possible_rotation_ops(n: int) -> TealOpSequence:
-    possible_ops = list[models.TealOpN]()
+    possible_ops = list[models.TealOpUInt8]()
     for i in range(1, n + 1):
         possible_ops.append(models.Cover(i, source_location=None))
         possible_ops.append(models.Uncover(i, source_location=None))
@@ -91,11 +91,11 @@ ROTATION_SIMPLIFY_OPS = frozenset(
 
 
 def repeated_rotation_ops_search(teal_ops: list[models.TealOp]) -> list[models.TealOp]:
-    maybe_remove_rotations = list[models.TealOpN]()
+    maybe_remove_rotations = list[models.TealOpUInt8]()
     result = list[models.TealOp]()
     for teal_op in teal_ops:
         if teal_op.op_code in ROTATION_SIMPLIFY_OPS:
-            maybe_remove_rotations.append(typing.cast(models.TealOpN, teal_op))
+            maybe_remove_rotations.append(typing.cast(models.TealOpUInt8, teal_op))
         else:
             maybe_simplified = _maybe_simplified(maybe_remove_rotations)
             maybe_remove_rotations = []
@@ -106,8 +106,8 @@ def repeated_rotation_ops_search(teal_ops: list[models.TealOp]) -> list[models.T
 
 
 def _maybe_simplified(
-    maybe_remove_rotations: list[models.TealOpN], window_size: int = 5
-) -> Sequence[models.TealOpN]:
+    maybe_remove_rotations: list[models.TealOpUInt8], window_size: int = 5
+) -> Sequence[models.TealOpUInt8]:
     if len(maybe_remove_rotations) < 2:
         return maybe_remove_rotations
 

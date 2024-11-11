@@ -1,0 +1,278 @@
+#pragma version 10
+
+test_cases.arc4_types.mutable_params2.MutableParams2.approval_program:
+    intcblock 0 1
+    bytecblock 0x 0x01 0x04 0x0003 0x0001
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // arc4_types/mutable_params2.py:4
+    // class MutableParams2(arc4.ARC4Contract):
+    proto 0 1
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz __puya_arc4_router___bare_routing@5
+    txna ApplicationArgs 0
+    pushbytes 0x6ac4a557 // method "test_array_rebinding()void"
+    swap
+    match __puya_arc4_router___test_array_rebinding_route@2
+    b __puya_arc4_router___switch_case_default@3
+
+__puya_arc4_router___test_array_rebinding_route@2:
+    // arc4_types/mutable_params2.py:5
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // is not creating
+    callsub test_array_rebinding
+    intc_1 // 1
+    retsub
+
+__puya_arc4_router___switch_case_default@3:
+    b __puya_arc4_router___after_if_else@9
+
+__puya_arc4_router___bare_routing@5:
+    // arc4_types/mutable_params2.py:4
+    // class MutableParams2(arc4.ARC4Contract):
+    txn OnCompletion
+    intc_0 // 0
+    swap
+    match __puya_arc4_router_____algopy_default_create@6
+    b __puya_arc4_router___switch_case_default@7
+
+__puya_arc4_router_____algopy_default_create@6:
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    assert // is creating
+    callsub __algopy_default_create
+    intc_1 // 1
+    retsub
+
+__puya_arc4_router___switch_case_default@7:
+
+__puya_arc4_router___after_if_else@9:
+    // arc4_types/mutable_params2.py:4
+    // class MutableParams2(arc4.ARC4Contract):
+    intc_0 // 0
+    retsub
+
+
+// test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding() -> void:
+test_array_rebinding:
+    // arc4_types/mutable_params2.py:5-6
+    // @arc4.abimethod()
+    // def test_array_rebinding(self) -> None:
+    proto 0 0
+    // arc4_types/mutable_params2.py:7
+    // a = arc4.DynamicBytes(0)
+    bytec_0 // 0x
+    pushbytes 0x00
+    concat
+    bytec 4 // 0x0001
+    swap
+    concat
+    // arc4_types/mutable_params2.py:8
+    // self.maybe_modify_array(a, assign_local=True)
+    intc_1 // 1
+    callsub maybe_modify_array
+    // arc4_types/mutable_params2.py:9
+    // assert a == arc4.DynamicBytes(0, 1)
+    bytec_0 // 0x
+    pushbytes 0x00
+    concat
+    bytec_1 // 0x01
+    concat
+    pushbytes 0x0002
+    swap
+    concat
+    ==
+    assert
+    // arc4_types/mutable_params2.py:11
+    // a = arc4.DynamicBytes(1)
+    bytec_0 // 0x
+    bytec_1 // 0x01
+    concat
+    bytec 4 // 0x0001
+    swap
+    concat
+    // arc4_types/mutable_params2.py:12
+    // self.maybe_modify_array(a, assign_local=False)
+    intc_0 // 0
+    callsub maybe_modify_array
+    // arc4_types/mutable_params2.py:13
+    // assert a == arc4.DynamicBytes(1, 42, 4)
+    bytec_0 // 0x
+    bytec_1 // 0x01
+    concat
+    pushbytes 0x2a
+    concat
+    bytec_2 // 0x04
+    concat
+    bytec_3 // 0x0003
+    swap
+    concat
+    ==
+    assert
+    retsub
+
+
+// test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array(a: bytes, assign_local: uint64) -> bytes:
+maybe_modify_array:
+    // arc4_types/mutable_params2.py:15-16
+    // @subroutine
+    // def maybe_modify_array(self, a: arc4.DynamicBytes, *, assign_local: bool) -> None:  # v0
+    proto 2 1
+    intc_1 // 1
+    frame_dig -2
+    // arc4_types/mutable_params2.py:17
+    // if assign_local:
+    frame_dig -1
+    bz maybe_modify_array_else_body@10
+    // arc4_types/mutable_params2.py:18
+    // a.append(arc4.Byte(1))  # v1: modify out
+    frame_dig -2
+    extract 2 0
+    bytec_0 // 0x
+    bytec_1 // 0x01
+    concat
+    concat
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    frame_bury -2
+    intc_1 // 1
+    bz maybe_modify_array_after_if_else@3
+    frame_dig -2
+    frame_bury 1
+
+maybe_modify_array_after_if_else@3:
+    // arc4_types/mutable_params2.py:19
+    // a = arc4.DynamicBytes(1, 2, 3)  # v2: BOUNDARY
+    bytec_0 // 0x
+    bytec_1 // 0x01
+    concat
+    pushbytes 0x02
+    concat
+    pushbytes 0x03
+    concat
+    bytec_3 // 0x0003
+    swap
+    concat
+    frame_bury -2
+    intc_0 // 0
+    bz maybe_modify_array_after_if_else@5
+    frame_dig -2
+    frame_bury 1
+
+maybe_modify_array_after_if_else@5:
+    // arc4_types/mutable_params2.py:20
+    // a.append(arc4.Byte(4))  # v3: local only
+    frame_dig -2
+    extract 2 0
+    bytec_0 // 0x
+    bytec_2 // 0x04
+    concat
+    concat
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    frame_bury -2
+    intc_0 // 0
+    bz maybe_modify_array_after_if_else@7
+    frame_dig -2
+    frame_bury 1
+
+maybe_modify_array_after_if_else@7:
+    // arc4_types/mutable_params2.py:21
+    // a = arc4.DynamicBytes(1, 2, 4)  # v4: local only
+    bytec_0 // 0x
+    bytec_1 // 0x01
+    concat
+    pushbytes 0x02
+    concat
+    bytec_2 // 0x04
+    concat
+    bytec_3 // 0x0003
+    swap
+    concat
+    intc_0 // 0
+    frame_bury 0
+    frame_bury -2
+    intc_0 // 0
+    bz maybe_modify_array_after_if_else@9
+    frame_dig -2
+    frame_bury 1
+
+maybe_modify_array_after_if_else@9:
+    b maybe_modify_array_after_if_else@13
+
+maybe_modify_array_else_body@10:
+    // arc4_types/mutable_params2.py:23
+    // a.append(arc4.Byte(42))  # v5: modify out
+    frame_dig -2
+    extract 2 0
+    bytec_0 // 0x
+    pushbytes 0x2a
+    concat
+    concat
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    frame_bury -2
+    intc_1 // 1
+    bz maybe_modify_array_after_if_else@12
+    frame_dig -2
+    frame_bury 1
+
+maybe_modify_array_after_if_else@12:
+
+maybe_modify_array_after_if_else@13:
+    // arc4_types/mutable_params2.py:25
+    // a.append(arc4.Byte(4))  # v6: modify out IF not b ELSE local only
+    frame_dig -2
+    extract 2 0
+    bytec_0 // 0x
+    bytec_2 // 0x04
+    concat
+    concat
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    frame_bury -2
+    frame_dig 0
+    bz maybe_modify_array_after_if_else@15
+    frame_dig -2
+    frame_bury 1
+
+maybe_modify_array_after_if_else@15:
+    frame_dig 1
+    frame_bury 0
+    retsub
+
+
+// test_cases.arc4_types.mutable_params2.MutableParams2.__algopy_default_create() -> void:
+__algopy_default_create:
+    proto 0 0
+    retsub

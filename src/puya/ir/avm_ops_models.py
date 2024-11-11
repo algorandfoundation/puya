@@ -47,7 +47,9 @@ class OpSignature:
 @attrs.frozen
 class Variant:
     signature: OpSignature
+    enum: str | None
     supported_modes: RunMode
+    min_avm_version: int
 
 
 @attrs.frozen

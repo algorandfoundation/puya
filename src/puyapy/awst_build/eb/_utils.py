@@ -29,7 +29,7 @@ def dummy_value(pytype: pytypes.PyType, location: SourceLocation) -> InstanceBui
         from puyapy.awst_build.eb._literals import LiteralBuilderImpl
 
         return LiteralBuilderImpl(pytype.python_type(), location)
-    expr = VarExpression(name="", wtype=pytype.wtype, source_location=location)
+    expr = VarExpression(name="", wtype=pytype.checked_wtype(location), source_location=location)
     return builder_for_instance(pytype, expr)
 
 
@@ -79,14 +79,15 @@ def constant_bool_and_error(
 
 def compare_bytes(
     *,
-    lhs: InstanceBuilder,
+    self: InstanceBuilder,
     op: BuilderComparisonOp,
-    rhs: InstanceBuilder,
+    other: InstanceBuilder,
     source_location: SourceLocation,
 ) -> InstanceBuilder:
-    if rhs.pytype != lhs.pytype:
+    # defer to most derived type if not equal
+    if not (other.pytype <= self.pytype):
         return NotImplemented
-    return _compare_expr_bytes_unchecked(lhs.resolve(), op, rhs.resolve(), source_location)
+    return _compare_expr_bytes_unchecked(self.resolve(), op, other.resolve(), source_location)
 
 
 def compare_expr_bytes(
