@@ -75,21 +75,18 @@ contract test_cases.compile.apps.HelloOtherConstants:
                 let reinterpret_bytes%0#0: bytes = (b+ maybe_value%0#0 48b)
                 let tmp%0#0: uint64 = (len reinterpret_bytes%0#0)
                 let tmp%1#0: uint64 = (- tmp%0#0 1u)
-                let (maybe_value%1#0: biguint, maybe_exists%1#0: bool) = (app_global_get_ex 0u "num")
-                (assert maybe_exists%1#0) // check self.num exists
-                let reinterpret_bytes%1#0: bytes = (b+ maybe_value%1#0 48b)
-                let num_alpha#0: bytes = (extract3 reinterpret_bytes%1#0 tmp%1#0 1u)
-                let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "greeting")
-                (assert maybe_exists%2#0) // check self.greeting exists
-                let tmp%2#0: bytes = (concat maybe_value%2#0 0x20)
+                let num_alpha#0: bytes = (extract3 reinterpret_bytes%0#0 tmp%1#0 1u)
+                let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "greeting")
+                (assert maybe_exists%1#0) // check self.greeting exists
+                let tmp%2#0: bytes = (concat maybe_value%1#0 0x20)
                 let tmp%3#0: bytes = (concat tmp%2#0 name#0)
                 let tmp%4#0: bytes = (concat tmp%3#0 num_alpha#0)
-                let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (app_global_get_ex 0u "address")
-                (assert maybe_exists%3#0) // check self.address exists
-                let tmp%5#0: bytes = (concat tmp%4#0 maybe_value%3#0)
-                let (maybe_value%4#0: bytes, maybe_exists%4#0: bool) = (app_global_get_ex 0u "method")
-                (assert maybe_exists%4#0) // check self.method exists
-                let tmp%6#0: bytes = (concat tmp%5#0 maybe_value%4#0)
+                let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "address")
+                (assert maybe_exists%2#0) // check self.address exists
+                let tmp%5#0: bytes = (concat tmp%4#0 maybe_value%2#0)
+                let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (app_global_get_ex 0u "method")
+                (assert maybe_exists%3#0) // check self.method exists
+                let tmp%6#0: bytes = (concat tmp%5#0 maybe_value%3#0)
                 return tmp%6#0
     
     program clear-state:

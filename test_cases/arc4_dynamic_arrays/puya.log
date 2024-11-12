@@ -414,6 +414,8 @@ debug: Terminated block@0: // L223
 debug: Sealing block@0: // L107
 debug: Terminated block@0: // L107
 debug: Sealing block@0: // L134
+arc4_dynamic_arrays/contract.py:169:9 debug: encountered already materialized expression (tup2[3]), reusing result: tmp%20#0
+arc4_dynamic_arrays/contract.py:169:9 debug: encountered already materialized expression (tup2), reusing result: tup2#0
 debug: Terminated block@0: // L134
 debug: Sealing block@0: // L1
 debug: Terminated block@0: // L1
@@ -1138,8 +1140,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let data_length%11#0: uint64 = (len two#0) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:150-158:15-9, ir_type=uint64, name='data_length%8', version=0),)
 debug: Replacing redundant declaration let data_length%13#0: uint64 = (len five#0) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:150-158:15-9, ir_type=uint64, name='data_length%10', version=0),)
-debug: Replacing redundant declaration let item_start_offset%2#0: uint64 = (extract_uint16 tup2#0 22u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:169:8-15, ir_type=uint64, name='item_start_offset%0', version=0),)
-debug: Replacing redundant declaration let item_end_offset%2#0: uint64 = (extract_uint16 tup2#0 24u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:169:8-15, ir_type=uint64, name='item_end_offset%0', version=0),)
+debug: Replacing redundant declaration let item_offset%0#0: uint64 = (extract_uint16 tmp%20#0 18u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:169:8-17, ir_type=uint64, name='item_start_offset%1', version=0),)
 debug: Replacing redundant declaration let item_offset%1#0: uint64 = (extract_uint16 tup2#0 22u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:169:8-15, ir_type=uint64, name='item_start_offset%0', version=0),)
 debug: Replacing redundant declaration let next_item_offset%0#0: uint64 = (extract_uint16 tup2#0 24u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:169:8-15, ir_type=uint64, name='item_end_offset%0', version=0),)
 debug: Found equivalence set: tmp%1#0, result%0#0
@@ -1167,22 +1168,18 @@ debug: Replacing {encoded_tuple_buffer%33#0, encoded_tuple_buffer%42#0} with one
 debug: Found equivalence set: data_length%8#0, data_length%11#0
 debug: Replacing {data_length%11#0} with data_length%8#0 made 1 modifications
 debug: Found equivalence set: data_length%10#0, data_length%13#0
-debug: Found equivalence set: item_start_offset%0#0, item_start_offset%2#0, item_offset%1#0
-debug: Replacing {item_start_offset%2#0, item_offset%1#0} with item_start_offset%0#0 made 3 modifications
-debug: Found equivalence set: item_end_offset%0#0, item_end_offset%2#0, next_item_offset%0#0
-debug: Replacing {item_end_offset%2#0, next_item_offset%0#0} with item_end_offset%0#0 made 3 modifications
-debug: Replacing redundant declaration let current_tail_offset%19#0: uint64 = (+ 26u data_length%8#0) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:150-158:15-9, ir_type=uint64, name='current_tail_offset%15', version=0),)
-debug: Replacing redundant declaration let tmp%22#0: bytes = (substring3 tup2#0 item_start_offset%0#0 item_end_offset%0#0) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:169:8-15, ir_type=bytes, name='tmp%20', version=0),)
-debug: Found equivalence set: current_tail_offset%15#0, current_tail_offset%19#0
-debug: Replacing {current_tail_offset%19#0} with current_tail_offset%15#0 made 2 modifications
-debug: Found equivalence set: tmp%20#0, tmp%22#0
-debug: Replacing {tmp%22#0} with tmp%20#0 made 2 modifications
-debug: Replacing redundant declaration let as_bytes%13#0: bytes = (itob current_tail_offset%15#0) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:150-158:15-9, ir_type=bytes, name='as_bytes%10', version=0),)
-debug: Replacing redundant declaration let item_offset%0#0: uint64 = (extract_uint16 tmp%20#0 18u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:169:8-17, ir_type=uint64, name='item_start_offset%1', version=0),)
-debug: Found equivalence set: as_bytes%10#0, as_bytes%13#0
-debug: Replacing {as_bytes%13#0} with as_bytes%10#0 made 1 modifications
 debug: Found equivalence set: item_start_offset%1#0, item_offset%0#0
 debug: Replacing {item_offset%0#0} with item_start_offset%1#0 made 1 modifications
+debug: Found equivalence set: item_start_offset%0#0, item_offset%1#0
+debug: Replacing {item_offset%1#0} with item_start_offset%0#0 made 2 modifications
+debug: Found equivalence set: item_end_offset%0#0, next_item_offset%0#0
+debug: Replacing {next_item_offset%0#0} with item_end_offset%0#0 made 2 modifications
+debug: Replacing redundant declaration let current_tail_offset%19#0: uint64 = (+ 26u data_length%8#0) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:150-158:15-9, ir_type=uint64, name='current_tail_offset%15', version=0),)
+debug: Found equivalence set: current_tail_offset%15#0, current_tail_offset%19#0
+debug: Replacing {current_tail_offset%19#0} with current_tail_offset%15#0 made 2 modifications
+debug: Replacing redundant declaration let as_bytes%13#0: bytes = (itob current_tail_offset%15#0) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:150-158:15-9, ir_type=bytes, name='as_bytes%10', version=0),)
+debug: Found equivalence set: as_bytes%10#0, as_bytes%13#0
+debug: Replacing {as_bytes%13#0} with as_bytes%10#0 made 1 modifications
 debug: Replacing redundant declaration let offset_as_uint16%12#0: bytes = ((extract 6 2) as_bytes%10#0) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:150-158:15-9, ir_type=bytes, name='offset_as_uint16%9', version=0),)
 debug: Found equivalence set: offset_as_uint16%9#0, offset_as_uint16%12#0
 debug: Replacing {offset_as_uint16%12#0} with offset_as_uint16%9#0 made 1 modifications
@@ -4604,8 +4601,8 @@ debug: Inserted test_nested_tuple_modification_block@0.ops[406]: 'l-store-copy t
 debug: Replaced test_nested_tuple_modification_block@0.ops[408]: 'v-load tail_offset%2#0' with 'l-load tail_offset%2#0'
 debug: Inserted test_nested_tuple_modification_block@0.ops[410]: 'l-store-copy as_bytes%15#0 0'
 debug: Replaced test_nested_tuple_modification_block@0.ops[412]: 'v-load as_bytes%15#0' with 'l-load as_bytes%15#0'
-debug: Inserted test_nested_tuple_modification_block@0.ops[422]: 'l-store-copy tmp%23#0 0'
-debug: Replaced test_nested_tuple_modification_block@0.ops[424]: 'v-load tmp%23#0' with 'l-load tmp%23#0'
+debug: Inserted test_nested_tuple_modification_block@0.ops[422]: 'l-store-copy tmp%22#0 0'
+debug: Replaced test_nested_tuple_modification_block@0.ops[424]: 'v-load tmp%22#0' with 'l-load tmp%22#0'
 debug: Inserted test_nested_tuple_modification_block@0.ops[5]: 'l-store-copy tmp%2#0 0'
 debug: Replaced test_nested_tuple_modification_block@0.ops[8]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
 debug: Inserted test_nested_tuple_modification_block@0.ops[10]: 'l-store-copy result%1#0 0'

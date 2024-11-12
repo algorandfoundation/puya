@@ -2,7 +2,7 @@
 
 test_cases.compile.apps.HelloOtherConstants.approval_program:
     intcblock 0 1
-    bytecblock "num" "greeting" "address" "method" 0x151f7c75 TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
+    bytecblock "greeting" "num" "address" "method" 0x151f7c75 TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
     txn ApplicationID
     bnz main_after_if_else@2
     callsub __init__
@@ -19,12 +19,12 @@ __init__:
     proto 0 0
     // compile/apps.py:84
     // self.greeting = TemplateVar[String]("GREETING")
-    bytec_1 // "greeting"
+    bytec_0 // "greeting"
     bytec 5 // TMPL_GREETING
     app_global_put
     // compile/apps.py:85
     // self.num = TemplateVar[BigUInt]("NUM")
-    bytec_0 // "num"
+    bytec_1 // "num"
     bytec 6 // TMPL_NUM
     app_global_put
     // compile/apps.py:86
@@ -165,27 +165,21 @@ greet:
     // compile/apps.py:99
     // num_alpha = (self.num + 48).bytes[-1]
     intc_0 // 0
-    bytec_0 // "num"
+    bytec_1 // "num"
     app_global_get_ex
     assert // check self.num exists
     pushbytes 0x30
     b+
+    dup
     len
     intc_1 // 1
     -
-    intc_0 // 0
-    bytec_0 // "num"
-    app_global_get_ex
-    assert // check self.num exists
-    pushbytes 0x30
-    b+
-    swap
     intc_1 // 1
     extract3
     // compile/apps.py:101
     // self.greeting.bytes + b" " + name.bytes + num_alpha + self.address.bytes + self.method
     intc_0 // 0
-    bytec_1 // "greeting"
+    bytec_0 // "greeting"
     app_global_get_ex
     assert // check self.greeting exists
     pushbytes 0x20

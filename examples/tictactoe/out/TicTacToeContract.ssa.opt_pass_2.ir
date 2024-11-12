@@ -105,11 +105,9 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let tmp%2#0: bytes = (extract3 maybe_value%2#0 item_offset%0#0 3u) // on error: Index access is out of bounds
                 (assert tmp%0#0) // Index access is out of bounds
                 let updated_target%0#0: bytes = (replace3 tmp%2#0 move.0#0 0x01)
-                let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (app_global_get_ex 0u "game")
-                (assert maybe_exists%3#0) // check self.game exists
                 let index_is_in_bounds%1#0: bool = (< move.1#0 3u)
                 (assert index_is_in_bounds%1#0) // Index access is out of bounds
-                let updated_target%1#0: bytes = (replace3 maybe_value%3#0 item_offset%0#0 updated_target%0#0)
+                let updated_target%1#0: bytes = (replace3 maybe_value%2#0 item_offset%0#0 updated_target%0#0)
                 (app_global_put "game" updated_target%1#0)
                 (app_global_put "turns" 0u)
                 return 
@@ -152,15 +150,13 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let tmp%4#0: bytes = (extract3 maybe_value%1#0 item_offset%0#0 3u) // on error: Index access is out of bounds
                 (assert tmp%0#0) // Index access is out of bounds
                 let updated_target%0#0: bytes = (replace3 tmp%4#0 move.0#0 player#0)
-                let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "game")
-                (assert maybe_exists%2#0) // check self.game exists
                 let index_is_in_bounds%1#0: bool = (< move.1#0 3u)
                 (assert index_is_in_bounds%1#0) // Index access is out of bounds
-                let updated_target%1#0: bytes = (replace3 maybe_value%2#0 item_offset%0#0 updated_target%0#0)
+                let updated_target%1#0: bytes = (replace3 maybe_value%1#0 item_offset%0#0 updated_target%0#0)
                 (app_global_put "game" updated_target%1#0)
-                let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "turns")
-                (assert maybe_exists%3#0) // check self.turns exists
-                let new_state_value%0#0: uint64 = (+ maybe_value%3#0 1u)
+                let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "turns")
+                (assert maybe_exists%2#0) // check self.turns exists
+                let new_state_value%0#0: uint64 = (+ maybe_value%2#0 1u)
                 (app_global_put "turns" new_state_value%0#0)
                 let tmp%5#0: bool = examples.tictactoe.tictactoe.TicTacToeContract.did_win(player#0, move.0#0, move.1#0)
                 goto tmp%5#0 ? block@5 : block@6
@@ -168,9 +164,9 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 (app_global_put "winner" player#0)
                 goto block@9
             block@6: // else_body_L69
-                let (maybe_value%4#0: uint64, maybe_exists%4#0: bool) = (app_global_get_ex 0u "turns")
-                (assert maybe_exists%4#0) // check self.turns exists
-                let tmp%6#0: bool = (== maybe_value%4#0 9u)
+                let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "turns")
+                (assert maybe_exists%3#0) // check self.turns exists
+                let tmp%6#0: bool = (== maybe_value%3#0 9u)
                 goto tmp%6#0 ? block@7 : block@9
             block@7: // if_body_L70
                 (app_global_put "winner" 0x03)
