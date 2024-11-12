@@ -99,7 +99,10 @@ class Reference(algopy.arc4.ARC4Client, typing.Protocol):
         thirteen: algopy.arc4.UIntN[typing.Literal[64]],
         fourteen: algopy.arc4.UIntN[typing.Literal[64]],
         fifteen: algopy.arc4.DynamicBytes,
-    ) -> algopy.arc4.DynamicBytes: ...
+    ) -> algopy.arc4.DynamicBytes:
+        """
+        Fifteen args should not encode the last argument as a tuple
+        """
 
     @algopy.arc4.abimethod
     def method_with_more_than_15_args(
@@ -130,7 +133,11 @@ class Reference(algopy.arc4.ARC4Client, typing.Protocol):
         pay2: algopy.gtxn.PaymentTransaction,
         u: algopy.arc4.UIntN[typing.Literal[64]],
         v: algopy.arc4.UIntN[typing.Literal[64]],
-    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
+    ) -> algopy.arc4.UIntN[typing.Literal[64]]:
+        """
+        Application calls only support 16 args, and arc4 calls utilise the first arg for the method
+        selector. Args beyond this number are packed into a tuple and placed in the 16th slot.
+        """
 
     @algopy.arc4.abimethod
     def hello_with_algopy_string(

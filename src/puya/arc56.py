@@ -52,7 +52,7 @@ def create_arc56_json(
         arcs=(22, 28),
         name=metadata.name,
         desc=metadata.description,
-        networks={},  # TODO: for users to fill in?
+        networks={},
         structs={
             aliases.resolve(n): [
                 models.StructField(
@@ -87,9 +87,9 @@ def create_arc56_json(
                 actions=_method_actions(m),
                 readonly=m.config.readonly,
                 events=[_struct_to_event(aliases, struct) for struct in m.events],
+                # left for users to fill in for now
                 recommendations=models.MethodRecommendations(
-                    innerTransactionCount=None,  # TODO: collect itxn count?
-                    # TODO: users will fill these other ones in?
+                    innerTransactionCount=None,
                     boxes=None,
                     accounts=None,
                     apps=None,

@@ -12,13 +12,13 @@ contract test_cases.arc_56.contract.Contract:
             block@1: // abi_routing_L41
                 let tmp%2#0: bytes = (txna ApplicationArgs 0)
                 switch tmp%2#0 {method "create()void" => block@2, method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64" => block@3, method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)" => block@4, method "emits_error((uint64,string,(byte[],uint8)))void" => block@5, method "emitter()void" => block@6, method "conditional_emit(bool)void" => block@7, method "template_value()((byte[],uint8),uint64,string,uint8)" => block@8, * => return 0u}
-            block@2: // create_route_L67
+            block@2: // create_route_L68
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: uint64 = (shl 1u tmp%3#0)
                 let tmp%5#0: uint64 = (& tmp%4#0 3u)
                 (assert tmp%5#0) // OnCompletion is not one of NoOp, OptIn
                 return 1u
-            block@3: // struct_arg_route_L75
+            block@3: // struct_arg_route_L76
                 let tmp%6#0: uint64 = (txn OnCompletion)
                 let tmp%7#0: bool = (! tmp%6#0)
                 (assert tmp%7#0) // OnCompletion is not NoOp
@@ -31,7 +31,7 @@ contract test_cases.arc_56.contract.Contract:
                 let tmp%12#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
                 (log tmp%12#0)
                 return 1u
-            block@4: // struct_return_route_L80
+            block@4: // struct_return_route_L82
                 let tmp%13#0: uint64 = (txn OnCompletion)
                 let tmp%14#0: bool = (! tmp%13#0)
                 (assert tmp%14#0) // OnCompletion is not NoOp
@@ -42,7 +42,7 @@ contract test_cases.arc_56.contract.Contract:
                 let tmp%19#0: bytes = (concat 0x151f7c75 tmp%18#0)
                 (log tmp%19#0)
                 return 1u
-            block@5: // emits_error_route_L85
+            block@5: // emits_error_route_L87
                 let tmp%20#0: uint64 = (txn OnCompletion)
                 let tmp%21#0: bool = (! tmp%20#0)
                 (assert tmp%21#0) // OnCompletion is not NoOp
@@ -51,7 +51,7 @@ contract test_cases.arc_56.contract.Contract:
                 let tmp%24#0: bytes = (txna ApplicationArgs 1)
                 test_cases.arc_56.contract.Contract.errors(tmp%24#0)
                 return 1u
-            block@6: // emitter_route_L89
+            block@6: // emitter_route_L91
                 let tmp%25#0: uint64 = (txn OnCompletion)
                 let tmp%26#0: bool = (! tmp%25#0)
                 (assert tmp%26#0) // OnCompletion is not NoOp
@@ -59,7 +59,7 @@ contract test_cases.arc_56.contract.Contract:
                 (assert tmp%27#0) // can only call when not creating
                 test_cases.arc_56.contract.Contract.emitter()
                 return 1u
-            block@7: // conditional_emit_route_L99
+            block@7: // conditional_emit_route_L101
                 let tmp%29#0: uint64 = (txn OnCompletion)
                 let tmp%30#0: bool = (! tmp%29#0)
                 (assert tmp%30#0) // OnCompletion is not NoOp
@@ -69,7 +69,7 @@ contract test_cases.arc_56.contract.Contract:
                 let tmp%34#0: bool = (getbit tmp%33#0 0u)
                 test_cases.arc_56.contract.Contract.conditional_emit(tmp%34#0)
                 return 1u
-            block@8: // template_value_route_L108
+            block@8: // template_value_route_L110
                 let tmp%35#0: uint64 = (txn OnCompletion)
                 let tmp%36#0: bool = (! tmp%35#0)
                 (assert tmp%36#0) // OnCompletion is not NoOp
@@ -96,9 +96,9 @@ contract test_cases.arc_56.contract.Contract:
             block@11: // bare_routing_L41
                 let tmp%40#0: uint64 = (txn OnCompletion)
                 goto_nth [block@12, block@12, block@16, block@16, block@16, block@13][tmp%40#0] else return 0u
-            block@12: // bare_create_L63
+            block@12: // bare_create_L64
                 return 1u
-            block@13: // transient_L71
+            block@13: // transient_L72
                 let tmp%41#0: uint64 = (txn ApplicationID)
                 let tmp%42#0: bool = (! tmp%41#0)
                 (assert tmp%42#0) // can only call when creating
@@ -107,7 +107,7 @@ contract test_cases.arc_56.contract.Contract:
                 return 0u
         
         subroutine test_cases.arc_56.contract.Contract.struct_arg(arg: bytes, shared: bytes) -> uint64:
-            block@0: // L75
+            block@0: // L76
                 let item_start_offset%0#0: uint64 = (extract_uint16 arg#0 10u)
                 let item_end_offset%0#0: uint64 = (len arg#0)
                 let tmp%0#0: bytes = (substring3 arg#0 item_start_offset%0#0 item_end_offset%0#0)
@@ -116,7 +116,7 @@ contract test_cases.arc_56.contract.Contract:
                 return 42u
         
         subroutine test_cases.arc_56.contract.Contract.struct_return(arg: bytes) -> bytes:
-            block@0: // L80
+            block@0: // L82
                 let item_start_offset%0#0: uint64 = (extract_uint16 arg#0 10u)
                 let item_end_offset%0#0: uint64 = (len arg#0)
                 let tmp%0#0: bytes = (substring3 arg#0 item_start_offset%0#0 item_end_offset%0#0)
@@ -126,18 +126,18 @@ contract test_cases.arc_56.contract.Contract:
                 return tmp%0#0
         
         subroutine test_cases.arc_56.contract.echo(s: bytes) -> <bytes, bytes>:
-            block@0: // L118
+            block@0: // L120
                 return s#0 s#0
         
         subroutine test_cases.arc_56.contract.Contract.errors(arg: bytes) -> void:
-            block@0: // L85
+            block@0: // L87
                 let tmp%0#0: bytes = ((extract 0 8) arg#0) // on error: Index access is out of bounds
                 let tmp%1#0: bool = (== tmp%0#0 0x00)
                 (assert tmp%1#0) // this will error
                 return 
         
         subroutine test_cases.arc_56.contract.Contract.emitter() -> void:
-            block@0: // L89
+            block@0: // L91
                 let event%0#0: bytes = (concat method "SharedStruct(byte[],uint8)" 0x00032a000668656c6c6f31)
                 (log event%0#0)
                 let encoded_tuple_buffer%10#0: bytes = 0x0004000b
@@ -148,17 +148,17 @@ contract test_cases.arc_56.contract.Contract:
                 return 
         
         subroutine test_cases.arc_56.contract.Contract.conditional_emit(should_emit: bool) -> void:
-            block@0: // L99
+            block@0: // L101
                 goto should_emit#0 ? block@1 : block@2
-            block@1: // if_body_L102
+            block@1: // if_body_L104
                 let event%0#0: bytes = (concat method "Anonymous2((uint64,uint64),(byte[],uint8))" 0x000000000000002a000000000000002b001200032a000668656c6c6f33)
                 (log event%0#0)
                 goto block@2
-            block@2: // after_if_else_L101
+            block@2: // after_if_else_L103
                 return 
         
         subroutine test_cases.arc_56.contract.Contract.template_value() -> <bytes, uint64, bytes, bytes>:
-            block@0: // L108
+            block@0: // L110
                 return TemplateVar[bytes](TMPL_STRUCT) TemplateVar[uint64](TMPL_AVM_UINT64) TemplateVar[bytes](TMPL_AVM_STRING) TemplateVar[bytes](TMPL_ARC4_UINT8)
     
     program clear-state:

@@ -15,17 +15,26 @@ class TopLevelStruct(algopy.arc4.Struct):
     shared: SharedStruct
 
 class Contract(algopy.arc4.ARC4Client, typing.Protocol):
+    """
+    Contract docstring
+    """
     @algopy.arc4.abimethod(allow_actions=['NoOp', 'OptIn'], create='allow')
     def create(
         self,
-    ) -> None: ...
+    ) -> None:
+        """
+        Method docstring
+        """
 
     @algopy.arc4.abimethod
     def struct_arg(
         self,
         arg: TopLevelStruct,
         shared: SharedStruct,
-    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
+    ) -> algopy.arc4.UIntN[typing.Literal[64]]:
+        """
+        Method docstring2
+        """
 
     @algopy.arc4.abimethod(readonly=True)
     def struct_return(

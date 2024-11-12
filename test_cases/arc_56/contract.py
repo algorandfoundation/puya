@@ -39,6 +39,7 @@ class StateStruct(arc4.Struct):
 
 
 class Contract(ARC4Contract):
+    """Contract docstring"""
 
     def __init__(self) -> None:
         self.g_struct = GlobalState(StateStruct)
@@ -66,7 +67,7 @@ class Contract(ARC4Contract):
 
     @arc4.abimethod(create="allow", allow_actions=["NoOp", "OptIn"])
     def create(self) -> None:
-        pass
+        """Method docstring"""
 
     @arc4.baremethod(create="require", allow_actions=["DeleteApplication"])
     def transient(self) -> None:
@@ -74,6 +75,7 @@ class Contract(ARC4Contract):
 
     @arc4.abimethod()
     def struct_arg(self, arg: TopLevelStruct, shared: SharedStruct) -> UInt64:
+        """Method docstring2"""
         assert arg.shared == shared, "this might error"
         return UInt64(42)
 

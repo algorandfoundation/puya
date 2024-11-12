@@ -39,7 +39,6 @@ def _can_overwrite_auto_generated_file(path: Path) -> bool:
 
 
 class _ClientGenerator:
-
     def __init__(self, contract: arc56.Contract):
         self.contract = contract
         self.python_methods = set[str]()
@@ -73,7 +72,7 @@ class _ClientGenerator:
                 *self.class_decls,
                 "",
                 f"class {self.contract.name}(algopy.arc4.ARC4Client, typing.Protocol):",
-                # TODO: include docstring
+                *_docstring(self.contract.desc),
                 *self._gen_methods(),
             )
         )
@@ -82,7 +81,6 @@ class _ClientGenerator:
         python_name = self._unique_class(name)
         self.struct_to_class[name] = python_name
         lines = [f"class {python_name}(algopy.arc4.Struct):"]
-        # TODO: include docstring
         for field in fields:
             if isinstance(field.type, str):
                 typ = self._get_client_type(field.type)
@@ -91,7 +89,6 @@ class _ClientGenerator:
                 anon_struct = f"{name}_{field.name}"
                 typ = self._prepare_struct_class(anon_struct, field.type)
             lines.append(_indent(f"{field.name}: {typ}"))
-            # TODO: include docstring
         if self.class_decls:
             self.class_decls.append("")
         self.class_decls.extend(lines)
@@ -148,14 +145,14 @@ class _ClientGenerator:
             (
                 _arc4_method_to_decorator(python_method, method),
                 f"def {python_method}(",
-                # TODO: include docstring
                 _indent(
                     (
                         "self,",
                         *(self._gen_arg(arg) for arg in method.args),
                     )
                 ),
-                f") -> {return_type}: ...",
+                f") -> {return_type}:" + ("" if method.desc else " ..."),
+                *_docstring(method.desc),
                 "",
             )
         )
@@ -163,6 +160,18 @@ class _ClientGenerator:
     def _gen_arg(self, arg: arc56.MethodArg) -> str:
         python_type = self._get_client_type(arg.struct or arg.type)
         return f"{arg.name}: {python_type},"
+
+
+def _docstring(desc: str | None) -> list[str]:
+    if desc is None:
+        return []
+    return _indent(
+        [
+            '"""',
+            *desc.splitlines(),
+            '"""',
+        ]
+    ).splitlines()
 
 
 def _arc4_method_to_decorator(python_method: str, method: arc56.Method) -> str:
