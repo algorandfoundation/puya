@@ -189,8 +189,16 @@ class _StructAliases:
                 else struct.name
             )
 
-    def resolve[T: str | None](self, struct: T) -> T:
-        return self.aliases.get(struct, struct)  # type: ignore[arg-type, return-value]
+    @typing.overload
+    def resolve(self, struct: str) -> str: ...
+
+    @typing.overload
+    def resolve(self, struct: None) -> None: ...
+
+    def resolve(self, struct: str | None) -> str | None:
+        if struct is None:
+            return None
+        return self.aliases.get(struct, struct)
 
 
 def _struct_to_event(structs: _StructAliases, struct: ARC4Struct) -> models.Event:
