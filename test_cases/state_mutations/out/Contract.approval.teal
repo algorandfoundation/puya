@@ -120,6 +120,7 @@ append:
     // state_mutations/contract.py:40
     // self.loc[Txn.sender].append(struct.copy())
     txn Sender
+    dup
     intc_0 // 0
     bytec_2 // "loc"
     app_local_get_ex
@@ -130,11 +131,10 @@ append:
     swap
     extract 2 0
     intc_1 // 1
-    dig 3
+    dig 4
     callsub dynamic_array_concat_dynamic_element
-    txn Sender
     bytec_2 // "loc"
-    uncover 2
+    swap
     app_local_put
     // state_mutations/contract.py:41
     // self.box.value.append(struct.copy())
@@ -160,6 +160,7 @@ append:
     bytec_3 // "map"
     txn Sender
     concat
+    dup
     box_get
     assert // check self.map entry exists
     dup
@@ -168,15 +169,11 @@ append:
     swap
     extract 2 0
     intc_1 // 1
-    uncover 3
+    uncover 4
     callsub dynamic_array_concat_dynamic_element
-    bytec_3 // "map"
-    txn Sender
-    concat
-    dup
+    dig 1
     box_del
     pop
-    swap
     box_put
     retsub
 
@@ -213,7 +210,7 @@ modify:
     dup
     intc_0 // 0
     extract_uint16
-    uncover 2
+    dig 2
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -235,11 +232,6 @@ modify:
     bytec 4 // 0x00086d6f646966696564
     concat
     intc_0 // 0
-    bytec_1 // "glob"
-    app_global_get_ex
-    assert // check self.glob exists
-    swap
-    intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
     bytec_1 // "glob"
     swap
@@ -247,6 +239,7 @@ modify:
     // state_mutations/contract.py:47
     // self.loc[Txn.sender][0].baz = arc4.String("modified")
     txn Sender
+    dup
     intc_0 // 0
     bytec_2 // "loc"
     app_local_get_ex
@@ -256,7 +249,7 @@ modify:
     dup
     intc_0 // 0
     extract_uint16
-    uncover 2
+    dig 2
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -277,17 +270,10 @@ modify:
     extract3
     bytec 4 // 0x00086d6f646966696564
     concat
-    txn Sender
-    intc_0 // 0
-    bytec_2 // "loc"
-    app_local_get_ex
-    assert // check self.loc exists for account
-    swap
     intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
-    txn Sender
     bytec_2 // "loc"
-    uncover 2
+    swap
     app_local_put
     // state_mutations/contract.py:48
     // self.box.value[0].baz = arc4.String("modified")
@@ -299,7 +285,7 @@ modify:
     dup
     intc_0 // 0
     extract_uint16
-    uncover 2
+    dig 2
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -320,10 +306,6 @@ modify:
     extract3
     bytec 4 // 0x00086d6f646966696564
     concat
-    bytec_0 // "box"
-    box_get
-    assert // check self.box exists
-    swap
     intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
     bytec_0 // "box"
@@ -337,6 +319,7 @@ modify:
     bytec_3 // "map"
     txn Sender
     concat
+    dup
     box_get
     assert // check self.map entry exists
     dup
@@ -344,7 +327,7 @@ modify:
     dup
     intc_0 // 0
     extract_uint16
-    uncover 2
+    dig 2
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -365,21 +348,11 @@ modify:
     extract3
     bytec 4 // 0x00086d6f646966696564
     concat
-    bytec_3 // "map"
-    txn Sender
-    concat
-    box_get
-    assert // check self.map entry exists
-    swap
     intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
-    bytec_3 // "map"
-    txn Sender
-    concat
-    dup
+    dig 1
     box_del
     pop
-    swap
     box_put
     retsub
 
