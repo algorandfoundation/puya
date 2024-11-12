@@ -79,12 +79,12 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
         )
         log_ctx.exit_if_errors()
         if puyapy_options.output_client:
-            write_arc32_clients(puyapy_options.template_vars_prefix, compilation_set, teal)
+            write_arc4_clients(puyapy_options.template_vars_prefix, compilation_set, teal)
     # needs to be outside the with block
     log_ctx.exit_if_errors()
 
 
-def write_arc32_clients(
+def write_arc4_clients(
     template_prefix: str,
     compilation_set: Mapping[models.ContractReference | models.LogicSigReference, Path],
     artifacts: Sequence[models.CompilationArtifact],
