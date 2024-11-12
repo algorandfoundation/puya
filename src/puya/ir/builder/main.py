@@ -750,31 +750,23 @@ class FunctionIRBuilder(
         if expr.base.wtype == wtypes.bytes_wtype:
             # note: the below works because Bytes is immutable, so this index expression
             # can never appear as an assignment target
-            if isinstance(index, UInt64Constant):
+            if isinstance(index, UInt64Constant) and index.value <= 255:
                 return Intrinsic(
                     op=AVMOp.extract,
                     args=[base],
                     immediates=[index.value, 1],
                     source_location=expr.source_location,
                 )
-            index_plus_1 = assign_temp(
-                self.context,
-                Intrinsic(
-                    op=AVMOp.add,
-                    source_location=expr.source_location,
+            else:
+                return Intrinsic(
+                    op=AVMOp.extract3,
                     args=[
+                        base,
                         index,
                         UInt64Constant(value=1, source_location=expr.source_location),
                     ],
-                ),
-                temp_description="index_plus_1",
-                source_location=expr.source_location,
-            )
-            return Intrinsic(
-                op=AVMOp.substring3,
-                args=[base, index, index_plus_1],
-                source_location=expr.source_location,
-            )
+                    source_location=expr.source_location,
+                )
         elif isinstance(expr.base.wtype, wtypes.WArray):
             raise NotImplementedError
         elif isinstance(expr.base.wtype, wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray):
