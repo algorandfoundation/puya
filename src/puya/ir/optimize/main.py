@@ -15,6 +15,7 @@ from puya.ir.optimize.control_op_simplification import simplify_control_ops
 from puya.ir.optimize.dead_code_elimination import (
     remove_calls_to_no_op_subroutines,
     remove_unreachable_blocks,
+    remove_unused_ops,
     remove_unused_subroutines,
     remove_unused_variables,
 )
@@ -58,6 +59,7 @@ def get_subroutine_optimizations(optimization_level: int) -> Iterable[Subroutine
             SubroutineOptimization.from_function(copy_propagation),
             SubroutineOptimization.from_function(intrinsic_simplifier, loop=True),
             SubroutineOptimization.from_function(remove_unused_variables),
+            SubroutineOptimization.from_function(remove_unused_ops),
             SubroutineOptimization.from_function(inner_txn_field_replacer),
             SubroutineOptimization.from_function(replace_compiled_references),
             SubroutineOptimization.from_function(simplify_control_ops, loop=True),

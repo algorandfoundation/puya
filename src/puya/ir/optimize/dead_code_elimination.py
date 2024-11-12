@@ -233,6 +233,17 @@ def remove_unused_variables(_context: CompileContext, subroutine: models.Subrout
     return modified > 0
 
 
+def remove_unused_ops(_context: CompileContext, subroutine: models.Subroutine) -> bool:
+    modified = 0
+    for block in subroutine.body:
+        for op in block.ops:
+            if isinstance(op, models.Intrinsic) and op.op.code in SIDE_EFFECT_FREE_AVM_OPS:
+                logger.debug(f"Removing unused pure op {op}")
+                block.ops.remove(op)
+                modified += 1
+    return modified > 0
+
+
 @attrs.define
 class UnusedRegisterCollector(visitor.IRTraverser):
     used: set[models.Register] = attrs.field(factory=set)
