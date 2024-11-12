@@ -2,24 +2,11 @@
 
 test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     intcblock 0 1 9 10
-    bytecblock 0x00 0x "hello" "world"
+    bytecblock 0x00 0x 0x01 0x000568656c6c6f
     // arc4_types/tuples.py:15
     // my_tuple = Tuple((UInt8(1), UInt8(2), String("hello"), String("world"), UInt8(255)))
-    bytec_2 // "hello"
-    len
-    itob
-    extract 6 2
-    bytec_2 // "hello"
-    concat
-    bytec_3 // "world"
-    len
-    itob
-    extract 6 2
-    bytec_3 // "world"
-    concat
-    swap
     bytec_1 // 0x
-    pushbytes 0x01
+    bytec_2 // 0x01
     concat
     pushbytes 0x02
     concat
@@ -27,7 +14,7 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     itob
     extract 6 2
     concat
-    dig 1
+    bytec_3 // 0x000568656c6c6f
     len
     pushint 7 // 7
     +
@@ -36,9 +23,9 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     concat
     pushbytes 0xff
     concat
-    swap
+    bytec_3 // 0x000568656c6c6f
     concat
-    swap
+    pushbytes 0x0005776f726c64
     concat
     dup
     // arc4_types/tuples.py:18
@@ -777,7 +764,7 @@ test_copy:
     >
     assert // Index access is out of bounds
     pushint 2 // 2
-    pushbytes 0x01
+    bytec_2 // 0x01
     replace3
     dig 1
     intc_1 // 1

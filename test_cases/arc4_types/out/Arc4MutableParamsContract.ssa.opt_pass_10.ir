@@ -24,11 +24,6 @@ contract test_cases.arc4_types.mutable_params.Arc4MutableParamsContract:
                 let tmp%5#0: bool = (== tmp%4#0 0x000741415252474821)
                 (assert tmp%5#0) // my_struct has been mutated by the subroutine
                 let (other_routine%4#0: bool, other_routine%5#0: bool, other_routine%6#0: bytes, other_routine%7#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(0x01020304, 0x80320006000d00054861707079000444617973)
-                let item_start_offset%1#0: uint64 = 6u
-                let item_end_offset%1#0: uint64 = 13u
-                let tmp%7#0: bytes = (substring3 0x80320006000d00054861707079000444617973 item_start_offset%1#0 item_end_offset%1#0)
-                let tmp%8#0: bool = (== tmp%7#0 0x00054861707079)
-                (assert tmp%8#0) // my_struct_copy should not be mutated by the subroutine
                 let (my_array_copy_2#2: bytes, my_array_copy_2#1: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(0x01020304)
                 let reinterpret_biguint%8#0: biguint = ((extract 0 1) my_array_copy_2#2) // on error: Index access is out of bounds
                 let tmp%9#0: bool = (b== reinterpret_biguint%8#0 0x01)
@@ -94,8 +89,8 @@ contract test_cases.arc4_types.mutable_params.Arc4MutableParamsContract:
                 let tail_offset%0#0: uint64 = (extract_uint16 updated_data%1#0 4u)
                 let tail_offset%1#0: uint64 = (+ tail_offset%0#0 9u)
                 let tail_offset%2#0: uint64 = (- tail_offset%1#0 item_length%0#0)
-                let as_bytes%1#0: bytes = (itob tail_offset%2#0)
-                let tail_offset_bytes%0#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let as_bytes%0#0: bytes = (itob tail_offset%2#0)
+                let tail_offset_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
                 let struct#2: bytes = ((replace2 4) updated_data%1#0 tail_offset_bytes%0#0)
                 return 1u 0u array#1 struct#2
         

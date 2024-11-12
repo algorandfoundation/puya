@@ -95,16 +95,12 @@ contract test_cases.state_mutations.contract.Contract:
         
         subroutine test_cases.state_mutations.contract.get_struct() -> bytes:
             block@0: // L64
-                let length_uint16%0#0: bytes = 0x0003
-                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "baz")
                 let encoded_tuple_buffer%2#0: bytes = 0x0000000000000001000a
-                let encoded_tuple_buffer%3#0: bytes = (concat encoded_tuple_buffer%2#0 encoded_value%0#0)
+                let encoded_tuple_buffer%3#0: bytes = (concat encoded_tuple_buffer%2#0 0x000362617a)
                 return encoded_tuple_buffer%3#0
         
         subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
             block@0: // L44
-                let length_uint16%0#0: bytes = 0x0008
-                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "modified")
                 let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "glob")
                 (assert maybe_exists%0#0) // check self.glob exists
                 let array_head_and_tail%0#0: bytes = ((extract 2 0) maybe_value%0#0)
@@ -118,13 +114,11 @@ contract test_cases.state_mutations.contract.Contract:
                 let tmp%0#0: bytes = (substring3 array_head_and_tail%0#0 item_offset%0#0 end_offset%0#0)
                 let item_offset%1#0: uint64 = (extract_uint16 tmp%0#0 8u)
                 let data_up_to_item%0#0: bytes = (extract3 tmp%0#0 0u item_offset%1#0)
-                let updated_data%0#0: bytes = (concat data_up_to_item%0#0 encoded_value%0#0)
+                let updated_data%0#0: bytes = (concat data_up_to_item%0#0 0x00086d6f646966696564)
                 let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "glob")
                 (assert maybe_exists%1#0) // check self.glob exists
                 let updated_value%0#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%1#0, updated_data%0#0, 0u)
                 (app_global_put "glob" updated_value%0#0)
-                let length_uint16%1#0: bytes = 0x0008
-                let encoded_value%1#0: bytes = (concat length_uint16%1#0 "modified")
                 let tmp%1#0: bytes = (txn Sender)
                 let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_local_get_ex tmp%1#0 0u "loc")
                 (assert maybe_exists%2#0) // check self.loc exists for account
@@ -139,15 +133,13 @@ contract test_cases.state_mutations.contract.Contract:
                 let tmp%2#0: bytes = (substring3 array_head_and_tail%1#0 item_offset%2#0 end_offset%1#0)
                 let item_offset%3#0: uint64 = (extract_uint16 tmp%2#0 8u)
                 let data_up_to_item%1#0: bytes = (extract3 tmp%2#0 0u item_offset%3#0)
-                let updated_data%1#0: bytes = (concat data_up_to_item%1#0 encoded_value%1#0)
+                let updated_data%1#0: bytes = (concat data_up_to_item%1#0 0x00086d6f646966696564)
                 let tmp%3#0: bytes = (txn Sender)
                 let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (app_local_get_ex tmp%3#0 0u "loc")
                 (assert maybe_exists%3#0) // check self.loc exists for account
                 let updated_value%1#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%3#0, updated_data%1#0, 0u)
                 let tmp%4#0: bytes = (txn Sender)
                 (app_local_put tmp%4#0 "loc" updated_value%1#0)
-                let length_uint16%2#0: bytes = 0x0008
-                let encoded_value%2#0: bytes = (concat length_uint16%2#0 "modified")
                 let (maybe_value%4#0: bytes, maybe_exists%4#0: bool) = (box_get "box")
                 (assert maybe_exists%4#0) // check self.box exists
                 let array_head_and_tail%2#0: bytes = ((extract 2 0) maybe_value%4#0)
@@ -161,14 +153,12 @@ contract test_cases.state_mutations.contract.Contract:
                 let tmp%5#0: bytes = (substring3 array_head_and_tail%2#0 item_offset%4#0 end_offset%2#0)
                 let item_offset%5#0: uint64 = (extract_uint16 tmp%5#0 8u)
                 let data_up_to_item%2#0: bytes = (extract3 tmp%5#0 0u item_offset%5#0)
-                let updated_data%2#0: bytes = (concat data_up_to_item%2#0 encoded_value%2#0)
+                let updated_data%2#0: bytes = (concat data_up_to_item%2#0 0x00086d6f646966696564)
                 let (maybe_value%5#0: bytes, maybe_exists%5#0: bool) = (box_get "box")
                 (assert maybe_exists%5#0) // check self.box exists
                 let updated_value%2#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%5#0, updated_data%2#0, 0u)
                 (box_del "box")
                 (box_put "box" updated_value%2#0)
-                let length_uint16%3#0: bytes = 0x0008
-                let encoded_value%3#0: bytes = (concat length_uint16%3#0 "modified")
                 let tmp%6#0: bytes = (txn Sender)
                 let tmp%7#0: bytes = (concat "map" tmp%6#0)
                 let (maybe_value%6#0: bytes, maybe_exists%6#0: bool) = (box_get tmp%7#0)
@@ -184,7 +174,7 @@ contract test_cases.state_mutations.contract.Contract:
                 let tmp%8#0: bytes = (substring3 array_head_and_tail%3#0 item_offset%6#0 end_offset%3#0)
                 let item_offset%7#0: uint64 = (extract_uint16 tmp%8#0 8u)
                 let data_up_to_item%3#0: bytes = (extract3 tmp%8#0 0u item_offset%7#0)
-                let updated_data%3#0: bytes = (concat data_up_to_item%3#0 encoded_value%3#0)
+                let updated_data%3#0: bytes = (concat data_up_to_item%3#0 0x00086d6f646966696564)
                 let tmp%9#0: bytes = (txn Sender)
                 let tmp%10#0: bytes = (concat "map" tmp%9#0)
                 let (maybe_value%7#0: bytes, maybe_exists%7#0: bool) = (box_get tmp%10#0)

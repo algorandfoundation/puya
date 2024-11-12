@@ -29,6 +29,7 @@ from puya.ir.builder._utils import (
     get_implicit_return_out,
     mktemp,
 )
+from puya.ir.builder.arc4 import ARC4_FALSE, ARC4_TRUE
 from puya.ir.builder.assignment import (
     handle_assignment,
     handle_assignment_expr,
@@ -398,9 +399,24 @@ class FunctionIRBuilder(
                 )
 
     def visit_bool_constant(self, expr: awst_nodes.BoolConstant) -> TExpression:
-        return UInt64Constant(
-            value=int(expr.value), ir_type=IRType.bool, source_location=expr.source_location
-        )
+        match expr.wtype:
+            case wtypes.bool_wtype:
+                return UInt64Constant(
+                    value=int(expr.value),
+                    ir_type=IRType.bool,
+                    source_location=expr.source_location,
+                )
+            case wtypes.arc4_bool_wtype:
+                return BytesConstant(
+                    value=(ARC4_TRUE if expr.value else ARC4_FALSE),
+                    encoding=AVMBytesEncoding.base16,
+                    ir_type=IRType.bytes,
+                    source_location=expr.source_location,
+                )
+            case _:
+                raise InternalError(
+                    f"Unexpected wtype {expr.wtype} for BoolConstant", expr.source_location
+                )
 
     def visit_bytes_constant(self, expr: awst_nodes.BytesConstant) -> BytesConstant:
         if len(expr.value) > algo_constants.MAX_BYTES_LENGTH:
@@ -417,12 +433,26 @@ class FunctionIRBuilder(
             value = expr.value.encode("utf8")
         except UnicodeError:
             value = None
-        if value is None or len(value) > algo_constants.MAX_BYTES_LENGTH:
+        if value is None:
+            raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
+
+        match expr.wtype:
+            case wtypes.string_wtype:
+                encoding = AVMBytesEncoding.utf8
+            case wtypes.arc4_string_alias:
+                encoding = AVMBytesEncoding.base16
+                value = len(value).to_bytes(2) + value
+            case _:
+                raise InternalError(
+                    f"Unexpected wtype {expr.wtype} for StringConstant", expr.source_location
+                )
+
+        if len(value) > algo_constants.MAX_BYTES_LENGTH:
             raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
 
         return BytesConstant(
             value=value,
-            encoding=AVMBytesEncoding.utf8,
+            encoding=encoding,
             source_location=expr.source_location,
         )
 

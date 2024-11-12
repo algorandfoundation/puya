@@ -598,6 +598,10 @@ def pop_arc4_array(
     return popped
 
 
+ARC4_TRUE = 0b10000000.to_bytes(1, "big")
+ARC4_FALSE = 0b00000000.to_bytes(1, "big")
+
+
 def _encode_arc4_bool(
     context: IRFunctionBuildContext, bit: Value, source_location: SourceLocation
 ) -> Value:

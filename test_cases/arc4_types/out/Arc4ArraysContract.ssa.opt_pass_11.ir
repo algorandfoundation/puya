@@ -36,15 +36,8 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
             block@8: // after_for_L32
                 let tmp%3#0: bool = (== total#3 4u)
                 (assert tmp%3#0) // Total should now include sum of aliased_dynamic items
-                let tmp%4#0: uint64 = 2u
-                let tmp%5#0: bool = (== tmp%4#0 2u)
-                (assert tmp%5#0)
-                let array_head_and_tail%2#0: bytes = 0x0004000b000548656c6c6f0005576f726c64
-                (assert tmp%4#0) // Index access is out of bounds
-                let item_offset%2#0: uint64 = (extract_uint16 array_head_and_tail%2#0 0u)
-                let item_length%0#0: uint64 = (extract_uint16 array_head_and_tail%2#0 item_offset%2#0)
-                let item_head_tail_length%0#0: uint64 = (+ item_length%0#0 2u)
-                let tmp%6#0: bytes = (extract3 array_head_and_tail%2#0 item_offset%2#0 item_head_tail_length%0#0)
+                let item_head_tail_length%0#0: uint64 = 7u
+                let tmp%6#0: bytes = (extract3 0x0004000b000548656c6c6f0005576f726c64 4u item_head_tail_length%0#0)
                 let tmp%7#0: bool = (== tmp%6#0 0x000548656c6c6f)
                 (assert tmp%7#0)
                 let result#0: bytes = ""
@@ -53,14 +46,14 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
             block@9: // for_header_L39
                 let index#0: uint64 = φ(item_index_internal%2#0 <- block@8, item_index_internal%2#2 <- block@13)
                 let result#2: bytes = φ(result#0 <- block@8, result#4 <- block@13)
-                let continue_looping%2#0: bool = (< index#0 tmp%4#0)
+                let continue_looping%2#0: bool = (< index#0 2u)
                 goto continue_looping%2#0 ? block@10 : block@15
             block@10: // for_body_L40
                 let item_offset_offset%1#0: uint64 = (* index#0 2u)
-                let item_offset%3#0: uint64 = (extract_uint16 array_head_and_tail%2#0 item_offset_offset%1#0)
-                let item_length%1#0: uint64 = (extract_uint16 array_head_and_tail%2#0 item_offset%3#0)
+                let item_offset%3#0: uint64 = (extract_uint16 0x0004000b000548656c6c6f0005576f726c64 item_offset_offset%1#0)
+                let item_length%1#0: uint64 = (extract_uint16 0x0004000b000548656c6c6f0005576f726c64 item_offset%3#0)
                 let item_head_tail_length%1#0: uint64 = (+ item_length%1#0 2u)
-                let string_item#0: bytes = (extract3 array_head_and_tail%2#0 item_offset%3#0 item_head_tail_length%1#0)
+                let string_item#0: bytes = (extract3 0x0004000b000548656c6c6f0005576f726c64 item_offset%3#0 item_head_tail_length%1#0)
                 goto index#0 ? block@12 : block@11
             block@11: // if_body_L41
                 let result#1: bytes = ((extract 2 0) string_item#0)

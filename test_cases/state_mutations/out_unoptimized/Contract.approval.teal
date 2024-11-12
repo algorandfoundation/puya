@@ -2,7 +2,7 @@
 
 test_cases.state_mutations.contract.Contract.approval_program:
     intcblock 0 2 1 8
-    bytecblock 0x "box" "modified" "glob" "loc" "map" 0x0000 "baz"
+    bytecblock 0x "box" "glob" "loc" "map" 0x00086d6f646966696564 0x0000
     txn ApplicationID
     bnz main_after_if_else@2
     callsub __init__
@@ -143,7 +143,7 @@ append:
     // state_mutations/contract.py:39
     // self.glob.value.append(struct.copy())
     intc_0 // 0
-    bytec_3 // "glob"
+    bytec_2 // "glob"
     app_global_get_ex
     swap
     cover 2
@@ -168,14 +168,14 @@ append:
     intc_2 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
-    bytec_3 // "glob"
+    bytec_2 // "glob"
     swap
     app_global_put
     // state_mutations/contract.py:40
     // self.loc[Txn.sender].append(struct.copy())
     txn Sender
     intc_0 // 0
-    bytec 4 // "loc"
+    bytec_3 // "loc"
     app_local_get_ex
     assert // check self.loc exists for account
     dig 1
@@ -199,7 +199,7 @@ append:
     uncover 3
     callsub dynamic_array_concat_dynamic_element
     txn Sender
-    bytec 4 // "loc"
+    bytec_3 // "loc"
     uncover 2
     app_local_put
     // state_mutations/contract.py:41
@@ -236,7 +236,7 @@ append:
     // state_mutations/contract.py:42
     // self.map[Txn.sender].append(struct.copy())
     txn Sender
-    bytec 5 // "map"
+    bytec 4 // "map"
     swap
     concat
     box_get
@@ -262,7 +262,7 @@ append:
     uncover 3
     callsub dynamic_array_concat_dynamic_element
     txn Sender
-    bytec 5 // "map"
+    bytec 4 // "map"
     swap
     concat
     dup
@@ -279,14 +279,6 @@ get_struct:
     // @subroutine
     // def get_struct() -> MyStruct:
     proto 0 1
-    // state_mutations/contract.py:68
-    // baz=arc4.String("baz"),
-    bytec 7 // "baz"
-    len
-    itob
-    extract 6 2
-    bytec 7 // "baz"
-    concat
     // state_mutations/contract.py:66-69
     // return MyStruct(
     //     bar=arc4.UInt64(1),
@@ -306,7 +298,14 @@ get_struct:
     itob
     extract 6 2
     concat
-    swap
+    // state_mutations/contract.py:68
+    // baz=arc4.String("baz"),
+    pushbytes 0x000362617a
+    // state_mutations/contract.py:66-69
+    // return MyStruct(
+    //     bar=arc4.UInt64(1),
+    //     baz=arc4.String("baz"),
+    // )
     concat
     retsub
 
@@ -319,14 +318,8 @@ modify:
     proto 0 0
     // state_mutations/contract.py:46
     // self.glob.value[0].baz = arc4.String("modified")
-    bytec_2 // "modified"
-    len
-    itob
-    extract 6 2
-    bytec_2 // "modified"
-    concat
     intc_0 // 0
-    bytec_3 // "glob"
+    bytec_2 // "glob"
     app_global_get_ex
     assert // check self.glob exists
     dup
@@ -371,29 +364,23 @@ modify:
     intc_0 // 0
     uncover 2
     extract3
-    swap
+    bytec 5 // 0x00086d6f646966696564
     concat
     intc_0 // 0
-    bytec_3 // "glob"
+    bytec_2 // "glob"
     app_global_get_ex
     assert // check self.glob exists
     swap
     intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
-    bytec_3 // "glob"
+    bytec_2 // "glob"
     swap
     app_global_put
     // state_mutations/contract.py:47
     // self.loc[Txn.sender][0].baz = arc4.String("modified")
-    bytec_2 // "modified"
-    len
-    itob
-    extract 6 2
-    bytec_2 // "modified"
-    concat
     txn Sender
     intc_0 // 0
-    bytec 4 // "loc"
+    bytec_3 // "loc"
     app_local_get_ex
     assert // check self.loc exists for account
     dup
@@ -438,28 +425,22 @@ modify:
     intc_0 // 0
     uncover 2
     extract3
-    swap
+    bytec 5 // 0x00086d6f646966696564
     concat
     txn Sender
     intc_0 // 0
-    bytec 4 // "loc"
+    bytec_3 // "loc"
     app_local_get_ex
     assert // check self.loc exists for account
     swap
     intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
     txn Sender
-    bytec 4 // "loc"
+    bytec_3 // "loc"
     uncover 2
     app_local_put
     // state_mutations/contract.py:48
     // self.box.value[0].baz = arc4.String("modified")
-    bytec_2 // "modified"
-    len
-    itob
-    extract 6 2
-    bytec_2 // "modified"
-    concat
     bytec_1 // "box"
     box_get
     assert // check self.box exists
@@ -505,7 +486,7 @@ modify:
     intc_0 // 0
     uncover 2
     extract3
-    swap
+    bytec 5 // 0x00086d6f646966696564
     concat
     bytec_1 // "box"
     box_get
@@ -521,14 +502,8 @@ modify:
     box_put
     // state_mutations/contract.py:49
     // self.map[Txn.sender][0].baz = arc4.String("modified")
-    bytec_2 // "modified"
-    len
-    itob
-    extract 6 2
-    bytec_2 // "modified"
-    concat
     txn Sender
-    bytec 5 // "map"
+    bytec 4 // "map"
     swap
     concat
     box_get
@@ -575,10 +550,10 @@ modify:
     intc_0 // 0
     uncover 2
     extract3
-    swap
+    bytec 5 // 0x00086d6f646966696564
     concat
     txn Sender
-    bytec 5 // "map"
+    bytec 4 // "map"
     swap
     concat
     box_get
@@ -587,7 +562,7 @@ modify:
     intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
     txn Sender
-    bytec 5 // "map"
+    bytec 4 // "map"
     swap
     concat
     dup
@@ -607,14 +582,14 @@ get:
     // state_mutations/contract.py:53
     // a1 = self.glob.value.copy()
     intc_0 // 0
-    bytec_3 // "glob"
+    bytec_2 // "glob"
     app_global_get_ex
     assert // check self.glob exists
     // state_mutations/contract.py:54
     // a2 = self.loc[Txn.sender].copy()
     txn Sender
     intc_0 // 0
-    bytec 4 // "loc"
+    bytec_3 // "loc"
     app_local_get_ex
     assert // check self.loc exists for account
     // state_mutations/contract.py:55
@@ -625,7 +600,7 @@ get:
     // state_mutations/contract.py:56
     // a4 = self.map[Txn.sender].copy()
     txn Sender
-    bytec 5 // "map"
+    bytec 4 // "map"
     swap
     concat
     box_get
@@ -663,7 +638,7 @@ opt_in:
     bytec 6 // 0x0000
     bytec_0 // 0x
     concat
-    bytec_3 // "glob"
+    bytec_2 // "glob"
     swap
     app_global_put
     // state_mutations/contract.py:32
@@ -683,7 +658,7 @@ opt_in:
     bytec_0 // 0x
     concat
     txn Sender
-    bytec 4 // "loc"
+    bytec_3 // "loc"
     uncover 2
     app_local_put
     // state_mutations/contract.py:34
@@ -692,7 +667,7 @@ opt_in:
     bytec_0 // 0x
     concat
     txn Sender
-    bytec 5 // "map"
+    bytec 4 // "map"
     swap
     concat
     dup

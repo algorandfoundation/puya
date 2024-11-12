@@ -35,11 +35,9 @@ class ARC4BoolTypeBuilder(ARC4TypeBuilder):
         match literal.value:
             case bool(bool_literal):
                 return ARC4BoolExpressionBuilder(
-                    ARC4Encode(
-                        value=BoolConstant(value=bool_literal, source_location=location),
-                        wtype=wtypes.arc4_bool_wtype,
-                        source_location=location,
-                    )
+                    BoolConstant(
+                        value=bool_literal, source_location=location, wtype=wtypes.arc4_bool_wtype
+                    ),
                 )
         return None
 
@@ -54,13 +52,16 @@ class ARC4BoolTypeBuilder(ARC4TypeBuilder):
         arg = expect.at_most_one_arg(args, location)
         match arg:
             case None:
-                native_bool: Expression = BoolConstant(value=False, source_location=location)
+                expr: Expression = BoolConstant(
+                    value=False, source_location=location, wtype=wtypes.arc4_bool_wtype
+                )
             case _:
                 arg = expect.argument_of_type_else_dummy(arg, pytypes.BoolType)
                 native_bool = arg.resolve()
-        return ARC4BoolExpressionBuilder(
-            ARC4Encode(value=native_bool, wtype=wtypes.arc4_bool_wtype, source_location=location)
-        )
+                expr = ARC4Encode(
+                    value=native_bool, wtype=wtypes.arc4_bool_wtype, source_location=location
+                )
+        return ARC4BoolExpressionBuilder(expr)
 
 
 class ARC4BoolExpressionBuilder(

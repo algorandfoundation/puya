@@ -18,7 +18,8 @@ def main() -> None:
     output_path = VCS_ROOT / "src" / "puya" / "ir" / "_puya_lib.awst.json"
     replace_awst = awst_path.read_text()
     for lib_path in puya_lib_path.glob("*.py"):
-        find_str = f'"file": "{lib_path}",'
+        path_as_str = str(lib_path).replace("\\", "\\\\")
+        find_str = f'"file": "{path_as_str}",'
         replace_str = '"file": null,'
         replace_awst = replace_awst.replace(find_str, replace_str)
     output_path.write_text(replace_awst)

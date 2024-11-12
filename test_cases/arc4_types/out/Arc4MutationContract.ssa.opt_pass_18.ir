@@ -58,19 +58,15 @@ contract test_cases.arc4_types.mutation.Arc4MutationContract:
                 let total_length%0#0: uint64 = (len array_head_and_tail%0#0)
                 let data%2#0: bytes = (substring3 array_head_and_tail%0#0 start_of_tail%0#0 total_length%0#0)
                 let dynamic_string_array#2: bytes = _puya_lib.arc4.dynamic_array_concat_byte_length_head(dynamic_string_array#1, data%2#0, array_length%0#0)
-                let result%16#0: bytes = 0x00100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f
-                let result%17#0: bytes = (concat result%16#0 0x0005576f726c64)
-                let result%18#0: bytes = (concat result%17#0 0x0003466f6f)
-                let result%19#0: bytes = (concat result%18#0 0x0003426172)
-                let dynamic_string_array#3: bytes = (concat 0x0008 result%19#0)
-                let tmp%2#0: bool = (== dynamic_string_array#2 dynamic_string_array#3)
+                let result%19#0: bytes = 0x00100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
+                let array_data%1#0: bytes = (concat 0x0008 result%19#0)
+                let tmp%2#0: bool = (== dynamic_string_array#2 array_data%1#0)
                 (assert tmp%2#0)
+                let result%35#0: bytes = 0x00100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
+                let dynamic_string_array#3: bytes = (concat 0x0008 result%35#0)
                 let dynamic_string_array#4: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(dynamic_string_array#3, 0x000548656c6c6f, 3u)
                 let dynamic_string_array#5: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(dynamic_string_array#4, 0x000548656c6c6f, 5u)
-                let result%48#0: bytes = 0x00100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f
-                let result%49#0: bytes = (concat result%48#0 0x000548656c6c6f)
-                let result%50#0: bytes = (concat result%49#0 0x0003466f6f)
-                let result%51#0: bytes = (concat result%50#0 0x0003426172)
+                let result%51#0: bytes = 0x00100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f0003426172
                 let array_data%3#0: bytes = (concat 0x0008 result%51#0)
                 let tmp%3#0: bool = (== dynamic_string_array#5 array_data%3#0)
                 (assert tmp%3#0)
@@ -80,8 +76,7 @@ contract test_cases.arc4_types.mutation.Arc4MutationContract:
                 let (popped%1#0: bytes, dynamic_string_array#7: bytes) = _puya_lib.arc4.dynamic_array_pop_byte_length_head(dynamic_string_array#6)
                 let tmp%5#0: bool = (== popped%1#0 0x0003466f6f)
                 (assert tmp%5#0)
-                let array_data%4#0: bytes = 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f
-                let tmp%6#0: bool = (== dynamic_string_array#7 array_data%4#0)
+                let tmp%6#0: bool = (== dynamic_string_array#7 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f)
                 (assert tmp%6#0)
                 return 
         
@@ -163,8 +158,8 @@ contract test_cases.arc4_types.mutation.Arc4MutationContract:
                 let tail_offset%0#0: uint64 = (extract_uint16 updated_data%3#0 4u)
                 let tail_offset%1#0: uint64 = (+ tail_offset%0#0 7u)
                 let tail_offset%2#0: uint64 = (- tail_offset%1#0 item_length%0#0)
-                let as_bytes%9#0: bytes = (itob tail_offset%2#0)
-                let tail_offset_bytes%0#0: bytes = ((extract 6 2) as_bytes%9#0)
+                let as_bytes%4#0: bytes = (itob tail_offset%2#0)
+                let tail_offset_bytes%0#0: bytes = ((extract 6 2) as_bytes%4#0)
                 let test_struct#3: bytes = ((replace2 4) updated_data%3#0 tail_offset_bytes%0#0)
                 let item_offset%1#0: uint64 = (extract_uint16 test_struct#3 4u)
                 let data_up_to_item%1#0: bytes = (extract3 test_struct#3 0u item_offset%1#0)
