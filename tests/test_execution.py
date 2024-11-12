@@ -1022,6 +1022,9 @@ def test_augmented_assignment(harness: _TestHarness) -> None:
     )
 
     assert result.global_state_deltas == {
+        encode_utf8("counter"): {
+            "action": UINT_ACTION,
+        },
         encode_utf8("global_uint"): {
             "action": UINT_ACTION,
         },
@@ -1044,6 +1047,10 @@ def test_augmented_assignment(harness: _TestHarness) -> None:
     expected_uint = increment_uint
     expected_bytes = increment_uint.to_bytes(byteorder="big", length=8)
     assert result.global_state_deltas == {
+        encode_utf8("counter"): {
+            "action": UINT_ACTION,
+            "uint": 2,
+        },
         encode_utf8("global_uint"): {
             "action": UINT_ACTION,
             "uint": expected_uint,
@@ -1071,6 +1078,10 @@ def test_augmented_assignment(harness: _TestHarness) -> None:
     expected_uint += increment_uint
     expected_bytes += increment_uint.to_bytes(byteorder="big", length=8)
     assert result.global_state_deltas == {
+        encode_utf8("counter"): {
+            "action": UINT_ACTION,
+            "uint": 2,
+        },
         encode_utf8("global_uint"): {
             "action": UINT_ACTION,
             "uint": expected_uint,
