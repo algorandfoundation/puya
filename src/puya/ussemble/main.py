@@ -16,25 +16,25 @@ def assemble_program(
     *,
     debug_only: bool = False,
 ) -> models.AssembledProgram:
+    int_template_vars = _gather_template_variables(program, teal.IntBlock)
+    bytes_template_vars = _gather_template_variables(program, teal.BytesBlock)
+    program_template_vars = {*int_template_vars, *bytes_template_vars}
     if debug_only:
         # use dummy template values to produce a debug map
-        program_variables: Mapping[str, TemplateValue] = {
-            **{t: (0, None) for t in _gather_template_variables(program, teal.IntBlock)},
-            **{t: (b"", None) for t in _gather_template_variables(program, teal.BytesBlock)},
-        }
-        offset_pc = any(program_variables.keys() - template_variables.keys())
-        template_variables = {
-            **program_variables,
-            **template_variables,
+        mocked_template_variables: Mapping[str, TemplateValue] = {
+            **{t: (0, None) for t in int_template_vars if t not in template_variables},
+            **{t: (b"", None) for t in bytes_template_vars if t not in template_variables},
         }
     else:
-        offset_pc = False
+        mocked_template_variables = {}
 
     assemble_ctx = attrs_extend(
         AssembleContext,
         ctx,
-        template_variables=template_variables,
-        offset_pc_from_constant_blocks=offset_pc,
+        provided_template_variables={
+            t: v for t, v in template_variables.items() if t in program_template_vars
+        },
+        mocked_template_variables=mocked_template_variables,
     )
     return assemble_bytecode_and_debug_info(assemble_ctx, program)
 

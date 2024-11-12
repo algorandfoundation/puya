@@ -15,9 +15,9 @@ contract test_cases.compile.apps.LargeProgram:
             block@2: // get_big_bytes_length_route_L40
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (! tmp%3#0)
-                (assert tmp%4#0) // OnCompletion is NoOp
+                (assert tmp%4#0) // OnCompletion is not NoOp
                 let tmp%5#0: uint64 = (txn ApplicationID)
-                (assert tmp%5#0) // is not creating
+                (assert tmp%5#0) // can only call when not creating
                 let to_encode%0#0: uint64 = test_cases.compile.apps.LargeProgram.get_big_bytes_length()
                 let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
                 let tmp%7#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
@@ -26,9 +26,9 @@ contract test_cases.compile.apps.LargeProgram:
             block@3: // delete_route_L44
                 let tmp%8#0: uint64 = (txn OnCompletion)
                 let tmp%9#0: bool = (== tmp%8#0 DeleteApplication)
-                (assert tmp%9#0) // OnCompletion is DeleteApplication
+                (assert tmp%9#0) // OnCompletion is not DeleteApplication
                 let tmp%10#0: uint64 = (txn ApplicationID)
-                (assert tmp%10#0) // is not creating
+                (assert tmp%10#0) // can only call when not creating
                 return 1u
             block@6: // bare_routing_L38
                 let tmp%12#0: uint64 = (txn OnCompletion)
@@ -36,7 +36,7 @@ contract test_cases.compile.apps.LargeProgram:
             block@7: // __algopy_default_create_L1
                 let tmp%13#0: uint64 = (txn ApplicationID)
                 let tmp%14#0: bool = (! tmp%13#0)
-                (assert tmp%14#0) // is creating
+                (assert tmp%14#0) // can only call when creating
                 return 1u
             block@10: // after_if_else_L38
                 return 0u

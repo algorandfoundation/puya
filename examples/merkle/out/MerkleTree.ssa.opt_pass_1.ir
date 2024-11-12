@@ -15,19 +15,19 @@ contract examples.merkle.contract.MerkleTree:
             block@2: // create_route_L10
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (! tmp%3#0)
-                (assert tmp%4#0) // OnCompletion is NoOp
+                (assert tmp%4#0) // OnCompletion is not NoOp
                 let tmp%5#0: uint64 = (txn ApplicationID)
                 let tmp%6#0: bool = (! tmp%5#0)
-                (assert tmp%6#0) // is creating
+                (assert tmp%6#0) // can only call when creating
                 let tmp%7#0: bytes = (txna ApplicationArgs 1)
                 examples.merkle.contract.MerkleTree.create(tmp%7#0)
                 return 1u
             block@3: // verify_route_L14
                 let tmp%8#0: uint64 = (txn OnCompletion)
                 let tmp%9#0: bool = (! tmp%8#0)
-                (assert tmp%9#0) // OnCompletion is NoOp
+                (assert tmp%9#0) // OnCompletion is not NoOp
                 let tmp%10#0: uint64 = (txn ApplicationID)
-                (assert tmp%10#0) // is not creating
+                (assert tmp%10#0) // can only call when not creating
                 let tmp%12#0: bytes = (txna ApplicationArgs 1)
                 let tmp%13#0: bytes = (txna ApplicationArgs 2)
                 let to_encode%0#0: bool = examples.merkle.contract.MerkleTree.verify(tmp%12#0, tmp%13#0)

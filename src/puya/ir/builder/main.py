@@ -19,6 +19,7 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, flow_control, storage
 from puya.ir.builder._tuple_util import get_tuple_item_values
 from puya.ir.builder._utils import (
+    OpFactory,
     assert_value,
     assign,
     assign_intrinsic_op,
@@ -1165,6 +1166,21 @@ class FunctionIRBuilder(
             args=[],
             source_location=expr.source_location,
         )
+
+    def visit_emit(self, expr: awst_nodes.Emit) -> TExpression:
+        factory = OpFactory(self.context, expr.source_location)
+        value = self.context.visitor.visit_and_materialise_single(expr.value)
+        prefix = MethodConstant(value=expr.signature, source_location=expr.source_location)
+        event = factory.concat(prefix, value, "event")
+
+        self.context.block_builder.add(
+            Intrinsic(
+                op=AVMOp("log"),
+                args=[event],
+                source_location=expr.source_location,
+            )
+        )
+        return None
 
     def visit_range(self, node: awst_nodes.Range) -> TExpression:
         raise CodeError("unexpected range location", node.source_location)

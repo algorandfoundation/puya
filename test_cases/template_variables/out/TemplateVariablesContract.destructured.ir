@@ -15,9 +15,9 @@ contract test_cases.template_variables.contract.TemplateVariablesContract:
             block@2: // get_bytes_route_L6
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (! tmp%3#0)
-                (assert tmp%4#0) // OnCompletion is NoOp
+                (assert tmp%4#0) // OnCompletion is not NoOp
                 let tmp%5#0: uint64 = (txn ApplicationID)
-                (assert tmp%5#0) // is not creating
+                (assert tmp%5#0) // can only call when not creating
                 let to_encode%0#0: bytes = test_cases.template_variables.contract.TemplateVariablesContract.get_bytes()
                 let length%0#0: uint64 = (len to_encode%0#0)
                 let as_bytes%0#0: bytes = (itob length%0#0)
@@ -29,9 +29,9 @@ contract test_cases.template_variables.contract.TemplateVariablesContract:
             block@3: // get_big_uint_route_L10
                 let tmp%8#0: uint64 = (txn OnCompletion)
                 let tmp%9#0: bool = (! tmp%8#0)
-                (assert tmp%9#0) // OnCompletion is NoOp
+                (assert tmp%9#0) // OnCompletion is not NoOp
                 let tmp%10#0: uint64 = (txn ApplicationID)
-                (assert tmp%10#0) // is not creating
+                (assert tmp%10#0) // can only call when not creating
                 let tmp%12#0: bytes = test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint()
                 let tmp%13#0: bytes = (concat 0x151f7c75 tmp%12#0)
                 (log tmp%13#0)
@@ -41,18 +41,18 @@ contract test_cases.template_variables.contract.TemplateVariablesContract:
                 goto_nth [block@9, block@12, block@12, block@12, block@7, block@8][tmp%14#0] else return 0u
             block@7: // on_update_L15
                 let tmp%15#0: uint64 = (txn ApplicationID)
-                (assert tmp%15#0) // is not creating
+                (assert tmp%15#0) // can only call when not creating
                 test_cases.template_variables.contract.TemplateVariablesContract.on_update()
                 return 1u
             block@8: // on_delete_L19
                 let tmp%17#0: uint64 = (txn ApplicationID)
-                (assert tmp%17#0) // is not creating
+                (assert tmp%17#0) // can only call when not creating
                 test_cases.template_variables.contract.TemplateVariablesContract.on_delete()
                 return 1u
             block@9: // __algopy_default_create_L1
                 let tmp%19#0: uint64 = (txn ApplicationID)
                 let tmp%20#0: bool = (! tmp%19#0)
-                (assert tmp%20#0) // is creating
+                (assert tmp%20#0) // can only call when creating
                 return 1u
             block@12: // after_if_else_L5
                 return 0u

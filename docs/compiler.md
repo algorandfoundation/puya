@@ -107,19 +107,20 @@ puyapy [-h] [--version] [-O {0,1,2}]
 ### Options
 
 | Option                                                   | Description                                                                                                                                                           | Default                 |
-|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------| ----------------------- |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------|
 | `-h`, `--help`                                           | Show the help message and exit                                                                                                                                        | N/A                     |
 | `--version`                                              | Show program's version number and exit                                                                                                                                | N/A                     |
 | `-O {0,1,2}` <br />`--optimization-level {0,1,2}`        | Set optimization level of output TEAL / AVM bytecode                                                                                                                  | `1`                     |
 | `--output-teal`, `--no-output-teal`                      | Output TEAL                                                                                                                                                           | `True`                  |
 | `--output-arc32`, `--no-output-arc32`                    | Output {contract}.arc32.json ARC-32 app spec file if the contract is an ARC-4 contract                                                                                | `True`                  |
+| `--output-arc56`, `--no-output-arc56`                    | Output {contract}.arc56.json ARC-56 app spec file if the contract is an ARC-4 contract                                                                                | `False`                 |
 | `--output-client`, `--no-output-client`                  | Output Algorand Python contract client for typed ARC4 ABI calls                                                                                                       | `False`                 |
 | `--output-bytecode`, `--no-output-bytecode`              | Output AVM bytecode                                                                                                                                                   | `False`                 |
 | `--out-dir OUT_DIR`                                      | The path for outputting artefacts                                                                                                                                     | Same folder as contract |
 | `--log-level {notset,debug,info,warning,error,critical}` | Minimum level to log to console                                                                                                                                       | `info`                  |
 | `-g {0,1,2}`, `--debug-level {0,1,2}`                    | Output debug information level<br /> `0` = No debug annotations <br /> `1` = Output debug annotations <br /> `2` = Reserved for future use, currently the same as `1` | `1`                     |
-| `--template-var`         | Allows specifying template values. Can be used multiple times, see below for examples | N/A     |
-| `--template-vars-prefix` | Prefix to use for template variables                                                  | "TMPL_" |
+| `--template-var`                                         | Allows specifying template values. Can be used multiple times, see below for examples                                                                                 | N/A                     |
+| `--template-vars-prefix`                                 | Prefix to use for template variables                                                                                                                                  | "TMPL_"                 |
 
 ### Defining template values
 

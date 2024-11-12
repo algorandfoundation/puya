@@ -1,0 +1,100 @@
+contract Contract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  globals {
+    ['g_struct']: test_cases.arc_56.contract.StateStruct
+    [hex<"6775">]: uint64
+    [hex<"6761">]: arc4.static_array<arc4.uint8, 32>
+  }
+  locals {
+    ['l_struct']: test_cases.arc_56.contract.StateStruct
+    [hex<"6C75">]: uint64
+    [hex<"6C61">]: arc4.static_array<arc4.uint8, 32>
+  }
+  boxes {
+    ['b_struct']: test_cases.arc_56.contract.StateStruct
+    [hex<"6275">]: uint64
+    [hex<"6261">]: arc4.static_array<arc4.uint8, 32>
+    ['box_map_struct']: test_cases.arc_56.contract.StateStruct => test_cases.arc_56.contract.SharedStruct
+    [hex<"626D75">]: uint64 => test_cases.arc_56.contract.SharedStruct
+    [hex<"626D61">]: arc4.static_array<arc4.uint8, 32> => test_cases.arc_56.contract.SharedStruct
+    ['box_ref']: bytes
+    [hex<"6272">]: bytes
+  }
+  
+  subroutine test_cases.arc_56.contract.Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.arc_56.contract.Contract.__init__(): void
+  {
+  }
+  
+  baremethod test_cases.arc_56.contract.Contract.bare_create(): void
+  {
+  }
+  
+  abimethod test_cases.arc_56.contract.Contract.create(): void
+  {
+  }
+  
+  baremethod test_cases.arc_56.contract.Contract.transient(): void
+  {
+  }
+  
+  abimethod test_cases.arc_56.contract.Contract.struct_arg(arg: test_cases.arc_56.contract.TopLevelStruct, shared: test_cases.arc_56.contract.SharedStruct): uint64
+  {
+    assert(arg.shared == shared, comment="this might error")
+    return 42u
+  }
+  
+  abimethod test_cases.arc_56.contract.Contract.struct_return(arg: test_cases.arc_56.contract.TopLevelStruct): test_cases.arc_56.contract.SharedStruct
+  {
+    assert(arg.shared == test_cases.arc_56.contract.echo(arg.shared), comment="this won't error")
+    return arg.shared
+  }
+  
+  abimethod[name_override=emits_error] test_cases.arc_56.contract.Contract.errors(arg: test_cases.arc_56.contract.TopLevelStruct): void
+  {
+    assert(reinterpret_cast<bytes>(arg.a) == reinterpret_cast<bytes>(0_arc4u8), comment="this will error")
+  }
+  
+  abimethod test_cases.arc_56.contract.Contract.emitter(): void
+  {
+    emit('SharedStruct(byte[],uint8)', new test_cases.arc_56.contract.SharedStruct(foo=arc4_encode(hex<"68656C6C6F31">, arc4.dynamic_array<arc4.uint8>), bar=42_arc4u8))
+    emit('Anonymous(string,(byte[],uint8))', new Anonymous(field1=arc4_encode('hello', arc4.dynamic_array<arc4.uint8>), field2=new test_cases.arc_56.contract.SharedStruct(foo=arc4_encode(hex<"68656C6C6F32">, arc4.dynamic_array<arc4.uint8>), bar=42_arc4u8)))
+  }
+  
+  abimethod test_cases.arc_56.contract.Contract.conditional_emit(should_emit: bool): void
+  {
+    if (should_emit) {
+      emit('Anonymous2((uint64,uint64),(byte[],uint8))', new Anonymous2(field1=new test_cases.arc_56.contract.EventOnly(x=42_arc4u64, y=43_arc4u64), field2=new test_cases.arc_56.contract.SharedStruct(foo=arc4_encode(hex<"68656C6C6F33">, arc4.dynamic_array<arc4.uint8>), bar=42_arc4u8)))
+    }
+  }
+  
+  abimethod test_cases.arc_56.contract.Contract.template_value(): tuple<test_cases.arc_56.contract.SharedStruct,uint64,string,arc4.uint8>
+  {
+    return (TemplateVar[test_cases.arc_56.contract.SharedStruct](TMPL_STRUCT), TemplateVar[uint64](TMPL_AVM_UINT64), TemplateVar[string](TMPL_AVM_STRING), TemplateVar[arc4.uint8](TMPL_ARC4_UINT8))
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+}
+
+subroutine echo(s: test_cases.arc_56.contract.SharedStruct): test_cases.arc_56.contract.SharedStruct
+{
+  return s
+}

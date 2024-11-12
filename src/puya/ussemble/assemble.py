@@ -90,6 +90,10 @@ def assemble_bytecode_and_debug_info(
             pc_ops,
             pc_events,
         ),
+        template_variables={
+            var: value[0] if var in ctx.provided_template_variables else None
+            for var, value in ctx.template_variables.items()
+        },
     )
 
 
@@ -108,6 +112,8 @@ def _add_op_debug_events(
         event["callsub"] = subroutine_ids[func_block]
     elif op.op_code == "retsub":
         event["retsub"] = True
+    elif op.op_code in ("assert", "err") and op.comment:
+        event["error"] = op.comment
     event["op"] = op.teal()
 
     for sm in op.stack_manipulations:

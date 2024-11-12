@@ -1,6 +1,6 @@
 import re
 import typing
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 
 import attrs
 import mypy.nodes
@@ -8,14 +8,14 @@ import mypy.types
 import mypy.visitor
 from immutabledict import immutabledict
 from puya import log
-from puya.arc4_util import split_tuple_types
 from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
 from puya.models import (
     ARC4ABIMethodConfig,
     ARC4BareMethodConfig,
     ARC4CreateOption,
-    ARC32StructDef,
+    ARC4Struct,
+    ARC4StructField,
     OnCompletionAction,
     TransactionType,
 )
@@ -202,13 +202,6 @@ def get_arc4_abimethod_data(
         case invalid_default_args_option:
             context.error(f"invalid default_args option: {invalid_default_args_option}", dec_loc)
 
-    # extract "structs" from signature
-    structs = dict[str, ARC32StructDef]()
-    for n, pt in func_types.items():
-        mapped_type = pytype_to_arc4_pytype(pt, on_error=lambda t: t)
-        if _is_arc4_struct(mapped_type):
-            structs[n] = _pytype_to_struct_def(mapped_type)
-
     config = ARC4ABIMethodConfig(
         source_location=dec_loc,
         allowed_completion_types=allowed_completion_types,
@@ -216,7 +209,6 @@ def get_arc4_abimethod_data(
         name=name,
         readonly=readonly,
         default_args=immutabledict(default_args),
-        structs=immutabledict(structs),
     )
     return ARC4ABIMethodData(
         member_name=func_def.name,
@@ -311,10 +303,17 @@ class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
         return {key.accept(self) if key else None: value.accept(self) for key, value in o.items}
 
 
-def _pytype_to_struct_def(typ: pytypes.StructType) -> ARC32StructDef:
-    return ARC32StructDef(
-        name=typ.name.rsplit(".", maxsplit=1)[-1],
-        elements=[(n, pytype_to_arc4(t)) for n, t in typ.fields.items()],
+def _pytype_to_struct_def(typ: pytypes.StructType) -> ARC4Struct:
+    return ARC4Struct(
+        fullname=typ.name,
+        fields=[
+            ARC4StructField(
+                name=n,
+                type=pytype_to_arc4(t),
+                struct=t.name if pytypes.ARC4StructBaseType in t.mro else None,
+            )
+            for n, t in typ.fields.items()
+        ],
     )
 
 
@@ -360,6 +359,7 @@ def pytype_to_arc4_pytype(
         case pytypes.NamedTupleType():
             return pytypes.StructType(
                 base=pytypes.ARC4StructBaseType,
+                desc=pytype.desc,
                 name=pytype.name,
                 fields={
                     name: pytype_to_arc4_pytype(t, on_error) for name, t in pytype.fields.items()
@@ -469,3 +469,21 @@ def pytype_to_arc4(typ: pytypes.PyType, loc: SourceLocation | None = None) -> st
     if not isinstance(wtype, wtypes.ARC4Type):
         raise CodeError(f"not an ARC4 type or native equivalent: {wtype}", loc)
     return wtype.arc4_name
+
+
+def split_tuple_types(types: str) -> Iterable[str]:
+    """Splits inner tuple types into individual elements.
+
+    e.g. "uint64,(uint8,string),bool" becomes ["uint64", "(uint8,string)", "bool"]
+    """
+    tuple_level = 0
+    last_idx = 0
+    for idx, tok in enumerate(types):
+        if tok == "(":
+            tuple_level += 1
+        elif tok == ")":
+            tuple_level -= 1
+        if tok == "," and tuple_level == 0:
+            yield types[last_idx:idx]
+            last_idx = idx + 1
+    yield types[last_idx:]

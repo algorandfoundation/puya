@@ -27,19 +27,19 @@ contract test_cases.diamond_mro.gp.GP:
             block@2: // create_route_L11
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (== tmp%3#0 NoOp)
-                (assert tmp%4#0) // OnCompletion is NoOp
+                (assert tmp%4#0) // OnCompletion is not NoOp
                 let tmp%5#0: uint64 = (txn ApplicationID)
                 let tmp%6#0: bool = (== tmp%5#0 0u)
-                (assert tmp%6#0) // is creating
+                (assert tmp%6#0) // can only call when creating
                 test_cases.diamond_mro.gp.GP.create()
                 return 1u
             block@3: // method_route_L15
                 let tmp%7#0: uint64 = (txn OnCompletion)
                 let tmp%8#0: bool = (== tmp%7#0 NoOp)
-                (assert tmp%8#0) // OnCompletion is NoOp
+                (assert tmp%8#0) // OnCompletion is not NoOp
                 let tmp%9#0: uint64 = (txn ApplicationID)
                 let tmp%10#0: bool = (!= tmp%9#0 0u)
-                (assert tmp%10#0) // is not creating
+                (assert tmp%10#0) // can only call when not creating
                 test_cases.diamond_mro.gp.GP.method()
                 return 1u
             block@4: // switch_case_default_L6

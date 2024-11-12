@@ -26,9 +26,9 @@ contract test_cases.inner_transactions.c2c.Greeter:
             block@2: // bootstrap_route_L10
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (! tmp%3#0)
-                (assert tmp%4#0) // OnCompletion is NoOp
+                (assert tmp%4#0) // OnCompletion is not NoOp
                 let tmp%5#0: uint64 = (txn ApplicationID)
-                (assert tmp%5#0) // is not creating
+                (assert tmp%5#0) // can only call when not creating
                 let to_encode%0#0: uint64 = test_cases.inner_transactions.c2c.Greeter.bootstrap()
                 let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
                 let tmp%7#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
@@ -37,9 +37,9 @@ contract test_cases.inner_transactions.c2c.Greeter:
             block@3: // log_greetings_route_L23
                 let tmp%8#0: uint64 = (txn OnCompletion)
                 let tmp%9#0: bool = (! tmp%8#0)
-                (assert tmp%9#0) // OnCompletion is NoOp
+                (assert tmp%9#0) // OnCompletion is not NoOp
                 let tmp%10#0: uint64 = (txn ApplicationID)
-                (assert tmp%10#0) // is not creating
+                (assert tmp%10#0) // can only call when not creating
                 let tmp%12#0: bytes = (txna ApplicationArgs 1)
                 test_cases.inner_transactions.c2c.Greeter.log_greetings(tmp%12#0)
                 return 1u
@@ -49,7 +49,7 @@ contract test_cases.inner_transactions.c2c.Greeter:
             block@7: // __algopy_default_create_L1
                 let tmp%14#0: uint64 = (txn ApplicationID)
                 let tmp%15#0: bool = (! tmp%14#0)
-                (assert tmp%15#0) // is creating
+                (assert tmp%15#0) // can only call when creating
                 return 1u
             block@10: // after_if_else_L6
                 return 0u

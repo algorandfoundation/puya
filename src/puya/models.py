@@ -45,14 +45,24 @@ class ARC4CreateOption(enum.Enum):
     disallow = enum.auto()
 
 
-def _freeze_list_of_lists(elements: Sequence[Sequence[str]]) -> Sequence[tuple[str, str]]:
-    return tuple((e1, e2) for (e1, e2) in elements)
-
-
 @attrs.frozen
-class ARC32StructDef:
+class ARC4StructField:
     name: str
-    elements: Sequence[tuple[str, str]] = attrs.field(default=(), converter=_freeze_list_of_lists)
+    type: str
+    struct: str | None
+
+
+@attrs.frozen(kw_only=True)
+class ARC4Struct:
+    fullname: str
+    desc: str | None = None
+    fields: Sequence[ARC4StructField] = attrs.field(
+        default=(), converter=tuple[ARC4StructField, ...]
+    )
+
+    @property
+    def name(self) -> str:
+        return self.fullname.rsplit(".", maxsplit=1)[-1]
 
 
 @attrs.frozen(kw_only=True)
@@ -60,7 +70,7 @@ class ARC4BareMethodConfig:
     source_location: SourceLocation
     allowed_completion_types: Sequence[OnCompletionAction] = attrs.field(
         default=(OnCompletionAction.NoOp,),
-        converter=tuple[OnCompletionAction],
+        converter=tuple[OnCompletionAction, ...],
         validator=attrs.validators.min_len(1),
     )
     create: ARC4CreateOption = ARC4CreateOption.disallow
@@ -79,19 +89,20 @@ class ARC4ABIMethodConfig:
     readonly: bool = False
     default_args: immutabledict[str, str] = immutabledict()
     """Mapping is from parameter -> source"""
-    structs: immutabledict[str, ARC32StructDef] = immutabledict()
 
 
 @attrs.frozen
 class ARC4MethodArg:
     name: str
     type_: str
+    struct: str | None
     desc: str | None = attrs.field(hash=False)
 
 
 @attrs.frozen
 class ARC4Returns:
     type_: str
+    struct: str | None
     desc: str | None = attrs.field(hash=False)
 
 
@@ -101,7 +112,12 @@ class ARC4ABIMethod:
     desc: str | None = attrs.field(hash=False)
     args: Sequence[ARC4MethodArg] = attrs.field(converter=tuple[ARC4MethodArg, ...])
     returns: ARC4Returns
+    events: Sequence[ARC4Struct]
     config: ARC4ABIMethodConfig
+
+    @property
+    def signature(self) -> str:
+        return f"{self.name}({','.join(a.type_ for a in self.args)}){self.returns.type_}"
 
 
 @attrs.frozen
@@ -114,9 +130,14 @@ class ARC4BareMethod:
 class ContractState:
     name: str
     source_location: SourceLocation
-    key: bytes
+    key_or_prefix: bytes
+    """Key value as bytes, or prefix if it is a map"""
+    arc56_key_type: str
+    arc56_value_type: str
     storage_type: typing.Literal[AVMType.uint64, AVMType.bytes]
     description: str | None
+    is_map: bool
+    """State describes a map"""
 
 
 @attrs.frozen(kw_only=True)
@@ -145,8 +166,12 @@ class ContractMetaData:
     description: str | None
     global_state: immutabledict[str, ContractState]
     local_state: immutabledict[str, ContractState]
+    boxes: immutabledict[str, ContractState]
     state_totals: StateTotals
     arc4_methods: Sequence[ARC4Method]
+    structs: immutabledict[str, ARC4Struct]
+    template_variable_types: immutabledict[str, str]
+    """Mapping of template variable names to their ARC-56 type"""
 
     @property
     def is_arc4(self) -> bool:
@@ -174,6 +199,8 @@ class DebugEvent(typing.TypedDict, total=False):
     """Variable names on the stack AFTER the next op executes"""
     defined_out: Sequence[str]
     """Variable names that are defined AFTER the next op executes"""
+    error: str
+    """Error message if failure occurs at this op"""
 
 
 @attrs.frozen
@@ -201,6 +228,10 @@ class CompiledProgram(abc.ABC):
     @property
     @abc.abstractmethod
     def debug_info(self) -> DebugInfo | None: ...
+
+    @property
+    @abc.abstractmethod
+    def template_variables(self) -> Mapping[str, int | bytes | None]: ...
 
 
 class CompiledContract(abc.ABC):

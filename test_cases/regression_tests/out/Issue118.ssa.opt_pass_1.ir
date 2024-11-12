@@ -15,9 +15,9 @@ contract test_cases.regression_tests.issue_118.Issue118:
             block@2: // verify_route_L7
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (! tmp%3#0)
-                (assert tmp%4#0) // OnCompletion is NoOp
+                (assert tmp%4#0) // OnCompletion is not NoOp
                 let tmp%5#0: uint64 = (txn ApplicationID)
-                (assert tmp%5#0) // is not creating
+                (assert tmp%5#0) // can only call when not creating
                 let tmp%7#0: bytes = (txna ApplicationArgs 1)
                 let tmp%8#0: bytes = test_cases.regression_tests.issue_118.Issue118.verify(tmp%7#0)
                 let tmp%9#0: bytes = (concat 0x151f7c75 tmp%8#0)
@@ -29,7 +29,7 @@ contract test_cases.regression_tests.issue_118.Issue118:
             block@6: // __algopy_default_create_L1
                 let tmp%11#0: uint64 = (txn ApplicationID)
                 let tmp%12#0: bool = (! tmp%11#0)
-                (assert tmp%12#0) // is creating
+                (assert tmp%12#0) // can only call when creating
                 return 1u
             block@9: // after_if_else_L5
                 return 0u

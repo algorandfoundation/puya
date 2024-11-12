@@ -166,6 +166,7 @@ class WStructType(WType):
     immutable: bool = attrs.field(init=False)
     scalar_type: None = attrs.field(default=None, init=False)
     source_location: SourceLocation | None = attrs.field(eq=False)
+    desc: str | None = None
 
     @immutable.default
     def _immutable(self) -> bool:
@@ -208,6 +209,7 @@ class WTuple(WType):
     immutable: bool = attrs.field(default=True, init=False)
     name: str = attrs.field(kw_only=True)
     names: tuple[str, ...] | None = attrs.field(default=None)
+    desc: str | None = None
 
     def __eq__(self, other: object) -> bool:
         # this custom equality check ensures that
@@ -460,6 +462,7 @@ class ARC4Struct(ARC4Type):
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
     arc4_name: str = attrs.field(init=False, eq=False)
     native_type: None = attrs.field(default=None, init=False)
+    desc: str | None = None
 
     @immutable.default
     def _immutable(self) -> bool:

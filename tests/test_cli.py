@@ -3,8 +3,6 @@ import shutil
 import subprocess
 from pathlib import Path
 
-import pytest
-
 from tests import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT
 
 ENV_WITH_NO_COLOR = dict(os.environ) | {
@@ -45,6 +43,7 @@ def run_puyapy(
 
 def run_puyapy_clientgen(
     path: Path,
+    *flags: str,
 ) -> subprocess.CompletedProcess[str]:
     puyapy_clientgen = shutil.which("puyapy-clientgen")
     assert puyapy_clientgen is not None
@@ -52,6 +51,7 @@ def run_puyapy_clientgen(
         [
             puyapy_clientgen,
             str(path),
+            *flags,
         ],
         text=True,
         # capture stdout
@@ -100,13 +100,13 @@ def test_run_directory() -> None:
     run_puyapy([TEST_CASES_DIR / "simple"])
 
 
-@pytest.mark.parametrize(
-    "case",
-    [
-        pytest.param(path, id=str(path.relative_to(VCS_ROOT)))
-        for test_dir in (EXAMPLES_DIR, TEST_CASES_DIR)
-        for path in test_dir.rglob("out/*.arc32.json")
-    ],
-)
-def test_puyapy_clientgen(case: Path) -> None:
-    run_puyapy_clientgen(case)
+def test_puyapy_clientgen_arc32(tmpdir: Path) -> None:
+    # ARC-32 output differs slightly from ARC-56, so we are just checking it doesn't error
+    # and ignore the generated artifact
+    path = TEST_CASES_DIR / "arc_56" / "out" / "Contract.arc32.json"
+    run_puyapy_clientgen(path, "--out-dir", str(tmpdir))
+
+
+def test_puyapy_clientgen_arc56() -> None:
+    path = TEST_CASES_DIR / "arc_56" / "out" / "Contract.arc56.json"
+    run_puyapy_clientgen(path)

@@ -44,10 +44,10 @@ __puya_arc4_router__:
 __puya_arc4_router___create_route@2:
     txn OnCompletion
     !
-    assert // OnCompletion is NoOp
+    assert // OnCompletion is not NoOp
     txn ApplicationID
     !
-    assert // is creating
+    assert // can only call when creating
     callsub create
     itob
     bytec 4 // 0x151f7c75
@@ -61,18 +61,18 @@ __puya_arc4_router___delete_route@3:
     txn OnCompletion
     pushint 5 // DeleteApplication
     ==
-    assert // OnCompletion is DeleteApplication
+    assert // OnCompletion is not DeleteApplication
     txn ApplicationID
-    assert // is not creating
+    assert // can only call when not creating
     intc_1 // 1
     retsub
 
 __puya_arc4_router___greet_route@4:
     txn OnCompletion
     !
-    assert // OnCompletion is NoOp
+    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // is not creating
+    assert // can only call when not creating
     txna ApplicationArgs 1
     extract 2 0
     callsub greet

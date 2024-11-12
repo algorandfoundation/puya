@@ -16,10 +16,10 @@ contract test_cases.inner_transactions.asset_transfer.CreateAndTransferContract:
             block@2: // create_and_transfer_route_L11
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (== tmp%3#0 NoOp)
-                (assert tmp%4#0) // OnCompletion is NoOp
+                (assert tmp%4#0) // OnCompletion is not NoOp
                 let tmp%5#0: uint64 = (txn ApplicationID)
                 let tmp%6#0: bool = (!= tmp%5#0 0u)
-                (assert tmp%6#0) // is not creating
+                (assert tmp%6#0) // can only call when not creating
                 test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer()
                 return 1u
             block@3: // switch_case_default_L10
@@ -32,7 +32,7 @@ contract test_cases.inner_transactions.asset_transfer.CreateAndTransferContract:
             block@6: // __algopy_default_create_L1
                 let tmp%8#0: uint64 = (txn ApplicationID)
                 let tmp%9#0: bool = (== tmp%8#0 0u)
-                (assert tmp%9#0) // is creating
+                (assert tmp%9#0) // can only call when creating
                 test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__algopy_default_create()
                 return 1u
             block@7: // switch_case_default_L10

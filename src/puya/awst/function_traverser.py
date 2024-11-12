@@ -381,3 +381,7 @@ class FunctionTraverser(
         node.start.accept(self)
         node.stop.accept(self)
         node.step.accept(self)
+
+    @typing.override
+    def visit_emit(self, expr: awst_nodes.Emit) -> None:
+        expr.value.accept(self)

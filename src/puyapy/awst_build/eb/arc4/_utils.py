@@ -4,12 +4,12 @@ from collections.abc import Sequence
 
 import attrs
 import mypy.nodes
-from puya import arc4_util, log
+from puya import log
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
 from puyapy.awst_build import arc4_utils, pytypes
-from puyapy.awst_build.arc4_utils import pytype_to_arc4_pytype
+from puyapy.awst_build.arc4_utils import pytype_to_arc4_pytype, split_tuple_types
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.factories import builder_for_type
@@ -100,9 +100,7 @@ def get_arc4_signature(
             for na in native_args
         ]
     elif maybe_args:
-        arg_types = [
-            arc4_utils.arc4_to_pytype(a, loc) for a in arc4_util.split_tuple_types(maybe_args)
-        ]
+        arg_types = [arc4_utils.arc4_to_pytype(a, loc) for a in split_tuple_types(maybe_args)]
     else:  # args are specified but empty
         arg_types = []
     return_type = (

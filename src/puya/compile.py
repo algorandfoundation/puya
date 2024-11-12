@@ -9,6 +9,7 @@ from immutabledict import immutabledict
 
 from puya import log
 from puya.arc32 import create_arc32_json
+from puya.arc56 import create_arc56_json
 from puya.artifact_sorter import ArtifactCompilationSorter
 from puya.awst.nodes import AWST
 from puya.awst.validation.main import validate_awst
@@ -169,6 +170,7 @@ def _ir_to_teal(
 class _CompiledProgram(CompiledProgram):
     teal: TealProgram
     teal_src: str
+    template_variables: Mapping[str, int | bytes | None]
     debug_info: DebugInfo | None = None
     bytecode: bytes | None = None
 
@@ -207,6 +209,7 @@ def _dummy_program() -> _CompiledProgram:
             subroutines=[],
         ),
         teal_src="",
+        template_variables={},
     )
 
 
@@ -265,6 +268,7 @@ def _compile_program(context: CompileContext, program: TealProgram) -> _Compiled
         teal_src=emit_teal(context, program),
         bytecode=assembled.bytecode if context.options.output_bytecode else None,
         debug_info=assembled.debug_info,
+        template_variables=assembled.template_variables,
     )
 
 
@@ -279,7 +283,6 @@ def _write_artifacts(
         if out_dir is None:
             continue
         teal_file_stem = artifact.metadata.name
-        arc32_file_stem = f"{teal_file_stem}.arc32.json"
         artifact_base_path = out_dir / teal_file_stem
         match artifact:
             case CompiledLogicSig(program=program):
@@ -290,15 +293,27 @@ def _write_artifacts(
                     ".clear": clear,
                 }
                 if contract.metadata.is_arc4:
-                    app_spec_json = create_arc32_json(
-                        approval.teal_src,
-                        clear.teal_src,
-                        contract.metadata,
-                    )
                     if context.options.output_arc32:
-                        arc32_path = out_dir / arc32_file_stem
-                        logger.info(f"Writing {make_path_relative_to_cwd(arc32_path)}")
-                        arc32_path.write_text(app_spec_json)
+                        app_spec_json = create_arc32_json(
+                            approval.teal_src,
+                            clear.teal_src,
+                            contract.metadata,
+                        )
+                        _write_output(
+                            artifact_base_path,
+                            {".arc32.json": app_spec_json.encode("utf8")},
+                        )
+                    if context.options.output_arc56:
+                        app_spec_json = create_arc56_json(
+                            metadata=contract.metadata,
+                            approval_program=approval,
+                            clear_program=clear,
+                            template_prefix=context.options.template_vars_prefix,
+                        )
+                        _write_output(
+                            artifact_base_path,
+                            {".arc56.json": app_spec_json.encode("utf8")},
+                        )
             case _:
                 typing.assert_never(artifact)
         if context.options.output_teal:

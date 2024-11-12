@@ -1,7 +1,7 @@
 import typing
 from collections.abc import Sequence
 
-from puya import arc4_util, log
+from puya import log
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -157,9 +157,7 @@ def handle_assignment(
             )
             if scalar_type == AVMType.bytes:
                 serialized_value = mat_value
-                if not (
-                    isinstance(wtype, wtypes.ARC4Type) and arc4_util.is_arc4_static_size(wtype)
-                ):
+                if not (isinstance(wtype, wtypes.ARC4Type) and arc4.is_arc4_static_size(wtype)):
                     context.block_builder.add(
                         Intrinsic(
                             op=AVMOp.box_del, args=[key_value], source_location=assignment_location

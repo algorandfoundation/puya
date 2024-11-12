@@ -46,6 +46,12 @@ def main() -> None:
         help="Output {contract}.arc32.json ARC-32 app spec file",
     )
     parser.add_argument(
+        "--output-arc56",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Output {contract}.arc56.json ARC-56 app spec file",
+    )
+    parser.add_argument(
         "--output-client",
         action=argparse.BooleanOptionalAction,
         default=False,

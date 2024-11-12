@@ -1,6 +1,8 @@
 import typing
 from collections.abc import Iterable, Mapping, Sequence
 
+from immutabledict import immutabledict
+
 from puya import log
 from puya.avm_type import AVMType
 from puya.awst import (
@@ -222,10 +224,10 @@ def assert_create_state(
             return ()
         case ARC4CreateOption.disallow:
             condition = _non_zero(app_id)
-            comment = "is not creating"
+            comment = "can only call when not creating"
         case ARC4CreateOption.require:
             condition = _is_zero(app_id)
-            comment = "is creating"
+            comment = "can only call when creating"
         case invalid:
             typing.assert_never(invalid)
     return [
@@ -327,7 +329,7 @@ def check_allowed_oca(
         awst_nodes.ExpressionStatement(
             expr=_assert(
                 condition=condition,
-                comment=f"OnCompletion is {oca_desc}",
+                comment=f"OnCompletion is not {oca_desc}",
                 source_location=location,
             )
         ),
@@ -346,7 +348,7 @@ def _map_abi_args(
             if isinstance(a, wtypes.ARC4Type):
                 arc4_type = a
             else:
-                converted = _maybe_avm_to_arc4_equivalent_type(a)
+                converted = maybe_avm_to_arc4_equivalent_type(a)
                 if converted is not None:
                     arc4_type = converted
                 elif _reference_type_array(a) is not None:
@@ -421,7 +423,7 @@ def route_abi_methods(
             case wtypes.ARC4Type():
                 call_and_maybe_log = log_arc4_result(abi_loc, method_result)
             case _:
-                converted_return_type = _maybe_avm_to_arc4_equivalent_type(method.return_type)
+                converted_return_type = maybe_avm_to_arc4_equivalent_type(method.return_type)
                 if converted_return_type is None:
                     raise CodeError(
                         f"{method.return_type} is not a valid ABI return type",
@@ -568,7 +570,7 @@ def extract_arc4_methods(
     *,
     global_state: Mapping[str, ContractState],
     local_state: Mapping[str, ContractState],
-) -> list[ARC4Method]:
+) -> dict[awst_nodes.ContractMethod, ARC4Method]:
     abi_methods = {}
     bare_methods = {}
     known_sources: dict[str, ContractState | awst_nodes.ContractMethod] = {
@@ -587,68 +589,61 @@ def extract_arc4_methods(
 
     _validate_default_args(abi_methods.keys(), known_sources)
 
-    arc4_method_metadata = list[ARC4Method]()
+    arc4_method_metadata = dict[awst_nodes.ContractMethod, ARC4Method]()
     for m, bare_method_config in bare_methods.items():
-        arc4_method_metadata.append(
-            ARC4BareMethod(
-                desc=m.documentation.description,
-                config=bare_method_config,
-            )
+        arc4_method_metadata[m] = ARC4BareMethod(
+            desc=m.documentation.description,
+            config=bare_method_config,
         )
     for m, abi_method_config in abi_methods.items():
-        arc4_method_metadata.append(
-            ARC4ABIMethod(
-                name=m.member_name,
-                desc=m.documentation.description,
-                args=[
-                    ARC4MethodArg(
-                        name=a.name,
-                        type_=_wtype_to_arc4(a.wtype),
-                        desc=m.documentation.args.get(a.name),
-                    )
-                    for a in m.args
-                ],
-                returns=ARC4Returns(
-                    desc=m.documentation.returns,
-                    type_=_wtype_to_arc4(m.return_type),
-                ),
-                config=abi_method_config,
-            )
+        arc4_method_metadata[m] = ARC4ABIMethod(
+            name=m.member_name,
+            desc=m.documentation.description,
+            args=[
+                ARC4MethodArg(
+                    name=a.name,
+                    type_=_wtype_to_arc4(a.wtype),
+                    struct=_get_arc4_struct_name(a.wtype),
+                    desc=m.documentation.args.get(a.name),
+                )
+                for a in m.args
+            ],
+            returns=ARC4Returns(
+                desc=m.documentation.returns,
+                type_=_wtype_to_arc4(m.return_type),
+                struct=_get_arc4_struct_name(m.return_type),
+            ),
+            events=[],
+            config=abi_method_config,
         )
+
     return arc4_method_metadata
+
+
+def _get_arc4_struct_name(wtype: wtypes.WType) -> str | None:
+    return (
+        wtype.name
+        if isinstance(wtype, wtypes.ARC4Struct | wtypes.WTuple) and wtype.fields
+        else None
+    )
 
 
 def create_abi_router(
     contract: awst_nodes.Contract,
-    arc4_methods_with_configs: dict[awst_nodes.ContractMethod, ARC4MethodConfig],
+    arc4_methods_with_configs: dict[awst_nodes.ContractMethod, ARC4Method],
 ) -> awst_nodes.ContractMethod:
     router_location = contract.source_location
     abi_methods = {}
     bare_methods = {}
-    arc4_method_metadata = list[ARC4Method]()
-    for m, arc4_config in arc4_methods_with_configs.items():
-        doc = m.documentation
+    for m, arc4_method in arc4_methods_with_configs.items():
+        arc4_config = arc4_method.config
         assert arc4_config is m.arc4_method_config
         if isinstance(arc4_config, ARC4BareMethodConfig):
             bare_methods[m] = arc4_config
-            metadata: ARC4Method = ARC4BareMethod(desc=doc.description, config=arc4_config)
         elif isinstance(arc4_config, ARC4ABIMethodConfig):
             abi_methods[m] = arc4_config
-            metadata = ARC4ABIMethod(
-                name=m.member_name,
-                desc=doc.description,
-                args=[
-                    ARC4MethodArg(
-                        name=a.name, type_=_wtype_to_arc4(a.wtype), desc=doc.args.get(a.name)
-                    )
-                    for a in m.args
-                ],
-                returns=ARC4Returns(desc=doc.returns, type_=_wtype_to_arc4(m.return_type)),
-                config=arc4_config,
-            )
         else:
             typing.assert_never(arc4_config)
-        arc4_method_metadata.append(metadata)
 
     abi_routing = route_abi_methods(router_location, abi_methods)
     bare_routing = route_bare_methods(router_location, bare_methods)
@@ -694,7 +689,7 @@ def _wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> st
             return wtype.name
         case wtypes.WGroupTransaction(transaction_type=transaction_type):
             return transaction_type.name if transaction_type else "txn"
-    converted = _maybe_avm_to_arc4_equivalent_type(wtype)
+    converted = maybe_avm_to_arc4_equivalent_type(wtype)
     if converted is None:
         raise CodeError(f"not an ARC4 type or native equivalent: {wtype}", loc)
     return _wtype_to_arc4(converted, loc)
@@ -711,7 +706,7 @@ def _reference_type_array(wtype: wtypes.WType) -> str | None:
     return None
 
 
-def _maybe_avm_to_arc4_equivalent_type(wtype: wtypes.WType) -> wtypes.ARC4Type | None:
+def maybe_avm_to_arc4_equivalent_type(wtype: wtypes.WType) -> wtypes.ARC4Type | None:
     match wtype:
         case wtypes.bool_wtype:
             return wtypes.arc4_bool_wtype
@@ -725,16 +720,24 @@ def _maybe_avm_to_arc4_equivalent_type(wtype: wtypes.WType) -> wtypes.ARC4Type |
             )
         case wtypes.string_wtype:
             return wtypes.arc4_string_alias
-        case wtypes.WTuple(types=tuple_item_types):
+        case wtypes.WTuple(types=tuple_item_types) as wtuple:
             arc4_item_types = []
             for t in tuple_item_types:
                 if isinstance(t, wtypes.ARC4Type):
                     arc4_item_types.append(t)
                 else:
-                    converted = _maybe_avm_to_arc4_equivalent_type(t)
+                    converted = maybe_avm_to_arc4_equivalent_type(t)
                     if converted is None:
                         return None
                     arc4_item_types.append(converted)
-            return wtypes.ARC4Tuple(types=arc4_item_types, source_location=None)
+            if wtuple.fields:
+                return wtypes.ARC4Struct(
+                    name=wtuple.name,
+                    desc=wtuple.desc,
+                    frozen=True,
+                    fields=immutabledict(zip(wtuple.fields, arc4_item_types, strict=True)),
+                )
+            else:
+                return wtypes.ARC4Tuple(types=arc4_item_types, source_location=None)
         case _:
             return None

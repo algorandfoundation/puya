@@ -3,18 +3,17 @@ from collections.abc import Sequence
 
 import mypy.nodes
 from puya import log
-from puya.awst.nodes import MethodConstant
+from puya.awst.nodes import Emit
 from puya.parse import SourceLocation
 
-from puyapy.awst_build import intrinsic_factory, pytypes
+from puyapy.awst_build import pytypes
 from puyapy.awst_build.arc4_utils import pytype_to_arc4
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb.arc4._utils import get_arc4_signature
-from puyapy.awst_build.eb.arc4.tuple import ARC4TupleGenericTypeBuilder
+from puyapy.awst_build.eb.arc4.struct import ARC4StructTypeBuilder
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puyapy.awst_build.eb.none import NoneExpressionBuilder
-from puyapy.awst_build.eb.tuple import TupleLiteralBuilder
 
 logger = log.get_logger(__name__)
 
@@ -33,7 +32,6 @@ class EmitBuilder(FunctionBuilder):
             case InstanceBuilder(
                 pytype=pytypes.StructType() as struct_type
             ) as event_arg_eb if pytypes.ARC4StructBaseType < struct_type:
-                event_name = struct_type.name.split(".")[-1]
                 if rest:
                     logger.error(
                         "unexpected additional arguments", location=rest[0].source_location
@@ -46,18 +44,28 @@ class EmitBuilder(FunctionBuilder):
                         location=first.source_location,
                     )
                 arc4_args = signature.convert_args(rest)
-                event_name = signature.method_name
-                event_arg_eb = ARC4TupleGenericTypeBuilder(location).call(
-                    args=[TupleLiteralBuilder(items=arc4_args, location=location)],
-                    arg_names=[None],
-                    arg_kinds=[mypy.nodes.ARG_POS],
+                # emit requires a struct type, so generate one based on args
+                struct_type = pytypes.StructType(
+                    base=pytypes.ARC4StructBaseType,
+                    name=signature.method_name,
+                    desc=None,
+                    fields={
+                        f"field{idx}": arg.pytype for idx, arg in enumerate(arc4_args, start=1)
+                    },
+                    frozen=True,
+                    source_location=location,
+                )
+                event_arg_eb = ARC4StructTypeBuilder(struct_type, location).call(
+                    args=arc4_args,
+                    arg_names=[None] * len(arc4_args),
+                    arg_kinds=[mypy.nodes.ARG_POS] * len(arc4_args),
                     location=location,
                 )
+        event_name = struct_type.name.split(".")[-1]
         event_sig = f"{event_name}{pytype_to_arc4(event_arg_eb.pytype, location)}"
-        log_value = intrinsic_factory.concat(
-            MethodConstant(value=event_sig, source_location=location),
-            event_arg_eb.resolve(),
-            location,
+        emit = Emit(
+            signature=event_sig,
+            value=event_arg_eb.resolve(),
+            source_location=location,
         )
-        log_expr = intrinsic_factory.log(log_value, location)
-        return NoneExpressionBuilder(log_expr)
+        return NoneExpressionBuilder(emit)
