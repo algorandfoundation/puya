@@ -366,12 +366,13 @@ def _map_abi_args(
         for array_index, arg_wtype in enumerate(unpacked_types, start=1)
     ]
     if packed_types:
-        packed_arg = app_arg(
-            15, wtypes.ARC4Tuple(types=packed_types, source_location=location), location
-        )
         abi_args.extend(
             awst_nodes.TupleItemExpression(
-                base=packed_arg, index=tuple_index, source_location=location
+                base=app_arg(
+                    15, wtypes.ARC4Tuple(types=packed_types, source_location=location), location
+                ),
+                index=tuple_index,
+                source_location=location,
             )
             for tuple_index, _ in enumerate(packed_types)
         )
