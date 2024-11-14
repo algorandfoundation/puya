@@ -28,20 +28,35 @@ def optimize_teal_program(
     teal_program = copy.deepcopy(teal_program)
     for teal_sub in teal_program.all_subroutines:
         _optimize_subroutine(context, teal_sub)
+    before = [_get_all_stack_manipulations(sub) for sub in teal_program.subroutines]
     gather_program_constants(teal_program)
     if context.options.optimization_level > 0:
         combine_pushes(teal_program)
+    after = [_get_all_stack_manipulations(sub) for sub in teal_program.subroutines]
+    assert before == after, "expected stack manipulations to be preserved after optimization"
     return teal_program
 
 
+def _get_all_stack_manipulations(sub: models.TealSubroutine) -> list[models.StackManipulation]:
+    return [sm for block in sub.blocks for op in block.ops for sm in op.stack_manipulations]
+
+
 def _optimize_subroutine(context: CompileContext, teal_sub: models.TealSubroutine) -> None:
+    logger.debug(
+        f"optimizing TEAL subroutine {teal_sub.signature}", location=teal_sub.source_location
+    )
+    before = _get_all_stack_manipulations(teal_sub)
     for teal_block in teal_sub.blocks:
         _optimize_block(teal_block, level=context.options.optimization_level)
         teal_block.validate_stack_height()
+    after = _get_all_stack_manipulations(teal_sub)
+    assert before == after, "expected stack manipulations to be preserved after optimization"
     if context.options.optimization_level > 0:
+        _inline_jump_chains(teal_sub)
         _inline_single_op_blocks(teal_sub)
         _remove_unreachable_blocks(teal_sub)
-        _inline_singly_referenced_blocks(teal_sub)
+        while _inline_singly_referenced_blocks(teal_sub):
+            pass
         _remove_unreachable_blocks(teal_sub)
     _remove_jump_fallthroughs(teal_sub)
     _collapse_empty_blocks(teal_sub)
@@ -68,6 +83,36 @@ def _optimize_block(block: models.TealBlock, *, level: int) -> None:
 
     # simplifying uncover/cover 1 to swap is easier to do after other rotation optimizations
     simplify_swap_ops(block)
+
+
+def _inline_jump_chains(teal_sub: models.TealSubroutine) -> None:
+    # build a map of any blocks that are just an unconditional branch to their targets
+    jumps = dict[str, str]()
+    for block_idx, block in enumerate(teal_sub.blocks.copy()):
+        match block.ops:
+            case [models.Branch(target=target_label)]:
+                jumps[block.label] = target_label
+                logger.debug(f"removing jump-chain block {block.label}")
+                teal_sub.blocks.pop(block_idx)
+    # now back-propagate any chains
+    replacements = dict[str, str]()
+    for src, target in jumps.items():
+        while True:
+            try:
+                target = jumps[target]
+            except KeyError:
+                break
+        replacements[src] = target
+        logger.debug(f"branching to {src} will be replaced with {target}")
+    for block in teal_sub.blocks:
+        for op_idx, op in enumerate(block.ops):
+            if isinstance(op, models.Branch | models.BranchNonZero | models.BranchZero):
+                if op.target in replacements:
+                    block.ops[op_idx] = attrs.evolve(op, target=replacements[op.target])
+            elif isinstance(op, models.Switch | models.Match):
+                block.ops[op_idx] = attrs.evolve(
+                    op, targets=[replacements.get(t, t) for t in op.targets]
+                )
 
 
 def _inline_single_op_blocks(teal_sub: models.TealSubroutine) -> None:
@@ -102,10 +147,14 @@ def _remove_unreachable_blocks(teal_sub: models.TealSubroutine) -> None:
                     for target_label in op.targets
                     if (target := unreachable_blocks_by_label.pop(target_label, None))
                 )
-    teal_sub.blocks[:] = [b for b in teal_sub.blocks if b.label not in unreachable_blocks_by_label]
+    if unreachable_blocks_by_label:
+        logger.debug(f"removing unreachable blocks: {list(map(str, unreachable_blocks_by_label))}")
+        teal_sub.blocks[:] = [
+            b for b in teal_sub.blocks if b.label not in unreachable_blocks_by_label
+        ]
 
 
-def _inline_singly_referenced_blocks(teal_sub: models.TealSubroutine) -> None:
+def _inline_singly_referenced_blocks(teal_sub: models.TealSubroutine) -> bool:
     jump_targets = defaultdict[str, list[str]](list)
     for block in teal_sub.blocks:
         for op in block.ops:
@@ -114,6 +163,7 @@ def _inline_singly_referenced_blocks(teal_sub: models.TealSubroutine) -> None:
                     jump_targets[target_label].append(op.op_code)
 
     inline_label_ops = {b.label: b.ops for b in teal_sub.blocks if jump_targets[b.label] == ["b"]}
+    modified = False
     for block in teal_sub.blocks:
         if block.label in inline_label_ops:
             continue
@@ -123,14 +173,20 @@ def _inline_singly_referenced_blocks(teal_sub: models.TealSubroutine) -> None:
                     replace_ops := inline_label_ops.get(target_label)
                 ) is not None:
                     preserve_stack_manipulations(block.ops, slice(-1, None), replace_ops)
+                    logger.debug(
+                        f"inlining single reference block {target_label} into {block.label}"
+                    )
+                    modified = True
                 case _:
                     break
+    return modified
 
 
 def _remove_jump_fallthroughs(teal_sub: models.TealSubroutine) -> None:
     for block, next_block in zip(teal_sub.blocks, teal_sub.blocks[1:], strict=False):
         match block.ops[-1]:
             case models.Branch(target=target_label) if target_label == next_block.label:
+                logger.debug(f"removing explicit jump to fall-through block {next_block.label}")
                 block.ops.pop()
                 # preserve_stack_manipulations(
                 #     block.ops, slice(len(block.ops) - 1, len(block.ops)), []
@@ -151,6 +207,9 @@ def _collapse_empty_blocks(teal_sub: models.TealSubroutine) -> None:
                 next_idx = curr_idx
                 break
             blocks.pop(curr_idx)
+            logger.debug(
+                f"removing empty block {curr.label}, label will be replaced by {next_label}"
+            )
             replacements[curr.label] = next_label
         else:
             break

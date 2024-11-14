@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Sequence
 
 import attrs
@@ -13,24 +14,22 @@ from puya.utils import attrs_extend
 logger = log.get_logger(__name__)
 
 
-def get_lazy_fstack(subroutine: mir.MemorySubroutine) -> list[mir.AbstractStore]:
-    result = list[mir.AbstractStore]()
-    seen_local_ids = set[str]()
+def _get_lazy_fstack(subroutine: mir.MemorySubroutine) -> dict[str, mir.AbstractStore]:
     # TODO: consider more than the entry block
     entry = subroutine.body[0]
     # if entry is re-entrant then can't lazy allocate anything
     if entry.predecessors:
-        return result
+        return {}
+    result = dict[str, mir.AbstractStore]()
     for op in entry.ops:
-        if isinstance(op, mir.AbstractStore) and op.local_id not in seen_local_ids:
-            seen_local_ids.add(op.local_id)
-            result.append(op)
+        if isinstance(op, mir.AbstractStore):
+            result.setdefault(op.local_id, op)
     return result
 
 
-def get_local_id_types(subroutine: mir.MemorySubroutine) -> dict[str, AVMType]:
+def _get_local_id_types(subroutine: mir.MemorySubroutine) -> dict[str, AVMType]:
     variable_mapping = dict[str, AVMType]()
-    for block in subroutine.all_blocks:
+    for block in subroutine.body:
         for op in block.ops:
             if isinstance(op, mir.AbstractStore):
                 try:
@@ -41,14 +40,14 @@ def get_local_id_types(subroutine: mir.MemorySubroutine) -> dict[str, AVMType]:
     return variable_mapping
 
 
-def get_allocate_op(
+def _get_allocate_op(
     subroutine: mir.MemorySubroutine, all_variables: Sequence[str]
 ) -> mir.Allocate:
     # determine variables to allocate at beginning of frame,
     # and order them so bytes are listed first, followed by uints
     byte_vars = []
     uint64_vars = []
-    variable_type_mapping = get_local_id_types(subroutine)
+    variable_type_mapping = _get_local_id_types(subroutine)
     for variable in all_variables:
         match variable_type_mapping.get(variable):
             case AVMType.uint64:
@@ -58,17 +57,17 @@ def get_allocate_op(
             case AVMType.any:
                 raise InternalError(
                     "Encountered AVM type any on preamble construction",
-                    subroutine.preamble.source_location,
+                    subroutine.source_location,
                 )
             case None:
                 raise CodeError(
                     f"Undefined register: {variable}."
                     " This can be caused by attempting to reference variables that are only"
                     " defined in other execution paths.",
-                    subroutine.preamble.source_location,
+                    subroutine.source_location,
                 )
-            case _ as unknown:
-                raise InternalError(f"Unhandled AVM type in f-stack allocation: {unknown}")
+            case unexpected:
+                typing.assert_never(unexpected)
     return mir.Allocate(bytes_vars=byte_vars, uint64_vars=uint64_vars)
 
 
@@ -78,22 +77,20 @@ def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
         return
 
     subroutine = ctx.subroutine
-    first_store_ops = get_lazy_fstack(subroutine)
-    allocate_on_first_store = [op.local_id for op in first_store_ops]
+    first_store_ops = _get_lazy_fstack(subroutine)
+    allocate_on_first_store = list(first_store_ops)
 
-    unsorted_allocate_at_entry = [x for x in all_variables if x not in allocate_on_first_store]
-    if unsorted_allocate_at_entry:
-        allocate = get_allocate_op(subroutine, unsorted_allocate_at_entry)
+    unsorted_pre_allocate = [x for x in all_variables if x not in first_store_ops]
+    if unsorted_pre_allocate:
+        allocate = _get_allocate_op(subroutine, unsorted_pre_allocate)
         allocate_at_entry = allocate.allocate_on_entry
-        subroutine.preamble.mem_ops.append(allocate)
+        subroutine.body[0].mem_ops.insert(0, allocate)
     else:
         allocate_at_entry = []
-    subroutine.preamble.f_stack_out = allocate_at_entry
     logger.debug(f"{subroutine.signature.name} f-stack entry: {allocate_at_entry}")
     logger.debug(f"{subroutine.signature.name} f-stack on first store: {allocate_on_first_store}")
 
-    subroutine.body[0].f_stack_in = allocate_at_entry
-    all_f_stack = [*allocate_at_entry, *allocate_on_first_store]
+    all_f_stack = [*allocate_at_entry, *first_store_ops.keys()]
     subroutine.body[0].f_stack_out = all_f_stack
     for block in subroutine.body[1:]:
         block.f_stack_in = block.f_stack_out = all_f_stack
@@ -104,7 +101,7 @@ def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
         for index, op in enumerate(block.mem_ops):
             match op:
                 case mir.AbstractStore() as store:
-                    insert = op in first_store_ops
+                    insert = op in first_store_ops.values()
                     if insert:
                         depth = stack.xl_height - 1
                     else:

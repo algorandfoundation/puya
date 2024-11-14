@@ -275,7 +275,9 @@ class MemoryIRBuilder(IRVisitor[None]):
         assert self.terminator is not None
         block_name = self._get_block_name(block)
         predecessors = [self._get_block_name(b) for b in block.predecessors]
+        assert block.id is not None
         return models.MemoryBasicBlock(
+            id=block.id,
             block_name=block_name,
             mem_ops=self.current_ops,
             terminator=self.terminator,

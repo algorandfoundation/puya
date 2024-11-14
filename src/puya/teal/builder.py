@@ -22,8 +22,9 @@ class TealBuilder(MIRVisitor[None]):
             is_main=mir_sub.is_main,
             signature=mir_sub.signature,
             blocks=[],
+            source_location=mir_sub.source_location,
         )
-        mir_blocks = list(mir_sub.all_blocks)
+        mir_blocks = list(mir_sub.body)
         for block_idx, (mir_block, next_mir_block) in enumerate(
             zip_longest(mir_blocks, mir_blocks[1:])
         ):
@@ -31,6 +32,14 @@ class TealBuilder(MIRVisitor[None]):
                 use_frame=not mir_sub.is_main,
                 next_block_label=next_mir_block.block_name if next_mir_block else None,
             )
+            if block_idx == 0 and not mir_sub.is_main:
+                builder.ops.append(
+                    teal.Proto(
+                        parameters=len(mir_sub.signature.parameters),
+                        returns=len(mir_sub.signature.returns),
+                        source_location=mir_sub.source_location,
+                    )
+                )
             for op in mir_block.ops:
                 op.accept(builder)
             teal_block = teal.TealBlock(
@@ -253,11 +262,6 @@ class TealBuilder(MIRVisitor[None]):
                 stack_manipulations=_lstack_manipulations(store),
                 source_location=store.source_location,
             )
-        )
-
-    def visit_proto(self, proto: mir.Proto) -> None:
-        self._add_op(
-            teal.Proto(proto.parameters, proto.returns, source_location=proto.source_location)
         )
 
     def visit_allocate(self, allocate: mir.Allocate) -> None:

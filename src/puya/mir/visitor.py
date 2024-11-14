@@ -50,9 +50,6 @@ class MIRVisitor(abc.ABC, typing.Generic[_T]):
     def visit_abstract_load(self, load: models.AbstractLoad) -> _T: ...
 
     @abc.abstractmethod
-    def visit_proto(self, proto: models.Proto) -> _T: ...
-
-    @abc.abstractmethod
     def visit_allocate(self, allocate: models.Allocate) -> _T: ...
 
     @abc.abstractmethod

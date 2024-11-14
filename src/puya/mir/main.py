@@ -32,33 +32,19 @@ def _lower_subroutine_to_mir(
 ) -> models.MemorySubroutine:
     builder = MemoryIRBuilder(context=context, current_subroutine=subroutine, is_main=is_main)
     body = [builder.lower_block_to_mir(block) for block in subroutine.body]
-    preamble_loc = subroutine.source_location or body[0].source_location
-    preamble = models.MemoryBasicBlock(
-        context.subroutine_names[subroutine],
-        mem_ops=[],
-        terminator=models.Goto(target=body[0].block_name, source_location=preamble_loc),
-        predecessors=[],
-        source_location=preamble_loc,
+    body[0].block_name = context.subroutine_names[subroutine]
+    signature = models.Signature(
+        name=name,
+        parameters=[
+            models.Parameter(name=p.name, local_id=p.local_id, atype=p.atype)
+            for p in subroutine.parameters
+        ],
+        returns=[r.avm_type for r in subroutine.returns],
     )
-    if not is_main:
-        preamble.mem_ops.append(
-            models.Proto(
-                parameters=len(subroutine.parameters),
-                returns=len(subroutine.returns),
-                source_location=subroutine.source_location,
-            )
-        )
     return models.MemorySubroutine(
         id=subroutine.full_name,
-        signature=models.Signature(
-            name=name,
-            parameters=[
-                models.Parameter(name=p.name, local_id=p.local_id, atype=p.atype)
-                for p in subroutine.parameters
-            ],
-            returns=[r.avm_type for r in subroutine.returns],
-        ),
+        signature=signature,
         is_main=is_main,
-        preamble=preamble,
         body=body,
+        source_location=subroutine.source_location,
     )

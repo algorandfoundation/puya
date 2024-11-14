@@ -595,6 +595,7 @@ class TealSubroutine:
     is_main: bool
     signature: Signature
     blocks: list[TealBlock]
+    source_location: SourceLocation | None
 
 
 @attrs.define

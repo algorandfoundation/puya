@@ -9,32 +9,12 @@ logger = log.get_logger(__name__)
 
 
 def mir_to_teal(context: CompileContext, program_mir: mir.Program) -> teal_models.TealProgram:
-    teal = _build_teal(program_mir)
-    before = _get_all_stack_manipulations(teal)
-    teal = optimize_teal_program(context, teal)
-    after = _get_all_stack_manipulations(teal)
-    # assert before == after, "expected stack manipulations to be preserved after optimization"
-    return teal
-
-
-def _get_all_stack_manipulations(
-    teal: teal_models.TealProgram,
-) -> list[teal_models.StackManipulation]:
-    return [
-        sm
-        for sub in teal.subroutines
-        for block in sub.blocks
-        for op in block.ops
-        for sm in op.stack_manipulations
-    ]
-
-
-def _build_teal(mir_program: mir.Program) -> teal_models.TealProgram:
-    main = TealBuilder.build_subroutine(mir_program.main)
-    subroutines = [TealBuilder.build_subroutine(mir_sub) for mir_sub in mir_program.subroutines]
-    return teal_models.TealProgram(
-        id=mir_program.id,
-        avm_version=mir_program.avm_version,
+    main = TealBuilder.build_subroutine(program_mir.main)
+    subroutines = [TealBuilder.build_subroutine(mir_sub) for mir_sub in program_mir.subroutines]
+    teal = teal_models.TealProgram(
+        id=program_mir.id,
+        avm_version=program_mir.avm_version,
         main=main,
         subroutines=subroutines,
     )
+    return optimize_teal_program(context, teal)

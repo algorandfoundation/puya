@@ -19,7 +19,7 @@ def output_memory_ir(ctx: CompileContext, program: models.Program, output_path: 
     writer.add_header("Stack (out)", 4)
     for subroutine in program.all_subroutines:
         writer.append_line(f"// {subroutine.signature}")
-        for block in subroutine.all_blocks:
+        for block in subroutine.body:
             stack = Stack.begin_block(subroutine, block)
             last_location = None
             writer.append(f"{block.block_name}:")

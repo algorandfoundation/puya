@@ -39,7 +39,7 @@ class VariableLifetimeAnalysis:
     def _op_lifetimes_factory(self) -> dict[models.BaseOp, _OpLifetime]:
         result = dict[models.BaseOp, _OpLifetime]()
         block_map = {b.block_name: b.ops[0] for b in self.subroutine.body}
-        for block in self.subroutine.all_blocks:
+        for block in self.subroutine.body:
             for op in block.ops:
                 used = StableSet[str]()
                 defined = StableSet[str]()
@@ -52,7 +52,7 @@ class VariableLifetimeAnalysis:
                     used=used,
                     defined=defined,
                 )
-        all_blocks = list(self.subroutine.all_blocks)
+        all_blocks = list(self.subroutine.body)
         for block, next_block in itertools.zip_longest(all_blocks, all_blocks[1:]):
             for op, next_op in itertools.zip_longest(block.ops, block.ops[1:]):
                 if isinstance(op, models.RetSub) or (

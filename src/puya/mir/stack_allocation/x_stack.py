@@ -33,7 +33,7 @@ class BlockRecord:
 
     @staticmethod
     def by_index(block: "BlockRecord") -> int:
-        return int(block.block.block_name.split("@")[1])
+        return block.block.id
 
 
 @attrs.frozen

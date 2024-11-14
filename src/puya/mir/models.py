@@ -12,7 +12,7 @@ from puya.errors import InternalError
 from puya.ir.utils import format_bytes, format_error_comment
 
 if t.TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Mapping, Sequence
+    from collections.abc import Iterator, Mapping, Sequence
 
     from puya.ir.types_ import AVMBytesEncoding
     from puya.mir.visitor import MIRVisitor
@@ -371,20 +371,6 @@ class Pop(Op):
 
 
 @attrs.frozen(eq=False)
-class Proto(Op):
-    parameters: int
-    returns: int
-    consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(default=(), init=False)
-
-    def accept(self, visitor: MIRVisitor[_T]) -> _T:
-        return visitor.visit_proto(self)
-
-    def __str__(self) -> str:
-        return f"proto {self.parameters} {self.returns}"
-
-
-@attrs.frozen(eq=False)
 class Allocate(Op):
     bytes_vars: Sequence[str]
     uint64_vars: Sequence[str]
@@ -615,8 +601,9 @@ class Match(ControlOp):
         return "match", *self.match_targets, ";", "b", self.default_target
 
 
-@attrs.define(eq=False, repr=False)
+@attrs.define(eq=False, repr=False, kw_only=True)
 class MemoryBasicBlock:
+    id: int
     block_name: str
     mem_ops: list[Op]
     terminator: ControlOp
@@ -680,17 +667,12 @@ class MemorySubroutine:
     id: str
     is_main: bool
     signature: Signature
-    preamble: MemoryBasicBlock
     body: Sequence[MemoryBasicBlock]
-
-    @property
-    def all_blocks(self) -> Iterable[MemoryBasicBlock]:
-        yield self.preamble
-        yield from self.body
+    source_location: SourceLocation | None
 
     @cached_property
     def block_map(self) -> Mapping[str, MemoryBasicBlock]:
-        return {b.block_name: b for b in self.all_blocks}
+        return {b.block_name: b for b in self.body}
 
     def get_block(self, block_name: str) -> MemoryBasicBlock:
         return self.block_map[block_name]

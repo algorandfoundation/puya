@@ -128,6 +128,7 @@ def test_assemble_last_op_jump() -> None:
                 is_main=True,
                 signature=Signature(name="", parameters=(), returns=()),
                 blocks=[looping_block],
+                source_location=None,
             ),
             subroutines=[],
         ),

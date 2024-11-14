@@ -204,6 +204,7 @@ def _dummy_program() -> _CompiledProgram:
                     returns=(),
                 ),
                 blocks=[],
+                source_location=None,
             ),
             subroutines=[],
         ),
