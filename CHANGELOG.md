@@ -1,4 +1,46 @@
 # CHANGELOG
+## v4.0.0 (2024-11-14)
+
+### Breaking
+
+* raise an error when attempting to iterate a tuple of mutable values ([`43a364e`](https://github.com/algorandfoundation/puya/commit/43a364e0131e580565cbdfa3d8f44e9b78621252))
+
+  BREAKING CHANGE: iterating a tuple of mutable types will now raise an error as they cannot be copied
+
+* passing a mutable value more than once to a subroutine will now raise an error as allowing it would break semantic compatability ([`dac51be`](https://github.com/algorandfoundation/puya/commit/dac51be3c5cc3487ac303e9160fd9d8bd7b17788))
+
+  BREAKING CHANGE: passing a mutable value more than once to a subroutine causes an error
+
+* raise an error when attempting to modify immutable arrays such as `algopy.arc4.Address` ([`9450c7a`](https://github.com/algorandfoundation/puya/commit/9450c7a615712010067f494cc57d0ceb48f021f4))
+
+  BREAKING CHANGE: modifying an `algopy.arc4.Address` will now raise an error
+
+### Feature
+
+* use extract3 instead of substring3 for bytes indexing ([`4954155`](https://github.com/algorandfoundation/puya/commit/4954155cc668f9a59d0a04c56fcb1af509978115))
+
+* remove ops with no side effects when result is not used ([`ea34059`](https://github.com/algorandfoundation/puya/commit/ea3405928c5097934ecea0100c41c878ee51a258))
+
+* ARC-56 application specifications can now be output using the `--output-arc56` option ([`2d3eb49`](https://github.com/algorandfoundation/puya/commit/2d3eb49c11d2db8a2ed6de04c16be33facbcdfb2))
+
+* add `.copy()` to arc4.Tuple ([`fe7a0ea`](https://github.com/algorandfoundation/puya/commit/fe7a0ead47a44ea4c77538ccc45d3823eb6d41de))
+
+* add support for AVM version 11 ([`0c31697`](https://github.com/algorandfoundation/puya/commit/0c31697053554d4fc64e9e49ad86eba6057fa67a))
+
+* allow variable rebinding of mutable parameter values ([`253168a`](https://github.com/algorandfoundation/puya/commit/253168a63b92a39a4a2b596d7760175875b39a1d))
+
+### Fix
+
+* ensure expressions are only evaluated once ([`359956c`](https://github.com/algorandfoundation/puya/commit/359956c9e216222388aa10a001dbbd92305bcb35))
+
+* prevent errors trying to optimize dig 0 ([`bf52c36`](https://github.com/algorandfoundation/puya/commit/bf52c363039d43ad3c4a361f7e288ea7a330c10c))
+
+* improve error message when a self parameter is missing from a method declaration ([`8153cfb`](https://github.com/algorandfoundation/puya/commit/8153cfbdb30aace1c34bd2e64b0418f1b4678a96))
+
+* use read location for variable source locations, rather than where the variable was last defined ([`27e2659`](https://github.com/algorandfoundation/puya/commit/27e26597fd4c577cd69e7af2d9795860c06e36f2))
+
+* correctly determine if an `algopy.arc4.Struct` sub-class is immutable or not based on `frozen` class parameter and immutability of fields ([`0491d0b`](https://github.com/algorandfoundation/puya/commit/0491d0bc9f2be7bf8f2ba5cf54cfc600abe698e6))
+
 ## v3.6.0 (2024-11-04)
 
 ### Fix
