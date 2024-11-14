@@ -58,14 +58,16 @@ class BlockReferenceReplacer(IRMutator):
         for index, block in enumerate(goto_nth.blocks):
             if block == self.find:
                 goto_nth.blocks[index] = self.replacement
-        goto_nth.default = goto_nth.default.accept(self)
+        if goto_nth.default == self.find:
+            goto_nth.default = self.replacement
         return _replace_single_target_with_goto(goto_nth)
 
     def visit_switch(self, switch: models.Switch) -> models.ControlOp:
         for case, target in switch.cases.items():
             if target == self.find:
                 switch.cases[case] = self.replacement
-        switch.default = switch.default.accept(self)
+        if switch.default == self.find:
+            switch.default = self.replacement
         return _replace_single_target_with_goto(switch)
 
 

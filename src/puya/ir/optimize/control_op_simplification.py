@@ -141,11 +141,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                 models.Switch(
                     value=models.Value(atype=AVMType.uint64) as value,
                     cases=cases,
-                    default=models.ControlOp(
-                        unique_targets=[default_block],
-                        can_exit=False,
-                        source_location=default_sloc,
-                    ),
+                    default=default_block,
                     source_location=source_location,
                 ) as switch
             ) if can_simplify_switch(switch):
@@ -160,12 +156,12 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                     value=value,
                     blocks=[block_map.get(i, default_block) for i in range(max_value + 1)],
                     source_location=source_location,
-                    default=models.Goto(source_location=default_sloc, target=default_block),
+                    default=default_block,
                 )
             case models.GotoNth(
                 value=models.UInt64Constant(value=value),
                 blocks=blocks,
-                default=models.ControlOp(unique_targets=[default_block], can_exit=False),
+                default=default_block,
             ):
                 logger.debug("simplifying a goto nth with a constant into a goto")
                 goto = blocks[value] if value < len(blocks) else default_block
@@ -178,7 +174,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
             case models.GotoNth(
                 value=value,
                 blocks=[zero],  # the constant here is the size of blocks
-                default=models.ControlOp(unique_targets=[non_zero], can_exit=False),
+                default=non_zero,
             ):  # reduces to ConditionalBranch
                 logger.debug("simplifying a goto nth with two targets into a conditional branch")
                 block.terminator = models.ConditionalBranch(
@@ -187,54 +183,6 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                     non_zero=non_zero,
                     source_location=terminator.source_location,
                 )
-            # if the default target of a Switch/GotoNth is just a single ControlOp,
-            # inline that ControlOp instead
-            case (
-                (
-                    models.Switch(
-                        default=models.ControlOp(unique_targets=[default_block], can_exit=False)
-                    )
-                    | models.GotoNth(
-                        default=models.ControlOp(unique_targets=[default_block], can_exit=False)
-                    )
-                ) as fallthrough_terminator
-            ) if (
-                # only if the default_block is empty
-                not (default_block.ops or default_block.phis)
-                # only if default_blocks targets don't have phi nodes,
-                # as this can result in excessive copies when ssa is destructured.
-                # re-evaluate this condition when destructuring algorithm is improved
-                and not any(s.phis for s in default_block.successors)
-                # and only if there is no overlap between the default_block successor and
-                # switch/gotonth targets, otherwise even though default_block appears empty now,
-                # it's actually filled with phi-node magic we need to retain
-                # TODO: this could be narrowed to check if the phi args are non-matching instead.
-                #       you could potentially end up with matching phi args coming from block
-                #       and default_block if there's an earlier control flow split before block
-                #       and a merge to default_block
-                and set(default_block.successors).isdisjoint(fallthrough_terminator.targets())
-            ):
-                logger.debug("inlining the default target of a switch/goto nth")
-                assert (
-                    default_block.terminator is not None
-                ), f"block {default_block} should already have been terminated"
-                block.terminator = attrs.evolve(
-                    fallthrough_terminator, default=default_block.terminator
-                )
-                # remove this block from the predecessors of default_block,
-                # if default_block is not targeted through one of the non-default cases
-                if default_block not in block.terminator.targets():
-                    remove_target(block, default_block)
-                # add this block as a predecessor to any new targets
-                # and update relevant phi args in successor
-                for succ in unique(block.successors):
-                    if block not in succ.predecessors:
-                        logger.debug(
-                            f"adding {block} as a predecessor of {succ}"
-                            f" due to inlining of {default_block}"
-                        )
-                        succ.predecessors.append(block)
-                        _copy_inlined_phi_args(succ, default_block, block)
             case _:
                 continue
         changes = True

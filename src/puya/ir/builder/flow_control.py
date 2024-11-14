@@ -11,7 +11,6 @@ from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BasicBlock,
     ConditionalBranch,
-    Goto,
     Switch,
     Value,
     ValueProvider,
@@ -73,18 +72,11 @@ def handle_switch(context: IRFunctionBuildContext, statement: awst_nodes.Switch)
     next_block = context.block_builder.mkblock(statement.source_location, "switch_case_next")
 
     switch_value = context.visitor.visit_and_materialise_single(statement.value)
-    goto_default = Goto(
-        target=default_block,
-        source_location=(
-            (statement.default_case and statement.default_case.source_location)
-            or statement.source_location
-        ),
-    )
     context.block_builder.terminate(
         Switch(
             value=switch_value,
             cases=case_blocks,
-            default=goto_default,
+            default=default_block,
             source_location=statement.source_location,
         )
     )

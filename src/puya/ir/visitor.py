@@ -177,13 +177,11 @@ class IRTraverser(IRVisitor[None]):
 
     def visit_goto_nth(self, goto_nth: puya.ir.models.GotoNth) -> None:
         goto_nth.value.accept(self)
-        goto_nth.default.accept(self)
 
     def visit_switch(self, switch: puya.ir.models.Switch) -> None:
         switch.value.accept(self)
         for case in switch.cases:
             case.accept(self)
-        switch.default.accept(self)
 
     def visit_subroutine_return(self, retsub: puya.ir.models.SubroutineReturn) -> None:
         for r in retsub.result:

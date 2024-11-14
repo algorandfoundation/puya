@@ -19,7 +19,6 @@ from puya.ir.builder._utils import (
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     ConditionalBranch,
-    Goto,
     GotoNth,
     Intrinsic,
     Register,
@@ -615,7 +614,7 @@ def _iterate_tuple(
                 GotoNth(
                     value=current_loop_counter,
                     blocks=list(headers.values()),
-                    default=Goto(target=next_block, source_location=statement_loc),
+                    default=next_block,
                     source_location=statement_loc,
                 )
             )

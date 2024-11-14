@@ -236,7 +236,12 @@ class MemoryIRBuilder(IRVisitor[None]):
         self._add_op(
             models.Switch(immediates=block_labels, source_location=goto_nth.source_location)
         )
-        goto_nth.default.accept(self)
+        self._add_op(
+            models.Branch(
+                immediates=[self._get_block_name(goto_nth.default)],
+                source_location=goto_nth.source_location,
+            )
+        )
 
     def visit_switch(self, switch: ir.Switch) -> None:
         blocks = list[str]()
@@ -247,7 +252,12 @@ class MemoryIRBuilder(IRVisitor[None]):
         switch.value.accept(self)
 
         self._add_op(models.Match(immediates=blocks, source_location=switch.source_location))
-        switch.default.accept(self)
+        self._add_op(
+            models.Branch(
+                immediates=[self._get_block_name(switch.default)],
+                source_location=switch.source_location,
+            )
+        )
 
     def visit_subroutine_return(self, retsub: ir.SubroutineReturn) -> None:
         for r in retsub.result:

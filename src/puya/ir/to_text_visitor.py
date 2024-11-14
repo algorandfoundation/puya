@@ -101,14 +101,11 @@ class ToTextVisitor(IRVisitor[str]):
 
     def visit_goto_nth(self, op: models.GotoNth) -> str:
         blocks = ", ".join([f"block@{b.id}" for b in op.blocks])
-        return f"goto_nth [{blocks}][{op.value.accept(self)}] else {op.default.accept(self)}"
+        return f"goto_nth [{blocks}][{op.value.accept(self)}] else goto block@{op.default.id}"
 
     def visit_switch(self, op: models.Switch) -> str:
         cases = {k.accept(self): f"block@{b.id}" for k, b in op.cases.items()}
-        if isinstance(op.default, models.Goto):
-            cases["*"] = f"block@{op.default.target.id}"
-        else:
-            cases["*"] = op.default.accept(self)
+        cases["*"] = f"block@{op.default.id}"
         map_ = ", ".join(f"{k} => {v}" for k, v in cases.items())
         return f"switch {op.value.accept(self)} {{{map_}}}"
 

@@ -657,17 +657,17 @@ class GotoNth(ControlOp):
 
     value: Value
     blocks: list[BasicBlock] = attrs.field()
-    default: ControlOp
+    default: BasicBlock
 
     def _frozen_data(self) -> object:
-        return self.value, tuple(b.id for b in self.blocks), self.default.freeze()
+        return self.value, tuple(b.id for b in self.blocks), self.default.id
 
     def targets(self) -> Sequence[BasicBlock]:
-        return [*self.blocks, *self.default.targets()]
+        return [*self.blocks, self.default]
 
     @property
     def can_exit(self) -> bool:
-        return self.default.can_exit
+        return False
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_goto_nth(self)
@@ -685,7 +685,7 @@ class Switch(ControlOp):
 
     value: Value
     cases: dict[Value, BasicBlock] = attrs.field()
-    default: ControlOp
+    default: BasicBlock
 
     @cases.validator
     def _check_cases(self, _attribute: object, cases: dict[Value, BasicBlock]) -> None:
@@ -698,15 +698,15 @@ class Switch(ControlOp):
         return (
             self.value,
             tuple((v, b.id) for v, b in self.cases.items()),
-            self.default.freeze(),
+            self.default.id,
         )
 
     def targets(self) -> Sequence[BasicBlock]:
-        return [*self.cases.values(), *self.default.targets()]
+        return [*self.cases.values(), self.default]
 
     @property
     def can_exit(self) -> bool:
-        return self.default.can_exit
+        return False
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_switch(self)
