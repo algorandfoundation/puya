@@ -85,7 +85,7 @@ def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
     if unsorted_allocate_at_entry:
         allocate = get_allocate_op(subroutine, unsorted_allocate_at_entry)
         allocate_at_entry = allocate.allocate_on_entry
-        subroutine.preamble.ops.append(allocate)
+        subroutine.preamble.mem_ops.append(allocate)
     else:
         allocate_at_entry = []
     subroutine.preamble.f_stack_out = allocate_at_entry
@@ -101,7 +101,7 @@ def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
     removed_virtual = False
     for block in subroutine.body:
         stack = Stack.begin_block(subroutine, block)
-        for index, op in enumerate(block.ops):
+        for index, op in enumerate(block.mem_ops):
             match op:
                 case mir.AbstractStore() as store:
                     insert = op in first_store_ops
@@ -110,7 +110,7 @@ def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
                     else:
                         depth = stack.fxl_height - stack.f_stack.index(store.local_id) - 1
 
-                    block.ops[index] = attrs_extend(
+                    block.mem_ops[index] = op = attrs_extend(
                         mir.StoreFStack,
                         store,
                         depth=depth,
@@ -120,17 +120,18 @@ def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
                     removed_virtual = True
                 case mir.AbstractLoad() as load:
                     depth = stack.fxl_height - stack.f_stack.index(load.local_id) - 1
-                    block.ops[index] = attrs_extend(
+                    block.mem_ops[index] = op = attrs_extend(
                         mir.LoadFStack,
                         load,
                         depth=depth,
                         frame_index=stack.fxl_height - depth - 1,
                     )
                     removed_virtual = True
-                case mir.RetSub() as retsub:
-                    block.ops[index] = attrs.evolve(
-                        retsub, fx_height=len(stack.f_stack) + len(stack.x_stack)
-                    )
             op.accept(stack)
+        match block.terminator:
+            case mir.RetSub() as retsub:
+                block.terminator = attrs.evolve(
+                    retsub, fx_height=len(stack.f_stack) + len(stack.x_stack)
+                )
     if removed_virtual:
         ctx.invalidate_vla()

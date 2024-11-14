@@ -1,7 +1,15 @@
 import copy
+import itertools
+from collections import defaultdict
 
+import attrs
+
+from puya import log
 from puya.context import CompileContext
 from puya.teal import models
+from puya.teal._util import preserve_stack_manipulations
+from puya.teal.optimize.combine_pushes import combine_pushes
+from puya.teal.optimize.constant_block import gather_program_constants
 from puya.teal.optimize.constant_stack_shuffling import (
     constant_dup2_insertion,
     constant_dupn_insertion,
@@ -11,8 +19,35 @@ from puya.teal.optimize.peephole import peephole
 from puya.teal.optimize.repeated_rotations import simplify_repeated_rotation_ops, simplify_swap_ops
 from puya.teal.optimize.repeated_rotations_search import repeated_rotation_ops_search
 
+logger = log.get_logger(__name__)
 
-def optimize_block(block: models.TealBlock, *, level: int) -> None:
+
+def optimize_teal_program(
+    context: CompileContext, teal_program: models.TealProgram
+) -> models.TealProgram:
+    teal_program = copy.deepcopy(teal_program)
+    for teal_sub in teal_program.all_subroutines:
+        _optimize_subroutine(context, teal_sub)
+    gather_program_constants(teal_program)
+    if context.options.optimization_level > 0:
+        combine_pushes(teal_program)
+    return teal_program
+
+
+def _optimize_subroutine(context: CompileContext, teal_sub: models.TealSubroutine) -> None:
+    for teal_block in teal_sub.blocks:
+        _optimize_block(teal_block, level=context.options.optimization_level)
+        teal_block.validate_stack_height()
+    if context.options.optimization_level > 0:
+        _inline_single_op_blocks(teal_sub)
+        _remove_unreachable_blocks(teal_sub)
+        _inline_singly_referenced_blocks(teal_sub)
+        _remove_unreachable_blocks(teal_sub)
+    _remove_jump_fallthroughs(teal_sub)
+    _collapse_empty_blocks(teal_sub)
+
+
+def _optimize_block(block: models.TealBlock, *, level: int) -> None:
     modified = True
     while modified:
         modified = False
@@ -29,18 +64,103 @@ def optimize_block(block: models.TealBlock, *, level: int) -> None:
     if level >= 2:
         # this is a brute-force search which can be slow at times,
         # so it's only done once and only at higher optimisation levels
-        block.ops = repeated_rotation_ops_search(block.ops)
+        block.ops[:] = repeated_rotation_ops_search(block.ops)
 
     # simplifying uncover/cover 1 to swap is easier to do after other rotation optimizations
     simplify_swap_ops(block)
 
 
-def optimize_teal_program(
-    context: CompileContext, teal_program: models.TealProgram
-) -> models.TealProgram:
-    teal_program = copy.deepcopy(teal_program)
-    for teal_sub in teal_program.all_subroutines:
-        for teal_block in teal_sub.blocks:
-            optimize_block(teal_block, level=context.options.optimization_level)
-            teal_block.validate_stack_height()
-    return teal_program
+def _inline_single_op_blocks(teal_sub: models.TealSubroutine) -> None:
+    single_op_blocks = {b.label: b.ops for b in teal_sub.blocks if len(b.ops) == 1}
+    for teal_block, next_block in itertools.zip_longest(teal_sub.blocks, teal_sub.blocks[1:]):
+        while True:  # loop in case the inlined jump is to a block with a single jump itself
+            match teal_block.ops[-1]:
+                case models.Branch(target=target_label) as branch_op if (
+                    (replace_ops := single_op_blocks.get(target_label))
+                    and (next_block is None or target_label != next_block.label)
+                ):
+                    (replace_op,) = replace_ops
+                    logger.debug(
+                        f"replacing `{branch_op.teal()}` with `{replace_op.teal()}`",
+                        location=branch_op.source_location,
+                    )
+                    preserve_stack_manipulations(teal_block.ops, slice(-1, None), replace_ops)
+                case _:
+                    break
+
+
+def _remove_unreachable_blocks(teal_sub: models.TealSubroutine) -> None:
+    entry = teal_sub.blocks[0]
+    to_visit = [entry]
+    unreachable_blocks_by_label = {b.label: b for b in teal_sub.blocks[1:]}
+    while to_visit:
+        current_block = to_visit.pop()
+        for op in current_block.ops:
+            if isinstance(op, models.ControlOp):
+                to_visit.extend(
+                    target
+                    for target_label in op.targets
+                    if (target := unreachable_blocks_by_label.pop(target_label, None))
+                )
+    teal_sub.blocks[:] = [b for b in teal_sub.blocks if b.label not in unreachable_blocks_by_label]
+
+
+def _inline_singly_referenced_blocks(teal_sub: models.TealSubroutine) -> None:
+    jump_targets = defaultdict[str, list[str]](list)
+    for block in teal_sub.blocks:
+        for op in block.ops:
+            if isinstance(op, models.ControlOp):
+                for target_label in op.targets:
+                    jump_targets[target_label].append(op.op_code)
+
+    inline_label_ops = {b.label: b.ops for b in teal_sub.blocks if jump_targets[b.label] == ["b"]}
+    for block in teal_sub.blocks:
+        if block.label in inline_label_ops:
+            continue
+        while True:
+            match block.ops[-1]:
+                case models.Branch(target=target_label) if (
+                    replace_ops := inline_label_ops.get(target_label)
+                ) is not None:
+                    preserve_stack_manipulations(block.ops, slice(-1, None), replace_ops)
+                case _:
+                    break
+
+
+def _remove_jump_fallthroughs(teal_sub: models.TealSubroutine) -> None:
+    for block, next_block in zip(teal_sub.blocks, teal_sub.blocks[1:], strict=False):
+        match block.ops[-1]:
+            case models.Branch(target=target_label) if target_label == next_block.label:
+                block.ops.pop()
+                # preserve_stack_manipulations(
+                #     block.ops, slice(len(block.ops) - 1, len(block.ops)), []
+                # )
+
+
+def _collapse_empty_blocks(teal_sub: models.TealSubroutine) -> None:
+    blocks = teal_sub.blocks
+    replacements = dict[str, str]()
+    next_idx = len(blocks) - 1
+    while next_idx > 0:
+        next_label = blocks[next_idx].label
+        curr_idx = next_idx - 1
+        assert curr_idx >= 0
+        for curr_idx in range(next_idx - 1, 0, -1):
+            curr = blocks[curr_idx]
+            if curr.ops:
+                next_idx = curr_idx
+                break
+            blocks.pop(curr_idx)
+            replacements[curr.label] = next_label
+        else:
+            break
+
+    for block in blocks:
+        for op_idx, op in enumerate(block.ops):
+            if isinstance(op, models.Branch | models.BranchNonZero | models.BranchZero):
+                if op.target in replacements:
+                    block.ops[op_idx] = attrs.evolve(op, target=replacements[op.target])
+            elif isinstance(op, models.Switch | models.Match):
+                block.ops[op_idx] = attrs.evolve(
+                    op, targets=[replacements.get(t, t) for t in op.targets]
+                )

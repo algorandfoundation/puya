@@ -66,7 +66,7 @@ class VariableLifetimeAnalysis:
                         successors = [result[next_op]]
                     else:
                         successors = []
-                    if isinstance(op, models.BranchingOp):
+                    if isinstance(op, models.ControlOp):
                         successors.extend(result[block_map[s]] for s in op.targets())
                     elif next_op is None and next_block is not None:
                         # block fall through case, only applies to non control ops

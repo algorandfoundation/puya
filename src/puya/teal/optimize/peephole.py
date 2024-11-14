@@ -39,7 +39,7 @@ def peephole(block: models.TealBlock, opt_level: int) -> bool:
         else:
             stack_height += result[start_idx].stack_height_delta
             start_idx += 1  # go to next
-    block.ops = result
+    block.ops[:] = result
     return any_modified
 
 

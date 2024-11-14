@@ -198,6 +198,24 @@ class Stack(MIRVisitor[None]):
         self._f_stack = []
         self._x_stack = []
 
+    def visit_conditional_branch(self, op: models.ConditionalBranch) -> None:
+        self._apply_lstack_effects(op)
+
+    def visit_err(self, op: models.Err) -> None:
+        self._apply_lstack_effects(op)
+
+    def visit_goto(self, op: models.Goto) -> None:
+        self._apply_lstack_effects(op)
+
+    def visit_match(self, op: models.Match) -> None:
+        self._apply_lstack_effects(op)
+
+    def visit_program_exit(self, op: models.ProgramExit) -> None:
+        self._apply_lstack_effects(op)
+
+    def visit_switch(self, op: models.Switch) -> None:
+        self._apply_lstack_effects(op)
+
     def visit_intrinsic(self, intrinsic: models.IntrinsicOp) -> None:
         self._apply_lstack_effects(intrinsic)
 

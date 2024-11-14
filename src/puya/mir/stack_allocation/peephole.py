@@ -8,9 +8,9 @@ from puya.mir.context import SubroutineCodeGenContext
 
 def optimize_pair(
     ctx: SubroutineCodeGenContext,
-    a: mir.BaseOp,
-    b: mir.BaseOp,
-) -> Sequence[mir.BaseOp] | None:
+    a: mir.Op,
+    b: mir.Op,
+) -> Sequence[mir.Op] | None:
     """Given a pair of ops, returns which ops should be kept including replacements"""
     # this function has been optimized to reduce the number of isinstance checks,
     # consider this when making any modifications
@@ -33,14 +33,6 @@ def optimize_pair(
         # this handles any other cases
         return a, mir.Pop(n=1, source_location=b.source_location)
 
-    # optimization: cases after here are only applicable if "a" is a MemoryOp
-    if not isinstance(a, mir.MemoryOp):
-        return None
-
-    # optimization: cases after here are only applicable if "b" is a MemoryOp
-    if not isinstance(b, mir.MemoryOp):
-        return None
-
     if isinstance(a, mir.LoadOp) and isinstance(b, mir.StoreOp) and a.local_id == b.local_id:
         match a, b:
             case mir.LoadXStack(), mir.StoreXStack():
@@ -62,7 +54,7 @@ class PeepholeResult:
 def peephole_optimization_single_pass(
     ctx: SubroutineCodeGenContext, block: mir.MemoryBasicBlock
 ) -> PeepholeResult:
-    result = block.ops
+    result = block.mem_ops
     op_idx = 0
     modified = False
     vla_modified = False

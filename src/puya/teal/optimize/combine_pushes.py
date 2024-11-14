@@ -1,4 +1,3 @@
-import copy
 import itertools
 import typing
 from collections.abc import Sequence
@@ -7,8 +6,7 @@ from puya.parse import sequential_source_locations_merge
 from puya.teal import models
 
 
-def combine_pushes(program: models.TealProgram) -> models.TealProgram:
-    program = copy.deepcopy(program)
+def combine_pushes(program: models.TealProgram) -> None:
     for block in itertools.chain.from_iterable(sub.blocks for sub in program.all_subroutines):
         pushes = list[models.PushInt | models.PushBytes]()
         result = list[models.TealOp]()
@@ -22,8 +20,7 @@ def combine_pushes(program: models.TealProgram) -> models.TealProgram:
                 result.append(op)
         if pushes:
             result.append(_combine_ops(pushes))
-        block.ops = result
-    return program
+        block.ops[:] = result
 
 
 def _is_different_push_type(

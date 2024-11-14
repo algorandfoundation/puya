@@ -22,27 +22,26 @@ def output_memory_ir(ctx: CompileContext, program: models.Program, output_path: 
         for block in subroutine.all_blocks:
             stack = Stack.begin_block(subroutine, block)
             last_location = None
-            if block.ops:
-                writer.append(f"{block.block_name}:")
-                writer.append(stack.full_stack_desc)
-                writer.new_line()
-                with writer.indent():
-                    for op in block.ops:
-                        last_location = _output_src_comment(
-                            ctx, writer, last_location, op.source_location
+            writer.append(f"{block.block_name}:")
+            writer.append(stack.full_stack_desc)
+            writer.new_line()
+            with writer.indent():
+                for op in block.ops:
+                    last_location = _output_src_comment(
+                        ctx, writer, last_location, op.source_location
+                    )
+                    op_str = str(op)
+                    op.accept(stack)
+                    # some ops can be very long (generally due to labels)
+                    # in those (rare?) cases bypass the column alignment
+                    if len(op_str) > 80:
+                        writer.append_line(
+                            writer.current_indent + op_str + " " + stack.full_stack_desc
                         )
-                        op_str = str(op)
-                        op.accept(stack)
-                        # some ops can be very long (generally due to labels)
-                        # in those (rare?) cases bypass the column alignment
-                        if len(op_str) > 80:
-                            writer.append_line(
-                                writer.current_indent + op_str + " " + stack.full_stack_desc
-                            )
-                        else:
-                            writer.append(op_str)
-                            writer.append(stack.full_stack_desc)
-                            writer.new_line()
+                    else:
+                        writer.append(op_str)
+                        writer.append(stack.full_stack_desc)
+                        writer.new_line()
                 writer.new_line()
         writer.new_line()
     writer.new_line()
