@@ -657,6 +657,7 @@ def create_abi_router(
         body=create_block(router_location, None, *router),
         documentation=awst_nodes.MethodDocumentation(),
         arc4_method_config=None,
+        inline=True,
     )
     return approval_program
 

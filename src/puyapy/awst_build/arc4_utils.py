@@ -23,7 +23,11 @@ from puya.models import (
 from puya.parse import SourceLocation
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import ASTConversionModuleContext
-from puyapy.awst_build.utils import extract_bytes_literal_from_mypy, get_unaliased_fullname
+from puyapy.awst_build.utils import (
+    extract_bytes_literal_from_mypy,
+    extract_decorator_args,
+    get_unaliased_fullname,
+)
 from puyapy.models import ARC4ABIMethodData, ARC4BareMethodData
 
 __all__ = [
@@ -65,18 +69,6 @@ class _DecoratorData:
     fullname: str
     args: list[tuple[str | None, mypy.nodes.Expression]]
     source_location: SourceLocation
-
-
-def _extract_decorator_args(
-    decorator: mypy.nodes.Expression, location: SourceLocation
-) -> list[tuple[str | None, mypy.nodes.Expression]]:
-    match decorator:
-        case mypy.nodes.RefExpr():
-            return []
-        case mypy.nodes.CallExpr(args=args, arg_names=arg_names):
-            return list(zip(arg_names, args, strict=True))
-        case unexpected_node:
-            raise InternalError(f"unexpected decorator node: {unexpected_node}", location)
 
 
 def _extract_create_option(
@@ -130,7 +122,7 @@ def get_arc4_baremethod_data(
         logger.error("bare methods should have no arguments or return values", location=dec_loc)
 
     visitor = _ARC4DecoratorArgEvaluator(context)
-    evaluated_args = {n: a.accept(visitor) for n, a in _extract_decorator_args(decorator, dec_loc)}
+    evaluated_args = {n: a.accept(visitor) for n, a in extract_decorator_args(decorator, dec_loc)}
 
     create = _extract_create_option(evaluated_args, dec_loc)
     allowed_completion_types = _extract_allow_actions_option(evaluated_args, dec_loc)
@@ -159,7 +151,7 @@ def get_arc4_abimethod_data(
     dec_loc = context.node_location(decorator, func_def.info)
     pytype, func_types = _get_func_types(context, func_def, dec_loc)
     visitor = _ARC4DecoratorArgEvaluator(context)
-    evaluated_args = {n: a.accept(visitor) for n, a in _extract_decorator_args(decorator, dec_loc)}
+    evaluated_args = {n: a.accept(visitor) for n, a in extract_decorator_args(decorator, dec_loc)}
 
     create = _extract_create_option(evaluated_args, dec_loc)
     allowed_completion_types = _extract_allow_actions_option(evaluated_args, dec_loc)

@@ -804,6 +804,7 @@ class Subroutine(Context):
     parameters: Sequence[Parameter]
     _returns: Sequence[IRType]
     body: list[BasicBlock] = attrs.field()
+    inline: bool | None
 
     @property
     def returns(self) -> list[IRType]:
@@ -852,13 +853,13 @@ class Subroutine(Context):
                     phi_block_labels = list(map(str, phi_blocks.keys()))
                     pred_block_labels = list(map(str, block_predecessors.keys()))
                     raise InternalError(
-                        f"Mismatch between phi predecessors ({phi_block_labels})"
+                        f"{self.full_name}: mismatch between phi predecessors ({phi_block_labels})"
                         f" and block predecessors ({pred_block_labels})"
                         f" for phi node {phi}",
                         self.source_location,
                     )
-        used_registers = frozenset(self.get_used_registers())
-        defined_registers = frozenset(self.get_assigned_registers())
+        used_registers = frozenset(_get_used_registers(body))
+        defined_registers = frozenset(self.parameters) | frozenset(_get_assigned_registers(body))
         bad_reads = used_registers - defined_registers
         if bad_reads:
             raise InternalError(
@@ -873,33 +874,10 @@ class Subroutine(Context):
 
     def get_assigned_registers(self) -> Iterator[Register]:
         yield from self.parameters
-        # TODO: replace with visitor
-        for block in self.body:
-            for phi in block.phis:
-                yield phi.register
-            for op in block.ops:
-                if isinstance(op, Assignment):
-                    yield from op.targets
+        yield from _get_assigned_registers(self.body)
 
     def get_used_registers(self) -> Iterator[Register]:
-        # TODO: replace with visitor
-        for block in self.body:
-            for phi in block.phis:
-                yield from (arg.value for arg in phi.args)
-            for op in block.ops:
-                match op:
-                    case (
-                        Assignment(
-                            source=Intrinsic(args=args)
-                            | Assignment(source=ValueTuple(values=args))
-                            | InvokeSubroutine(args=args)
-                        )
-                        | Intrinsic(args=args)
-                        | InvokeSubroutine(args=args)
-                    ):
-                        yield from (arg for arg in args if isinstance(arg, Register))
-                    case Assignment(source=Register() as reg):
-                        yield reg
+        yield from _get_used_registers(self.body)
 
     def validate_with_ssa(self) -> None:
         all_assigned = set[Register]()
@@ -912,6 +890,37 @@ class Subroutine(Context):
                     )
                 all_assigned.add(register)
         attrs.validate(self)
+
+
+def _get_assigned_registers(blocks: Sequence[BasicBlock]) -> Iterator[Register]:
+    # TODO: replace with visitor
+    for block in blocks:
+        for phi in block.phis:
+            yield phi.register
+        for op in block.ops:
+            if isinstance(op, Assignment):
+                yield from op.targets
+
+
+def _get_used_registers(blocks: Sequence[BasicBlock]) -> Iterator[Register]:
+    # TODO: replace with visitor
+    for block in blocks:
+        for phi in block.phis:
+            yield from (arg.value for arg in phi.args)
+        for op in block.ops:
+            match op:
+                case (
+                    Assignment(
+                        source=Intrinsic(args=args)
+                        | Assignment(source=ValueTuple(values=args))
+                        | InvokeSubroutine(args=args)
+                    )
+                    | Intrinsic(args=args)
+                    | InvokeSubroutine(args=args)
+                ):
+                    yield from (arg for arg in args if isinstance(arg, Register))
+                case Assignment(source=Register() as reg):
+                    yield reg
 
 
 @attrs.define(kw_only=True, eq=False)

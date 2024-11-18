@@ -412,6 +412,7 @@ def _make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Sub
         parameters=parameters,
         returns=returns,
         body=[],
+        inline=func.inline,
         source_location=func.source_location,
     )
 
@@ -435,6 +436,7 @@ def _make_program(
         parameters=[],
         returns=[return_type],
         body=[],
+        inline=False,
         source_location=main.source_location,
     )
     FunctionIRBuilder.build_body(ctx, function=main, subroutine=main_sub)

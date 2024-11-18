@@ -102,6 +102,7 @@ def _build_ir_and_return_errors(expr: awst.Expression) -> list[str]:
         parameters=(),
         returns=(),
         body=[],
+        inline=function.inline,
     )
     with logging_context() as log_ctx:
         FunctionIRBuilder.build_body(ctx, function, subroutine)

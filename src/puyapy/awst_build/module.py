@@ -24,6 +24,7 @@ from puyapy.awst_build.utils import (
     fold_binary_expr,
     fold_unary_expr,
     get_decorators_by_fullname,
+    get_subroutine_decorator_inline_arg,
     get_unaliased_fullname,
 )
 from puyapy.models import ContractClassOptions
@@ -92,7 +93,9 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             info = self._process_logic_sig_decorator(logicsig_dec)
 
             def deferred(ctx: ASTConversionModuleContext) -> RootNode:
-                program = FunctionASTConverter.convert(ctx, func_def, source_location)
+                program = FunctionASTConverter.convert(
+                    ctx, func_def, source_location, inline=False
+                )
                 ctx.register_pytype(pytypes.LogicSigType, alias=func_def.fullname)
                 return LogicSignature(
                     id=LogicSigReference(func_def.fullname),
@@ -110,14 +113,19 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 f"free functions must be annotated with @{constants.SUBROUTINE_HINT_ALIAS}",
                 func_def,
             )
+            inline = None
+        else:
+            inline = get_subroutine_decorator_inline_arg(self.context, subroutine_dec)
         abimethod_dec = dec_by_fullname.pop(constants.ABIMETHOD_DECORATOR, None)
         if abimethod_dec is not None:
             self._error("free functions cannot be ARC4 ABI methods", abimethod_dec)
         # any further decorators are unsupported
         for dec_fullname, dec in dec_by_fullname.items():
-            self._error(f'Unsupported function decorator "{dec_fullname}"', dec)
+            self._error(f'unsupported function decorator "{dec_fullname}"', dec)
 
-        return [lambda ctx: FunctionASTConverter.convert(ctx, func_def, source_location)]
+        return [
+            lambda ctx: FunctionASTConverter.convert(ctx, func_def, source_location, inline=inline)
+        ]
 
     def _process_logic_sig_decorator(
         self, decorator: mypy.nodes.Expression

@@ -100,7 +100,7 @@ def _normalize_log(log: str) -> str:
 
 
 def _log_to_str(log: log.Log, root_dir: Path) -> str:
-    if log.location:
+    if log.location and log.location.file:
         relative_path = get_relative_path(log.location, root_dir)
         col = f":{log.location.column + 1}" if log.location.column else ""
         location = f"{relative_path!s}:{log.location.line}{col} "

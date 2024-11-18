@@ -19,6 +19,7 @@ from puya.ir.optimize.dead_code_elimination import (
     remove_unused_subroutines,
     remove_unused_variables,
 )
+from puya.ir.optimize.inlining import analyse_subroutines_for_inlining, perform_subroutine_inlining
 from puya.ir.optimize.inner_txn import inner_txn_field_replacer
 from puya.ir.optimize.intrinsic_simplification import intrinsic_simplifier
 from puya.ir.optimize.repeated_code_elimination import repeated_expression_elimination
@@ -41,7 +42,7 @@ class SubroutineOptimization:
         cls, func: SubroutineOptimizerCallable, *, loop: bool = False
     ) -> "SubroutineOptimization":
         func_name = func.__name__
-        func_desc = func_name.replace("_", " ").title()
+        func_desc = func_name.replace("_", " ").title().strip()
         return SubroutineOptimization(id=func_name, desc=func_desc, optimize=func, loop=loop)
 
     def optimize(self, context: IROptimizeContext, ir: models.Subroutine) -> bool:
@@ -55,6 +56,7 @@ class SubroutineOptimization:
 def get_subroutine_optimizations(optimization_level: int) -> Iterable[SubroutineOptimization]:
     if optimization_level:
         return [
+            SubroutineOptimization.from_function(_split_parallel_copies),
             SubroutineOptimization.from_function(constant_replacer, loop=True),
             SubroutineOptimization.from_function(copy_propagation),
             SubroutineOptimization.from_function(intrinsic_simplifier, loop=True),
@@ -68,17 +70,21 @@ def get_subroutine_optimizations(optimization_level: int) -> Iterable[Subroutine
             SubroutineOptimization.from_function(remove_unreachable_blocks),
             SubroutineOptimization.from_function(repeated_expression_elimination),
             SubroutineOptimization.from_function(remove_calls_to_no_op_subroutines),
+            SubroutineOptimization.from_function(perform_subroutine_inlining),
         ]
     else:
         return [
+            SubroutineOptimization.from_function(_split_parallel_copies),
             SubroutineOptimization.from_function(constant_replacer, loop=True),
             SubroutineOptimization.from_function(remove_unused_variables),
             SubroutineOptimization.from_function(inner_txn_field_replacer),
             SubroutineOptimization.from_function(replace_compiled_references),
+            SubroutineOptimization.from_function(perform_subroutine_inlining),
         ]
 
 
-def _split_parallel_copies(sub: models.Subroutine) -> None:
+def _split_parallel_copies(_ctx: IROptimizeContext, sub: models.Subroutine) -> bool:
+    # not an optimisation, but simplifies other optimisation code
     any_modified = False
     for block in sub.body:
         ops = list[models.Op]()
@@ -99,8 +105,7 @@ def _split_parallel_copies(sub: models.Subroutine) -> None:
         if modified:
             any_modified = True
             block.ops = ops
-    if any_modified:
-        sub.validate_with_ssa()
+    return any_modified
 
 
 def optimize_contract_ir(
@@ -108,8 +113,8 @@ def optimize_contract_ir(
     artifact_ir: models.ModuleArtifact,
     output_ir_base_path: Path | None = None,
 ) -> models.ModuleArtifact:
-    # TODO: program optimizer for trivial function inliner
-    pipeline = get_subroutine_optimizations(context.options.optimization_level)
+    level = context.options.optimization_level
+    pipeline = get_subroutine_optimizations(level)
     if output_ir_base_path:
         existing = list(
             output_ir_base_path.parent.glob(f"{output_ir_base_path.stem}.ssa.opt_pass_*.ir")
@@ -121,11 +126,10 @@ def optimize_contract_ir(
         contract_modified = False
         logger.debug(f"Begin optimization pass {pass_num}/{MAX_PASSES}")
         artifact_ir = deepcopy(artifact_ir)
+        if level:
+            analyse_subroutines_for_inlining(context, artifact_ir)
         for subroutine in artifact_ir.all_subroutines():
             logger.debug(f"Optimizing subroutine {subroutine.full_name}")
-            if pass_num == 1:
-                logger.debug("Splitting parallel copies prior to optimization")
-                _split_parallel_copies(subroutine)
             for optimizer in pipeline:
                 logger.debug(f"Optimizer: {optimizer.desc}")
                 if optimizer.optimize(context, subroutine):

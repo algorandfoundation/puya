@@ -117,7 +117,7 @@ class RootOperandGrouping(CoalesceGroupStrategy):
     def get_group_key(self, reg: models.Register) -> object:
         if reg in self._isolate:
             return reg
-        return reg.name
+        return reg.name, reg.ir_type
 
     def determine_group_replacement(self, regs: Iterable[models.Register]) -> models.Register:
         return min(regs, key=lambda r: r.version)

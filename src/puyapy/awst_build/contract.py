@@ -28,7 +28,7 @@ from puyapy.awst_build.arc4_utils import get_arc4_abimethod_data, get_arc4_barem
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter
-from puyapy.awst_build.utils import get_decorators_by_fullname
+from puyapy.awst_build.utils import get_decorators_by_fullname, get_subroutine_decorator_inline_arg
 from puyapy.models import (
     ARC4BareMethodData,
     ARC4MethodData,
@@ -161,6 +161,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         documentation=awst_nodes.MethodDocumentation(),
                         arc4_method_config=default_create_config,
                         source_location=_SYNTHETIC_LOCATION,
+                        inline=True,
                     ),
                 )
             )
@@ -255,6 +256,13 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
 
         # TODO: handle difference of subroutine vs abimethod and overrides???
 
+        if subroutine_dec is not None:
+            inline = get_subroutine_decorator_inline_arg(self.context, subroutine_dec)
+        elif abimethod_dec or baremethod_dec:
+            inline = False
+        else:
+            inline = None
+
         arc4_method_data: ARC4MethodData | None = None
         if method_name in (_INIT_METHOD, constants.APPROVAL_METHOD, constants.CLEAR_STATE_METHOD):
             for invalid_dec in (subroutine_dec, abimethod_dec, baremethod_dec):
@@ -320,6 +328,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         ctx,
                         func_def=func_def,
                         source_location=source_location,
+                        inline=inline,
                         contract_method_info=ContractMethodInfo(
                             fragment=self.fragment,
                             contract_type=self.fragment.pytype,
@@ -614,6 +623,7 @@ def _arc4_contract_fragment() -> _UserContractBase:
             return_type=return_type.wtype,
             documentation=awst_nodes.MethodDocumentation(),
             body=awst_nodes.Block(body=body, source_location=_SYNTHETIC_LOCATION),
+            inline=None,
         )
         result.methods_[name] = ContractFragmentMethod(
             member_name=name,

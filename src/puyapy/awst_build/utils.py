@@ -283,3 +283,32 @@ def determine_base_type(
         if all(candidate <= operand for operand in operands):
             return candidate
     return pytypes.UnionType(operands, location)
+
+
+def extract_decorator_args(
+    decorator: mypy.nodes.Expression, location: SourceLocation
+) -> list[tuple[str | None, mypy.nodes.Expression]]:
+    match decorator:
+        case mypy.nodes.RefExpr():
+            return []
+        case mypy.nodes.CallExpr(args=args, arg_names=arg_names):
+            return list(zip(arg_names, args, strict=True))
+        case unexpected_node:
+            raise InternalError(f"unexpected decorator node: {unexpected_node}", location)
+
+
+def get_subroutine_decorator_inline_arg(
+    context: ASTConversionModuleContext, decorator: mypy.nodes.Expression
+) -> bool | None:
+    args = extract_decorator_args(decorator, context.node_location(decorator))
+    for name, expr in args:
+        match name, expr:
+            case "inline", mypy.nodes.NameExpr(fullname="builtins.True"):
+                return True
+            case "inline", mypy.nodes.NameExpr(fullname="builtins.False"):
+                return False
+            case "inline", mypy.nodes.NameExpr(fullname="builtins.None"):
+                return None
+            case _:
+                logger.error("unexpected argument", location=context.node_location(expr))
+    return None
