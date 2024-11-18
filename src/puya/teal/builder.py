@@ -14,6 +14,7 @@ from puya.teal import models as teal
 class TealBuilder(MIRVisitor[None]):
     next_block_label: str | None
     use_frame: bool
+    label_stack: list[str]
     ops: list[teal.TealOp] = attrs.field(factory=list)
 
     @classmethod
@@ -24,15 +25,23 @@ class TealBuilder(MIRVisitor[None]):
             blocks=[],
             source_location=mir_sub.source_location,
         )
-        mir_blocks = list(mir_sub.body)
-        for block_idx, (mir_block, next_mir_block) in enumerate(
-            zip_longest(mir_blocks, mir_blocks[1:])
-        ):
+        entry_block = mir_sub.body[0]
+        label_stack = [entry_block.block_name]
+        blocks_by_label = {
+            b.block_name: (b, None if next_b is None else next_b.block_name)
+            for b, next_b in zip_longest(mir_sub.body, mir_sub.body[1:])
+        }
+        while label_stack:
+            label = label_stack.pop()
+            mir_block, next_block_label = blocks_by_label.pop(label, (None, None))
+            if mir_block is None:
+                continue
             builder = cls(
+                next_block_label=next_block_label,
                 use_frame=not mir_sub.is_main,
-                next_block_label=next_mir_block.block_name if next_mir_block else None,
+                label_stack=label_stack,
             )
-            if block_idx == 0 and not mir_sub.is_main:
+            if mir_block is entry_block and not mir_sub.is_main:
                 builder.ops.append(
                     teal.Proto(
                         parameters=len(mir_sub.signature.parameters),
@@ -44,9 +53,9 @@ class TealBuilder(MIRVisitor[None]):
                 op.accept(builder)
             teal_block = teal.TealBlock(
                 label=(
-                    mir_block.block_name
-                    if not (mir_sub.is_main and block_idx == 0)
-                    else mir_sub.signature.name
+                    mir_sub.signature.name
+                    if mir_sub.is_main and mir_block is entry_block
+                    else mir_block.block_name
                 ),
                 ops=builder.ops,
                 x_stack_in=mir_block.x_stack_in or (),
@@ -55,7 +64,6 @@ class TealBuilder(MIRVisitor[None]):
             )
             teal_block.validate_stack_height()
             result.blocks.append(teal_block)
-
         return result
 
     def _add_op(self, op: teal.TealOp) -> None:
@@ -352,6 +360,7 @@ class TealBuilder(MIRVisitor[None]):
                 source_location=op.source_location,
             )
         )
+        self.label_stack.append(op.target)
 
     def visit_conditional_branch(self, op: mir.ConditionalBranch) -> None:
         condition_op: type[teal.BranchNonZero | teal.BranchZero]
@@ -372,6 +381,7 @@ class TealBuilder(MIRVisitor[None]):
                 source_location=op.source_location,
             )
         )
+        self.label_stack.append(condition_op_target)
         self._add_op(
             teal.Branch(
                 target=other_target,
@@ -380,6 +390,7 @@ class TealBuilder(MIRVisitor[None]):
                 source_location=op.source_location,
             )
         )
+        self.label_stack.append(other_target)
 
     def visit_switch(self, op: mir.Switch) -> None:
         self._add_op(
@@ -390,6 +401,7 @@ class TealBuilder(MIRVisitor[None]):
                 source_location=op.source_location,
             )
         )
+        self.label_stack.extend(op.switch_targets)
         self._add_op(
             teal.Branch(
                 target=op.default_target,
@@ -398,6 +410,7 @@ class TealBuilder(MIRVisitor[None]):
                 source_location=op.source_location,
             )
         )
+        self.label_stack.append(op.default_target)
 
     def visit_match(self, op: mir.Match) -> None:
         self._add_op(
@@ -408,6 +421,7 @@ class TealBuilder(MIRVisitor[None]):
                 source_location=op.source_location,
             )
         )
+        self.label_stack.extend(op.match_targets)
         self._add_op(
             teal.Branch(
                 target=op.default_target,
@@ -416,6 +430,7 @@ class TealBuilder(MIRVisitor[None]):
                 source_location=op.source_location,
             )
         )
+        self.label_stack.append(op.default_target)
 
     def visit_intrinsic(self, intrinsic: mir.IntrinsicOp) -> None:
         self._add_op(
