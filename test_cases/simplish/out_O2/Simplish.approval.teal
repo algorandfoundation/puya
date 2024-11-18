@@ -175,7 +175,6 @@ set_sender_nickname:
 // test_cases.simplish.contract.Simplish.call(method_name: bytes, num_app_args: uint64) -> bytes, uint64:
 call:
     proto 2 2
-    intc_0 // 0
     frame_dig -1
     pushint 2 // 2
     ==
@@ -187,10 +186,9 @@ call:
     pushbytes 0x636972636c655f61726561
     ==
     bz call_else_body@2
-    frame_dig 1
+    frame_dig 0
     callsub circle_area
     callsub itoa
-    frame_bury 0
     b call_after_if_else@9
 
 call_else_body@2:
@@ -198,18 +196,17 @@ call_else_body@2:
     pushbytes 0x636972636c655f63697263756d666572656e6365
     ==
     bz call_else_body@4
-    frame_dig 1
+    frame_dig 0
     callsub circle_circumference
     callsub itoa
-    frame_bury 0
-    b call_after_if_else@8
+    b call_after_if_else@9
 
 call_else_body@4:
     frame_dig -2
     pushbytes 0x636972636c655f7265706f7274
     ==
     bz call_else_body@6
-    frame_dig 1
+    frame_dig 0
     dup
     callsub circle_area
     dig 1
@@ -229,22 +226,17 @@ call_else_body@4:
     swap
     callsub itoa
     concat
-    frame_bury 0
-    b call_after_if_else@8
+    b call_after_if_else@9
 
 call_else_body@6:
     intc_0 // 0
-    frame_bury 2
+    frame_bury 1
     pushbytes 0x756e6b6e6f776e206d6574686f64206e616d65
-    frame_bury 0
-
-call_after_if_else@8:
 
 call_after_if_else@9:
-    frame_dig 0
-    frame_dig 2
-    frame_bury 1
-    frame_bury 0
+    frame_dig 1
+    uncover 3
+    uncover 3
     retsub
 
 

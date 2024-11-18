@@ -283,7 +283,6 @@ call:
     // @subroutine
     // def call(self, method_name: Bytes, num_app_args: UInt64) -> tuple[Bytes, bool]:
     proto 2 2
-    intc_0 // 0
     // simplish/contract.py:72
     // assert num_app_args == 2, "insufficient arguments"
     frame_dig -1
@@ -305,12 +304,11 @@ call:
     bz call_else_body@2
     // simplish/contract.py:77
     // area = circle_area(radius)
-    frame_dig 1
+    frame_dig 0
     callsub circle_area
     // simplish/contract.py:78
     // result = itoa(area)
     callsub itoa
-    frame_bury 0
     b call_after_if_else@9
 
 call_else_body@2:
@@ -322,13 +320,12 @@ call_else_body@2:
     bz call_else_body@4
     // simplish/contract.py:80
     // circumference = circle_circumference(radius)
-    frame_dig 1
+    frame_dig 0
     callsub circle_circumference
     // simplish/contract.py:81
     // result = itoa(circumference)
     callsub itoa
-    frame_bury 0
-    b call_after_if_else@8
+    b call_after_if_else@9
 
 call_else_body@4:
     // simplish/contract.py:82
@@ -339,7 +336,7 @@ call_else_body@4:
     bz call_else_body@6
     // simplish/contract.py:83
     // area, circumference = circle_area(radius), circle_circumference(radius)
-    frame_dig 1
+    frame_dig 0
     dup
     callsub circle_area
     dig 1
@@ -396,37 +393,23 @@ call_else_body@4:
     // + b", "
     // + itoa(circumference)
     concat
-    // simplish/contract.py:84-91
-    // result = (
-    //     Bytes(b"Approximate area and circumference of circle with radius ")
-    //     + itoa(radius)
-    //     + b" = "
-    //     + itoa(area)
-    //     + b", "
-    //     + itoa(circumference)
-    // )
-    frame_bury 0
-    b call_after_if_else@8
+    b call_after_if_else@9
 
 call_else_body@6:
     // simplish/contract.py:93
     // status = False
     intc_0 // 0
-    frame_bury 2
+    frame_bury 1
     // simplish/contract.py:94
     // result = Bytes(b"unknown method name")
     pushbytes 0x756e6b6e6f776e206d6574686f64206e616d65
-    frame_bury 0
-
-call_after_if_else@8:
 
 call_after_if_else@9:
     // simplish/contract.py:95
     // return result, status
-    frame_dig 0
-    frame_dig 2
-    frame_bury 1
-    frame_bury 0
+    frame_dig 1
+    uncover 3
+    uncover 3
     retsub
 
 

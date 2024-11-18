@@ -19,14 +19,14 @@ def post_ssa_optimizer(
     logger.debug("Performing post-SSA optimizations")
     cloned = deepcopy(artifact)
     for sub in cloned.all_subroutines():
-        remove_linear_jumps(sub)
+        _remove_linear_jumps(sub)
         if context.options.optimization_level >= 2:
-            block_deduplication(sub)
+            _block_deduplication(sub)
         attrs.validate(sub)
     return cloned
 
 
-def remove_linear_jumps(subroutine: models.Subroutine) -> None:
+def _remove_linear_jumps(subroutine: models.Subroutine) -> None:
     #  P = {p0, p1, ..., pn} -> {j} -> {t}
     # remove {j} from subroutine
     # point P at t:
@@ -34,24 +34,36 @@ def remove_linear_jumps(subroutine: models.Subroutine) -> None:
     #  ensure P are all in predecessors of t
     # This exists here and not in main IR optimization loop because we only want to do it for
     # blocks that are _truly_ empty, not ones that contain phi-node magic that results in copies
-    for block in subroutine.body:
+    # build a map of any blocks that are just an unconditional branch to their targets
+    jumps = dict[models.BasicBlock, models.BasicBlock]()
+    for block in subroutine.body.copy():
         match block:
             case models.BasicBlock(
                 ops=[], terminator=models.Goto(target=target)
             ) if target is not block:
-                logger.debug(f"Removing jump block {block} and replacing references with {target}")
-                BlockReferenceReplacer.apply(
-                    find=block, replacement=target, blocks=block.predecessors
-                )
+                jumps[block] = target
+                logger.debug(f"Removing jump block {block}")
                 with contextlib.suppress(ValueError):
                     target.predecessors.remove(block)
-                for pred in block.predecessors:
-                    if pred not in target.predecessors:
-                        target.predecessors.append(pred)
                 subroutine.body.remove(block)
 
+    # now back-propagate any chains
+    replacements = dict[models.BasicBlock, models.BasicBlock]()
+    for src, target in jumps.items():
+        while True:
+            try:
+                target = jumps[target]
+            except KeyError:
+                break
+        logger.debug(f"branching to {src} will be replaced with {target}")
+        replacements[src] = target
+        BlockReferenceReplacer.apply(find=src, replacement=target, blocks=subroutine.body)
+        for pred in src.predecessors:
+            if pred not in target.predecessors:
+                target.predecessors.append(pred)
 
-def block_deduplication(subroutine: models.Subroutine) -> None:
+
+def _block_deduplication(subroutine: models.Subroutine) -> None:
     seen = dict[tuple[object, ...], models.BasicBlock]()
     for block in subroutine.body.copy():
         all_ops = tuple(op.freeze() for op in block.all_ops)
