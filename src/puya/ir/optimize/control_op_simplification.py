@@ -3,10 +3,8 @@ import attrs
 from puya import log
 from puya.avm_type import AVMType
 from puya.context import CompileContext
-from puya.errors import InternalError
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
-from puya.ir.models import PhiArgument
 from puya.ir.optimize._utils import get_definition
 from puya.ir.ssa import TrivialPhiRemover
 from puya.ir.types_ import IRType
@@ -17,17 +15,7 @@ logger = log.get_logger(__name__)
 
 # the ratio of default cases to all cases when a match of constant values
 # can be simplified to a goto-nth
-SWITCH_SPARSENESS_SIMPLIFICATION_RATIO = 0.5
-
-
-def can_simplify_switch(switch: models.Switch) -> bool:
-    total_targets = 0
-    for case in switch.cases:
-        if not isinstance(case, models.UInt64Constant):
-            return False
-        total_targets = max(total_targets, case.value)
-    default_targets = total_targets - len(switch.cases)
-    return default_targets < (total_targets * SWITCH_SPARSENESS_SIMPLIFICATION_RATIO)
+_SWITCH_SPARSENESS_SIMPLIFICATION_RATIO = 0.5
 
 
 def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine) -> bool:
@@ -144,7 +132,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                     default=default_block,
                     source_location=source_location,
                 ) as switch
-            ) if can_simplify_switch(switch):
+            ) if _can_simplify_switch(switch):
                 logger.debug("simplifying a switch with constants into goto nth")
                 # reduce to GotoNth
                 block_map = dict[int, models.BasicBlock]()
@@ -192,17 +180,11 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
     return changes
 
 
-def _copy_inlined_phi_args(
-    phi_block: models.BasicBlock, inlined_block: models.BasicBlock, new_block: models.BasicBlock
-) -> None:
-    """Updates the phis of 'phi_block' with a new PhiArgument for 'new_block' with
-    the same PhiArgument value as the 'inlined_block'"""
-    for phi in phi_block.phis:
-        existing_phi_arg = next((arg for arg in phi.args if arg.through == inlined_block), None)
-        if existing_phi_arg is None:
-            raise InternalError(
-                f"Expected a single PhiArgument for {inlined_block} in {phi}",
-                phi.source_location,
-            )
-        phi.args.append(PhiArgument(value=existing_phi_arg.value, through=new_block))
-        attrs.validate(phi)
+def _can_simplify_switch(switch: models.Switch) -> bool:
+    total_targets = 0
+    for case in switch.cases:
+        if not isinstance(case, models.UInt64Constant):
+            return False
+        total_targets = max(total_targets, case.value)
+    default_targets = total_targets - len(switch.cases)
+    return default_targets < (total_targets * _SWITCH_SPARSENESS_SIMPLIFICATION_RATIO)
