@@ -126,11 +126,6 @@ class ControlOp(IRVisitable, _Freezable, abc.ABC):
     def unique_targets(self) -> list["BasicBlock"]:
         return unique(self.targets())
 
-    @property
-    @abc.abstractmethod
-    def can_exit(self) -> bool:
-        """Does this ControlOp exit the current subroutine (somehow - eg terminates, returns)"""
-
 
 @attrs.frozen
 class Register(Value):
@@ -617,10 +612,6 @@ class ConditionalBranch(ControlOp):
     def targets(self) -> Sequence[BasicBlock]:
         return self.zero, self.non_zero
 
-    @property
-    def can_exit(self) -> bool:
-        return False
-
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_conditional_branch(self)
 
@@ -639,10 +630,6 @@ class Goto(ControlOp):
 
     def targets(self) -> Sequence[BasicBlock]:
         return (self.target,)
-
-    @property
-    def can_exit(self) -> bool:
-        return False
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_goto(self)
@@ -663,11 +650,7 @@ class GotoNth(ControlOp):
         return self.value, tuple(b.id for b in self.blocks), self.default.id
 
     def targets(self) -> Sequence[BasicBlock]:
-        return [*self.blocks, self.default]
-
-    @property
-    def can_exit(self) -> bool:
-        return False
+        return *self.blocks, self.default
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_goto_nth(self)
@@ -702,11 +685,7 @@ class Switch(ControlOp):
         )
 
     def targets(self) -> Sequence[BasicBlock]:
-        return [*self.cases.values(), self.default]
-
-    @property
-    def can_exit(self) -> bool:
-        return False
+        return *self.cases.values(), self.default
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_switch(self)
@@ -726,10 +705,6 @@ class SubroutineReturn(ControlOp):
 
     def targets(self) -> Sequence[BasicBlock]:
         return ()
-
-    @property
-    def can_exit(self) -> bool:
-        return True
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_subroutine_return(self)
@@ -755,10 +730,6 @@ class ProgramExit(ControlOp):
     def targets(self) -> Sequence[BasicBlock]:
         return ()
 
-    @property
-    def can_exit(self) -> bool:
-        return True
-
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_program_exit(self)
 
@@ -778,10 +749,6 @@ class Fail(ControlOp):
 
     def targets(self) -> Sequence[BasicBlock]:
         return ()
-
-    @property
-    def can_exit(self) -> bool:
-        return True
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_fail(self)

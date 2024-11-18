@@ -76,7 +76,7 @@ def _replace_single_target_with_goto(terminator: models.ControlOp) -> models.Con
     If a ControlOp has a single target, replace it with a Goto, otherwise return the original op.
     """
     match terminator:
-        case models.ControlOp(unique_targets=[single_target], can_exit=False):
+        case models.ControlOp(unique_targets=[single_target]):
             replacement = models.Goto(
                 source_location=terminator.source_location,
                 target=single_target,
