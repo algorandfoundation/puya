@@ -359,7 +359,8 @@ class Intrinsic(Op, ValueProvider):
     #       e.g. `txn NumAppArgs` or `txna ApplicationArgs 0`
     immediates: list[str | int] = attrs.field(factory=list)
     args: list[Value] = attrs.field(factory=list)
-    comment: str | None = None  # used e.g. for asserts
+    error_message: str | None = None
+    """If the program fails at this op, error_message will be displayed as the reason"""
     _types: Sequence[IRType] = attrs.field(converter=tuple[IRType, ...])
 
     @_types.default
@@ -376,7 +377,7 @@ class Intrinsic(Op, ValueProvider):
         return tuple(types)
 
     def _frozen_data(self) -> object:
-        return self.op, tuple(self.immediates), tuple(self.args), self.comment
+        return self.op, tuple(self.immediates), tuple(self.args), self.error_message
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_intrinsic_op(self)
@@ -773,7 +774,7 @@ class Fail(ControlOp):
     opcode: err
     """
 
-    comment: str | None
+    error_message: str | None
 
     def targets(self) -> Sequence[BasicBlock]:
         return ()
@@ -786,7 +787,7 @@ class Fail(ControlOp):
         return visitor.visit_fail(self)
 
     def _frozen_data(self) -> object:
-        return self.comment
+        return self.error_message
 
 
 @attrs.frozen

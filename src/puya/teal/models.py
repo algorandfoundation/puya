@@ -5,7 +5,7 @@ import attrs
 
 from puya.errors import InternalError
 from puya.ir.types_ import AVMBytesEncoding
-from puya.ir.utils import format_bytes
+from puya.ir.utils import format_bytes, format_error_comment
 from puya.mir.models import Signature
 from puya.models import OnCompletionAction, TransactionType
 from puya.parse import SourceLocation
@@ -54,8 +54,9 @@ class TealOp:
     produces: int
     source_location: SourceLocation | None = attrs.field(eq=False)
     comment: str | None = None
-    """A comment that is always emitted, should only be used for user comments related to an
-    op such as assert or err"""
+    """A comment that is always emitted after the op in TEAL"""
+    error_message: str | None = None
+    """Error message to display if program fails at this op"""
     stack_manipulations: Sequence[StackManipulation] = attrs.field(
         default=(),
         converter=tuple[StackManipulation, ...],
@@ -71,8 +72,13 @@ class TealOp:
 
     def _teal_str(self, op_code: str, *immediates: int | str) -> str:
         teal_args = [op_code, *map(str, immediates)]
-        if self.comment:
-            comment = "\n//".join(self.comment.splitlines())
+        if self.comment or self.error_message:
+            error_message = (
+                format_error_comment(op_code, self.error_message) if self.error_message else ""
+            )
+            comment_lines = error_message.splitlines()
+            comment_lines += (self.comment or "").splitlines()
+            comment = "\n//".join(comment_lines)
             teal_args.append(f"// {comment}")
         return " ".join(teal_args)
 

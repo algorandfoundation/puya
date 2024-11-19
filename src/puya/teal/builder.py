@@ -312,7 +312,7 @@ class TealBuilder(MIRVisitor[None]):
             teal.Intrinsic(
                 op_code=intrinsic.op_code,
                 immediates=intrinsic.immediates,
-                comment=intrinsic.comment,
+                error_message=intrinsic.error_message,
                 consumes=intrinsic.consumes,
                 produces=len(intrinsic.produces),
                 stack_manipulations=_lstack_manipulations(intrinsic),

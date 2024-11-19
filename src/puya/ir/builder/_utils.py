@@ -212,7 +212,7 @@ def assert_value(
             op=AVMOp.assert_,
             source_location=source_location,
             args=[value],
-            comment=comment,
+            error_message=comment,
         )
     )
 

@@ -415,8 +415,6 @@ class ToCodeVisitor(
         result += "("
         if expr.stack_args:
             result += ", ".join([stack_arg.accept(self) for stack_arg in expr.stack_args])
-        if expr.comment:
-            result += f', comment="{expr.comment}"'
         result += ")"
         return result
 
@@ -580,6 +578,20 @@ class ToCodeVisitor(
         if not statement.value:
             return ["return"]
         return [f"return {statement.value.accept(self)}"]
+
+    @typing.override
+    def visit_assert_statement(self, statement: nodes.AssertStatement) -> list[str]:
+        error_message = "" if statement.error_message is None else f'"{statement.error_message}"'
+        if not statement.condition:
+            result = "err"
+            if error_message:
+                result += f" {error_message}"
+        else:
+            result = f"assert({statement.condition.accept(self)}"
+            if error_message:
+                result += f", comment={error_message}"
+            result += ")"
+        return [result]
 
     @typing.override
     def visit_loop_continue(self, _statement: nodes.LoopContinue) -> list[str]:
