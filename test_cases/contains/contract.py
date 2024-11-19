@@ -134,58 +134,56 @@ class MyContract(Contract):
         ), "65 not in (b'A', 64, 66)"
 
 
-@subroutine(
-    inline=False
-)  # TODO: figure out why recursion depth is exceeded when deepcopying *after* inlining all these
+@subroutine
 def one_u64() -> UInt64:
     return UInt64(1)
 
 
-@subroutine(inline=False)
+@subroutine
 def one_arc4u64() -> arc4.UInt64:
     return arc4.UInt64(1)
 
 
-@subroutine(inline=False)
+@subroutine
 def two_u64() -> UInt64:
     return UInt64(2)
 
 
-@subroutine(inline=False)
+@subroutine
 def two_u8() -> arc4.UInt8:
     return arc4.UInt8(2)
 
 
-@subroutine(inline=False)
+@subroutine
 def three_u512() -> arc4.UInt512:
     return arc4.UInt512(3)
 
 
-@subroutine(inline=False)
+@subroutine
 def four_biguint() -> BigUInt:
     return BigUInt(4)
 
 
-@subroutine(inline=False)
+@subroutine
 def foo_string() -> String:
     return String("foo")
 
 
-@subroutine(inline=False)
+@subroutine
 def foo_arc4() -> arc4.String:
     return arc4.String("foo")
 
 
-@subroutine(inline=False)
+@subroutine
 def bar_string() -> String:
     return String("bar")
 
 
-@subroutine(inline=False)
+@subroutine
 def bar_arc4() -> arc4.String:
     return arc4.String("bar")
 
 
-@subroutine(inline=False)
+@subroutine
 def baz_string() -> String:
     return String("baz")

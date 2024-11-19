@@ -122,10 +122,10 @@ def optimize_contract_ir(
         if existing:
             for remove in existing:
                 remove.unlink(missing_ok=True)
+    artifact_ir = deepcopy(artifact_ir)
     for pass_num in range(1, MAX_PASSES + 1):
         contract_modified = False
         logger.debug(f"Begin optimization pass {pass_num}/{MAX_PASSES}")
-        artifact_ir = deepcopy(artifact_ir)
         if level:
             analyse_subroutines_for_inlining(context, artifact_ir)
         for subroutine in artifact_ir.all_subroutines():
