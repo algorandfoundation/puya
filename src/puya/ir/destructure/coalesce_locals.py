@@ -165,7 +165,7 @@ def coalesce_locals(
             case LocalsCoalescingStrategy.aggressive:
                 group_strategy = AggressiveGrouping(subroutine)
         logger.debug(
-            f"Coalescing local variables in {subroutine.full_name}"
+            f"Coalescing local variables in {subroutine.id}"
             f" using strategy {type(group_strategy).__name__}"
         )
         replacements = coalesce_registers(group_strategy, subroutine)

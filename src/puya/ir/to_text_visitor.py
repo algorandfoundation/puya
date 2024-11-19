@@ -91,7 +91,7 @@ class ToTextVisitor(IRVisitor[str]):
 
     def visit_invoke_subroutine(self, op: models.InvokeSubroutine) -> str:
         args = ", ".join(a.accept(self) for a in op.args)
-        return f"{op.target.full_name}({args})"
+        return f"{op.target.id}({args})"
 
     def visit_conditional_branch(self, op: models.ConditionalBranch) -> str:
         return f"goto {op.condition.accept(self)} ? block@{op.non_zero.id} : block@{op.zero.id}"
@@ -182,7 +182,7 @@ def render_program(emitter: TextEmitter, name: str, program: models.Program) -> 
                     pass
                 case _ as ir_types:
                     returns = f"<{', '.join(t.name for t in ir_types)}>"
-            emitter.append(f"subroutine {sub.full_name}({args}) -> {returns}:")
+            emitter.append(f"subroutine {sub.id}({args}) -> {returns}:")
             with emitter.indent():
                 render_body(emitter, sub.body)
 

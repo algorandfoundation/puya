@@ -18,7 +18,7 @@ def program_ir_to_mir(
         id=program_ir.id,
         main=_lower_subroutine_to_mir(ctx, program_ir.main, is_main=True, name=program_ir.id),
         subroutines=[
-            _lower_subroutine_to_mir(ctx, ir_sub, is_main=False, name=ir_sub.full_name)
+            _lower_subroutine_to_mir(ctx, ir_sub, is_main=False, name=ir_sub.id)
             for ir_sub in program_ir.subroutines
         ],
         avm_version=program_ir.avm_version,
@@ -42,7 +42,7 @@ def _lower_subroutine_to_mir(
         returns=[r.avm_type for r in subroutine.returns],
     )
     return models.MemorySubroutine(
-        id=subroutine.full_name,
+        id=subroutine.id,
         signature=signature,
         is_main=is_main,
         body=body,

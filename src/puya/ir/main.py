@@ -407,7 +407,7 @@ def _make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Sub
     ]
     returns = wtype_to_ir_types(func.return_type)
     return Subroutine(
-        full_name=func.full_name,
+        id=func.full_name,
         short_name=func.short_name,
         parameters=parameters,
         returns=returns,
@@ -431,7 +431,7 @@ def _make_program(
     if return_type.avm_type != AVMType.uint64:
         raise InternalError("main method should return uint64 backed type")
     main_sub = Subroutine(
-        full_name=main.full_name,
+        id=main.full_name,
         short_name=main.short_name,
         parameters=[],
         returns=[return_type],

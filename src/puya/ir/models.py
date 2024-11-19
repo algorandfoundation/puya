@@ -452,7 +452,7 @@ class InvokeSubroutine(Op, ValueProvider):
     args: list[Value]
 
     def _frozen_data(self) -> object:
-        return self.target.full_name, tuple(self.args)
+        return self.target.id, tuple(self.args)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_invoke_subroutine(self)
@@ -764,7 +764,7 @@ class Parameter(Register):
 
 @attrs.define(eq=False, kw_only=True)
 class Subroutine(Context):
-    full_name: str  # TODO: rename to id
+    id: str
     short_name: str
     # source_location might be None if it was synthesized e.g. ARC4 approval method
     source_location: SourceLocation | None
@@ -784,7 +784,7 @@ class Subroutine(Context):
             attrs.validate(block)
             if block.terminator is None:
                 raise InternalError(
-                    f"Unterminated block {block.id} assigned to subroutine {self.full_name}",
+                    f"Unterminated block {block.id} assigned to subroutine {self.id}",
                     block.source_location,
                 )
             for successor in block.successors:
@@ -801,13 +801,13 @@ class Subroutine(Context):
                     )
             if not blocks.issuperset(block.predecessors):
                 raise InternalError(
-                    f"Block {block.id} of subroutine {self.full_name}"
+                    f"Block {block.id} of subroutine {self.id}"
                     " has predecessor block(s) outside of list",
                     block.source_location,
                 )
             if not blocks.issuperset(block.successors):
                 raise InternalError(
-                    f"Block {block.id} of subroutine {self.full_name}"
+                    f"Block {block.id} of subroutine {self.id}"
                     " has predecessor block(s) outside of list",
                     block.source_location,
                 )
@@ -820,7 +820,7 @@ class Subroutine(Context):
                     phi_block_labels = list(map(str, phi_blocks.keys()))
                     pred_block_labels = list(map(str, block_predecessors.keys()))
                     raise InternalError(
-                        f"{self.full_name}: mismatch between phi predecessors ({phi_block_labels})"
+                        f"{self.id}: mismatch between phi predecessors ({phi_block_labels})"
                         f" and block predecessors ({pred_block_labels})"
                         f" for phi node {phi}",
                         self.source_location,

@@ -29,10 +29,10 @@ def analyse_subroutines_for_inlining(
         for sub in program.subroutines:
             if sub.inline is None:
                 if collector.subroutines.get(sub) == 1:
-                    logger.debug(f"marking single-use function {sub.full_name} for inlining")
+                    logger.debug(f"marking single-use function {sub.id} for inlining")
                     sub.inline = True
                 elif len(sub.body) == 1 and len(sub.entry.ops) <= 3:
-                    logger.debug(f"marking simple function {sub.full_name} for inlining")
+                    logger.debug(f"marking simple function {sub.id} for inlining")
                     sub.inline = True
 
 
@@ -63,7 +63,7 @@ def perform_subroutine_inlining(_context: CompileContext, subroutine: models.Sub
                 )
                 continue
             logger.debug(
-                f"inlining call to {call.target.full_name} in {subroutine.full_name}",
+                f"inlining call to {call.target.id} in {subroutine.id}",
                 location=op.source_location,
             )
             if any(p.implicit_return for p in call.target.parameters):  # TODO!!!
@@ -151,7 +151,7 @@ def _inline_call(
             ret_value = new_block.terminator.result[ret_idx]
             if not isinstance(ret_value, models.Register):
                 tmp_value = ret_value
-                tmp_reg_name = f"{call.target.full_name}{TMP_VAR_INDICATOR}{ret_idx}"
+                tmp_reg_name = f"{call.target.id}{TMP_VAR_INDICATOR}{ret_idx}"
                 ret_value = models.Register(
                     ir_type=ret_value.ir_type,
                     source_location=ret_value.source_location,

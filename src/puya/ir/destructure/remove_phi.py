@@ -111,7 +111,7 @@ def remove_phi_nodes(
 ) -> models.ModuleArtifact:
     cloned = deepcopy(artifact)
     for subroutine in cloned.all_subroutines():
-        logger.debug(f"Removing Phis from {subroutine.full_name}")
+        logger.debug(f"Removing Phis from {subroutine.id}")
         subroutine.validate_with_ssa()
         destructure_cssa(subroutine)
     return cloned

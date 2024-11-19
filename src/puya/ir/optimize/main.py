@@ -129,7 +129,7 @@ def optimize_contract_ir(
         if level:
             analyse_subroutines_for_inlining(context, artifact_ir)
         for subroutine in artifact_ir.all_subroutines():
-            logger.debug(f"Optimizing subroutine {subroutine.full_name}")
+            logger.debug(f"Optimizing subroutine {subroutine.id}")
             for optimizer in pipeline:
                 logger.debug(f"Optimizer: {optimizer.desc}")
                 if optimizer.optimize(context, subroutine):

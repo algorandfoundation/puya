@@ -23,8 +23,8 @@ class ProgramMIRContext(CompileContext):
             if subroutine.short_name and subroutine.short_name not in names:
                 name = subroutine.short_name
             else:
-                assert subroutine.full_name not in names
-                name = subroutine.full_name
+                assert subroutine.id not in names
+                name = subroutine.id
             names[name] = subroutine
 
         return {v: k for k, v in names.items()}

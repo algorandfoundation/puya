@@ -139,7 +139,7 @@ def sequentialize_parallel_copies(
 ) -> models.ModuleArtifact:
     cloned = deepcopy(artifact)
     for subroutine in cloned.all_subroutines():
-        logger.debug(f"Sequentializing parallel copies in {subroutine.full_name}")
+        logger.debug(f"Sequentializing parallel copies in {subroutine.id}")
         _impl(subroutine)
         attrs.validate(subroutine)
     return cloned

@@ -200,9 +200,7 @@ def remove_unused_subroutines(
         if len(to_keep) != len(program.subroutines):
             for p in program.subroutines:
                 if p not in collector.subroutines:
-                    logger.debug(
-                        f"removing unused subroutine {p.full_name} in program {program.id}"
-                    )
+                    logger.debug(f"removing unused subroutine {p.id} in program {program.id}")
             program.subroutines = to_keep
             modified = True
     return modified
