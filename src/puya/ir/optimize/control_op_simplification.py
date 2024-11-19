@@ -46,7 +46,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
             case models.ProgramExit(result=models.UInt64Constant(value=0)):
                 logger.debug("simplifying exit 0 to err")
                 block.terminator = models.Fail(
-                    source_location=terminator.source_location, comment=None
+                    source_location=terminator.source_location, error_message=None
                 )
             case models.ConditionalBranch(
                 condition=models.UInt64Constant(value=value), zero=zero, non_zero=non_zero
@@ -64,7 +64,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
             case models.ConditionalBranch(
                 condition=condition,
                 zero=models.BasicBlock(
-                    phis=[], ops=[], terminator=models.Fail(comment=fail_comment)
+                    phis=[], ops=[], terminator=models.Fail(error_message=fail_comment)
                 ) as err_block,
                 non_zero=non_zero,
                 source_location=source_location,
@@ -74,7 +74,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                     models.Intrinsic(
                         op=AVMOp.assert_,
                         args=[condition],
-                        comment=fail_comment,
+                        error_message=fail_comment,
                         source_location=source_location,
                     )
                 )
@@ -84,7 +84,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
             case models.ConditionalBranch(
                 condition=models.Register() as condition,
                 non_zero=models.BasicBlock(
-                    phis=[], ops=[], terminator=models.Fail(comment=fail_comment)
+                    phis=[], ops=[], terminator=models.Fail(error_message=fail_comment)
                 ) as err_block,
                 zero=zero,
                 source_location=source_location,
@@ -112,7 +112,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                     models.Intrinsic(
                         op=AVMOp.assert_,
                         args=[not_condition],
-                        comment=fail_comment,
+                        error_message=fail_comment,
                         source_location=source_location,
                     )
                 )

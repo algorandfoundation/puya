@@ -112,8 +112,8 @@ def _add_op_debug_events(
         event["callsub"] = subroutine_ids[func_block]
     elif op.op_code == "retsub":
         event["retsub"] = True
-    elif op.op_code in ("assert", "err") and op.comment:
-        event["error"] = op.comment
+    if op.error_message:
+        event["error"] = op.error_message
     event["op"] = op.teal()
 
     for sm in op.stack_manipulations:

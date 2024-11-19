@@ -118,15 +118,3 @@ def zero_address(
         immediates=["ZeroAddress"],
         source_location=loc,
     )
-
-
-def assert_(
-    *, condition: Expression, comment: str | None, source_location: SourceLocation
-) -> IntrinsicCall:
-    return IntrinsicCall(
-        wtype=wtypes.void_wtype,
-        stack_args=[condition],
-        op_code="assert",
-        source_location=source_location,
-        comment=comment,
-    )
