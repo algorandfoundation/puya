@@ -1733,35 +1733,43 @@ def test_array(
     account: algokit_utils.Account,
 ) -> None:
     example = TEST_CASES_DIR / "array"
-    algokit_utils.config.config.configure(
-        debug=True,
-        trace_all=True,
-        project_root=example,
-    )
 
     app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
     app_client.create()
 
-    app_client.call("test_array")
+    simulate_call(app_client, "test_array")
 
-    simulate_call(app_client, "test_array_too_long", 20_000)
+    simulate_call(app_client, "test_iteration")
 
-    simulate_response = simulate_call(app_client, "overhead", 20_000)
-    overhead = simulate_response.simulate_response["txn-groups"][0]["app-budget-consumed"]
+    simulate_call(app_client, "test_array_copy_and_extend")
 
-    simulate_response = simulate_call(app_client, "test_quicksort", 20_000)
+    simulate_call(app_client, "test_allocations", num=255)
+    with pytest.raises(LogicError, match="no available slots\t\t<-- Error"):
+        simulate_call(app_client, "test_allocations", num=256)
+
+    with pytest.raises(LogicError, match="max array length exceeded\t\t<-- Error"):
+        simulate_call(app_client, "test_array_too_long")
+
+    overhead = simulate_call(app_client, "overhead").simulate_response["txn-groups"][0][
+        "app-budget-consumed"
+    ]
+
+    simulate_response = simulate_call(app_client, "test_quicksort")
     consumed = (
         simulate_response.simulate_response["txn-groups"][0]["app-budget-consumed"] - overhead
     )
-    assert consumed == 7059
+    assert consumed == 7065
 
 
 def simulate_call(
-    app_client: algokit_utils.ApplicationClient, method: str, extra_budget: int
+    app_client: algokit_utils.ApplicationClient,
+    method: str,
+    extra_budget: int = 20_000,
+    **kwargs: object,
 ) -> SimulateAtomicTransactionResponse:
     atc = algosdk.atomic_transaction_composer.AtomicTransactionComposer()
-    app_client.compose_call(atc, method)
+    app_client.compose_call(atc, method, **kwargs)
     simulate_response = atc.simulate(
         app_client.algod_client,
         SimulateRequest(
@@ -1779,5 +1787,16 @@ def simulate_call(
     (TEST_CASES_DIR / "array" / "debug_traces" / method).with_suffix(".trace.avm.json").write_text(
         simulate_json
     )
-    assert not simulate_response.failure_message
+    if simulate_response.failure_message:
+        logic_error_data = algokit_utils.logic_error.parse_logic_error(
+            simulate_response.failure_message
+        )
+        assert logic_error_data is not None, "expected LogicError"
+        assert app_client.approval is not None, "expected approval program"
+        raise algokit_utils.LogicError(
+            logic_error_str=simulate_response.failure_message,
+            program=app_client.approval.teal,
+            source_map=app_client.approval.source_map,
+            **logic_error_data,
+        )
     return simulate_response

@@ -1,14 +1,10 @@
 #pragma version 10
 
 test_cases.array.contract.Contract.approval_program:
-    intcblock 1 8 0 2 512
+    intcblock 1 8 0 5 512
     bytecblock 0x
-    pushint 255 // 255
-    bzero
-    pushbytes 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-    b|
     intc_2 // 0
-    swap
+    pushbytes 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     stores
     callsub __puya_arc4_router__
     return
@@ -18,10 +14,10 @@ test_cases.array.contract.Contract.approval_program:
 __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@8
-    pushbytess 0xa33be873 0x58351a50 0xfa99e984 0x7621cfd1 // method "test_array()void", method "overhead()void", method "test_array_too_long()void", method "test_quicksort()void"
+    bz __puya_arc4_router___bare_routing@11
+    pushbytess 0xa33be873 0x58351a50 0xfa99e984 0xa20e440f 0xf17f6f0a 0x845e1b4e 0x7621cfd1 // method "test_array()void", method "overhead()void", method "test_array_too_long()void", method "test_array_copy_and_extend()void", method "test_allocations(uint64)void", method "test_iteration()void", method "test_quicksort()void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___test_array_route@2 __puya_arc4_router___overhead_route@3 __puya_arc4_router___test_array_too_long_route@4 __puya_arc4_router___test_quicksort_route@5
+    match __puya_arc4_router___test_array_route@2 __puya_arc4_router___overhead_route@3 __puya_arc4_router___test_array_too_long_route@4 __puya_arc4_router___test_array_copy_and_extend_route@5 __puya_arc4_router___test_allocations_route@6 __puya_arc4_router___test_iteration_route@7 __puya_arc4_router___test_quicksort_route@8
     intc_2 // 0
     retsub
 
@@ -54,7 +50,39 @@ __puya_arc4_router___test_array_too_long_route@4:
     intc_0 // 1
     retsub
 
-__puya_arc4_router___test_quicksort_route@5:
+__puya_arc4_router___test_array_copy_and_extend_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub test_array_copy_and_extend
+    intc_0 // 1
+    retsub
+
+__puya_arc4_router___test_allocations_route@6:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    callsub test_allocations
+    intc_0 // 1
+    retsub
+
+__puya_arc4_router___test_iteration_route@7:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub test_iteration
+    intc_0 // 1
+    retsub
+
+__puya_arc4_router___test_quicksort_route@8:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -64,16 +92,16 @@ __puya_arc4_router___test_quicksort_route@5:
     intc_0 // 1
     retsub
 
-__puya_arc4_router___bare_routing@8:
+__puya_arc4_router___bare_routing@11:
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@12
+    bnz __puya_arc4_router___after_if_else@15
     txn ApplicationID
     !
     assert // can only call when creating
     intc_0 // 1
     retsub
 
-__puya_arc4_router___after_if_else@12:
+__puya_arc4_router___after_if_else@15:
     intc_2 // 0
     retsub
 
@@ -93,7 +121,7 @@ test_array:
     ==
     assert
     dup
-    pushint 5 // 5
+    intc_3 // 5
     callsub add_x
     dup
     loads
@@ -161,7 +189,7 @@ test_array:
     intc_1 // 8
     *
     extract_uint64
-    intc_3 // 2
+    pushint 2 // 2
     ==
     assert
     dup
@@ -216,7 +244,7 @@ test_array:
     dup
     intc_2 // 0
     extract_uint64
-    intc_3 // 2
+    pushint 2 // 2
     +
     itob
     replace2 0
@@ -237,7 +265,7 @@ test_array:
     ==
     assert
     dup
-    intc_3 // 2
+    pushint 2 // 2
     -
     intc_1 // 8
     *
@@ -395,6 +423,301 @@ test_array_too_long_after_for@4:
     retsub
 
 
+// test_cases.array.contract.Contract.test_array_copy_and_extend() -> void:
+test_array_copy_and_extend:
+    proto 0 0
+    intc_2 // 0
+    callsub new_slot
+    dup
+    bytec_0 // 0x
+    stores
+    intc_2 // 0
+
+test_array_copy_and_extend_for_header@1:
+    frame_dig 1
+    intc_3 // 5
+    <
+    bz test_array_copy_and_extend_after_for@4
+    frame_dig 0
+    dup
+    loads
+    frame_dig 1
+    dup
+    cover 3
+    itob
+    concat // on error: max array length exceeded
+    stores
+    intc_0 // 1
+    +
+    frame_bury 1
+    b test_array_copy_and_extend_for_header@1
+
+test_array_copy_and_extend_after_for@4:
+    intc_2 // 0
+    callsub new_slot
+    frame_dig 0
+    dup
+    cover 2
+    loads
+    dig 1
+    swap
+    stores
+    dig 1
+    loads
+    intc_3 // 5
+    itob
+    concat // on error: max array length exceeded
+    dig 2
+    dig 1
+    stores
+    dup
+    len
+    intc_1 // 8
+    /
+    dup
+    pushint 6 // 6
+    ==
+    assert
+    intc_0 // 1
+    -
+    intc_1 // 8
+    *
+    dig 1
+    swap
+    extract_uint64
+    intc_3 // 5
+    ==
+    assert // expected 5
+    dig 1
+    loads
+    dup
+    len
+    intc_1 // 8
+    /
+    dup
+    intc_3 // 5
+    ==
+    assert
+    intc_0 // 1
+    -
+    intc_1 // 8
+    *
+    dig 1
+    swap
+    extract_uint64
+    pushint 4 // 4
+    ==
+    assert // expected 4
+    concat // on error: max array length exceeded
+    dig 2
+    swap
+    stores
+    swap
+    loads
+    dup
+    len
+    intc_1 // 8
+    /
+    dup
+    pushint 11 // 11
+    ==
+    assert
+    uncover 2
+    loads
+    len
+    intc_1 // 8
+    /
+    intc_3 // 5
+    ==
+    assert
+    intc_0 // 1
+    -
+    intc_1 // 8
+    *
+    dig 1
+    swap
+    extract_uint64
+    pushint 4 // 4
+    ==
+    assert // expected 4
+    dup
+    pushint 32 // 32
+    extract_uint64
+    pushint 4 // 4
+    ==
+    assert // expected 4
+    dup
+    pushint 40 // 40
+    extract_uint64
+    intc_3 // 5
+    ==
+    assert // expected 4
+    pushint 48 // 48
+    extract_uint64
+    !
+    assert // expected 4
+    retsub
+
+
+// test_cases.array.contract.Contract.test_allocations(num: uint64) -> void:
+test_allocations:
+    proto 1 0
+    intc_2 // 0
+
+test_allocations_for_header@1:
+    frame_dig 0
+    frame_dig -1
+    <
+    bz test_allocations_after_for@4
+    intc_2 // 0
+    callsub new_slot
+    bytec_0 // 0x
+    stores
+    frame_dig 0
+    intc_0 // 1
+    +
+    frame_bury 0
+    b test_allocations_for_header@1
+
+test_allocations_after_for@4:
+    retsub
+
+
+// test_cases.array.contract.Contract.test_iteration() -> void:
+test_iteration:
+    proto 0 0
+    bytec_0 // ""
+    dupn 5
+    intc_2 // 0
+    callsub new_slot
+    dup
+    bytec_0 // 0x
+    stores
+    intc_2 // 0
+
+test_iteration_for_header@1:
+    frame_dig 7
+    intc_3 // 5
+    <
+    bz test_iteration_after_for@4
+    frame_dig 6
+    dup
+    loads
+    frame_dig 7
+    dup
+    cover 3
+    itob
+    concat // on error: max array length exceeded
+    stores
+    intc_0 // 1
+    +
+    frame_bury 7
+    b test_iteration_for_header@1
+
+test_iteration_after_for@4:
+    frame_dig 6
+    loads
+    len
+    intc_1 // 8
+    /
+    dup
+    frame_bury 0
+    intc_3 // 5
+    ==
+    assert // expected array of length 5
+    intc_2 // 0
+    frame_bury 4
+    intc_2 // 0
+    frame_bury 3
+
+test_iteration_for_header@5:
+    frame_dig 3
+    frame_dig 0
+    <
+    bz test_iteration_after_for@8
+    frame_dig 6
+    loads
+    frame_dig 3
+    dup
+    cover 2
+    intc_1 // 8
+    *
+    extract_uint64
+    dup
+    frame_dig 4
+    >=
+    assert // array is not sorted
+    swap
+    intc_0 // 1
+    +
+    frame_bury 3
+    frame_bury 4
+    b test_iteration_for_header@5
+
+test_iteration_after_for@8:
+    frame_dig 6
+    loads
+    len
+    intc_1 // 8
+    /
+    frame_bury 1
+    intc_2 // 0
+    frame_bury 2
+
+test_iteration_for_header@9:
+    frame_dig 2
+    frame_dig 1
+    <
+    bz test_iteration_after_for@12
+    frame_dig 6
+    loads
+    frame_dig 2
+    dup
+    cover 2
+    intc_1 // 8
+    *
+    extract_uint64
+    dig 1
+    ==
+    assert // incorrect array value
+    intc_0 // 1
+    +
+    frame_bury 2
+    b test_iteration_for_header@9
+
+test_iteration_after_for@12:
+    frame_dig 6
+    loads
+    len
+    intc_1 // 8
+    /
+    frame_bury 5
+
+test_iteration_for_header@13:
+    frame_dig 5
+    bz test_iteration_after_for@16
+    frame_dig 5
+    intc_0 // 1
+    -
+    dup
+    frame_bury 5
+    frame_dig 6
+    loads
+    swap
+    intc_1 // 8
+    *
+    extract_uint64
+    dup
+    frame_dig 4
+    <=
+    assert // array is not sorted
+    frame_bury 4
+    b test_iteration_for_header@13
+
+test_iteration_after_for@16:
+    retsub
+
+
 // test_cases.array.contract.Contract.test_quicksort() -> void:
 test_quicksort:
     proto 0 0
@@ -498,7 +821,7 @@ quicksort_window:
     frame_dig -2
     frame_dig -1
     +
-    intc_3 // 2
+    pushint 2 // 2
     /
     frame_dig -3
     loads
@@ -649,8 +972,14 @@ new_slot:
     bitlen
     dup
     assert // no available slots
-    swap
     dig 1
+    len
+    intc_1 // 8
+    *
+    dig 1
+    -
+    uncover 2
+    swap
     intc_2 // 0
     setbit
     frame_dig -1

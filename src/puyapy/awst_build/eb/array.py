@@ -6,7 +6,6 @@ import mypy.nodes
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    ArrayConcat,
     ArrayExtend,
     ArrayLength,
     ArrayPop,
@@ -168,34 +167,6 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
             source_location=location,
         )
         return ExpressionStatement(expr=extend)
-
-    @typing.override
-    def binary_op(
-        self,
-        other: InstanceBuilder,
-        op: BuilderBinaryOp,
-        location: SourceLocation,
-        *,
-        reverse: bool,
-    ) -> InstanceBuilder:
-        if op != BuilderBinaryOp.add:
-            return NotImplemented
-        if not _check_array_concat_arg(other, self.pytype):
-            return NotImplemented
-
-        lhs: InstanceBuilder = self
-        rhs = other
-        if reverse:
-            (lhs, rhs) = (rhs, lhs)
-        return ArrayExpressionBuilder(
-            ArrayConcat(
-                left=lhs.resolve(),
-                right=rhs.resolve(),
-                wtype=self.pytype.wtype,
-                source_location=location,
-            ),
-            self.pytype,
-        )
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

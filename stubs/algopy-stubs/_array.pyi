@@ -41,12 +41,6 @@ class Array(typing.Generic[T], Reversible[T]):
     ) -> None:
         """Extend this array with the contents of another array"""
 
-    def __add__(
-        self,
-        other: Sequence[T],
-    ) -> Array[T]:
-        """Concat two arrays together, returning a new array"""
-
     def pop(self) -> T:
         """Remove and return the last item of this array"""
 

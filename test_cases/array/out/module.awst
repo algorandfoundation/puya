@@ -59,6 +59,55 @@ contract Contract
     array.extend((512u))
   }
   
+  abimethod test_cases.array.contract.Contract.test_array_copy_and_extend(): void
+  {
+    array: array<uint64> = new array<uint64>()
+    for i in range(0u, 5u, 1u) {
+      array.extend((i))
+    }
+    array2: array<uint64> = array.copy()
+    array.extend((5u))
+    assert(array.length == 6u)
+    assert(array[array.length - 1u] == 5u, comment="expected 5")
+    assert(array2.length == 5u)
+    assert(array2[array2.length - 1u] == 4u, comment="expected 4")
+    array.extend(array2)
+    assert(array.length == 11u)
+    assert(array2.length == 5u)
+    assert(array[array.length - 1u] == 4u, comment="expected 4")
+    assert(array[4u] == 4u, comment="expected 4")
+    assert(array[5u] == 5u, comment="expected 4")
+    assert(array[6u] == 0u, comment="expected 4")
+  }
+  
+  abimethod test_cases.array.contract.Contract.test_allocations(num: uint64): void
+  {
+    for _i in range(0u, num, 1u) {
+      arr: array<uint64> = new array<uint64>()
+    }
+  }
+  
+  abimethod test_cases.array.contract.Contract.test_iteration(): void
+  {
+    arr: array<uint64> = new array<uint64>()
+    for val in range(0u, 5u, 1u) {
+      arr.extend((val))
+    }
+    assert(arr.length == 5u, comment="expected array of length 5")
+    last: uint64 = 0u
+    for value in arr {
+      assert(value >= last, comment="array is not sorted")
+      last: uint64 = value
+    }
+    for (idx, value) in enumerate(arr) {
+      assert(value == idx, comment="incorrect array value")
+    }
+    for value in reversed(arr) {
+      assert(value <= last, comment="array is not sorted")
+      last: uint64 = value
+    }
+  }
+  
   abimethod test_cases.array.contract.Contract.test_quicksort(): void
   {
     rnd: array<uint64> = new array<uint64>()
@@ -90,7 +139,7 @@ subroutine quicksort_window(arr: array<uint64>, window_left: uint64, window_righ
     }
     while (pivot < arr[right]) {
       if (right == 0u) {
-        goto after_loop_L88
+        goto after_loop_L137
       }
       right -= 1u
     }
@@ -113,7 +162,7 @@ subroutine quicksort_window(arr: array<uint64>, window_left: uint64, window_righ
       }
       break
     }
-    after_loop_L88:
+    after_loop_L137:
     break
   }
   if (window_left < right) {

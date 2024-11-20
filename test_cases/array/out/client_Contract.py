@@ -23,6 +23,22 @@ class Contract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
+    def test_array_copy_and_extend(
+        self,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_allocations(
+        self,
+        num: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_iteration(
+        self,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
     def test_quicksort(
         self,
     ) -> None: ...

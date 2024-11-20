@@ -1,4 +1,4 @@
-from algopy import Array, Txn, UInt64, arc4, op, subroutine, urange
+from algopy import Array, Txn, UInt64, arc4, op, subroutine, uenumerate, urange
 
 
 class Contract(arc4.ARC4Contract):
@@ -7,8 +7,6 @@ class Contract(arc4.ARC4Contract):
     def test_array(self) -> None:
         arr = Array[UInt64]()
         assert arr.length == 0
-        # TODO: ummm memory leaks?
-        # assert arr == Array[UInt64]()
 
         arr.append(UInt64(42))
         assert arr.length == 1
@@ -54,6 +52,57 @@ class Contract(arc4.ARC4Contract):
         assert array.bytes.length == 4096, "array bytes is expected length"
 
         array.append(UInt64(512))  # this will fail
+
+    @arc4.abimethod()
+    def test_array_copy_and_extend(self) -> None:
+        array = Array[UInt64]()
+        for i in urange(5):
+            array.append(i)
+        array2 = array.copy()
+
+        array.append(UInt64(5))
+        assert array.length == 6
+        assert array[-1] == 5, "expected 5"
+
+        assert array2.length == 5
+        assert array2[-1] == 4, "expected 4"
+
+        array.extend(array2)
+        assert array.length == 11
+        assert array2.length == 5
+        assert array[-1] == 4, "expected 4"
+        assert array[4] == 4, "expected 4"
+        assert array[5] == 5, "expected 4"
+        assert array[6] == 0, "expected 4"
+
+    @arc4.abimethod()
+    def test_allocations(self, num: UInt64) -> None:
+        for _i in urange(num):
+            # TODO: do we need to allow freeing arrays? Maybe via an API function?
+            arr = Array[UInt64]()  # noqa: F841
+
+    @arc4.abimethod()
+    def test_iteration(self) -> None:
+        # create pseudo random array from sender address
+        arr = Array[UInt64]()
+        for val in urange(5):
+            arr.append(val)
+        assert arr.length == 5, "expected array of length 5"
+
+        # array should now be in ascending order
+        last = UInt64(0)
+        for value in arr:
+            assert value >= last, "array is not sorted"
+            last = value
+
+        # array values should match index
+        for idx, value in uenumerate(arr):
+            assert value == idx, "incorrect array value"
+
+        # array should be reversible
+        for value in reversed(arr):
+            assert value <= last, "array is not sorted"
+            last = value
 
     @arc4.abimethod()
     def test_quicksort(self) -> None:

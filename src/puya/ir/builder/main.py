@@ -30,7 +30,6 @@ from puya.ir.builder._utils import (
     extract_const_int,
     get_implicit_return_is_original,
     get_implicit_return_out,
-    invoke_puya_lib_subroutine,
     mktemp,
 )
 from puya.ir.builder.arc4 import ARC4_FALSE, ARC4_TRUE
@@ -61,7 +60,6 @@ from puya.ir.models import (
     MethodConstant,
     Op,
     ProgramExit,
-    ReadSlot,
     Subroutine,
     SubroutineReturn,
     TemplateVar,
@@ -80,6 +78,7 @@ from puya.ir.types_ import (
 )
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
+from puya.utils import bits_to_bytes
 
 TExpression: typing.TypeAlias = ValueProvider | None
 TStatement: typing.TypeAlias = None
@@ -162,7 +161,7 @@ class FunctionIRBuilder(
                 op_code="bzero",
                 stack_args=[
                     awst_nodes.IntegerConstant(
-                        value=MAX_SCRATCH_SLOT_NUMBER,
+                        value=bits_to_bytes(MAX_SCRATCH_SLOT_NUMBER),
                         wtype=wtypes.uint64_wtype,
                         source_location=loc,
                     )
@@ -200,6 +199,14 @@ class FunctionIRBuilder(
                     source_location=expr.source_location,
                     context=self.context,
                 )
+            case wtypes.WArray():
+                loc = expr.source_location
+                original_slot = self.visit_and_materialise_single(expr.value)
+                new_slot = arrays.new_slot(self.context, loc)
+                value = arrays.read_slot(self.context, original_slot, loc)
+                arrays.write_slot(self.context, new_slot, value, loc)
+                return new_slot
+
         raise InternalError(
             f"Invalid source wtype for Copy {expr.value.wtype}", expr.source_location
         )
@@ -884,31 +891,16 @@ class FunctionIRBuilder(
             case wtypes.ARC4Array():
                 return arc4.encode_arc4_array(self.context, expr)
             case wtypes.WArray() as arr:
+                loc = expr.source_location
                 if arr.element_type != wtypes.uint64_wtype:
-                    raise CodeError(
-                        "only uint64 elements supported currently", expr.source_location
-                    )
-                if self.context.allocation is None:
-                    raise CodeError("no available slots to allocate array", expr.source_location)
-                factory = OpFactory(self.context, expr.source_location)
-                slot = factory.assign(
-                    invoke_puya_lib_subroutine(
-                        self.context,
-                        full_name="_puya_lib.mem.new_slot",
-                        args=[
-                            UInt64Constant(
-                                value=self.context.allocation.slot, source_location=None
-                            )
-                        ],
-                        source_location=expr.source_location,
-                    ),
-                    "slot",
-                )
+                    raise CodeError("only uint64 elements supported currently", loc)
+                slot = arrays.new_slot(self.context, loc)
+                factory = OpFactory(self.context, loc)
                 array_contents = factory.assign(
                     BytesConstant(
                         value=b"",
                         encoding=AVMBytesEncoding.base16,
-                        source_location=expr.source_location,
+                        source_location=loc,
                     ),
                     "array_contents",
                 )
@@ -916,13 +908,7 @@ class FunctionIRBuilder(
                     value = self.visit_and_materialise_single(item, "item")
                     value_bytes = factory.itob(value, "item_bytes")
                     array_contents = factory.concat(array_contents, value_bytes, "array_contents")
-                self.context.block_builder.add(
-                    WriteSlot(
-                        slot=slot,
-                        value=array_contents,
-                        source_location=expr.source_location,
-                    )
-                )
+                arrays.write_slot(self.context, slot, array_contents, loc)
                 return slot
             case _:
                 typing.assert_never(expr.wtype)
@@ -1224,10 +1210,7 @@ class FunctionIRBuilder(
                 raise CodeError("only uint64 arrays currently supported", expr.source_location)
             factory = OpFactory(self.context, expr.source_location)
             slot = self.visit_and_materialise_single(expr.base)
-            contents = factory.assign(
-                ReadSlot(slot=slot, source_location=expr.base.source_location, type=IRType.bytes),
-                "array_contents",
-            )
+            contents = arrays.read_slot(self.context, slot, expr.base.source_location)
             length = factory.len(contents, "length")
             # TODO: derive from element wtype
             element_size = 8

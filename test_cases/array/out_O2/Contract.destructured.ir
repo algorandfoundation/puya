@@ -2,19 +2,17 @@ contract test_cases.array.contract.Contract:
     program approval:
         subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
             block@0: // L1
-                let tmp%0#0: bytes = (bzero 255u)
-                let tmp%1#0: bytes = (b| tmp%0#0 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
-                write(0u, tmp%1#0)
+                write(0u, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
                 let tmp%2#0: bool = test_cases.array.contract.Contract.__puya_arc4_router__()
                 return tmp%2#0
         
         subroutine test_cases.array.contract.Contract.__puya_arc4_router__() -> bool:
             block@0: // L4
                 let tmp%0#0: uint64 = (txn NumAppArgs)
-                goto tmp%0#0 ? block@1 : block@8
+                goto tmp%0#0 ? block@1 : block@11
             block@1: // abi_routing_L4
                 let tmp%2#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%2#0 {method "test_array()void" => block@2, method "overhead()void" => block@3, method "test_array_too_long()void" => block@4, method "test_quicksort()void" => block@5, * => return 0u}
+                switch tmp%2#0 {method "test_array()void" => block@2, method "overhead()void" => block@3, method "test_array_too_long()void" => block@4, method "test_array_copy_and_extend()void" => block@5, method "test_allocations(uint64)void" => block@6, method "test_iteration()void" => block@7, method "test_quicksort()void" => block@8, * => return 0u}
             block@2: // test_array_route_L6
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (! tmp%3#0)
@@ -23,14 +21,14 @@ contract test_cases.array.contract.Contract:
                 (assert tmp%5#0) // can only call when not creating
                 test_cases.array.contract.Contract.test_array()
                 return 1u
-            block@3: // overhead_route_L44
+            block@3: // overhead_route_L42
                 let tmp%7#0: uint64 = (txn OnCompletion)
                 let tmp%8#0: bool = (! tmp%7#0)
                 (assert tmp%8#0) // OnCompletion is not NoOp
                 let tmp%9#0: uint64 = (txn ApplicationID)
                 (assert tmp%9#0) // can only call when not creating
                 return 1u
-            block@4: // test_array_too_long_route_L48
+            block@4: // test_array_too_long_route_L46
                 let tmp%11#0: uint64 = (txn OnCompletion)
                 let tmp%12#0: bool = (! tmp%11#0)
                 (assert tmp%12#0) // OnCompletion is not NoOp
@@ -38,23 +36,49 @@ contract test_cases.array.contract.Contract:
                 (assert tmp%13#0) // can only call when not creating
                 test_cases.array.contract.Contract.test_array_too_long()
                 return 1u
-            block@5: // test_quicksort_route_L58
+            block@5: // test_array_copy_and_extend_route_L56
                 let tmp%15#0: uint64 = (txn OnCompletion)
                 let tmp%16#0: bool = (! tmp%15#0)
                 (assert tmp%16#0) // OnCompletion is not NoOp
                 let tmp%17#0: uint64 = (txn ApplicationID)
                 (assert tmp%17#0) // can only call when not creating
+                test_cases.array.contract.Contract.test_array_copy_and_extend()
+                return 1u
+            block@6: // test_allocations_route_L78
+                let tmp%19#0: uint64 = (txn OnCompletion)
+                let tmp%20#0: bool = (! tmp%19#0)
+                (assert tmp%20#0) // OnCompletion is not NoOp
+                let tmp%21#0: uint64 = (txn ApplicationID)
+                (assert tmp%21#0) // can only call when not creating
+                let tmp%23#0: bytes = (txna ApplicationArgs 1)
+                let tmp%24#0: uint64 = (btoi tmp%23#0)
+                test_cases.array.contract.Contract.test_allocations(tmp%24#0)
+                return 1u
+            block@7: // test_iteration_route_L84
+                let tmp%25#0: uint64 = (txn OnCompletion)
+                let tmp%26#0: bool = (! tmp%25#0)
+                (assert tmp%26#0) // OnCompletion is not NoOp
+                let tmp%27#0: uint64 = (txn ApplicationID)
+                (assert tmp%27#0) // can only call when not creating
+                test_cases.array.contract.Contract.test_iteration()
+                return 1u
+            block@8: // test_quicksort_route_L107
+                let tmp%29#0: uint64 = (txn OnCompletion)
+                let tmp%30#0: bool = (! tmp%29#0)
+                (assert tmp%30#0) // OnCompletion is not NoOp
+                let tmp%31#0: uint64 = (txn ApplicationID)
+                (assert tmp%31#0) // can only call when not creating
                 test_cases.array.contract.Contract.test_quicksort()
                 return 1u
-            block@8: // bare_routing_L4
-                let tmp%19#0: uint64 = (txn OnCompletion)
-                goto tmp%19#0 ? block@12 : block@9
-            block@9: // __algopy_default_create_L1
-                let tmp%20#0: uint64 = (txn ApplicationID)
-                let tmp%21#0: bool = (! tmp%20#0)
-                (assert tmp%21#0) // can only call when creating
+            block@11: // bare_routing_L4
+                let tmp%33#0: uint64 = (txn OnCompletion)
+                goto tmp%33#0 ? block@15 : block@12
+            block@12: // __algopy_default_create_L1
+                let tmp%34#0: uint64 = (txn ApplicationID)
+                let tmp%35#0: bool = (! tmp%34#0)
+                (assert tmp%35#0) // can only call when creating
                 return 1u
-            block@12: // after_if_else_L4
+            block@15: // after_if_else_L4
                 return 0u
         
         subroutine test_cases.array.contract.Contract.test_array() -> void:
@@ -66,18 +90,18 @@ contract test_cases.array.contract.Contract:
                 let tmp%3#0: bool = (== value%0#0 42u)
                 (assert tmp%3#0)
                 test_cases.array.contract.add_x(arr#0, 5u)
-                let array_contents%7#0: bytes = read(arr#0)
-                let contents_length%3#0: uint64 = (len array_contents%7#0)
+                let array_contents%6#0: bytes = read(arr#0)
+                let contents_length%3#0: uint64 = (len array_contents%6#0)
                 let array_length%3#0: uint64 = (/ contents_length%3#0 8u)
                 let tmp%4#0: bool = (== array_length%3#0 6u)
                 (assert tmp%4#0)
                 let tmp%5#0: uint64 = (- array_length%3#0 1u)
                 let contents_index%1#0: uint64 = (* tmp%5#0 8u)
-                let value%1#0: uint64 = (extract_uint64 array_contents%7#0 contents_index%1#0)
+                let value%1#0: uint64 = (extract_uint64 array_contents%6#0 contents_index%1#0)
                 let tmp%6#0: bool = (== value%1#0 4u)
                 (assert tmp%6#0)
                 let item_bytes%1#0: bytes = (itob 43u)
-                let concat%1#0: bytes = (concat array_contents%7#0 item_bytes%1#0) // on error: max array length exceeded
+                let concat%1#0: bytes = (concat array_contents%6#0 item_bytes%1#0) // on error: max array length exceeded
                 write(arr#0, concat%1#0)
                 let contents_length%5#0: uint64 = (len concat%1#0)
                 let array_length%5#0: uint64 = (/ contents_length%5#0 8u)
@@ -92,29 +116,29 @@ contract test_cases.array.contract.Contract:
                 let tmp%10#0: bool = (== value%3#0 42u)
                 (assert tmp%10#0)
                 test_cases.array.contract.pop_x(arr#0, 3u)
-                let array_contents%16#0: bytes = read(arr#0)
-                let contents_length%7#0: uint64 = (len array_contents%16#0)
+                let array_contents%14#0: bytes = read(arr#0)
+                let contents_length%7#0: uint64 = (len array_contents%14#0)
                 let array_length%7#0: uint64 = (/ contents_length%7#0 8u)
                 let tmp%11#0: bool = (== array_length%7#0 4u)
                 (assert tmp%11#0)
                 let tmp%12#0: uint64 = (- array_length%7#0 1u)
                 let contents_index%4#0: uint64 = (* tmp%12#0 8u)
-                let value%4#0: uint64 = (extract_uint64 array_contents%16#0 contents_index%4#0)
+                let value%4#0: uint64 = (extract_uint64 array_contents%14#0 contents_index%4#0)
                 let tmp%13#0: bool = (== value%4#0 2u)
                 (assert tmp%13#0)
                 test_cases.array.contract.add_x(arr#0, 10u)
-                let array_contents%19#0: bytes = read(arr#0)
-                let contents_length%9#0: uint64 = (len array_contents%19#0)
+                let array_contents%17#0: bytes = read(arr#0)
+                let contents_length%9#0: uint64 = (len array_contents%17#0)
                 let array_length%9#0: uint64 = (/ contents_length%9#0 8u)
                 let tmp%14#0: bool = (== array_length%9#0 14u)
                 (assert tmp%14#0)
                 let tmp%15#0: uint64 = (- array_length%9#0 1u)
                 let contents_index%5#0: uint64 = (* tmp%15#0 8u)
-                let value%5#0: uint64 = (extract_uint64 array_contents%19#0 contents_index%5#0)
+                let value%5#0: uint64 = (extract_uint64 array_contents%17#0 contents_index%5#0)
                 let tmp%16#0: bool = (== value%5#0 9u)
                 (assert tmp%16#0)
                 let item_bytes%2#0: bytes = (itob 44u)
-                let concat%2#0: bytes = (concat array_contents%19#0 item_bytes%2#0) // on error: max array length exceeded
+                let concat%2#0: bytes = (concat array_contents%17#0 item_bytes%2#0) // on error: max array length exceeded
                 write(arr#0, concat%2#0)
                 let contents_length%11#0: uint64 = (len concat%2#0)
                 let array_length%11#0: uint64 = (/ contents_length%11#0 8u)
@@ -126,57 +150,57 @@ contract test_cases.array.contract.Contract:
                 let tmp%19#0: bool = (== value%6#0 44u)
                 (assert tmp%19#0)
                 let tmp%20#0: slot = test_cases.array.contract.return_ref(arr#0, arr#0)
-                let array_contents%27#0: bytes = read(tmp%20#0)
-                let value%7#0: uint64 = (extract_uint64 array_contents%27#0 0u)
+                let array_contents%24#0: bytes = read(tmp%20#0)
+                let value%7#0: uint64 = (extract_uint64 array_contents%24#0 0u)
                 let value%8#0: uint64 = (+ value%7#0 2u)
                 let value_bytes%0#0: bytes = (itob value%8#0)
-                let updated_array_contents%0#0: bytes = ((replace2 0) array_contents%27#0 value_bytes%0#0)
+                let updated_array_contents%0#0: bytes = ((replace2 0) array_contents%24#0 value_bytes%0#0)
                 write(tmp%20#0, updated_array_contents%0#0)
-                let array_contents%29#0: bytes = read(arr#0)
-                let contents_length%13#0: uint64 = (len array_contents%29#0)
+                let array_contents%26#0: bytes = read(arr#0)
+                let contents_length%13#0: uint64 = (len array_contents%26#0)
                 let array_length%13#0: uint64 = (/ contents_length%13#0 8u)
                 let tmp%21#0: bool = (== array_length%13#0 17u)
                 (assert tmp%21#0)
-                let value%9#0: uint64 = (extract_uint64 array_contents%29#0 0u)
+                let value%9#0: uint64 = (extract_uint64 array_contents%26#0 0u)
                 let tmp%22#0: bool = (== value%9#0 44u)
                 (assert tmp%22#0)
                 let tmp%23#0: uint64 = (- array_length%13#0 2u)
                 let contents_index%10#0: uint64 = (* tmp%23#0 8u)
-                let value%10#0: uint64 = (extract_uint64 array_contents%29#0 contents_index%10#0)
+                let value%10#0: uint64 = (extract_uint64 array_contents%26#0 contents_index%10#0)
                 let tmp%24#0: bool = (== value%10#0 99u)
                 (assert tmp%24#0)
                 let tmp%25#0: uint64 = (- array_length%13#0 1u)
                 let contents_index%11#0: uint64 = (* tmp%25#0 8u)
-                let value%11#0: uint64 = (extract_uint64 array_contents%29#0 contents_index%11#0)
+                let value%11#0: uint64 = (extract_uint64 array_contents%26#0 contents_index%11#0)
                 let tmp%26#0: bool = (== value%11#0 100u)
                 (assert tmp%26#0)
                 return 
         
         subroutine test_cases.array.contract.add_x(arr: slot, x: uint64) -> void:
-            block@0: // L135
+            block@0: // L184
                 let i#0: uint64 = 0u
                 goto block@1
-            block@1: // for_header_L137
+            block@1: // for_header_L186
                 let continue_looping%0#0: bool = (< i#0 x#0)
                 goto continue_looping%0#0 ? block@2 : block@4
-            block@2: // for_body_L138
+            block@2: // for_body_L187
                 let array_contents%0#0: bytes = read(arr#0)
                 let item_bytes%0#0: bytes = (itob i#0)
                 let concat%0#0: bytes = (concat array_contents%0#0 item_bytes%0#0) // on error: max array length exceeded
                 write(arr#0, concat%0#0)
                 let i#0: uint64 = (+ i#0 1u)
                 goto block@1
-            block@4: // after_for_L137
+            block@4: // after_for_L186
                 return 
         
         subroutine test_cases.array.contract.pop_x(arr: slot, x: uint64) -> void:
-            block@0: // L141
+            block@0: // L190
                 let _i#0: uint64 = 0u
                 goto block@1
-            block@1: // for_header_L143
+            block@1: // for_header_L192
                 let continue_looping%0#0: bool = (< _i#0 x#0)
                 goto continue_looping%0#0 ? block@2 : block@4
-            block@2: // for_body_L144
+            block@2: // for_body_L193
                 let array_contents%0#0: bytes = read(arr#0)
                 let length%0#0: uint64 = (len array_contents%0#0)
                 let new_length%0#0: uint64 = (- length%0#0 8u)
@@ -184,40 +208,40 @@ contract test_cases.array.contract.Contract:
                 write(arr#0, new_contents%0#0)
                 let _i#0: uint64 = (+ _i#0 1u)
                 goto block@1
-            block@4: // after_for_L143
+            block@4: // after_for_L192
                 return 
         
         subroutine test_cases.array.contract.return_ref(arr: slot, arr2: slot) -> slot:
-            block@0: // L128
+            block@0: // L177
                 let array_contents%0#0: bytes = read(arr#0)
                 let item_bytes%0#0: bytes = (itob 99u)
                 let concat%0#0: bytes = (concat array_contents%0#0 item_bytes%0#0) // on error: max array length exceeded
                 write(arr#0, concat%0#0)
-                let array_contents%2#0: bytes = read(arr2#0)
+                let array_contents%1#0: bytes = read(arr2#0)
                 let item_bytes%1#0: bytes = (itob 100u)
-                let concat%1#0: bytes = (concat array_contents%2#0 item_bytes%1#0) // on error: max array length exceeded
+                let concat%1#0: bytes = (concat array_contents%1#0 item_bytes%1#0) // on error: max array length exceeded
                 write(arr2#0, concat%1#0)
                 return arr#0
         
         subroutine test_cases.array.contract.Contract.test_array_too_long() -> void:
-            block@0: // L48
+            block@0: // L46
                 let array#0: slot = _puya_lib.mem.new_slot(0u)
                 write(array#0, 0x)
                 let i#0: uint64 = 0u
                 goto block@1
-            block@1: // for_header_L51
+            block@1: // for_header_L49
                 let continue_looping%0#0: bool = (< i#0 512u)
                 goto continue_looping%0#0 ? block@2 : block@4
-            block@2: // for_body_L52
+            block@2: // for_body_L50
                 let array_contents%1#0: bytes = read(array#0)
                 let item_bytes%0#0: bytes = (itob i#0)
                 let concat%0#0: bytes = (concat array_contents%1#0 item_bytes%0#0) // on error: max array length exceeded
                 write(array#0, concat%0#0)
                 let i#0: uint64 = (+ i#0 1u)
                 goto block@1
-            block@4: // after_for_L51
-                let array_contents%3#0: bytes = read(array#0)
-                let contents_length%0#0: uint64 = (len array_contents%3#0)
+            block@4: // after_for_L49
+                let array_contents%2#0: bytes = read(array#0)
+                let contents_length%0#0: uint64 = (len array_contents%2#0)
                 let array_length%0#0: uint64 = (/ contents_length%0#0 8u)
                 let tmp%0#0: bool = (== array_length%0#0 512u)
                 (assert tmp%0#0) // array is expected length
@@ -226,22 +250,184 @@ contract test_cases.array.contract.Contract:
                 let tmp%3#0: bool = (== tmp%2#0 4096u)
                 (assert tmp%3#0) // array bytes is expected length
                 let item_bytes%1#0: bytes = (itob 512u)
-                let concat%1#0: bytes = (concat array_contents%3#0 item_bytes%1#0) // on error: max array length exceeded
+                let concat%1#0: bytes = (concat array_contents%2#0 item_bytes%1#0) // on error: max array length exceeded
                 write(array#0, concat%1#0)
                 return 
         
+        subroutine test_cases.array.contract.Contract.test_array_copy_and_extend() -> void:
+            block@0: // L56
+                let array#0: slot = _puya_lib.mem.new_slot(0u)
+                write(array#0, 0x)
+                let i#0: uint64 = 0u
+                goto block@1
+            block@1: // for_header_L59
+                let continue_looping%0#0: bool = (< i#0 5u)
+                goto continue_looping%0#0 ? block@2 : block@4
+            block@2: // for_body_L60
+                let array_contents%1#0: bytes = read(array#0)
+                let item_bytes%0#0: bytes = (itob i#0)
+                let concat%0#0: bytes = (concat array_contents%1#0 item_bytes%0#0) // on error: max array length exceeded
+                write(array#0, concat%0#0)
+                let i#0: uint64 = (+ i#0 1u)
+                goto block@1
+            block@4: // after_for_L59
+                let array2#0: slot = _puya_lib.mem.new_slot(0u)
+                let array_contents%2#0: bytes = read(array#0)
+                write(array2#0, array_contents%2#0)
+                let array_contents%3#0: bytes = read(array#0)
+                let item_bytes%1#0: bytes = (itob 5u)
+                let concat%1#0: bytes = (concat array_contents%3#0 item_bytes%1#0) // on error: max array length exceeded
+                write(array#0, concat%1#0)
+                let contents_length%0#0: uint64 = (len concat%1#0)
+                let array_length%0#0: uint64 = (/ contents_length%0#0 8u)
+                let tmp%0#0: bool = (== array_length%0#0 6u)
+                (assert tmp%0#0)
+                let tmp%1#0: uint64 = (- array_length%0#0 1u)
+                let contents_index%0#0: uint64 = (* tmp%1#0 8u)
+                let value%0#0: uint64 = (extract_uint64 concat%1#0 contents_index%0#0)
+                let tmp%2#0: bool = (== value%0#0 5u)
+                (assert tmp%2#0) // expected 5
+                let array_contents%7#0: bytes = read(array2#0)
+                let contents_length%2#0: uint64 = (len array_contents%7#0)
+                let array_length%2#0: uint64 = (/ contents_length%2#0 8u)
+                let tmp%3#0: bool = (== array_length%2#0 5u)
+                (assert tmp%3#0)
+                let tmp%4#0: uint64 = (- array_length%2#0 1u)
+                let contents_index%1#0: uint64 = (* tmp%4#0 8u)
+                let value%1#0: uint64 = (extract_uint64 array_contents%7#0 contents_index%1#0)
+                let tmp%5#0: bool = (== value%1#0 4u)
+                (assert tmp%5#0) // expected 4
+                let concat%2#0: bytes = (concat concat%1#0 array_contents%7#0) // on error: max array length exceeded
+                write(array#0, concat%2#0)
+                let array_contents%12#0: bytes = read(array#0)
+                let contents_length%4#0: uint64 = (len array_contents%12#0)
+                let array_length%4#0: uint64 = (/ contents_length%4#0 8u)
+                let tmp%6#0: bool = (== array_length%4#0 11u)
+                (assert tmp%6#0)
+                let array_contents%13#0: bytes = read(array2#0)
+                let contents_length%5#0: uint64 = (len array_contents%13#0)
+                let array_length%5#0: uint64 = (/ contents_length%5#0 8u)
+                let tmp%7#0: bool = (== array_length%5#0 5u)
+                (assert tmp%7#0)
+                let tmp%8#0: uint64 = (- array_length%4#0 1u)
+                let contents_index%2#0: uint64 = (* tmp%8#0 8u)
+                let value%2#0: uint64 = (extract_uint64 array_contents%12#0 contents_index%2#0)
+                let tmp%9#0: bool = (== value%2#0 4u)
+                (assert tmp%9#0) // expected 4
+                let value%3#0: uint64 = (extract_uint64 array_contents%12#0 32u)
+                let tmp%10#0: bool = (== value%3#0 4u)
+                (assert tmp%10#0) // expected 4
+                let value%4#0: uint64 = (extract_uint64 array_contents%12#0 40u)
+                let tmp%11#0: bool = (== value%4#0 5u)
+                (assert tmp%11#0) // expected 4
+                let value%5#0: uint64 = (extract_uint64 array_contents%12#0 48u)
+                let tmp%12#0: bool = (! value%5#0)
+                (assert tmp%12#0) // expected 4
+                return 
+        
+        subroutine test_cases.array.contract.Contract.test_allocations(num: uint64) -> void:
+            block@0: // L78
+                let _i#0: uint64 = 0u
+                goto block@1
+            block@1: // for_header_L80
+                let continue_looping%0#0: bool = (< _i#0 num#0)
+                goto continue_looping%0#0 ? block@2 : block@4
+            block@2: // for_body_L82
+                let arr#0: slot = _puya_lib.mem.new_slot(0u)
+                write(arr#0, 0x)
+                let _i#0: uint64 = (+ _i#0 1u)
+                goto block@1
+            block@4: // after_for_L80
+                return 
+        
+        subroutine test_cases.array.contract.Contract.test_iteration() -> void:
+            block@0: // L84
+                let arr#0: slot = _puya_lib.mem.new_slot(0u)
+                write(arr#0, 0x)
+                let val#0: uint64 = 0u
+                goto block@1
+            block@1: // for_header_L88
+                let continue_looping%0#0: bool = (< val#0 5u)
+                goto continue_looping%0#0 ? block@2 : block@4
+            block@2: // for_body_L89
+                let array_contents%1#0: bytes = read(arr#0)
+                let item_bytes%0#0: bytes = (itob val#0)
+                let concat%0#0: bytes = (concat array_contents%1#0 item_bytes%0#0) // on error: max array length exceeded
+                write(arr#0, concat%0#0)
+                let val#0: uint64 = (+ val#0 1u)
+                goto block@1
+            block@4: // after_for_L88
+                let array_contents%2#0: bytes = read(arr#0)
+                let contents_length%0#0: uint64 = (len array_contents%2#0)
+                let array_length%0#0: uint64 = (/ contents_length%0#0 8u)
+                let tmp%0#0: bool = (== array_length%0#0 5u)
+                (assert tmp%0#0) // expected array of length 5
+                let last#0: uint64 = 0u
+                let item_index_internal%0#0: uint64 = 0u
+                goto block@5
+            block@5: // for_header_L94
+                let continue_looping%1#0: bool = (< item_index_internal%0#0 array_length%0#0)
+                goto continue_looping%1#0 ? block@6 : block@8
+            block@6: // for_body_L95
+                let array_contents%4#0: bytes = read(arr#0)
+                let contents_index%0#0: uint64 = (* item_index_internal%0#0 8u)
+                let value#0: uint64 = (extract_uint64 array_contents%4#0 contents_index%0#0)
+                let tmp%1#0: bool = (>= value#0 last#0)
+                (assert tmp%1#0) // array is not sorted
+                let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
+                let last#0: uint64 = value#0
+                goto block@5
+            block@8: // after_for_L94
+                let array_contents%5#0: bytes = read(arr#0)
+                let contents_length%2#0: uint64 = (len array_contents%5#0)
+                let array_length%2#0: uint64 = (/ contents_length%2#0 8u)
+                let item_index_internal%1#0: uint64 = 0u
+                let idx#0: uint64 = item_index_internal%1#0
+                goto block@9
+            block@9: // for_header_L99
+                let continue_looping%2#0: bool = (< idx#0 array_length%2#0)
+                goto continue_looping%2#0 ? block@10 : block@12
+            block@10: // for_body_L100
+                let array_contents%6#0: bytes = read(arr#0)
+                let contents_index%1#0: uint64 = (* idx#0 8u)
+                let value#0: uint64 = (extract_uint64 array_contents%6#0 contents_index%1#0)
+                let tmp%2#0: bool = (== value#0 idx#0)
+                (assert tmp%2#0) // incorrect array value
+                let item_index_internal%1#0: uint64 = (+ idx#0 1u)
+                let idx#0: uint64 = item_index_internal%1#0
+                goto block@9
+            block@12: // after_for_L99
+                let array_contents%7#0: bytes = read(arr#0)
+                let contents_length%3#0: uint64 = (len array_contents%7#0)
+                let array_length%3#0: uint64 = (/ contents_length%3#0 8u)
+                let reverse_index_internal%2#1: uint64 = array_length%3#0
+                goto block@13
+            block@13: // for_header_L103
+                goto reverse_index_internal%2#1 ? block@14 : block@16
+            block@14: // for_body_L104
+                let reverse_index_internal%2#1: uint64 = (- reverse_index_internal%2#1 1u)
+                let array_contents%8#0: bytes = read(arr#0)
+                let contents_index%2#0: uint64 = (* reverse_index_internal%2#1 8u)
+                let value#0: uint64 = (extract_uint64 array_contents%8#0 contents_index%2#0)
+                let tmp%3#0: bool = (<= value#0 last#0)
+                (assert tmp%3#0) // array is not sorted
+                let last#0: uint64 = value#0
+                goto block@13
+            block@16: // after_for_L103
+                return 
+        
         subroutine test_cases.array.contract.Contract.test_quicksort() -> void:
-            block@0: // L58
+            block@0: // L107
                 let rnd#0: slot = _puya_lib.mem.new_slot(0u)
                 write(rnd#0, 0x)
                 let tmp%0#0: bytes = (txn Sender)
                 let bytes_length%0#0: uint64 = (len tmp%0#0)
                 let item_index_internal%0#0: uint64 = 0u
                 goto block@1
-            block@1: // for_header_L62
+            block@1: // for_header_L111
                 let continue_looping%0#0: bool = (< item_index_internal%0#0 bytes_length%0#0)
                 goto continue_looping%0#0 ? block@2 : block@4
-            block@2: // for_body_L63
+            block@2: // for_body_L112
                 let b#0: bytes = (extract3 tmp%0#0 item_index_internal%0#0 1u)
                 let array_contents%1#0: bytes = read(rnd#0)
                 let tmp%1#0: uint64 = (btoi b#0)
@@ -250,37 +436,37 @@ contract test_cases.array.contract.Contract:
                 write(rnd#0, concat%0#0)
                 let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
                 goto block@1
-            block@4: // after_for_L62
-                let array_contents%3#0: bytes = read(rnd#0)
-                let contents_length%0#0: uint64 = (len array_contents%3#0)
+            block@4: // after_for_L111
+                let array_contents%2#0: bytes = read(rnd#0)
+                let contents_length%0#0: uint64 = (len array_contents%2#0)
                 let array_length%0#0: uint64 = (/ contents_length%0#0 8u)
                 let tmp%2#0: bool = (== array_length%0#0 32u)
                 (assert tmp%2#0) // expected array of length 32
                 let tmp%3#0: uint64 = (- array_length%0#0 1u)
                 test_cases.array.contract.quicksort_window(rnd#0, 0u, tmp%3#0)
                 let last#0: uint64 = 0u
-                let array_contents%5#0: bytes = read(rnd#0)
-                let contents_length%2#0: uint64 = (len array_contents%5#0)
+                let array_contents%4#0: bytes = read(rnd#0)
+                let contents_length%2#0: uint64 = (len array_contents%4#0)
                 let array_length%2#0: uint64 = (/ contents_length%2#0 8u)
                 let item_index_internal%1#0: uint64 = 0u
                 goto block@5
-            block@5: // for_header_L71
+            block@5: // for_header_L120
                 let continue_looping%1#0: bool = (< item_index_internal%1#0 array_length%2#0)
                 goto continue_looping%1#0 ? block@6 : block@8
-            block@6: // for_body_L72
-                let array_contents%6#0: bytes = read(rnd#0)
+            block@6: // for_body_L121
+                let array_contents%5#0: bytes = read(rnd#0)
                 let contents_index%0#0: uint64 = (* item_index_internal%1#0 8u)
-                let value#0: uint64 = (extract_uint64 array_contents%6#0 contents_index%0#0)
+                let value#0: uint64 = (extract_uint64 array_contents%5#0 contents_index%0#0)
                 let tmp%4#0: bool = (>= value#0 last#0)
                 (assert tmp%4#0) // array is not sorted
                 let item_index_internal%1#0: uint64 = (+ item_index_internal%1#0 1u)
                 let last#0: uint64 = value#0
                 goto block@5
-            block@8: // after_for_L71
+            block@8: // after_for_L120
                 return 
         
         subroutine test_cases.array.contract.quicksort_window(arr: slot, window_left: uint64, window_right: uint64) -> void:
-            block@0: // L76
+            block@0: // L125
                 let tmp%0#0: uint64 = (+ window_left#0 window_right#0)
                 let tmp%1#0: uint64 = (/ tmp%0#0 2u)
                 let array_contents%0#0: bytes = read(arr#0)
@@ -289,30 +475,30 @@ contract test_cases.array.contract.Contract:
                 let right#1: uint64 = window_right#0
                 let left#1: uint64 = window_left#0
                 goto block@3
-            block@3: // while_top_L85
+            block@3: // while_top_L134
                 let array_contents%1#0: bytes = read(arr#0)
                 let contents_index%1#0: uint64 = (* left#1 8u)
                 let value%1#0: uint64 = (extract_uint64 array_contents%1#0 contents_index%1#0)
                 let tmp%2#0: bool = (< value%1#0 pivot#0)
                 goto tmp%2#0 ? block@4 : block@6
-            block@4: // while_body_L86
+            block@4: // while_body_L135
                 let left#1: uint64 = (+ left#1 1u)
                 goto block@3
-            block@6: // while_top_L88
+            block@6: // while_top_L137
                 let array_contents%2#0: bytes = read(arr#0)
                 let contents_index%2#0: uint64 = (* right#1 8u)
                 let value%2#0: uint64 = (extract_uint64 array_contents%2#0 contents_index%2#0)
                 let tmp%3#0: bool = (< pivot#0 value%2#0)
                 goto tmp%3#0 ? block@7 : block@10
-            block@7: // while_body_L90
+            block@7: // while_body_L139
                 goto right#1 ? block@9 : block@22
-            block@9: // after_if_else_L90
+            block@9: // after_if_else_L139
                 let right#1: uint64 = (- right#1 1u)
                 goto block@6
-            block@10: // after_while_L88
+            block@10: // after_while_L137
                 let tmp%5#0: bool = (< left#1 right#1)
                 goto tmp%5#0 ? block@11 : block@16
-            block@11: // if_body_L96
+            block@11: // if_body_L145
                 let array_contents%3#0: bytes = read(arr#0)
                 let value%3#0: uint64 = (extract_uint64 array_contents%3#0 contents_index%2#0)
                 let value%4#0: uint64 = (extract_uint64 array_contents%3#0 contents_index%1#0)
@@ -323,39 +509,39 @@ contract test_cases.array.contract.Contract:
                 write(arr#0, updated_array_contents%1#0)
                 let left#1: uint64 = (+ left#1 1u)
                 goto right#1 ? block@13 : block@22
-            block@13: // after_if_else_L99
+            block@13: // after_if_else_L148
                 let right#1: uint64 = (- right#1 1u)
                 let tmp%7#0: bool = (<= left#1 right#1)
                 goto tmp%7#0 ? block@3 : block@15
-            block@15: // after_if_else_L103
+            block@15: // after_if_else_L152
                 goto block@22
-            block@16: // after_if_else_L95
+            block@16: // after_if_else_L144
                 let tmp%8#0: bool = (== left#1 right#1)
                 goto tmp%8#0 ? block@17 : block@22
-            block@17: // if_body_L110
+            block@17: // if_body_L159
                 let left#1: uint64 = (+ left#1 1u)
                 let right#16: uint64 = right#1
                 goto right#1 ? block@18 : block@19
-            block@18: // if_body_L113
+            block@18: // if_body_L162
                 let right#1: uint64 = (- right#1 1u)
                 let right#16: uint64 = right#1
                 goto block@19
-            block@19: // after_if_else_L112
+            block@19: // after_if_else_L161
                 let right#1: uint64 = right#16
                 goto block@22
-            block@22: // after_while_L83
+            block@22: // after_while_L132
                 let tmp%10#0: bool = (< window_left#0 right#1)
                 goto tmp%10#0 ? block@23 : block@24
-            block@23: // if_body_L122
+            block@23: // if_body_L171
                 test_cases.array.contract.quicksort_window(arr#0, window_left#0, right#1)
                 goto block@24
-            block@24: // after_if_else_L121
+            block@24: // after_if_else_L170
                 let tmp%11#0: bool = (< left#1 window_right#0)
                 goto tmp%11#0 ? block@25 : block@26
-            block@25: // if_body_L125
+            block@25: // if_body_L174
                 test_cases.array.contract.quicksort_window(arr#0, left#1, window_right#0)
                 goto block@26
-            block@26: // after_if_else_L124
+            block@26: // after_if_else_L173
                 return 
         
         subroutine _puya_lib.mem.new_slot(allocation_slot: uint64) -> uint64:
@@ -363,14 +549,15 @@ contract test_cases.array.contract.Contract:
                 let allocation#0: bytes = (loads allocation_slot#0)
                 let next_slot#0: uint64 = (bitlen allocation#0)
                 (assert next_slot#0) // no available slots
-                let allocation#0: bytes = (setbit allocation#0 next_slot#0 0u)
+                let tmp%1#0: uint64 = (len allocation#0)
+                let tmp%2#0: uint64 = (* tmp%1#0 8u)
+                let bit_to_set#0: uint64 = (- tmp%2#0 next_slot#0)
+                let allocation#0: bytes = (setbit allocation#0 bit_to_set#0 0u)
                 (stores allocation_slot#0 allocation#0)
                 return next_slot#0
     
     program clear-state:
         subroutine algopy.arc4.ARC4Contract.clear_state_program() -> bool:
             block@0: // L1
-                let tmp%0#0: bytes = (bzero 255u)
-                let tmp%1#0: bytes = (b| tmp%0#0 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
-                write(0u, tmp%1#0)
+                write(0u, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
                 return 1u

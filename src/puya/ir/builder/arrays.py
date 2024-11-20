@@ -6,9 +6,9 @@ from puya.awst import (
     nodes as awst,
     wtypes,
 )
-from puya.errors import CodeError
+from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
-from puya.ir.builder._utils import OpFactory
+from puya.ir.builder._utils import OpFactory, assign_temp, invoke_puya_lib_subroutine
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.types_ import IRType
 from puya.parse import SourceLocation
@@ -128,15 +128,35 @@ def extend_array(
         ir.ReadSlot(slot=slot, source_location=loc, type=IRType.bytes),
         "array_contents",
     )
-    items = context.visitor.visit_and_materialise(items_awst, temp_description="other")
-    for item in items:
-        item_bytes = factory.itob(item, "item_bytes")
-        contents = factory.assign(
-            factory.concat(
-                contents, item_bytes, "concat", error_message="max array length exceeded"
-            ),
-            "array_contents",
-        )
+    # TODO: check types
+
+    # TODO: could this be consolidated with ARC4?
+    def array_data(expr: awst.Expression) -> ir.Value:
+        match expr.wtype:
+            case wtypes.ARC4StaticArray():
+                return context.visitor.visit_and_materialise_single(expr)
+            case wtypes.WArray():
+                slot = context.visitor.visit_and_materialise_single(expr)
+                return read_slot(context, slot, loc)
+            case wtypes.ARC4DynamicArray():
+                expr_value = context.visitor.visit_and_materialise_single(expr)
+                return factory.extract_to_end(expr_value, 2, "expr_value_trimmed")
+            case wtypes.WTuple():
+                values = context.visitor.visit_and_materialise(expr)
+                data = factory.constant(b"")
+                for item in values:
+                    # TODO: handle non uint64
+                    item_bytes = factory.itob(item, "item_bytes")
+                    data = factory.concat(data, item_bytes, "data")
+                return data
+            case _:
+                raise InternalError(f"Unexpected operand type for concatenation {expr.wtype}", loc)
+
+    right_data = array_data(items_awst)
+    contents = factory.concat(
+        contents, right_data, "concat", error_message="max array length exceeded"
+    )
+
     context.block_builder.add(
         ir.WriteSlot(
             slot=slot,
@@ -163,6 +183,46 @@ def build_for_in_array(
             index=index,
             loc=source_location,
         ),
+    )
+
+
+# TODO: have a mem.py?
+
+
+def new_slot(context: IRFunctionBuildContext, loc: SourceLocation) -> ir.Register:
+    if context.allocation is None:
+        raise CodeError("no available slots to allocate array", loc)
+    return assign_temp(
+        context,
+        invoke_puya_lib_subroutine(
+            context,
+            full_name="_puya_lib.mem.new_slot",
+            args=[ir.UInt64Constant(value=context.allocation.slot, source_location=None)],
+            source_location=loc,
+        ),
+        temp_description="slot",
+        source_location=loc,
+    )
+
+
+def write_slot(
+    context: IRFunctionBuildContext, slot: ir.Value, value: ir.Value, loc: SourceLocation
+) -> None:
+    context.block_builder.add(
+        ir.WriteSlot(
+            slot=slot,
+            value=value,
+            source_location=loc,
+        )
+    )
+
+
+def read_slot(context: IRFunctionBuildContext, slot: ir.Value, loc: SourceLocation) -> ir.Value:
+    return assign_temp(
+        context,
+        ir.ReadSlot(slot=slot, source_location=loc, type=IRType.bytes),
+        temp_description="array_contents",
+        source_location=loc,
     )
 
 
