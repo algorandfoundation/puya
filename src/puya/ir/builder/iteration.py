@@ -8,7 +8,7 @@ from puya.awst import (
 from puya.awst.nodes import Expression
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4
+from puya.ir.builder import arc4, arrays
 from puya.ir.builder._tuple_util import build_tuple_registers, get_tuple_item_values
 from puya.ir.builder._utils import (
     assert_value,
@@ -186,8 +186,25 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_index=reverse_index,
                 reverse_items=reverse_items,
             )
-        case awst_nodes.Expression(wtype=wtypes.ARC4Array() as array_wtype):
+        case awst_nodes.Expression(wtype=wtypes.ARC4Array() as arc4_array_wtype):
             iterator = arc4.build_for_in_array(
+                context,
+                arc4_array_wtype,
+                sequence,
+                statement.source_location,
+            )
+            _iterate_indexable(
+                context,
+                loop_body=statement.loop_body,
+                indexable_size=iterator.array_length,
+                get_value_at_index=iterator.get_value_at_index,
+                assigner=assign_user_loop_vars,
+                statement_loc=statement.source_location,
+                reverse_index=reverse_index,
+                reverse_items=reverse_items,
+            )
+        case awst_nodes.Expression(wtype=wtypes.WArray() as array_wtype):
+            iterator = arrays.build_for_in_array(
                 context,
                 array_wtype,
                 sequence,

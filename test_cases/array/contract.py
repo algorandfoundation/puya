@@ -68,9 +68,9 @@ class Contract(arc4.ARC4Contract):
 
         # array should now be in ascending order
         last = UInt64(0)
-        for idx in urange(rnd.length):
-            assert rnd[idx] >= last
-            last = rnd[idx]
+        for value in rnd:
+            assert value >= last, "array is not sorted"
+            last = value
 
 
 @subroutine

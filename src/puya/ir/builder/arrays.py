@@ -1,4 +1,6 @@
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
+
+import attrs
 
 from puya.awst import (
     nodes as awst,
@@ -12,9 +14,20 @@ from puya.ir.types_ import IRType
 from puya.parse import SourceLocation
 
 
+@attrs.frozen(kw_only=True)
+class ArrayIterator:
+    array_length: ir.Value
+    get_value_at_index: Callable[[ir.Value], ir.ValueProvider]
+
+
 def check_supported_array(wtype: wtypes.WType, loc: SourceLocation) -> wtypes.WType:
     if not isinstance(wtype, wtypes.WArray) or wtype.element_type != wtypes.uint64_wtype:
         raise CodeError("only uint64 arrays supported", loc)
+    # have this check because even if we expand support to other fixed length types
+    # mutable types present another problem
+    if not wtype.element_type.immutable:
+        raise CodeError("Attempted iteration of an ARC4 array of mutable objects", loc)
+
     return wtype.element_type
 
 
@@ -23,11 +36,21 @@ def array_length(
     array: awst.Expression,
     loc: SourceLocation,
 ) -> ir.Register:
-    element_wtype = check_supported_array(array.wtype, loc)
-    factory = OpFactory(context, loc)
     slot = context.visitor.visit_and_materialise_single(array)
+    return _array_length(context, slot, array.wtype, loc)
+
+
+def _array_length(
+    context: IRFunctionBuildContext,
+    array: ir.Value,
+    array_wtype: wtypes.WType,
+    loc: SourceLocation,
+) -> ir.Register:
+    element_wtype = check_supported_array(array_wtype, loc)
+    factory = OpFactory(context, loc)
+
     contents = factory.assign(
-        ir.ReadSlot(slot=slot, source_location=loc, type=IRType.bytes),
+        ir.ReadSlot(slot=array, source_location=loc, type=IRType.bytes),
         "array_contents",
     )
     contents_length = factory.len(contents, "contents_length")
@@ -40,12 +63,23 @@ def read_array_index(
     index_awst: awst.Expression,
     loc: SourceLocation,
 ) -> ir.Register:
-    element_wtype = check_supported_array(array.wtype, loc)
-    factory = OpFactory(context, loc)
     slot = context.visitor.visit_and_materialise_single(array)
     index = context.visitor.visit_and_materialise_single(index_awst)
+    return _read_array_index(context, array_wtype=array.wtype, array=slot, index=index, loc=loc)
+
+
+def _read_array_index(
+    context: IRFunctionBuildContext,
+    *,
+    array_wtype: wtypes.WType,
+    array: ir.Value,
+    index: ir.Value,
+    loc: SourceLocation,
+) -> ir.Register:
+    element_wtype = check_supported_array(array_wtype, loc)
+    factory = OpFactory(context, loc)
     contents = factory.assign(
-        ir.ReadSlot(slot=slot, type=IRType.bytes, source_location=loc),
+        ir.ReadSlot(slot=array, type=IRType.bytes, source_location=loc),
         "array_contents",
     )
     contents_index = factory.mul(index, _get_element_size(element_wtype), "contents_index")
@@ -109,6 +143,26 @@ def extend_array(
             value=contents,
             source_location=loc,
         )
+    )
+
+
+def build_for_in_array(
+    context: IRFunctionBuildContext,
+    array_wtype: wtypes.WArray,
+    array_expr: awst.Expression,
+    source_location: SourceLocation,
+) -> ArrayIterator:
+    check_supported_array(array_wtype, source_location)
+    array = context.visitor.visit_and_materialise_single(array_expr)
+    return ArrayIterator(
+        array_length=_array_length(context, array, array_wtype, source_location),
+        get_value_at_index=lambda index: _read_array_index(
+            context,
+            array=array,
+            array_wtype=array_wtype,
+            index=index,
+            loc=source_location,
+        ),
     )
 
 
