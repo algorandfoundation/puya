@@ -10,10 +10,10 @@ from immutabledict import immutabledict
 from puya import log
 from puya.arc32 import create_arc32_json
 from puya.arc56 import create_arc56_json
-from puya.artifact_sorter import ArtifactCompilationSorter
+from puya.artifact_sorter import Artifact, ArtifactCompilationSorter
 from puya.awst.nodes import AWST
 from puya.awst.validation.main import validate_awst
-from puya.context import CompileContext
+from puya.context import ArtifactCompileContext, CompileContext
 from puya.errors import CodeError, InternalError
 from puya.ir.main import awst_to_ir, optimize_and_destructure_ir
 from puya.ir.models import (
@@ -21,7 +21,6 @@ from puya.ir.models import (
     LogicSignature,
     ModuleArtifact,
 )
-from puya.ir.optimize.context import IROptimizeContext
 from puya.log import LoggingContext
 from puya.mir.main import program_ir_to_mir
 from puya.models import (
@@ -98,51 +97,51 @@ def _ir_to_teal(
         else:
             raise InternalError(f"invalid kind: {kind}, {type(comp_ref)}")
 
-    optimize_context = attrs_extend(
-        IROptimizeContext,
-        context,
-        get_program_bytecode=get_program_bytecode,
-        state_totals={
-            ir.metadata.ref: ir.metadata.state_totals
-            for ir in all_ir
-            if isinstance(ir, ContractIR)
-        },
-    )
+    state_totals = {
+        ir.metadata.ref: ir.metadata.state_totals for ir in all_ir if isinstance(ir, ContractIR)
+    }
+
     # used to check for conflicts that would occur on output
-    artifacts_by_output_base = dict[Path, ModuleArtifact]()
+    artifacts_by_output_base = dict[Path, Artifact]()
     result = list[CompilationArtifact]()
     for artifact in ArtifactCompilationSorter.sort(all_ir):
-        name = artifact.ir.metadata.name
-        try:
-            out_dir = context.compilation_set[artifact.id]
-        except KeyError:
-            artifact_ir_base_path = None
-        else:
-            artifact_ir_base_path = out_dir / name
+        out_dir = None
+        if out_dir_setting := context.compilation_set.get(artifact.id):
+            name = artifact.ir.metadata.name
+            maybe_base_path = out_dir_setting / name
+            first_seen = artifacts_by_output_base.setdefault(maybe_base_path, artifact)
+            if artifact is not first_seen:
+                logger.error(f"duplicate contract name {name}", location=artifact.source_location)
+                logger.info(
+                    f"contract name {name} first seen here", location=first_seen.source_location
+                )
+            else:
+                out_dir = out_dir_setting
+                for file in out_dir.iterdir():
+                    if file.suffix in (".ir", ".mir"):
+                        file.unlink()
+
+        artifact_context = attrs_extend(
+            ArtifactCompileContext,
+            context,
+            get_program_bytecode=get_program_bytecode,
+            state_totals=state_totals,
+            out_dir=out_dir,
+            metadata=artifact.ir.metadata,
+        )
 
         num_errors_before_optimization = log_ctx.num_errors
-        artifact_ir = optimize_and_destructure_ir(
-            optimize_context, artifact.ir, artifact_ir_base_path
-        )
+        artifact_ir = optimize_and_destructure_ir(artifact_context, artifact.ir)
         # IR validation that occurs at the end of optimize_and_destructure_ir may have revealed
         # further errors, add dummy artifacts and continue so other artifacts can still be lowered
         # and report any errors they encounter
         errors_in_optimization = log_ctx.num_errors > num_errors_before_optimization
-        if artifact_ir_base_path:
-            first_seen = artifacts_by_output_base.setdefault(artifact_ir_base_path, artifact_ir)
-            if artifact_ir is not first_seen:
-                logger.error(
-                    f"duplicate contract name {name}", location=artifact_ir.source_location
-                )
-                logger.info(
-                    f"contract name {name} first seen here", location=first_seen.source_location
-                )
 
         compiled: _CompiledContract | _CompiledLogicSig
         match artifact_ir:
             case ContractIR() as contract:
                 if not errors_in_optimization:
-                    compiled = _contract_ir_to_teal(context, contract, artifact_ir_base_path)
+                    compiled = _contract_ir_to_teal(artifact_context, contract)
                 else:
                     compiled = _CompiledContract(
                         approval_program=_dummy_program(),
@@ -152,10 +151,12 @@ def _ir_to_teal(
                     )
             case LogicSignature() as logic_sig:
                 if not errors_in_optimization:
-                    compiled = _logic_sig_to_teal(context, logic_sig, artifact_ir_base_path)
+                    compiled = _logic_sig_to_teal(artifact_context, logic_sig)
                 else:
                     compiled = _CompiledLogicSig(
-                        program=_dummy_program(), metadata=logic_sig.metadata, source_location=None
+                        program=_dummy_program(),
+                        metadata=logic_sig.metadata,
+                        source_location=None,
                     )
             case unexpected:
                 typing.assert_never(unexpected)
@@ -194,7 +195,6 @@ def _dummy_program() -> _CompiledProgram:
 
     return _CompiledProgram(
         teal=TealProgram(
-            id="",
             avm_version=0,
             main=TealSubroutine(
                 is_main=True,
@@ -214,20 +214,10 @@ def _dummy_program() -> _CompiledProgram:
 
 
 def _contract_ir_to_teal(
-    context: CompileContext,
-    contract_ir: ContractIR,
-    contract_ir_base_path: Path | None,
+    context: ArtifactCompileContext, contract_ir: ContractIR
 ) -> _CompiledContract:
-    approval_mir = program_ir_to_mir(
-        context,
-        contract_ir.approval_program,
-        contract_ir_base_path.with_suffix(".approval.mir") if contract_ir_base_path else None,
-    )
-    clear_state_mir = program_ir_to_mir(
-        context,
-        contract_ir.clear_program,
-        contract_ir_base_path.with_suffix(".clear.mir") if contract_ir_base_path else None,
-    )
+    approval_mir = program_ir_to_mir(context, contract_ir.approval_program)
+    clear_state_mir = program_ir_to_mir(context, contract_ir.clear_program)
     approval = mir_to_teal(context, approval_mir)
     clear_state = mir_to_teal(context, clear_state_mir)
     return _CompiledContract(
@@ -239,15 +229,9 @@ def _contract_ir_to_teal(
 
 
 def _logic_sig_to_teal(
-    context: CompileContext,
-    logic_sig_ir: LogicSignature,
-    logic_sig_ir_base_path: Path | None,
+    context: ArtifactCompileContext, logic_sig_ir: LogicSignature
 ) -> _CompiledLogicSig:
-    program_mir = program_ir_to_mir(
-        context,
-        logic_sig_ir.program,
-        logic_sig_ir_base_path.with_suffix(".mir") if logic_sig_ir_base_path else None,
-    )
+    program_mir = program_ir_to_mir(context, logic_sig_ir.program)
     program = mir_to_teal(context, program_mir)
     return _CompiledLogicSig(
         program=_compile_program(context, program),
@@ -256,7 +240,7 @@ def _logic_sig_to_teal(
     )
 
 
-def _compile_program(context: CompileContext, program: TealProgram) -> _CompiledProgram:
+def _compile_program(context: ArtifactCompileContext, program: TealProgram) -> _CompiledProgram:
     assembled = assemble_program(
         context,
         program,

@@ -1,5 +1,4 @@
 import itertools
-import typing
 from collections.abc import Callable, Iterable
 from copy import deepcopy
 
@@ -12,16 +11,25 @@ from puya.ir.context import TMP_VAR_INDICATOR
 
 logger = log.get_logger(__name__)
 
-_T = typing.TypeVar("_T")
+
+def sequentialize_parallel_copies(
+    _context: CompileContext, program: models.Program
+) -> models.Program:
+    cloned = deepcopy(program)
+    for subroutine in cloned.all_subroutines:
+        logger.debug(f"Sequentializing parallel copies in {subroutine.id}")
+        _impl(subroutine)
+        attrs.validate(subroutine)
+    return cloned
 
 
-def sequentialize(
-    copies: Iterable[tuple[_T, _T]],
-    mktmp: Callable[[_T], _T],
+def _sequentialize[T](
+    copies: Iterable[tuple[T, T]],
+    mktmp: Callable[[T], T],
     *,
     filter_dup_dests: bool = True,
     allow_fan_out: bool = True,
-) -> list[tuple[_T, _T]]:
+) -> list[tuple[T, T]]:
     # If filter_dup_dests is True, consider pairs ordered, and if multiple
     # pairs have the same dest var, the last one takes effect. Otherwise,
     # such duplicate dest vars is an error.
@@ -32,7 +40,7 @@ def sequentialize(
     ready = []
     to_do = []
     pred = {}
-    loc = dict[_T, _T | None]()
+    loc = dict[T, T | None]()
     res = []
 
     for b, _ in copies:
@@ -119,7 +127,7 @@ def _impl(sub: models.Subroutine) -> None:
         for op in block.ops:
             match op:
                 case models.Assignment(targets=targets, source=models.ValueTuple(values=sources)):
-                    seqd = sequentialize(zip(targets, sources, strict=True), mktmp=make_temp)
+                    seqd = _sequentialize(zip(targets, sources, strict=True), mktmp=make_temp)
                     for dst, src in seqd:
                         assert isinstance(dst, models.Register)  # TODO: this is bad
                         ops.append(
@@ -132,14 +140,3 @@ def _impl(sub: models.Subroutine) -> None:
                 case _:
                     ops.append(op)
         block.ops = ops
-
-
-def sequentialize_parallel_copies(
-    _context: CompileContext, artifact: models.ModuleArtifact
-) -> models.ModuleArtifact:
-    cloned = deepcopy(artifact)
-    for subroutine in cloned.all_subroutines():
-        logger.debug(f"Sequentializing parallel copies in {subroutine.id}")
-        _impl(subroutine)
-        attrs.validate(subroutine)
-    return cloned

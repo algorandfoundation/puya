@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from puya.mir import models
 from puya.mir.context import ProgramMIRContext, SubroutineCodeGenContext
 from puya.mir.output import output_memory_ir
@@ -11,9 +9,7 @@ from puya.mir.stack_allocation.x_stack import x_stack_allocation
 # Note: implementation of http://www.euroforth.org/ef06/shannon-bailey06.pdf
 
 
-def global_stack_allocation(
-    ctx: ProgramMIRContext, program: models.Program, mir_output_path: Path | None
-) -> None:
+def global_stack_allocation(ctx: ProgramMIRContext, program: models.Program) -> None:
     for idx, (desc, method) in enumerate(
         {
             "lstack": l_stack_allocation,
@@ -27,10 +23,10 @@ def global_stack_allocation(
         for mir_sub in program.all_subroutines:
             sub_ctx = ctx.for_subroutine(mir_sub)
             method(sub_ctx)
-        if ctx.options.output_memory_ir and mir_output_path:
-            output_memory_ir(ctx, program, mir_output_path.with_suffix(f".{idx}.{desc}.mir"))
-    if ctx.options.output_memory_ir and mir_output_path:
-        output_memory_ir(ctx, program, mir_output_path)
+        if ctx.options.output_memory_ir:
+            output_memory_ir(ctx, program, qualifier=f"{idx}.{desc}")
+    if ctx.options.output_memory_ir:
+        output_memory_ir(ctx, program, qualifier="")
 
 
 def _peephole_optimization(ctx: SubroutineCodeGenContext) -> None:

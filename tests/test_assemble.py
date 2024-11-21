@@ -122,7 +122,6 @@ def test_assemble_last_op_jump() -> None:
             sources_by_path={},
         ),
         program=teal.TealProgram(
-            id="",
             avm_version=10,
             main=teal.TealSubroutine(
                 is_main=True,

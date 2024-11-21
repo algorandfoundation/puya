@@ -1,9 +1,8 @@
 import contextlib
-import typing
 from collections.abc import Iterator, Sequence
-from pathlib import Path
 
 from puya import log
+from puya.context import ArtifactCompileContext
 from puya.ir import models
 from puya.ir.types_ import IRType
 from puya.ir.utils import format_bytes, format_error_comment
@@ -166,7 +165,7 @@ def _render_block_name(block: models.BasicBlock) -> str:
     return result
 
 
-def render_body(emitter: TextEmitter, blocks: Sequence[models.BasicBlock]) -> None:
+def _render_body(emitter: TextEmitter, blocks: Sequence[models.BasicBlock]) -> None:
     renderer = ToTextVisitor()
     for block in blocks:
         assert block.terminated
@@ -176,45 +175,29 @@ def render_body(emitter: TextEmitter, blocks: Sequence[models.BasicBlock]) -> No
                 emitter.append(op.accept(renderer))
 
 
-def render_program(emitter: TextEmitter, name: str, program: models.Program) -> None:
-    emitter.append(f"program {name}:")
-    with emitter.indent():
-        for idx, sub in enumerate(program.all_subroutines):
-            if idx > 0:
-                emitter.append("")
-            args = ", ".join(f"{r.name}: {r.ir_type.name}" for r in sub.parameters)
-            match sub.returns:
-                case []:
-                    returns = "void"
-                case [IRType(name=returns)]:
-                    pass
-                case _ as ir_types:
-                    returns = f"<{', '.join(t.name for t in ir_types)}>"
-            emitter.append(f"subroutine {sub.id}({args}) -> {returns}:")
-            with emitter.indent():
-                render_body(emitter, sub.body)
-
-
-def render_contract(emitter: TextEmitter, contract: models.Contract) -> None:
-    emitter.append(f"contract {contract.metadata.ref}:")
-    with emitter.indent():
-        render_program(emitter, "approval", contract.approval_program)
-        emitter.append("")
-        render_program(emitter, "clear-state", contract.clear_program)
-
-
-def render_logic_signature(emitter: TextEmitter, logic_sig: models.LogicSignature) -> None:
-    render_program(emitter, f"logicsig {logic_sig.metadata.ref}", logic_sig.program)
-
-
-def output_artifact_ir_to_path(artifact: models.ModuleArtifact, path: Path) -> None:
+def render_program(
+    context: ArtifactCompileContext, program: models.Program, *, qualifier: str
+) -> None:
+    out_dir = context.out_dir
+    if out_dir is None:
+        return
     emitter = TextEmitter()
-    match artifact:
-        case models.Contract():
-            render_contract(emitter, artifact)
-        case models.LogicSignature():
-            render_logic_signature(emitter, artifact)
-        case _:
-            typing.assert_never(artifact)
+    emitter.append(f"main {program.main.id}:")
+    with emitter.indent():
+        _render_body(emitter, program.main.body)
+    for sub in program.subroutines:
+        emitter.append("")
+        args = ", ".join(f"{r.name}: {r.ir_type.name}" for r in sub.parameters)
+        match sub.returns:
+            case []:
+                returns = "void"
+            case [IRType(name=returns)]:
+                pass
+            case _ as ir_types:
+                returns = f"<{', '.join(t.name for t in ir_types)}>"
+        emitter.append(f"subroutine {sub.id}({args}) -> {returns}:")
+        with emitter.indent():
+            _render_body(emitter, sub.body)
+    path = out_dir / f"{context.metadata.name}.{program.kind}.{qualifier}.ir"
     path.write_text("\n".join(emitter.lines), encoding="utf-8")
     logger.debug(f"Output IR to {make_path_relative_to_cwd(path)}")

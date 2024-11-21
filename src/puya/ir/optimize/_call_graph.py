@@ -11,9 +11,9 @@ class CallGraph:
         self._paths = dict(nx.all_pairs_shortest_path(graph))
 
     @classmethod
-    def build(cls, program: models.ModuleArtifact) -> typing.Self:
+    def build(cls, program: models.Program) -> typing.Self:
         graph = nx.DiGraph()
-        for sub in program.all_subroutines():
+        for sub in program.all_subroutines:
             for block in sub.body:
                 for op in block.ops:
                     match op:

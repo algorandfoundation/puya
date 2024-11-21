@@ -14,14 +14,12 @@ from immutabledict import immutabledict
 from puya import log
 from puya.algo_constants import HASH_PREFIX_PROGRAM, MAX_BYTES_LENGTH
 from puya.awst.txn_fields import TxnField
+from puya.context import ArtifactCompileContext
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
-from puya.ir.optimize.context import IROptimizeContext
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.visitor_mutator import IRMutator
-from puya.models import (
-    TemplateValue,
-)
+from puya.models import TemplateValue
 from puya.utils import (
     Address,
     biguint_bytes_eval,
@@ -33,7 +31,9 @@ from puya.utils import (
 logger = log.get_logger(__name__)
 
 
-def replace_compiled_references(context: IROptimizeContext, subroutine: ir.Subroutine) -> bool:
+def replace_compiled_references(
+    context: ArtifactCompileContext, subroutine: ir.Subroutine
+) -> bool:
     replacer = CompiledReferenceReplacer(context)
     for block in subroutine.body:
         replacer.visit_block(block)
@@ -42,7 +42,7 @@ def replace_compiled_references(context: IROptimizeContext, subroutine: ir.Subro
 
 @attrs.define
 class CompiledReferenceReplacer(IRMutator):
-    context: IROptimizeContext
+    context: ArtifactCompileContext
     modified: bool = False
 
     def visit_compiled_logicsig_reference(  # type: ignore[override]

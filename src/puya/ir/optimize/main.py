@@ -1,16 +1,15 @@
 from collections.abc import Callable, Iterable
 from copy import deepcopy
-from pathlib import Path
 
 import attrs
 
 from puya import log
+from puya.context import ArtifactCompileContext
 from puya.ir import models
 from puya.ir.optimize.assignments import copy_propagation
 from puya.ir.optimize.collapse_blocks import remove_empty_blocks, remove_linear_jump
 from puya.ir.optimize.compiled_reference import replace_compiled_references
 from puya.ir.optimize.constant_propagation import constant_replacer
-from puya.ir.optimize.context import IROptimizeContext
 from puya.ir.optimize.control_op_simplification import simplify_control_ops
 from puya.ir.optimize.dead_code_elimination import (
     remove_calls_to_no_op_subroutines,
@@ -23,10 +22,10 @@ from puya.ir.optimize.inlining import analyse_subroutines_for_inlining, perform_
 from puya.ir.optimize.inner_txn import inner_txn_field_replacer
 from puya.ir.optimize.intrinsic_simplification import intrinsic_simplifier
 from puya.ir.optimize.repeated_code_elimination import repeated_expression_elimination
-from puya.ir.to_text_visitor import output_artifact_ir_to_path
+from puya.ir.to_text_visitor import render_program
 
 MAX_PASSES = 100
-SubroutineOptimizerCallable = Callable[[IROptimizeContext, models.Subroutine], bool]
+SubroutineOptimizerCallable = Callable[[ArtifactCompileContext, models.Subroutine], bool]
 logger = log.get_logger(__name__)
 
 
@@ -45,7 +44,7 @@ class SubroutineOptimization:
         func_desc = func_name.replace("_", " ").title().strip()
         return SubroutineOptimization(id=func_name, desc=func_desc, optimize=func, loop=loop)
 
-    def optimize(self, context: IROptimizeContext, ir: models.Subroutine) -> bool:
+    def optimize(self, context: ArtifactCompileContext, ir: models.Subroutine) -> bool:
         did_modify = self._optimize(context, ir)
         if did_modify:
             while self.loop and self._optimize(context, ir):
@@ -83,7 +82,7 @@ def get_subroutine_optimizations(optimization_level: int) -> Iterable[Subroutine
         ]
 
 
-def _split_parallel_copies(_ctx: IROptimizeContext, sub: models.Subroutine) -> bool:
+def _split_parallel_copies(_ctx: ArtifactCompileContext, sub: models.Subroutine) -> bool:
     # not an optimisation, but simplifies other optimisation code
     any_modified = False
     for block in sub.body:
@@ -109,38 +108,28 @@ def _split_parallel_copies(_ctx: IROptimizeContext, sub: models.Subroutine) -> b
 
 
 def optimize_contract_ir(
-    context: IROptimizeContext,
-    artifact_ir: models.ModuleArtifact,
-    output_ir_base_path: Path | None = None,
-) -> models.ModuleArtifact:
+    context: ArtifactCompileContext, program: models.Program
+) -> models.Program:
     level = context.options.optimization_level
     pipeline = get_subroutine_optimizations(level)
-    if output_ir_base_path:
-        existing = list(
-            output_ir_base_path.parent.glob(f"{output_ir_base_path.stem}.ssa.opt_pass_*.ir")
-        )
-        if existing:
-            for remove in existing:
-                remove.unlink(missing_ok=True)
-    artifact_ir = deepcopy(artifact_ir)
+    program = deepcopy(program)
     for pass_num in range(1, MAX_PASSES + 1):
         contract_modified = False
         logger.debug(f"Begin optimization pass {pass_num}/{MAX_PASSES}")
         if level:
-            analyse_subroutines_for_inlining(context, artifact_ir)
-        for subroutine in artifact_ir.all_subroutines():
+            analyse_subroutines_for_inlining(context, program)
+        for subroutine in program.all_subroutines:
             logger.debug(f"Optimizing subroutine {subroutine.id}")
             for optimizer in pipeline:
                 logger.debug(f"Optimizer: {optimizer.desc}")
                 if optimizer.optimize(context, subroutine):
                     contract_modified = True
                 subroutine.validate_with_ssa()
-        if remove_unused_subroutines(context, artifact_ir):
+        if remove_unused_subroutines(context, program):
             contract_modified = True
         if not contract_modified:
             logger.debug(f"No optimizations performed in pass {pass_num}, ending loop")
             break
-        if output_ir_base_path:
-            ir_path = output_ir_base_path.with_suffix(f".ssa.opt_pass_{pass_num}.ir")
-            output_artifact_ir_to_path(artifact_ir, ir_path)
-    return artifact_ir
+        if context.options.output_optimization_ir:
+            render_program(context, program, qualifier=f"ssa.opt_pass_{pass_num}")
+    return program

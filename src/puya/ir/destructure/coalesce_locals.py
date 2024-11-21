@@ -152,11 +152,9 @@ class AggressiveGrouping(CoalesceGroupStrategy):
         )
 
 
-def coalesce_locals(
-    context: CompileContext, contract: models.ModuleArtifact
-) -> models.ModuleArtifact:
-    cloned = deepcopy(contract)
-    for subroutine in cloned.all_subroutines():
+def coalesce_locals(context: CompileContext, program: models.Program) -> models.Program:
+    cloned = deepcopy(program)
+    for subroutine in cloned.all_subroutines:
         match context.options.locals_coalescing_strategy:
             case LocalsCoalescingStrategy.root_operand:
                 group_strategy: CoalesceGroupStrategy = RootOperandGrouping()

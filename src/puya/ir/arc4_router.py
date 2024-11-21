@@ -29,6 +29,7 @@ from puya.utils import set_add
 __all__ = [
     "create_abi_router",
     "extract_arc4_methods",
+    "maybe_avm_to_arc4_equivalent_type",
 ]
 
 logger = log.get_logger(__name__)

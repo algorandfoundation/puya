@@ -19,6 +19,7 @@ from puya.models import (
     ContractReference,
     LogicSignatureMetaData,
     LogicSigReference,
+    ProgramKind,
 )
 from puya.parse import SourceLocation
 from puya.utils import unique
@@ -886,8 +887,10 @@ def _get_used_registers(blocks: Sequence[BasicBlock]) -> Iterator[Register]:
 
 @attrs.define(kw_only=True, eq=False)
 class Program(Context):
-    """An individual compilation unit - ie either an Approval or a Clear State program"""
+    """An individual compilation unit"""
 
+    kind: ProgramKind
+    # id: str
     # note: main is represented as a subroutine for simplified handling,
     # but should be "inlined" as main contract body during codegen.
     # ie, it could be generated as subroutine "main" with proto 0 1,
@@ -905,11 +908,10 @@ class Program(Context):
     # return
     #
     # ie, just omit the subroutine header, and replace any&all retsub ops with a return instead
-    id: str
     main: Subroutine
     subroutines: Sequence[Subroutine]
-    source_location: SourceLocation | None = None
     avm_version: int
+    source_location: SourceLocation | None = None
 
     def __attrs_post_init__(self) -> None:
         if self.source_location is None:

@@ -52,11 +52,7 @@ class TealBuilder(MIRVisitor[None]):
             for op in mir_block.ops:
                 op.accept(builder)
             teal_block = teal.TealBlock(
-                label=(
-                    mir_sub.signature.name
-                    if mir_sub.is_main and mir_block is entry_block
-                    else mir_block.block_name
-                ),
+                label=mir_block.block_name,
                 ops=builder.ops,
                 x_stack_in=mir_block.x_stack_in or (),
                 entry_stack_height=mir_block.entry_stack_height,

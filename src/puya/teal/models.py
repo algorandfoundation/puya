@@ -600,7 +600,6 @@ class TealSubroutine:
 
 @attrs.define
 class TealProgram:
-    id: str
     avm_version: int
     main: TealSubroutine
     subroutines: list[TealSubroutine]

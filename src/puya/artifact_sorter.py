@@ -26,6 +26,11 @@ class Artifact:
     def id(self) -> ContractReference | LogicSigReference:
         return self.ir.metadata.ref
 
+    @typing.final
+    @property
+    def source_location(self) -> SourceLocation:
+        return self.ir.source_location
+
 
 @attrs.define
 class ArtifactCompilationSorter(IRTraverser):

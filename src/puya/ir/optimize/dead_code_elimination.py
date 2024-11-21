@@ -180,6 +180,12 @@ SIDE_EFFECT_FREE_AVM_OPS = frozenset([*PURE_AVM_OPS, *IMPURE_SIDE_EFFECT_FREE_AV
 class SubroutineCollector(visitor.IRTraverser):
     subroutines: StableSet[models.Subroutine] = attrs.field(factory=StableSet)
 
+    @classmethod
+    def collect(cls, program: models.Program) -> StableSet[models.Subroutine]:
+        collector = cls()
+        collector.visit_subroutine(program.main)
+        return collector.subroutines
+
     def visit_subroutine(self, subroutine: models.Subroutine) -> None:
         if subroutine not in self.subroutines:
             self.subroutines.add(subroutine)
@@ -189,20 +195,14 @@ class SubroutineCollector(visitor.IRTraverser):
         self.visit_subroutine(callsub.target)
 
 
-def remove_unused_subroutines(
-    _context: CompileContext, artifact_ir: models.ModuleArtifact
-) -> bool:
-    modified = False
-    for program in artifact_ir.all_programs():
-        collector = SubroutineCollector()
-        collector.visit_subroutine(program.main)
-        to_keep = [p for p in program.subroutines if p in collector.subroutines]
-        if len(to_keep) != len(program.subroutines):
-            for p in program.subroutines:
-                if p not in collector.subroutines:
-                    logger.debug(f"removing unused subroutine {p.id} in program {program.id}")
-            program.subroutines = to_keep
-            modified = True
+def remove_unused_subroutines(_context: CompileContext, program: models.Program) -> bool:
+    subroutines = SubroutineCollector.collect(program)
+    if modified := (len(subroutines) != (1 + len(program.subroutines))):
+        to_keep = [p for p in program.subroutines if p in subroutines]
+        for p in program.subroutines:
+            if p not in subroutines:
+                logger.debug(f"removing unused subroutine {p.id}")
+        program.subroutines = to_keep
     return modified
 
 

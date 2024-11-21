@@ -13,12 +13,10 @@ from puya.utils import unique
 logger = log.get_logger(__name__)
 
 
-def post_ssa_optimizer(
-    context: CompileContext, artifact: models.ModuleArtifact
-) -> models.ModuleArtifact:
+def post_ssa_optimizer(context: CompileContext, program: models.Program) -> models.Program:
     logger.debug("Performing post-SSA optimizations")
-    cloned = deepcopy(artifact)
-    for sub in cloned.all_subroutines():
+    cloned = deepcopy(program)
+    for sub in cloned.all_subroutines:
         _remove_linear_jumps(sub)
         if context.options.optimization_level >= 2:
             _block_deduplication(sub)

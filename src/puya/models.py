@@ -277,3 +277,9 @@ class CompiledLogicSig(abc.ABC):
 
 
 CompilationArtifact: typing.TypeAlias = CompiledContract | CompiledLogicSig
+
+
+class ProgramKind(enum.StrEnum):
+    approval = "approval"
+    clear_state = "clear"
+    logic_signature = "lsig"
