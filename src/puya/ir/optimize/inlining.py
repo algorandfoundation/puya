@@ -10,6 +10,7 @@ from puya import log
 from puya.context import CompileContext
 from puya.ir import models, visitor
 from puya.ir.context import TMP_VAR_INDICATOR
+from puya.ir.optimize._call_graph import CallGraph
 from puya.ir.ssa import TrivialPhiRemover
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
@@ -21,19 +22,29 @@ logger = log.get_logger(__name__)
 def analyse_subroutines_for_inlining(
     _context: CompileContext, artifact_ir: models.ModuleArtifact
 ) -> None:
-    # very naive, mark subroutines for inlining on a global basis if used only once
     collector = _SubroutineCallCounter()
     for program in artifact_ir.all_programs():
         collector.visit_subroutine(program.main)
+    call_graph: CallGraph | None = None
     for program in artifact_ir.all_programs():
         for sub in program.subroutines:
             if sub.inline is None:
                 if collector.subroutines.get(sub) == 1:
                     logger.debug(f"marking single-use function {sub.id} for inlining")
                     sub.inline = True
-                elif len(sub.body) == 1 and len(sub.entry.ops) <= 3:
-                    logger.debug(f"marking simple function {sub.id} for inlining")
-                    sub.inline = True
+                elif len(sub.body) == 1 and len(sub.entry.ops) <= max(
+                    3, len(sub.returns) + len(sub.parameters)
+                ):
+                    if call_graph is None:
+                        call_graph = CallGraph.build(artifact_ir)
+                    if not call_graph.maybe_reentrant(sub):
+                        logger.debug(f"marking simple function {sub.id} for inlining")
+                        sub.inline = True
+                    else:
+                        logger.debug(
+                            f"function is simple but might be re-entrant: {sub.id}",
+                            location=sub.source_location,
+                        )
 
 
 def perform_subroutine_inlining(_context: CompileContext, subroutine: models.Subroutine) -> bool:
