@@ -3,6 +3,7 @@ from collections.abc import Sequence
 
 import attrs
 import mypy.nodes
+
 from puya import algo_constants, log
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -16,7 +17,6 @@ from puya.awst.nodes import (
     Statement,
 )
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder

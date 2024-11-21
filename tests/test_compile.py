@@ -7,9 +7,9 @@ from fnmatch import fnmatch
 from pathlib import Path
 
 import attrs
+
 from puya import log
 from puyapy.options import PuyaPyOptions
-
 from tests import VCS_ROOT
 from tests.utils import (
     APPROVAL_EXTENSIONS,

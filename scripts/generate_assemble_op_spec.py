@@ -5,7 +5,6 @@ from pathlib import Path
 
 from puya import log
 from puya.ussemble.op_spec_models import ImmediateEnum, ImmediateKind, OpSpec
-
 from scripts.transform_lang_spec import (
     LanguageSpec,
 )

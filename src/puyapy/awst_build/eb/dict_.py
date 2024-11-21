@@ -4,7 +4,6 @@ from collections.abc import Mapping
 from puya import log
 from puya.errors import CodeError
 from puya.parse import SourceLocation
-
 from puyapy.awst_build.eb._utils import constant_bool_and_error
 from puyapy.awst_build.eb.interface import (
     InstanceBuilder,

@@ -6,6 +6,7 @@ from pathlib import Path
 
 import attrs
 from cattrs.preconf.json import make_converter
+
 from puya import (
     arc56_models as arc56,
     log,
@@ -17,7 +18,6 @@ from puya.models import (
     ARC4MethodArg,
     ARC4Returns,
 )
-
 from puyapy.awst_build.arc4_client_gen import write_arc4_client
 
 logger = log.get_logger(__name__)

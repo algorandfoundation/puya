@@ -3,6 +3,7 @@ from collections.abc import Sequence
 
 import attrs
 import mypy.nodes
+
 from puya import log
 from puya.awst.nodes import (
     AppStateExpression,
@@ -12,7 +13,6 @@ from puya.awst.nodes import (
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb._utils import constant_bool_and_error
 from puyapy.awst_build.eb.factories import builder_for_instance

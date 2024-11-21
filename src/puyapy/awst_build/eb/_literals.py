@@ -13,7 +13,6 @@ from puya.awst.nodes import (
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,

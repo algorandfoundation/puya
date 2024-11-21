@@ -5,6 +5,7 @@ from collections.abc import Iterator, Mapping, Sequence, Set
 from functools import cached_property
 
 import attrs
+
 from puya import log
 from puya.awst.nodes import AppStorageDefinition, AppStorageKind, ContractMethod, StateTotals
 from puya.errors import CodeError
@@ -16,7 +17,6 @@ from puya.models import (
     OnCompletionAction,
 )
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import pytypes
 
 logger = log.get_logger(__name__)

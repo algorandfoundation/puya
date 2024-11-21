@@ -8,6 +8,7 @@ from collections.abc import Sequence
 import attrs
 import mypy.nodes
 import typing_extensions
+
 from puya import log
 from puya.awst.nodes import (
     BinaryBooleanOperator,
@@ -19,7 +20,6 @@ from puya.awst.nodes import (
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puya.utils import invert_ordered_binary_op
-
 from puyapy.awst_build import pytypes
 
 logger = log.get_logger(__name__)

@@ -12,9 +12,9 @@ from algosdk.atomic_transaction_composer import (
 )
 from algosdk.transaction import AssetTransferTxn, LogicSigAccount, LogicSigTransaction, PaymentTxn
 from algosdk.v2client.algod import AlgodClient
+
 from puya.models import CompiledLogicSig
 from puyapy.options import PuyaPyOptions
-
 from tests import TEST_CASES_DIR
 from tests.utils import compile_src_from_options
 
@@ -91,7 +91,7 @@ def test_logic_sig(algod_client: AlgodClient, account: algokit_utils.Account) ->
     algod_client.send_transaction(txn=signed_paytxn)
 
 
-@pytest.fixture()
+@pytest.fixture
 def account_2(algod_client: AlgodClient) -> algokit_utils.Account:
     v = algosdk.account.generate_account()
     account = algokit_utils.Account(private_key=v[0], address=v[1])

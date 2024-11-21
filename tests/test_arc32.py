@@ -15,9 +15,9 @@ from algosdk.atomic_transaction_composer import (
 from algosdk.transaction import OnComplete
 from algosdk.v2client.algod import AlgodClient
 from nacl.signing import SigningKey
+
 from puya.arc32 import create_arc32_json
 from puya.models import CompiledContract
-
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 from tests.test_execution import decode_logs
 from tests.utils import compile_src
@@ -291,7 +291,7 @@ def test_amm(
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def voter_account(algod_client: AlgodClient) -> algokit_utils.Account:
     v = algosdk.account.generate_account()
     voter_account = algokit_utils.Account(private_key=v[0], address=v[1])
@@ -1042,7 +1042,7 @@ def test_arc28(algod_client: AlgodClient, account: algokit_utils.Account) -> Non
         assert event_data == b.to_bytes(length=8) + a.to_bytes(length=8)
 
 
-@pytest.fixture()
+@pytest.fixture
 def other_account(algod_client: AlgodClient) -> algokit_utils.Account:
     v = algosdk.account.generate_account()
     voter_account = algokit_utils.Account(private_key=v[0], address=v[1])
@@ -1366,7 +1366,7 @@ def test_struct_in_box(
 _ADDITIONAL_BOX_REF = (0, b"")
 
 
-@pytest.fixture()
+@pytest.fixture
 def box_client(
     algod_client: AlgodClient, account: algokit_utils.Account
 ) -> algokit_utils.ApplicationClient:

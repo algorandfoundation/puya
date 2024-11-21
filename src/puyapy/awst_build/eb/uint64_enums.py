@@ -3,11 +3,11 @@ import typing
 from collections.abc import Mapping, Sequence
 
 import mypy.nodes
+
 from puya.awst.nodes import UInt64Constant
 from puya.errors import CodeError
 from puya.models import OnCompletionAction, TransactionType
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder

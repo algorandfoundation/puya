@@ -6,13 +6,13 @@ import attrs
 import mypy.nodes
 import mypy.types
 import pytest
+
 from puya.awst.txn_fields import TxnField
 from puya.parse import SourceLocation
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import type_to_pytype
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 from puyapy.awst_build.eb.transaction.txn_fields import PYTHON_TXN_FIELDS
-
 from tests import EXAMPLES_DIR, VCS_ROOT
 from tests.utils import get_awst_cache
 

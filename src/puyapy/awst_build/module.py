@@ -5,13 +5,13 @@ import attrs
 import mypy.nodes
 import mypy.types
 import mypy.visitor
+
 from puya import log
 from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
 from puya.awst.nodes import AWST, ConstantValue, LogicSignature, RootNode, StateTotals
 from puya.errors import CodeError, InternalError
 from puya.models import LogicSigReference
 from puya.utils import coalesce
-
 from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.arc4_client import ARC4ClientASTVisitor
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyVisitor

@@ -1,6 +1,5 @@
 from puya.awst.nodes import Expression
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb.interface import CallableBuilder, InstanceBuilder
 

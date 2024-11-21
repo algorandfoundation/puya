@@ -4,7 +4,6 @@ from collections.abc import Callable
 from puya.awst.nodes import Expression
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import constants, intrinsic_data, pytypes
 from puyapy.awst_build.eb import (
     arc4,

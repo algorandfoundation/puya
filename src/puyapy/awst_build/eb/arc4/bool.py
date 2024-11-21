@@ -2,11 +2,11 @@ import typing
 from collections.abc import Sequence
 
 import mypy.nodes
+
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import ARC4Decode, ARC4Encode, BoolConstant, Expression
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder

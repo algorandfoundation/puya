@@ -13,7 +13,6 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._utils import resolve_negative_literal_index

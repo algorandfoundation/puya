@@ -1,6 +1,5 @@
 from puya.awst import nodes, serialize
 from puya.awst.to_code_visitor import ToCodeVisitor
-
 from tests.utils import PuyaTestCase, get_awst_cache
 
 

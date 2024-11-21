@@ -2,6 +2,7 @@ import abc
 import typing
 
 import typing_extensions
+
 from puya import log
 from puya.awst.nodes import (
     BinaryBooleanOperator,
@@ -15,7 +16,6 @@ from puya.awst.nodes import (
 )
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (

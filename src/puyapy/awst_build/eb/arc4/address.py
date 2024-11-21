@@ -2,6 +2,7 @@ import typing
 from collections.abc import Sequence
 
 import mypy.nodes
+
 from puya import log, utils
 from puya.algo_constants import ENCODED_ADDRESS_LENGTH
 from puya.awst import wtypes
@@ -15,7 +16,6 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._bytes_backed import BytesBackedTypeBuilder

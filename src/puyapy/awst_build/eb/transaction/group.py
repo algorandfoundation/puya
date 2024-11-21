@@ -2,11 +2,11 @@ import typing
 from collections.abc import Sequence
 
 import mypy.nodes
+
 from puya import algo_constants, log
 from puya.awst.nodes import Expression, GroupTransactionReference, IntrinsicCall, UInt64Constant
 from puya.awst.txn_fields import TxnField
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb.factories import builder_for_instance

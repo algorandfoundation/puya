@@ -18,6 +18,7 @@ import mypy.modulefinder
 import mypy.nodes
 import mypy.options
 import mypy.util
+
 from puya import log
 from puya.awst.nodes import MethodDocumentation
 from puya.parse import SourceLocation

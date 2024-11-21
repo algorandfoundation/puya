@@ -4,7 +4,6 @@ from itertools import zip_longest
 
 from puya import log
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder

@@ -8,6 +8,7 @@ import attrs
 import mypy.nodes
 import mypy.options
 import mypy.types
+
 from puya import log
 from puya.awst.nodes import ConstantValue
 from puya.context import try_get_source
@@ -15,7 +16,6 @@ from puya.errors import CodeError, InternalError, log_exceptions
 from puya.models import ContractReference
 from puya.parse import SourceLocation
 from puya.utils import attrs_extend, unique
-
 from puyapy.awst_build import pytypes
 from puyapy.models import ContractFragmentBase
 from puyapy.parse import ParseResult, source_location_from_mypy

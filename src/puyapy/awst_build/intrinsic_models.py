@@ -7,9 +7,9 @@ from collections.abc import Sequence, Set
 from functools import cached_property
 
 import attrs
+
 from puya.awst import wtypes
 from puya.errors import InternalError
-
 from puyapy.awst_build import pytypes
 
 

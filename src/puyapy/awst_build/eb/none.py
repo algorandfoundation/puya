@@ -2,10 +2,10 @@ import typing
 from collections.abc import Sequence
 
 import mypy.nodes
+
 from puya.awst.nodes import Expression, VoidConstant
 from puya.errors import CodeError
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder

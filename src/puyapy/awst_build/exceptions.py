@@ -1,4 +1,5 @@
 import mypy.nodes
+
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 

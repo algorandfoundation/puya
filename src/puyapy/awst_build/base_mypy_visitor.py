@@ -4,9 +4,9 @@ import typing
 import mypy.checker
 import mypy.nodes
 import mypy.visitor
+
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
-
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.exceptions import UnsupportedASTError
 from puyapy.awst_build.utils import refers_to_fullname

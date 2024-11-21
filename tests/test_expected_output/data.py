@@ -8,6 +8,7 @@ from pathlib import Path
 import _pytest._code.code
 import attrs
 import pytest
+
 from puya.awst.nodes import AWST
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.compile import awst_to_teal
@@ -18,7 +19,6 @@ from puyapy.awst_build.main import transform_ast
 from puyapy.compile import parse_with_mypy
 from puyapy.options import PuyaPyOptions
 from puyapy.template import parse_template_key_value
-
 from tests.utils import narrowed_parse_result
 
 THIS_DIR = Path(__file__).parent

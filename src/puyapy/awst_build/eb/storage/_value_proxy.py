@@ -1,9 +1,9 @@
 import typing
 
 import typing_extensions
+
 from puya.awst.nodes import Expression, Statement
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb._base import (
     InstanceExpressionBuilder,

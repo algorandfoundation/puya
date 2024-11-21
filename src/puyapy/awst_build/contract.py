@@ -7,6 +7,7 @@ import attrs
 import mypy.nodes
 import mypy.types
 import mypy.visitor
+
 from puya import log
 from puya.awst import (
     nodes as awst_nodes,
@@ -22,7 +23,6 @@ from puya.models import (
 )
 from puya.parse import SourceLocation
 from puya.utils import StableSet, set_add, unique
-
 from puyapy.awst_build import constants, intrinsic_factory, pytypes
 from puyapy.awst_build.arc4_utils import get_arc4_abimethod_data, get_arc4_baremethod_data
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor

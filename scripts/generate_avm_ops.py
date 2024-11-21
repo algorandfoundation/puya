@@ -17,7 +17,6 @@ from puya.ir.avm_ops_models import (
     Variant,
 )
 from puya.utils import normalise_path_to_str
-
 from scripts import transform_lang_spec as langspec
 
 logger = log.get_logger(__name__)
