@@ -218,12 +218,3 @@ def output_artifact_ir_to_path(artifact: models.ModuleArtifact, path: Path) -> N
             typing.assert_never(artifact)
     path.write_text("\n".join(emitter.lines), encoding="utf-8")
     logger.debug(f"Output IR to {make_path_relative_to_cwd(path)}")
-
-
-def ir_to_text(module_irs: dict[str, list[models.Contract]]) -> list[str]:
-    emitter = TextEmitter()
-
-    all_contracts = (c for contracts in module_irs.values() for c in contracts)
-    for contract in all_contracts:
-        render_contract(emitter, contract)
-    return emitter.lines
