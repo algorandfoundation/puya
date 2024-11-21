@@ -710,16 +710,16 @@ def test_if_else_expr_combined_type() -> None:
     result = mypy_parse_and_type_check(test)
     assert strip_error_prefixes(result) == [
         'note: Revealed type is "__test__.Base"',
-        'note: Revealed type is "builtins.object"',
+        "note: Revealed type is \"Union[Literal['str']?, Literal[1]?]\"",
         'note: Revealed type is "Union[builtins.str, builtins.int]"',
-        'error: Incompatible types in assignment (expression has type "object",'
+        'error: Incompatible types in assignment (expression has type "str | int",'
         ' variable has type "str")  [assignment]',
     ]
     tree = result.graph[TEST_MODULE].tree
     assert tree
     assert list(map(repr, get_revealed_types(result, tree))) == [
         "__test__.Base",
-        "builtins.object",
+        "Union[Literal['str']?, Literal[1]?]",
         "Union[builtins.str, builtins.int]",
     ]
 
