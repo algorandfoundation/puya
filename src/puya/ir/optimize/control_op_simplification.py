@@ -119,9 +119,11 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                 block.terminator = models.Goto(target=zero, source_location=source_location)
                 if err_block not in block.successors:
                     remove_target(block, err_block)
-            case models.ConditionalBranch(
-                condition=models.Register() as condition,
-            ) as branch if (
+            case (
+                models.ConditionalBranch(
+                    condition=models.Register() as condition,
+                ) as branch
+            ) if (
                 isinstance(defn := get_definition(subroutine, condition), models.Assignment)
                 and isinstance(defn.source, models.Intrinsic)
                 and defn.source.op is AVMOp.not_
@@ -135,14 +137,18 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                     non_zero=branch.zero,
                     condition=defn.source.args[0],
                 )
-            case models.Switch(
-                value=models.Value(atype=AVMType.uint64) as value,
-                cases=cases,
-                default=models.ControlOp(
-                    unique_targets=[default_block], can_exit=False, source_location=default_sloc
-                ),
-                source_location=source_location,
-            ) as switch if can_simplify_switch(switch):
+            case (
+                models.Switch(
+                    value=models.Value(atype=AVMType.uint64) as value,
+                    cases=cases,
+                    default=models.ControlOp(
+                        unique_targets=[default_block],
+                        can_exit=False,
+                        source_location=default_sloc,
+                    ),
+                    source_location=source_location,
+                ) as switch
+            ) if can_simplify_switch(switch):
                 logger.debug("simplifying a switch with constants into goto nth")
                 # reduce to GotoNth
                 block_map = dict[int, models.BasicBlock]()
@@ -184,13 +190,15 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
             # if the default target of a Switch/GotoNth is just a single ControlOp,
             # inline that ControlOp instead
             case (
-                models.Switch(
-                    default=models.ControlOp(unique_targets=[default_block], can_exit=False)
-                )
-                | models.GotoNth(
-                    default=models.ControlOp(unique_targets=[default_block], can_exit=False)
-                )
-            ) as fallthrough_terminator if (
+                (
+                    models.Switch(
+                        default=models.ControlOp(unique_targets=[default_block], can_exit=False)
+                    )
+                    | models.GotoNth(
+                        default=models.ControlOp(unique_targets=[default_block], can_exit=False)
+                    )
+                ) as fallthrough_terminator
+            ) if (
                 # only if the default_block is empty
                 not (default_block.ops or default_block.phis)
                 # only if default_blocks targets don't have phi nodes,

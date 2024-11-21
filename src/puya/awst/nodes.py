@@ -772,7 +772,6 @@ class IndexExpression(Expression):
 
 @attrs.frozen
 class SliceExpression(Expression):
-
     base: Expression = attrs.field(
         validator=expression_has_wtype(
             wtypes.bytes_wtype,

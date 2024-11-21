@@ -135,7 +135,7 @@ class CompiledReferenceReplacer(IRMutator):
 
 
 def _is_constant(
-    template_variables: Mapping[str, ir.Value]
+    template_variables: Mapping[str, ir.Value],
 ) -> typing.TypeGuard[Mapping[str, ir.Constant]]:
     return all(isinstance(var, ir.Constant) for var in template_variables.values())
 

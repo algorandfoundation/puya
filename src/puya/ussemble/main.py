@@ -39,9 +39,9 @@ def assemble_program(
     return assemble_bytecode_and_debug_info(assemble_ctx, program)
 
 
-def _gather_template_variables[
-    T: (teal.IntBlock, teal.BytesBlock)
-](program: teal.TealProgram, typ: type[T],) -> Sequence[str]:
+def _gather_template_variables[T: (teal.IntBlock, teal.BytesBlock)](
+    program: teal.TealProgram, typ: type[T]
+) -> Sequence[str]:
     return [
         t
         for sub in program.all_subroutines

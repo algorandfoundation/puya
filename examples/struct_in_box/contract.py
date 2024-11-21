@@ -8,7 +8,6 @@ class UserStruct(arc4.Struct):
 
 
 class ExampleContract(ARC4Contract):
-
     @subroutine
     def read_from_box(self, user_id: arc4.UInt64) -> UserStruct:
         box_data, exists = op.Box.get(user_id.bytes)

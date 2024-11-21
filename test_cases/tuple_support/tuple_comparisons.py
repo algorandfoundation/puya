@@ -16,15 +16,11 @@ def test_tuple_cmp_eval() -> None:
     assert (
         String("abc"),
         log_and_return(UInt64(42)),
-    ) != (
-        String("abc"),
-    )  # type: ignore[comparison-overlap]
+    ) != (String("abc"),)  # type: ignore[comparison-overlap]
     tmp = (
         String("abc"),
         log_and_return(UInt64(43)),
-    ) == (
-        String("abc"),
-    )  # type: ignore[comparison-overlap]
+    ) == (String("abc"),)  # type: ignore[comparison-overlap]
     assert not tmp
 
     assert (String("abc"),) != (

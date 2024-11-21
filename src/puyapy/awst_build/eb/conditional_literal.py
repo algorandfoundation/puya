@@ -30,7 +30,7 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         true_literal: LiteralBuilder,
         false_literal: LiteralBuilder,
         condition: InstanceBuilder,
-        location: SourceLocation
+        location: SourceLocation,
     ):
         super().__init__(location)
         self._pytype = _common_base(true_literal.pytype, false_literal.pytype, location)
@@ -135,7 +135,7 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
-        reverse: bool
+        reverse: bool,
     ) -> InstanceBuilder:
         other = other.single_eval()
         transformed_true = self._true_literal.binary_op(other, op, location, reverse=reverse)

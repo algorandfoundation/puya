@@ -308,9 +308,10 @@ def _abi_call(
     match method:
         case None:
             raise CodeError("missing required positional argument 'method'", location)
-        case ARC4ClientMethodExpressionBuilder(
-            method=fmethod
-        ) | BaseClassSubroutineInvokerExpressionBuilder(method=fmethod):
+        case (
+            ARC4ClientMethodExpressionBuilder(method=fmethod)
+            | BaseClassSubroutineInvokerExpressionBuilder(method=fmethod)
+        ):
             # in this case the arc4 signature and declared return type are inferred
             method_call = _get_arc4_method_call(fmethod, abi_args, location)
             arc4_args = method_call.arc4_args

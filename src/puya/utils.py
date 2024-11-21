@@ -119,9 +119,9 @@ def method_selector_hash(method_signature: str) -> bytes:
     return sha512_256_hash(method_signature.encode("utf8"))[:4]
 
 
-def attrs_extend[
-    T: attrs.AttrsInstance
-](new_type: type[T], base_instance: typing.Any, **changes: typing.Any) -> T:  # noqa: ANN401
+def attrs_extend[T: attrs.AttrsInstance](
+    new_type: type[T], base_instance: attrs.AttrsInstance, **changes: object
+) -> T:
     """Like attrs.evolve but allows creating a related type"""
     base_type = type(base_instance)
     old_type_fields = attrs.fields_dict(base_type)

@@ -814,9 +814,11 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                     ) from ex
                 else:
                     return LiteralBuilderImpl(source_location=expr_loc, value=constant_value)
-            case mypy.nodes.NameExpr(
-                kind=mypy.nodes.LDEF, node=mypy.nodes.Var(), name=var_name
-            ) as name_expr:
+            case (
+                mypy.nodes.NameExpr(
+                    kind=mypy.nodes.LDEF, node=mypy.nodes.Var(), name=var_name
+                ) as name_expr
+            ):
                 self._precondition(
                     not name_expr.is_special_form,
                     "special form lvalues should only appear"

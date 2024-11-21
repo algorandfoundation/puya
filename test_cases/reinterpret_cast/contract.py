@@ -2,7 +2,6 @@ from algopy import ARC4Contract, BigUInt, Bytes, arc4, subroutine
 
 
 class Contract(ARC4Contract):
-
     @arc4.abimethod()
     def bytes_to_bool(self) -> bool:
         return bool(Bytes())

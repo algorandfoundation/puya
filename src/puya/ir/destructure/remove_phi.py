@@ -63,7 +63,7 @@ def convert_to_cssa(sub: models.Subroutine) -> None:
 
 
 def _make_copy_assignment(
-    copies: list[tuple[models.Register, models.Register]]
+    copies: list[tuple[models.Register, models.Register]],
 ) -> models.Assignment:
     if len(copies) == 1:
         ((dst, src),) = copies

@@ -8,7 +8,6 @@ class UInt64:
     __match_value__: int
     __match_args__ = ("__match_value__",)
     # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~
-
     def __init__(self, value: int = 0, /) -> None:
         """A UInt64 can be initialized with a Python int literal, or an int variable
         declared at the module level"""

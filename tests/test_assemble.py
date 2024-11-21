@@ -136,7 +136,7 @@ def test_assemble_last_op_jump() -> None:
 
     assert bytecode == b"".join(
         (
-            b"\x0A",  # version 10
+            b"\x0a",  # version 10
             b"B",  # branch
             (-3).to_bytes(length=2, signed=True),  # offset
         )

@@ -135,7 +135,6 @@ class GlobalStateExpressionBuilder(
     BytesBackedInstanceExpressionBuilder[pytypes.StorageProxyType],
     bytes_member="key",
 ):
-
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericGlobalStateType

@@ -13,12 +13,7 @@ class MerkleTree:
         while len(self._tree[-1]) != 1:
             next_level = list[bytes]()
             for pair in itertools.batched(self._tree[-1], 2):
-                (
-                    a,
-                    b,
-                ) = (
-                    pair if len(pair) == 2 else (pair[0], pair[0])
-                )
+                a, b = pair if len(pair) == 2 else (pair[0], pair[0])
                 a_b_hash = self.hash_pair(a, b)
                 next_level.append(a_b_hash)
             self._tree.append(next_level)

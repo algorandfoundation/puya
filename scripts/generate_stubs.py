@@ -999,7 +999,7 @@ def output_stub(
 
     stub_out_path = VCS_ROOT / "stubs" / "algopy-stubs" / f"{STUB_NAMESPACE}.pyi"
     stub_out_path.write_text("\n".join(stub), encoding="utf-8")
-    subprocess.run(["black", str(stub_out_path)], check=True, cwd=VCS_ROOT)
+    subprocess.run(["ruff", "format", str(stub_out_path)], check=True, cwd=VCS_ROOT)
 
 
 def pytype_stub_repr(pytype: pytypes.PyType) -> str:
@@ -1016,7 +1016,7 @@ def output_awst_data(
 
     awst_data_path = VCS_ROOT / "src" / "puyapy" / "awst_build" / "intrinsic_data.py"
     awst_data_path.write_text("\n".join(awst_data), encoding="utf-8")
-    subprocess.run(["black", str(awst_data_path)], check=True, cwd=VCS_ROOT)
+    subprocess.run(["ruff", "format", str(awst_data_path)], check=True, cwd=VCS_ROOT)
     subprocess.run(["ruff", "check", "--fix", str(awst_data_path)], check=False, cwd=VCS_ROOT)
 
 

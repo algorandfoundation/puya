@@ -59,9 +59,9 @@ def handle_assignment(
     match target:
         # special case: a nested update can cause a tuple item to be re-assigned
         # TODO: refactor this so that this special case is handled where it originates
-        case awst_nodes.TupleItemExpression(
-            wtype=var_type, source_location=var_loc
-        ) as ti_expr if (
+        case (
+            awst_nodes.TupleItemExpression(wtype=var_type, source_location=var_loc) as ti_expr
+        ) if (
             # including assumptions in condition, so assignment will error if they are not true
             not var_type.immutable  # mutable arc4 type
             and is_nested_update  # is a reassignment due to a nested update

@@ -29,9 +29,9 @@ class EmitBuilder(FunctionBuilder):
     ) -> InstanceBuilder:
         first, rest = expect.at_least_one_arg(args, location, default=expect.default_raise)
         match first:
-            case InstanceBuilder(
-                pytype=pytypes.StructType() as struct_type
-            ) as event_arg_eb if pytypes.ARC4StructBaseType < struct_type:
+            case (
+                InstanceBuilder(pytype=pytypes.StructType() as struct_type) as event_arg_eb
+            ) if pytypes.ARC4StructBaseType < struct_type:
                 if rest:
                     logger.error(
                         "unexpected additional arguments", location=rest[0].source_location

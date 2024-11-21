@@ -50,7 +50,7 @@ class BinaryBoolOpBuilder(InstanceBuilder):
         op: BinaryBooleanOperator,
         location: SourceLocation,
         *,
-        result_type: pytypes.PyType | None = None
+        result_type: pytypes.PyType | None = None,
     ):
         super().__init__(location)
         if result_type is None:
@@ -198,7 +198,7 @@ class BinaryBoolOpBuilder(InstanceBuilder):
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
-        reverse: bool
+        reverse: bool,
     ) -> InstanceBuilder:
         return self._resolve_builder().binary_op(other, op, location, reverse=reverse)
 

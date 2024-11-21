@@ -203,7 +203,9 @@ class _GenericType(PyType, abc.ABC, typing.Generic[_TPyType]):
 
 
 def _parameterise_type_type(
-    self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None  # noqa: ARG001
+    self: _GenericType,  # noqa: ARG001
+    args: _TypeArgs,
+    source_location: SourceLocation | None,
 ) -> TypeType:
     try:
         (arg,) = args
@@ -640,7 +642,6 @@ def _require_int_literal(
     *,
     position_qualifier: str = "",
 ) -> int:
-
     match type_arg:
         case TypingLiteralType(value=int(value)):
             return value
@@ -1214,7 +1215,9 @@ urangeType: typing.Final[PyType] = _CompileTimeType(  # noqa: N816
 
 
 def _parameterise_any_compile_time(
-    self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None  # noqa: ARG001
+    self: _GenericType,
+    args: _TypeArgs,
+    source_location: SourceLocation | None,  # noqa: ARG001
 ) -> PyType:
     arg_names = [arg.name for arg in args]
     name = f"{self.name}[{', '.join(arg_names)}]"

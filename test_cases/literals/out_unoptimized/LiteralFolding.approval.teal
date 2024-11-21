@@ -3,31 +3,31 @@
 test_cases.literals.folding.LiteralFolding.approval_program:
     intcblock 0 1 8 98
     bytecblock "a" "b" 0x 0x0000000000000061 0x0000000000000063
-    // literals/folding.py:94
+    // literals/folding.py:95
     // unary_str()
     callsub unary_str
-    // literals/folding.py:95
+    // literals/folding.py:96
     // compare_str()
     callsub compare_str
-    // literals/folding.py:96
+    // literals/folding.py:97
     // binary_op_str()
     callsub binary_op_str
-    // literals/folding.py:97
+    // literals/folding.py:98
     // unary_bytes()
     callsub unary_bytes
-    // literals/folding.py:98
+    // literals/folding.py:99
     // unary_int()
     callsub unary_int
-    // literals/folding.py:99
+    // literals/folding.py:100
     // compare_int()
     callsub compare_int
-    // literals/folding.py:100
+    // literals/folding.py:101
     // unary_bool()
     callsub unary_bool
-    // literals/folding.py:101
+    // literals/folding.py:102
     // tuples()
     callsub tuples
-    // literals/folding.py:102
+    // literals/folding.py:103
     // return True
     intc_1 // 1
     return
@@ -251,8 +251,8 @@ tuples:
     intc_1 // 1
     &&
     assert
-    // literals/folding.py:87
-    // assert (97, UInt64(98), 99) == tuple(arc4.StaticArray(arc4.UInt64(97), arc4.UInt64(98), arc4.UInt64(99)))  # type: ignore[comparison-overlap]
+    // literals/folding.py:88
+    // arc4.StaticArray(arc4.UInt64(97), arc4.UInt64(98), arc4.UInt64(99))
     bytec_2 // 0x
     bytec_3 // 0x0000000000000061
     concat
@@ -269,31 +269,53 @@ tuples:
     *
     intc_2 // 8
     extract3 // on error: Index access is out of bounds
+    // literals/folding.py:87
+    // assert (97, UInt64(98), 99) == tuple(
     bytec_3 // 0x0000000000000061
+    // literals/folding.py:87-89
+    // assert (97, UInt64(98), 99) == tuple(
+    //     arc4.StaticArray(arc4.UInt64(97), arc4.UInt64(98), arc4.UInt64(99))
+    // )  # type: ignore[comparison-overlap]
     b==
     swap
+    // literals/folding.py:88
+    // arc4.StaticArray(arc4.UInt64(97), arc4.UInt64(98), arc4.UInt64(99))
     dup
     intc_1 // 1
     intc_2 // 8
     *
     intc_2 // 8
     extract3 // on error: Index access is out of bounds
+    // literals/folding.py:87
+    // assert (97, UInt64(98), 99) == tuple(
     intc_3 // 98
+    // literals/folding.py:87-89
+    // assert (97, UInt64(98), 99) == tuple(
+    //     arc4.StaticArray(arc4.UInt64(97), arc4.UInt64(98), arc4.UInt64(99))
+    // )  # type: ignore[comparison-overlap]
     itob
     b==
     uncover 2
     &&
+    // literals/folding.py:88
+    // arc4.StaticArray(arc4.UInt64(97), arc4.UInt64(98), arc4.UInt64(99))
     swap
     pushint 2 // 2
     intc_2 // 8
     *
     intc_2 // 8
     extract3 // on error: Index access is out of bounds
+    // literals/folding.py:87
+    // assert (97, UInt64(98), 99) == tuple(
     bytec 4 // 0x0000000000000063
+    // literals/folding.py:87-89
+    // assert (97, UInt64(98), 99) == tuple(
+    //     arc4.StaticArray(arc4.UInt64(97), arc4.UInt64(98), arc4.UInt64(99))
+    // )  # type: ignore[comparison-overlap]
     b==
     &&
     assert
-    // literals/folding.py:88
+    // literals/folding.py:90
     // assert (1, 2) == tuple((1, 2))
     intc_1 // 1
     dup

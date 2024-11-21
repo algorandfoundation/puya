@@ -12,18 +12,18 @@ contract test_cases.compile.apps.Hello:
                 return tmp%1#0
         
         subroutine test_cases.compile.apps.HelloBase.__init__() -> void:
-            block@0: // L22
+            block@0: // L21
                 (app_global_put "greeting" "")
                 return 
         
         subroutine test_cases.compile.apps.Hello.__puya_arc4_router__() -> bool:
-            block@0: // L54
+            block@0: // L52
                 let tmp%0#0: uint64 = (txn NumAppArgs)
                 goto tmp%0#0 ? block@1 : block@7
-            block@1: // abi_routing_L54
+            block@1: // abi_routing_L52
                 let tmp%2#0: bytes = (txna ApplicationArgs 0)
                 switch tmp%2#0 {method "create(string)void" => block@2, method "delete()void" => block@3, method "greet(string)string" => block@4, * => return 0u}
-            block@2: // create_route_L56
+            block@2: // create_route_L53
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (! tmp%3#0)
                 (assert tmp%4#0) // OnCompletion is not NoOp
@@ -34,14 +34,14 @@ contract test_cases.compile.apps.Hello:
                 let tmp%8#0: bytes = ((extract 2 0) tmp%7#0)
                 test_cases.compile.apps.Hello.create(tmp%8#0)
                 return 1u
-            block@3: // delete_route_L25
+            block@3: // delete_route_L24
                 let tmp%9#0: uint64 = (txn OnCompletion)
                 let tmp%10#0: bool = (== tmp%9#0 DeleteApplication)
                 (assert tmp%10#0) // OnCompletion is not DeleteApplication
                 let tmp%11#0: uint64 = (txn ApplicationID)
                 (assert tmp%11#0) // can only call when not creating
                 return 1u
-            block@4: // greet_route_L33
+            block@4: // greet_route_L32
                 let tmp%13#0: uint64 = (txn OnCompletion)
                 let tmp%14#0: bool = (! tmp%13#0)
                 (assert tmp%14#0) // OnCompletion is not NoOp
@@ -57,21 +57,21 @@ contract test_cases.compile.apps.Hello:
                 let tmp%19#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
                 (log tmp%19#0)
                 return 1u
-            block@7: // bare_routing_L54
+            block@7: // bare_routing_L52
                 let tmp%20#0: uint64 = (txn OnCompletion)
                 switch tmp%20#0 {4u => block@8, * => return 0u}
-            block@8: // update_L29
+            block@8: // update_L28
                 let tmp%21#0: uint64 = (txn ApplicationID)
                 (assert tmp%21#0) // can only call when not creating
                 return 1u
         
         subroutine test_cases.compile.apps.Hello.create(greeting: bytes) -> void:
-            block@0: // L56
+            block@0: // L53
                 (app_global_put "greeting" greeting#0)
                 return 
         
         subroutine test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
-            block@0: // L33
+            block@0: // L32
                 let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "greeting")
                 (assert maybe_exists%0#0) // check self.greeting exists
                 let tmp%0#0: bytes = (concat maybe_value%0#0 " ")

@@ -13,7 +13,6 @@ class TestTuple(typing.NamedTuple):
 
 
 class NamedTuplesContract(arc4.ARC4Contract):
-
     @arc4.abimethod()
     def build_tuple(self, a: UInt64, b: BigUInt, c: String, d: Bytes) -> TestTuple:
         t1 = self.build_tuple_by_name(a, b, c, d)

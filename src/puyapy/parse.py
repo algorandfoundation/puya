@@ -192,7 +192,9 @@ def _mypy_build(
     all_messages = list[str]()
 
     def flush_errors(
-        _filename: str | None, new_messages: list[str], _is_serious: bool  # noqa: FBT001
+        _filename: str | None,
+        new_messages: list[str],
+        _is_serious: bool,  # noqa: FBT001
     ) -> None:
         all_messages.extend(msg for msg in new_messages if os.devnull not in msg)
 
@@ -307,8 +309,9 @@ def source_location_from_mypy(file: Path, node: mypy.nodes.Context) -> SourceLoc
     assert node.line >= 1
 
     match node:
-        case mypy.nodes.FuncDef(body=body) | mypy.nodes.Decorator(
-            func=mypy.nodes.FuncDef(body=body)
+        case (
+            mypy.nodes.FuncDef(body=body)
+            | mypy.nodes.Decorator(func=mypy.nodes.FuncDef(body=body))
         ):
             # end_line of a function node includes the entire body
             # try to get just the signature

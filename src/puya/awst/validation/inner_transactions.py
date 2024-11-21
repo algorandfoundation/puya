@@ -71,8 +71,9 @@ class InnerTransactionsValidator(AWSTTraverser):
         match value:
             case awst_nodes.CreateInnerTransaction() | awst_nodes.Copy():
                 pass  # ok
-            case awst_nodes.VarExpression(wtype=wtype) | awst_nodes.TupleItemExpression(
-                wtype=wtype
+            case (
+                awst_nodes.VarExpression(wtype=wtype)
+                | awst_nodes.TupleItemExpression(wtype=wtype)
             ) if isinstance(wtype, WInnerTransactionFields):
                 logger.error(
                     INNER_TRANSACTION_COPY_REQUIRED_ERROR,

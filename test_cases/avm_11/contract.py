@@ -7,7 +7,6 @@ def avm_11_sig() -> UInt64:
 
 
 class Contract(ARC4Contract, avm_version=11):
-
     @arc4.abimethod
     def test_new_ops(self) -> None:
         # op functions

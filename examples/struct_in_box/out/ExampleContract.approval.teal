@@ -20,7 +20,7 @@ __puya_arc4_router__:
     retsub
 
 __puya_arc4_router___add_user_route@2:
-    // struct_in_box/contract.py:31
+    // struct_in_box/contract.py:30
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -30,14 +30,14 @@ __puya_arc4_router___add_user_route@2:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
     txna ApplicationArgs 1
-    // struct_in_box/contract.py:31
+    // struct_in_box/contract.py:30
     // @arc4.abimethod()
     callsub add_user
     intc_0 // 1
     retsub
 
 __puya_arc4_router___attach_asset_to_user_route@3:
-    // struct_in_box/contract.py:36
+    // struct_in_box/contract.py:35
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -50,14 +50,14 @@ __puya_arc4_router___attach_asset_to_user_route@3:
     txna ApplicationArgs 2
     btoi
     txnas Assets
-    // struct_in_box/contract.py:36
+    // struct_in_box/contract.py:35
     // @arc4.abimethod()
     callsub attach_asset_to_user
     intc_0 // 1
     retsub
 
 __puya_arc4_router___get_user_route@4:
-    // struct_in_box/contract.py:42
+    // struct_in_box/contract.py:41
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -67,7 +67,7 @@ __puya_arc4_router___get_user_route@4:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
     txna ApplicationArgs 1
-    // struct_in_box/contract.py:42
+    // struct_in_box/contract.py:41
     // @arc4.abimethod()
     callsub get_user
     pushbytes 0x151f7c75
@@ -97,18 +97,18 @@ __puya_arc4_router___after_if_else@11:
 
 // examples.struct_in_box.contract.ExampleContract.add_user(user: bytes) -> void:
 add_user:
-    // struct_in_box/contract.py:31-32
+    // struct_in_box/contract.py:30-31
     // @arc4.abimethod()
     // def add_user(self, user: UserStruct) -> None:
     proto 1 0
-    // struct_in_box/contract.py:33
+    // struct_in_box/contract.py:32
     // assert not self.box_exists(user.id), "User with id must not exist"
     frame_dig -1
     extract 2 8 // on error: Index access is out of bounds
     callsub box_exists
     !
     assert // User with id must not exist
-    // struct_in_box/contract.py:34
+    // struct_in_box/contract.py:33
     // self.write_to_box(user)
     frame_dig -1
     callsub write_to_box
@@ -118,37 +118,37 @@ add_user:
 
 // examples.struct_in_box.contract.ExampleContract.box_exists(user_id: bytes) -> uint64:
 box_exists:
-    // struct_in_box/contract.py:26-27
+    // struct_in_box/contract.py:25-26
     // @subroutine
     // def box_exists(self, user_id: arc4.UInt64) -> bool:
     proto 1 1
-    // struct_in_box/contract.py:28
+    // struct_in_box/contract.py:27
     // _data, exists = op.Box.get(user_id.bytes)
     frame_dig -1
     box_get
     bury 1
-    // struct_in_box/contract.py:29
+    // struct_in_box/contract.py:28
     // return exists
     retsub
 
 
 // examples.struct_in_box.contract.ExampleContract.write_to_box(user: bytes) -> bytes:
 write_to_box:
-    // struct_in_box/contract.py:18-19
+    // struct_in_box/contract.py:17-18
     // @subroutine
     // def write_to_box(self, user: UserStruct) -> None:
     proto 1 1
-    // struct_in_box/contract.py:20
+    // struct_in_box/contract.py:19
     // box_key = user.id.bytes
     frame_dig -1
     extract 2 8 // on error: Index access is out of bounds
-    // struct_in_box/contract.py:21-22
+    // struct_in_box/contract.py:20-21
     // # Delete existing data, so we don't have to worry about resizing the box
     // op.Box.delete(box_key)
     dup
     box_del
     pop
-    // struct_in_box/contract.py:24
+    // struct_in_box/contract.py:23
     // op.Box.put(box_key, user.bytes)
     frame_dig -1
     box_put
@@ -158,20 +158,20 @@ write_to_box:
 
 // examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(user_id: bytes, asset: uint64) -> void:
 attach_asset_to_user:
-    // struct_in_box/contract.py:36-37
+    // struct_in_box/contract.py:35-36
     // @arc4.abimethod()
     // def attach_asset_to_user(self, user_id: arc4.UInt64, asset: Asset) -> None:
     proto 2 0
-    // struct_in_box/contract.py:38
+    // struct_in_box/contract.py:37
     // user = self.read_from_box(user_id)
     frame_dig -2
     callsub read_from_box
-    // struct_in_box/contract.py:39
+    // struct_in_box/contract.py:38
     // user.asset = arc4.UInt64(asset.id)
     frame_dig -1
     itob
     replace2 10
-    // struct_in_box/contract.py:40
+    // struct_in_box/contract.py:39
     // self.write_to_box(user)
     callsub write_to_box
     pop
@@ -180,29 +180,29 @@ attach_asset_to_user:
 
 // examples.struct_in_box.contract.ExampleContract.read_from_box(user_id: bytes) -> bytes:
 read_from_box:
-    // struct_in_box/contract.py:12-13
+    // struct_in_box/contract.py:11-12
     // @subroutine
     // def read_from_box(self, user_id: arc4.UInt64) -> UserStruct:
     proto 1 1
-    // struct_in_box/contract.py:14
+    // struct_in_box/contract.py:13
     // box_data, exists = op.Box.get(user_id.bytes)
     frame_dig -1
     box_get
-    // struct_in_box/contract.py:15
+    // struct_in_box/contract.py:14
     // assert exists, "User with that id does not exist"
     assert // User with that id does not exist
-    // struct_in_box/contract.py:16
+    // struct_in_box/contract.py:15
     // return UserStruct.from_bytes(box_data)
     retsub
 
 
 // examples.struct_in_box.contract.ExampleContract.get_user(user_id: bytes) -> bytes:
 get_user:
-    // struct_in_box/contract.py:42-43
+    // struct_in_box/contract.py:41-42
     // @arc4.abimethod()
     // def get_user(self, user_id: arc4.UInt64) -> UserStruct:
     proto 1 1
-    // struct_in_box/contract.py:44
+    // struct_in_box/contract.py:43
     // return self.read_from_box(user_id)
     frame_dig -1
     callsub read_from_box

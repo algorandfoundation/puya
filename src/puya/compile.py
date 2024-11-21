@@ -76,7 +76,6 @@ def awst_to_teal(
 def _ir_to_teal(
     log_ctx: LoggingContext, context: CompileContext, all_ir: Sequence[ModuleArtifact]
 ) -> list[CompilationArtifact]:
-
     compiled_artifacts = dict[
         ContractReference | LogicSigReference, _CompiledContract | _CompiledLogicSig
     ]()

@@ -219,12 +219,14 @@ def _parse_call_config(method_call_config: dict[str, str]) -> arc56.MethodAction
 
 
 def _parse_structs(
-    structs: dict[str, dict[str, typing.Any]]
+    structs: dict[str, dict[str, typing.Any]],
 ) -> Iterable[tuple[str, str, Sequence[arc56.StructField]]]:
     for param, struct_config in structs.items():
-        yield param, struct_config["name"], [
-            arc56.StructField(name=f[0], type=f[1]) for f in struct_config["elements"]
-        ]
+        yield (
+            param,
+            struct_config["name"],
+            [arc56.StructField(name=f[0], type=f[1]) for f in struct_config["elements"]],
+        )
 
 
 if __name__ == "__main__":
