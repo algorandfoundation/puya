@@ -156,7 +156,7 @@ def awst_to_ir(context: CompileContext, awst: awst_nodes.AWST) -> list[ModuleArt
             case awst_nodes.Contract() as contract_node:
                 ctx = build_context.for_root(contract_node)
                 with ctx.log_exceptions():
-                    contract_ir = _build_ir(ctx, contract_node)
+                    contract_ir = _build_contract_ir(ctx, contract_node)
                     result.append(contract_ir)
             case awst_nodes.LogicSignature() as logic_signature:
                 ctx = build_context.for_root(logic_signature)
@@ -218,7 +218,7 @@ def _build_embedded_ir(ctx: CompileContext) -> Mapping[str, Subroutine]:
     return embedded_funcs_lookup
 
 
-def _build_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
+def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
     folded, arc4_method_data = _fold_state_and_special_methods(contract)
     arc4_router_func = arc4_router.create_abi_router(contract, arc4_method_data)
     ctx.subroutines[arc4_router_func] = ctx.routers[contract.id] = _make_subroutine(
