@@ -58,7 +58,6 @@ default_none: typing.Final = default_fixed_value(None)
 def default_dummy_value(
     pytype: pytypes.PyType,
 ) -> Callable[[str, SourceLocation], InstanceBuilder]:
-
     def defaulter(msg: str, location: SourceLocation) -> InstanceBuilder:  # noqa: ARG001
         return dummy_value(pytype, location)
 

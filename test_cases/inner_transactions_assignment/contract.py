@@ -9,7 +9,6 @@ from algopy import (
 
 
 class Contract(ARC4Contract):
-
     @arc4.abimethod
     def test_itxn_slice(self) -> None:
         acfg = itxn.AssetConfig(

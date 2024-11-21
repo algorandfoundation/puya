@@ -27,7 +27,6 @@ def visit_subroutine_call_expression(
 def visit_puya_lib_call_expression(
     context: IRFunctionBuildContext, call: awst_nodes.PuyaLibCall
 ) -> ValueProvider | None:
-
     try:
         target = context.embedded_funcs_lookup[call.func.value.id]
     except KeyError:

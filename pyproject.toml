@@ -29,17 +29,12 @@ pycryptodomex = ">=3.6.0,<4"
 immutabledict = "^4.2.0"
 packaging = "^24.0"
 colorama = { version = "^0.4.6", markers = "sys_platform == 'win32'" }
-# vendored mypy dependencies
-mypy_extensions = "^1.0.0"
+mypy_extensions = "^1.0.0" # vendored mypy dependency
 cattrs = "^24.1"
 
 [tool.poetry.group.dev.dependencies]
 # include stubs distribution package as a dev dependency
 algorand-python = { path="stubs", develop=true }
-black = [
-    {extras = ["d"], version = "^24.8.0", markers = "sys_platform != 'win32'"},
-    {version = "^24.8.0", markers = "sys_platform == 'win32'"}
-]
 mypy = "1.13.0"
 ruff = "^0.7.4"
 pre-commit = "^4.0.1"
@@ -102,11 +97,6 @@ xfail_strict = true
 pythonpath = [
     "src/puyapy/_vendor",
 ]
-
-[tool.black]
-line-length = 99
-# force-exclude ensures these files are excluded even when run via pre-commit
-force-exclude = "src/puyapy/(_typeshed|_vendor)"
 
 [tool.mypy]
 python_version = "3.12"
@@ -207,6 +197,7 @@ select = [
     # "NPY",  # NumPy-specific rules
 ]
 ignore = [
+    "ISC001",  # ruff-format conflict
     "ANN101",  # no type for self
     "ANN102",  # no type for cls
     "SIM108",  # allow if-else in place of ternary

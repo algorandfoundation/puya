@@ -18,7 +18,6 @@ def always_approve_sig() -> bool:
 
 
 class HelloBase(ARC4Contract):
-
     def __init__(self) -> None:
         self.greeting = String()
 
@@ -36,7 +35,6 @@ class HelloBase(ARC4Contract):
 
 
 class LargeProgram(ARC4Contract):
-
     @arc4.abimethod()
     def get_big_bytes_length(self) -> UInt64:
         return get_big_bytes().length
@@ -52,14 +50,12 @@ def get_big_bytes() -> Bytes:
 
 
 class Hello(HelloBase):
-
     @arc4.abimethod(create="require")
     def create(self, greeting: String) -> None:
         self.greeting = greeting
 
 
 class HelloTmpl(HelloBase):
-
     def __init__(self) -> None:
         self.greeting = TemplateVar[String]("GREETING")
 
@@ -69,7 +65,6 @@ class HelloTmpl(HelloBase):
 
 
 class HelloPrfx(HelloBase):
-
     def __init__(self) -> None:
         self.greeting = TemplateVar[String]("GREETING", prefix="PRFX_")
 
@@ -79,7 +74,6 @@ class HelloPrfx(HelloBase):
 
 
 class HelloOtherConstants(ARC4Contract):
-
     def __init__(self) -> None:
         self.greeting = TemplateVar[String]("GREETING")
         self.num = TemplateVar[BigUInt]("NUM")

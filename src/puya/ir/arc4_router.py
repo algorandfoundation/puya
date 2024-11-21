@@ -294,7 +294,7 @@ def check_allowed_oca(
         # all actions are allowed, don't need to check
         return ()
     match allowed_ocas, not_allowed_ocas:
-        case [single_allowed], _:
+        case [[single_allowed], _]:
             condition: awst_nodes.Expression = awst_nodes.NumericComparisonExpression(
                 lhs=on_completion(location),
                 rhs=awst_nodes.UInt64Constant(

@@ -293,7 +293,7 @@ def main() -> None:
 
     ast_gen_path = VCS_ROOT / "src" / "puya" / "ir" / "avm_ops.py"
     ast_gen_path.write_text(output, encoding="utf-8")
-    subprocess.run(["black", str(ast_gen_path)], check=True, cwd=VCS_ROOT)
+    subprocess.run(["ruff", "format", str(ast_gen_path)], check=True, cwd=VCS_ROOT)
 
 
 if __name__ == "__main__":

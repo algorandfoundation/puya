@@ -85,7 +85,8 @@ def _decode_arc4_value(
                 types=(IRType.bool,),
             )
         case wtypes.ARC4DynamicArray(element_type=wtypes.ARC4UIntN(n=8)), (
-            wtypes.bytes_wtype | wtypes.string_wtype
+            wtypes.bytes_wtype
+            | wtypes.string_wtype
         ):
             return Intrinsic(
                 op=AVMOp.extract,
@@ -94,7 +95,8 @@ def _decode_arc4_value(
                 source_location=loc,
             )
         case (
-            wtypes.ARC4Tuple() | wtypes.ARC4Struct() as arc4_tuple,
+            wtypes.ARC4Tuple()
+            | wtypes.ARC4Struct() as arc4_tuple,
             wtypes.WTuple() as native_tuple,
         ) if (len(arc4_tuple.types) == len(native_tuple.types)):
             return _visit_arc4_tuple_decode(

@@ -104,7 +104,7 @@ class BraunSSA:
             # if we get here, there is a bug in this algorithm itself
             raise InternalError(
                 f"{len(incomplete_phis)} phi node/s are incomplete: "
-                ", ".join(map(str, incomplete_phis))
+                + ", ".join(map(str, incomplete_phis))
             )
 
     def _new_phi(self, block: ir.BasicBlock, variable: str, ir_type: IRType) -> ir.Phi:

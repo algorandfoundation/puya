@@ -23,7 +23,6 @@ from test_cases.compile.apps import (
 
 
 class HelloFactory(ARC4Contract):
-
     @arc4.abimethod()
     def test_logicsig(self) -> arc4.Address:
         return arc4.Address(compile_logicsig(always_approve_sig).account)

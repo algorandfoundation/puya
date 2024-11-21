@@ -1,11 +1,11 @@
 LOG_1ST_ARG_AND_APPROVE = (
-    b"\x0A"  # pragma version 10
-    b"\x36\x1A\x00"  # txna ApplicationArgs 0
-    b"\xB0"  # log
+    b"\x0a"  # pragma version 10
+    b"\x36\x1a\x00"  # txna ApplicationArgs 0
+    b"\xb0"  # log
     b"\x81\x01"  # pushint 1
 )
 ALWAYS_APPROVE = (
-    b"\x0A"  # pragma version 10
+    b"\x0a"  # pragma version 10
     b"\x81\x01"  # pushint 1
 )
 HELLO_WORLD_CLEAR = ALWAYS_APPROVE

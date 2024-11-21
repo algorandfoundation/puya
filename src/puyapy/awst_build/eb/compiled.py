@@ -142,7 +142,7 @@ class CompileLogicSigFunctionBuilder(FunctionBuilder):
 
 
 def _extract_prefix_template_args(
-    name_args: dict[str, NodeBuilder]
+    name_args: dict[str, NodeBuilder],
 ) -> tuple[str | None, Mapping[str, Expression]]:
     prefix: str | None = None
     template_vars: Mapping[str, Expression] = {}

@@ -51,7 +51,7 @@ def output_ops(
 
     output_path = VCS_ROOT / "src" / "puya" / "ussemble" / "op_spec.py"
     output_path.write_text("\n".join(file), encoding="utf-8")
-    subprocess.run(["black", str(output_path)], check=True, cwd=VCS_ROOT)
+    subprocess.run(["ruff", "format", str(output_path)], check=True, cwd=VCS_ROOT)
 
 
 if __name__ == "__main__":

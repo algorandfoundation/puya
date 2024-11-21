@@ -12,7 +12,7 @@ contract test_cases.compile.apps.HelloBase:
                 return tmp%1#0
         
         subroutine test_cases.compile.apps.HelloBase.__init__() -> void:
-            block@0: // L22
+            block@0: // L21
                 (app_global_put "greeting" "")
                 return 
         
@@ -24,7 +24,7 @@ contract test_cases.compile.apps.HelloBase:
             block@1: // abi_routing_L20
                 let tmp%2#0: bytes = (txna ApplicationArgs 0)
                 switch tmp%2#0 {method "delete()void" => block@2, method "greet(string)string" => block@3, * => block@4}
-            block@2: // delete_route_L25
+            block@2: // delete_route_L24
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (== tmp%3#0 DeleteApplication)
                 (assert tmp%4#0) // OnCompletion is not DeleteApplication
@@ -33,7 +33,7 @@ contract test_cases.compile.apps.HelloBase:
                 (assert tmp%6#0) // can only call when not creating
                 test_cases.compile.apps.HelloBase.delete()
                 return 1u
-            block@3: // greet_route_L33
+            block@3: // greet_route_L32
                 let tmp%7#0: uint64 = (txn OnCompletion)
                 let tmp%8#0: bool = (== tmp%7#0 NoOp)
                 (assert tmp%8#0) // OnCompletion is not NoOp
@@ -57,7 +57,7 @@ contract test_cases.compile.apps.HelloBase:
             block@6: // bare_routing_L20
                 let tmp%14#0: uint64 = (txn OnCompletion)
                 switch tmp%14#0 {4u => block@7, 0u => block@8, * => block@9}
-            block@7: // update_L29
+            block@7: // update_L28
                 let tmp%15#0: uint64 = (txn ApplicationID)
                 let tmp%16#0: bool = (!= tmp%15#0 0u)
                 (assert tmp%16#0) // can only call when not creating
@@ -77,11 +77,11 @@ contract test_cases.compile.apps.HelloBase:
                 return 0u
         
         subroutine test_cases.compile.apps.HelloBase.delete() -> void:
-            block@0: // L25
+            block@0: // L24
                 return 
         
         subroutine test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
-            block@0: // L33
+            block@0: // L32
                 let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "greeting")
                 (assert maybe_exists%0#0) // check self.greeting exists
                 let tmp%0#0: bytes = (concat maybe_value%0#0 " ")
@@ -89,7 +89,7 @@ contract test_cases.compile.apps.HelloBase:
                 return tmp%1#0
         
         subroutine test_cases.compile.apps.HelloBase.update() -> void:
-            block@0: // L29
+            block@0: // L28
                 return 
         
         subroutine test_cases.compile.apps.HelloBase.__algopy_default_create() -> void:

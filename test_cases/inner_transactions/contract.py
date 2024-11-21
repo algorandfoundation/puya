@@ -9,8 +9,8 @@ from algopy import (
 
 LOG_1ST_ARG_AND_APPROVE = (
     b"\x09"  # pragma version 9
-    b"\x36\x1A\x00"  # txna ApplicationArgs 0
-    b"\xB0"  # log
+    b"\x36\x1a\x00"  # txna ApplicationArgs 0
+    b"\xb0"  # log
     b"\x81\x01"  # pushint 1
 )
 ALWAYS_APPROVE = (
@@ -230,7 +230,7 @@ class MyContract(Contract):
         approval_2 = (
             Bytes(
                 b"\x80"  # pushbytes
-                b"\xFC\x0F"  # varuint 2044
+                b"\xfc\x0f"  # varuint 2044
             )
             + lots_of_bytes
             + Bytes(b"\x48")  # pop

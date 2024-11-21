@@ -498,12 +498,12 @@ class ToCodeVisitor(
         start = (
             expr.begin_index.accept(self)
             if isinstance(expr.begin_index, nodes.Expression)
-            else expr.begin_index if expr.begin_index is not None else ""
+            else (expr.begin_index if expr.begin_index is not None else "")
         )
         stop = (
             expr.end_index.accept(self)
             if isinstance(expr.end_index, nodes.Expression)
-            else expr.end_index if expr.end_index is not None else ""
+            else (expr.end_index if expr.end_index is not None else "")
         )
 
         return f"{expr.base.accept(self)}[{start}:{stop}]"

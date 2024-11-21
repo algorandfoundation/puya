@@ -26,7 +26,7 @@ def do_some_ops(
     concat: Bytes,
     bitwise_or: Bytes,
     bitwise_xor: Bytes,
-    bitwise_and: Bytes
+    bitwise_and: Bytes,
 ) -> None:
     result = left + right
     assert result == concat

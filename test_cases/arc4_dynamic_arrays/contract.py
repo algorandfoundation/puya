@@ -36,7 +36,6 @@ class NestedDynamicStruct(arc4.Struct):
 
 
 class DynamicArrayContract(ARC4Contract):
-
     @arc4.abimethod()
     def test_static_elements(self) -> None:
         byte_array1 = arc4.StaticArray(get_byte1(), get_byte2())
