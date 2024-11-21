@@ -581,11 +581,7 @@ class BasicBlock(Context):
                 yield from op.targets
 
     def __str__(self) -> str:
-        result = f"block@{self.id}: // "
-        if self.comment:
-            result += f"{self.comment}_"
-        result += f"L{self.source_location.line}"
-        return result
+        return f"block@{self.id}"
 
 
 @attrs.define(eq=False, kw_only=True)
@@ -784,7 +780,7 @@ class Subroutine(Context):
             attrs.validate(block)
             if block.terminator is None:
                 raise InternalError(
-                    f"Unterminated block {block.id} assigned to subroutine {self.id}",
+                    f"Unterminated block {block} assigned to subroutine {self.id}",
                     block.source_location,
                 )
             for successor in block.successors:
@@ -793,7 +789,7 @@ class Subroutine(Context):
                     # circular validation issues where you're trying to update the CFG by
                     # replacing a terminator
                     raise InternalError(
-                        f"Block {block.id} does not appear in all {block.terminator}"
+                        f"{block} does not appear in all {block.terminator}"
                         f" target's predecessor lists - missing from {successor.id} at least",
                         block.terminator.source_location
                         or block.source_location
@@ -801,14 +797,12 @@ class Subroutine(Context):
                     )
             if not blocks.issuperset(block.predecessors):
                 raise InternalError(
-                    f"Block {block.id} of subroutine {self.id}"
-                    " has predecessor block(s) outside of list",
+                    f"{block} of subroutine {self.id} has predecessor block(s) outside of list",
                     block.source_location,
                 )
             if not blocks.issuperset(block.successors):
                 raise InternalError(
-                    f"Block {block.id} of subroutine {self.id}"
-                    " has predecessor block(s) outside of list",
+                    f"{block} of subroutine {self.id} has predecessor block(s) outside of list",
                     block.source_location,
                 )
             block_predecessors = dict.fromkeys(block.predecessors)
@@ -821,7 +815,7 @@ class Subroutine(Context):
                     pred_block_labels = list(map(str, block_predecessors.keys()))
                     raise InternalError(
                         f"{self.id}: mismatch between phi predecessors ({phi_block_labels})"
-                        f" and block predecessors ({pred_block_labels})"
+                        f" and {block} predecessors ({pred_block_labels})"
                         f" for phi node {phi}",
                         self.source_location,
                     )

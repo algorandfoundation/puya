@@ -94,18 +94,18 @@ class ToTextVisitor(IRVisitor[str]):
         return f"{op.target.id}({args})"
 
     def visit_conditional_branch(self, op: models.ConditionalBranch) -> str:
-        return f"goto {op.condition.accept(self)} ? block@{op.non_zero.id} : block@{op.zero.id}"
+        return f"goto {op.condition.accept(self)} ? {op.non_zero} : {op.zero}"
 
     def visit_goto(self, op: models.Goto) -> str:
-        return f"goto block@{op.target.id}"
+        return f"goto {op.target}"
 
     def visit_goto_nth(self, op: models.GotoNth) -> str:
-        blocks = ", ".join([f"block@{b.id}" for b in op.blocks])
-        return f"goto_nth [{blocks}][{op.value.accept(self)}] else goto block@{op.default.id}"
+        blocks = ", ".join(map(str, op.blocks))
+        return f"goto_nth [{blocks}][{op.value.accept(self)}] else goto {op.default}"
 
     def visit_switch(self, op: models.Switch) -> str:
-        cases = {k.accept(self): f"block@{b.id}" for k, b in op.cases.items()}
-        cases["*"] = f"block@{op.default.id}"
+        cases = {k.accept(self): str(b) for k, b in op.cases.items()}
+        cases["*"] = str(op.default)
         map_ = ", ".join(f"{k} => {v}" for k, v in cases.items())
         return f"switch {op.value.accept(self)} {{{map_}}}"
 
@@ -135,7 +135,7 @@ class ToTextVisitor(IRVisitor[str]):
         return f"let {target} = {source}"
 
     def visit_phi_argument(self, op: models.PhiArgument) -> str:
-        return f"{op.value.accept(self)} <- block@{op.through.id}"
+        return f"{op.value.accept(self)} <- {op.through}"
 
     def visit_value_tuple(self, tup: models.ValueTuple) -> str:
         return "(" + ", ".join(val.accept(self) for val in tup.values) + ")"
@@ -158,11 +158,19 @@ class TextEmitter:
             self._indent -= spaces
 
 
+def _render_block_name(block: models.BasicBlock) -> str:
+    result = f"{block}: // "
+    if block.comment:
+        result += f"{block.comment}_"
+    result += f"L{block.source_location.line}"
+    return result
+
+
 def render_body(emitter: TextEmitter, blocks: Sequence[models.BasicBlock]) -> None:
     renderer = ToTextVisitor()
     for block in blocks:
         assert block.terminated
-        emitter.append(str(block))
+        emitter.append(_render_block_name(block))
         with emitter.indent():
             for op in block.all_ops:
                 emitter.append(op.accept(renderer))
