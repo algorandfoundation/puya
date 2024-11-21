@@ -11,7 +11,6 @@ from puya.models import (
     OnCompletionAction,
 )
 from puya.utils import make_path_relative_to_cwd
-
 from puyapy.awst_build import constants
 from puyapy.awst_build.arc4_utils import arc4_to_pytype
 

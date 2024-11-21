@@ -33,9 +33,9 @@ from algosdk.transaction import ApplicationCallTxn, ApplicationCreateTxn, OnComp
 from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
 from nacl.signing import SigningKey
+
 from puya.avm_type import AVMType
 from puya.models import CompiledContract, ContractState
-
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 from tests.utils import compile_src
 
@@ -520,7 +520,7 @@ def no_op_app_id(algod_client: AlgodClient, account: Account, worker_id: str) ->
     return result.app_id
 
 
-@pytest.fixture()
+@pytest.fixture
 def harness(algod_client: AlgodClient, account: Account, no_op_app_id: int) -> _TestHarness:
     return _TestHarness(algod_client, account, op_up_app_id=no_op_app_id)
 
@@ -1419,7 +1419,7 @@ def test_arc4_copy_in_state(harness: _TestHarness) -> None:
     harness.deploy_from_closure(test)
 
 
-@pytest.mark.slow()
+@pytest.mark.slow
 def test_brute_force_rotation_search(harness: _TestHarness) -> None:
     harness.deploy(TEST_CASES_DIR / "stress_tests" / "brute_force_rotation_search.py")
 

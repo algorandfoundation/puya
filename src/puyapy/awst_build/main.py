@@ -4,7 +4,6 @@ from puya import log
 from puya.awst.nodes import Contract, LogicSignature, RootNode
 from puya.models import ContractReference, LogicSigReference
 from puya.utils import make_path_relative_to_cwd
-
 from puyapy.awst_build.context import ASTConversionContext
 from puyapy.awst_build.module import ModuleASTConverter
 from puyapy.parse import TYPESHED_PATH, ParseResult, SourceDiscoveryMechanism

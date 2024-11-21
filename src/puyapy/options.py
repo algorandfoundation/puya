@@ -2,6 +2,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 import attrs
+
 from puya.log import LogLevel
 from puya.options import PuyaOptions
 

@@ -2,12 +2,12 @@ import typing
 from collections.abc import Mapping, Sequence
 
 import mypy.nodes
+
 from puya.awst.nodes import CompiledContract, CompiledLogicSig, Expression
 from puya.awst.txn_fields import TxnField
 from puya.log import get_logger
 from puya.models import LogicSigReference
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder

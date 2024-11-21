@@ -11,8 +11,8 @@ from algokit_utils import (
 from algosdk import transaction
 from algosdk.atomic_transaction_composer import AtomicTransactionComposer, TransactionWithSigner
 from algosdk.v2client.algod import AlgodClient
-from puya import log
 
+from puya import log
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 from tests.utils import PuyaTestCase
 

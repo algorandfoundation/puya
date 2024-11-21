@@ -1,7 +1,7 @@
 import attrs
+
 from puya import log
 from puya.awst.txn_fields import TxnField
-
 from puyapy.awst_build import pytypes
 
 logger = log.get_logger(__name__)

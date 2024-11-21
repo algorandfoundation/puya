@@ -5,6 +5,7 @@ from collections.abc import Sequence
 
 import mypy.nodes
 import typing_extensions
+
 from puya import log
 from puya.awst.nodes import (
     BytesConstant,
@@ -16,7 +17,6 @@ from puya.awst.nodes import (
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder

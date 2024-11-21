@@ -10,7 +10,6 @@ from puya.awst.nodes import (
     VarExpression,
 )
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (

@@ -5,6 +5,7 @@ import attrs
 import mypy.nodes
 import mypy.patterns
 import mypy.types
+
 from puya import log
 from puya.awst.nodes import (
     AppStateExpression,
@@ -40,7 +41,6 @@ from puya.awst.nodes import (
 from puya.errors import CodeError, InternalError
 from puya.models import ARC4MethodConfig, ContractReference, LogicSigReference
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import constants, intrinsic_factory, pytypes
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext

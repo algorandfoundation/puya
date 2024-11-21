@@ -5,6 +5,7 @@ import algosdk.error
 import pytest
 from algokit_utils import Program
 from algosdk.v2client.algod import AlgodClient
+
 from puya.context import CompileContext
 from puya.mir.models import Signature
 from puya.models import CompiledContract, CompiledLogicSig, CompiledProgram
@@ -12,7 +13,6 @@ from puya.options import PuyaOptions
 from puya.teal import models as teal
 from puya.ussemble.main import assemble_program
 from puyapy.options import PuyaPyOptions
-
 from tests.utils import (
     PuyaTestCase,
     compile_src_from_options,
@@ -21,7 +21,7 @@ from tests.utils import (
 
 
 @pytest.mark.parametrize("optimization_level", [0, 1, 2])
-@pytest.mark.localnet()
+@pytest.mark.localnet
 def test_assemble_matches_algod(
     algod_client: AlgodClient, test_case: PuyaTestCase, optimization_level: int
 ) -> None:

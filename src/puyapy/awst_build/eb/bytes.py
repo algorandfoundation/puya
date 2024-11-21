@@ -3,6 +3,7 @@ import typing
 from collections.abc import Sequence
 
 import mypy.nodes
+
 from puya import algo_constants, log, utils
 from puya.awst.nodes import (
     BytesAugmentedAssignment,
@@ -22,7 +23,6 @@ from puya.awst.nodes import (
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder, InstanceExpressionBuilder

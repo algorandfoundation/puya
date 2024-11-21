@@ -7,7 +7,6 @@ from pathlib import Path
 from puya.algo_constants import MAINNET_AVM_VERSION, SUPPORTED_AVM_VERSIONS
 from puya.log import LogLevel, configure_logging
 from puya.options import LocalsCoalescingStrategy
-
 from puyapy.compile import compile_to_teal
 from puyapy.options import PuyaPyOptions
 from puyapy.template import parse_template_key_value

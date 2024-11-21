@@ -10,12 +10,12 @@ from collections.abc import Iterable, Iterator, Sequence
 from pathlib import Path
 
 import attrs
+
 from puya import log
 from puya.algo_constants import SUPPORTED_AVM_VERSIONS
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.intrinsic_models import FunctionOpMapping, OpMappingWithOverloads
 from puyapy.awst_build.utils import snake_case
-
 from scripts.transform_lang_spec import (
     ArgEnum,
     Immediate,

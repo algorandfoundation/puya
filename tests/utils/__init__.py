@@ -4,6 +4,7 @@ from collections.abc import Collection, Iterable, Mapping, Sequence
 from pathlib import Path
 
 import attrs
+
 from puya.awst import nodes as awst_nodes
 from puya.compile import awst_to_teal
 from puya.errors import CodeError
@@ -17,7 +18,6 @@ from puyapy.options import PuyaPyOptions
 from puyapy.parse import ParseResult, SourceDiscoveryMechanism
 from puyapy.template import parse_template_key_value
 from puyapy.utils import determine_out_dir
-
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 
 APPROVAL_EXTENSIONS = frozenset((".teal", ".awst", ".ir", ".mir", ".arc32.json", ".arc56.json"))

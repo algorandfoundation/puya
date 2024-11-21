@@ -5,11 +5,11 @@ import attrs
 import mypy.nodes
 import mypy.types
 import mypy.visitor
+
 from puya import log
 from puya.errors import InternalError
 from puya.models import ContractReference
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.arc4_utils import get_arc4_abimethod_data
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor

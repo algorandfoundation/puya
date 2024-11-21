@@ -2,10 +2,10 @@ import typing
 from collections.abc import Sequence
 
 import mypy.nodes
+
 from puya.errors import CodeError
 from puya.models import LogicSigReference
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 

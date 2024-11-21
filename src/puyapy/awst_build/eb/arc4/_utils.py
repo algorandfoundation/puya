@@ -4,10 +4,10 @@ from collections.abc import Sequence
 
 import attrs
 import mypy.nodes
+
 from puya import log
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import arc4_utils, pytypes
 from puyapy.awst_build.arc4_utils import pytype_to_arc4_pytype, split_tuple_types
 from puyapy.awst_build.eb import _expect as expect

@@ -12,6 +12,7 @@ import attrs
 import mypy.build
 import mypy.nodes
 from mypy.visitor import NodeVisitor
+
 from puyapy.compile import get_mypy_options
 from puyapy.parse import parse_and_typecheck
 

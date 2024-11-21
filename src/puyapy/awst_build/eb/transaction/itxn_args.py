@@ -2,9 +2,9 @@ from collections.abc import Mapping
 
 import attrs
 from immutabledict import immutabledict
+
 from puya import log
 from puya.awst.txn_fields import TxnField
-
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb.bytes import BytesExpressionBuilder

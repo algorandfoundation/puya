@@ -3,6 +3,7 @@ from collections.abc import Iterable, Mapping, Sequence, Set
 
 import attrs
 import mypy.nodes
+
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -31,7 +32,6 @@ from puya.models import (
 )
 from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.utils import StableSet
-
 from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder

@@ -9,7 +9,6 @@ from puya.awst.nodes import (
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance

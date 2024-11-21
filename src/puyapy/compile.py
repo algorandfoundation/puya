@@ -15,6 +15,7 @@ import mypy.nodes
 import mypy.options
 import mypy.util
 from packaging import version
+
 from puya import log, models
 from puya.arc56 import create_arc56_json
 from puya.awst.nodes import AWST
@@ -23,7 +24,6 @@ from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.compile import awst_to_teal
 from puya.errors import log_exceptions
 from puya.utils import make_path_relative_to_cwd
-
 from puyapy.awst_build.arc4_client_gen import write_arc4_client
 from puyapy.awst_build.main import transform_ast
 from puyapy.client_gen import parse_arc56

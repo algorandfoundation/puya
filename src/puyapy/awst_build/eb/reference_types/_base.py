@@ -3,6 +3,7 @@ import typing
 from collections.abc import Callable, Mapping
 
 from immutabledict import immutabledict
+
 from puya.awst import wtypes
 from puya.awst.nodes import (
     CheckedMaybe,
@@ -14,7 +15,6 @@ from puya.awst.nodes import (
     ReinterpretCast,
 )
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder

@@ -2,10 +2,10 @@ import typing
 from collections.abc import Sequence
 
 import mypy.nodes
+
 from puya import log
 from puya.awst.nodes import Emit
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.arc4_utils import pytype_to_arc4
 from puyapy.awst_build.eb import _expect as expect

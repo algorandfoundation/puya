@@ -8,13 +8,13 @@ from functools import cached_property
 import attrs
 import typing_extensions
 from immutabledict import immutabledict
+
 from puya import log
 from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
 from puya.models import ContractReference, TransactionType
 from puya.parse import SourceLocation
 from puya.utils import lazy_setdefault, unique
-
 from puyapy.awst_build import constants
 
 if typing.TYPE_CHECKING:

@@ -7,6 +7,7 @@ import mypy.nodes
 import mypy.types
 import mypy.visitor
 from immutabledict import immutabledict
+
 from puya import log
 from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
@@ -20,7 +21,6 @@ from puya.models import (
     TransactionType,
 )
 from puya.parse import SourceLocation
-
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.utils import extract_bytes_literal_from_mypy, get_unaliased_fullname

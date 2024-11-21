@@ -10,12 +10,12 @@ import mypy.build
 import mypy.nodes
 import mypy.types
 from mypy.types import get_proper_type, is_named_instance
+
 from puya import log
 from puya.awst.nodes import ConstantValue
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import unique
-
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb.factories import builder_for_type
