@@ -3,7 +3,6 @@ import os
 import shutil
 import subprocess
 import typing
-from fnmatch import fnmatch
 from pathlib import Path
 
 import attrs
@@ -35,22 +34,6 @@ def test_compile(test_case: PuyaTestCase) -> None:
     compile_with_level2_optimizations(test_case)
     diff = check_for_diff(test_case.path)
     assert diff is None, f"Uncommitted changes were found:\n{diff}"
-
-
-def _should_output(path: Path, puyapy_options: PuyaPyOptions) -> bool:
-    for pattern, include_in_output in {
-        "*.teal": puyapy_options.output_teal,
-        "*.arc32.json": puyapy_options.output_arc32,
-        "*.arc56.json": puyapy_options.output_arc56,
-        "*.awst": puyapy_options.output_awst,
-        "*.ssa.ir": puyapy_options.output_ssa_ir,
-        "*.ssa.opt_pass_*.ir": puyapy_options.output_optimization_ir,
-        "*.destructured.ir": puyapy_options.output_destructured_ir,
-        "*.mir": puyapy_options.output_memory_ir,
-    }.items():
-        if include_in_output and fnmatch(path.name, pattern):
-            return True
-    return False
 
 
 def compile_test_case(
