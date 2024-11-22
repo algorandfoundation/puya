@@ -1,30 +1,12 @@
-from copy import deepcopy
-
 from puya import log
-from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 
 logger = log.get_logger(__name__)
 
 
-def convert_artifact_to_cssa(_context: CompileContext, contract: models.Program) -> models.Program:
-    cloned = deepcopy(contract)
-    for sub in cloned.all_subroutines:
-        _convert_to_cssa(sub)
-    return cloned
-
-
-def remove_phi_nodes(_context: CompileContext, program: models.Program) -> models.Program:
-    cloned = deepcopy(program)
-    for subroutine in cloned.all_subroutines:
-        logger.debug(f"Removing Phis from {subroutine.id}")
-        subroutine.validate_with_ssa()
-        _destructure_cssa(subroutine)
-    return cloned
-
-
-def _convert_to_cssa(sub: models.Subroutine) -> None:
+def convert_to_cssa(sub: models.Subroutine) -> None:
+    logger.debug("Converting to CSSA")
     max_versions = dict[str, int]()
     for reg in sub.get_assigned_registers():
         max_versions[reg.name] = max(max_versions.get(reg.name, 0), reg.version)
@@ -97,7 +79,8 @@ def _make_copy_assignment(
     )
 
 
-def _destructure_cssa(sub: models.Subroutine) -> None:
+def destructure_cssa(sub: models.Subroutine) -> None:
+    logger.debug("Removing Phi nodes")
     # Once the sub is in CSSA, destructuring is trivial.
     # All variables involved in a Phi can be given the same name, and the Phi can be removed.
     for block in sub.body:

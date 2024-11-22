@@ -1,19 +1,30 @@
+from copy import deepcopy
+
+import attrs
+
 from puya import log
 from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.destructure.coalesce_locals import coalesce_locals
 from puya.ir.destructure.optimize import post_ssa_optimizer
 from puya.ir.destructure.parcopy import sequentialize_parallel_copies
-from puya.ir.destructure.remove_phi import convert_artifact_to_cssa, remove_phi_nodes
+from puya.ir.destructure.remove_phi import convert_to_cssa, destructure_cssa
 
 logger = log.get_logger(__name__)
 
 
 def destructure_ssa(context: CompileContext, program: models.Program) -> models.Program:
-    program = convert_artifact_to_cssa(context, program)
-    program = remove_phi_nodes(context, program)
-    program = coalesce_locals(context, program)
-    program = sequentialize_parallel_copies(context, program)
-    if context.options.optimization_level > 0:
-        program = post_ssa_optimizer(context, program)
-    return program
+    cloned = deepcopy(program)
+    for subroutine in cloned.all_subroutines:
+        logger.debug(f"Performing SSA IR destructuring for {subroutine.id}")
+        convert_to_cssa(subroutine)
+        subroutine.validate_with_ssa()
+        destructure_cssa(subroutine)
+        attrs.validate(subroutine)
+        coalesce_locals(subroutine, context.options.locals_coalescing_strategy)
+        attrs.validate(subroutine)
+        sequentialize_parallel_copies(subroutine)
+        attrs.validate(subroutine)
+        post_ssa_optimizer(subroutine, context.options.optimization_level)
+        attrs.validate(subroutine)
+    return cloned

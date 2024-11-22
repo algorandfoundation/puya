@@ -7,6 +7,7 @@ from puya.ir import models
 from puya.ir.types_ import IRType
 from puya.ir.utils import format_bytes, format_error_comment
 from puya.ir.visitor import IRVisitor
+from puya.models import ProgramKind
 from puya.utils import make_path_relative_to_cwd
 
 logger = log.get_logger(__name__)
@@ -181,6 +182,7 @@ def render_program(
     out_dir = context.out_dir
     if out_dir is None:
         return
+    out_dir.mkdir(exist_ok=True)
     emitter = TextEmitter()
     emitter.append(f"main {program.main.id}:")
     with emitter.indent():
@@ -198,6 +200,8 @@ def render_program(
         emitter.append(f"subroutine {sub.id}({args}) -> {returns}:")
         with emitter.indent():
             _render_body(emitter, sub.body)
-    path = out_dir / f"{context.metadata.name}.{program.kind}.{qualifier}.ir"
+    if program.kind is not ProgramKind.logic_signature:
+        qualifier = f"{program.kind}.{qualifier}"
+    path = out_dir / f"{context.metadata.name}.{qualifier}.ir"
     path.write_text("\n".join(emitter.lines), encoding="utf-8")
     logger.debug(f"Output IR to {make_path_relative_to_cwd(path)}")

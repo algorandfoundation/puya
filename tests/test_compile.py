@@ -159,7 +159,10 @@ def remove_output(path: Path) -> None:
         if out_dir.exists():
             for file in out_dir.iterdir():
                 if file.suffix in APPROVAL_EXTENSIONS:
-                    file.unlink()
+                    if file.is_dir():
+                        shutil.rmtree(file)
+                    else:
+                        file.unlink()
 
 
 def check_for_diff(path: Path) -> str | None:

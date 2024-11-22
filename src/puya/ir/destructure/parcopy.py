@@ -1,26 +1,52 @@
 import itertools
 from collections.abc import Callable, Iterable
-from copy import deepcopy
-
-import attrs
 
 from puya import log
-from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.context import TMP_VAR_INDICATOR
 
 logger = log.get_logger(__name__)
 
 
-def sequentialize_parallel_copies(
-    _context: CompileContext, program: models.Program
-) -> models.Program:
-    cloned = deepcopy(program)
-    for subroutine in cloned.all_subroutines:
-        logger.debug(f"Sequentializing parallel copies in {subroutine.id}")
-        _impl(subroutine)
-        attrs.validate(subroutine)
-    return cloned
+def sequentialize_parallel_copies(sub: models.Subroutine) -> None:
+    logger.debug(f"Sequentializing parallel copies in {sub.id}")
+    our_tmp_prefix = f"parcopy{TMP_VAR_INDICATOR}"
+    max_tmp_id = max(
+        (
+            int(r.name.split(TMP_VAR_INDICATOR)[1])
+            for r in sub.get_assigned_registers()
+            if r.name.startswith(our_tmp_prefix)
+        ),
+        default=-1,
+    )
+    next_tmp_id = itertools.count(max_tmp_id + 1)
+
+    def make_temp(x: models.Value | models.Register) -> models.Register:
+        return models.Register(
+            ir_type=x.ir_type,
+            name=f"{our_tmp_prefix}{next(next_tmp_id)}",
+            version=0,
+            source_location=x.source_location,
+        )
+
+    for block in sub.body:
+        ops = list[models.Op]()
+        for op in block.ops:
+            match op:
+                case models.Assignment(targets=targets, source=models.ValueTuple(values=sources)):
+                    seqd = _sequentialize(zip(targets, sources, strict=True), mktmp=make_temp)
+                    for dst, src in seqd:
+                        assert isinstance(dst, models.Register)  # TODO: this is bad
+                        ops.append(
+                            models.Assignment(
+                                targets=[dst],
+                                source=src,
+                                source_location=op.source_location,
+                            )
+                        )
+                case _:
+                    ops.append(op)
+        block.ops = ops
 
 
 def _sequentialize[T](
@@ -100,43 +126,3 @@ def _sequentialize[T](
             ready.append(b)
 
     return res
-
-
-def _impl(sub: models.Subroutine) -> None:
-    our_tmp_prefix = f"parcopy{TMP_VAR_INDICATOR}"
-    max_tmp_id = max(
-        (
-            int(r.name.split(TMP_VAR_INDICATOR)[1])
-            for r in sub.get_assigned_registers()
-            if r.name.startswith(our_tmp_prefix)
-        ),
-        default=-1,
-    )
-    next_tmp_id = itertools.count(max_tmp_id + 1)
-
-    def make_temp(x: models.Value | models.Register) -> models.Register:
-        return models.Register(
-            ir_type=x.ir_type,
-            name=f"{our_tmp_prefix}{next(next_tmp_id)}",
-            version=0,
-            source_location=x.source_location,
-        )
-
-    for block in sub.body:
-        ops = list[models.Op]()
-        for op in block.ops:
-            match op:
-                case models.Assignment(targets=targets, source=models.ValueTuple(values=sources)):
-                    seqd = _sequentialize(zip(targets, sources, strict=True), mktmp=make_temp)
-                    for dst, src in seqd:
-                        assert isinstance(dst, models.Register)  # TODO: this is bad
-                        ops.append(
-                            models.Assignment(
-                                targets=[dst],
-                                source=src,
-                                source_location=op.source_location,
-                            )
-                        )
-                case _:
-                    ops.append(op)
-        block.ops = ops

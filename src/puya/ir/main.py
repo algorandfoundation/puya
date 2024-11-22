@@ -471,7 +471,7 @@ def _make_program(
         subroutines=tuple(references),
         avm_version=avm_version,
     )
-    remove_unused_subroutines(ctx, program)
+    remove_unused_subroutines(program)
     return program
 
 

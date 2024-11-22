@@ -19,7 +19,7 @@ from puya.utils import unique
 logger = log.get_logger(__name__)
 
 
-def analyse_subroutines_for_inlining(_context: CompileContext, program: models.Program) -> None:
+def analyse_subroutines_for_inlining(program: models.Program) -> None:
     collector = _SubroutineCallCounter()
     collector.visit_subroutine(program.main)
     call_graph: CallGraph | None = None

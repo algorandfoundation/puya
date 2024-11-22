@@ -2,13 +2,11 @@ import itertools
 import typing
 import typing as t
 from collections.abc import Iterable
-from copy import deepcopy
 
 import attrs
 
 from puya import log
 from puya.avm_type import AVMType
-from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.types_ import IRType
 from puya.ir.visitor_mem_replacer import MemoryReplacer
@@ -152,21 +150,17 @@ class AggressiveGrouping(CoalesceGroupStrategy):
         )
 
 
-def coalesce_locals(context: CompileContext, program: models.Program) -> models.Program:
-    cloned = deepcopy(program)
-    for subroutine in cloned.all_subroutines:
-        match context.options.locals_coalescing_strategy:
-            case LocalsCoalescingStrategy.root_operand:
-                group_strategy: CoalesceGroupStrategy = RootOperandGrouping()
-            case LocalsCoalescingStrategy.root_operand_excluding_args:
-                group_strategy = RootOperandGrouping(isolate=frozenset(subroutine.parameters))
-            case LocalsCoalescingStrategy.aggressive:
-                group_strategy = AggressiveGrouping(subroutine)
-        logger.debug(
-            f"Coalescing local variables in {subroutine.id}"
-            f" using strategy {type(group_strategy).__name__}"
-        )
-        replacements = coalesce_registers(group_strategy, subroutine)
-        logger.debug(f"Coalescing resulted in {replacements} replacement/s")
-        attrs.validate(subroutine)
-    return cloned
+def coalesce_locals(subroutine: models.Subroutine, strategy: LocalsCoalescingStrategy) -> None:
+    match strategy:
+        case LocalsCoalescingStrategy.root_operand:
+            group_strategy: CoalesceGroupStrategy = RootOperandGrouping()
+        case LocalsCoalescingStrategy.root_operand_excluding_args:
+            group_strategy = RootOperandGrouping(isolate=frozenset(subroutine.parameters))
+        case LocalsCoalescingStrategy.aggressive:
+            group_strategy = AggressiveGrouping(subroutine)
+    logger.debug(
+        f"Coalescing local variables in {subroutine.id}"
+        f" using strategy {type(group_strategy).__name__}"
+    )
+    replacements = coalesce_registers(group_strategy, subroutine)
+    logger.debug(f"Coalescing resulted in {replacements} replacement/s")

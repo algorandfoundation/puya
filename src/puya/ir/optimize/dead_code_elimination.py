@@ -195,7 +195,7 @@ class SubroutineCollector(visitor.IRTraverser):
         self.visit_subroutine(callsub.target)
 
 
-def remove_unused_subroutines(_context: CompileContext, program: models.Program) -> bool:
+def remove_unused_subroutines(program: models.Program) -> bool:
     subroutines = SubroutineCollector.collect(program)
     if modified := (len(subroutines) != (1 + len(program.subroutines))):
         to_keep = [p for p in program.subroutines if p in subroutines]

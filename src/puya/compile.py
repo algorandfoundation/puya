@@ -1,4 +1,5 @@
 import functools
+import shutil
 import typing
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -108,18 +109,16 @@ def _ir_to_teal(
         out_dir = None
         if out_dir_setting := context.compilation_set.get(artifact.id):
             name = artifact.ir.metadata.name
-            maybe_base_path = out_dir_setting / name
-            first_seen = artifacts_by_output_base.setdefault(maybe_base_path, artifact)
+            maybe_out_dir = out_dir_setting / f"{name}.ir"
+            first_seen = artifacts_by_output_base.setdefault(maybe_out_dir, artifact)
             if artifact is not first_seen:
                 logger.error(f"duplicate contract name {name}", location=artifact.source_location)
                 logger.info(
                     f"contract name {name} first seen here", location=first_seen.source_location
                 )
             else:
-                out_dir = out_dir_setting
-                for file in out_dir.iterdir():
-                    if file.suffix in (".ir", ".mir"):
-                        file.unlink()
+                out_dir = maybe_out_dir
+                shutil.rmtree(out_dir, ignore_errors=True)
 
         artifact_context = attrs_extend(
             ArtifactCompileContext,

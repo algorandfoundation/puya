@@ -114,20 +114,20 @@ def optimize_contract_ir(
     pipeline = get_subroutine_optimizations(level)
     program = deepcopy(program)
     for pass_num in range(1, MAX_PASSES + 1):
-        contract_modified = False
+        program_modified = False
         logger.debug(f"Begin optimization pass {pass_num}/{MAX_PASSES}")
         if level:
-            analyse_subroutines_for_inlining(context, program)
+            analyse_subroutines_for_inlining(program)
         for subroutine in program.all_subroutines:
             logger.debug(f"Optimizing subroutine {subroutine.id}")
             for optimizer in pipeline:
                 logger.debug(f"Optimizer: {optimizer.desc}")
                 if optimizer.optimize(context, subroutine):
-                    contract_modified = True
+                    program_modified = True
                 subroutine.validate_with_ssa()
-        if remove_unused_subroutines(context, program):
-            contract_modified = True
-        if not contract_modified:
+        if remove_unused_subroutines(program):
+            program_modified = True
+        if not program_modified:
             logger.debug(f"No optimizations performed in pass {pass_num}, ending loop")
             break
         if context.options.output_optimization_ir:
