@@ -573,20 +573,18 @@ def _wtypes_to_structs(
     Will recursively include any structs referenced in fields
     """
     structs = list(structs)
-    struct_results = dict[wtypes.ARC4Struct | wtypes.WTuple, ARC4Struct]()
+    struct_results = dict[str, ARC4Struct]()
     while structs:
         struct = structs.pop()
-        if struct in struct_results:
+        if struct.name in struct_results:
             continue
         structs.extend(
             wtype
             for wtype in struct.fields.values()
-            if isinstance(wtype, wtypes.ARC4Struct) and wtype not in struct_results
+            if isinstance(wtype, wtypes.ARC4Struct) and wtype.name not in struct_results
         )
-        struct_results[struct] = _wtype_to_struct(struct)
-    return {
-        wtype.name: struct_results[wtype] for wtype in sorted(struct_results, key=lambda s: s.name)
-    }
+        struct_results[struct.name] = _wtype_to_struct(struct)
+    return dict(sorted(struct_results.items(), key=lambda item: item[0]))
 
 
 def _wtype_to_struct(struct: wtypes.ARC4Struct | wtypes.WTuple) -> ARC4Struct:

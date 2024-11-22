@@ -1,0 +1,193 @@
+#pragma version 10
+
+test_cases.struct_by_name.contract.DemoContract.approval_program:
+    intcblock 0 1
+    bytecblock 0x151f7c75 0x 0x01
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.struct_by_name.contract.DemoContract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // struct_by_name/contract.py:16
+    // class DemoContract(ARC4Contract):
+    proto 0 1
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz __puya_arc4_router___bare_routing@7
+    txna ApplicationArgs 0
+    pushbytes 0x3d694b70 // method "get_one()(uint8,uint8)"
+    pushbytes 0x7fb34e8a // method "get_two()(uint8,uint8)"
+    pushbytes 0x46dadea3 // method "compare()bool"
+    uncover 3
+    match __puya_arc4_router___get_one_route@2 __puya_arc4_router___get_two_route@3 __puya_arc4_router___compare_route@4
+    b __puya_arc4_router___switch_case_default@5
+
+__puya_arc4_router___get_one_route@2:
+    // struct_by_name/contract.py:23
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub get_one
+    swap
+    bytec_1 // 0x
+    swap
+    concat
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    retsub
+
+__puya_arc4_router___get_two_route@3:
+    // struct_by_name/contract.py:30
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub get_two
+    swap
+    bytec_1 // 0x
+    swap
+    concat
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    retsub
+
+__puya_arc4_router___compare_route@4:
+    // struct_by_name/contract.py:37
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub compare
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    retsub
+
+__puya_arc4_router___switch_case_default@5:
+    b __puya_arc4_router___after_if_else@11
+
+__puya_arc4_router___bare_routing@7:
+    // struct_by_name/contract.py:16
+    // class DemoContract(ARC4Contract):
+    txn OnCompletion
+    intc_0 // 0
+    swap
+    match __puya_arc4_router_____algopy_default_create@8
+    b __puya_arc4_router___switch_case_default@9
+
+__puya_arc4_router_____algopy_default_create@8:
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    assert // can only call when creating
+    callsub __algopy_default_create
+    intc_1 // 1
+    retsub
+
+__puya_arc4_router___switch_case_default@9:
+
+__puya_arc4_router___after_if_else@11:
+    // struct_by_name/contract.py:16
+    // class DemoContract(ARC4Contract):
+    intc_0 // 0
+    retsub
+
+
+// test_cases.struct_by_name.contract.DemoContract.get_one() -> bytes, bytes:
+get_one:
+    // struct_by_name/contract.py:23-24
+    // @arc4.abimethod()
+    // def get_one(self) -> StructOne:
+    proto 0 2
+    // struct_by_name/contract.py:26
+    // x=arc4.UInt8(1),
+    bytec_2 // 0x01
+    // struct_by_name/contract.py:27
+    // y=arc4.UInt8(1),
+    dup
+    // struct_by_name/contract.py:25-28
+    // return StructOne(
+    //     x=arc4.UInt8(1),
+    //     y=arc4.UInt8(1),
+    // )
+    retsub
+
+
+// test_cases.struct_by_name.contract.DemoContract.get_two() -> bytes, bytes:
+get_two:
+    // struct_by_name/contract.py:30-31
+    // @arc4.abimethod()
+    // def get_two(self) -> StructTwo:
+    proto 0 2
+    // struct_by_name/contract.py:33
+    // x=arc4.UInt8(1),
+    bytec_2 // 0x01
+    // struct_by_name/contract.py:34
+    // y=arc4.UInt8(1),
+    dup
+    // struct_by_name/contract.py:32-35
+    // return StructTwo(
+    //     x=arc4.UInt8(1),
+    //     y=arc4.UInt8(1),
+    // )
+    retsub
+
+
+// test_cases.struct_by_name.contract.DemoContract.compare() -> uint64:
+compare:
+    // struct_by_name/contract.py:37-38
+    // @arc4.abimethod()
+    // def compare(self) -> bool:
+    proto 0 1
+    // struct_by_name/contract.py:39
+    // return self.get_one() == self.get_two()
+    callsub get_one
+    swap
+    callsub get_two
+    cover 2
+    b==
+    uncover 2
+    uncover 2
+    b==
+    &&
+    retsub
+
+
+// test_cases.struct_by_name.contract.DemoContract.__algopy_default_create() -> void:
+__algopy_default_create:
+    proto 0 0
+    retsub
