@@ -1,0 +1,35 @@
+contract DemoContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.struct_by_name.contract.DemoContract.get_one(): test_cases.struct_by_name.contract.StructOne
+  {
+    return (1_arc4u8, 1_arc4u8)
+  }
+  
+  abimethod test_cases.struct_by_name.contract.DemoContract.get_two(): test_cases.struct_by_name.contract.StructTwo
+  {
+    return (1_arc4u8, 1_arc4u8)
+  }
+  
+  abimethod test_cases.struct_by_name.contract.DemoContract.compare(): bool
+  {
+    return &&(reinterpret_cast<biguint>(SINGLE_EVAL(id=0, source=this::get_one())[0]) == reinterpret_cast<biguint>(SINGLE_EVAL(id=1, source=this::get_two())[0]), reinterpret_cast<biguint>(SINGLE_EVAL(id=0)[1]) == reinterpret_cast<biguint>(SINGLE_EVAL(id=1)[1]))
+  }
+  
+  baremethod test_cases.struct_by_name.contract.DemoContract.__algopy_default_create(): void
+  {
+  }
+}

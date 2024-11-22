@@ -1,0 +1,102 @@
+contract test_cases.struct_by_name.contract.DemoContract:
+    program approval:
+        subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+            block@0: // L1
+                let tmp%0#0: bool = test_cases.struct_by_name.contract.DemoContract.__puya_arc4_router__()
+                return tmp%0#0
+        
+        subroutine test_cases.struct_by_name.contract.DemoContract.__puya_arc4_router__() -> bool:
+            block@0: // L16
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                let tmp%1#0: bool = (!= tmp%0#0 0u)
+                goto tmp%1#0 ? block@1 : block@7
+            block@1: // abi_routing_L16
+                let tmp%2#0: bytes = (txna ApplicationArgs 0)
+                switch tmp%2#0 {method "get_one()(uint8,uint8)" => block@2, method "get_two()(uint8,uint8)" => block@3, method "compare()bool" => block@4, * => block@5}
+            block@2: // get_one_route_L23
+                let tmp%3#0: uint64 = (txn OnCompletion)
+                let tmp%4#0: bool = (== tmp%3#0 NoOp)
+                (assert tmp%4#0) // OnCompletion is not NoOp
+                let tmp%5#0: uint64 = (txn ApplicationID)
+                let tmp%6#0: bool = (!= tmp%5#0 0u)
+                (assert tmp%6#0) // can only call when not creating
+                let (elements_to_encode%0#0: bytes, elements_to_encode%1#0: bytes) = test_cases.struct_by_name.contract.DemoContract.get_one()
+                let encoded_tuple_buffer%1#0: bytes = (concat 0x elements_to_encode%0#0)
+                let encoded_tuple_buffer%2#0: bytes = (concat encoded_tuple_buffer%1#0 elements_to_encode%1#0)
+                let tmp%7#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%2#0)
+                (log tmp%7#0)
+                return 1u
+            block@3: // get_two_route_L30
+                let tmp%8#0: uint64 = (txn OnCompletion)
+                let tmp%9#0: bool = (== tmp%8#0 NoOp)
+                (assert tmp%9#0) // OnCompletion is not NoOp
+                let tmp%10#0: uint64 = (txn ApplicationID)
+                let tmp%11#0: bool = (!= tmp%10#0 0u)
+                (assert tmp%11#0) // can only call when not creating
+                let (elements_to_encode%2#0: bytes, elements_to_encode%3#0: bytes) = test_cases.struct_by_name.contract.DemoContract.get_two()
+                let encoded_tuple_buffer%4#0: bytes = (concat 0x elements_to_encode%2#0)
+                let encoded_tuple_buffer%5#0: bytes = (concat encoded_tuple_buffer%4#0 elements_to_encode%3#0)
+                let tmp%12#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%5#0)
+                (log tmp%12#0)
+                return 1u
+            block@4: // compare_route_L37
+                let tmp%13#0: uint64 = (txn OnCompletion)
+                let tmp%14#0: bool = (== tmp%13#0 NoOp)
+                (assert tmp%14#0) // OnCompletion is not NoOp
+                let tmp%15#0: uint64 = (txn ApplicationID)
+                let tmp%16#0: bool = (!= tmp%15#0 0u)
+                (assert tmp%16#0) // can only call when not creating
+                let to_encode%0#0: bool = test_cases.struct_by_name.contract.DemoContract.compare()
+                let encoded_bool%0#0: bytes = (setbit 0x00 0u to_encode%0#0)
+                let tmp%17#0: bytes = (concat 0x151f7c75 encoded_bool%0#0)
+                (log tmp%17#0)
+                return 1u
+            block@5: // switch_case_default_L16
+                goto block@6
+            block@6: // switch_case_next_L16
+                goto block@11
+            block@7: // bare_routing_L16
+                let tmp%18#0: uint64 = (txn OnCompletion)
+                switch tmp%18#0 {0u => block@8, * => block@9}
+            block@8: // __algopy_default_create_L1
+                let tmp%19#0: uint64 = (txn ApplicationID)
+                let tmp%20#0: bool = (== tmp%19#0 0u)
+                (assert tmp%20#0) // can only call when creating
+                test_cases.struct_by_name.contract.DemoContract.__algopy_default_create()
+                return 1u
+            block@9: // switch_case_default_L16
+                goto block@10
+            block@10: // switch_case_next_L16
+                goto block@11
+            block@11: // after_if_else_L16
+                return 0u
+        
+        subroutine test_cases.struct_by_name.contract.DemoContract.get_one() -> <bytes, bytes>:
+            block@0: // L23
+                return 0x01 0x01
+        
+        subroutine test_cases.struct_by_name.contract.DemoContract.get_two() -> <bytes, bytes>:
+            block@0: // L30
+                return 0x01 0x01
+        
+        subroutine test_cases.struct_by_name.contract.DemoContract.compare() -> bool:
+            block@0: // L37
+                let (awst_tmp%0#0: bytes, awst_tmp%1#0: bytes) = test_cases.struct_by_name.contract.DemoContract.get_one()
+                let reinterpret_biguint%0#0: biguint = awst_tmp%0#0
+                let (awst_tmp%2#0: bytes, awst_tmp%3#0: bytes) = test_cases.struct_by_name.contract.DemoContract.get_two()
+                let reinterpret_biguint%1#0: biguint = awst_tmp%2#0
+                let tmp%0#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
+                let reinterpret_biguint%2#0: biguint = awst_tmp%1#0
+                let reinterpret_biguint%3#0: biguint = awst_tmp%3#0
+                let tmp%1#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
+                let tmp%2#0: bool = (&& tmp%0#0 tmp%1#0)
+                return tmp%2#0
+        
+        subroutine test_cases.struct_by_name.contract.DemoContract.__algopy_default_create() -> void:
+            block@0: // L1
+                return 
+    
+    program clear-state:
+        subroutine algopy.arc4.ARC4Contract.clear_state_program() -> bool:
+            block@0: // L1
+                return 1u
