@@ -28,7 +28,7 @@ def assemble_bytecode_and_debug_info(
     function_block_ids = {s.blocks[0].label: s.signature.name for s in program.all_subroutines}
 
     version_bytes = _encode_varuint(program.avm_version)
-    pc_events = defaultdict[int, DebugEvent](DebugEvent)  # type: ignore[arg-type]
+    pc_events = defaultdict[int, DebugEvent](lambda: DebugEvent())
     pc_ops = dict[int, models.AVMOp]()
     label_pcs = dict[str, int]()
 
@@ -85,11 +85,7 @@ def assemble_bytecode_and_debug_info(
 
     return models.AssembledProgram(
         bytecode=b"".join(bytecode),
-        debug_info=build_debug_info(
-            ctx,
-            pc_ops,
-            pc_events,
-        ),
+        debug_info=build_debug_info(ctx, pc_ops, pc_events),
         template_variables={
             var: ctx.provided_template_variables.get(var, (None, None))[0]
             for var in ctx.template_variable_types
@@ -214,7 +210,7 @@ def _resolve_template_vars[T: (int, bytes)](
             try:
                 maybe_value, val_loc = ctx.provided_template_variables[value_or_template]
             except KeyError:
-                if not ctx.debug_only:
+                if ctx.is_reference or ctx.options.output_bytecode:
                     logger.error(  # noqa: TRY400
                         f"template variable not defined: {value_or_template}", location=var_loc
                     )

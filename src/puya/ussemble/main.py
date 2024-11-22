@@ -14,17 +14,17 @@ from puya.utils import attrs_extend
 def assemble_program(
     ctx: CompileContext,
     program: teal.TealProgram,
-    template_variables: Mapping[str, TemplateValue],
     *,
-    debug_only: bool = False,
+    template_constants: Mapping[str, TemplateValue] | None = None,
+    is_reference: bool = False,
 ) -> models.AssembledProgram:
     referenced_template_vars = _gather_template_variables(program)
     assemble_ctx = attrs_extend(
         AssembleContext,
         ctx,
-        debug_only=debug_only,
+        is_reference=is_reference,
         template_variable_types=referenced_template_vars,
-        provided_template_variables=template_variables,
+        template_constants=template_constants,
     )
     return assemble_bytecode_and_debug_info(assemble_ctx, program)
 

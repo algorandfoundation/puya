@@ -11,6 +11,7 @@ from puya.models import (
     ContractReference,
     LogicSignatureMetaData,
     LogicSigReference,
+    ProgramKind,
     StateTotals,
     TemplateValue,
 )
@@ -56,7 +57,8 @@ class ProgramBytecodeProtocol(typing.Protocol):
     def __call__(
         self,
         ref: ContractReference | LogicSigReference,
-        kind: typing.Literal["approval", "clear_state", "logic_sig"],
+        kind: ProgramKind,
+        *,
         template_constants: immutabledict[str, TemplateValue],
     ) -> bytes: ...
 

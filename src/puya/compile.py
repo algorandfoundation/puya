@@ -34,6 +34,7 @@ from puya.models import (
     DebugInfo,
     LogicSignatureMetaData,
     LogicSigReference,
+    ProgramKind,
     TemplateValue,
 )
 from puya.options import PuyaOptions
@@ -83,20 +84,26 @@ def _ir_to_teal(
     @functools.cache
     def get_program_bytecode(
         ref: ContractReference | LogicSigReference,
-        kind: typing.Literal["approval", "clear_state", "logic_sig"],
+        kind: ProgramKind,
         template_constants: immutabledict[str, TemplateValue],
     ) -> bytes:
         try:
             comp_ref = compiled_artifacts[ref]
         except KeyError:
             raise CodeError(f"invalid reference: {ref}") from None
-        if kind == "logic_sig" and isinstance(comp_ref, _CompiledLogicSig):
-            return assemble_program(context, comp_ref.program.teal, template_constants).bytecode
-        elif kind in ("approval", "clear_state") and isinstance(comp_ref, _CompiledContract):
-            program = comp_ref.approval_program if kind == "approval" else comp_ref.clear_program
-            return assemble_program(context, program.teal, template_constants).bytecode
-        else:
-            raise InternalError(f"invalid kind: {kind}, {type(comp_ref)}")
+        match kind, comp_ref:
+            case ProgramKind.logic_signature, _CompiledLogicSig(program=program):
+                pass
+            case ProgramKind.approval, _CompiledContract(approval_program=program):
+                pass
+            case ProgramKind.clear_state, _CompiledContract(clear_program=program):
+                pass
+            case _:
+                raise InternalError(f"invalid kind: {kind}, {type(comp_ref)}")
+        assembled = assemble_program(
+            context, program.teal, template_constants=template_constants, is_reference=True
+        )
+        return assembled.bytecode
 
     state_totals = {
         ir.metadata.ref: ir.metadata.state_totals for ir in all_ir if isinstance(ir, ContractIR)
@@ -240,12 +247,7 @@ def _logic_sig_to_teal(
 
 
 def _compile_program(context: ArtifactCompileContext, program: TealProgram) -> _CompiledProgram:
-    assembled = assemble_program(
-        context,
-        program,
-        template_variables={k: (v, None) for k, v in context.options.template_variables.items()},
-        debug_only=not context.options.output_bytecode,
-    )
+    assembled = assemble_program(context, program)
     return _CompiledProgram(
         teal=program,
         teal_src=emit_teal(context, program),

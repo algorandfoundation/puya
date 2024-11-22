@@ -129,7 +129,6 @@ def test_assemble_last_op_jump() -> None:
             ),
             subroutines=[],
         ),
-        template_variables={},
     ).bytecode
 
     assert bytecode == b"".join(

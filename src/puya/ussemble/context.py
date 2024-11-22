@@ -11,15 +11,20 @@ from puya.models import TemplateValue
 
 @attrs.frozen(kw_only=True)
 class AssembleContext(CompileContext):
-    debug_only: bool
+    is_reference: bool
     template_variable_types: Mapping[str, typing.Literal[AVMType.uint64, AVMType.bytes]]
     """Template variables that are required and their types"""
-    provided_template_variables: Mapping[str, TemplateValue]
-    """Template variables provided via command line, or compilation"""
+    template_constants: Mapping[str, TemplateValue] | None
+    """Template variables provided via compilation"""
+
+    @cached_property
+    def provided_template_variables(self) -> Mapping[str, TemplateValue]:
+        return {
+            **{k: (v, None) for k, v in self.options.template_variables.items()},
+            **(self.template_constants or {}),
+        }
 
     @cached_property
     def offset_pc_from_constant_blocks(self) -> bool:
         # only need to offset PC if there are any unspecified template variables
-        return self.debug_only and not (
-            self.provided_template_variables.keys() >= self.template_variable_types.keys()
-        )
+        return not (self.provided_template_variables.keys() >= self.template_variable_types.keys())
