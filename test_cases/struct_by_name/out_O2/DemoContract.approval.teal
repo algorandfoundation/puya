@@ -11,10 +11,10 @@ test_cases.struct_by_name.contract.DemoContract.approval_program:
 __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@7
-    pushbytess 0x3d694b70 0x7fb34e8a 0x46dadea3 // method "get_one()(uint8,uint8)", method "get_two()(uint8,uint8)", method "compare()bool"
+    bz __puya_arc4_router___bare_routing@8
+    pushbytess 0x3d694b70 0x7fb34e8a 0x8ba7c4c2 0x46dadea3 // method "get_one()(uint8,uint8)", method "get_two()(uint8,uint8)", method "get_three()(uint8,uint8)", method "compare()bool"
     txna ApplicationArgs 0
-    match __puya_arc4_router___get_one_route@2 __puya_arc4_router___get_two_route@3 __puya_arc4_router___compare_route@4
+    match __puya_arc4_router___get_one_route@2 __puya_arc4_router___get_two_route@3 __puya_arc4_router___get_three_route@4 __puya_arc4_router___compare_route@5
     intc_1 // 0
     retsub
 
@@ -48,7 +48,22 @@ __puya_arc4_router___get_two_route@3:
     intc_0 // 1
     retsub
 
-__puya_arc4_router___compare_route@4:
+__puya_arc4_router___get_three_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub get_three
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    retsub
+
+__puya_arc4_router___compare_route@5:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -66,16 +81,16 @@ __puya_arc4_router___compare_route@4:
     intc_0 // 1
     retsub
 
-__puya_arc4_router___bare_routing@7:
+__puya_arc4_router___bare_routing@8:
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@11
+    bnz __puya_arc4_router___after_if_else@12
     txn ApplicationID
     !
     assert // can only call when creating
     intc_0 // 1
     retsub
 
-__puya_arc4_router___after_if_else@11:
+__puya_arc4_router___after_if_else@12:
     intc_1 // 0
     retsub
 
@@ -96,6 +111,14 @@ get_two:
     retsub
 
 
+// test_cases.struct_by_name.contract.DemoContract.get_three() -> bytes, bytes:
+get_three:
+    proto 0 2
+    bytec_1 // 0x01
+    dup
+    retsub
+
+
 // test_cases.struct_by_name.contract.DemoContract.compare() -> uint64:
 compare:
     proto 0 1
@@ -107,4 +130,21 @@ compare:
     cover 2
     b==
     &&
+    bz compare_bool_false@3
+    callsub get_two
+    callsub get_three
+    uncover 3
+    uncover 2
+    b==
+    cover 2
+    b==
+    &&
+    bz compare_bool_false@3
+    intc_0 // 1
+    b compare_bool_merge@4
+
+compare_bool_false@3:
+    intc_1 // 0
+
+compare_bool_merge@4:
     retsub

@@ -181,13 +181,15 @@ def _get_source_info(debug_info: DebugInfo) -> Sequence[models.SourceInfo]:
 
 class _StructAliases:
     def __init__(self, structs: Iterable[ARC4Struct]) -> None:
-        self.aliases = dict[str, str]()
+        alias_to_fullname = dict[str, str]()
         for struct in structs:
-            self.aliases[struct.fullname] = (
+            alias = (
                 struct.fullname
-                if struct.name in self.aliases or struct.name in models.AVMType
+                if struct.name in alias_to_fullname or struct.name in models.AVMType
                 else struct.name
             )
+            alias_to_fullname[alias] = struct.fullname
+        self.aliases = {v: k for k, v in alias_to_fullname.items()}
 
     @typing.overload
     def resolve(self, struct: str) -> str: ...
@@ -203,7 +205,7 @@ class _StructAliases:
 
 def _struct_to_event(structs: _StructAliases, struct: ARC4Struct) -> models.Event:
     return models.Event(
-        name=struct.name,
+        name=structs.resolve(struct.name),
         desc=struct.desc,
         args=[
             models.EventArg(
