@@ -1,3 +1,4 @@
+import re
 import textwrap
 from collections.abc import Iterable, Sequence
 from pathlib import Path
@@ -18,6 +19,7 @@ logger = log.get_logger(__name__)
 
 _AUTO_GENERATED_COMMENT = "# This file is auto-generated, do not modify"
 _INDENT = " " * 4
+_NON_ALPHA_NUMERIC = re.compile(r"\W+")
 
 
 def write_arc4_client(contract: arc56.Contract, out_dir: Path) -> None:
@@ -42,7 +44,7 @@ class _ClientGenerator:
         self.contract = contract
         self.python_methods = set[str]()
         self.struct_to_class = dict[str, str]()
-        self.reserved_class_names = {contract.name}
+        self.reserved_class_names = set[str]()
         self.reserved_method_names = set[str]()
         self.class_decls = list[str]()
 
@@ -53,6 +55,7 @@ class _ClientGenerator:
     def _gen(self) -> str:
         # generate class definitions for any referenced structs in methods
         # don't generate from self.contract.structs as it may contain other struct definitions
+        client_class = self._unique_class(self.contract.name)
         for method in self.contract.methods:
             for struct in filter(None, (method.returns.struct, *(a.struct for a in method.args))):
                 if struct not in self.struct_to_class and (
@@ -70,7 +73,7 @@ class _ClientGenerator:
                 "",
                 *self.class_decls,
                 "",
-                f"class {self.contract.name}(algopy.arc4.ARC4Client, typing.Protocol):",
+                f"class {client_class}(algopy.arc4.ARC4Client, typing.Protocol):",
                 *_docstring(self.contract.desc),
                 *self._gen_methods(),
             )
@@ -110,7 +113,7 @@ class _ClientGenerator:
             return str(arc4_to_pytype(typ, None))
 
     def _unique_class(self, name: str) -> str:
-        base_name = name
+        base_name = name = _get_python_safe_name(name)
         seq = 1
         while name in self.reserved_class_names:
             seq += 1
@@ -120,7 +123,7 @@ class _ClientGenerator:
         return name
 
     def _unique_method(self, name: str) -> str:
-        base_name = name
+        base_name = name = _get_python_safe_name(name)
         seq = 1
         while name in self.reserved_method_names:
             seq += 1
@@ -218,3 +221,7 @@ def _indent(lines: Iterable[str] | str) -> str:
     if not isinstance(lines, str):
         lines = "\n".join(lines)
     return textwrap.indent(lines, _INDENT)
+
+
+def _get_python_safe_name(name: str) -> str:
+    return _NON_ALPHA_NUMERIC.sub("_", name)

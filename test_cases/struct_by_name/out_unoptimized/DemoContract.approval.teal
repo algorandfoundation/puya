@@ -9,23 +9,24 @@ test_cases.struct_by_name.contract.DemoContract.approval_program:
 
 // test_cases.struct_by_name.contract.DemoContract.__puya_arc4_router__() -> uint64:
 __puya_arc4_router__:
-    // struct_by_name/contract.py:16
+    // struct_by_name/contract.py:18
     // class DemoContract(ARC4Contract):
     proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@7
+    bz __puya_arc4_router___bare_routing@8
     txna ApplicationArgs 0
     pushbytes 0x3d694b70 // method "get_one()(uint8,uint8)"
     pushbytes 0x7fb34e8a // method "get_two()(uint8,uint8)"
+    pushbytes 0x8ba7c4c2 // method "get_three()(uint8,uint8)"
     pushbytes 0x46dadea3 // method "compare()bool"
-    uncover 3
-    match __puya_arc4_router___get_one_route@2 __puya_arc4_router___get_two_route@3 __puya_arc4_router___compare_route@4
-    b __puya_arc4_router___switch_case_default@5
+    uncover 4
+    match __puya_arc4_router___get_one_route@2 __puya_arc4_router___get_two_route@3 __puya_arc4_router___get_three_route@4 __puya_arc4_router___compare_route@5
+    b __puya_arc4_router___switch_case_default@6
 
 __puya_arc4_router___get_one_route@2:
-    // struct_by_name/contract.py:23
+    // struct_by_name/contract.py:25
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -50,7 +51,7 @@ __puya_arc4_router___get_one_route@2:
     retsub
 
 __puya_arc4_router___get_two_route@3:
-    // struct_by_name/contract.py:30
+    // struct_by_name/contract.py:32
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -74,8 +75,33 @@ __puya_arc4_router___get_two_route@3:
     intc_1 // 1
     retsub
 
-__puya_arc4_router___compare_route@4:
-    // struct_by_name/contract.py:37
+__puya_arc4_router___get_three_route@4:
+    // struct_by_name/contract.py:39
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub get_three
+    swap
+    bytec_1 // 0x
+    swap
+    concat
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    retsub
+
+__puya_arc4_router___compare_route@5:
+    // struct_by_name/contract.py:46
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -97,19 +123,19 @@ __puya_arc4_router___compare_route@4:
     intc_1 // 1
     retsub
 
-__puya_arc4_router___switch_case_default@5:
-    b __puya_arc4_router___after_if_else@11
+__puya_arc4_router___switch_case_default@6:
+    b __puya_arc4_router___after_if_else@12
 
-__puya_arc4_router___bare_routing@7:
-    // struct_by_name/contract.py:16
+__puya_arc4_router___bare_routing@8:
+    // struct_by_name/contract.py:18
     // class DemoContract(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@8
-    b __puya_arc4_router___switch_case_default@9
+    match __puya_arc4_router_____algopy_default_create@9
+    b __puya_arc4_router___switch_case_default@10
 
-__puya_arc4_router_____algopy_default_create@8:
+__puya_arc4_router_____algopy_default_create@9:
     txn ApplicationID
     intc_0 // 0
     ==
@@ -118,10 +144,10 @@ __puya_arc4_router_____algopy_default_create@8:
     intc_1 // 1
     retsub
 
-__puya_arc4_router___switch_case_default@9:
+__puya_arc4_router___switch_case_default@10:
 
-__puya_arc4_router___after_if_else@11:
-    // struct_by_name/contract.py:16
+__puya_arc4_router___after_if_else@12:
+    // struct_by_name/contract.py:18
     // class DemoContract(ARC4Contract):
     intc_0 // 0
     retsub
@@ -129,17 +155,17 @@ __puya_arc4_router___after_if_else@11:
 
 // test_cases.struct_by_name.contract.DemoContract.get_one() -> bytes, bytes:
 get_one:
-    // struct_by_name/contract.py:23-24
+    // struct_by_name/contract.py:25-26
     // @arc4.abimethod()
     // def get_one(self) -> StructOne:
     proto 0 2
-    // struct_by_name/contract.py:26
+    // struct_by_name/contract.py:28
     // x=arc4.UInt8(1),
     bytec_2 // 0x01
-    // struct_by_name/contract.py:27
+    // struct_by_name/contract.py:29
     // y=arc4.UInt8(1),
     dup
-    // struct_by_name/contract.py:25-28
+    // struct_by_name/contract.py:27-30
     // return StructOne(
     //     x=arc4.UInt8(1),
     //     y=arc4.UInt8(1),
@@ -149,18 +175,38 @@ get_one:
 
 // test_cases.struct_by_name.contract.DemoContract.get_two() -> bytes, bytes:
 get_two:
-    // struct_by_name/contract.py:30-31
+    // struct_by_name/contract.py:32-33
     // @arc4.abimethod()
     // def get_two(self) -> StructTwo:
     proto 0 2
-    // struct_by_name/contract.py:33
+    // struct_by_name/contract.py:35
     // x=arc4.UInt8(1),
     bytec_2 // 0x01
-    // struct_by_name/contract.py:34
+    // struct_by_name/contract.py:36
     // y=arc4.UInt8(1),
     dup
-    // struct_by_name/contract.py:32-35
+    // struct_by_name/contract.py:34-37
     // return StructTwo(
+    //     x=arc4.UInt8(1),
+    //     y=arc4.UInt8(1),
+    // )
+    retsub
+
+
+// test_cases.struct_by_name.contract.DemoContract.get_three() -> bytes, bytes:
+get_three:
+    // struct_by_name/contract.py:39-40
+    // @arc4.abimethod()
+    // def get_three(self) -> StructThree:
+    proto 0 2
+    // struct_by_name/contract.py:42
+    // x=arc4.UInt8(1),
+    bytec_2 // 0x01
+    // struct_by_name/contract.py:43
+    // y=arc4.UInt8(1),
+    dup
+    // struct_by_name/contract.py:41-44
+    // return StructThree(
     //     x=arc4.UInt8(1),
     //     y=arc4.UInt8(1),
     // )
@@ -169,12 +215,12 @@ get_two:
 
 // test_cases.struct_by_name.contract.DemoContract.compare() -> uint64:
 compare:
-    // struct_by_name/contract.py:37-38
+    // struct_by_name/contract.py:46-47
     // @arc4.abimethod()
     // def compare(self) -> bool:
     proto 0 1
-    // struct_by_name/contract.py:39
-    // return self.get_one() == self.get_two()
+    // struct_by_name/contract.py:48
+    // return self.get_one() == self.get_two() and self.get_two() == self.get_three()
     callsub get_one
     swap
     callsub get_two
@@ -184,6 +230,26 @@ compare:
     uncover 2
     b==
     &&
+    bz compare_bool_false@3
+    callsub get_two
+    swap
+    callsub get_three
+    cover 2
+    b==
+    uncover 2
+    uncover 2
+    b==
+    &&
+    bz compare_bool_false@3
+    intc_1 // 1
+    b compare_bool_merge@4
+
+compare_bool_false@3:
+    intc_0 // 0
+
+compare_bool_merge@4:
+    // struct_by_name/contract.py:48
+    // return self.get_one() == self.get_two() and self.get_two() == self.get_three()
     retsub
 
 
