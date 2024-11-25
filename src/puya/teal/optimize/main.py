@@ -104,15 +104,7 @@ def _inline_jump_chains(teal_sub: models.TealSubroutine) -> None:
                 break
         replacements[src] = target
         logger.debug(f"branching to {src} will be replaced with {target}")
-    for block in teal_sub.blocks:
-        for op_idx, op in enumerate(block.ops):
-            if isinstance(op, models.Branch | models.BranchNonZero | models.BranchZero):
-                if op.target in replacements:
-                    block.ops[op_idx] = attrs.evolve(op, target=replacements[op.target])
-            elif isinstance(op, models.Switch | models.Match):
-                block.ops[op_idx] = attrs.evolve(
-                    op, targets=[replacements.get(t, t) for t in op.targets]
-                )
+    _replace_labels(teal_sub, replacements)
 
 
 def _inline_single_op_blocks(teal_sub: models.TealSubroutine) -> None:
@@ -213,8 +205,11 @@ def _collapse_empty_blocks(teal_sub: models.TealSubroutine) -> None:
             replacements[curr.label] = next_label
         else:
             break
+    _replace_labels(teal_sub, replacements)
 
-    for block in blocks:
+
+def _replace_labels(teal_sub: models.TealSubroutine, replacements: dict[str, str]) -> None:
+    for block in teal_sub.blocks:
         for op_idx, op in enumerate(block.ops):
             if isinstance(op, models.Branch | models.BranchNonZero | models.BranchZero):
                 if op.target in replacements:
