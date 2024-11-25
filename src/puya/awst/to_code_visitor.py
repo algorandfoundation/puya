@@ -580,18 +580,19 @@ class ToCodeVisitor(
         return [f"return {statement.value.accept(self)}"]
 
     @typing.override
-    def visit_assert_statement(self, statement: nodes.AssertStatement) -> list[str]:
+    def visit_assert_expression(self, statement: nodes.AssertExpression) -> str:
         error_message = "" if statement.error_message is None else f'"{statement.error_message}"'
         if not statement.condition:
-            result = "err"
+            result = "err("
             if error_message:
-                result += f" {error_message}"
+                result += error_message
+            result += ")"
         else:
             result = f"assert({statement.condition.accept(self)}"
             if error_message:
                 result += f", comment={error_message}"
             result += ")"
-        return [result]
+        return result
 
     @typing.override
     def visit_loop_continue(self, _statement: nodes.LoopContinue) -> list[str]:

@@ -262,12 +262,13 @@ class ReturnStatement(Statement):
 
 
 @attrs.frozen
-class AssertStatement(Statement):
+class AssertExpression(Expression):
     condition: Expression | None
     error_message: str | None
+    wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
 
-    def accept(self, visitor: StatementVisitor[T]) -> T:
-        return visitor.visit_assert_statement(self)
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_assert_expression(self)
 
 
 @attrs.frozen(kw_only=True)

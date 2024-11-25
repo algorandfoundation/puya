@@ -1023,11 +1023,11 @@ class FunctionIRBuilder(
             )
         )
 
-    def visit_assert_statement(self, statement: awst_nodes.AssertStatement) -> TStatement:
+    def visit_assert_expression(self, expr: awst_nodes.AssertExpression) -> TStatement:
         op = self._add_assert(
-            condition_expr=statement.condition,
-            error_message=statement.error_message,
-            loc=statement.source_location,
+            condition_expr=expr.condition,
+            error_message=expr.error_message,
+            loc=expr.source_location,
         )
         if op:
             self.context.block_builder.add(op)

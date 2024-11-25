@@ -10,7 +10,7 @@ from puya import log
 from puya.awst.nodes import (
     AppStateExpression,
     AppStorageDefinition,
-    AssertStatement,
+    AssertExpression,
     AssignmentExpression,
     AssignmentStatement,
     BinaryBooleanOperator,
@@ -599,7 +599,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
     def visit_continue_stmt(self, stmt: mypy.nodes.ContinueStmt) -> LoopContinue:
         return LoopContinue(self._location(stmt))
 
-    def visit_assert_stmt(self, stmt: mypy.nodes.AssertStmt) -> AssertStatement:
+    def visit_assert_stmt(self, stmt: mypy.nodes.AssertStmt) -> ExpressionStatement:
         error_message: str | None = None
         if stmt.msg is not None:
             msg = stmt.msg.accept(self)
@@ -609,10 +609,12 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 case _:
                     self._error("only literal strings are supported as assertion messages", stmt)
         condition = stmt.expr.accept(self).bool_eval(self._location(stmt.expr))
-        return AssertStatement(
-            condition=condition.resolve(),
-            error_message=error_message,
-            source_location=self._location(stmt),
+        return ExpressionStatement(
+            AssertExpression(
+                condition=condition.resolve(),
+                error_message=error_message,
+                source_location=self._location(stmt),
+            )
         )
 
     def visit_del_stmt(self, stmt: mypy.nodes.DelStmt) -> Statement:

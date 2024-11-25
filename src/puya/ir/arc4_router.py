@@ -219,8 +219,10 @@ def assert_create_state(
         case invalid:
             typing.assert_never(invalid)
     return [
-        awst_nodes.AssertStatement(
-            condition=condition, error_message=error_message, source_location=location
+        awst_nodes.ExpressionStatement(
+            awst_nodes.AssertExpression(
+                condition=condition, error_message=error_message, source_location=location
+            )
         )
     ]
 
@@ -314,10 +316,12 @@ def check_allowed_oca(
     if len(allowed_ocas) > 1:
         oca_desc = f"one of {oca_desc}"
     return (
-        awst_nodes.AssertStatement(
-            condition=condition,
-            error_message=f"OnCompletion is not {oca_desc}",
-            source_location=location,
+        awst_nodes.ExpressionStatement(
+            awst_nodes.AssertExpression(
+                condition=condition,
+                error_message=f"OnCompletion is not {oca_desc}",
+                source_location=location,
+            )
         ),
     )
 

@@ -117,6 +117,11 @@ class FunctionTraverser(
         pass
 
     @typing.override
+    def visit_assert_expression(self, expr: awst_nodes.AssertExpression) -> None:
+        if expr.condition is not None:
+            expr.condition.accept(self)
+
+    @typing.override
     def visit_checked_maybe(self, expr: awst_nodes.CheckedMaybe) -> None:
         expr.expr.accept(self)
 
@@ -291,11 +296,6 @@ class FunctionTraverser(
     def visit_return_statement(self, statement: awst_nodes.ReturnStatement) -> None:
         if statement.value is not None:
             statement.value.accept(self)
-
-    @typing.override
-    def visit_assert_statement(self, statement: awst_nodes.AssertStatement) -> None:
-        if statement.condition is not None:
-            statement.condition.accept(self)
 
     @typing.override
     def visit_loop_continue(self, statement: awst_nodes.LoopContinue) -> None:
