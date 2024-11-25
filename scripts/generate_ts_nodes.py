@@ -1,15 +1,14 @@
-from typing import Iterable, Sequence
+import os
+from collections.abc import Iterable, Sequence
+from pathlib import Path
 
 import attrs
 import mypy.nodes
 import mypy.types
-
-from pathlib import Path
-
 from mypy.options import NEW_GENERIC_SYNTAX
 
-from puyapy.compile import get_mypy_options
-from puyapy.parse import ParseResult, parse_and_typecheck, SourceModule
+from puyapy.compile import _get_python_executable
+from puyapy.parse import SourceModule, parse_and_typecheck
 
 VCS_ROOT = Path(__file__).parent.parent
 
@@ -54,7 +53,6 @@ def capitalize_first(x: str) -> str:
 
 
 def to_camel_case(snake_str: str) -> str:
-
     return "".join(capitalize_first(x) for x in snake_str.split("_"))
 
 
@@ -100,7 +98,7 @@ def extract_type_name(_t: mypy.types.Type) -> str:
             if type.fullname == "builtins.bytes":
                 return "Uint8Array"
             if type.fullname == "_decimal.Decimal":
-                return "number"
+                return "string"
             if type.fullname.startswith("puya.models."):
                 return type.fullname[12:]
             if type.fullname == "puya.awst.nodes.Label":
@@ -127,7 +125,6 @@ def visit_class(c: mypy.nodes.ClassDef) -> TsType:
     is_str_enum = "StrEnum" in type_instance.base_types
     enum_auto = 1
     for x in c.defs.body:
-
         match x:
             case mypy.nodes.AssignmentStmt(
                 lvalues=[
@@ -151,7 +148,6 @@ def visit_class(c: mypy.nodes.ClassDef) -> TsType:
                     )
                 ]
             ):
-
                 member_name_camel = to_lower_camel_case(member_name)
                 type_instance.fields[member_name_camel] = (
                     member_name if is_str_enum else f"{enum_auto}"
@@ -238,13 +234,12 @@ def print_concrete_type_map(ts_types: list[TsType]) -> Iterable[str]:
         yield f"  {ts_type.name[0].lower()}{ts_type.name[1:]}: {ts_type.name},"
 
     # Special cases
-    yield f"  uInt64Constant: IntegerConstant,"
-    yield f"  bigUIntConstant: IntegerConstant,"
+    yield "  uInt64Constant: IntegerConstant,"
+    yield "  bigUIntConstant: IntegerConstant,"
     yield "} as const"
 
 
 def print_type(ts_type: TsType, ts_types: list[TsType]) -> Iterable[str]:
-
     if "StrEnum" in ts_type.base_types:
         yield from print_str_enum(ts_type)
         return
@@ -279,14 +274,14 @@ def print_type(ts_type: TsType, ts_types: list[TsType]) -> Iterable[str]:
         if field_name == "wtype":
             if ts_type.name == "Expression" or visitor_type != "Expression":
                 yield f"  {field_name}: {field_type}"
-                continue
             elif field_type == "wtypes.WType":
                 # Don't emit duplicate wtype properties which don't override the base type
-                continue
+                pass
             else:
                 yield f"  declare {field_name}: {field_type}"
-                continue
-        if "undefined" in field_type:
+        elif field_name == "id" and ts_type.name == "SingleEvaluation":
+            yield f"  {field_name}: symbol"
+        elif "undefined" in field_type:
             yield f"  {field_name}?: {field_type}"
         else:
             yield f"  {field_name}: {field_type}"
@@ -344,8 +339,46 @@ def write_file(ts_types: list[TsType], path: Path) -> None:
     path.write_text("\n".join(print_types(ts_types)), encoding="utf-8")
 
 
+def get_mypy_options() -> mypy.options.Options:
+    mypy_opts = mypy.options.Options()
+
+    # set python_executable so third-party packages can be found
+    mypy_opts.python_executable = _get_python_executable()
+
+    mypy_opts.preserve_asts = True
+    mypy_opts.include_docstrings = True
+    # next two options disable caching entirely.
+    # slows things down but prevents intermittent failures.
+    mypy_opts.incremental = False
+    mypy_opts.cache_dir = os.devnull
+
+    # strict mode flags, need to review these and all others too
+    mypy_opts.disallow_any_generics = True
+    mypy_opts.disallow_subclassing_any = True
+    mypy_opts.disallow_untyped_calls = True
+    mypy_opts.disallow_untyped_defs = True
+    mypy_opts.disallow_incomplete_defs = True
+    mypy_opts.check_untyped_defs = True
+    mypy_opts.disallow_untyped_decorators = True
+    mypy_opts.warn_redundant_casts = True
+    mypy_opts.warn_unused_ignores = True
+    mypy_opts.warn_return_any = True
+    mypy_opts.strict_equality = True
+    mypy_opts.strict_concatenate = True
+
+    # disallow use of any
+    mypy_opts.disallow_any_unimported = False
+    mypy_opts.disallow_any_expr = False
+    mypy_opts.disallow_any_decorated = False
+    mypy_opts.disallow_any_explicit = False
+
+    mypy_opts.pretty = True  # show source in output
+
+    return mypy_opts
+
+
 def parse_with_mypy(paths: Sequence[Path]) -> dict[str, SourceModule]:
-    mypy_options = get_mypy_options(use_custom_type_shed=False)
+    mypy_options = get_mypy_options()
 
     # Enable new generic syntax
     mypy_options.enable_incomplete_feature += [NEW_GENERIC_SYNTAX]
