@@ -1,5 +1,6 @@
 import abc
 import enum
+import re
 import typing
 from collections.abc import Mapping, Sequence
 
@@ -62,7 +63,7 @@ class ARC4Struct:
 
     @property
     def name(self) -> str:
-        return self.fullname.rsplit(".", maxsplit=1)[-1]
+        return re.split(r"\W", self.fullname)[-1]
 
 
 @attrs.frozen(kw_only=True)
