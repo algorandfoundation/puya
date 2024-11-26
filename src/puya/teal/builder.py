@@ -319,16 +319,17 @@ class TealBuilder(MIRVisitor[None]):
             n = retsub.returns + fx_height - 1
             for _ in range(fx_height):
                 self._add_op(teal.Uncover(n, source_location=retsub.source_location))
-        self._add_op(teal.RetSub(consumes=retsub.returns, source_location=retsub.source_location))
+        self._add_op(
+            teal.RetSub(
+                consumes=retsub.returns,
+                source_location=retsub.source_location,
+            )
+        )
 
     def visit_program_exit(self, op: mir.ProgramExit) -> None:
         self._add_op(
-            teal.Intrinsic(
-                op_code="return",
-                immediates=(),
+            teal.Return(
                 comment=op.comment,
-                consumes=op.consumes,
-                produces=len(op.produces),
                 stack_manipulations=_lstack_manipulations(op),
                 source_location=op.source_location,
             )
@@ -336,12 +337,8 @@ class TealBuilder(MIRVisitor[None]):
 
     def visit_err(self, op: mir.Err) -> None:
         self._add_op(
-            teal.Intrinsic(
-                op_code="err",
-                immediates=(),
+            teal.Err(
                 comment=op.comment,
-                consumes=op.consumes,
-                produces=len(op.produces),
                 stack_manipulations=_lstack_manipulations(op),
                 source_location=op.source_location,
             )

@@ -7,7 +7,7 @@ import attrs
 from puya.errors import InternalError
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.utils import format_bytes, format_error_comment
-from puya.mir.models import Signature
+from puya.mir import models as mir
 from puya.models import OnCompletionAction, TransactionType
 from puya.parse import SourceLocation
 from puya.utils import valid_bytes, valid_int64
@@ -103,12 +103,6 @@ class Dup2(TealOp):
 class Pop(TealOp):
     op_code: str = attrs.field(default="pop", init=False)
     consumes: int = attrs.field(default=1, init=False)
-    produces: int = attrs.field(default=0, init=False)
-
-
-@attrs.frozen
-class RetSub(TealOp):
-    op_code: str = attrs.field(default="retsub", init=False)
     produces: int = attrs.field(default=0, init=False)
 
 
@@ -479,6 +473,38 @@ class ControlOp(TealOp, abc.ABC):
 
 
 @attrs.frozen
+class RetSub(ControlOp):
+    op_code: str = attrs.field(default="retsub", init=False)
+    produces: int = attrs.field(default=0, init=False)
+
+    @property
+    def targets(self) -> Sequence[str]:
+        return ()
+
+
+@attrs.frozen
+class Return(ControlOp):
+    op_code: str = attrs.field(default="return", init=False)
+    consumes: int = attrs.field(default=1, init=False)
+    produces: int = attrs.field(default=0, init=False)
+
+    @property
+    def targets(self) -> Sequence[str]:
+        return ()
+
+
+@attrs.frozen
+class Err(ControlOp):
+    op_code: str = attrs.field(default="err", init=False)
+    consumes: int = attrs.field(default=0, init=False)
+    produces: int = attrs.field(default=0, init=False)
+
+    @property
+    def targets(self) -> Sequence[str]:
+        return ()
+
+
+@attrs.frozen
 class Branch(ControlOp):
     target: str
     op_code: str = attrs.field(default="b", init=False)
@@ -593,7 +619,7 @@ class TealBlock:
 @attrs.frozen
 class TealSubroutine:
     is_main: bool
-    signature: Signature
+    signature: mir.Signature
     blocks: list[TealBlock]
     source_location: SourceLocation | None
 

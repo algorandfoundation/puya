@@ -122,6 +122,8 @@ def _inline_jump_chains(teal_sub: models.TealSubroutine) -> None:
 
 
 def _inline_single_op_blocks(teal_sub: models.TealSubroutine) -> None:
+    # TODO: this should only encounter exiting ops, so we don't need a traversal to find unused,
+    #       just keep track of predecessors??
     single_op_blocks = {b.label: b.ops for b in teal_sub.blocks if len(b.ops) == 1}
     modified = False
     for teal_block, next_block in itertools.zip_longest(teal_sub.blocks, teal_sub.blocks[1:]):
@@ -132,6 +134,14 @@ def _inline_single_op_blocks(teal_sub: models.TealSubroutine) -> None:
             ):
                 modified = True
                 (replace_op,) = replace_ops
+                # we shouldn't encounter any branching ops, since any block that
+                # is just an unconditional branch has already been inlined, and
+                # at this point blocks should still have an unconditional exit as the final op,
+                # which rules out bz/bnz/match/switch, leaving only exiting ops
+                # like retsub, return, or err.
+                # this also means we can keep track of which blocks to eliminate without having
+                # to do a traversal, thus the assertion
+                assert isinstance(replace_op, models.ControlOp) and not replace_op.targets
                 logger.debug(
                     f"replacing `{branch_op.teal()}` with `{replace_op.teal()}`",
                     location=branch_op.source_location,
