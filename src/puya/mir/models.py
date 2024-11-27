@@ -9,7 +9,7 @@ import attrs
 
 from puya.avm_type import AVMType
 from puya.errors import InternalError
-from puya.ir.utils import format_bytes
+from puya.ir.utils import format_bytes, format_error_comment
 
 if t.TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping, Sequence
@@ -23,7 +23,7 @@ _T = t.TypeVar("_T")
 
 @attrs.frozen(kw_only=True, eq=False, str=False)
 class BaseOp(abc.ABC):
-    comment: str | None = None
+    error_message: str | None = None
     source_location: SourceLocation | None = None
     consumes: int
     """How many values are removed from the top of l-stack
@@ -468,8 +468,9 @@ class IntrinsicOp(BaseOp):
 
     def __str__(self) -> str:
         result = [self.op_code, *map(str, self.immediates)]
-        if self.comment:
-            result += ("//", self.comment)
+        if self.error_message:
+            result.append("//")
+            result.append(format_error_comment(self.op_code, self.error_message))
         return " ".join(result)
 
 

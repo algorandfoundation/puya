@@ -6,7 +6,7 @@ from pathlib import Path
 from puya import log
 from puya.ir import models
 from puya.ir.types_ import IRType
-from puya.ir.utils import format_bytes
+from puya.ir.utils import format_bytes, format_error_comment
 from puya.ir.visitor import IRVisitor
 from puya.utils import make_path_relative_to_cwd
 
@@ -80,8 +80,8 @@ class ToTextVisitor(IRVisitor[str]):
         args = " ".join(arg.accept(self) for arg in intrinsic.args)
         if args:
             callee = f"({callee} {args})"
-        if intrinsic.comment:
-            callee += f" // {intrinsic.comment}"
+        if intrinsic.error_message:
+            callee += f" // {format_error_comment(intrinsic.op.code, intrinsic.error_message)}"
         return callee
 
     def visit_inner_transaction_field(self, field: models.InnerTransactionField) -> str:
@@ -123,8 +123,8 @@ class ToTextVisitor(IRVisitor[str]):
         return f"exit {op.result.accept(self)}"
 
     def visit_fail(self, op: models.Fail) -> str:
-        if op.comment:
-            return f"fail // {op.comment}"
+        if op.error_message:
+            return f"fail // {op.error_message}"
         return "fail"
 
     def visit_phi(self, op: models.Phi) -> str:

@@ -42,18 +42,6 @@ ALL_VALID_APPROVAL_ON_COMPLETION_ACTIONS = {
 }
 
 
-def _assert(
-    *, condition: awst_nodes.Expression, comment: str | None, source_location: SourceLocation
-) -> awst_nodes.IntrinsicCall:
-    return awst_nodes.IntrinsicCall(
-        wtype=wtypes.void_wtype,
-        stack_args=[condition],
-        op_code="assert",
-        source_location=source_location,
-        comment=comment,
-    )
-
-
 def _btoi(
     bytes_arg: awst_nodes.Expression, location: SourceLocation | None = None
 ) -> awst_nodes.IntrinsicCall:
@@ -224,15 +212,17 @@ def assert_create_state(
             return ()
         case ARC4CreateOption.disallow:
             condition = _non_zero(app_id)
-            comment = "can only call when not creating"
+            error_message = "can only call when not creating"
         case ARC4CreateOption.require:
             condition = _is_zero(app_id)
-            comment = "can only call when creating"
+            error_message = "can only call when creating"
         case invalid:
             typing.assert_never(invalid)
     return [
         awst_nodes.ExpressionStatement(
-            expr=_assert(condition=condition, comment=comment, source_location=location)
+            awst_nodes.AssertExpression(
+                condition=condition, error_message=error_message, source_location=location
+            )
         )
     ]
 
@@ -327,9 +317,9 @@ def check_allowed_oca(
         oca_desc = f"one of {oca_desc}"
     return (
         awst_nodes.ExpressionStatement(
-            expr=_assert(
+            awst_nodes.AssertExpression(
                 condition=condition,
-                comment=f"OnCompletion is not {oca_desc}",
+                error_message=f"OnCompletion is not {oca_desc}",
                 source_location=location,
             )
         ),

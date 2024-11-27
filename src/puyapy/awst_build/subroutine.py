@@ -10,6 +10,7 @@ from puya import log
 from puya.awst.nodes import (
     AppStateExpression,
     AppStorageDefinition,
+    AssertExpression,
     AssignmentExpression,
     AssignmentStatement,
     BinaryBooleanOperator,
@@ -41,7 +42,7 @@ from puya.awst.nodes import (
 from puya.errors import CodeError, InternalError
 from puya.models import ARC4MethodConfig, ContractReference, LogicSigReference
 from puya.parse import SourceLocation
-from puyapy.awst_build import constants, intrinsic_factory, pytypes
+from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb import _expect as expect
@@ -599,21 +600,21 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         return LoopContinue(self._location(stmt))
 
     def visit_assert_stmt(self, stmt: mypy.nodes.AssertStmt) -> ExpressionStatement:
-        comment: str | None = None
+        error_message: str | None = None
         if stmt.msg is not None:
             msg = stmt.msg.accept(self)
             match msg:
-                case LiteralBuilder(value=str(comment)):
+                case LiteralBuilder(value=str(error_message)):
                     pass
                 case _:
                     self._error("only literal strings are supported as assertion messages", stmt)
         condition = stmt.expr.accept(self).bool_eval(self._location(stmt.expr))
         return ExpressionStatement(
-            expr=intrinsic_factory.assert_(
-                comment=comment,
+            AssertExpression(
                 condition=condition.resolve(),
+                error_message=error_message,
                 source_location=self._location(stmt),
-            ),
+            )
         )
 
     def visit_del_stmt(self, stmt: mypy.nodes.DelStmt) -> Statement:

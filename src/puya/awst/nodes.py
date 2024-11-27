@@ -261,6 +261,16 @@ class ReturnStatement(Statement):
         return visitor.visit_return_statement(self)
 
 
+@attrs.frozen
+class AssertExpression(Expression):
+    condition: Expression | None
+    error_message: str | None
+    wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_assert_expression(self)
+
+
 @attrs.frozen(kw_only=True)
 class IntegerConstant(Expression):
     wtype: WType = attrs.field(
@@ -534,7 +544,6 @@ class IntrinsicCall(Expression):
     op_code: str
     immediates: Sequence[str | int] = attrs.field(default=(), converter=tuple[str | int, ...])
     stack_args: Sequence[Expression] = attrs.field(default=(), converter=tuple[Expression, ...])
-    comment: str | None = attrs.field(default=None)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_intrinsic_call(self)

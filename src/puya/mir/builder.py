@@ -119,7 +119,6 @@ class MemoryIRBuilder(IRVisitor[None]):
             models.Byte(
                 big_uint_bytes,
                 source_location=const.source_location,
-                comment=str(const.value),
                 encoding=AVMBytesEncoding.base16,
             )
         )
@@ -168,7 +167,7 @@ class MemoryIRBuilder(IRVisitor[None]):
                 source_location=intrinsic.source_location,
                 consumes=len(intrinsic.op_signature.args),
                 produces=_produces_from_op(intrinsic.op.code, produces, self.active_op),
-                comment=intrinsic.comment,
+                error_message=intrinsic.error_message,
             )
         )
         if discard_results and produces:
@@ -279,7 +278,7 @@ class MemoryIRBuilder(IRVisitor[None]):
         self._add_op(
             models.IntrinsicOp(
                 op_code="err",
-                comment=fail.comment,
+                error_message=fail.error_message,
                 source_location=fail.source_location,
                 consumes=0,
                 produces=(),

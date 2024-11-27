@@ -720,7 +720,7 @@ def _read_dynamic_item_using_end_offset_from_arc4_container(
             op=AVMOp.sub,
             args=[array_length, next_item_index],
             source_location=source_location,
-            comment="on error: Index access is out of bounds",
+            error_message="Index access is out of bounds",
         ),
         "has_next",
     )
@@ -1012,7 +1012,7 @@ def _read_static_item_from_arc4_container(
         op=AVMOp.extract3,
         args=[data, offset, item_length],
         source_location=source_location,
-        comment="on error: Index access is out of bounds",
+        error_message="Index access is out of bounds",
     )
 
 
@@ -1110,7 +1110,7 @@ def _itob_fixed(
                 op=AVMOp.assert_,
                 args=[no_overflow],
                 source_location=source_location,
-                comment="overflow",
+                error_message="overflow",
             )
         )
         bytes_value = value
