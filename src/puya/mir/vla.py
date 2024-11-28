@@ -14,7 +14,7 @@ class _OpLifetime:
     block: models.MemoryBasicBlock
     used: StableSet[str] = attrs.field(on_setattr=attrs.setters.frozen)
     defined: StableSet[str] = attrs.field(on_setattr=attrs.setters.frozen)
-    successors: "Sequence[_OpLifetime]" = attrs.field(default=())
+    successors: "list[_OpLifetime]" = attrs.field(default=list)
     predecessors: "list[_OpLifetime]" = attrs.field(factory=list)
 
     live_in: StableSet[str] = attrs.field(factory=StableSet)
@@ -52,28 +52,18 @@ class VariableLifetimeAnalysis:
                     used=used,
                     defined=defined,
                 )
-        all_blocks = list(self.subroutine.body)
-        for block, next_block in itertools.zip_longest(all_blocks, all_blocks[1:]):
+        for block in self.subroutine.body:
             for op, next_op in itertools.zip_longest(block.ops, block.ops[1:]):
-                if isinstance(op, models.RetSub) or (
-                    isinstance(op, models.IntrinsicOp) and op.op_code in ("err", "return")
-                ):
-                    # control ops that end the current subroutine don't have any logical
+                if isinstance(op, models.ControlOp):
+                    assert next_op is None
+                    # note: control ops that end the current subroutine don't have any logical
                     # successors
-                    successors = []
+                    successors = [result[block_map[s]] for s in op.targets()]
                 else:
-                    if next_op is not None:
-                        successors = [result[next_op]]
-                    else:
-                        successors = []
-                    if isinstance(op, models.ControlOp):
-                        successors.extend(result[block_map[s]] for s in op.targets())
-                    elif next_op is None and next_block is not None:
-                        # block fall through case, only applies to non control ops
-                        successors.append(result[block_map[next_block.block_name]])
-
+                    assert next_op is not None
+                    successors = [result[next_op]]
                 op_lifetime = result[op]
-                op_lifetime.successors = tuple(successors)
+                op_lifetime.successors = successors
                 for s in successors:
                     s.predecessors.append(op_lifetime)
         return result
