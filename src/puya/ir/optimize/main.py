@@ -107,7 +107,7 @@ def _split_parallel_copies(_ctx: ArtifactCompileContext, sub: models.Subroutine)
     return any_modified
 
 
-def optimize_contract_ir(
+def optimize_program_ir(
     context: ArtifactCompileContext, program: models.Program
 ) -> models.Program:
     level = context.options.optimization_level

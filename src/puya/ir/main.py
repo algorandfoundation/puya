@@ -34,7 +34,7 @@ from puya.ir.models import (
     Subroutine,
 )
 from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
-from puya.ir.optimize.main import optimize_contract_ir
+from puya.ir.optimize.main import optimize_program_ir
 from puya.ir.to_text_visitor import render_program
 from puya.ir.types_ import wtype_to_ir_type, wtype_to_ir_types
 from puya.ir.utils import format_tuple_index
@@ -211,7 +211,7 @@ def _optimize_and_destructure_program_ir(
         f"optimizing {program.kind} program of {ref} at level {context.options.optimization_level}"
     )
     program = deepcopy(program)
-    program = optimize_contract_ir(context, program)
+    program = optimize_program_ir(context, program)
     program = destructure_ssa(context, program)
     if context.options.output_destructured_ir:
         render_program(context, program, qualifier="destructured")
