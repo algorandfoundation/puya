@@ -52,14 +52,20 @@ def _optimize_subroutine(context: CompileContext, teal_sub: models.TealSubroutin
     after = _get_all_stack_manipulations(teal_sub)
     assert before == after, "expected stack manipulations to be preserved after optimization"
     if context.options.optimization_level > 0:
+        # at this point, blocks should still be almost "basic"
+        # - control flow should only enter at the start of a block.
+        # - control flow should only leave at the end of the block (although this might be
+        #   spread over multiple ops in the case of say a switch or match)
+        # - the final op must be an unconditional control flow op (e.g. retusb, b, return, err)
         _inline_jump_chains(teal_sub)
+        # now all blocks that are just a b should have been inlined/removed.
+        # any single-op blocks left must be non-branching control ops, ie ops
+        # that terminate either exit the program or the subroutine.
+        # inlining these are only possible when they are unconditionally branched to,
+        # thus this still maintains the "almost basic" structure as outlined above.
         _inline_single_op_blocks(teal_sub)
-        _remove_unreachable_blocks(teal_sub)
-        while _inline_singly_referenced_blocks(teal_sub):
-            pass
-        _remove_unreachable_blocks(teal_sub)
+        _inline_singly_referenced_blocks(teal_sub)
     _remove_jump_fallthroughs(teal_sub)
-    _collapse_empty_blocks(teal_sub)
 
 
 def _optimize_block(block: models.TealBlock, *, level: int) -> None:
@@ -104,26 +110,36 @@ def _inline_jump_chains(teal_sub: models.TealSubroutine) -> None:
                 break
         replacements[src] = target
         logger.debug(f"branching to {src} will be replaced with {target}")
-    _replace_labels(teal_sub, replacements)
+    for block in teal_sub.blocks:
+        for op_idx, op in enumerate(block.ops):
+            if isinstance(op, models.Branch | models.BranchNonZero | models.BranchZero):
+                if op.target in replacements:
+                    block.ops[op_idx] = attrs.evolve(op, target=replacements[op.target])
+            elif isinstance(op, models.Switch | models.Match):
+                block.ops[op_idx] = attrs.evolve(
+                    op, targets=[replacements.get(t, t) for t in op.targets]
+                )
 
 
 def _inline_single_op_blocks(teal_sub: models.TealSubroutine) -> None:
     single_op_blocks = {b.label: b.ops for b in teal_sub.blocks if len(b.ops) == 1}
+    modified = False
     for teal_block, next_block in itertools.zip_longest(teal_sub.blocks, teal_sub.blocks[1:]):
-        while True:  # loop in case the inlined jump is to a block with a single jump itself
-            match teal_block.ops[-1]:
-                case models.Branch(target=target_label) as branch_op if (
-                    (replace_ops := single_op_blocks.get(target_label))
-                    and (next_block is None or target_label != next_block.label)
-                ):
-                    (replace_op,) = replace_ops
-                    logger.debug(
-                        f"replacing `{branch_op.teal()}` with `{replace_op.teal()}`",
-                        location=branch_op.source_location,
-                    )
-                    preserve_stack_manipulations(teal_block.ops, slice(-1, None), replace_ops)
-                case _:
-                    break
+        match teal_block.ops[-1]:
+            case models.Branch(target=target_label) as branch_op if (
+                (replace_ops := single_op_blocks.get(target_label))
+                and (next_block is None or target_label != next_block.label)
+            ):
+                modified = True
+                (replace_op,) = replace_ops
+                logger.debug(
+                    f"replacing `{branch_op.teal()}` with `{replace_op.teal()}`",
+                    location=branch_op.source_location,
+                )
+                preserve_stack_manipulations(teal_block.ops, slice(-1, None), replace_ops)
+    if modified:
+        # if any were inlined, they may no longer be referenced and thus removable
+        _remove_unreachable_blocks(teal_sub)
 
 
 def _remove_unreachable_blocks(teal_sub: models.TealSubroutine) -> None:
@@ -146,32 +162,37 @@ def _remove_unreachable_blocks(teal_sub: models.TealSubroutine) -> None:
         ]
 
 
-def _inline_singly_referenced_blocks(teal_sub: models.TealSubroutine) -> bool:
-    jump_targets = defaultdict[str, list[str]](list)
+def _inline_singly_referenced_blocks(teal_sub: models.TealSubroutine) -> None:
+    predecessors = defaultdict[str, set[str]](set)
     for block in teal_sub.blocks:
         for op in block.ops:
             if isinstance(op, models.ControlOp):
                 for target_label in op.targets:
-                    jump_targets[target_label].append(op.op_code)
+                    predecessors[target_label].add(block.label)
 
-    inline_label_ops = {b.label: b.ops for b in teal_sub.blocks if jump_targets[b.label] == ["b"]}
-    modified = False
+    pairs = dict[str, str]()
+    inlineable = set[str]()
     for block in teal_sub.blocks:
-        if block.label in inline_label_ops:
-            continue
-        while True:
-            match block.ops[-1]:
-                case models.Branch(target=target_label) if (
-                    replace_ops := inline_label_ops.get(target_label)
-                ) is not None:
-                    preserve_stack_manipulations(block.ops, slice(-1, None), replace_ops)
-                    logger.debug(
-                        f"inlining single reference block {target_label} into {block.label}"
-                    )
-                    modified = True
-                case _:
-                    break
-    return modified
+        match block.ops[-1]:
+            case models.Branch(target=target_label):
+                target_predecessors = predecessors[target_label]
+                if len(target_predecessors) == 1:
+                    assert target_predecessors == {block.label}
+                    pairs[block.label] = target_label
+                    inlineable.add(target_label)
+
+    blocks_by_label = {b.label: b for b in teal_sub.blocks}
+    result = list[models.TealBlock]()
+    for block in teal_sub.blocks:
+        this_label = block.label
+        if this_label not in inlineable:
+            result.append(block)
+            while (next_label := pairs.get(this_label)) is not None:
+                logger.debug(f"inlining single reference block {next_label} into {block.label}")
+                next_block = blocks_by_label[next_label]
+                preserve_stack_manipulations(block.ops, slice(-1, None), next_block.ops)
+                this_label = next_label
+    teal_sub.blocks[:] = result
 
 
 def _remove_jump_fallthroughs(teal_sub: models.TealSubroutine) -> None:
@@ -183,38 +204,3 @@ def _remove_jump_fallthroughs(teal_sub: models.TealSubroutine) -> None:
                 # preserve_stack_manipulations(
                 #     block.ops, slice(len(block.ops) - 1, len(block.ops)), []
                 # )
-
-
-def _collapse_empty_blocks(teal_sub: models.TealSubroutine) -> None:
-    blocks = teal_sub.blocks
-    replacements = dict[str, str]()
-    next_idx = len(blocks) - 1
-    while next_idx > 0:
-        next_label = blocks[next_idx].label
-        curr_idx = next_idx - 1
-        assert curr_idx >= 0
-        for curr_idx in range(next_idx - 1, 0, -1):
-            curr = blocks[curr_idx]
-            if curr.ops:
-                next_idx = curr_idx
-                break
-            blocks.pop(curr_idx)
-            logger.debug(
-                f"removing empty block {curr.label}, label will be replaced by {next_label}"
-            )
-            replacements[curr.label] = next_label
-        else:
-            break
-    _replace_labels(teal_sub, replacements)
-
-
-def _replace_labels(teal_sub: models.TealSubroutine, replacements: dict[str, str]) -> None:
-    for block in teal_sub.blocks:
-        for op_idx, op in enumerate(block.ops):
-            if isinstance(op, models.Branch | models.BranchNonZero | models.BranchZero):
-                if op.target in replacements:
-                    block.ops[op_idx] = attrs.evolve(op, target=replacements[op.target])
-            elif isinstance(op, models.Switch | models.Match):
-                block.ops[op_idx] = attrs.evolve(
-                    op, targets=[replacements.get(t, t) for t in op.targets]
-                )
