@@ -54,10 +54,16 @@ def analyse_subroutines_for_inlining(program: models.Program) -> None:
             if reference_count == 1:
                 logger.debug(f"marking single-use function {sub.id} for inlining")
                 sub.inline = True
-            elif sum(
-                len(b.phis) + len(b.ops) + len(_not_none(b.terminator).targets()) for b in sub.body
-            ) <= max(3, len(sub.returns) + len(sub.parameters)):
-                logger.debug(f"marking simple function {sub.id} for inlining")
+            elif (
+                complexity := sum(
+                    len(b.phis) + len(b.ops) + len(_not_none(b.terminator).targets())
+                    for b in sub.body
+                )
+            ) <= (threshold := max(3, len(sub.returns) + len(sub.parameters))):
+                logger.debug(
+                    f"marking simple function {sub.id} for inlining"
+                    f" ({complexity=} <= {threshold=})"
+                )
                 sub.inline = True
             elif _ALWAYS_INLINE:
                 sub.inline = True
