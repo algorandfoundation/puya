@@ -73,9 +73,9 @@ def perform_subroutine_inlining(_context: CompileContext, subroutine: models.Sub
                 f"inlining call to {call.target.id} in {subroutine.id}",
                 location=op.source_location,
             )
-            if any(p.implicit_return for p in call.target.parameters):  # TODO!!!
-                logger.debug("skipping due to implicit parameter returns :(")
-                continue
+            # if any(p.implicit_return for p in call.target.parameters):  # TODO!!!
+            #     logger.debug("skipping due to implicit parameter returns :(")
+            #     continue
             created_blocks = _inline_call(
                 block,
                 call,
