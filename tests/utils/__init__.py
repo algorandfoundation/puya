@@ -147,17 +147,9 @@ def _get_log_errors(logs: Iterable[Log]) -> str:
     return "\n".join(str(log) for log in logs if log.level == LogLevel.error)
 
 
-def compile_src(path: Path, *, optimization_level: int, debug_level: int) -> CompilationResult:
-    return compile_src_from_options(
-        PuyaPyOptions(
-            paths=(path,),
-            optimization_level=optimization_level,
-            debug_level=debug_level,
-        )
-    )
-
-
 def compile_src_from_options(options: PuyaPyOptions) -> CompilationResult:
+    if options.out_dir is None:
+        options = attrs.evolve(options, out_dir=Path("out_tests"))
     (src_path,) = options.paths
     root_dir = _get_root_dir(src_path)
     parse_result, awst, compilation_set, awst_logs = get_awst_cache(root_dir)
@@ -203,12 +195,15 @@ def compile_src_from_options(options: PuyaPyOptions) -> CompilationResult:
 
 @attrs.frozen
 class PuyaTestCase:
-    root: Path
-    name: str
+    path: Path
 
     @property
-    def path(self) -> Path:
-        return self.root / self.name
+    def root(self) -> Path:
+        return self.path.parent
+
+    @property
+    def name(self) -> str:
+        return self.path.name
 
     @property
     def template_vars_path(self) -> Path | None:
@@ -217,7 +212,7 @@ class PuyaTestCase:
 
     @property
     def id(self) -> str:
-        return f"{self.root.stem}_{self.name}"
+        return f"{self.root.stem}/{self.name}"
 
 
 def load_template_vars(path: Path | None) -> tuple[str, dict[str, int | bytes]]:

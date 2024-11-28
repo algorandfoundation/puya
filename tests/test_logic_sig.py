@@ -34,7 +34,6 @@ def compile_logic_sig(
             optimization_level=optimization_level,
             debug_level=debug_level,
             output_bytecode=True,
-            out_dir=Path("out"),
             cli_template_definitions=template_variables or {},
         )
     )

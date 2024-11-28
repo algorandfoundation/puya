@@ -249,7 +249,7 @@ def _compile_program(context: ArtifactCompileContext, program: TealProgram) -> _
     return _CompiledProgram(
         teal=program,
         teal_src=emit_teal(context, program),
-        bytecode=assembled.bytecode if context.options.output_bytecode else None,
+        bytecode=assembled.bytecode,
         debug_info=assembled.debug_info,
         template_variables=assembled.template_variables,
     )

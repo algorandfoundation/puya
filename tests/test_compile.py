@@ -28,22 +28,20 @@ SUFFIX_O2 = "_O2"
 
 
 def test_compile(test_case: PuyaTestCase) -> None:
-    remove_output(test_case.path)
-    compile_no_optimization(test_case)
-    compile_with_level1_optimizations(test_case)
-    compile_with_level2_optimizations(test_case)
-    diff = check_for_diff(test_case.path)
-    assert diff is None, f"Uncommitted changes were found:\n{diff}"
+    _remove_output(test_case.path)
+    _compile_no_optimization(test_case)
+    _compile_with_level1_optimizations(test_case)
+    _compile_with_level2_optimizations(test_case)
+    diff = _check_for_diff(test_case.path)
+    assert not diff, f"Uncommitted changes were found:\n{diff}"
 
 
-def compile_test_case(
+def _compile_test_case(
     test_case: PuyaTestCase, suffix: str, log_path: Path | None = None, **options: typing.Any
 ) -> None:
-    path = test_case.path.resolve()
-    if path.is_dir():
-        dst_out_dir = path / ("out" + suffix)
-    else:
-        dst_out_dir = path.parent / f"{path.stem}_out{suffix}"
+    path = test_case.path
+    assert path.is_dir()
+    dst_out_dir = path / ("out" + suffix)
 
     prefix, template_vars = load_template_vars(test_case.template_vars_path)
     puya_options = PuyaPyOptions(
@@ -92,8 +90,8 @@ def _log_to_str(log: log.Log, root_dir: Path) -> str:
     return f"{location}{log.level}: {log.message}"
 
 
-def compile_no_optimization(test_case: PuyaTestCase) -> None:
-    compile_test_case(
+def _compile_no_optimization(test_case: PuyaTestCase) -> None:
+    _compile_test_case(
         test_case,
         SUFFIX_O0,
         optimization_level=0,
@@ -103,8 +101,8 @@ def compile_no_optimization(test_case: PuyaTestCase) -> None:
     )
 
 
-def compile_with_level1_optimizations(test_case: PuyaTestCase) -> None:
-    compile_test_case(
+def _compile_with_level1_optimizations(test_case: PuyaTestCase) -> None:
+    _compile_test_case(
         test_case,
         SUFFIX_O1,
         log_path=test_case.path / "puya.log",
@@ -123,8 +121,8 @@ def compile_with_level1_optimizations(test_case: PuyaTestCase) -> None:
     )
 
 
-def compile_with_level2_optimizations(test_case: PuyaTestCase) -> None:
-    compile_test_case(
+def _compile_with_level2_optimizations(test_case: PuyaTestCase) -> None:
+    _compile_test_case(
         test_case,
         SUFFIX_O2,
         optimization_level=2,
@@ -135,7 +133,7 @@ def compile_with_level2_optimizations(test_case: PuyaTestCase) -> None:
     )
 
 
-def remove_output(path: Path) -> None:
+def _remove_output(path: Path) -> None:
     (path / "puya.log").unlink(missing_ok=True)
     for out_suffix in (SUFFIX_O0, SUFFIX_O1, SUFFIX_O2):
         out_dir = path / f"out{out_suffix}"
@@ -148,24 +146,17 @@ def remove_output(path: Path) -> None:
                         file.unlink()
 
 
-def check_for_diff(path: Path) -> str | None:
+def _check_for_diff(path: Path) -> str | None:
     git = shutil.which("git")
-    assert git is not None, "could not find git"
-    if path.is_dir():
-        paths = [path]
-    else:
-        paths = list(path.parent.glob(f"{path.stem}_out*"))
-        paths.append(path.with_suffix(".puya.log"))
-    stdout = ""
-    for path_ in paths:
-        result = subprocess.run(
-            [git, "diff", str(path_)],
-            check=True,
-            capture_output=True,
-            cwd=VCS_ROOT,
-        )
-        stdout += result.stdout.decode("utf8")
-    return stdout or None
+    assert git, "could not find git"
+    assert path.is_dir()
+    result = subprocess.run(
+        [git, "diff", str(path)],
+        check=True,
+        capture_output=True,
+        cwd=VCS_ROOT,
+    )
+    return result.stdout.decode("utf8")
 
 
 def _normalize_arc56(path: Path) -> None:

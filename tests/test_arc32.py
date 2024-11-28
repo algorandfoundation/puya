@@ -18,21 +18,23 @@ from nacl.signing import SigningKey
 
 from puya.arc32 import create_arc32_json
 from puya.models import CompiledContract
+from puyapy.options import PuyaPyOptions
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 from tests.test_execution import decode_logs
-from tests.utils import compile_src
+from tests.utils import compile_src_from_options
 from tests.utils.merkle_tree import MerkleTree, sha_256_raw
 
 pytestmark = pytest.mark.localnet
 
 
-def compile_arc32(
-    src_path: Path,
-    *,
-    optimization_level: int = 1,
-    debug_level: int = 2,
-) -> str:
-    result = compile_src(src_path, optimization_level=optimization_level, debug_level=debug_level)
+def compile_arc32(src_path: Path, *, optimization_level: int = 1, debug_level: int = 2) -> str:
+    result = compile_src_from_options(
+        PuyaPyOptions(
+            paths=(src_path,),
+            optimization_level=optimization_level,
+            debug_level=debug_level,
+        )
+    )
     (contract,) = result.teal
     assert isinstance(contract, CompiledContract), "Compilation artifact must be a contract"
     return create_arc32_json(
