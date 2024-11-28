@@ -6,11 +6,26 @@ contract TupleSupport
     ['state']: uint64
   }
   
-  subroutine test_cases.tuple_support.tuple_support.TupleSupport.approval_program(): uint64
+  subroutine test_cases.tuple_support.tuple_support.TupleSupport.__algopy_entrypoint_with_init(): uint64
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
+    return this::approval_program()
+  }
+  
+  subroutine test_cases.tuple_support.tuple_support.TupleSupport.clear_state_program(): uint64
+  {
+    return 0u
+  }
+  
+  subroutine test_cases.tuple_support.tuple_support.TupleSupport.__init__(): void
+  {
+    GlobalState['state']: uint64 = 0u
+  }
+  
+  subroutine test_cases.tuple_support.tuple_support.TupleSupport.approval_program(): uint64
+  {
     total: uint64 = test_cases.tuple_support.tuple_support.add_three_values((101u, 102u, 103u))
     log(itob(total))
     (a, b): tuple<uint64,uint64> = (1u, 2u)
@@ -48,65 +63,6 @@ contract TupleSupport
       log('not empty')
     }
     if (SINGLE_EVAL(id=6, source=test_cases.tuple_support.tuple_support.get_uint_with_side_effect()) == SINGLE_EVAL(id=6)) {
-      log('not empty2')
-    }
-    test_cases.tuple_support.tuple_support.single_tuple()
-    x: tuple<uint64,bytes> = (0u, hex<"">)
-    assert(x[0] == 0u)
-    assert(x[1] == hex<"">)
-    test_cases.tuple_support.tuple_support.test_empty()
-    return a + b
-  }
-  
-  subroutine test_cases.tuple_support.tuple_support.TupleSupport.clear_state_program(): uint64
-  {
-    return 0u
-  }
-  
-  subroutine test_cases.tuple_support.tuple_support.TupleSupport.__init__(): void
-  {
-    GlobalState['state']: uint64 = 0u
-  }
-  
-  subroutine test_cases.tuple_support.tuple_support.TupleSupport.approval_program(): uint64
-  {
-    total: uint64 = test_cases.tuple_support.tuple_support.add_three_values((101u, 102u, 103u))
-    log(itob(total))
-    (a, b): tuple<uint64,uint64> = (1u, 2u)
-    (did_overflow, GlobalState['state']): tuple<uint64,uint64> = addw(a, b)
-    assert(did_overflow == 0u, comment="overflow!")
-    ab: tuple<uint64,uint64> = (a, b)
-    assert(ab[-1] == ab[1])
-    result: tuple<uint64,uint64> = addw(a, b)
-    assert(result[0] == 0u, comment="overflow!")
-    d: uint64 = 3u
-    c: uint64 = 3u
-    ((a2, b2), cd, ab2): tuple<tuple<uint64,uint64>,tuple<uint64,uint64>,tuple<uint64,uint64>> = (ab, (c, d), ab)
-    if (a == b) {
-      tup: tuple<uint64,uint64> = ab2
-    } else {
-      tup: tuple<uint64,uint64> = cd
-    }
-    assert(a2 == a)
-    assert(b2 == b)
-    assert(cd[0] == tup[0])
-    assert(cd[1] == tup[1])
-    (m, n): tuple<uint64,uint64> = (||(SINGLE_EVAL(id=1) == SINGLE_EVAL(id=1), SINGLE_EVAL(id=2) == SINGLE_EVAL(id=2))) ? (SINGLE_EVAL(id=0)) : (test_cases.tuple_support.tuple_support.get_tuple(b, a))
-    assert(&&(m == a, n == b))
-    log(test_cases.tuple_support.tuple_support.bytes_combine((hex<"48656C6C6F2C20">, hex<"776F726C6421">)))
-    max_uint64: uint64 = 18446744073709551615u
-    (hi, mid, lo): tuple<uint64,uint64,uint64> = test_cases.tuple_support.tuple_support.addw2(addw(max_uint64, max_uint64), addw(a, b))
-    log(itob(hi))
-    log(itob(mid))
-    log(itob(lo))
-    log(test_cases.tuple_support.tuple_support.bytes_multiply((hex<"6E61">, 5u)))
-    test_cases.tuple_support.tuple_support.test_tuple_swap(zero=0u)
-    test_cases.tuple_support.tuple_support.slicing((1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u))
-    test_cases.tuple_support.tuple_support.bin_ops()
-    if (||(SINGLE_EVAL(id=4) == SINGLE_EVAL(id=4), SINGLE_EVAL(id=5) == SINGLE_EVAL(id=5))) {
-      log('not empty')
-    }
-    if (SINGLE_EVAL(id=6) == SINGLE_EVAL(id=6)) {
       log('not empty2')
     }
     test_cases.tuple_support.tuple_support.single_tuple()
@@ -287,12 +243,12 @@ contract NestedTuples
     ['build_nested_call_count']: uint64
   }
   
-  subroutine test_cases.tuple_support.nested_tuples.NestedTuples.approval_program(): bool
+  subroutine test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_with_init(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return arc4_router()
+    return this::approval_program()
   }
   
   subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool

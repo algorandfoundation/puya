@@ -1,0 +1,84 @@
+main test_cases.application.contract.Reference.__algopy_entrypoint_with_init:
+    block@0: // L1
+        let tmp%0#0: bool = (txn ApplicationID)
+        goto tmp%0#0 ? block@2 : block@1
+    block@1: // call __init___L1
+        test_cases.application.contract.Reference.__init__()
+        goto block@2
+    block@2: // after_if_else_L1
+        let tmp%1#0: bool = test_cases.application.contract.Reference.approval_program()
+        return tmp%1#0
+
+subroutine test_cases.application.contract.Reference.__init__() -> void:
+    block@0: // L14
+        (app_global_put "int_1" 0u)
+        (app_global_put "bytes_1" 0x)
+        (app_global_put "bytes_2" 0x)
+        return 
+
+subroutine test_cases.application.contract.Reference.approval_program() -> bool:
+    block@0: // L26
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (== tmp%0#0 1u)
+        goto tmp%1#0 ? block@1 : block@5
+    block@1: // if_body_L28
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        let tmp%3#0: bool = (== tmp%2#0 0x76616c6964617465)
+        goto tmp%3#0 ? block@2 : block@3
+    block@2: // if_body_L29
+        let tmp%4#0: uint64 = (global CurrentApplicationID)
+        test_cases.application.contract.Reference.validate_asset(tmp%4#0)
+        goto block@4
+    block@3: // else_body_L31
+        fail // Expected validate
+    block@4: // after_if_else_L28
+        goto block@5
+    block@5: // after_if_else_L27
+        return 1u
+
+subroutine test_cases.application.contract.Reference.validate_asset(app: uint64) -> void:
+    block@0: // L37
+        let tmp%0#0: bytes = (txn Sender)
+        let tmp%1#0: bool = (app_opted_in tmp%0#0 app#0)
+        let tmp%2#0: bool = (! tmp%1#0)
+        (assert tmp%2#0) // app opted in
+        let (value%0#0: bytes, check%0#0: bool) = ((app_params_get AppCreator) app#0)
+        (assert check%0#0) // application exists
+        let tmp%3#0: bytes = (global CreatorAddress)
+        let tmp%4#0: bool = (== value%0#0 tmp%3#0)
+        (assert tmp%4#0) // expected creator
+        let (value%1#0: uint64, check%1#0: bool) = ((app_params_get AppGlobalNumUint) app#0)
+        (assert check%1#0) // application exists
+        let tmp%5#0: bool = (== value%1#0 1u)
+        (assert tmp%5#0) // expected global_num_uint
+        let (value%2#0: uint64, check%2#0: bool) = ((app_params_get AppGlobalNumByteSlice) app#0)
+        (assert check%2#0) // application exists
+        let tmp%6#0: bool = (== value%2#0 2u)
+        (assert tmp%6#0) // expected global_num_bytes
+        let (value%3#0: uint64, check%3#0: bool) = ((app_params_get AppLocalNumUint) app#0)
+        (assert check%3#0) // application exists
+        let tmp%7#0: bool = (== value%3#0 3u)
+        (assert tmp%7#0) // expected local_num_uint
+        let (value%4#0: uint64, check%4#0: bool) = ((app_params_get AppLocalNumByteSlice) app#0)
+        (assert check%4#0) // application exists
+        let tmp%8#0: bool = (== value%4#0 4u)
+        (assert tmp%8#0) // expected local_num_bytes
+        let (value%5#0: bytes, check%5#0: bool) = ((app_params_get AppApprovalProgram) app#0)
+        (assert check%5#0) // application exists
+        let tmp%9#0: uint64 = (len value%5#0)
+        let tmp%10#0: bool = (!= tmp%9#0 0u)
+        (assert tmp%10#0) // expected approval_program
+        let (value%6#0: bytes, check%6#0: bool) = ((app_params_get AppClearStateProgram) app#0)
+        (assert check%6#0) // application exists
+        let tmp%11#0: uint64 = (len value%6#0)
+        let tmp%12#0: bool = (!= tmp%11#0 0u)
+        (assert tmp%12#0) // expected clear_state_program
+        let tmp%13#0: uint64 = (global CurrentApplicationID)
+        let tmp%14#0: bool = (== app#0 tmp%13#0)
+        (assert tmp%14#0) // expected current_application_id
+        let (value%7#0: bytes, check%7#0: bool) = ((app_params_get AppAddress) app#0)
+        (assert check%7#0) // application exists
+        let tmp%15#0: bytes = (global CurrentApplicationAddress)
+        let tmp%16#0: bool = (== value%7#0 tmp%15#0)
+        (assert tmp%16#0) // expected current_application_address
+        return 

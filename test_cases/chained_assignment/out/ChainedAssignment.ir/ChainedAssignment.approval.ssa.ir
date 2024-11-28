@@ -1,0 +1,33 @@
+main test_cases.chained_assignment.contract.ChainedAssignment.__algopy_entrypoint_with_init:
+    block@0: // L1
+        let tmp%0#0: bool = (txn ApplicationID)
+        goto tmp%0#0 ? block@2 : block@1
+    block@1: // call __init___L1
+        test_cases.chained_assignment.contract.ChainedAssignment.__init__()
+        goto block@2
+    block@2: // after_if_else_L1
+        let tmp%1#0: bool = test_cases.chained_assignment.contract.ChainedAssignment.approval_program()
+        return tmp%1#0
+
+subroutine test_cases.chained_assignment.contract.ChainedAssignment.__init__() -> void:
+    block@0: // L17
+        test_cases.chained_assignment.contract.BaseContract.__init__()
+        return 
+
+subroutine test_cases.chained_assignment.contract.BaseContract.__init__() -> void:
+    block@0: // L9
+        let awst_tmp%0#0: bytes = test_cases.chained_assignment.contract.join_log_and_return(0x48656c6c6f2c20776f726c6421, 0xf09f918b)
+        (app_global_put "state2" awst_tmp%0#0)
+        (app_global_put "state1" awst_tmp%0#0)
+        return 
+
+subroutine test_cases.chained_assignment.contract.join_log_and_return(left: bytes, right: bytes) -> bytes:
+    block@0: // L27
+        let tmp%0#0: bytes = (concat left#0 0x20)
+        let result#0: bytes = (concat tmp%0#0 right#0)
+        (log result#0)
+        return result#0
+
+subroutine test_cases.chained_assignment.contract.ChainedAssignment.approval_program() -> bool:
+    block@0: // L20
+        return 1u

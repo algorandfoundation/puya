@@ -1,24 +1,40 @@
 #pragma version 10
 
-test_cases.avm_types_in_abi.contract.TestContract.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1 64
-    bytecblock 0x00 0x151f7c75
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    proto 0 1
+    bytecblock 0x151f7c75 0x00
     txn NumAppArgs
-    bz __puya_arc4_router___after_if_else@7
+    bz main_after_if_else@8
     pushbytess 0xfb716652 0x7ea64078 // method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)", method "tuple_of_arc4((uint8,address))(uint8,address)"
     txna ApplicationArgs 0
-    match __puya_arc4_router___create_route@2 __puya_arc4_router___tuple_of_arc4_route@3
-    intc_0 // 0
-    retsub
+    match main_create_route@3 main_tuple_of_arc4_route@4
 
-__puya_arc4_router___create_route@2:
+main_after_if_else@8:
+    intc_0 // 0
+    return
+
+main_tuple_of_arc4_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    dup
+    extract 0 1 // on error: Index access is out of bounds
+    swap
+    extract 1 32 // on error: Index access is out of bounds
+    callsub tuple_of_arc4
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_create_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -39,7 +55,7 @@ __puya_arc4_router___create_route@2:
     dup
     intc_0 // 0
     getbit
-    bytec_0 // 0x00
+    bytec_1 // 0x00
     intc_0 // 0
     uncover 2
     setbit
@@ -69,7 +85,7 @@ __puya_arc4_router___create_route@2:
     substring3
     extract 2 0
     callsub create
-    bytec_0 // 0x00
+    bytec_1 // 0x00
     intc_0 // 0
     uncover 6
     setbit
@@ -116,36 +132,12 @@ __puya_arc4_router___create_route@2:
     concat
     swap
     concat
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___tuple_of_arc4_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    dup
-    extract 0 1 // on error: Index access is out of bounds
-    swap
-    extract 1 32 // on error: Index access is out of bounds
-    callsub tuple_of_arc4
-    concat
-    bytec_1 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@7:
-    intc_0 // 0
-    retsub
+    return
 
 
 // test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: uint64, uint64_param: uint64, bytes_param: bytes, biguint_param: bytes, string_param: bytes, tuple_param.0: uint64, tuple_param.1: uint64, tuple_param.2: bytes, tuple_param.3: bytes, tuple_param.4: bytes) -> uint64, uint64, bytes, bytes, bytes:

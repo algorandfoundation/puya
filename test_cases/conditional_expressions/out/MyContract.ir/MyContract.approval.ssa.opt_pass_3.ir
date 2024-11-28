@@ -1,0 +1,28 @@
+main test_cases.conditional_expressions.contract.MyContract.approval_program:
+    block@0: // L7
+        (log "expensive_op")
+        (log "side_effecting_op")
+        (log "expensive_op")
+        (log "side_effecting_op")
+        (log "side_effecting_op")
+        (log "expensive_op")
+        let tmp%6#0: bool = 0u
+        goto tmp%6#0 ? block@13 : block@14
+    block@13: // ternary_true_L20
+        let ternary_result%4#0: uint64 = 1u
+        goto block@15
+    block@14: // ternary_false_L20
+        let ternary_result%4#1: uint64 = 2u
+        goto block@15
+    block@15: // ternary_merge_L20
+        let i#0: uint64 = φ(ternary_result%4#0 <- block@13, ternary_result%4#1 <- block@14)
+        let tmp%8#0: uint64 = 2u
+        let tmp%9#0: uint64 = tmp%8#0
+        let tmp%10#0: uint64 = (* tmp%9#0 3u)
+        let tmp%11#0: uint64 = (* tmp%10#0 3u)
+        let tmp%12#0: uint64 = (- tmp%11#0 1u)
+        let tmp%13#0: uint64 = tmp%12#0
+        let result#0: uint64 = (+ tmp%13#0 i#0)
+        let tmp%14#0: bytes = (itob result#0)
+        (log tmp%14#0)
+        return result#0

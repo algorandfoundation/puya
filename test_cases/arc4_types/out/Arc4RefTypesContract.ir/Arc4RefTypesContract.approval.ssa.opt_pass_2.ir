@@ -1,0 +1,26 @@
+main test_cases.arc4_types.reference_types.Arc4RefTypesContract.approval_program:
+    block@0: // L5
+        let sender_address#0: bytes = (txn Sender)
+        let tmp%0#0: bytes = (txn Sender)
+        let tmp%1#0: bool = (== sender_address#0 tmp%0#0)
+        (assert tmp%1#0)
+        let checked_address#0: bytes = (txn Sender)
+        let tmp%2#0: uint64 = (len checked_address#0)
+        let tmp%3#0: bool = (== 32u tmp%2#0)
+        (assert tmp%3#0) // Address length is 32 bytes
+        let unchecked_address#0: bytes = (txn Sender)
+        let tmp%4#0: bool = (== sender_address#0 checked_address#0)
+        goto tmp%4#0 ? block@1 : block@3
+    block@1: // and_contd_L16
+        let tmp%5#0: bool = (== checked_address#0 unchecked_address#0)
+        goto tmp%5#0 ? block@2 : block@3
+    block@2: // bool_true_L16
+        let and_result%0#0: bool = 1u
+        goto block@4
+    block@3: // bool_false_L16
+        let and_result%0#1: bool = 0u
+        goto block@4
+    block@4: // bool_merge_L16
+        let and_result%0#2: bool = φ(and_result%0#0 <- block@2, and_result%0#1 <- block@3)
+        (assert and_result%0#2)
+        return 1u

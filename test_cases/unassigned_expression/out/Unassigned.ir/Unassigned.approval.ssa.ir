@@ -1,0 +1,81 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#0: bool = test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__()
+        return tmp%0#0
+
+subroutine test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__() -> bool:
+    block@0: // L4
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#0 0u)
+        goto tmp%1#0 ? block@1 : block@7
+    block@1: // abi_routing_L4
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "discard_op()void" => block@2, method "discard_subroutine()void" => block@3, method "discard_constants()void" => block@4, * => block@5}
+    block@2: // discard_op_route_L5
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (== tmp%3#0 NoOp)
+        (assert tmp%4#0) // OnCompletion is not NoOp
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%6#0: bool = (!= tmp%5#0 0u)
+        (assert tmp%6#0) // can only call when not creating
+        test_cases.unassigned_expression.contract.Unassigned.discard_op()
+        return 1u
+    block@3: // discard_subroutine_route_L9
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        (assert tmp%8#0) // OnCompletion is not NoOp
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (!= tmp%9#0 0u)
+        (assert tmp%10#0) // can only call when not creating
+        test_cases.unassigned_expression.contract.Unassigned.discard_subroutine()
+        return 1u
+    block@4: // discard_constants_route_L13
+        let tmp%11#0: uint64 = (txn OnCompletion)
+        let tmp%12#0: bool = (== tmp%11#0 NoOp)
+        (assert tmp%12#0) // OnCompletion is not NoOp
+        let tmp%13#0: uint64 = (txn ApplicationID)
+        let tmp%14#0: bool = (!= tmp%13#0 0u)
+        (assert tmp%14#0) // can only call when not creating
+        test_cases.unassigned_expression.contract.Unassigned.discard_constants()
+        return 1u
+    block@5: // switch_case_default_L4
+        goto block@6
+    block@6: // switch_case_next_L4
+        goto block@11
+    block@7: // bare_routing_L4
+        let tmp%15#0: uint64 = (txn OnCompletion)
+        switch tmp%15#0 {0u => block@8, * => block@9}
+    block@8: // __algopy_default_create_L1
+        let tmp%16#0: uint64 = (txn ApplicationID)
+        let tmp%17#0: bool = (== tmp%16#0 0u)
+        (assert tmp%17#0) // can only call when creating
+        test_cases.unassigned_expression.contract.Unassigned.__algopy_default_create()
+        return 1u
+    block@9: // switch_case_default_L4
+        goto block@10
+    block@10: // switch_case_next_L4
+        goto block@11
+    block@11: // after_if_else_L4
+        return 0u
+
+subroutine test_cases.unassigned_expression.contract.Unassigned.discard_op() -> void:
+    block@0: // L5
+        (bzero 10u)
+        return 
+
+subroutine test_cases.unassigned_expression.contract.Unassigned.discard_subroutine() -> void:
+    block@0: // L9
+        test_cases.unassigned_expression.contract.get_a_value()
+        return 
+
+subroutine test_cases.unassigned_expression.contract.get_a_value() -> uint64:
+    block@0: // L20
+        return 42u
+
+subroutine test_cases.unassigned_expression.contract.Unassigned.discard_constants() -> void:
+    block@0: // L13
+        return 
+
+subroutine test_cases.unassigned_expression.contract.Unassigned.__algopy_default_create() -> void:
+    block@0: // L1
+        return 

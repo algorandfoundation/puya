@@ -1,0 +1,118 @@
+main test_cases.iteration.base.IterationTestBase.approval_program:
+    block@0: // L7
+        (log "test_forwards")
+        let loop_counter%0#0: uint64 = 0u
+        let i#0: bytes = 0x61
+        goto block@2
+    block@2: // for_body_L13
+        (log i#0)
+        goto_nth [block@4, block@5][loop_counter%0#0] else goto block@6
+    block@4: // for_header_1_L12
+        let loop_counter%0#0: uint64 = 1u
+        let i#0: bytes = 0x62
+        goto block@2
+    block@5: // for_header_2_L12
+        let loop_counter%0#0: uint64 = 2u
+        let i#0: bytes = 0x63
+        goto block@2
+    block@6: // after_for_L12
+        (log "test_reversed")
+        let loop_counter%0#0: uint64 = 0u
+        let i#0: bytes = 0x63
+        goto block@9
+    block@9: // for_body_L19
+        (log i#0)
+        goto_nth [block@11, block@12][loop_counter%0#0] else goto block@13
+    block@11: // for_header_1_L18
+        let loop_counter%0#0: uint64 = 1u
+        let i#0: bytes = 0x62
+        goto block@9
+    block@12: // for_header_2_L18
+        let loop_counter%0#0: uint64 = 2u
+        let i#0: bytes = 0x61
+        goto block@9
+    block@13: // after_for_L18
+        (log "test_forwards_with_forwards_index")
+        let i#0: bytes = 0x61
+        let idx#0: uint64 = 0u
+        goto block@16
+    block@16: // for_body_L25
+        test_cases.iteration.base.IterationTestBase._log_with_index(idx#0, i#0)
+        goto_nth [block@18, block@19][idx#0] else goto block@20
+    block@18: // for_header_1_L24
+        let i#0: bytes = 0x62
+        let idx#0: uint64 = 1u
+        goto block@16
+    block@19: // for_header_2_L24
+        let i#0: bytes = 0x63
+        let idx#0: uint64 = 2u
+        goto block@16
+    block@20: // after_for_L24
+        (log "test_forwards_with_reverse_index")
+        let loop_counter%0#0: uint64 = 0u
+        let i#0: bytes = 0x61
+        let idx#0: uint64 = 2u
+        goto block@23
+    block@23: // for_body_L32
+        test_cases.iteration.base.IterationTestBase._log_with_index(idx#0, i#0)
+        goto_nth [block@25, block@26][loop_counter%0#0] else goto block@27
+    block@25: // for_header_1_L31
+        let loop_counter%0#0: uint64 = 1u
+        let i#0: bytes = 0x62
+        let idx#0: uint64 = 1u
+        goto block@23
+    block@26: // for_header_2_L31
+        let loop_counter%0#0: uint64 = 2u
+        let i#0: bytes = 0x63
+        let idx#0: uint64 = 0u
+        goto block@23
+    block@27: // after_for_L31
+        (log "test_reverse_with_forwards_index")
+        let i#0: bytes = 0x63
+        let idx#0: uint64 = 0u
+        goto block@30
+    block@30: // for_body_L39
+        test_cases.iteration.base.IterationTestBase._log_with_index(idx#0, i#0)
+        goto_nth [block@32, block@33][idx#0] else goto block@34
+    block@32: // for_header_1_L38
+        let i#0: bytes = 0x62
+        let idx#0: uint64 = 1u
+        goto block@30
+    block@33: // for_header_2_L38
+        let i#0: bytes = 0x61
+        let idx#0: uint64 = 2u
+        goto block@30
+    block@34: // after_for_L38
+        (log "test_reverse_with_reverse_index")
+        let loop_counter%0#0: uint64 = 0u
+        let i#0: bytes = 0x63
+        let idx#0: uint64 = 2u
+        goto block@37
+    block@37: // for_body_L46
+        test_cases.iteration.base.IterationTestBase._log_with_index(idx#0, i#0)
+        goto_nth [block@39, block@40][loop_counter%0#0] else goto block@41
+    block@39: // for_header_1_L45
+        let loop_counter%0#0: uint64 = 1u
+        let i#0: bytes = 0x62
+        let idx#0: uint64 = 1u
+        goto block@37
+    block@40: // for_header_2_L45
+        let loop_counter%0#0: uint64 = 2u
+        let i#0: bytes = 0x61
+        let idx#0: uint64 = 0u
+        goto block@37
+    block@41: // after_for_L45
+        (log "test_empty")
+        (log "test_break")
+        (log 0x61)
+        (log "test_tuple_target")
+        test_cases.iteration.base.IterationTestBase._log_with_index(0u, 0x74)
+        return 1u
+
+subroutine test_cases.iteration.base.IterationTestBase._log_with_index(idx: uint64, value: bytes) -> void:
+    block@0: // L31
+        let tmp%0#0: bytes = (extract3 0x30313233343536373839 idx#0 1u)
+        let tmp%1#0: bytes = (concat tmp%0#0 "=")
+        let tmp%2#0: bytes = (concat tmp%1#0 value#0)
+        (log tmp%2#0)
+        return 

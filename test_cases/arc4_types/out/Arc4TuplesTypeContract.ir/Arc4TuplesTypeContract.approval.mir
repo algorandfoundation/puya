@@ -1,0 +1,37 @@
+// Op                                   Stack (out)
+// test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program() -> uint64:
+main:
+    // arc4_types/tuples.py:74
+    // assert tup[1] == DynamicBytes(0)
+    byte 0x000100                       0x000100
+    // arc4_types/tuples.py:77
+    // tup[1][0] = Byte(1)
+    byte 0x01                           0x000100,0x01
+    replace2 2                          updated_target%0#0
+    byte 0x000003                       updated_target%0#0,0x000003
+    l-load updated_target%0#0 1         0x000003,updated_target%0#0
+    concat                              tup#2
+    // arc4_types/tuples.py:79
+    // assert tup[1] != tup2[1]
+    l-load-copy tup#2 0                 tup#2,tup#2 (copy)
+    int 1                               tup#2,tup#2 (copy),1
+    extract_uint16                      tup#2,item_start_offset%3#0
+    l-load-copy tup#2 1                 tup#2,item_start_offset%3#0,tup#2 (copy)
+    len                                 tup#2,item_start_offset%3#0,item_end_offset%3#0
+    l-load tup#2 2                      item_start_offset%3#0,item_end_offset%3#0,tup#2
+    l-load item_start_offset%3#0 2      item_end_offset%3#0,tup#2,item_start_offset%3#0
+    l-load item_end_offset%3#0 2        tup#2,item_start_offset%3#0,item_end_offset%3#0
+    substring3                          tmp%4#2
+    // arc4_types/tuples.py:74
+    // assert tup[1] == DynamicBytes(0)
+    byte 0x000100                       tmp%4#2,0x000100
+    // arc4_types/tuples.py:79
+    // assert tup[1] != tup2[1]
+    !=                                  tmp%6#2
+    assert
+    // arc4_types/tuples.py:51
+    // return True
+    int 1                               1
+    return
+
+

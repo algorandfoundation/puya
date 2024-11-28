@@ -1,0 +1,224 @@
+// Op                                                                                 Stack (out)
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    txn NumAppArgs                                                                    tmp%0#1
+    bz main_bare_routing@9 ; b main_abi_routing@2
+
+main_abi_routing@2:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    txna ApplicationArgs 0                                                            tmp%2#0
+    method get_one()(uint8,uint8)                                                     tmp%2#0,Method(get_one()(uint8,uint8))
+    method get_two()(uint8,uint8)                                                     tmp%2#0,Method(get_one()(uint8,uint8)),Method(get_two()(uint8,uint8))
+    method get_three()(uint8,uint8)                                                   tmp%2#0,Method(get_one()(uint8,uint8)),Method(get_two()(uint8,uint8)),Method(get_three()(uint8,uint8))
+    method compare()bool                                                              tmp%2#0,Method(get_one()(uint8,uint8)),Method(get_two()(uint8,uint8)),Method(get_three()(uint8,uint8)),Method(compare()bool)
+    l-load tmp%2#0 4                                                                  Method(get_one()(uint8,uint8)),Method(get_two()(uint8,uint8)),Method(get_three()(uint8,uint8)),Method(compare()bool),tmp%2#0
+    match main_get_one_route@3 main_get_two_route@4 main_get_three_route@5 main_compare_route@6 ; b main_after_if_else@13 
+
+main_get_one_route@3:
+    // struct_by_name/contract.py:25
+    // @arc4.abimethod()
+    txn OnCompletion                                                                  tmp%3#0
+    !                                                                                 tmp%4#0
+    assert // OnCompletion is not NoOp
+    txn ApplicationID                                                                 tmp%5#0
+    assert // can only call when not creating
+    callsub get_one                                                                   elements_to_encode%0#0,elements_to_encode%1#0
+    l-load elements_to_encode%0#0 1                                                   elements_to_encode%1#0,elements_to_encode%0#0
+    l-load elements_to_encode%1#0 1                                                   elements_to_encode%0#0,elements_to_encode%1#0
+    concat                                                                            encoded_tuple_buffer%2#0
+    byte 0x151f7c75                                                                   encoded_tuple_buffer%2#0,0x151f7c75
+    l-load encoded_tuple_buffer%2#0 1                                                 0x151f7c75,encoded_tuple_buffer%2#0
+    concat                                                                            tmp%7#0
+    log
+    int 1                                                                             tmp%0#0
+    x-store tmp%0#0                                                                   (𝕏) tmp%0#0 |
+    b main_split_from_inlining_callsub_op_of_0_at_index_0@14                          (𝕏) tmp%0#0 |
+
+main_get_two_route@4:
+    // struct_by_name/contract.py:32
+    // @arc4.abimethod()
+    txn OnCompletion                                                                  tmp%8#0
+    !                                                                                 tmp%9#0
+    assert // OnCompletion is not NoOp
+    txn ApplicationID                                                                 tmp%10#0
+    assert // can only call when not creating
+    callsub get_two                                                                   elements_to_encode%2#0,elements_to_encode%3#0
+    l-load elements_to_encode%2#0 1                                                   elements_to_encode%3#0,elements_to_encode%2#0
+    l-load elements_to_encode%3#0 1                                                   elements_to_encode%2#0,elements_to_encode%3#0
+    concat                                                                            encoded_tuple_buffer%5#0
+    byte 0x151f7c75                                                                   encoded_tuple_buffer%5#0,0x151f7c75
+    l-load encoded_tuple_buffer%5#0 1                                                 0x151f7c75,encoded_tuple_buffer%5#0
+    concat                                                                            tmp%12#0
+    log
+    int 1                                                                             tmp%0#0
+    x-store tmp%0#0                                                                   (𝕏) tmp%0#0 |
+    b main_split_from_inlining_callsub_op_of_0_at_index_0@14                          (𝕏) tmp%0#0 |
+
+main_get_three_route@5:
+    // struct_by_name/contract.py:39
+    // @arc4.abimethod()
+    txn OnCompletion                                                                  tmp%13#0
+    !                                                                                 tmp%14#0
+    assert // OnCompletion is not NoOp
+    txn ApplicationID                                                                 tmp%15#0
+    assert // can only call when not creating
+    callsub get_three                                                                 elements_to_encode%4#0,elements_to_encode%5#0
+    l-load elements_to_encode%4#0 1                                                   elements_to_encode%5#0,elements_to_encode%4#0
+    l-load elements_to_encode%5#0 1                                                   elements_to_encode%4#0,elements_to_encode%5#0
+    concat                                                                            encoded_tuple_buffer%8#0
+    byte 0x151f7c75                                                                   encoded_tuple_buffer%8#0,0x151f7c75
+    l-load encoded_tuple_buffer%8#0 1                                                 0x151f7c75,encoded_tuple_buffer%8#0
+    concat                                                                            tmp%17#0
+    log
+    int 1                                                                             tmp%0#0
+    x-store tmp%0#0                                                                   (𝕏) tmp%0#0 |
+    b main_split_from_inlining_callsub_op_of_0_at_index_0@14                          (𝕏) tmp%0#0 |
+
+main_compare_route@6:
+    // struct_by_name/contract.py:46
+    // @arc4.abimethod()
+    txn OnCompletion                                                                  tmp%18#0
+    !                                                                                 tmp%19#0
+    assert // OnCompletion is not NoOp
+    txn ApplicationID                                                                 tmp%20#0
+    assert // can only call when not creating
+    callsub compare                                                                   to_encode%0#0
+    byte 0x00                                                                         to_encode%0#0,0x00
+    int 0                                                                             to_encode%0#0,0x00,0
+    l-load to_encode%0#0 2                                                            0x00,0,to_encode%0#0
+    setbit                                                                            encoded_bool%0#0
+    byte 0x151f7c75                                                                   encoded_bool%0#0,0x151f7c75
+    l-load encoded_bool%0#0 1                                                         0x151f7c75,encoded_bool%0#0
+    concat                                                                            tmp%22#0
+    log
+    int 1                                                                             tmp%0#0
+    x-store tmp%0#0                                                                   (𝕏) tmp%0#0 |
+    b main_split_from_inlining_callsub_op_of_0_at_index_0@14                          (𝕏) tmp%0#0 |
+
+main_bare_routing@9:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    txn OnCompletion                                                                  tmp%23#0
+    bz main___algopy_default_create@10 ; b main_after_if_else@13
+
+main___algopy_default_create@10:
+    txn ApplicationID                                                                 tmp%24#0
+    !                                                                                 tmp%25#0
+    assert // can only call when creating
+    int 1                                                                             tmp%0#0
+    x-store tmp%0#0                                                                   (𝕏) tmp%0#0 |
+    b main_split_from_inlining_callsub_op_of_0_at_index_0@14                          (𝕏) tmp%0#0 |
+
+main_after_if_else@13:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    int 0                                                                             tmp%0#0
+    x-store tmp%0#0                                                                   (𝕏) tmp%0#0 |
+    b main_split_from_inlining_callsub_op_of_0_at_index_0@14                          (𝕏) tmp%0#0 |
+
+main_split_from_inlining_callsub_op_of_0_at_index_0@14:                               (𝕏) tmp%0#0 |
+    x-load tmp%0#0                                                                    tmp%0#0
+    return
+
+
+// test_cases.struct_by_name.contract.DemoContract.get_one() -> bytes, bytes:
+get_one:
+    // struct_by_name/contract.py:28
+    // x=arc4.UInt8(1),
+    byte 0x01                                                                         0x01
+    // struct_by_name/contract.py:29
+    // y=arc4.UInt8(1),
+    byte 0x01                                                                         0x01,0x01
+    // struct_by_name/contract.py:27-30
+    // return StructOne(
+    //     x=arc4.UInt8(1),
+    //     y=arc4.UInt8(1),
+    // )
+    retsub                                                                            0x01,0x01
+
+
+// test_cases.struct_by_name.contract.DemoContract.get_two() -> bytes, bytes:
+get_two:
+    // struct_by_name/contract.py:35
+    // x=arc4.UInt8(1),
+    byte 0x01                                                                         0x01
+    // struct_by_name/contract.py:36
+    // y=arc4.UInt8(1),
+    byte 0x01                                                                         0x01,0x01
+    // struct_by_name/contract.py:34-37
+    // return StructTwo(
+    //     x=arc4.UInt8(1),
+    //     y=arc4.UInt8(1),
+    // )
+    retsub                                                                            0x01,0x01
+
+
+// test_cases.struct_by_name.contract.DemoContract.get_three() -> bytes, bytes:
+get_three:
+    // struct_by_name/contract.py:42
+    // x=arc4.UInt8(1),
+    byte 0x01                                                                         0x01
+    // struct_by_name/contract.py:43
+    // y=arc4.UInt8(1),
+    byte 0x01                                                                         0x01,0x01
+    // struct_by_name/contract.py:41-44
+    // return StructThree(
+    //     x=arc4.UInt8(1),
+    //     y=arc4.UInt8(1),
+    // )
+    retsub                                                                            0x01,0x01
+
+
+// test_cases.struct_by_name.contract.DemoContract.compare() -> uint64:
+compare:
+    // struct_by_name/contract.py:48
+    // return self.get_one() == self.get_two() and self.get_two() == self.get_three()
+    callsub get_one                                                                   awst_tmp%0#0,awst_tmp%1#0
+    callsub get_two                                                                   awst_tmp%0#0,awst_tmp%1#0,awst_tmp%2#0,awst_tmp%3#0
+    l-load awst_tmp%0#0 3                                                             awst_tmp%1#0,awst_tmp%2#0,awst_tmp%3#0,awst_tmp%0#0
+    l-load awst_tmp%2#0 2                                                             awst_tmp%1#0,awst_tmp%3#0,awst_tmp%0#0,awst_tmp%2#0
+    b==                                                                               awst_tmp%1#0,awst_tmp%3#0,tmp%0#0
+    l-load awst_tmp%1#0 2                                                             awst_tmp%3#0,tmp%0#0,awst_tmp%1#0
+    l-load awst_tmp%3#0 2                                                             tmp%0#0,awst_tmp%1#0,awst_tmp%3#0
+    b==                                                                               tmp%0#0,tmp%1#0
+    l-load tmp%0#0 1                                                                  tmp%1#0,tmp%0#0
+    l-load tmp%1#0 1                                                                  tmp%0#0,tmp%1#0
+    &&                                                                                tmp%2#0
+    bz compare_bool_false@3 ; b compare_and_contd@1
+
+compare_and_contd@1:
+    // struct_by_name/contract.py:48
+    // return self.get_one() == self.get_two() and self.get_two() == self.get_three()
+    callsub get_two                                                                   awst_tmp%4#0,awst_tmp%5#0
+    callsub get_three                                                                 awst_tmp%4#0,awst_tmp%5#0,awst_tmp%6#0,awst_tmp%7#0
+    l-load awst_tmp%4#0 3                                                             awst_tmp%5#0,awst_tmp%6#0,awst_tmp%7#0,awst_tmp%4#0
+    l-load awst_tmp%6#0 2                                                             awst_tmp%5#0,awst_tmp%7#0,awst_tmp%4#0,awst_tmp%6#0
+    b==                                                                               awst_tmp%5#0,awst_tmp%7#0,tmp%3#0
+    l-load awst_tmp%5#0 2                                                             awst_tmp%7#0,tmp%3#0,awst_tmp%5#0
+    l-load awst_tmp%7#0 2                                                             tmp%3#0,awst_tmp%5#0,awst_tmp%7#0
+    b==                                                                               tmp%3#0,tmp%4#0
+    l-load tmp%3#0 1                                                                  tmp%4#0,tmp%3#0
+    l-load tmp%4#0 1                                                                  tmp%3#0,tmp%4#0
+    &&                                                                                tmp%5#0
+    bz compare_bool_false@3 ; b compare_bool_true@2
+
+compare_bool_true@2:
+    int 1                                                                             and_result%0#0
+    x-store and_result%0#0                                                            (𝕏) and_result%0#0 |
+    b compare_bool_merge@4                                                            (𝕏) and_result%0#0 |
+
+compare_bool_false@3:
+    int 0                                                                             and_result%0#0
+    x-store and_result%0#0                                                            (𝕏) and_result%0#0 |
+    b compare_bool_merge@4                                                            (𝕏) and_result%0#0 |
+
+compare_bool_merge@4:                                                                 (𝕏) and_result%0#0 |
+    // struct_by_name/contract.py:48
+    // return self.get_one() == self.get_two() and self.get_two() == self.get_three()
+    x-load and_result%0#0                                                             and_result%0#0
+    retsub                                                                            and_result%0#0
+
+

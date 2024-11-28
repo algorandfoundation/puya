@@ -1,0 +1,16 @@
+main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
+    block@0: // L14
+        let encoded_tuple_buffer%28#0: bytes = 0x04bc
+        let encoded_tuple_buffer%29#0: bytes = (setbit encoded_tuple_buffer%28#0 15u 1u)
+        let encoded_tuple_buffer%30#0: bytes = (concat encoded_tuple_buffer%29#0 0x80)
+        let encoded_tuple_buffer%31#0: bytes = (concat encoded_tuple_buffer%30#0 0x10)
+        let tmp%17#0: bool = (== 0x04bd8010 encoded_tuple_buffer%31#0)
+        (assert tmp%17#0)
+        let updated_target%0#0: bytes = ((replace2 2) 0x000100 0x01)
+        let tup#2: bytes = (concat 0x000003 updated_target%0#0)
+        let item_start_offset%3#0: uint64 = (extract_uint16 tup#2 1u)
+        let item_end_offset%3#0: uint64 = (len tup#2)
+        let tmp%4#2: bytes = (substring3 tup#2 item_start_offset%3#0 item_end_offset%3#0)
+        let tmp%6#2: bool = (!= tmp%4#2 0x000100)
+        (assert tmp%6#2)
+        return 1u

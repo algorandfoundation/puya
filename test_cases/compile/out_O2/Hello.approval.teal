@@ -1,61 +1,27 @@
 #pragma version 10
 
-test_cases.compile.apps.Hello.approval_program:
+// test_cases.compile.apps.Hello.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 1 0
     bytecblock "greeting"
     txn ApplicationID
     bnz main_after_if_else@2
-    callsub __init__
-
-main_after_if_else@2:
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.compile.apps.HelloBase.__init__() -> void:
-__init__:
-    proto 0 0
     bytec_0 // "greeting"
     pushbytes ""
     app_global_put
-    retsub
 
-
-// test_cases.compile.apps.Hello.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    proto 0 1
+main_after_if_else@2:
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@7
+    bz main_bare_routing@12
     pushbytess 0x20df3a54 0x24378d3c 0xd0a28200 // method "create(string)void", method "delete()void", method "greet(string)string"
     txna ApplicationArgs 0
-    match __puya_arc4_router___create_route@2 __puya_arc4_router___delete_route@3 __puya_arc4_router___greet_route@4
+    match main_create_route@7 main_delete_route@8 main_greet_route@9
+
+main_after_if_else@16:
     intc_1 // 0
-    retsub
+    return
 
-__puya_arc4_router___create_route@2:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    txna ApplicationArgs 1
-    extract 2 0
-    callsub create
-    intc_0 // 1
-    retsub
-
-__puya_arc4_router___delete_route@3:
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    assert // OnCompletion is not DeleteApplication
-    txn ApplicationID
-    assert // can only call when not creating
-    intc_0 // 1
-    retsub
-
-__puya_arc4_router___greet_route@4:
+main_greet_route@9:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -75,20 +41,42 @@ __puya_arc4_router___greet_route@4:
     concat
     log
     intc_0 // 1
-    retsub
+    return
 
-__puya_arc4_router___bare_routing@7:
-    pushint 4 // 4
+main_delete_route@8:
     txn OnCompletion
-    match __puya_arc4_router___update@8
-    intc_1 // 0
-    retsub
-
-__puya_arc4_router___update@8:
+    pushint 5 // DeleteApplication
+    ==
+    assert // OnCompletion is not DeleteApplication
     txn ApplicationID
     assert // can only call when not creating
     intc_0 // 1
-    retsub
+    return
+
+main_create_route@7:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    txna ApplicationArgs 1
+    extract 2 0
+    callsub create
+    intc_0 // 1
+    return
+
+main_bare_routing@12:
+    pushint 4 // 4
+    txn OnCompletion
+    match main_update@13
+    b main_after_if_else@16
+
+main_update@13:
+    txn ApplicationID
+    assert // can only call when not creating
+    intc_0 // 1
+    return
 
 
 // test_cases.compile.apps.Hello.create(greeting: bytes) -> void:

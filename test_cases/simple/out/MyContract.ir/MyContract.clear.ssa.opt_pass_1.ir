@@ -1,0 +1,17 @@
+main test_cases.simple.contract.MyContract.clear_state_program:
+    block@0: // L25
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (! tmp%0#0)
+        (assert tmp%1#0)
+        goto block@1
+    block@1: // L4
+        let test_cases.simple.subs.zero%0#0: uint64 = 0u
+        goto block@2
+    block@2: // split from inlining callsub op of 0 at index 3_L25
+        goto block@3
+    block@3: // L4
+        let test_cases.simple.pkg_a.pkg_1.subs.one%0#0: uint64 = 1u
+        goto block@4
+    block@4: // split from inlining callsub op of 2 at index 0_L25
+        let tmp%4#0: uint64 = (* test_cases.simple.subs.zero%0#0 test_cases.simple.pkg_a.pkg_1.subs.one%0#0)
+        return tmp%4#0

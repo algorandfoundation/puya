@@ -6,25 +6,12 @@ contract Reference
     ['asa']: asset
   }
   
-  subroutine test_cases.asset.contract.Reference.approval_program(): bool
+  subroutine test_cases.asset.contract.Reference.__algopy_entrypoint_with_init(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    if (txn<NumAppArgs>() == 1u) {
-      if (txna<ApplicationArgs, 0>() == hex<"6F70745F696E">) {
-        asset: asset = txna<Assets, 0>()
-        this::opt_into_asset(asset)
-      } else {
-        if (txna<ApplicationArgs, 0>() == hex<"69735F6F707465645F696E">) {
-          asset: asset = txna<Assets, 0>()
-          this::is_opted_asset(asset)
-        } else {
-          assert(false, comment="Expected opt_in or is_opted_in")
-        }
-      }
-    }
-    return true
+    return this::approval_program()
   }
   
   subroutine test_cases.asset.contract.Reference.clear_state_program(): bool

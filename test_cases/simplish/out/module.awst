@@ -10,51 +10,12 @@ contract Simplish
     ['name']: bytes
   }
   
-  subroutine test_cases.simplish.contract.Simplish.approval_program(): bool
+  subroutine test_cases.simplish.contract.Simplish.__algopy_entrypoint_with_init(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    if (txn<ApplicationID>() == reinterpret_cast<application>(0u)) {
-      return true
-    }
-    oca: uint64 = txn<OnCompletion>()
-    sender: account = txn<Sender>()
-    if (oca == SINGLE_EVAL(id=0, source=(UpdateApplication, DeleteApplication))[0] or oca == SINGLE_EVAL(id=0)[1]) {
-      if (oca == DeleteApplication) {
-        log(hex<"4920776173207573656420"> + test_cases.simplish.contract.itoa(GlobalState['counter']) + hex<"2074696D65287329206265666F726520492064696564">)
-      }
-      return global<CreatorAddress>() == sender
-    }
-    if (oca == OptIn) {
-      if (txn<NumAppArgs>() > 0u) {
-        this::set_sender_nickname(txna<ApplicationArgs, 0>())
-      }
-      return true
-    }
-    if (oca != NoOp) {
-      return false
-    }
-    if (num_app_args: uint64 := txn<NumAppArgs>() > 0u) {
-      method_name: bytes = txna<ApplicationArgs, 0>()
-      (msg, result): tuple<bytes,bool> = this::call(method_name, num_app_args)
-    } else {
-      if (txn<NumAssets>() == 1u) {
-        (asset_balance, asset_exists): tuple<uint64,bool> = asset_holding_get<AssetBalance>(sender, reinterpret_cast<asset>(0u))
-        if (!(asset_exists)) {
-          msg: bytes = hex<"596F7520646F206E6F74206861766520616E79206F6620746865206173736574">
-        } else {
-          msg: bytes = hex<"596F7520686176652061737365742062616C616E63653A20"> + test_cases.simplish.contract.itoa(asset_balance)
-        }
-        result: bool = true
-      } else {
-        msg: bytes = hex<"6E6F7420656E6F756768206170702061726773206F7220666F726569676E20617373657473">
-        result: bool = false
-      }
-    }
-    log(msg)
-    this::increment_counter()
-    return result
+    return this::approval_program()
   }
   
   subroutine test_cases.simplish.contract.Simplish.clear_state_program(): bool
@@ -69,7 +30,7 @@ contract Simplish
     }
     oca: uint64 = txn<OnCompletion>()
     sender: account = txn<Sender>()
-    if (oca == SINGLE_EVAL(id=0)[0] or oca == SINGLE_EVAL(id=0)[1]) {
+    if (oca == SINGLE_EVAL(id=0, source=(UpdateApplication, DeleteApplication))[0] or oca == SINGLE_EVAL(id=0)[1]) {
       if (oca == DeleteApplication) {
         log(hex<"4920776173207573656420"> + test_cases.simplish.contract.itoa(GlobalState['counter']) + hex<"2074696D65287329206265666F726520492064696564">)
       }

@@ -1,0 +1,411 @@
+main test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program:
+    block@0: // L28
+        test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutating_copies()
+        return 1u
+
+subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutating_copies() -> void:
+    block@0: // L33
+        let result%0#0: bytes = (concat 0x 0x01)
+        let result%1#0: bytes = (concat result%0#0 0x02)
+        let result%2#0: bytes = (concat result%1#0 0x03)
+        let result%3#0: bytes = (concat result%2#0 0x04)
+        let array_data%0#0: bytes = (concat 0x result%3#0)
+        let my_array#0: bytes = array_data%0#0
+        let encoded_bool%0#0: bytes = (setbit 0x00 0u 1u)
+        let encoded_tuple_buffer%1#0: bytes = (concat 0x encoded_bool%0#0)
+        let encoded_tuple_buffer%2#0: bytes = (concat encoded_tuple_buffer%1#0 0x32)
+        let as_bytes%0#0: bytes = (itob 6u)
+        let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let encoded_tuple_buffer%3#0: bytes = (concat encoded_tuple_buffer%2#0 offset_as_uint16%0#0)
+        let data_length%0#0: uint64 = (len 0x00054861707079)
+        let current_tail_offset%1#0: uint64 = (+ 6u data_length%0#0)
+        let as_bytes%1#0: bytes = (itob current_tail_offset%1#0)
+        let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let encoded_tuple_buffer%4#0: bytes = (concat encoded_tuple_buffer%3#0 offset_as_uint16%1#0)
+        let encoded_tuple_buffer%5#0: bytes = (concat encoded_tuple_buffer%4#0 0x00054861707079)
+        let encoded_tuple_buffer%6#0: bytes = (concat encoded_tuple_buffer%5#0 0x000444617973)
+        let my_struct#0: bytes = encoded_tuple_buffer%6#0
+        let copy%0#0: bytes = my_array#0
+        let my_array_copy#0: bytes = copy%0#0
+        let copy%1#0: bytes = my_struct#0
+        let my_struct_copy#0: bytes = copy%1#0
+        let updated_target%0#0: bytes = (replace3 my_array#0 2u 0x05)
+        let my_array#0: bytes = updated_target%0#0
+        let array_head_and_tail%0#0: bytes = my_array_copy#0
+        let item_offset%0#0: uint64 = (* 2u 1u)
+        let reinterpret_biguint%0#0: biguint = (extract3 array_head_and_tail%0#0 item_offset%0#0 1u) // on error: Index access is out of bounds
+        let tmp%0#0: bool = (b== reinterpret_biguint%0#0 0x03)
+        (assert tmp%0#0) // my_array_copy should be unchanged
+        let array_head_and_tail%1#0: bytes = my_array#0
+        let item_offset%1#0: uint64 = (* 2u 1u)
+        let reinterpret_biguint%2#0: biguint = (extract3 array_head_and_tail%1#0 item_offset%1#0 1u) // on error: Index access is out of bounds
+        let tmp%1#0: bool = (b== reinterpret_biguint%2#0 0x05)
+        (assert tmp%1#0) // my_array should be mutated
+        let (other_routine%0#0: bool, other_routine%1#0: bool, other_routine%2#0: bytes, other_routine%3#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(my_array#0, my_struct#0)
+        let my_struct#0: bytes = other_routine%3#0
+        let my_array#0: bytes = other_routine%2#0
+        let t#0: bool = other_routine%0#0
+        let f#0: bool = other_routine%1#0
+        (assert t#0)
+        let tmp%2#0: bool = (! f#0)
+        (assert tmp%2#0)
+        let array_head_and_tail%2#0: bytes = my_array#0
+        let item_offset%2#0: uint64 = (* 1u 1u)
+        let reinterpret_biguint%4#0: biguint = (extract3 array_head_and_tail%2#0 item_offset%2#0 1u) // on error: Index access is out of bounds
+        let tmp%3#0: bool = (b== reinterpret_biguint%4#0 0x05)
+        (assert tmp%3#0) // my_array has been mutated by the subroutine
+        let item_start_offset%0#0: uint64 = (extract_uint16 my_struct#0 2u)
+        let item_end_offset%0#0: uint64 = (extract_uint16 my_struct#0 4u)
+        let tmp%4#0: bytes = (substring3 my_struct#0 item_start_offset%0#0 item_end_offset%0#0)
+        let tmp%5#0: bool = (== tmp%4#0 0x000741415252474821)
+        (assert tmp%5#0) // my_struct has been mutated by the subroutine
+        let copy%2#0: bytes = my_array_copy#0
+        let copy%3#0: bytes = my_struct_copy#0
+        let (other_routine%4#0: bool, other_routine%5#0: bool, other_routine%6#0: bytes, other_routine%7#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(copy%2#0, copy%3#0)
+        let array_head_and_tail%3#0: bytes = my_array_copy#0
+        let item_offset%3#0: uint64 = (* 1u 1u)
+        let reinterpret_biguint%6#0: biguint = (extract3 array_head_and_tail%3#0 item_offset%3#0 1u) // on error: Index access is out of bounds
+        let tmp%6#0: bool = (b== reinterpret_biguint%6#0 0x02)
+        (assert tmp%6#0) // my_array_copy should not be mutated by the subroutine
+        let item_start_offset%1#0: uint64 = (extract_uint16 my_struct_copy#0 2u)
+        let item_end_offset%1#0: uint64 = (extract_uint16 my_struct_copy#0 4u)
+        let tmp%7#0: bytes = (substring3 my_struct_copy#0 item_start_offset%1#0 item_end_offset%1#0)
+        let tmp%8#0: bool = (== tmp%7#0 0x00054861707079)
+        (assert tmp%8#0) // my_struct_copy should not be mutated by the subroutine
+        let copy%4#0: bytes = my_array_copy#0
+        let my_array_copy_2#0: bytes = copy%4#0
+        let (other_routine_2%0#0: bytes, other_routine_2%1#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(my_array_copy_2#0)
+        let my_array_copy_2#0: bytes = other_routine_2%0#0
+        let array_head_and_tail%4#0: bytes = my_array_copy_2#0
+        let item_offset%4#0: uint64 = (* 0u 1u)
+        let reinterpret_biguint%8#0: biguint = (extract3 array_head_and_tail%4#0 item_offset%4#0 1u) // on error: Index access is out of bounds
+        let tmp%9#0: bool = (b== reinterpret_biguint%8#0 0x01)
+        (assert tmp%9#0) // my_array_copy_2 should have original value
+        let (other_routine_2%2#0: bytes, other_routine_2%3#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(my_array_copy_2#0)
+        let my_array_copy_2#0: bytes = other_routine_2%3#0
+        let array_head_and_tail%5#0: bytes = my_array_copy_2#0
+        let item_offset%5#0: uint64 = (* 0u 1u)
+        let reinterpret_biguint%10#0: biguint = (extract3 array_head_and_tail%5#0 item_offset%5#0 1u) // on error: Index access is out of bounds
+        let tmp%10#0: bool = (b== reinterpret_biguint%10#0 0x0a)
+        (assert tmp%10#0) // my_array_copy_2 should have mutated value
+        let copy%5#0: bytes = my_array_copy#0
+        let my_array_copy_3#0: bytes = copy%5#0
+        let copy%6#0: bytes = my_array#0
+        let copy%7#0: bytes = my_array_copy_2#0
+        let copy%8#0: bytes = my_array_copy_3#0
+        let originals.0#0: bytes = copy%6#0
+        let originals.1#0: bytes = copy%7#0
+        let originals.2#0: bytes = copy%8#0
+        let copy%9#0: bytes = my_array#0
+        let copy%10#0: bytes = my_array_copy_2#0
+        let copy%11#0: bytes = my_array_copy_3#0
+        let (mutate_tuple_items_and_reassign%0#0: bytes, mutate_tuple_items_and_reassign%1#0: bytes, mutate_tuple_items_and_reassign%2#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(copy%9#0, copy%10#0, copy%11#0, 0u, 1u)
+        let tmp%11#0: bool = (== originals.0#0 my_array#0)
+        let tmp%12#0: bool = (== originals.1#0 my_array_copy_2#0)
+        let tmp%13#0: bool = (&& tmp%11#0 tmp%12#0)
+        let tmp%14#0: bool = (== originals.2#0 my_array_copy_3#0)
+        let tmp%15#0: bool = (&& tmp%13#0 tmp%14#0)
+        (assert tmp%15#0)
+        let (mutate_tuple_items_and_reassign%3#0: bytes, mutate_tuple_items_and_reassign%4#0: bytes, mutate_tuple_items_and_reassign%5#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(my_array#0, my_array_copy_2#0, my_array_copy_3#0, 100u, 1u)
+        let my_array_copy_3#0: bytes = mutate_tuple_items_and_reassign%5#0
+        let my_array_copy_2#0: bytes = mutate_tuple_items_and_reassign%4#0
+        let my_array#0: bytes = mutate_tuple_items_and_reassign%3#0
+        let array_head_and_tail%6#0: bytes = my_array#0
+        let item_offset%6#0: uint64 = (* 0u 1u)
+        let reinterpret_biguint%12#0: biguint = (extract3 array_head_and_tail%6#0 item_offset%6#0 1u) // on error: Index access is out of bounds
+        let tmp%16#0: bool = (b== reinterpret_biguint%12#0 0x64)
+        (assert tmp%16#0)
+        let array_head_and_tail%7#0: bytes = my_array_copy_2#0
+        let item_offset%7#0: uint64 = (* 0u 1u)
+        let reinterpret_biguint%14#0: biguint = (extract3 array_head_and_tail%7#0 item_offset%7#0 1u) // on error: Index access is out of bounds
+        let tmp%17#0: bool = (b== reinterpret_biguint%14#0 0x65)
+        (assert tmp%17#0)
+        let array_head_and_tail%8#0: bytes = my_array_copy_3#0
+        let item_offset%8#0: uint64 = (* 0u 1u)
+        let reinterpret_biguint%16#0: biguint = (extract3 array_head_and_tail%8#0 item_offset%8#0 1u) // on error: Index access is out of bounds
+        let tmp%18#0: bool = (b== reinterpret_biguint%16#0 0x66)
+        (assert tmp%18#0)
+        let array_head_and_tail%9#0: bytes = my_array#0
+        let item_offset%9#0: uint64 = (* 1u 1u)
+        let reinterpret_biguint%18#0: biguint = (extract3 array_head_and_tail%9#0 item_offset%9#0 1u) // on error: Index access is out of bounds
+        let tmp%19#0: bool = (b== reinterpret_biguint%18#0 0x67)
+        (assert tmp%19#0)
+        let array_head_and_tail%10#0: bytes = my_array_copy_2#0
+        let item_offset%10#0: uint64 = (* 1u 1u)
+        let reinterpret_biguint%20#0: biguint = (extract3 array_head_and_tail%10#0 item_offset%10#0 1u) // on error: Index access is out of bounds
+        let tmp%20#0: bool = (b== reinterpret_biguint%20#0 0x68)
+        (assert tmp%20#0)
+        let array_head_and_tail%11#0: bytes = my_array_copy_3#0
+        let item_offset%11#0: uint64 = (* 1u 1u)
+        let reinterpret_biguint%22#0: biguint = (extract3 array_head_and_tail%11#0 item_offset%11#0 1u) // on error: Index access is out of bounds
+        let tmp%21#0: bool = (b== reinterpret_biguint%22#0 0x69)
+        (assert tmp%21#0)
+        let (mutate_tuple_items_and_reassign%6#0: bytes, mutate_tuple_items_and_reassign%7#0: bytes, mutate_tuple_items_and_reassign%8#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(my_array#0, my_array_copy_2#0, my_array_copy_3#0, 200u, 0u)
+        let my_array_copy_3#0: bytes = mutate_tuple_items_and_reassign%8#0
+        let my_array_copy_2#0: bytes = mutate_tuple_items_and_reassign%7#0
+        let my_array#0: bytes = mutate_tuple_items_and_reassign%6#0
+        let array_head_and_tail%12#0: bytes = my_array#0
+        let item_offset%12#0: uint64 = (* 0u 1u)
+        let reinterpret_biguint%24#0: biguint = (extract3 array_head_and_tail%12#0 item_offset%12#0 1u) // on error: Index access is out of bounds
+        let tmp%22#0: bool = (b== reinterpret_biguint%24#0 0xc8)
+        (assert tmp%22#0)
+        let array_head_and_tail%13#0: bytes = my_array_copy_2#0
+        let item_offset%13#0: uint64 = (* 0u 1u)
+        let reinterpret_biguint%26#0: biguint = (extract3 array_head_and_tail%13#0 item_offset%13#0 1u) // on error: Index access is out of bounds
+        let tmp%23#0: bool = (b== reinterpret_biguint%26#0 0xc9)
+        (assert tmp%23#0)
+        let array_head_and_tail%14#0: bytes = my_array_copy_3#0
+        let item_offset%14#0: uint64 = (* 0u 1u)
+        let reinterpret_biguint%28#0: biguint = (extract3 array_head_and_tail%14#0 item_offset%14#0 1u) // on error: Index access is out of bounds
+        let tmp%24#0: bool = (b== reinterpret_biguint%28#0 0xca)
+        (assert tmp%24#0)
+        let array_head_and_tail%15#0: bytes = my_array#0
+        let item_offset%15#0: uint64 = (* 1u 1u)
+        let reinterpret_biguint%30#0: biguint = (extract3 array_head_and_tail%15#0 item_offset%15#0 1u) // on error: Index access is out of bounds
+        let tmp%25#0: bool = (b== reinterpret_biguint%30#0 0xce)
+        (assert tmp%25#0)
+        let array_head_and_tail%16#0: bytes = my_array_copy_2#0
+        let item_offset%16#0: uint64 = (* 1u 1u)
+        let reinterpret_biguint%32#0: biguint = (extract3 array_head_and_tail%16#0 item_offset%16#0 1u) // on error: Index access is out of bounds
+        let tmp%26#0: bool = (b== reinterpret_biguint%32#0 0xcf)
+        (assert tmp%26#0)
+        let array_head_and_tail%17#0: bytes = my_array_copy_3#0
+        let item_offset%17#0: uint64 = (* 1u 1u)
+        let reinterpret_biguint%34#0: biguint = (extract3 array_head_and_tail%17#0 item_offset%17#0 1u) // on error: Index access is out of bounds
+        let tmp%27#0: bool = (b== reinterpret_biguint%34#0 0xd0)
+        (assert tmp%27#0)
+        let copy%12#0: bytes = my_array#0
+        let encoded_tuple_buffer%8#0: bytes = (concat 0x copy%12#0)
+        let nested#0: bytes = encoded_tuple_buffer%8#0
+        let tmp%28#0: bytes = (extract3 nested#0 0u 4u) // on error: Index access is out of bounds
+        let copy%13#0: bytes = tmp%28#0
+        let (other_routine_2%4#0: bytes, other_routine_2%5#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(copy%13#0)
+        return 
+
+subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(array: bytes, struct: bytes) -> <bool, bool, bytes, bytes>:
+    block@0: // L118
+        let updated_target%0#0: bytes = (replace3 array#0 1u 0x05)
+        let array#0: bytes = updated_target%0#0
+        goto 1u ? block@1 : block@2
+    block@1: // if_body_L1
+        goto block@2
+    block@2: // after_if_else_L1
+        let item_offset%0#0: uint64 = (extract_uint16 struct#0 2u)
+        let data_up_to_item%0#0: bytes = (extract3 struct#0 0u item_offset%0#0)
+        let next_item_offset%0#0: uint64 = (extract_uint16 struct#0 4u)
+        let total_data_length%0#0: uint64 = (len struct#0)
+        let data_beyond_item%0#0: bytes = (substring3 struct#0 next_item_offset%0#0 total_data_length%0#0)
+        let updated_data%0#0: bytes = (concat data_up_to_item%0#0 0x000741415252474821)
+        let updated_data%1#0: bytes = (concat updated_data%0#0 data_beyond_item%0#0)
+        let item_length%0#0: uint64 = (- next_item_offset%0#0 item_offset%0#0)
+        let new_value_length%0#0: uint64 = (len 0x000741415252474821)
+        let tail_offset%0#0: uint64 = (extract_uint16 updated_data%1#0 4u)
+        let tail_offset%1#0: uint64 = (+ tail_offset%0#0 new_value_length%0#0)
+        let tail_offset%2#0: uint64 = (- tail_offset%1#0 item_length%0#0)
+        let as_bytes%0#0: bytes = (itob tail_offset%2#0)
+        let tail_offset_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let updated_data%2#0: bytes = (replace3 updated_data%1#0 4u tail_offset_bytes%0#0)
+        let struct#0: bytes = updated_data%2#0
+        goto 1u ? block@3 : block@4
+    block@3: // if_body_L1
+        goto block@4
+    block@4: // after_if_else_L1
+        return 1u 0u array#0 struct#0
+
+subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(array: bytes) -> <bytes, bytes>:
+    block@0: // L124
+        let copy%0#0: bytes = array#0
+        let copy#0: bytes = copy%0#0
+        let updated_target%0#0: bytes = (replace3 array#0 0u 0x0a)
+        let array#0: bytes = updated_target%0#0
+        goto 1u ? block@1 : block@2
+    block@1: // if_body_L1
+        goto block@2
+    block@2: // after_if_else_L1
+        return copy#0 array#0
+
+subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(arrays.0: bytes, arrays.1: bytes, arrays.2: bytes, start: uint64, reassign: bool) -> <bytes, bytes, bytes>:
+    block@0: // L130
+        let arrays.0%is_original#0: bool = 1u
+        let arrays.0%out#0: bytes = arrays.0#0
+        let arrays.1%is_original#0: bool = 1u
+        let arrays.1%out#0: bytes = arrays.1#0
+        let arrays.2%is_original#0: bool = 1u
+        let arrays.2%out#0: bytes = arrays.2#0
+        let val_as_bytes%0#0: bytes = (itob start#0)
+        let assigned_value%0#0: bytes = ((extract 7 1) val_as_bytes%0#0)
+        let updated_target%0#0: bytes = (replace3 arrays.0#0 0u assigned_value%0#0)
+        let arrays.0#0: bytes = updated_target%0#0
+        goto 1u ? block@1 : block@2
+    block@1: // if_body_L1
+        let arrays.0%out#0: bytes = arrays.0#0
+        goto block@2
+    block@2: // after_if_else_L1
+        let to_encode%0#0: uint64 = (+ start#0 1u)
+        let val_as_bytes%1#0: bytes = (itob to_encode%0#0)
+        let assigned_value%1#0: bytes = ((extract 7 1) val_as_bytes%1#0)
+        let updated_target%1#0: bytes = (replace3 arrays.1#0 0u assigned_value%1#0)
+        let arrays.1#0: bytes = updated_target%1#0
+        goto 1u ? block@3 : block@4
+    block@3: // if_body_L1
+        let arrays.1%out#0: bytes = arrays.1#0
+        goto block@4
+    block@4: // after_if_else_L1
+        let to_encode%1#0: uint64 = (+ start#0 2u)
+        let val_as_bytes%2#0: bytes = (itob to_encode%1#0)
+        let assigned_value%2#0: bytes = ((extract 7 1) val_as_bytes%2#0)
+        let updated_target%2#0: bytes = (replace3 arrays.2#0 0u assigned_value%2#0)
+        let arrays.2#0: bytes = updated_target%2#0
+        goto 1u ? block@5 : block@6
+    block@5: // if_body_L1
+        let arrays.2%out#0: bytes = arrays.2#0
+        goto block@6
+    block@6: // after_if_else_L1
+        let array_head_and_tail%0#0: bytes = arrays.0#0
+        let item_offset%0#0: uint64 = (* 0u 1u)
+        let reinterpret_biguint%0#0: biguint = (extract3 array_head_and_tail%0#0 item_offset%0#0 1u) // on error: Index access is out of bounds
+        let tmp%0#0: biguint = (itob start#0)
+        let tmp%1#0: bool = (b== reinterpret_biguint%0#0 tmp%0#0)
+        (assert tmp%1#0)
+        let array_head_and_tail%1#0: bytes = arrays.1#0
+        let item_offset%1#0: uint64 = (* 0u 1u)
+        let reinterpret_biguint%1#0: biguint = (extract3 array_head_and_tail%1#0 item_offset%1#0 1u) // on error: Index access is out of bounds
+        let tmp%2#0: uint64 = (+ start#0 1u)
+        let tmp%3#0: biguint = (itob tmp%2#0)
+        let tmp%4#0: bool = (b== reinterpret_biguint%1#0 tmp%3#0)
+        (assert tmp%4#0)
+        let array_head_and_tail%2#0: bytes = arrays.2#0
+        let item_offset%2#0: uint64 = (* 0u 1u)
+        let reinterpret_biguint%2#0: biguint = (extract3 array_head_and_tail%2#0 item_offset%2#0 1u) // on error: Index access is out of bounds
+        let tmp%5#0: uint64 = (+ start#0 2u)
+        let tmp%6#0: biguint = (itob tmp%5#0)
+        let tmp%7#0: bool = (b== reinterpret_biguint%2#0 tmp%6#0)
+        (assert tmp%7#0)
+        let to_encode%2#0: uint64 = (+ start#0 3u)
+        let val_as_bytes%3#0: bytes = (itob to_encode%2#0)
+        let assigned_value%3#0: bytes = ((extract 7 1) val_as_bytes%3#0)
+        let updated_target%3#0: bytes = (replace3 arrays.0#0 1u assigned_value%3#0)
+        let arrays.0#0: bytes = updated_target%3#0
+        goto 1u ? block@7 : block@8
+    block@7: // if_body_L1
+        let arrays.0%out#0: bytes = arrays.0#0
+        goto block@8
+    block@8: // after_if_else_L1
+        let to_encode%3#0: uint64 = (+ start#0 4u)
+        let val_as_bytes%4#0: bytes = (itob to_encode%3#0)
+        let assigned_value%4#0: bytes = ((extract 7 1) val_as_bytes%4#0)
+        let updated_target%4#0: bytes = (replace3 arrays.1#0 1u assigned_value%4#0)
+        let arrays.1#0: bytes = updated_target%4#0
+        goto 1u ? block@9 : block@10
+    block@9: // if_body_L1
+        let arrays.1%out#0: bytes = arrays.1#0
+        goto block@10
+    block@10: // after_if_else_L1
+        let to_encode%4#0: uint64 = (+ start#0 5u)
+        let val_as_bytes%5#0: bytes = (itob to_encode%4#0)
+        let assigned_value%5#0: bytes = ((extract 7 1) val_as_bytes%5#0)
+        let updated_target%5#0: bytes = (replace3 arrays.2#0 1u assigned_value%5#0)
+        let arrays.2#0: bytes = updated_target%5#0
+        goto 1u ? block@11 : block@12
+    block@11: // if_body_L1
+        let arrays.2%out#0: bytes = arrays.2#0
+        goto block@12
+    block@12: // after_if_else_L1
+        let arrays.2%out#27: bytes = arrays.2%out#0
+        let arrays.1%out#28: bytes = arrays.1%out#0
+        let arrays.0%out#29: bytes = arrays.0%out#0
+        let arrays.2#19: bytes = arrays.2#0
+        let arrays.1#18: bytes = arrays.1#0
+        let arrays.0#17: bytes = arrays.0#0
+        goto reassign#0 ? block@13 : block@20
+    block@13: // if_body_L148
+        let copy%0#0: bytes = arrays.0#0
+        let copy%1#0: bytes = arrays.1#0
+        let copy%2#0: bytes = arrays.2#0
+        let arrays.0%is_original#0: bool = 0u
+        let arrays.1%is_original#0: bool = 0u
+        let arrays.2%is_original#0: bool = 0u
+        let arrays.0#0: bytes = copy%0#0
+        let arrays.1#0: bytes = copy%1#0
+        let arrays.2#0: bytes = copy%2#0
+        goto 0u ? block@14 : block@15
+    block@14: // if_body_L1
+        let arrays.0%out#0: bytes = arrays.0#0
+        goto block@15
+    block@15: // after_if_else_L1
+        goto 0u ? block@16 : block@17
+    block@16: // if_body_L1
+        let arrays.1%out#0: bytes = arrays.1#0
+        goto block@17
+    block@17: // after_if_else_L1
+        goto 0u ? block@18 : block@19
+    block@18: // if_body_L1
+        let arrays.2%out#0: bytes = arrays.2#0
+        goto block@19
+    block@19: // after_if_else_L1
+        let arrays.2%out#27: bytes = arrays.2%out#0
+        let arrays.1%out#28: bytes = arrays.1%out#0
+        let arrays.0%out#29: bytes = arrays.0%out#0
+        let arrays.2#19: bytes = arrays.2#0
+        let arrays.1#18: bytes = arrays.1#0
+        let arrays.0#17: bytes = arrays.0#0
+        goto block@20
+    block@20: // after_if_else_L147
+        let arrays.2%out#0: bytes = arrays.2%out#27
+        let arrays.1%out#0: bytes = arrays.1%out#28
+        let arrays.0%out#0: bytes = arrays.0%out#29
+        let arrays.2#0: bytes = arrays.2#19
+        let arrays.1#0: bytes = arrays.1#18
+        let arrays.0#0: bytes = arrays.0#17
+        let to_encode%5#0: uint64 = (+ start#0 6u)
+        let val_as_bytes%6#0: bytes = (itob to_encode%5#0)
+        let assigned_value%6#0: bytes = ((extract 7 1) val_as_bytes%6#0)
+        let updated_target%6#0: bytes = (replace3 arrays.0#0 1u assigned_value%6#0)
+        let arrays.0#0: bytes = updated_target%6#0
+        goto arrays.0%is_original#0 ? block@21 : block@22
+    block@21: // if_body_L1
+        let arrays.0%out#0: bytes = arrays.0#0
+        goto block@22
+    block@22: // after_if_else_L1
+        let to_encode%6#0: uint64 = (+ start#0 7u)
+        let val_as_bytes%7#0: bytes = (itob to_encode%6#0)
+        let assigned_value%7#0: bytes = ((extract 7 1) val_as_bytes%7#0)
+        let updated_target%7#0: bytes = (replace3 arrays.1#0 1u assigned_value%7#0)
+        let arrays.1#0: bytes = updated_target%7#0
+        goto arrays.1%is_original#0 ? block@23 : block@24
+    block@23: // if_body_L1
+        let arrays.1%out#0: bytes = arrays.1#0
+        goto block@24
+    block@24: // after_if_else_L1
+        let to_encode%7#0: uint64 = (+ start#0 8u)
+        let val_as_bytes%8#0: bytes = (itob to_encode%7#0)
+        let assigned_value%8#0: bytes = ((extract 7 1) val_as_bytes%8#0)
+        let updated_target%8#0: bytes = (replace3 arrays.2#0 1u assigned_value%8#0)
+        let arrays.2#0: bytes = updated_target%8#0
+        goto arrays.2%is_original#0 ? block@25 : block@26
+    block@25: // if_body_L1
+        let arrays.2%out#0: bytes = arrays.2#0
+        goto block@26
+    block@26: // after_if_else_L1
+        let array_head_and_tail%3#0: bytes = arrays.0#0
+        let item_offset%3#0: uint64 = (* 1u 1u)
+        let reinterpret_biguint%3#0: biguint = (extract3 array_head_and_tail%3#0 item_offset%3#0 1u) // on error: Index access is out of bounds
+        let tmp%8#0: uint64 = (+ start#0 6u)
+        let tmp%9#0: biguint = (itob tmp%8#0)
+        let tmp%10#0: bool = (b== reinterpret_biguint%3#0 tmp%9#0)
+        (assert tmp%10#0)
+        let array_head_and_tail%4#0: bytes = arrays.1#0
+        let item_offset%4#0: uint64 = (* 1u 1u)
+        let reinterpret_biguint%4#0: biguint = (extract3 array_head_and_tail%4#0 item_offset%4#0 1u) // on error: Index access is out of bounds
+        let tmp%11#0: uint64 = (+ start#0 7u)
+        let tmp%12#0: biguint = (itob tmp%11#0)
+        let tmp%13#0: bool = (b== reinterpret_biguint%4#0 tmp%12#0)
+        (assert tmp%13#0)
+        let array_head_and_tail%5#0: bytes = arrays.2#0
+        let item_offset%5#0: uint64 = (* 1u 1u)
+        let reinterpret_biguint%5#0: biguint = (extract3 array_head_and_tail%5#0 item_offset%5#0 1u) // on error: Index access is out of bounds
+        let tmp%14#0: uint64 = (+ start#0 8u)
+        let tmp%15#0: biguint = (itob tmp%14#0)
+        let tmp%16#0: bool = (b== reinterpret_biguint%5#0 tmp%15#0)
+        (assert tmp%16#0)
+        return arrays.0%out#0 arrays.1%out#0 arrays.2%out#0

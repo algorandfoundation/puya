@@ -1,0 +1,30 @@
+main test_cases.too_many_permutations.contract.MyContract.approval_program:
+    block@0: // L5
+        let a#0: bytes = (txna ApplicationArgs 0)
+        let b#0: bytes = (txna ApplicationArgs 1)
+        let c#0: bytes = (txna ApplicationArgs 2)
+        let d#0: bytes = (txna ApplicationArgs 3)
+        let tmp%0#0: bool = (!= a#0 c#0)
+        goto tmp%0#0 ? block@2 : block@1
+    block@1: // or_contd_L11
+        let tmp%1#0: bool = (!= b#0 d#0)
+        goto tmp%1#0 ? block@2 : block@3
+    block@2: // bool_true_L11
+        let or_result%0#0: bool = 1u
+        goto block@4
+    block@3: // bool_false_L11
+        let or_result%0#0: bool = 0u
+        goto block@4
+    block@4: // bool_merge_L11
+        (assert or_result%0#0)
+        let tmp%0#1: bytes = (concat a#0 b#0)
+        let tmp%1#1: bytes = (concat tmp%0#1 c#0)
+        let tmp%2#1: bytes = (concat tmp%1#1 d#0)
+        let tmp%3#0: uint64 = (len tmp%2#1)
+        (assert tmp%3#0)
+        let tmp%1#2: uint64 = (len tmp%0#1)
+        (assert tmp%1#2)
+        let tmp%0#1: bytes = (concat c#0 d#0)
+        let tmp%1#2: uint64 = (len tmp%0#1)
+        (assert tmp%1#2)
+        return 1u
