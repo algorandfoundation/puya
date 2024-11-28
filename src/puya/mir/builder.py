@@ -32,6 +32,8 @@ class MemoryIRBuilder(IRVisitor[None]):
         self.terminator = op
 
     def _get_block_name(self, block: ir.BasicBlock) -> str:
+        if block is self.current_subroutine.entry:
+            return self.context.subroutine_names[self.current_subroutine]
         assert block in self.current_subroutine.body
         comment = (block.comment or "block").replace(" ", "_")
         subroutine_name = self.context.subroutine_names[self.current_subroutine]

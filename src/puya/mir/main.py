@@ -28,7 +28,6 @@ def _lower_subroutine_to_mir(
 ) -> models.MemorySubroutine:
     builder = MemoryIRBuilder(context=context, current_subroutine=subroutine, is_main=is_main)
     body = [builder.lower_block_to_mir(block) for block in subroutine.body]
-    body[0].block_name = context.subroutine_names[subroutine]
     signature = models.Signature(
         name=subroutine.id,
         parameters=[
