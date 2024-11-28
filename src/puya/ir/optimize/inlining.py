@@ -19,28 +19,48 @@ from puya.utils import unique
 logger = log.get_logger(__name__)
 
 
+_ALWAYS_INLINE = False
+
+
 def analyse_subroutines_for_inlining(program: models.Program) -> None:
     collector = _SubroutineCallCounter()
     collector.visit_subroutine(program.main)
     call_graph: CallGraph | None = None
     for sub in program.subroutines:
-        if sub.inline is None:
-            if collector.subroutines.get(sub) == 1:
-                logger.debug(f"marking single-use function {sub.id} for inlining")
-                sub.inline = True
-            elif len(sub.body) == 1 and len(sub.entry.ops) <= max(
-                3, len(sub.returns) + len(sub.parameters)
-            ):
+        if sub.inline is False:
+            pass  # nothing to do
+        elif sub.entry.phis:
+            logger.debug(
+                f"function has phi node(s) in entry block: {sub.id}",
+                location=sub.source_location,
+            )
+            if sub.inline is True:
+                logger.warning(
+                    "function not suitable for inlining due to complex control flow",
+                    location=sub.source_location,
+                )
+            sub.inline = False
+        elif sub.inline is None:
+            reference_count = collector.subroutines.get(sub, 0)
+            if reference_count > 1:
                 if call_graph is None:
                     call_graph = CallGraph.build(program)
-                if not call_graph.maybe_reentrant(sub):
-                    logger.debug(f"marking simple function {sub.id} for inlining")
-                    sub.inline = True
-                else:
+                if call_graph.maybe_reentrant(sub):
+                    sub.inline = False
                     logger.debug(
-                        f"function is simple but might be re-entrant: {sub.id}",
-                        location=sub.source_location,
+                        f"function might be re-entrant: {sub.id}", location=sub.source_location
                     )
+                    continue
+            if reference_count == 1:
+                logger.debug(f"marking single-use function {sub.id} for inlining")
+                sub.inline = True
+            elif sum(
+                len(b.phis) + len(b.ops) + len(_not_none(b.terminator).targets()) for b in sub.body
+            ) <= max(3, len(sub.returns) + len(sub.parameters)):
+                logger.debug(f"marking simple function {sub.id} for inlining")
+                sub.inline = True
+            elif _ALWAYS_INLINE:
+                sub.inline = True
 
 
 def perform_subroutine_inlining(_context: CompileContext, subroutine: models.Subroutine) -> bool:
