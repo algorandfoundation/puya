@@ -329,7 +329,7 @@ class TealBuilder(MIRVisitor[None]):
     def visit_program_exit(self, op: mir.ProgramExit) -> None:
         self._add_op(
             teal.Return(
-                comment=op.comment,
+                error_message=op.error_message,
                 stack_manipulations=_lstack_manipulations(op),
                 source_location=op.source_location,
             )
@@ -338,7 +338,7 @@ class TealBuilder(MIRVisitor[None]):
     def visit_err(self, op: mir.Err) -> None:
         self._add_op(
             teal.Err(
-                comment=op.comment,
+                error_message=op.error_message,
                 stack_manipulations=_lstack_manipulations(op),
                 source_location=op.source_location,
             )
@@ -348,7 +348,7 @@ class TealBuilder(MIRVisitor[None]):
         self._add_op(
             teal.Branch(
                 target=op.target,
-                comment=op.comment,
+                error_message=op.error_message,
                 stack_manipulations=_lstack_manipulations(op),
                 source_location=op.source_location,
             )
@@ -369,7 +369,7 @@ class TealBuilder(MIRVisitor[None]):
         self._add_op(
             condition_op(
                 target=condition_op_target,
-                comment=op.comment,
+                error_message=op.error_message,
                 stack_manipulations=_lstack_manipulations(op),
                 source_location=op.source_location,
             )
@@ -378,7 +378,7 @@ class TealBuilder(MIRVisitor[None]):
         self._add_op(
             teal.Branch(
                 target=other_target,
-                comment="",
+                error_message="",
                 stack_manipulations=[],
                 source_location=op.source_location,
             )
@@ -389,7 +389,7 @@ class TealBuilder(MIRVisitor[None]):
         self._add_op(
             teal.Switch(
                 targets=op.switch_targets,
-                comment=op.comment,
+                error_message=op.error_message,
                 stack_manipulations=_lstack_manipulations(op),
                 source_location=op.source_location,
             )
@@ -398,7 +398,7 @@ class TealBuilder(MIRVisitor[None]):
         self._add_op(
             teal.Branch(
                 target=op.default_target,
-                comment="",
+                error_message="",
                 stack_manipulations=[],
                 source_location=op.source_location,
             )
@@ -409,7 +409,7 @@ class TealBuilder(MIRVisitor[None]):
         self._add_op(
             teal.Match(
                 targets=op.match_targets,
-                comment=op.comment,
+                error_message=op.error_message,
                 stack_manipulations=_lstack_manipulations(op),
                 source_location=op.source_location,
             )
@@ -418,7 +418,7 @@ class TealBuilder(MIRVisitor[None]):
         self._add_op(
             teal.Branch(
                 target=op.default_target,
-                comment="",
+                error_message="",
                 stack_manipulations=[],
                 source_location=op.source_location,
             )

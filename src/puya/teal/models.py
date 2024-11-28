@@ -72,7 +72,9 @@ class TealOp:
         teal_args = [self.op_code, *map(str, self.immediates)]
         if self.comment or self.error_message:
             error_message = (
-                format_error_comment(self.op_code, self.error_message) if self.error_message else ""
+                format_error_comment(self.op_code, self.error_message)
+                if self.error_message
+                else ""
             )
             comment_lines = error_message.splitlines()
             comment_lines += (self.comment or "").splitlines()

@@ -457,8 +457,8 @@ class ControlOp(BaseOp, abc.ABC):
     @typing.final
     def __str__(self) -> str:
         result = tuple(self._str_components())
-        if self.comment:
-            result += ("//", self.comment)
+        if self.error_message:
+            result += ("//", self.error_message)
         return " ".join(result)
 
 

@@ -264,7 +264,9 @@ class MemoryIRBuilder(IRVisitor[None]):
         self._terminate(models.ProgramExit(source_location=exit_.source_location))
 
     def visit_fail(self, fail: ir.Fail) -> None:
-        self._terminate(models.Err(error_message=fail.error_message, source_location=fail.source_location))
+        self._terminate(
+            models.Err(error_message=fail.error_message, source_location=fail.source_location)
+        )
 
     def lower_block_to_mir(self, block: ir.BasicBlock) -> models.MemoryBasicBlock:
         self.current_ops = list[models.Op]()
