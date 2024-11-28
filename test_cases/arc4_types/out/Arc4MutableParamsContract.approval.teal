@@ -81,21 +81,10 @@ main:
     // arc4_types/mutable_params.py:35
     // my_array = StaticArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
     bytec_0 // 0x01020304
-    // arc4_types/mutable_params.py:75
-    // my_array_copy_2 = self.other_routine_2(my_array_copy_2)
-    callsub other_routine_2
-    pop
-    // arc4_types/mutable_params.py:77
-    // assert my_array_copy_2[0] == UInt8(1), "my_array_copy_2 should have original value"
-    dup
-    extract 0 1 // on error: Index access is out of bounds
-    pushbytes 0x01
-    b==
-    assert // my_array_copy_2 should have original value
-    // arc4_types/mutable_params.py:79
-    // self.other_routine_2(my_array_copy_2)
-    callsub other_routine_2
-    bury 1
+    // arc4_types/mutable_params.py:127
+    // array[0] = UInt8(10)
+    pushbytes 0x0a
+    replace2 0
     // arc4_types/mutable_params.py:80
     // assert my_array_copy_2[0] == UInt8(10), "my_array_copy_2 should have mutated value"
     dup
@@ -213,7 +202,7 @@ main:
     assert
     // arc4_types/mutable_params.py:110
     // assert my_array[1] == 206
-    dig 2
+    uncover 2
     extract 1 1 // on error: Index access is out of bounds
     pushbytes 0xce
     b==
@@ -231,11 +220,6 @@ main:
     pushbytes 0xd0
     b==
     assert
-    // arc4_types/mutable_params.py:116
-    // self.other_routine_2(nested.test_array.copy())
-    extract 0 4 // on error: Index access is out of bounds
-    callsub other_routine_2
-    popn 2
     // arc4_types/mutable_params.py:31
     // return True
     intc_1 // 1
@@ -297,24 +281,6 @@ other_routine:
     intc_0 // 0
     frame_dig -2
     frame_dig -1
-    retsub
-
-
-// test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(array: bytes) -> bytes, bytes:
-other_routine_2:
-    // arc4_types/mutable_params.py:124-125
-    // @subroutine
-    // def other_routine_2(self, array: TestArray) -> TestArray:
-    proto 1 2
-    // arc4_types/mutable_params.py:127
-    // array[0] = UInt8(10)
-    frame_dig -1
-    pushbytes 0x0a
-    replace2 0
-    // arc4_types/mutable_params.py:128
-    // return copy
-    frame_dig -1
-    swap
     retsub
 
 

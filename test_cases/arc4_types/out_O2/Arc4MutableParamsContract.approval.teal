@@ -39,15 +39,8 @@ main:
     callsub other_routine
     popn 4
     bytec_0 // 0x01020304
-    callsub other_routine_2
-    pop
-    dup
-    extract 0 1 // on error: Index access is out of bounds
-    pushbytes 0x01
-    b==
-    assert // my_array_copy_2 should have original value
-    callsub other_routine_2
-    bury 1
+    pushbytes 0x0a
+    replace2 0
     dup
     extract 0 1 // on error: Index access is out of bounds
     pushbytes 0x0a
@@ -111,7 +104,7 @@ main:
     pushbytes 0xca
     b==
     assert
-    dig 2
+    uncover 2
     extract 1 1 // on error: Index access is out of bounds
     pushbytes 0xce
     b==
@@ -125,9 +118,6 @@ main:
     pushbytes 0xd0
     b==
     assert
-    extract 0 4 // on error: Index access is out of bounds
-    callsub other_routine_2
-    popn 2
     intc_1 // 1
     return
 
@@ -178,17 +168,6 @@ other_routine:
     intc_0 // 0
     frame_dig -2
     frame_dig -1
-    retsub
-
-
-// test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(array: bytes) -> bytes, bytes:
-other_routine_2:
-    proto 1 2
-    frame_dig -1
-    pushbytes 0x0a
-    replace2 0
-    frame_dig -1
-    swap
     retsub
 
 
