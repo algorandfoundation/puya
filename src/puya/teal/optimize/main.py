@@ -174,6 +174,7 @@ def _remove_unreachable_blocks(teal_sub: models.TealSubroutine) -> None:
 
 def _inline_singly_referenced_blocks(teal_sub: models.TealSubroutine) -> None:
     predecessors = defaultdict[str, set[str]](set)
+    predecessors[teal_sub.blocks[0].label].add("<entrypoint>")
     for block in teal_sub.blocks:
         for op in block.ops:
             if isinstance(op, models.ControlOp):
