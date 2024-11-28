@@ -261,7 +261,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         if subroutine_dec is not None:
             inline = get_subroutine_decorator_inline_arg(self.context, subroutine_dec)
         elif abimethod_dec or baremethod_dec:
-            inline = False
+            inline = False  # TODO: maybe set to None?
         else:
             inline = None
 
