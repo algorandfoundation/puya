@@ -19,7 +19,7 @@ from puya.utils import unique
 logger = log.get_logger(__name__)
 
 
-def analyse_subroutines_for_inlining(program: models.Program) -> None:
+def analyse_subroutines_for_inlining(program: models.Program) -> bool:
     collector = _SubroutineCallCounter()
     collector.visit_subroutine(program.main)
 
@@ -58,11 +58,8 @@ def analyse_subroutines_for_inlining(program: models.Program) -> None:
                 sub.inline = True
                 any_marked = True
             elif not call_graph().has_maybe_inlineable_calls(sub):
-                complexity = sum(
-                    len(b.phis) + len(b.ops) + len(_not_none(b.terminator).targets())
-                    for b in sub.body
-                )
-                threshold = max(3, 1 + len(sub._returns) + len(sub.parameters))
+                complexity = _subroutine_complexity_estimate(sub)
+                threshold = _call_cost_estimate(sub)
                 if complexity <= threshold:
                     logger.debug(
                         f"marking simple function {sub.id} for inlining"
@@ -70,21 +67,30 @@ def analyse_subroutines_for_inlining(program: models.Program) -> None:
                     )
                     sub.inline = True
                     any_marked = True
-    if any_marked:
-        return
+    if not any_marked:
+        for sub in program.subroutines:
+            if sub.inline is None:
+                complexity = _subroutine_complexity_estimate(sub)
+                threshold = _call_cost_estimate(sub)
+                if complexity <= threshold:
+                    logger.debug(
+                        f"marking simple function {sub.id} for inlining"
+                        f" ({complexity=} <= {threshold=})"
+                    )
+                    sub.inline = True
+                    any_marked = True
+    return any_marked
 
-    for sub in program.subroutines:
-        if sub.inline is None:
-            complexity = sum(
-                len(b.phis) + len(b.ops) + len(_not_none(b.terminator).targets()) for b in sub.body
-            )
-            threshold = max(3, 1 + len(sub._returns) + len(sub.parameters))
-            if complexity <= threshold:
-                logger.debug(
-                    f"marking simple function {sub.id} for inlining"
-                    f" ({complexity=} <= {threshold=})"
-                )
-                sub.inline = True
+
+def _subroutine_complexity_estimate(sub: models.Subroutine) -> int:
+    complexity = sum(
+        len(b.phis) + len(b.ops) + len(_not_none(b.terminator).targets()) for b in sub.body
+    )
+    return complexity
+
+
+def _call_cost_estimate(sub: models.Subroutine) -> int:
+    return max(3, 1 + len(sub._returns) + len(sub.parameters))  # noqa: SLF001
 
 
 def perform_subroutine_inlining(_context: CompileContext, subroutine: models.Subroutine) -> bool:
@@ -104,30 +110,6 @@ def perform_subroutine_inlining(_context: CompileContext, subroutine: models.Sub
                     return_targets = []
                 case _:
                     continue
-            # if call.target.inline:
-            #     if subroutine == call.target:
-            #         logger.debug("unable to inline recursive call", location=call.source_location)
-            #         continue
-            #     if call.target.entry.phis:
-            #         logger.debug(
-            #             "unable to inline call to function with phi nodes in entry block",
-            #             location=call.source_location,
-            #         )
-            #         continue
-            # elif context.options.optimization_level == 0:
-            #     continue
-            # else:
-            #     complexity = sum(
-            #         len(b.phis) + len(b.ops) + len(_not_none(b.terminator).targets())
-            #         for b in call.target.body
-            #     )
-            #     threshold = max(3, len(call.target._returns) + len(call.target.parameters))
-            #     logger.debug(
-            #         f"calculated inlining score for {call.target.id}: {complexity=}, {threshold=}",
-            #         location=op.source_location,
-            #     )
-            #     if complexity > threshold:
-            #         continue
             logger.debug(
                 f"inlining call to {call.target.id} in {subroutine.id}",
                 location=op.source_location,
