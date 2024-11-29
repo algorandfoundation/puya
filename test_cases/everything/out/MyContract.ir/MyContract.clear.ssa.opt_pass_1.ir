@@ -1,16 +1,7 @@
 main test_cases.everything.contract.Everything.clear_state_program:
     block@0: // L73
-        goto block@1
-    block@1: // L81
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%0#0) // check self.counter exists
-        goto block@3
-    block@3: // L86
-        let test_cases.everything.contract.positive_one%0#0: uint64 = 1u
-        goto block@4
-    block@4: // split from inlining callsub op of 1 at index 2_L81
-        let new_state_value%0#0: uint64 = (- maybe_value%0#0 test_cases.everything.contract.positive_one%0#0)
+        let new_state_value%0#0: uint64 = (- maybe_value%0#0 1u)
         (app_global_put "counter" new_state_value%0#0)
-        goto block@2
-    block@2: // split from inlining callsub op of 0 at index 0_L73
         return 1u

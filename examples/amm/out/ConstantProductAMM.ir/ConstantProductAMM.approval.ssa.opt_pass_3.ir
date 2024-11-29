@@ -199,24 +199,14 @@ subroutine examples.amm.contract.ConstantProductAMM.bootstrap(seed: uint64, a_as
         itxn_submit
         let tmp%2#1: uint64 = (itxn CreatedAssetID)
         (app_global_put "pool_token" tmp%2#1)
-        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "asset_a")
+        let (asset#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%1#0) // check self.asset_a exists
-        let asset#0: uint64 = maybe_value%1#0
-        goto block@1
-    block@1: // L283
         let tmp%0#2: bytes = (global CurrentApplicationAddress)
         examples.amm.contract.do_asset_transfer(tmp%0#2, asset#0, 0u)
-        goto block@2
-    block@2: // split from inlining callsub op of 0 at index 46_L49
-        let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "asset_b")
+        let (asset#1: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "asset_b")
         (assert maybe_exists%2#0) // check self.asset_b exists
-        let asset#1: uint64 = maybe_value%2#0
-        goto block@3
-    block@3: // L283
         let tmp%0#3: bytes = (global CurrentApplicationAddress)
         examples.amm.contract.do_asset_transfer(tmp%0#3, asset#1, 0u)
-        goto block@4
-    block@4: // split from inlining callsub op of 2 at index 2_L49
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "pool_token")
         (assert maybe_exists%3#0) // check self.pool_token exists
         return maybe_value%3#0
@@ -319,7 +309,7 @@ subroutine examples.amm.contract.ConstantProductAMM.mint(a_xfer: uint64, b_xfer:
         let tmp%12#1: uint64 = (* b_ratio#0 issued#0)
         let tmp%13#1: uint64 = (/ tmp%12#1 1000u)
         goto block@10
-    block@10: // split from inlining callsub op of 0 at index 46_L81
+    block@10: // split from inlining callsub op of 0 at index 50_L81
         let to_mint#0: uint64 = φ(tmp%4#1 <- block@6, tmp%11#1 <- block@8, tmp%13#1 <- block@9)
         (assert to_mint#0) // send amount too low
         let tmp%29#0: bytes = (txn Sender)

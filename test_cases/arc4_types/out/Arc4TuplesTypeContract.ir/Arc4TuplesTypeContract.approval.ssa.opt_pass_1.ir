@@ -135,35 +135,19 @@ main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
         let encoded_tuple_buffer%31#0: bytes = (concat encoded_tuple_buffer%30#0 k#0)
         let tmp%17#0: bool = (== boolean_packing#0 encoded_tuple_buffer%31#0)
         (assert tmp%17#0)
-        let test_tuple#0: bytes = my_tuple#0
-        goto block@14
-    block@14: // L56
-        let item0%0#0: bytes = (extract3 test_tuple#0 0u 1u) // on error: Index access is out of bounds
-        let item1%0#0: bytes = (extract3 test_tuple#0 1u 1u) // on error: Index access is out of bounds
-        let item_start_offset%0#0: uint64 = (extract_uint16 test_tuple#0 2u)
-        let item_end_offset%0#0: uint64 = (extract_uint16 test_tuple#0 4u)
-        let item2%0#0: bytes = (substring3 test_tuple#0 item_start_offset%0#0 item_end_offset%0#0)
-        let item_start_offset%1#0: uint64 = (extract_uint16 test_tuple#0 4u)
-        let item_end_offset%1#0: uint64 = (len test_tuple#0)
-        let item3%0#0: bytes = (substring3 test_tuple#0 item_start_offset%1#0 item_end_offset%1#0)
-        let item4%0#0: bytes = (extract3 test_tuple#0 6u 1u) // on error: Index access is out of bounds
-        let a#1: bytes = item0%0#0
-        let b#1: bytes = item1%0#0
-        let c#1: bytes = item2%0#0
-        let d#1: bytes = item3%0#0
-        let e#1: bytes = item4%0#0
-        let reinterpret_biguint%0#0: biguint = (extract3 test_tuple#0 0u 1u) // on error: Index access is out of bounds
-        let reinterpret_biguint%1#0: biguint = a#1
-        let tmp%0#1: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
+        let a#1: bytes = ((extract 0 1) my_tuple#0) // on error: Index access is out of bounds
+        let b#1: bytes = ((extract 1 1) my_tuple#0) // on error: Index access is out of bounds
+        let item_start_offset%0#0: uint64 = (extract_uint16 my_tuple#0 2u)
+        let item_end_offset%0#0: uint64 = (extract_uint16 my_tuple#0 4u)
+        let c#1: bytes = (substring3 my_tuple#0 item_start_offset%0#0 item_end_offset%0#0)
+        let item_end_offset%1#0: uint64 = (len my_tuple#0)
+        let d#1: bytes = (substring3 my_tuple#0 item_end_offset%0#0 item_end_offset%1#0)
+        let e#1: bytes = ((extract 6 1) my_tuple#0) // on error: Index access is out of bounds
+        let tmp%0#1: bool = (b== a#1 a#1)
         (assert tmp%0#1)
-        let reinterpret_biguint%2#0: biguint = (extract3 test_tuple#0 6u 1u) // on error: Index access is out of bounds
-        let reinterpret_biguint%3#0: biguint = e#1
-        let tmp%1#1: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
+        let tmp%1#1: bool = (b== e#1 e#1)
         (assert tmp%1#1)
-        let item_start_offset%2#0: uint64 = (extract_uint16 test_tuple#0 4u)
-        let item_end_offset%2#0: uint64 = (len test_tuple#0)
-        let tmp%2#1: bytes = (substring3 test_tuple#0 item_start_offset%2#0 item_end_offset%2#0)
-        let tmp%3#1: bool = (== tmp%2#1 d#1)
+        let tmp%3#1: bool = (== d#1 d#1)
         (assert tmp%3#1)
         let tmp%4#1: uint64 = (btoi a#1)
         let tmp%5#1: uint64 = (btoi b#1)
@@ -175,77 +159,49 @@ main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
         let tmp%10#1: bytes = ((extract 2 0) d#1)
         let text#0: bytes = (concat tmp%9#1 tmp%10#1)
         let length%0#0: uint64 = (len text#0)
-        let as_bytes%0#0: bytes = (itob length%0#0)
-        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 text#0)
-        goto block@15
-    block@15: // split from inlining callsub op of 13 at index 24_L40
-        let tmp%18#0: bytes = ((extract 2 0) encoded_value%0#0)
+        let as_bytes%0#1: bytes = (itob length%0#0)
+        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#1)
+        let concat#0: bytes = (concat length_uint16%0#0 text#0)
+        let tmp%18#0: bytes = ((extract 2 0) concat#0)
         let tmp%19#0: bool = (== tmp%18#0 "hello world")
         (assert tmp%19#0)
         let tmp%20#0: bool = (== total#1 258u)
         (assert tmp%20#0)
-        goto block@16
-    block@16: // L69
-        let length%0#1: uint64 = (len 0x)
-        let as_bytes%0#1: bytes = (itob length%0#1)
-        let length_uint16%0#1: bytes = ((extract 6 2) as_bytes%0#1)
-        let encoded_value%0#1: bytes = (concat length_uint16%0#1 0x)
-        let current_tail_offset%0#0: uint64 = 3u
-        let encoded_tuple_buffer%0#0: bytes = 0x
-        let encoded_tuple_buffer%1#1: bytes = (concat encoded_tuple_buffer%0#0 0x00)
-        let as_bytes%1#1: bytes = (itob current_tail_offset%0#0)
-        let offset_as_uint16%0#1: bytes = ((extract 6 2) as_bytes%1#1)
+        let length%0#1: uint64 = 0u
+        let as_bytes%0#2: bytes = (itob length%0#1)
+        let length_uint16%0#1: bytes = ((extract 6 2) as_bytes%0#2)
+        let encoded_tuple_buffer%1#1: bytes = 0x00
+        let offset_as_uint16%0#1: bytes = 0x0003
         let encoded_tuple_buffer%2#1: bytes = (concat encoded_tuple_buffer%1#1 offset_as_uint16%0#1)
-        let data_length%0#1: uint64 = (len encoded_value%0#1)
-        let current_tail_offset%1#1: uint64 = (+ current_tail_offset%0#0 data_length%0#1)
-        let encoded_tuple_buffer%3#1: bytes = (concat encoded_tuple_buffer%2#1 encoded_value%0#1)
-        let tup#0: bytes = encoded_tuple_buffer%3#1
+        let data_length%0#1: uint64 = (len length_uint16%0#1)
+        let tup#0: bytes = (concat encoded_tuple_buffer%2#1 length_uint16%0#1)
         let item_start_offset%0#1: uint64 = (extract_uint16 tup#0 1u)
         let item_end_offset%0#1: uint64 = (len tup#0)
         let tmp%0#2: bytes = (substring3 tup#0 item_start_offset%0#1 item_end_offset%0#1)
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) tmp%0#2)
-        let data%0#0: bytes = (concat 0x 0x00)
+        let data%0#0: bytes = 0x00
         let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 data%0#0)
         let len_%0#0: uint64 = (len concatenated%0#0)
         let as_bytes%2#0: bytes = (itob len_%0#0)
         let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%2#0)
         let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
-        let assigned_value%0#0: bytes = concat_result%0#0
-        let item_offset%0#0: uint64 = (extract_uint16 tup#0 1u)
-        let data_up_to_item%0#0: bytes = (extract3 tup#0 0u item_offset%0#0)
-        let updated_data%0#0: bytes = (concat data_up_to_item%0#0 assigned_value%0#0)
-        let tup#1: bytes = updated_data%0#0
+        let data_up_to_item%0#0: bytes = (extract3 tup#0 0u item_start_offset%0#1)
+        let tup#1: bytes = (concat data_up_to_item%0#0 concat_result%0#0)
         let item_start_offset%1#1: uint64 = (extract_uint16 tup#1 1u)
         let item_end_offset%1#1: uint64 = (len tup#1)
         let tmp%1#2: bytes = (substring3 tup#1 item_start_offset%1#1 item_end_offset%1#1)
-        let result%0#0: bytes = (concat 0x 0x00)
+        let result%0#0: bytes = 0x00
         let array_data%0#0: bytes = (concat 0x0001 result%0#0)
         let tmp%2#2: bool = (== tmp%1#2 array_data%0#0)
         (assert tmp%2#2)
-        let copy%0#0: bytes = tup#1
-        let tup2#0: bytes = copy%0#0
-        let item_start_offset%2#1: uint64 = (extract_uint16 tup#1 1u)
-        let item_end_offset%2#1: uint64 = (len tup#1)
-        let tmp%3#2: bytes = (substring3 tup#1 item_start_offset%2#1 item_end_offset%2#1)
-        let assigned_value%1#0: bytes = 0x01
-        let array_length%0#0: uint64 = (extract_uint16 tmp%3#2 0u)
-        let index_is_in_bounds%0#0: bool = (< 0u array_length%0#0)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let updated_target%0#0: bytes = (replace3 tmp%3#2 2u assigned_value%1#0)
-        let assigned_value%2#0: bytes = updated_target%0#0
-        let item_offset%1#0: uint64 = (extract_uint16 tup#1 1u)
-        let data_up_to_item%1#0: bytes = (extract3 tup#1 0u item_offset%1#0)
-        let updated_data%1#0: bytes = (concat data_up_to_item%1#0 assigned_value%2#0)
-        let tup#2: bytes = updated_data%1#0
+        let array_length%0#0: uint64 = (extract_uint16 tmp%1#2 0u)
+        (assert array_length%0#0) // Index access is out of bounds
+        let updated_target%0#0: bytes = ((replace2 2) tmp%1#2 0x01)
+        let data_up_to_item%1#0: bytes = (extract3 tup#1 0u item_start_offset%1#1)
+        let tup#2: bytes = (concat data_up_to_item%1#0 updated_target%0#0)
         let item_start_offset%3#0: uint64 = (extract_uint16 tup#2 1u)
         let item_end_offset%3#0: uint64 = (len tup#2)
         let tmp%4#2: bytes = (substring3 tup#2 item_start_offset%3#0 item_end_offset%3#0)
-        let item_start_offset%4#0: uint64 = (extract_uint16 tup2#0 1u)
-        let item_end_offset%4#0: uint64 = (len tup2#0)
-        let tmp%5#2: bytes = (substring3 tup2#0 item_start_offset%4#0 item_end_offset%4#0)
-        let tmp%6#2: bool = (!= tmp%4#2 tmp%5#2)
+        let tmp%6#2: bool = (!= tmp%4#2 tmp%1#2)
         (assert tmp%6#2)
-        goto block@17
-    block@17: // split from inlining callsub op of 15 at index 5_L40
         return 1u

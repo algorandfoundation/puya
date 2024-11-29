@@ -96,16 +96,15 @@ main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
         let tmp%9#1: bytes = 0x68656c6c6f20
         let text#0: bytes = (concat tmp%9#1 0x776f726c64)
         let length%0#0: uint64 = (len text#0)
-        let as_bytes%0#0: bytes = (itob length%0#0)
-        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 text#0)
-        let tmp%18#0: bytes = ((extract 2 0) encoded_value%0#0)
+        let as_bytes%0#1: bytes = (itob length%0#0)
+        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#1)
+        let concat#0: bytes = (concat length_uint16%0#0 text#0)
+        let tmp%18#0: bytes = ((extract 2 0) concat#0)
         let tmp%19#0: bool = (== tmp%18#0 "hello world")
         (assert tmp%19#0)
         let tmp%20#0: bool = (== total#1 258u)
         (assert tmp%20#0)
-        let concat_result%0#0: bytes = 0x000100
-        let tup#1: bytes = (concat 0x000003 concat_result%0#0)
+        let tup#1: bytes = 0x000003000100
         let item_start_offset%1#1: uint64 = (extract_uint16 tup#1 1u)
         let item_end_offset%1#1: uint64 = (len tup#1)
         let tmp%1#2: bytes = (substring3 tup#1 item_start_offset%1#1 item_end_offset%1#1)

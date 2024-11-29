@@ -1,27 +1,18 @@
 main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
     block@0: // L12
-        let encoded_bool%0#0: bytes = 0x80
-        let encoded_bool%1#0: bytes = 0x00
-        let true#0: bytes = encoded_bool%0#0
-        let false#0: bytes = encoded_bool%1#0
-        goto block@1
-    block@1: // L54
+        let true#0: bytes = 0x80
+        let false#0: bytes = 0x00
         let tmp%0#1: bool = (getbit true#0 0u)
         (assert tmp%0#1)
-        let tmp%1#0: bool = (getbit false#0 0u)
-        let tmp%2#1: bool = (! tmp%1#0)
+        let tmp%1#1: bool = (getbit false#0 0u)
+        let tmp%2#1: bool = (! tmp%1#1)
         (assert tmp%2#1)
-        let to_encode%0#1: bool = (getbit true#0 0u)
-        let encoded_bool%0#1: bytes = (setbit 0x00 0u to_encode%0#1)
+        let encoded_bool%0#1: bytes = (setbit 0x00 0u tmp%0#1)
         let tmp%3#1: bool = (== true#0 encoded_bool%0#1)
         (assert tmp%3#1)
-        let to_encode%1#0: bool = (getbit false#0 0u)
-        let encoded_bool%1#1: bytes = (setbit 0x00 0u to_encode%1#0)
+        let encoded_bool%1#1: bytes = (setbit 0x00 0u tmp%1#1)
         let tmp%4#1: bool = (== false#0 encoded_bool%1#1)
         (assert tmp%4#1)
-        let tmp%5#1: bool = (getbit true#0 0u)
-        goto block@2
-    block@2: // split from inlining callsub op of 0 at index 2_L12
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let to_encode%0#0: bool = (! tmp%0#0)
         let encoded_bool%2#0: bytes = (setbit 0x00 0u to_encode%0#0)
@@ -39,9 +30,8 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let encoded_bool%12#0: bytes = 0x80
         let encoded_bool%13#0: bytes = 0x80
         let encoded_bool%14#0: bytes = 0x80
-        let array_head_and_tail%0#0: bytes = encoded_bool%3#0
         let is_true%0#0: uint64 = (getbit encoded_bool%4#0 0u)
-        let array_head_and_tail%1#0: bytes = (setbit array_head_and_tail%0#0 1u is_true%0#0)
+        let array_head_and_tail%1#0: bytes = (setbit encoded_bool%3#0 1u is_true%0#0)
         let is_true%1#0: uint64 = (getbit encoded_bool%5#0 0u)
         let array_head_and_tail%2#0: bytes = (setbit array_head_and_tail%1#0 2u is_true%1#0)
         let is_true%2#0: uint64 = (getbit encoded_bool%6#0 0u)
@@ -60,8 +50,7 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let is_true%8#0: uint64 = (getbit encoded_bool%13#0 0u)
         let array_head_and_tail%10#0: bytes = (setbit array_head_and_tail%9#0 10u is_true%8#0)
         let is_true%9#0: uint64 = (getbit encoded_bool%14#0 0u)
-        let array_head_and_tail%11#0: bytes = (setbit array_head_and_tail%10#0 11u is_true%9#0)
-        let static_boolean_array#0: bytes = array_head_and_tail%11#0
+        let static_boolean_array#0: bytes = (setbit array_head_and_tail%10#0 11u is_true%9#0)
         let tmp%3#0: bool = (== static_boolean_array#0 0xfff0)
         (assert tmp%3#0)
         let is_true%10#0: uint64 = (getbit static_boolean_array#0 0u)
@@ -80,9 +69,8 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let encoded_bool%19#0: bytes = 0x80
         let encoded_bool%20#0: bytes = 0x00
         let encoded_bool%21#0: bytes = 0x80
-        let array_head_and_tail%14#0: bytes = encoded_bool%19#0
         let is_true%12#0: uint64 = (getbit encoded_bool%20#0 0u)
-        let array_head_and_tail%15#0: bytes = (setbit array_head_and_tail%14#0 1u is_true%12#0)
+        let array_head_and_tail%15#0: bytes = (setbit encoded_bool%19#0 1u is_true%12#0)
         let is_true%13#0: uint64 = (getbit encoded_bool%21#0 0u)
         let array_head_and_tail%16#0: bytes = (setbit array_head_and_tail%15#0 2u is_true%13#0)
         let dynamic_boolean_array#0: bytes = (concat 0x0003 array_head_and_tail%16#0)
@@ -102,6 +90,5 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         (assert tmp%13#0)
         let encoded_bool%25#0: bytes = 0x80
         let tmp%14#0: bool = (getbit encoded_bool%25#0 0u)
-        let tmp%15#0: bool = tmp%14#0
-        (assert tmp%15#0)
+        (assert tmp%14#0)
         return 1u

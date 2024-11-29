@@ -1,291 +1,186 @@
 main test_cases.iteration.base.IterationTestBase.approval_program:
     block@0: // L7
         (log "test_forwards")
-        goto block@1
-    block@1: // L9
-        let bytes_length%0#0: uint64 = (len 0x616263)
+        let bytes_length%0#0: uint64 = 3u
         let item_index_internal%0#0: uint64 = 0u
-        let reverse_index_internal%0#0: uint64 = bytes_length%0#0
         goto block@2
     block@2: // for_header_L12
-        let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@1, item_index_internal%0#2 <- block@4)
+        let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@3)
         let continue_looping%0#0: bool = (< item_index_internal%0#1 bytes_length%0#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L13
         let i#0: bytes = (extract3 0x616263 item_index_internal%0#1 1u)
         (log i#0)
-        goto block@4
-    block@4: // for_footer_L12
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@2
     block@5: // after_for_L12
-        goto block@6
-    block@6: // split from inlining callsub op of 0 at index 1_L7
         (log "test_reversed")
-        goto block@7
-    block@7: // L15
-        let bytes_length%0#1: uint64 = (len 0x616263)
-        let item_index_internal%0#3: uint64 = 0u
-        let reverse_index_internal%0#1: uint64 = bytes_length%0#1
+        let bytes_length%0#1: uint64 = 3u
         goto block@8
     block@8: // for_header_L18
-        let reverse_index_internal%0#2: uint64 = φ(reverse_index_internal%0#1 <- block@7, reverse_index_internal%0#3 <- block@10)
-        let continue_looping%0#1: bool = (> reverse_index_internal%0#2 0u)
-        goto continue_looping%0#1 ? block@9 : block@11
+        let reverse_index_internal%0#2: uint64 = φ(bytes_length%0#1 <- block@5, reverse_index_internal%0#3 <- block@9)
+        goto reverse_index_internal%0#2 ? block@9 : block@11
     block@9: // for_body_L19
         let reverse_index_internal%0#3: uint64 = (- reverse_index_internal%0#2 1u)
         let i#1: bytes = (extract3 0x616263 reverse_index_internal%0#3 1u)
         (log i#1)
-        goto block@10
-    block@10: // for_footer_L18
         goto block@8
     block@11: // after_for_L18
-        goto block@12
-    block@12: // split from inlining callsub op of 6 at index 1_L7
         (log "test_forwards_with_forwards_index")
-        goto block@13
-    block@13: // L21
-        let bytes_length%0#2: uint64 = (len 0x616263)
+        let bytes_length%0#2: uint64 = 3u
         let item_index_internal%0#4: uint64 = 0u
-        let reverse_index_internal%0#4: uint64 = bytes_length%0#2
         goto block@14
     block@14: // for_header_L24
-        let item_index_internal%0#5: uint64 = φ(item_index_internal%0#4 <- block@13, item_index_internal%0#6 <- block@16)
-        let continue_looping%0#2: bool = (< item_index_internal%0#5 bytes_length%0#2)
+        let idx#0: uint64 = φ(item_index_internal%0#4 <- block@11, item_index_internal%0#6 <- block@15)
+        let continue_looping%0#2: bool = (< idx#0 bytes_length%0#2)
         goto continue_looping%0#2 ? block@15 : block@17
     block@15: // for_body_L25
-        let i#2: bytes = (extract3 0x616263 item_index_internal%0#5 1u)
-        let idx#0: uint64 = item_index_internal%0#5
+        let i#2: bytes = (extract3 0x616263 idx#0 1u)
         test_cases.iteration.base.IterationTestBase._log_with_index(idx#0, i#2)
-        let idx#1: uint64 = (+ idx#0 1u)
-        goto block@16
-    block@16: // for_footer_L24
-        let item_index_internal%0#6: uint64 = (+ item_index_internal%0#5 1u)
+        let item_index_internal%0#6: uint64 = (+ idx#0 1u)
         goto block@14
     block@17: // after_for_L24
-        goto block@18
-    block@18: // split from inlining callsub op of 12 at index 1_L7
         (log "test_forwards_with_reverse_index")
-        goto block@19
-    block@19: // L28
-        let bytes_length%0#3: uint64 = (len 0x616263)
+        let bytes_length%0#3: uint64 = 3u
         let item_index_internal%0#7: uint64 = 0u
-        let reverse_index_internal%0#5: uint64 = bytes_length%0#3
         goto block@20
     block@20: // for_header_L31
-        let item_index_internal%0#8: uint64 = φ(item_index_internal%0#7 <- block@19, item_index_internal%0#9 <- block@22)
-        let reverse_index_internal%0#6: uint64 = φ(reverse_index_internal%0#5 <- block@19, reverse_index_internal%0#7 <- block@22)
-        let continue_looping%0#3: bool = (> reverse_index_internal%0#6 0u)
-        goto continue_looping%0#3 ? block@21 : block@23
+        let item_index_internal%0#8: uint64 = φ(item_index_internal%0#7 <- block@17, item_index_internal%0#9 <- block@21)
+        let reverse_index_internal%0#6: uint64 = φ(bytes_length%0#3 <- block@17, idx#2 <- block@21)
+        goto reverse_index_internal%0#6 ? block@21 : block@23
     block@21: // for_body_L32
-        let reverse_index_internal%0#7: uint64 = (- reverse_index_internal%0#6 1u)
+        let idx#2: uint64 = (- reverse_index_internal%0#6 1u)
         let i#3: bytes = (extract3 0x616263 item_index_internal%0#8 1u)
-        let idx#2: uint64 = reverse_index_internal%0#7
         test_cases.iteration.base.IterationTestBase._log_with_index(idx#2, i#3)
-        let idx#3: uint64 = (+ idx#2 1u)
-        goto block@22
-    block@22: // for_footer_L31
         let item_index_internal%0#9: uint64 = (+ item_index_internal%0#8 1u)
         goto block@20
     block@23: // after_for_L31
-        goto block@24
-    block@24: // split from inlining callsub op of 18 at index 1_L7
         (log "test_reverse_with_forwards_index")
-        goto block@25
-    block@25: // L35
-        let bytes_length%0#4: uint64 = (len 0x616263)
+        let bytes_length%0#4: uint64 = 3u
         let item_index_internal%0#10: uint64 = 0u
-        let reverse_index_internal%0#8: uint64 = bytes_length%0#4
         goto block@26
     block@26: // for_header_L38
-        let item_index_internal%0#11: uint64 = φ(item_index_internal%0#10 <- block@25, item_index_internal%0#12 <- block@28)
-        let reverse_index_internal%0#9: uint64 = φ(reverse_index_internal%0#8 <- block@25, reverse_index_internal%0#10 <- block@28)
-        let continue_looping%0#4: bool = (> reverse_index_internal%0#9 0u)
-        goto continue_looping%0#4 ? block@27 : block@29
+        let idx#4: uint64 = φ(item_index_internal%0#10 <- block@23, item_index_internal%0#12 <- block@27)
+        let reverse_index_internal%0#9: uint64 = φ(bytes_length%0#4 <- block@23, reverse_index_internal%0#10 <- block@27)
+        goto reverse_index_internal%0#9 ? block@27 : block@29
     block@27: // for_body_L39
         let reverse_index_internal%0#10: uint64 = (- reverse_index_internal%0#9 1u)
         let i#4: bytes = (extract3 0x616263 reverse_index_internal%0#10 1u)
-        let idx#4: uint64 = item_index_internal%0#11
         test_cases.iteration.base.IterationTestBase._log_with_index(idx#4, i#4)
-        let idx#5: uint64 = (+ idx#4 1u)
-        goto block@28
-    block@28: // for_footer_L38
-        let item_index_internal%0#12: uint64 = (+ item_index_internal%0#11 1u)
+        let item_index_internal%0#12: uint64 = (+ idx#4 1u)
         goto block@26
     block@29: // after_for_L38
-        goto block@30
-    block@30: // split from inlining callsub op of 24 at index 1_L7
         (log "test_reverse_with_reverse_index")
-        goto block@31
-    block@31: // L42
-        let bytes_length%0#5: uint64 = (len 0x616263)
-        let item_index_internal%0#13: uint64 = 0u
-        let reverse_index_internal%0#11: uint64 = bytes_length%0#5
+        let bytes_length%0#5: uint64 = 3u
         goto block@32
     block@32: // for_header_L45
-        let reverse_index_internal%0#12: uint64 = φ(reverse_index_internal%0#11 <- block@31, reverse_index_internal%0#13 <- block@34)
-        let continue_looping%0#5: bool = (> reverse_index_internal%0#12 0u)
-        goto continue_looping%0#5 ? block@33 : block@35
+        let reverse_index_internal%0#12: uint64 = φ(bytes_length%0#5 <- block@29, idx#6 <- block@33)
+        goto reverse_index_internal%0#12 ? block@33 : block@35
     block@33: // for_body_L46
-        let reverse_index_internal%0#13: uint64 = (- reverse_index_internal%0#12 1u)
-        let i#5: bytes = (extract3 0x616263 reverse_index_internal%0#13 1u)
-        let idx#6: uint64 = reverse_index_internal%0#13
+        let idx#6: uint64 = (- reverse_index_internal%0#12 1u)
+        let i#5: bytes = (extract3 0x616263 idx#6 1u)
         test_cases.iteration.base.IterationTestBase._log_with_index(idx#6, i#5)
-        let idx#7: uint64 = (+ idx#6 1u)
-        goto block@34
-    block@34: // for_footer_L45
         goto block@32
     block@35: // after_for_L45
-        goto block@36
-    block@36: // split from inlining callsub op of 30 at index 1_L7
         (log "test_empty")
-        goto block@37
-    block@37: // L49
-        let bytes_length%0#6: uint64 = (len 0x)
+        let bytes_length%0#6: uint64 = 0u
         let item_index_internal%0#14: uint64 = 0u
-        let reverse_index_internal%0#14: uint64 = bytes_length%0#6
         goto block@38
     block@38: // for_header_L52
-        let item_index_internal%0#15: uint64 = φ(item_index_internal%0#14 <- block@37, item_index_internal%0#16 <- block@40)
+        let item_index_internal%0#15: uint64 = φ(item_index_internal%0#14 <- block@35, item_index_internal%0#16 <- block@39)
         let continue_looping%0#6: bool = (< item_index_internal%0#15 bytes_length%0#6)
         goto continue_looping%0#6 ? block@39 : block@41
     block@39: // for_body_L53
         let i#6: bytes = (extract3 0x item_index_internal%0#15 1u)
         (log i#6)
-        goto block@40
-    block@40: // for_footer_L52
         let item_index_internal%0#16: uint64 = (+ item_index_internal%0#15 1u)
         goto block@38
     block@41: // after_for_L52
-        let bytes_length%1#0: uint64 = (len 0x)
-        let item_index_internal%1#0: uint64 = 0u
-        let reverse_index_internal%1#0: uint64 = bytes_length%1#0
+        let bytes_length%1#0: uint64 = 0u
         goto block@42
     block@42: // for_header_L54
-        let reverse_index_internal%1#1: uint64 = φ(reverse_index_internal%1#0 <- block@41, reverse_index_internal%1#2 <- block@44)
-        let continue_looping%1#0: bool = (> reverse_index_internal%1#1 0u)
-        goto continue_looping%1#0 ? block@43 : block@45
+        let reverse_index_internal%1#1: uint64 = φ(bytes_length%1#0 <- block@41, reverse_index_internal%1#2 <- block@43)
+        goto reverse_index_internal%1#1 ? block@43 : block@45
     block@43: // for_body_L55
         let reverse_index_internal%1#2: uint64 = (- reverse_index_internal%1#1 1u)
         let i#7: bytes = (extract3 0x reverse_index_internal%1#2 1u)
         (log i#7)
-        goto block@44
-    block@44: // for_footer_L54
         goto block@42
     block@45: // after_for_L54
-        let bytes_length%2#0: uint64 = (len 0x)
+        let bytes_length%2#0: uint64 = 0u
         let item_index_internal%2#0: uint64 = 0u
-        let reverse_index_internal%2#0: uint64 = bytes_length%2#0
         goto block@46
     block@46: // for_header_L56
-        let item_index_internal%2#1: uint64 = φ(item_index_internal%2#0 <- block@45, item_index_internal%2#2 <- block@48)
-        let continue_looping%2#0: bool = (< item_index_internal%2#1 bytes_length%2#0)
+        let idx#8: uint64 = φ(item_index_internal%2#0 <- block@45, item_index_internal%2#2 <- block@47)
+        let continue_looping%2#0: bool = (< idx#8 bytes_length%2#0)
         goto continue_looping%2#0 ? block@47 : block@49
     block@47: // for_body_L57
-        let i#8: bytes = (extract3 0x item_index_internal%2#1 1u)
-        let idx#8: uint64 = item_index_internal%2#1
+        let i#8: bytes = (extract3 0x idx#8 1u)
         test_cases.iteration.base.IterationTestBase._log_with_index(idx#8, i#8)
-        goto block@48
-    block@48: // for_footer_L56
-        let item_index_internal%2#2: uint64 = (+ item_index_internal%2#1 1u)
+        let item_index_internal%2#2: uint64 = (+ idx#8 1u)
         goto block@46
     block@49: // after_for_L56
-        let bytes_length%3#0: uint64 = (len 0x)
+        let bytes_length%3#0: uint64 = 0u
         let item_index_internal%3#0: uint64 = 0u
-        let reverse_index_internal%3#0: uint64 = bytes_length%3#0
         goto block@50
     block@50: // for_header_L58
-        let item_index_internal%3#1: uint64 = φ(item_index_internal%3#0 <- block@49, item_index_internal%3#2 <- block@52)
-        let reverse_index_internal%3#1: uint64 = φ(reverse_index_internal%3#0 <- block@49, reverse_index_internal%3#2 <- block@52)
-        let continue_looping%3#0: bool = (> reverse_index_internal%3#1 0u)
-        goto continue_looping%3#0 ? block@51 : block@53
+        let item_index_internal%3#1: uint64 = φ(item_index_internal%3#0 <- block@49, item_index_internal%3#2 <- block@51)
+        let reverse_index_internal%3#1: uint64 = φ(bytes_length%3#0 <- block@49, idx#9 <- block@51)
+        goto reverse_index_internal%3#1 ? block@51 : block@53
     block@51: // for_body_L59
-        let reverse_index_internal%3#2: uint64 = (- reverse_index_internal%3#1 1u)
+        let idx#9: uint64 = (- reverse_index_internal%3#1 1u)
         let i#9: bytes = (extract3 0x item_index_internal%3#1 1u)
-        let idx#9: uint64 = reverse_index_internal%3#2
         test_cases.iteration.base.IterationTestBase._log_with_index(idx#9, i#9)
-        goto block@52
-    block@52: // for_footer_L58
         let item_index_internal%3#2: uint64 = (+ item_index_internal%3#1 1u)
         goto block@50
     block@53: // after_for_L58
-        let bytes_length%4#0: uint64 = (len 0x)
+        let bytes_length%4#0: uint64 = 0u
         let item_index_internal%4#0: uint64 = 0u
-        let reverse_index_internal%4#0: uint64 = bytes_length%4#0
         goto block@54
     block@54: // for_header_L60
-        let item_index_internal%4#1: uint64 = φ(item_index_internal%4#0 <- block@53, item_index_internal%4#2 <- block@56)
-        let reverse_index_internal%4#1: uint64 = φ(reverse_index_internal%4#0 <- block@53, reverse_index_internal%4#2 <- block@56)
-        let continue_looping%4#0: bool = (> reverse_index_internal%4#1 0u)
-        goto continue_looping%4#0 ? block@55 : block@57
+        let idx#10: uint64 = φ(item_index_internal%4#0 <- block@53, item_index_internal%4#2 <- block@55)
+        let reverse_index_internal%4#1: uint64 = φ(bytes_length%4#0 <- block@53, reverse_index_internal%4#2 <- block@55)
+        goto reverse_index_internal%4#1 ? block@55 : block@57
     block@55: // for_body_L61
         let reverse_index_internal%4#2: uint64 = (- reverse_index_internal%4#1 1u)
         let i#10: bytes = (extract3 0x reverse_index_internal%4#2 1u)
-        let idx#10: uint64 = item_index_internal%4#1
         test_cases.iteration.base.IterationTestBase._log_with_index(idx#10, i#10)
-        goto block@56
-    block@56: // for_footer_L60
-        let item_index_internal%4#2: uint64 = (+ item_index_internal%4#1 1u)
+        let item_index_internal%4#2: uint64 = (+ idx#10 1u)
         goto block@54
     block@57: // after_for_L60
-        let bytes_length%5#0: uint64 = (len 0x)
-        let item_index_internal%5#0: uint64 = 0u
-        let reverse_index_internal%5#0: uint64 = bytes_length%5#0
+        let bytes_length%5#0: uint64 = 0u
         goto block@58
     block@58: // for_header_L62
-        let reverse_index_internal%5#1: uint64 = φ(reverse_index_internal%5#0 <- block@57, reverse_index_internal%5#2 <- block@60)
-        let continue_looping%5#0: bool = (> reverse_index_internal%5#1 0u)
-        goto continue_looping%5#0 ? block@59 : block@61
+        let reverse_index_internal%5#1: uint64 = φ(bytes_length%5#0 <- block@57, idx#11 <- block@59)
+        goto reverse_index_internal%5#1 ? block@59 : block@61
     block@59: // for_body_L63
-        let reverse_index_internal%5#2: uint64 = (- reverse_index_internal%5#1 1u)
-        let i#11: bytes = (extract3 0x reverse_index_internal%5#2 1u)
-        let idx#11: uint64 = reverse_index_internal%5#2
+        let idx#11: uint64 = (- reverse_index_internal%5#1 1u)
+        let i#11: bytes = (extract3 0x idx#11 1u)
         test_cases.iteration.base.IterationTestBase._log_with_index(idx#11, i#11)
-        goto block@60
-    block@60: // for_footer_L62
         goto block@58
     block@61: // after_for_L62
-        goto block@62
-    block@62: // split from inlining callsub op of 36 at index 1_L7
         (log "test_break")
-        goto block@63
-    block@63: // L65
-        let bytes_length%0#7: uint64 = (len 0x616263)
-        let item_index_internal%0#17: uint64 = 0u
-        let reverse_index_internal%0#15: uint64 = bytes_length%0#7
-        goto block@64
-    block@64: // for_header_L68
-        let continue_looping%0#7: bool = (< item_index_internal%0#17 bytes_length%0#7)
-        goto continue_looping%0#7 ? block@65 : block@66
+        let bytes_length%0#7: uint64 = 3u
+        goto bytes_length%0#7 ? block@65 : block@66
     block@65: // for_body_L69
-        let b#0: bytes = (extract3 0x616263 item_index_internal%0#17 1u)
+        let b#0: bytes = 0x61
         (log b#0)
         goto block@66
     block@66: // after_for_L68
-        goto block@67
-    block@67: // split from inlining callsub op of 62 at index 1_L7
         (log "test_tuple_target")
-        goto block@68
-    block@68: // L72
-        let bytes_length%0#8: uint64 = (len 0x74)
+        let bytes_length%0#8: uint64 = 1u
         let item_index_internal%0#18: uint64 = 0u
-        let reverse_index_internal%0#16: uint64 = bytes_length%0#8
         goto block@69
     block@69: // for_header_L75
-        let item_index_internal%0#19: uint64 = φ(item_index_internal%0#18 <- block@68, item_index_internal%0#20 <- block@71)
-        let continue_looping%0#8: bool = (< item_index_internal%0#19 bytes_length%0#8)
+        let tup.0#0: uint64 = φ(item_index_internal%0#18 <- block@66, item_index_internal%0#20 <- block@70)
+        let continue_looping%0#8: bool = (< tup.0#0 bytes_length%0#8)
         goto continue_looping%0#8 ? block@70 : block@72
     block@70: // for_body_L76
-        let tup.1#0: bytes = (extract3 0x74 item_index_internal%0#19 1u)
-        let tup.0#0: uint64 = item_index_internal%0#19
+        let tup.1#0: bytes = (extract3 0x74 tup.0#0 1u)
         test_cases.iteration.base.IterationTestBase._log_with_index(tup.0#0, tup.1#0)
-        goto block@71
-    block@71: // for_footer_L75
-        let item_index_internal%0#20: uint64 = (+ item_index_internal%0#19 1u)
+        let item_index_internal%0#20: uint64 = (+ tup.0#0 1u)
         goto block@69
     block@72: // after_for_L75
-        goto block@73
-    block@73: // split from inlining callsub op of 67 at index 1_L7
         return 1u
 
 subroutine test_cases.iteration.base.IterationTestBase._log_with_index(idx: uint64, value: bytes) -> void:

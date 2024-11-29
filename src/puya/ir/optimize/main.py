@@ -55,6 +55,7 @@ class SubroutineOptimization:
 def get_subroutine_optimizations(optimization_level: int) -> Iterable[SubroutineOptimization]:
     if optimization_level:
         return [
+            SubroutineOptimization.from_function(perform_subroutine_inlining),
             SubroutineOptimization.from_function(_split_parallel_copies),
             SubroutineOptimization.from_function(constant_replacer, loop=True),
             SubroutineOptimization.from_function(copy_propagation),
@@ -69,16 +70,15 @@ def get_subroutine_optimizations(optimization_level: int) -> Iterable[Subroutine
             SubroutineOptimization.from_function(remove_unreachable_blocks),
             SubroutineOptimization.from_function(repeated_expression_elimination),
             SubroutineOptimization.from_function(remove_calls_to_no_op_subroutines),
-            SubroutineOptimization.from_function(perform_subroutine_inlining),
         ]
     else:
         return [
+            SubroutineOptimization.from_function(perform_subroutine_inlining),
             SubroutineOptimization.from_function(_split_parallel_copies),
             SubroutineOptimization.from_function(constant_replacer, loop=True),
             SubroutineOptimization.from_function(remove_unused_variables),
             SubroutineOptimization.from_function(inner_txn_field_replacer),
             SubroutineOptimization.from_function(replace_compiled_references),
-            SubroutineOptimization.from_function(perform_subroutine_inlining),
         ]
 
 

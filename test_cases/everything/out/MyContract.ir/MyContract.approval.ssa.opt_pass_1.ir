@@ -1,26 +1,19 @@
 main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
     block@0: // L1
         let tmp%0#0: bool = (txn ApplicationID)
-        goto tmp%0#0 ? block@2 : block@1
-    block@1: // call __init___L1
         goto block@2
     block@2: // after_if_else_L1
-        goto block@3
-    block@3: // L1
-        goto block@5
-    block@5: // L37
         let tmp%0#2: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#2 0u)
-        goto tmp%1#0 ? block@6 : block@14
+        goto tmp%0#2 ? block@6 : block@15
     block@6: // abi_routing_L37
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create()void" => block@7, method "register(string)void" => block@8, method "say_hello()string" => block@9, method "calculate(uint64,uint64)uint64" => block@10, method "close_out()void" => block@11, * => block@12}
+        switch tmp%2#0 {method "create()void" => block@7, method "register(string)void" => block@8, method "say_hello()string" => block@9, method "calculate(uint64,uint64)uint64" => block@10, method "close_out()void" => block@11, * => block@15}
     block@7: // create_route_L41
         let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
+        let tmp%4#0: bool = (! tmp%3#0)
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (== tmp%5#0 0u)
+        let tmp%6#0: bool = (! tmp%5#0)
         (assert tmp%6#0) // can only call when creating
         test_cases.everything.contract.Everything.create()
         let test_cases.everything.contract.Everything.__puya_arc4_router__%0#2: bool = 1u
@@ -31,19 +24,17 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         let tmp%9#0: uint64 = (& tmp%8#0 3u)
         (assert tmp%9#0) // OnCompletion is not one of NoOp, OptIn
         let tmp%10#0: uint64 = (txn ApplicationID)
-        let tmp%11#0: bool = (!= tmp%10#0 0u)
-        (assert tmp%11#0) // can only call when not creating
+        (assert tmp%10#0) // can only call when not creating
         let tmp%12#0: bytes = (txna ApplicationArgs 1)
         test_cases.everything.contract.Everything.register(tmp%12#0)
         let test_cases.everything.contract.Everything.__puya_arc4_router__%0#3: bool = 1u
         goto block@16
     block@9: // say_hello_route_L56
         let tmp%13#0: uint64 = (txn OnCompletion)
-        let tmp%14#0: bool = (== tmp%13#0 NoOp)
+        let tmp%14#0: bool = (! tmp%13#0)
         (assert tmp%14#0) // OnCompletion is not NoOp
         let tmp%15#0: uint64 = (txn ApplicationID)
-        let tmp%16#0: bool = (!= tmp%15#0 0u)
-        (assert tmp%16#0) // can only call when not creating
+        (assert tmp%15#0) // can only call when not creating
         let tmp%17#0: bytes = test_cases.everything.contract.Everything.say_hello()
         let tmp%18#0: bytes = (concat 0x151f7c75 tmp%17#0)
         (log tmp%18#0)
@@ -51,11 +42,10 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         goto block@16
     block@10: // calculate_route_L64
         let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (== tmp%19#0 NoOp)
+        let tmp%20#0: bool = (! tmp%19#0)
         (assert tmp%20#0) // OnCompletion is not NoOp
         let tmp%21#0: uint64 = (txn ApplicationID)
-        let tmp%22#0: bool = (!= tmp%21#0 0u)
-        (assert tmp%22#0) // can only call when not creating
+        (assert tmp%21#0) // can only call when not creating
         let tmp%23#0: bytes = (txna ApplicationArgs 1)
         let tmp%24#0: bytes = (txna ApplicationArgs 2)
         let tmp%25#0: bytes = test_cases.everything.contract.Everything.calculate(tmp%23#0, tmp%24#0)
@@ -68,47 +58,29 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         let tmp%28#0: bool = (== tmp%27#0 CloseOut)
         (assert tmp%28#0) // OnCompletion is not CloseOut
         let tmp%29#0: uint64 = (txn ApplicationID)
-        let tmp%30#0: bool = (!= tmp%29#0 0u)
-        (assert tmp%30#0) // can only call when not creating
+        (assert tmp%29#0) // can only call when not creating
         test_cases.everything.contract.Everything.close_out()
         let test_cases.everything.contract.Everything.__puya_arc4_router__%0#6: bool = 1u
         goto block@16
-    block@12: // switch_case_default_L37
-        goto block@13
-    block@13: // switch_case_next_L37
-        goto block@15
-    block@14: // bare_routing_L37
-        goto block@15
     block@15: // after_if_else_L37
         let test_cases.everything.contract.Everything.__puya_arc4_router__%0#10: bool = 0u
         goto block@16
     block@16: // split from inlining callsub op of 3 at index 0_L1
         let tmp%0#1: bool = φ(test_cases.everything.contract.Everything.__puya_arc4_router__%0#2 <- block@7, test_cases.everything.contract.Everything.__puya_arc4_router__%0#3 <- block@8, test_cases.everything.contract.Everything.__puya_arc4_router__%0#4 <- block@9, test_cases.everything.contract.Everything.__puya_arc4_router__%0#5 <- block@10, test_cases.everything.contract.Everything.__puya_arc4_router__%0#6 <- block@11, test_cases.everything.contract.Everything.__puya_arc4_router__%0#10 <- block@15)
-        goto block@4
-    block@4: // split from inlining callsub op of 2 at index 0_L1
         return tmp%0#1
 
 subroutine test_cases.everything.contract.Everything.create() -> void:
     block@0: // L41
         test_cases.everything.contract.Everything._check_ban_list()
-        goto block@1
-    block@1: // L7
         let new_state_value%0#0: bytes = (txn Sender)
         (app_global_put "creator" new_state_value%0#0)
-        goto block@2
-    block@2: // split from inlining callsub op of 0 at index 1_L41
         (app_global_put "counter" 0u)
         return 
 
 subroutine test_cases.everything.contract.Everything._check_ban_list() -> void:
     block@0: // L77
         let tmp%0#0: bytes = (txn Sender)
-        goto block@1
-    block@1: // L23
-        let addr#0: bytes = addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
-        goto block@2
-    block@2: // split from inlining callsub op of 0 at index 1_L77
-        let tmp%2#0: bool = (!= tmp%0#0 addr#0)
+        let tmp%2#0: bool = (!= tmp%0#0 addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
         (assert tmp%2#0) // You are banned, goodbye
         return 
 
@@ -124,12 +96,7 @@ subroutine test_cases.everything.contract.Everything.register(name: bytes) -> vo
     block@2: // if_body_L53
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%1#0) // check self.counter exists
-        goto block@5
-    block@5: // L18
-        let test_cases.everything.my_base.multiplicative_identity%0#0: uint64 = 1u
-        goto block@6
-    block@6: // split from inlining callsub op of 2 at index 2_L53
-        let new_state_value%0#0: uint64 = (+ maybe_value%1#0 test_cases.everything.my_base.multiplicative_identity%0#0)
+        let new_state_value%0#0: uint64 = (+ maybe_value%1#0 1u)
         (app_global_put "counter" new_state_value%0#0)
         goto block@4
     block@4: // after_if_else_L50
@@ -162,35 +129,19 @@ subroutine test_cases.everything.contract.Everything.say_hello() -> bytes:
 
 subroutine test_cases.everything.contract.Everything.calculate(a: bytes, b: bytes) -> bytes:
     block@0: // L64
-        let a#1: bytes = a#0
-        let b#1: bytes = b#0
-        goto block@1
-    block@1: // L13
-        let tmp%0#1: uint64 = (btoi a#1)
-        let tmp%1#1: uint64 = (btoi b#1)
+        let tmp%0#1: uint64 = (btoi a#0)
+        let tmp%1#1: uint64 = (btoi b#0)
         let to_encode%0#1: uint64 = (+ tmp%0#1 tmp%1#1)
         let val_as_bytes%0#1: bytes = (itob to_encode%0#1)
-        goto block@2
-    block@2: // split from inlining callsub op of 0 at index 0_L64
         let tmp%0#0: uint64 = (btoi val_as_bytes%0#1)
-        let tmp%1#0: uint64 = (btoi b#0)
-        let to_encode%0#0: uint64 = (* tmp%0#0 tmp%1#0)
+        let to_encode%0#0: uint64 = (* tmp%0#0 tmp%1#1)
         let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
         return val_as_bytes%0#0
 
 subroutine test_cases.everything.contract.Everything.close_out() -> void:
     block@0: // L69
-        goto block@1
-    block@1: // L81
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%0#0) // check self.counter exists
-        goto block@3
-    block@3: // L86
-        let test_cases.everything.contract.positive_one%0#0: uint64 = 1u
-        goto block@4
-    block@4: // split from inlining callsub op of 1 at index 2_L81
-        let new_state_value%0#0: uint64 = (- maybe_value%0#0 test_cases.everything.contract.positive_one%0#0)
+        let new_state_value%0#0: uint64 = (- maybe_value%0#0 1u)
         (app_global_put "counter" new_state_value%0#0)
-        goto block@2
-    block@2: // split from inlining callsub op of 0 at index 0_L69
         return 
