@@ -1,31 +1,11 @@
 // Op                                                                                              Stack (out)
 // test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program() -> uint64:
 main:
-    // arc4_types/structs.py:67
-    // x=add_decimal(v1.x, v2.x),
-    byte 0x000000083cfbf217                                                                        0x000000083cfbf217
-    byte 0x000000083cfbf217                                                                        0x000000083cfbf217,0x000000083cfbf217
-    callsub add_decimal                                                                            tmp%2#3
-    // arc4_types/structs.py:68
-    // y=add_decimal(v1.y, v2.y),
-    byte 0x000000230384b842                                                                        tmp%2#3,0x000000230384b842
-    byte 0x000000230384b842                                                                        tmp%2#3,0x000000230384b842,0x000000230384b842
-    callsub add_decimal                                                                            tmp%2#3,tmp%5#3
-    // arc4_types/structs.py:66-69
-    // return Vector(
-    //     x=add_decimal(v1.x, v2.x),
-    //     y=add_decimal(v1.y, v2.y),
-    // )
-    l-load tmp%2#3 1                                                                               tmp%5#3,tmp%2#3
-    l-load tmp%5#3 1                                                                               tmp%2#3,tmp%5#3
-    concat                                                                                         encoded_tuple_buffer%2#0
     // arc4_types/structs.py:39
     // for val in (coord_3.x, coord_3.y):
-    l-load-copy encoded_tuple_buffer%2#0 0                                                         encoded_tuple_buffer%2#0,encoded_tuple_buffer%2#0 (copy)
-    extract 0 8 // on error: Index access is out of bounds                                         encoded_tuple_buffer%2#0,val#0
-    x-store val#0                                                                                  (𝕏) val#0 | encoded_tuple_buffer%2#0
-    l-load encoded_tuple_buffer%2#0 0                                                              (𝕏) val#0 | encoded_tuple_buffer%2#0
-    extract 8 8 // on error: Index access is out of bounds                                         (𝕏) val#0 | val#2
+    byte 0x0000001079f7e42e                                                                        val#0
+    x-store val#0                                                                                  (𝕏) val#0 |
+    byte 0x0000004607097084                                                                        (𝕏) val#0 | val#2
     f-store val#2                                                                                  (𝕗) val#2 | (𝕏) val#0 |
     int 0                                                                                          (𝕗) val#2 | (𝕏) val#0 | loop_counter%0#0
     f-store loop_counter%0#0                                                                       (𝕗) val#2,loop_counter%0#0 | (𝕏) val#0 |
@@ -59,20 +39,5 @@ main_after_for@4:                                                               
     // return True
     int 1                                                                                          (𝕗) val#2,loop_counter%0#0 | 1
     return                                                                                         (𝕗) val#2,loop_counter%0#0 |
-
-
-// test_cases.arc4_types.structs.add_decimal(x: bytes, y: bytes) -> bytes:
-add_decimal:                                                                                       (𝕡) x#0,y#0 |
-    // arc4_types/structs.py:88
-    // return Decimal.from_bytes(op.itob(op.btoi(x.bytes) + op.btoi(y.bytes)))
-    p-load x#0                                                                                     (𝕡) x#0,y#0 | x#0 (copy)
-    btoi                                                                                           (𝕡) x#0,y#0 | tmp%0#0
-    p-load y#0                                                                                     (𝕡) x#0,y#0 | tmp%0#0,y#0 (copy)
-    btoi                                                                                           (𝕡) x#0,y#0 | tmp%0#0,tmp%1#0
-    l-load tmp%0#0 1                                                                               (𝕡) x#0,y#0 | tmp%1#0,tmp%0#0
-    l-load tmp%1#0 1                                                                               (𝕡) x#0,y#0 | tmp%0#0,tmp%1#0
-    +                                                                                              (𝕡) x#0,y#0 | tmp%2#0
-    itob                                                                                           (𝕡) x#0,y#0 | tmp%3#0
-    retsub                                                                                         tmp%3#0
 
 

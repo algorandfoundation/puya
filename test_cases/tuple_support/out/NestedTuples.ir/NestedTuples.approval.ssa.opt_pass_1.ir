@@ -416,23 +416,43 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.run_tests() -> bo
         goto block@25
     block@25: // L73
         (app_global_put "build_nested_call_count" 0u)
-        let (awst_tmp%0#0: bytes, awst_tmp%1#0: uint64, awst_tmp%2#0: bytes) = test_cases.tuple_support.nested_tuples.NestedTuples.build_nested()
-        let tmp%0#5: bool = (== awst_tmp%0#0 awst_tmp%0#0)
-        let tmp%1#5: bool = (== awst_tmp%1#0 awst_tmp%1#0)
+        goto block@32
+    block@32: // L68
+        let (maybe_value%0#2: uint64, maybe_exists%0#2: bool) = (app_global_get_ex 0u "build_nested_call_count")
+        (assert maybe_exists%0#2) // check self.build_nested_call_count exists
+        let new_state_value%0#1: uint64 = (+ maybe_value%0#2 1u)
+        (app_global_put "build_nested_call_count" new_state_value%0#1)
+        let test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%0#1: bytes = "hi"
+        let test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%1#1: uint64 = 1u
+        let test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%2#1: bytes = 0x686d6d6d
+        goto block@33
+    block@33: // split from inlining callsub op of 25 at index 1_L73
+        let tmp%0#5: bool = (== test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%0#1 test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%0#1)
+        let tmp%1#5: bool = (== test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%1#1 test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%1#1)
         let tmp%2#4: bool = (&& tmp%0#5 tmp%1#5)
-        let tmp%3#4: bool = (== awst_tmp%2#0 awst_tmp%2#0)
+        let tmp%3#4: bool = (== test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%2#1 test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%2#1)
         let tmp%4#3: bool = (|| tmp%2#4 tmp%3#4)
         goto tmp%4#3 ? block@26 : block@27
     block@26: // ternary_true_L76
-        let (ternary_result%0.0.0#0: bytes, ternary_result%0.0.1#0: uint64, ternary_result%0.1#0: bytes) = (awst_tmp%0#0, awst_tmp%1#0, awst_tmp%2#0)
+        let (ternary_result%0.0.0#0: bytes, ternary_result%0.0.1#0: uint64, ternary_result%0.1#0: bytes) = (test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%0#1, test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%1#1, test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%2#1)
         goto block@28
     block@27: // ternary_false_L76
-        let (ternary_result%0.0.0#1: bytes, ternary_result%0.0.1#1: uint64, ternary_result%0.1#1: bytes) = test_cases.tuple_support.nested_tuples.NestedTuples.build_nested()
+        goto block@30
+    block@30: // L68
+        let (maybe_value%0#1: uint64, maybe_exists%0#1: bool) = (app_global_get_ex 0u "build_nested_call_count")
+        (assert maybe_exists%0#1) // check self.build_nested_call_count exists
+        let new_state_value%0#0: uint64 = (+ maybe_value%0#1 1u)
+        (app_global_put "build_nested_call_count" new_state_value%0#0)
+        let test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%0#0: bytes = "hi"
+        let test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%1#0: uint64 = 1u
+        let test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%2#0: bytes = 0x686d6d6d
+        goto block@31
+    block@31: // split from inlining callsub op of 27 at index 0_L76
         goto block@28
     block@28: // ternary_merge_L76
-        let ternary_result%0.0.0#2: bytes = φ(ternary_result%0.0.0#0 <- block@26, ternary_result%0.0.0#1 <- block@27)
-        let ternary_result%0.0.1#2: uint64 = φ(ternary_result%0.0.1#0 <- block@26, ternary_result%0.0.1#1 <- block@27)
-        let ternary_result%0.1#2: bytes = φ(ternary_result%0.1#0 <- block@26, ternary_result%0.1#1 <- block@27)
+        let ternary_result%0.0.0#2: bytes = φ(ternary_result%0.0.0#0 <- block@26, test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%0#0 <- block@31)
+        let ternary_result%0.0.1#2: uint64 = φ(ternary_result%0.0.1#0 <- block@26, test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%1#0 <- block@31)
+        let ternary_result%0.1#2: bytes = φ(ternary_result%0.1#0 <- block@26, test_cases.tuple_support.nested_tuples.NestedTuples.build_nested%2#0 <- block@31)
         let (result.0.0#0: bytes, result.0.1#0: uint64, result.1#0: bytes) = (ternary_result%0.0.0#2, ternary_result%0.0.1#2, ternary_result%0.1#2)
         let tmp%5#3: bool = (== result.0.0#0 "hi")
         (assert tmp%5#3)
@@ -485,14 +505,6 @@ subroutine test_cases.tuple_support.nested_tuples.test_nested_singles(one: uint6
         let tmp%14#0: bool = (== s.1.0#2 tmp%13#0)
         (assert tmp%14#0)
         return 
-
-subroutine test_cases.tuple_support.nested_tuples.NestedTuples.build_nested() -> <bytes, uint64, bytes>:
-    block@0: // L68
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "build_nested_call_count")
-        (assert maybe_exists%0#0) // check self.build_nested_call_count exists
-        let new_state_value%0#0: uint64 = (+ maybe_value%0#0 1u)
-        (app_global_put "build_nested_call_count" new_state_value%0#0)
-        return "hi" 1u 0x686d6d6d
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_params(args.0: bytes, args.1.0: bytes, args.1.1.0: uint64) -> <bytes, bytes, uint64>:
     block@0: // L51

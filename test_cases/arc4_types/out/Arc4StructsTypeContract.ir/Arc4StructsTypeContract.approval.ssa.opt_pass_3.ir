@@ -1,12 +1,18 @@
 main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
     block@0: // L35
-        let tmp%0#2: bytes = 0x000000083cfbf217
-        let tmp%1#2: bytes = 0x000000083cfbf217
-        let tmp%2#3: bytes = test_cases.arc4_types.structs.add_decimal(tmp%0#2, tmp%1#2)
-        let tmp%3#3: bytes = 0x000000230384b842
-        let tmp%4#3: bytes = 0x000000230384b842
-        let tmp%5#3: bytes = test_cases.arc4_types.structs.add_decimal(tmp%3#3, tmp%4#3)
-        let encoded_tuple_buffer%2#0: bytes = (concat tmp%2#3 tmp%5#3)
+        let x#0: bytes = 0x000000083cfbf217
+        let y#0: bytes = 0x000000083cfbf217
+        let tmp%0#3: uint64 = (btoi x#0)
+        let tmp%1#3: uint64 = (btoi y#0)
+        let tmp%2#4: uint64 = (+ tmp%0#3 tmp%1#3)
+        let tmp%3#4: bytes = (itob tmp%2#4)
+        let x#1: bytes = 0x000000230384b842
+        let y#1: bytes = 0x000000230384b842
+        let tmp%0#4: uint64 = (btoi x#1)
+        let tmp%1#4: uint64 = (btoi y#1)
+        let tmp%2#5: uint64 = (+ tmp%0#4 tmp%1#4)
+        let tmp%3#5: bytes = (itob tmp%2#5)
+        let encoded_tuple_buffer%2#0: bytes = (concat tmp%3#4 tmp%3#5)
         let val#0: bytes = ((extract 0 8) encoded_tuple_buffer%2#0) // on error: Index access is out of bounds
         let val#2: bytes = ((extract 8 8) encoded_tuple_buffer%2#0) // on error: Index access is out of bounds
         let loop_counter%0#0: uint64 = 0u
@@ -68,11 +74,3 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let tmp%4#0: bool = (!= mutable#0 copy#1)
         (assert tmp%4#0) // expected copy is different
         return 1u
-
-subroutine test_cases.arc4_types.structs.add_decimal(x: bytes, y: bytes) -> bytes:
-    block@0: // L86
-        let tmp%0#0: uint64 = (btoi x#0)
-        let tmp%1#0: uint64 = (btoi y#0)
-        let tmp%2#0: uint64 = (+ tmp%0#0 tmp%1#0)
-        let tmp%3#0: bytes = (itob tmp%2#0)
-        return tmp%3#0

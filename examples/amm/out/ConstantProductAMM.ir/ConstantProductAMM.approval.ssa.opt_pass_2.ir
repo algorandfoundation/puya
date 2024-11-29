@@ -199,17 +199,21 @@ subroutine examples.amm.contract.ConstantProductAMM.bootstrap(seed: uint64, a_as
         itxn_submit
         let tmp%2#1: uint64 = (itxn CreatedAssetID)
         (app_global_put "pool_token" tmp%2#1)
-        let (asset#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "asset_a")
+        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%1#0) // check self.asset_a exists
-        let tmp%0#2: bytes = (global CurrentApplicationAddress)
-        examples.amm.contract.do_asset_transfer(tmp%0#2, asset#0, 0u)
-        let (asset#1: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "asset_b")
+        examples.amm.contract.ConstantProductAMM._do_opt_in(maybe_value%1#0)
+        let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "asset_b")
         (assert maybe_exists%2#0) // check self.asset_b exists
-        let tmp%0#3: bytes = (global CurrentApplicationAddress)
-        examples.amm.contract.do_asset_transfer(tmp%0#3, asset#1, 0u)
+        examples.amm.contract.ConstantProductAMM._do_opt_in(maybe_value%2#0)
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "pool_token")
         (assert maybe_exists%3#0) // check self.pool_token exists
         return maybe_value%3#0
+
+subroutine examples.amm.contract.ConstantProductAMM._do_opt_in(asset: uint64) -> void:
+    block@0: // L283
+        let tmp%0#0: bytes = (global CurrentApplicationAddress)
+        examples.amm.contract.do_asset_transfer(tmp%0#0, asset#0, 0u)
+        return 
 
 subroutine examples.amm.contract.do_asset_transfer(receiver: bytes, asset: uint64, amount: uint64) -> void:
     block@0: // L356

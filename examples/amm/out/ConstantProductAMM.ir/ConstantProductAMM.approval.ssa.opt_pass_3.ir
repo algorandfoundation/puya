@@ -199,14 +199,24 @@ subroutine examples.amm.contract.ConstantProductAMM.bootstrap(seed: uint64, a_as
         itxn_submit
         let tmp%2#1: uint64 = (itxn CreatedAssetID)
         (app_global_put "pool_token" tmp%2#1)
-        let (asset#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "asset_a")
+        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%1#0) // check self.asset_a exists
+        let asset#0: uint64 = maybe_value%1#0
+        goto block@1
+    block@1: // L283
         let tmp%0#2: bytes = (global CurrentApplicationAddress)
         examples.amm.contract.do_asset_transfer(tmp%0#2, asset#0, 0u)
-        let (asset#1: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "asset_b")
+        goto block@2
+    block@2: // split from inlining callsub op of 0 at index 46_L49
+        let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "asset_b")
         (assert maybe_exists%2#0) // check self.asset_b exists
+        let asset#1: uint64 = maybe_value%2#0
+        goto block@3
+    block@3: // L283
         let tmp%0#3: bytes = (global CurrentApplicationAddress)
         examples.amm.contract.do_asset_transfer(tmp%0#3, asset#1, 0u)
+        goto block@4
+    block@4: // split from inlining callsub op of 2 at index 2_L49
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "pool_token")
         (assert maybe_exists%3#0) // check self.pool_token exists
         return maybe_value%3#0
