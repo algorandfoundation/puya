@@ -19,13 +19,19 @@ from puya.utils import unique
 logger = log.get_logger(__name__)
 
 
-_ALWAYS_INLINE = False
-
-
 def analyse_subroutines_for_inlining(program: models.Program) -> None:
     collector = _SubroutineCallCounter()
     collector.visit_subroutine(program.main)
-    call_graph: CallGraph | None = None
+
+    _call_graph: CallGraph | None = None
+
+    def call_graph() -> CallGraph:
+        nonlocal _call_graph
+        if _call_graph is None:
+            _call_graph = CallGraph.build(program)
+        return _call_graph
+
+    any_marked = False
     for sub in program.subroutines:
         if sub.inline is False:
             pass  # nothing to do
@@ -42,30 +48,42 @@ def analyse_subroutines_for_inlining(program: models.Program) -> None:
             sub.inline = False
         elif sub.inline is None:
             reference_count = collector.subroutines.get(sub, 0)
-            if reference_count > 1:
-                if call_graph is None:
-                    call_graph = CallGraph.build(program)
-                if call_graph.maybe_reentrant(sub):
-                    sub.inline = False
-                    logger.debug(
-                        f"function might be re-entrant: {sub.id}", location=sub.source_location
-                    )
-                    continue
-            if reference_count == 1:
+            if reference_count > 1 and call_graph().maybe_reentrant(sub):
+                sub.inline = False
+                logger.debug(
+                    f"function might be re-entrant: {sub.id}", location=sub.source_location
+                )
+            elif reference_count == 1:
                 logger.debug(f"marking single-use function {sub.id} for inlining")
                 sub.inline = True
-            elif (
-                complexity := sum(
+                any_marked = True
+            elif not call_graph().has_maybe_inlineable_calls(sub):
+                complexity = sum(
                     len(b.phis) + len(b.ops) + len(_not_none(b.terminator).targets())
                     for b in sub.body
                 )
-            ) <= (threshold := max(3, len(sub.returns) + len(sub.parameters))):
+                threshold = max(3, 1 + len(sub._returns) + len(sub.parameters))
+                if complexity <= threshold:
+                    logger.debug(
+                        f"marking simple function {sub.id} for inlining"
+                        f" ({complexity=} <= {threshold=})"
+                    )
+                    sub.inline = True
+                    any_marked = True
+    if any_marked:
+        return
+
+    for sub in program.subroutines:
+        if sub.inline is None:
+            complexity = sum(
+                len(b.phis) + len(b.ops) + len(_not_none(b.terminator).targets()) for b in sub.body
+            )
+            threshold = max(3, 1 + len(sub._returns) + len(sub.parameters))
+            if complexity <= threshold:
                 logger.debug(
                     f"marking simple function {sub.id} for inlining"
                     f" ({complexity=} <= {threshold=})"
                 )
-                sub.inline = True
-            elif _ALWAYS_INLINE:
                 sub.inline = True
 
 
@@ -86,15 +104,30 @@ def perform_subroutine_inlining(_context: CompileContext, subroutine: models.Sub
                     return_targets = []
                 case _:
                     continue
-            if subroutine == call.target:
-                logger.debug("unable to inline recursive call", location=call.source_location)
-                continue
-            if call.target.entry.phis:
-                logger.debug(
-                    "unable to inline call to function with phi nodes in entry block",
-                    location=call.source_location,
-                )
-                continue
+            # if call.target.inline:
+            #     if subroutine == call.target:
+            #         logger.debug("unable to inline recursive call", location=call.source_location)
+            #         continue
+            #     if call.target.entry.phis:
+            #         logger.debug(
+            #             "unable to inline call to function with phi nodes in entry block",
+            #             location=call.source_location,
+            #         )
+            #         continue
+            # elif context.options.optimization_level == 0:
+            #     continue
+            # else:
+            #     complexity = sum(
+            #         len(b.phis) + len(b.ops) + len(_not_none(b.terminator).targets())
+            #         for b in call.target.body
+            #     )
+            #     threshold = max(3, len(call.target._returns) + len(call.target.parameters))
+            #     logger.debug(
+            #         f"calculated inlining score for {call.target.id}: {complexity=}, {threshold=}",
+            #         location=op.source_location,
+            #     )
+            #     if complexity > threshold:
+            #         continue
             logger.debug(
                 f"inlining call to {call.target.id} in {subroutine.id}",
                 location=op.source_location,

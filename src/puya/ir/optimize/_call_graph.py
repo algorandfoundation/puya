@@ -14,6 +14,8 @@ class CallGraph:
     def build(cls, program: models.Program) -> typing.Self:
         graph = nx.DiGraph()
         for sub in program.all_subroutines:
+            graph.add_node(sub.id, ref=sub)
+        for sub in program.all_subroutines:
             for block in sub.body:
                 for op in block.ops:
                     match op:
@@ -23,6 +25,14 @@ class CallGraph:
                         ):
                             graph.add_edge(sub.id, target.id)
         return cls(graph)
+
+    def has_maybe_inlineable_calls(self, sub: models.Subroutine) -> bool:
+        for target_id in self._graph.successors(sub.id):
+            target = self._graph.nodes[target_id]["ref"]
+            assert isinstance(target, models.Subroutine)
+            if sub.inline is not False:
+                return True
+        return False
 
     def maybe_reentrant(self, sub: models.Subroutine) -> bool:
         successors = list(self._graph.successors(sub.id))
