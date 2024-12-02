@@ -53,13 +53,16 @@ def analyse_subroutines_for_inlining(program: models.Program) -> bool:
                 logger.debug(f"marking single-use function {sub.id} for inlining")
                 sub.inline = True
                 any_marked = True
-            elif not call_graph().has_maybe_inlineable_calls(sub):
+    if not any_marked:
+        for sub in program.subroutines:
+            if sub.inline is None and call_graph().has_maybe_inlineable_calls(sub):  # noqa: SIM102
                 if _maybe_mark_for_inlining(sub):
                     any_marked = True
     if not any_marked:
         for sub in program.subroutines:
-            if sub.inline is None and _maybe_mark_for_inlining(sub):
-                any_marked = True
+            if sub.inline is None:  # noqa: SIM102
+                if _maybe_mark_for_inlining(sub):
+                    any_marked = True
     return any_marked
 
 
