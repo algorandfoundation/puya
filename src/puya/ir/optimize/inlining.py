@@ -172,20 +172,20 @@ def _inline_call(
         )
     # 4. replace returns with unconditional branches to the second block half
     returning_blocks = [
-        (new_block, retsub)
+        (new_block, new_block.terminator.result)
         for new_block in new_blocks
-        if isinstance((retsub := new_block.terminator), models.SubroutineReturn)
+        if isinstance(new_block.terminator, models.SubroutineReturn)
     ]
     if not returning_blocks:
         logger.debug("TADAAAAAA", location=call.source_location)
         return new_blocks
     elif len(returning_blocks) == 1:
-        ((new_block, retsub),) = returning_blocks
+        ((new_block, return_values),) = returning_blocks
         if return_targets:
             new_block.ops.append(
                 models.Assignment(
                     targets=return_targets,
-                    source=models.ValueTuple(values=retsub.result, source_location=None),
+                    source=models.ValueTuple(values=return_values, source_location=None),
                     source_location=None,
                 )
             )
@@ -196,9 +196,9 @@ def _inline_call(
         return [*new_blocks, return_block]
     else:
         return_phis = [models.Phi(register=ret_target) for ret_target in return_targets]
-        for new_block_idx, (new_block, retsub) in enumerate(returning_blocks):
+        for new_block_idx, (new_block, return_values) in enumerate(returning_blocks):
             for ret_idx, ret_phi in enumerate(return_phis):
-                ret_value = retsub.result[ret_idx]
+                ret_value = return_values[ret_idx]
                 if not isinstance(ret_value, models.Register):
                     tmp_value = ret_value
                     tmp_reg_name = f"{call.target.id}{TMP_VAR_INDICATOR}{ret_idx}"
