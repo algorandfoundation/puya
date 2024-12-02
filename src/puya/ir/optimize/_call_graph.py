@@ -6,13 +6,13 @@ from puya.ir import models
 
 
 class CallGraph:
-    def __init__(self, graph: nx.DiGraph) -> None:
+    def __init__(self, graph: nx.MultiDiGraph) -> None:
         self._graph = graph
         self._paths = dict(nx.all_pairs_shortest_path(graph))
 
     @classmethod
     def build(cls, program: models.Program) -> typing.Self:
-        graph = nx.DiGraph()
+        graph = nx.MultiDiGraph()
         for sub in program.all_subroutines:
             graph.add_node(sub.id, ref=sub)
         for sub in program.all_subroutines:
@@ -33,6 +33,9 @@ class CallGraph:
             if sub.inline is not False:
                 return True
         return False
+
+    def reference_count(self, sub: models.Subroutine) -> int:
+        return typing.cast(int, self._graph.in_degree(sub.id))
 
     def maybe_reentrant(self, sub: models.Subroutine) -> bool:
         successors = list(self._graph.successors(sub.id))

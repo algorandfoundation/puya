@@ -8,7 +8,7 @@ import attrs
 
 from puya import log
 from puya.context import CompileContext
-from puya.ir import models, visitor
+from puya.ir import models
 from puya.ir.context import TMP_VAR_INDICATOR
 from puya.ir.optimize._call_graph import CallGraph
 from puya.ir.ssa import TrivialPhiRemover
@@ -20,9 +20,6 @@ logger = log.get_logger(__name__)
 
 
 def analyse_subroutines_for_inlining(program: models.Program) -> bool:
-    collector = _SubroutineCallCounter()
-    collector.visit_subroutine(program.main)
-
     _call_graph: CallGraph | None = None
 
     def call_graph() -> CallGraph:
@@ -47,7 +44,7 @@ def analyse_subroutines_for_inlining(program: models.Program) -> bool:
                 )
             sub.inline = False
         elif sub.inline is None:
-            reference_count = collector.subroutines.get(sub, 0)
+            reference_count = call_graph().reference_count(sub)
             if reference_count > 1 and call_graph().maybe_reentrant(sub):
                 sub.inline = False
                 logger.debug(
@@ -58,39 +55,27 @@ def analyse_subroutines_for_inlining(program: models.Program) -> bool:
                 sub.inline = True
                 any_marked = True
             elif not call_graph().has_maybe_inlineable_calls(sub):
-                complexity = _subroutine_complexity_estimate(sub)
-                threshold = _call_cost_estimate(sub)
-                if complexity <= threshold:
-                    logger.debug(
-                        f"marking simple function {sub.id} for inlining"
-                        f" ({complexity=} <= {threshold=})"
-                    )
-                    sub.inline = True
+                if _maybe_mark_for_inlining(sub):
                     any_marked = True
     if not any_marked:
         for sub in program.subroutines:
-            if sub.inline is None:
-                complexity = _subroutine_complexity_estimate(sub)
-                threshold = _call_cost_estimate(sub)
-                if complexity <= threshold:
-                    logger.debug(
-                        f"marking simple function {sub.id} for inlining"
-                        f" ({complexity=} <= {threshold=})"
-                    )
-                    sub.inline = True
-                    any_marked = True
+            if sub.inline is None and _maybe_mark_for_inlining(sub):
+                any_marked = True
     return any_marked
 
 
-def _subroutine_complexity_estimate(sub: models.Subroutine) -> int:
+def _maybe_mark_for_inlining(sub: models.Subroutine) -> bool:
     complexity = sum(
         len(b.phis) + len(b.ops) + len(_not_none(b.terminator).targets()) for b in sub.body
     )
-    return complexity
-
-
-def _call_cost_estimate(sub: models.Subroutine) -> int:
-    return max(3, 1 + len(sub._returns) + len(sub.parameters))  # noqa: SLF001
+    threshold = max(3, 1 + len(sub._returns) + len(sub.parameters))  # noqa: SLF001
+    if complexity <= threshold:
+        logger.debug(
+            f"marking simple function {sub.id} for inlining" f" ({complexity=} <= {threshold=})"
+        )
+        sub.inline = True
+        return True
+    return False
 
 
 def perform_subroutine_inlining(_context: CompileContext, subroutine: models.Subroutine) -> bool:
@@ -265,19 +250,3 @@ class _SubroutineReferenceCollector(IRTraverser):
     def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:
         self.subroutines.add(callsub.target)
         super().visit_invoke_subroutine(callsub)
-
-
-@attrs.define
-class _SubroutineCallCounter(visitor.IRTraverser):
-    subroutines: dict[models.Subroutine, int] = attrs.field(factory=dict)
-
-    def visit_subroutine(self, subroutine: models.Subroutine) -> None:
-        try:
-            self.subroutines[subroutine] += 1
-        except KeyError:
-            self.subroutines[subroutine] = 1
-            self.visit_all_blocks(subroutine.body)
-
-    @typing.override
-    def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:
-        self.visit_subroutine(callsub.target)
