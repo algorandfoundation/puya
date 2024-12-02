@@ -11,7 +11,6 @@ from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.context import TMP_VAR_INDICATOR
 from puya.ir.optimize._call_graph import CallGraph
-from puya.ir.ssa import TrivialPhiRemover
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
 from puya.utils import unique
@@ -112,9 +111,6 @@ def perform_subroutine_inlining(_context: CompileContext, subroutine: models.Sub
             blocks_to_visit.extend(created_blocks)
             idx_after_block = subroutine.body.index(block) + 1
             subroutine.body[idx_after_block:idx_after_block] = created_blocks
-            for block in created_blocks:
-                for phi in block.phis:
-                    TrivialPhiRemover.try_remove(phi, subroutine.body)  # TODO: shouldn't be needed
             subroutine.validate_with_ssa()
             modified = True
             break
@@ -175,36 +171,60 @@ def _inline_call(
             )
         )
     # 4. replace returns with unconditional branches to the second block half
-    return_phis = [models.Phi(register=ret_target) for ret_target in return_targets]
-    for new_block_idx, new_block in enumerate(new_blocks):
-        if not isinstance(new_block.terminator, models.SubroutineReturn):
-            continue
-        for ret_idx, ret_phi in enumerate(return_phis):
-            ret_value = new_block.terminator.result[ret_idx]
-            if not isinstance(ret_value, models.Register):
-                tmp_value = ret_value
-                tmp_reg_name = f"{call.target.id}{TMP_VAR_INDICATOR}{ret_idx}"
-                ret_value = models.Register(
-                    ir_type=ret_value.ir_type,
-                    source_location=ret_value.source_location,
-                    name=tmp_reg_name,
-                    version=new_block_idx + register_offsets[tmp_reg_name],
+    returning_blocks = [
+        (new_block, retsub)
+        for new_block in new_blocks
+        if isinstance((retsub := new_block.terminator), models.SubroutineReturn)
+    ]
+    if not returning_blocks:
+        logger.debug("TADAAAAAA", location=call.source_location)
+        return new_blocks
+    elif len(returning_blocks) == 1:
+        ((new_block, retsub),) = returning_blocks
+        if return_targets:
+            new_block.ops.append(
+                models.Assignment(
+                    targets=return_targets,
+                    source=models.ValueTuple(values=retsub.result, source_location=None),
+                    source_location=None,
                 )
-                new_block.ops.append(
-                    models.Assignment(
-                        targets=[ret_value],
-                        source=tmp_value,
-                        source_location=tmp_value.source_location,
-                    )
-                )
-            ret_phi.args.append(models.PhiArgument(value=ret_value, through=new_block))
+            )
         new_block.terminator = models.Goto(
             target=return_block, source_location=call.source_location
         )
         return_block.predecessors.append(new_block)
-    # 5. return value(s) become phi node(s) in the second block half
-    return_block.phis = return_phis
-    return [*new_blocks, return_block]
+        return [*new_blocks, return_block]
+    else:
+        return_phis = [models.Phi(register=ret_target) for ret_target in return_targets]
+        for new_block_idx, new_block in enumerate(new_blocks):
+            if not isinstance(new_block.terminator, models.SubroutineReturn):
+                continue  # TODO
+            for ret_idx, ret_phi in enumerate(return_phis):
+                ret_value = new_block.terminator.result[ret_idx]
+                if not isinstance(ret_value, models.Register):
+                    tmp_value = ret_value
+                    tmp_reg_name = f"{call.target.id}{TMP_VAR_INDICATOR}{ret_idx}"
+                    ret_value = models.Register(
+                        ir_type=ret_value.ir_type,
+                        source_location=ret_value.source_location,
+                        name=tmp_reg_name,
+                        version=new_block_idx + register_offsets[tmp_reg_name],
+                    )
+                    new_block.ops.append(
+                        models.Assignment(
+                            targets=[ret_value],
+                            source=tmp_value,
+                            source_location=tmp_value.source_location,
+                        )
+                    )
+                ret_phi.args.append(models.PhiArgument(value=ret_value, through=new_block))
+            new_block.terminator = models.Goto(
+                target=return_block, source_location=call.source_location
+            )
+            return_block.predecessors.append(new_block)
+        # 5. return value(s) become phi node(s) in the second block half
+        return_block.phis = return_phis
+        return [*new_blocks, return_block]
 
 
 def _not_none[T](x: T | None) -> T:
