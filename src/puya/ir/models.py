@@ -561,7 +561,7 @@ class BasicBlock(Context):
     def successors(self) -> "Sequence[BasicBlock]":
         if self.terminator is None:
             return ()
-        return self.terminator.targets()
+        return self.terminator.unique_targets
 
     @property
     def is_empty(self) -> bool:
@@ -932,8 +932,6 @@ class Contract(Context):
 
     def all_subroutines(self) -> Iterable[Subroutine]:
         from itertools import chain
-
-        from puya.utils import unique
 
         yield from unique(
             chain(

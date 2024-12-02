@@ -13,7 +13,6 @@ from puya.ir.context import TMP_VAR_INDICATOR
 from puya.ir.optimize._call_graph import CallGraph
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
-from puya.utils import unique
 
 logger = log.get_logger(__name__)
 
@@ -137,7 +136,7 @@ def _inline_call(
         new_block.id = next(next_id)
     # 2. split the block after the callsub instruction
     # 2.a. create the return block
-    return_block = models.BasicBlock(
+    split_block = models.BasicBlock(
         id=next(next_id),
         phis=[],
         ops=block.ops[op_index + 1 :],
@@ -146,13 +145,13 @@ def _inline_call(
         comment=f"after_inlined_{call.target.id}",
         source_location=block.source_location,
     )
-    for succ in unique(return_block.successors):
+    for succ in split_block.successors:
         for phi in succ.phis:
             for phi_arg in phi.args:
                 if phi_arg.through == block:
-                    phi_arg.through = return_block
+                    phi_arg.through = split_block
         succ.predecessors.remove(block)
-        succ.predecessors.append(return_block)
+        succ.predecessors.append(split_block)
     # 2.b. update the current block
     del block.ops[op_index:]
     block.terminator = models.Goto(target=new_blocks[0], source_location=call.source_location)
@@ -189,10 +188,10 @@ def _inline_call(
                 )
             )
         new_block.terminator = models.Goto(
-            target=return_block, source_location=call.source_location
+            target=split_block, source_location=call.source_location
         )
-        return_block.predecessors.append(new_block)
-        return [*new_blocks, return_block]
+        split_block.predecessors.append(new_block)
+        return [*new_blocks, split_block]
     else:
         return_phis = [models.Phi(register=ret_target) for ret_target in return_targets]
         for new_block_idx, (new_block, return_values) in enumerate(returning_blocks):
@@ -216,12 +215,12 @@ def _inline_call(
                     )
                 ret_phi.args.append(models.PhiArgument(value=ret_value, through=new_block))
             new_block.terminator = models.Goto(
-                target=return_block, source_location=call.source_location
+                target=split_block, source_location=call.source_location
             )
-            return_block.predecessors.append(new_block)
+            split_block.predecessors.append(new_block)
         # 5. return value(s) become phi node(s) in the second block half
-        return_block.phis = return_phis
-        return [*new_blocks, return_block]
+        split_block.phis = return_phis
+        return [*new_blocks, split_block]
 
 
 def _not_none[T](x: T | None) -> T:
