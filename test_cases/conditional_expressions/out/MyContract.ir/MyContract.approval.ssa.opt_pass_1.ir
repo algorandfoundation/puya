@@ -13,13 +13,13 @@ main test_cases.conditional_expressions.contract.MyContract.approval_program:
         let ternary_result%0#0: uint64 = 0u
         goto block@3
     block@2: // ternary_false_L14
-        let val#6: uint64 = 1u
         let tmp%0#7: bool = 1u
         (assert tmp%0#7) // Can't be 42
         (log "side_effecting_op")
+        let ternary_result%0#1: uint64 = 1u
         goto block@3
     block@3: // ternary_merge_L14
-        let e#0: uint64 = φ(ternary_result%0#0 <- block@1, val#6 <- block@2)
+        let e#0: uint64 = φ(ternary_result%0#0 <- block@1, ternary_result%0#1 <- block@2)
         let tmp%0#6: bool = 1u
         (assert tmp%0#6) // Can't be 42
         (log "expensive_op")
@@ -29,13 +29,13 @@ main test_cases.conditional_expressions.contract.MyContract.approval_program:
         let ternary_result%1#0: uint64 = 3u
         goto block@6
     block@5: // ternary_false_L15
-        let val#4: uint64 = 42u
         let tmp%0#5: bool = 0u
         (assert tmp%0#5) // Can't be 42
         (log "side_effecting_op")
+        let ternary_result%1#1: uint64 = 42u
         goto block@6
     block@6: // ternary_merge_L15
-        let f#0: uint64 = φ(ternary_result%1#0 <- block@4, val#4 <- block@5)
+        let f#0: uint64 = φ(ternary_result%1#0 <- block@4, ternary_result%1#1 <- block@5)
         let tmp%0#4: bool = 1u
         (assert tmp%0#4) // Can't be 42
         (log "side_effecting_op")
@@ -45,13 +45,13 @@ main test_cases.conditional_expressions.contract.MyContract.approval_program:
         let ternary_result%2#0: uint64 = 0u
         goto block@9
     block@8: // ternary_false_L17
-        let val#2: uint64 = 42u
         let tmp%0#3: bool = 0u
         (assert tmp%0#3) // Can't be 42
         (log "expensive_op")
+        let ternary_result%2#1: uint64 = 42u
         goto block@9
     block@9: // ternary_merge_L17
-        let g#0: uint64 = φ(ternary_result%2#0 <- block@7, val#2 <- block@8)
+        let g#0: uint64 = φ(ternary_result%2#0 <- block@7, ternary_result%2#1 <- block@8)
         let tmp%0#2: bool = 1u
         (assert tmp%0#2) // Can't be 42
         (log "side_effecting_op")
@@ -61,13 +61,13 @@ main test_cases.conditional_expressions.contract.MyContract.approval_program:
         let ternary_result%3#0: uint64 = 2u
         goto block@12
     block@11: // ternary_false_L18
-        let val#0: uint64 = 3u
         let tmp%0#1: bool = 1u
         (assert tmp%0#1) // Can't be 42
         (log "expensive_op")
+        let ternary_result%3#1: uint64 = 3u
         goto block@12
     block@12: // ternary_merge_L18
-        let h#0: uint64 = φ(ternary_result%3#0 <- block@10, val#0 <- block@11)
+        let h#0: uint64 = φ(ternary_result%3#0 <- block@10, ternary_result%3#1 <- block@11)
         let tmp%6#0: bool = (< 2u c#0)
         goto tmp%6#0 ? block@13 : block@14
     block@13: // ternary_true_L20

@@ -1022,37 +1022,37 @@ burn:                                                                           
     l-load-copy amount#0 2                                                                    (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | amount#0,issued#0,supply#0,amount#0 (copy)
     *                                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | amount#0,issued#0,tmp%1#1
     l-load-copy issued#0 1                                                                    (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | amount#0,issued#0,tmp%1#1,issued#0 (copy)
-    /                                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | amount#0,issued#0,tmp%2#1
+    /                                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | amount#0,issued#0,a_amt#0
     // amm/contract.py:193
     // supply=self._current_b_balance(),
-    callsub _current_b_balance                                                                (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | amount#0,issued#0,tmp%2#1,supply#0
+    callsub _current_b_balance                                                                (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | amount#0,issued#0,a_amt#0,supply#0
     // amm/contract.py:346
     // return supply * amount // issued
-    l-load amount#0 3                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | issued#0,tmp%2#1,supply#0,amount#0
-    *                                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | issued#0,tmp%2#1,tmp%1#1
-    l-load issued#0 2                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#1,tmp%1#1,issued#0
-    /                                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#1,tmp%2#2
+    l-load amount#0 3                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | issued#0,a_amt#0,supply#0,amount#0
+    *                                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | issued#0,a_amt#0,tmp%1#1
+    l-load issued#0 2                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,tmp%1#1,issued#0
+    /                                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0
     // amm/contract.py:198
     // do_asset_transfer(receiver=Txn.sender, asset=self.asset_a, amount=a_amt)
-    txn Sender                                                                                (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#1,tmp%2#2,tmp%17#0
-    int 0                                                                                     (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#1,tmp%2#2,tmp%17#0,0
-    byte "asset_a"                                                                            (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#1,tmp%2#2,tmp%17#0,0,"asset_a"
-    app_global_get_ex                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#1,tmp%2#2,tmp%17#0,maybe_value%4#0,maybe_exists%4#0
-    assert // check self.asset_a exists                                                       (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#1,tmp%2#2,tmp%17#0,maybe_value%4#0
-    l-load tmp%17#0 1                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#1,tmp%2#2,maybe_value%4#0,tmp%17#0
-    l-load maybe_value%4#0 1                                                                  (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#1,tmp%2#2,tmp%17#0,maybe_value%4#0
-    l-load tmp%2#1 3                                                                          (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#2,tmp%17#0,maybe_value%4#0,tmp%2#1
-    callsub do_asset_transfer                                                                 (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#2
+    txn Sender                                                                                (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%17#0
+    int 0                                                                                     (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%17#0,0
+    byte "asset_a"                                                                            (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%17#0,0,"asset_a"
+    app_global_get_ex                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%17#0,maybe_value%4#0,maybe_exists%4#0
+    assert // check self.asset_a exists                                                       (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%17#0,maybe_value%4#0
+    l-load tmp%17#0 1                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,maybe_value%4#0,tmp%17#0
+    l-load maybe_value%4#0 1                                                                  (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%17#0,maybe_value%4#0
+    l-load a_amt#0 3                                                                          (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%17#0,maybe_value%4#0,a_amt#0
+    callsub do_asset_transfer                                                                 (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0
     // amm/contract.py:201
     // do_asset_transfer(receiver=Txn.sender, asset=self.asset_b, amount=b_amt)
-    txn Sender                                                                                (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#2,tmp%18#0
-    int 0                                                                                     (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#2,tmp%18#0,0
-    byte "asset_b"                                                                            (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#2,tmp%18#0,0,"asset_b"
-    app_global_get_ex                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#2,tmp%18#0,maybe_value%5#0,maybe_exists%5#0
-    assert // check self.asset_b exists                                                       (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#2,tmp%18#0,maybe_value%5#0
-    l-load tmp%18#0 1                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#2,maybe_value%5#0,tmp%18#0
-    l-load maybe_value%5#0 1                                                                  (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%2#2,tmp%18#0,maybe_value%5#0
-    l-load tmp%2#2 2                                                                          (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%18#0,maybe_value%5#0,tmp%2#2
+    txn Sender                                                                                (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%18#0
+    int 0                                                                                     (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%18#0,0
+    byte "asset_b"                                                                            (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%18#0,0,"asset_b"
+    app_global_get_ex                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%18#0,maybe_value%5#0,maybe_exists%5#0
+    assert // check self.asset_b exists                                                       (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%18#0,maybe_value%5#0
+    l-load tmp%18#0 1                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,maybe_value%5#0,tmp%18#0
+    l-load maybe_value%5#0 1                                                                  (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%18#0,maybe_value%5#0
+    l-load b_amt#0 2                                                                          (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%18#0,maybe_value%5#0,b_amt#0
     callsub do_asset_transfer                                                                 (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 |
     // amm/contract.py:202
     // self._update_ratio()
@@ -1210,16 +1210,16 @@ swap_switch_case_next@4:                                                        
     // amm/contract.py:353
     // return out_total // in_total
     l-load in_total#0 1                                                                       (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | out_total#0,in_total#0
-    /                                                                                         (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | tmp%4#1
+    /                                                                                         (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | to_swap#0
     // amm/contract.py:246
     // assert to_swap > 0, "send amount too low"
-    l-load-copy tmp%4#1 0                                                                     (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | tmp%4#1,tmp%4#1 (copy)
-    assert // send amount too low                                                             (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | tmp%4#1
+    l-load-copy to_swap#0 0                                                                   (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | to_swap#0,to_swap#0 (copy)
+    assert // send amount too low                                                             (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | to_swap#0
     // amm/contract.py:248
     // do_asset_transfer(receiver=Txn.sender, asset=out_asset, amount=to_swap)
-    txn Sender                                                                                (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | tmp%4#1,tmp%10#0
-    f-load out_asset#0                                                                        (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | tmp%4#1,tmp%10#0,out_asset#0
-    l-load tmp%4#1 2                                                                          (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | tmp%10#0,out_asset#0,tmp%4#1
+    txn Sender                                                                                (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | to_swap#0,tmp%10#0
+    f-load out_asset#0                                                                        (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | to_swap#0,tmp%10#0,out_asset#0
+    l-load to_swap#0 2                                                                        (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | tmp%10#0,out_asset#0,to_swap#0
     callsub do_asset_transfer                                                                 (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 |
     // amm/contract.py:249
     // self._update_ratio()

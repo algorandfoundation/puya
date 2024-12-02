@@ -392,18 +392,18 @@ subroutine examples.amm.contract.ConstantProductAMM.burn(pool_xfer: uint64, pool
         let tmp%0#1: uint64 = (- 10000000000u pool_balance#0)
         let issued#0: uint64 = (- tmp%0#1 amount#0)
         let tmp%1#1: uint64 = (* supply#0 amount#0)
-        let tmp%2#1: uint64 = (/ tmp%1#1 issued#0)
+        let a_amt#0: uint64 = (/ tmp%1#1 issued#0)
         let supply#1: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
         let tmp%1#2: uint64 = (* supply#1 amount#0)
-        let tmp%2#2: uint64 = (/ tmp%1#2 issued#0)
+        let b_amt#0: uint64 = (/ tmp%1#2 issued#0)
         let tmp%17#0: bytes = (txn Sender)
         let (maybe_value%4#0: uint64, maybe_exists%4#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%4#0) // check self.asset_a exists
-        examples.amm.contract.do_asset_transfer(tmp%17#0, maybe_value%4#0, tmp%2#1)
+        examples.amm.contract.do_asset_transfer(tmp%17#0, maybe_value%4#0, a_amt#0)
         let tmp%18#0: bytes = (txn Sender)
         let (maybe_value%5#0: uint64, maybe_exists%5#0: bool) = (app_global_get_ex 0u "asset_b")
         (assert maybe_exists%5#0) // check self.asset_b exists
-        examples.amm.contract.do_asset_transfer(tmp%18#0, maybe_value%5#0, tmp%2#2)
+        examples.amm.contract.do_asset_transfer(tmp%18#0, maybe_value%5#0, b_amt#0)
         examples.amm.contract.ConstantProductAMM._update_ratio()
         return 
 
@@ -455,9 +455,9 @@ subroutine examples.amm.contract.ConstantProductAMM.swap(swap_xfer: uint64, a_as
         let tmp%2#1: uint64 = (* in_amount#0 995u)
         let in_total#0: uint64 = (+ tmp%1#1 tmp%2#1)
         let out_total#0: uint64 = (* tmp%2#1 out_supply#2)
-        let tmp%4#1: uint64 = (/ out_total#0 in_total#0)
-        (assert tmp%4#1) // send amount too low
+        let to_swap#0: uint64 = (/ out_total#0 in_total#0)
+        (assert to_swap#0) // send amount too low
         let tmp%10#0: bytes = (txn Sender)
-        examples.amm.contract.do_asset_transfer(tmp%10#0, out_asset#2, tmp%4#1)
+        examples.amm.contract.do_asset_transfer(tmp%10#0, out_asset#2, to_swap#0)
         examples.amm.contract.ConstantProductAMM._update_ratio()
         return 
