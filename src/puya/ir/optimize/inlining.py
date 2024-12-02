@@ -196,11 +196,9 @@ def _inline_call(
         return [*new_blocks, return_block]
     else:
         return_phis = [models.Phi(register=ret_target) for ret_target in return_targets]
-        for new_block_idx, new_block in enumerate(new_blocks):
-            if not isinstance(new_block.terminator, models.SubroutineReturn):
-                continue  # TODO
+        for new_block_idx, (new_block, retsub) in enumerate(returning_blocks):
             for ret_idx, ret_phi in enumerate(return_phis):
-                ret_value = new_block.terminator.result[ret_idx]
+                ret_value = retsub.result[ret_idx]
                 if not isinstance(ret_value, models.Register):
                     tmp_value = ret_value
                     tmp_reg_name = f"{call.target.id}{TMP_VAR_INDICATOR}{ret_idx}"
