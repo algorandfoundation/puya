@@ -36,21 +36,19 @@ main test_cases.tuple_support.tuple_support.TupleSupport.__algopy_entrypoint_wit
         (assert tmp%7#0)
         let tmp%8#0: bool = (== 3u tup.1#2)
         (assert tmp%8#0)
+        let (awst_tmp%0#0: uint64, awst_tmp%1#0: uint64) = test_cases.tuple_support.tuple_support.get_tuple(1u, 2u)
         let tmp%9#0: bool = 1u
         let tmp%10#0: bool = 1u
         let tmp%11#0: bool = (|| tmp%9#0 tmp%10#0)
         goto tmp%11#0 ? block@7 : block@8
     block@7: // ternary_true_L29
-        let ternary_result%0.0#0: uint64 = 1u
-        let ternary_result%0.1#0: uint64 = 2u
         goto block@9
     block@8: // ternary_false_L29
-        let a#4: uint64 = 2u
-        let b#5: uint64 = 1u
+        let (ternary_result%0.0#1: uint64, ternary_result%0.1#1: uint64) = test_cases.tuple_support.tuple_support.get_tuple(2u, 1u)
         goto block@9
     block@9: // ternary_merge_L29
-        let m#0: uint64 = φ(ternary_result%0.0#0 <- block@7, a#4 <- block@8)
-        let n#0: uint64 = φ(ternary_result%0.1#0 <- block@7, b#5 <- block@8)
+        let m#0: uint64 = φ(awst_tmp%0#0 <- block@7, ternary_result%0.0#1 <- block@8)
+        let n#0: uint64 = φ(awst_tmp%1#0 <- block@7, ternary_result%0.1#1 <- block@8)
         let tmp%12#0: bool = (== m#0 1u)
         let tmp%13#0: bool = (== n#0 2u)
         let tmp%14#0: bool = (&& tmp%12#0 tmp%13#0)
@@ -179,3 +177,7 @@ subroutine test_cases.tuple_support.tuple_support.add_three_values(values.0: uin
         goto block@1
     block@5: // after_for_L141
         return total#2
+
+subroutine test_cases.tuple_support.tuple_support.get_tuple(a: uint64, b: uint64) -> <uint64, uint64>:
+    block@0: // L71
+        return a#0 b#0

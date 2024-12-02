@@ -188,11 +188,14 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement() -> void:
     block@0: // L106
-        let data_up_to_item%0#0: bytes = 0x00000000000000030405001a000004000000000005040026004d
-        let data_beyond_item%0#0: bytes = 0x0000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565
+        let item_offset%0#0: uint64 = 26u
+        let data_up_to_item%0#0: bytes = (extract3 0x00000000000000030405001a000004000000000005040026004d0004000900036265650001610000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565 0u item_offset%0#0)
+        let next_item_offset%0#0: uint64 = 38u
+        let total_data_length%0#0: uint64 = 89u
+        let data_beyond_item%0#0: bytes = (substring3 0x00000000000000030405001a000004000000000005040026004d0004000900036265650001610000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565 next_item_offset%0#0 total_data_length%0#0)
         let updated_data%0#0: bytes = (concat data_up_to_item%0#0 0x000400070001610003626565)
         let updated_data%1#0: bytes = (concat updated_data%0#0 data_beyond_item%0#0)
-        let item_length%0#0: uint64 = 12u
+        let item_length%0#0: uint64 = (- next_item_offset%0#0 item_offset%0#0)
         let tail_offset%0#0: uint64 = (extract_uint16 updated_data%1#0 22u)
         let tail_offset%1#0: uint64 = (+ tail_offset%0#0 12u)
         let tail_offset%2#0: uint64 = (- tail_offset%1#0 item_length%0#0)
