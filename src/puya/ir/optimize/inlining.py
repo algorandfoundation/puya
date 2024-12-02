@@ -44,13 +44,12 @@ def analyse_subroutines_for_inlining(program: models.Program) -> bool:
                 )
             sub.inline = False
         elif sub.inline is None:
-            reference_count = call_graph().reference_count(sub)
-            if reference_count > 1 and call_graph().maybe_reentrant(sub):
+            if call_graph().maybe_reentrant(sub):
                 sub.inline = False
                 logger.debug(
                     f"function might be re-entrant: {sub.id}", location=sub.source_location
                 )
-            elif reference_count == 1:
+            elif call_graph().reference_count(sub) == 1:
                 logger.debug(f"marking single-use function {sub.id} for inlining")
                 sub.inline = True
                 any_marked = True

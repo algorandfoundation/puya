@@ -38,6 +38,9 @@ class CallGraph:
         return typing.cast(int, self._graph.in_degree(sub.id))
 
     def maybe_reentrant(self, sub: models.Subroutine) -> bool:
+        reference_count = self.reference_count(sub)
+        if reference_count <= 1:
+            return False
         successors = list(self._graph.successors(sub.id))
         if sub.id in successors:
             return True
