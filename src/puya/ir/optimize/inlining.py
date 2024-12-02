@@ -143,7 +143,7 @@ def _inline_call(
         ops=block.ops[op_index + 1 :],
         terminator=block.terminator,
         predecessors=[],
-        comment=f"split from inlining callsub op of {block.id} at index {op_index}",
+        comment=f"after_inlined_{call.target.id}",
         source_location=block.source_location,
     )
     for succ in unique(return_block.successors):
@@ -177,7 +177,6 @@ def _inline_call(
         if isinstance(new_block.terminator, models.SubroutineReturn)
     ]
     if not returning_blocks:
-        logger.debug("TADAAAAAA", location=call.source_location)
         return new_blocks
     elif len(returning_blocks) == 1:
         ((new_block, return_values),) = returning_blocks
