@@ -124,8 +124,8 @@ def _inline_call(
     return_targets: Sequence[models.Register],
     host_assigned_registers: list[models.Register],
 ) -> list[models.BasicBlock]:
-    # 1. make a copy of the entire block graph, and adjust register versions
-    #    to avoid any collisions, as well as updating block IDs
+    # make a copy of the entire block graph, and adjust register versions
+    # to avoid any collisions, as well as updating block IDs
     register_offsets = defaultdict[str, int](int)
     for host_reg in host_assigned_registers:
         register_offsets[host_reg.name] = max(
@@ -134,29 +134,16 @@ def _inline_call(
     new_blocks = inlined_blocks(call.target, register_offsets)
     for new_block in new_blocks:
         new_block.id = next(next_id)
-    # 2. split the block after the callsub instruction
-    # 2.a. create the return block
-    split_block = models.BasicBlock(
-        id=next(next_id),
-        phis=[],
-        ops=block.ops[op_index + 1 :],
-        terminator=block.terminator,
-        predecessors=[],
-        comment=f"after_inlined_{call.target.id}",
-        source_location=block.source_location,
-    )
-    for succ in split_block.successors:
-        for phi in succ.phis:
-            for phi_arg in phi.args:
-                if phi_arg.through == block:
-                    phi_arg.through = split_block
-        succ.predecessors.remove(block)
-        succ.predecessors.append(split_block)
-    # 2.b. update the current block
+    # split the block after the callsub instruction
+    ops_after = block.ops[op_index + 1 :]
     del block.ops[op_index:]
+    terminator_after = block.terminator
+    assert terminator_after is not None
+    for succ in terminator_after.unique_targets:
+        succ.predecessors.remove(block)
     block.terminator = models.Goto(target=new_blocks[0], source_location=call.source_location)
     new_blocks[0].predecessors.append(block)
-    # 3. assign parameters in current block
+    # assign parameters before call
     for arg, param in zip(call.args, call.target.parameters, strict=True):
         updated_param = models.Register(
             name=param.name,
@@ -169,15 +156,42 @@ def _inline_call(
                 targets=[updated_param], source=arg, source_location=arg.source_location
             )
         )
-    # 4. replace returns with unconditional branches to the second block half
+
     returning_blocks = [
         (new_block, new_block.terminator.result)
         for new_block in new_blocks
         if isinstance(new_block.terminator, models.SubroutineReturn)
     ]
     if not returning_blocks:
+        # in the case the inlined subroutine never returned, then there's no control flow
+        # to pass on and no returns to assign
         return new_blocks
-    elif len(returning_blocks) == 1:
+    # create the return block and insert as a predecessor of the original blocks target(s)
+    split_block = models.BasicBlock(
+        id=next(next_id),
+        phis=[],
+        ops=ops_after,
+        terminator=terminator_after,
+        predecessors=[],
+        comment=f"after_inlined_{call.target.id}",
+        source_location=block.source_location,
+    )
+    for succ in split_block.successors:
+        for phi in succ.phis:
+            for phi_arg in phi.args:
+                if phi_arg.through == block:
+                    phi_arg.through = split_block
+        succ.predecessors.append(split_block)
+    # replace inlined retsubs with unconditional branches to the second block half
+    for new_block, _ in returning_blocks:
+        new_block.terminator = models.Goto(
+            target=split_block, source_location=call.source_location
+        )
+        split_block.predecessors.append(new_block)
+
+    if len(returning_blocks) == 1:
+        # if there is a single retsub, we can assign to the return variables in that block
+        # directly without violating SSA
         ((new_block, return_values),) = returning_blocks
         if return_targets:
             new_block.ops.append(
@@ -187,12 +201,10 @@ def _inline_call(
                     source_location=None,
                 )
             )
-        new_block.terminator = models.Goto(
-            target=split_block, source_location=call.source_location
-        )
-        split_block.predecessors.append(new_block)
         return [*new_blocks, split_block]
     else:
+        # otherwise when there's more than on restsub block,
+        # return value(s) become phi node(s) in the second block half
         return_phis = [models.Phi(register=ret_target) for ret_target in return_targets]
         for new_block_idx, (new_block, return_values) in enumerate(returning_blocks):
             for ret_idx, ret_phi in enumerate(return_phis):
@@ -214,12 +226,9 @@ def _inline_call(
                         )
                     )
                 ret_phi.args.append(models.PhiArgument(value=ret_value, through=new_block))
-            new_block.terminator = models.Goto(
-                target=split_block, source_location=call.source_location
-            )
-            split_block.predecessors.append(new_block)
-        # 5. return value(s) become phi node(s) in the second block half
+
         split_block.phis = return_phis
+        attrs.validate(split_block)
         return [*new_blocks, split_block]
 
 
