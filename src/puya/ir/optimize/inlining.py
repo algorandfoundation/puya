@@ -78,6 +78,11 @@ def analyse_subroutines_for_inlining(
 def perform_subroutine_inlining(
     context: IROptimizationContext, subroutine: models.Subroutine
 ) -> bool:
+    inline_calls_to = {
+        to_id for from_id, to_id in context.inlineable_calls if from_id == subroutine.id
+    }
+    if not inline_calls_to:
+        return False
     modified = False
     blocks_to_visit = subroutine.body.copy()
     max_block_id = max(_not_none(block.id) for block in blocks_to_visit)
@@ -88,11 +93,9 @@ def perform_subroutine_inlining(
             match op:
                 case models.Assignment(
                     targets=return_targets, source=models.InvokeSubroutine() as call
-                ) if (subroutine.id, call.target.id) in context.inlineable_calls:
+                ) if call.target.id in inline_calls_to:
                     pass
-                case models.InvokeSubroutine() as call if (
-                    (subroutine.id, call.target.id) in context.inlineable_calls
-                ):
+                case models.InvokeSubroutine() as call if call.target.id in inline_calls_to:
                     return_targets = []
                 case _:
                     continue
@@ -111,9 +114,8 @@ def perform_subroutine_inlining(
             blocks_to_visit.extend(created_blocks)
             idx_after_block = subroutine.body.index(block) + 1
             subroutine.body[idx_after_block:idx_after_block] = created_blocks
-            subroutine.validate_with_ssa()
             modified = True
-            break
+            break  # we're done with this block, since it's been split
     return modified
 
 
