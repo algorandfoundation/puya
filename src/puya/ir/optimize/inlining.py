@@ -18,14 +18,7 @@ logger = log.get_logger(__name__)
 
 
 def analyse_subroutines_for_inlining(program: models.Program) -> bool:
-    _call_graph: CallGraph | None = None
-
-    def call_graph() -> CallGraph:
-        nonlocal _call_graph
-        if _call_graph is None:
-            _call_graph = CallGraph.build(program)
-        return _call_graph
-
+    call_graph = CallGraph(program)
     any_marked = False
     for sub in program.subroutines:
         if sub.inline is False:
@@ -42,18 +35,18 @@ def analyse_subroutines_for_inlining(program: models.Program) -> bool:
                 )
             sub.inline = False
         elif sub.inline is None:
-            if call_graph().maybe_reentrant(sub):
+            if call_graph.maybe_reentrant(sub):
                 sub.inline = False
                 logger.debug(
                     f"function might be re-entrant: {sub.id}", location=sub.source_location
                 )
-            elif call_graph().reference_count(sub) == 1:
+            elif call_graph.reference_count(sub) == 1:
                 logger.debug(f"marking single-use function {sub.id} for inlining")
                 sub.inline = True
                 any_marked = True
     if not any_marked:
         for sub in program.subroutines:
-            if sub.inline is None and call_graph().has_maybe_inlineable_calls(sub):  # noqa: SIM102
+            if sub.inline is None and call_graph.has_maybe_inlineable_calls(sub):  # noqa: SIM102
                 if _maybe_mark_for_inlining(sub):
                     any_marked = True
     if not any_marked:

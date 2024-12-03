@@ -1,4 +1,5 @@
 import typing
+from functools import cached_property
 
 import networkx as nx  # type: ignore[import-untyped]
 
@@ -6,16 +7,15 @@ from puya.ir import models
 
 
 class CallGraph:
-    def __init__(self, graph: nx.MultiDiGraph) -> None:
-        self._graph = graph
-        self._paths = dict(nx.all_pairs_shortest_path(graph))
+    def __init__(self, program: models.Program) -> None:
+        self._program = program
 
-    @classmethod
-    def build(cls, program: models.Program) -> typing.Self:
+    @cached_property
+    def _graph(self) -> nx.MultiDiGraph:
         graph = nx.MultiDiGraph()
-        for sub in program.all_subroutines:
+        for sub in self._program.all_subroutines:
             graph.add_node(sub.id, ref=sub)
-        for sub in program.all_subroutines:
+        for sub in self._program.all_subroutines:
             for block in sub.body:
                 for op in block.ops:
                     match op:
@@ -24,7 +24,11 @@ class CallGraph:
                             | models.Assignment(source=models.InvokeSubroutine(target=target))
                         ):
                             graph.add_edge(sub.id, target.id)
-        return cls(graph)
+        return graph
+
+    @cached_property
+    def _paths(self) -> dict[str, dict[str, object]]:
+        return dict(nx.all_pairs_shortest_path(self._graph))
 
     def has_maybe_inlineable_calls(self, sub: models.Subroutine) -> bool:
         for target_id in self._graph.successors(sub.id):
