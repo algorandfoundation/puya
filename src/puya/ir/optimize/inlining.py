@@ -5,23 +5,24 @@ from collections import defaultdict
 from collections.abc import Iterable, Iterator, Mapping, Sequence
 
 import attrs
+import networkx as nx  # type: ignore[import-untyped]
 
 from puya import log
 from puya.ir import models
 from puya.ir.context import TMP_VAR_INDICATOR
 from puya.ir.optimize._call_graph import CallGraph
-from puya.ir.optimize._context import IROptimizationContext
+from puya.ir.optimize._context import IROptimizationPassContext
+from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
+from puya.utils import lazy_setdefault
 
 logger = log.get_logger(__name__)
 
 
 def analyse_subroutines_for_inlining(
-    context: IROptimizationContext, program: models.Program
+    context: IROptimizationPassContext, program: models.Program
 ) -> None:
-    context.inlineable_calls.clear()
-
     call_graph = CallGraph(program)
     for sub in program.subroutines:
         if sub.inline is False:
@@ -84,12 +85,12 @@ def analyse_subroutines_for_inlining(
 
 
 def perform_subroutine_inlining(
-    context: IROptimizationContext, subroutine: models.Subroutine
+    context: IROptimizationPassContext, subroutine: models.Subroutine
 ) -> bool:
     inline_calls_to = {
         to_id for from_id, to_id in context.inlineable_calls if from_id == subroutine.id
     }
-    if not inline_calls_to:
+    if not (inline_calls_to or context.options.optimization_level >= 2):
         return False
     modified = False
     blocks_to_visit = subroutine.body.copy()
@@ -101,16 +102,36 @@ def perform_subroutine_inlining(
             match op:
                 case models.Assignment(
                     targets=return_targets, source=models.InvokeSubroutine() as call
-                ) if call.target.id in inline_calls_to:
+                ):
                     pass
-                case models.InvokeSubroutine() as call if call.target.id in inline_calls_to:
+                case models.InvokeSubroutine() as call:
                     return_targets = []
                 case _:
                     continue
-            logger.debug(
-                f"inlining call to {call.target.id} in {subroutine.id}",
-                location=op.source_location,
-            )
+            if call.target.id in inline_calls_to:
+                logger.debug(
+                    f"inlining call to {call.target.id} in {subroutine.id}",
+                    location=op.source_location,
+                )
+            elif (
+                context.options.optimization_level >= 2
+                and call.target.inline is None
+                and all(isinstance(arg, models.Constant) for arg in call.args)
+                and lazy_setdefault(
+                    context.constant_with_constant_args,
+                    call.target.id,
+                    lambda _: _ConstantFunctionDetector.is_constant_with_constant_args(
+                        call.target
+                    ),
+                )
+            ):
+                logger.debug(
+                    f"constant function call to {call.target.id} in {subroutine.id}",
+                    location=op.source_location,
+                )
+            else:
+                continue
+
             remainder, created_blocks = _inline_call(
                 block,
                 call,
@@ -289,3 +310,94 @@ class _SubroutineReferenceCollector(IRTraverser):
     def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:
         self.subroutines.add(callsub.target)
         super().visit_invoke_subroutine(callsub)
+
+
+_COMPILE_TIME_CONSTANT_OPS = PURE_AVM_OPS.union(("assert",)) - frozenset(
+    [
+        "txn",
+        "arg",
+        "arg_0",
+        "arg_1",
+        "arg_2",
+        "arg_3",
+        "args",
+        "gaid",
+        "gaids",
+        "gload",
+        "gloads",
+        "gloadss",
+        "txna",
+        "txnas",
+        "gtxn",
+        "gtxna",
+        "gtxnas",
+        "gtxns",
+        "gtxnsa",
+        "gtxnsas",
+        "block",
+    ]
+)
+
+
+class _NonConstantFunctionError(Exception):
+    pass
+
+
+class _ConstantFunctionDetector(IRTraverser):
+    def __init__(self) -> None:
+        self._block_graph = nx.DiGraph()
+
+    def has_cycle(self, *, start_from: int | None = None) -> bool:
+        try:
+            nx.find_cycle(self._block_graph, source=start_from)
+        except nx.NetworkXNoCycle:
+            return False
+        else:
+            return True
+
+    @classmethod
+    def is_constant_with_constant_args(cls, sub: models.Subroutine) -> bool:
+        """Detect if a function is constant assuming all argument are constants"""
+        visitor = cls()
+        try:
+            visitor.visit_all_blocks(sub.body)
+        except _NonConstantFunctionError:
+            return False
+        return not visitor.has_cycle(start_from=sub.entry.id)
+
+    @typing.override
+    def visit_block(self, block: models.BasicBlock) -> None:
+        super().visit_block(block)
+        self._block_graph.add_node(block.id)
+        for target in block.successors:
+            self._block_graph.add_edge(block.id, target.id)
+
+    @typing.override
+    def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:
+        raise _NonConstantFunctionError
+
+    @typing.override
+    def visit_template_var(self, deploy_var: models.TemplateVar) -> None:
+        raise _NonConstantFunctionError
+
+    @typing.override
+    def visit_compiled_contract_reference(self, const: models.CompiledContractReference) -> None:
+        raise _NonConstantFunctionError
+
+    @typing.override
+    def visit_compiled_logicsig_reference(self, const: models.CompiledLogicSigReference) -> None:
+        raise _NonConstantFunctionError
+
+    @typing.override
+    def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> None:
+        if intrinsic.op.code not in _COMPILE_TIME_CONSTANT_OPS:
+            raise _NonConstantFunctionError
+        super().visit_intrinsic_op(intrinsic)
+
+    @typing.override
+    def visit_itxn_constant(self, const: models.ITxnConstant) -> None:
+        raise _NonConstantFunctionError
+
+    @typing.override
+    def visit_inner_transaction_field(self, field: models.InnerTransactionField) -> None:
+        raise _NonConstantFunctionError

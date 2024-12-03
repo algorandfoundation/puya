@@ -6,7 +6,7 @@ import attrs
 from puya import log
 from puya.context import ArtifactCompileContext
 from puya.ir import models
-from puya.ir.optimize._context import IROptimizationContext
+from puya.ir.optimize._context import IROptimizationContext, IROptimizationPassContext
 from puya.ir.optimize.assignments import copy_propagation
 from puya.ir.optimize.collapse_blocks import remove_empty_blocks, remove_linear_jump
 from puya.ir.optimize.compiled_reference import replace_compiled_references
@@ -27,7 +27,7 @@ from puya.ir.to_text_visitor import render_program
 from puya.utils import attrs_extend
 
 MAX_PASSES = 100
-SubroutineOptimizerCallable = Callable[[IROptimizationContext, models.Subroutine], bool]
+SubroutineOptimizerCallable = Callable[[IROptimizationPassContext, models.Subroutine], bool]
 logger = log.get_logger(__name__)
 
 
@@ -46,7 +46,7 @@ class SubroutineOptimization:
         func_desc = func_name.replace("_", " ").title().strip()
         return SubroutineOptimization(id=func_name, desc=func_desc, optimize=func, loop=loop)
 
-    def optimize(self, context: IROptimizationContext, ir: models.Subroutine) -> bool:
+    def optimize(self, context: IROptimizationPassContext, ir: models.Subroutine) -> bool:
         did_modify = self._optimize(context, ir)
         if did_modify:
             while self.loop and self._optimize(context, ir):
@@ -118,13 +118,14 @@ def optimize_program_ir(
     program = deepcopy(program)
     for pass_num in range(1, MAX_PASSES + 1):
         program_modified = False
+        pass_context = attrs_extend(IROptimizationPassContext, context, pass_number=pass_num)
         logger.debug(f"Begin optimization pass {pass_num}/{MAX_PASSES}")
-        analyse_subroutines_for_inlining(context, program)
+        analyse_subroutines_for_inlining(pass_context, program)
         for subroutine in program.all_subroutines:
             logger.debug(f"Optimizing subroutine {subroutine.id}")
             for optimizer in pipeline:
                 logger.debug(f"Optimizer: {optimizer.desc}")
-                if optimizer.optimize(context, subroutine):
+                if optimizer.optimize(pass_context, subroutine):
                     program_modified = True
                 subroutine.validate_with_ssa()
         if remove_unused_subroutines(program):
