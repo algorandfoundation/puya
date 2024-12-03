@@ -52,6 +52,8 @@ def analyse_subroutines_for_inlining(
                         f" because call may be re-entrant",
                         location=sub.source_location,
                     )
+        else:
+            typing.assert_type(sub.inline, None)
     if context.options.optimization_level == 0:
         return
     for sub in program.subroutines:
@@ -109,7 +111,7 @@ def perform_subroutine_inlining(
                 f"inlining call to {call.target.id} in {subroutine.id}",
                 location=op.source_location,
             )
-            created_blocks = _inline_call(
+            remainder, created_blocks = _inline_call(
                 block,
                 call,
                 next_id,
@@ -117,7 +119,12 @@ def perform_subroutine_inlining(
                 return_targets,
                 list(subroutine.get_assigned_registers()),
             )
-            blocks_to_visit.extend(created_blocks)
+            if remainder is not None:
+                # only visit the remainder of the block, the newly created blocks
+                # come from a different subroutine, so shouldn't be tested for inlining
+                # within the curren subroutine
+                blocks_to_visit.append(remainder)
+                created_blocks.append(remainder)
             idx_after_block = subroutine.body.index(block) + 1
             subroutine.body[idx_after_block:idx_after_block] = created_blocks
             modified = True
@@ -132,7 +139,7 @@ def _inline_call(
     op_index: int,
     return_targets: Sequence[models.Register],
     host_assigned_registers: list[models.Register],
-) -> list[models.BasicBlock]:
+) -> tuple[models.BasicBlock | None, list[models.BasicBlock]]:
     # make a copy of the entire block graph, and adjust register versions
     # to avoid any collisions, as well as updating block IDs
     register_offsets = defaultdict[str, int](int)
@@ -140,7 +147,7 @@ def _inline_call(
         register_offsets[host_reg.name] = max(
             register_offsets[host_reg.name], host_reg.version + 1
         )
-    new_blocks = inlined_blocks(call.target, register_offsets)
+    new_blocks = _inlined_blocks(call.target, register_offsets)
     for new_block in new_blocks:
         new_block.id = next(next_id)
     # split the block after the callsub instruction
@@ -174,9 +181,9 @@ def _inline_call(
     if not returning_blocks:
         # in the case the inlined subroutine never returned, then there's no control flow
         # to pass on and no returns to assign
-        return new_blocks
+        return None, new_blocks
     # create the return block and insert as a predecessor of the original blocks target(s)
-    split_block = models.BasicBlock(
+    remainder = models.BasicBlock(
         id=next(next_id),
         phis=[],
         ops=ops_after,
@@ -185,18 +192,16 @@ def _inline_call(
         comment=f"after_inlined_{call.target.id}",
         source_location=block.source_location,
     )
-    for succ in split_block.successors:
+    for succ in remainder.successors:
         for phi in succ.phis:
             for phi_arg in phi.args:
                 if phi_arg.through == block:
-                    phi_arg.through = split_block
-        succ.predecessors.append(split_block)
+                    phi_arg.through = remainder
+        succ.predecessors.append(remainder)
     # replace inlined retsubs with unconditional branches to the second block half
     for new_block, _ in returning_blocks:
-        new_block.terminator = models.Goto(
-            target=split_block, source_location=call.source_location
-        )
-        split_block.predecessors.append(new_block)
+        new_block.terminator = models.Goto(target=remainder, source_location=call.source_location)
+        remainder.predecessors.append(new_block)
 
     if len(returning_blocks) == 1:
         # if there is a single retsub, we can assign to the return variables in that block
@@ -210,7 +215,6 @@ def _inline_call(
                     source_location=None,
                 )
             )
-        return [*new_blocks, split_block]
     else:
         # otherwise when there's more than on restsub block,
         # return value(s) become phi node(s) in the second block half
@@ -236,9 +240,8 @@ def _inline_call(
                     )
                 ret_phi.args.append(models.PhiArgument(value=ret_value, through=new_block))
 
-        split_block.phis = return_phis
-        attrs.validate(split_block)
-        return [*new_blocks, split_block]
+        remainder.phis = return_phis
+    return remainder, new_blocks
 
 
 def _not_none[T](x: T | None) -> T:
@@ -246,7 +249,7 @@ def _not_none[T](x: T | None) -> T:
     return x
 
 
-def inlined_blocks(
+def _inlined_blocks(
     sub: models.Subroutine, register_offsets: Mapping[str, int]
 ) -> list[models.BasicBlock]:
     ref_collector = _SubroutineReferenceCollector()
