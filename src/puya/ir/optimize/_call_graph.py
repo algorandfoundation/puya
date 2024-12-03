@@ -30,29 +30,19 @@ class CallGraph:
     def _paths(self) -> dict[str, dict[str, object]]:
         return dict(nx.all_pairs_shortest_path(self._graph))
 
-    def has_maybe_inlineable_calls(self, sub: models.Subroutine) -> bool:
-        for target_id in self._graph.successors(sub.id):
-            target = self._graph.nodes[target_id]["ref"]
-            assert isinstance(target, models.Subroutine)
-            if sub.inline is not False:
-                return True
-        return False
-
     def reference_count(self, sub: models.Subroutine) -> int:
         return typing.cast(int, self._graph.in_degree(sub.id))
 
-    def maybe_reentrant(self, sub: models.Subroutine) -> bool:
-        reference_count = self.reference_count(sub)
-        if reference_count <= 1:
+    def callees(self, sub: models.Subroutine) -> list[str]:
+        return list(self._graph.predecessors(sub.id))
+
+    def has_path(self, from_: str, to: str) -> bool:
+        try:
+            self._paths[from_][to]
+        except KeyError:
             return False
-        successors = list(self._graph.successors(sub.id))
-        if sub.id in successors:
+        else:
             return True
-        for succ in successors:
-            try:
-                self._paths[succ][sub.id]
-            except KeyError:
-                pass
-            else:
-                return True
-        return False
+
+    def is_auto_recursive(self, sub: models.Subroutine) -> bool:
+        return sub.id in self.callees(sub)

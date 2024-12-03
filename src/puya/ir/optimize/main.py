@@ -6,6 +6,7 @@ import attrs
 from puya import log
 from puya.context import ArtifactCompileContext
 from puya.ir import models
+from puya.ir.optimize._context import IROptimizationContext
 from puya.ir.optimize.assignments import copy_propagation
 from puya.ir.optimize.collapse_blocks import remove_empty_blocks, remove_linear_jump
 from puya.ir.optimize.compiled_reference import replace_compiled_references
@@ -23,9 +24,10 @@ from puya.ir.optimize.inner_txn import inner_txn_field_replacer
 from puya.ir.optimize.intrinsic_simplification import intrinsic_simplifier
 from puya.ir.optimize.repeated_code_elimination import repeated_expression_elimination
 from puya.ir.to_text_visitor import render_program
+from puya.utils import attrs_extend
 
 MAX_PASSES = 100
-SubroutineOptimizerCallable = Callable[[ArtifactCompileContext, models.Subroutine], bool]
+SubroutineOptimizerCallable = Callable[[IROptimizationContext, models.Subroutine], bool]
 logger = log.get_logger(__name__)
 
 
@@ -44,7 +46,7 @@ class SubroutineOptimization:
         func_desc = func_name.replace("_", " ").title().strip()
         return SubroutineOptimization(id=func_name, desc=func_desc, optimize=func, loop=loop)
 
-    def optimize(self, context: ArtifactCompileContext, ir: models.Subroutine) -> bool:
+    def optimize(self, context: IROptimizationContext, ir: models.Subroutine) -> bool:
         did_modify = self._optimize(context, ir)
         if did_modify:
             while self.loop and self._optimize(context, ir):
@@ -108,8 +110,9 @@ def _split_parallel_copies(_ctx: ArtifactCompileContext, sub: models.Subroutine)
 
 
 def optimize_program_ir(
-    context: ArtifactCompileContext, program: models.Program
+    compile_context: ArtifactCompileContext, program: models.Program
 ) -> models.Program:
+    context = attrs_extend(IROptimizationContext, compile_context)
     level = context.options.optimization_level
     pipeline = get_subroutine_optimizations(level)
     program = deepcopy(program)
@@ -117,7 +120,7 @@ def optimize_program_ir(
         program_modified = False
         logger.debug(f"Begin optimization pass {pass_num}/{MAX_PASSES}")
         if level:
-            analyse_subroutines_for_inlining(program)
+            analyse_subroutines_for_inlining(context, program)
         for subroutine in program.all_subroutines:
             logger.debug(f"Optimizing subroutine {subroutine.id}")
             for optimizer in pipeline:

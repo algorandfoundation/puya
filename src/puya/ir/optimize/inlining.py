@@ -7,19 +7,22 @@ from collections.abc import Iterable, Iterator, Mapping, Sequence
 import attrs
 
 from puya import log
-from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.context import TMP_VAR_INDICATOR
 from puya.ir.optimize._call_graph import CallGraph
+from puya.ir.optimize._context import IROptimizationContext
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
 
 logger = log.get_logger(__name__)
 
 
-def analyse_subroutines_for_inlining(program: models.Program) -> bool:
+def analyse_subroutines_for_inlining(
+    context: IROptimizationContext, program: models.Program
+) -> bool:
+    context.inlineable_calls.clear()
+
     call_graph = CallGraph(program)
-    any_marked = False
     for sub in program.subroutines:
         if sub.inline is False:
             pass  # nothing to do
@@ -34,44 +37,46 @@ def analyse_subroutines_for_inlining(program: models.Program) -> bool:
                     location=sub.source_location,
                 )
             sub.inline = False
-        elif sub.inline is None:
-            if call_graph.maybe_reentrant(sub):
-                sub.inline = False
-                logger.debug(
-                    f"function might be re-entrant: {sub.id}", location=sub.source_location
-                )
-            elif call_graph.reference_count(sub) == 1:
+        elif call_graph.is_auto_recursive(sub):
+            logger.debug(f"function is auto-recursive: {sub.id}", location=sub.source_location)
+            if sub.inline is True:
+                logger.warning("unable to inline recursive function", location=sub.source_location)
+            sub.inline = False
+        elif sub.inline is True:
+            for callee_id in call_graph.callees(sub):
+                if not call_graph.has_path(sub.id, callee_id):
+                    context.inlineable_calls.add((callee_id, sub.id))
+    if not context.inlineable_calls:
+        for sub in program.subroutines:
+            if sub.inline is None and call_graph.reference_count(sub) == 1:
+                (callee_id,) = call_graph.callees(sub)
+                assert (
+                    callee_id != sub.id
+                ), f"function {sub.id} is auto-recursive and disconnected from call graph"
                 logger.debug(f"marking single-use function {sub.id} for inlining")
-                sub.inline = True
-                any_marked = True
-    if not any_marked:
+                context.inlineable_calls.add((callee_id, sub.id))
+    if not context.inlineable_calls:
         for sub in program.subroutines:
-            if sub.inline is None and call_graph.has_maybe_inlineable_calls(sub):  # noqa: SIM102
-                if _maybe_mark_for_inlining(sub):
-                    any_marked = True
-    if not any_marked:
-        for sub in program.subroutines:
-            if sub.inline is None:  # noqa: SIM102
-                if _maybe_mark_for_inlining(sub):
-                    any_marked = True
-    return any_marked
+            if sub.inline is None:
+                complexity = sum(
+                    len(b.phis) + len(b.ops) + len(_not_none(b.terminator).targets())
+                    for b in sub.body
+                )
+                threshold = max(3, 1 + len(sub._returns) + len(sub.parameters))  # noqa: SLF001
+                if complexity <= threshold:
+                    logger.debug(
+                        f"marking simple function {sub.id} for inlining"
+                        f" ({complexity=} <= {threshold=})"
+                    )
+                    for callee_id in call_graph.callees(sub):
+                        if not call_graph.has_path(sub.id, callee_id):
+                            context.inlineable_calls.add((callee_id, sub.id))
+    return bool(context.inlineable_calls)
 
 
-def _maybe_mark_for_inlining(sub: models.Subroutine) -> bool:
-    complexity = sum(
-        len(b.phis) + len(b.ops) + len(_not_none(b.terminator).targets()) for b in sub.body
-    )
-    threshold = max(3, 1 + len(sub._returns) + len(sub.parameters))  # noqa: SLF001
-    if complexity <= threshold:
-        logger.debug(
-            f"marking simple function {sub.id} for inlining" f" ({complexity=} <= {threshold=})"
-        )
-        sub.inline = True
-        return True
-    return False
-
-
-def perform_subroutine_inlining(_context: CompileContext, subroutine: models.Subroutine) -> bool:
+def perform_subroutine_inlining(
+    context: IROptimizationContext, subroutine: models.Subroutine
+) -> bool:
     modified = False
     blocks_to_visit = subroutine.body.copy()
     max_block_id = max(_not_none(block.id) for block in blocks_to_visit)
@@ -82,9 +87,11 @@ def perform_subroutine_inlining(_context: CompileContext, subroutine: models.Sub
             match op:
                 case models.Assignment(
                     targets=return_targets, source=models.InvokeSubroutine() as call
-                ) if call.target.inline:
+                ) if (subroutine.id, call.target.id) in context.inlineable_calls:
                     pass
-                case models.InvokeSubroutine() as call if call.target.inline:
+                case models.InvokeSubroutine() as call if (
+                    (subroutine.id, call.target.id) in context.inlineable_calls
+                ):
                     return_targets = []
                 case _:
                     continue
