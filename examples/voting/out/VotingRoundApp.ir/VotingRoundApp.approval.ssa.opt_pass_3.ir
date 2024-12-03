@@ -122,7 +122,7 @@ subroutine examples.voting.voting.VotingRoundApp.create(vote_id: bytes, snapshot
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@3)
         let total_options#1: uint64 = φ(total_options#0 <- block@0, total_options#2 <- block@3)
         let continue_looping%0#0: bool = (< item_index_internal%0#1 tmp%0#1)
-        goto continue_looping%0#0 ? block@3 : block@4
+        goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L224
         let array_head_and_tail%0#0: bytes = ((extract 2 0) option_counts#0)
         let item#0: bytes = (extract3 array_head_and_tail%0#0 item_index_internal%0#1 1u) // on error: Index access is out of bounds
@@ -130,7 +130,7 @@ subroutine examples.voting.voting.VotingRoundApp.create(vote_id: bytes, snapshot
         let total_options#2: uint64 = (+ total_options#1 tmp%4#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@2
-    block@4: // after_for_L223
+    block@5: // after_for_L223
         let tmp%5#0: bool = (<= total_options#1 128u)
         (assert tmp%5#0) // Can't have more than 128 vote options
         (app_global_put "option_counts" option_counts#0)

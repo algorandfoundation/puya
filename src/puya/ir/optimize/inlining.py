@@ -52,7 +52,7 @@ def analyse_subroutines_for_inlining(
                         f" because call may be re-entrant",
                         location=sub.source_location,
                     )
-    if context.options.optimization_level == 0 or context.inlineable_calls:
+    if context.options.optimization_level == 0:
         return
     for sub in program.subroutines:
         if sub.inline is None:

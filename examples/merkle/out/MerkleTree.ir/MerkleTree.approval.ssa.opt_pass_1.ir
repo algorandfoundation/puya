@@ -46,29 +46,24 @@ subroutine examples.merkle.contract.MerkleTree.verify(proof: bytes, leaf: bytes)
     block@0: // L14
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "root")
         (assert maybe_exists%0#0) // check self.root exists
-        let (compute_root_hash%0#0: bytes, proof#1: bytes) = examples.merkle.contract.compute_root_hash(proof#0, leaf#0)
-        let tmp%0#0: bool = (== maybe_value%0#0 compute_root_hash%0#0)
-        return tmp%0#0
-
-subroutine examples.merkle.contract.compute_root_hash(proof: bytes, leaf: bytes) -> <bytes, bytes>:
-    block@0: // L19
-        let tmp%0#0: uint64 = (extract_uint16 proof#0 0u)
+        let tmp%0#1: uint64 = (extract_uint16 proof#0 0u)
         let idx#0: uint64 = 0u
-        goto block@1
-    block@1: // for_header_L22
-        let idx#1: uint64 = φ(idx#0 <- block@0, idx#2 <- block@2)
-        let computed#1: bytes = φ(leaf#0 <- block@0, computed#2 <- block@2)
-        let continue_looping%0#0: bool = (< idx#1 tmp%0#0)
-        goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L23
+        goto block@2
+    block@2: // for_header_L22
+        let idx#1: uint64 = φ(idx#0 <- block@0, idx#2 <- block@3)
+        let computed#1: bytes = φ(leaf#0 <- block@0, computed#2 <- block@3)
+        let continue_looping%0#0: bool = (< idx#1 tmp%0#1)
+        goto continue_looping%0#0 ? block@3 : block@5
+    block@3: // for_body_L23
         let array_head_and_tail%0#0: bytes = ((extract 2 0) proof#0)
         let item_offset%0#0: uint64 = (* idx#1 32u)
         let tmp%1#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 32u) // on error: Index access is out of bounds
         let computed#2: bytes = examples.merkle.contract.hash_pair(computed#1, tmp%1#0)
         let idx#2: uint64 = (+ idx#1 1u)
-        goto block@1
-    block@4: // after_for_L22
-        return computed#1 proof#0
+        goto block@2
+    block@5: // after_for_L22
+        let tmp%0#0: bool = (== maybe_value%0#0 computed#1)
+        return tmp%0#0
 
 subroutine examples.merkle.contract.hash_pair(a: bytes, b: bytes) -> bytes:
     block@0: // L27
