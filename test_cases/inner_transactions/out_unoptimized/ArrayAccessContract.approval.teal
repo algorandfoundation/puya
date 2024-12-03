@@ -4,39 +4,36 @@
 main:
     intcblock 0 1 6
     bytecblock 0x098101 0x00 0x31 0x32
-    callsub __puya_arc4_router__
-    return
 
-
-// test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_block@1:
     // inner_transactions/array_access.py:20
     // class ArrayAccessContract(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@5
+    bz main_bare_routing@6
 
-__puya_arc4_router___abi_routing@1:
+main_abi_routing@2:
     // inner_transactions/array_access.py:20
     // class ArrayAccessContract(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x89a8220a // method "test_branching_array_call(bool)void"
     swap
-    match __puya_arc4_router___test_branching_array_call_route@2
+    match main_test_branching_array_call_route@3
 
-__puya_arc4_router___switch_case_default@3:
+main_switch_case_default@4:
 
-__puya_arc4_router___switch_case_next@4:
+main_switch_case_next@5:
 
-__puya_arc4_router___after_if_else@9:
+main_after_if_else@10:
     // inner_transactions/array_access.py:20
     // class ArrayAccessContract(ARC4Contract):
     intc_0 // 0
-    retsub
 
-__puya_arc4_router___test_branching_array_call_route@2:
+main_after_inlined_test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__@11:
+    return
+
+main_test_branching_array_call_route@3:
     // inner_transactions/array_access.py:21
     // @arc4.abimethod
     txn OnCompletion
@@ -54,29 +51,32 @@ __puya_arc4_router___test_branching_array_call_route@2:
     // @arc4.abimethod
     callsub test_branching_array_call
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__@11
 
-__puya_arc4_router___bare_routing@5:
+main_bare_routing@6:
     // inner_transactions/array_access.py:20
     // class ArrayAccessContract(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@6
+    match main___algopy_default_create@7
 
-__puya_arc4_router___switch_case_default@7:
+main_switch_case_default@8:
 
-__puya_arc4_router___switch_case_next@8:
-    b __puya_arc4_router___after_if_else@9
+main_switch_case_next@9:
+    b main_after_if_else@10
 
-__puya_arc4_router_____algopy_default_create@6:
+main___algopy_default_create@7:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+main_block@12:
+
+main_after_inlined_test_cases.inner_transactions.array_access.ArrayAccessContract.__algopy_default_create@13:
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__@11
 
 
 // test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call(maybe: bytes) -> void:
@@ -227,9 +227,3 @@ test_branching_array_call_next_txn@4:
     // ).submit()
     itxn_submit
     b test_branching_array_call_after_if_else@5
-
-
-// test_cases.inner_transactions.array_access.ArrayAccessContract.__algopy_default_create() -> void:
-__algopy_default_create:
-    proto 0 0
-    retsub

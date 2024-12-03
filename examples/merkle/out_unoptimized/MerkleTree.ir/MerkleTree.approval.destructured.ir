@@ -1,17 +1,14 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
-        let tmp%0#0: bool = examples.merkle.contract.MerkleTree.__puya_arc4_router__()
-        return tmp%0#0
-
-subroutine examples.merkle.contract.MerkleTree.__puya_arc4_router__() -> bool:
-    block@0: // L9
-        let tmp%0#0: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@6
-    block@1: // abi_routing_L9
+        goto block@1
+    block@1: // L9
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#1 0u)
+        goto tmp%1#0 ? block@2 : block@7
+    block@2: // abi_routing_L9
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create(byte[32])void" => block@2, method "verify(byte[32][],byte[32])bool" => block@3, * => block@4}
-    block@2: // create_route_L10
+        switch tmp%2#0 {method "create(byte[32])void" => block@3, method "verify(byte[32][],byte[32])bool" => block@4, * => block@5}
+    block@3: // create_route_L10
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
         (assert tmp%4#0) // OnCompletion is not NoOp
@@ -20,8 +17,10 @@ subroutine examples.merkle.contract.MerkleTree.__puya_arc4_router__() -> bool:
         (assert tmp%6#0) // can only call when creating
         let tmp%7#0: bytes = (txna ApplicationArgs 1)
         examples.merkle.contract.MerkleTree.create(tmp%7#0)
-        return 1u
-    block@3: // verify_route_L14
+        let examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
+        goto block@9
+    block@4: // verify_route_L14
         let tmp%8#0: uint64 = (txn OnCompletion)
         let tmp%9#0: bool = (== tmp%8#0 NoOp)
         (assert tmp%9#0) // OnCompletion is not NoOp
@@ -34,15 +33,21 @@ subroutine examples.merkle.contract.MerkleTree.__puya_arc4_router__() -> bool:
         let encoded_bool%0#0: bytes = (setbit 0x00 0u to_encode%0#0)
         let tmp%14#0: bytes = (concat 0x151f7c75 encoded_bool%0#0)
         (log tmp%14#0)
-        return 1u
-    block@4: // switch_case_default_L9
-        goto block@5
-    block@5: // switch_case_next_L9
-        goto block@7
-    block@6: // bare_routing_L9
-        goto block@7
-    block@7: // after_if_else_L9
-        return 0u
+        let examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
+        goto block@9
+    block@5: // switch_case_default_L9
+        goto block@6
+    block@6: // switch_case_next_L9
+        goto block@8
+    block@7: // bare_routing_L9
+        goto block@8
+    block@8: // after_if_else_L9
+        let examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0: bool = 0u
+        let tmp%0#0: bool = examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
+        goto block@9
+    block@9: // after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router___L1
+        return tmp%0#0
 
 subroutine examples.merkle.contract.MerkleTree.create(root: bytes) -> void:
     block@0: // L10

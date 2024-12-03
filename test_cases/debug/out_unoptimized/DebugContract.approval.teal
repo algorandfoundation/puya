@@ -4,39 +4,36 @@
 main:
     intcblock 0 1 TMPL_A_MULT
     bytecblock 0x30313233343536373839 " "
-    callsub __puya_arc4_router__
-    return
 
-
-// test_cases.debug.contract.DebugContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_block@1:
     // debug/contract.py:4
     // class DebugContract(arc4.ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@5
+    bz main_bare_routing@6
 
-__puya_arc4_router___abi_routing@1:
+main_abi_routing@2:
     // debug/contract.py:4
     // class DebugContract(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x53574bff // method "test(uint64,uint64,uint64)uint64"
     swap
-    match __puya_arc4_router___test_route@2
+    match main_test_route@3
 
-__puya_arc4_router___switch_case_default@3:
+main_switch_case_default@4:
 
-__puya_arc4_router___switch_case_next@4:
+main_switch_case_next@5:
 
-__puya_arc4_router___after_if_else@9:
+main_after_if_else@10:
     // debug/contract.py:4
     // class DebugContract(arc4.ARC4Contract):
     intc_0 // 0
-    retsub
 
-__puya_arc4_router___test_route@2:
+main_after_inlined_test_cases.debug.contract.DebugContract.__puya_arc4_router__@11:
+    return
+
+main_test_route@3:
     // debug/contract.py:5
     // @arc4.abimethod
     txn OnCompletion
@@ -67,29 +64,32 @@ __puya_arc4_router___test_route@2:
     concat
     log
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.debug.contract.DebugContract.__puya_arc4_router__@11
 
-__puya_arc4_router___bare_routing@5:
+main_bare_routing@6:
     // debug/contract.py:4
     // class DebugContract(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@6
+    match main___algopy_default_create@7
 
-__puya_arc4_router___switch_case_default@7:
+main_switch_case_default@8:
 
-__puya_arc4_router___switch_case_next@8:
-    b __puya_arc4_router___after_if_else@9
+main_switch_case_next@9:
+    b main_after_if_else@10
 
-__puya_arc4_router_____algopy_default_create@6:
+main___algopy_default_create@7:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+main_block@12:
+
+main_after_inlined_test_cases.debug.contract.DebugContract.__algopy_default_create@13:
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.debug.contract.DebugContract.__puya_arc4_router__@11
 
 
 // test_cases.debug.contract.DebugContract.test(x: uint64, y: uint64, z: uint64) -> uint64:
@@ -433,10 +433,4 @@ itoa_after_if_else@2:
     extract3
     concat
     swap
-    retsub
-
-
-// test_cases.debug.contract.DebugContract.__algopy_default_create() -> void:
-__algopy_default_create:
-    proto 0 0
     retsub

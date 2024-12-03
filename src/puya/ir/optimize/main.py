@@ -119,8 +119,7 @@ def optimize_program_ir(
     for pass_num in range(1, MAX_PASSES + 1):
         program_modified = False
         logger.debug(f"Begin optimization pass {pass_num}/{MAX_PASSES}")
-        if level:
-            analyse_subroutines_for_inlining(context, program)
+        analyse_subroutines_for_inlining(context, program)
         for subroutine in program.all_subroutines:
             logger.debug(f"Optimizing subroutine {subroutine.id}")
             for optimizer in pipeline:

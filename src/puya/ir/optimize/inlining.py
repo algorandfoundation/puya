@@ -19,7 +19,7 @@ logger = log.get_logger(__name__)
 
 def analyse_subroutines_for_inlining(
     context: IROptimizationContext, program: models.Program
-) -> bool:
+) -> None:
     context.inlineable_calls.clear()
 
     call_graph = CallGraph(program)
@@ -46,33 +46,39 @@ def analyse_subroutines_for_inlining(
             for callee_id, _ in call_graph.callees(sub):
                 if not call_graph.has_path(sub.id, callee_id):
                     context.inlineable_calls.add((callee_id, sub.id))
-    if not context.inlineable_calls:
-        for sub in program.subroutines:
-            if sub.inline is None:
-                match call_graph.callees(sub):
-                    case [(callee_id, 1)]:
-                        assert (
-                            callee_id != sub.id
-                        ), f"function {sub.id} is auto-recursive and disconnected from call graph"
-                        logger.debug(f"marking single-use function {sub.id} for inlining")
-                        context.inlineable_calls.add((callee_id, sub.id))
-    if not context.inlineable_calls:
-        for sub in program.subroutines:
-            if sub.inline is None:
-                complexity = sum(
-                    len(b.phis) + len(b.ops) + len(_not_none(b.terminator).targets())
-                    for b in sub.body
-                )
-                threshold = max(3, 1 + len(sub._returns) + len(sub.parameters))  # noqa: SLF001
-                if complexity <= threshold:
-                    logger.debug(
-                        f"marking simple function {sub.id} for inlining"
-                        f" ({complexity=} <= {threshold=})"
+                else:
+                    logger.warning(
+                        f"not inlining call from {callee_id} to {sub.id}"
+                        f" because call may be re-entrant",
+                        location=sub.source_location,
                     )
-                    for callee_id, _ in call_graph.callees(sub):
-                        if not call_graph.has_path(sub.id, callee_id):
-                            context.inlineable_calls.add((callee_id, sub.id))
-    return bool(context.inlineable_calls)
+    if context.options.optimization_level == 0 or context.inlineable_calls:
+        return
+    for sub in program.subroutines:
+        if sub.inline is None:
+            match call_graph.callees(sub):
+                case [(callee_id, 1)]:
+                    assert (
+                        callee_id != sub.id
+                    ), f"function {sub.id} is auto-recursive and disconnected"
+                    logger.debug(f"marking single-use function {sub.id} for inlining")
+                    context.inlineable_calls.add((callee_id, sub.id))
+    if context.inlineable_calls:
+        return
+    for sub in program.subroutines:
+        if sub.inline is None:
+            complexity = sum(
+                len(b.phis) + len(b.ops) + len(_not_none(b.terminator).targets()) for b in sub.body
+            )
+            threshold = max(3, 1 + len(sub._returns) + len(sub.parameters))  # noqa: SLF001
+            if complexity <= threshold:
+                logger.debug(
+                    f"marking simple function {sub.id} for inlining"
+                    f" ({complexity=} <= {threshold=})"
+                )
+                for callee_id, _ in call_graph.callees(sub):
+                    if not call_graph.has_path(sub.id, callee_id):
+                        context.inlineable_calls.add((callee_id, sub.id))
 
 
 def perform_subroutine_inlining(
