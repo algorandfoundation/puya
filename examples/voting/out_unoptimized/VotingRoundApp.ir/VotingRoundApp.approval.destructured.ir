@@ -17,15 +17,18 @@ subroutine examples.voting.voting.VotingRoundApp.__init__() -> void:
 
 subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@0: // L1
-        goto block@1
-    block@1: // L49
-        let tmp%0#1: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@10
-    block@2: // abi_routing_L49
+        let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.__puya_arc4_router__()
+        return tmp%0#0
+
+subroutine examples.voting.voting.VotingRoundApp.__puya_arc4_router__() -> bool:
+    block@0: // L49
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#0 0u)
+        goto tmp%1#0 ? block@1 : block@9
+    block@1: // abi_routing_L49
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@3, method "bootstrap(pay)void" => block@4, method "close()void" => block@5, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@6, method "vote(pay,byte[],uint8[])void" => block@7, * => block@8}
-    block@3: // create_route_L58
+        switch tmp%2#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@2, method "bootstrap(pay)void" => block@3, method "close()void" => block@4, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@5, method "vote(pay,byte[],uint8[])void" => block@6, * => block@7}
+    block@2: // create_route_L58
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
         (assert tmp%4#0) // OnCompletion is not NoOp
@@ -48,10 +51,8 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%20#0: bytes = (txna ApplicationArgs 8)
         let tmp%21#0: bytes = ((extract 2 0) tmp%20#0)
         examples.voting.voting.VotingRoundApp.create(tmp%8#0, tmp%10#0, tmp%12#0, tmp%14#0, tmp%16#0, tmp%17#0, tmp%19#0, tmp%21#0)
-        let examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        goto block@12
-    block@4: // bootstrap_route_L82
+        return 1u
+    block@3: // bootstrap_route_L82
         let tmp%22#0: uint64 = (txn OnCompletion)
         let tmp%23#0: bool = (== tmp%22#0 NoOp)
         (assert tmp%23#0) // OnCompletion is not NoOp
@@ -64,10 +65,8 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
         examples.voting.voting.VotingRoundApp.bootstrap(gtxn_idx%0#0)
-        let examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        goto block@12
-    block@5: // close_route_L110
+        return 1u
+    block@4: // close_route_L110
         let tmp%27#0: uint64 = (txn OnCompletion)
         let tmp%28#0: bool = (== tmp%27#0 NoOp)
         (assert tmp%28#0) // OnCompletion is not NoOp
@@ -75,10 +74,8 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%30#0: bool = (!= tmp%29#0 0u)
         (assert tmp%30#0) // can only call when not creating
         examples.voting.voting.VotingRoundApp.close()
-        let examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        goto block@12
-    block@6: // get_preconditions_route_L160
+        return 1u
+    block@5: // get_preconditions_route_L160
         let tmp%31#0: uint64 = (txn OnCompletion)
         let tmp%32#0: bool = (== tmp%31#0 NoOp)
         (assert tmp%32#0) // OnCompletion is not NoOp
@@ -90,10 +87,8 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%37#0: bytes = examples.voting.voting.VotingRoundApp.get_preconditions(tmp%36#0)
         let tmp%38#0: bytes = (concat 0x151f7c75 tmp%37#0)
         (log tmp%38#0)
-        let examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        goto block@12
-    block@7: // vote_route_L169
+        return 1u
+    block@6: // vote_route_L169
         let tmp%39#0: uint64 = (txn OnCompletion)
         let tmp%40#0: bool = (== tmp%39#0 NoOp)
         (assert tmp%40#0) // OnCompletion is not NoOp
@@ -109,21 +104,15 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%45#0: bytes = ((extract 2 0) tmp%44#0)
         let tmp%46#0: bytes = (txna ApplicationArgs 2)
         examples.voting.voting.VotingRoundApp.vote(gtxn_idx%1#0, tmp%45#0, tmp%46#0)
-        let examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        goto block@12
-    block@8: // switch_case_default_L49
-        goto block@9
-    block@9: // switch_case_next_L49
-        goto block@11
-    block@10: // bare_routing_L49
-        goto block@11
-    block@11: // after_if_else_L49
-        let examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        goto block@12
-    block@12: // after_inlined_examples.voting.voting.VotingRoundApp.__puya_arc4_router___L1
-        return tmp%0#0
+        return 1u
+    block@7: // switch_case_default_L49
+        goto block@8
+    block@8: // switch_case_next_L49
+        goto block@10
+    block@9: // bare_routing_L49
+        goto block@10
+    block@10: // after_if_else_L49
+        return 0u
 
 subroutine examples.voting.voting.VotingRoundApp.create(vote_id: bytes, snapshot_public_key: bytes, metadata_ipfs_cid: bytes, start_time: uint64, end_time: uint64, option_counts: bytes, quorum: uint64, nft_image_url: bytes) -> void:
     block@0: // L58

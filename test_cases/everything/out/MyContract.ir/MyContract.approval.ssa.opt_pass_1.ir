@@ -1,14 +1,21 @@
 main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
     block@0: // L1
         let tmp%0#0: bool = (txn ApplicationID)
+        goto tmp%0#0 ? block@2 : block@1
+    block@1: // call __init___L1
         goto block@2
     block@2: // after_if_else_L1
-        let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@6 : block@15
-    block@6: // abi_routing_L37
+        let tmp%1#0: bool = algopy.arc4.ARC4Contract.approval_program()
+        return tmp%1#0
+
+subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@2 : block@11
+    block@2: // abi_routing_L37
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create()void" => block@7, method "register(string)void" => block@8, method "say_hello()string" => block@9, method "calculate(uint64,uint64)uint64" => block@10, method "close_out()void" => block@11, * => block@15}
-    block@7: // create_route_L41
+        switch tmp%2#0 {method "create()void" => block@3, method "register(string)void" => block@4, method "say_hello()string" => block@5, method "calculate(uint64,uint64)uint64" => block@6, method "close_out()void" => block@7, * => block@11}
+    block@3: // create_route_L41
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (! tmp%3#0)
         (assert tmp%4#0) // OnCompletion is not NoOp
@@ -17,8 +24,8 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         (assert tmp%6#0) // can only call when creating
         test_cases.everything.contract.Everything.create()
         let test_cases.everything.contract.Everything.__puya_arc4_router__%0#0: bool = 1u
-        goto block@16
-    block@8: // register_route_L47
+        goto block@12
+    block@4: // register_route_L47
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: uint64 = (shl 1u tmp%7#0)
         let tmp%9#0: uint64 = (& tmp%8#0 3u)
@@ -28,8 +35,8 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         let tmp%12#0: bytes = (txna ApplicationArgs 1)
         test_cases.everything.contract.Everything.register(tmp%12#0)
         let test_cases.everything.contract.Everything.__puya_arc4_router__%0#1: bool = 1u
-        goto block@16
-    block@9: // say_hello_route_L56
+        goto block@12
+    block@5: // say_hello_route_L56
         let tmp%13#0: uint64 = (txn OnCompletion)
         let tmp%14#0: bool = (! tmp%13#0)
         (assert tmp%14#0) // OnCompletion is not NoOp
@@ -39,8 +46,8 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         let tmp%18#0: bytes = (concat 0x151f7c75 tmp%17#0)
         (log tmp%18#0)
         let test_cases.everything.contract.Everything.__puya_arc4_router__%0#2: bool = 1u
-        goto block@16
-    block@10: // calculate_route_L64
+        goto block@12
+    block@6: // calculate_route_L64
         let tmp%19#0: uint64 = (txn OnCompletion)
         let tmp%20#0: bool = (! tmp%19#0)
         (assert tmp%20#0) // OnCompletion is not NoOp
@@ -52,8 +59,8 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         let tmp%26#0: bytes = (concat 0x151f7c75 tmp%25#0)
         (log tmp%26#0)
         let test_cases.everything.contract.Everything.__puya_arc4_router__%0#3: bool = 1u
-        goto block@16
-    block@11: // close_out_route_L69
+        goto block@12
+    block@7: // close_out_route_L69
         let tmp%27#0: uint64 = (txn OnCompletion)
         let tmp%28#0: bool = (== tmp%27#0 CloseOut)
         (assert tmp%28#0) // OnCompletion is not CloseOut
@@ -61,27 +68,37 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         (assert tmp%29#0) // can only call when not creating
         test_cases.everything.contract.Everything.close_out()
         let test_cases.everything.contract.Everything.__puya_arc4_router__%0#4: bool = 1u
-        goto block@16
-    block@15: // after_if_else_L37
+        goto block@12
+    block@11: // after_if_else_L37
         let test_cases.everything.contract.Everything.__puya_arc4_router__%0#5: bool = 0u
-        goto block@16
-    block@16: // after_inlined_test_cases.everything.contract.Everything.__puya_arc4_router___L1
-        let tmp%0#1: bool = φ(test_cases.everything.contract.Everything.__puya_arc4_router__%0#0 <- block@7, test_cases.everything.contract.Everything.__puya_arc4_router__%0#1 <- block@8, test_cases.everything.contract.Everything.__puya_arc4_router__%0#2 <- block@9, test_cases.everything.contract.Everything.__puya_arc4_router__%0#3 <- block@10, test_cases.everything.contract.Everything.__puya_arc4_router__%0#4 <- block@11, test_cases.everything.contract.Everything.__puya_arc4_router__%0#5 <- block@15)
-        return tmp%0#1
+        goto block@12
+    block@12: // after_inlined_test_cases.everything.contract.Everything.__puya_arc4_router___L1
+        let tmp%0#0: bool = φ(test_cases.everything.contract.Everything.__puya_arc4_router__%0#0 <- block@3, test_cases.everything.contract.Everything.__puya_arc4_router__%0#1 <- block@4, test_cases.everything.contract.Everything.__puya_arc4_router__%0#2 <- block@5, test_cases.everything.contract.Everything.__puya_arc4_router__%0#3 <- block@6, test_cases.everything.contract.Everything.__puya_arc4_router__%0#4 <- block@7, test_cases.everything.contract.Everything.__puya_arc4_router__%0#5 <- block@11)
+        return tmp%0#0
 
 subroutine test_cases.everything.contract.Everything.create() -> void:
     block@0: // L41
         test_cases.everything.contract.Everything._check_ban_list()
-        let new_state_value%0#0: bytes = (txn Sender)
-        (app_global_put "creator" new_state_value%0#0)
+        test_cases.everything.my_base.MyBase.remember_creator()
         (app_global_put "counter" 0u)
         return 
 
 subroutine test_cases.everything.contract.Everything._check_ban_list() -> void:
     block@0: // L77
         let tmp%0#0: bytes = (txn Sender)
-        let tmp%2#0: bool = (!= tmp%0#0 addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
+        let tmp%1#0: bytes = test_cases.everything.contract.get_banned()
+        let tmp%2#0: bool = (!= tmp%0#0 tmp%1#0)
         (assert tmp%2#0) // You are banned, goodbye
+        return 
+
+subroutine test_cases.everything.contract.get_banned() -> bytes:
+    block@0: // L23
+        return addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
+
+subroutine test_cases.everything.my_base.MyBase.remember_creator() -> void:
+    block@0: // L7
+        let new_state_value%0#0: bytes = (txn Sender)
+        (app_global_put "creator" new_state_value%0#0)
         return 
 
 subroutine test_cases.everything.contract.Everything.register(name: bytes) -> void:
@@ -96,12 +113,17 @@ subroutine test_cases.everything.contract.Everything.register(name: bytes) -> vo
     block@2: // if_body_L53
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%1#0) // check self.counter exists
-        let new_state_value%0#0: uint64 = (+ maybe_value%1#0 1u)
+        let tmp%2#0: uint64 = test_cases.everything.my_base.multiplicative_identity()
+        let new_state_value%0#0: uint64 = (+ maybe_value%1#0 tmp%2#0)
         (app_global_put "counter" new_state_value%0#0)
         goto block@4
     block@4: // after_if_else_L50
         (app_local_put 0u "name" name#0)
         return 
+
+subroutine test_cases.everything.my_base.multiplicative_identity() -> uint64:
+    block@0: // L18
+        return 1u
 
 subroutine test_cases.everything.contract.Everything.say_hello() -> bytes:
     block@0: // L56
@@ -129,19 +151,35 @@ subroutine test_cases.everything.contract.Everything.say_hello() -> bytes:
 
 subroutine test_cases.everything.contract.Everything.calculate(a: bytes, b: bytes) -> bytes:
     block@0: // L64
-        let tmp%0#1: uint64 = (btoi a#0)
-        let tmp%1#1: uint64 = (btoi b#0)
-        let to_encode%0#1: uint64 = (+ tmp%0#1 tmp%1#1)
-        let c#0: bytes = (itob to_encode%0#1)
+        let c#0: bytes = test_cases.everything.my_base.MyMiddleBase.calculate(a#0, b#0)
         let tmp%0#0: uint64 = (btoi c#0)
-        let to_encode%0#0: uint64 = (* tmp%0#0 tmp%1#1)
+        let tmp%1#0: uint64 = (btoi b#0)
+        let to_encode%0#0: uint64 = (* tmp%0#0 tmp%1#0)
+        let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
+        return val_as_bytes%0#0
+
+subroutine test_cases.everything.my_base.MyMiddleBase.calculate(a: bytes, b: bytes) -> bytes:
+    block@0: // L13
+        let tmp%0#0: uint64 = (btoi a#0)
+        let tmp%1#0: uint64 = (btoi b#0)
+        let to_encode%0#0: uint64 = (+ tmp%0#0 tmp%1#0)
         let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
         return val_as_bytes%0#0
 
 subroutine test_cases.everything.contract.Everything.close_out() -> void:
     block@0: // L69
+        test_cases.everything.contract.Everything._remove_sender()
+        return 
+
+subroutine test_cases.everything.contract.Everything._remove_sender() -> void:
+    block@0: // L81
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%0#0) // check self.counter exists
-        let new_state_value%0#0: uint64 = (- maybe_value%0#0 1u)
+        let tmp%0#0: uint64 = test_cases.everything.contract.positive_one()
+        let new_state_value%0#0: uint64 = (- maybe_value%0#0 tmp%0#0)
         (app_global_put "counter" new_state_value%0#0)
         return 
+
+subroutine test_cases.everything.contract.positive_one() -> uint64:
+    block@0: // L86
+        return 1u

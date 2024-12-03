@@ -4,37 +4,40 @@
 main:
     intcblock 0 1 3
     bytecblock 0x61636667 0x70617932 "pay1" "TEST" "TST" 0x6163666732 0x70617935 "pay3" 0x6869 0x7468657265 0x6d61796265 0x686932 0x746865726532
+    callsub __puya_arc4_router__
+    return
 
-main_block@1:
+
+// test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
     // inner_transactions_assignment/contract.py:11
     // class Contract(ARC4Contract):
+    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@7
+    bz __puya_arc4_router___bare_routing@6
 
-main_abi_routing@2:
+__puya_arc4_router___abi_routing@1:
     // inner_transactions_assignment/contract.py:11
     // class Contract(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xe46d9019 // method "test_itxn_slice()void"
     pushbytes 0xf883853e // method "test_itxn_nested()void"
     uncover 2
-    match main_test_itxn_slice_route@3 main_test_itxn_nested_route@4
+    match __puya_arc4_router___test_itxn_slice_route@2 __puya_arc4_router___test_itxn_nested_route@3
 
-main_switch_case_default@5:
+__puya_arc4_router___switch_case_default@4:
 
-main_switch_case_next@6:
+__puya_arc4_router___switch_case_next@5:
 
-main_after_if_else@11:
+__puya_arc4_router___after_if_else@10:
     // inner_transactions_assignment/contract.py:11
     // class Contract(ARC4Contract):
     intc_0 // 0
+    retsub
 
-main_after_inlined_test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__@12:
-    return
-
-main_test_itxn_nested_route@4:
+__puya_arc4_router___test_itxn_nested_route@3:
     // inner_transactions_assignment/contract.py:29
     // @arc4.abimethod
     txn OnCompletion
@@ -47,9 +50,9 @@ main_test_itxn_nested_route@4:
     assert // can only call when not creating
     callsub test_itxn_nested
     intc_1 // 1
-    b main_after_inlined_test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__@12
+    retsub
 
-main_test_itxn_slice_route@3:
+__puya_arc4_router___test_itxn_slice_route@2:
     // inner_transactions_assignment/contract.py:12
     // @arc4.abimethod
     txn OnCompletion
@@ -62,32 +65,29 @@ main_test_itxn_slice_route@3:
     assert // can only call when not creating
     callsub test_itxn_slice
     intc_1 // 1
-    b main_after_inlined_test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__@12
+    retsub
 
-main_bare_routing@7:
+__puya_arc4_router___bare_routing@6:
     // inner_transactions_assignment/contract.py:11
     // class Contract(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match main___algopy_default_create@8
+    match __puya_arc4_router_____algopy_default_create@7
 
-main_switch_case_default@9:
+__puya_arc4_router___switch_case_default@8:
 
-main_switch_case_next@10:
-    b main_after_if_else@11
+__puya_arc4_router___switch_case_next@9:
+    b __puya_arc4_router___after_if_else@10
 
-main___algopy_default_create@8:
+__puya_arc4_router_____algopy_default_create@7:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-
-main_block@13:
-
-main_after_inlined_test_cases.inner_transactions_assignment.contract.Contract.__algopy_default_create@14:
+    callsub __algopy_default_create
     intc_1 // 1
-    b main_after_inlined_test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__@12
+    retsub
 
 
 // test_cases.inner_transactions_assignment.contract.Contract.test_itxn_slice() -> void:
@@ -535,4 +535,10 @@ echo:
     // inner_transactions_assignment/contract.py:78
     // return value
     frame_dig -1
+    retsub
+
+
+// test_cases.inner_transactions_assignment.contract.Contract.__algopy_default_create() -> void:
+__algopy_default_create:
+    proto 0 0
     retsub

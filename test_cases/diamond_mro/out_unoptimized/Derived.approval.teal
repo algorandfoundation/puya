@@ -74,37 +74,40 @@ test_cases.diamond_mro.gp.GP.__init__:
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
     proto 0 1
+    callsub __puya_arc4_router__
+    retsub
 
-approval_program_block@1:
+
+// test_cases.diamond_mro.derived.Derived.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
     // diamond_mro/derived.py:7
     // class Derived(Base1, Base2):
+    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz approval_program_bare_routing@7
+    bz __puya_arc4_router___bare_routing@6
 
-approval_program_abi_routing@2:
+__puya_arc4_router___abi_routing@1:
     // diamond_mro/derived.py:7
     // class Derived(Base1, Base2):
     txna ApplicationArgs 0
     pushbytes 0x4f045d84 // method "method()void"
     pushbytes 0x4c5c61ba // method "create()void"
     uncover 2
-    match approval_program_method_route@3 approval_program_create_route@4
+    match __puya_arc4_router___method_route@2 __puya_arc4_router___create_route@3
 
-approval_program_switch_case_default@5:
+__puya_arc4_router___switch_case_default@4:
 
-approval_program_switch_case_next@6:
+__puya_arc4_router___switch_case_next@5:
 
-approval_program_after_if_else@8:
+__puya_arc4_router___after_if_else@7:
     // diamond_mro/derived.py:7
     // class Derived(Base1, Base2):
     intc_0 // 0
-
-approval_program_after_inlined_test_cases.diamond_mro.derived.Derived.__puya_arc4_router__@9:
     retsub
 
-approval_program_create_route@4:
+__puya_arc4_router___create_route@3:
     // diamond_mro/gp.py:11
     // @arc4.abimethod(create="require")
     txn OnCompletion
@@ -117,9 +120,9 @@ approval_program_create_route@4:
     assert // can only call when creating
     callsub create
     intc_1 // 1
-    b approval_program_after_inlined_test_cases.diamond_mro.derived.Derived.__puya_arc4_router__@9
+    retsub
 
-approval_program_method_route@3:
+__puya_arc4_router___method_route@2:
     // diamond_mro/derived.py:12
     // @arc4.abimethod
     txn OnCompletion
@@ -132,10 +135,10 @@ approval_program_method_route@3:
     assert // can only call when not creating
     callsub method
     intc_1 // 1
-    b approval_program_after_inlined_test_cases.diamond_mro.derived.Derived.__puya_arc4_router__@9
+    retsub
 
-approval_program_bare_routing@7:
-    b approval_program_after_if_else@8
+__puya_arc4_router___bare_routing@6:
+    b __puya_arc4_router___after_if_else@7
 
 
 // test_cases.diamond_mro.derived.Derived.method() -> void:

@@ -77,7 +77,8 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements() -> void:
     block@0: // L39
-        let index_is_in_bounds%0#0: bool = 1u
+        let array_length%0#0: uint64 = 2u
+        let index_is_in_bounds%0#0: bool = (< 1u array_length%0#0)
         (assert index_is_in_bounds%0#0) // Index access is out of bounds
         let array#1: bytes = ((replace2 12) 0x00020000000000000003040500000000000000030405 0x00000400000000002aff)
         (log array#1)
@@ -96,7 +97,9 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_sta
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements() -> void:
     block@0: // L55
-        let struct1#0: bytes = 0x000400070001610003626565
+        let encoded_tuple_buffer%3#0: bytes = 0x00040007000161
+        let struct1#0: bytes = (concat encoded_tuple_buffer%3#0 0x0003626565)
+        let struct2#0: bytes = 0x00040011000b48656c6c6f20576f726c64000161
         let next_item_len%0#0: uint64 = (len struct1#0)
         let tail_offset%0#0: uint64 = (+ 4u next_item_len%0#0)
         let as_bytes%5#0: bytes = (itob tail_offset%0#0)
@@ -109,7 +112,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dyn
         let l_count%0#0: uint64 = (extract_uint16 array#0 0u)
         let l_head_and_tail%0#0: bytes = ((extract 2 0) array#0)
         let array#1: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%0#0, l_head_and_tail%0#0, 1u, result%5#0)
-        let array#2: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(array#1, 0x00040011000b48656c6c6f20576f726c64000161, 1u)
+        let array#2: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(array#1, struct2#0, 1u)
         (log array#2)
         let array_head_and_tail%0#0: bytes = ((extract 2 0) array#2)
         let item_offset%0#0: uint64 = (extract_uint16 array_head_and_tail%0#0 0u)
@@ -135,7 +138,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dyn
         (assert tmp%7#0)
         (log array#3)
         let (popped%1#0: bytes, array#4: bytes) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(array#3)
-        let tmp%8#0: bool = (== popped%1#0 0x00040011000b48656c6c6f20576f726c64000161)
+        let tmp%8#0: bool = (== popped%1#0 struct2#0)
         (assert tmp%8#0)
         (log array#4)
         let (popped%2#0: bytes, array#5: bytes) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(array#4)
@@ -176,9 +179,11 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements() -> void:
     block@0: // L89
-        let encoded_tuple_buffer%6#0: bytes = 0x0000000000000003001c0000040000000000001f0000000000000003000161
+        let encoded_tuple_buffer%5#0: bytes = 0x0000000000000003001c0000040000000000001f0000000000000003
+        let encoded_tuple_buffer%6#0: bytes = (concat encoded_tuple_buffer%5#0 0x000161)
         let struct1#0: bytes = (concat encoded_tuple_buffer%6#0 0x0003ffff0000002a)
-        let encoded_tuple_buffer%14#0: bytes = 0x0000040000000000001c0000000000000003002100000400000000000003626565
+        let encoded_tuple_buffer%13#0: bytes = 0x0000040000000000001c000000000000000300210000040000000000
+        let encoded_tuple_buffer%14#0: bytes = (concat encoded_tuple_buffer%13#0 0x0003626565)
         let struct2#0: bytes = (concat encoded_tuple_buffer%14#0 0x00040001000200030004)
         let next_item_len%0#0: uint64 = (len struct1#0)
         let tail_offset%0#0: uint64 = (+ 4u next_item_len%0#0)
@@ -214,10 +219,13 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement() -> void:
     block@0: // L106
-        let two#0: bytes = 0x000400070001610003626565
-        let encoded_tuple_buffer%17#0: bytes = 0x0000000000000003001c0000040000000000001f0000000000000003000161
+        let encoded_tuple_buffer%6#0: bytes = 0x00040007000161
+        let two#0: bytes = (concat encoded_tuple_buffer%6#0 0x0003626565)
+        let encoded_tuple_buffer%16#0: bytes = 0x0000000000000003001c0000040000000000001f0000000000000003
+        let encoded_tuple_buffer%17#0: bytes = (concat encoded_tuple_buffer%16#0 0x000161)
         let four#0: bytes = (concat encoded_tuple_buffer%17#0 0x0003ffff0000002a)
-        let five#0: bytes = 0x000400070001610003626565
+        let encoded_tuple_buffer%22#0: bytes = 0x00040007000161
+        let five#0: bytes = (concat encoded_tuple_buffer%22#0 0x0003626565)
         let data_length%6#0: uint64 = (len two#0)
         let current_tail_offset%12#0: uint64 = (+ 26u data_length%6#0)
         let as_bytes%7#0: bytes = (itob current_tail_offset%12#0)
@@ -231,7 +239,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nes
         let encoded_tuple_buffer%30#0: bytes = (concat encoded_tuple_buffer%29#0 two#0)
         let encoded_tuple_buffer%31#0: bytes = (concat encoded_tuple_buffer%30#0 four#0)
         let struct1#0: bytes = (concat encoded_tuple_buffer%31#0 five#0)
-        let encoded_tuple_buffer%37#0: bytes = 0x000400090003626565000161
+        let encoded_tuple_buffer%36#0: bytes = 0x000400090003626565
+        let encoded_tuple_buffer%37#0: bytes = (concat encoded_tuple_buffer%36#0 0x000161)
         let data_length%11#0: uint64 = (len encoded_tuple_buffer%37#0)
         let current_tail_offset%19#0: uint64 = (+ 26u data_length%11#0)
         let as_bytes%12#0: bytes = (itob current_tail_offset%19#0)
@@ -270,16 +279,20 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nes
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification() -> void:
     block@0: // L133
-        let two#0: bytes = 0x000400070001610003626565
-        let encoded_tuple_buffer%17#0: bytes = 0x0000000000000003001c0000040000000000001f0000000000000003000161
+        let encoded_tuple_buffer%6#0: bytes = 0x00040007000161
+        let two#0: bytes = (concat encoded_tuple_buffer%6#0 0x0003626565)
+        let encoded_tuple_buffer%16#0: bytes = 0x0000000000000003001c0000040000000000001f0000000000000003
+        let encoded_tuple_buffer%17#0: bytes = (concat encoded_tuple_buffer%16#0 0x000161)
         let four1#0: bytes = (concat encoded_tuple_buffer%17#0 0x0003ffff0000002a)
         let len_%0#0: uint64 = 4u
         let as_bytes%4#0: bytes = (itob len_%0#0)
         let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%4#0)
         let concat_result%0#0: bytes = (concat len_16_bit%0#0 0xffff0000002a007b)
-        let encoded_tuple_buffer%25#0: bytes = 0x0000000000000003001c0000040000000000001f0000000000000003000161
+        let encoded_tuple_buffer%24#0: bytes = 0x0000000000000003001c0000040000000000001f0000000000000003
+        let encoded_tuple_buffer%25#0: bytes = (concat encoded_tuple_buffer%24#0 0x000161)
         let four2#0: bytes = (concat encoded_tuple_buffer%25#0 concat_result%0#0)
-        let five#0: bytes = 0x000400070001610003626565
+        let encoded_tuple_buffer%30#0: bytes = 0x00040007000161
+        let five#0: bytes = (concat encoded_tuple_buffer%30#0 0x0003626565)
         let data_length%8#0: uint64 = (len two#0)
         let current_tail_offset%15#0: uint64 = (+ 26u data_length%8#0)
         let as_bytes%10#0: bytes = (itob current_tail_offset%15#0)
@@ -449,7 +462,7 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@3)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#1 tmp%7#0)
-        goto continue_looping%0#0 ? block@3 : block@5
+        goto continue_looping%0#0 ? block@3 : block@4
     block@3: // for_body_L270
         let tail_offset#0: uint64 = (extract_uint16 new_head_and_tail#1 head_offset#1)
         let tail_offset#1: uint64 = (+ tail_offset#0 new_item_length#0)
@@ -459,6 +472,6 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         let new_head_and_tail#2: bytes = (replace3 new_head_and_tail#1 head_offset#1 tail_offset_bytes#0)
         let head_offset#2: uint64 = (+ head_offset#1 2u)
         goto block@2
-    block@5: // after_for_L269
+    block@4: // after_for_L269
         let tmp%2#0: bytes = (concat size_b#0 new_head_and_tail#1)
         return tmp%2#0

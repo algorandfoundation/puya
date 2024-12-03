@@ -57,16 +57,21 @@ __init__:
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
     proto 0 1
+    callsub __puya_arc4_router__
+    retsub
 
-approval_program_block@1:
+
+// examples.amm.contract.ConstantProductAMM.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
+    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz approval_program_bare_routing@10
+    bz __puya_arc4_router___bare_routing@9
 
-approval_program_abi_routing@2:
+__puya_arc4_router___abi_routing@1:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     txna ApplicationArgs 0
@@ -76,21 +81,19 @@ approval_program_abi_routing@2:
     pushbytes 0x1436c2ac // method "burn(axfer,asset,asset,asset)void"
     pushbytes 0x4a88e055 // method "swap(axfer,asset,asset)void"
     uncover 5
-    match approval_program_set_governor_route@3 approval_program_bootstrap_route@4 approval_program_mint_route@5 approval_program_burn_route@6 approval_program_swap_route@7
+    match __puya_arc4_router___set_governor_route@2 __puya_arc4_router___bootstrap_route@3 __puya_arc4_router___mint_route@4 __puya_arc4_router___burn_route@5 __puya_arc4_router___swap_route@6
 
-approval_program_switch_case_default@8:
+__puya_arc4_router___switch_case_default@7:
 
-approval_program_switch_case_next@9:
+__puya_arc4_router___switch_case_next@8:
 
-approval_program_after_if_else@14:
+__puya_arc4_router___after_if_else@13:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     intc_0 // 0
-
-approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__puya_arc4_router__@15:
     retsub
 
-approval_program_swap_route@7:
+__puya_arc4_router___swap_route@6:
     // amm/contract.py:204-209
     // @arc4.abimethod(
     //     default_args={
@@ -134,9 +137,9 @@ approval_program_swap_route@7:
     uncover 2
     callsub swap
     intc_1 // 1
-    b approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__puya_arc4_router__@15
+    retsub
 
-approval_program_burn_route@6:
+__puya_arc4_router___burn_route@5:
     // amm/contract.py:147-153
     // @arc4.abimethod(
     //     default_args={
@@ -186,9 +189,9 @@ approval_program_burn_route@6:
     uncover 3
     callsub burn
     intc_1 // 1
-    b approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__puya_arc4_router__@15
+    retsub
 
-approval_program_mint_route@5:
+__puya_arc4_router___mint_route@4:
     // amm/contract.py:81-87
     // @arc4.abimethod(
     //     default_args={
@@ -247,9 +250,9 @@ approval_program_mint_route@5:
     uncover 4
     callsub mint
     intc_1 // 1
-    b approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__puya_arc4_router__@15
+    retsub
 
-approval_program_bootstrap_route@4:
+__puya_arc4_router___bootstrap_route@3:
     // amm/contract.py:49
     // @arc4.abimethod()
     txn OnCompletion
@@ -288,9 +291,9 @@ approval_program_bootstrap_route@4:
     concat
     log
     intc_1 // 1
-    b approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__puya_arc4_router__@15
+    retsub
 
-approval_program_set_governor_route@3:
+__puya_arc4_router___set_governor_route@2:
     // amm/contract.py:43
     // @arc4.abimethod()
     txn OnCompletion
@@ -310,32 +313,29 @@ approval_program_set_governor_route@3:
     // @arc4.abimethod()
     callsub set_governor
     intc_1 // 1
-    b approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__puya_arc4_router__@15
+    retsub
 
-approval_program_bare_routing@10:
+__puya_arc4_router___bare_routing@9:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match approval_program___algopy_default_create@11
+    match __puya_arc4_router_____algopy_default_create@10
 
-approval_program_switch_case_default@12:
+__puya_arc4_router___switch_case_default@11:
 
-approval_program_switch_case_next@13:
-    b approval_program_after_if_else@14
+__puya_arc4_router___switch_case_next@12:
+    b __puya_arc4_router___after_if_else@13
 
-approval_program___algopy_default_create@11:
+__puya_arc4_router_____algopy_default_create@10:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-
-approval_program_block@16:
-
-approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__algopy_default_create@17:
+    callsub __algopy_default_create
     intc_1 // 1
-    b approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__puya_arc4_router__@15
+    retsub
 
 
 // examples.amm.contract.ConstantProductAMM.set_governor(new_governor: bytes) -> void:
@@ -1369,4 +1369,10 @@ tokens_to_swap:
     // return out_total // in_total
     swap
     /
+    retsub
+
+
+// examples.amm.contract.ConstantProductAMM.__algopy_default_create() -> void:
+__algopy_default_create:
+    proto 0 0
     retsub

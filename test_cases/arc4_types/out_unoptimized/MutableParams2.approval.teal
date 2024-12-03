@@ -4,36 +4,39 @@
 main:
     intcblock 0 1
     bytecblock 0x 0x01 0x04 0x0003 0x0001
+    callsub __puya_arc4_router__
+    return
 
-main_block@1:
+
+// test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
     // arc4_types/mutable_params2.py:4
     // class MutableParams2(arc4.ARC4Contract):
+    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@6
+    bz __puya_arc4_router___bare_routing@5
 
-main_abi_routing@2:
+__puya_arc4_router___abi_routing@1:
     // arc4_types/mutable_params2.py:4
     // class MutableParams2(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x6ac4a557 // method "test_array_rebinding()void"
     swap
-    match main_test_array_rebinding_route@3
+    match __puya_arc4_router___test_array_rebinding_route@2
 
-main_switch_case_default@4:
+__puya_arc4_router___switch_case_default@3:
 
-main_switch_case_next@5:
+__puya_arc4_router___switch_case_next@4:
 
-main_after_if_else@10:
+__puya_arc4_router___after_if_else@9:
     // arc4_types/mutable_params2.py:4
     // class MutableParams2(arc4.ARC4Contract):
     intc_0 // 0
+    retsub
 
-main_after_inlined_test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__@11:
-    return
-
-main_test_array_rebinding_route@3:
+__puya_arc4_router___test_array_rebinding_route@2:
     // arc4_types/mutable_params2.py:5
     // @arc4.abimethod()
     txn OnCompletion
@@ -46,32 +49,29 @@ main_test_array_rebinding_route@3:
     assert // can only call when not creating
     callsub test_array_rebinding
     intc_1 // 1
-    b main_after_inlined_test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__@11
+    retsub
 
-main_bare_routing@6:
+__puya_arc4_router___bare_routing@5:
     // arc4_types/mutable_params2.py:4
     // class MutableParams2(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match main___algopy_default_create@7
+    match __puya_arc4_router_____algopy_default_create@6
 
-main_switch_case_default@8:
+__puya_arc4_router___switch_case_default@7:
 
-main_switch_case_next@9:
-    b main_after_if_else@10
+__puya_arc4_router___switch_case_next@8:
+    b __puya_arc4_router___after_if_else@9
 
-main___algopy_default_create@7:
+__puya_arc4_router_____algopy_default_create@6:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-
-main_block@12:
-
-main_after_inlined_test_cases.arc4_types.mutable_params2.MutableParams2.__algopy_default_create@13:
+    callsub __algopy_default_create
     intc_1 // 1
-    b main_after_inlined_test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__@11
+    retsub
 
 
 // test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding() -> void:
@@ -291,3 +291,9 @@ maybe_modify_array_if_body@11:
 
 maybe_modify_array_after_if_else@12:
     b maybe_modify_array_after_if_else@13
+
+
+// test_cases.arc4_types.mutable_params2.MutableParams2.__algopy_default_create() -> void:
+__algopy_default_create:
+    proto 0 0
+    retsub

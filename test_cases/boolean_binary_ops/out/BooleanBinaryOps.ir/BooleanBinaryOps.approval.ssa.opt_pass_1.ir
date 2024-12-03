@@ -299,33 +299,8 @@ main test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
         let ternary_result%5#1: bytes = "right"
         goto block@74
     block@74: // ternary_merge_L89
-        let sequence#0: bytes = φ(ternary_result%5#0 <- block@72, ternary_result%5#1 <- block@73)
-        let start#0: uint64 = 0u
-        goto block@119
-    block@119: // while_top_L11
-        let start#1: uint64 = φ(start#0 <- block@74, start#2 <- block@122)
-        let tmp%0#6: uint64 = 4u
-        let tmp%1#6: uint64 = (+ start#1 tmp%0#6)
-        let tmp%2#6: uint64 = (len sequence#0)
-        let tmp%3#6: bool = (<= tmp%1#6 tmp%2#6)
-        goto tmp%3#6 ? block@120 : block@123
-    block@120: // while_body_L12
-        let tmp%4#6: uint64 = 4u
-        let tmp%5#5: uint64 = (+ start#1 tmp%4#6)
-        let tmp%6#5: bytes = (substring3 sequence#0 start#1 tmp%5#5)
-        let tmp%7#5: bool = (== "ight" tmp%6#5)
-        goto tmp%7#5 ? block@121 : block@122
-    block@121: // if_body_L13
-        let _puya_lib.bytes_.is_substring%0#0: bool = 1u
-        goto block@124
-    block@122: // after_if_else_L12
-        let start#2: uint64 = (+ start#1 1u)
-        goto block@119
-    block@123: // after_while_L11
-        let _puya_lib.bytes_.is_substring%0#1: bool = 0u
-        goto block@124
-    block@124: // after_inlined__puya_lib.bytes_.is_substring_L89
-        let tmp%57#0: bool = φ(_puya_lib.bytes_.is_substring%0#0 <- block@121, _puya_lib.bytes_.is_substring%0#1 <- block@123)
+        let ternary_result%5#2: bytes = φ(ternary_result%5#0 <- block@72, ternary_result%5#1 <- block@73)
+        let tmp%57#0: bool = _puya_lib.bytes_.is_substring("ight", ternary_result%5#2)
         (assert tmp%57#0)
         let tmp%58#0: bool = 0u
         let tmp%59#0: uint64 = (select 2u 1u tmp%58#0)
@@ -450,3 +425,26 @@ subroutine test_cases.boolean_binary_ops.contract.log_and_return(x: bool, msg: b
     block@0: // L54
         (log msg#0)
         return x#0
+
+subroutine _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> bool:
+    block@0: // L4
+        let start#0: uint64 = 0u
+        goto block@1
+    block@1: // while_top_L11
+        let start#1: uint64 = φ(start#0 <- block@0, start#2 <- block@4)
+        let tmp%0#0: uint64 = (len item#0)
+        let tmp%1#0: uint64 = (+ start#1 tmp%0#0)
+        let tmp%2#0: uint64 = (len sequence#0)
+        let tmp%3#0: bool = (<= tmp%1#0 tmp%2#0)
+        goto tmp%3#0 ? block@2 : block@5
+    block@2: // while_body_L12
+        let tmp%6#0: bytes = (substring3 sequence#0 start#1 tmp%1#0)
+        let tmp%7#0: bool = (== item#0 tmp%6#0)
+        goto tmp%7#0 ? block@3 : block@4
+    block@3: // if_body_L13
+        return 1u
+    block@4: // after_if_else_L12
+        let start#2: uint64 = (+ start#1 1u)
+        goto block@1
+    block@5: // after_while_L11
+        return 0u

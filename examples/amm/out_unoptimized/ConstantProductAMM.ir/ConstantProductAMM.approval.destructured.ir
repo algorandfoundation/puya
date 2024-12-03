@@ -21,15 +21,18 @@ subroutine examples.amm.contract.ConstantProductAMM.__init__() -> void:
 
 subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@0: // L1
-        goto block@1
-    block@1: // L27
-        let tmp%0#1: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@10
-    block@2: // abi_routing_L27
+        let tmp%0#0: bool = examples.amm.contract.ConstantProductAMM.__puya_arc4_router__()
+        return tmp%0#0
+
+subroutine examples.amm.contract.ConstantProductAMM.__puya_arc4_router__() -> bool:
+    block@0: // L27
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#0 0u)
+        goto tmp%1#0 ? block@1 : block@9
+    block@1: // abi_routing_L27
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "set_governor(account)void" => block@3, method "bootstrap(pay,asset,asset)uint64" => block@4, method "mint(axfer,axfer,asset,asset,asset)void" => block@5, method "burn(axfer,asset,asset,asset)void" => block@6, method "swap(axfer,asset,asset)void" => block@7, * => block@8}
-    block@3: // set_governor_route_L43
+        switch tmp%2#0 {method "set_governor(account)void" => block@2, method "bootstrap(pay,asset,asset)uint64" => block@3, method "mint(axfer,axfer,asset,asset,asset)void" => block@4, method "burn(axfer,asset,asset,asset)void" => block@5, method "swap(axfer,asset,asset)void" => block@6, * => block@7}
+    block@2: // set_governor_route_L43
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
         (assert tmp%4#0) // OnCompletion is not NoOp
@@ -40,10 +43,8 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%8#0: uint64 = (btoi tmp%7#0)
         let tmp%9#0: bytes = ((txnas Accounts) tmp%8#0)
         examples.amm.contract.ConstantProductAMM.set_governor(tmp%9#0)
-        let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0
-        goto block@15
-    block@4: // bootstrap_route_L49
+        return 1u
+    block@3: // bootstrap_route_L49
         let tmp%10#0: uint64 = (txn OnCompletion)
         let tmp%11#0: bool = (== tmp%10#0 NoOp)
         (assert tmp%11#0) // OnCompletion is not NoOp
@@ -65,10 +66,8 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
         let tmp%21#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
         (log tmp%21#0)
-        let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0
-        goto block@15
-    block@5: // mint_route_L81
+        return 1u
+    block@4: // mint_route_L81
         let tmp%22#0: uint64 = (txn OnCompletion)
         let tmp%23#0: bool = (== tmp%22#0 NoOp)
         (assert tmp%23#0) // OnCompletion is not NoOp
@@ -95,10 +94,8 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%35#0: uint64 = (btoi tmp%34#0)
         let tmp%36#0: uint64 = ((txnas Assets) tmp%35#0)
         examples.amm.contract.ConstantProductAMM.mint(gtxn_idx%1#0, gtxn_idx%2#0, tmp%30#0, tmp%33#0, tmp%36#0)
-        let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0
-        goto block@15
-    block@6: // burn_route_L147
+        return 1u
+    block@5: // burn_route_L147
         let tmp%37#0: uint64 = (txn OnCompletion)
         let tmp%38#0: bool = (== tmp%37#0 NoOp)
         (assert tmp%38#0) // OnCompletion is not NoOp
@@ -120,10 +117,8 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%49#0: uint64 = (btoi tmp%48#0)
         let tmp%50#0: uint64 = ((txnas Assets) tmp%49#0)
         examples.amm.contract.ConstantProductAMM.burn(gtxn_idx%3#0, tmp%44#0, tmp%47#0, tmp%50#0)
-        let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0
-        goto block@15
-    block@7: // swap_route_L204
+        return 1u
+    block@6: // swap_route_L204
         let tmp%51#0: uint64 = (txn OnCompletion)
         let tmp%52#0: bool = (== tmp%51#0 NoOp)
         (assert tmp%52#0) // OnCompletion is not NoOp
@@ -142,37 +137,26 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%60#0: uint64 = (btoi tmp%59#0)
         let tmp%61#0: uint64 = ((txnas Assets) tmp%60#0)
         examples.amm.contract.ConstantProductAMM.swap(gtxn_idx%4#0, tmp%58#0, tmp%61#0)
-        let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0
-        goto block@15
-    block@8: // switch_case_default_L27
-        goto block@9
-    block@9: // switch_case_next_L27
-        goto block@14
-    block@10: // bare_routing_L27
+        return 1u
+    block@7: // switch_case_default_L27
+        goto block@8
+    block@8: // switch_case_next_L27
+        goto block@13
+    block@9: // bare_routing_L27
         let tmp%62#0: uint64 = (txn OnCompletion)
-        switch tmp%62#0 {0u => block@11, * => block@12}
-    block@11: // __algopy_default_create_L1
+        switch tmp%62#0 {0u => block@10, * => block@11}
+    block@10: // __algopy_default_create_L1
         let tmp%63#0: uint64 = (txn ApplicationID)
         let tmp%64#0: bool = (== tmp%63#0 0u)
         (assert tmp%64#0) // can only call when creating
-        goto block@16
-    block@16: // L1
-        goto block@17
-    block@17: // after_inlined_examples.amm.contract.ConstantProductAMM.__algopy_default_create_L1
-        let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0
-        goto block@15
-    block@12: // switch_case_default_L27
+        examples.amm.contract.ConstantProductAMM.__algopy_default_create()
+        return 1u
+    block@11: // switch_case_default_L27
+        goto block@12
+    block@12: // switch_case_next_L27
         goto block@13
-    block@13: // switch_case_next_L27
-        goto block@14
-    block@14: // after_if_else_L27
-        let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0
-        goto block@15
-    block@15: // after_inlined_examples.amm.contract.ConstantProductAMM.__puya_arc4_router___L1
-        return tmp%0#0
+    block@13: // after_if_else_L27
+        return 0u
 
 subroutine examples.amm.contract.ConstantProductAMM.set_governor(new_governor: bytes) -> void:
     block@0: // L43
@@ -538,3 +522,7 @@ subroutine examples.amm.contract.tokens_to_swap(in_amount: uint64, in_supply: ui
         let out_total#0: uint64 = (* tmp%3#0 out_supply#0)
         let tmp%4#0: uint64 = (/ out_total#0 in_total#0)
         return tmp%4#0
+
+subroutine examples.amm.contract.ConstantProductAMM.__algopy_default_create() -> void:
+    block@0: // L1
+        return 

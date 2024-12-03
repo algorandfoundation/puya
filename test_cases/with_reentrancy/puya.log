@@ -471,11 +471,10 @@ debug: removing unused subroutine _puya_lib.arc4.recalculate_head_for_elements_w
 debug: Output IR to with_reentrancy/out/WithReentrancy.ir/WithReentrancy.approval.ssa.ir
 info: optimizing approval program of test_cases.with_reentrancy.contract.WithReentrancy at level 1
 debug: Begin optimization pass 1/100
-with_reentrancy/contract.py:25 debug: function might be re-entrant: test_cases.with_reentrancy.contract.fibonacci
-with_reentrancy/contract.py:32 debug: function might be re-entrant: test_cases.with_reentrancy.contract.silly
+with_reentrancy/contract.py:25 debug: function is auto-recursive: test_cases.with_reentrancy.contract.fibonacci
+with_reentrancy/contract.py:16 debug: function is auto-recursive: test_cases.with_reentrancy.contract.itoa
 debug: marking single-use function test_cases.with_reentrancy.contract.silly2 for inlining
 debug: marking single-use function test_cases.with_reentrancy.contract.silly3 for inlining
-with_reentrancy/contract.py:16 debug: function might be re-entrant: test_cases.with_reentrancy.contract.itoa
 debug: Optimizing subroutine test_cases.with_reentrancy.contract.WithReentrancy.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -511,40 +510,24 @@ debug: Optimizer: Remove Calls To No Op Subroutines
 debug: Optimizing subroutine test_cases.with_reentrancy.contract.silly
 debug: Optimizer: Perform Subroutine Inlining
 with_reentrancy/contract.py:35:5 debug: inlining call to test_cases.with_reentrancy.contract.silly2 in test_cases.with_reentrancy.contract.silly
-with_reentrancy/contract.py:43:5 debug: inlining call to test_cases.with_reentrancy.contract.silly3 in test_cases.with_reentrancy.contract.silly
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: x#1, x#2
 debug: Replacing {x#2} with x#1 made 1 modifications
-debug: Found equivalence set: x#3, x#4
-debug: Replacing {x#4} with x#3 made 4 modifications
-debug: Found equivalence set: result#5, result#1, result#0
-debug: Replacing {result#1, result#0} with result#5 made 1 modifications
-debug: Found equivalence set: a#2, result#4
-debug: Replacing {result#4} with a#2 made 1 modifications
+debug: Found equivalence set: result#1, result#0
+debug: Replacing {result#0} with result#1 made 1 modifications
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (== tmp%0#2 0u) to (! tmp%0#2)
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Remove Unused Ops
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
-debug: simplified branch on !is_even#0 by swapping zero and non-zero targets
-debug: simplified terminator of block@3 from goto is_even#0 ? block@4 : block@5 to goto tmp%0#2 ? block@5 : block@4
-debug: simplified branch on !is_even#0 by swapping zero and non-zero targets
-debug: simplified terminator of block@6 from goto is_even#0 ? block@7 : block@8 to goto tmp%0#2 ? block@8 : block@7
 debug: Optimizer: Remove Linear Jump
-debug: Replaced predecessor block@1 with block@0 in block@3
+debug: Replaced predecessor block@1 with block@0 in block@2
 debug: Merged linear block@1 into block@0
-debug: Replaced predecessor block@3 with block@0 in block@4
-debug: Replaced predecessor block@3 with block@0 in block@5
-debug: Merged linear block@3 into block@0
-debug: Replaced predecessor block@9 with block@8 in block@2
-debug: Merged linear block@9 into block@8
-debug: Merged linear block@2 into block@8
+debug: Merged linear block@2 into block@0
 debug: Optimizer: Remove Empty Blocks
-debug: Not removing empty block block@7 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Remove Calls To No Op Subroutines
@@ -624,9 +607,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Remove Calls To No Op Subroutines
 debug: removing unused subroutine test_cases.with_reentrancy.contract.silly2
-debug: removing unused subroutine test_cases.with_reentrancy.contract.silly3
 debug: Output IR to with_reentrancy/out/WithReentrancy.ir/WithReentrancy.approval.ssa.opt_pass_1.ir
 debug: Begin optimization pass 2/100
+debug: marking single-use function test_cases.with_reentrancy.contract.silly3 for inlining
 debug: Optimizing subroutine test_cases.with_reentrancy.contract.WithReentrancy.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -661,6 +644,33 @@ debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Remove Calls To No Op Subroutines
 debug: Optimizing subroutine test_cases.with_reentrancy.contract.silly
 debug: Optimizer: Perform Subroutine Inlining
+with_reentrancy/contract.py:43:5 debug: inlining call to test_cases.with_reentrancy.contract.silly3 in test_cases.with_reentrancy.contract.silly
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Found equivalence set: x#3, x#4
+debug: Replacing {x#4} with x#3 made 4 modifications
+debug: Found equivalence set: result#5, result#1
+debug: Replacing {result#1} with result#5 made 1 modifications
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable is_even#0
+debug: Optimizer: Remove Unused Ops
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Replaced predecessor block@1 with block@0 in block@2
+debug: Replaced predecessor block@1 with block@0 in block@3
+debug: Merged linear block@1 into block@0
+debug: Merged linear block@7 into block@6
+debug: Optimizer: Remove Empty Blocks
+debug: Not removing empty block block@5 because it's used by phi nodes
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Remove Calls To No Op Subroutines
+debug: Optimizing subroutine test_cases.with_reentrancy.contract.silly3
+debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
@@ -673,7 +683,7 @@ debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
-debug: Not removing empty block block@7 because it's used by phi nodes
+debug: Not removing empty block block@4 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Remove Calls To No Op Subroutines
@@ -694,8 +704,10 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Remove Calls To No Op Subroutines
+debug: removing unused subroutine test_cases.with_reentrancy.contract.silly3
 debug: Output IR to with_reentrancy/out/WithReentrancy.ir/WithReentrancy.approval.ssa.opt_pass_2.ir
 debug: Begin optimization pass 3/100
+with_reentrancy/contract.py:32 debug: function is auto-recursive: test_cases.with_reentrancy.contract.silly
 debug: Optimizing subroutine test_cases.with_reentrancy.contract.WithReentrancy.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -741,7 +753,7 @@ debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
-debug: Not removing empty block block@7 because it's used by phi nodes
+debug: Not removing empty block block@5 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Remove Calls To No Op Subroutines
@@ -864,24 +876,24 @@ debug: Inserted silly.ops[10]: 'l-store-copy x#3 0'
 debug: Replaced silly.ops[14]: 'v-load x#3' with 'l-load x#3'
 debug: Inserted silly.ops[13]: 'l-store-copy tmp%0#2 1'
 debug: Replaced silly.ops[19]: 'v-load tmp%0#2' with 'l-load tmp%0#2'
-debug: Inserted silly_if_body@4.ops[3]: 'l-store-copy result#2 0'
-debug: Replaced silly_if_body@4.ops[5]: 'v-load result#2' with 'l-load result#2'
-debug: Inserted silly_if_body@4.ops[8]: 'l-store-copy tmp%1#2 0'
-debug: Replaced silly_if_body@4.ops[10]: 'v-load tmp%1#2' with 'l-load tmp%1#2'
-debug: Inserted silly_after_if_else@8.ops[6]: 'l-store-copy tmp%3#0 0'
-debug: Replaced silly_after_if_else@8.ops[8]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
-debug: Inserted silly_after_if_else@8.ops[16]: 'l-store-copy tmp%1#0 0'
-debug: Replaced silly_after_if_else@8.ops[18]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted silly_after_if_else@8.ops[26]: 'l-store-copy tmp%1#0 0'
-debug: Replaced silly_after_if_else@8.ops[28]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted silly_after_if_else@8.ops[2]: 'l-store-copy tmp%2#0 0'
-debug: Replaced silly_after_if_else@8.ops[5]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
-debug: Inserted silly_after_if_else@8.ops[13]: 'l-store-copy tmp%0#0 0'
-debug: Replaced silly_after_if_else@8.ops[16]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
-debug: Inserted silly_after_if_else@8.ops[24]: 'l-store-copy tmp%0#0 0'
-debug: Replaced silly_after_if_else@8.ops[27]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
-debug: Inserted silly_after_if_else@8.ops[1]: 'l-store-copy x#3 0'
-debug: Replaced silly_after_if_else@8.ops[12]: 'v-load x#3' with 'l-load x#3'
+debug: Inserted silly_if_body@2.ops[3]: 'l-store-copy result#2 0'
+debug: Replaced silly_if_body@2.ops[5]: 'v-load result#2' with 'l-load result#2'
+debug: Inserted silly_if_body@2.ops[8]: 'l-store-copy tmp%1#2 0'
+debug: Replaced silly_if_body@2.ops[10]: 'v-load tmp%1#2' with 'l-load tmp%1#2'
+debug: Inserted silly_after_if_else@6.ops[6]: 'l-store-copy tmp%3#0 0'
+debug: Replaced silly_after_if_else@6.ops[8]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
+debug: Inserted silly_after_if_else@6.ops[16]: 'l-store-copy tmp%1#0 0'
+debug: Replaced silly_after_if_else@6.ops[18]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
+debug: Inserted silly_after_if_else@6.ops[26]: 'l-store-copy tmp%1#0 0'
+debug: Replaced silly_after_if_else@6.ops[28]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
+debug: Inserted silly_after_if_else@6.ops[2]: 'l-store-copy tmp%2#0 0'
+debug: Replaced silly_after_if_else@6.ops[5]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
+debug: Inserted silly_after_if_else@6.ops[13]: 'l-store-copy tmp%0#0 0'
+debug: Replaced silly_after_if_else@6.ops[16]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted silly_after_if_else@6.ops[24]: 'l-store-copy tmp%0#0 0'
+debug: Replaced silly_after_if_else@6.ops[27]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted silly_after_if_else@6.ops[1]: 'l-store-copy x#3 0'
+debug: Replaced silly_after_if_else@6.ops[12]: 'v-load x#3' with 'l-load x#3'
 debug: Inserted itoa.ops[3]: 'l-store-copy tmp%0#0 0'
 debug: Replaced itoa.ops[5]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted itoa_if_body@1.ops[4]: 'l-store-copy tmp%1#0 0'
@@ -905,10 +917,10 @@ with_reentrancy/contract.py:7 debug: optimizing TEAL subroutine test_cases.with_
 with_reentrancy/contract.py:25 debug: optimizing TEAL subroutine test_cases.with_reentrancy.contract.fibonacci(n: uint64) -> uint64:
 debug: inlining single reference block fibonacci_if_body@1 into fibonacci
 with_reentrancy/contract.py:32 debug: optimizing TEAL subroutine test_cases.with_reentrancy.contract.silly(x: uint64) -> uint64:
-debug: inlining single reference block silly_if_body@4 into silly
-debug: inlining single reference block silly_if_body@7 into silly_after_if_else@6
+debug: inlining single reference block silly_if_body@2 into silly
+debug: inlining single reference block silly_if_body@5 into silly_after_if_else@4
+debug: removing explicit jump to fall-through block silly_after_if_else@4
 debug: removing explicit jump to fall-through block silly_after_if_else@6
-debug: removing explicit jump to fall-through block silly_after_if_else@8
 with_reentrancy/contract.py:16 debug: optimizing TEAL subroutine test_cases.with_reentrancy.contract.itoa(i: uint64) -> bytes:
 debug: inlining single reference block itoa_if_body@1 into itoa
 with_reentrancy/contract.py:12 debug: optimizing TEAL subroutine test_cases.with_reentrancy.contract.WithReentrancy.clear_state_program() -> uint64:

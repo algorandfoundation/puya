@@ -1,14 +1,17 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
-        goto block@1
-    block@1: // L11
-        let tmp%0#1: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@15
-    block@2: // abi_routing_L11
+        let tmp%0#0: bool = test_cases.transaction.contract.TransactionContract.__puya_arc4_router__()
+        return tmp%0#0
+
+subroutine test_cases.transaction.contract.TransactionContract.__puya_arc4_router__() -> bool:
+    block@0: // L11
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#0 0u)
+        goto tmp%1#0 ? block@1 : block@14
+    block@1: // abi_routing_L11
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create()void" => block@3, method "pay(pay)void" => block@4, method "key(keyreg)void" => block@5, method "asset_config(acfg)void" => block@6, method "asset_transfer(axfer)void" => block@7, method "asset_freeze(afrz)void" => block@8, method "application_call(appl)void" => block@9, method "multiple_txns(appl,appl,appl)void" => block@10, method "any_txn(txn,txn,txn)void" => block@11, method "group_init(txn,txn,txn)void" => block@12, * => block@13}
-    block@3: // create_route_L12
+        switch tmp%2#0 {method "create()void" => block@2, method "pay(pay)void" => block@3, method "key(keyreg)void" => block@4, method "asset_config(acfg)void" => block@5, method "asset_transfer(axfer)void" => block@6, method "asset_freeze(afrz)void" => block@7, method "application_call(appl)void" => block@8, method "multiple_txns(appl,appl,appl)void" => block@9, method "any_txn(txn,txn,txn)void" => block@10, method "group_init(txn,txn,txn)void" => block@11, * => block@12}
+    block@2: // create_route_L12
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
         (assert tmp%4#0) // OnCompletion is not NoOp
@@ -16,10 +19,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bool = (== tmp%5#0 0u)
         (assert tmp%6#0) // can only call when creating
         test_cases.transaction.contract.TransactionContract.create()
-        let test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0
-        goto block@17
-    block@4: // pay_route_L31
+        return 1u
+    block@3: // pay_route_L31
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (== tmp%7#0 NoOp)
         (assert tmp%8#0) // OnCompletion is not NoOp
@@ -32,10 +33,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
         test_cases.transaction.contract.TransactionContract.pay(gtxn_idx%0#0)
-        let test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0
-        goto block@17
-    block@5: // key_route_L40
+        return 1u
+    block@4: // key_route_L40
         let tmp%12#0: uint64 = (txn OnCompletion)
         let tmp%13#0: bool = (== tmp%12#0 NoOp)
         (assert tmp%13#0) // OnCompletion is not NoOp
@@ -48,10 +47,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 keyreg)
         (assert gtxn_type_matches%1#0) // transaction type is keyreg
         test_cases.transaction.contract.TransactionContract.key(gtxn_idx%1#0)
-        let test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0
-        goto block@17
-    block@6: // asset_config_route_L51
+        return 1u
+    block@5: // asset_config_route_L51
         let tmp%17#0: uint64 = (txn OnCompletion)
         let tmp%18#0: bool = (== tmp%17#0 NoOp)
         (assert tmp%18#0) // OnCompletion is not NoOp
@@ -64,10 +61,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let gtxn_type_matches%2#0: bool = (== gtxn_type%2#0 acfg)
         (assert gtxn_type_matches%2#0) // transaction type is acfg
         test_cases.transaction.contract.TransactionContract.asset_config(gtxn_idx%2#0)
-        let test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0
-        goto block@17
-    block@7: // asset_transfer_route_L68
+        return 1u
+    block@6: // asset_transfer_route_L68
         let tmp%22#0: uint64 = (txn OnCompletion)
         let tmp%23#0: bool = (== tmp%22#0 NoOp)
         (assert tmp%23#0) // OnCompletion is not NoOp
@@ -80,10 +75,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let gtxn_type_matches%3#0: bool = (== gtxn_type%3#0 axfer)
         (assert gtxn_type_matches%3#0) // transaction type is axfer
         test_cases.transaction.contract.TransactionContract.asset_transfer(gtxn_idx%3#0)
-        let test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0
-        goto block@17
-    block@8: // asset_freeze_route_L77
+        return 1u
+    block@7: // asset_freeze_route_L77
         let tmp%27#0: uint64 = (txn OnCompletion)
         let tmp%28#0: bool = (== tmp%27#0 NoOp)
         (assert tmp%28#0) // OnCompletion is not NoOp
@@ -96,10 +89,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let gtxn_type_matches%4#0: bool = (== gtxn_type%4#0 afrz)
         (assert gtxn_type_matches%4#0) // transaction type is afrz
         test_cases.transaction.contract.TransactionContract.asset_freeze(gtxn_idx%4#0)
-        let test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0
-        goto block@17
-    block@9: // application_call_route_L85
+        return 1u
+    block@8: // application_call_route_L85
         let tmp%32#0: uint64 = (txn OnCompletion)
         let tmp%33#0: bool = (== tmp%32#0 NoOp)
         (assert tmp%33#0) // OnCompletion is not NoOp
@@ -112,10 +103,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let gtxn_type_matches%5#0: bool = (== gtxn_type%5#0 appl)
         (assert gtxn_type_matches%5#0) // transaction type is appl
         test_cases.transaction.contract.TransactionContract.application_call(gtxn_idx%5#0)
-        let test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0
-        goto block@17
-    block@10: // multiple_txns_route_L111
+        return 1u
+    block@9: // multiple_txns_route_L111
         let tmp%37#0: uint64 = (txn OnCompletion)
         let tmp%38#0: bool = (== tmp%37#0 NoOp)
         (assert tmp%38#0) // OnCompletion is not NoOp
@@ -138,10 +127,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let gtxn_type_matches%8#0: bool = (== gtxn_type%8#0 appl)
         (assert gtxn_type_matches%8#0) // transaction type is appl
         test_cases.transaction.contract.TransactionContract.multiple_txns(gtxn_idx%6#0, gtxn_idx%7#0, gtxn_idx%8#0)
-        let test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0
-        goto block@17
-    block@11: // any_txn_route_L121
+        return 1u
+    block@10: // any_txn_route_L121
         let tmp%44#0: uint64 = (txn OnCompletion)
         let tmp%45#0: bool = (== tmp%44#0 NoOp)
         (assert tmp%45#0) // OnCompletion is not NoOp
@@ -155,10 +142,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%50#0: uint64 = (txn GroupIndex)
         let gtxn_idx%11#0: uint64 = (- tmp%50#0 1u)
         test_cases.transaction.contract.TransactionContract.any_txn(gtxn_idx%9#0, gtxn_idx%10#0, gtxn_idx%11#0)
-        let test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0
-        goto block@17
-    block@12: // group_init_route_L131
+        return 1u
+    block@11: // group_init_route_L131
         let tmp%51#0: uint64 = (txn OnCompletion)
         let tmp%52#0: bool = (== tmp%51#0 NoOp)
         (assert tmp%52#0) // OnCompletion is not NoOp
@@ -172,21 +157,15 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%57#0: uint64 = (txn GroupIndex)
         let gtxn_idx%14#0: uint64 = (- tmp%57#0 1u)
         test_cases.transaction.contract.TransactionContract.group_init(gtxn_idx%12#0, gtxn_idx%13#0, gtxn_idx%14#0)
-        let test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0
-        goto block@17
-    block@13: // switch_case_default_L11
-        goto block@14
-    block@14: // switch_case_next_L11
-        goto block@16
-    block@15: // bare_routing_L11
-        goto block@16
-    block@16: // after_if_else_L11
-        let test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0
-        goto block@17
-    block@17: // after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router___L1
-        return tmp%0#0
+        return 1u
+    block@12: // switch_case_default_L11
+        goto block@13
+    block@13: // switch_case_next_L11
+        goto block@15
+    block@14: // bare_routing_L11
+        goto block@15
+    block@15: // after_if_else_L11
+        return 0u
 
 subroutine test_cases.transaction.contract.TransactionContract.create() -> void:
     block@0: // L12

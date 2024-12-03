@@ -12,16 +12,16 @@ main:
 
 main_after_if_else@2:
     txn NumAppArgs
-    bz main_bare_routing@11
+    bz main_bare_routing@7
     pushbytess 0x786b6291 0x33fb5d48 // method "bootstrap()uint64", method "log_greetings(string)void"
     txna ApplicationArgs 0
-    match main_bootstrap_route@7 main_log_greetings_route@8
+    match main_bootstrap_route@5 main_log_greetings_route@6
 
-main_after_if_else@15:
+main_after_if_else@9:
     intc_0 // 0
     return
 
-main_log_greetings_route@8:
+main_log_greetings_route@6:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -32,7 +32,7 @@ main_log_greetings_route@8:
     intc_1 // 1
     return
 
-main_bootstrap_route@7:
+main_bootstrap_route@5:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -47,9 +47,9 @@ main_bootstrap_route@7:
     intc_1 // 1
     return
 
-main_bare_routing@11:
+main_bare_routing@7:
     txn OnCompletion
-    bnz main_after_if_else@15
+    bnz main_after_if_else@9
     txn ApplicationID
     !
     assert // can only call when creating

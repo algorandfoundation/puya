@@ -26,16 +26,21 @@ __init__:
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
     proto 0 1
+    callsub __puya_arc4_router__
+    retsub
 
-approval_program_block@1:
+
+// test_cases.state_mutations.contract.Contract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
+    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz approval_program_bare_routing@8
+    bz __puya_arc4_router___bare_routing@7
 
-approval_program_abi_routing@2:
+__puya_arc4_router___abi_routing@1:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     txna ApplicationArgs 0
@@ -43,21 +48,19 @@ approval_program_abi_routing@2:
     pushbytes 0x95fef13d // method "modify()void"
     pushbytes 0x0c29444b // method "get()(uint64,string)[]"
     uncover 3
-    match approval_program_append_route@3 approval_program_modify_route@4 approval_program_get_route@5
+    match __puya_arc4_router___append_route@2 __puya_arc4_router___modify_route@3 __puya_arc4_router___get_route@4
 
-approval_program_switch_case_default@6:
+__puya_arc4_router___switch_case_default@5:
 
-approval_program_switch_case_next@7:
+__puya_arc4_router___switch_case_next@6:
 
-approval_program_after_if_else@13:
+__puya_arc4_router___after_if_else@12:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     intc_0 // 0
-
-approval_program_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@14:
     retsub
 
-approval_program_get_route@5:
+__puya_arc4_router___get_route@4:
     // state_mutations/contract.py:51
     // @arc4.abimethod
     txn OnCompletion
@@ -74,9 +77,9 @@ approval_program_get_route@5:
     concat
     log
     intc_2 // 1
-    b approval_program_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@14
+    retsub
 
-approval_program_modify_route@4:
+__puya_arc4_router___modify_route@3:
     // state_mutations/contract.py:44
     // @arc4.abimethod
     txn OnCompletion
@@ -89,9 +92,9 @@ approval_program_modify_route@4:
     assert // can only call when not creating
     callsub modify
     intc_2 // 1
-    b approval_program_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@14
+    retsub
 
-approval_program_append_route@3:
+__puya_arc4_router___append_route@2:
     // state_mutations/contract.py:36
     // @arc4.abimethod
     txn OnCompletion
@@ -104,35 +107,32 @@ approval_program_append_route@3:
     assert // can only call when not creating
     callsub append
     intc_2 // 1
-    b approval_program_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@14
+    retsub
 
-approval_program_bare_routing@8:
+__puya_arc4_router___bare_routing@7:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     txn OnCompletion
     intc_2 // 1
     intc_0 // 0
     uncover 2
-    match approval_program_opt_in@9 approval_program___algopy_default_create@10
+    match __puya_arc4_router___opt_in@8 __puya_arc4_router_____algopy_default_create@9
 
-approval_program_switch_case_default@11:
+__puya_arc4_router___switch_case_default@10:
 
-approval_program_switch_case_next@12:
-    b approval_program_after_if_else@13
+__puya_arc4_router___switch_case_next@11:
+    b __puya_arc4_router___after_if_else@12
 
-approval_program___algopy_default_create@10:
+__puya_arc4_router_____algopy_default_create@9:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-
-approval_program_block@15:
-
-approval_program_after_inlined_test_cases.state_mutations.contract.Contract.__algopy_default_create@16:
+    callsub __algopy_default_create
     intc_2 // 1
-    b approval_program_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@14
+    retsub
 
-approval_program_opt_in@9:
+__puya_arc4_router___opt_in@8:
     // state_mutations/contract.py:29
     // @arc4.baremethod(allow_actions=["OptIn"])
     txn ApplicationID
@@ -144,7 +144,7 @@ approval_program_opt_in@9:
     // def opt_in(self) -> None:
     callsub opt_in
     intc_2 // 1
-    b approval_program_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@14
+    retsub
 
 
 // test_cases.state_mutations.contract.Contract.append() -> void:
@@ -663,6 +663,12 @@ opt_in:
     pop
     swap
     box_put
+    retsub
+
+
+// test_cases.state_mutations.contract.Contract.__algopy_default_create() -> void:
+__algopy_default_create:
+    proto 0 0
     retsub
 
 

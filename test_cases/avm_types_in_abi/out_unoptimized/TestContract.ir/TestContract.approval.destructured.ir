@@ -1,14 +1,17 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
-        goto block@1
-    block@1: // L4
-        let tmp%0#1: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@7
-    block@2: // abi_routing_L4
+        let tmp%0#0: bool = test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__()
+        return tmp%0#0
+
+subroutine test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__() -> bool:
+    block@0: // L4
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#0 0u)
+        goto tmp%1#0 ? block@1 : block@6
+    block@1: // abi_routing_L4
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)" => block@3, method "tuple_of_arc4((uint8,address))(uint8,address)" => block@4, * => block@5}
-    block@3: // create_route_L5
+        switch tmp%2#0 {method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)" => block@2, method "tuple_of_arc4((uint8,address))(uint8,address)" => block@3, * => block@4}
+    block@2: // create_route_L5
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
         (assert tmp%4#0) // OnCompletion is not NoOp
@@ -71,10 +74,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let encoded_tuple_buffer%7#0: bytes = (concat encoded_tuple_buffer%6#0 encoded_value%1#0)
         let tmp%17#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%7#0)
         (log tmp%17#0)
-        let test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0
-        goto block@9
-    block@4: // tuple_of_arc4_route_L19
+        return 1u
+    block@3: // tuple_of_arc4_route_L19
         let tmp%18#0: uint64 = (txn OnCompletion)
         let tmp%19#0: bool = (== tmp%18#0 NoOp)
         (assert tmp%19#0) // OnCompletion is not NoOp
@@ -89,21 +90,15 @@ main algopy.arc4.ARC4Contract.approval_program:
         let encoded_tuple_buffer%10#0: bytes = (concat encoded_tuple_buffer%9#0 elements_to_encode%6#0)
         let tmp%23#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%10#0)
         (log tmp%23#0)
-        let test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0
-        goto block@9
-    block@5: // switch_case_default_L4
-        goto block@6
-    block@6: // switch_case_next_L4
-        goto block@8
-    block@7: // bare_routing_L4
-        goto block@8
-    block@8: // after_if_else_L4
-        let test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0
-        goto block@9
-    block@9: // after_inlined_test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router___L1
-        return tmp%0#0
+        return 1u
+    block@4: // switch_case_default_L4
+        goto block@5
+    block@5: // switch_case_next_L4
+        goto block@7
+    block@6: // bare_routing_L4
+        goto block@7
+    block@7: // after_if_else_L4
+        return 0u
 
 subroutine test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: bool, uint64_param: uint64, bytes_param: bytes, biguint_param: biguint, string_param: bytes, tuple_param.0: bool, tuple_param.1: uint64, tuple_param.2: bytes, tuple_param.3: biguint, tuple_param.4: bytes) -> <bool, uint64, bytes, biguint, bytes>:
     block@0: // L5

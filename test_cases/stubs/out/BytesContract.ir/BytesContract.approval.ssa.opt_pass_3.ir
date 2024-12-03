@@ -71,7 +71,8 @@ main test_cases.stubs.bytes.BytesContract.approval_program:
         let tmp%5#1: bool = (== tmp%4#1 0x61)
         (assert tmp%5#1)
         (log "one_to_seven called")
-        let bounded_index%4#1: uint64 = 1u
+        let is_out_of_bounds%4#1: bool = 0u
+        let bounded_index%4#1: uint64 = (select 1u 7u is_out_of_bounds%4#1)
         let bounded_index%5#1: uint64 = (- 7u bounded_index%4#1)
         let end_before_start%1#1: bool = (< bounded_index%5#1 bounded_index%4#1)
         let end%1#1: uint64 = (select bounded_index%5#1 bounded_index%4#1 end_before_start%1#1)

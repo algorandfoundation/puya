@@ -188,12 +188,13 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement() -> void:
     block@0: // L106
-        let tail_offset%0#0: uint64 = 38u
+        let updated_data%1#0: bytes = 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565
+        let tail_offset%0#0: uint64 = (extract_uint16 updated_data%1#0 22u)
         let tail_offset%1#0: uint64 = (+ tail_offset%0#0 12u)
         let tail_offset%2#0: uint64 = (- tail_offset%1#0 12u)
         let as_bytes%14#0: bytes = (itob tail_offset%2#0)
         let tail_offset_bytes%0#0: bytes = ((extract 6 2) as_bytes%14#0)
-        let updated_data%2#0: bytes = ((replace2 22) 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565 tail_offset_bytes%0#0)
+        let updated_data%2#0: bytes = ((replace2 22) updated_data%1#0 tail_offset_bytes%0#0)
         let tail_offset%3#0: uint64 = (extract_uint16 updated_data%2#0 24u)
         let tail_offset%4#0: uint64 = (+ tail_offset%3#0 12u)
         let tail_offset%5#0: uint64 = (- tail_offset%4#0 12u)
@@ -347,7 +348,7 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@3)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#1 tmp%7#0)
-        goto continue_looping%0#0 ? block@3 : block@5
+        goto continue_looping%0#0 ? block@3 : block@4
     block@3: // for_body_L270
         let tail_offset#0: uint64 = (extract_uint16 new_head_and_tail#1 head_offset#1)
         let tail_offset#1: uint64 = (+ tail_offset#0 new_item_length#0)
@@ -357,6 +358,6 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         let new_head_and_tail#2: bytes = (replace3 new_head_and_tail#1 head_offset#1 tail_offset_bytes#0)
         let head_offset#2: uint64 = (+ head_offset#1 2u)
         goto block@2
-    block@5: // after_for_L269
+    block@4: // after_for_L269
         let tmp%2#0: bytes = (concat size_b#0 new_head_and_tail#1)
         return tmp%2#0

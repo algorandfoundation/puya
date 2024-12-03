@@ -58,12 +58,17 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: bytes) -> void:
     block@0: // L30
-        let user_id#0: bytes = ((extract 2 8) user#0) // on error: Index access is out of bounds
-        let (_data#0: bytes, exists#0: bool) = (box_get user_id#0)
-        let tmp%2#0: bool = (! exists#0)
+        let tmp%0#0: bytes = ((extract 2 8) user#0) // on error: Index access is out of bounds
+        let tmp%1#0: bool = examples.struct_in_box.contract.ExampleContract.box_exists(tmp%0#0)
+        let tmp%2#0: bool = (! tmp%1#0)
         (assert tmp%2#0) // User with id must not exist
         let user#1: bytes = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
         return 
+
+subroutine examples.struct_in_box.contract.ExampleContract.box_exists(user_id: bytes) -> bool:
+    block@0: // L25
+        let (_data#0: bytes, exists#0: bool) = (box_get user_id#0)
+        return exists#0
 
 subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: bytes) -> bytes:
     block@0: // L17

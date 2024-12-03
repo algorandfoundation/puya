@@ -50,16 +50,8 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let array_data%3#0: bytes = (concat 0x0008 result%18#0)
         let tmp%2#0: bool = (== dynamic_uint8_array#3 array_data%3#0)
         (assert tmp%2#0)
-        let array_length#0: uint64 = (extract_uint16 dynamic_uint8_array#3 0u)
-        let length_minus_1#0: uint64 = (- array_length#0 1u)
-        let tmp%0#8: bytes = (itob length_minus_1#0)
-        let tmp%1#8: bytes = ((extract 6 0) tmp%0#8)
-        let result#0: bytes = ((replace2 0) dynamic_uint8_array#3 tmp%1#8)
-        let tmp%2#7: uint64 = (len result#0)
-        let item_location#0: uint64 = (- tmp%2#7 1u)
-        let popped#1: bytes = (extract3 result#0 item_location#0 1u)
-        let result#1: bytes = (substring3 result#0 0u item_location#0)
-        let tmp%3#0: bool = (b== popped#1 0x5a)
+        let (popped#0: bytes, dynamic_uint8_array#4: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(dynamic_uint8_array#3, 1u)
+        let tmp%3#0: bool = (b== popped#0 0x5a)
         (assert tmp%3#0)
         let result%19#0: bytes = 0x01
         let result%20#0: bytes = (concat result%19#0 0x02)
@@ -69,7 +61,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let result%24#0: bytes = (concat result%23#0 0x32)
         let result%25#0: bytes = (concat result%24#0 0x04)
         let array_data%4#0: bytes = (concat 0x0007 result%25#0)
-        let tmp%4#0: bool = (== result#1 array_data%4#0)
+        let tmp%4#0: bool = (== dynamic_uint8_array#4 array_data%4#0)
         (assert tmp%4#0)
         let encoded_bool%0#0: bytes = 0x80
         let encoded_bool%1#0: bytes = 0x00
@@ -630,6 +622,19 @@ subroutine _puya_lib.arc4.dynamic_array_pop_bit(array: bytes) -> <bytes, bytes>:
         let tmp%5#0: uint64 = (+ 2u tmp%4#0)
         let result#2: bytes = (substring3 result#1 0u tmp%5#0)
         return popped#0 result#2
+
+subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> <bytes, bytes>:
+    block@0: // L44
+        let array_length#0: uint64 = (extract_uint16 array#0 0u)
+        let length_minus_1#0: uint64 = (- array_length#0 1u)
+        let tmp%0#0: bytes = (itob length_minus_1#0)
+        let tmp%1#0: bytes = ((extract 6 0) tmp%0#0)
+        let result#0: bytes = ((replace2 0) array#0 tmp%1#0)
+        let tmp%2#0: uint64 = (len result#0)
+        let item_location#0: uint64 = (- tmp%2#0 fixed_byte_size#0)
+        let popped#0: bytes = (extract3 result#0 item_location#0 fixed_byte_size#0)
+        let result#1: bytes = (substring3 result#0 0u item_location#0)
+        return popped#0 result#1
 
 subroutine _puya_lib.arc4.dynamic_array_pop_byte_length_head(array: bytes) -> <bytes, bytes>:
     block@0: // L62
