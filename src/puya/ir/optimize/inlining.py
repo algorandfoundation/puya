@@ -43,18 +43,19 @@ def analyse_subroutines_for_inlining(
                 logger.warning("unable to inline recursive function", location=sub.source_location)
             sub.inline = False
         elif sub.inline is True:
-            for callee_id in call_graph.callees(sub):
+            for callee_id, _ in call_graph.callees(sub):
                 if not call_graph.has_path(sub.id, callee_id):
                     context.inlineable_calls.add((callee_id, sub.id))
     if not context.inlineable_calls:
         for sub in program.subroutines:
-            if sub.inline is None and call_graph.reference_count(sub) == 1:
-                (callee_id,) = call_graph.callees(sub)
-                assert (
-                    callee_id != sub.id
-                ), f"function {sub.id} is auto-recursive and disconnected from call graph"
-                logger.debug(f"marking single-use function {sub.id} for inlining")
-                context.inlineable_calls.add((callee_id, sub.id))
+            if sub.inline is None:
+                match call_graph.callees(sub):
+                    case [(callee_id, 1)]:
+                        assert (
+                            callee_id != sub.id
+                        ), f"function {sub.id} is auto-recursive and disconnected from call graph"
+                        logger.debug(f"marking single-use function {sub.id} for inlining")
+                        context.inlineable_calls.add((callee_id, sub.id))
     if not context.inlineable_calls:
         for sub in program.subroutines:
             if sub.inline is None:
@@ -68,7 +69,7 @@ def analyse_subroutines_for_inlining(
                         f"marking simple function {sub.id} for inlining"
                         f" ({complexity=} <= {threshold=})"
                     )
-                    for callee_id in call_graph.callees(sub):
+                    for callee_id, _ in call_graph.callees(sub):
                         if not call_graph.has_path(sub.id, callee_id):
                             context.inlineable_calls.add((callee_id, sub.id))
     return bool(context.inlineable_calls)

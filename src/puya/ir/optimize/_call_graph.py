@@ -1,4 +1,4 @@
-import typing
+from collections import Counter
 from functools import cached_property
 
 import networkx as nx  # type: ignore[import-untyped]
@@ -30,11 +30,8 @@ class CallGraph:
     def _paths(self) -> dict[str, dict[str, object]]:
         return dict(nx.all_pairs_shortest_path(self._graph))
 
-    def reference_count(self, sub: models.Subroutine) -> int:
-        return typing.cast(int, self._graph.in_degree(sub.id))
-
-    def callees(self, sub: models.Subroutine) -> list[str]:
-        return list(self._graph.predecessors(sub.id))
+    def callees(self, sub: models.Subroutine) -> list[tuple[str, int]]:
+        return list(Counter(callee_id for (callee_id, _) in self._graph.in_edges(sub.id)).items())
 
     def has_path(self, from_: str, to: str) -> bool:
         try:
@@ -45,4 +42,4 @@ class CallGraph:
             return True
 
     def is_auto_recursive(self, sub: models.Subroutine) -> bool:
-        return sub.id in self.callees(sub)
+        return bool(self._graph.has_predecessor(sub.id, sub.id))
