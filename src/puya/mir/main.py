@@ -16,8 +16,8 @@ def program_ir_to_mir(
     ctx = attrs_extend(ProgramMIRContext, context, program=program_ir)
 
     result = models.Program(
-        id=program_ir.id,
-        main=_lower_subroutine_to_mir(ctx, program_ir.main, is_main=True, name=program_ir.id),
+        ref=program_ir.ref,
+        main=_lower_subroutine_to_mir(ctx, program_ir.main, is_main=True, name=program_ir.ref.id),
         subroutines=[
             _lower_subroutine_to_mir(ctx, ir_sub, is_main=False, name=ir_sub.full_name)
             for ir_sub in program_ir.subroutines
