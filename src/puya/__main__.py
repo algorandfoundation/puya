@@ -4,7 +4,7 @@ from pathlib import Path
 
 import attrs
 
-from puya.log import LogLevel, configure_logging
+from puya.log import LogFormat, LogLevel, configure_logging
 from puya.main import main
 
 
@@ -14,6 +14,7 @@ class _PuyaCLIArgs:
     awst: Path | None = None
     source_annotations: Path | None = None
     log_level: LogLevel = LogLevel.info
+    log_format: LogFormat = LogFormat.default
 
 
 def cli() -> None:
@@ -25,12 +26,18 @@ def cli() -> None:
     parser.add_argument(
         "--log-level", type=LogLevel.from_string, choices=list(LogLevel), default=LogLevel.info
     )
+    parser.add_argument(
+        "--log-format",
+        type=LogFormat.from_string,
+        choices=list(LogFormat),
+        default=LogFormat.default,
+    )
     parser.add_argument("--options", type=Path, required=True)
     parser.add_argument("--awst", type=Path, required=True)
     parser.add_argument("--source-annotations", type=Path)
     parsed_args = _PuyaCLIArgs()
     parser.parse_args(namespace=parsed_args)
-    configure_logging(min_log_level=parsed_args.log_level)
+    configure_logging(min_log_level=parsed_args.log_level, log_format=parsed_args.log_format)
 
     assert parsed_args.options
     options_json = parsed_args.options.read_text("utf8")

@@ -1,4 +1,5 @@
 import contextlib
+import json
 import logging
 import os.path
 import sys
@@ -6,7 +7,7 @@ import typing
 from collections import Counter
 from collections.abc import Iterator, Mapping, Sequence
 from contextvars import ContextVar
-from enum import IntEnum
+from enum import IntEnum, StrEnum, auto
 from io import StringIO
 from pathlib import Path
 
@@ -14,6 +15,18 @@ import attrs
 import structlog
 
 from puya.parse import SourceLocation
+
+
+class LogFormat(StrEnum):
+    default = auto()
+    json = auto()
+
+    @staticmethod
+    def from_string(s: str) -> "LogFormat":
+        try:
+            return LogFormat[s]
+        except KeyError as err:
+            raise ValueError from err
 
 
 class LogLevel(IntEnum):
@@ -74,11 +87,59 @@ class LoggingContext:
 _current_ctx: ContextVar[LoggingContext] = ContextVar("current_ctx")
 
 
+class PuyaJsonRender(structlog.processors.JSONRenderer):
+    def __init__(self, *, base_path: str) -> None:
+        super().__init__()
+        self.base_path = base_path + os.path.sep
+
+    def _location_json(
+        self, location: SourceLocation | None
+    ) -> Mapping[str, str | int | None] | None:
+        if not location or not location.file:
+            return None
+
+        file = str(location.file)
+        if file.startswith(self.base_path):
+            file = file[len(self.base_path) :]
+
+        return {
+            "file": file,
+            "line": location.line,
+            "end_line": location.end_line,
+            "column": location.column,
+            "end_column": location.end_column,
+        }
+
+    def __call__(
+        self,
+        _logger: structlog.typing.WrappedLogger,
+        _name: str,
+        event_dict: structlog.typing.EventDict,
+    ) -> str:
+        # force event to str for compatibility with standard library
+        event = event_dict.pop("event", None)
+        if not isinstance(event, str):
+            event = str(event)
+
+        important: bool = event_dict.pop("important", False)
+        location: SourceLocation | None = event_dict.pop("location", None)
+        level = event_dict.pop("level", "info")
+
+        return json.dumps(
+            {
+                "level": level,
+                "location": self._location_json(location),
+                "message": event,
+                "important": important,
+            }
+        )
+
+
 class PuyaConsoleRender(structlog.dev.ConsoleRenderer):
-    def __init__(self, *, colors: bool):
+    def __init__(self, *, colors: bool, base_path: str):
         super().__init__(colors=colors)
         self.level_to_color = self.get_default_level_styles(colors)
-        self.base_path = str(Path.cwd())  # TODO: don't assume this?
+        self.base_path = base_path
         if not self.base_path.endswith(
             os.path.sep
         ):  # TODO: can we always append the path seperator?
@@ -213,17 +274,31 @@ class FilterByLogLevel:
 
 
 def configure_logging(
-    *, min_log_level: LogLevel = LogLevel.notset, cache_logger: bool = True
+    *,
+    min_log_level: LogLevel = LogLevel.notset,
+    cache_logger: bool = True,
+    log_format: LogFormat = LogFormat.default,
 ) -> None:
     if cache_logger and structlog.is_configured():
         raise ValueError(
             "Logging can not be configured more than once if using cache_logger = True"
         )
+    base_path = str(Path.cwd())  # TODO: don't assume this?
+    match log_format:
+        case LogFormat.json:
+            log_renderer: structlog.typing.Processor = PuyaJsonRender(base_path=base_path)
+        case LogFormat.default:
+            log_renderer = PuyaConsoleRender(
+                colors="NO_COLOR" not in os.environ, base_path=base_path
+            )
+        case never:
+            typing.assert_never(never)
+
     processors: list[structlog.typing.Processor] = [
         structlog.contextvars.merge_contextvars,
         structlog.processors.add_log_level,
         structlog.processors.StackInfoRenderer(),
-        PuyaConsoleRender(colors="NO_COLOR" not in os.environ),
+        log_renderer,
     ]
     if min_log_level != LogLevel.notset:
         # filtering via a processor instead of via the logger like
