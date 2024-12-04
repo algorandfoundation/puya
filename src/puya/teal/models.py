@@ -7,7 +7,7 @@ from puya.errors import InternalError
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.utils import format_bytes, format_error_comment
 from puya.mir.models import Signature
-from puya.models import OnCompletionAction, TransactionType
+from puya.models import OnCompletionAction, ProgramReference, TransactionType
 from puya.parse import SourceLocation
 from puya.utils import valid_bytes, valid_int64
 
@@ -518,7 +518,7 @@ class TealSubroutine:
 
 @attrs.define
 class TealProgram:
-    id: str
+    ref: ProgramReference
     avm_version: int
     main: TealSubroutine
     subroutines: list[TealSubroutine]

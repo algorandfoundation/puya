@@ -33,6 +33,7 @@ from puya.models import (
     ContractReference,
     DebugInfo,
     LogicSignatureMetaData,
+    LogicSigProgramReference,
     LogicSigReference,
     TemplateValue,
 )
@@ -194,7 +195,7 @@ def _dummy_program() -> _CompiledProgram:
 
     return _CompiledProgram(
         teal=TealProgram(
-            id="",
+            ref=LogicSigProgramReference(LogicSigReference()),
             avm_version=0,
             main=TealSubroutine(
                 is_main=True,
@@ -256,16 +257,20 @@ def _logic_sig_to_teal(
 
 
 def _compile_program(context: CompileContext, program: TealProgram) -> _CompiledProgram:
+    # if bytecode isn't required for this program, then only produce debug info
+    debug_only = (
+        not context.options.output_bytecode or program.ref.reference not in context.compilation_set
+    )
     assembled = assemble_program(
         context,
         program,
         template_variables={k: (v, None) for k, v in context.options.template_variables.items()},
-        debug_only=not context.options.output_bytecode,
+        debug_only=debug_only,
     )
     return _CompiledProgram(
         teal=program,
         teal_src=emit_teal(context, program),
-        bytecode=assembled.bytecode if context.options.output_bytecode else None,
+        bytecode=assembled.bytecode if not debug_only else None,
         debug_info=assembled.debug_info,
         template_variables=assembled.template_variables,
     )

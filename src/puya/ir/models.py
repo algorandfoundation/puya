@@ -19,6 +19,7 @@ from puya.models import (
     ContractReference,
     LogicSignatureMetaData,
     LogicSigReference,
+    ProgramReference,
 )
 from puya.parse import SourceLocation
 from puya.utils import unique
@@ -935,7 +936,7 @@ class Program(Context):
     # return
     #
     # ie, just omit the subroutine header, and replace any&all retsub ops with a return instead
-    id: str
+    ref: ProgramReference
     main: Subroutine
     subroutines: Sequence[Subroutine]
     source_location: SourceLocation | None = None
