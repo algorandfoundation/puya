@@ -258,12 +258,9 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
 
         # TODO: handle difference of subroutine vs abimethod and overrides???
 
+        inline = None
         if subroutine_dec is not None:
             inline = get_subroutine_decorator_inline_arg(self.context, subroutine_dec)
-        elif abimethod_dec or baremethod_dec:
-            inline = False  # TODO: maybe set to None?
-        else:
-            inline = None
 
         arc4_method_data: ARC4MethodData | None = None
         if method_name in (_INIT_METHOD, constants.APPROVAL_METHOD, constants.CLEAR_STATE_METHOD):
