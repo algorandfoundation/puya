@@ -3,16 +3,9 @@
 // test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program() -> uint64:
 main:
     intcblock 0 1 4 2
-    bytecblock 0x01020304 0x05 0x80320006000d00054861707079000444617973 0x000741415252474821
-    bytec_0 // 0x01020304
-    bytec_1 // 0x05
-    replace2 2
-    dup
-    extract 2 1 // on error: Index access is out of bounds
-    bytec_1 // 0x05
-    b==
-    assert // my_array should be mutated
-    bytec_2 // 0x80320006000d00054861707079000444617973
+    bytecblock 0x01020304 0x80320006000d00054861707079000444617973 0x05 0x000741415252474821 0x0a020304
+    pushbytes 0x01020504
+    bytec_1 // 0x80320006000d00054861707079000444617973
     callsub other_routine
     uncover 3
     assert
@@ -21,7 +14,7 @@ main:
     assert
     dig 1
     extract 1 1 // on error: Index access is out of bounds
-    bytec_1 // 0x05
+    bytec_2 // 0x05
     b==
     assert // my_array has been mutated by the subroutine
     dup
@@ -35,23 +28,17 @@ main:
     ==
     assert // my_struct has been mutated by the subroutine
     bytec_0 // 0x01020304
-    bytec_2 // 0x80320006000d00054861707079000444617973
+    bytec_1 // 0x80320006000d00054861707079000444617973
     callsub other_routine
     popn 4
-    bytec_0 // 0x01020304
-    pushbytes 0x0a
-    replace2 0
     dup
-    extract 0 1 // on error: Index access is out of bounds
-    pushbytes 0x0a
-    b==
-    assert // my_array_copy_2 should have mutated value
-    dup2
+    bytec 4 // 0x0a020304
     bytec_0 // 0x01020304
     intc_0 // 0
     intc_1 // 1
     callsub mutate_tuple_items_and_reassign
     popn 3
+    bytec 4 // 0x0a020304
     bytec_0 // 0x01020304
     pushint 100 // 100
     intc_1 // 1
@@ -126,7 +113,7 @@ main:
 other_routine:
     proto 2 4
     frame_dig -2
-    bytec_1 // 0x05
+    bytec_2 // 0x05
     replace2 1
     frame_bury -2
     frame_dig -1

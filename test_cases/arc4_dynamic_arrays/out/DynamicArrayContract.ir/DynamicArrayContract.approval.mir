@@ -79,7 +79,6 @@ main_test_nested_struct_replacement_route@7:
     assert // OnCompletion is not NoOp
     txn ApplicationID                                                                                    tmp%21#0
     assert // can only call when not creating
-    callsub test_nested_struct_replacement
     int 1                                                                                                tmp%0#0
     x-store tmp%0#0                                                                                      (𝕏) tmp%0#0 |
     b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16 (𝕏) tmp%0#0 | 
@@ -125,49 +124,40 @@ main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.
 
 // test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements() -> void:
 test_static_elements:
-    // arc4_dynamic_arrays/contract.py:46
-    // array = arc4.DynamicArray(struct1.copy(), struct1.copy())
-    byte 0x00020000000000000003040500000000000000030405                                                  0x00020000000000000003040500000000000000030405
-    // arc4_dynamic_arrays/contract.py:45
-    // struct2 = StaticStruct(get_uint2(), byte_array2.copy())
-    byte 0x00000400000000002aff                                                                          0x00020000000000000003040500000000000000030405,0x00000400000000002aff
     // arc4_dynamic_arrays/contract.py:47
     // array[1] = struct2.copy()
-    replace2 12                                                                                          array#1
+    byte 0x00020000000000000003040500000400000000002aff                                                  0x00020000000000000003040500000400000000002aff
     // arc4_dynamic_arrays/contract.py:48
     // log(array)
-    l-load-copy array#1 0                                                                                array#1,array#1 (copy)
-    log                                                                                                  array#1
+    log
     // arc4_dynamic_arrays/contract.py:49
     // log(array[0])
-    l-load-copy array#1 0                                                                                array#1,array#1 (copy)
-    extract 2 0                                                                                          array#1,array_head_and_tail%0#0
-    l-load-copy array_head_and_tail%0#0 0                                                                array#1,array_head_and_tail%0#0,array_head_and_tail%0#0 (copy)
-    extract 0 10 // on error: Index access is out of bounds                                              array#1,array_head_and_tail%0#0,tmp%6#0
-    log                                                                                                  array#1,array_head_and_tail%0#0
+    byte 0x00000000000000030405                                                                          0x00000000000000030405
+    log
     // arc4_dynamic_arrays/contract.py:50
     // log(array[1])
-    l-load array_head_and_tail%0#0 0                                                                     array#1,array_head_and_tail%0#0
-    extract 10 10 // on error: Index access is out of bounds                                             array#1,tmp%7#0
-    log                                                                                                  array#1
+    byte 0x00000400000000002aff                                                                          0x00000400000000002aff
+    log
+    // arc4_dynamic_arrays/contract.py:47
+    // array[1] = struct2.copy()
+    byte 0x00020000000000000003040500000400000000002aff                                                  0x00020000000000000003040500000400000000002aff
     // arc4_dynamic_arrays/contract.py:52
     // assert array.pop() == struct2
-    l-load array#1 0                                                                                     array#1
-    int 10                                                                                               array#1,10
-    callsub dynamic_array_pop_fixed_size                                                                 popped%0#0,array#1
-    l-load popped%0#0 1                                                                                  array#1,popped%0#0
+    int 10                                                                                               0x00020000000000000003040500000400000000002aff,10
+    callsub dynamic_array_pop_fixed_size                                                                 popped%0#0,array#2
+    l-load popped%0#0 1                                                                                  array#2,popped%0#0
     // arc4_dynamic_arrays/contract.py:45
     // struct2 = StaticStruct(get_uint2(), byte_array2.copy())
-    byte 0x00000400000000002aff                                                                          array#1,popped%0#0,0x00000400000000002aff
+    byte 0x00000400000000002aff                                                                          array#2,popped%0#0,0x00000400000000002aff
     // arc4_dynamic_arrays/contract.py:52
     // assert array.pop() == struct2
-    ==                                                                                                   array#1,tmp%8#0
-    assert                                                                                               array#1
+    ==                                                                                                   array#2,tmp%8#0
+    assert                                                                                               array#2
     // arc4_dynamic_arrays/contract.py:53
     // assert array.pop() == struct1
-    l-load array#1 0                                                                                     array#1
-    int 10                                                                                               array#1,10
-    callsub dynamic_array_pop_fixed_size                                                                 popped%1#0,array#1
+    l-load array#2 0                                                                                     array#2
+    int 10                                                                                               array#2,10
+    callsub dynamic_array_pop_fixed_size                                                                 popped%1#0,array#2
     pop 1                                                                                                popped%1#0
     l-store popped%1#0 0                                                                                 popped%1#0
     l-load popped%1#0 0                                                                                  popped%1#0
@@ -514,52 +504,6 @@ test_mixed_multiple_dynamic_elements:
     // assert array.pop() == struct1
     ==                                                                                                   tmp%13#0
     assert
-    retsub
-
-
-// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement() -> void:
-test_nested_struct_replacement:
-    // arc4_dynamic_arrays/contract.py:130
-    // struct2.two = two.copy()  # now struct2 should match struct1
-    byte 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565
-    byte 0x0026                                                                                          0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565,0x0026
-    replace2 22                                                                                          updated_data%2#0
-    l-load-copy updated_data%2#0 0                                                                       updated_data%2#0,updated_data%2#0 (copy)
-    int 24                                                                                               updated_data%2#0,updated_data%2#0 (copy),24
-    extract_uint16                                                                                       updated_data%2#0,tail_offset%3#0
-    // arc4_dynamic_arrays/contract.py:115-121
-    // struct1 = NestedDynamicStruct(
-    //     one=one.copy(),
-    //     two=two.copy(),
-    //     three=three.copy(),
-    //     four=four.copy(),
-    //     five=five.copy(),
-    // )
-    int 12                                                                                               updated_data%2#0,tail_offset%3#0,12
-    // arc4_dynamic_arrays/contract.py:130
-    // struct2.two = two.copy()  # now struct2 should match struct1
-    +                                                                                                    updated_data%2#0,tail_offset%4#0
-    int 12                                                                                               updated_data%2#0,tail_offset%4#0,12
-    -                                                                                                    updated_data%2#0,tail_offset%5#0
-    itob                                                                                                 updated_data%2#0,as_bytes%15#0
-    extract 6 2                                                                                          updated_data%2#0,tail_offset_bytes%1#0
-    l-load updated_data%2#0 1                                                                            tail_offset_bytes%1#0,updated_data%2#0
-    l-load tail_offset_bytes%1#0 1                                                                       updated_data%2#0,tail_offset_bytes%1#0
-    replace2 24                                                                                          struct2#1
-    // arc4_dynamic_arrays/contract.py:115-121
-    // struct1 = NestedDynamicStruct(
-    //     one=one.copy(),
-    //     two=two.copy(),
-    //     three=three.copy(),
-    //     four=four.copy(),
-    //     five=five.copy(),
-    // )
-    byte 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565 struct2#1,0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565
-    // arc4_dynamic_arrays/contract.py:131
-    // assert struct1.bytes == struct2.bytes, "struct1 does not match struct2"
-    l-load struct2#1 1                                                                                   0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565,struct2#1
-    ==                                                                                                   tmp%17#0
-    assert // struct1 does not match struct2
     retsub
 
 

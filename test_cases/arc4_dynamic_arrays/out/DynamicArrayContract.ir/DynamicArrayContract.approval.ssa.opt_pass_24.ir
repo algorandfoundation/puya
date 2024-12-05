@@ -77,14 +77,10 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements() -> void:
     block@0: // L39
-        let array#1: bytes = ((replace2 12) 0x00020000000000000003040500000000000000030405 0x00000400000000002aff)
-        (log array#1)
-        let array_head_and_tail%0#0: bytes = ((extract 2 0) array#1)
-        let tmp%6#0: bytes = ((extract 0 10) array_head_and_tail%0#0) // on error: Index access is out of bounds
-        (log tmp%6#0)
-        let tmp%7#0: bytes = ((extract 10 10) array_head_and_tail%0#0) // on error: Index access is out of bounds
-        (log tmp%7#0)
-        let (popped%0#0: bytes, array#2: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(array#1, 10u)
+        (log 0x00020000000000000003040500000400000000002aff)
+        (log 0x00000000000000030405)
+        (log 0x00000400000000002aff)
+        let (popped%0#0: bytes, array#2: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(0x00020000000000000003040500000400000000002aff, 10u)
         let tmp%8#0: bool = (== popped%0#0 0x00000400000000002aff)
         (assert tmp%8#0)
         let (popped%1#0: bytes, array#3: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(array#2, 10u)
@@ -188,7 +184,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement() -> void:
     block@0: // L106
-        let updated_data%2#0: bytes = ((replace2 22) 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565 0x0026)
+        let updated_data%2#0: bytes = 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565
         let tail_offset%3#0: uint64 = (extract_uint16 updated_data%2#0 24u)
         let tail_offset%4#0: uint64 = (+ tail_offset%3#0 12u)
         let tail_offset%5#0: uint64 = (- tail_offset%4#0 12u)

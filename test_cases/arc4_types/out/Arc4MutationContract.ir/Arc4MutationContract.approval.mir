@@ -1,41 +1,6 @@
 // Op                                                                                                  Stack (out)
 // test_cases.arc4_types.mutation.Arc4MutationContract.approval_program() -> uint64:
 main:
-    // arc4_types/mutation.py:153
-    // dynamic_uint8_array.extend((UInt8(4), UInt8(90)))
-    byte 0x0008010232010232045a                                                                        0x0008010232010232045a
-    byte 0x0007                                                                                        0x0008010232010232045a,0x0007
-    replace2 0                                                                                         result#0
-    l-load-copy result#0 0                                                                             result#0,result#0 (copy)
-    len                                                                                                result#0,tmp%2#7
-    // arc4_types/mutation.py:159
-    // popped = dynamic_uint8_array.pop()
-    int 1                                                                                              result#0,tmp%2#7,1
-    -                                                                                                  result#0,item_location#0
-    l-load-copy result#0 1                                                                             result#0,item_location#0,result#0 (copy)
-    l-load-copy item_location#0 1                                                                      result#0,item_location#0,result#0 (copy),item_location#0 (copy)
-    // arc4_types/mutation.py:159
-    // popped = dynamic_uint8_array.pop()
-    int 1                                                                                              result#0,item_location#0,result#0 (copy),item_location#0 (copy),1
-    extract3                                                                                           result#0,item_location#0,popped#1
-    l-load result#0 2                                                                                  item_location#0,popped#1,result#0
-    int 0                                                                                              item_location#0,popped#1,result#0,0
-    l-load item_location#0 3                                                                           popped#1,result#0,0,item_location#0
-    substring3                                                                                         popped#1,result#0
-    // arc4_types/mutation.py:160
-    // assert popped == UInt8(90)
-    l-load popped#1 1                                                                                  result#0,popped#1
-    byte 0x5a                                                                                          result#0,popped#1,0x5a
-    b==                                                                                                result#0,tmp%3#0
-    assert                                                                                             result#0
-    // arc4_types/mutation.py:162-164
-    // assert dynamic_uint8_array == DynamicArray(
-    //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    // )
-    l-load result#0 0                                                                                  result#0
-    byte 0x000701023201023204                                                                          result#0,0x000701023201023204
-    ==                                                                                                 tmp%4#0
-    assert
     // arc4_types/mutation.py:168
     // dynamic_bool_array = DynamicArray[Bool](Bool(True), Bool(False))
     byte 0x000280                                                                                      0x000280
@@ -76,7 +41,7 @@ main:
     // )
     l-load-copy dynamic_bool_array#1 0                                                                 dynamic_bool_array#1,dynamic_bool_array#1 (copy)
     byte 0x0008aa                                                                                      dynamic_bool_array#1,dynamic_bool_array#1 (copy),0x0008aa
-    ==                                                                                                 dynamic_bool_array#1,tmp%3#0
+    ==                                                                                                 dynamic_bool_array#1,tmp%3#1
     assert                                                                                             dynamic_bool_array#1
     // arc4_types/mutation.py:187
     // dynamic_bool_array.append(Bool(True))
@@ -99,7 +64,7 @@ main:
     // )
     l-load-copy dynamic_bool_array#1 0                                                                 dynamic_bool_array#1,dynamic_bool_array#1 (copy)
     byte 0x0009aa80                                                                                    dynamic_bool_array#1,dynamic_bool_array#1 (copy),0x0009aa80
-    ==                                                                                                 dynamic_bool_array#1,tmp%4#0
+    ==                                                                                                 dynamic_bool_array#1,tmp%4#1
     assert                                                                                             dynamic_bool_array#1
     // arc4_types/mutation.py:201
     // assert dynamic_bool_array.pop() == Bool(True)
@@ -195,7 +160,7 @@ main:
     // )
     l-load-copy dynamic_string_array#1 0                                                               dynamic_string_array#1,dynamic_string_array#1 (copy)
     byte 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f0003426172 dynamic_string_array#1,dynamic_string_array#1 (copy),0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f0003426172
-    ==                                                                                                 dynamic_string_array#1,tmp%3#0
+    ==                                                                                                 dynamic_string_array#1,tmp%3#1
     assert                                                                                             dynamic_string_array#1
     // arc4_types/mutation.py:240
     // assert dynamic_string_array.pop() == bar
@@ -207,7 +172,7 @@ main:
     byte 0x0003426172                                                                                  dynamic_string_array#1,popped%0#1,0x0003426172
     // arc4_types/mutation.py:240
     // assert dynamic_string_array.pop() == bar
-    ==                                                                                                 dynamic_string_array#1,tmp%4#0
+    ==                                                                                                 dynamic_string_array#1,tmp%4#1
     assert                                                                                             dynamic_string_array#1
     // arc4_types/mutation.py:241
     // assert dynamic_string_array.pop() == foo
@@ -290,7 +255,7 @@ main:
     // assert array_of_array.bytes == Bytes.from_hex("00020004000800020AFF000110")
     l-load-copy array_of_array#1 0                                                                     array_of_array#1,array_of_array#1 (copy)
     byte 0x00020004000800020aff000110                                                                  array_of_array#1,array_of_array#1 (copy),0x00020004000800020aff000110
-    ==                                                                                                 array_of_array#1,tmp%4#0
+    ==                                                                                                 array_of_array#1,tmp%4#1
     assert                                                                                             array_of_array#1
     // arc4_types/mutation.py:82
     // array_of_array[0][1] = UInt8(0)
@@ -330,137 +295,6 @@ main:
     // assert array_of_array.bytes == Bytes.from_hex("00020004000800020A00000110")
     byte 0x00020004000800020a00000110                                                                  array_of_array#1,0x00020004000800020a00000110
     ==                                                                                                 tmp%6#0
-    assert
-    // arc4_types/mutation.py:87-90
-    // array_of_array = StaticArray[StaticArray[UInt8, typing.Literal[2]], typing.Literal[2]](
-    //     StaticArray[UInt8, typing.Literal[2]](UInt8(10), UInt8(9)),
-    //     StaticArray[UInt8, typing.Literal[2]](UInt8(64), UInt8(128)),
-    // )
-    byte 0x0a094080                                                                                    0x0a094080
-    // arc4_types/mutation.py:94
-    // array_of_array[0] = StaticArray[UInt8, typing.Literal[2]](UInt8(255), UInt8(254))
-    byte 0xfffe                                                                                        0x0a094080,0xfffe
-    replace2 0                                                                                         array_of_array#1
-    // arc4_types/mutation.py:95
-    // assert array_of_array.bytes == Bytes.from_hex("FFFE4080")
-    l-load-copy array_of_array#1 0                                                                     array_of_array#1,array_of_array#1 (copy)
-    byte 0xfffe4080                                                                                    array_of_array#1,array_of_array#1 (copy),0xfffe4080
-    ==                                                                                                 array_of_array#1,tmp%1#1
-    assert                                                                                             array_of_array#1
-    // arc4_types/mutation.py:97
-    // array_of_array[1][0] = UInt8(1)
-    l-load-copy array_of_array#1 0                                                                     array_of_array#1,array_of_array#1 (copy)
-    extract 2 2 // on error: Index access is out of bounds                                             array_of_array#1,tmp%2#4
-    byte 0x01                                                                                          array_of_array#1,tmp%2#4,0x01
-    replace2 0                                                                                         array_of_array#1,updated_target%1#0
-    l-load array_of_array#1 1                                                                          updated_target%1#0,array_of_array#1
-    l-load updated_target%1#0 1                                                                        array_of_array#1,updated_target%1#0
-    replace2 2                                                                                         array_of_array#1
-    // arc4_types/mutation.py:98
-    // assert array_of_array.bytes == Bytes.from_hex("FFFE0180")
-    byte 0xfffe0180                                                                                    array_of_array#1,0xfffe0180
-    ==                                                                                                 tmp%3#0
-    assert
-    // arc4_types/mutation.py:102
-    // dynamic_uint8_array = DynamicArray[UInt8](UInt8(1), UInt8(2))
-    byte 0x00020102                                                                                    0x00020102
-    // arc4_types/mutation.py:103
-    // dynamic_uint8_array[0] = UInt8(255)
-    byte 0xff                                                                                          0x00020102,0xff
-    replace2 2                                                                                         dynamic_uint8_array#6
-    // arc4_types/mutation.py:104
-    // assert dynamic_uint8_array.bytes == Bytes.from_hex("0002ff02")
-    byte 0x0002ff02                                                                                    dynamic_uint8_array#6,0x0002ff02
-    ==                                                                                                 tmp%0#5
-    assert
-    // arc4_types/mutation.py:105
-    // static_uint8_array = StaticArray(UInt8(1), UInt8(2))
-    byte 0x0102                                                                                        0x0102
-    // arc4_types/mutation.py:106
-    // static_uint8_array[1] = UInt8(255)
-    byte 0xff                                                                                          0x0102,0xff
-    replace2 1                                                                                         static_uint8_array#1
-    // arc4_types/mutation.py:107
-    // assert static_uint8_array.bytes == Bytes.from_hex("01ff")
-    byte 0x01ff                                                                                        static_uint8_array#1,0x01ff
-    ==                                                                                                 tmp%1#1
-    assert
-    // arc4_types/mutation.py:125
-    // test_struct.b_val = Bool(False)
-    byte 0x00320006000d00054861707079000444617973                                                      0x00320006000d00054861707079000444617973
-    // arc4_types/mutation.py:126
-    // test_struct.u_val = UInt8(12)
-    byte 0x0c                                                                                          0x00320006000d00054861707079000444617973,0x0c
-    replace2 1                                                                                         test_struct#2
-    // arc4_types/mutation.py:127-132
-    // assert test_struct == TestStruct(
-    //     b_val=Bool(False),
-    //     u_val=UInt8(12),
-    //     s_val_1=String("Happy"),
-    //     s_val_2=String("Days"),
-    // )
-    l-load-copy test_struct#2 0                                                                        test_struct#2,test_struct#2 (copy)
-    byte 0x000c0006000d00054861707079000444617973                                                      test_struct#2,test_struct#2 (copy),0x000c0006000d00054861707079000444617973
-    ==                                                                                                 test_struct#2,tmp%0#5
-    assert                                                                                             test_struct#2
-    // arc4_types/mutation.py:133
-    // test_struct.s_val_1 = String("Hmmmm")
-    l-load-copy test_struct#2 0                                                                        test_struct#2,test_struct#2 (copy)
-    int 2                                                                                              test_struct#2,test_struct#2 (copy),2
-    extract_uint16                                                                                     test_struct#2,item_offset%0#0
-    l-load-copy test_struct#2 1                                                                        test_struct#2,item_offset%0#0,test_struct#2 (copy)
-    int 0                                                                                              test_struct#2,item_offset%0#0,test_struct#2 (copy),0
-    l-load-copy item_offset%0#0 2                                                                      test_struct#2,item_offset%0#0,test_struct#2 (copy),0,item_offset%0#0 (copy)
-    extract3                                                                                           test_struct#2,item_offset%0#0,data_up_to_item%0#0
-    l-load-copy test_struct#2 2                                                                        test_struct#2,item_offset%0#0,data_up_to_item%0#0,test_struct#2 (copy)
-    int 4                                                                                              test_struct#2,item_offset%0#0,data_up_to_item%0#0,test_struct#2 (copy),4
-    extract_uint16                                                                                     test_struct#2,item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0
-    l-load-copy test_struct#2 3                                                                        test_struct#2,item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,test_struct#2 (copy)
-    len                                                                                                test_struct#2,item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,total_data_length%0#0
-    l-load test_struct#2 4                                                                             item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,total_data_length%0#0,test_struct#2
-    l-load-copy next_item_offset%0#0 2                                                                 item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,total_data_length%0#0,test_struct#2,next_item_offset%0#0 (copy)
-    l-load total_data_length%0#0 2                                                                     item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,test_struct#2,next_item_offset%0#0 (copy),total_data_length%0#0
-    substring3                                                                                         item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,data_beyond_item%0#0
-    l-load data_up_to_item%0#0 2                                                                       item_offset%0#0,next_item_offset%0#0,data_beyond_item%0#0,data_up_to_item%0#0
-    byte 0x0005486d6d6d6d                                                                              item_offset%0#0,next_item_offset%0#0,data_beyond_item%0#0,data_up_to_item%0#0,0x0005486d6d6d6d
-    concat                                                                                             item_offset%0#0,next_item_offset%0#0,data_beyond_item%0#0,updated_data%2#0
-    l-load data_beyond_item%0#0 1                                                                      item_offset%0#0,next_item_offset%0#0,updated_data%2#0,data_beyond_item%0#0
-    concat                                                                                             item_offset%0#0,next_item_offset%0#0,updated_data%3#0
-    l-load next_item_offset%0#0 1                                                                      item_offset%0#0,updated_data%3#0,next_item_offset%0#0
-    l-load item_offset%0#0 2                                                                           updated_data%3#0,next_item_offset%0#0,item_offset%0#0
-    -                                                                                                  updated_data%3#0,item_length%0#0
-    l-load-copy updated_data%3#0 1                                                                     updated_data%3#0,item_length%0#0,updated_data%3#0 (copy)
-    int 4                                                                                              updated_data%3#0,item_length%0#0,updated_data%3#0 (copy),4
-    extract_uint16                                                                                     updated_data%3#0,item_length%0#0,tail_offset%0#1
-    int 7                                                                                              updated_data%3#0,item_length%0#0,tail_offset%0#1,7
-    +                                                                                                  updated_data%3#0,item_length%0#0,tail_offset%1#1
-    l-load item_length%0#0 1                                                                           updated_data%3#0,tail_offset%1#1,item_length%0#0
-    -                                                                                                  updated_data%3#0,tail_offset%2#1
-    itob                                                                                               updated_data%3#0,as_bytes%4#1
-    extract 6 2                                                                                        updated_data%3#0,tail_offset_bytes%0#0
-    l-load updated_data%3#0 1                                                                          tail_offset_bytes%0#0,updated_data%3#0
-    l-load tail_offset_bytes%0#0 1                                                                     updated_data%3#0,tail_offset_bytes%0#0
-    replace2 4                                                                                         test_struct#2
-    // arc4_types/mutation.py:134
-    // test_struct.s_val_2 = String("Oh well")
-    l-load-copy test_struct#2 0                                                                        test_struct#2,test_struct#2 (copy)
-    int 4                                                                                              test_struct#2,test_struct#2 (copy),4
-    extract_uint16                                                                                     test_struct#2,item_offset%1#0
-    l-load test_struct#2 1                                                                             item_offset%1#0,test_struct#2
-    int 0                                                                                              item_offset%1#0,test_struct#2,0
-    l-load item_offset%1#0 2                                                                           test_struct#2,0,item_offset%1#0
-    extract3                                                                                           data_up_to_item%1#0
-    byte 0x00074f682077656c6c                                                                          data_up_to_item%1#0,0x00074f682077656c6c
-    concat                                                                                             test_struct#2
-    // arc4_types/mutation.py:136-141
-    // assert test_struct == TestStruct(
-    //     b_val=Bool(False),
-    //     u_val=UInt8(12),
-    //     s_val_1=String("Hmmmm"),
-    //     s_val_2=String("Oh well"),
-    // )
-    byte 0x000c0006000d0005486d6d6d6d00074f682077656c6c                                                test_struct#2,0x000c0006000d0005486d6d6d6d00074f682077656c6c
-    ==                                                                                                 tmp%1#1
     assert
     // arc4_types/mutation.py:67
     // hello_world_concat = DynamicArray(String("Hello")) + DynamicArray(String("World"))
