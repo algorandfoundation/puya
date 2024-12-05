@@ -73,6 +73,14 @@ class Size:
             ops=(self.ops or 0) + (other.ops or 0),
         )
 
+    def __sub__(self, other: object) -> "Size":
+        if not isinstance(other, Size):
+            return NotImplemented
+        return Size(
+            bytecode=(self.bytecode or 0) - (other.bytecode or 0),
+            ops=(self.ops or 0) - (other.ops or 0),
+        )
+
 
 def _program_to_sizes() -> defaultdict[str, defaultdict[int, Size]]:
     def _opt_to_sizes() -> defaultdict[int, Size]:
@@ -94,8 +102,8 @@ class ProgramSizes:
         )
 
     @classmethod
-    def read_file(cls, path: Path) -> "ProgramSizes":
-        lines = list(filter(None, path.read_text("utf-8").splitlines()))
+    def load(cls, text: str) -> "ProgramSizes":
+        lines = list(filter(None, text.splitlines()))
         program_sizes = ProgramSizes()
         sizes = program_sizes.sizes
         for line in lines[1:-1]:
@@ -371,7 +379,7 @@ def main(options: CompileAllOptions) -> None:
     if limit_to or options.optimization_level:
         print("Loading existing sizes.txt")
         # load existing sizes for non-default options
-        merged = ProgramSizes.read_file(SIZE_TALLY_PATH)
+        merged = ProgramSizes.load(SIZE_TALLY_PATH.read_text("utf8"))
         for program, sizes in program_sizes.sizes.items():
             for o, size in sizes.items():
                 merged.sizes[program][o] = size
