@@ -51,3 +51,7 @@ def cli() -> None:
         awst_json=awst_json,
         source_annotations_json=source_annotations_json,
     )
+
+
+if __name__ == "__main__":
+    cli()
