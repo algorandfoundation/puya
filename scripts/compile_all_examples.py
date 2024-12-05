@@ -204,9 +204,7 @@ def _stabilise_logs(stdout: str) -> list[str]:
     ]
 
 
-def checked_compile(
-    p: Path, flags: list[str], *, out_suffix: str, write_logs: bool
-) -> CompilationResult:
+def checked_compile(p: Path, flags: list[str], *, out_suffix: str) -> CompilationResult:
     assert p.is_dir()
     out_dir = (p / f"out{out_suffix}").resolve()
     template_vars_path = p / "template.vars"
@@ -249,14 +247,10 @@ def checked_compile(
     for arc56_file in arc56_files_written:
         _normalize_arc56(root / arc56_file)
 
-    if write_logs:
-        if p.is_dir():
-            log_path = p / "puya.log"
-        else:
-            log_path = p.with_suffix(".puya.log")
+    log_path = p / f"puya{out_suffix}.log"
+    log_txt = "\n".join(_stabilise_logs(result.stdout))
+    log_path.write_text(log_txt, encoding="utf8")
 
-        log_txt = "\n".join(_stabilise_logs(result.stdout))
-        log_path.write_text(log_txt, encoding="utf8")
     ok = result.returncode == 0
     return CompilationResult(
         rel_path=rel_path,
@@ -298,7 +292,6 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
             "--no-output-arc32",
         ]
         out_suffix = SUFFIX_O0
-        write_logs = False
     elif optimization_level == 2:
         flags = [
             "-O2",
@@ -306,7 +299,6 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
             "-g0",
         ]
         out_suffix = SUFFIX_O2
-        write_logs = False
     else:
         assert optimization_level == 1
         flags = [
@@ -320,8 +312,7 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
             "--output-arc56",
         ]
         out_suffix = SUFFIX_O1
-        write_logs = True
-    result = checked_compile(p, flags=flags, out_suffix=out_suffix, write_logs=write_logs)
+    result = checked_compile(p, flags=flags, out_suffix=out_suffix)
     return result, optimization_level
 
 
