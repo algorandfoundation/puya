@@ -3,7 +3,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 2 1 0 4
-    bytecblock 0x000400070001610003626565 0x 0x00020000000000000003040500000400000000002aff 0x00000000000000030405 0x00000400000000002aff 0x00040011000b48656c6c6f20576f726c64000161 0x00020000040000000000001200000000000000030003626565 0x000000000000000300120000040000000000000161 0x0000040000000000001c000000000000000300210000040000000000000362656500040001000200030004
+    bytecblock 0x 0x00040011000b48656c6c6f20576f726c64000161 0x000400070001610003626565 0x00020000040000000000001200000000000000030003626565 0x000000000000000300120000040000000000000161 0x0000040000000000001c000000000000000300210000040000000000000362656500040001000200030004
     txn NumAppArgs
     bz main_bare_routing@11
     pushbytess 0x55715827 0x713dd6db 0x37158aac 0x8570be3b 0x51aa8c49 0x283a186f // method "test_static_elements()void", method "test_dynamic_elements()void", method "test_mixed_single_dynamic_elements()void", method "test_mixed_multiple_dynamic_elements()void", method "test_nested_struct_replacement()void", method "test_nested_tuple_modification()void"
@@ -20,7 +20,6 @@ main_test_nested_tuple_modification_route@8:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub test_nested_tuple_modification
     intc_1 // 1
     return
 
@@ -86,25 +85,12 @@ main_bare_routing@11:
 // test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements() -> void:
 test_static_elements:
     proto 0 0
-    bytec_2 // 0x00020000000000000003040500000400000000002aff
+    pushbytes 0x00020000000000000003040500000400000000002aff
     log
-    bytec_3 // 0x00000000000000030405
+    pushbytes 0x00000000000000030405
     log
-    bytec 4 // 0x00000400000000002aff
+    pushbytes 0x00000400000000002aff
     log
-    bytec_2 // 0x00020000000000000003040500000400000000002aff
-    pushint 10 // 10
-    callsub dynamic_array_pop_fixed_size
-    swap
-    bytec 4 // 0x00000400000000002aff
-    ==
-    assert
-    pushint 10 // 10
-    callsub dynamic_array_pop_fixed_size
-    pop
-    bytec_3 // 0x00000000000000030405
-    ==
-    assert
     retsub
 
 
@@ -116,7 +102,7 @@ test_dynamic_elements:
     intc_1 // 1
     pushbytes 0x0002000400070001610003626565
     callsub dynamic_array_concat_dynamic_element
-    bytec 5 // 0x00040011000b48656c6c6f20576f726c64000161
+    bytec_1 // 0x00040011000b48656c6c6f20576f726c64000161
     intc_1 // 1
     callsub dynamic_array_replace_dynamic_element
     dup
@@ -174,21 +160,21 @@ test_dynamic_elements:
     log
     callsub dynamic_array_pop_dynamic_element
     swap
-    bytec_0 // 0x000400070001610003626565
+    bytec_2 // 0x000400070001610003626565
     ==
     assert
     dup
     log
     callsub dynamic_array_pop_dynamic_element
     swap
-    bytec 5 // 0x00040011000b48656c6c6f20576f726c64000161
+    bytec_1 // 0x00040011000b48656c6c6f20576f726c64000161
     ==
     assert
     dup
     log
     callsub dynamic_array_pop_dynamic_element
     swap
-    bytec_0 // 0x000400070001610003626565
+    bytec_2 // 0x000400070001610003626565
     ==
     assert
     log
@@ -199,9 +185,9 @@ test_dynamic_elements:
 test_mixed_single_dynamic_elements:
     proto 0 0
     intc_2 // 0
-    bytec_1 // 0x
+    bytec_0 // 0x
     intc_1 // 1
-    bytec 6 // 0x00020000040000000000001200000000000000030003626565
+    bytec_3 // 0x00020000040000000000001200000000000000030003626565
     callsub dynamic_array_concat_dynamic_element
     dup
     intc_2 // 0
@@ -209,9 +195,9 @@ test_mixed_single_dynamic_elements:
     swap
     extract 2 0
     intc_1 // 1
-    bytec 6 // 0x00020000040000000000001200000000000000030003626565
+    bytec_3 // 0x00020000040000000000001200000000000000030003626565
     callsub dynamic_array_concat_dynamic_element
-    bytec 7 // 0x000000000000000300120000040000000000000161
+    bytec 4 // 0x000000000000000300120000040000000000000161
     intc_2 // 0
     callsub dynamic_array_replace_dynamic_element
     dup
@@ -259,7 +245,7 @@ test_mixed_single_dynamic_elements:
     assert
     callsub dynamic_array_pop_dynamic_element
     pop
-    bytec 7 // 0x000000000000000300120000040000000000000161
+    bytec 4 // 0x000000000000000300120000040000000000000161
     ==
     assert
     retsub
@@ -269,7 +255,7 @@ test_mixed_single_dynamic_elements:
 test_mixed_multiple_dynamic_elements:
     proto 0 0
     pushbytes 0x00020004002b0000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a0000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a
-    bytec 8 // 0x0000040000000000001c000000000000000300210000040000000000000362656500040001000200030004
+    bytec 5 // 0x0000040000000000001c000000000000000300210000040000000000000362656500040001000200030004
     intc_1 // 1
     callsub dynamic_array_replace_dynamic_element
     dup
@@ -312,7 +298,7 @@ test_mixed_multiple_dynamic_elements:
     log
     callsub dynamic_array_pop_dynamic_element
     swap
-    bytec 8 // 0x0000040000000000001c000000000000000300210000040000000000000362656500040001000200030004
+    bytec 5 // 0x0000040000000000001c000000000000000300210000040000000000000362656500040001000200030004
     ==
     assert
     callsub dynamic_array_pop_dynamic_element
@@ -320,65 +306,6 @@ test_mixed_multiple_dynamic_elements:
     pushbytes 0x0000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a
     ==
     assert
-    retsub
-
-
-// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification() -> void:
-test_nested_tuple_modification:
-    proto 0 0
-    pushbytes 0x0004ffff0000002a007b
-    intc_0 // 2
-    callsub dynamic_array_pop_fixed_size
-    bury 1
-    pushbytes 0x0000000000000003001c0000040000000000001f0000000000000003000161
-    swap
-    concat
-    pushbytes 0x00000000000000030405001a000004000000000005040026004f000400070001610003626565
-    dig 1
-    concat
-    bytec_0 // 0x000400070001610003626565
-    concat
-    swap
-    len
-    dig 1
-    pushint 24 // 24
-    extract_uint16
-    +
-    pushint 41 // 41
-    -
-    itob
-    extract 6 2
-    replace2 24
-    pushbytes 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565
-    ==
-    assert // tup1 does not match tup2
-    retsub
-
-
-// _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes, bytes:
-dynamic_array_pop_fixed_size:
-    proto 2 2
-    frame_dig -2
-    intc_2 // 0
-    extract_uint16
-    intc_1 // 1
-    -
-    itob
-    extract 6 0
-    frame_dig -2
-    swap
-    replace2 0
-    dup
-    len
-    frame_dig -1
-    -
-    dup2
-    frame_dig -1
-    extract3
-    uncover 2
-    intc_2 // 0
-    uncover 3
-    substring3
     retsub
 
 
@@ -408,7 +335,7 @@ dynamic_array_pop_dynamic_element:
     swap
     cover 2
     substring3
-    bytec_1 // 0x
+    bytec_0 // 0x
     intc_2 // 0
 
 dynamic_array_pop_dynamic_element_for_header@1:
@@ -457,7 +384,7 @@ dynamic_array_pop_dynamic_element_after_for@4:
 // _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
 dynamic_array_concat_dynamic_element:
     proto 4 1
-    bytec_1 // ""
+    bytec_0 // ""
     dup
     frame_dig -2
     intc_0 // 2
