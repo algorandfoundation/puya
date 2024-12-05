@@ -314,6 +314,20 @@ def _try_fold_intrinsic(
             case 0, 1:
                 zero_const = UInt64Constant(value=0, source_location=intrinsic.source_location)
                 return attrs.evolve(intrinsic, op=AVMOp.neq, args=[selector, zero_const])
+    elif intrinsic.op is AVMOp.replace2:
+        (start,) = intrinsic.immediates
+        assert isinstance(start, int)
+        byte_arg_a, byte_arg_b = intrinsic.args
+        if (byte_const_a := _get_byte_constant(subroutine, byte_arg_a)) is not None and (
+            byte_const_b := _get_byte_constant(subroutine, byte_arg_b)
+        ) is not None:
+            replaced = bytearray(byte_const_a.value)
+            replaced[start : start + len(byte_const_b.value)] = byte_const_b.value
+            return models.BytesConstant(
+                value=bytes(replaced),
+                encoding=_choose_encoding(byte_const_a.encoding, byte_const_b.encoding),
+                source_location=op_loc,
+            )
     elif intrinsic.op is AVMOp.getbit:
         match intrinsic.args:
             case [
