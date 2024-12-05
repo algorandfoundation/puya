@@ -18,7 +18,7 @@ from puya.ir.models import Assignment, BasicBlock, Intrinsic, UInt64Constant
 from puya.ir.optimize._utils import get_definition
 from puya.ir.types_ import AVMBytesEncoding, IRType
 from puya.ir.visitor_mutator import IRMutator
-from puya.utils import biguint_bytes_eval
+from puya.utils import biguint_bytes_eval, method_selector_hash
 
 logger = log.get_logger(__name__)
 
@@ -536,6 +536,12 @@ def _get_byte_constant(
         return models.BytesConstant(
             value=_decode_address(byte_arg.value),
             encoding=AVMBytesEncoding.base32,
+            source_location=byte_arg.source_location,
+        )
+    if isinstance(byte_arg, models.MethodConstant):
+        return models.BytesConstant(
+            value=method_selector_hash(byte_arg.value),
+            encoding=AVMBytesEncoding.base16,
             source_location=byte_arg.source_location,
         )
     if isinstance(byte_arg, models.Register):
