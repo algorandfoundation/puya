@@ -2,7 +2,7 @@
 
 // test_cases.intrinsics.overloaded.Overloaded.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 0 1 3 4
     bytecblock 0x6b6579
     txn ApplicationID
     bnz main_after_if_else@2
@@ -78,6 +78,28 @@ approval_program:
     ==
     assert
     // intrinsics/overloaded.py:13
+    // assert op.getbit(op.setbit_uint64(2**64 - 1, 3, 0), 3) == 0
+    pushint 18446744073709551615 // 18446744073709551615
+    intc_2 // 3
+    intc_0 // 0
+    setbit
+    intc_2 // 3
+    getbit
+    intc_0 // 0
+    ==
+    assert
+    // intrinsics/overloaded.py:14
+    // assert op.getbit(op.setbit_uint64(123, 4, 1), 4) == 1
+    pushint 123 // 123
+    intc_3 // 4
+    intc_1 // 1
+    setbit
+    intc_3 // 4
+    getbit
+    intc_1 // 1
+    ==
+    assert
+    // intrinsics/overloaded.py:15
     // return True
     intc_1 // 1
     retsub
