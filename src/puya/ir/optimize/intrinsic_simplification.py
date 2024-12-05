@@ -331,6 +331,12 @@ def _try_fold_intrinsic(
     elif intrinsic.op is AVMOp.getbit:
         match intrinsic.args:
             case [
+                models.UInt64Constant(value=source, ir_type=IRType.uint64),
+                models.UInt64Constant(value=index),
+            ]:
+                getbit_result = 1 if (source & (1 << index)) else 0
+                return models.UInt64Constant(value=getbit_result, source_location=op_loc)
+            case [
                 byte_arg,
                 models.UInt64Constant(value=index),
             ] if (byte_const := _get_byte_constant(subroutine, byte_arg)) is not None:
@@ -341,6 +347,16 @@ def _try_fold_intrinsic(
                 return models.UInt64Constant(source_location=op_loc, value=int(the_bit))
     elif intrinsic.op is AVMOp.setbit:
         match intrinsic.args:
+            case [
+                models.UInt64Constant(value=source, ir_type=IRType.uint64),
+                models.UInt64Constant(value=index),
+                models.UInt64Constant(value=value),
+            ]:
+                if value:
+                    setbit_result = source | (1 << index)
+                else:
+                    setbit_result = source & ~(1 << index)
+                return models.UInt64Constant(value=setbit_result, source_location=op_loc)
             case [
                 byte_arg,
                 models.UInt64Constant(value=index),
