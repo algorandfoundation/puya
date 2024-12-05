@@ -12,7 +12,6 @@ from puya.ir import models
 from puya.ir.context import TMP_VAR_INDICATOR
 from puya.ir.optimize._call_graph import CallGraph
 from puya.ir.optimize._context import IROptimizationPassContext
-from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
 from puya.models import ContractMetaData, ProgramKind
@@ -324,29 +323,102 @@ class _SubroutineReferenceCollector(IRTraverser):
         super().visit_invoke_subroutine(callsub)
 
 
-_COMPILE_TIME_CONSTANT_OPS = PURE_AVM_OPS.union(("assert",)) - frozenset(
+_COMPILE_TIME_CONSTANT_OPS = frozenset(
     [
-        "txn",
-        "arg",
-        "arg_0",
-        "arg_1",
-        "arg_2",
-        "arg_3",
-        "args",
-        "gaid",
-        "gaids",
-        "gload",
-        "gloads",
-        "gloadss",
-        "txna",
-        "txnas",
-        "gtxn",
-        "gtxna",
-        "gtxnas",
-        "gtxns",
-        "gtxnsa",
-        "gtxnsas",
-        "block",
+        # "generic" comparison ops
+        "==",
+        "!=",
+        # uint64 comparison ops
+        "<",
+        "<=",
+        ">",
+        ">=",
+        # boolean ops
+        "!",
+        "&&",
+        "||",
+        # uint64 bitwise ops
+        "&",
+        "|",
+        "^",
+        "~",
+        "shl",
+        "shr",
+        # uint64 math
+        "+",
+        "-",
+        "*",
+        "/",
+        "%",
+        "exp",
+        "sqrt",
+        # wide math
+        "addw",
+        "mulw",
+        "divw",
+        "expw",
+        "divmodw",
+        # bit/byte ops
+        "concat",
+        "extract",
+        "extract3",
+        "getbit",
+        "getbyte",
+        "len",
+        "replace2",
+        "replace3",
+        "setbit",
+        "setbyte",
+        "substring",
+        "substring3",
+        # conversion
+        "itob",
+        "btoi",
+        "extract_uint16",
+        "extract_uint32",
+        "extract_uint64",
+        # byte math
+        "b+",
+        "b-",
+        "b*",
+        "b/",
+        "b%",
+        "bsqrt",
+        # byte comaprison ops
+        "b==",
+        "b!=",
+        "b<",
+        "b<=",
+        "b>",
+        "b>=",
+        # byte bitwise ops
+        "b&",
+        "b|",
+        "b^",
+        "b~",
+        # misc
+        "assert",
+        "bzero",
+        "select",
+        # unimplemented for constant arg evaluation
+        # "base64_decode",
+        # "ec_add",
+        # "ec_map_to",
+        # "ec_multi_scalar_mul",
+        # "ec_pairing_check",
+        # "ec_scalar_mul",
+        # "ec_subgroup_check",
+        # "ecdsa_pk_decompress",
+        # "ecdsa_pk_recover",
+        # "ecdsa_verify",
+        # "ed25519verify",
+        # "ed25519verify_bare",
+        # "json_ref",
+        # "keccak256",
+        # "sha256",
+        # "sha3_256",
+        # "sha512_256",
+        # "vrf_verify",
     ]
 )
 
