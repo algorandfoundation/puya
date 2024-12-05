@@ -109,6 +109,7 @@ class ARC4Returns:
 
 @attrs.frozen
 class ARC4ABIMethod:
+    id: str
     name: str
     desc: str | None = attrs.field(hash=False)
     args: Sequence[ARC4MethodArg] = attrs.field(converter=tuple[ARC4MethodArg, ...])
@@ -123,6 +124,7 @@ class ARC4ABIMethod:
 
 @attrs.frozen
 class ARC4BareMethod:
+    id: str
     desc: str | None = attrs.field(hash=False)
     config: ARC4BareMethodConfig
 

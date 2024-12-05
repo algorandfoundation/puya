@@ -584,11 +584,13 @@ def extract_arc4_methods(
     arc4_method_metadata = dict[awst_nodes.ContractMethod, ARC4Method]()
     for m, bare_method_config in bare_methods.items():
         arc4_method_metadata[m] = ARC4BareMethod(
+            id=m.full_name,
             desc=m.documentation.description,
             config=bare_method_config,
         )
     for m, abi_method_config in abi_methods.items():
         arc4_method_metadata[m] = ARC4ABIMethod(
+            id=m.full_name,
             name=m.member_name,
             desc=m.documentation.description,
             args=[

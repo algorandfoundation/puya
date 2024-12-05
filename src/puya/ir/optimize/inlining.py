@@ -15,6 +15,7 @@ from puya.ir.optimize._context import IROptimizationPassContext
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
+from puya.models import ContractMetaData, ProgramKind
 from puya.utils import lazy_setdefault
 
 logger = log.get_logger(__name__)
@@ -23,10 +24,21 @@ logger = log.get_logger(__name__)
 def analyse_subroutines_for_inlining(
     context: IROptimizationPassContext, program: models.Program
 ) -> None:
+    # for optimization levels below 2, skip auto-inlining routable methods into the approval
+    # program. mostly this can be beneficial in terms of #ops, but not always.
+    # also, it impacts the debugging experience
+    skip_routable_ids = set[str]()
+    if context.options.optimization_level < 2 and program.kind is ProgramKind.approval:
+        assert isinstance(context.metadata, ContractMetaData)
+        skip_routable_ids = {a4m.id for a4m in context.metadata.arc4_methods}
+
     call_graph = CallGraph(program)
     for sub in program.subroutines:
         if sub.inline is False:
             pass  # nothing to do
+        elif sub.inline is None and sub.id in skip_routable_ids:
+            logger.debug(f"marking routable method {sub.id} as non-inlineable")
+            sub.inline = False
         elif sub.entry.phis:
             logger.debug(
                 f"function has phi node(s) in entry block: {sub.id}",
