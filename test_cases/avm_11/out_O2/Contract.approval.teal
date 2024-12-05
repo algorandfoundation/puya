@@ -19,23 +19,6 @@ main_test_new_ops_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub test_new_ops
-    intc_1 // 1
-    return
-
-main_bare_routing@6:
-    txn OnCompletion
-    bnz main_after_if_else@10
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_1 // 1
-    return
-
-
-// test_cases.avm_11.contract.Contract.test_new_ops() -> void:
-test_new_ops:
-    proto 0 0
     pushint 1793 // 1793
     bzero
     pushbytes 0x
@@ -96,4 +79,14 @@ test_new_ops:
     intc_0 // 0
     voter_params_get VoterIncentiveEligible
     popn 2
-    retsub
+    intc_1 // 1
+    return
+
+main_bare_routing@6:
+    txn OnCompletion
+    bnz main_after_if_else@10
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_1 // 1
+    return

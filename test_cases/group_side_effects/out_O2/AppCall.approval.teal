@@ -18,7 +18,11 @@ main_some_value_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub some_value
+    global GroupSize
+    txn GroupIndex
+    pushint 1 // 1
+    +
+    *
     itob
     pushbytes 0x151f7c75
     swap
@@ -35,14 +39,3 @@ main_bare_routing@6:
     assert // can only call when creating
     pushint 1 // 1
     return
-
-
-// test_cases.group_side_effects.other.AppCall.some_value() -> uint64:
-some_value:
-    proto 0 1
-    global GroupSize
-    txn GroupIndex
-    pushint 1 // 1
-    +
-    *
-    retsub

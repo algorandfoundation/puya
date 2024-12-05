@@ -20,7 +20,11 @@ main_emit_ufixed_route@4:
     assert // can only call when not creating
     txna ApplicationArgs 1
     txna ApplicationArgs 2
-    callsub emit_ufixed
+    concat
+    pushbytes 0x7389b1ba // method "AnEvent(ufixed256x16,ufixed64x2)"
+    swap
+    concat
+    log
     pushint 1 // 1
     return
 
@@ -30,9 +34,17 @@ main_emit_swapped_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    txna ApplicationArgs 1
     txna ApplicationArgs 2
-    callsub emit_swapped
+    txna ApplicationArgs 1
+    concat
+    pushbytes 0x1ccbd925 // method "Swapped(uint64,uint64)"
+    swap
+    concat
+    dup
+    log
+    dup
+    log
+    log
     pushint 1 // 1
     return
 
@@ -44,33 +56,3 @@ main_bare_routing@7:
     assert // can only call when creating
     pushint 1 // 1
     return
-
-
-// examples.arc_28.contract.EventEmitter.emit_swapped(a: bytes, b: bytes) -> void:
-emit_swapped:
-    proto 2 0
-    frame_dig -1
-    frame_dig -2
-    concat
-    pushbytes 0x1ccbd925 // method "Swapped(uint64,uint64)"
-    swap
-    concat
-    dup
-    log
-    dup
-    log
-    log
-    retsub
-
-
-// examples.arc_28.contract.EventEmitter.emit_ufixed(a: bytes, b: bytes) -> void:
-emit_ufixed:
-    proto 2 0
-    frame_dig -2
-    frame_dig -1
-    concat
-    pushbytes 0x7389b1ba // method "AnEvent(ufixed256x16,ufixed64x2)"
-    swap
-    concat
-    log
-    retsub

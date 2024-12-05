@@ -2,7 +2,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 1 0
     txn NumAppArgs
     bz main_bare_routing@7
     pushbytess 0x4034b731 0x7e9fd4cf // method "bytes_to_bool()bool", method "test_bytes_to_biguint()void"
@@ -10,7 +10,7 @@ main:
     match main_bytes_to_bool_route@3 main_test_bytes_to_biguint_route@4
 
 main_after_if_else@11:
-    intc_0 // 0
+    intc_1 // 0
     return
 
 main_test_bytes_to_biguint_route@4:
@@ -19,8 +19,9 @@ main_test_bytes_to_biguint_route@4:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub test_bytes_to_biguint
-    intc_1 // 1
+    intc_1 // 0
+    assert
+    intc_0 // 1
     return
 
 main_bytes_to_bool_route@3:
@@ -29,16 +30,9 @@ main_bytes_to_bool_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub bytes_to_bool
-    pushbytes 0x00
-    intc_0 // 0
-    uncover 2
-    setbit
-    pushbytes 0x151f7c75
-    swap
-    concat
+    pushbytes 0x151f7c7500
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_bare_routing@7:
@@ -47,20 +41,5 @@ main_bare_routing@7:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
+    intc_0 // 1
     return
-
-
-// test_cases.reinterpret_cast.contract.Contract.bytes_to_bool() -> uint64:
-bytes_to_bool:
-    proto 0 1
-    intc_0 // 0
-    retsub
-
-
-// test_cases.reinterpret_cast.contract.Contract.test_bytes_to_biguint() -> void:
-test_bytes_to_biguint:
-    proto 0 0
-    intc_0 // 0
-    assert
-    retsub

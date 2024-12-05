@@ -43,7 +43,22 @@ main_test_tuple_route@4:
     uncover 2
     substring3
     extract 2 0
-    callsub test_tuple
+    uncover 3
+    pushint 1000 // 1000
+    <
+    assert
+    uncover 2
+    pushbytes 0x020000000000000000
+    b<
+    assert
+    swap
+    len
+    intc_0 // 1
+    >
+    assert
+    txn Sender
+    ==
+    assert
     intc_0 // 1
     return
 
@@ -60,7 +75,6 @@ main_build_tuple_route@3:
     extract 2 0
     txna ApplicationArgs 4
     extract 2 0
-    callsub build_tuple
     uncover 3
     itob
     dig 3
@@ -115,36 +129,3 @@ main_bare_routing@7:
     assert // can only call when creating
     intc_0 // 1
     return
-
-
-// test_cases.named_tuples.contract.NamedTuplesContract.build_tuple(a: uint64, b: bytes, c: bytes, d: bytes) -> uint64, bytes, bytes, bytes:
-build_tuple:
-    proto 4 4
-    frame_dig -4
-    frame_dig -3
-    frame_dig -2
-    frame_dig -1
-    retsub
-
-
-// test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(value.a: uint64, value.b: bytes, value.c: bytes, value.d: bytes) -> void:
-test_tuple:
-    proto 4 0
-    frame_dig -4
-    pushint 1000 // 1000
-    <
-    assert
-    frame_dig -3
-    pushbytes 0x020000000000000000
-    b<
-    assert
-    frame_dig -2
-    len
-    intc_0 // 1
-    >
-    assert
-    frame_dig -1
-    txn Sender
-    ==
-    assert
-    retsub

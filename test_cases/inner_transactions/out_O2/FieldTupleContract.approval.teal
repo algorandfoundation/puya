@@ -20,7 +20,30 @@ main_test_assign_tuple_mixed_route@4:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub test_assign_tuple_mixed
+    itxn_begin
+    bytec_1 // 0x3161
+    itxn_field ApplicationArgs
+    bytec_2 // 0x3261
+    itxn_field ApplicationArgs
+    intc_1 // DeleteApplication
+    itxn_field OnCompletion
+    bytec_0 // 0x098101
+    itxn_field ClearStateProgramPages
+    bytec_0 // 0x098101
+    itxn_field ApprovalProgramPages
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxna ApplicationArgs 0
+    bytec_1 // 0x3161
+    ==
+    assert
+    itxna ApplicationArgs 1
+    bytec_2 // 0x3261
+    ==
+    assert
     intc_3 // 1
     return
 
@@ -30,23 +53,6 @@ main_test_assign_tuple_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub test_assign_tuple
-    intc_3 // 1
-    return
-
-main_bare_routing@7:
-    txn OnCompletion
-    bnz main_after_if_else@11
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_3 // 1
-    return
-
-
-// test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple() -> void:
-test_assign_tuple:
-    proto 0 0
     pushint 42 // 42
     itob
     intc_3 // 1
@@ -245,34 +251,14 @@ test_assign_tuple:
     bytec 18 // 0x3563
     ==
     assert
-    retsub
+    intc_3 // 1
+    return
 
-
-// test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple_mixed() -> void:
-test_assign_tuple_mixed:
-    proto 0 0
-    itxn_begin
-    bytec_1 // 0x3161
-    itxn_field ApplicationArgs
-    bytec_2 // 0x3261
-    itxn_field ApplicationArgs
-    intc_1 // DeleteApplication
-    itxn_field OnCompletion
-    bytec_0 // 0x098101
-    itxn_field ClearStateProgramPages
-    bytec_0 // 0x098101
-    itxn_field ApprovalProgramPages
-    intc_2 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    itxna ApplicationArgs 0
-    bytec_1 // 0x3161
-    ==
-    assert
-    itxna ApplicationArgs 1
-    bytec_2 // 0x3261
-    ==
-    assert
-    retsub
+main_bare_routing@7:
+    txn OnCompletion
+    bnz main_after_if_else@11
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_3 // 1
+    return

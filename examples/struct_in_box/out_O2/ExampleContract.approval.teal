@@ -20,7 +20,8 @@ main_get_user_route@5:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
-    callsub get_user
+    box_get
+    assert // User with that id does not exist
     pushbytes 0x151f7c75
     swap
     concat
@@ -38,7 +39,19 @@ main_attach_asset_to_user_route@4:
     txna ApplicationArgs 2
     btoi
     txnas Assets
-    callsub attach_asset_to_user
+    swap
+    box_get
+    assert // User with that id does not exist
+    swap
+    itob
+    replace2 10
+    dup
+    extract 2 8 // on error: Index access is out of bounds
+    dup
+    box_del
+    pop
+    swap
+    box_put
     intc_0 // 1
     return
 
@@ -49,7 +62,18 @@ main_add_user_route@3:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
-    callsub add_user
+    dup
+    extract 2 8 // on error: Index access is out of bounds
+    dup
+    box_get
+    bury 1
+    !
+    assert // User with id must not exist
+    dup
+    box_del
+    pop
+    swap
+    box_put
     intc_0 // 1
     return
 
@@ -61,49 +85,3 @@ main_bare_routing@8:
     assert // can only call when creating
     intc_0 // 1
     return
-
-
-// examples.struct_in_box.contract.ExampleContract.add_user(user: bytes) -> void:
-add_user:
-    proto 1 0
-    frame_dig -1
-    extract 2 8 // on error: Index access is out of bounds
-    dup
-    box_get
-    bury 1
-    !
-    assert // User with id must not exist
-    dup
-    box_del
-    pop
-    frame_dig -1
-    box_put
-    retsub
-
-
-// examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(user_id: bytes, asset: uint64) -> void:
-attach_asset_to_user:
-    proto 2 0
-    frame_dig -2
-    box_get
-    assert // User with that id does not exist
-    frame_dig -1
-    itob
-    replace2 10
-    dup
-    extract 2 8 // on error: Index access is out of bounds
-    dup
-    box_del
-    pop
-    swap
-    box_put
-    retsub
-
-
-// examples.struct_in_box.contract.ExampleContract.get_user(user_id: bytes) -> bytes:
-get_user:
-    proto 1 1
-    frame_dig -1
-    box_get
-    assert // User with that id does not exist
-    retsub

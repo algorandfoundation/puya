@@ -21,13 +21,35 @@ main_verify_route@3:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
-    callsub verify
+    pushbytes 0x00
+    intc_0 // 0
+    txn NumAppArgs
+    setbit
+    swap
+    intc_0 // 0
+    extract_uint16
+    pushint 2 // 2
+    !=
+    bz main_after_if_else@14
+    bytec_0 // 0x0003
+    concat
+    bytec_1 // 0x0000
+    concat
+
+main_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@15:
     pushbytes 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
     return
+
+main_after_if_else@14:
+    bytec_0 // 0x0003
+    concat
+    bytec_1 // 0x0000
+    concat
+    b main_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@15
 
 main_bare_routing@6:
     txn OnCompletion
@@ -37,30 +59,3 @@ main_bare_routing@6:
     assert // can only call when creating
     intc_1 // 1
     return
-
-
-// test_cases.regression_tests.issue_118.Issue118.verify(values: bytes) -> bytes:
-verify:
-    proto 1 1
-    pushbytes 0x00
-    intc_0 // 0
-    txn NumAppArgs
-    setbit
-    frame_dig -1
-    intc_0 // 0
-    extract_uint16
-    pushint 2 // 2
-    !=
-    bz verify_after_if_else@2
-    bytec_0 // 0x0003
-    concat
-    bytec_1 // 0x0000
-    concat
-    retsub
-
-verify_after_if_else@2:
-    bytec_0 // 0x0003
-    concat
-    bytec_1 // 0x0000
-    concat
-    retsub

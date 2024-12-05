@@ -3,7 +3,7 @@
 // test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 123 2 0
-    bytecblock 0x151f7c75 "asa" 0x00000000000001c8
+    bytecblock 0x151f7c75 "asa" 0x151f7c7500000000000001c8
     txn ApplicationID
     bnz main_after_if_else@2
     bytec_1 // "asa"
@@ -43,7 +43,11 @@ main_hello_with_algopy_string_route@18:
     assert // can only call when not creating
     txna ApplicationArgs 1
     extract 2 0
-    callsub hello_with_algopy_string
+    pushbytes "Hello "
+    swap
+    concat
+    pushbytes "!"
+    concat
     dup
     len
     itob
@@ -132,7 +136,86 @@ main_method_with_more_than_15_args_route@17:
     extract 45 8 // on error: Index access is out of bounds
     txna ApplicationArgs 15
     extract 53 8 // on error: Index access is out of bounds
-    callsub method_with_more_than_15_args
+    txn NumAppArgs
+    pushint 16 // 16
+    ==
+    assert
+    uncover 18
+    gtxns Amount
+    pushint 100000 // 100000
+    ==
+    assert
+    uncover 2
+    gtxns Amount
+    pushint 200000 // 200000
+    ==
+    assert
+    uncover 19
+    assert
+    uncover 2
+    assert
+    uncover 3
+    uncover 3
+    concat
+    log
+    uncover 19
+    btoi
+    uncover 19
+    btoi
+    +
+    uncover 18
+    btoi
+    +
+    uncover 17
+    +
+    uncover 16
+    btoi
+    +
+    uncover 15
+    btoi
+    +
+    uncover 14
+    btoi
+    +
+    uncover 13
+    btoi
+    +
+    uncover 12
+    btoi
+    +
+    uncover 11
+    btoi
+    +
+    uncover 10
+    btoi
+    +
+    uncover 9
+    btoi
+    +
+    uncover 8
+    btoi
+    +
+    uncover 7
+    btoi
+    +
+    uncover 6
+    btoi
+    +
+    uncover 5
+    +
+    uncover 4
+    btoi
+    +
+    uncover 3
+    btoi
+    +
+    uncover 2
+    btoi
+    +
+    swap
+    btoi
+    +
+    itob
     bytec_0 // 0x151f7c75
     swap
     concat
@@ -176,7 +259,34 @@ main_method_with_15_args_route@16:
     btoi
     txna ApplicationArgs 15
     extract 2 0
-    callsub method_with_15_args
+    uncover 14
+    uncover 14
+    +
+    uncover 13
+    +
+    uncover 12
+    +
+    uncover 11
+    +
+    uncover 10
+    +
+    uncover 9
+    +
+    uncover 8
+    +
+    uncover 7
+    +
+    uncover 6
+    +
+    uncover 5
+    +
+    uncover 4
+    +
+    uncover 3
+    +
+    uncover 2
+    +
+    assert
     dup
     len
     itob
@@ -217,7 +327,54 @@ main_method_with_default_args_route@15:
     txna ApplicationArgs 7
     txna ApplicationArgs 8
     txna ApplicationArgs 9
-    callsub method_with_default_args
+    uncover 8
+    intc_1 // 123
+    ==
+    assert // wrong asset from storage
+    uncover 7
+    pushint 456 // 456
+    ==
+    assert // wrong asset from function
+    global CreatorAddress
+    uncover 7
+    ==
+    assert // wrong account from storage
+    global ZeroAddress
+    uncover 6
+    ==
+    assert // wrong account from function
+    uncover 4
+    intc_1 // 123
+    ==
+    assert // wrong application from storage
+    uncover 3
+    pushint 456 // 456
+    ==
+    assert // wrong application from function
+    dig 2
+    extract 0 1 // on error: Index access is out of bounds
+    pushbytes 0x07
+    b==
+    assert // wrong 0th byte from storage
+    dig 2
+    extract 1 1 // on error: Index access is out of bounds
+    pushbytes 0x08
+    b==
+    assert // wrong 1st byte from storage
+    uncover 2
+    extract 2 1 // on error: Index access is out of bounds
+    pushbytes 0x09
+    b==
+    assert // wrong 2nd byte from storage
+    swap
+    btoi
+    intc_2 // 2
+    ==
+    assert // wrong int from storage
+    btoi
+    pushint 3 // 3
+    ==
+    assert // wrong int from function
     intc_0 // 1
     return
 
@@ -227,10 +384,7 @@ main_get_an_int_route@14:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub get_a_int
-    bytec_0 // 0x151f7c75
-    swap
-    concat
+    pushbytes 0x151f7c750000000000000003
     log
     intc_0 // 1
     return
@@ -241,10 +395,7 @@ main_get_application_route@13:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub get_app
-    bytec_0 // 0x151f7c75
-    swap
-    concat
+    bytec_2 // 0x151f7c7500000000000001c8
     log
     intc_0 // 1
     return
@@ -255,10 +406,7 @@ main_get_asset_route@12:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub get_asset
-    bytec_0 // 0x151f7c75
-    swap
-    concat
+    bytec_2 // 0x151f7c7500000000000001c8
     log
     intc_0 // 1
     return
@@ -269,10 +417,7 @@ main_get_address_route@11:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub get_address
-    bytec_0 // 0x151f7c75
-    swap
-    concat
+    pushbytes base32(CUPXY5IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
     log
     intc_0 // 1
     return
@@ -289,7 +434,8 @@ main_compare_assets_route@10:
     txna ApplicationArgs 2
     btoi
     txnas Assets
-    callsub compare_assets
+    ==
+    assert // asset a == b
     intc_0 // 1
     return
 
@@ -312,7 +458,27 @@ main_with_transactions_route@9:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 3
-    callsub with_transactions
+    intc_3 // 0
+    bytec_1 // "asa"
+    app_global_get_ex
+    assert // check self.asa exists
+    uncover 4
+    ==
+    assert // is correct asset
+    uncover 2
+    btoi
+    intc_0 // 1
+    ==
+    assert // is correct int
+    swap
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert // is payment to app
+    btoi
+    intc_2 // 2
+    ==
+    assert // is correct int
     intc_0 // 1
     return
 
@@ -325,7 +491,28 @@ main_opt_into_asset_route@8:
     txna ApplicationArgs 1
     btoi
     txnas Assets
-    callsub opt_into_asset
+    txn Sender
+    global CreatorAddress
+    ==
+    assert // Only creator can opt in to ASA
+    intc_3 // 0
+    bytec_1 // "asa"
+    app_global_get_ex
+    assert // check self.asa exists
+    !
+    assert // ASA already opted in
+    bytec_1 // "asa"
+    dig 1
+    app_global_put
+    itxn_begin
+    pushint 4 // axfer
+    itxn_field TypeEnum
+    intc_3 // 0
+    itxn_field Fee
+    global CurrentApplicationAddress
+    itxn_field AssetReceiver
+    itxn_field XferAsset
+    itxn_submit
     intc_0 // 1
     return
 
@@ -339,7 +526,11 @@ main_mixed_oca_route@7:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
-    callsub mixed_oca
+    btoi
+    intc_0 // 1
+    +
+    itob
+    extract 7 1
     bytec_0 // 0x151f7c75
     swap
     concat
@@ -349,7 +540,11 @@ main_mixed_oca_route@7:
 
 main_all_the_things_route@6:
     txna ApplicationArgs 1
-    callsub full_abi_config
+    btoi
+    intc_0 // 1
+    +
+    itob
+    extract 7 1
     bytec_0 // 0x151f7c75
     swap
     concat
@@ -364,7 +559,11 @@ main_noop_with_uint64_route@5:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
-    callsub noop_with_uint64
+    btoi
+    intc_0 // 1
+    +
+    itob
+    extract 7 1
     bytec_0 // 0x151f7c75
     swap
     concat
@@ -381,332 +580,7 @@ main_bare_abi_config@20:
     txn ApplicationID
     !
     assert // can only call when creating
-    callsub bare_abi_config
-    intc_0 // 1
-    return
-
-
-// test_cases.abi_routing.contract.Reference.noop_with_uint64(a: bytes) -> bytes:
-noop_with_uint64:
-    proto 1 1
-    frame_dig -1
-    btoi
-    intc_0 // 1
-    +
-    itob
-    extract 7 1
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.full_abi_config(a: bytes) -> bytes:
-full_abi_config:
-    proto 1 1
-    frame_dig -1
-    btoi
-    intc_0 // 1
-    +
-    itob
-    extract 7 1
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.mixed_oca(a: bytes) -> bytes:
-mixed_oca:
-    proto 1 1
-    frame_dig -1
-    btoi
-    intc_0 // 1
-    +
-    itob
-    extract 7 1
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.opt_into_asset(asset: uint64) -> void:
-opt_into_asset:
-    proto 1 0
-    txn Sender
-    global CreatorAddress
-    ==
-    assert // Only creator can opt in to ASA
-    intc_3 // 0
-    bytec_1 // "asa"
-    app_global_get_ex
-    assert // check self.asa exists
-    !
-    assert // ASA already opted in
-    bytec_1 // "asa"
-    frame_dig -1
-    app_global_put
-    itxn_begin
-    pushint 4 // axfer
-    itxn_field TypeEnum
-    intc_3 // 0
-    itxn_field Fee
-    global CurrentApplicationAddress
-    itxn_field AssetReceiver
-    frame_dig -1
-    itxn_field XferAsset
-    itxn_submit
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.with_transactions(asset: uint64, an_int: bytes, pay: uint64, another_int: bytes) -> void:
-with_transactions:
-    proto 4 0
-    intc_3 // 0
-    bytec_1 // "asa"
-    app_global_get_ex
-    assert // check self.asa exists
-    frame_dig -4
-    ==
-    assert // is correct asset
-    frame_dig -3
-    btoi
-    intc_0 // 1
-    ==
-    assert // is correct int
-    frame_dig -2
-    gtxns Receiver
-    global CurrentApplicationAddress
-    ==
-    assert // is payment to app
-    frame_dig -1
-    btoi
-    intc_2 // 2
-    ==
-    assert // is correct int
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.compare_assets(asset_a: uint64, asset_b: uint64) -> void:
-compare_assets:
-    proto 2 0
-    frame_dig -2
-    frame_dig -1
-    ==
-    assert // asset a == b
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.get_address() -> bytes:
-get_address:
-    proto 0 1
-    global ZeroAddress
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.get_asset() -> bytes:
-get_asset:
-    proto 0 1
-    bytec_2 // 0x00000000000001c8
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.get_app() -> bytes:
-get_app:
-    proto 0 1
-    bytec_2 // 0x00000000000001c8
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.get_a_int() -> bytes:
-get_a_int:
-    proto 0 1
-    pushbytes 0x0000000000000003
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.method_with_default_args(asset_from_storage: uint64, asset_from_function: uint64, account_from_storage: bytes, account_from_function: bytes, application_from_storage: uint64, application_from_function: uint64, bytes_from_storage: bytes, int_from_storage: bytes, int_from_function: bytes) -> void:
-method_with_default_args:
-    proto 9 0
-    frame_dig -9
-    intc_1 // 123
-    ==
-    assert // wrong asset from storage
-    frame_dig -8
-    pushint 456 // 456
-    ==
-    assert // wrong asset from function
-    frame_dig -7
-    global CreatorAddress
-    ==
-    assert // wrong account from storage
-    frame_dig -6
-    global ZeroAddress
-    ==
-    assert // wrong account from function
-    frame_dig -5
-    intc_1 // 123
-    ==
-    assert // wrong application from storage
-    frame_dig -4
-    pushint 456 // 456
-    ==
-    assert // wrong application from function
-    frame_dig -3
-    extract 0 1 // on error: Index access is out of bounds
-    pushbytes 0x07
-    b==
-    assert // wrong 0th byte from storage
-    frame_dig -3
-    extract 1 1 // on error: Index access is out of bounds
-    pushbytes 0x08
-    b==
-    assert // wrong 1st byte from storage
-    frame_dig -3
-    extract 2 1 // on error: Index access is out of bounds
-    pushbytes 0x09
-    b==
-    assert // wrong 2nd byte from storage
-    frame_dig -2
-    btoi
-    intc_2 // 2
-    ==
-    assert // wrong int from storage
-    frame_dig -1
-    btoi
-    pushint 3 // 3
-    ==
-    assert // wrong int from function
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.method_with_15_args(one: uint64, two: uint64, three: uint64, four: uint64, five: uint64, six: uint64, seven: uint64, eight: uint64, nine: uint64, ten: uint64, eleven: uint64, twelve: uint64, thirteen: uint64, fourteen: uint64, fifteen: bytes) -> bytes:
-method_with_15_args:
-    proto 15 1
-    frame_dig -15
-    frame_dig -14
-    +
-    frame_dig -13
-    +
-    frame_dig -12
-    +
-    frame_dig -11
-    +
-    frame_dig -10
-    +
-    frame_dig -9
-    +
-    frame_dig -8
-    +
-    frame_dig -7
-    +
-    frame_dig -6
-    +
-    frame_dig -5
-    +
-    frame_dig -4
-    +
-    frame_dig -3
-    +
-    frame_dig -2
-    +
-    assert
-    frame_dig -1
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.method_with_more_than_15_args(a: bytes, b: bytes, c: bytes, d: uint64, asset: uint64, e: bytes, f: bytes, pay: uint64, g: bytes, h: bytes, i: bytes, j: bytes, k: bytes, l: bytes, m: bytes, n: bytes, o: bytes, p: uint64, q: bytes, r: bytes, s: bytes, t: bytes, asset2: uint64, pay2: uint64, u: bytes, v: bytes) -> bytes:
-method_with_more_than_15_args:
-    proto 26 1
-    txn NumAppArgs
-    pushint 16 // 16
-    ==
-    assert
-    frame_dig -19
-    gtxns Amount
-    pushint 100000 // 100000
-    ==
-    assert
-    frame_dig -3
-    gtxns Amount
-    pushint 200000 // 200000
-    ==
-    assert
-    frame_dig -22
-    assert
-    frame_dig -4
-    assert
-    frame_dig -6
-    frame_dig -5
-    concat
-    log
-    frame_dig -26
-    btoi
-    frame_dig -25
-    btoi
-    +
-    frame_dig -24
-    btoi
-    +
-    frame_dig -23
-    +
-    frame_dig -21
-    btoi
-    +
-    frame_dig -20
-    btoi
-    +
-    frame_dig -18
-    btoi
-    +
-    frame_dig -17
-    btoi
-    +
-    frame_dig -16
-    btoi
-    +
-    frame_dig -15
-    btoi
-    +
-    frame_dig -14
-    btoi
-    +
-    frame_dig -13
-    btoi
-    +
-    frame_dig -12
-    btoi
-    +
-    frame_dig -11
-    btoi
-    +
-    frame_dig -10
-    btoi
-    +
-    frame_dig -9
-    +
-    frame_dig -8
-    btoi
-    +
-    frame_dig -7
-    btoi
-    +
-    frame_dig -2
-    btoi
-    +
-    frame_dig -1
-    btoi
-    +
-    itob
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.hello_with_algopy_string(name: bytes) -> bytes:
-hello_with_algopy_string:
-    proto 1 1
-    pushbytes "Hello "
-    frame_dig -1
-    concat
-    pushbytes "!"
-    concat
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.bare_abi_config() -> void:
-bare_abi_config:
-    proto 0 0
     pushbytes "Hello World"
     log
-    retsub
+    intc_0 // 1
+    return

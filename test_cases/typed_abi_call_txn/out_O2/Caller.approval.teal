@@ -3,7 +3,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 3 6
-    bytecblock "TEST" "TST" 0x151f7c75 0x6d4700ad
+    bytecblock "TEST" "TST" 0x151f7c75 0x31 0x6d4700ad
     txn NumAppArgs
     bz main_bare_routing@9
     pushbytess 0x284c1e61 0xaa33c1ba 0x4f96071a 0xbb0098a2 // method "test_call_with_txn(byte[],byte[],application)void", method "test_call_with_acfg(byte[],byte[],application)void", method "test_call_with_infer(byte[],byte[],application)void", method "test_call_with_acfg_no_return(byte[],byte[],application)void"
@@ -27,7 +27,50 @@ main_test_call_with_acfg_no_return_route@6:
     txna ApplicationArgs 3
     btoi
     txnas Applications
-    callsub test_call_with_acfg_no_return
+    itxn_begin
+    intc_1 // 1
+    itxn_field ConfigAssetTotal
+    bytec_0 // "TEST"
+    itxn_field ConfigAssetName
+    bytec_1 // "TST"
+    itxn_field ConfigAssetUnitName
+    intc_2 // acfg
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_next
+    dig 2
+    len
+    itob
+    extract 6 2
+    uncover 3
+    concat
+    dig 2
+    len
+    itob
+    extract 6 2
+    uncover 3
+    concat
+    bytec_3 // 0x31
+    itxn_field Note
+    uncover 2
+    itxn_field ApplicationID
+    pushbytes 0xc840077d // method "call_with_acfg_no_return(byte[],acfg,byte[])void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn Note
+    bytec_3 // 0x31
+    ==
+    assert
+    gitxn 0 CreatedAssetID
+    assert // expected asset to be created
     intc_1 // 1
     return
 
@@ -44,7 +87,47 @@ main_test_call_with_infer_route@5:
     txna ApplicationArgs 3
     btoi
     txnas Applications
-    callsub test_call_with_infer
+    itxn_begin
+    intc_1 // 1
+    itxn_field ConfigAssetTotal
+    bytec_0 // "TEST"
+    itxn_field ConfigAssetName
+    bytec_1 // "TST"
+    itxn_field ConfigAssetUnitName
+    intc_2 // acfg
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_next
+    dig 2
+    len
+    itob
+    extract 6 2
+    uncover 3
+    concat
+    dig 2
+    len
+    itob
+    extract 6 2
+    uncover 3
+    concat
+    uncover 2
+    itxn_field ApplicationID
+    bytec 4 // method "call_with_acfg(byte[],acfg,byte[])uint64"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    gitxn 1 LastLog
+    extract 0 4
+    bytec_2 // 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
     intc_1 // 1
     return
 
@@ -61,7 +144,47 @@ main_test_call_with_acfg_route@4:
     txna ApplicationArgs 3
     btoi
     txnas Applications
-    callsub test_call_with_acfg
+    itxn_begin
+    intc_1 // 1
+    itxn_field ConfigAssetTotal
+    bytec_0 // "TEST"
+    itxn_field ConfigAssetName
+    bytec_1 // "TST"
+    itxn_field ConfigAssetUnitName
+    intc_2 // acfg
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_next
+    dig 2
+    len
+    itob
+    extract 6 2
+    uncover 3
+    concat
+    dig 2
+    len
+    itob
+    extract 6 2
+    uncover 3
+    concat
+    uncover 2
+    itxn_field ApplicationID
+    bytec 4 // method "call_with_acfg(byte[],acfg,byte[])uint64"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    gitxn 1 LastLog
+    extract 0 4
+    bytec_2 // 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
     intc_1 // 1
     return
 
@@ -78,23 +201,6 @@ main_test_call_with_txn_route@3:
     txna ApplicationArgs 3
     btoi
     txnas Applications
-    callsub test_call_with_txn
-    intc_1 // 1
-    return
-
-main_bare_routing@9:
-    txn OnCompletion
-    bnz main_after_if_else@13
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_1 // 1
-    return
-
-
-// test_cases.typed_abi_call_txn.caller.Caller.test_call_with_txn(a: bytes, b: bytes, app: uint64) -> void:
-test_call_with_txn:
-    proto 3 0
     itxn_begin
     intc_1 // 1
     itxn_field ConfigAssetTotal
@@ -107,19 +213,19 @@ test_call_with_txn:
     intc_0 // 0
     itxn_field Fee
     itxn_next
-    frame_dig -3
+    dig 2
     len
     itob
     extract 6 2
-    frame_dig -3
+    uncover 3
     concat
-    frame_dig -2
+    dig 2
     len
     itob
     extract 6 2
-    frame_dig -2
+    uncover 3
     concat
-    frame_dig -1
+    uncover 2
     itxn_field ApplicationID
     pushbytes 0xa1f5040d // method "call_with_txn(byte[],txn,byte[])uint64"
     itxn_field ApplicationArgs
@@ -141,148 +247,14 @@ test_call_with_txn:
     assert // ARC4 prefix is valid
     btoi
     assert // expected asset id
-    retsub
-
-
-// test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg(a: bytes, b: bytes, app: uint64) -> void:
-test_call_with_acfg:
-    proto 3 0
-    itxn_begin
     intc_1 // 1
-    itxn_field ConfigAssetTotal
-    bytec_0 // "TEST"
-    itxn_field ConfigAssetName
-    bytec_1 // "TST"
-    itxn_field ConfigAssetUnitName
-    intc_2 // acfg
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_next
-    frame_dig -3
-    len
-    itob
-    extract 6 2
-    frame_dig -3
-    concat
-    frame_dig -2
-    len
-    itob
-    extract 6 2
-    frame_dig -2
-    concat
-    frame_dig -1
-    itxn_field ApplicationID
-    bytec_3 // method "call_with_acfg(byte[],acfg,byte[])uint64"
-    itxn_field ApplicationArgs
-    swap
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    intc_3 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    gitxn 1 LastLog
-    extract 0 4
-    bytec_2 // 0x151f7c75
-    ==
-    assert // ARC4 prefix is valid
-    retsub
+    return
 
-
-// test_cases.typed_abi_call_txn.caller.Caller.test_call_with_infer(a: bytes, b: bytes, app: uint64) -> void:
-test_call_with_infer:
-    proto 3 0
-    itxn_begin
+main_bare_routing@9:
+    txn OnCompletion
+    bnz main_after_if_else@13
+    txn ApplicationID
+    !
+    assert // can only call when creating
     intc_1 // 1
-    itxn_field ConfigAssetTotal
-    bytec_0 // "TEST"
-    itxn_field ConfigAssetName
-    bytec_1 // "TST"
-    itxn_field ConfigAssetUnitName
-    intc_2 // acfg
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_next
-    frame_dig -3
-    len
-    itob
-    extract 6 2
-    frame_dig -3
-    concat
-    frame_dig -2
-    len
-    itob
-    extract 6 2
-    frame_dig -2
-    concat
-    frame_dig -1
-    itxn_field ApplicationID
-    bytec_3 // method "call_with_acfg(byte[],acfg,byte[])uint64"
-    itxn_field ApplicationArgs
-    swap
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    intc_3 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    gitxn 1 LastLog
-    extract 0 4
-    bytec_2 // 0x151f7c75
-    ==
-    assert // ARC4 prefix is valid
-    retsub
-
-
-// test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg_no_return(a: bytes, b: bytes, app: uint64) -> void:
-test_call_with_acfg_no_return:
-    proto 3 0
-    itxn_begin
-    intc_1 // 1
-    itxn_field ConfigAssetTotal
-    bytec_0 // "TEST"
-    itxn_field ConfigAssetName
-    bytec_1 // "TST"
-    itxn_field ConfigAssetUnitName
-    intc_2 // acfg
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_next
-    frame_dig -3
-    len
-    itob
-    extract 6 2
-    frame_dig -3
-    concat
-    frame_dig -2
-    len
-    itob
-    extract 6 2
-    frame_dig -2
-    concat
-    pushbytes 0x31
-    itxn_field Note
-    frame_dig -1
-    itxn_field ApplicationID
-    pushbytes 0xc840077d // method "call_with_acfg_no_return(byte[],acfg,byte[])void"
-    itxn_field ApplicationArgs
-    swap
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    intc_3 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn Note
-    pushbytes 0x31
-    ==
-    assert
-    gitxn 0 CreatedAssetID
-    assert // expected asset to be created
-    retsub
+    return

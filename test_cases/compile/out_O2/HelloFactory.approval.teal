@@ -3,7 +3,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 6 0 1 5
-    bytecblock 0x151f7c75 base64(CoEBQw==) 0x24378d3c 0xd0a28200 0x0005776f726c64 base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=) 0x4c5c61ba 0x20df3a54 0x00057468657265 base64(CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAVoIDBExcYboEJDeNPATQooIANhoAjgMAMAAlAAIjQzEZFEQxGEQ2GgFXAgCIADhJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAANC/7sxGEQiQ4oBASMoZUSAASBQi/9QiQ==) 0x000568656c6c6f base64(CjEbQQA7ggIE9eT9TQQkN408NhoAjgIADwADgQBDMRmBBRJEMRhEgQFDMRkURDEYRIgAGRaABBUffHVMULCBAUMxGUD/1TEYFESBAUOKAAGBgCCJ) 0xf5e4fd4d 0x0003686579 "hey there" "hi there"
+    bytecblock base64(CoEBQw==) 0x151f7c75 0x24378d3c 0xd0a28200 0x0005776f726c64 base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBmggMEIN86VAQkN408BNCiggA2GgCOAwA3ACwAAiNDMRkURDEYRDYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURDYaAVcCAChMZyJDgQQxGY4BAANC/6sxGEQiQw==) 0x4c5c61ba 0x20df3a54 0x00057468657265 base64(CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAXYIDBExcYboEJDeNPATQooIANhoAjgMANwAsAAIjQzEZFEQxGEQ2GgFXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFEQiQ4EEMRmOAQADQv+0MRhEIkM=) 0x0003686579 "hey there" "hi there" base64(CjEbQQA9ggIE9eT9TQQkN408NhoAjgIADwADgQBDMRmBBRJEMRhEgQFDMRkURDEYRIAMFR98dQAAAAAAABAAsIEBQzEZQP/TMRgURIEBQw==) 0xf5e4fd4d 0x000568656c6c6f
     txn NumAppArgs
     bz main_bare_routing@18
     pushbytess 0x60ffa295 0x2a17995c 0xeba742ea 0x335a6438 0x02947ca2 0xae1ee840 0x7b9073f5 0x854a68ca 0x1da004a1 0xc1995abd 0x7f4e75f5 0x01965937 0x7fbf8cca // method "test_logicsig()address", method "test_compile_contract()void", method "test_compile_contract_tmpl()void", method "test_compile_contract_prfx()void", method "test_compile_contract_large()void", method "test_arc4_create()void", method "test_arc4_create_tmpl()void", method "test_arc4_create_prfx()void", method "test_arc4_create_large()void", method "test_arc4_create_modified_compiled()void", method "test_arc4_update()void", method "test_other_constants()void", method "test_abi_call_create_params()void"
@@ -20,7 +20,58 @@ main_test_abi_call_create_params_route@15:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub test_abi_call_create_params
+    itxn_begin
+    intc_2 // 1
+    itxn_field GlobalNumByteSlice
+    bytec_0 // base64(CoEBQw==)
+    itxn_field ClearStateProgramPages
+    bytec 5 // base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBmggMEIN86VAQkN408BNCiggA2GgCOAwA3ACwAAiNDMRkURDEYRDYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURDYaAVcCAChMZyJDgQQxGY4BAANC/6sxGEQiQw==)
+    itxn_field ApprovalProgramPages
+    bytec 7 // method "create(string)void"
+    itxn_field ApplicationArgs
+    bytec 10 // 0x0003686579
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    bytec_3 // method "greet(string)string"
+    itxn_field ApplicationArgs
+    bytec 8 // 0x00057468657265
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    bytec 11 // "hey there"
+    ==
+    assert
+    itxn_begin
+    intc_3 // DeleteApplication
+    itxn_field OnCompletion
+    itxn_field ApplicationID
+    bytec_2 // method "delete()void"
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
     intc_2 // 1
     return
 
@@ -30,7 +81,57 @@ main_test_other_constants_route@14:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub test_other_constants
+    itxn_begin
+    pushint 4 // 4
+    itxn_field GlobalNumByteSlice
+    bytec_0 // base64(CoEBQw==)
+    itxn_field ClearStateProgramPages
+    pushbytes base64(CiACAAEmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAxGEAAECgnBGcpJwVnKicGZysnB2cxG0EAHIIDBNkoWnQEJDeNPARbDCN1NhoAjgMAUgBHAAIiQzEZFEQxGEQ2GgFXAgAiKWVEgAEwoEkVIwkjWCIoZUSAASBQTwJQTFAiKmVEUCIrZURQSRUWVwYCTFCABBUffHVMULAjQzEZgQUSRDEYRCNDMRkURDEYFESADBUffHUAAAAAAAAAAbAjQw==)
+    itxn_field ApprovalProgramPages
+    pushbytes 0xd9285a74 // method "create()uint64"
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    pushbytes 0x5b0c2375 // method "greet(string)byte[]"
+    itxn_field ApplicationArgs
+    pushbytes 0x00064a6f686e6e79
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    pushbytess base32(NBSWY3DPEBFG62DONZ4TKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA) 0x40e33532 // base32(NBSWY3DPEBFG62DONZ4TKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA), method "something()void"
+    concat
+    ==
+    assert
+    itxn_begin
+    intc_3 // DeleteApplication
+    itxn_field OnCompletion
+    itxn_field ApplicationID
+    bytec_2 // method "delete()void"
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
     intc_2 // 1
     return
 
@@ -40,7 +141,102 @@ main_test_arc4_update_route@13:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub test_arc4_update
+    itxn_begin
+    pushint 2 // 2
+    itxn_field LocalNumUint
+    pushint 2 // 2
+    itxn_field LocalNumByteSlice
+    pushint 2 // 2
+    itxn_field GlobalNumUint
+    pushint 2 // 2
+    itxn_field GlobalNumByteSlice
+    intc_2 // 1
+    itxn_field ExtraProgramPages
+    bytec_0 // base64(CoEBQw==)
+    itxn_field ClearStateProgramPages
+    bytec 9 // base64(CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAXYIDBExcYboEJDeNPATQooIANhoAjgMANwAsAAIjQzEZFEQxGEQ2GgFXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFEQiQ4EEMRmOAQADQv+0MRhEIkM=)
+    itxn_field ApprovalProgramPages
+    bytec 6 // method "create()void"
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    bytec_3 // method "greet(string)string"
+    itxn_field ApplicationArgs
+    bytec 8 // 0x00057468657265
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    bytec 12 // "hi there"
+    ==
+    assert
+    itxn_begin
+    bytec_0 // base64(CoEBQw==)
+    itxn_field ClearStateProgramPages
+    bytec 5 // base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBmggMEIN86VAQkN408BNCiggA2GgCOAwA3ACwAAiNDMRkURDEYRDYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURDYaAVcCAChMZyJDgQQxGY4BAANC/6sxGEQiQw==)
+    itxn_field ApprovalProgramPages
+    pushint 4 // UpdateApplication
+    itxn_field OnCompletion
+    dup
+    itxn_field ApplicationID
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    bytec_3 // method "greet(string)string"
+    itxn_field ApplicationArgs
+    bytec 8 // 0x00057468657265
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    bytec 12 // "hi there"
+    ==
+    assert
+    itxn_begin
+    intc_3 // DeleteApplication
+    itxn_field OnCompletion
+    itxn_field ApplicationID
+    bytec_2 // method "delete()void"
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
     intc_2 // 1
     return
 
@@ -50,567 +246,6 @@ main_test_arc4_create_modified_compiled_route@12:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub test_arc4_create_modified_compiled
-    intc_2 // 1
-    return
-
-main_test_arc4_create_large_route@11:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub test_arc4_create_large
-    intc_2 // 1
-    return
-
-main_test_arc4_create_prfx_route@10:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub test_arc4_create_prfx
-    intc_2 // 1
-    return
-
-main_test_arc4_create_tmpl_route@9:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub test_arc4_create_tmpl
-    intc_2 // 1
-    return
-
-main_test_arc4_create_route@8:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub test_arc4_create
-    intc_2 // 1
-    return
-
-main_test_compile_contract_large_route@7:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub test_compile_contract_large
-    intc_2 // 1
-    return
-
-main_test_compile_contract_prfx_route@6:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub test_compile_contract_prfx
-    intc_2 // 1
-    return
-
-main_test_compile_contract_tmpl_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub test_compile_contract_tmpl
-    intc_2 // 1
-    return
-
-main_test_compile_contract_route@4:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub test_compile_contract
-    intc_2 // 1
-    return
-
-main_test_logicsig_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub test_logicsig
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_2 // 1
-    return
-
-main_bare_routing@18:
-    txn OnCompletion
-    bnz main_after_if_else@22
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_2 // 1
-    return
-
-
-// test_cases.compile.factory.HelloFactory.test_logicsig() -> bytes:
-test_logicsig:
-    proto 0 1
-    pushbytes base32(U3ZXEUNFRSUDPPNFC6U7OBYO4S4AUOEP4RDBI23L2Q5TX3K5LTSQ) // addr U3ZXEUNFRSUDPPNFC6U7OBYO4S4AUOEP4RDBI23L2Q5TX3K5LTSVWQOKFM
-    retsub
-
-
-// test_cases.compile.factory.HelloFactory.test_compile_contract() -> void:
-test_compile_contract:
-    proto 0 0
-    itxn_begin
-    intc_2 // 1
-    itxn_field GlobalNumByteSlice
-    bytec_1 // base64(CoEBQw==)
-    itxn_field ClearStateProgramPages
-    bytec 5 // base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
-    itxn_field ApprovalProgramPages
-    bytec 7 // method "create(string)void"
-    itxn_field ApplicationArgs
-    bytec 10 // 0x000568656c6c6f
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn CreatedApplicationID
-    itxn_begin
-    dup
-    itxn_field ApplicationID
-    bytec_3 // method "greet(string)string"
-    itxn_field ApplicationArgs
-    bytec 4 // 0x0005776f726c64
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    dup
-    extract 4 0
-    swap
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // ARC4 prefix is valid
-    itxn_begin
-    intc_3 // DeleteApplication
-    itxn_field OnCompletion
-    bytec_2 // method "delete()void"
-    itxn_field ApplicationArgs
-    swap
-    itxn_field ApplicationID
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    pushbytes 0x000b68656c6c6f20776f726c64
-    ==
-    assert
-    retsub
-
-
-// test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() -> void:
-test_compile_contract_tmpl:
-    proto 0 0
-    itxn_begin
-    intc_2 // 1
-    itxn_field GlobalNumByteSlice
-    bytec_1 // base64(CoEBQw==)
-    itxn_field ClearStateProgramPages
-    bytec 9 // base64(CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAVoIDBExcYboEJDeNPATQooIANhoAjgMAMAAlAAIjQzEZFEQxGEQ2GgFXAgCIADhJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAANC/7sxGEQiQ4oBASMoZUSAASBQi/9QiQ==)
-    itxn_field ApprovalProgramPages
-    bytec 6 // method "create()void"
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn CreatedApplicationID
-    itxn_begin
-    dup
-    itxn_field ApplicationID
-    bytec_3 // method "greet(string)string"
-    itxn_field ApplicationArgs
-    bytec 4 // 0x0005776f726c64
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    dup
-    extract 4 0
-    swap
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // ARC4 prefix is valid
-    itxn_begin
-    intc_3 // DeleteApplication
-    itxn_field OnCompletion
-    bytec_2 // method "delete()void"
-    itxn_field ApplicationArgs
-    swap
-    itxn_field ApplicationID
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    pushbytes 0x000968657920776f726c64
-    ==
-    assert
-    retsub
-
-
-// test_cases.compile.factory.HelloFactory.test_compile_contract_prfx() -> void:
-test_compile_contract_prfx:
-    proto 0 0
-    itxn_begin
-    intc_2 // 1
-    itxn_field GlobalNumByteSlice
-    bytec_1 // base64(CoEBQw==)
-    itxn_field ClearStateProgramPages
-    pushbytes base64(CiACAQAmAghncmVldGluZwJoaTEYQAADKClnMRtBAFaCAwRMXGG6BCQ3jTwE0KKCADYaAI4DADAAJQACI0MxGRREMRhENhoBVwIAiAA4SRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFEQiQ4EEMRmOAQADQv+7MRhEIkOKAQEjKGVEgAEgUIv/UIk=)
-    itxn_field ApprovalProgramPages
-    bytec 6 // method "create()void"
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn CreatedApplicationID
-    itxn_begin
-    dup
-    itxn_field ApplicationID
-    bytec_3 // method "greet(string)string"
-    itxn_field ApplicationArgs
-    bytec 4 // 0x0005776f726c64
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    dup
-    extract 4 0
-    swap
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // ARC4 prefix is valid
-    itxn_begin
-    intc_3 // DeleteApplication
-    itxn_field OnCompletion
-    bytec_2 // method "delete()void"
-    itxn_field ApplicationArgs
-    swap
-    itxn_field ApplicationID
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    pushbytes 0x0008686920776f726c64
-    ==
-    assert
-    retsub
-
-
-// test_cases.compile.factory.HelloFactory.test_compile_contract_large() -> void:
-test_compile_contract_large:
-    proto 0 0
-    itxn_begin
-    bytec_1 // base64(CoEBQw==)
-    itxn_field ClearStateProgramPages
-    bytec 11 // base64(CjEbQQA7ggIE9eT9TQQkN408NhoAjgIADwADgQBDMRmBBRJEMRhEgQFDMRkURDEYRIgAGRaABBUffHVMULCBAUMxGUD/1TEYFESBAUOKAAGBgCCJ)
-    itxn_field ApprovalProgramPages
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn CreatedApplicationID
-    itxn_begin
-    dup
-    itxn_field ApplicationID
-    bytec 12 // method "get_big_bytes_length()uint64"
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    dup
-    extract 4 0
-    swap
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // ARC4 prefix is valid
-    itxn_begin
-    intc_3 // DeleteApplication
-    itxn_field OnCompletion
-    bytec_2 // method "delete()void"
-    itxn_field ApplicationArgs
-    swap
-    itxn_field ApplicationID
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    pushbytes 0x0000000000001000
-    b==
-    assert
-    retsub
-
-
-// test_cases.compile.factory.HelloFactory.test_arc4_create() -> void:
-test_arc4_create:
-    proto 0 0
-    itxn_begin
-    intc_2 // 1
-    itxn_field GlobalNumByteSlice
-    bytec_1 // base64(CoEBQw==)
-    itxn_field ClearStateProgramPages
-    bytec 5 // base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
-    itxn_field ApprovalProgramPages
-    bytec 7 // method "create(string)void"
-    itxn_field ApplicationArgs
-    bytec 10 // 0x000568656c6c6f
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn CreatedApplicationID
-    itxn_begin
-    dup
-    itxn_field ApplicationID
-    bytec_3 // method "greet(string)string"
-    itxn_field ApplicationArgs
-    bytec 4 // 0x0005776f726c64
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    dup
-    extract 4 0
-    swap
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // ARC4 prefix is valid
-    extract 2 0
-    itxn_begin
-    intc_3 // DeleteApplication
-    itxn_field OnCompletion
-    swap
-    itxn_field ApplicationID
-    bytec_2 // method "delete()void"
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    pushbytes "hello world"
-    ==
-    assert
-    retsub
-
-
-// test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl() -> void:
-test_arc4_create_tmpl:
-    proto 0 0
-    itxn_begin
-    intc_2 // 1
-    itxn_field GlobalNumByteSlice
-    bytec_1 // base64(CoEBQw==)
-    itxn_field ClearStateProgramPages
-    bytec 9 // base64(CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAVoIDBExcYboEJDeNPATQooIANhoAjgMAMAAlAAIjQzEZFEQxGEQ2GgFXAgCIADhJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAANC/7sxGEQiQ4oBASMoZUSAASBQi/9QiQ==)
-    itxn_field ApprovalProgramPages
-    bytec 6 // method "create()void"
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn CreatedApplicationID
-    itxn_begin
-    dup
-    itxn_field ApplicationID
-    bytec_3 // method "greet(string)string"
-    itxn_field ApplicationArgs
-    bytec 4 // 0x0005776f726c64
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    dup
-    extract 4 0
-    swap
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // ARC4 prefix is valid
-    extract 2 0
-    itxn_begin
-    intc_3 // DeleteApplication
-    itxn_field OnCompletion
-    swap
-    itxn_field ApplicationID
-    bytec_2 // method "delete()void"
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    pushbytes "tmpl2 world"
-    ==
-    assert
-    retsub
-
-
-// test_cases.compile.factory.HelloFactory.test_arc4_create_prfx() -> void:
-test_arc4_create_prfx:
-    proto 0 0
-    itxn_begin
-    intc_2 // 1
-    itxn_field GlobalNumByteSlice
-    bytec_1 // base64(CoEBQw==)
-    itxn_field ClearStateProgramPages
-    pushbytes base64(CiACAQAmAghncmVldGluZwVwcmZ4MjEYQAADKClnMRtBAFaCAwRMXGG6BCQ3jTwE0KKCADYaAI4DADAAJQACI0MxGRREMRhENhoBVwIAiAA4SRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFEQiQ4EEMRmOAQADQv+7MRhEIkOKAQEjKGVEgAEgUIv/UIk=)
-    itxn_field ApprovalProgramPages
-    bytec 6 // method "create()void"
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn CreatedApplicationID
-    itxn_begin
-    dup
-    itxn_field ApplicationID
-    bytec_3 // method "greet(string)string"
-    itxn_field ApplicationArgs
-    bytec 4 // 0x0005776f726c64
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    dup
-    extract 4 0
-    swap
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // ARC4 prefix is valid
-    extract 2 0
-    itxn_begin
-    intc_3 // DeleteApplication
-    itxn_field OnCompletion
-    swap
-    itxn_field ApplicationID
-    bytec_2 // method "delete()void"
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    pushbytes "prfx2 world"
-    ==
-    assert
-    retsub
-
-
-// test_cases.compile.factory.HelloFactory.test_arc4_create_large() -> void:
-test_arc4_create_large:
-    proto 0 0
-    itxn_begin
-    bytec_1 // base64(CoEBQw==)
-    itxn_field ClearStateProgramPages
-    bytec 11 // base64(CjEbQQA7ggIE9eT9TQQkN408NhoAjgIADwADgQBDMRmBBRJEMRhEgQFDMRkURDEYRIgAGRaABBUffHVMULCBAUMxGUD/1TEYFESBAUOKAAGBgCCJ)
-    itxn_field ApprovalProgramPages
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn CreatedApplicationID
-    itxn_begin
-    dup
-    itxn_field ApplicationID
-    bytec 12 // method "get_big_bytes_length()uint64"
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    dup
-    extract 4 0
-    swap
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // ARC4 prefix is valid
-    btoi
-    pushint 4096 // 4096
-    ==
-    assert
-    itxn_begin
-    intc_3 // DeleteApplication
-    itxn_field OnCompletion
-    itxn_field ApplicationID
-    bytec_2 // method "delete()void"
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    retsub
-
-
-// test_cases.compile.factory.HelloFactory.test_arc4_create_modified_compiled() -> void:
-test_arc4_create_modified_compiled:
-    proto 0 0
     itxn_begin
     pushint 3 // 3
     itxn_field LocalNumUint
@@ -620,13 +255,13 @@ test_arc4_create_modified_compiled:
     itxn_field GlobalNumUint
     intc_0 // 6
     itxn_field GlobalNumByteSlice
-    bytec_1 // base64(CoEBQw==)
+    bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 5 // base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
+    bytec 5 // base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBmggMEIN86VAQkN408BNCiggA2GgCOAwA3ACwAAiNDMRkURDEYRDYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURDYaAVcCAChMZyJDgQQxGY4BAANC/6sxGEQiQw==)
     itxn_field ApprovalProgramPages
     bytec 7 // method "create(string)void"
     itxn_field ApplicationArgs
-    bytec 13 // 0x0003686579
+    bytec 10 // 0x0003686579
     itxn_field ApplicationArgs
     intc_0 // appl
     itxn_field TypeEnum
@@ -675,11 +310,11 @@ test_arc4_create_modified_compiled:
     extract 4 0
     swap
     extract 0 4
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     extract 2 0
-    bytec 14 // "hey there"
+    bytec 11 // "hey there"
     ==
     assert
     itxn_begin
@@ -693,26 +328,74 @@ test_arc4_create_modified_compiled:
     intc_1 // 0
     itxn_field Fee
     itxn_submit
-    retsub
-
-
-// test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
-test_arc4_update:
-    proto 0 0
-    itxn_begin
-    pushint 2 // 2
-    itxn_field LocalNumUint
-    pushint 2 // 2
-    itxn_field LocalNumByteSlice
-    pushint 2 // 2
-    itxn_field GlobalNumUint
-    pushint 2 // 2
-    itxn_field GlobalNumByteSlice
     intc_2 // 1
-    itxn_field ExtraProgramPages
-    bytec_1 // base64(CoEBQw==)
+    return
+
+main_test_arc4_create_large_route@11:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    itxn_begin
+    bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 9 // base64(CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAVoIDBExcYboEJDeNPATQooIANhoAjgMAMAAlAAIjQzEZFEQxGEQ2GgFXAgCIADhJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAANC/7sxGEQiQ4oBASMoZUSAASBQi/9QiQ==)
+    bytec 13 // base64(CjEbQQA9ggIE9eT9TQQkN408NhoAjgIADwADgQBDMRmBBRJEMRhEgQFDMRkURDEYRIAMFR98dQAAAAAAABAAsIEBQzEZQP/TMRgURIEBQw==)
+    itxn_field ApprovalProgramPages
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    bytec 14 // method "get_big_bytes_length()uint64"
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    btoi
+    pushint 4096 // 4096
+    ==
+    assert
+    itxn_begin
+    intc_3 // DeleteApplication
+    itxn_field OnCompletion
+    itxn_field ApplicationID
+    bytec_2 // method "delete()void"
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    intc_2 // 1
+    return
+
+main_test_arc4_create_prfx_route@10:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    itxn_begin
+    intc_2 // 1
+    itxn_field GlobalNumByteSlice
+    bytec_0 // base64(CoEBQw==)
+    itxn_field ClearStateProgramPages
+    pushbytes base64(CiACAQAmAghncmVldGluZwVwcmZ4MjEYQAADKClnMRtBAF2CAwRMXGG6BCQ3jTwE0KKCADYaAI4DADcALAACI0MxGRREMRhENhoBVwIAIyhlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBREIkOBBDEZjgEAA0L/tDEYRCJD)
     itxn_field ApprovalProgramPages
     bytec 6 // method "create()void"
     itxn_field ApplicationArgs
@@ -727,7 +410,7 @@ test_arc4_update:
     itxn_field ApplicationID
     bytec_3 // method "greet(string)string"
     itxn_field ApplicationArgs
-    bytec 8 // 0x00057468657265
+    bytec 4 // 0x0005776f726c64
     itxn_field ApplicationArgs
     intc_0 // appl
     itxn_field TypeEnum
@@ -739,54 +422,14 @@ test_arc4_update:
     extract 4 0
     swap
     extract 0 4
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     extract 2 0
-    bytec 15 // "hi there"
-    ==
-    assert
-    itxn_begin
-    bytec_1 // base64(CoEBQw==)
-    itxn_field ClearStateProgramPages
-    bytec 5 // base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
-    itxn_field ApprovalProgramPages
-    pushint 4 // UpdateApplication
-    itxn_field OnCompletion
-    dup
-    itxn_field ApplicationID
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn_begin
-    dup
-    itxn_field ApplicationID
-    bytec_3 // method "greet(string)string"
-    itxn_field ApplicationArgs
-    bytec 8 // 0x00057468657265
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    dup
-    extract 4 0
-    swap
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // ARC4 prefix is valid
-    extract 2 0
-    bytec 15 // "hi there"
-    ==
-    assert
     itxn_begin
     intc_3 // DeleteApplication
     itxn_field OnCompletion
+    swap
     itxn_field ApplicationID
     bytec_2 // method "delete()void"
     itxn_field ApplicationArgs
@@ -795,79 +438,26 @@ test_arc4_update:
     intc_1 // 0
     itxn_field Fee
     itxn_submit
-    retsub
-
-
-// test_cases.compile.factory.HelloFactory.test_other_constants() -> void:
-test_other_constants:
-    proto 0 0
-    itxn_begin
-    pushint 4 // 4
-    itxn_field GlobalNumByteSlice
-    bytec_1 // base64(CoEBQw==)
-    itxn_field ClearStateProgramPages
-    pushbytes base64(CiACAQAmCQhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEFR98dQR0bXBsAUIgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAADEYQAAQKCcFZyknBmcqJwdnKycIZzEbQQAcggME2ShadAQkN408BFsMI3U2GgCOAwAsACEAAiNDMRkURDEYRDYaAVcCAIgAMkkVFlcGAkxQJwRMULAiQzEZgQUSRDEYRCJDMRkURDEYFESIAAgWJwRMULAiQ4oAASKJigEBIyllRIABMKBJFSIJIlgjKGVEgAEgUIv/UExQIyplRFAjK2VEUIk=)
-    itxn_field ApprovalProgramPages
-    pushbytes 0xd9285a74 // method "create()uint64"
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn CreatedApplicationID
-    itxn_begin
-    dup
-    itxn_field ApplicationID
-    pushbytes 0x5b0c2375 // method "greet(string)byte[]"
-    itxn_field ApplicationArgs
-    pushbytes 0x00064a6f686e6e79
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    dup
-    extract 4 0
-    swap
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // ARC4 prefix is valid
-    extract 2 0
-    pushbytess base32(NBSWY3DPEBFG62DONZ4TKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA) 0x40e33532 // base32(NBSWY3DPEBFG62DONZ4TKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA), method "something()void"
-    concat
+    pushbytes "prfx2 world"
     ==
     assert
-    itxn_begin
-    intc_3 // DeleteApplication
-    itxn_field OnCompletion
-    itxn_field ApplicationID
-    bytec_2 // method "delete()void"
-    itxn_field ApplicationArgs
-    intc_0 // appl
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    retsub
+    intc_2 // 1
+    return
 
-
-// test_cases.compile.factory.HelloFactory.test_abi_call_create_params() -> void:
-test_abi_call_create_params:
-    proto 0 0
+main_test_arc4_create_tmpl_route@9:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     itxn_begin
     intc_2 // 1
     itxn_field GlobalNumByteSlice
-    bytec_1 // base64(CoEBQw==)
+    bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 5 // base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
+    bytec 9 // base64(CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAXYIDBExcYboEJDeNPATQooIANhoAjgMANwAsAAIjQzEZFEQxGEQ2GgFXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFEQiQ4EEMRmOAQADQv+0MRhEIkM=)
     itxn_field ApprovalProgramPages
-    bytec 7 // method "create(string)void"
-    itxn_field ApplicationArgs
-    bytec 13 // 0x0003686579
+    bytec 6 // method "create()void"
     itxn_field ApplicationArgs
     intc_0 // appl
     itxn_field TypeEnum
@@ -880,7 +470,7 @@ test_abi_call_create_params:
     itxn_field ApplicationID
     bytec_3 // method "greet(string)string"
     itxn_field ApplicationArgs
-    bytec 8 // 0x00057468657265
+    bytec 4 // 0x0005776f726c64
     itxn_field ApplicationArgs
     intc_0 // appl
     itxn_field TypeEnum
@@ -892,16 +482,14 @@ test_abi_call_create_params:
     extract 4 0
     swap
     extract 0 4
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     extract 2 0
-    bytec 14 // "hey there"
-    ==
-    assert
     itxn_begin
     intc_3 // DeleteApplication
     itxn_field OnCompletion
+    swap
     itxn_field ApplicationID
     bytec_2 // method "delete()void"
     itxn_field ApplicationArgs
@@ -910,4 +498,322 @@ test_abi_call_create_params:
     intc_1 // 0
     itxn_field Fee
     itxn_submit
-    retsub
+    pushbytes "tmpl2 world"
+    ==
+    assert
+    intc_2 // 1
+    return
+
+main_test_arc4_create_route@8:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    itxn_begin
+    intc_2 // 1
+    itxn_field GlobalNumByteSlice
+    bytec_0 // base64(CoEBQw==)
+    itxn_field ClearStateProgramPages
+    bytec 5 // base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBmggMEIN86VAQkN408BNCiggA2GgCOAwA3ACwAAiNDMRkURDEYRDYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURDYaAVcCAChMZyJDgQQxGY4BAANC/6sxGEQiQw==)
+    itxn_field ApprovalProgramPages
+    bytec 7 // method "create(string)void"
+    itxn_field ApplicationArgs
+    bytec 15 // 0x000568656c6c6f
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    bytec_3 // method "greet(string)string"
+    itxn_field ApplicationArgs
+    bytec 4 // 0x0005776f726c64
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    itxn_begin
+    intc_3 // DeleteApplication
+    itxn_field OnCompletion
+    swap
+    itxn_field ApplicationID
+    bytec_2 // method "delete()void"
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    pushbytes "hello world"
+    ==
+    assert
+    intc_2 // 1
+    return
+
+main_test_compile_contract_large_route@7:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    itxn_begin
+    bytec_0 // base64(CoEBQw==)
+    itxn_field ClearStateProgramPages
+    bytec 13 // base64(CjEbQQA9ggIE9eT9TQQkN408NhoAjgIADwADgQBDMRmBBRJEMRhEgQFDMRkURDEYRIAMFR98dQAAAAAAABAAsIEBQzEZQP/TMRgURIEBQw==)
+    itxn_field ApprovalProgramPages
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    bytec 14 // method "get_big_bytes_length()uint64"
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    itxn_begin
+    intc_3 // DeleteApplication
+    itxn_field OnCompletion
+    bytec_2 // method "delete()void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationID
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    pushbytes 0x0000000000001000
+    b==
+    assert
+    intc_2 // 1
+    return
+
+main_test_compile_contract_prfx_route@6:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    itxn_begin
+    intc_2 // 1
+    itxn_field GlobalNumByteSlice
+    bytec_0 // base64(CoEBQw==)
+    itxn_field ClearStateProgramPages
+    pushbytes base64(CiACAQAmAghncmVldGluZwJoaTEYQAADKClnMRtBAF2CAwRMXGG6BCQ3jTwE0KKCADYaAI4DADcALAACI0MxGRREMRhENhoBVwIAIyhlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBREIkOBBDEZjgEAA0L/tDEYRCJD)
+    itxn_field ApprovalProgramPages
+    bytec 6 // method "create()void"
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    bytec_3 // method "greet(string)string"
+    itxn_field ApplicationArgs
+    bytec 4 // 0x0005776f726c64
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    itxn_begin
+    intc_3 // DeleteApplication
+    itxn_field OnCompletion
+    bytec_2 // method "delete()void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationID
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    pushbytes 0x0008686920776f726c64
+    ==
+    assert
+    intc_2 // 1
+    return
+
+main_test_compile_contract_tmpl_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    itxn_begin
+    intc_2 // 1
+    itxn_field GlobalNumByteSlice
+    bytec_0 // base64(CoEBQw==)
+    itxn_field ClearStateProgramPages
+    bytec 9 // base64(CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAXYIDBExcYboEJDeNPATQooIANhoAjgMANwAsAAIjQzEZFEQxGEQ2GgFXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFEQiQ4EEMRmOAQADQv+0MRhEIkM=)
+    itxn_field ApprovalProgramPages
+    bytec 6 // method "create()void"
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    bytec_3 // method "greet(string)string"
+    itxn_field ApplicationArgs
+    bytec 4 // 0x0005776f726c64
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    itxn_begin
+    intc_3 // DeleteApplication
+    itxn_field OnCompletion
+    bytec_2 // method "delete()void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationID
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    pushbytes 0x000968657920776f726c64
+    ==
+    assert
+    intc_2 // 1
+    return
+
+main_test_compile_contract_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    itxn_begin
+    intc_2 // 1
+    itxn_field GlobalNumByteSlice
+    bytec_0 // base64(CoEBQw==)
+    itxn_field ClearStateProgramPages
+    bytec 5 // base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBmggMEIN86VAQkN408BNCiggA2GgCOAwA3ACwAAiNDMRkURDEYRDYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURDYaAVcCAChMZyJDgQQxGY4BAANC/6sxGEQiQw==)
+    itxn_field ApprovalProgramPages
+    bytec 7 // method "create(string)void"
+    itxn_field ApplicationArgs
+    bytec 15 // 0x000568656c6c6f
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    bytec_3 // method "greet(string)string"
+    itxn_field ApplicationArgs
+    bytec 4 // 0x0005776f726c64
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    itxn_begin
+    intc_3 // DeleteApplication
+    itxn_field OnCompletion
+    bytec_2 // method "delete()void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationID
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    pushbytes 0x000b68656c6c6f20776f726c64
+    ==
+    assert
+    intc_2 // 1
+    return
+
+main_test_logicsig_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytes base32(CUPXY5NG6NZFDJMMVA333JIXVH3QODXEXAFDRD7EIYKGW26UHM562XK44U)
+    log
+    intc_2 // 1
+    return
+
+main_bare_routing@18:
+    txn OnCompletion
+    bnz main_after_if_else@22
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_2 // 1
+    return

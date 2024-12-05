@@ -12,12 +12,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
         let tmp%7#0: bytes = (txna ApplicationArgs 1)
-        let tmp%8#0: bytes = ((extract 2 0) tmp%7#0)
-        let to_encode%0#0: bytes = examples.hello_world_arc4.contract.HelloWorldContract.hello(tmp%8#0)
-        let length%0#0: uint64 = (len to_encode%0#0)
+        let name#0: bytes = ((extract 2 0) tmp%7#0)
+        let tmp%0#2: bytes = (concat "Hello, " name#0)
+        let length%0#0: uint64 = (len tmp%0#2)
         let as_bytes%0#0: bytes = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 to_encode%0#0)
+        let encoded_value%0#0: bytes = (concat length_uint16%0#0 tmp%0#2)
         let tmp%9#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
         (log tmp%9#0)
         let examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0: bool = 1u
@@ -38,9 +38,4 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#0: bool = examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0
         goto block@11
     block@11: // after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router___L1
-        return tmp%0#0
-
-subroutine examples.hello_world_arc4.contract.HelloWorldContract.hello(name: bytes) -> bytes:
-    block@0: // L10
-        let tmp%0#0: bytes = (concat "Hello, " name#0)
         return tmp%0#0

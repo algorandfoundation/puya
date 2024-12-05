@@ -11,9 +11,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
-        let tmp%7#0: bytes = (txna ApplicationArgs 1)
-        let tmp%8#0: bytes = (txna ApplicationArgs 2)
-        examples.arc_28.contract.EventEmitter.emit_swapped(tmp%7#0, tmp%8#0)
+        let a#0: bytes = (txna ApplicationArgs 1)
+        let b#0: bytes = (txna ApplicationArgs 2)
+        let encoded_tuple_buffer%2#0: bytes = (concat b#0 a#0)
+        let event%0#0: bytes = (concat method "Swapped(uint64,uint64)" encoded_tuple_buffer%2#0)
+        (log event%0#0)
+        (log event%0#0)
+        (log event%0#0)
         let examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0
         goto block@12
@@ -23,9 +27,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%10#0) // OnCompletion is not NoOp
         let tmp%11#0: uint64 = (txn ApplicationID)
         (assert tmp%11#0) // can only call when not creating
-        let tmp%13#0: bytes = (txna ApplicationArgs 1)
-        let tmp%14#0: bytes = (txna ApplicationArgs 2)
-        examples.arc_28.contract.EventEmitter.emit_ufixed(tmp%13#0, tmp%14#0)
+        let a#0: bytes = (txna ApplicationArgs 1)
+        let b#0: bytes = (txna ApplicationArgs 2)
+        let encoded_tuple_buffer%2#0: bytes = (concat a#0 b#0)
+        let event%0#0: bytes = (concat method "AnEvent(ufixed256x16,ufixed64x2)" encoded_tuple_buffer%2#0)
+        (log event%0#0)
         let examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0
         goto block@12
@@ -45,19 +51,3 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto block@12
     block@12: // after_inlined_examples.arc_28.contract.EventEmitter.__puya_arc4_router___L1
         return tmp%0#0
-
-subroutine examples.arc_28.contract.EventEmitter.emit_swapped(a: bytes, b: bytes) -> void:
-    block@0: // L12
-        let encoded_tuple_buffer%2#0: bytes = (concat b#0 a#0)
-        let event%0#0: bytes = (concat method "Swapped(uint64,uint64)" encoded_tuple_buffer%2#0)
-        (log event%0#0)
-        (log event%0#0)
-        (log event%0#0)
-        return 
-
-subroutine examples.arc_28.contract.EventEmitter.emit_ufixed(a: bytes, b: bytes) -> void:
-    block@0: // L18
-        let encoded_tuple_buffer%2#0: bytes = (concat a#0 b#0)
-        let event%0#0: bytes = (concat method "AnEvent(ufixed256x16,ufixed64x2)" encoded_tuple_buffer%2#0)
-        (log event%0#0)
-        return 

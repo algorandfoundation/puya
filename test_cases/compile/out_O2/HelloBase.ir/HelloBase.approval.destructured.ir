@@ -27,12 +27,15 @@ main test_cases.compile.apps.HelloBase.__algopy_entrypoint_with_init:
         let tmp%9#0: uint64 = (txn ApplicationID)
         (assert tmp%9#0) // can only call when not creating
         let tmp%11#0: bytes = (txna ApplicationArgs 1)
-        let tmp%12#0: bytes = ((extract 2 0) tmp%11#0)
-        let to_encode%0#0: bytes = test_cases.compile.apps.HelloBase.greet(tmp%12#0)
-        let length%0#0: uint64 = (len to_encode%0#0)
+        let name#0: bytes = ((extract 2 0) tmp%11#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "greeting")
+        (assert maybe_exists%0#0) // check self.greeting exists
+        let tmp%0#3: bytes = (concat maybe_value%0#0 " ")
+        let tmp%1#1: bytes = (concat tmp%0#3 name#0)
+        let length%0#0: uint64 = (len tmp%1#1)
         let as_bytes%0#0: bytes = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 to_encode%0#0)
+        let encoded_value%0#0: bytes = (concat length_uint16%0#0 tmp%1#1)
         let tmp%13#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
         (log tmp%13#0)
         let test_cases.compile.apps.HelloBase.__puya_arc4_router__%0#0: bool = 1u
@@ -60,11 +63,3 @@ main test_cases.compile.apps.HelloBase.__algopy_entrypoint_with_init:
         goto block@11
     block@11: // after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router___L1
         return tmp%0#0
-
-subroutine test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
-    block@0: // L32
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "greeting")
-        (assert maybe_exists%0#0) // check self.greeting exists
-        let tmp%0#0: bytes = (concat maybe_value%0#0 " ")
-        let tmp%1#0: bytes = (concat tmp%0#0 name#0)
-        return tmp%1#0

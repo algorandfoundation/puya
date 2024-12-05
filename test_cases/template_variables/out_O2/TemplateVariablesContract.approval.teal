@@ -2,8 +2,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 64 TMPL_UPDATABLE TMPL_DELETABLE
-    bytecblock 0x151f7c75 TMPL_SOME_BYTES TMPL_SOME_BIG_UINT
+    intcblock 1 64 TMPL_DELETABLE TMPL_UPDATABLE
+    bytecblock 0x151f7c75 TMPL_SOME_BIG_UINT TMPL_SOME_BYTES
     txn NumAppArgs
     bz main_bare_routing@7
     pushbytess 0x2fcaddf6 0x37f64cf3 // method "get_bytes()byte[]", method "get_big_uint()uint512"
@@ -20,7 +20,15 @@ main_get_big_uint_route@4:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub get_big_uint
+    bytec_1 // TMPL_SOME_BIG_UINT
+    dup
+    len
+    intc_1 // 64
+    <=
+    assert // overflow
+    intc_1 // 64
+    bzero
+    b|
     bytec_0 // 0x151f7c75
     swap
     concat
@@ -34,7 +42,7 @@ main_get_bytes_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub get_bytes
+    bytec_2 // TMPL_SOME_BYTES
     dup
     len
     itob
@@ -56,14 +64,16 @@ main_bare_routing@7:
 main_on_delete@9:
     txn ApplicationID
     assert // can only call when not creating
-    callsub on_delete
+    intc_2 // TMPL_DELETABLE
+    assert
     intc_0 // 1
     return
 
 main_on_update@8:
     txn ApplicationID
     assert // can only call when not creating
-    callsub on_update
+    intc_3 // TMPL_UPDATABLE
+    assert
     intc_0 // 1
     return
 
@@ -73,41 +83,3 @@ main___algopy_default_create@10:
     assert // can only call when creating
     intc_0 // 1
     return
-
-
-// test_cases.template_variables.contract.TemplateVariablesContract.get_bytes() -> bytes:
-get_bytes:
-    proto 0 1
-    bytec_1 // TMPL_SOME_BYTES
-    retsub
-
-
-// test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint() -> bytes:
-get_big_uint:
-    proto 0 1
-    bytec_2 // TMPL_SOME_BIG_UINT
-    dup
-    len
-    intc_1 // 64
-    <=
-    assert // overflow
-    intc_1 // 64
-    bzero
-    b|
-    retsub
-
-
-// test_cases.template_variables.contract.TemplateVariablesContract.on_update() -> void:
-on_update:
-    proto 0 0
-    intc_2 // TMPL_UPDATABLE
-    assert
-    retsub
-
-
-// test_cases.template_variables.contract.TemplateVariablesContract.on_delete() -> void:
-on_delete:
-    proto 0 0
-    intc_3 // TMPL_DELETABLE
-    assert
-    retsub

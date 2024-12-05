@@ -20,94 +20,6 @@ main_test_itxn_nested_route@4:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub test_itxn_nested
-    intc_1 // 1
-    return
-
-main_test_itxn_slice_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub test_itxn_slice
-    intc_1 // 1
-    return
-
-main_bare_routing@7:
-    txn OnCompletion
-    bnz main_after_if_else@11
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_1 // 1
-    return
-
-
-// test_cases.inner_transactions_assignment.contract.Contract.test_itxn_slice() -> void:
-test_itxn_slice:
-    proto 0 0
-    txn Sender
-    itxn_begin
-    bytec_2 // "pay1"
-    itxn_field Note
-    intc_0 // 0
-    itxn_field Amount
-    dup
-    itxn_field Receiver
-    intc_1 // pay
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_next
-    intc_1 // 1
-    itxn_field ConfigAssetTotal
-    bytec_0 // "acfg"
-    itxn_field Note
-    bytec_3 // "TEST"
-    itxn_field ConfigAssetName
-    bytec 4 // "TST"
-    itxn_field ConfigAssetUnitName
-    intc_2 // acfg
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_next
-    intc_1 // pay
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Amount
-    dup
-    itxn_field Receiver
-    bytec_1 // "pay2"
-    itxn_field Note
-    intc_0 // 0
-    itxn_field Fee
-    itxn_next
-    intc_1 // pay
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Amount
-    itxn_field Receiver
-    bytec 5 // "pay3"
-    itxn_field Note
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    gitxn 2 Note
-    gitxn 1 Note
-    bytec_0 // 0x61636667
-    ==
-    assert
-    bytec_1 // 0x70617932
-    ==
-    assert
-    retsub
-
-
-// test_cases.inner_transactions_assignment.contract.Contract.test_itxn_nested() -> void:
-test_itxn_nested:
-    proto 0 0
     txn Sender
     itxn_begin
     bytec_2 // "pay1"
@@ -207,4 +119,78 @@ test_itxn_nested:
     bytec 7 // 0x70617935
     ==
     assert
-    retsub
+    intc_1 // 1
+    return
+
+main_test_itxn_slice_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txn Sender
+    itxn_begin
+    bytec_2 // "pay1"
+    itxn_field Note
+    intc_0 // 0
+    itxn_field Amount
+    dup
+    itxn_field Receiver
+    intc_1 // pay
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_next
+    intc_1 // 1
+    itxn_field ConfigAssetTotal
+    bytec_0 // "acfg"
+    itxn_field Note
+    bytec_3 // "TEST"
+    itxn_field ConfigAssetName
+    bytec 4 // "TST"
+    itxn_field ConfigAssetUnitName
+    intc_2 // acfg
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_next
+    intc_1 // pay
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Amount
+    dup
+    itxn_field Receiver
+    bytec_1 // "pay2"
+    itxn_field Note
+    intc_0 // 0
+    itxn_field Fee
+    itxn_next
+    intc_1 // pay
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Amount
+    itxn_field Receiver
+    bytec 5 // "pay3"
+    itxn_field Note
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    gitxn 2 Note
+    gitxn 1 Note
+    bytec_0 // 0x61636667
+    ==
+    assert
+    bytec_1 // 0x70617932
+    ==
+    assert
+    intc_1 // 1
+    return
+
+main_bare_routing@7:
+    txn OnCompletion
+    bnz main_after_if_else@11
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_1 // 1
+    return
