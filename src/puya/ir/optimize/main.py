@@ -127,7 +127,7 @@ def optimize_program_ir(
                 logger.debug(f"Optimizer: {optimizer.desc}")
                 if optimizer.optimize(pass_context, subroutine):
                     program_modified = True
-                subroutine.validate_with_ssa()
+            subroutine.validate_with_ssa()
         if remove_unused_subroutines(program):
             program_modified = True
         if not program_modified:
