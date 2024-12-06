@@ -337,7 +337,7 @@ def _try_fold_intrinsic(
                 getbit_result = 1 if (source & (1 << index)) else 0
                 return models.UInt64Constant(value=getbit_result, source_location=op_loc)
             case [
-                byte_arg,
+                models.Value(atype=AVMType.bytes) as byte_arg,
                 models.UInt64Constant(value=index),
             ] if (byte_const := _get_byte_constant(subroutine, byte_arg)) is not None:
                 binary_array = [
@@ -358,7 +358,7 @@ def _try_fold_intrinsic(
                     setbit_result = source & ~(1 << index)
                 return models.UInt64Constant(value=setbit_result, source_location=op_loc)
             case [
-                byte_arg,
+                models.Value(atype=AVMType.bytes) as byte_arg,
                 models.UInt64Constant(value=index),
                 models.UInt64Constant(value=value),
             ] if (byte_const := _get_byte_constant(subroutine, byte_arg)) is not None:
@@ -604,6 +604,8 @@ def _try_simplify_uint64_unary_op(
         elif intrinsic.op is AVMOp.sqrt:
             value = math.isqrt(x)
             return models.UInt64Constant(value=value, source_location=op_loc)
+        elif intrinsic.op is AVMOp.bitlen:
+            return UInt64Constant(value=x.bit_length(), source_location=op_loc)
         else:
             logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {x}")
     return None
@@ -632,6 +634,9 @@ def _try_simplify_bytes_unary_op(
             elif intrinsic.op is AVMOp.len_:
                 length = len(byte_const.value)
                 return models.UInt64Constant(value=length, source_location=op_loc)
+            elif intrinsic.op is AVMOp.bitlen:
+                converted = int.from_bytes(byte_const.value, byteorder="big", signed=False)
+                return UInt64Constant(value=converted.bit_length(), source_location=op_loc)
             else:
                 logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {byte_const}")
     return None

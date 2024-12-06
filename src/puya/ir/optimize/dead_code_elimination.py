@@ -24,6 +24,7 @@ PURE_AVM_OPS = frozenset(
         "keccak256",
         "sha3_256",
         "sha512_256",
+        "bitlen",
         # group: could only fail on a type error
         "!",
         "!=",
@@ -128,6 +129,9 @@ PURE_AVM_OPS = frozenset(
         "ed25519verify",
         "ed25519verify_bare",
         "vrf_verify",
+        # group: v11
+        "falcon_verify",
+        "sumhash512",
     ]
 )
 
