@@ -6,7 +6,7 @@ from puya import log
 from puya.errors import InternalError
 from puya.ir import models as ir
 from puya.ir.types_ import IRType
-from puya.ir.visitor_mem_replacer import MemoryReplacer
+from puya.ir.visitor_mutator import IRMutator
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -177,9 +177,11 @@ class BraunSSA:
 
 
 @attrs.define(kw_only=True)
-class TrivialPhiRemover(MemoryReplacer):
-    phi: ir.Phi
+class TrivialPhiRemover(IRMutator):
+    _find: ir.Phi
+    _replacement: ir.Register
     collected: list[ir.Phi] = attrs.field(factory=list)
+    replaced: int = 0
 
     @classmethod
     def try_remove(
@@ -200,11 +202,7 @@ class TrivialPhiRemover(MemoryReplacer):
             logger.debug(f"Replacing trivial Phi node: {phi} ({phi.register}) with {replacement}")
             # this approach is not very efficient, but is simpler than tracking all usages
             # and good enough for now
-            replacer = cls(
-                phi=phi,
-                find=frozenset([phi.register]),
-                replacement=replacement,
-            )
+            replacer = cls(find=phi, replacement=replacement)
             for block in blocks:
                 replacer.visit_block(block)
             # recursively check/replace all phi users, which may now be trivial
@@ -212,8 +210,14 @@ class TrivialPhiRemover(MemoryReplacer):
                 result.extend(cls.try_remove(phi_user, blocks))
         return result
 
+    def visit_register(self, reg: ir.Register) -> ir.Register:
+        if reg != self._find.register:
+            return reg
+        self.replaced += 1
+        return self._replacement
+
     def visit_phi(self, phi: ir.Phi) -> ir.Phi | None:
-        if phi is self.phi:
+        if phi is self._find:
             logger.debug(f"Deleting Phi assignment: {phi}")
             return None
         prior_replace_count = self.replaced

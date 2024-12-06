@@ -83,14 +83,9 @@ def destructure_cssa(sub: models.Subroutine) -> None:
     logger.debug("Removing Phi nodes")
     # Once the sub is in CSSA, destructuring is trivial.
     # All variables involved in a Phi can be given the same name, and the Phi can be removed.
+    replacements = dict[models.Register, models.Register]()
     for block in sub.body:
         phis = block.phis
         block.phis = []
-        for phi in phis:
-            MemoryReplacer.apply(
-                # We only need to look in the predecessors,
-                # since this is where the prime insertions occurred
-                blocks=block.predecessors,
-                find=(arg.value for arg in phi.args),
-                replacement=phi.register,
-            )
+        replacements.update({arg.value: phi.register for phi in phis for arg in phi.args})
+    MemoryReplacer.apply(sub.body, replacements=replacements)

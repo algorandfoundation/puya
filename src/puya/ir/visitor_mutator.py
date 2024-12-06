@@ -1,6 +1,4 @@
-import contextlib
 import typing as t
-from collections.abc import Iterator
 
 import attrs
 
@@ -22,7 +20,6 @@ from puya.ir.models import (
     InvokeSubroutine,
     ITxnConstant,
     MethodConstant,
-    Op,
     Phi,
     PhiArgument,
     ProgramExit,
@@ -38,42 +35,24 @@ from puya.ir.visitor import IRVisitor
 
 @attrs.define
 class IRMutator(IRVisitor[t.Any]):
-    is_target_context: bool = attrs.field(default=False, init=False)
-    current_op: Phi | Op | ControlOp | None = attrs.field(
-        default=None, init=False
-    )  # TODO: this is probably removable
-
-    @contextlib.contextmanager
-    def _enter_target_context(self) -> Iterator[None]:
-        assert not self.is_target_context
-        self.is_target_context = True
-        try:
-            yield
-        finally:
-            self.is_target_context = False
-
     def visit_block(self, block: BasicBlock) -> None:
         new_phis = []
         for phi in block.phis:
-            self.current_op = phi
             new_phi = self.visit_phi(phi)
             if new_phi is not None:
                 new_phis.append(new_phi)
         block.phis = new_phis
         new_ops = []
         for op in block.ops:
-            self.current_op = op
             new_op = op.accept(self)
             if new_op is not None:
                 new_ops.append(new_op)
         block.ops = new_ops
         if block.terminator is not None:
-            self.current_op = block.terminator
             block.terminator = block.terminator.accept(self)
 
     def visit_assignment(self, ass: Assignment) -> Assignment | None:
-        with self._enter_target_context():
-            ass.targets = [self.visit_register(r) for r in ass.targets]
+        ass.targets = [self.visit_register(r) for r in ass.targets]
         ass.source = ass.source.accept(self)
         return ass
 
@@ -122,8 +101,7 @@ class IRMutator(IRVisitor[t.Any]):
         )
 
     def visit_phi(self, phi: Phi) -> Phi | None:
-        with self._enter_target_context():
-            phi.register = self.visit_register(phi.register)
+        phi.register = self.visit_register(phi.register)
         phi.args = [self.visit_phi_argument(a) for a in phi.args]
         return phi
 

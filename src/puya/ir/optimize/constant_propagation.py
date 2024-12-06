@@ -24,9 +24,16 @@ class ConstantReplacer(IRMutator):
             replacer.visit_block(block)
         return replacer.modified
 
+    def visit_assignment(self, ass: models.Assignment) -> models.Assignment:
+        # don't visit target(s), needs to stay as Register
+        ass.source = ass.source.accept(self)
+        return ass
+
+    def visit_phi(self, phi: models.Phi) -> models.Phi:
+        # don't visit phi nodes, needs to stay as Register
+        return phi
+
     def visit_register(self, reg: models.Register) -> models.Register:
-        if self.is_target_context or isinstance(self.current_op, models.Phi):
-            return reg
         try:
             const = self.constants[reg]
         except KeyError:

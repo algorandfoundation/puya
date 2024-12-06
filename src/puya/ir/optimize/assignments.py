@@ -47,6 +47,7 @@ def copy_propagation(_context: CompileContext, subroutine: models.Subroutine) ->
                     block.ops.remove(op)
                     modified = True
 
+    replacements = dict[models.Register, models.Register]()
     for equivalence_set in all_equivalence_sets:
         assert len(equivalence_set) >= 2
         equiv_set_ids = ", ".join(x.local_id for x in equivalence_set)
@@ -57,18 +58,12 @@ def copy_propagation(_context: CompileContext, subroutine: models.Subroutine) ->
                 break
         else:
             replacement = equivalence_set[0]
-        find_set = equivalence_set.copy()
-        find_set.remove(replacement)
-
-        replaced = MemoryReplacer.apply(
-            find=find_set, replacement=replacement, blocks=subroutine.body
-        )
-        if replaced:
-            find_local_ids = "{" + ", ".join(x.local_id for x in find_set) + "}"
-            logger.debug(
-                f"Replacing {find_local_ids} with {replacement.local_id}"
-                f" made {replaced} modifications"
-            )
-            modified = True
+        for r in equivalence_set:
+            if r is not replacement:
+                replacements[r] = replacement
+    replaced = MemoryReplacer.apply(subroutine.body, replacements=replacements)
+    if replaced:
+        logger.debug(f"Copy propagation made {replaced} modifications")
+        modified = True
 
     return modified

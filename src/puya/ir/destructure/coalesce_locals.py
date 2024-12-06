@@ -91,7 +91,7 @@ def coalesce_registers(group_strategy: CoalesceGroupStrategy, sub: models.Subrou
         else:
             coalescable_groups.append((StableSet(defined_reg), StableSet.from_iter(live_set)))
 
-    total_replacements = 0
+    replacements = dict[models.Register, models.Register]()
     for group in coalescable_groups_by_key.values():
         for coalescable_register_set, _ in group:
             if len(coalescable_register_set) < 2:
@@ -100,11 +100,10 @@ def coalesce_registers(group_strategy: CoalesceGroupStrategy, sub: models.Subrou
             find = coalescable_register_set - {replacement}
 
             logger.debug(f"Coalescing {replacement} with [{', '.join(map(str, find))}]")
-            total_replacements += MemoryReplacerWithRedundantAssignmentRemoval.apply(
-                blocks=sub.body,
-                replacement=replacement,
-                find=find,
-            )
+            replacements.update({to_find: replacement for to_find in find})
+    total_replacements = MemoryReplacerWithRedundantAssignmentRemoval.apply(
+        sub.body, replacements=replacements
+    )
     return total_replacements
 
 
