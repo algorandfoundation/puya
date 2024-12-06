@@ -3,7 +3,6 @@ import itertools
 import typing
 from collections import Counter, defaultdict
 from collections.abc import Collection, Iterable, Iterator, Mapping, Sequence
-from copy import deepcopy
 from pathlib import Path
 
 import attrs
@@ -210,7 +209,6 @@ def _optimize_and_destructure_program_ir(
     logger.info(
         f"optimizing {program.kind} program of {ref} at level {context.options.optimization_level}"
     )
-    program = deepcopy(program)
     program = optimize_program_ir(context, program)
     program = destructure_ssa(context, program)
     if context.options.output_destructured_ir:
