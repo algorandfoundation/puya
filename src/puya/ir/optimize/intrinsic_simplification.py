@@ -690,19 +690,19 @@ def _try_simplify_uint64_binary_op(
         # 0 != b <-> b
         #   OR
         # 0 < b <-> b
-        elif (
-            (bool_context or b.ir_type == IRType.bool)
-            and a_const == 0
-            and op in (AVMOp.neq, AVMOp.lt)
+        #   OR
+        # 1 <= b <-> b
+        elif (bool_context or b.ir_type == IRType.bool) and (
+            (a_const == 0 and op in (AVMOp.neq, AVMOp.lt)) or (a_const == 1 and op == AVMOp.lte)
         ):
             c = b
         # a != 0 <-> a
         #   OR
         # a > 0 <-> a
-        elif (
-            (bool_context or a.ir_type == IRType.bool)
-            and b_const == 0
-            and op in (AVMOp.neq, AVMOp.gt)
+        #   OR
+        # a >= 1 <-> a
+        elif (bool_context or a.ir_type == IRType.bool) and (
+            (b_const == 0 and op in (AVMOp.neq, AVMOp.gt)) or (b_const == 1 and op == AVMOp.gte)
         ):
             c = a
         elif a_const is not None and b_const is not None:
