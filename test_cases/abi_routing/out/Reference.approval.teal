@@ -3,7 +3,7 @@
 // test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 123 2 0
-    bytecblock 0x151f7c75 "asa" 0x00000000000001c8
+    bytecblock 0x151f7c75 "asa" 0x151f7c7500000000000001c8
     txn ApplicationID
     bnz main_after_if_else@2
     // abi_routing/contract.py:24
@@ -288,10 +288,7 @@ main_get_an_int_route@14:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub get_a_int
-    bytec_0 // 0x151f7c75
-    swap
-    concat
+    pushbytes 0x151f7c750000000000000003
     log
     intc_0 // 1
     return
@@ -304,10 +301,7 @@ main_get_application_route@13:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub get_app
-    bytec_0 // 0x151f7c75
-    swap
-    concat
+    bytec_2 // 0x151f7c7500000000000001c8
     log
     intc_0 // 1
     return
@@ -320,10 +314,7 @@ main_get_asset_route@12:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub get_asset
-    bytec_0 // 0x151f7c75
-    swap
-    concat
+    bytec_2 // 0x151f7c7500000000000001c8
     log
     intc_0 // 1
     return
@@ -738,42 +729,6 @@ get_address:
     // abi_routing/contract.py:115
     // return arc4.Address()
     global ZeroAddress
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.get_asset() -> bytes:
-get_asset:
-    // abi_routing/contract.py:117-118
-    // @arc4.abimethod(readonly=True)
-    // def get_asset(self) -> arc4.UInt64:
-    proto 0 1
-    // abi_routing/contract.py:119
-    // return arc4.UInt64(456)
-    bytec_2 // 0x00000000000001c8
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.get_app() -> bytes:
-get_app:
-    // abi_routing/contract.py:121-122
-    // @arc4.abimethod(readonly=True, name="get_application")
-    // def get_app(self) -> arc4.UInt64:
-    proto 0 1
-    // abi_routing/contract.py:123
-    // return arc4.UInt64(456)
-    bytec_2 // 0x00000000000001c8
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.get_a_int() -> bytes:
-get_a_int:
-    // abi_routing/contract.py:125-126
-    // @arc4.abimethod(readonly=True, name="get_an_int")
-    // def get_a_int(self) -> arc4.UInt64:
-    proto 0 1
-    // abi_routing/contract.py:127
-    // return arc4.UInt64(3)
-    pushbytes 0x0000000000000003
     retsub
 
 

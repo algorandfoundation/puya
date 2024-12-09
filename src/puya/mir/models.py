@@ -83,9 +83,26 @@ class Byte(Op):
 
 
 @attrs.frozen(eq=False)
+class Undefined(Op):
+    atype: typing.Literal[AVMType.bytes, AVMType.uint64]
+    consumes: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+
+    @produces.default
+    def _produces(self) -> Sequence[str]:
+        return ("undefined",)
+
+    def accept(self, visitor: MIRVisitor[_T]) -> _T:
+        return visitor.visit_undefined(self)
+
+    def __str__(self) -> str:
+        return "undefined"
+
+
+@attrs.frozen(eq=False)
 class TemplateVar(Op):
     name: str
-    atype: AVMType = attrs.field()
+    atype: AVMType
     op_code: typing.Literal["int", "byte"] = attrs.field(init=False)
     consumes: int = attrs.field(default=0, init=False)
     produces: Sequence[str] = attrs.field(validator=_is_single_item)

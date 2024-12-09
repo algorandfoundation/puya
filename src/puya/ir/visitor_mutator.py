@@ -28,6 +28,7 @@ from puya.ir.models import (
     Switch,
     TemplateVar,
     UInt64Constant,
+    Undefined,
     ValueTuple,
 )
 from puya.ir.visitor import IRVisitor
@@ -58,6 +59,9 @@ class IRMutator(IRVisitor[t.Any]):
 
     def visit_register(self, reg: Register) -> Register:
         return reg
+
+    def visit_undefined(self, val: Undefined) -> Undefined:
+        return val
 
     def visit_template_var(self, deploy_var: TemplateVar) -> TemplateVar:
         return deploy_var

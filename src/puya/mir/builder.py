@@ -102,6 +102,14 @@ class MemoryIRBuilder(IRVisitor[None]):
                 )
             )
 
+    def visit_undefined(self, val: ir.Undefined) -> None:
+        self._add_op(
+            models.Undefined(
+                atype=val.atype,
+                source_location=val.source_location,
+            )
+        )
+
     def visit_template_var(self, deploy_var: ir.TemplateVar) -> None:
         self._add_op(
             models.TemplateVar(

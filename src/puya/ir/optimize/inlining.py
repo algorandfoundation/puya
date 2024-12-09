@@ -23,22 +23,11 @@ logger = log.get_logger(__name__)
 def analyse_subroutines_for_inlining(
     context: IROptimizationPassContext, program: models.Program
 ) -> None:
-    # for optimization levels below 2, skip auto-inlining routable methods into the approval
-    # program. mostly this can be beneficial in terms of #ops, but not always.
-    # also, it impacts the debugging experience
-    skip_routable_ids = set[str]()
-    if context.options.optimization_level < 2 and program.kind is ProgramKind.approval:
-        assert isinstance(context.metadata, ContractMetaData)
-        skip_routable_ids = {a4m.id for a4m in context.metadata.arc4_methods}
-
     call_graph = CallGraph(program)
     for sub in program.subroutines:
         if sub.inline is False:
             pass  # nothing to do
-        elif sub.inline is None and sub.id in skip_routable_ids:
-            logger.debug(f"marking routable method {sub.id} as non-inlineable")
-            sub.inline = False
-        elif sub.entry.phis:
+        elif any(phi.args for phi in sub.entry.phis):
             logger.debug(
                 f"function has phi node(s) in entry block: {sub.id}",
                 location=sub.source_location,
@@ -68,19 +57,35 @@ def analyse_subroutines_for_inlining(
             typing.assert_type(sub.inline, None)
     if context.options.optimization_level == 0:
         return
+
+    # for optimization levels below 2, skip auto-inlining routable methods into the approval
+    # program. mostly this can be beneficial in terms of #ops, but not always.
+    # also, it impacts the debugging experience
+    skip_routable_ids = set[str]()
+    if context.options.optimization_level < 2 and program.kind is ProgramKind.approval:
+        assert isinstance(context.metadata, ContractMetaData)
+        skip_routable_ids = {a4m.id for a4m in context.metadata.arc4_methods}
+
     for sub in program.subroutines:
         if sub.inline is None:
-            match call_graph.callees(sub):
-                case [(callee_id, 1)]:
-                    assert (
-                        callee_id != sub.id
-                    ), f"function {sub.id} is auto-recursive and disconnected"
-                    logger.debug(f"marking single-use function {sub.id} for inlining")
+            if _is_trivial(sub):
+                # special case for trivial methods, even when routable
+                logger.debug(f"marking trivial method {sub.id} as inlineable")
+                for callee_id, _ in call_graph.callees(sub):
+                    # don't need to check re-entrancy here since there's no callsub
                     context.inlineable_calls.add((callee_id, sub.id))
+            elif sub.id not in skip_routable_ids:
+                match call_graph.callees(sub):
+                    case [(callee_id, 1)]:
+                        assert (
+                            callee_id != sub.id
+                        ), f"function {sub.id} is auto-recursive and disconnected"
+                        logger.debug(f"marking single-use function {sub.id} for inlining")
+                        context.inlineable_calls.add((callee_id, sub.id))
     if context.inlineable_calls:
         return
     for sub in program.subroutines:
-        if sub.inline is None:
+        if sub.inline is None and sub.id not in skip_routable_ids:
             complexity = sum(
                 len(b.phis) + len(b.ops) + len(_not_none(b.terminator).targets()) for b in sub.body
             )
@@ -93,6 +98,13 @@ def analyse_subroutines_for_inlining(
                 for callee_id, _ in call_graph.callees(sub):
                     if not call_graph.has_path(sub.id, callee_id):
                         context.inlineable_calls.add((callee_id, sub.id))
+
+
+def _is_trivial(sub: models.Subroutine) -> bool:
+    match sub.body:
+        case [models.BasicBlock(phis=[], ops=[])]:
+            return True
+    return False
 
 
 def perform_subroutine_inlining(
@@ -189,8 +201,21 @@ def _inline_call(
     assert terminator_after is not None
     for succ in terminator_after.unique_targets:
         succ.predecessors.remove(block)
-    block.terminator = models.Goto(target=new_blocks[0], source_location=call.source_location)
-    new_blocks[0].predecessors.append(block)
+    inlined_entry = new_blocks[0]
+    block.terminator = models.Goto(target=inlined_entry, source_location=call.source_location)
+    inlined_entry.predecessors.append(block)
+    for phi in inlined_entry.phis:
+        # TODO: assign undefined and use that as phi arg so we can inline phi nodes with args
+        assert not phi.args, "entry phi with arguments should have been prevented from inlining"
+        inlined_entry.ops.insert(
+            0,
+            models.Assignment(
+                targets=[phi.register],
+                source=models.Undefined(ir_type=phi.ir_type, source_location=phi.source_location),
+                source_location=phi.source_location,
+            ),
+        )
+    inlined_entry.phis.clear()
     # assign parameters before call
     for arg, param in zip(call.args, call.target.parameters, strict=True):
         updated_param = models.Register(

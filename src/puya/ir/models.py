@@ -98,6 +98,12 @@ class Value(ValueProvider, abc.ABC):
         return self
 
 
+@attrs.frozen
+class Undefined(Value):
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_undefined(self)
+
+
 class Constant(Value, abc.ABC):
     """Base class for value constants - any value that is known at compile time"""
 
@@ -167,7 +173,6 @@ class Phi(IRVisitable, _Freezable):
     register: Register
     args: list[PhiArgument] = attrs.field(factory=list)
     source_location: None = attrs.field(default=None, init=False)
-    undefined_predecessors: list["BasicBlock"] = attrs.field(factory=list)
 
     @property
     def ir_type(self) -> IRType:
@@ -185,7 +190,6 @@ class Phi(IRVisitable, _Freezable):
         return (
             self.register.freeze(),
             tuple((arg.through.id, arg.value.freeze()) for arg in self.args),
-            (b.id for b in self.undefined_predecessors),
         )
 
     @args.validator
@@ -808,9 +812,7 @@ class Subroutine(Context):
                 )
             block_predecessors = dict.fromkeys(block.predecessors)
             for phi in block.phis:
-                phi_blocks = dict.fromkeys(a.through for a in phi.args) | dict.fromkeys(
-                    phi.undefined_predecessors
-                )
+                phi_blocks = dict.fromkeys(a.through for a in phi.args)
                 if block_predecessors.keys() != phi_blocks.keys():
                     phi_block_labels = list(map(str, phi_blocks.keys()))
                     pred_block_labels = list(map(str, block_predecessors.keys()))

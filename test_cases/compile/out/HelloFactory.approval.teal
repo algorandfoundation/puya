@@ -3,7 +3,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 6 0 1 5
-    bytecblock 0x151f7c75 base64(CoEBQw==) 0x24378d3c 0xd0a28200 0x0005776f726c64 base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=) 0x4c5c61ba 0x20df3a54 0x00057468657265 base64(CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAVoIDBExcYboEJDeNPATQooIANhoAjgMAMAAlAAIjQzEZFEQxGEQ2GgFXAgCIADhJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAANC/7sxGEQiQ4oBASMoZUSAASBQi/9QiQ==) 0x000568656c6c6f base64(CjEbQQA7ggIE9eT9TQQkN408NhoAjgIADwADgQBDMRmBBRJEMRhEgQFDMRkURDEYRIgAGRaABBUffHVMULCBAUMxGUD/1TEYFESBAUOKAAGBgCCJ) 0xf5e4fd4d 0x0003686579 "hey there" "hi there"
+    bytecblock base64(CoEBQw==) 0x151f7c75 0x24378d3c 0xd0a28200 0x0005776f726c64 base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=) 0x4c5c61ba 0x20df3a54 0x00057468657265 base64(CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAVoIDBExcYboEJDeNPATQooIANhoAjgMAMAAlAAIjQzEZFEQxGEQ2GgFXAgCIADhJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAANC/7sxGEQiQ4oBASMoZUSAASBQi/9QiQ==) 0x000568656c6c6f base64(CjEbQQA9ggIE9eT9TQQkN408NhoAjgIADwADgQBDMRmBBRJEMRhEgQFDMRkURDEYRIAMFR98dQAAAAAAABAAsIEBQzEZQP/TMRgURIEBQw==) 0xf5e4fd4d 0x0003686579 "hey there" "hi there"
     // compile/factory.py:25
     // class HelloFactory(ARC4Contract):
     txn NumAppArgs
@@ -170,10 +170,7 @@ main_test_logicsig_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub test_logicsig
-    bytec_0 // 0x151f7c75
-    swap
-    concat
+    pushbytes base32(CUPXY5NG6NZFDJMMVA333JIXVH3QODXEXAFDRD7EIYKGW26UHM562XK44U)
     log
     intc_2 // 1
     return
@@ -188,18 +185,6 @@ main_bare_routing@18:
     assert // can only call when creating
     intc_2 // 1
     return
-
-
-// test_cases.compile.factory.HelloFactory.test_logicsig() -> bytes:
-test_logicsig:
-    // compile/factory.py:26-27
-    // @arc4.abimethod()
-    // def test_logicsig(self) -> arc4.Address:
-    proto 0 1
-    // compile/factory.py:28
-    // return arc4.Address(compile_logicsig(always_approve_sig).account)
-    pushbytes base32(U3ZXEUNFRSUDPPNFC6U7OBYO4S4AUOEP4RDBI23L2Q5TX3K5LTSQ) // addr U3ZXEUNFRSUDPPNFC6U7OBYO4S4AUOEP4RDBI23L2Q5TX3K5LTSVWQOKFM
-    retsub
 
 
 // test_cases.compile.factory.HelloFactory.test_compile_contract() -> void:
@@ -224,7 +209,7 @@ test_compile_contract:
     // compile/factory.py:32-33
     // # create app
     // compiled = compile_contract(Hello)
-    bytec_1 // base64(CoEBQw==)
+    bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
     bytec 5 // base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
     itxn_field ApprovalProgramPages
@@ -295,7 +280,7 @@ test_compile_contract:
     extract 4 0
     swap
     extract 0 4
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     // compile/factory.py:52-57
@@ -361,7 +346,7 @@ test_compile_contract_tmpl:
     // compiled = compile_contract(HelloTmpl, template_vars={"GREETING": greeting})
     intc_2 // 1
     itxn_field GlobalNumByteSlice
-    bytec_1 // base64(CoEBQw==)
+    bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
     bytec 9 // base64(CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAVoIDBExcYboEJDeNPATQooIANhoAjgMAMAAlAAIjQzEZFEQxGEQ2GgFXAgCIADhJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAANC/7sxGEQiQ4oBASMoZUSAASBQi/9QiQ==)
     itxn_field ApprovalProgramPages
@@ -436,7 +421,7 @@ test_compile_contract_tmpl:
     extract 4 0
     swap
     extract 0 4
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     // compile/factory.py:87-92
@@ -502,7 +487,7 @@ test_compile_contract_prfx:
     // )
     intc_2 // 1
     itxn_field GlobalNumByteSlice
-    bytec_1 // base64(CoEBQw==)
+    bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
     pushbytes base64(CiACAQAmAghncmVldGluZwJoaTEYQAADKClnMRtBAFaCAwRMXGG6BCQ3jTwE0KKCADYaAI4DADAAJQACI0MxGRREMRhENhoBVwIAiAA4SRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFEQiQ4EEMRmOAQADQv+7MRhEIkOKAQEjKGVEgAEgUIv/UIk=)
     itxn_field ApprovalProgramPages
@@ -571,7 +556,7 @@ test_compile_contract_prfx:
     extract 4 0
     swap
     extract 0 4
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     // compile/factory.py:120-125
@@ -633,9 +618,9 @@ test_compile_contract_large:
     // compile/factory.py:131-132
     // # create app
     // compiled = compile_contract(LargeProgram)
-    bytec_1 // base64(CoEBQw==)
+    bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 11 // base64(CjEbQQA7ggIE9eT9TQQkN408NhoAjgIADwADgQBDMRmBBRJEMRhEgQFDMRkURDEYRIgAGRaABBUffHVMULCBAUMxGUD/1TEYFESBAUOKAAGBgCCJ)
+    bytec 11 // base64(CjEbQQA9ggIE9eT9TQQkN408NhoAjgIADwADgQBDMRmBBRJEMRhEgQFDMRkURDEYRIAMFR98dQAAAAAAABAAsIEBQzEZQP/TMRgURIEBQw==)
     itxn_field ApprovalProgramPages
     // compile/factory.py:134
     // itxn.ApplicationCall(
@@ -696,7 +681,7 @@ test_compile_contract_large:
     extract 4 0
     swap
     extract 0 4
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     // compile/factory.py:151-156
@@ -752,7 +737,7 @@ test_arc4_create:
     itxn_begin
     intc_2 // 1
     itxn_field GlobalNumByteSlice
-    bytec_1 // base64(CoEBQw==)
+    bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
     bytec 5 // base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
     itxn_field ApprovalProgramPages
@@ -786,7 +771,7 @@ test_arc4_create:
     extract 4 0
     swap
     extract 0 4
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     extract 2 0
@@ -834,7 +819,7 @@ test_arc4_create_tmpl:
     // compiled = compile_contract(HelloTmpl, template_vars={"GREETING": String("tmpl2")})
     intc_2 // 1
     itxn_field GlobalNumByteSlice
-    bytec_1 // base64(CoEBQw==)
+    bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
     bytec 9 // base64(CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAVoIDBExcYboEJDeNPATQooIANhoAjgMAMAAlAAIjQzEZFEQxGEQ2GgFXAgCIADhJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAANC/7sxGEQiQ4oBASMoZUSAASBQi/9QiQ==)
     itxn_field ApprovalProgramPages
@@ -871,7 +856,7 @@ test_arc4_create_tmpl:
     extract 4 0
     swap
     extract 0 4
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     extract 2 0
@@ -921,7 +906,7 @@ test_arc4_create_prfx:
     // )
     intc_2 // 1
     itxn_field GlobalNumByteSlice
-    bytec_1 // base64(CoEBQw==)
+    bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
     pushbytes base64(CiACAQAmAghncmVldGluZwVwcmZ4MjEYQAADKClnMRtBAFaCAwRMXGG6BCQ3jTwE0KKCADYaAI4DADAAJQACI0MxGRREMRhENhoBVwIAiAA4SRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFEQiQ4EEMRmOAQADQv+7MRhEIkOKAQEjKGVEgAEgUIv/UIk=)
     itxn_field ApprovalProgramPages
@@ -958,7 +943,7 @@ test_arc4_create_prfx:
     extract 4 0
     swap
     extract 0 4
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     extract 2 0
@@ -999,9 +984,9 @@ test_arc4_create_large:
     // # create app
     // app = arc4.arc4_create(LargeProgram).created_app
     itxn_begin
-    bytec_1 // base64(CoEBQw==)
+    bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 11 // base64(CjEbQQA7ggIE9eT9TQQkN408NhoAjgIADwADgQBDMRmBBRJEMRhEgQFDMRkURDEYRIgAGRaABBUffHVMULCBAUMxGUD/1TEYFESBAUOKAAGBgCCJ)
+    bytec 11 // base64(CjEbQQA9ggIE9eT9TQQkN408NhoAjgIADwADgQBDMRmBBRJEMRhEgQFDMRkURDEYRIAMFR98dQAAAAAAABAAsIEBQzEZQP/TMRgURIEBQw==)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -1027,7 +1012,7 @@ test_arc4_create_large:
     extract 4 0
     swap
     extract 0 4
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     btoi
@@ -1087,7 +1072,7 @@ test_arc4_create_modified_compiled:
     itxn_field GlobalNumByteSlice
     // compile/factory.py:238
     // compiled = compile_contract(Hello)
-    bytec_1 // base64(CoEBQw==)
+    bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
     bytec 5 // base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
     itxn_field ApprovalProgramPages
@@ -1166,7 +1151,7 @@ test_arc4_create_modified_compiled:
     extract 4 0
     swap
     extract 0 4
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     extract 2 0
@@ -1243,7 +1228,7 @@ test_arc4_update:
     //     local_bytes=2,
     //     local_uints=2,
     // ),
-    bytec_1 // base64(CoEBQw==)
+    bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
     bytec 9 // base64(CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAVoIDBExcYboEJDeNPATQooIANhoAjgMAMAAlAAIjQzEZFEQxGEQ2GgFXAgCIADhJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAANC/7sxGEQiQ4oBASMoZUSAASBQi/9QiQ==)
     itxn_field ApprovalProgramPages
@@ -1291,7 +1276,7 @@ test_arc4_update:
     extract 4 0
     swap
     extract 0 4
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     extract 2 0
@@ -1304,7 +1289,7 @@ test_arc4_update:
     // # update the app
     // arc4.arc4_update(Hello, app_id=app)
     itxn_begin
-    bytec_1 // base64(CoEBQw==)
+    bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
     bytec 5 // base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
     itxn_field ApprovalProgramPages
@@ -1337,7 +1322,7 @@ test_arc4_update:
     extract 4 0
     swap
     extract 0 4
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     extract 2 0
@@ -1403,9 +1388,9 @@ test_other_constants:
     // ),
     pushint 4 // 4
     itxn_field GlobalNumByteSlice
-    bytec_1 // base64(CoEBQw==)
+    bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CiACAQAmCQhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEFR98dQR0bXBsAUIgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAADEYQAAQKCcFZyknBmcqJwdnKycIZzEbQQAcggME2ShadAQkN408BFsMI3U2GgCOAwAsACEAAiNDMRkURDEYRDYaAVcCAIgAMkkVFlcGAkxQJwRMULAiQzEZgQUSRDEYRCJDMRkURDEYFESIAAgWJwRMULAiQ4oAASKJigEBIyllRIABMKBJFSIJIlgjKGVEgAEgUIv/UExQIyplRFAjK2VEUIk=)
+    pushbytes base64(CiACAAEmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAxGEAAECgnBGcpJwVnKicGZysnB2cxG0EAHIIDBNkoWnQEJDeNPARbDCN1NhoAjgMAMAAlAAIiQzEZFEQxGEQ2GgFXAgCIADdJFRZXBgJMUIAEFR98dUxQsCNDMRmBBRJEMRhEI0MxGRREMRgURIAMFR98dQAAAAAAAAABsCNDigEBIillRIABMKBJFSMJI1giKGVEgAEgUIv/UExQIiplRFAiK2VEUIk=)
     itxn_field ApprovalProgramPages
     // compile/factory.py:300
     // HelloOtherConstants,
@@ -1451,7 +1436,7 @@ test_other_constants:
     extract 4 0
     swap
     extract 0 4
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     extract 2 0
@@ -1507,7 +1492,7 @@ test_abi_call_create_params:
     // compiled = compile_contract(Hello)
     intc_2 // 1
     itxn_field GlobalNumByteSlice
-    bytec_1 // base64(CoEBQw==)
+    bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
     bytec 5 // base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
     itxn_field ApprovalProgramPages
@@ -1566,7 +1551,7 @@ test_abi_call_create_params:
     extract 4 0
     swap
     extract 0 4
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     extract 2 0

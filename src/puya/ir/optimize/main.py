@@ -13,7 +13,6 @@ from puya.ir.optimize.compiled_reference import replace_compiled_references
 from puya.ir.optimize.constant_propagation import constant_replacer
 from puya.ir.optimize.control_op_simplification import simplify_control_ops
 from puya.ir.optimize.dead_code_elimination import (
-    remove_calls_to_no_op_subroutines,
     remove_unreachable_blocks,
     remove_unused_ops,
     remove_unused_subroutines,
@@ -71,7 +70,6 @@ def get_subroutine_optimizations(optimization_level: int) -> Iterable[Subroutine
             SubroutineOptimization.from_function(remove_empty_blocks),
             SubroutineOptimization.from_function(remove_unreachable_blocks),
             SubroutineOptimization.from_function(repeated_expression_elimination),
-            SubroutineOptimization.from_function(remove_calls_to_no_op_subroutines),
         ]
     else:
         return [

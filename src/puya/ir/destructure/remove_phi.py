@@ -21,37 +21,37 @@ def convert_to_cssa(sub: models.Subroutine) -> None:
         )
 
     block_exit_copies = dict[models.BasicBlock, list[tuple[models.Register, models.Register]]]()
-    undefined = set[models.Register]()
     for phi_block in sub.body:
         prime_phis = list[models.Phi]()
         prime_copies = list[tuple[models.Register, models.Register]]()
         for phi in phi_block.phis:
-            if all(phi_arg.value in undefined for phi_arg in phi.args):  # omit undefined
-                undefined.add(phi.register)
-                continue
-            prime_args = list[models.PhiArgument]()
-            undefined_predecessors = list[models.BasicBlock]()
-            for phi_arg in phi.args:
-                if phi_arg.value in undefined:
-                    undefined_predecessors.append(phi_arg.through)
-                    continue
-                prime_arg_reg = make_prime(phi_arg.value)
-                prime_arg = models.PhiArgument(
-                    value=prime_arg_reg,
-                    through=phi_arg.through,
+            if not phi.args:
+                phi_block.ops.insert(
+                    0,
+                    models.Assignment(
+                        targets=[phi.register],
+                        source=models.Undefined(
+                            ir_type=phi.ir_type, source_location=phi.source_location
+                        ),
+                        source_location=phi.source_location,
+                    ),
                 )
-                prime_args.append(prime_arg)
-                # insert copy to prime arg at end of predecessor
-                block_exit_copies.setdefault(phi_arg.through, []).append(
-                    (prime_arg_reg, phi_arg.value)
-                )
-            phi_prime = models.Phi(
-                register=make_prime(phi.register),
-                args=prime_args,
-                undefined_predecessors=undefined_predecessors,
-            )
-            prime_phis.append(phi_prime)
-            prime_copies.append((phi.register, phi_prime.register))
+            else:
+                prime_args = list[models.PhiArgument]()
+                for phi_arg in phi.args:
+                    prime_arg_reg = make_prime(phi_arg.value)
+                    prime_arg = models.PhiArgument(
+                        value=prime_arg_reg,
+                        through=phi_arg.through,
+                    )
+                    prime_args.append(prime_arg)
+                    # insert copy to prime arg at end of predecessor
+                    block_exit_copies.setdefault(phi_arg.through, []).append(
+                        (prime_arg_reg, phi_arg.value)
+                    )
+                phi_prime = models.Phi(register=make_prime(phi.register), args=prime_args)
+                prime_phis.append(phi_prime)
+                prime_copies.append((phi.register, phi_prime.register))
         phi_block.phis = prime_phis
         if prime_copies:
             phi_block.ops.insert(0, _make_copy_assignment(prime_copies))

@@ -3,6 +3,7 @@ from itertools import zip_longest
 
 import attrs
 
+from puya.avm_type import AVMType
 from puya.errors import InternalError
 from puya.ir.types_ import AVMBytesEncoding
 from puya.mir import models as mir
@@ -83,6 +84,28 @@ class TealBuilder(MIRVisitor[None]):
                 source_location=const.source_location,
             )
         )
+
+    def visit_undefined(self, push: mir.Undefined) -> None:
+        match push.atype:
+            case AVMType.uint64:
+                self._add_op(
+                    teal.Byte(
+                        b"",
+                        AVMBytesEncoding.utf8,
+                        stack_manipulations=_lstack_manipulations(push),
+                        source_location=push.source_location,
+                    )
+                )
+            case AVMType.bytes:
+                self._add_op(
+                    teal.Int(
+                        0,
+                        stack_manipulations=_lstack_manipulations(push),
+                        source_location=push.source_location,
+                    )
+                )
+            case unexpected:
+                typing.assert_never(unexpected)
 
     def visit_template_var(self, const: mir.TemplateVar) -> None:
         self._add_op(

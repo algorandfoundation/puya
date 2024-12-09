@@ -2,8 +2,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0
-    bytecblock 0x151f7c75 0x01
+    intcblock 1
+    bytecblock 0x151f7c750101
     // struct_by_name/contract.py:18
     // class DemoContract(ARC4Contract):
     txn NumAppArgs
@@ -15,7 +15,7 @@ main:
 main_after_if_else@13:
     // struct_by_name/contract.py:18
     // class DemoContract(ARC4Contract):
-    intc_1 // 0
+    pushint 0 // 0
     return
 
 main_compare_route@6:
@@ -26,14 +26,7 @@ main_compare_route@6:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub compare
-    pushbytes 0x00
-    intc_1 // 0
-    uncover 2
-    setbit
-    bytec_0 // 0x151f7c75
-    swap
-    concat
+    pushbytes 0x151f7c7580
     log
     intc_0 // 1
     return
@@ -46,11 +39,7 @@ main_get_three_route@5:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub get_three
-    concat
-    bytec_0 // 0x151f7c75
-    swap
-    concat
+    bytec_0 // 0x151f7c750101
     log
     intc_0 // 1
     return
@@ -63,11 +52,7 @@ main_get_two_route@4:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub get_two
-    concat
-    bytec_0 // 0x151f7c75
-    swap
-    concat
+    bytec_0 // 0x151f7c750101
     log
     intc_0 // 1
     return
@@ -80,11 +65,7 @@ main_get_one_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub get_one
-    concat
-    bytec_0 // 0x151f7c75
-    swap
-    concat
+    bytec_0 // 0x151f7c750101
     log
     intc_0 // 1
     return
@@ -99,99 +80,3 @@ main_bare_routing@9:
     assert // can only call when creating
     intc_0 // 1
     return
-
-
-// test_cases.struct_by_name.contract.DemoContract.get_one() -> bytes, bytes:
-get_one:
-    // struct_by_name/contract.py:25-26
-    // @arc4.abimethod()
-    // def get_one(self) -> StructOne:
-    proto 0 2
-    // struct_by_name/contract.py:28
-    // x=arc4.UInt8(1),
-    bytec_1 // 0x01
-    // struct_by_name/contract.py:29
-    // y=arc4.UInt8(1),
-    dup
-    // struct_by_name/contract.py:27-30
-    // return StructOne(
-    //     x=arc4.UInt8(1),
-    //     y=arc4.UInt8(1),
-    // )
-    retsub
-
-
-// test_cases.struct_by_name.contract.DemoContract.get_two() -> bytes, bytes:
-get_two:
-    // struct_by_name/contract.py:32-33
-    // @arc4.abimethod()
-    // def get_two(self) -> StructTwo:
-    proto 0 2
-    // struct_by_name/contract.py:35
-    // x=arc4.UInt8(1),
-    bytec_1 // 0x01
-    // struct_by_name/contract.py:36
-    // y=arc4.UInt8(1),
-    dup
-    // struct_by_name/contract.py:34-37
-    // return StructTwo(
-    //     x=arc4.UInt8(1),
-    //     y=arc4.UInt8(1),
-    // )
-    retsub
-
-
-// test_cases.struct_by_name.contract.DemoContract.get_three() -> bytes, bytes:
-get_three:
-    // struct_by_name/contract.py:39-40
-    // @arc4.abimethod()
-    // def get_three(self) -> StructThree:
-    proto 0 2
-    // struct_by_name/contract.py:42
-    // x=arc4.UInt8(1),
-    bytec_1 // 0x01
-    // struct_by_name/contract.py:43
-    // y=arc4.UInt8(1),
-    dup
-    // struct_by_name/contract.py:41-44
-    // return StructThree(
-    //     x=arc4.UInt8(1),
-    //     y=arc4.UInt8(1),
-    // )
-    retsub
-
-
-// test_cases.struct_by_name.contract.DemoContract.compare() -> uint64:
-compare:
-    // struct_by_name/contract.py:46-47
-    // @arc4.abimethod()
-    // def compare(self) -> bool:
-    proto 0 1
-    // struct_by_name/contract.py:48
-    // return self.get_one() == self.get_two() and self.get_two() == self.get_three()
-    callsub get_one
-    callsub get_two
-    uncover 3
-    uncover 2
-    b==
-    cover 2
-    b==
-    &&
-    bz compare_bool_false@3
-    callsub get_two
-    callsub get_three
-    uncover 3
-    uncover 2
-    b==
-    cover 2
-    b==
-    &&
-    bz compare_bool_false@3
-    intc_0 // 1
-    retsub
-
-compare_bool_false@3:
-    intc_1 // 0
-    // struct_by_name/contract.py:48
-    // return self.get_one() == self.get_two() and self.get_two() == self.get_three()
-    retsub

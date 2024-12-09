@@ -76,7 +76,10 @@ subroutine test_cases.arc_56.contract.Contract.__puya_arc4_router__() -> bool:
         (assert tmp%36#0) // OnCompletion is not NoOp
         let tmp%37#0: uint64 = (txn ApplicationID)
         (assert tmp%37#0) // can only call when not creating
-        let (elements_to_encode%0#0: bytes, elements_to_encode%1#0: uint64, elements_to_encode%2#0: bytes, elements_to_encode%3#0: bytes) = test_cases.arc_56.contract.Contract.template_value()
+        let elements_to_encode%0#0: bytes = TemplateVar[bytes](TMPL_STRUCT)
+        let elements_to_encode%1#0: uint64 = TemplateVar[uint64](TMPL_AVM_UINT64)
+        let elements_to_encode%2#0: bytes = TemplateVar[bytes](TMPL_AVM_STRING)
+        let elements_to_encode%3#0: bytes = TemplateVar[bytes](TMPL_ARC4_UINT8)
         let val_as_bytes%1#0: bytes = (itob elements_to_encode%1#0)
         let length%0#0: uint64 = (len elements_to_encode%2#0)
         let as_bytes%0#0: bytes = (itob length%0#0)
@@ -200,7 +203,3 @@ subroutine test_cases.arc_56.contract.Contract.conditional_emit(should_emit: boo
         goto block@2
     block@2: // after_if_else_L103
         return 
-
-subroutine test_cases.arc_56.contract.Contract.template_value() -> <bytes, uint64, bytes, bytes>:
-    block@0: // L110
-        return TemplateVar[bytes](TMPL_STRUCT) TemplateVar[uint64](TMPL_AVM_UINT64) TemplateVar[bytes](TMPL_AVM_STRING) TemplateVar[bytes](TMPL_ARC4_UINT8)

@@ -30,6 +30,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%12#0: uint64 = (txn ApplicationID)
         let tmp%13#0: bool = (! tmp%12#0)
         (assert tmp%13#0) // can only call when creating
+        test_cases.inner_transactions_assignment.contract.Contract.__algopy_default_create()
         let test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__%0#2: bool = 1u
         goto block@12
     block@11: // after_if_else_L11
@@ -79,7 +80,6 @@ subroutine test_cases.inner_transactions_assignment.contract.Contract.test_itxn_
 subroutine test_cases.inner_transactions_assignment.contract.Contract.test_itxn_nested() -> void:
     block@0: // L29
         let pay1%%param_Receiver_idx_0#0: bytes = (txn Sender)
-        let nested_tuple.0#0: bytes = test_cases.inner_transactions_assignment.contract.echo(0x6869)
         itxn_begin
         ((itxn_field Note) "pay1")
         ((itxn_field Amount) 0u)
@@ -106,9 +106,10 @@ subroutine test_cases.inner_transactions_assignment.contract.Contract.test_itxn_
         ((itxn_field Note) "pay3")
         ((itxn_field Fee) 0u)
         itxn_submit
-        let nested_tuple.2#0: bytes = test_cases.inner_transactions_assignment.contract.echo(0x7468657265)
+        let nested_tuple.0#0: bytes = 0x6869
         let nested_tuple.1.0#0: itxn_group_idx = itxn_group_idx(1)
         let nested_tuple.1.1#0: itxn_group_idx = itxn_group_idx(2)
+        let nested_tuple.2#0: bytes = 0x7468657265
         let nested_tuple.1.0.Sender#0: bytes = (gitxn 1 Sender)
         let nested_tuple.1.0.Fee#0: uint64 = (gitxn 1 Fee)
         let nested_tuple.1.0.FirstValid#0: uint64 = (gitxn 1 FirstValid)
@@ -231,19 +232,17 @@ subroutine test_cases.inner_transactions_assignment.contract.Contract.test_itxn_
         let nested_tuple.1.1.StateProofPK#0: bytes = (gitxn 2 StateProofPK)
         let nested_tuple.1.1.NumApprovalProgramPages#0: uint64 = (gitxn 2 NumApprovalProgramPages)
         let nested_tuple.1.1.NumClearStateProgramPages#0: uint64 = (gitxn 2 NumClearStateProgramPages)
-        let tmp%2#0: bool = (== nested_tuple.0#0 0x6869)
+        let tmp%2#0: bool = 1u
         (assert tmp%2#0)
         let tmp%3#0: bool = (== nested_tuple.1.0.Note#0 0x61636667)
         (assert tmp%3#0)
         let tmp%4#0: bool = (== nested_tuple.1.1.Note#0 0x70617932)
         (assert tmp%4#0)
-        let tmp%5#0: bool = (== nested_tuple.2#0 0x7468657265)
+        let tmp%5#0: bool = 1u
         (assert tmp%5#0)
-        let tmp%6#0: bytes = test_cases.inner_transactions_assignment.contract.echo(0x6d61796265)
-        let tmp%7#0: bool = (== tmp%6#0 0x6d61796265)
+        let tmp%7#0: bool = 1u
         goto tmp%7#0 ? block@5 : block@9
     block@5: // if_body_L58
-        let nested_tuple.0#1: bytes = test_cases.inner_transactions_assignment.contract.echo(0x686932)
         itxn_begin
         ((itxn_field Note) "pay1")
         ((itxn_field Amount) 0u)
@@ -264,9 +263,10 @@ subroutine test_cases.inner_transactions_assignment.contract.Contract.test_itxn_
         ((itxn_field Note) "pay5")
         ((itxn_field Fee) 0u)
         itxn_submit
-        let nested_tuple.2#1: bytes = test_cases.inner_transactions_assignment.contract.echo(0x746865726532)
+        let nested_tuple.0#1: bytes = 0x686932
         let nested_tuple.1.0#1: itxn_group_idx = itxn_group_idx(1)
         let nested_tuple.1.1#1: itxn_group_idx = itxn_group_idx(2)
+        let nested_tuple.2#1: bytes = 0x746865726532
         let nested_tuple.1.0.Sender#1: bytes = (gitxn 1 Sender)
         let nested_tuple.1.0.Fee#1: uint64 = (gitxn 1 Fee)
         let nested_tuple.1.0.FirstValid#1: uint64 = (gitxn 1 FirstValid)
@@ -405,6 +405,6 @@ subroutine test_cases.inner_transactions_assignment.contract.Contract.test_itxn_
         (assert tmp%13#0)
         return 
 
-subroutine test_cases.inner_transactions_assignment.contract.echo(value: bytes) -> bytes:
-    block@0: // L76
-        return value#0
+subroutine test_cases.inner_transactions_assignment.contract.Contract.__algopy_default_create() -> void:
+    block@0: // L1
+        return 

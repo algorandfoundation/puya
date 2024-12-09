@@ -2,7 +2,6 @@
 
 from __future__ import annotations  # needed to break import cycle
 
-import typing
 import typing as t
 from abc import ABC, abstractmethod
 
@@ -11,15 +10,16 @@ if t.TYPE_CHECKING:
 
     import puya.ir.models
 
-T = t.TypeVar("T")
 
-
-class IRVisitor(t.Generic[T], ABC):
+class IRVisitor[T](ABC):
     @abstractmethod
     def visit_assignment(self, ass: puya.ir.models.Assignment) -> T: ...
 
     @abstractmethod
     def visit_register(self, reg: puya.ir.models.Register) -> T: ...
+
+    @abstractmethod
+    def visit_undefined(self, val: puya.ir.models.Undefined) -> T: ...
 
     @abstractmethod
     def visit_uint64_constant(self, const: puya.ir.models.UInt64Constant) -> T: ...
@@ -114,6 +114,9 @@ class IRTraverser(IRVisitor[None]):
     def visit_register(self, reg: puya.ir.models.Register) -> None:
         pass
 
+    def visit_undefined(self, val: puya.ir.models.Undefined) -> None:
+        pass
+
     def visit_uint64_constant(self, const: puya.ir.models.UInt64Constant) -> None:
         pass
 
@@ -198,11 +201,14 @@ class IRTraverser(IRVisitor[None]):
             v.accept(self)
 
 
-class NoOpIRVisitor(typing.Generic[T], IRVisitor[T | None]):
+class NoOpIRVisitor[T](IRVisitor[T | None]):
     def visit_assignment(self, ass: puya.ir.models.Assignment) -> T | None:
         return None
 
     def visit_register(self, reg: puya.ir.models.Register) -> T | None:
+        return None
+
+    def visit_undefined(self, val: puya.ir.models.Undefined) -> T | None:
         return None
 
     def visit_uint64_constant(self, const: puya.ir.models.UInt64Constant) -> T | None:

@@ -2,7 +2,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    bytecblock 0x151f7c75 0x000300060009000c00015800015900015a
+    bytecblock 0x151f7c75000300060009000c00015800015900015a
     // arc4_types/dynamic_string_array.py:4
     // class Arc4DynamicStringArrayContract(ARC4Contract):
     txn NumAppArgs
@@ -25,10 +25,7 @@ main_xyz_raw_route@4:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub xyz_raw
-    bytec_0 // 0x151f7c75
-    swap
-    concat
+    bytec_0 // 0x151f7c75000300060009000c00015800015900015a
     log
     pushint 1 // 1
     return
@@ -41,10 +38,7 @@ main_xyz_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub xyz
-    bytec_0 // 0x151f7c75
-    swap
-    concat
+    bytec_0 // 0x151f7c75000300060009000c00015800015900015a
     log
     pushint 1 // 1
     return
@@ -59,37 +53,3 @@ main_bare_routing@7:
     assert // can only call when creating
     pushint 1 // 1
     return
-
-
-// test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz() -> bytes:
-xyz:
-    // arc4_types/dynamic_string_array.py:5-6
-    // @arc4.abimethod
-    // def xyz(self) -> arc4.DynamicArray[arc4.String]:
-    proto 0 1
-    // arc4_types/dynamic_string_array.py:7-11
-    // return arc4.DynamicArray(
-    //     arc4.String("X"),
-    //     arc4.String("Y"),
-    //     arc4.String("Z"),
-    // )
-    bytec_1 // 0x000300060009000c00015800015900015a
-    retsub
-
-
-// test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw() -> bytes:
-xyz_raw:
-    // arc4_types/dynamic_string_array.py:13-14
-    // @arc4.abimethod
-    // def xyz_raw(self) -> arc4.DynamicArray[arc4.String]:
-    proto 0 1
-    // arc4_types/dynamic_string_array.py:15-19
-    // raw = arc4.DynamicArray(
-    //     arc4.DynamicArray(arc4.Byte(88)),
-    //     arc4.DynamicArray(arc4.Byte(89)),
-    //     arc4.DynamicArray(arc4.Byte(90)),
-    // )
-    bytec_1 // 0x000300060009000c00015800015900015a
-    // arc4_types/dynamic_string_array.py:20
-    // return arc4.DynamicArray[arc4.String].from_bytes(raw.bytes)
-    retsub

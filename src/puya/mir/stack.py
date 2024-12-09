@@ -74,6 +74,9 @@ class Stack(MIRVisitor[None]):
     def visit_byte(self, const: models.Byte) -> None:
         self._apply_lstack_effects(const)
 
+    def visit_undefined(self, const: models.Undefined) -> None:
+        self._apply_lstack_effects(const)
+
     def visit_template_var(self, const: models.TemplateVar) -> None:
         self._apply_lstack_effects(const)
 
