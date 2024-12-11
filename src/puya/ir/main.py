@@ -39,8 +39,11 @@ from puya.models import (
     ARC4Struct,
     ARC4StructField,
     ContractMetaData,
+    ContractProgramReference,
     ContractState,
     LogicSignatureMetaData,
+    LogicSigProgramReference,
+    ProgramReference,
     StateTotals,
 )
 from puya.parse import SourceLocation
@@ -274,7 +277,9 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
             *(ctx.subroutines[ref] for ref in approval_subs_srefs),
             *ctx.embedded_funcs_lookup.values(),
         ),
-        program_id=".".join((contract.id, contract.approval_program.short_name)),
+        ref=ContractProgramReference(
+            reference=contract.id, program_name=contract.approval_program.short_name
+        ),
         avm_version=avm_version,
     )
     clear_state_ir = _make_program(
@@ -284,7 +289,9 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
             *(ctx.subroutines[ref] for ref in clear_subs_srefs),
             *ctx.embedded_funcs_lookup.values(),
         ),
-        program_id=".".join((contract.id, contract.clear_program.short_name)),
+        ref=ContractProgramReference(
+            reference=contract.id, program_name=contract.clear_program.short_name
+        ),
         avm_version=avm_version,
     )
     result = Contract(
@@ -336,7 +343,7 @@ def _build_logic_sig_ir(
             *(ctx.subroutines[ref] for ref in program_sub_refs),
             *ctx.embedded_funcs_lookup.values(),
         ),
-        program_id=logic_sig.id,
+        ref=LogicSigProgramReference(reference=logic_sig.id),
         avm_version=coalesce(logic_sig.avm_version, ctx.options.target_avm_version),
     )
     result = LogicSignature(
@@ -421,7 +428,7 @@ def _make_program(
     main: awst_nodes.Function,
     references: Iterable[Subroutine],
     *,
-    program_id: str,
+    ref: ProgramReference,
     avm_version: int,
 ) -> Program:
     if main.args:
@@ -439,7 +446,7 @@ def _make_program(
     )
     FunctionIRBuilder.build_body(ctx, function=main, subroutine=main_sub)
     return Program(
-        id=program_id,
+        ref=ref,
         main=main_sub,
         subroutines=tuple(references),
         avm_version=avm_version,

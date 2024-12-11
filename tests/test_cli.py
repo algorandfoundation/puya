@@ -87,6 +87,17 @@ def test_run_single_file() -> None:
     run_puyapy([TEST_CASES_DIR / Path("simple") / "contract.py"])
 
 
+def test_run_single_file_with_other_references(tmpdir: Path) -> None:
+    run_puyapy(
+        [
+            TEST_CASES_DIR / "compile" / "factory.py",
+            "--output-bytecode",
+            "--out-dir",
+            str(tmpdir),
+        ]
+    )
+
+
 def test_run_multiple_files() -> None:
     run_puyapy(
         [
