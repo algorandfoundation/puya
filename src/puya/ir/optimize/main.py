@@ -24,6 +24,7 @@ from puya.ir.optimize.intrinsic_simplification import intrinsic_simplifier
 from puya.ir.optimize.repeated_code_elimination import repeated_expression_elimination
 from puya.ir.optimize.repeated_extends_simplification import repeated_extends_simplification
 from puya.ir.optimize.repeated_loads_elimination import repeated_loads_elimination
+from puya.ir.optimize.slot_elimination import slot_elimination
 from puya.ir.to_text_visitor import render_program
 from puya.utils import attrs_extend
 
@@ -74,6 +75,7 @@ def get_subroutine_optimizations(optimization_level: int) -> Iterable[Subroutine
             SubroutineOptimization.from_function(repeated_expression_elimination),
             SubroutineOptimization.from_function(repeated_loads_elimination),
             SubroutineOptimization.from_function(repeated_extends_simplification),
+            SubroutineOptimization.from_function(slot_elimination),
         ]
     else:
         return [

@@ -32,6 +32,7 @@ from puya.ir.models import (
     ProgramExit,
     ReadSlot,
     Register,
+    SlotConstant,
     SubroutineReturn,
     Switch,
     TemplateVar,
@@ -100,6 +101,9 @@ class IRMutator(IRVisitor[t.Any]):
         return const
 
     def visit_itxn_constant(self, const: ITxnConstant) -> ITxnConstant:
+        return const
+
+    def visit_slot_constant(self, const: SlotConstant) -> SlotConstant:
         return const
 
     def visit_compiled_contract_reference(

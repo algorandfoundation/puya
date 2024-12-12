@@ -1,4 +1,5 @@
 import abc
+import enum
 import typing
 import typing as t
 from collections.abc import Iterable, Iterator, Mapping, Sequence, Set
@@ -105,6 +106,32 @@ class Value(ValueProvider, abc.ABC):
 
     def _frozen_data(self) -> object:
         return self
+
+
+def is_array_type(_op: Context, _attribute: object, value: Value) -> None:
+    if not isinstance(value.ir_type, ArrayType):
+        raise InternalError("expected array type", value.source_location)
+
+
+def is_uint64_type(_op: Context, _attribute: object, value: Value) -> None:
+    if value.ir_type != PrimitiveIRType.uint64:
+        raise InternalError("expected uint64 type", value.source_location)
+
+
+def has_slot_type(
+    _op: Context,
+    _attribute: attrs.Attribute,  #  type: ignore[type-arg]
+    value: ValueProvider,
+) -> None:
+    (typ,) = value.types
+    if not isinstance(typ, SlotType):
+        raise InternalError(f"expected SlotType, received: {typ}", value.source_location)
+
+
+def narrow_to_slot_type(typ: IRType) -> SlotType:
+    if not isinstance(typ, SlotType):
+        raise InternalError(f"expected SlotType, received: {typ}")
+    return typ
 
 
 @attrs.frozen
@@ -255,6 +282,15 @@ class ITxnConstant(Constant):
         return visitor.visit_itxn_constant(self)
 
 
+@attrs.frozen(kw_only=True)
+class SlotConstant(Constant):
+    value: int
+    ir_type: SlotType = attrs.field(converter=narrow_to_slot_type)
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_slot_constant(self)
+
+
 @attrs.frozen
 class BigUIntConstant(Constant):
     value: int
@@ -355,16 +391,6 @@ class InnerTransactionField(Op, ValueProvider):
     @property
     def types(self) -> Sequence[IRType]:
         return (self.type,)
-
-
-def is_array_type(_op: Context, _attribute: object, value: Value) -> None:
-    if not isinstance(value.ir_type, ArrayType):
-        raise InternalError("expected array type", value.source_location)
-
-
-def is_uint64_type(_op: Context, _attribute: object, value: Value) -> None:
-    if value.ir_type != PrimitiveIRType.uint64:
-        raise InternalError("expected uint64 type", value.source_location)
 
 
 class ArrayOp(typing.Protocol):
@@ -477,38 +503,28 @@ class ArrayLength(Op, ValueProvider):
         return visitor.visit_array_length(self)
 
 
-def has_slot_type(
-    inst: Context,
-    attr: attrs.Attribute,  # type: ignore[type-arg]
-    value: ValueProvider,
-) -> None:
-    (typ,) = value.types
-    if not isinstance(typ, SlotType):
-        raise InternalError(
-            f"{type(inst).__name__}.{attr.name}: expected SlotType, received: {typ}",
-            inst.source_location,
-        )
-
-
-def narrow_to_slot_type(typ: IRType) -> SlotType:
-    if not isinstance(typ, SlotType):
-        raise InternalError(f"expected SlotType, received: {typ}")
-    return typ
+@enum.unique
+class SlotScope(enum.StrEnum):
+    local = enum.auto()
+    """Slot is only accessed within local function"""
+    program = enum.auto()
+    """Slot is used across program"""
 
 
 @attrs.define(eq=False)
 class NewSlot(Op, ValueProvider):
-    type: SlotType = attrs.field(converter=narrow_to_slot_type)
+    scope: SlotScope  # TODO: remove ME
+    ir_type: SlotType = attrs.field(converter=narrow_to_slot_type)
 
     def _frozen_data(self) -> object:
-        return self.type
+        return self.ir_type
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_new_slot(self)
 
     @property
     def types(self) -> Sequence[IRType]:
-        return (self.type,)
+        return (self.ir_type,)
 
 
 @attrs.define(eq=False)

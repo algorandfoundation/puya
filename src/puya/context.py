@@ -1,11 +1,11 @@
 import itertools
 import typing
+from collections import defaultdict
 from collections.abc import Iterator, Mapping, Sequence
 from pathlib import Path
 
 import attrs
 from immutabledict import immutabledict
-from mypy.checkexpr import defaultdict
 
 from puya import log
 from puya.models import (

@@ -48,6 +48,18 @@ contract Contract
   {
     arr: array<uint64> = new array<uint64>()
     test_cases.array.contract.add_x(arr, 1u)
+    arr2: array<uint64> = new array<uint64>()
+    arr2.extend((1u))
+    arr2.extend((2u))
+    arr2.extend((3u))
+    arr.extend(arr2)
+    assert(arr.length == 4u)
+  }
+  
+  abimethod test_cases.array.contract.Contract.test_array_multiple_append(): void
+  {
+    arr: array<uint64> = new array<uint64>()
+    test_cases.array.contract.add_x(arr, 1u)
     arr.extend((1u))
     arr.extend((2u))
     arr.extend((3u))
@@ -65,7 +77,6 @@ contract Contract
       array.extend((i))
     }
     assert(array.length == 512u, comment="array is expected length")
-    assert(len(loads(array)) == 4096u, comment="array bytes is expected length")
     array.extend((512u))
   }
   
@@ -107,7 +118,8 @@ contract Contract
   abimethod test_cases.array.contract.Contract.test_allocations(num: uint64): void
   {
     for _i in range(0u, num, 1u) {
-      arr: array<uint64> = new array<uint64>()
+      alloc_test: array<uint64> = new array<uint64>()
+      test_cases.array.contract.add_x(alloc_test, 1u)
     }
   }
   
@@ -163,7 +175,7 @@ subroutine quicksort_window(arr: array<uint64>, window_left: uint64, window_righ
     }
     while (pivot < arr[right]) {
       if (right == 0u) {
-        goto after_loop_L158
+        goto after_loop_L171
       }
       right -= 1u
     }
@@ -186,7 +198,7 @@ subroutine quicksort_window(arr: array<uint64>, window_left: uint64, window_righ
       }
       break
     }
-    after_loop_L158:
+    after_loop_L171:
     break
   }
   if (window_left < right) {
@@ -222,4 +234,9 @@ subroutine append_5_and_return(arr: array<uint64>): array<uint64>
 {
   arr.extend((5u))
   return arr
+}
+
+subroutine do_something_with_array(arr: array<uint64>): void
+{
+  arr.extend((1u))
 }

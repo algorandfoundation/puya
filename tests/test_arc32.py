@@ -1748,17 +1748,13 @@ def test_array(
     app_client.create()
 
     simulate_call(app_client, "test_array")
-
     simulate_call(app_client, "test_array_extend")
-
+    simulate_call(app_client, "test_array_multiple_append")
     simulate_call(app_client, "test_iteration")
-
     simulate_call(app_client, "test_array_copy_and_extend")
-
     simulate_call(app_client, "test_array_evaluation_order")
 
     simulate_call(app_client, "test_allocations", num=255)
-
     with pytest.raises(LogicError, match="no available slots\t\t<-- Error"):
         simulate_call(app_client, "test_allocations", num=256)
 
@@ -1773,7 +1769,7 @@ def test_array(
     consumed = (
         simulate_response.simulate_response["txn-groups"][0]["app-budget-consumed"] - overhead
     )
-    assert consumed == 7023
+    assert consumed == 7032
 
 
 def simulate_call(

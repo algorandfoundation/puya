@@ -3,25 +3,25 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 8 0 5 512
-    bytecblock 0x
+    bytecblock 0x 0x000000000000000100000000000000020000000000000003
     pushbytes 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     store 0
     // array/contract.py:4
     // class Contract(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@14
-    pushbytess 0xa33be873 0xe0c378e9 0x58351a50 0xfa99e984 0xa20e440f 0x179ac3f9 0xf17f6f0a 0x845e1b4e 0x7621cfd1 // method "test_array()void", method "test_array_extend()void", method "overhead()void", method "test_array_too_long()void", method "test_array_copy_and_extend()void", method "test_array_evaluation_order()void", method "test_allocations(uint64)void", method "test_iteration()void", method "test_quicksort()void"
+    bz main_bare_routing@15
+    pushbytess 0xa33be873 0xe0c378e9 0x366f509d 0x58351a50 0xfa99e984 0xa20e440f 0x179ac3f9 0xf17f6f0a 0x845e1b4e 0x7621cfd1 // method "test_array()void", method "test_array_extend()void", method "test_array_multiple_append()void", method "overhead()void", method "test_array_too_long()void", method "test_array_copy_and_extend()void", method "test_array_evaluation_order()void", method "test_allocations(uint64)void", method "test_iteration()void", method "test_quicksort()void"
     txna ApplicationArgs 0
-    match main_test_array_route@3 main_test_array_extend_route@4 main_overhead_route@5 main_test_array_too_long_route@6 main_test_array_copy_and_extend_route@7 main_test_array_evaluation_order_route@8 main_test_allocations_route@9 main_test_iteration_route@10 main_test_quicksort_route@11
+    match main_test_array_route@3 main_test_array_extend_route@4 main_test_array_multiple_append_route@5 main_overhead_route@6 main_test_array_too_long_route@7 main_test_array_copy_and_extend_route@8 main_test_array_evaluation_order_route@9 main_test_allocations_route@10 main_test_iteration_route@11 main_test_quicksort_route@12
 
-main_after_if_else@18:
+main_after_if_else@19:
     // array/contract.py:4
     // class Contract(arc4.ARC4Contract):
     intc_2 // 0
     return
 
-main_test_quicksort_route@11:
-    // array/contract.py:128
+main_test_quicksort_route@12:
+    // array/contract.py:141
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -32,8 +32,8 @@ main_test_quicksort_route@11:
     intc_0 // 1
     return
 
-main_test_iteration_route@10:
-    // array/contract.py:105
+main_test_iteration_route@11:
+    // array/contract.py:119
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -44,22 +44,26 @@ main_test_iteration_route@10:
     intc_0 // 1
     return
 
-main_test_allocations_route@9:
-    // array/contract.py:99
+main_test_allocations_route@10:
+    // array/contract.py:112
     // @arc4.abimethod()
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
+    // array/contract.py:4
+    // class Contract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
+    // array/contract.py:112
+    // @arc4.abimethod()
     callsub test_allocations
     intc_0 // 1
     return
 
-main_test_array_evaluation_order_route@8:
-    // array/contract.py:86
+main_test_array_evaluation_order_route@9:
+    // array/contract.py:99
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -70,8 +74,8 @@ main_test_array_evaluation_order_route@8:
     intc_0 // 1
     return
 
-main_test_array_copy_and_extend_route@7:
-    // array/contract.py:64
+main_test_array_copy_and_extend_route@8:
+    // array/contract.py:77
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -82,8 +86,8 @@ main_test_array_copy_and_extend_route@7:
     intc_0 // 1
     return
 
-main_test_array_too_long_route@6:
-    // array/contract.py:54
+main_test_array_too_long_route@7:
+    // array/contract.py:66
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -94,14 +98,26 @@ main_test_array_too_long_route@6:
     intc_0 // 1
     return
 
-main_overhead_route@5:
-    // array/contract.py:50
+main_overhead_route@6:
+    // array/contract.py:62
     // @arc4.abimethod()
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
+    intc_0 // 1
+    return
+
+main_test_array_multiple_append_route@5:
+    // array/contract.py:53
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub test_array_multiple_append
     intc_0 // 1
     return
 
@@ -129,11 +145,11 @@ main_test_array_route@3:
     intc_0 // 1
     return
 
-main_bare_routing@14:
+main_bare_routing@15:
     // array/contract.py:4
     // class Contract(arc4.ARC4Contract):
     txn OnCompletion
-    bnz main_after_if_else@18
+    bnz main_after_if_else@19
     txn ApplicationID
     !
     assert // can only call when creating
@@ -151,18 +167,26 @@ test_array:
     // arr = Array[UInt64]()
     callsub _puya_lib.mem.new_slot
     dup
+    // array/contract.py:10
+    // arr.append(UInt64(42))
     pushint 42 // 42
     itob
     dup2
     stores
+    // array/contract.py:12
+    // assert arr[-1] == 42
     intc_2 // 0
     extract_uint64
     pushint 42 // 42
     ==
     assert
+    // array/contract.py:14
+    // add_x(arr, UInt64(5))
     dup
     intc_3 // 5
     callsub add_x
+    // array/contract.py:15
+    // assert arr.length == 6
     dup
     loads
     dup
@@ -173,6 +197,8 @@ test_array:
     pushint 6 // 6
     ==
     assert
+    // array/contract.py:16
+    // assert arr[-1] == 4
     intc_0 // 1
     -
     intc_1 // 8
@@ -183,12 +209,16 @@ test_array:
     pushint 4 // 4
     ==
     assert
+    // array/contract.py:18
+    // arr.append(UInt64(43))
     pushint 43 // 43
     itob
     concat // on error: max array length exceeded
     swap
     dig 1
     stores
+    // array/contract.py:19
+    // assert arr.length == 7
     dup
     len
     intc_1 // 8
@@ -197,6 +227,8 @@ test_array:
     pushint 7 // 7
     ==
     assert
+    // array/contract.py:20
+    // assert arr[-1] == 43
     intc_0 // 1
     -
     intc_1 // 8
@@ -207,21 +239,29 @@ test_array:
     pushint 43 // 43
     ==
     assert
+    // array/contract.py:21
+    // assert arr[0] == 42
     intc_2 // 0
     extract_uint64
     pushint 42 // 42
     ==
     assert
+    // array/contract.py:226
+    // for _i in urange(x):
     intc_2 // 0
 
 test_array_for_header@2:
-    // array/contract.py:213
+    // array/contract.py:226
     // for _i in urange(x):
     frame_dig 1
+    // array/contract.py:23
+    // pop_x(arr, UInt64(3))
     pushint 3 // 3
+    // array/contract.py:226
+    // for _i in urange(x):
     <
     bz test_array_after_for@5
-    // array/contract.py:214
+    // array/contract.py:227
     // arr.pop()
     frame_dig 0
     dup
@@ -234,7 +274,7 @@ test_array_for_header@2:
     swap
     extract3
     stores
-    // array/contract.py:213
+    // array/contract.py:226
     // for _i in urange(x):
     frame_dig 1
     intc_0 // 1
@@ -266,9 +306,13 @@ test_array_after_for@5:
     pushint 2 // 2
     ==
     assert
+    // array/contract.py:27
+    // add_x(arr, UInt64(10))
     dup
     pushint 10 // 10
     callsub add_x
+    // array/contract.py:28
+    // assert arr.length == 14
     dup
     loads
     dup
@@ -279,6 +323,8 @@ test_array_after_for@5:
     pushint 14 // 14
     ==
     assert
+    // array/contract.py:29
+    // assert arr[-1] == 9
     intc_0 // 1
     -
     intc_1 // 8
@@ -289,11 +335,15 @@ test_array_after_for@5:
     pushint 9 // 9
     ==
     assert
+    // array/contract.py:31
+    // arr.append(UInt64(44))
     pushint 44 // 44
     itob
     dig 1
     swap
     concat // on error: max array length exceeded
+    // array/contract.py:32
+    // assert arr.length == 15
     dup
     len
     intc_1 // 8
@@ -302,6 +352,8 @@ test_array_after_for@5:
     pushint 15 // 15
     ==
     assert
+    // array/contract.py:33
+    // assert arr[-1] == 44
     intc_0 // 1
     -
     intc_1 // 8
@@ -310,8 +362,14 @@ test_array_after_for@5:
     pushint 44 // 44
     ==
     assert
+    // array/contract.py:31
+    // arr.append(UInt64(44))
     pushbytes 0x000000000000002c00000000000000630000000000000064
+    // array/contract.py:214
+    // arr2.append(UInt64(100))
     concat // on error: max array length exceeded
+    // array/contract.py:35
+    // return_ref(arr, arr)[0] += 2
     dup
     intc_2 // 0
     extract_uint64
@@ -322,6 +380,8 @@ test_array_after_for@5:
     swap
     dig 1
     stores
+    // array/contract.py:36
+    // assert arr.length == 17
     dup
     len
     intc_1 // 8
@@ -330,12 +390,16 @@ test_array_after_for@5:
     pushint 17 // 17
     ==
     assert
+    // array/contract.py:37
+    // assert arr[0] == 44
     dig 1
     intc_2 // 0
     extract_uint64
     pushint 44 // 44
     ==
     assert
+    // array/contract.py:38
+    // assert arr[-2] == 99
     dup
     pushint 2 // 2
     -
@@ -347,6 +411,8 @@ test_array_after_for@5:
     pushint 99 // 99
     ==
     assert
+    // array/contract.py:39
+    // assert arr[-1] == 100
     intc_0 // 1
     -
     intc_1 // 8
@@ -360,22 +426,22 @@ test_array_after_for@5:
 
 // test_cases.array.contract.add_x(arr: uint64, x: uint64) -> void:
 add_x:
-    // array/contract.py:205-206
+    // array/contract.py:218-219
     // @subroutine
     // def add_x(arr: Array[UInt64], x: UInt64) -> None:
     proto 2 0
-    // array/contract.py:207
+    // array/contract.py:220
     // for i in urange(x):
     intc_2 // 0
 
 add_x_for_header@1:
-    // array/contract.py:207
+    // array/contract.py:220
     // for i in urange(x):
     frame_dig 0
     frame_dig -1
     <
     bz add_x_after_for@4
-    // array/contract.py:208
+    // array/contract.py:221
     // arr.append(i)
     frame_dig 0
     dup
@@ -387,7 +453,7 @@ add_x_for_header@1:
     frame_dig -2
     swap
     stores
-    // array/contract.py:207
+    // array/contract.py:220
     // for i in urange(x):
     intc_0 // 1
     +
@@ -400,10 +466,6 @@ add_x_after_for@4:
 
 // test_cases.array.contract.Contract.test_array_extend() -> void:
 test_array_extend:
-    // array/contract.py:41-42
-    // @arc4.abimethod()
-    // def test_array_extend(self) -> None:
-    proto 0 0
     // array/contract.py:43
     // arr = Array[UInt64]()
     callsub _puya_lib.mem.new_slot
@@ -415,20 +477,68 @@ test_array_extend:
     dup
     intc_0 // 1
     callsub add_x
-    // array/contract.py:45
+    // array/contract.py:46-48
+    // arr2.append(UInt64(1))
+    // arr2.append(UInt64(2))
+    // arr2.append(UInt64(3))
+    bytec_1 // 0x000000000000000100000000000000020000000000000003
+    pop
+    // array/contract.py:50
+    // arr.extend(arr2)
+    dup
+    loads
+    // array/contract.py:46-48
+    // arr2.append(UInt64(1))
+    // arr2.append(UInt64(2))
+    // arr2.append(UInt64(3))
+    bytec_1 // 0x000000000000000100000000000000020000000000000003
+    // array/contract.py:50
+    // arr.extend(arr2)
+    concat // on error: max array length exceeded
+    dig 1
+    swap
+    stores
+    // array/contract.py:51
+    // assert arr.length == 4
+    loads
+    len
+    intc_1 // 8
+    /
+    pushint 4 // 4
+    ==
+    assert
+    retsub
+
+
+// test_cases.array.contract.Contract.test_array_multiple_append() -> void:
+test_array_multiple_append:
+    // array/contract.py:55
+    // arr = Array[UInt64]()
+    callsub _puya_lib.mem.new_slot
+    dup
+    bytec_0 // 0x
+    stores
+    // array/contract.py:56
+    // add_x(arr, UInt64(1))
+    dup
+    intc_0 // 1
+    callsub add_x
+    // array/contract.py:57
     // arr.append(UInt64(1))
     dup
     loads
-    // array/contract.py:45-47
+    // array/contract.py:57-59
     // arr.append(UInt64(1))
     // arr.append(UInt64(2))
     // arr.append(UInt64(3))
-    pushbytes 0x000000000000000100000000000000020000000000000003
+    bytec_1 // 0x000000000000000100000000000000020000000000000003
+    // array/contract.py:59
+    // arr.append(UInt64(3))
     concat // on error: max array length exceeded
     swap
     dig 1
     stores
-    // array/contract.py:48
+    // array/contract.py:60
     // assert arr.length == 4
     len
     intc_1 // 8
@@ -441,40 +551,34 @@ test_array_extend:
 
 // test_cases.array.contract.Contract.test_array_too_long() -> void:
 test_array_too_long:
-    // array/contract.py:54-55
+    // array/contract.py:66-67
     // @arc4.abimethod()
     // def test_array_too_long(self) -> None:
     proto 0 0
-    // array/contract.py:56
+    // array/contract.py:68
     // array = Array[UInt64]()
-    callsub _puya_lib.mem.new_slot
-    dup
     bytec_0 // 0x
-    stores
-    // array/contract.py:57
+    // array/contract.py:69
     // for i in urange(512):
     intc_2 // 0
 
 test_array_too_long_for_header@1:
-    // array/contract.py:57
+    // array/contract.py:69
     // for i in urange(512):
     frame_dig 1
     intc 4 // 512
     <
     bz test_array_too_long_after_for@4
-    // array/contract.py:58
+    // array/contract.py:70
     // array.append(i)
     frame_dig 1
     dup
     itob
     frame_dig 0
-    dup
-    cover 2
-    loads
     swap
     concat // on error: max array length exceeded
-    stores
-    // array/contract.py:57
+    frame_bury 0
+    // array/contract.py:69
     // for i in urange(512):
     intc_0 // 1
     +
@@ -482,11 +586,9 @@ test_array_too_long_for_header@1:
     b test_array_too_long_for_header@1
 
 test_array_too_long_after_for@4:
-    // array/contract.py:59
-    // assert array.length == 512, "array is expected length"
     frame_dig 0
-    dup
-    loads
+    // array/contract.py:71
+    // assert array.length == 512, "array is expected length"
     dup
     len
     intc_1 // 8
@@ -494,57 +596,45 @@ test_array_too_long_after_for@4:
     intc 4 // 512
     ==
     assert // array is expected length
-    // array/contract.py:60
-    // assert array.bytes.length == 4096, "array bytes is expected length"
-    dig 1
-    loads
-    len
-    pushint 4096 // 4096
-    ==
-    assert // array bytes is expected length
+    // array/contract.py:75
+    // array.append(UInt64(512))  # this will fail
     intc 4 // 512
     itob
     concat // on error: max array length exceeded
-    stores
+    pop
     retsub
 
 
 // test_cases.array.contract.Contract.test_array_copy_and_extend() -> void:
 test_array_copy_and_extend:
-    // array/contract.py:64-65
+    // array/contract.py:77-78
     // @arc4.abimethod()
     // def test_array_copy_and_extend(self) -> None:
     proto 0 0
-    // array/contract.py:66
+    // array/contract.py:79
     // array = Array[UInt64]()
-    callsub _puya_lib.mem.new_slot
-    dup
     bytec_0 // 0x
-    stores
-    // array/contract.py:67
+    // array/contract.py:80
     // for i in urange(5):
     intc_2 // 0
 
 test_array_copy_and_extend_for_header@1:
-    // array/contract.py:67
+    // array/contract.py:80
     // for i in urange(5):
     frame_dig 1
     intc_3 // 5
     <
     bz test_array_copy_and_extend_after_for@4
-    // array/contract.py:68
+    // array/contract.py:81
     // array.append(i)
     frame_dig 1
     dup
     itob
     frame_dig 0
-    dup
-    cover 2
-    loads
     swap
     concat // on error: max array length exceeded
-    stores
-    // array/contract.py:67
+    frame_bury 0
+    // array/contract.py:80
     // for i in urange(5):
     intc_0 // 1
     +
@@ -552,25 +642,17 @@ test_array_copy_and_extend_for_header@1:
     b test_array_copy_and_extend_for_header@1
 
 test_array_copy_and_extend_after_for@4:
-    // array/contract.py:69
-    // array2 = array.copy()
-    callsub _puya_lib.mem.new_slot
     frame_dig 0
     dup
-    cover 2
-    loads
-    dig 1
-    swap
-    stores
+    // array/contract.py:84
+    // array.append(UInt64(5))
     intc_3 // 5
     itob
-    dig 2
-    loads
-    swap
     concat // on error: max array length exceeded
-    dig 2
-    dig 1
-    stores
+    dup
+    pop
+    // array/contract.py:85
+    // assert array.length == 6
     dup
     len
     intc_1 // 8
@@ -579,6 +661,8 @@ test_array_copy_and_extend_after_for@4:
     pushint 6 // 6
     ==
     assert
+    // array/contract.py:86
+    // assert array[-1] == 5, "expected 5"
     intc_0 // 1
     -
     intc_1 // 8
@@ -590,7 +674,8 @@ test_array_copy_and_extend_after_for@4:
     ==
     assert // expected 5
     dig 1
-    loads
+    // array/contract.py:88
+    // assert array2.length == 5
     dup
     len
     intc_1 // 8
@@ -599,6 +684,8 @@ test_array_copy_and_extend_after_for@4:
     intc_3 // 5
     ==
     assert
+    // array/contract.py:89
+    // assert array2[-1] == 4, "expected 4"
     intc_0 // 1
     -
     intc_1 // 8
@@ -609,12 +696,11 @@ test_array_copy_and_extend_after_for@4:
     pushint 4 // 4
     ==
     assert // expected 4
+    // array/contract.py:91
+    // array.extend(array2)
     concat // on error: max array length exceeded
-    dig 2
-    swap
-    stores
-    swap
-    loads
+    // array/contract.py:92
+    // assert array.length == 11
     dup
     len
     intc_1 // 8
@@ -624,13 +710,16 @@ test_array_copy_and_extend_after_for@4:
     ==
     assert
     uncover 2
-    loads
+    // array/contract.py:93
+    // assert array2.length == 5
     len
     intc_1 // 8
     /
     intc_3 // 5
     ==
     assert
+    // array/contract.py:94
+    // assert array[-1] == 4, "expected 4"
     intc_0 // 1
     -
     intc_1 // 8
@@ -641,18 +730,24 @@ test_array_copy_and_extend_after_for@4:
     pushint 4 // 4
     ==
     assert // expected 4
+    // array/contract.py:95
+    // assert array[4] == 4, "expected 4"
     dup
     pushint 32 // 32
     extract_uint64
     pushint 4 // 4
     ==
     assert // expected 4
+    // array/contract.py:96
+    // assert array[5] == 5, "expected 4"
     dup
     pushint 40 // 40
     extract_uint64
     intc_3 // 5
     ==
     assert // expected 4
+    // array/contract.py:97
+    // assert array[6] == 0, "expected 4"
     pushint 48 // 48
     extract_uint64
     !
@@ -662,21 +757,17 @@ test_array_copy_and_extend_after_for@4:
 
 // test_cases.array.contract.Contract.test_array_evaluation_order() -> void:
 test_array_evaluation_order:
-    // array/contract.py:86-87
-    // @arc4.abimethod()
-    // def test_array_evaluation_order(self) -> None:
-    proto 0 0
-    // array/contract.py:88
+    // array/contract.py:101
     // arr = Array[UInt64]()
     callsub _puya_lib.mem.new_slot
-    // array/contract.py:89
+    // array/contract.py:102
     // arr.append(UInt64(1))
     intc_0 // 1
     itob
     dig 1
     swap
     stores
-    // array/contract.py:90
+    // array/contract.py:103
     // append_5_and_return(arr).extend(append_5_and_return(arr))
     dup
     callsub append_5_and_return
@@ -688,7 +779,7 @@ test_array_evaluation_order:
     swap
     concat // on error: max array length exceeded
     stores
-    // array/contract.py:91
+    // array/contract.py:104
     // assert arr.length == 6
     loads
     dup
@@ -698,7 +789,7 @@ test_array_evaluation_order:
     pushint 6 // 6
     ==
     assert
-    // array/contract.py:92
+    // array/contract.py:105
     // assert arr[0] == 1
     dup
     intc_2 // 0
@@ -706,7 +797,7 @@ test_array_evaluation_order:
     intc_0 // 1
     ==
     assert
-    // array/contract.py:93
+    // array/contract.py:106
     // assert arr[1] == 5
     dup
     intc_1 // 8
@@ -714,7 +805,7 @@ test_array_evaluation_order:
     intc_3 // 5
     ==
     assert
-    // array/contract.py:94
+    // array/contract.py:107
     // assert arr[2] == 5
     dup
     pushint 16 // 16
@@ -722,7 +813,7 @@ test_array_evaluation_order:
     intc_3 // 5
     ==
     assert
-    // array/contract.py:95
+    // array/contract.py:108
     // assert arr[3] == 1
     dup
     pushint 24 // 24
@@ -730,7 +821,7 @@ test_array_evaluation_order:
     intc_0 // 1
     ==
     assert
-    // array/contract.py:96
+    // array/contract.py:109
     // assert arr[4] == 5
     dup
     pushint 32 // 32
@@ -738,7 +829,7 @@ test_array_evaluation_order:
     intc_3 // 5
     ==
     assert
-    // array/contract.py:97
+    // array/contract.py:110
     // assert arr[5] == 5
     pushint 40 // 40
     extract_uint64
@@ -750,11 +841,11 @@ test_array_evaluation_order:
 
 // test_cases.array.contract.append_5_and_return(arr: uint64) -> uint64:
 append_5_and_return:
-    // array/contract.py:217-218
+    // array/contract.py:230-231
     // @subroutine
     // def append_5_and_return(arr: Array[UInt64]) -> Array[UInt64]:
     proto 1 1
-    // array/contract.py:219
+    // array/contract.py:232
     // arr.append(UInt64(5))
     intc_3 // 5
     itob
@@ -765,7 +856,7 @@ append_5_and_return:
     frame_dig -1
     swap
     stores
-    // array/contract.py:220
+    // array/contract.py:233
     // return arr
     frame_dig -1
     retsub
@@ -773,28 +864,33 @@ append_5_and_return:
 
 // test_cases.array.contract.Contract.test_allocations(num: uint64) -> void:
 test_allocations:
-    // array/contract.py:99-100
+    // array/contract.py:112-113
     // @arc4.abimethod()
     // def test_allocations(self, num: UInt64) -> None:
     proto 1 0
-    // array/contract.py:101
+    // array/contract.py:114
     // for _i in urange(num):
     intc_2 // 0
 
 test_allocations_for_header@1:
-    // array/contract.py:101
+    // array/contract.py:114
     // for _i in urange(num):
     frame_dig 0
     frame_dig -1
     <
     bz test_allocations_after_for@4
-    // array/contract.py:102-103
+    // array/contract.py:115-116
     // # TODO: do we need to allow freeing arrays? Maybe via an API function?
-    // arr = Array[UInt64]()  # noqa: F841
+    // alloc_test = Array[UInt64]()
     callsub _puya_lib.mem.new_slot
+    dup
     bytec_0 // 0x
     stores
-    // array/contract.py:101
+    // array/contract.py:117
+    // add_x(alloc_test, UInt64(1))
+    intc_0 // 1
+    callsub add_x
+    // array/contract.py:114
     // for _i in urange(num):
     frame_dig 0
     intc_0 // 1
@@ -808,43 +904,35 @@ test_allocations_after_for@4:
 
 // test_cases.array.contract.Contract.test_iteration() -> void:
 test_iteration:
-    // array/contract.py:105-106
+    // array/contract.py:119-120
     // @arc4.abimethod()
     // def test_iteration(self) -> None:
     proto 0 0
     bytec_0 // ""
-    dupn 5
-    // array/contract.py:107-108
-    // # create pseudo random array from sender address
+    // array/contract.py:121
     // arr = Array[UInt64]()
-    callsub _puya_lib.mem.new_slot
-    dup
-    bytec_0 // 0x
-    stores
-    // array/contract.py:109
+    dupn 6
+    // array/contract.py:122
     // for val in urange(5):
     intc_2 // 0
 
 test_iteration_for_header@1:
-    // array/contract.py:109
+    // array/contract.py:122
     // for val in urange(5):
     frame_dig 7
     intc_3 // 5
     <
     bz test_iteration_after_for@4
-    // array/contract.py:110
+    // array/contract.py:123
     // arr.append(val)
     frame_dig 7
     dup
     itob
     frame_dig 6
-    dup
-    cover 2
-    loads
     swap
     concat // on error: max array length exceeded
-    stores
-    // array/contract.py:109
+    frame_bury 6
+    // array/contract.py:122
     // for val in urange(5):
     intc_0 // 1
     +
@@ -852,10 +940,9 @@ test_iteration_for_header@1:
     b test_iteration_for_header@1
 
 test_iteration_after_for@4:
-    // array/contract.py:111
-    // assert arr.length == 5, "expected array of length 5"
     frame_dig 6
-    loads
+    // array/contract.py:124
+    // assert arr.length == 5, "expected array of length 5"
     len
     intc_1 // 8
     /
@@ -864,27 +951,29 @@ test_iteration_after_for@4:
     intc_3 // 5
     ==
     assert // expected array of length 5
+    // array/contract.py:126-127
+    // # iterate
+    // last = UInt64(0)
     intc_2 // 0
     frame_bury 4
     intc_2 // 0
     frame_bury 3
 
 test_iteration_for_header@5:
-    // array/contract.py:115
+    // array/contract.py:128
     // for value in arr:
     frame_dig 3
     frame_dig 0
     <
     bz test_iteration_after_for@8
     frame_dig 6
-    loads
     frame_dig 3
     dup
     cover 2
     intc_1 // 8
     *
     extract_uint64
-    // array/contract.py:116
+    // array/contract.py:129
     // assert value >= last, "array is not sorted"
     dup
     frame_dig 4
@@ -898,11 +987,10 @@ test_iteration_for_header@5:
     b test_iteration_for_header@5
 
 test_iteration_after_for@8:
-    // array/contract.py:119-120
-    // # array values should match index
-    // for idx, value in uenumerate(arr):
     frame_dig 6
-    loads
+    // array/contract.py:132-133
+    // # enumerate
+    // for idx, value in uenumerate(arr):
     len
     intc_1 // 8
     /
@@ -911,22 +999,21 @@ test_iteration_after_for@8:
     frame_bury 2
 
 test_iteration_for_header@9:
-    // array/contract.py:119-120
-    // # array values should match index
+    // array/contract.py:132-133
+    // # enumerate
     // for idx, value in uenumerate(arr):
     frame_dig 2
     frame_dig 1
     <
     bz test_iteration_after_for@12
     frame_dig 6
-    loads
     frame_dig 2
     dup
     cover 2
     intc_1 // 8
     *
     extract_uint64
-    // array/contract.py:121
+    // array/contract.py:134
     // assert value == idx, "incorrect array value"
     dig 1
     ==
@@ -937,19 +1024,18 @@ test_iteration_for_header@9:
     b test_iteration_for_header@9
 
 test_iteration_after_for@12:
-    // array/contract.py:123-124
-    // # array should be reversible
-    // for value in reversed(arr):
     frame_dig 6
-    loads
+    // array/contract.py:136-137
+    // # reverse
+    // for value in reversed(arr):
     len
     intc_1 // 8
     /
     frame_bury 5
 
 test_iteration_for_header@13:
-    // array/contract.py:123-124
-    // # array should be reversible
+    // array/contract.py:136-137
+    // # reverse
     // for value in reversed(arr):
     frame_dig 5
     bz test_iteration_after_for@16
@@ -959,12 +1045,11 @@ test_iteration_for_header@13:
     dup
     frame_bury 5
     frame_dig 6
-    loads
     swap
     intc_1 // 8
     *
     extract_uint64
-    // array/contract.py:125
+    // array/contract.py:138
     // assert value <= last, "array is not sorted"
     dup
     frame_dig 4
@@ -979,20 +1064,20 @@ test_iteration_after_for@16:
 
 // test_cases.array.contract.Contract.test_quicksort() -> void:
 test_quicksort:
-    // array/contract.py:128-129
+    // array/contract.py:141-142
     // @arc4.abimethod()
     // def test_quicksort(self) -> None:
     proto 0 0
     bytec_0 // ""
     dupn 2
-    // array/contract.py:130-131
+    // array/contract.py:143-144
     // # create pseudo random array from sender address
     // rnd = Array[UInt64]()
     callsub _puya_lib.mem.new_slot
     dup
     bytec_0 // 0x
     stores
-    // array/contract.py:132
+    // array/contract.py:145
     // for b in Txn.sender.bytes:
     txn Sender
     dup
@@ -1000,7 +1085,7 @@ test_quicksort:
     intc_2 // 0
 
 test_quicksort_for_header@1:
-    // array/contract.py:132
+    // array/contract.py:145
     // for b in Txn.sender.bytes:
     frame_dig 6
     frame_dig 5
@@ -1012,7 +1097,7 @@ test_quicksort_for_header@1:
     cover 2
     intc_0 // 1
     extract3
-    // array/contract.py:133
+    // array/contract.py:146
     // rnd.append(op.btoi(b))
     btoi
     itob
@@ -1029,7 +1114,7 @@ test_quicksort_for_header@1:
     b test_quicksort_for_header@1
 
 test_quicksort_after_for@4:
-    // array/contract.py:134
+    // array/contract.py:147
     // assert rnd.length == 32, "expected array of length 32"
     frame_dig 3
     dup
@@ -1041,14 +1126,22 @@ test_quicksort_after_for@4:
     pushint 32 // 32
     ==
     assert // expected array of length 32
+    // array/contract.py:149-150
+    // # sort the array
+    // quicksort_window(rnd, UInt64(0), rnd.length - 1)
     intc_0 // 1
     -
     dig 1
     intc_2 // 0
     uncover 2
     callsub quicksort_window
+    // array/contract.py:152-153
+    // # array should now be in ascending order
+    // last = UInt64(0)
     intc_2 // 0
     frame_bury 2
+    // array/contract.py:154
+    // for value in rnd:
     loads
     len
     intc_1 // 8
@@ -1058,7 +1151,7 @@ test_quicksort_after_for@4:
     frame_bury 1
 
 test_quicksort_for_header@5:
-    // array/contract.py:141
+    // array/contract.py:154
     // for value in rnd:
     frame_dig 1
     frame_dig 0
@@ -1072,7 +1165,7 @@ test_quicksort_for_header@5:
     intc_1 // 8
     *
     extract_uint64
-    // array/contract.py:142
+    // array/contract.py:155
     // assert value >= last, "array is not sorted"
     dup
     frame_dig 2
@@ -1091,12 +1184,14 @@ test_quicksort_after_for@8:
 
 // test_cases.array.contract.quicksort_window(arr: uint64, window_left: uint64, window_right: uint64) -> void:
 quicksort_window:
-    // array/contract.py:146-147
+    // array/contract.py:159-160
     // @subroutine
     // def quicksort_window(arr: Array[UInt64], window_left: UInt64, window_right: UInt64) -> None:
     proto 3 0
     bytec_0 // ""
     dupn 2
+    // array/contract.py:163
+    // pivot = arr[(window_left + window_right) // 2]
     frame_dig -2
     frame_dig -1
     +
@@ -1112,7 +1207,7 @@ quicksort_window:
     frame_dig -2
 
 quicksort_window_while_top@3:
-    // array/contract.py:154-155
+    // array/contract.py:167-168
     // # move left of window towards pivot
     // while arr[left] < pivot:
     frame_dig -3
@@ -1126,7 +1221,7 @@ quicksort_window_while_top@3:
     frame_dig 3
     <
     bz quicksort_window_while_top@6
-    // array/contract.py:156
+    // array/contract.py:169
     // left += 1
     frame_dig 5
     intc_0 // 1
@@ -1135,7 +1230,7 @@ quicksort_window_while_top@3:
     b quicksort_window_while_top@3
 
 quicksort_window_while_top@6:
-    // array/contract.py:157-158
+    // array/contract.py:170-171
     // # move right of window towards pivot
     // while pivot < arr[right]:
     frame_dig -3
@@ -1149,11 +1244,13 @@ quicksort_window_while_top@6:
     frame_dig 3
     >
     bz quicksort_window_after_while@10
-    // array/contract.py:159-160
+    // array/contract.py:172-173
     // # break out of loop if right would go negative
     // if not right:
     frame_dig 4
     bz quicksort_window_after_while@22
+    // array/contract.py:175
+    // right -= 1
     frame_dig 4
     intc_0 // 1
     -
@@ -1161,14 +1258,14 @@ quicksort_window_while_top@6:
     b quicksort_window_while_top@6
 
 quicksort_window_after_while@22:
-    // array/contract.py:190-191
+    // array/contract.py:203-204
     // # sort left half of window
     // if window_left < right:
     frame_dig -2
     frame_dig 4
     <
     bz quicksort_window_after_if_else@24
-    // array/contract.py:192
+    // array/contract.py:205
     // quicksort_window(arr, window_left, right)
     frame_dig -3
     frame_dig -2
@@ -1176,14 +1273,14 @@ quicksort_window_after_while@22:
     callsub quicksort_window
 
 quicksort_window_after_if_else@24:
-    // array/contract.py:193-194
+    // array/contract.py:206-207
     // # sort right half of window
     // if left < window_right:
     frame_dig 5
     frame_dig -1
     <
     bz quicksort_window_after_if_else@26
-    // array/contract.py:195
+    // array/contract.py:208
     // quicksort_window(arr, left, window_right)
     frame_dig -3
     frame_dig 5
@@ -1194,14 +1291,14 @@ quicksort_window_after_if_else@26:
     retsub
 
 quicksort_window_after_while@10:
-    // array/contract.py:164-165
+    // array/contract.py:177-178
     // # if window isn't empty then swap values and move window in
     // if left < right:
     frame_dig 5
     frame_dig 4
     <
     bz quicksort_window_after_if_else@16
-    // array/contract.py:166
+    // array/contract.py:179
     // arr[left], arr[right] = arr[right], arr[left]
     frame_dig -3
     loads
@@ -1229,36 +1326,41 @@ quicksort_window_after_while@10:
     frame_dig -3
     swap
     stores
-    // array/contract.py:167
+    // array/contract.py:180
     // left += 1
     frame_dig 5
     intc_0 // 1
     +
     frame_bury 5
-    // array/contract.py:168-169
+    // array/contract.py:181-182
     // # break out of loop if right would go negative
     // if not right:
     frame_dig 4
     bz quicksort_window_after_while@22
+    // array/contract.py:184
+    // right -= 1
     frame_dig 4
     intc_0 // 1
     -
     dup
     frame_bury 4
+    // array/contract.py:185-186
+    // # explicit continue to avoid hitting outer break
+    // if left <= right:
     frame_dig 5
     >=
     bnz quicksort_window_while_top@3
     b quicksort_window_after_while@22
 
 quicksort_window_after_if_else@16:
-    // array/contract.py:178-179
+    // array/contract.py:191-192
     // # if window is just one item, don't bother swapping, but still adjust window
     // if left == right:
     frame_dig 5
     frame_dig 4
     ==
     bz quicksort_window_after_while@22
-    // array/contract.py:180
+    // array/contract.py:193
     // left += 1
     frame_dig 5
     intc_0 // 1
@@ -1267,11 +1369,11 @@ quicksort_window_after_if_else@16:
     frame_dig 4
     dup
     frame_bury 2
-    // array/contract.py:181-182
+    // array/contract.py:194-195
     // # don't decrement right if it would go negative
     // if right:
     bz quicksort_window_after_if_else@19
-    // array/contract.py:183
+    // array/contract.py:196
     // right -= 1
     frame_dig 4
     intc_0 // 1
@@ -1281,7 +1383,7 @@ quicksort_window_after_if_else@16:
 quicksort_window_after_if_else@19:
     frame_dig 2
     frame_bury 4
-    // array/contract.py:184-186
+    // array/contract.py:197-199
     // # loop always ends in this scenario
     // # and an explict break consumes fewer ops
     // break
@@ -1290,7 +1392,6 @@ quicksort_window_after_if_else@19:
 
 // _puya_lib.mem.new_slot() -> uint64:
 _puya_lib.mem.new_slot:
-    proto 0 1
     load 0
     bitlen
     load 0

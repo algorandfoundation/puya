@@ -127,6 +127,7 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
         return _not_supported(self.pytype, location)
 
     def to_bytes(self, location: SourceLocation) -> Expression:
+        # TODO: this doesn't work anymore, needs a node that maps to ReadSlot...
         return IntrinsicCall(
             op_code="loads",
             stack_args=[self.resolve()],

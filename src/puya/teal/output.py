@@ -26,9 +26,7 @@ def emit_teal(context: ArtifactCompileContext, program: models.TealProgram) -> s
                     whole_lines_location = attrs.evolve(
                         op_loc.with_comments(), column=None, end_column=None
                     )
-                    if not last_location or not last_location.is_equal_or_contains(
-                        whole_lines_location
-                    ):
+                    if whole_lines_location != last_location:
                         last_location = whole_lines_location
                         src = context.try_get_source(whole_lines_location)
                         if src is not None:

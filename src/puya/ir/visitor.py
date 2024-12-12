@@ -50,6 +50,9 @@ class IRVisitor[T](ABC):
     def visit_itxn_constant(self, const: puya.ir.models.ITxnConstant) -> T: ...
 
     @abstractmethod
+    def visit_slot_constant(self, const: puya.ir.models.SlotConstant) -> T: ...
+
+    @abstractmethod
     def visit_phi(self, phi: puya.ir.models.Phi) -> T: ...
 
     @abstractmethod
@@ -157,6 +160,9 @@ class IRTraverser(IRVisitor[None]):
         pass
 
     def visit_method_constant(self, const: puya.ir.models.MethodConstant) -> None:
+        pass
+
+    def visit_slot_constant(self, const: puya.ir.models.SlotConstant) -> None:
         pass
 
     def visit_compiled_contract_reference(
@@ -280,6 +286,9 @@ class NoOpIRVisitor[T](IRVisitor[T | None]):
         return None
 
     def visit_itxn_constant(self, const: puya.ir.models.ITxnConstant) -> T | None:
+        return None
+
+    def visit_slot_constant(self, const: puya.ir.models.SlotConstant) -> T | None:
         return None
 
     def visit_compiled_contract_reference(

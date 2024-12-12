@@ -121,38 +121,78 @@ class MemoryIRBuilder(IRVisitor[None]):
         )
 
     def visit_new_slot(self, new_slot: ir.NewSlot) -> None:
-        self._add_op(
-            models.CallSub(
-                target=_NEW_SLOT_SUB,
-                parameters=0,
-                returns=1,
-                produces=_produces_from_op(_NEW_SLOT_SUB, 1, self.active_op),
-                source_location=new_slot.source_location,
+        if new_slot.scope == ir.SlotScope.program:
+            self._add_op(
+                models.CallSub(
+                    target=_NEW_SLOT_SUB,
+                    parameters=0,
+                    returns=1,
+                    produces=_produces_from_op(_NEW_SLOT_SUB, 1, self.active_op),
+                    source_location=new_slot.source_location,
+                )
             )
-        )
+        elif new_slot.scope == ir.SlotScope.local:
+            raise NotImplementedError
+        else:
+            typing.assert_never(new_slot.scope)
 
     def visit_read_slot(self, read: ir.ReadSlot) -> None:
-        read.slot.accept(self)
-        self._add_op(
-            models.IntrinsicOp(
-                op_code="loads",
-                source_location=read.source_location,
-                consumes=1,
-                produces=_produces_from_op("loads", 1, self.active_op),
+        if isinstance(read.slot, ir.SlotConstant):
+            self._add_op(
+                models.AbstractLoad(
+                    local_id=f"slot{ir.TMP_VAR_INDICATOR}{read.slot.value}",
+                    atype=read.slot.ir_type.contents.avm_type,
+                )
             )
-        )
+        else:
+            if isinstance(read.slot, ir.UInt64Constant):
+                op = "load"
+                consumes = 0
+                immediates = [read.slot.value]
+            else:
+                read.slot.accept(self)
+                op = "loads"
+                consumes = 1
+                immediates = []
+            self._add_op(
+                models.IntrinsicOp(
+                    op_code=op,
+                    source_location=read.source_location,
+                    immediates=immediates,
+                    consumes=consumes,
+                    produces=_produces_from_op(op, 1, self.active_op),
+                )
+            )
 
     def visit_write_slot(self, write: ir.WriteSlot) -> None:
-        write.slot.accept(self)
-        write.value.accept(self)
-        self._add_op(
-            models.IntrinsicOp(
-                op_code="stores",
-                source_location=write.source_location,
-                consumes=2,
-                produces=(),
+        if isinstance(write.slot, ir.SlotConstant):
+            write.value.accept(self)
+            self._add_op(
+                models.AbstractStore(
+                    local_id=f"slot{ir.TMP_VAR_INDICATOR}{write.slot.value}",
+                    atype=write.slot.ir_type.contents.avm_type,
+                )
             )
-        )
+        else:
+            if isinstance(write.slot, ir.UInt64Constant):
+                op = "store"
+                consumes = 1
+                immediates = [write.slot.value]
+            else:
+                write.slot.accept(self)
+                op = "stores"
+                consumes = 2
+                immediates = []
+            write.value.accept(self)
+            self._add_op(
+                models.IntrinsicOp(
+                    op_code=op,
+                    source_location=write.source_location,
+                    immediates=immediates,
+                    consumes=consumes,
+                    produces=(),
+                )
+            )
 
     def visit_array_read_index(self, read: ir.ArrayReadIndex) -> None:
         _unexpected_node(read)
@@ -360,6 +400,9 @@ class MemoryIRBuilder(IRVisitor[None]):
         _unexpected_node(tup)
 
     def visit_itxn_constant(self, const: ir.ITxnConstant) -> None:
+        _unexpected_node(const)
+
+    def visit_slot_constant(self, const: ir.SlotConstant) -> None:
         _unexpected_node(const)
 
     def visit_inner_transaction_field(self, field: ir.InnerTransactionField) -> None:

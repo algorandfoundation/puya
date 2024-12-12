@@ -55,6 +55,10 @@ class ToTextVisitor(IRVisitor[str]):
         return f"{op.ir_type.name}({op.value})"
 
     @typing.override
+    def visit_slot_constant(self, op: models.SlotConstant) -> str:
+        return f"local_slot({op.ir_type}, slot={op.value})"
+
+    @typing.override
     def visit_compiled_contract_reference(self, const: models.CompiledContractReference) -> str:
         return (
             ", ".join(
@@ -88,7 +92,7 @@ class ToTextVisitor(IRVisitor[str]):
 
     @typing.override
     def visit_new_slot(self, new_slot: models.NewSlot) -> str:
-        return f"new({new_slot.type.contents})"
+        return f"new({new_slot.ir_type.contents}, scope={new_slot.scope.name!r})"
 
     @typing.override
     def visit_read_slot(self, read: models.ReadSlot) -> str:

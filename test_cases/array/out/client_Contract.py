@@ -18,6 +18,11 @@ class Contract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
+    def test_array_multiple_append(
+        self,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
     def overhead(
         self,
     ) -> None: ...

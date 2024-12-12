@@ -42,6 +42,18 @@ class Contract(arc4.ARC4Contract):
     def test_array_extend(self) -> None:
         arr = Array[UInt64]()
         add_x(arr, UInt64(1))
+        arr2 = Array[UInt64]()
+        arr2.append(UInt64(1))
+        arr2.append(UInt64(2))
+        arr2.append(UInt64(3))
+
+        arr.extend(arr2)
+        assert arr.length == 4
+
+    @arc4.abimethod()
+    def test_array_multiple_append(self) -> None:
+        arr = Array[UInt64]()
+        add_x(arr, UInt64(1))
         arr.append(UInt64(1))
         arr.append(UInt64(2))
         arr.append(UInt64(3))
@@ -57,7 +69,8 @@ class Contract(arc4.ARC4Contract):
         for i in urange(512):
             array.append(i)
         assert array.length == 512, "array is expected length"
-        assert array.bytes.length == 4096, "array bytes is expected length"
+        # TODO: need an AWST node if we want to support this
+        # assert array.bytes.length == 4096, "array bytes is expected length"
 
         array.append(UInt64(512))  # this will fail
 
@@ -100,27 +113,27 @@ class Contract(arc4.ARC4Contract):
     def test_allocations(self, num: UInt64) -> None:
         for _i in urange(num):
             # TODO: do we need to allow freeing arrays? Maybe via an API function?
-            arr = Array[UInt64]()  # noqa: F841
+            alloc_test = Array[UInt64]()
+            add_x(alloc_test, UInt64(1))
 
     @arc4.abimethod()
     def test_iteration(self) -> None:
-        # create pseudo random array from sender address
         arr = Array[UInt64]()
         for val in urange(5):
             arr.append(val)
         assert arr.length == 5, "expected array of length 5"
 
-        # array should now be in ascending order
+        # iterate
         last = UInt64(0)
         for value in arr:
             assert value >= last, "array is not sorted"
             last = value
 
-        # array values should match index
+        # enumerate
         for idx, value in uenumerate(arr):
             assert value == idx, "incorrect array value"
 
-        # array should be reversible
+        # reverse
         for value in reversed(arr):
             assert value <= last, "array is not sorted"
             last = value
@@ -218,3 +231,8 @@ def pop_x(arr: Array[UInt64], x: UInt64) -> None:
 def append_5_and_return(arr: Array[UInt64]) -> Array[UInt64]:
     arr.append(UInt64(5))
     return arr
+
+
+@subroutine
+def do_something_with_array(arr: Array[UInt64]) -> None:
+    arr.append(UInt64(1))

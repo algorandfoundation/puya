@@ -12,7 +12,8 @@ def new_slot(
         context,
         ir.NewSlot(
             source_location=loc,
-            type=slot_type,
+            scope=ir.SlotScope.program,
+            ir_type=slot_type,
         ),
         temp_description="slot",
         source_location=loc,
