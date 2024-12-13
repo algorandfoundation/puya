@@ -206,7 +206,6 @@ bytes of the public key (without the checksum). It has various account related m
 
 Also see [`algopy.arc4.Address`](#algopy.arc4.Address) if needing to represent the address as a distinct type.
 
-
 ### Asset
 
 [`Asset`](#algopy.Asset) represents a logical Asset, backed by a `uint64` ID.
@@ -315,5 +314,5 @@ the `native` property to retrieve the value. Most of the ARC-4 types also allow 
 you can edit values in arrays by index.
 
 Please see the [reference documentation](./api-algopy.arc4.md) for the different classes that can
-be used to represent ARC-4 values or the [ARC-4 documentation](./lg-arc4.md) for more information
+be used to represent ARC-4 values or the ARC-4 documentation for more information
 about ARC-4.
