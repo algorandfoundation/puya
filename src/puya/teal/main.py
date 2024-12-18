@@ -38,7 +38,7 @@ def _get_all_stack_manipulations(
 
 def _build_teal(mir_program: mir.Program) -> teal_models.TealProgram:
     program = teal_models.TealProgram(
-        id=mir_program.id,
+        ref=mir_program.ref,
         avm_version=mir_program.avm_version,
         main=TealBuilder.build_subroutine(mir_program.main),
         subroutines=[TealBuilder.build_subroutine(mir_sub) for mir_sub in mir_program.subroutines],

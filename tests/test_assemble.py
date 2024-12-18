@@ -8,7 +8,13 @@ from algosdk.v2client.algod import AlgodClient
 
 from puya.context import CompileContext
 from puya.mir.models import Signature
-from puya.models import CompiledContract, CompiledLogicSig, CompiledProgram
+from puya.models import (
+    CompiledContract,
+    CompiledLogicSig,
+    CompiledProgram,
+    LogicSigProgramReference,
+    LogicSigReference,
+)
 from puya.options import PuyaOptions
 from puya.teal import models as teal
 from puya.ussemble.main import assemble_program
@@ -122,7 +128,7 @@ def test_assemble_last_op_jump() -> None:
             sources_by_path={},
         ),
         program=teal.TealProgram(
-            id="",
+            ref=LogicSigProgramReference(LogicSigReference()),
             avm_version=10,
             main=teal.TealSubroutine(
                 is_main=True,
