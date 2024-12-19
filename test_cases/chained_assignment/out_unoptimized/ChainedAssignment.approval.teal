@@ -1,14 +1,16 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.chained_assignment.contract.ChainedAssignment.approval_program:
+// test_cases.chained_assignment.contract.ChainedAssignment.__algopy_entrypoint_with_init() -> uint64:
+main:
     txn ApplicationID
     bnz main_after_if_else@2
+
+main_call___init__@1:
     callsub __init__
 
 main_after_if_else@2:
-    // chained_assignment/contract.py:21
-    // return True
-    pushint 1 // 1
+    callsub approval_program
     return
 
 
@@ -82,4 +84,15 @@ join_log_and_return:
     log
     // chained_assignment/contract.py:31
     // return result
+    retsub
+
+
+// test_cases.chained_assignment.contract.ChainedAssignment.approval_program() -> uint64:
+approval_program:
+    // chained_assignment/contract.py:20
+    // def approval_program(self) -> bool:
+    proto 0 1
+    // chained_assignment/contract.py:21
+    // return True
+    pushint 1 // 1
     retsub

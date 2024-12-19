@@ -1,0 +1,210 @@
+// Op                                                    Stack (out)
+// test_cases.with_reentrancy.contract.WithReentrancy.approval_program() -> uint64:
+main:
+    // with_reentrancy/contract.py:8
+    // log(op.itob(fibonacci(UInt64(5))))
+    int 5                                                5
+    callsub fibonacci                                    tmp%0#0
+    itob                                                 tmp%1#0
+    log
+    // with_reentrancy/contract.py:9
+    // silly(UInt64(2))
+    int 2                                                2
+    callsub silly                                        {silly}
+    pop 1
+    // with_reentrancy/contract.py:10
+    // return True
+    int 1                                                1
+    return
+
+
+// test_cases.with_reentrancy.contract.fibonacci(n: uint64) -> uint64:
+fibonacci:                                               (𝕡) n#0 |
+    // with_reentrancy/contract.py:27
+    // if n <= 1:
+    p-load n#0                                           (𝕡) n#0 | n#0 (copy)
+    int 1                                                (𝕡) n#0 | n#0 (copy),1
+    <=                                                   (𝕡) n#0 | tmp%0#0
+    bz fibonacci_after_if_else@2 ; b fibonacci_if_body@1 (𝕡) n#0 |
+
+fibonacci_if_body@1:                                     (𝕡) n#0 |
+    // with_reentrancy/contract.py:28
+    // return n
+    p-load n#0                                           (𝕡) n#0 | n#0 (copy)
+    retsub                                               n#0 (copy)
+
+fibonacci_after_if_else@2:                               (𝕡) n#0 |
+    // with_reentrancy/contract.py:29
+    // return fibonacci(n - 1) + fibonacci(n - 2)
+    p-load n#0                                           (𝕡) n#0 | n#0 (copy)
+    int 1                                                (𝕡) n#0 | n#0 (copy),1
+    -                                                    (𝕡) n#0 | tmp%1#0
+    callsub fibonacci                                    (𝕡) n#0 | tmp%2#0
+    p-load n#0                                           (𝕡) n#0 | tmp%2#0,n#0 (copy)
+    int 2                                                (𝕡) n#0 | tmp%2#0,n#0 (copy),2
+    -                                                    (𝕡) n#0 | tmp%2#0,tmp%3#0
+    callsub fibonacci                                    (𝕡) n#0 | tmp%2#0,tmp%4#0
+    l-load tmp%2#0 1                                     (𝕡) n#0 | tmp%4#0,tmp%2#0
+    l-load tmp%4#0 1                                     (𝕡) n#0 | tmp%2#0,tmp%4#0
+    +                                                    (𝕡) n#0 | tmp%5#0
+    retsub                                               tmp%5#0
+
+
+// test_cases.with_reentrancy.contract.silly(x: uint64) -> uint64:
+silly:                                                   (𝕡) x#0 |
+    // with_reentrancy/contract.py:34
+    // x = x + 1
+    p-load x#0                                           (𝕡) x#0 | x#0 (copy)
+    int 1                                                (𝕡) x#0 | x#0 (copy),1
+    +                                                    (𝕡) x#0 | x#0
+    p-store x#0                                          (𝕡) x#0 |
+    // with_reentrancy/contract.py:42
+    // x = x + 2
+    p-load x#0                                           (𝕡) x#0 | x#0 (copy)
+    int 2                                                (𝕡) x#0 | x#0 (copy),2
+    +                                                    (𝕡) x#0 | x#3
+    l-store-copy x#3 0                                   (𝕡) x#0 | x#3,x#3 (copy)
+    v-store x#3                                          (𝕡) x#0 | x#3
+    // with_reentrancy/contract.py:50
+    // is_even = x % 2 == 0
+    l-load-copy x#3 0                                    (𝕡) x#0 | x#3,x#3 (copy)
+    int 2                                                (𝕡) x#0 | x#3,x#3 (copy),2
+    %                                                    (𝕡) x#0 | x#3,tmp%0#2
+    l-store-copy tmp%0#2 1                               (𝕡) x#0 | tmp%0#2,x#3,tmp%0#2 (copy)
+    v-store tmp%0#2                                      (𝕡) x#0 | tmp%0#2,x#3
+    // with_reentrancy/contract.py:51
+    // a = x + 2
+    l-load x#3 0                                         (𝕡) x#0 | tmp%0#2,x#3
+    int 2                                                (𝕡) x#0 | tmp%0#2,x#3,2
+    +                                                    (𝕡) x#0 | tmp%0#2,a#0
+    v-store a#0                                          (𝕡) x#0 | tmp%0#2
+    // with_reentrancy/contract.py:52
+    // if is_even:
+    l-load tmp%0#2 0                                     (𝕡) x#0 | tmp%0#2
+    bz silly_if_body@2 ; b silly_else_body@3             (𝕡) x#0 |
+
+silly_if_body@2:                                         (𝕡) x#0 |
+    // with_reentrancy/contract.py:53
+    // result = a * 2
+    v-load a#0                                           (𝕡) x#0 | a#0
+    int 2                                                (𝕡) x#0 | a#0,2
+    *                                                    (𝕡) x#0 | result#2
+    l-store-copy result#2 0                              (𝕡) x#0 | result#2,result#2 (copy)
+    v-store result#2                                     (𝕡) x#0 | result#2
+    // with_reentrancy/contract.py:54
+    // a = result // 2 - 2
+    l-load result#2 0                                    (𝕡) x#0 | result#2
+    int 2                                                (𝕡) x#0 | result#2,2
+    /                                                    (𝕡) x#0 | tmp%1#2
+    int 2                                                (𝕡) x#0 | tmp%1#2,2
+    -                                                    (𝕡) x#0 | a#0
+    v-store a#0                                          (𝕡) x#0 |
+    b silly_after_if_else@4                              (𝕡) x#0 |
+
+silly_else_body@3:                                       (𝕡) x#0 |
+    // with_reentrancy/contract.py:56
+    // result = silly(x)
+    v-load x#3                                           (𝕡) x#0 | x#3
+    callsub silly                                        (𝕡) x#0 | result#2
+    v-store result#2                                     (𝕡) x#0 |
+    b silly_after_if_else@4                              (𝕡) x#0 |
+
+silly_after_if_else@4:                                   (𝕡) x#0 |
+    // with_reentrancy/contract.py:58
+    // if is_even:
+    v-load tmp%0#2                                       (𝕡) x#0 | tmp%0#2
+    bz silly_if_body@5 ; b silly_after_if_else@6         (𝕡) x#0 |
+
+silly_if_body@5:                                         (𝕡) x#0 |
+    v-load a#0                                           (𝕡) x#0 | result#2
+    v-store result#2                                     (𝕡) x#0 |
+    b silly_after_if_else@6                              (𝕡) x#0 |
+
+silly_after_if_else@6:                                   (𝕡) x#0 |
+    // with_reentrancy/contract.py:60
+    // log(Bytes(b"silly3 = ") + itoa(x))
+    v-load x#3                                           (𝕡) x#0 | x#3
+    l-store-copy x#3 0                                   (𝕡) x#0 | x#3,x#3 (copy)
+    callsub itoa                                         (𝕡) x#0 | x#3,tmp%2#0
+    byte 0x73696c6c7933203d20                            (𝕡) x#0 | x#3,tmp%2#0,0x73696c6c7933203d20
+    l-load tmp%2#0 1                                     (𝕡) x#0 | x#3,0x73696c6c7933203d20,tmp%2#0
+    concat                                               (𝕡) x#0 | x#3,tmp%3#0
+    log                                                  (𝕡) x#0 | x#3
+    // with_reentrancy/contract.py:44
+    // log(Bytes(b"silly2 = ") + itoa(x))
+    l-load x#3 0                                         (𝕡) x#0 | x#3
+    callsub itoa                                         (𝕡) x#0 | tmp%0#0
+    byte 0x73696c6c7932203d20                            (𝕡) x#0 | tmp%0#0,0x73696c6c7932203d20
+    l-load tmp%0#0 1                                     (𝕡) x#0 | 0x73696c6c7932203d20,tmp%0#0
+    concat                                               (𝕡) x#0 | tmp%1#0
+    log                                                  (𝕡) x#0 |
+    // with_reentrancy/contract.py:36
+    // log(Bytes(b"silly = ") + itoa(x))
+    p-load x#0                                           (𝕡) x#0 | x#0 (copy)
+    callsub itoa                                         (𝕡) x#0 | tmp%0#0
+    byte 0x73696c6c79203d20                              (𝕡) x#0 | tmp%0#0,0x73696c6c79203d20
+    l-load tmp%0#0 1                                     (𝕡) x#0 | 0x73696c6c79203d20,tmp%0#0
+    concat                                               (𝕡) x#0 | tmp%1#0
+    log                                                  (𝕡) x#0 |
+    // with_reentrancy/contract.py:37
+    // return result
+    v-load result#2                                      (𝕡) x#0 | result#2
+    retsub                                               result#2
+
+
+// test_cases.with_reentrancy.contract.itoa(i: uint64) -> bytes:
+itoa:                                                    (𝕡) i#0 |
+    // with_reentrancy/contract.py:20
+    // if i < radix:
+    p-load i#0                                           (𝕡) i#0 | i#0 (copy)
+    // with_reentrancy/contract.py:19
+    // radix = digits.length
+    int 10                                               (𝕡) i#0 | i#0 (copy),10
+    // with_reentrancy/contract.py:20
+    // if i < radix:
+    <                                                    (𝕡) i#0 | tmp%0#0
+    bz itoa_after_if_else@2 ; b itoa_if_body@1           (𝕡) i#0 |
+
+itoa_if_body@1:                                          (𝕡) i#0 |
+    // with_reentrancy/contract.py:18
+    // digits = Bytes(b"0123456789")
+    byte 0x30313233343536373839                          (𝕡) i#0 | 0x30313233343536373839
+    // with_reentrancy/contract.py:21
+    // return digits[i]
+    p-load i#0                                           (𝕡) i#0 | 0x30313233343536373839,i#0 (copy)
+    int 1                                                (𝕡) i#0 | 0x30313233343536373839,i#0 (copy),1
+    extract3                                             (𝕡) i#0 | tmp%1#0
+    retsub                                               tmp%1#0
+
+itoa_after_if_else@2:                                    (𝕡) i#0 |
+    // with_reentrancy/contract.py:22
+    // return itoa(i // radix) + digits[i % radix]
+    p-load i#0                                           (𝕡) i#0 | i#0 (copy)
+    // with_reentrancy/contract.py:19
+    // radix = digits.length
+    int 10                                               (𝕡) i#0 | i#0 (copy),10
+    // with_reentrancy/contract.py:22
+    // return itoa(i // radix) + digits[i % radix]
+    /                                                    (𝕡) i#0 | tmp%2#0
+    callsub itoa                                         (𝕡) i#0 | tmp%3#0
+    p-load i#0                                           (𝕡) i#0 | tmp%3#0,i#0 (copy)
+    // with_reentrancy/contract.py:19
+    // radix = digits.length
+    int 10                                               (𝕡) i#0 | tmp%3#0,i#0 (copy),10
+    // with_reentrancy/contract.py:22
+    // return itoa(i // radix) + digits[i % radix]
+    %                                                    (𝕡) i#0 | tmp%3#0,tmp%4#0
+    // with_reentrancy/contract.py:18
+    // digits = Bytes(b"0123456789")
+    byte 0x30313233343536373839                          (𝕡) i#0 | tmp%3#0,tmp%4#0,0x30313233343536373839
+    // with_reentrancy/contract.py:22
+    // return itoa(i // radix) + digits[i % radix]
+    l-load tmp%4#0 1                                     (𝕡) i#0 | tmp%3#0,0x30313233343536373839,tmp%4#0
+    int 1                                                (𝕡) i#0 | tmp%3#0,0x30313233343536373839,tmp%4#0,1
+    extract3                                             (𝕡) i#0 | tmp%3#0,tmp%5#0
+    l-load tmp%3#0 1                                     (𝕡) i#0 | tmp%5#0,tmp%3#0
+    l-load tmp%5#0 1                                     (𝕡) i#0 | tmp%3#0,tmp%5#0
+    concat                                               (𝕡) i#0 | tmp%6#0
+    retsub                                               tmp%6#0
+
+

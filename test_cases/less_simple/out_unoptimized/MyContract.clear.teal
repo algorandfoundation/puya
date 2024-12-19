@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.less_simple.contract.MyContract.clear_state_program:
+// test_cases.less_simple.contract.MyContract.clear_state_program() -> uint64:
+main:
     pushbytes ""
     // less_simple/contract.py:28
     // sum_of_squares = UInt64(0)
@@ -20,6 +22,8 @@ main_for_header@1:
     dig 2
     bury 4
     bz main_after_for@8
+
+main_for_body@2:
     // less_simple/contract.py:30
     // square_root = op.sqrt(i)
     dupn 2
@@ -32,6 +36,8 @@ main_for_header@1:
     dig 2
     bury 4
     bz main_after_if_else@4
+
+main_if_body@3:
     // less_simple/contract.py:32
     // sum_of_squares += i
     dup2
@@ -47,13 +53,20 @@ main_after_if_else@4:
     pushint 200 // 200
     >
     bz main_after_if_else@6
+
+main_if_body@5:
     dig 1
     bury 3
-    // less_simple/contract.py:34
-    // break
-    b main_after_for@8
+
+main_after_for@8:
+    dig 2
+    // less_simple/contract.py:35
+    // return sum_of_squares
+    return
 
 main_after_if_else@6:
+
+main_for_footer@7:
     // less_simple/contract.py:29
     // for i in urange(1, 100):
     dup
@@ -61,9 +74,3 @@ main_after_if_else@6:
     +
     bury 1
     b main_for_header@1
-
-main_after_for@8:
-    dig 2
-    // less_simple/contract.py:35
-    // return sum_of_squares
-    return

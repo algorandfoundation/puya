@@ -1,34 +1,12 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.inheritance.parent.ParentContract.approval_program:
-    // inheritance/grandparent.py:6
-    // return self.method()
-    callsub method
-    return
-
-
-// test_cases.inheritance.parent.ParentContract.method() -> uint64:
-method:
-    // inheritance/parent.py:7-8
-    // @algopy.subroutine
-    // def method(self) -> bool:
-    proto 0 1
+// test_cases.inheritance.grandparent.GreatGrandParentContract.approval_program() -> uint64:
+main:
     // inheritance/parent.py:9
     // algopy.log("ParentContract.method called")
     pushbytes "ParentContract.method called"
     log
-    // inheritance/parent.py:10
-    // return super().method()
-    callsub test_cases.inheritance.grandparent.GreatGrandParentContract.method
-    retsub
-
-
-// test_cases.inheritance.grandparent.GreatGrandParentContract.method() -> uint64:
-test_cases.inheritance.grandparent.GreatGrandParentContract.method:
-    // inheritance/grandparent.py:11-12
-    // @algopy.subroutine
-    // def method(self) -> bool:
-    proto 0 1
     // inheritance/grandparent.py:13
     // algopy.log("GrandParentContract.method called")
     pushbytes "GrandParentContract.method called"
@@ -36,4 +14,6 @@ test_cases.inheritance.grandparent.GreatGrandParentContract.method:
     // inheritance/grandparent.py:14
     // return True
     pushint 1 // 1
-    retsub
+    // inheritance/grandparent.py:6
+    // return self.method()
+    return

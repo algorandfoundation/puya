@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.logic_signature.signature.pre_approved_sale:
+// test_cases.logic_signature.signature.pre_approved_sale() -> uint64:
+main:
     intcblock 1 0 TMPL_PRICE TMPL_ASSET_ID
     bytecblock TMPL_SELLER
     intc_1 // 0
@@ -14,9 +16,48 @@ test_cases.logic_signature.signature.pre_approved_sale:
     ==
     assert // transaction type is axfer
     intc_1 // 0
-    callsub assert_correct_payment
+    gtxns Receiver
+    bytec_0 // TMPL_SELLER
+    ==
+    bz main_bool_false@4
+    intc_1 // 0
+    gtxns Amount
+    intc_2 // TMPL_PRICE
+    ==
+    bz main_bool_false@4
     intc_0 // 1
-    callsub assert_correct_asset
+
+main_bool_merge@5:
+    assert
+    intc_0 // 1
+    gtxns AssetAmount
+    intc_0 // 1
+    ==
+    bz main_bool_false@13
+    intc_0 // 1
+    gtxns Sender
+    bytec_0 // TMPL_SELLER
+    ==
+    bz main_bool_false@13
+    intc_0 // 1
+    gtxns XferAsset
+    intc_3 // TMPL_ASSET_ID
+    ==
+    bz main_bool_false@13
+    intc_0 // 1
+    gtxns AssetCloseTo
+    global ZeroAddress
+    ==
+    bz main_bool_false@13
+    intc_0 // 1
+    gtxns RekeyTo
+    global ZeroAddress
+    ==
+    bz main_bool_false@13
+    intc_0 // 1
+
+main_bool_merge@14:
+    assert
     intc_1 // 0
     gtxns Sender
     intc_0 // 1
@@ -30,65 +71,10 @@ test_cases.logic_signature.signature.pre_approved_sale:
     intc_0 // 1
     return
 
-
-// test_cases.logic_signature.signature.assert_correct_payment(txn: uint64) -> void:
-assert_correct_payment:
-    proto 1 0
-    frame_dig -1
-    gtxns Receiver
-    bytec_0 // TMPL_SELLER
-    ==
-    bz assert_correct_payment_bool_false@3
-    frame_dig -1
-    gtxns Amount
-    intc_2 // TMPL_PRICE
-    ==
-    bz assert_correct_payment_bool_false@3
-    intc_0 // 1
-    b assert_correct_payment_bool_merge@4
-
-assert_correct_payment_bool_false@3:
+main_bool_false@13:
     intc_1 // 0
+    b main_bool_merge@14
 
-assert_correct_payment_bool_merge@4:
-    assert
-    retsub
-
-
-// test_cases.logic_signature.signature.assert_correct_asset(txn: uint64) -> void:
-assert_correct_asset:
-    proto 1 0
-    frame_dig -1
-    gtxns AssetAmount
-    intc_0 // 1
-    ==
-    bz assert_correct_asset_bool_false@6
-    frame_dig -1
-    gtxns Sender
-    bytec_0 // TMPL_SELLER
-    ==
-    bz assert_correct_asset_bool_false@6
-    frame_dig -1
-    gtxns XferAsset
-    intc_3 // TMPL_ASSET_ID
-    ==
-    bz assert_correct_asset_bool_false@6
-    frame_dig -1
-    gtxns AssetCloseTo
-    global ZeroAddress
-    ==
-    bz assert_correct_asset_bool_false@6
-    frame_dig -1
-    gtxns RekeyTo
-    global ZeroAddress
-    ==
-    bz assert_correct_asset_bool_false@6
-    intc_0 // 1
-    b assert_correct_asset_bool_merge@7
-
-assert_correct_asset_bool_false@6:
+main_bool_false@4:
     intc_1 // 0
-
-assert_correct_asset_bool_merge@7:
-    assert
-    retsub
+    b main_bool_merge@5

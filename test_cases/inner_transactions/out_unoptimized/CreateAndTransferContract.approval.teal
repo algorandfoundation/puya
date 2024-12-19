@@ -1,27 +1,39 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1 1000
-    callsub __puya_arc4_router__
-    return
 
-
-// test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_block@1:
     // inner_transactions/asset_transfer.py:10
     // class CreateAndTransferContract(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@5
+    bz main_bare_routing@6
+
+main_abi_routing@2:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x48e9ed7c // method "create_and_transfer()void"
     swap
-    match __puya_arc4_router___create_and_transfer_route@2
-    b __puya_arc4_router___switch_case_default@3
+    match main_create_and_transfer_route@3
 
-__puya_arc4_router___create_and_transfer_route@2:
+main_switch_case_default@4:
+
+main_switch_case_next@5:
+
+main_after_if_else@10:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    intc_0 // 0
+
+main_after_inlined_test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__@11:
+    return
+
+main_create_and_transfer_route@3:
     // inner_transactions/asset_transfer.py:11
     // @arc4.abimethod()
     txn OnCompletion
@@ -34,36 +46,32 @@ __puya_arc4_router___create_and_transfer_route@2:
     assert // can only call when not creating
     callsub create_and_transfer
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__@11
 
-__puya_arc4_router___switch_case_default@3:
-    b __puya_arc4_router___after_if_else@9
-
-__puya_arc4_router___bare_routing@5:
+main_bare_routing@6:
     // inner_transactions/asset_transfer.py:10
     // class CreateAndTransferContract(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@6
-    b __puya_arc4_router___switch_case_default@7
+    match main___algopy_default_create@7
 
-__puya_arc4_router_____algopy_default_create@6:
+main_switch_case_default@8:
+
+main_switch_case_next@9:
+    b main_after_if_else@10
+
+main___algopy_default_create@7:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+main_block@12:
+
+main_after_inlined_test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__algopy_default_create@13:
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@7:
-
-__puya_arc4_router___after_if_else@9:
-    // inner_transactions/asset_transfer.py:10
-    // class CreateAndTransferContract(ARC4Contract):
-    intc_0 // 0
-    retsub
+    b main_after_inlined_test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__@11
 
 
 // test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer() -> void:
@@ -113,6 +121,8 @@ create_and_transfer:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+
+create_and_transfer_next_txn@1:
     // inner_transactions/asset_transfer.py:15-23
     // itxn.AssetConfig(
     //     total=1000,
@@ -171,6 +181,8 @@ create_and_transfer:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+
+create_and_transfer_next_txn@2:
     // inner_transactions/asset_transfer.py:27-33
     // # transfer
     // itxn.AssetTransfer(
@@ -180,10 +192,4 @@ create_and_transfer:
     //     xfer_asset=new_asset,
     // ).submit()
     itxn_submit
-    retsub
-
-
-// test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__algopy_default_create() -> void:
-__algopy_default_create:
-    proto 0 0
     retsub

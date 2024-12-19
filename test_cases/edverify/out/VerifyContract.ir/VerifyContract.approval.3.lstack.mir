@@ -1,0 +1,42 @@
+// Op                                                   Stack (out)
+// test_cases.edverify.contract.VerifyContract.approval_program() -> uint64:
+main:
+    // edverify/contract.py:6
+    // assert op.Txn.num_app_args == 3
+    txn NumAppArgs                                      tmp%0#0
+    l-load tmp%0#0 0                                    tmp%0#0
+    int 3                                               tmp%0#0,3
+    ==                                                  tmp%1#0
+    l-load tmp%1#0 0                                    tmp%1#0
+    assert
+    // edverify/contract.py:8
+    // op.Txn.application_args(0),
+    txna ApplicationArgs 0                              tmp%2#0
+    // edverify/contract.py:9
+    // op.Txn.application_args(1),
+    txna ApplicationArgs 1                              tmp%2#0,tmp%3#0
+    // edverify/contract.py:10
+    // op.Txn.application_args(2),
+    txna ApplicationArgs 2                              tmp%2#0,tmp%3#0,tmp%4#0
+    // edverify/contract.py:7-11
+    // result = op.ed25519verify_bare(
+    //     op.Txn.application_args(0),
+    //     op.Txn.application_args(1),
+    //     op.Txn.application_args(2),
+    // )
+    l-load tmp%2#0 2                                    tmp%3#0,tmp%4#0,tmp%2#0
+    l-load tmp%3#0 2                                    tmp%4#0,tmp%2#0,tmp%3#0
+    l-load tmp%4#0 2                                    tmp%2#0,tmp%3#0,tmp%4#0
+    ed25519verify_bare                                  result#0
+    // edverify/contract.py:12
+    // log(op.itob(UInt64(1) if result else UInt64(0)))
+    l-load result#0 0                                   result#0
+    itob                                                tmp%6#0
+    l-load tmp%6#0 0                                    tmp%6#0
+    log
+    // edverify/contract.py:13
+    // return True
+    int 1                                               1
+    return
+
+

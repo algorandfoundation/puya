@@ -1,51 +1,16 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
-    intcblock 0
-    bytecblock 0x00
-    pushbytes 0x80
-    bytec_0 // 0x00
-    callsub test_stuff
-    pop
+// test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program() -> uint64:
+main:
     txn NumAppArgs
     !
-    bytec_0 // 0x00
-    intc_0 // 0
+    pushbytes 0x00
+    pushint 0 // 0
     uncover 2
     setbit
-    intc_0 // 0
+    pushint 0 // 0
     getbit
     assert // conditional expr
     pushint 1 // 1
     return
-
-
-// test_cases.arc4_types.bool.Arc4BoolTypeContract.test_stuff(true: bytes, false: bytes) -> uint64:
-test_stuff:
-    proto 2 1
-    frame_dig -2
-    intc_0 // 0
-    getbit
-    dup
-    assert
-    frame_dig -1
-    intc_0 // 0
-    getbit
-    dup
-    !
-    assert
-    bytec_0 // 0x00
-    intc_0 // 0
-    dig 3
-    setbit
-    frame_dig -2
-    ==
-    assert
-    bytec_0 // 0x00
-    intc_0 // 0
-    uncover 2
-    setbit
-    frame_dig -1
-    ==
-    assert
-    retsub

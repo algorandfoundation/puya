@@ -1,13 +1,17 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.state_totals.contract.Contract.approval_program:
+// test_cases.state_totals.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 0
     txn ApplicationID
     bnz main_after_if_else@2
+
+main_call___init__@1:
     callsub __init__
 
 main_after_if_else@2:
-    callsub __puya_arc4_router__
+    callsub approval_program
     return
 
 
@@ -19,21 +23,35 @@ __init__:
     retsub
 
 
-// test_cases.state_totals.contract.Contract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+approval_program:
+    proto 0 1
+
+approval_program_block@1:
     // state_totals/contract.py:6-9
     // class Contract(
     //     arc4.ARC4Contract,
     //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
     // ):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@2
-    b __puya_arc4_router___after_if_else@6
+    bz approval_program_bare_routing@3
 
-__puya_arc4_router___bare_routing@2:
+approval_program_abi_routing@2:
+
+approval_program_after_if_else@7:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    intc_0 // 0
+
+approval_program_after_inlined_test_cases.state_totals.contract.Contract.__puya_arc4_router__@8:
+    retsub
+
+approval_program_bare_routing@3:
     // state_totals/contract.py:6-9
     // class Contract(
     //     arc4.ARC4Contract,
@@ -42,10 +60,14 @@ __puya_arc4_router___bare_routing@2:
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router___create@3
-    b __puya_arc4_router___switch_case_default@4
+    match approval_program_create@4
 
-__puya_arc4_router___create@3:
+approval_program_switch_case_default@5:
+
+approval_program_switch_case_next@6:
+    b approval_program_after_if_else@7
+
+approval_program_create@4:
     // state_totals/contract.py:14
     // @arc4.baremethod(create="require")
     txn ApplicationID
@@ -57,18 +79,7 @@ __puya_arc4_router___create@3:
     // def create(self) -> None:
     callsub create
     pushint 1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@4:
-
-__puya_arc4_router___after_if_else@6:
-    // state_totals/contract.py:6-9
-    // class Contract(
-    //     arc4.ARC4Contract,
-    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
-    // ):
-    intc_0 // 0
-    retsub
+    b approval_program_after_inlined_test_cases.state_totals.contract.Contract.__puya_arc4_router__@8
 
 
 // test_cases.state_totals.contract.Contract.create() -> void:

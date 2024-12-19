@@ -1,44 +1,41 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.inner_transactions_assignment.contract.Contract.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1 3
     bytecblock 0x61636667 0x70617932 "pay1" "TEST" "TST" 0x6163666732 0x70617935 "pay3" 0x6869 0x7468657265 0x6d61796265 0x686932 0x746865726532
-    callsub __puya_arc4_router__
-    return
 
-
-// test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_block@1:
     // inner_transactions_assignment/contract.py:11
     // class Contract(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@6
+    bz main_bare_routing@7
+
+main_abi_routing@2:
+    // inner_transactions_assignment/contract.py:11
+    // class Contract(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xe46d9019 // method "test_itxn_slice()void"
     pushbytes 0xf883853e // method "test_itxn_nested()void"
     uncover 2
-    match __puya_arc4_router___test_itxn_slice_route@2 __puya_arc4_router___test_itxn_nested_route@3
-    b __puya_arc4_router___switch_case_default@4
+    match main_test_itxn_slice_route@3 main_test_itxn_nested_route@4
 
-__puya_arc4_router___test_itxn_slice_route@2:
-    // inner_transactions_assignment/contract.py:12
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
+main_switch_case_default@5:
+
+main_switch_case_next@6:
+
+main_after_if_else@11:
+    // inner_transactions_assignment/contract.py:11
+    // class Contract(ARC4Contract):
     intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub test_itxn_slice
-    intc_1 // 1
-    retsub
 
-__puya_arc4_router___test_itxn_nested_route@3:
+main_after_inlined_test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__@12:
+    return
+
+main_test_itxn_nested_route@4:
     // inner_transactions_assignment/contract.py:29
     // @arc4.abimethod
     txn OnCompletion
@@ -51,36 +48,47 @@ __puya_arc4_router___test_itxn_nested_route@3:
     assert // can only call when not creating
     callsub test_itxn_nested
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__@12
 
-__puya_arc4_router___switch_case_default@4:
-    b __puya_arc4_router___after_if_else@10
+main_test_itxn_slice_route@3:
+    // inner_transactions_assignment/contract.py:12
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub test_itxn_slice
+    intc_1 // 1
+    b main_after_inlined_test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__@12
 
-__puya_arc4_router___bare_routing@6:
+main_bare_routing@7:
     // inner_transactions_assignment/contract.py:11
     // class Contract(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@7
-    b __puya_arc4_router___switch_case_default@8
+    match main___algopy_default_create@8
 
-__puya_arc4_router_____algopy_default_create@7:
+main_switch_case_default@9:
+
+main_switch_case_next@10:
+    b main_after_if_else@11
+
+main___algopy_default_create@8:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+main_block@13:
+
+main_after_inlined_test_cases.inner_transactions_assignment.contract.Contract.__algopy_default_create@14:
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@8:
-
-__puya_arc4_router___after_if_else@10:
-    // inner_transactions_assignment/contract.py:11
-    // class Contract(ARC4Contract):
-    intc_0 // 0
-    retsub
+    b main_after_inlined_test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__@12
 
 
 // test_cases.inner_transactions_assignment.contract.Contract.test_itxn_slice() -> void:
@@ -113,6 +121,8 @@ test_itxn_slice:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+
+test_itxn_slice_next_txn@1:
     // inner_transactions_assignment/contract.py:25
     // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
     itxn_next
@@ -138,6 +148,8 @@ test_itxn_slice:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+
+test_itxn_slice_next_txn@2:
     // inner_transactions_assignment/contract.py:25
     // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
     itxn_next
@@ -157,6 +169,8 @@ test_itxn_slice:
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
     intc_0 // 0
     itxn_field Fee
+
+test_itxn_slice_next_txn@3:
     // inner_transactions_assignment/contract.py:25
     // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
     itxn_next
@@ -176,6 +190,8 @@ test_itxn_slice:
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
     intc_0 // 0
     itxn_field Fee
+
+test_itxn_slice_next_txn@4:
     // inner_transactions_assignment/contract.py:25
     // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
     itxn_submit
@@ -232,6 +248,8 @@ test_itxn_nested:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+
+test_itxn_nested_next_txn@1:
     // inner_transactions_assignment/contract.py:44
     // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
     itxn_next
@@ -257,6 +275,8 @@ test_itxn_nested:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+
+test_itxn_nested_next_txn@2:
     // inner_transactions_assignment/contract.py:44
     // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
     itxn_next
@@ -276,6 +296,8 @@ test_itxn_nested:
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
     intc_0 // 0
     itxn_field Fee
+
+test_itxn_nested_next_txn@3:
     // inner_transactions_assignment/contract.py:44
     // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
     itxn_next
@@ -295,6 +317,8 @@ test_itxn_nested:
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
     intc_0 // 0
     itxn_field Fee
+
+test_itxn_nested_next_txn@4:
     // inner_transactions_assignment/contract.py:44
     // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
     itxn_submit
@@ -355,6 +379,8 @@ test_itxn_nested:
     bytec 10 // 0x6d61796265
     ==
     bz test_itxn_nested_after_if_else@9
+
+test_itxn_nested_if_body@5:
     // inner_transactions_assignment/contract.py:59
     // echo(Bytes(b"hi2")),
     bytec 11 // 0x686932
@@ -375,6 +401,8 @@ test_itxn_nested:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+
+test_itxn_nested_next_txn@6:
     // inner_transactions_assignment/contract.py:60
     // itxn.submit_txns(pay1, acfg, pay3)[1:],
     itxn_next
@@ -400,6 +428,8 @@ test_itxn_nested:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+
+test_itxn_nested_next_txn@7:
     // inner_transactions_assignment/contract.py:60
     // itxn.submit_txns(pay1, acfg, pay3)[1:],
     itxn_next
@@ -419,6 +449,8 @@ test_itxn_nested:
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
     intc_0 // 0
     itxn_field Fee
+
+test_itxn_nested_next_txn@8:
     // inner_transactions_assignment/contract.py:60
     // itxn.submit_txns(pay1, acfg, pay3)[1:],
     itxn_submit
@@ -504,10 +536,4 @@ echo:
     // inner_transactions_assignment/contract.py:78
     // return value
     frame_dig -1
-    retsub
-
-
-// test_cases.inner_transactions_assignment.contract.Contract.__algopy_default_create() -> void:
-__algopy_default_create:
-    proto 0 0
     retsub

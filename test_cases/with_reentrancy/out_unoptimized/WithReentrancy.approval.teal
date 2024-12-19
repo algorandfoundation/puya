@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.with_reentrancy.contract.WithReentrancy.approval_program:
+// test_cases.with_reentrancy.contract.WithReentrancy.approval_program() -> uint64:
+main:
     intcblock 2 1
     bytecblock 0x30313233343536373839
     // with_reentrancy/contract.py:8
@@ -32,6 +34,8 @@ fibonacci:
     intc_1 // 1
     <=
     bz fibonacci_after_if_else@2
+
+fibonacci_if_body@1:
     // with_reentrancy/contract.py:28
     // return n
     frame_dig -1
@@ -134,6 +138,8 @@ silly3:
     // with_reentrancy/contract.py:52
     // if is_even:
     bz silly3_else_body@2
+
+silly3_if_body@1:
     // with_reentrancy/contract.py:53
     // result = a * 2
     frame_dig 2
@@ -148,20 +154,14 @@ silly3:
     intc_0 // 2
     -
     frame_bury 2
-    b silly3_after_if_else@3
-
-silly3_else_body@2:
-    // with_reentrancy/contract.py:56
-    // result = silly(x)
-    frame_dig -1
-    callsub silly
-    frame_bury 0
 
 silly3_after_if_else@3:
     // with_reentrancy/contract.py:58
     // if is_even:
     frame_dig 1
     bz silly3_after_if_else@5
+
+silly3_if_body@4:
     // with_reentrancy/contract.py:59
     // result = a
     frame_dig 2
@@ -179,6 +179,14 @@ silly3_after_if_else@5:
     // with_reentrancy/contract.py:61
     // return result
     retsub
+
+silly3_else_body@2:
+    // with_reentrancy/contract.py:56
+    // result = silly(x)
+    frame_dig -1
+    callsub silly
+    frame_bury 0
+    b silly3_after_if_else@3
 
 
 // test_cases.with_reentrancy.contract.itoa(i: uint64) -> bytes:
@@ -199,6 +207,8 @@ itoa:
     frame_dig -1
     >
     bz itoa_after_if_else@2
+
+itoa_if_body@1:
     // with_reentrancy/contract.py:18
     // digits = Bytes(b"0123456789")
     bytec_0 // 0x30313233343536373839

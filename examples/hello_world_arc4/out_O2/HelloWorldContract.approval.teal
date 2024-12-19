@@ -1,23 +1,19 @@
 #pragma version 10
+#pragma typetrack false
 
-examples.hello_world_arc4.contract.HelloWorldContract.approval_program:
-    intcblock 0 1
-    callsub __puya_arc4_router__
-    return
-
-
-// examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    proto 0 1
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@5
+    bz main_bare_routing@6
     pushbytes 0x02bece11 // method "hello(string)string"
     txna ApplicationArgs 0
-    match __puya_arc4_router___hello_route@2
-    intc_0 // 0
-    retsub
+    match main_hello_route@3
 
-__puya_arc4_router___hello_route@2:
+main_after_if_else@10:
+    pushint 0 // 0
+    return
+
+main_hello_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -25,7 +21,9 @@ __puya_arc4_router___hello_route@2:
     assert // can only call when not creating
     txna ApplicationArgs 1
     extract 2 0
-    callsub hello
+    pushbytes "Hello, "
+    swap
+    concat
     dup
     len
     itob
@@ -36,27 +34,14 @@ __puya_arc4_router___hello_route@2:
     swap
     concat
     log
-    intc_1 // 1
-    retsub
+    pushint 1 // 1
+    return
 
-__puya_arc4_router___bare_routing@5:
+main_bare_routing@6:
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@9
+    bnz main_after_if_else@10
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@9:
-    intc_0 // 0
-    retsub
-
-
-// examples.hello_world_arc4.contract.HelloWorldContract.hello(name: bytes) -> bytes:
-hello:
-    proto 1 1
-    pushbytes "Hello, "
-    frame_dig -1
-    concat
-    retsub
+    pushint 1 // 1
+    return

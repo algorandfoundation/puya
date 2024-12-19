@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program:
+// test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program() -> uint64:
+main:
     intcblock 0 1
     bytecblock 0x0304 0x 0x03 0x33 0x0003 0x00020304 0x616263
     intc_0 // 0
@@ -48,6 +50,10 @@ main_for_header@1:
     dig 2
     <
     bz main_after_for@4
+
+main_for_body@2:
+    // arc4_types/dynamic_bytes.py:16
+    // for uint8_item in dynamic_bytes:
     dig 2
     extract 2 0
     dig 1
@@ -61,6 +67,8 @@ main_for_header@1:
     dig 4
     +
     bury 4
+
+main_for_footer@3:
     dup
     intc_1 // 1
     +
@@ -112,6 +120,10 @@ main_for_header@5:
     dig 8
     <
     bz main_after_for@8
+
+main_for_body@6:
+    // arc4_types/dynamic_bytes.py:25
+    // for uint8_item in dynamic_bytes2:
     dig 9
     extract 2 0
     dig 6
@@ -125,6 +137,8 @@ main_for_header@5:
     dig 4
     +
     bury 4
+
+main_for_footer@7:
     dig 5
     intc_1 // 1
     +
@@ -172,6 +186,10 @@ main_for_header@9:
     dig 7
     <
     bz main_after_for@12
+
+main_for_body@10:
+    // arc4_types/dynamic_bytes.py:32
+    // for uint8_item in dynamic_bytes3:
     dig 8
     extract 2 0
     dig 5
@@ -185,6 +203,8 @@ main_for_header@9:
     dig 4
     +
     bury 4
+
+main_for_footer@11:
     dig 4
     intc_1 // 1
     +
@@ -259,22 +279,15 @@ main_after_for@12:
     intc_0 // 0
     !=
     bz main_ternary_false@14
-    pushbytes 0x32
-    len
-    itob
-    extract 6 2
-    pushbytes 0x32
-    concat
-    b main_ternary_merge@15
 
-main_ternary_false@14:
+main_ternary_true@13:
     // arc4_types/dynamic_bytes.py:44
     // dynamic_bytes = DynamicBytes(b"2" if Txn.num_app_args else b"3")
-    bytec_3 // 0x33
+    pushbytes 0x32
     len
     itob
     extract 6 2
-    bytec_3 // 0x33
+    pushbytes 0x32
     concat
 
 main_ternary_merge@15:
@@ -288,3 +301,14 @@ main_ternary_merge@15:
     // return True
     intc_1 // 1
     return
+
+main_ternary_false@14:
+    // arc4_types/dynamic_bytes.py:44
+    // dynamic_bytes = DynamicBytes(b"2" if Txn.num_app_args else b"3")
+    bytec_3 // 0x33
+    len
+    itob
+    extract 6 2
+    bytec_3 // 0x33
+    concat
+    b main_ternary_merge@15

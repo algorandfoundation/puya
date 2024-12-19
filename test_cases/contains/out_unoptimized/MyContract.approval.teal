@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.contains.contract.MyContract.approval_program:
+// test_cases.contains.contract.MyContract.approval_program() -> uint64:
+main:
     intcblock 0 1 3 2
     bytecblock 0x1d65e22bcbbf 0x66697665 0x68656c6c6f 0x626f6e6a6f7572 0x07acf5cae41e 0x666f6f 0x626172
     // contains/contract.py:10
@@ -120,6 +122,10 @@ is_in_tuple_1:
     frame_dig -3
     ==
     bnz is_in_tuple_1_bool_true@2
+
+is_in_tuple_1_or_contd@1:
+    // contains/contract.py:44
+    // return x in y
     frame_dig -4
     frame_dig -2
     ==
@@ -127,15 +133,15 @@ is_in_tuple_1:
 
 is_in_tuple_1_bool_true@2:
     intc_1 // 1
-    b is_in_tuple_1_bool_merge@4
-
-is_in_tuple_1_bool_false@3:
-    intc_0 // 0
 
 is_in_tuple_1_bool_merge@4:
     // contains/contract.py:44
     // return x in y
     retsub
+
+is_in_tuple_1_bool_false@3:
+    intc_0 // 0
+    b is_in_tuple_1_bool_merge@4
 
 
 // test_cases.contains.contract.MyContract.is_in_tuple_2(x: bytes, y.0: bytes, y.1: uint64, y.2: bytes) -> uint64:
@@ -150,6 +156,10 @@ is_in_tuple_2:
     frame_dig -3
     ==
     bnz is_in_tuple_2_bool_true@2
+
+is_in_tuple_2_or_contd@1:
+    // contains/contract.py:48
+    // return x in y
     frame_dig -4
     frame_dig -1
     ==
@@ -157,15 +167,15 @@ is_in_tuple_2:
 
 is_in_tuple_2_bool_true@2:
     intc_1 // 1
-    b is_in_tuple_2_bool_merge@4
-
-is_in_tuple_2_bool_false@3:
-    intc_0 // 0
 
 is_in_tuple_2_bool_merge@4:
     // contains/contract.py:48
     // return x in y
     retsub
+
+is_in_tuple_2_bool_false@3:
+    intc_0 // 0
+    b is_in_tuple_2_bool_merge@4
 
 
 // test_cases.contains.contract.MyContract.is_in_tuple_3(x: bytes, y.0: bytes, y.1: bytes) -> uint64:
@@ -180,6 +190,10 @@ is_in_tuple_3:
     frame_dig -2
     b==
     bnz is_in_tuple_3_bool_true@2
+
+is_in_tuple_3_or_contd@1:
+    // contains/contract.py:52
+    // return x in y
     frame_dig -3
     frame_dig -1
     b==
@@ -187,15 +201,15 @@ is_in_tuple_3:
 
 is_in_tuple_3_bool_true@2:
     intc_1 // 1
-    b is_in_tuple_3_bool_merge@4
-
-is_in_tuple_3_bool_false@3:
-    intc_0 // 0
 
 is_in_tuple_3_bool_merge@4:
     // contains/contract.py:52
     // return x in y
     retsub
+
+is_in_tuple_3_bool_false@3:
+    intc_0 // 0
+    b is_in_tuple_3_bool_merge@4
 
 
 // test_cases.contains.contract.MyContract.test_string_types() -> void:
@@ -215,6 +229,10 @@ test_string_types:
     cover 2
     ==
     bnz test_string_types_bool_true@2
+
+test_string_types_or_contd@1:
+    // contains/contract.py:56
+    // assert foo_string() in (foo_string(), baz_string()), "foo in (foo, baz)"
     frame_dig 22
     frame_dig 23
     ==
@@ -222,10 +240,6 @@ test_string_types:
 
 test_string_types_bool_true@2:
     intc_1 // 1
-    b test_string_types_bool_merge@4
-
-test_string_types_bool_false@3:
-    intc_0 // 0
 
 test_string_types_bool_merge@4:
     // contains/contract.py:56
@@ -241,6 +255,10 @@ test_string_types_bool_merge@4:
     frame_bury 19
     ==
     bnz test_string_types_bool_true@6
+
+test_string_types_or_contd@5:
+    // contains/contract.py:57
+    // assert foo_string() not in (bar_string(), baz_string()), "foo not in (bar, baz)"
     frame_dig 0
     frame_dig 19
     ==
@@ -248,10 +266,6 @@ test_string_types_bool_merge@4:
 
 test_string_types_bool_true@6:
     intc_1 // 1
-    b test_string_types_bool_merge@8
-
-test_string_types_bool_false@7:
-    intc_0 // 0
 
 test_string_types_bool_merge@8:
     // contains/contract.py:57
@@ -271,10 +285,18 @@ test_string_types_bool_merge@8:
     frame_bury 1
     ==
     bnz test_string_types_bool_true@11
+
+test_string_types_or_contd@9:
+    // contains/contract.py:58
+    // assert foo_string() in (foo_arc4(), baz_string(), bar_string()), "foo in (foo, baz, bar)"
     frame_dig 1
     frame_dig 9
     ==
     bnz test_string_types_bool_true@11
+
+test_string_types_or_contd@10:
+    // contains/contract.py:58
+    // assert foo_string() in (foo_arc4(), baz_string(), bar_string()), "foo in (foo, baz, bar)"
     frame_dig 1
     frame_dig 10
     ==
@@ -282,10 +304,6 @@ test_string_types_bool_merge@8:
 
 test_string_types_bool_true@11:
     intc_1 // 1
-    b test_string_types_bool_merge@13
-
-test_string_types_bool_false@12:
-    intc_0 // 0
 
 test_string_types_bool_merge@13:
     // contains/contract.py:58
@@ -304,11 +322,19 @@ test_string_types_bool_merge@13:
     frame_bury 12
     ==
     bnz test_string_types_bool_true@16
+
+test_string_types_or_contd@14:
+    // contains/contract.py:59
+    // assert foo_arc4() in (foo_string(), baz_string(), bar_string()), "foo in (foo, baz, bar)"
     frame_dig 2
     extract 2 0
     frame_dig 11
     ==
     bnz test_string_types_bool_true@16
+
+test_string_types_or_contd@15:
+    // contains/contract.py:59
+    // assert foo_arc4() in (foo_string(), baz_string(), bar_string()), "foo in (foo, baz, bar)"
     frame_dig 2
     extract 2 0
     frame_dig 12
@@ -317,10 +343,6 @@ test_string_types_bool_merge@13:
 
 test_string_types_bool_true@16:
     intc_1 // 1
-    b test_string_types_bool_merge@18
-
-test_string_types_bool_false@17:
-    intc_0 // 0
 
 test_string_types_bool_merge@18:
     // contains/contract.py:59
@@ -337,6 +359,10 @@ test_string_types_bool_merge@18:
     frame_bury 3
     ==
     bnz test_string_types_bool_true@20
+
+test_string_types_or_contd@19:
+    // contains/contract.py:60
+    // assert foo_string() not in (bar_arc4(), baz_string()), "foo not in (bar, baz)"
     frame_dig 3
     frame_dig 13
     ==
@@ -344,10 +370,6 @@ test_string_types_bool_merge@18:
 
 test_string_types_bool_true@20:
     intc_1 // 1
-    b test_string_types_bool_merge@22
-
-test_string_types_bool_false@21:
-    intc_0 // 0
 
 test_string_types_bool_merge@22:
     // contains/contract.py:60
@@ -364,6 +386,10 @@ test_string_types_bool_merge@22:
     frame_bury 14
     ==
     bnz test_string_types_bool_true@24
+
+test_string_types_or_contd@23:
+    // contains/contract.py:61
+    // assert foo_arc4() not in (bar_arc4(), baz_string()), "foo not in (bar, baz)"
     frame_dig 4
     extract 2 0
     frame_dig 14
@@ -372,10 +398,6 @@ test_string_types_bool_merge@22:
 
 test_string_types_bool_true@24:
     intc_1 // 1
-    b test_string_types_bool_merge@26
-
-test_string_types_bool_false@25:
-    intc_0 // 0
 
 test_string_types_bool_merge@26:
     // contains/contract.py:61
@@ -419,10 +441,28 @@ test_string_types_bool_merge@26:
     // ), "foo in (bar, baz, foo, 1)"
     ==
     bnz test_string_types_bool_true@29
+
+test_string_types_or_contd@27:
+    // contains/contract.py:62-67
+    // assert foo_string() in (
+    //     bar_arc4(),
+    //     baz_string(),
+    //     foo_string(),
+    //     one_u64(),
+    // ), "foo in (bar, baz, foo, 1)"
     frame_dig 5
     frame_dig 15
     ==
     bnz test_string_types_bool_true@29
+
+test_string_types_or_contd@28:
+    // contains/contract.py:62-67
+    // assert foo_string() in (
+    //     bar_arc4(),
+    //     baz_string(),
+    //     foo_string(),
+    //     one_u64(),
+    // ), "foo in (bar, baz, foo, 1)"
     frame_dig 5
     frame_dig 16
     ==
@@ -430,10 +470,6 @@ test_string_types_bool_merge@26:
 
 test_string_types_bool_true@29:
     intc_1 // 1
-    b test_string_types_bool_merge@31
-
-test_string_types_bool_false@30:
-    intc_0 // 0
 
 test_string_types_bool_merge@31:
     // contains/contract.py:62-67
@@ -473,6 +509,8 @@ test_string_types_bool_merge@31:
     // ), "foo in (bar, baz, foo, 1)"
     ==
     bnz test_string_types_bool_true@34
+
+test_string_types_or_contd@32:
     // contains/contract.py:68
     // assert foo_arc4() in (
     frame_dig 6
@@ -487,6 +525,8 @@ test_string_types_bool_merge@31:
     frame_dig 17
     ==
     bnz test_string_types_bool_true@34
+
+test_string_types_or_contd@33:
     // contains/contract.py:68
     // assert foo_arc4() in (
     frame_dig 6
@@ -504,10 +544,6 @@ test_string_types_bool_merge@31:
 
 test_string_types_bool_true@34:
     intc_1 // 1
-    b test_string_types_bool_merge@36
-
-test_string_types_bool_false@35:
-    intc_0 // 0
 
 test_string_types_bool_merge@36:
     // contains/contract.py:68-73
@@ -549,6 +585,14 @@ test_string_types_bool_merge@36:
     // ), "foo not in (bar, baz, 1)"
     ==
     bnz test_string_types_bool_true@38
+
+test_string_types_or_contd@37:
+    // contains/contract.py:74-78
+    // assert foo_string() not in (
+    //     bar_arc4(),
+    //     baz_string(),
+    //     one_u64(),
+    // ), "foo not in (bar, baz, 1)"
     frame_dig 7
     frame_dig 20
     ==
@@ -556,10 +600,6 @@ test_string_types_bool_merge@36:
 
 test_string_types_bool_true@38:
     intc_1 // 1
-    b test_string_types_bool_merge@40
-
-test_string_types_bool_false@39:
-    intc_0 // 0
 
 test_string_types_bool_merge@40:
     // contains/contract.py:74-78
@@ -582,6 +622,10 @@ test_string_types_bool_merge@40:
     pop
     ==
     bnz test_string_types_bool_true@42
+
+test_string_types_or_contd@41:
+    // contains/contract.py:79
+    // assert foo_arc4() not in (bar_arc4(), baz_string(), one_u64()), "foo not in (bar, baz, 1)"
     frame_dig 8
     extract 2 0
     frame_dig 21
@@ -590,10 +634,6 @@ test_string_types_bool_merge@40:
 
 test_string_types_bool_true@42:
     intc_1 // 1
-    b test_string_types_bool_merge@44
-
-test_string_types_bool_false@43:
-    intc_0 // 0
 
 test_string_types_bool_merge@44:
     // contains/contract.py:79
@@ -624,6 +664,46 @@ test_string_types_bool_merge@44:
     !
     assert // b'foo' not in (foo, foo, b'bar')
     retsub
+
+test_string_types_bool_false@43:
+    intc_0 // 0
+    b test_string_types_bool_merge@44
+
+test_string_types_bool_false@39:
+    intc_0 // 0
+    b test_string_types_bool_merge@40
+
+test_string_types_bool_false@35:
+    intc_0 // 0
+    b test_string_types_bool_merge@36
+
+test_string_types_bool_false@30:
+    intc_0 // 0
+    b test_string_types_bool_merge@31
+
+test_string_types_bool_false@25:
+    intc_0 // 0
+    b test_string_types_bool_merge@26
+
+test_string_types_bool_false@21:
+    intc_0 // 0
+    b test_string_types_bool_merge@22
+
+test_string_types_bool_false@17:
+    intc_0 // 0
+    b test_string_types_bool_merge@18
+
+test_string_types_bool_false@12:
+    intc_0 // 0
+    b test_string_types_bool_merge@13
+
+test_string_types_bool_false@7:
+    intc_0 // 0
+    b test_string_types_bool_merge@8
+
+test_string_types_bool_false@3:
+    intc_0 // 0
+    b test_string_types_bool_merge@4
 
 
 // test_cases.contains.contract.foo_string() -> bytes:
@@ -717,6 +797,10 @@ test_numeric_types:
     cover 2
     ==
     bnz test_numeric_types_bool_true@2
+
+test_numeric_types_or_contd@1:
+    // contains/contract.py:88
+    // assert one_u64() in (one_u64(), two_u64()), "1 in (1, 2)"
     frame_dig 33
     frame_dig 34
     ==
@@ -724,10 +808,6 @@ test_numeric_types:
 
 test_numeric_types_bool_true@2:
     intc_1 // 1
-    b test_numeric_types_bool_merge@4
-
-test_numeric_types_bool_false@3:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@4:
     // contains/contract.py:88
@@ -743,6 +823,10 @@ test_numeric_types_bool_merge@4:
     intc_2 // 3
     ==
     bnz test_numeric_types_bool_true@6
+
+test_numeric_types_or_contd@5:
+    // contains/contract.py:89
+    // assert one_u64() not in (UInt64(3), two_u64()), "1 not in (3, 2)"
     frame_dig 23
     frame_dig 32
     ==
@@ -750,10 +834,6 @@ test_numeric_types_bool_merge@4:
 
 test_numeric_types_bool_true@6:
     intc_1 // 1
-    b test_numeric_types_bool_merge@8
-
-test_numeric_types_bool_false@7:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@8:
     // contains/contract.py:89
@@ -770,10 +850,18 @@ test_numeric_types_bool_merge@8:
     frame_bury 20
     ==
     bnz test_numeric_types_bool_true@11
+
+test_numeric_types_or_contd@9:
+    // contains/contract.py:91
+    // assert one_u64() in (one_u64(), UInt64(3), two_u8()), "1 in (1, 3, 2)"
     frame_dig 27
     intc_2 // 3
     ==
     bnz test_numeric_types_bool_true@11
+
+test_numeric_types_or_contd@10:
+    // contains/contract.py:91
+    // assert one_u64() in (one_u64(), UInt64(3), two_u8()), "1 in (1, 3, 2)"
     frame_dig 20
     frame_dig 27
     itob
@@ -782,10 +870,6 @@ test_numeric_types_bool_merge@8:
 
 test_numeric_types_bool_true@11:
     intc_1 // 1
-    b test_numeric_types_bool_merge@13
-
-test_numeric_types_bool_false@12:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@13:
     // contains/contract.py:91
@@ -802,10 +886,18 @@ test_numeric_types_bool_merge@13:
     itob
     b==
     bnz test_numeric_types_bool_true@16
+
+test_numeric_types_or_contd@14:
+    // contains/contract.py:92
+    // assert one_u64() in (one_arc4u64(), UInt64(4), two_u8()), "1 in (1, 4, 2)"
     frame_dig 29
     pushint 4 // 4
     ==
     bnz test_numeric_types_bool_true@16
+
+test_numeric_types_or_contd@15:
+    // contains/contract.py:92
+    // assert one_u64() in (one_arc4u64(), UInt64(4), two_u8()), "1 in (1, 4, 2)"
     frame_dig 14
     frame_dig 29
     itob
@@ -814,10 +906,6 @@ test_numeric_types_bool_merge@13:
 
 test_numeric_types_bool_true@16:
     intc_1 // 1
-    b test_numeric_types_bool_merge@18
-
-test_numeric_types_bool_false@17:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@18:
     // contains/contract.py:92
@@ -832,10 +920,18 @@ test_numeric_types_bool_merge@18:
     itob
     b==
     bnz test_numeric_types_bool_true@21
+
+test_numeric_types_or_contd@19:
+    // contains/contract.py:93
+    // assert UInt64(2) in (one_arc4u64(), UInt64(3), two_u8()), "2 in (1, 3, 2)"
     intc_3 // 2
     intc_2 // 3
     ==
     bnz test_numeric_types_bool_true@21
+
+test_numeric_types_or_contd@20:
+    // contains/contract.py:93
+    // assert UInt64(2) in (one_arc4u64(), UInt64(3), two_u8()), "2 in (1, 3, 2)"
     frame_dig 15
     intc_3 // 2
     itob
@@ -844,10 +940,6 @@ test_numeric_types_bool_merge@18:
 
 test_numeric_types_bool_true@21:
     intc_1 // 1
-    b test_numeric_types_bool_merge@23
-
-test_numeric_types_bool_false@22:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@23:
     // contains/contract.py:93
@@ -863,11 +955,19 @@ test_numeric_types_bool_merge@23:
     frame_bury 16
     b==
     bnz test_numeric_types_bool_true@26
+
+test_numeric_types_or_contd@24:
+    // contains/contract.py:94
+    // assert two_u8() in (one_arc4u64(), UInt64(3), two_u8()), "2 in (1, 3, 2)"
     frame_dig 7
     intc_2 // 3
     itob
     b==
     bnz test_numeric_types_bool_true@26
+
+test_numeric_types_or_contd@25:
+    // contains/contract.py:94
+    // assert two_u8() in (one_arc4u64(), UInt64(3), two_u8()), "2 in (1, 3, 2)"
     frame_dig 7
     frame_dig 16
     b==
@@ -875,10 +975,6 @@ test_numeric_types_bool_merge@23:
 
 test_numeric_types_bool_true@26:
     intc_1 // 1
-    b test_numeric_types_bool_merge@28
-
-test_numeric_types_bool_false@27:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@28:
     // contains/contract.py:94
@@ -892,11 +988,19 @@ test_numeric_types_bool_merge@28:
     callsub one_arc4u64
     b==
     bnz test_numeric_types_bool_true@31
+
+test_numeric_types_or_contd@29:
+    // contains/contract.py:95
+    // assert two_u8() in (one_arc4u64(), UInt64(2), UInt64(3)), "2 in (1, 2, 3)"
     frame_dig 8
     intc_3 // 2
     itob
     b==
     bnz test_numeric_types_bool_true@31
+
+test_numeric_types_or_contd@30:
+    // contains/contract.py:95
+    // assert two_u8() in (one_arc4u64(), UInt64(2), UInt64(3)), "2 in (1, 2, 3)"
     frame_dig 8
     intc_2 // 3
     itob
@@ -905,10 +1009,6 @@ test_numeric_types_bool_merge@28:
 
 test_numeric_types_bool_true@31:
     intc_1 // 1
-    b test_numeric_types_bool_merge@33
-
-test_numeric_types_bool_false@32:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@33:
     // contains/contract.py:95
@@ -923,6 +1023,10 @@ test_numeric_types_bool_merge@33:
     itob
     b==
     bnz test_numeric_types_bool_true@35
+
+test_numeric_types_or_contd@34:
+    // contains/contract.py:96
+    // assert three_u512() in (UInt64(3), UInt64(4)), "3 in (3, 4)"
     frame_dig 9
     pushint 4 // 4
     itob
@@ -931,10 +1035,6 @@ test_numeric_types_bool_merge@33:
 
 test_numeric_types_bool_true@35:
     intc_1 // 1
-    b test_numeric_types_bool_merge@37
-
-test_numeric_types_bool_false@36:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@37:
     // contains/contract.py:96
@@ -949,6 +1049,10 @@ test_numeric_types_bool_merge@37:
     itob
     b==
     bnz test_numeric_types_bool_true@39
+
+test_numeric_types_or_contd@38:
+    // contains/contract.py:97
+    // assert four_biguint() in (UInt64(5), UInt64(4)), "4 in (5, 4)"
     pushint 4 // 4
     itob
     frame_dig 10
@@ -957,10 +1061,6 @@ test_numeric_types_bool_merge@37:
 
 test_numeric_types_bool_true@39:
     intc_1 // 1
-    b test_numeric_types_bool_merge@41
-
-test_numeric_types_bool_false@40:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@41:
     // contains/contract.py:97
@@ -976,6 +1076,10 @@ test_numeric_types_bool_merge@41:
     pushint 5 // 5
     ==
     bnz test_numeric_types_bool_true@43
+
+test_numeric_types_or_contd@42:
+    // contains/contract.py:99
+    // assert one_u64() not in (UInt64(5), two_u8()), "1 not in (5, 2)"
     frame_dig 17
     frame_dig 30
     itob
@@ -984,10 +1088,6 @@ test_numeric_types_bool_merge@41:
 
 test_numeric_types_bool_true@43:
     intc_1 // 1
-    b test_numeric_types_bool_merge@45
-
-test_numeric_types_bool_false@44:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@45:
     // contains/contract.py:99
@@ -1004,6 +1104,10 @@ test_numeric_types_bool_merge@45:
     intc_2 // 3
     ==
     bnz test_numeric_types_bool_true@47
+
+test_numeric_types_or_contd@46:
+    // contains/contract.py:100
+    // assert one_u64() not in (Application(1), UInt64(3), two_u8()), "1 not in (app(1), 3, 2)"
     frame_dig 18
     frame_dig 31
     itob
@@ -1012,10 +1116,6 @@ test_numeric_types_bool_merge@45:
 
 test_numeric_types_bool_true@47:
     intc_1 // 1
-    b test_numeric_types_bool_merge@49
-
-test_numeric_types_bool_false@48:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@49:
     // contains/contract.py:100
@@ -1032,6 +1132,10 @@ test_numeric_types_bool_merge@49:
     intc_2 // 3
     ==
     bnz test_numeric_types_bool_true@51
+
+test_numeric_types_or_contd@50:
+    // contains/contract.py:101
+    // assert one_u64() not in (UInt64(3), two_u8()), "1 not in (3, 2)"
     frame_dig 19
     frame_dig 24
     itob
@@ -1040,10 +1144,6 @@ test_numeric_types_bool_merge@49:
 
 test_numeric_types_bool_true@51:
     intc_1 // 1
-    b test_numeric_types_bool_merge@53
-
-test_numeric_types_bool_false@52:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@53:
     // contains/contract.py:101
@@ -1057,6 +1157,10 @@ test_numeric_types_bool_merge@53:
     itob
     b==
     bnz test_numeric_types_bool_true@55
+
+test_numeric_types_or_contd@54:
+    // contains/contract.py:102
+    // assert UInt64(2) not in (one_arc4u64(), UInt64(3)), "2 not in (1, 3)"
     intc_3 // 2
     intc_2 // 3
     ==
@@ -1064,10 +1168,6 @@ test_numeric_types_bool_merge@53:
 
 test_numeric_types_bool_true@55:
     intc_1 // 1
-    b test_numeric_types_bool_merge@57
-
-test_numeric_types_bool_false@56:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@57:
     // contains/contract.py:102
@@ -1082,6 +1182,10 @@ test_numeric_types_bool_merge@57:
     callsub one_arc4u64
     b==
     bnz test_numeric_types_bool_true@59
+
+test_numeric_types_or_contd@58:
+    // contains/contract.py:103
+    // assert two_u8() not in (one_arc4u64(), UInt64(3)), "2 not in (1, 3)"
     frame_dig 0
     intc_2 // 3
     itob
@@ -1090,10 +1194,6 @@ test_numeric_types_bool_merge@57:
 
 test_numeric_types_bool_true@59:
     intc_1 // 1
-    b test_numeric_types_bool_merge@61
-
-test_numeric_types_bool_false@60:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@61:
     // contains/contract.py:103
@@ -1108,6 +1208,10 @@ test_numeric_types_bool_merge@61:
     callsub one_arc4u64
     b==
     bnz test_numeric_types_bool_true@63
+
+test_numeric_types_or_contd@62:
+    // contains/contract.py:104
+    // assert two_u8() not in (one_arc4u64(), UInt64(3)), "2 not in (1, 3)"
     frame_dig 1
     intc_2 // 3
     itob
@@ -1116,10 +1220,6 @@ test_numeric_types_bool_merge@61:
 
 test_numeric_types_bool_true@63:
     intc_1 // 1
-    b test_numeric_types_bool_merge@65
-
-test_numeric_types_bool_false@64:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@65:
     // contains/contract.py:104
@@ -1135,6 +1235,10 @@ test_numeric_types_bool_merge@65:
     itob
     b==
     bnz test_numeric_types_bool_true@67
+
+test_numeric_types_or_contd@66:
+    // contains/contract.py:105
+    // assert three_u512() not in (UInt64(5), UInt64(7)), "3 not in (5, 7)"
     frame_dig 2
     pushint 7 // 7
     itob
@@ -1143,10 +1247,6 @@ test_numeric_types_bool_merge@65:
 
 test_numeric_types_bool_true@67:
     intc_1 // 1
-    b test_numeric_types_bool_merge@69
-
-test_numeric_types_bool_false@68:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@69:
     // contains/contract.py:105
@@ -1162,6 +1262,10 @@ test_numeric_types_bool_merge@69:
     itob
     b==
     bnz test_numeric_types_bool_true@71
+
+test_numeric_types_or_contd@70:
+    // contains/contract.py:106
+    // assert four_biguint() not in (UInt64(2), UInt64(9)), "4 not in (2, 9)"
     pushint 9 // 9
     itob
     frame_dig 3
@@ -1170,10 +1274,6 @@ test_numeric_types_bool_merge@69:
 
 test_numeric_types_bool_true@71:
     intc_1 // 1
-    b test_numeric_types_bool_merge@73
-
-test_numeric_types_bool_false@72:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@73:
     // contains/contract.py:106
@@ -1205,6 +1305,15 @@ test_numeric_types_bool_merge@73:
     // ), "1 in (foo, 1, 3, 2)"
     ==
     bnz test_numeric_types_bool_true@76
+
+test_numeric_types_or_contd@74:
+    // contains/contract.py:108-113
+    // assert one_u64() in (
+    //     foo_string(),
+    //     one_u64(),
+    //     UInt64(3),
+    //     two_u8(),
+    // ), "1 in (foo, 1, 3, 2)"
     frame_dig 25
     // contains/contract.py:111
     // UInt64(3),
@@ -1218,6 +1327,15 @@ test_numeric_types_bool_merge@73:
     // ), "1 in (foo, 1, 3, 2)"
     ==
     bnz test_numeric_types_bool_true@76
+
+test_numeric_types_or_contd@75:
+    // contains/contract.py:108-113
+    // assert one_u64() in (
+    //     foo_string(),
+    //     one_u64(),
+    //     UInt64(3),
+    //     two_u8(),
+    // ), "1 in (foo, 1, 3, 2)"
     frame_dig 21
     frame_dig 25
     itob
@@ -1226,10 +1344,6 @@ test_numeric_types_bool_merge@73:
 
 test_numeric_types_bool_true@76:
     intc_1 // 1
-    b test_numeric_types_bool_merge@78
-
-test_numeric_types_bool_false@77:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@78:
     // contains/contract.py:108-113
@@ -1253,6 +1367,10 @@ test_numeric_types_bool_merge@78:
     itob
     b==
     bnz test_numeric_types_bool_true@80
+
+test_numeric_types_or_contd@79:
+    // contains/contract.py:114
+    // assert one_u64() in (one_arc4u64(), bar_string(), two_u8()), "1 in (1, bar, 2)"
     frame_dig 22
     frame_dig 26
     itob
@@ -1261,10 +1379,6 @@ test_numeric_types_bool_merge@78:
 
 test_numeric_types_bool_true@80:
     intc_1 // 1
-    b test_numeric_types_bool_merge@82
-
-test_numeric_types_bool_false@81:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@82:
     // contains/contract.py:114
@@ -1280,6 +1394,10 @@ test_numeric_types_bool_merge@82:
     intc_2 // 3
     ==
     bnz test_numeric_types_bool_true@84
+
+test_numeric_types_or_contd@83:
+    // contains/contract.py:115
+    // assert UInt64(2) in (foo_arc4(), UInt64(3), two_u8()), "2 in (foo, 3, 2)"
     frame_dig 11
     intc_3 // 2
     itob
@@ -1288,10 +1406,6 @@ test_numeric_types_bool_merge@82:
 
 test_numeric_types_bool_true@84:
     intc_1 // 1
-    b test_numeric_types_bool_merge@86
-
-test_numeric_types_bool_false@85:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@86:
     // contains/contract.py:115
@@ -1310,6 +1424,10 @@ test_numeric_types_bool_merge@86:
     itob
     b==
     bnz test_numeric_types_bool_true@88
+
+test_numeric_types_or_contd@87:
+    // contains/contract.py:116
+    // assert two_u8() in (bar_arc4(), UInt64(3), two_u8()), "2 in (bar, 3, 2)"
     frame_dig 4
     frame_dig 12
     b==
@@ -1317,10 +1435,6 @@ test_numeric_types_bool_merge@86:
 
 test_numeric_types_bool_true@88:
     intc_1 // 1
-    b test_numeric_types_bool_merge@90
-
-test_numeric_types_bool_false@89:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@90:
     // contains/contract.py:116
@@ -1337,6 +1451,10 @@ test_numeric_types_bool_merge@90:
     itob
     b==
     bnz test_numeric_types_bool_true@92
+
+test_numeric_types_or_contd@91:
+    // contains/contract.py:117
+    // assert two_u8() in (foo_string(), UInt64(2), UInt64(3)), "2 in foo(2, 3)"
     frame_dig 5
     intc_2 // 3
     itob
@@ -1345,10 +1463,6 @@ test_numeric_types_bool_merge@90:
 
 test_numeric_types_bool_true@92:
     intc_1 // 1
-    b test_numeric_types_bool_merge@94
-
-test_numeric_types_bool_false@93:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@94:
     // contains/contract.py:117
@@ -1365,6 +1479,10 @@ test_numeric_types_bool_merge@94:
     itob
     b==
     bnz test_numeric_types_bool_true@96
+
+test_numeric_types_or_contd@95:
+    // contains/contract.py:118
+    // assert three_u512() in (UInt64(5), UInt64(3), foo_string()), "3 in (5, 3, foo)"
     frame_dig 6
     intc_2 // 3
     itob
@@ -1373,10 +1491,6 @@ test_numeric_types_bool_merge@94:
 
 test_numeric_types_bool_true@96:
     intc_1 // 1
-    b test_numeric_types_bool_merge@98
-
-test_numeric_types_bool_false@97:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@98:
     // contains/contract.py:118
@@ -1406,6 +1520,14 @@ test_numeric_types_bool_merge@98:
     // ), "1 not in (foo, 3, 2)"
     ==
     bnz test_numeric_types_bool_true@100
+
+test_numeric_types_or_contd@99:
+    // contains/contract.py:120-124
+    // assert one_u64() not in (
+    //     foo_string(),
+    //     UInt64(3),
+    //     two_u8(),
+    // ), "1 not in (foo, 3, 2)"
     frame_dig 13
     frame_dig 28
     itob
@@ -1414,10 +1536,6 @@ test_numeric_types_bool_merge@98:
 
 test_numeric_types_bool_true@100:
     intc_1 // 1
-    b test_numeric_types_bool_merge@102
-
-test_numeric_types_bool_false@101:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@102:
     // contains/contract.py:120-124
@@ -1498,6 +1616,8 @@ test_numeric_types_bool_merge@102:
     // ), "65 not in (b'A', 64, 66)"
     b==
     bnz test_numeric_types_bool_true@104
+
+test_numeric_types_or_contd@103:
     // contains/contract.py:133
     // UInt64(66),
     pushint 66 // 66
@@ -1522,10 +1642,6 @@ test_numeric_types_bool_merge@102:
 
 test_numeric_types_bool_true@104:
     intc_1 // 1
-    b test_numeric_types_bool_merge@106
-
-test_numeric_types_bool_false@105:
-    intc_0 // 0
 
 test_numeric_types_bool_merge@106:
     // contains/contract.py:130-134
@@ -1537,6 +1653,106 @@ test_numeric_types_bool_merge@106:
     !
     assert // 65 not in (b'A', 64, 66)
     retsub
+
+test_numeric_types_bool_false@105:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@106
+
+test_numeric_types_bool_false@101:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@102
+
+test_numeric_types_bool_false@97:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@98
+
+test_numeric_types_bool_false@93:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@94
+
+test_numeric_types_bool_false@89:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@90
+
+test_numeric_types_bool_false@85:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@86
+
+test_numeric_types_bool_false@81:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@82
+
+test_numeric_types_bool_false@77:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@78
+
+test_numeric_types_bool_false@72:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@73
+
+test_numeric_types_bool_false@68:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@69
+
+test_numeric_types_bool_false@64:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@65
+
+test_numeric_types_bool_false@60:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@61
+
+test_numeric_types_bool_false@56:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@57
+
+test_numeric_types_bool_false@52:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@53
+
+test_numeric_types_bool_false@48:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@49
+
+test_numeric_types_bool_false@44:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@45
+
+test_numeric_types_bool_false@40:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@41
+
+test_numeric_types_bool_false@36:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@37
+
+test_numeric_types_bool_false@32:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@33
+
+test_numeric_types_bool_false@27:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@28
+
+test_numeric_types_bool_false@22:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@23
+
+test_numeric_types_bool_false@17:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@18
+
+test_numeric_types_bool_false@12:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@13
+
+test_numeric_types_bool_false@7:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@8
+
+test_numeric_types_bool_false@3:
+    intc_0 // 0
+    b test_numeric_types_bool_merge@4
 
 
 // test_cases.contains.contract.two_u64() -> uint64:

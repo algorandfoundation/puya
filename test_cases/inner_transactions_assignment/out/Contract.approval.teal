@@ -1,38 +1,25 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.inner_transactions_assignment.contract.Contract.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1 3
-    bytecblock 0x61636667 0x70617932 "pay1" "TEST" "TST" "pay3" 0x6869 0x7468657265 0x6d61796265 0x686932 0x6163666732 0x70617935 0x746865726532
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+    bytecblock 0x61636667 0x70617932 "pay1" "TEST" "TST" "pay3" 0x6163666732 0x70617935
     // inner_transactions_assignment/contract.py:11
     // class Contract(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@6
+    bz main_bare_routing@7
     pushbytess 0xe46d9019 0xf883853e // method "test_itxn_slice()void", method "test_itxn_nested()void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___test_itxn_slice_route@2 __puya_arc4_router___test_itxn_nested_route@3
+    match main_test_itxn_slice_route@3 main_test_itxn_nested_route@4
+
+main_after_if_else@11:
+    // inner_transactions_assignment/contract.py:11
+    // class Contract(ARC4Contract):
     intc_0 // 0
-    retsub
+    return
 
-__puya_arc4_router___test_itxn_slice_route@2:
-    // inner_transactions_assignment/contract.py:12
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub test_itxn_slice
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___test_itxn_nested_route@3:
+main_test_itxn_nested_route@4:
     // inner_transactions_assignment/contract.py:29
     // @arc4.abimethod
     txn OnCompletion
@@ -42,24 +29,30 @@ __puya_arc4_router___test_itxn_nested_route@3:
     assert // can only call when not creating
     callsub test_itxn_nested
     intc_1 // 1
-    retsub
+    return
 
-__puya_arc4_router___bare_routing@6:
+main_test_itxn_slice_route@3:
+    // inner_transactions_assignment/contract.py:12
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub test_itxn_slice
+    intc_1 // 1
+    return
+
+main_bare_routing@7:
     // inner_transactions_assignment/contract.py:11
     // class Contract(ARC4Contract):
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@10
+    bnz main_after_if_else@11
     txn ApplicationID
     !
     assert // can only call when creating
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@10:
-    // inner_transactions_assignment/contract.py:11
-    // class Contract(ARC4Contract):
-    intc_0 // 0
-    retsub
+    return
 
 
 // test_cases.inner_transactions_assignment.contract.Contract.test_itxn_slice() -> void:
@@ -175,13 +168,6 @@ test_itxn_nested:
     // inner_transactions_assignment/contract.py:37
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
     txn Sender
-    dup
-    // inner_transactions_assignment/contract.py:43
-    // echo(Bytes(b"hi")),
-    bytec 6 // 0x6869
-    callsub echo
-    dup
-    uncover 2
     // inner_transactions_assignment/contract.py:44
     // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
     itxn_begin
@@ -250,6 +236,7 @@ test_itxn_nested:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Amount
+    dup
     itxn_field Receiver
     // inner_transactions_assignment/contract.py:41
     // pay3.set(note="pay3")
@@ -262,25 +249,8 @@ test_itxn_nested:
     // inner_transactions_assignment/contract.py:44
     // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
     itxn_submit
-    // inner_transactions_assignment/contract.py:45
-    // echo(Bytes(b"there")),
-    bytec 7 // 0x7468657265
-    callsub echo
-    dup
-    cover 2
-    gitxn 1 Note
-    dup
-    cover 3
     gitxn 2 Note
-    dup
-    cover 2
-    cover 4
-    // inner_transactions_assignment/contract.py:47
-    // assert nested_tuple[0] == b"hi"
-    uncover 3
-    bytec 6 // 0x6869
-    ==
-    assert
+    gitxn 1 Note
     // inner_transactions_assignment/contract.py:48
     // assert nested_tuple[1][0].note == b"acfg"
     bytec_0 // 0x61636667
@@ -291,23 +261,6 @@ test_itxn_nested:
     bytec_1 // 0x70617932
     ==
     assert
-    // inner_transactions_assignment/contract.py:50
-    // assert nested_tuple[2] == b"there"
-    bytec 7 // 0x7468657265
-    ==
-    assert
-    // inner_transactions_assignment/contract.py:57
-    // if echo(Bytes(b"maybe")) == b"maybe":
-    bytec 8 // 0x6d61796265
-    callsub echo
-    bytec 8 // 0x6d61796265
-    ==
-    bz test_itxn_nested_after_if_else@9
-    // inner_transactions_assignment/contract.py:59
-    // echo(Bytes(b"hi2")),
-    bytec 9 // 0x686932
-    callsub echo
-    frame_bury 1
     // inner_transactions_assignment/contract.py:60
     // itxn.submit_txns(pay1, acfg, pay3)[1:],
     itxn_begin
@@ -317,7 +270,6 @@ test_itxn_nested:
     itxn_field Note
     intc_0 // 0
     itxn_field Amount
-    frame_dig 0
     dup
     itxn_field Receiver
     intc_1 // pay
@@ -333,7 +285,7 @@ test_itxn_nested:
     itxn_field ConfigAssetTotal
     // inner_transactions_assignment/contract.py:53
     // acfg.set(note="acfg2")
-    bytec 10 // "acfg2"
+    bytec 6 // "acfg2"
     itxn_field Note
     // inner_transactions_assignment/contract.py:33
     // asset_name="TEST",
@@ -361,7 +313,7 @@ test_itxn_nested:
     itxn_field Receiver
     // inner_transactions_assignment/contract.py:55
     // pay3.set(note="pay5")
-    bytec 11 // "pay5"
+    bytec 7 // "pay5"
     itxn_field Note
     // inner_transactions_assignment/contract.py:37
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
@@ -370,51 +322,16 @@ test_itxn_nested:
     // inner_transactions_assignment/contract.py:60
     // itxn.submit_txns(pay1, acfg, pay3)[1:],
     itxn_submit
-    // inner_transactions_assignment/contract.py:61
-    // echo(Bytes(b"there2")),
-    bytec 12 // 0x746865726532
-    callsub echo
-    frame_bury 2
-    gitxn 1 Note
-    frame_bury 3
     itxn Note
-    frame_bury 4
-
-test_itxn_nested_after_if_else@9:
-    // inner_transactions_assignment/contract.py:63
-    // assert nested_tuple[0] == b"hi2"
-    frame_dig 1
-    bytec 9 // 0x686932
-    ==
-    assert
+    gitxn 1 Note
     // inner_transactions_assignment/contract.py:64
     // assert nested_tuple[1][0].note == b"acfg2"
-    frame_dig 3
-    bytec 10 // 0x6163666732
+    bytec 6 // 0x6163666732
     ==
     assert
     // inner_transactions_assignment/contract.py:65
     // assert nested_tuple[1][1].note == b"pay5"
-    frame_dig 4
-    bytec 11 // 0x70617935
+    bytec 7 // 0x70617935
     ==
     assert
-    // inner_transactions_assignment/contract.py:66
-    // assert nested_tuple[2] == b"there2"
-    frame_dig 2
-    bytec 12 // 0x746865726532
-    ==
-    assert
-    retsub
-
-
-// test_cases.inner_transactions_assignment.contract.echo(value: bytes) -> bytes:
-echo:
-    // inner_transactions_assignment/contract.py:76-77
-    // @subroutine
-    // def echo(value: Bytes) -> Bytes:
-    proto 1 1
-    // inner_transactions_assignment/contract.py:78
-    // return value
-    frame_dig -1
     retsub

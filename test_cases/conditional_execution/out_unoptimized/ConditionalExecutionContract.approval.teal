@@ -1,48 +1,83 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.conditional_execution.contract.ConditionalExecutionContract.approval_program:
+// test_cases.conditional_execution.contract.ConditionalExecutionContract.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 0 1
     bytecblock "did_execute_a" "did_execute_b"
     txn ApplicationID
     bnz main_after_if_else@2
+
+main_call___init__@1:
     callsub __init__
 
 main_after_if_else@2:
+    callsub approval_program
+    return
+
+
+// test_cases.conditional_execution.contract.ConditionalExecutionContract.__init__() -> void:
+__init__:
+    // conditional_execution/contract.py:5
+    // def __init__(self) -> None:
+    proto 0 0
+    // conditional_execution/contract.py:6
+    // self.did_execute_a = False
+    bytec_0 // "did_execute_a"
+    intc_0 // 0
+    app_global_put
+    // conditional_execution/contract.py:7
+    // self.did_execute_b = False
+    bytec_1 // "did_execute_b"
+    intc_0 // 0
+    app_global_put
+    retsub
+
+
+// test_cases.conditional_execution.contract.ConditionalExecutionContract.approval_program() -> uint64:
+approval_program:
+    // conditional_execution/contract.py:9
+    // def approval_program(self) -> bool:
+    proto 0 1
     // conditional_execution/contract.py:10-11
     // # 'or' won't execute rhs if lhs is True
     // self.func_a(True) or self.func_b(True)
     intc_1 // 1
     callsub func_a
-    bnz main_bool_true@4
+    bnz approval_program_bool_true@2
+
+approval_program_or_contd@1:
+    // conditional_execution/contract.py:10-11
+    // # 'or' won't execute rhs if lhs is True
+    // self.func_a(True) or self.func_b(True)
     intc_1 // 1
     callsub func_b
-    bz main_bool_false@5
+    bz approval_program_bool_false@3
 
-main_bool_true@4:
-    b main_bool_merge@6
+approval_program_bool_true@2:
 
-main_bool_false@5:
-
-main_bool_merge@6:
+approval_program_bool_merge@4:
     // conditional_execution/contract.py:13
     // self.did_execute_a and not self.did_execute_b,
     intc_0 // 0
     bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
-    bz main_bool_false@9
+    bz approval_program_bool_false@7
+
+approval_program_and_contd@5:
+    // conditional_execution/contract.py:13
+    // self.did_execute_a and not self.did_execute_b,
     intc_0 // 0
     bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
-    bnz main_bool_false@9
+    bnz approval_program_bool_false@7
+
+approval_program_bool_true@6:
     intc_1 // 1
-    b main_bool_merge@10
 
-main_bool_false@9:
-    intc_0 // 0
-
-main_bool_merge@10:
+approval_program_bool_merge@8:
     // conditional_execution/contract.py:12-14
     // self.assert_and_reset(
     //     self.did_execute_a and not self.did_execute_b,
@@ -53,36 +88,40 @@ main_bool_merge@10:
     // self.func_a(False) or self.func_b(True)
     intc_0 // 0
     callsub func_a
-    bnz main_bool_true@12
+    bnz approval_program_bool_true@10
+
+approval_program_or_contd@9:
+    // conditional_execution/contract.py:16-17
+    // # 'or' executes rhs if lhs is False
+    // self.func_a(False) or self.func_b(True)
     intc_1 // 1
     callsub func_b
-    bz main_bool_false@13
+    bz approval_program_bool_false@11
 
-main_bool_true@12:
-    b main_bool_merge@14
+approval_program_bool_true@10:
 
-main_bool_false@13:
-
-main_bool_merge@14:
+approval_program_bool_merge@12:
     // conditional_execution/contract.py:19
     // self.did_execute_a and self.did_execute_b,
     intc_0 // 0
     bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
-    bz main_bool_false@17
+    bz approval_program_bool_false@15
+
+approval_program_and_contd@13:
+    // conditional_execution/contract.py:19
+    // self.did_execute_a and self.did_execute_b,
     intc_0 // 0
     bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
-    bz main_bool_false@17
+    bz approval_program_bool_false@15
+
+approval_program_bool_true@14:
     intc_1 // 1
-    b main_bool_merge@18
 
-main_bool_false@17:
-    intc_0 // 0
-
-main_bool_merge@18:
+approval_program_bool_merge@16:
     // conditional_execution/contract.py:18-20
     // self.assert_and_reset(
     //     self.did_execute_a and self.did_execute_b,
@@ -93,34 +132,40 @@ main_bool_merge@18:
     // self.func_a(False) and self.func_b(True)
     intc_0 // 0
     callsub func_a
-    bz main_bool_false@21
+    bz approval_program_bool_false@19
+
+approval_program_and_contd@17:
+    // conditional_execution/contract.py:22-23
+    // # 'and' won't execute rhs if lhs is False
+    // self.func_a(False) and self.func_b(True)
     intc_1 // 1
     callsub func_b
-    bz main_bool_false@21
-    b main_bool_merge@22
+    bz approval_program_bool_false@19
 
-main_bool_false@21:
+approval_program_bool_true@18:
 
-main_bool_merge@22:
+approval_program_bool_merge@20:
     // conditional_execution/contract.py:25
     // self.did_execute_a and not self.did_execute_b,
     intc_0 // 0
     bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
-    bz main_bool_false@25
+    bz approval_program_bool_false@23
+
+approval_program_and_contd@21:
+    // conditional_execution/contract.py:25
+    // self.did_execute_a and not self.did_execute_b,
     intc_0 // 0
     bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
-    bnz main_bool_false@25
+    bnz approval_program_bool_false@23
+
+approval_program_bool_true@22:
     intc_1 // 1
-    b main_bool_merge@26
 
-main_bool_false@25:
-    intc_0 // 0
-
-main_bool_merge@26:
+approval_program_bool_merge@24:
     // conditional_execution/contract.py:24-26
     // self.assert_and_reset(
     //     self.did_execute_a and not self.did_execute_b,
@@ -131,34 +176,40 @@ main_bool_merge@26:
     // self.func_a(True) and self.func_b(True)
     intc_1 // 1
     callsub func_a
-    bz main_bool_false@29
+    bz approval_program_bool_false@27
+
+approval_program_and_contd@25:
+    // conditional_execution/contract.py:28-29
+    // # 'and' executes rhs if lhs is True
+    // self.func_a(True) and self.func_b(True)
     intc_1 // 1
     callsub func_b
-    bz main_bool_false@29
-    b main_bool_merge@30
+    bz approval_program_bool_false@27
 
-main_bool_false@29:
+approval_program_bool_true@26:
 
-main_bool_merge@30:
+approval_program_bool_merge@28:
     // conditional_execution/contract.py:31
     // self.did_execute_a and self.did_execute_b,
     intc_0 // 0
     bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
-    bz main_bool_false@33
+    bz approval_program_bool_false@31
+
+approval_program_and_contd@29:
+    // conditional_execution/contract.py:31
+    // self.did_execute_a and self.did_execute_b,
     intc_0 // 0
     bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
-    bz main_bool_false@33
+    bz approval_program_bool_false@31
+
+approval_program_bool_true@30:
     intc_1 // 1
-    b main_bool_merge@34
 
-main_bool_false@33:
-    intc_0 // 0
-
-main_bool_merge@34:
+approval_program_bool_merge@32:
     // conditional_execution/contract.py:30-32
     // self.assert_and_reset(
     //     self.did_execute_a and self.did_execute_b,
@@ -179,19 +230,21 @@ main_bool_merge@34:
     bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
-    bz main_bool_false@37
+    bz approval_program_bool_false@35
+
+approval_program_and_contd@33:
+    // conditional_execution/contract.py:37
+    // self.did_execute_a and self.did_execute_b,
     intc_0 // 0
     bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
-    bz main_bool_false@37
+    bz approval_program_bool_false@35
+
+approval_program_bool_true@34:
     intc_1 // 1
-    b main_bool_merge@38
 
-main_bool_false@37:
-    intc_0 // 0
-
-main_bool_merge@38:
+approval_program_bool_merge@36:
     // conditional_execution/contract.py:36-38
     // self.assert_and_reset(
     //     self.did_execute_a and self.did_execute_b,
@@ -202,40 +255,38 @@ main_bool_merge@38:
     // self.func_a(True) if self.func_c(True) else self.func_b(True)
     intc_1 // 1
     callsub func_c
-    bz main_ternary_false@40
-    intc_1 // 1
-    callsub func_a
-    pop
-    b main_ternary_merge@41
+    bz approval_program_ternary_false@38
 
-main_ternary_false@40:
+approval_program_ternary_true@37:
     // conditional_execution/contract.py:40-41
     // # Ternary condition won't execute <false expr> if condition is True
     // self.func_a(True) if self.func_c(True) else self.func_b(True)
     intc_1 // 1
-    callsub func_b
+    callsub func_a
     pop
 
-main_ternary_merge@41:
+approval_program_ternary_merge@39:
     // conditional_execution/contract.py:43
     // self.did_execute_a and not self.did_execute_b,
     intc_0 // 0
     bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
-    bz main_bool_false@44
+    bz approval_program_bool_false@42
+
+approval_program_and_contd@40:
+    // conditional_execution/contract.py:43
+    // self.did_execute_a and not self.did_execute_b,
     intc_0 // 0
     bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
-    bnz main_bool_false@44
+    bnz approval_program_bool_false@42
+
+approval_program_bool_true@41:
     intc_1 // 1
-    b main_bool_merge@45
 
-main_bool_false@44:
-    intc_0 // 0
-
-main_bool_merge@45:
+approval_program_bool_merge@43:
     // conditional_execution/contract.py:42-44
     // self.assert_and_reset(
     //     self.did_execute_a and not self.did_execute_b,
@@ -246,40 +297,38 @@ main_bool_merge@45:
     // self.func_a(True) if self.func_c(False) else self.func_b(True)
     intc_0 // 0
     callsub func_c
-    bz main_ternary_false@47
-    intc_1 // 1
-    callsub func_a
-    pop
-    b main_ternary_merge@48
+    bz approval_program_ternary_false@45
 
-main_ternary_false@47:
+approval_program_ternary_true@44:
     // conditional_execution/contract.py:46-47
     // # Ternary condition won't execute <true expr> if condition is False
     // self.func_a(True) if self.func_c(False) else self.func_b(True)
     intc_1 // 1
-    callsub func_b
+    callsub func_a
     pop
 
-main_ternary_merge@48:
+approval_program_ternary_merge@46:
     // conditional_execution/contract.py:49
     // not self.did_execute_a and self.did_execute_b,
     intc_0 // 0
     bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
-    bnz main_bool_false@51
+    bnz approval_program_bool_false@49
+
+approval_program_and_contd@47:
+    // conditional_execution/contract.py:49
+    // not self.did_execute_a and self.did_execute_b,
     intc_0 // 0
     bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
-    bz main_bool_false@51
+    bz approval_program_bool_false@49
+
+approval_program_bool_true@48:
     intc_1 // 1
-    b main_bool_merge@52
 
-main_bool_false@51:
-    intc_0 // 0
-
-main_bool_merge@52:
+approval_program_bool_merge@50:
     // conditional_execution/contract.py:48-50
     // self.assert_and_reset(
     //     not self.did_execute_a and self.did_execute_b,
@@ -288,25 +337,65 @@ main_bool_merge@52:
     // conditional_execution/contract.py:52
     // return True
     intc_1 // 1
-    return
-
-
-// test_cases.conditional_execution.contract.ConditionalExecutionContract.__init__() -> void:
-__init__:
-    // conditional_execution/contract.py:5
-    // def __init__(self) -> None:
-    proto 0 0
-    // conditional_execution/contract.py:6
-    // self.did_execute_a = False
-    bytec_0 // "did_execute_a"
-    intc_0 // 0
-    app_global_put
-    // conditional_execution/contract.py:7
-    // self.did_execute_b = False
-    bytec_1 // "did_execute_b"
-    intc_0 // 0
-    app_global_put
     retsub
+
+approval_program_bool_false@49:
+    intc_0 // 0
+    b approval_program_bool_merge@50
+
+approval_program_ternary_false@45:
+    // conditional_execution/contract.py:46-47
+    // # Ternary condition won't execute <true expr> if condition is False
+    // self.func_a(True) if self.func_c(False) else self.func_b(True)
+    intc_1 // 1
+    callsub func_b
+    pop
+    b approval_program_ternary_merge@46
+
+approval_program_bool_false@42:
+    intc_0 // 0
+    b approval_program_bool_merge@43
+
+approval_program_ternary_false@38:
+    // conditional_execution/contract.py:40-41
+    // # Ternary condition won't execute <false expr> if condition is True
+    // self.func_a(True) if self.func_c(True) else self.func_b(True)
+    intc_1 // 1
+    callsub func_b
+    pop
+    b approval_program_ternary_merge@39
+
+approval_program_bool_false@35:
+    intc_0 // 0
+    b approval_program_bool_merge@36
+
+approval_program_bool_false@31:
+    intc_0 // 0
+    b approval_program_bool_merge@32
+
+approval_program_bool_false@27:
+    b approval_program_bool_merge@28
+
+approval_program_bool_false@23:
+    intc_0 // 0
+    b approval_program_bool_merge@24
+
+approval_program_bool_false@19:
+    b approval_program_bool_merge@20
+
+approval_program_bool_false@15:
+    intc_0 // 0
+    b approval_program_bool_merge@16
+
+approval_program_bool_false@11:
+    b approval_program_bool_merge@12
+
+approval_program_bool_false@7:
+    intc_0 // 0
+    b approval_program_bool_merge@8
+
+approval_program_bool_false@3:
+    b approval_program_bool_merge@4
 
 
 // test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(ret_val: uint64) -> uint64:

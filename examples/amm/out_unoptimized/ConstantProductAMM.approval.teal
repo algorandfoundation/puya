@@ -1,14 +1,18 @@
 #pragma version 10
+#pragma typetrack false
 
-examples.amm.contract.ConstantProductAMM.approval_program:
+// examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 0 1 1000 4 10000000000
     bytecblock "asset_a" "asset_b" "pool_token" "governor" "ratio"
     txn ApplicationID
     bnz main_after_if_else@2
+
+main_call___init__@1:
     callsub __init__
 
 main_after_if_else@2:
-    callsub __puya_arc4_router__
+    callsub approval_program
     return
 
 
@@ -51,15 +55,21 @@ __init__:
     retsub
 
 
-// examples.amm.contract.ConstantProductAMM.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+approval_program:
+    proto 0 1
+
+approval_program_block@1:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@9
+    bz approval_program_bare_routing@10
+
+approval_program_abi_routing@2:
+    // amm/contract.py:27
+    // class ConstantProductAMM(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x08a956f7 // method "set_governor(account)void"
     pushbytes 0x6b59d965 // method "bootstrap(pay,asset,asset)uint64"
@@ -67,34 +77,28 @@ __puya_arc4_router__:
     pushbytes 0x1436c2ac // method "burn(axfer,asset,asset,asset)void"
     pushbytes 0x4a88e055 // method "swap(axfer,asset,asset)void"
     uncover 5
-    match __puya_arc4_router___set_governor_route@2 __puya_arc4_router___bootstrap_route@3 __puya_arc4_router___mint_route@4 __puya_arc4_router___burn_route@5 __puya_arc4_router___swap_route@6
-    b __puya_arc4_router___switch_case_default@7
+    match approval_program_set_governor_route@3 approval_program_bootstrap_route@4 approval_program_mint_route@5 approval_program_burn_route@6 approval_program_swap_route@7
 
-__puya_arc4_router___set_governor_route@2:
-    // amm/contract.py:43
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
+approval_program_switch_case_default@8:
+
+approval_program_switch_case_next@9:
+
+approval_program_after_if_else@14:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    txnas Accounts
-    // amm/contract.py:43
-    // @arc4.abimethod()
-    callsub set_governor
-    intc_1 // 1
+    intc_0 // 0
+
+approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__puya_arc4_router__@15:
     retsub
 
-__puya_arc4_router___bootstrap_route@3:
-    // amm/contract.py:49
-    // @arc4.abimethod()
+approval_program_swap_route@7:
+    // amm/contract.py:204-209
+    // @arc4.abimethod(
+    //     default_args={
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    // )
     txn OnCompletion
     intc_0 // NoOp
     ==
@@ -110,30 +114,82 @@ __puya_arc4_router___bootstrap_route@3:
     -
     dup
     gtxns TypeEnum
-    intc_1 // pay
+    intc_3 // axfer
     ==
-    assert // transaction type is pay
+    assert // transaction type is axfer
     txna ApplicationArgs 1
     btoi
     txnas Assets
     txna ApplicationArgs 2
     btoi
     txnas Assets
-    // amm/contract.py:49
-    // @arc4.abimethod()
+    // amm/contract.py:204-209
+    // @arc4.abimethod(
+    //     default_args={
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    // )
     uncover 2
     uncover 2
     uncover 2
-    callsub bootstrap
-    itob
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
+    callsub swap
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__puya_arc4_router__@15
 
-__puya_arc4_router___mint_route@4:
+approval_program_burn_route@6:
+    // amm/contract.py:147-153
+    // @arc4.abimethod(
+    //     default_args={
+    //         "pool_asset": "pool_token",
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    // )
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // amm/contract.py:27
+    // class ConstantProductAMM(ARC4Contract):
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_3 // axfer
+    ==
+    assert // transaction type is axfer
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    txna ApplicationArgs 2
+    btoi
+    txnas Assets
+    txna ApplicationArgs 3
+    btoi
+    txnas Assets
+    // amm/contract.py:147-153
+    // @arc4.abimethod(
+    //     default_args={
+    //         "pool_asset": "pool_token",
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    // )
+    uncover 3
+    uncover 3
+    uncover 3
+    uncover 3
+    callsub burn
+    intc_1 // 1
+    b approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__puya_arc4_router__@15
+
+approval_program_mint_route@5:
     // amm/contract.py:81-87
     // @arc4.abimethod(
     //     default_args={
@@ -192,17 +248,11 @@ __puya_arc4_router___mint_route@4:
     uncover 4
     callsub mint
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__puya_arc4_router__@15
 
-__puya_arc4_router___burn_route@5:
-    // amm/contract.py:147-153
-    // @arc4.abimethod(
-    //     default_args={
-    //         "pool_asset": "pool_token",
-    //         "a_asset": "asset_a",
-    //         "b_asset": "asset_b",
-    //     },
-    // )
+approval_program_bootstrap_route@4:
+    // amm/contract.py:49
+    // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
     ==
@@ -218,42 +268,32 @@ __puya_arc4_router___burn_route@5:
     -
     dup
     gtxns TypeEnum
-    intc_3 // axfer
+    intc_1 // pay
     ==
-    assert // transaction type is axfer
+    assert // transaction type is pay
     txna ApplicationArgs 1
     btoi
     txnas Assets
     txna ApplicationArgs 2
     btoi
     txnas Assets
-    txna ApplicationArgs 3
-    btoi
-    txnas Assets
-    // amm/contract.py:147-153
-    // @arc4.abimethod(
-    //     default_args={
-    //         "pool_asset": "pool_token",
-    //         "a_asset": "asset_a",
-    //         "b_asset": "asset_b",
-    //     },
-    // )
-    uncover 3
-    uncover 3
-    uncover 3
-    uncover 3
-    callsub burn
+    // amm/contract.py:49
+    // @arc4.abimethod()
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub bootstrap
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__puya_arc4_router__@15
 
-__puya_arc4_router___swap_route@6:
-    // amm/contract.py:204-209
-    // @arc4.abimethod(
-    //     default_args={
-    //         "a_asset": "asset_a",
-    //         "b_asset": "asset_b",
-    //     },
-    // )
+approval_program_set_governor_route@3:
+    // amm/contract.py:43
+    // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
     ==
@@ -264,62 +304,39 @@ __puya_arc4_router___swap_route@6:
     assert // can only call when not creating
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
-    txn GroupIndex
-    intc_1 // 1
-    -
-    dup
-    gtxns TypeEnum
-    intc_3 // axfer
-    ==
-    assert // transaction type is axfer
     txna ApplicationArgs 1
     btoi
-    txnas Assets
-    txna ApplicationArgs 2
-    btoi
-    txnas Assets
-    // amm/contract.py:204-209
-    // @arc4.abimethod(
-    //     default_args={
-    //         "a_asset": "asset_a",
-    //         "b_asset": "asset_b",
-    //     },
-    // )
-    uncover 2
-    uncover 2
-    uncover 2
-    callsub swap
+    txnas Accounts
+    // amm/contract.py:43
+    // @arc4.abimethod()
+    callsub set_governor
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__puya_arc4_router__@15
 
-__puya_arc4_router___switch_case_default@7:
-    b __puya_arc4_router___after_if_else@13
-
-__puya_arc4_router___bare_routing@9:
+approval_program_bare_routing@10:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@10
-    b __puya_arc4_router___switch_case_default@11
+    match approval_program___algopy_default_create@11
 
-__puya_arc4_router_____algopy_default_create@10:
+approval_program_switch_case_default@12:
+
+approval_program_switch_case_next@13:
+    b approval_program_after_if_else@14
+
+approval_program___algopy_default_create@11:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+approval_program_block@16:
+
+approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__algopy_default_create@17:
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@11:
-
-__puya_arc4_router___after_if_else@13:
-    // amm/contract.py:27
-    // class ConstantProductAMM(ARC4Contract):
-    intc_0 // 0
-    retsub
+    b approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__puya_arc4_router__@15
 
 
 // examples.amm.contract.ConstantProductAMM.set_governor(new_governor: bytes) -> void:
@@ -507,6 +524,8 @@ _create_pool_token:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+
+_create_pool_token_next_txn@1:
     // amm/contract.py:271-279
     // itxn.AssetConfig(
     //     asset_name=b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name,
@@ -606,6 +625,8 @@ do_asset_transfer:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+
+do_asset_transfer_next_txn@1:
     // amm/contract.py:358-362
     // itxn.AssetTransfer(
     //     xfer_asset=asset,
@@ -882,20 +903,24 @@ tokens_to_mint:
     frame_dig -2
     ==
     bz tokens_to_mint_bool_false@3
+
+tokens_to_mint_and_contd@1:
+    // amm/contract.py:331
+    // is_initial_mint = a_balance == a_amount and b_balance == b_amount
     frame_dig -3
     frame_dig -1
     ==
     bz tokens_to_mint_bool_false@3
-    intc_1 // 1
-    b tokens_to_mint_bool_merge@4
 
-tokens_to_mint_bool_false@3:
-    intc_0 // 0
+tokens_to_mint_bool_true@2:
+    intc_1 // 1
 
 tokens_to_mint_bool_merge@4:
     // amm/contract.py:332
     // if is_initial_mint:
     bz tokens_to_mint_after_if_else@6
+
+tokens_to_mint_if_body@5:
     // amm/contract.py:333
     // return op.sqrt(a_amount * b_amount) - SCALE
     frame_dig -2
@@ -939,6 +964,8 @@ tokens_to_mint_after_if_else@6:
     // if a_ratio < b_ratio:
     <
     bz tokens_to_mint_else_body@8
+
+tokens_to_mint_if_body@7:
     // amm/contract.py:338
     // return a_ratio * issued // SCALE
     frame_dig 0
@@ -957,6 +984,10 @@ tokens_to_mint_else_body@8:
     /
     frame_bury 0
     retsub
+
+tokens_to_mint_bool_false@3:
+    intc_0 // 0
+    b tokens_to_mint_bool_merge@4
 
 
 // examples.amm.contract.ConstantProductAMM._update_ratio() -> void:
@@ -1242,26 +1273,11 @@ swap:
     uncover 2
     uncover 2
     match swap_switch_case_0@1 swap_switch_case_1@2
+
+swap_switch_case_default@3:
     // amm/contract.py:241
     // assert False, "asset id incorrect"
-    b swap_switch_case_default@3
-
-swap_switch_case_0@1:
-    // amm/contract.py:233
-    // in_supply = self._current_b_balance()
-    callsub _current_b_balance
-    frame_bury 0
-    // amm/contract.py:234
-    // out_supply = self._current_a_balance()
-    callsub _current_a_balance
-    // amm/contract.py:235
-    // out_asset = self.asset_a
-    intc_0 // 0
-    bytec_0 // "asset_a"
-    app_global_get_ex
-    assert // check self.asset_a exists
-    frame_bury 1
-    b swap_switch_case_next@4
+    err // asset id incorrect
 
 swap_switch_case_1@2:
     // amm/contract.py:237
@@ -1278,12 +1294,6 @@ swap_switch_case_1@2:
     app_global_get_ex
     assert // check self.asset_b exists
     frame_bury 1
-    b swap_switch_case_next@4
-
-swap_switch_case_default@3:
-    // amm/contract.py:241
-    // assert False, "asset id incorrect"
-    err // asset id incorrect
 
 swap_switch_case_next@4:
     // amm/contract.py:244
@@ -1314,6 +1324,23 @@ swap_switch_case_next@4:
     callsub _update_ratio
     retsub
 
+swap_switch_case_0@1:
+    // amm/contract.py:233
+    // in_supply = self._current_b_balance()
+    callsub _current_b_balance
+    frame_bury 0
+    // amm/contract.py:234
+    // out_supply = self._current_a_balance()
+    callsub _current_a_balance
+    // amm/contract.py:235
+    // out_asset = self.asset_a
+    intc_0 // 0
+    bytec_0 // "asset_a"
+    app_global_get_ex
+    assert // check self.asset_a exists
+    frame_bury 1
+    b swap_switch_case_next@4
+
 
 // examples.amm.contract.tokens_to_swap(in_amount: uint64, in_supply: uint64, out_supply: uint64) -> uint64:
 tokens_to_swap:
@@ -1343,10 +1370,4 @@ tokens_to_swap:
     // return out_total // in_total
     swap
     /
-    retsub
-
-
-// examples.amm.contract.ConstantProductAMM.__algopy_default_create() -> void:
-__algopy_default_create:
-    proto 0 0
     retsub

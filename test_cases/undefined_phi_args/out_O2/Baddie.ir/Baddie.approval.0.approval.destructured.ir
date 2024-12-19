@@ -1,0 +1,47 @@
+main test_cases.undefined_phi_args.baddie.Baddie.approval_program:
+    block@0: // L5
+        let test_case#0: bytes = (txna ApplicationArgs 0)
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (> tmp%0#0 1u)
+        goto tmp%1#0 ? block@1 : block@3
+    block@1: // and_contd_L8
+        let tmp%2#0: bytes = (txna ApplicationArgs 1)
+        let tmp%3#0: uint64 = (btoi tmp%2#0)
+        goto tmp%3#0 ? block@2 : block@3
+    block@2: // bool_true_L8
+        let and_result%0#0: bool = 1u
+        let invert_second_condition#0: bool = and_result%0#0
+        goto block@4
+    block@3: // bool_false_L8
+        let and_result%0#0: bool = 0u
+        let invert_second_condition#0: bool = and_result%0#0
+        goto block@4
+    block@4: // bool_merge_L8
+        goto invert_second_condition#0 ? block@5 : block@19
+    block@5: // if_body_L12
+        let tmp%5#0: bool = (== test_case#0 0x75696e74)
+        goto tmp%5#0 ? block@6 : block@7
+    block@6: // if_body_L13
+        let a#31: uint64 = undefined
+        let c#33: uint64 = (+ a#31 1u)
+        let tmp%9#0: bool = (== c#33 8u)
+        (assert tmp%9#0)
+        goto block@19
+    block@7: // else_body_L15
+        let tmp%10#0: bool = (== test_case#0 0x6279746573)
+        goto tmp%10#0 ? block@8 : block@9
+    block@8: // if_body_L16
+        let a#39: biguint = undefined
+        let c#21: biguint = (b+ a#39 1b)
+        let tmp%14#0: bool = (b== c#21 8b)
+        (assert tmp%14#0)
+        goto block@19
+    block@9: // else_body_L19
+        let a#31: uint64 = undefined
+        let tmp%0#4: biguint = (itob a#31)
+        let c#21: biguint = (b+ tmp%0#4 1b)
+        let tmp%18#0: bool = (b== c#21 8b)
+        (assert tmp%18#0)
+        goto block@19
+    block@19: // after_if_else_L11
+        return 1u

@@ -1,7 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.too_many_permutations.contract.MyContract.approval_program:
-    intcblock 1 0
+// test_cases.too_many_permutations.contract.MyContract.approval_program() -> uint64:
+main:
     // too_many_permutations/contract.py:6
     // a = op.Txn.application_args(0)
     txna ApplicationArgs 0
@@ -30,77 +31,42 @@ test_cases.too_many_permutations.contract.MyContract.approval_program:
     bz main_bool_false@3
 
 main_bool_true@2:
-    intc_0 // 1
-    b main_bool_merge@4
-
-main_bool_false@3:
-    intc_1 // 0
+    pushint 1 // 1
 
 main_bool_merge@4:
     // too_many_permutations/contract.py:11
     // assert (a != c) or (b != d)
     assert
-    // too_many_permutations/contract.py:12
-    // assert four_args(a, b, c, d)
-    dig 3
-    dup
-    dig 4
-    dup
-    cover 3
-    dig 5
-    dup
-    cover 5
-    dig 6
-    dup
-    cover 7
-    callsub four_args
-    assert
-    // too_many_permutations/contract.py:13
-    // two_args(a, b)
-    swap
-    callsub two_args
-    // too_many_permutations/contract.py:14
-    // two_args(c, d)
-    swap
-    callsub two_args
-    // too_many_permutations/contract.py:16
-    // return True
-    intc_0 // 1
-    return
-
-
-// test_cases.too_many_permutations.contract.four_args(a: bytes, b: bytes, c: bytes, d: bytes) -> uint64:
-four_args:
-    // too_many_permutations/contract.py:22-23
-    // @subroutine
-    // def four_args(a: Bytes, b: Bytes, c: Bytes, d: Bytes) -> bool:
-    proto 4 1
     // too_many_permutations/contract.py:24
     // return (a + b + c + d).length > 0
-    frame_dig -4
-    frame_dig -3
+    dig 3
+    dig 3
     concat
-    frame_dig -2
+    dup
+    dig 3
+    dup
+    cover 3
     concat
-    frame_dig -1
+    dig 3
+    dup
+    cover 3
     concat
     len
-    intc_1 // 0
-    >
-    retsub
-
-
-// test_cases.too_many_permutations.contract.two_args(a: bytes, b: bytes) -> void:
-two_args:
-    // too_many_permutations/contract.py:27-28
-    // @subroutine
-    // def two_args(a: Bytes, b: Bytes) -> None:
-    proto 2 0
+    // too_many_permutations/contract.py:12
+    // assert four_args(a, b, c, d)
+    assert
     // too_many_permutations/contract.py:29
     // assert a + b
-    frame_dig -2
-    frame_dig -1
+    len
+    assert
     concat
     len
     assert
-    retsub
+    // too_many_permutations/contract.py:16
+    // return True
+    pushint 1 // 1
+    return
+
+main_bool_false@3:
+    pushint 0 // 0
+    b main_bool_merge@4

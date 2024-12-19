@@ -1,21 +1,22 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 2 1 4
     bytecblock 0x 0x0002 0x0000 0x0003 0x0004
-    callsub __puya_arc4_router__
-    return
 
-
-// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_block@1:
     // arc4_dynamic_arrays/contract.py:38
     // class DynamicArrayContract(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@10
+    bz main_bare_routing@11
+
+main_abi_routing@2:
+    // arc4_dynamic_arrays/contract.py:38
+    // class DynamicArrayContract(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x55715827 // method "test_static_elements()void"
     pushbytes 0x713dd6db // method "test_dynamic_elements()void"
@@ -24,85 +25,21 @@ __puya_arc4_router__:
     pushbytes 0x51aa8c49 // method "test_nested_struct_replacement()void"
     pushbytes 0x283a186f // method "test_nested_tuple_modification()void"
     uncover 6
-    match __puya_arc4_router___test_static_elements_route@2 __puya_arc4_router___test_dynamic_elements_route@3 __puya_arc4_router___test_mixed_single_dynamic_elements_route@4 __puya_arc4_router___test_mixed_multiple_dynamic_elements_route@5 __puya_arc4_router___test_nested_struct_replacement_route@6 __puya_arc4_router___test_nested_tuple_modification_route@7
-    b __puya_arc4_router___switch_case_default@8
+    match main_test_static_elements_route@3 main_test_dynamic_elements_route@4 main_test_mixed_single_dynamic_elements_route@5 main_test_mixed_multiple_dynamic_elements_route@6 main_test_nested_struct_replacement_route@7 main_test_nested_tuple_modification_route@8
 
-__puya_arc4_router___test_static_elements_route@2:
-    // arc4_dynamic_arrays/contract.py:39
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
+main_switch_case_default@9:
+
+main_switch_case_next@10:
+
+main_after_if_else@15:
+    // arc4_dynamic_arrays/contract.py:38
+    // class DynamicArrayContract(ARC4Contract):
     intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub test_static_elements
-    intc_2 // 1
-    retsub
 
-__puya_arc4_router___test_dynamic_elements_route@3:
-    // arc4_dynamic_arrays/contract.py:55
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub test_dynamic_elements
-    intc_2 // 1
-    retsub
+main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16:
+    return
 
-__puya_arc4_router___test_mixed_single_dynamic_elements_route@4:
-    // arc4_dynamic_arrays/contract.py:74
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub test_mixed_single_dynamic_elements
-    intc_2 // 1
-    retsub
-
-__puya_arc4_router___test_mixed_multiple_dynamic_elements_route@5:
-    // arc4_dynamic_arrays/contract.py:89
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub test_mixed_multiple_dynamic_elements
-    intc_2 // 1
-    retsub
-
-__puya_arc4_router___test_nested_struct_replacement_route@6:
-    // arc4_dynamic_arrays/contract.py:106
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub test_nested_struct_replacement
-    intc_2 // 1
-    retsub
-
-__puya_arc4_router___test_nested_tuple_modification_route@7:
+main_test_nested_tuple_modification_route@8:
     // arc4_dynamic_arrays/contract.py:133
     // @arc4.abimethod()
     txn OnCompletion
@@ -115,36 +52,107 @@ __puya_arc4_router___test_nested_tuple_modification_route@7:
     assert // can only call when not creating
     callsub test_nested_tuple_modification
     intc_2 // 1
-    retsub
+    b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16
 
-__puya_arc4_router___switch_case_default@8:
-    b __puya_arc4_router___after_if_else@14
+main_test_nested_struct_replacement_route@7:
+    // arc4_dynamic_arrays/contract.py:106
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub test_nested_struct_replacement
+    intc_2 // 1
+    b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16
 
-__puya_arc4_router___bare_routing@10:
+main_test_mixed_multiple_dynamic_elements_route@6:
+    // arc4_dynamic_arrays/contract.py:89
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub test_mixed_multiple_dynamic_elements
+    intc_2 // 1
+    b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16
+
+main_test_mixed_single_dynamic_elements_route@5:
+    // arc4_dynamic_arrays/contract.py:74
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub test_mixed_single_dynamic_elements
+    intc_2 // 1
+    b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16
+
+main_test_dynamic_elements_route@4:
+    // arc4_dynamic_arrays/contract.py:55
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub test_dynamic_elements
+    intc_2 // 1
+    b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16
+
+main_test_static_elements_route@3:
+    // arc4_dynamic_arrays/contract.py:39
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub test_static_elements
+    intc_2 // 1
+    b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16
+
+main_bare_routing@11:
     // arc4_dynamic_arrays/contract.py:38
     // class DynamicArrayContract(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@11
-    b __puya_arc4_router___switch_case_default@12
+    match main___algopy_default_create@12
 
-__puya_arc4_router_____algopy_default_create@11:
+main_switch_case_default@13:
+
+main_switch_case_next@14:
+    b main_after_if_else@15
+
+main___algopy_default_create@12:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+main_block@17:
+
+main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__algopy_default_create@18:
     intc_2 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@12:
-
-__puya_arc4_router___after_if_else@14:
-    // arc4_dynamic_arrays/contract.py:38
-    // class DynamicArrayContract(ARC4Contract):
-    intc_0 // 0
-    retsub
+    b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16
 
 
 // test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements() -> void:
@@ -1832,12 +1840,6 @@ test_nested_tuple_modification:
     retsub
 
 
-// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__algopy_default_create() -> void:
-__algopy_default_create:
-    proto 0 0
-    retsub
-
-
 // _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes, bytes:
 dynamic_array_pop_fixed_size:
     proto 2 2
@@ -1909,6 +1911,8 @@ dynamic_array_pop_dynamic_element_for_header@1:
     frame_dig 6
     <
     bz dynamic_array_pop_dynamic_element_after_for@4
+
+dynamic_array_pop_dynamic_element_for_body@2:
     frame_dig 2
     frame_dig 7
     extract_uint16
@@ -1920,6 +1924,8 @@ dynamic_array_pop_dynamic_element_for_header@1:
     swap
     concat
     frame_bury 5
+
+dynamic_array_pop_dynamic_element_for_footer@3:
     frame_dig 7
     intc_1 // 2
     +
@@ -1967,6 +1973,8 @@ dynamic_array_concat_dynamic_element_for_header@1:
     frame_dig 3
     <
     bz dynamic_array_concat_dynamic_element_after_for@4
+
+dynamic_array_concat_dynamic_element_for_body@2:
     frame_dig -3
     frame_dig 4
     extract_uint16
@@ -1978,6 +1986,8 @@ dynamic_array_concat_dynamic_element_for_header@1:
     swap
     concat
     frame_bury 1
+
+dynamic_array_concat_dynamic_element_for_footer@3:
     frame_dig 4
     intc_1 // 2
     +
@@ -2002,6 +2012,8 @@ dynamic_array_concat_dynamic_element_for_header@5:
     frame_dig 0
     <
     bz dynamic_array_concat_dynamic_element_after_for@8
+
+dynamic_array_concat_dynamic_element_for_body@6:
     frame_dig -1
     frame_dig 4
     extract_uint16
@@ -2013,6 +2025,8 @@ dynamic_array_concat_dynamic_element_for_header@5:
     swap
     concat
     frame_bury 1
+
+dynamic_array_concat_dynamic_element_for_footer@7:
     frame_dig 4
     intc_1 // 2
     +
@@ -2130,6 +2144,8 @@ static_array_replace_dynamic_element_for_header@1:
     frame_dig 3
     <
     bz static_array_replace_dynamic_element_after_for@4
+
+static_array_replace_dynamic_element_for_body@2:
     frame_dig 2
     dup
     frame_dig 4
@@ -2147,6 +2163,8 @@ static_array_replace_dynamic_element_for_header@1:
     uncover 2
     replace3
     frame_bury 2
+
+static_array_replace_dynamic_element_for_footer@3:
     frame_dig 4
     intc_1 // 2
     +

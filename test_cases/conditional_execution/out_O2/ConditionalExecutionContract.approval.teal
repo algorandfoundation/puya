@@ -1,245 +1,36 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.conditional_execution.contract.ConditionalExecutionContract.approval_program:
+// test_cases.conditional_execution.contract.ConditionalExecutionContract.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 0 1
     bytecblock "did_execute_a" "did_execute_b"
     txn ApplicationID
     bnz main_after_if_else@2
-    callsub __init__
+    bytec_0 // "did_execute_a"
+    intc_0 // 0
+    app_global_put
+    bytec_1 // "did_execute_b"
+    intc_0 // 0
+    app_global_put
 
 main_after_if_else@2:
-    intc_1 // 1
-    callsub func_a
-    bnz main_bool_merge@6
-    intc_1 // 1
-    callsub func_b
-    pop
-
-main_bool_merge@6:
-    intc_0 // 0
-    bytec_0 // "did_execute_a"
-    app_global_get_ex
-    assert // check self.did_execute_a exists
-    bz main_bool_false@9
-    intc_0 // 0
-    bytec_1 // "did_execute_b"
-    app_global_get_ex
-    assert // check self.did_execute_b exists
-    bnz main_bool_false@9
-    intc_1 // 1
-    b main_bool_merge@10
-
-main_bool_false@9:
-    intc_0 // 0
-
-main_bool_merge@10:
-    callsub assert_and_reset
-    intc_0 // 0
-    callsub func_a
-    bnz main_bool_merge@14
-    intc_1 // 1
-    callsub func_b
-    pop
-
-main_bool_merge@14:
-    intc_0 // 0
-    bytec_0 // "did_execute_a"
-    app_global_get_ex
-    assert // check self.did_execute_a exists
-    bz main_bool_false@17
-    intc_0 // 0
-    bytec_1 // "did_execute_b"
-    app_global_get_ex
-    assert // check self.did_execute_b exists
-    bz main_bool_false@17
-    intc_1 // 1
-    b main_bool_merge@18
-
-main_bool_false@17:
-    intc_0 // 0
-
-main_bool_merge@18:
-    callsub assert_and_reset
-    intc_0 // 0
-    callsub func_a
-    bz main_bool_merge@22
-    intc_1 // 1
-    callsub func_b
-    pop
-
-main_bool_merge@22:
-    intc_0 // 0
-    bytec_0 // "did_execute_a"
-    app_global_get_ex
-    assert // check self.did_execute_a exists
-    bz main_bool_false@25
-    intc_0 // 0
-    bytec_1 // "did_execute_b"
-    app_global_get_ex
-    assert // check self.did_execute_b exists
-    bnz main_bool_false@25
-    intc_1 // 1
-    b main_bool_merge@26
-
-main_bool_false@25:
-    intc_0 // 0
-
-main_bool_merge@26:
-    callsub assert_and_reset
-    intc_1 // 1
-    callsub func_a
-    bz main_bool_merge@30
-    intc_1 // 1
-    callsub func_b
-    pop
-
-main_bool_merge@30:
-    intc_0 // 0
-    bytec_0 // "did_execute_a"
-    app_global_get_ex
-    assert // check self.did_execute_a exists
-    bz main_bool_false@33
-    intc_0 // 0
-    bytec_1 // "did_execute_b"
-    app_global_get_ex
-    assert // check self.did_execute_b exists
-    bz main_bool_false@33
-    intc_1 // 1
-    b main_bool_merge@34
-
-main_bool_false@33:
-    intc_0 // 0
-
-main_bool_merge@34:
-    callsub assert_and_reset
-    intc_1 // 1
-    callsub func_a
-    pop
-    intc_1 // 1
-    callsub func_b
-    pop
-    intc_0 // 0
-    bytec_0 // "did_execute_a"
-    app_global_get_ex
-    assert // check self.did_execute_a exists
-    bz main_bool_false@37
-    intc_0 // 0
-    bytec_1 // "did_execute_b"
-    app_global_get_ex
-    assert // check self.did_execute_b exists
-    bz main_bool_false@37
-    intc_1 // 1
-    b main_bool_merge@38
-
-main_bool_false@37:
-    intc_0 // 0
-
-main_bool_merge@38:
-    callsub assert_and_reset
-    intc_1 // 1
-    callsub func_c
-    bz main_ternary_false@40
-    intc_1 // 1
-    callsub func_a
-    pop
-    b main_ternary_merge@41
-
-main_ternary_false@40:
-    intc_1 // 1
-    callsub func_b
-    pop
-
-main_ternary_merge@41:
-    intc_0 // 0
-    bytec_0 // "did_execute_a"
-    app_global_get_ex
-    assert // check self.did_execute_a exists
-    bz main_bool_false@44
-    intc_0 // 0
-    bytec_1 // "did_execute_b"
-    app_global_get_ex
-    assert // check self.did_execute_b exists
-    bnz main_bool_false@44
-    intc_1 // 1
-    b main_bool_merge@45
-
-main_bool_false@44:
-    intc_0 // 0
-
-main_bool_merge@45:
-    callsub assert_and_reset
-    intc_0 // 0
-    callsub func_c
-    bz main_ternary_false@47
-    intc_1 // 1
-    callsub func_a
-    pop
-    b main_ternary_merge@48
-
-main_ternary_false@47:
-    intc_1 // 1
-    callsub func_b
-    pop
-
-main_ternary_merge@48:
-    intc_0 // 0
-    bytec_0 // "did_execute_a"
-    app_global_get_ex
-    assert // check self.did_execute_a exists
-    bnz main_bool_false@51
-    intc_0 // 0
-    bytec_1 // "did_execute_b"
-    app_global_get_ex
-    assert // check self.did_execute_b exists
-    bz main_bool_false@51
-    intc_1 // 1
-    b main_bool_merge@52
-
-main_bool_false@51:
-    intc_0 // 0
-
-main_bool_merge@52:
-    callsub assert_and_reset
-    intc_1 // 1
-    return
-
-
-// test_cases.conditional_execution.contract.ConditionalExecutionContract.__init__() -> void:
-__init__:
-    proto 0 0
-    bytec_0 // "did_execute_a"
-    intc_0 // 0
-    app_global_put
-    bytec_1 // "did_execute_b"
-    intc_0 // 0
-    app_global_put
-    retsub
-
-
-// test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(ret_val: uint64) -> uint64:
-func_a:
-    proto 1 1
     bytec_0 // "did_execute_a"
     intc_1 // 1
     app_global_put
-    frame_dig -1
-    retsub
-
-
-// test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(ret_val: uint64) -> uint64:
-func_b:
-    proto 1 1
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
+    app_global_get_ex
+    assert // check self.did_execute_a exists
+    bz main_bool_false@10
+    intc_0 // 0
     bytec_1 // "did_execute_b"
+    app_global_get_ex
+    assert // check self.did_execute_b exists
+    bnz main_bool_false@10
     intc_1 // 1
-    app_global_put
-    frame_dig -1
-    retsub
 
-
-// test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(condition: uint64) -> void:
-assert_and_reset:
-    proto 1 0
-    frame_dig -1
+main_bool_merge@11:
     assert
     bytec_1 // "did_execute_b"
     intc_0 // 0
@@ -247,11 +38,180 @@ assert_and_reset:
     bytec_0 // "did_execute_a"
     intc_0 // 0
     app_global_put
-    retsub
+    bytec_0 // "did_execute_a"
+    intc_1 // 1
+    app_global_put
+    bytec_1 // "did_execute_b"
+    intc_1 // 1
+    app_global_put
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
+    app_global_get_ex
+    assert // check self.did_execute_a exists
+    bz main_bool_false@18
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
+    app_global_get_ex
+    assert // check self.did_execute_b exists
+    bz main_bool_false@18
+    intc_1 // 1
 
+main_bool_merge@19:
+    assert
+    bytec_1 // "did_execute_b"
+    intc_0 // 0
+    app_global_put
+    bytec_0 // "did_execute_a"
+    intc_0 // 0
+    app_global_put
+    bytec_0 // "did_execute_a"
+    intc_1 // 1
+    app_global_put
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
+    app_global_get_ex
+    assert // check self.did_execute_a exists
+    bz main_bool_false@26
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
+    app_global_get_ex
+    assert // check self.did_execute_b exists
+    bnz main_bool_false@26
+    intc_1 // 1
 
-// test_cases.conditional_execution.contract.ConditionalExecutionContract.func_c(ret_val: uint64) -> uint64:
-func_c:
-    proto 1 1
-    frame_dig -1
-    retsub
+main_bool_merge@27:
+    assert
+    bytec_1 // "did_execute_b"
+    intc_0 // 0
+    app_global_put
+    bytec_0 // "did_execute_a"
+    intc_0 // 0
+    app_global_put
+    bytec_0 // "did_execute_a"
+    intc_1 // 1
+    app_global_put
+    bytec_1 // "did_execute_b"
+    intc_1 // 1
+    app_global_put
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
+    app_global_get_ex
+    assert // check self.did_execute_a exists
+    bz main_bool_false@34
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
+    app_global_get_ex
+    assert // check self.did_execute_b exists
+    bz main_bool_false@34
+    intc_1 // 1
+
+main_bool_merge@35:
+    assert
+    bytec_1 // "did_execute_b"
+    intc_0 // 0
+    app_global_put
+    bytec_0 // "did_execute_a"
+    intc_0 // 0
+    app_global_put
+    bytec_0 // "did_execute_a"
+    intc_1 // 1
+    app_global_put
+    bytec_1 // "did_execute_b"
+    intc_1 // 1
+    app_global_put
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
+    app_global_get_ex
+    assert // check self.did_execute_a exists
+    bz main_bool_false@38
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
+    app_global_get_ex
+    assert // check self.did_execute_b exists
+    bz main_bool_false@38
+    intc_1 // 1
+
+main_bool_merge@39:
+    assert
+    bytec_1 // "did_execute_b"
+    intc_0 // 0
+    app_global_put
+    bytec_0 // "did_execute_a"
+    intc_0 // 0
+    app_global_put
+    bytec_0 // "did_execute_a"
+    intc_1 // 1
+    app_global_put
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
+    app_global_get_ex
+    assert // check self.did_execute_a exists
+    bz main_bool_false@45
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
+    app_global_get_ex
+    assert // check self.did_execute_b exists
+    bnz main_bool_false@45
+    intc_1 // 1
+
+main_bool_merge@46:
+    assert
+    bytec_1 // "did_execute_b"
+    intc_0 // 0
+    app_global_put
+    bytec_0 // "did_execute_a"
+    intc_0 // 0
+    app_global_put
+    bytec_1 // "did_execute_b"
+    intc_1 // 1
+    app_global_put
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
+    app_global_get_ex
+    assert // check self.did_execute_a exists
+    bnz main_bool_false@52
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
+    app_global_get_ex
+    assert // check self.did_execute_b exists
+    bz main_bool_false@52
+    intc_1 // 1
+
+main_bool_merge@53:
+    assert
+    bytec_1 // "did_execute_b"
+    intc_0 // 0
+    app_global_put
+    bytec_0 // "did_execute_a"
+    intc_0 // 0
+    app_global_put
+    intc_1 // 1
+    return
+
+main_bool_false@52:
+    intc_0 // 0
+    b main_bool_merge@53
+
+main_bool_false@45:
+    intc_0 // 0
+    b main_bool_merge@46
+
+main_bool_false@38:
+    intc_0 // 0
+    b main_bool_merge@39
+
+main_bool_false@34:
+    intc_0 // 0
+    b main_bool_merge@35
+
+main_bool_false@26:
+    intc_0 // 0
+    b main_bool_merge@27
+
+main_bool_false@18:
+    intc_0 // 0
+    b main_bool_merge@19
+
+main_bool_false@10:
+    intc_0 // 0
+    b main_bool_merge@11

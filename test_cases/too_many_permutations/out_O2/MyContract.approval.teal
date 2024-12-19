@@ -1,7 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.too_many_permutations.contract.MyContract.approval_program:
-    intcblock 1 0
+// test_cases.too_many_permutations.contract.MyContract.approval_program() -> uint64:
+main:
     txna ApplicationArgs 0
     txna ApplicationArgs 1
     txna ApplicationArgs 2
@@ -16,57 +17,32 @@ test_cases.too_many_permutations.contract.MyContract.approval_program:
     bz main_bool_false@3
 
 main_bool_true@2:
-    intc_0 // 1
-    b main_bool_merge@4
-
-main_bool_false@3:
-    intc_1 // 0
+    pushint 1 // 1
 
 main_bool_merge@4:
     assert
     dig 3
+    dig 3
+    concat
     dup
-    dig 4
+    dig 3
     dup
     cover 3
-    dig 5
+    concat
+    dig 3
     dup
-    cover 5
-    dig 6
-    dup
-    cover 7
-    callsub four_args
+    cover 3
+    concat
+    len
     assert
-    swap
-    callsub two_args
-    swap
-    callsub two_args
-    intc_0 // 1
+    len
+    assert
+    concat
+    len
+    assert
+    pushint 1 // 1
     return
 
-
-// test_cases.too_many_permutations.contract.four_args(a: bytes, b: bytes, c: bytes, d: bytes) -> uint64:
-four_args:
-    proto 4 1
-    frame_dig -4
-    frame_dig -3
-    concat
-    frame_dig -2
-    concat
-    frame_dig -1
-    concat
-    len
-    intc_1 // 0
-    >
-    retsub
-
-
-// test_cases.too_many_permutations.contract.two_args(a: bytes, b: bytes) -> void:
-two_args:
-    proto 2 0
-    frame_dig -2
-    frame_dig -1
-    concat
-    len
-    assert
-    retsub
+main_bool_false@3:
+    pushint 0 // 0
+    b main_bool_merge@4

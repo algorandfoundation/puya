@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
+// test_cases.arc4_types.array.Arc4ArraysContract.approval_program() -> uint64:
+main:
     intcblock 2 1 0 4
     bytecblock "" 0x0004000b000548656c6c6f0005576f726c64 0x0004000a000450696e670004506f6e67 " "
     intc_2 // 0
@@ -89,38 +91,22 @@ main_for_header@9:
     // arc4_types/array.py:39
     // for index, string_item in uenumerate(dynamic_string_array):
     dig 4
-    // arc4_types/array.py:36
-    // assert dynamic_string_array.length == 2
     intc_0 // 2
-    // arc4_types/array.py:39
-    // for index, string_item in uenumerate(dynamic_string_array):
     <
     bz main_after_for@15
     dig 4
     dup
     intc_0 // 2
     *
-    // arc4_types/array.py:37
-    // assert dynamic_string_array[0] == ARC4String("Hello")
     bytec_1 // 0x0004000b000548656c6c6f0005576f726c64
-    // arc4_types/array.py:39
-    // for index, string_item in uenumerate(dynamic_string_array):
     swap
     extract_uint16
-    // arc4_types/array.py:37
-    // assert dynamic_string_array[0] == ARC4String("Hello")
     bytec_1 // 0x0004000b000548656c6c6f0005576f726c64
-    // arc4_types/array.py:39
-    // for index, string_item in uenumerate(dynamic_string_array):
     dig 1
     extract_uint16
     intc_0 // 2
     +
-    // arc4_types/array.py:37
-    // assert dynamic_string_array[0] == ARC4String("Hello")
     bytec_1 // 0x0004000b000548656c6c6f0005576f726c64
-    // arc4_types/array.py:39
-    // for index, string_item in uenumerate(dynamic_string_array):
     cover 2
     extract3
     swap
@@ -131,7 +117,13 @@ main_for_header@9:
     // result = string_item.native
     extract 2 0
     bury 6
-    b main_after_if_else@13
+
+main_after_if_else@13:
+    dig 4
+    intc_1 // 1
+    +
+    bury 5
+    b main_for_header@9
 
 main_else_body@12:
     // arc4_types/array.py:43
@@ -144,13 +136,7 @@ main_else_body@12:
     swap
     concat
     bury 6
-
-main_after_if_else@13:
-    dig 4
-    intc_1 // 1
-    +
-    bury 5
-    b main_for_header@9
+    b main_after_if_else@13
 
 main_after_for@15:
     // arc4_types/array.py:45
@@ -248,7 +234,13 @@ main_for_header@20:
     // result = string_item.native
     extract 2 0
     bury 6
-    b main_after_if_else@24
+
+main_after_if_else@24:
+    dig 4
+    intc_1 // 1
+    +
+    bury 5
+    b main_for_header@20
 
 main_else_body@23:
     // arc4_types/array.py:67
@@ -261,13 +253,7 @@ main_else_body@23:
     swap
     concat
     bury 6
-
-main_after_if_else@24:
-    dig 4
-    intc_1 // 1
-    +
-    bury 5
-    b main_for_header@20
+    b main_after_if_else@24
 
 main_after_for@26:
     // arc4_types/array.py:69
@@ -276,25 +262,7 @@ main_after_for@26:
     pushbytes "Ping Pong"
     ==
     assert
-    // arc4_types/array.py:71
-    // self.hash_as_array(Bytes(b"Testing 123"))
-    pushbytes 0x54657374696e6720313233
-    callsub hash_as_array
-    pop
     // arc4_types/array.py:73
     // return True
     intc_1 // 1
     return
-
-
-// test_cases.arc4_types.array.Arc4ArraysContract.hash_as_array(commitment_args_concat: bytes) -> bytes:
-hash_as_array:
-    // arc4_types/array.py:75-76
-    // @subroutine
-    // def hash_as_array(self, commitment_args_concat: Bytes) -> HashResult:
-    proto 1 1
-    // arc4_types/array.py:77
-    // return HashResult.from_bytes(op.sha3_256(commitment_args_concat))
-    frame_dig -1
-    sha3_256
-    retsub

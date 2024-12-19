@@ -1,20 +1,21 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.transaction.contract.TransactionContract.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1 2 3
-    callsub __puya_arc4_router__
-    return
 
-
-// test_cases.transaction.contract.TransactionContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_block@1:
     // transaction/contract.py:11
     // class TransactionContract(arc4.ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@14
+    bz main_bare_routing@15
+
+main_abi_routing@2:
+    // transaction/contract.py:11
+    // class TransactionContract(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x4c5c61ba // method "create()void"
     pushbytes 0x6b680318 // method "pay(pay)void"
@@ -27,26 +28,22 @@ __puya_arc4_router__:
     pushbytes 0x3056840b // method "any_txn(txn,txn,txn)void"
     pushbytes 0x96ef9a95 // method "group_init(txn,txn,txn)void"
     uncover 10
-    match __puya_arc4_router___create_route@2 __puya_arc4_router___pay_route@3 __puya_arc4_router___key_route@4 __puya_arc4_router___asset_config_route@5 __puya_arc4_router___asset_transfer_route@6 __puya_arc4_router___asset_freeze_route@7 __puya_arc4_router___application_call_route@8 __puya_arc4_router___multiple_txns_route@9 __puya_arc4_router___any_txn_route@10 __puya_arc4_router___group_init_route@11
-    b __puya_arc4_router___switch_case_default@12
+    match main_create_route@3 main_pay_route@4 main_key_route@5 main_asset_config_route@6 main_asset_transfer_route@7 main_asset_freeze_route@8 main_application_call_route@9 main_multiple_txns_route@10 main_any_txn_route@11 main_group_init_route@12
 
-__puya_arc4_router___create_route@2:
-    // transaction/contract.py:12
-    // @arc4.abimethod(create="require")
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
+main_switch_case_default@13:
+
+main_switch_case_next@14:
+
+main_after_if_else@16:
+    // transaction/contract.py:11
+    // class TransactionContract(arc4.ARC4Contract):
     intc_0 // 0
-    ==
-    assert // can only call when creating
-    callsub create
-    intc_1 // 1
-    retsub
 
-__puya_arc4_router___pay_route@3:
-    // transaction/contract.py:31
+main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17:
+    return
+
+main_group_init_route@12:
+    // transaction/contract.py:131
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -59,21 +56,25 @@ __puya_arc4_router___pay_route@3:
     // transaction/contract.py:11
     // class TransactionContract(arc4.ARC4Contract):
     txn GroupIndex
+    intc_3 // 3
+    -
+    txn GroupIndex
+    intc_2 // 2
+    -
+    txn GroupIndex
     intc_1 // 1
     -
-    dup
-    gtxns TypeEnum
-    intc_1 // pay
-    ==
-    assert // transaction type is pay
-    // transaction/contract.py:31
+    // transaction/contract.py:131
     // @arc4.abimethod
-    callsub pay
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub group_init
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17
 
-__puya_arc4_router___key_route@4:
-    // transaction/contract.py:40
+main_any_txn_route@11:
+    // transaction/contract.py:121
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -86,128 +87,24 @@ __puya_arc4_router___key_route@4:
     // transaction/contract.py:11
     // class TransactionContract(arc4.ARC4Contract):
     txn GroupIndex
-    intc_1 // 1
+    intc_3 // 3
     -
-    dup
-    gtxns TypeEnum
-    intc_2 // keyreg
-    ==
-    assert // transaction type is keyreg
-    // transaction/contract.py:40
-    // @arc4.abimethod
-    callsub key
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___asset_config_route@5:
-    // transaction/contract.py:51
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // transaction/contract.py:11
-    // class TransactionContract(arc4.ARC4Contract):
+    txn GroupIndex
+    intc_2 // 2
+    -
     txn GroupIndex
     intc_1 // 1
     -
-    dup
-    gtxns TypeEnum
-    intc_3 // acfg
-    ==
-    assert // transaction type is acfg
-    // transaction/contract.py:51
+    // transaction/contract.py:121
     // @arc4.abimethod
-    callsub asset_config
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub any_txn
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17
 
-__puya_arc4_router___asset_transfer_route@6:
-    // transaction/contract.py:68
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // transaction/contract.py:11
-    // class TransactionContract(arc4.ARC4Contract):
-    txn GroupIndex
-    intc_1 // 1
-    -
-    dup
-    gtxns TypeEnum
-    pushint 4 // axfer
-    ==
-    assert // transaction type is axfer
-    // transaction/contract.py:68
-    // @arc4.abimethod
-    callsub asset_transfer
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___asset_freeze_route@7:
-    // transaction/contract.py:77
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // transaction/contract.py:11
-    // class TransactionContract(arc4.ARC4Contract):
-    txn GroupIndex
-    intc_1 // 1
-    -
-    dup
-    gtxns TypeEnum
-    pushint 5 // afrz
-    ==
-    assert // transaction type is afrz
-    // transaction/contract.py:77
-    // @arc4.abimethod
-    callsub asset_freeze
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___application_call_route@8:
-    // transaction/contract.py:85
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // transaction/contract.py:11
-    // class TransactionContract(arc4.ARC4Contract):
-    txn GroupIndex
-    intc_1 // 1
-    -
-    dup
-    gtxns TypeEnum
-    pushint 6 // appl
-    ==
-    assert // transaction type is appl
-    // transaction/contract.py:85
-    // @arc4.abimethod
-    callsub application_call
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___multiple_txns_route@9:
+main_multiple_txns_route@10:
     // transaction/contract.py:111
     // @arc4.abimethod
     txn OnCompletion
@@ -251,10 +148,10 @@ __puya_arc4_router___multiple_txns_route@9:
     uncover 2
     callsub multiple_txns
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17
 
-__puya_arc4_router___any_txn_route@10:
-    // transaction/contract.py:121
+main_application_call_route@9:
+    // transaction/contract.py:85
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -267,25 +164,21 @@ __puya_arc4_router___any_txn_route@10:
     // transaction/contract.py:11
     // class TransactionContract(arc4.ARC4Contract):
     txn GroupIndex
-    intc_3 // 3
-    -
-    txn GroupIndex
-    intc_2 // 2
-    -
-    txn GroupIndex
     intc_1 // 1
     -
-    // transaction/contract.py:121
+    dup
+    gtxns TypeEnum
+    pushint 6 // appl
+    ==
+    assert // transaction type is appl
+    // transaction/contract.py:85
     // @arc4.abimethod
-    uncover 2
-    uncover 2
-    uncover 2
-    callsub any_txn
+    callsub application_call
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17
 
-__puya_arc4_router___group_init_route@11:
-    // transaction/contract.py:131
+main_asset_freeze_route@8:
+    // transaction/contract.py:77
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -298,33 +191,144 @@ __puya_arc4_router___group_init_route@11:
     // transaction/contract.py:11
     // class TransactionContract(arc4.ARC4Contract):
     txn GroupIndex
-    intc_3 // 3
-    -
-    txn GroupIndex
-    intc_2 // 2
-    -
-    txn GroupIndex
     intc_1 // 1
     -
-    // transaction/contract.py:131
+    dup
+    gtxns TypeEnum
+    pushint 5 // afrz
+    ==
+    assert // transaction type is afrz
+    // transaction/contract.py:77
     // @arc4.abimethod
-    uncover 2
-    uncover 2
-    uncover 2
-    callsub group_init
+    callsub asset_freeze
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17
 
-__puya_arc4_router___switch_case_default@12:
-    b __puya_arc4_router___after_if_else@15
-
-__puya_arc4_router___bare_routing@14:
-
-__puya_arc4_router___after_if_else@15:
+main_asset_transfer_route@7:
+    // transaction/contract.py:68
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
     // transaction/contract.py:11
     // class TransactionContract(arc4.ARC4Contract):
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    pushint 4 // axfer
+    ==
+    assert // transaction type is axfer
+    // transaction/contract.py:68
+    // @arc4.abimethod
+    callsub asset_transfer
+    intc_1 // 1
+    b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17
+
+main_asset_config_route@6:
+    // transaction/contract.py:51
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
     intc_0 // 0
-    retsub
+    !=
+    assert // can only call when not creating
+    // transaction/contract.py:11
+    // class TransactionContract(arc4.ARC4Contract):
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_3 // acfg
+    ==
+    assert // transaction type is acfg
+    // transaction/contract.py:51
+    // @arc4.abimethod
+    callsub asset_config
+    intc_1 // 1
+    b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17
+
+main_key_route@5:
+    // transaction/contract.py:40
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // transaction/contract.py:11
+    // class TransactionContract(arc4.ARC4Contract):
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_2 // keyreg
+    ==
+    assert // transaction type is keyreg
+    // transaction/contract.py:40
+    // @arc4.abimethod
+    callsub key
+    intc_1 // 1
+    b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17
+
+main_pay_route@4:
+    // transaction/contract.py:31
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // transaction/contract.py:11
+    // class TransactionContract(arc4.ARC4Contract):
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    // transaction/contract.py:31
+    // @arc4.abimethod
+    callsub pay
+    intc_1 // 1
+    b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17
+
+main_create_route@3:
+    // transaction/contract.py:12
+    // @arc4.abimethod(create="require")
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    assert // can only call when creating
+    callsub create
+    intc_1 // 1
+    b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17
+
+main_bare_routing@15:
+    b main_after_if_else@16
 
 
 // test_cases.transaction.contract.TransactionContract.create() -> void:
@@ -897,20 +901,15 @@ multiple_txns_for_body@1:
     frame_dig 1
     ==
     assert
+
+multiple_txns_for_footer@2:
     // transaction/contract.py:118
     // for index, app in uenumerate((txn1, txn2, txn3)):
     frame_dig 1
     switch multiple_txns_for_header_1@3 multiple_txns_for_header_2@4
-    b multiple_txns_after_for@5
 
-multiple_txns_for_header_1@3:
-    // transaction/contract.py:118
-    // for index, app in uenumerate((txn1, txn2, txn3)):
-    frame_dig -2
-    frame_bury 0
-    intc_1 // 1
-    frame_bury 1
-    b multiple_txns_for_body@1
+multiple_txns_after_for@5:
+    retsub
 
 multiple_txns_for_header_2@4:
     // transaction/contract.py:118
@@ -921,8 +920,14 @@ multiple_txns_for_header_2@4:
     frame_bury 1
     b multiple_txns_for_body@1
 
-multiple_txns_after_for@5:
-    retsub
+multiple_txns_for_header_1@3:
+    // transaction/contract.py:118
+    // for index, app in uenumerate((txn1, txn2, txn3)):
+    frame_dig -2
+    frame_bury 0
+    intc_1 // 1
+    frame_bury 1
+    b multiple_txns_for_body@1
 
 
 // test_cases.transaction.contract.TransactionContract.any_txn(txn1: uint64, txn2: uint64, txn3: uint64) -> void:
@@ -949,19 +954,15 @@ any_txn_for_body@1:
     frame_dig 0
     ==
     assert
+
+any_txn_for_footer@2:
     // transaction/contract.py:128
     // for index, txn in uenumerate((txn1, txn2, txn3)):
     frame_dig 0
     switch any_txn_for_header_1@3 any_txn_for_header_2@4
-    b any_txn_after_for@5
 
-any_txn_for_header_1@3:
-    // transaction/contract.py:128
-    // for index, txn in uenumerate((txn1, txn2, txn3)):
-    frame_dig -2
-    intc_1 // 1
-    frame_bury 0
-    b any_txn_for_body@1
+any_txn_after_for@5:
+    retsub
 
 any_txn_for_header_2@4:
     // transaction/contract.py:128
@@ -971,8 +972,13 @@ any_txn_for_header_2@4:
     frame_bury 0
     b any_txn_for_body@1
 
-any_txn_after_for@5:
-    retsub
+any_txn_for_header_1@3:
+    // transaction/contract.py:128
+    // for index, txn in uenumerate((txn1, txn2, txn3)):
+    frame_dig -2
+    intc_1 // 1
+    frame_bury 0
+    b any_txn_for_body@1
 
 
 // test_cases.transaction.contract.TransactionContract.group_init(txn1: uint64, txn2: uint64, txn3: uint64) -> void:
@@ -1004,27 +1010,12 @@ group_init_for_body@1:
     gtxns TxID
     ==
     assert
+
+group_init_for_footer@2:
     // transaction/contract.py:138
     // for txn in (txn1, txn2, txn3):
     frame_dig 0
     switch group_init_for_header_1@3 group_init_for_header_2@4
-    b group_init_after_for@5
-
-group_init_for_header_1@3:
-    intc_1 // 1
-    frame_bury 0
-    // transaction/contract.py:138
-    // for txn in (txn1, txn2, txn3):
-    frame_dig -2
-    b group_init_for_body@1
-
-group_init_for_header_2@4:
-    intc_2 // 2
-    frame_bury 0
-    // transaction/contract.py:138
-    // for txn in (txn1, txn2, txn3):
-    frame_dig -1
-    b group_init_for_body@1
 
 group_init_after_for@5:
     // transaction/contract.py:141
@@ -1036,3 +1027,19 @@ group_init_after_for@5:
     ==
     assert
     retsub
+
+group_init_for_header_2@4:
+    intc_2 // 2
+    frame_bury 0
+    // transaction/contract.py:138
+    // for txn in (txn1, txn2, txn3):
+    frame_dig -1
+    b group_init_for_body@1
+
+group_init_for_header_1@3:
+    intc_1 // 1
+    frame_bury 0
+    // transaction/contract.py:138
+    // for txn in (txn1, txn2, txn3):
+    frame_dig -2
+    b group_init_for_body@1

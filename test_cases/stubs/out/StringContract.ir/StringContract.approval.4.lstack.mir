@@ -1,0 +1,106 @@
+// Op                                                                                         Stack (out)
+// test_cases.stubs.string.StringContract.approval_program() -> uint64:
+main:
+    // stubs/string.py:22
+    // assert "brown fox" in String("The quick brown fox jumped over the lazy dog")
+    byte "brown fox"                                                                          "brown fox"
+    byte "The quick brown fox jumped over the lazy dog"                                       "brown fox","The quick brown fox jumped over the lazy dog"
+    callsub is_substring                                                                      tmp%12#0
+    l-load tmp%12#0 0                                                                         tmp%12#0
+    assert
+    // stubs/string.py:23
+    // assert String("red fox") not in String("The quick brown fox jumped over the lazy dog")
+    byte "red fox"                                                                            "red fox"
+    byte "The quick brown fox jumped over the lazy dog"                                       "red fox","The quick brown fox jumped over the lazy dog"
+    callsub is_substring                                                                      tmp%13#0
+    l-load tmp%13#0 0                                                                         tmp%13#0
+    !                                                                                         tmp%14#0
+    l-load tmp%14#0 0                                                                         tmp%14#0
+    assert
+    // stubs/string.py:49
+    // String("args" if Txn.num_app_args else "no args") == "no args"
+    txn NumAppArgs                                                                            tmp%100#0
+    l-load tmp%100#0 0                                                                        tmp%100#0
+    bz main_ternary_false@38 ; b main_ternary_true@37
+
+main_ternary_true@37:
+    // stubs/string.py:49
+    // String("args" if Txn.num_app_args else "no args") == "no args"
+    byte "args"                                                                               "args"
+    v-store ternary_result%12#0
+    b main_ternary_merge@39
+
+main_ternary_false@38:
+    // stubs/string.py:49
+    // String("args" if Txn.num_app_args else "no args") == "no args"
+    byte "no args"                                                                            "no args"
+    v-store ternary_result%12#0
+    b main_ternary_merge@39
+
+main_ternary_merge@39:
+    // stubs/string.py:49
+    // String("args" if Txn.num_app_args else "no args") == "no args"
+    v-load ternary_result%12#0                                                                ternary_result%12#0
+    byte "no args"                                                                            ternary_result%12#0,"no args"
+    ==                                                                                        tmp%102#0
+    // stubs/string.py:48-50
+    // assert (
+    //     String("args" if Txn.num_app_args else "no args") == "no args"
+    // ), "constructor expressions supported"
+    l-load tmp%102#0 0                                                                        tmp%102#0
+    assert // constructor expressions supported
+    // stubs/string.py:52
+    // return True
+    int 1                                                                                     1
+    return
+
+
+// _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:
+is_substring:                                                                                 (𝕡) item#0,sequence#0 |
+    int 0                                                                                     (𝕡) item#0,sequence#0 | 0
+    v-store start#0                                                                           (𝕡) item#0,sequence#0 |
+    b is_substring_while_top@1                                                                (𝕡) item#0,sequence#0 |
+
+is_substring_while_top@1:                                                                     (𝕡) item#0,sequence#0 |
+    p-load item#0                                                                             (𝕡) item#0,sequence#0 | item#0 (copy)
+    len                                                                                       (𝕡) item#0,sequence#0 | tmp%0#0
+    v-load start#0                                                                            (𝕡) item#0,sequence#0 | tmp%0#0,start#0
+    l-load tmp%0#0 1                                                                          (𝕡) item#0,sequence#0 | start#0,tmp%0#0
+    +                                                                                         (𝕡) item#0,sequence#0 | tmp%1#0
+    l-store-copy tmp%1#0 0                                                                    (𝕡) item#0,sequence#0 | tmp%1#0,tmp%1#0 (copy)
+    v-store tmp%1#0                                                                           (𝕡) item#0,sequence#0 | tmp%1#0
+    p-load sequence#0                                                                         (𝕡) item#0,sequence#0 | tmp%1#0,sequence#0 (copy)
+    len                                                                                       (𝕡) item#0,sequence#0 | tmp%1#0,tmp%2#0
+    l-load tmp%1#0 1                                                                          (𝕡) item#0,sequence#0 | tmp%2#0,tmp%1#0
+    l-load tmp%2#0 1                                                                          (𝕡) item#0,sequence#0 | tmp%1#0,tmp%2#0
+    <=                                                                                        (𝕡) item#0,sequence#0 | tmp%3#0
+    l-load tmp%3#0 0                                                                          (𝕡) item#0,sequence#0 | tmp%3#0
+    bz is_substring_after_while@5 ; b is_substring_while_body@2                               (𝕡) item#0,sequence#0 |
+
+is_substring_while_body@2:                                                                    (𝕡) item#0,sequence#0 |
+    p-load sequence#0                                                                         (𝕡) item#0,sequence#0 | sequence#0 (copy)
+    v-load start#0                                                                            (𝕡) item#0,sequence#0 | sequence#0 (copy),start#0
+    v-load tmp%1#0                                                                            (𝕡) item#0,sequence#0 | sequence#0 (copy),start#0,tmp%1#0
+    substring3                                                                                (𝕡) item#0,sequence#0 | tmp%6#0
+    p-load item#0                                                                             (𝕡) item#0,sequence#0 | tmp%6#0,item#0 (copy)
+    l-load tmp%6#0 1                                                                          (𝕡) item#0,sequence#0 | item#0 (copy),tmp%6#0
+    ==                                                                                        (𝕡) item#0,sequence#0 | tmp%7#0
+    l-load tmp%7#0 0                                                                          (𝕡) item#0,sequence#0 | tmp%7#0
+    bz is_substring_after_if_else@4 ; b is_substring_if_body@3                                (𝕡) item#0,sequence#0 |
+
+is_substring_if_body@3:                                                                       (𝕡) item#0,sequence#0 |
+    int 1                                                                                     (𝕡) item#0,sequence#0 | 1
+    retsub                                                                                    1
+
+is_substring_after_if_else@4:                                                                 (𝕡) item#0,sequence#0 |
+    v-load start#0                                                                            (𝕡) item#0,sequence#0 | start#0
+    int 1                                                                                     (𝕡) item#0,sequence#0 | start#0,1
+    +                                                                                         (𝕡) item#0,sequence#0 | start#0
+    v-store start#0                                                                           (𝕡) item#0,sequence#0 |
+    b is_substring_while_top@1                                                                (𝕡) item#0,sequence#0 |
+
+is_substring_after_while@5:                                                                   (𝕡) item#0,sequence#0 |
+    int 0                                                                                     (𝕡) item#0,sequence#0 | 0
+    retsub                                                                                    0
+
+

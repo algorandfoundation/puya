@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.scratch_slots.contract.MyContract.approval_program:
+// test_cases.scratch_slots.contract.MyContract.approval_program() -> uint64:
+main:
     intcblock 1 5 0 2
     bytecblock 0x48656c6c6f20576f726c64 0x6c617374
     // scratch_slots/contract.py:9
@@ -37,10 +39,14 @@ main_for_header@1:
     pushint 20 // 20
     <
     bz main_after_for@4
+
+main_for_body@2:
     // scratch_slots/contract.py:15
     // op.Scratch.store(i, i)
     dupn 2
     stores
+
+main_for_footer@3:
     // scratch_slots/contract.py:14
     // for i in urange(3, 20):
     dup

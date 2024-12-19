@@ -1,61 +1,18 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.asset.contract.Reference.approval_program:
+// test_cases.asset.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 0 1
     bytecblock "asa"
     txn ApplicationID
     bnz main_after_if_else@2
+
+main_call___init__@1:
     callsub __init__
 
 main_after_if_else@2:
-    // asset/contract.py:21
-    // if Txn.num_app_args == 1:
-    txn NumAppArgs
-    intc_1 // 1
-    ==
-    bz main_after_if_else@10
-    // asset/contract.py:22
-    // if Txn.application_args(0) == b"opt_in":
-    txna ApplicationArgs 0
-    pushbytes 0x6f70745f696e
-    ==
-    bz main_else_body@5
-    // asset/contract.py:23
-    // asset = Txn.assets(0)
-    txna Assets 0
-    // asset/contract.py:24
-    // self.opt_into_asset(asset)
-    callsub opt_into_asset
-    b main_after_if_else@9
-
-main_else_body@5:
-    // asset/contract.py:25
-    // elif Txn.application_args(0) == b"is_opted_in":
-    txna ApplicationArgs 0
-    pushbytes 0x69735f6f707465645f696e
-    ==
-    bz main_else_body@7
-    // asset/contract.py:26
-    // asset = Txn.assets(0)
-    txna Assets 0
-    // asset/contract.py:27
-    // self.is_opted_asset(asset)
-    callsub is_opted_asset
-    b main_after_if_else@8
-
-main_else_body@7:
-    // asset/contract.py:29
-    // assert False, "Expected opt_in or is_opted_in"
-    err // Expected opt_in or is_opted_in
-
-main_after_if_else@8:
-
-main_after_if_else@9:
-
-main_after_if_else@10:
-    // asset/contract.py:30
-    // return True
-    intc_1 // 1
+    callsub approval_program
     return
 
 
@@ -70,6 +27,67 @@ __init__:
     intc_0 // 0
     app_global_put
     retsub
+
+
+// test_cases.asset.contract.Reference.approval_program() -> uint64:
+approval_program:
+    // asset/contract.py:20
+    // def approval_program(self) -> bool:
+    proto 0 1
+    // asset/contract.py:21
+    // if Txn.num_app_args == 1:
+    txn NumAppArgs
+    intc_1 // 1
+    ==
+    bz approval_program_after_if_else@8
+
+approval_program_if_body@1:
+    // asset/contract.py:22
+    // if Txn.application_args(0) == b"opt_in":
+    txna ApplicationArgs 0
+    pushbytes 0x6f70745f696e
+    ==
+    bz approval_program_else_body@3
+
+approval_program_if_body@2:
+    // asset/contract.py:23
+    // asset = Txn.assets(0)
+    txna Assets 0
+    // asset/contract.py:24
+    // self.opt_into_asset(asset)
+    callsub opt_into_asset
+
+approval_program_after_if_else@7:
+
+approval_program_after_if_else@8:
+    // asset/contract.py:30
+    // return True
+    intc_1 // 1
+    retsub
+
+approval_program_else_body@3:
+    // asset/contract.py:25
+    // elif Txn.application_args(0) == b"is_opted_in":
+    txna ApplicationArgs 0
+    pushbytes 0x69735f6f707465645f696e
+    ==
+    bz approval_program_else_body@5
+
+approval_program_if_body@4:
+    // asset/contract.py:26
+    // asset = Txn.assets(0)
+    txna Assets 0
+    // asset/contract.py:27
+    // self.is_opted_asset(asset)
+    callsub is_opted_asset
+
+approval_program_after_if_else@6:
+    b approval_program_after_if_else@7
+
+approval_program_else_body@5:
+    // asset/contract.py:29
+    // assert False, "Expected opt_in or is_opted_in"
+    err // Expected opt_in or is_opted_in
 
 
 // test_cases.asset.contract.Reference.opt_into_asset(asset: uint64) -> void:

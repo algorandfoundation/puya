@@ -1,89 +1,49 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.compile.apps.HelloOtherConstants.approval_program:
+// test_cases.compile.apps.HelloOtherConstants.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 0 1
-    bytecblock "greeting" "num" "address" "method" 0x151f7c75 TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
+    bytecblock "greeting" "num" "address" "method" TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
     txn ApplicationID
     bnz main_after_if_else@2
-    callsub __init__
-
-main_after_if_else@2:
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.compile.apps.HelloOtherConstants.__init__() -> void:
-__init__:
-    // compile/apps.py:77
-    // def __init__(self) -> None:
-    proto 0 0
     // compile/apps.py:78
     // self.greeting = TemplateVar[String]("GREETING")
     bytec_0 // "greeting"
-    bytec 5 // TMPL_GREETING
+    bytec 4 // TMPL_GREETING
     app_global_put
     // compile/apps.py:79
     // self.num = TemplateVar[BigUInt]("NUM")
     bytec_1 // "num"
-    bytec 6 // TMPL_NUM
+    bytec 5 // TMPL_NUM
     app_global_put
     // compile/apps.py:80
     // self.address = TemplateVar[Account]("ACCOUNT")
     bytec_2 // "address"
-    bytec 7 // TMPL_ACCOUNT
+    bytec 6 // TMPL_ACCOUNT
     app_global_put
     // compile/apps.py:81
     // self.method = TemplateVar[Bytes]("METHOD")
     bytec_3 // "method"
-    bytec 8 // TMPL_METHOD
+    bytec 7 // TMPL_METHOD
     app_global_put
-    retsub
 
-
-// test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_after_if_else@2:
     // compile/apps.py:76
     // class HelloOtherConstants(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___after_if_else@8
+    bz main_after_if_else@8
     pushbytess 0xd9285a74 0x24378d3c 0x5b0c2375 // method "create()uint64", method "delete()void", method "greet(string)byte[]"
     txna ApplicationArgs 0
-    match __puya_arc4_router___create_route@2 __puya_arc4_router___delete_route@3 __puya_arc4_router___greet_route@4
+    match main_create_route@5 main_delete_route@6 main_greet_route@7
+
+main_after_if_else@8:
+    // compile/apps.py:76
+    // class HelloOtherConstants(ARC4Contract):
     intc_0 // 0
-    retsub
+    return
 
-__puya_arc4_router___create_route@2:
-    // compile/apps.py:83
-    // @arc4.abimethod(create="require")
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    callsub create
-    itob
-    bytec 4 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___delete_route@3:
-    // compile/apps.py:87
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    assert // OnCompletion is not DeleteApplication
-    txn ApplicationID
-    assert // can only call when not creating
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___greet_route@4:
+main_greet_route@7:
     // compile/apps.py:91
     // @arc4.abimethod()
     txn OnCompletion
@@ -104,30 +64,38 @@ __puya_arc4_router___greet_route@4:
     extract 6 2
     swap
     concat
-    bytec 4 // 0x151f7c75
+    pushbytes 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
-    retsub
+    return
 
-__puya_arc4_router___after_if_else@8:
-    // compile/apps.py:76
-    // class HelloOtherConstants(ARC4Contract):
-    intc_0 // 0
-    retsub
-
-
-// test_cases.compile.apps.HelloOtherConstants.create() -> uint64:
-create:
-    // compile/apps.py:83-84
-    // @arc4.abimethod(create="require")
-    // def create(self) -> UInt64:
-    proto 0 1
-    // compile/apps.py:85
-    // return UInt64(1)
+main_delete_route@6:
+    // compile/apps.py:87
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    txn OnCompletion
+    pushint 5 // DeleteApplication
+    ==
+    assert // OnCompletion is not DeleteApplication
+    txn ApplicationID
+    assert // can only call when not creating
     intc_1 // 1
-    retsub
+    return
+
+main_create_route@5:
+    // compile/apps.py:83
+    // @arc4.abimethod(create="require")
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    pushbytes 0x151f7c750000000000000001
+    log
+    intc_1 // 1
+    return
 
 
 // test_cases.compile.apps.HelloOtherConstants.greet(name: bytes) -> bytes:

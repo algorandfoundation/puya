@@ -1,37 +1,13 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program:
+// test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program() -> uint64:
+main:
     intcblock 0 1 4 2
-    bytecblock 0x01020304 0x05 0x80320006000d00054861707079000444617973 0x000741415252474821
-    // arc4_types/mutable_params.py:29
-    // self.mutating_copies()
-    callsub mutating_copies
-    // arc4_types/mutable_params.py:31
-    // return True
-    intc_1 // 1
-    return
-
-
-// test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutating_copies() -> void:
-mutating_copies:
-    // arc4_types/mutable_params.py:33-34
-    // @subroutine
-    // def mutating_copies(self) -> None:
-    proto 0 0
-    // arc4_types/mutable_params.py:35
-    // my_array = StaticArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
-    bytec_0 // 0x01020304
+    bytecblock 0x01020304 0x80320006000d00054861707079000444617973 0x05 0x000741415252474821 0x0a020304
     // arc4_types/mutable_params.py:46
     // my_array[2] = UInt8(5)
-    bytec_1 // 0x05
-    replace2 2
-    // arc4_types/mutable_params.py:49
-    // assert my_array[2] == UInt8(5), "my_array should be mutated"
-    dup
-    extract 2 1 // on error: Index access is out of bounds
-    bytec_1 // 0x05
-    b==
-    assert // my_array should be mutated
+    pushbytes 0x01020504
     // arc4_types/mutable_params.py:36-41
     // my_struct = TestStruct(
     //     b_val=Bool(True),
@@ -39,7 +15,7 @@ mutating_copies:
     //     s_val_1=String("Happy"),
     //     s_val_2=String("Days"),
     // )
-    bytec_2 // 0x80320006000d00054861707079000444617973
+    bytec_1 // 0x80320006000d00054861707079000444617973
     // arc4_types/mutable_params.py:51-52
     // # Pass to subroutine without a copy
     // t, f = self.other_routine(my_array, my_struct)
@@ -57,7 +33,7 @@ mutating_copies:
     // assert my_array[1] == UInt8(5), "my_array has been mutated by the subroutine"
     dig 1
     extract 1 1 // on error: Index access is out of bounds
-    bytec_1 // 0x05
+    bytec_2 // 0x05
     b==
     assert // my_array has been mutated by the subroutine
     // arc4_types/mutable_params.py:58
@@ -86,44 +62,22 @@ mutating_copies:
     //     s_val_1=String("Happy"),
     //     s_val_2=String("Days"),
     // )
-    bytec_2 // 0x80320006000d00054861707079000444617973
+    bytec_1 // 0x80320006000d00054861707079000444617973
     // arc4_types/mutable_params.py:62-63
     // # Pass to subroutine with copy
     // self.other_routine(my_array_copy.copy(), my_struct_copy.copy())
     callsub other_routine
     popn 4
-    // arc4_types/mutable_params.py:35
-    // my_array = StaticArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
-    bytec_0 // 0x01020304
-    // arc4_types/mutable_params.py:75
-    // my_array_copy_2 = self.other_routine_2(my_array_copy_2)
-    callsub other_routine_2
-    pop
-    // arc4_types/mutable_params.py:77
-    // assert my_array_copy_2[0] == UInt8(1), "my_array_copy_2 should have original value"
-    dup
-    extract 0 1 // on error: Index access is out of bounds
-    pushbytes 0x01
-    b==
-    assert // my_array_copy_2 should have original value
-    // arc4_types/mutable_params.py:79
-    // self.other_routine_2(my_array_copy_2)
-    callsub other_routine_2
-    bury 1
-    // arc4_types/mutable_params.py:80
-    // assert my_array_copy_2[0] == UInt8(10), "my_array_copy_2 should have mutated value"
-    dup
-    extract 0 1 // on error: Index access is out of bounds
-    pushbytes 0x0a
-    b==
-    assert // my_array_copy_2 should have mutated value
     // arc4_types/mutable_params.py:85-89
     // self.mutate_tuple_items_and_reassign(
     //     (my_array.copy(), my_array_copy_2.copy(), my_array_copy_3.copy()),
     //     start=UInt64(0),
     //     reassign=True,
     // )
-    dup2
+    dup
+    // arc4_types/mutable_params.py:127
+    // array[0] = UInt8(10)
+    bytec 4 // 0x0a020304
     // arc4_types/mutable_params.py:35
     // my_array = StaticArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
     bytec_0 // 0x01020304
@@ -141,6 +95,9 @@ mutating_copies:
     // )
     callsub mutate_tuple_items_and_reassign
     popn 3
+    // arc4_types/mutable_params.py:127
+    // array[0] = UInt8(10)
+    bytec 4 // 0x0a020304
     // arc4_types/mutable_params.py:35
     // my_array = StaticArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
     bytec_0 // 0x01020304
@@ -227,7 +184,7 @@ mutating_copies:
     assert
     // arc4_types/mutable_params.py:110
     // assert my_array[1] == 206
-    dig 2
+    uncover 2
     extract 1 1 // on error: Index access is out of bounds
     pushbytes 0xce
     b==
@@ -245,12 +202,10 @@ mutating_copies:
     pushbytes 0xd0
     b==
     assert
-    // arc4_types/mutable_params.py:116
-    // self.other_routine_2(nested.test_array.copy())
-    extract 0 4 // on error: Index access is out of bounds
-    callsub other_routine_2
-    popn 2
-    retsub
+    // arc4_types/mutable_params.py:31
+    // return True
+    intc_1 // 1
+    return
 
 
 // test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(array: bytes, struct: bytes) -> uint64, uint64, bytes, bytes:
@@ -262,7 +217,7 @@ other_routine:
     // arc4_types/mutable_params.py:120
     // array[1] = UInt8(5)
     frame_dig -2
-    bytec_1 // 0x05
+    bytec_2 // 0x05
     replace2 1
     frame_bury -2
     // arc4_types/mutable_params.py:121
@@ -311,24 +266,6 @@ other_routine:
     retsub
 
 
-// test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(array: bytes) -> bytes, bytes:
-other_routine_2:
-    // arc4_types/mutable_params.py:124-125
-    // @subroutine
-    // def other_routine_2(self, array: TestArray) -> TestArray:
-    proto 1 2
-    // arc4_types/mutable_params.py:127
-    // array[0] = UInt8(10)
-    frame_dig -1
-    pushbytes 0x0a
-    replace2 0
-    // arc4_types/mutable_params.py:128
-    // return copy
-    frame_dig -1
-    swap
-    retsub
-
-
 // test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(arrays.0: bytes, arrays.1: bytes, arrays.2: bytes, start: uint64, reassign: uint64) -> bytes, bytes, bytes:
 mutate_tuple_items_and_reassign:
     // arc4_types/mutable_params.py:130-133
@@ -338,7 +275,7 @@ mutate_tuple_items_and_reassign:
     // ) -> None:
     proto 5 3
     intc_0 // 0
-    dupn 5
+    dupn 8
     intc_1 // 1
     dupn 2
     // arc4_types/mutable_params.py:134
@@ -427,26 +364,17 @@ mutate_tuple_items_and_reassign:
     frame_dig -3
     swap
     replace2 1
-    dup
     frame_bury -3
-    frame_dig -4
-    frame_dig -5
     // arc4_types/mutable_params.py:146-147
     // # overwrite params
     // if reassign:
     frame_dig -1
     bz mutate_tuple_items_and_reassign_after_if_else@20
     intc_0 // 0
-    frame_bury 6
-    intc_0 // 0
-    frame_bury 7
-    intc_0 // 0
-    frame_bury 8
-    frame_dig -3
     frame_bury 9
-    frame_dig -4
+    intc_0 // 0
     frame_bury 10
-    frame_dig -5
+    intc_0 // 0
     frame_bury 11
 
 mutate_tuple_items_and_reassign_after_if_else@20:
@@ -457,18 +385,18 @@ mutate_tuple_items_and_reassign_after_if_else@20:
     +
     itob
     dup
-    frame_bury 3
+    frame_bury 6
     extract 7 1
-    frame_dig 11
+    frame_dig -5
     swap
     replace2 1
-    frame_bury 11
+    frame_bury 0
     frame_dig -5
-    frame_bury 0
-    frame_dig 6
+    frame_bury 1
+    frame_dig 9
     bz mutate_tuple_items_and_reassign_after_if_else@22
-    frame_dig 11
-    frame_bury 0
+    frame_dig 0
+    frame_bury 1
 
 mutate_tuple_items_and_reassign_after_if_else@22:
     // arc4_types/mutable_params.py:151
@@ -478,18 +406,18 @@ mutate_tuple_items_and_reassign_after_if_else@22:
     +
     itob
     dup
-    frame_bury 4
+    frame_bury 7
     extract 7 1
-    frame_dig 10
+    frame_dig -4
     swap
     replace2 1
-    frame_bury 10
+    frame_bury 2
     frame_dig -4
-    frame_bury 1
-    frame_dig 7
-    bz mutate_tuple_items_and_reassign_after_if_else@24
+    frame_bury 3
     frame_dig 10
-    frame_bury 1
+    bz mutate_tuple_items_and_reassign_after_if_else@24
+    frame_dig 2
+    frame_bury 3
 
 mutate_tuple_items_and_reassign_after_if_else@24:
     // arc4_types/mutable_params.py:152
@@ -499,39 +427,45 @@ mutate_tuple_items_and_reassign_after_if_else@24:
     +
     itob
     dup
-    frame_bury 5
+    frame_bury 8
     extract 7 1
-    frame_dig 9
+    frame_dig -3
     swap
     replace2 1
-    frame_bury 9
+    frame_bury 4
     frame_dig -3
-    frame_bury 2
-    frame_dig 8
+    frame_bury 5
+    frame_dig 11
     bz mutate_tuple_items_and_reassign_after_if_else@26
-    frame_dig 9
-    frame_bury 2
+    frame_dig 4
+    frame_bury 5
 
 mutate_tuple_items_and_reassign_after_if_else@26:
     // arc4_types/mutable_params.py:154
     // assert arrays[0][1] == start + 6
-    frame_dig 11
+    frame_dig 0
     extract 1 1 // on error: Index access is out of bounds
-    frame_dig 3
+    frame_dig 6
     b==
     assert
     // arc4_types/mutable_params.py:155
     // assert arrays[1][1] == start + 7
-    frame_dig 10
+    frame_dig 2
     extract 1 1 // on error: Index access is out of bounds
-    frame_dig 4
+    frame_dig 7
     b==
     assert
     // arc4_types/mutable_params.py:156
     // assert arrays[2][1] == start + 8
-    frame_dig 9
+    frame_dig 4
     extract 1 1 // on error: Index access is out of bounds
-    frame_dig 5
+    frame_dig 8
     b==
     assert
+    frame_dig 1
+    frame_dig 3
+    frame_dig 5
+    frame_bury 2
+    frame_bury 1
+    frame_bury 0
     retsub

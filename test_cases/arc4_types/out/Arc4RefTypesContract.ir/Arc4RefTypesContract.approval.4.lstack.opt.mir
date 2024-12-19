@@ -1,0 +1,64 @@
+// Op                                                                                    Stack (out)
+// test_cases.arc4_types.reference_types.Arc4RefTypesContract.approval_program() -> uint64:
+main:
+    // arc4_types/reference_types.py:8
+    // sender_address = arc4.Address(op.Txn.sender)
+    txn Sender                                                                           sender_address#0
+    // arc4_types/reference_types.py:9
+    // assert sender_address == op.Txn.sender
+    txn Sender                                                                           sender_address#0,tmp%0#0
+    l-load-copy sender_address#0 1                                                       sender_address#0,tmp%0#0,sender_address#0 (copy)
+    l-load tmp%0#0 1                                                                     sender_address#0,sender_address#0 (copy),tmp%0#0
+    ==                                                                                   sender_address#0,tmp%1#0
+    assert                                                                               sender_address#0
+    // arc4_types/reference_types.py:12
+    // checked_address = arc4.Address(op.Txn.sender.bytes)
+    txn Sender                                                                           sender_address#0,checked_address#0
+    l-store-copy checked_address#0 0                                                     sender_address#0,checked_address#0,checked_address#0 (copy)
+    v-store checked_address#0                                                            sender_address#0,checked_address#0
+    l-load-copy checked_address#0 0                                                      sender_address#0,checked_address#0,checked_address#0 (copy)
+    len                                                                                  sender_address#0,checked_address#0,tmp%2#0
+    int 32                                                                               sender_address#0,checked_address#0,tmp%2#0,32
+    l-load tmp%2#0 1                                                                     sender_address#0,checked_address#0,32,tmp%2#0
+    ==                                                                                   sender_address#0,checked_address#0,tmp%3#0
+    assert // Address length is 32 bytes                                                 sender_address#0,checked_address#0
+    // arc4_types/reference_types.py:15
+    // unchecked_address = arc4.Address.from_bytes(op.Txn.sender.bytes)
+    txn Sender                                                                           sender_address#0,checked_address#0,unchecked_address#0
+    v-store unchecked_address#0                                                          sender_address#0,checked_address#0
+    // arc4_types/reference_types.py:16
+    // assert sender_address == checked_address and checked_address == unchecked_address
+    l-load sender_address#0 1                                                            checked_address#0,sender_address#0
+    l-load checked_address#0 1                                                           sender_address#0,checked_address#0
+    ==                                                                                   tmp%4#0
+    bz main_bool_false@3 ; b main_and_contd@1
+
+main_and_contd@1:
+    // arc4_types/reference_types.py:16
+    // assert sender_address == checked_address and checked_address == unchecked_address
+    v-load checked_address#0                                                             checked_address#0
+    v-load unchecked_address#0                                                           checked_address#0,unchecked_address#0
+    ==                                                                                   tmp%5#0
+    bz main_bool_false@3 ; b main_bool_true@2
+
+main_bool_true@2:
+    int 1                                                                                1
+    v-store and_result%0#0
+    b main_bool_merge@4
+
+main_bool_false@3:
+    int 0                                                                                0
+    v-store and_result%0#0
+    b main_bool_merge@4
+
+main_bool_merge@4:
+    // arc4_types/reference_types.py:16
+    // assert sender_address == checked_address and checked_address == unchecked_address
+    v-load and_result%0#0                                                                and_result%0#0
+    assert
+    // arc4_types/reference_types.py:19
+    // return True
+    int 1                                                                                1
+    return
+
+

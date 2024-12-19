@@ -1,8 +1,10 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.inner_transactions.itxn_loop.MyContract.approval_program:
+// test_cases.inner_transactions.itxn_loop.MyContract.approval_program() -> uint64:
+main:
     intcblock 1 0 2 3
-    bytecblock 0x31 0x32 0x0a8101
+    bytecblock 0x31 0x0a8101 0x32
     intc_1 // 0
     dupn 3
     // inner_transactions/itxn_loop.py:25
@@ -24,6 +26,8 @@ main_for_header@1:
     pushint 4 // 4
     <
     bz main_after_for@14
+
+main_for_body@2:
     // inner_transactions/itxn_loop.py:20
     // note = Bytes(b"ABCDE")
     pushbytes 0x4142434445
@@ -34,7 +38,7 @@ main_for_header@1:
     dup
     cover 3
     extract3
-    bury 5
+    bury 8
     // inner_transactions/itxn_loop.py:30
     // case UInt64(1):
     intc_0 // 1
@@ -57,48 +61,6 @@ main_for_header@1:
     //         )
     uncover 3
     match main_switch_case_0@3 main_switch_case_1@4 main_switch_case_2@5
-    b main_switch_case_default@6
-
-main_switch_case_0@3:
-    // inner_transactions/itxn_loop.py:31
-    // app_params.set(note=i_note, app_args=(Bytes(b"1"),))
-    dig 3
-    bury 3
-    bytec_0 // 0x31
-    bury 7
-    intc_0 // 1
-    bury 2
-    b main_switch_case_next@7
-
-main_switch_case_1@4:
-    // inner_transactions/itxn_loop.py:33
-    // app_params.set(note=i_note, app_args=(Bytes(b"2"), Bytes(b"1")))
-    dig 3
-    bury 3
-    bytec_1 // 0x32
-    bury 7
-    bytec_0 // 0x31
-    bury 6
-    intc_2 // 2
-    bury 2
-    b main_switch_case_next@7
-
-main_switch_case_2@5:
-    // inner_transactions/itxn_loop.py:36
-    // note=i_note,
-    dig 3
-    bury 3
-    // inner_transactions/itxn_loop.py:37
-    // app_args=(Bytes(b"3"), Bytes(b"2"), Bytes(b"1")),
-    pushbytes 0x33
-    bury 7
-    bytec_1 // 0x32
-    bury 6
-    bytec_0 // 0x31
-    bury 5
-    intc_3 // 3
-    bury 2
-    b main_switch_case_next@7
 
 main_switch_case_default@6:
 
@@ -110,19 +72,29 @@ main_switch_case_next@7:
     intc_0 // 1
     >=
     bz main_next_field@11
-    dig 6
+
+main_set_ApplicationArgs_0_to_0@8:
+    dig 3
     itxn_field ApplicationArgs
     dig 1
     intc_2 // 2
     >=
+    // inner_transactions/itxn_loop.py:39
+    // app_txn = app_params.submit()
     bz main_next_field@11
-    dig 5
+
+main_set_ApplicationArgs_1_to_1@9:
+    dig 4
     itxn_field ApplicationArgs
     dig 1
     intc_3 // 3
     >=
+    // inner_transactions/itxn_loop.py:39
+    // app_txn = app_params.submit()
     bz main_next_field@11
-    dig 4
+
+main_set_ApplicationArgs_2_to_2@10:
+    dig 5
     itxn_field ApplicationArgs
 
 main_next_field@11:
@@ -134,11 +106,11 @@ main_next_field@11:
     itxn_field OnCompletion
     // inner_transactions/itxn_loop.py:23
     // clear_state_program=programs.ALWAYS_APPROVE,
-    bytec_2 // 0x0a8101
+    bytec_1 // 0x0a8101
     itxn_field ClearStateProgramPages
     // inner_transactions/itxn_loop.py:22
     // approval_program=programs.ALWAYS_APPROVE,
-    bytec_2 // 0x0a8101
+    bytec_1 // 0x0a8101
     itxn_field ApprovalProgramPages
     // inner_transactions/itxn_loop.py:21
     // app_params = itxn.ApplicationCall(
@@ -146,6 +118,8 @@ main_next_field@11:
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
+
+main_next_txn@12:
     // inner_transactions/itxn_loop.py:39
     // app_txn = app_params.submit()
     itxn_submit
@@ -159,6 +133,8 @@ main_next_field@11:
     // log(app_txn.num_app_args)
     itob
     log
+
+main_for_footer@13:
     // inner_transactions/itxn_loop.py:27
     // for i in urange(4):
     dup
@@ -166,6 +142,47 @@ main_next_field@11:
     +
     bury 1
     b main_for_header@1
+
+main_switch_case_2@5:
+    // inner_transactions/itxn_loop.py:36
+    // note=i_note,
+    dig 6
+    bury 3
+    // inner_transactions/itxn_loop.py:37
+    // app_args=(Bytes(b"3"), Bytes(b"2"), Bytes(b"1")),
+    pushbytes 0x33
+    bury 4
+    bytec_2 // 0x32
+    bury 5
+    bytec_0 // 0x31
+    bury 6
+    intc_3 // 3
+    bury 2
+    b main_switch_case_next@7
+
+main_switch_case_1@4:
+    // inner_transactions/itxn_loop.py:33
+    // app_params.set(note=i_note, app_args=(Bytes(b"2"), Bytes(b"1")))
+    dig 6
+    bury 3
+    bytec_2 // 0x32
+    bury 4
+    bytec_0 // 0x31
+    bury 5
+    intc_2 // 2
+    bury 2
+    b main_switch_case_next@7
+
+main_switch_case_0@3:
+    // inner_transactions/itxn_loop.py:31
+    // app_params.set(note=i_note, app_args=(Bytes(b"1"),))
+    dig 6
+    bury 3
+    bytec_0 // 0x31
+    bury 4
+    intc_0 // 1
+    bury 2
+    b main_switch_case_next@7
 
 main_after_for@14:
     // inner_transactions/itxn_loop.py:43

@@ -1,0 +1,57 @@
+// Op                                       Stack (out)
+// test_cases.ssa2.contract.MyContract.approval_program() -> uint64:
+main:
+    // ssa2/contract.py:8
+    // a = UInt64(1) + 2
+    int 3                                   3
+    v-store a#0
+    // ssa2/contract.py:9
+    // b = UInt64(4) * 5
+    int 20                                  20
+    v-store b#0
+    // ssa2/contract.py:15
+    // for i in urange(5):
+    int 0                                   0
+    v-store i#0
+    b main_for_header@1
+
+main_for_header@1:
+    // ssa2/contract.py:15
+    // for i in urange(5):
+    v-load i#0                              i#0
+    int 5                                   i#0,5
+    <                                       continue_looping%0#0
+    bz main_after_for@4 ; b main_for_body@2
+
+main_for_body@2:
+    // ssa2/contract.py:16
+    // b = b + a
+    v-load b#0                              b#0
+    v-load a#0                              b#0,a#0
+    l-store-copy a#0 1                      a#0,b#0,a#0 (copy)
+    +                                       a#0,b#0
+    v-store b#0                             a#0
+    // ssa2/contract.py:17
+    // a = a + i
+    l-load a#0 0                            a#0
+    v-load i#0                              a#0,i#0
+    l-store-copy i#0 1                      i#0,a#0,i#0 (copy)
+    +                                       i#0,a#0
+    v-store a#0                             i#0
+    // ssa2/contract.py:15
+    // for i in urange(5):
+    l-load i#0 0                            i#0
+    int 1                                   i#0,1
+    +                                       i#0
+    v-store i#0
+    b main_for_header@1
+
+main_after_for@4:
+    // ssa2/contract.py:18
+    // return a + b
+    v-load a#0                              a#0
+    v-load b#0                              a#0,b#0
+    +                                       tmp%0#0
+    return
+
+

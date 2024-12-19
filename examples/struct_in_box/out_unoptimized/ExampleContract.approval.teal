@@ -1,72 +1,41 @@
 #pragma version 10
+#pragma typetrack false
 
-examples.struct_in_box.contract.ExampleContract.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1 2 8
-    callsub __puya_arc4_router__
-    return
 
-
-// examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_block@1:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@7
+    bz main_bare_routing@8
+
+main_abi_routing@2:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xda8534bd // method "add_user((string,uint64,uint64))void"
     pushbytes 0x4eb4e9f1 // method "attach_asset_to_user(uint64,asset)void"
     pushbytes 0x16545880 // method "get_user(uint64)(string,uint64,uint64)"
     uncover 3
-    match __puya_arc4_router___add_user_route@2 __puya_arc4_router___attach_asset_to_user_route@3 __puya_arc4_router___get_user_route@4
-    b __puya_arc4_router___switch_case_default@5
+    match main_add_user_route@3 main_attach_asset_to_user_route@4 main_get_user_route@5
 
-__puya_arc4_router___add_user_route@2:
-    // struct_in_box/contract.py:30
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
+main_switch_case_default@6:
+
+main_switch_case_next@7:
+
+main_after_if_else@12:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
-    txna ApplicationArgs 1
-    // struct_in_box/contract.py:30
-    // @arc4.abimethod()
-    callsub add_user
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___attach_asset_to_user_route@3:
-    // struct_in_box/contract.py:35
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
     intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // struct_in_box/contract.py:10
-    // class ExampleContract(ARC4Contract):
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    btoi
-    txnas Assets
-    // struct_in_box/contract.py:35
-    // @arc4.abimethod()
-    callsub attach_asset_to_user
-    intc_1 // 1
-    retsub
 
-__puya_arc4_router___get_user_route@4:
+main_after_inlined_examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__@13:
+    return
+
+main_get_user_route@5:
     // struct_in_box/contract.py:41
     // @arc4.abimethod()
     txn OnCompletion
@@ -88,36 +57,75 @@ __puya_arc4_router___get_user_route@4:
     concat
     log
     intc_1 // 1
-    retsub
+    b main_after_inlined_examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__@13
 
-__puya_arc4_router___switch_case_default@5:
-    b __puya_arc4_router___after_if_else@11
+main_attach_asset_to_user_route@4:
+    // struct_in_box/contract.py:35
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    btoi
+    txnas Assets
+    // struct_in_box/contract.py:35
+    // @arc4.abimethod()
+    callsub attach_asset_to_user
+    intc_1 // 1
+    b main_after_inlined_examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__@13
 
-__puya_arc4_router___bare_routing@7:
+main_add_user_route@3:
+    // struct_in_box/contract.py:30
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    txna ApplicationArgs 1
+    // struct_in_box/contract.py:30
+    // @arc4.abimethod()
+    callsub add_user
+    intc_1 // 1
+    b main_after_inlined_examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__@13
+
+main_bare_routing@8:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@8
-    b __puya_arc4_router___switch_case_default@9
+    match main___algopy_default_create@9
 
-__puya_arc4_router_____algopy_default_create@8:
+main_switch_case_default@10:
+
+main_switch_case_next@11:
+    b main_after_if_else@12
+
+main___algopy_default_create@9:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+main_block@14:
+
+main_after_inlined_examples.struct_in_box.contract.ExampleContract.__algopy_default_create@15:
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@9:
-
-__puya_arc4_router___after_if_else@11:
-    // struct_in_box/contract.py:10
-    // class ExampleContract(ARC4Contract):
-    intc_0 // 0
-    retsub
+    b main_after_inlined_examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__@13
 
 
 // examples.struct_in_box.contract.ExampleContract.add_user(user: bytes) -> void:
@@ -238,10 +246,4 @@ get_user:
     // return self.read_from_box(user_id)
     frame_dig -1
     callsub read_from_box
-    retsub
-
-
-// examples.struct_in_box.contract.ExampleContract.__algopy_default_create() -> void:
-__algopy_default_create:
-    proto 0 0
     retsub

@@ -1,31 +1,43 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.typed_abi_call_txn.txn_contract.TxnContract.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1 3
     bytecblock 0x61 0x62 0x151f7c75
-    callsub __puya_arc4_router__
-    return
 
-
-// test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_block@1:
     // typed_abi_call_txn/txn_contract.py:11
     // class TxnContract(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@7
+    bz main_bare_routing@8
+
+main_abi_routing@2:
+    // typed_abi_call_txn/txn_contract.py:11
+    // class TxnContract(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xa1f5040d // method "call_with_txn(byte[],txn,byte[])uint64"
     pushbytes 0x6d4700ad // method "call_with_acfg(byte[],acfg,byte[])uint64"
     pushbytes 0xc840077d // method "call_with_acfg_no_return(byte[],acfg,byte[])void"
     uncover 3
-    match __puya_arc4_router___call_with_txn_route@2 __puya_arc4_router___call_with_acfg_route@3 __puya_arc4_router___call_with_acfg_no_return_route@4
-    b __puya_arc4_router___switch_case_default@5
+    match main_call_with_txn_route@3 main_call_with_acfg_route@4 main_call_with_acfg_no_return_route@5
 
-__puya_arc4_router___call_with_txn_route@2:
-    // typed_abi_call_txn/txn_contract.py:12
+main_switch_case_default@6:
+
+main_switch_case_next@7:
+
+main_after_if_else@12:
+    // typed_abi_call_txn/txn_contract.py:11
+    // class TxnContract(ARC4Contract):
+    intc_0 // 0
+
+main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__@13:
+    return
+
+main_call_with_acfg_no_return_route@5:
+    // typed_abi_call_txn/txn_contract.py:27
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -42,23 +54,23 @@ __puya_arc4_router___call_with_txn_route@2:
     txn GroupIndex
     intc_1 // 1
     -
+    dup
+    gtxns TypeEnum
+    intc_2 // acfg
+    ==
+    assert // transaction type is acfg
     txna ApplicationArgs 2
     extract 2 0
-    // typed_abi_call_txn/txn_contract.py:12
+    // typed_abi_call_txn/txn_contract.py:27
     // @arc4.abimethod
     uncover 2
     uncover 2
     uncover 2
-    callsub call_with_txn
-    itob
-    bytec_2 // 0x151f7c75
-    swap
-    concat
-    log
+    callsub call_with_acfg_no_return
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__@13
 
-__puya_arc4_router___call_with_acfg_route@3:
+main_call_with_acfg_route@4:
     // typed_abi_call_txn/txn_contract.py:20
     // @arc4.abimethod
     txn OnCompletion
@@ -95,10 +107,10 @@ __puya_arc4_router___call_with_acfg_route@3:
     concat
     log
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__@13
 
-__puya_arc4_router___call_with_acfg_no_return_route@4:
-    // typed_abi_call_txn/txn_contract.py:27
+main_call_with_txn_route@3:
+    // typed_abi_call_txn/txn_contract.py:12
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -115,50 +127,46 @@ __puya_arc4_router___call_with_acfg_no_return_route@4:
     txn GroupIndex
     intc_1 // 1
     -
-    dup
-    gtxns TypeEnum
-    intc_2 // acfg
-    ==
-    assert // transaction type is acfg
     txna ApplicationArgs 2
     extract 2 0
-    // typed_abi_call_txn/txn_contract.py:27
+    // typed_abi_call_txn/txn_contract.py:12
     // @arc4.abimethod
     uncover 2
     uncover 2
     uncover 2
-    callsub call_with_acfg_no_return
+    callsub call_with_txn
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__@13
 
-__puya_arc4_router___switch_case_default@5:
-    b __puya_arc4_router___after_if_else@11
-
-__puya_arc4_router___bare_routing@7:
+main_bare_routing@8:
     // typed_abi_call_txn/txn_contract.py:11
     // class TxnContract(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@8
-    b __puya_arc4_router___switch_case_default@9
+    match main___algopy_default_create@9
 
-__puya_arc4_router_____algopy_default_create@8:
+main_switch_case_default@10:
+
+main_switch_case_next@11:
+    b main_after_if_else@12
+
+main___algopy_default_create@9:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+main_block@14:
+
+main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__algopy_default_create@15:
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@9:
-
-__puya_arc4_router___after_if_else@11:
-    // typed_abi_call_txn/txn_contract.py:11
-    // class TxnContract(ARC4Contract):
-    intc_0 // 0
-    retsub
+    b main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__@13
 
 
 // test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn(a: bytes, acfg: uint64, b: bytes) -> uint64:
@@ -259,10 +267,4 @@ call_with_acfg_no_return:
     intc_0 // 0
     !=
     assert // expected asset id
-    retsub
-
-
-// test_cases.typed_abi_call_txn.txn_contract.TxnContract.__algopy_default_create() -> void:
-__algopy_default_create:
-    proto 0 0
     retsub

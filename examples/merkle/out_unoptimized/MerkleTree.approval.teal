@@ -1,49 +1,41 @@
 #pragma version 10
+#pragma typetrack false
 
-examples.merkle.contract.MerkleTree.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1 32
     bytecblock "root"
-    callsub __puya_arc4_router__
-    return
 
-
-// examples.merkle.contract.MerkleTree.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_block@1:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@6
+    bz main_bare_routing@7
+
+main_abi_routing@2:
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x8424203b // method "create(byte[32])void"
     pushbytes 0xc0290ad5 // method "verify(byte[32][],byte[32])bool"
     uncover 2
-    match __puya_arc4_router___create_route@2 __puya_arc4_router___verify_route@3
-    b __puya_arc4_router___switch_case_default@4
+    match main_create_route@3 main_verify_route@4
 
-__puya_arc4_router___create_route@2:
-    // merkle/contract.py:10
-    // @arc4.abimethod(create="require")
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    assert // can only call when creating
+main_switch_case_default@5:
+
+main_switch_case_next@6:
+
+main_after_if_else@8:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    // merkle/contract.py:10
-    // @arc4.abimethod(create="require")
-    callsub create
-    intc_1 // 1
-    retsub
+    intc_0 // 0
 
-__puya_arc4_router___verify_route@3:
+main_after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router__@9:
+    return
+
+main_verify_route@4:
     // merkle/contract.py:14
     // @arc4.abimethod
     txn OnCompletion
@@ -70,18 +62,30 @@ __puya_arc4_router___verify_route@3:
     concat
     log
     intc_1 // 1
-    retsub
+    b main_after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router__@9
 
-__puya_arc4_router___switch_case_default@4:
-    b __puya_arc4_router___after_if_else@7
-
-__puya_arc4_router___bare_routing@6:
-
-__puya_arc4_router___after_if_else@7:
+main_create_route@3:
+    // merkle/contract.py:10
+    // @arc4.abimethod(create="require")
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    assert // can only call when creating
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    intc_0 // 0
-    retsub
+    txna ApplicationArgs 1
+    // merkle/contract.py:10
+    // @arc4.abimethod(create="require")
+    callsub create
+    intc_1 // 1
+    b main_after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router__@9
+
+main_bare_routing@7:
+    b main_after_if_else@8
 
 
 // examples.merkle.contract.MerkleTree.create(root: bytes) -> void:
@@ -143,6 +147,8 @@ compute_root_hash_for_header@1:
     frame_dig 1
     <
     bz compute_root_hash_after_for@4
+
+compute_root_hash_for_body@2:
     // merkle/contract.py:23
     // computed = hash_pair(computed, proof[idx].bytes)
     frame_dig -2
@@ -156,6 +162,8 @@ compute_root_hash_for_header@1:
     swap
     callsub hash_pair
     frame_bury 0
+
+compute_root_hash_for_footer@3:
     // merkle/contract.py:22
     // for idx in urange(proof.length):
     frame_dig 2
@@ -186,16 +194,12 @@ hash_pair:
     frame_dig -1
     b<
     bz hash_pair_ternary_false@2
-    frame_dig -2
-    frame_dig -1
-    concat
-    b hash_pair_ternary_merge@3
 
-hash_pair_ternary_false@2:
+hash_pair_ternary_true@1:
     // merkle/contract.py:29
     // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
-    frame_dig -1
     frame_dig -2
+    frame_dig -1
     concat
 
 hash_pair_ternary_merge@3:
@@ -203,3 +207,11 @@ hash_pair_ternary_merge@3:
     // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
     sha256
     retsub
+
+hash_pair_ternary_false@2:
+    // merkle/contract.py:29
+    // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
+    frame_dig -1
+    frame_dig -2
+    concat
+    b hash_pair_ternary_merge@3

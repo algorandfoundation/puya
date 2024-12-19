@@ -1,0 +1,36 @@
+main test_cases.scratch_slots.contract.MyContract.approval_program:
+    block@0: // L8
+        let tmp%0#0: uint64 = (txn ApplicationID)
+        let tmp%1#0: bool = (== tmp%0#0 0u)
+        let tmp%2#0: uint64 = (select 0u 5u tmp%1#0)
+        (stores 1u tmp%2#0)
+        let hello_world#0: bytes = 0x48656c6c6f20576f726c64
+        (stores 2u hello_world#0)
+        (assert 1u) // Step cannot be zero
+        let i#0: uint64 = 3u
+        goto block@1
+    block@1: // for_header_L14
+        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
+        let continue_looping%0#0: bool = (< i#1 20u)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L15
+        (stores i#1 i#1)
+        goto block@3
+    block@3: // for_footer_L14
+        let i#2: uint64 = (+ i#1 1u)
+        goto block@1
+    block@4: // after_for_L14
+        let tmp%3#0: uint64 = (loads 1u)
+        let tmp%4#0: bool = (== tmp%3#0 5u)
+        (assert tmp%4#0)
+        let tmp%5#0: bytes = (loads 2u)
+        let tmp%6#0: bool = (== tmp%5#0 0x48656c6c6f20576f726c64)
+        (assert tmp%6#0)
+        let tmp%7#0: uint64 = (loads 5u)
+        let tmp%8#0: bool = (== tmp%7#0 5u)
+        (assert tmp%8#0)
+        (stores 19u 0x6c617374)
+        let tmp%9#0: bytes = (loads 19u)
+        let tmp%10#0: bool = (== tmp%9#0 0x6c617374)
+        (assert tmp%10#0)
+        return 1u

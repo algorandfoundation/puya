@@ -1,0 +1,88 @@
+// Op                                                                            Stack (out)
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // compile/apps.py:37
+    // class LargeProgram(ARC4Contract):
+    txn NumAppArgs                                                               tmp%0#1
+    l-load tmp%0#1 0                                                             tmp%0#1
+    bz main_bare_routing@7 ; b main_abi_routing@2
+
+main_abi_routing@2:
+    // compile/apps.py:37
+    // class LargeProgram(ARC4Contract):
+    txna ApplicationArgs 0                                                       tmp%2#0
+    method get_big_bytes_length()uint64                                          tmp%2#0,Method(get_big_bytes_length()uint64)
+    method delete()void                                                          tmp%2#0,Method(get_big_bytes_length()uint64),Method(delete()void)
+    l-load tmp%2#0 2                                                             Method(get_big_bytes_length()uint64),Method(delete()void),tmp%2#0
+    match main_get_big_bytes_length_route@3 main_delete_route@4 ; b main_after_if_else@11 
+
+main_get_big_bytes_length_route@3:
+    // compile/apps.py:38
+    // @arc4.abimethod()
+    txn OnCompletion                                                             tmp%3#0
+    l-load tmp%3#0 0                                                             tmp%3#0
+    !                                                                            tmp%4#0
+    l-load tmp%4#0 0                                                             tmp%4#0
+    assert // OnCompletion is not NoOp
+    txn ApplicationID                                                            tmp%5#0
+    l-load tmp%5#0 0                                                             tmp%5#0
+    assert // can only call when not creating
+    byte 0x151f7c750000000000001000                                              0x151f7c750000000000001000
+    log
+    int 1                                                                        1
+    l-store test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0 0      test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0
+    l-load test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0 0       test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router__@12 
+
+main_delete_route@4:
+    // compile/apps.py:42
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    txn OnCompletion                                                             tmp%8#0
+    l-load tmp%8#0 0                                                             tmp%8#0
+    int DeleteApplication                                                        tmp%8#0,DeleteApplication
+    ==                                                                           tmp%9#0
+    l-load tmp%9#0 0                                                             tmp%9#0
+    assert // OnCompletion is not DeleteApplication
+    txn ApplicationID                                                            tmp%10#0
+    l-load tmp%10#0 0                                                            tmp%10#0
+    assert // can only call when not creating
+    int 1                                                                        1
+    l-store test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0 0      test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0
+    l-load test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0 0       test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router__@12 
+
+main_bare_routing@7:
+    // compile/apps.py:37
+    // class LargeProgram(ARC4Contract):
+    txn OnCompletion                                                             tmp%12#0
+    l-load tmp%12#0 0                                                            tmp%12#0
+    bz main___algopy_default_create@8 ; b main_after_if_else@11
+
+main___algopy_default_create@8:
+    txn ApplicationID                                                            tmp%13#0
+    l-load tmp%13#0 0                                                            tmp%13#0
+    !                                                                            tmp%14#0
+    l-load tmp%14#0 0                                                            tmp%14#0
+    assert // can only call when creating
+    int 1                                                                        1
+    l-store test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0 0      test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0
+    l-load test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0 0       test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router__@12 
+
+main_after_if_else@11:
+    // compile/apps.py:37
+    // class LargeProgram(ARC4Contract):
+    int 0                                                                        0
+    l-store test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0 0      test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0
+    l-load test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0 0       test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router__@12 
+
+main_after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router__@12:
+    v-load tmp%0#0                                                               tmp%0#0
+    return
+
+

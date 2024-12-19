@@ -1,46 +1,21 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.typed_abi_call_txn.txn_contract.TxnContract.approval_program:
-    intcblock 1 3 0
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 1 3
     bytecblock 0x61 0x62 0x151f7c75
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@7
+    bz main_bare_routing@8
     pushbytess 0xa1f5040d 0x6d4700ad 0xc840077d // method "call_with_txn(byte[],txn,byte[])uint64", method "call_with_acfg(byte[],acfg,byte[])uint64", method "call_with_acfg_no_return(byte[],acfg,byte[])void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___call_with_txn_route@2 __puya_arc4_router___call_with_acfg_route@3 __puya_arc4_router___call_with_acfg_no_return_route@4
-    intc_2 // 0
-    retsub
+    match main_call_with_txn_route@3 main_call_with_acfg_route@4 main_call_with_acfg_no_return_route@5
 
-__puya_arc4_router___call_with_txn_route@2:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    extract 2 0
-    txn GroupIndex
-    intc_0 // 1
-    -
-    txna ApplicationArgs 2
-    extract 2 0
-    callsub call_with_txn
-    itob
-    bytec_2 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    retsub
+main_after_if_else@12:
+    pushint 0 // 0
+    return
 
-__puya_arc4_router___call_with_acfg_route@3:
+main_call_with_acfg_no_return_route@5:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -58,104 +33,95 @@ __puya_arc4_router___call_with_acfg_route@3:
     assert // transaction type is acfg
     txna ApplicationArgs 2
     extract 2 0
-    callsub call_with_acfg
-    itob
-    bytec_2 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    retsub
-
-__puya_arc4_router___call_with_acfg_no_return_route@4:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    extract 2 0
-    txn GroupIndex
-    intc_0 // 1
-    -
-    dup
-    gtxns TypeEnum
-    intc_1 // acfg
-    ==
-    assert // transaction type is acfg
-    txna ApplicationArgs 2
-    extract 2 0
-    callsub call_with_acfg_no_return
-    intc_0 // 1
-    retsub
-
-__puya_arc4_router___bare_routing@7:
-    txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@11
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_0 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@11:
-    intc_2 // 0
-    retsub
-
-
-// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn(a: bytes, acfg: uint64, b: bytes) -> uint64:
-call_with_txn:
-    proto 3 1
-    frame_dig -3
+    uncover 2
     bytec_0 // 0x61
     ==
     assert // a is not a
-    frame_dig -1
     bytec_1 // 0x62
     ==
     assert // b is not b
-    frame_dig -2
+    gtxns CreatedAssetID
+    assert // expected asset id
+    intc_0 // 1
+    return
+
+main_call_with_acfg_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    extract 2 0
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // acfg
+    ==
+    assert // transaction type is acfg
+    txna ApplicationArgs 2
+    extract 2 0
+    uncover 2
+    bytec_0 // 0x61
+    ==
+    assert // a is not a
+    bytec_1 // 0x62
+    ==
+    assert // b is not b
+    gtxns CreatedAssetID
+    dup
+    assert // expected asset id
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_call_with_txn_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    extract 2 0
+    txn GroupIndex
+    intc_0 // 1
+    -
+    txna ApplicationArgs 2
+    extract 2 0
+    uncover 2
+    bytec_0 // 0x61
+    ==
+    assert // a is not a
+    bytec_1 // 0x62
+    ==
+    assert // b is not b
+    dup
     gtxns TypeEnum
     intc_1 // acfg
     ==
     assert // expected asset config
-    frame_dig -2
     gtxns CreatedAssetID
     dup
     assert // expected asset id
-    retsub
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
 
-
-// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg(a: bytes, acfg: uint64, b: bytes) -> uint64:
-call_with_acfg:
-    proto 3 1
-    frame_dig -3
-    bytec_0 // 0x61
-    ==
-    assert // a is not a
-    frame_dig -1
-    bytec_1 // 0x62
-    ==
-    assert // b is not b
-    frame_dig -2
-    gtxns CreatedAssetID
-    dup
-    assert // expected asset id
-    retsub
-
-
-// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return(a: bytes, acfg: uint64, b: bytes) -> void:
-call_with_acfg_no_return:
-    proto 3 0
-    frame_dig -3
-    bytec_0 // 0x61
-    ==
-    assert // a is not a
-    frame_dig -1
-    bytec_1 // 0x62
-    ==
-    assert // b is not b
-    frame_dig -2
-    gtxns CreatedAssetID
-    assert // expected asset id
-    retsub
+main_bare_routing@8:
+    txn OnCompletion
+    bnz main_after_if_else@12
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return

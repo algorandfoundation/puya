@@ -1,13 +1,17 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.diamond_mro.derived.Derived.approval_program:
+// test_cases.diamond_mro.derived.Derived.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 0 1
     txn ApplicationID
     bnz main_after_if_else@2
+
+main_call___init__@1:
     callsub __init__
 
 main_after_if_else@2:
-    callsub __puya_arc4_router__
+    callsub approval_program
     return
 
 
@@ -68,38 +72,40 @@ test_cases.diamond_mro.gp.GP.__init__:
     retsub
 
 
-// test_cases.diamond_mro.derived.Derived.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+approval_program:
+    proto 0 1
+
+approval_program_block@1:
     // diamond_mro/derived.py:7
     // class Derived(Base1, Base2):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@6
+    bz approval_program_bare_routing@7
+
+approval_program_abi_routing@2:
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
     txna ApplicationArgs 0
     pushbytes 0x4f045d84 // method "method()void"
     pushbytes 0x4c5c61ba // method "create()void"
     uncover 2
-    match __puya_arc4_router___method_route@2 __puya_arc4_router___create_route@3
-    b __puya_arc4_router___switch_case_default@4
+    match approval_program_method_route@3 approval_program_create_route@4
 
-__puya_arc4_router___method_route@2:
-    // diamond_mro/derived.py:12
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
+approval_program_switch_case_default@5:
+
+approval_program_switch_case_next@6:
+
+approval_program_after_if_else@8:
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
     intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub method
-    intc_1 // 1
+
+approval_program_after_inlined_test_cases.diamond_mro.derived.Derived.__puya_arc4_router__@9:
     retsub
 
-__puya_arc4_router___create_route@3:
+approval_program_create_route@4:
     // diamond_mro/gp.py:11
     // @arc4.abimethod(create="require")
     txn OnCompletion
@@ -112,18 +118,25 @@ __puya_arc4_router___create_route@3:
     assert // can only call when creating
     callsub create
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_test_cases.diamond_mro.derived.Derived.__puya_arc4_router__@9
 
-__puya_arc4_router___switch_case_default@4:
-    b __puya_arc4_router___after_if_else@7
-
-__puya_arc4_router___bare_routing@6:
-
-__puya_arc4_router___after_if_else@7:
-    // diamond_mro/derived.py:7
-    // class Derived(Base1, Base2):
+approval_program_method_route@3:
+    // diamond_mro/derived.py:12
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
     intc_0 // 0
-    retsub
+    !=
+    assert // can only call when not creating
+    callsub method
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.diamond_mro.derived.Derived.__puya_arc4_router__@9
+
+approval_program_bare_routing@7:
+    b approval_program_after_if_else@8
 
 
 // test_cases.diamond_mro.derived.Derived.method() -> void:

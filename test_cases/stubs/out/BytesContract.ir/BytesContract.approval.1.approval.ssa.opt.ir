@@ -1,0 +1,22 @@
+main test_cases.stubs.bytes.BytesContract.approval_program:
+    block@0: // L5
+        let tmp%6#1: bytes = test_cases.stubs.bytes.one_to_seven()
+        let length%3#1: uint64 = (len tmp%6#1)
+        let is_out_of_bounds%4#1: bool = (>= 1u length%3#1)
+        let bounded_index%4#1: uint64 = (select 1u length%3#1 is_out_of_bounds%4#1)
+        let bounded_index%5#1: uint64 = (- length%3#1 bounded_index%4#1)
+        let end_before_start%1#1: bool = (< bounded_index%5#1 bounded_index%4#1)
+        let end%1#1: uint64 = (select bounded_index%5#1 bounded_index%4#1 end_before_start%1#1)
+        let tmp%7#1: bytes = (substring3 tmp%6#1 bounded_index%4#1 end%1#1)
+        let tmp%8#1: bool = (== tmp%7#1 0x3233343536)
+        (assert tmp%8#1)
+        let tmp%72#0: uint64 = (txn NumAppArgs)
+        let tmp%74#0: bytes = (select 0x6e6f2061726773 0x61726773 tmp%72#0)
+        let tmp%75#0: bool = (== tmp%74#0 0x6e6f2061726773)
+        (assert tmp%75#0) // constructor expressions supported
+        return 1u
+
+subroutine test_cases.stubs.bytes.one_to_seven() -> bytes:
+    block@0: // L101
+        (log "one_to_seven called")
+        return 0x31323334353637

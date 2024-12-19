@@ -128,4 +128,4 @@ def optimize_program_ir(compile_context: ArtifactCompileContext, program: models
             logger.debug(f"No optimizations performed in pass {pass_num}, ending loop")
             break
         if context.options.output_optimization_ir:
-            render_program(context, program, qualifier=f"ssa.opt_pass_{pass_num}")
+            render_program(context, program, qualifier="ssa.opt")

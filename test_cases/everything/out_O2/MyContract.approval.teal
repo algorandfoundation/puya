@@ -1,185 +1,94 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.everything.contract.Everything.approval_program:
+// test_cases.everything.contract.Everything.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 1 0
-    bytecblock "counter" "name" 0x151f7c75
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.everything.contract.Everything.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    proto 0 1
+    bytecblock "counter" base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) "name" 0x151f7c75
+    intc_1 // 0
     txn NumAppArgs
-    bz __puya_arc4_router___after_if_else@10
+    bz main_after_if_else@16
     pushbytess 0x4c5c61ba 0xbd6099e5 0x5d5c84c7 0xfd07264e 0x1658aa2f // method "create()void", method "register(string)void", method "say_hello()string", method "calculate(uint64,uint64)uint64", method "close_out()void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___create_route@2 __puya_arc4_router___register_route@3 __puya_arc4_router___say_hello_route@4 __puya_arc4_router___calculate_route@5 __puya_arc4_router___close_out_route@6
+    match main_create_route@5 main_register_route@6 main_say_hello_route@10 main_calculate_route@14 main_close_out_route@15
+
+main_after_if_else@16:
     intc_1 // 0
-    retsub
+    return
 
-__puya_arc4_router___create_route@2:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    callsub create
-    intc_0 // 1
-    retsub
-
-__puya_arc4_router___register_route@3:
-    intc_0 // 1
-    txn OnCompletion
-    shl
-    pushint 3 // 3
-    &
-    assert // OnCompletion is not one of NoOp, OptIn
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    callsub register
-    intc_0 // 1
-    retsub
-
-__puya_arc4_router___say_hello_route@4:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub say_hello
-    bytec_2 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    retsub
-
-__puya_arc4_router___calculate_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    callsub calculate
-    bytec_2 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    retsub
-
-__puya_arc4_router___close_out_route@6:
+main_close_out_route@15:
     txn OnCompletion
     pushint 2 // CloseOut
     ==
     assert // OnCompletion is not CloseOut
     txn ApplicationID
     assert // can only call when not creating
-    callsub close_out
-    intc_0 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@10:
-    intc_1 // 0
-    retsub
-
-
-// test_cases.everything.contract.Everything.create() -> void:
-create:
-    proto 0 0
-    callsub _check_ban_list
-    callsub remember_creator
-    bytec_0 // "counter"
-    intc_1 // 0
-    app_global_put
-    retsub
-
-
-// test_cases.everything.contract.Everything._check_ban_list() -> void:
-_check_ban_list:
-    proto 0 0
-    txn Sender
-    callsub get_banned
-    !=
-    assert // You are banned, goodbye
-    retsub
-
-
-// test_cases.everything.contract.get_banned() -> bytes:
-get_banned:
-    proto 0 1
-    pushbytes base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) // addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
-    retsub
-
-
-// test_cases.everything.my_base.MyBase.remember_creator() -> void:
-remember_creator:
-    proto 0 0
-    pushbytes "creator"
-    txn Sender
-    app_global_put
-    retsub
-
-
-// test_cases.everything.contract.Everything.register(name: bytes) -> void:
-register:
-    proto 1 0
-    callsub _check_ban_list
-    txn OnCompletion
-    intc_0 // OptIn
-    ==
-    bz register_after_if_else@4
-    intc_1 // 0
-    dup
-    bytec_1 // "name"
-    app_local_get_ex
-    bury 1
-    bnz register_after_if_else@4
     intc_1 // 0
     bytec_0 // "counter"
     app_global_get_ex
     assert // check self.counter exists
-    callsub multiplicative_identity
-    +
+    intc_0 // 1
+    -
     bytec_0 // "counter"
     swap
     app_global_put
-
-register_after_if_else@4:
-    intc_1 // 0
-    bytec_1 // "name"
-    frame_dig -1
-    app_local_put
-    retsub
-
-
-// test_cases.everything.my_base.multiplicative_identity() -> uint64:
-multiplicative_identity:
-    proto 0 1
     intc_0 // 1
-    retsub
+    return
 
+main_calculate_route@14:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 2
+    txna ApplicationArgs 1
+    btoi
+    swap
+    btoi
+    swap
+    dig 1
+    +
+    itob
+    btoi
+    *
+    itob
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
 
-// test_cases.everything.contract.Everything.say_hello() -> bytes:
-say_hello:
-    proto 0 1
-    callsub _check_ban_list
+main_say_hello_route@10:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txn Sender
+    bytec_1 // addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
+    !=
+    assert // You are banned, goodbye
     intc_1 // 0
     dup
-    bytec_1 // "name"
+    bytec_2 // "name"
     app_local_get_ex
-    bnz say_hello_after_if_else@2
-    pushbytes 0x000f486f77647920737472616e67657221
     swap
-    retsub
+    bury 2
+    bnz main_after_if_else@12
+    pushbytes 0x000f486f77647920737472616e67657221
 
-say_hello_after_if_else@2:
-    frame_dig 0
+main_after_inlined_test_cases.everything.contract.Everything.say_hello@13:
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_after_if_else@12:
+    dup
     extract 2 0
     pushbytes 0x48656c6c6f2c20
     swap
@@ -199,60 +108,67 @@ say_hello_after_if_else@2:
     extract 6 2
     swap
     concat
-    swap
-    retsub
+    b main_after_inlined_test_cases.everything.contract.Everything.say_hello@13
 
-
-// test_cases.everything.contract.Everything.calculate(a: bytes, b: bytes) -> bytes:
-calculate:
-    proto 2 1
-    frame_dig -2
-    frame_dig -1
-    callsub test_cases.everything.my_base.MyMiddleBase.calculate
-    btoi
-    frame_dig -1
-    btoi
-    *
-    itob
-    retsub
-
-
-// test_cases.everything.my_base.MyMiddleBase.calculate(a: bytes, b: bytes) -> bytes:
-test_cases.everything.my_base.MyMiddleBase.calculate:
-    proto 2 1
-    frame_dig -2
-    btoi
-    frame_dig -1
-    btoi
-    +
-    itob
-    retsub
-
-
-// test_cases.everything.contract.Everything.close_out() -> void:
-close_out:
-    proto 0 0
-    callsub _remove_sender
-    retsub
-
-
-// test_cases.everything.contract.Everything._remove_sender() -> void:
-_remove_sender:
-    proto 0 0
+main_register_route@6:
+    intc_0 // 1
+    txn OnCompletion
+    shl
+    pushint 3 // 3
+    &
+    assert // OnCompletion is not one of NoOp, OptIn
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    bury 1
+    txn Sender
+    bytec_1 // addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
+    !=
+    assert // You are banned, goodbye
+    txn OnCompletion
+    intc_0 // OptIn
+    ==
+    bz main_after_if_else@9
+    intc_1 // 0
+    dup
+    bytec_2 // "name"
+    app_local_get_ex
+    bury 1
+    bnz main_after_if_else@9
     intc_1 // 0
     bytec_0 // "counter"
     app_global_get_ex
     assert // check self.counter exists
-    callsub positive_one
-    -
+    intc_0 // 1
+    +
     bytec_0 // "counter"
     swap
     app_global_put
-    retsub
 
-
-// test_cases.everything.contract.positive_one() -> uint64:
-positive_one:
-    proto 0 1
+main_after_if_else@9:
+    intc_1 // 0
+    bytec_2 // "name"
+    dig 2
+    app_local_put
     intc_0 // 1
-    retsub
+    return
+
+main_create_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    txn Sender
+    bytec_1 // addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
+    !=
+    assert // You are banned, goodbye
+    pushbytes "creator"
+    txn Sender
+    app_global_put
+    bytec_0 // "counter"
+    intc_1 // 0
+    app_global_put
+    intc_0 // 1
+    return

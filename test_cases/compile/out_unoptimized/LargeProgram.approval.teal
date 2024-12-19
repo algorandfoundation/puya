@@ -1,28 +1,55 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.compile.apps.LargeProgram.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1
-    callsub __puya_arc4_router__
-    return
 
-
-// test_cases.compile.apps.LargeProgram.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_block@1:
     // compile/apps.py:37
     // class LargeProgram(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@6
+    bz main_bare_routing@7
+
+main_abi_routing@2:
+    // compile/apps.py:37
+    // class LargeProgram(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xf5e4fd4d // method "get_big_bytes_length()uint64"
     pushbytes 0x24378d3c // method "delete()void"
     uncover 2
-    match __puya_arc4_router___get_big_bytes_length_route@2 __puya_arc4_router___delete_route@3
-    b __puya_arc4_router___switch_case_default@4
+    match main_get_big_bytes_length_route@3 main_delete_route@4
 
-__puya_arc4_router___get_big_bytes_length_route@2:
+main_switch_case_default@5:
+
+main_switch_case_next@6:
+
+main_after_if_else@11:
+    // compile/apps.py:37
+    // class LargeProgram(ARC4Contract):
+    intc_0 // 0
+
+main_after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router__@12:
+    return
+
+main_delete_route@4:
+    // compile/apps.py:42
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    txn OnCompletion
+    pushint 5 // DeleteApplication
+    ==
+    assert // OnCompletion is not DeleteApplication
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub delete
+    intc_1 // 1
+    b main_after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router__@12
+
+main_get_big_bytes_length_route@3:
     // compile/apps.py:38
     // @arc4.abimethod()
     txn OnCompletion
@@ -40,51 +67,32 @@ __puya_arc4_router___get_big_bytes_length_route@2:
     concat
     log
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router__@12
 
-__puya_arc4_router___delete_route@3:
-    // compile/apps.py:42
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    assert // OnCompletion is not DeleteApplication
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub delete
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@4:
-    b __puya_arc4_router___after_if_else@10
-
-__puya_arc4_router___bare_routing@6:
+main_bare_routing@7:
     // compile/apps.py:37
     // class LargeProgram(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@7
-    b __puya_arc4_router___switch_case_default@8
+    match main___algopy_default_create@8
 
-__puya_arc4_router_____algopy_default_create@7:
+main_switch_case_default@9:
+
+main_switch_case_next@10:
+    b main_after_if_else@11
+
+main___algopy_default_create@8:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+main_block@13:
+
+main_after_inlined_test_cases.compile.apps.LargeProgram.__algopy_default_create@14:
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@8:
-
-__puya_arc4_router___after_if_else@10:
-    // compile/apps.py:37
-    // class LargeProgram(ARC4Contract):
-    intc_0 // 0
-    retsub
+    b main_after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router__@12
 
 
 // test_cases.compile.apps.LargeProgram.get_big_bytes_length() -> uint64:
@@ -117,11 +125,5 @@ delete:
     // compile/apps.py:42-43
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     // def delete(self) -> None:
-    proto 0 0
-    retsub
-
-
-// test_cases.compile.apps.LargeProgram.__algopy_default_create() -> void:
-__algopy_default_create:
     proto 0 0
     retsub

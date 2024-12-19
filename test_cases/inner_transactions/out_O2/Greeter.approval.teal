@@ -1,80 +1,70 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.inner_transactions.c2c.Greeter.approval_program:
+// test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 0 1 6
     bytecblock "hello_app" 0x151f7c75
     txn ApplicationID
     bnz main_after_if_else@2
-    callsub __init__
-
-main_after_if_else@2:
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.inner_transactions.c2c.Greeter.__init__() -> void:
-__init__:
-    proto 0 0
     bytec_0 // "hello_app"
     intc_0 // 0
     app_global_put
-    retsub
 
-
-// test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    proto 0 1
+main_after_if_else@2:
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@6
+    bz main_bare_routing@7
     pushbytess 0x786b6291 0x33fb5d48 // method "bootstrap()uint64", method "log_greetings(string)void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___bootstrap_route@2 __puya_arc4_router___log_greetings_route@3
+    match main_bootstrap_route@5 main_log_greetings_route@6
+
+main_after_if_else@9:
     intc_0 // 0
-    retsub
+    return
 
-__puya_arc4_router___bootstrap_route@2:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub bootstrap
-    itob
-    bytec_1 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___log_greetings_route@3:
+main_log_greetings_route@6:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
-    callsub log_greetings
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___bare_routing@6:
-    txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@10
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@10:
+    itxn_begin
     intc_0 // 0
-    retsub
+    bytec_0 // "hello_app"
+    app_global_get_ex
+    assert // check self.hello_app exists
+    pushbytes 0x02bece11 // method "hello(string)string"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationID
+    itxn_field ApplicationArgs
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    pushbytes "HelloWorld returned: "
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
 
-
-// test_cases.inner_transactions.c2c.Greeter.bootstrap() -> uint64:
-bootstrap:
-    proto 0 1
+main_bootstrap_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     intc_0 // 0
     bytec_0 // "hello_app"
     app_global_get_ex
@@ -98,38 +88,19 @@ bootstrap:
     bytec_0 // "hello_app"
     app_global_get_ex
     assert // check self.hello_app exists
-    retsub
-
-
-// test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) -> void:
-log_greetings:
-    proto 1 0
-    itxn_begin
-    intc_0 // 0
-    bytec_0 // "hello_app"
-    app_global_get_ex
-    assert // check self.hello_app exists
-    pushbytes 0x02bece11 // method "hello(string)string"
-    itxn_field ApplicationArgs
-    frame_dig -1
-    itxn_field ApplicationArgs
-    itxn_field ApplicationID
-    intc_2 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    dup
-    extract 4 0
-    swap
-    extract 0 4
+    itob
     bytec_1 // 0x151f7c75
-    ==
-    assert // ARC4 prefix is valid
-    extract 2 0
-    pushbytes "HelloWorld returned: "
     swap
     concat
     log
-    retsub
+    intc_1 // 1
+    return
+
+main_bare_routing@7:
+    txn OnCompletion
+    bnz main_after_if_else@9
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_1 // 1
+    return

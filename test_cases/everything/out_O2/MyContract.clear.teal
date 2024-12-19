@@ -1,29 +1,17 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.everything.contract.Everything.clear_state_program:
+// test_cases.everything.contract.Everything.clear_state_program() -> uint64:
+main:
     bytecblock "counter"
-    callsub _remove_sender
-    pushint 1 // 1
-    return
-
-
-// test_cases.everything.contract.Everything._remove_sender() -> void:
-_remove_sender:
-    proto 0 0
     pushint 0 // 0
     bytec_0 // "counter"
     app_global_get_ex
     assert // check self.counter exists
-    callsub positive_one
+    pushint 1 // 1
     -
     bytec_0 // "counter"
     swap
     app_global_put
-    retsub
-
-
-// test_cases.everything.contract.positive_one() -> uint64:
-positive_one:
-    proto 0 1
     pushint 1 // 1
-    retsub
+    return

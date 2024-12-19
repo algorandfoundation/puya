@@ -1,46 +1,11 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.ssa2.contract.MyContract.clear_state_program:
-    // ssa2/contract.py:38
-    // return one_hundred(UInt64(40))
-    pushint 40 // 40
-    callsub one_hundred
-    return
-
-
-// test_cases.ssa2.contract.one_hundred(c: uint64) -> uint64:
-one_hundred:
-    // ssa2/contract.py:41-42
-    // @subroutine
-    // def one_hundred(c: UInt64) -> UInt64:
-    proto 1 1
-    // ssa2/contract.py:43-44
-    // a = UInt64(25)
-    // b = UInt64(2)
-    pushints 25 2 25 // 25, 2, 25
-    // ssa2/contract.py:45
-    // if a < c:
-    frame_dig -1
-    <
-    bz one_hundred_after_if_else@2
-    // ssa2/contract.py:46
-    // b = UInt64(1)
-    pushint 1 // 1
-    frame_bury 1
+// test_cases.ssa2.contract.MyContract.clear_state_program() -> uint64:
+main:
     // ssa2/contract.py:47
     // a = UInt64(100)
     pushint 100 // 100
-    frame_bury 0
-
-one_hundred_after_if_else@2:
-    // ssa2/contract.py:49
-    // b *= b
-    frame_dig 1
-    dup
-    *
-    // ssa2/contract.py:50
-    // return a * b
-    frame_dig 0
-    *
-    frame_bury 0
-    retsub
+    // ssa2/contract.py:38
+    // return one_hundred(UInt64(40))
+    return

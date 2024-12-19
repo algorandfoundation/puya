@@ -1,433 +1,235 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
-    intcblock 1 0 3 4
-    bytecblock "" 0x5f 0x6c6873 0x726873
-    // boolean_binary_ops/contract.py:7
-    // test_boolean_binary_ops(true=True, false=False)
-    intc_0 // 1
-    intc_1 // 0
-    callsub test_boolean_binary_ops
-    // boolean_binary_ops/contract.py:8
-    // test_boolean_shortcircuit_binary_ops()
-    callsub test_boolean_shortcircuit_binary_ops
-    // boolean_binary_ops/contract.py:10
-    // test_union_boolean_binary_ops()
-    callsub test_union_boolean_binary_ops
-    // boolean_binary_ops/contract.py:11
-    // test_literal_boolean_binary_ops()
-    callsub test_literal_boolean_binary_ops
-    // boolean_binary_ops/contract.py:12
-    // test_literal_conditionals(true=True, false=False)
-    intc_0 // 1
-    intc_1 // 0
-    callsub test_literal_conditionals
-    // boolean_binary_ops/contract.py:13
-    // return True
-    intc_0 // 1
-    return
-
-
-// test_cases.boolean_binary_ops.contract.test_boolean_binary_ops(true: uint64, false: uint64) -> void:
-test_boolean_binary_ops:
-    // boolean_binary_ops/contract.py:20-21
-    // @subroutine
-    // def test_boolean_binary_ops(*, true: bool, false: bool) -> None:
-    proto 2 0
-    // boolean_binary_ops/contract.py:22
-    // assert not (true and false)
-    frame_dig -2
-    frame_dig -1
-    &&
-    !
-    assert
-    // boolean_binary_ops/contract.py:23
-    // assert not (false and true)
-    frame_dig -1
-    frame_dig -2
-    &&
-    !
-    assert
-    // boolean_binary_ops/contract.py:24
-    // assert true and true
-    frame_dig -2
-    dup
-    &&
-    assert
-    // boolean_binary_ops/contract.py:25
-    // assert not (false and false)
-    frame_dig -1
-    dup
-    &&
-    !
-    assert
-    // boolean_binary_ops/contract.py:27
-    // assert true or false
-    frame_dig -2
-    frame_dig -1
-    ||
-    assert
-    // boolean_binary_ops/contract.py:28
-    // assert false or true
-    frame_dig -1
-    frame_dig -2
-    ||
-    assert
-    // boolean_binary_ops/contract.py:29
-    // assert true or true
-    frame_dig -2
-    dup
-    ||
-    assert
-    // boolean_binary_ops/contract.py:30
-    // assert not (false or false)
-    frame_dig -1
-    dup
-    ||
-    !
-    assert
-    retsub
-
-
-// test_cases.boolean_binary_ops.contract.test_boolean_shortcircuit_binary_ops() -> void:
-test_boolean_shortcircuit_binary_ops:
-    // boolean_binary_ops/contract.py:38-39
-    // @subroutine
-    // def test_boolean_shortcircuit_binary_ops() -> None:
-    proto 0 0
-    intc_1 // 0
-    dup
-    bytec_0 // ""
-    dup
-    intc_1 // 0
+// test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program() -> uint64:
+main:
+    intcblock 0 1
+    bytecblock 0x66616c7365 0x74727565 0x6c6873 0x726873
+    intc_0 // 0
+    dupn 3
+    pushbytes ""
+    dupn 4
+    intc_0 // 0
     // boolean_binary_ops/contract.py:40
     // for lhs in (True, False):
-    intc_0 // 1
+    intc_1 // 1
 
-test_boolean_shortcircuit_binary_ops_for_body@1:
-    intc_1 // 0
-    frame_bury 2
+main_for_body@4:
+    intc_0 // 0
+    bury 6
     // boolean_binary_ops/contract.py:41
     // for rhs in (True, False):
-    intc_0 // 1
-    frame_bury 3
+    intc_1 // 1
+    bury 5
 
-test_boolean_shortcircuit_binary_ops_for_body@2:
+main_for_body@5:
+    // boolean_binary_ops/contract.py:35
+    // return Bytes(b"true" if x else b"false")
+    bytec_0 // 0x66616c7365
+    bytec_1 // 0x74727565
+    dig 2
+    dup
+    cover 3
+    select
     // boolean_binary_ops/contract.py:42
     // and_msg = b"_" + bool_to_bytes(lhs) + b"_and_" + bool_to_bytes(rhs)
-    frame_dig 5
-    dup
-    callsub bool_to_bytes
-    bytec_1 // 0x5f
+    pushbytes 0x5f
     swap
     concat
+    dup
+    bury 10
     pushbytes 0x5f616e645f
     concat
-    frame_dig 3
-    callsub bool_to_bytes
+    // boolean_binary_ops/contract.py:35
+    // return Bytes(b"true" if x else b"false")
+    bytec_0 // 0x66616c7365
+    bytec_1 // 0x74727565
+    dig 8
+    select
+    dup
+    bury 12
+    // boolean_binary_ops/contract.py:42
+    // and_msg = b"_" + bool_to_bytes(lhs) + b"_and_" + bool_to_bytes(rhs)
     concat
     dup
-    frame_bury 0
+    bury 13
     // boolean_binary_ops/contract.py:43
     // and_result = log_and_return(lhs, b"lhs" + and_msg) and log_and_return(
     bytec_2 // 0x6c6873
     swap
     concat
-    callsub log_and_return
+    // boolean_binary_ops/contract.py:56
+    // log(msg)
+    log
     // boolean_binary_ops/contract.py:43-45
     // and_result = log_and_return(lhs, b"lhs" + and_msg) and log_and_return(
     //     rhs, b"rhs" + and_msg
     // )
-    bz test_boolean_shortcircuit_binary_ops_bool_false@5
+    bz main_bool_false@8
     // boolean_binary_ops/contract.py:44
     // rhs, b"rhs" + and_msg
     bytec_3 // 0x726873
-    frame_dig 0
+    dig 11
     concat
+    // boolean_binary_ops/contract.py:56
+    // log(msg)
+    log
     // boolean_binary_ops/contract.py:43-45
     // and_result = log_and_return(lhs, b"lhs" + and_msg) and log_and_return(
     //     rhs, b"rhs" + and_msg
     // )
-    frame_dig 3
-    swap
-    callsub log_and_return
-    bz test_boolean_shortcircuit_binary_ops_bool_false@5
-    intc_0 // 1
-    b test_boolean_shortcircuit_binary_ops_bool_merge@6
+    dig 4
+    bz main_bool_false@8
+    intc_1 // 1
 
-test_boolean_shortcircuit_binary_ops_bool_false@5:
-    intc_1 // 0
-
-test_boolean_shortcircuit_binary_ops_bool_merge@6:
+main_bool_merge@9:
     // boolean_binary_ops/contract.py:46
     // assert and_result == (lhs and rhs)
-    frame_dig 5
+    dig 1
     dup
-    frame_dig 3
-    dup
-    cover 3
+    dig 7
     &&
-    uncover 3
+    uncover 2
     ==
     assert
     // boolean_binary_ops/contract.py:47
     // or_msg = b"_" + bool_to_bytes(lhs) + b"_or_" + bool_to_bytes(rhs)
-    dup
-    callsub bool_to_bytes
-    bytec_1 // 0x5f
-    swap
-    concat
+    dig 8
     pushbytes 0x5f6f725f
     concat
-    uncover 2
-    callsub bool_to_bytes
+    dig 10
     concat
     dup
-    frame_bury 1
+    bury 12
     // boolean_binary_ops/contract.py:48
     // or_result = log_and_return(lhs, b"lhs" + or_msg) or log_and_return(
     bytec_2 // 0x6c6873
     swap
     concat
-    callsub log_and_return
+    // boolean_binary_ops/contract.py:56
+    // log(msg)
+    log
     // boolean_binary_ops/contract.py:48-50
     // or_result = log_and_return(lhs, b"lhs" + or_msg) or log_and_return(
     //     rhs, b"rhs" + or_msg
     // )
-    bnz test_boolean_shortcircuit_binary_ops_bool_true@8
+    bnz main_bool_true@11
     // boolean_binary_ops/contract.py:49
     // rhs, b"rhs" + or_msg
     bytec_3 // 0x726873
-    frame_dig 1
+    dig 10
     concat
+    // boolean_binary_ops/contract.py:56
+    // log(msg)
+    log
     // boolean_binary_ops/contract.py:48-50
     // or_result = log_and_return(lhs, b"lhs" + or_msg) or log_and_return(
     //     rhs, b"rhs" + or_msg
     // )
-    frame_dig 3
-    swap
-    callsub log_and_return
-    bz test_boolean_shortcircuit_binary_ops_bool_false@9
+    dig 4
+    bz main_bool_false@12
 
-test_boolean_shortcircuit_binary_ops_bool_true@8:
-    intc_0 // 1
-    b test_boolean_shortcircuit_binary_ops_bool_merge@10
+main_bool_true@11:
+    intc_1 // 1
 
-test_boolean_shortcircuit_binary_ops_bool_false@9:
-    intc_1 // 0
-
-test_boolean_shortcircuit_binary_ops_bool_merge@10:
+main_bool_merge@13:
     // boolean_binary_ops/contract.py:51
     // assert or_result == (lhs or rhs)
-    frame_dig 5
-    frame_dig 3
+    dig 1
+    dig 6
     ||
     ==
     assert
     // boolean_binary_ops/contract.py:41
     // for rhs in (True, False):
-    frame_dig 2
-    bnz test_boolean_shortcircuit_binary_ops_after_for@13
-    intc_0 // 1
-    frame_bury 2
-    intc_1 // 0
-    frame_bury 3
-    b test_boolean_shortcircuit_binary_ops_for_body@2
+    dig 5
+    bnz main_after_for@16
+    intc_1 // 1
+    bury 6
+    intc_0 // 0
+    bury 5
+    b main_for_body@5
 
-test_boolean_shortcircuit_binary_ops_after_for@13:
+main_after_for@16:
     // boolean_binary_ops/contract.py:40
     // for lhs in (True, False):
-    frame_dig 4
-    bnz test_boolean_shortcircuit_binary_ops_after_for@16
-    intc_0 // 1
-    frame_bury 4
-    intc_1 // 0
-    frame_bury 5
-    b test_boolean_shortcircuit_binary_ops_for_body@1
+    dig 1
+    bnz main_after_for@19
+    intc_1 // 1
+    bury 2
+    intc_0 // 0
+    bury 1
+    b main_for_body@4
 
-test_boolean_shortcircuit_binary_ops_after_for@16:
-    retsub
+main_after_for@19:
+    intc_0 // 0
+    bury 7
 
-
-// test_cases.boolean_binary_ops.contract.bool_to_bytes(x: uint64) -> bytes:
-bool_to_bytes:
-    // boolean_binary_ops/contract.py:33-34
-    // @subroutine
-    // def bool_to_bytes(x: bool) -> Bytes:
-    proto 1 1
-    // boolean_binary_ops/contract.py:35
-    // return Bytes(b"true" if x else b"false")
-    pushbytess 0x66616c7365 0x74727565 // 0x66616c7365, 0x74727565
-    frame_dig -1
-    select
-    retsub
-
-
-// test_cases.boolean_binary_ops.contract.log_and_return(x: uint64, msg: bytes) -> uint64:
-log_and_return:
-    // boolean_binary_ops/contract.py:54-55
-    // @subroutine
-    // def log_and_return(x: bool, msg: Bytes) -> bool:
-    proto 2 1
-    // boolean_binary_ops/contract.py:56
-    // log(msg)
-    frame_dig -1
-    log
-    // boolean_binary_ops/contract.py:57
-    // return x
-    frame_dig -2
-    retsub
-
-
-// test_cases.boolean_binary_ops.contract.test_union_boolean_binary_ops() -> void:
-test_union_boolean_binary_ops:
-    // boolean_binary_ops/contract.py:68-69
-    // @subroutine
-    // def test_union_boolean_binary_ops() -> None:
-    proto 0 0
-    intc_1 // 0
-
-test_union_boolean_binary_ops_for_header@42:
+main_for_header@68:
     // boolean_binary_ops/contract.py:85
     // for idx, b in uenumerate(Bytes(b"never seen") and bytes_to_iterate):
-    frame_dig 0
-    intc_2 // 3
+    dig 6
+    pushint 3 // 3
     <
-    bz test_union_boolean_binary_ops_after_for@45
-    frame_dig 0
-    intc_0 // 1
+    bz main_after_for@71
+    dig 6
+    intc_1 // 1
     +
-    frame_bury 0
-    b test_union_boolean_binary_ops_for_header@42
+    bury 7
+    b main_for_header@68
 
-test_union_boolean_binary_ops_after_for@45:
+main_after_for@71:
+    intc_0 // 0
+    bury 4
+
+main_while_top@118:
+    dig 3
+    pushint 4 // 4
+    +
+    dup
+    bury 4
+    pushint 5 // 5
+    <=
+    bz main_after_while@122
     // boolean_binary_ops/contract.py:89
     // assert "ight" in (String("left") and String("right"))
-    pushbytess "ight" "right" // "ight", "right"
-    callsub is_substring
-    assert
-    retsub
-
-
-// test_cases.boolean_binary_ops.contract.test_literal_boolean_binary_ops() -> void:
-test_literal_boolean_binary_ops:
-    // boolean_binary_ops/contract.py:95-96
-    // @subroutine
-    // def test_literal_boolean_binary_ops() -> None:
-    proto 0 0
-    // boolean_binary_ops/contract.py:120
-    // assert op.bitlen(one and 4) == 3
-    intc_3 // 4
-    bitlen
-    intc_2 // 3
-    ==
-    assert
-    // boolean_binary_ops/contract.py:122
-    // assert op.bitlen(empty_bytes or b"hello") > 0
-    pushbytes 0x68656c6c6f
-    bitlen
-    assert
-    retsub
-
-
-// test_cases.boolean_binary_ops.contract.test_literal_conditionals(true: uint64, false: uint64) -> void:
-test_literal_conditionals:
-    // boolean_binary_ops/contract.py:125-126
-    // @subroutine
-    // def test_literal_conditionals(*, true: bool, false: bool) -> None:
-    proto 2 0
-    bytec_0 // ""
-    // boolean_binary_ops/contract.py:127
-    // assert (3 if false else 0) or 4
-    frame_dig -1
-    intc_0 // 1
-    ||
-    assert
-    // boolean_binary_ops/contract.py:128
-    // assert 0 or (3 if true else 0)
-    frame_dig -2
-    bz test_literal_conditionals_bool_false@3
-    intc_0 // 1
-    b test_literal_conditionals_bool_merge@4
-
-test_literal_conditionals_bool_false@3:
-    intc_1 // 0
-
-test_literal_conditionals_bool_merge@4:
-    // boolean_binary_ops/contract.py:128
-    // assert 0 or (3 if true else 0)
-    assert
-    // boolean_binary_ops/contract.py:131
-    // y = UInt64((3 if false else 0) or 4)
-    frame_dig -1
-    intc_2 // 3
-    *
-    dup
-    frame_bury 0
-    bz test_literal_conditionals_ternary_false@10
-    frame_dig 0
-    b test_literal_conditionals_ternary_merge@11
-
-test_literal_conditionals_ternary_false@10:
-    // boolean_binary_ops/contract.py:131
-    // y = UInt64((3 if false else 0) or 4)
-    intc_3 // 4
-
-test_literal_conditionals_ternary_merge@11:
-    // boolean_binary_ops/contract.py:132
-    // assert y == 4
-    intc_3 // 4
-    ==
-    assert
-    // boolean_binary_ops/contract.py:133
-    // z = UInt64(0 or (3 if true else 0))
-    frame_dig -2
-    intc_2 // 3
-    *
-    // boolean_binary_ops/contract.py:134
-    // assert z == 3
-    intc_2 // 3
-    ==
-    assert
-    retsub
-
-
-// _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:
-is_substring:
-    proto 2 1
-    bytec_0 // ""
-    intc_1 // 0
-
-is_substring_while_top@1:
-    frame_dig -2
-    len
-    frame_dig 1
-    +
-    dup
-    frame_bury 0
-    frame_dig -1
-    len
-    <=
-    bz is_substring_after_while@5
-    frame_dig -1
-    frame_dig 1
-    frame_dig 0
+    pushbytes "right"
+    dig 4
+    dig 4
     substring3
-    frame_dig -2
+    // boolean_binary_ops/contract.py:89
+    // assert "ight" in (String("left") and String("right"))
+    pushbytes "ight"
     ==
-    bz is_substring_after_if_else@4
-    intc_0 // 1
-    frame_bury 0
-    retsub
+    bz main_after_if_else@121
+    intc_1 // 1
 
-is_substring_after_if_else@4:
-    frame_dig 1
-    intc_0 // 1
+main_after_inlined__puya_lib.bytes_.is_substring@123:
+    // boolean_binary_ops/contract.py:89
+    // assert "ight" in (String("left") and String("right"))
+    assert
+    // boolean_binary_ops/contract.py:13
+    // return True
+    intc_1 // 1
+    return
+
+main_after_if_else@121:
+    dig 3
+    intc_1 // 1
     +
-    frame_bury 1
-    b is_substring_while_top@1
+    bury 4
+    b main_while_top@118
 
-is_substring_after_while@5:
-    intc_1 // 0
-    frame_bury 0
-    retsub
+main_after_while@122:
+    intc_0 // 0
+    // boolean_binary_ops/contract.py:89
+    // assert "ight" in (String("left") and String("right"))
+    b main_after_inlined__puya_lib.bytes_.is_substring@123
+
+main_bool_false@12:
+    intc_0 // 0
+    b main_bool_merge@13
+
+main_bool_false@8:
+    intc_0 // 0
+    b main_bool_merge@9

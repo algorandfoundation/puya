@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.bug_load_store_load_store.contract.MyContract.approval_program:
+// test_cases.bug_load_store_load_store.contract.MyContract.approval_program() -> uint64:
+main:
     intcblock 1 0
     pushbytes ""
     // bug_load_store_load_store/contract.py:11
@@ -19,11 +21,25 @@ main_for_header@1:
     pushint 2 // 2
     <
     bz main_after_for@11
+
+main_for_body@2:
     // bug_load_store_load_store/contract.py:13
     // if get_bool():
     callsub get_bool
     bz main_else_body@4
-    b main_after_if_else@9
+
+main_if_body@3:
+
+main_after_if_else@9:
+
+main_for_footer@10:
+    // bug_load_store_load_store/contract.py:12
+    // for _idx in urange(2):
+    dup
+    intc_0 // 1
+    +
+    bury 1
+    b main_for_header@1
 
 main_else_body@4:
     // bug_load_store_load_store/contract.py:15
@@ -32,12 +48,16 @@ main_else_body@4:
     dig 2
     bury 4
     bz main_after_if_else@8
+
+main_if_body@5:
     // bug_load_store_load_store/contract.py:16
     // if not get_bool():
     callsub get_bool
     dig 2
     bury 4
     bnz main_after_if_else@7
+
+main_if_body@6:
     // bug_load_store_load_store/contract.py:17
     // val += UInt64(123)
     dig 1
@@ -50,15 +70,7 @@ main_after_if_else@7:
 main_after_if_else@8:
     dig 2
     bury 2
-
-main_after_if_else@9:
-    // bug_load_store_load_store/contract.py:12
-    // for _idx in urange(2):
-    dup
-    intc_0 // 1
-    +
-    bury 1
-    b main_for_header@1
+    b main_after_if_else@9
 
 main_after_for@11:
     // bug_load_store_load_store/contract.py:18
@@ -70,7 +82,7 @@ main_after_for@11:
 // test_cases.bug_load_store_load_store.contract.get_bool() -> uint64:
 get_bool:
     // bug_load_store_load_store/contract.py:4-5
-    // @subroutine
+    // @subroutine(inline=False)
     // def get_bool() -> bool:
     proto 0 1
     // bug_load_store_load_store/contract.py:6

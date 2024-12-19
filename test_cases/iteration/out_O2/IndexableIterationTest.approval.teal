@@ -1,51 +1,23 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.iteration.iterate_indexable.IndexableIterationTest.approval_program:
+// test_cases.iteration.base.IterationTestBase.approval_program() -> uint64:
+main:
     intcblock 1 0 3
     bytecblock 0x 0x616263
+    bytec_0 // ""
+    dupn 7
     pushbytes "test_forwards"
     log
-    callsub test_forwards
-    pushbytes "test_reversed"
-    log
-    callsub test_reversed
-    pushbytes "test_forwards_with_forwards_index"
-    log
-    callsub test_forwards_with_forwards_index
-    pushbytes "test_forwards_with_reverse_index"
-    log
-    callsub test_forwards_with_reverse_index
-    pushbytes "test_reverse_with_forwards_index"
-    log
-    callsub test_reverse_with_forwards_index
-    pushbytes "test_reverse_with_reverse_index"
-    log
-    callsub test_reverse_with_reverse_index
-    pushbytes "test_empty"
-    log
-    callsub test_empty
-    pushbytes "test_break"
-    log
-    callsub test_break
-    pushbytes "test_tuple_target"
-    log
-    callsub test_tuple_target
-    intc_0 // 1
-    return
-
-
-// test_cases.iteration.iterate_indexable.IndexableIterationTest.test_forwards() -> void:
-test_forwards:
-    proto 0 0
     intc_1 // 0
 
-test_forwards_for_header@1:
-    frame_dig 0
+main_for_header@2:
+    dup
     intc_2 // 3
     <
-    bz test_forwards_after_for@4
+    bz main_after_for@5
     bytec_1 // 0x616263
-    frame_dig 0
+    dig 1
     dup
     cover 2
     intc_0 // 1
@@ -53,49 +25,43 @@ test_forwards_for_header@1:
     log
     intc_0 // 1
     +
-    frame_bury 0
-    b test_forwards_for_header@1
+    bury 1
+    b main_for_header@2
 
-test_forwards_after_for@4:
-    retsub
-
-
-// test_cases.iteration.iterate_indexable.IndexableIterationTest.test_reversed() -> void:
-test_reversed:
-    proto 0 0
+main_after_for@5:
+    pushbytes "test_reversed"
+    log
     intc_2 // 3
+    bury 7
 
-test_reversed_for_header@1:
-    frame_dig 0
-    bz test_reversed_after_for@4
-    frame_dig 0
+main_for_header@8:
+    dig 6
+    bz main_after_for@11
+    dig 6
     intc_0 // 1
     -
     dup
-    frame_bury 0
+    bury 8
     bytec_1 // 0x616263
     swap
     intc_0 // 1
     extract3
     log
-    b test_reversed_for_header@1
+    b main_for_header@8
 
-test_reversed_after_for@4:
-    retsub
-
-
-// test_cases.iteration.iterate_indexable.IndexableIterationTest.test_forwards_with_forwards_index() -> void:
-test_forwards_with_forwards_index:
-    proto 0 0
+main_after_for@11:
+    pushbytes "test_forwards_with_forwards_index"
+    log
     intc_1 // 0
+    bury 9
 
-test_forwards_with_forwards_index_for_header@1:
-    frame_dig 0
+main_for_header@14:
+    dig 8
     intc_2 // 3
     <
-    bz test_forwards_with_forwards_index_after_for@4
+    bz main_after_for@17
     bytec_1 // 0x616263
-    frame_dig 0
+    dig 9
     dup
     cover 2
     intc_0 // 1
@@ -105,11 +71,262 @@ test_forwards_with_forwards_index_for_header@1:
     callsub _log_with_index
     intc_0 // 1
     +
-    frame_bury 0
-    b test_forwards_with_forwards_index_for_header@1
+    bury 9
+    b main_for_header@14
 
-test_forwards_with_forwards_index_after_for@4:
-    retsub
+main_after_for@17:
+    pushbytes "test_forwards_with_reverse_index"
+    log
+    intc_2 // 3
+    intc_1 // 0
+    bury 2
+    bury 7
+
+main_for_header@20:
+    dig 6
+    bz main_after_for@23
+    dig 6
+    intc_0 // 1
+    -
+    bytec_1 // 0x616263
+    dig 2
+    dup
+    cover 3
+    intc_0 // 1
+    extract3
+    dig 1
+    swap
+    callsub _log_with_index
+    swap
+    intc_0 // 1
+    +
+    bury 2
+    bury 7
+    b main_for_header@20
+
+main_after_for@23:
+    pushbytes "test_reverse_with_forwards_index"
+    log
+    intc_1 // 0
+    intc_2 // 3
+    bury 8
+    bury 9
+
+main_for_header@26:
+    dig 6
+    bz main_after_for@29
+    dig 6
+    intc_0 // 1
+    -
+    dup
+    bury 8
+    bytec_1 // 0x616263
+    swap
+    intc_0 // 1
+    extract3
+    dig 9
+    dup
+    uncover 2
+    callsub _log_with_index
+    intc_0 // 1
+    +
+    bury 9
+    b main_for_header@26
+
+main_after_for@29:
+    pushbytes "test_reverse_with_reverse_index"
+    log
+    intc_2 // 3
+    bury 7
+
+main_for_header@32:
+    dig 6
+    bz main_after_for@35
+    dig 6
+    intc_0 // 1
+    -
+    bytec_1 // 0x616263
+    dig 1
+    intc_0 // 1
+    extract3
+    dig 1
+    swap
+    callsub _log_with_index
+    bury 7
+    b main_for_header@32
+
+main_after_for@35:
+    pushbytes "test_empty"
+    log
+    intc_1 // 0
+    bury 1
+
+main_for_header@38:
+    dup
+    intc_1 // 0
+    <
+    bz main_after_for@41
+    bytec_0 // 0x
+    dig 1
+    dup
+    cover 2
+    intc_0 // 1
+    extract3
+    log
+    intc_0 // 1
+    +
+    bury 1
+    b main_for_header@38
+
+main_after_for@41:
+    intc_1 // 0
+    bury 6
+
+main_for_header@42:
+    dig 5
+    bz main_after_for@45
+    dig 5
+    intc_0 // 1
+    -
+    dup
+    bury 7
+    bytec_0 // 0x
+    swap
+    intc_0 // 1
+    extract3
+    log
+    b main_for_header@42
+
+main_after_for@45:
+    intc_1 // 0
+    bury 9
+
+main_for_header@46:
+    dig 8
+    intc_1 // 0
+    <
+    bz main_after_for@49
+    bytec_0 // 0x
+    dig 9
+    dup
+    cover 2
+    intc_0 // 1
+    extract3
+    dig 1
+    swap
+    callsub _log_with_index
+    intc_0 // 1
+    +
+    bury 9
+    b main_for_header@46
+
+main_after_for@49:
+    intc_1 // 0
+    dup
+    bury 9
+    bury 5
+
+main_for_header@50:
+    dig 4
+    bz main_after_for@53
+    dig 4
+    intc_0 // 1
+    -
+    bytec_0 // 0x
+    dig 9
+    dup
+    cover 3
+    intc_0 // 1
+    extract3
+    dig 1
+    swap
+    callsub _log_with_index
+    swap
+    intc_0 // 1
+    +
+    bury 9
+    bury 5
+    b main_for_header@50
+
+main_after_for@53:
+    intc_1 // 0
+    dup
+    bury 5
+    bury 9
+
+main_for_header@54:
+    dig 3
+    bz main_after_for@57
+    dig 3
+    intc_0 // 1
+    -
+    dup
+    bury 5
+    bytec_0 // 0x
+    swap
+    intc_0 // 1
+    extract3
+    dig 9
+    dup
+    uncover 2
+    callsub _log_with_index
+    intc_0 // 1
+    +
+    bury 9
+    b main_for_header@54
+
+main_after_for@57:
+    intc_1 // 0
+    bury 3
+
+main_for_header@58:
+    dig 2
+    bz main_after_for@61
+    dig 2
+    intc_0 // 1
+    -
+    bytec_0 // 0x
+    dig 1
+    intc_0 // 1
+    extract3
+    dig 1
+    swap
+    callsub _log_with_index
+    bury 3
+    b main_for_header@58
+
+main_after_for@61:
+    pushbytes "test_break"
+    log
+    pushbytes 0x61
+    log
+    pushbytes "test_tuple_target"
+    log
+    intc_1 // 0
+    bury 2
+
+main_for_header@69:
+    dig 1
+    intc_0 // 1
+    <
+    bz main_after_for@72
+    pushbytes 0x74
+    dig 2
+    dup
+    cover 2
+    intc_0 // 1
+    extract3
+    dig 1
+    swap
+    callsub _log_with_index
+    intc_0 // 1
+    +
+    bury 2
+    b main_for_header@69
+
+main_after_for@72:
+    intc_0 // 1
+    return
 
 
 // test_cases.iteration.base.IterationTestBase._log_with_index(idx: uint64, value: bytes) -> void:
@@ -124,273 +341,4 @@ _log_with_index:
     frame_dig -1
     concat
     log
-    retsub
-
-
-// test_cases.iteration.iterate_indexable.IndexableIterationTest.test_forwards_with_reverse_index() -> void:
-test_forwards_with_reverse_index:
-    proto 0 0
-    intc_1 // 0
-    intc_2 // 3
-
-test_forwards_with_reverse_index_for_header@1:
-    frame_dig 1
-    bz test_forwards_with_reverse_index_after_for@4
-    frame_dig 1
-    intc_0 // 1
-    -
-    bytec_1 // 0x616263
-    frame_dig 0
-    dup
-    cover 3
-    intc_0 // 1
-    extract3
-    dig 1
-    swap
-    callsub _log_with_index
-    swap
-    intc_0 // 1
-    +
-    frame_bury 0
-    frame_bury 1
-    b test_forwards_with_reverse_index_for_header@1
-
-test_forwards_with_reverse_index_after_for@4:
-    retsub
-
-
-// test_cases.iteration.iterate_indexable.IndexableIterationTest.test_reverse_with_forwards_index() -> void:
-test_reverse_with_forwards_index:
-    proto 0 0
-    intc_2 // 3
-    intc_1 // 0
-
-test_reverse_with_forwards_index_for_header@1:
-    frame_dig 0
-    bz test_reverse_with_forwards_index_after_for@4
-    frame_dig 0
-    intc_0 // 1
-    -
-    dup
-    frame_bury 0
-    bytec_1 // 0x616263
-    swap
-    intc_0 // 1
-    extract3
-    frame_dig 1
-    dup
-    uncover 2
-    callsub _log_with_index
-    intc_0 // 1
-    +
-    frame_bury 1
-    b test_reverse_with_forwards_index_for_header@1
-
-test_reverse_with_forwards_index_after_for@4:
-    retsub
-
-
-// test_cases.iteration.iterate_indexable.IndexableIterationTest.test_reverse_with_reverse_index() -> void:
-test_reverse_with_reverse_index:
-    proto 0 0
-    intc_2 // 3
-
-test_reverse_with_reverse_index_for_header@1:
-    frame_dig 0
-    bz test_reverse_with_reverse_index_after_for@4
-    frame_dig 0
-    intc_0 // 1
-    -
-    bytec_1 // 0x616263
-    dig 1
-    intc_0 // 1
-    extract3
-    dig 1
-    swap
-    callsub _log_with_index
-    frame_bury 0
-    b test_reverse_with_reverse_index_for_header@1
-
-test_reverse_with_reverse_index_after_for@4:
-    retsub
-
-
-// test_cases.iteration.iterate_indexable.IndexableIterationTest.test_empty() -> void:
-test_empty:
-    proto 0 0
-    bytec_0 // ""
-    dupn 5
-    intc_1 // 0
-
-test_empty_for_header@1:
-    frame_dig 6
-    intc_1 // 0
-    <
-    bz test_empty_after_for@4
-    bytec_0 // 0x
-    frame_dig 6
-    dup
-    cover 2
-    intc_0 // 1
-    extract3
-    log
-    intc_0 // 1
-    +
-    frame_bury 6
-    b test_empty_for_header@1
-
-test_empty_after_for@4:
-    intc_1 // 0
-    frame_bury 2
-
-test_empty_for_header@5:
-    frame_dig 2
-    bz test_empty_after_for@8
-    frame_dig 2
-    intc_0 // 1
-    -
-    dup
-    frame_bury 2
-    bytec_0 // 0x
-    swap
-    intc_0 // 1
-    extract3
-    log
-    b test_empty_for_header@5
-
-test_empty_after_for@8:
-    intc_1 // 0
-    frame_bury 0
-
-test_empty_for_header@9:
-    frame_dig 0
-    intc_1 // 0
-    <
-    bz test_empty_after_for@12
-    bytec_0 // 0x
-    frame_dig 0
-    dup
-    cover 2
-    intc_0 // 1
-    extract3
-    dig 1
-    swap
-    callsub _log_with_index
-    intc_0 // 1
-    +
-    frame_bury 0
-    b test_empty_for_header@9
-
-test_empty_after_for@12:
-    intc_1 // 0
-    dup
-    frame_bury 1
-    frame_bury 3
-
-test_empty_for_header@13:
-    frame_dig 3
-    bz test_empty_after_for@16
-    frame_dig 3
-    intc_0 // 1
-    -
-    bytec_0 // 0x
-    frame_dig 1
-    dup
-    cover 3
-    intc_0 // 1
-    extract3
-    dig 1
-    swap
-    callsub _log_with_index
-    swap
-    intc_0 // 1
-    +
-    frame_bury 1
-    frame_bury 3
-    b test_empty_for_header@13
-
-test_empty_after_for@16:
-    intc_1 // 0
-    dup
-    frame_bury 4
-    frame_bury 0
-
-test_empty_for_header@17:
-    frame_dig 4
-    bz test_empty_after_for@20
-    frame_dig 4
-    intc_0 // 1
-    -
-    dup
-    frame_bury 4
-    bytec_0 // 0x
-    swap
-    intc_0 // 1
-    extract3
-    frame_dig 0
-    dup
-    uncover 2
-    callsub _log_with_index
-    intc_0 // 1
-    +
-    frame_bury 0
-    b test_empty_for_header@17
-
-test_empty_after_for@20:
-    intc_1 // 0
-    frame_bury 5
-
-test_empty_for_header@21:
-    frame_dig 5
-    bz test_empty_after_for@24
-    frame_dig 5
-    intc_0 // 1
-    -
-    bytec_0 // 0x
-    dig 1
-    intc_0 // 1
-    extract3
-    dig 1
-    swap
-    callsub _log_with_index
-    frame_bury 5
-    b test_empty_for_header@21
-
-test_empty_after_for@24:
-    retsub
-
-
-// test_cases.iteration.iterate_indexable.IndexableIterationTest.test_break() -> void:
-test_break:
-    proto 0 0
-    pushbytes 0x61
-    log
-    retsub
-
-
-// test_cases.iteration.iterate_indexable.IndexableIterationTest.test_tuple_target() -> void:
-test_tuple_target:
-    proto 0 0
-    intc_1 // 0
-
-test_tuple_target_for_header@1:
-    frame_dig 0
-    intc_0 // 1
-    <
-    bz test_tuple_target_after_for@4
-    pushbytes 0x74
-    frame_dig 0
-    dup
-    cover 2
-    intc_0 // 1
-    extract3
-    dig 1
-    swap
-    callsub _log_with_index
-    intc_0 // 1
-    +
-    frame_bury 0
-    b test_tuple_target_for_header@1
-
-test_tuple_target_after_for@4:
     retsub

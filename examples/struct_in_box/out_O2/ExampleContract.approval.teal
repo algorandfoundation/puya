@@ -1,34 +1,36 @@
 #pragma version 10
+#pragma typetrack false
 
-examples.struct_in_box.contract.ExampleContract.approval_program:
-    intcblock 1 0
-    callsub __puya_arc4_router__
-    return
-
-
-// examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    proto 0 1
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@7
+    bz main_bare_routing@8
     pushbytess 0xda8534bd 0x4eb4e9f1 0x16545880 // method "add_user((string,uint64,uint64))void", method "attach_asset_to_user(uint64,asset)void", method "get_user(uint64)(string,uint64,uint64)"
     txna ApplicationArgs 0
-    match __puya_arc4_router___add_user_route@2 __puya_arc4_router___attach_asset_to_user_route@3 __puya_arc4_router___get_user_route@4
-    intc_1 // 0
-    retsub
+    match main_add_user_route@3 main_attach_asset_to_user_route@4 main_get_user_route@5
 
-__puya_arc4_router___add_user_route@2:
+main_after_if_else@12:
+    pushint 0 // 0
+    return
+
+main_get_user_route@5:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
-    callsub add_user
+    box_get
+    assert // User with that id does not exist
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
     intc_0 // 1
-    retsub
+    return
 
-__puya_arc4_router___attach_asset_to_user_route@3:
+main_attach_asset_to_user_route@4:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -38,101 +40,49 @@ __puya_arc4_router___attach_asset_to_user_route@3:
     txna ApplicationArgs 2
     btoi
     txnas Assets
-    callsub attach_asset_to_user
+    swap
+    box_get
+    assert // User with that id does not exist
+    swap
+    itob
+    replace2 10
+    dup
+    extract 2 8 // on error: Index access is out of bounds
+    dup
+    box_del
+    pop
+    swap
+    box_put
     intc_0 // 1
-    retsub
+    return
 
-__puya_arc4_router___get_user_route@4:
+main_add_user_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
-    callsub get_user
-    pushbytes 0x151f7c75
+    dup
+    extract 2 8 // on error: Index access is out of bounds
+    dup
+    box_get
+    bury 1
+    !
+    assert // User with id must not exist
+    dup
+    box_del
+    pop
     swap
-    concat
-    log
+    box_put
     intc_0 // 1
-    retsub
+    return
 
-__puya_arc4_router___bare_routing@7:
+main_bare_routing@8:
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@11
+    bnz main_after_if_else@12
     txn ApplicationID
     !
     assert // can only call when creating
     intc_0 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@11:
-    intc_1 // 0
-    retsub
-
-
-// examples.struct_in_box.contract.ExampleContract.add_user(user: bytes) -> void:
-add_user:
-    proto 1 0
-    frame_dig -1
-    extract 2 8 // on error: Index access is out of bounds
-    callsub box_exists
-    !
-    assert // User with id must not exist
-    frame_dig -1
-    callsub write_to_box
-    frame_bury -1
-    retsub
-
-
-// examples.struct_in_box.contract.ExampleContract.box_exists(user_id: bytes) -> uint64:
-box_exists:
-    proto 1 1
-    frame_dig -1
-    box_get
-    bury 1
-    retsub
-
-
-// examples.struct_in_box.contract.ExampleContract.write_to_box(user: bytes) -> bytes:
-write_to_box:
-    proto 1 1
-    frame_dig -1
-    extract 2 8 // on error: Index access is out of bounds
-    dup
-    box_del
-    pop
-    frame_dig -1
-    box_put
-    frame_dig -1
-    retsub
-
-
-// examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(user_id: bytes, asset: uint64) -> void:
-attach_asset_to_user:
-    proto 2 0
-    frame_dig -2
-    callsub read_from_box
-    frame_dig -1
-    itob
-    replace2 10
-    callsub write_to_box
-    pop
-    retsub
-
-
-// examples.struct_in_box.contract.ExampleContract.read_from_box(user_id: bytes) -> bytes:
-read_from_box:
-    proto 1 1
-    frame_dig -1
-    box_get
-    assert // User with that id does not exist
-    retsub
-
-
-// examples.struct_in_box.contract.ExampleContract.get_user(user_id: bytes) -> bytes:
-get_user:
-    proto 1 1
-    frame_dig -1
-    callsub read_from_box
-    retsub
+    return

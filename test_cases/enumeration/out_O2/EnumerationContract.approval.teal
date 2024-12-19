@@ -1,279 +1,246 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.enumeration.contract.EnumerationContract.approval_program:
-    intcblock 1 0 3 21
+// test_cases.enumeration.contract.EnumerationContract.approval_program() -> uint64:
+main:
+    intcblock 1 0 21 3
+    bytecblock 0x 0x486f77 0x61626364656667 0x436f77 0x42726f776e 0x4e6f77
+    intc_1 // 0
+    bytec_0 // ""
+    dup
+    intc_1 // 0
+    dupn 2
     pushint 10 // 10
-    intc_3 // 21
+
+main_for_header@2:
+    dup
+    intc_2 // 21
+    <
+    bz main_after_for@5
+    dig 3
+    intc_0 // 1
+    +
+    bury 4
+    dig 2
+    dig 1
+    dup
+    cover 2
+    +
+    bury 4
     pushint 5 // 5
-    callsub enumerate_urange
-    uncover 2
+    +
+    bury 1
+    b main_for_header@2
+
+main_after_for@5:
+    pushint 10 // 10
+    bury 1
+    intc_1 // 0
+    bury 6
+
+main_for_header@6:
+    dup
+    intc_2 // 21
+    <
+    bz main_after_for@9
+    dig 3
+    intc_0 // 1
+    +
+    bury 4
+    dig 2
+    dig 1
+    dup
+    cover 2
+    +
+    bury 4
+    dig 2
+    dig 7
+    dup
+    cover 3
+    +
+    bury 4
+    pushint 5 // 5
+    +
+    bury 2
+    intc_0 // 1
+    +
+    bury 6
+    b main_for_header@6
+
+main_after_for@9:
+    dig 3
     pushint 6 // 6
     ==
     assert
-    swap
+    dig 2
     pushint 90 // 90
     ==
     assert
-    intc_2 // 3
+    dig 1
+    intc_3 // 3
     ==
     assert
-    pushbytess 0x486f77 0x4e6f77 0x42726f776e 0x436f77 // 0x486f77, 0x4e6f77, 0x42726f776e, 0x436f77
-    callsub enumerate_tuple
+    intc_1 // 0
+    bury 4
+    bytec_0 // 0x
+    bury 7
+    intc_1 // 0
+    bury 2
+    bytec_1 // 0x486f77
+    intc_1 // 0
+
+main_for_body@12:
+    dig 5
+    intc_0 // 1
+    +
+    bury 6
+    dig 8
     uncover 2
+    concat
+    bury 8
+    switch main_for_header_1@14 main_for_header_2@15 main_for_header_3@16
+    bytec_1 // 0x486f77
+    intc_1 // 0
+    bury 7
+
+main_for_body@18:
+    dig 4
+    intc_0 // 1
+    +
+    bury 5
+    dig 7
+    swap
+    concat
+    bury 7
+    dig 1
+    dig 6
+    dup
+    cover 2
+    +
+    bury 3
+    switch main_for_header_1@20 main_for_header_2@21 main_for_header_3@22
+    dig 3
     pushint 8 // 8
     ==
     assert
-    swap
+    dig 6
     pushbytes 0x486f774e6f7742726f776e436f77486f774e6f7742726f776e436f77
     ==
     assert
+    dig 1
     pushint 6 // 6
     ==
     assert
-    pushbytes 0x61626364656667
-    callsub enumerate_bytes
-    uncover 2
+    intc_1 // 0
+    bury 4
+    bytec_0 // 0x
+    bury 7
+    intc_1 // 0
+    bury 2
+    intc_1 // 0
+    bury 5
+
+main_for_header@26:
+    dig 4
+    pushint 7 // 7
+    <
+    bz main_after_for@29
+    bytec_2 // 0x61626364656667
+    dig 5
+    dup
+    cover 2
+    intc_0 // 1
+    extract3
+    dig 5
+    intc_0 // 1
+    +
+    bury 6
+    dig 8
+    swap
+    concat
+    bury 8
+    intc_0 // 1
+    +
+    bury 5
+    b main_for_header@26
+
+main_after_for@29:
+    intc_1 // 0
+    bury 6
+
+main_for_header@30:
+    dig 5
+    pushint 7 // 7
+    <
+    bz main_after_for@33
+    bytec_2 // 0x61626364656667
+    dig 6
+    dup
+    cover 2
+    intc_0 // 1
+    extract3
+    dig 5
+    intc_0 // 1
+    +
+    bury 6
+    dig 8
+    swap
+    concat
+    bury 8
+    dig 2
+    dig 1
+    +
+    bury 3
+    intc_0 // 1
+    +
+    bury 6
+    b main_for_header@30
+
+main_after_for@33:
+    dig 3
     pushint 14 // 14
     ==
     assert
-    swap
+    dig 6
     pushbytes 0x6162636465666761626364656667
     ==
     assert
-    intc_3 // 21
+    dig 1
+    intc_2 // 21
     ==
     assert
     intc_0 // 1
     return
 
+main_for_header_3@22:
+    bytec_3 // 0x436f77
+    intc_3 // 3
+    bury 7
+    b main_for_body@18
 
-// test_cases.enumeration.contract.enumerate_urange(start: uint64, stop: uint64, step: uint64) -> uint64, uint64, uint64:
-enumerate_urange:
-    proto 3 3
-    pushbytes ""
-    intc_1 // 0
-    dupn 2
-    frame_dig -1
-    assert // Step cannot be zero
-    frame_dig -3
-
-enumerate_urange_for_header@1:
-    frame_dig 4
-    frame_dig -2
-    <
-    bz enumerate_urange_after_for@4
-    frame_dig 1
-    intc_0 // 1
-    +
-    frame_bury 1
-    frame_dig 2
-    frame_dig 4
-    dup
-    cover 2
-    +
-    frame_bury 2
-    frame_dig -1
-    +
-    frame_bury 4
-    b enumerate_urange_for_header@1
-
-enumerate_urange_after_for@4:
-    intc_1 // 0
-    frame_bury 0
-    frame_dig -3
-    frame_bury 4
-
-enumerate_urange_for_header@5:
-    frame_dig 4
-    frame_dig -2
-    <
-    bz enumerate_urange_after_for@8
-    frame_dig 1
-    intc_0 // 1
-    +
-    frame_bury 1
-    frame_dig 2
-    frame_dig 4
-    dup
-    cover 2
-    +
-    frame_bury 2
-    frame_dig 3
-    frame_dig 0
-    dup
-    cover 3
-    +
-    frame_bury 3
-    frame_dig -1
-    +
-    frame_bury 4
-    intc_0 // 1
-    +
-    frame_bury 0
-    b enumerate_urange_for_header@5
-
-enumerate_urange_after_for@8:
-    frame_dig 1
-    frame_dig 2
-    frame_dig 3
-    frame_bury 2
-    frame_bury 1
-    frame_bury 0
-    retsub
-
-
-// test_cases.enumeration.contract.enumerate_tuple(tup.0: bytes, tup.1: bytes, tup.2: bytes, tup.3: bytes) -> uint64, bytes, uint64:
-enumerate_tuple:
-    proto 4 3
-    intc_1 // 0
-    pushbytes 0x
-    intc_1 // 0
-    frame_dig -4
-    intc_1 // 0
-
-enumerate_tuple_for_body@1:
-    frame_dig 0
-    intc_0 // 1
-    +
-    frame_bury 0
-    frame_dig 1
-    uncover 2
-    concat
-    frame_bury 1
-    switch enumerate_tuple_for_header_1@3 enumerate_tuple_for_header_2@4 enumerate_tuple_for_header_3@5
-    b enumerate_tuple_after_for@6
-
-enumerate_tuple_for_header_1@3:
-    frame_dig -3
-    intc_0 // 1
-    b enumerate_tuple_for_body@1
-
-enumerate_tuple_for_header_2@4:
-    frame_dig -2
+main_for_header_2@21:
+    bytec 4 // 0x42726f776e
     pushint 2 // 2
-    b enumerate_tuple_for_body@1
+    bury 7
+    b main_for_body@18
 
-enumerate_tuple_for_header_3@5:
-    frame_dig -1
-    intc_2 // 3
-    b enumerate_tuple_for_body@1
-
-enumerate_tuple_after_for@6:
-    frame_dig -4
-    intc_1 // 0
-
-enumerate_tuple_for_body@7:
-    frame_dig 0
+main_for_header_1@20:
+    bytec 5 // 0x4e6f77
     intc_0 // 1
-    +
-    dup
-    frame_bury 0
-    frame_dig 1
-    uncover 3
-    concat
-    dup
-    frame_bury 1
-    frame_dig 2
-    uncover 3
-    dup
-    cover 2
-    +
-    dup
-    cover 2
-    frame_bury 2
-    switch enumerate_tuple_for_header_1@9 enumerate_tuple_for_header_2@10 enumerate_tuple_for_header_3@11
-    uncover 5
-    uncover 5
-    uncover 5
-    retsub
+    bury 7
+    b main_for_body@18
 
-enumerate_tuple_for_header_1@9:
-    frame_dig -3
-    intc_0 // 1
-    b enumerate_tuple_for_body@7
+main_for_header_3@16:
+    bytec_3 // 0x436f77
+    intc_3 // 3
+    b main_for_body@12
 
-enumerate_tuple_for_header_2@10:
-    frame_dig -2
+main_for_header_2@15:
+    bytec 4 // 0x42726f776e
     pushint 2 // 2
-    b enumerate_tuple_for_body@7
+    b main_for_body@12
 
-enumerate_tuple_for_header_3@11:
-    frame_dig -1
-    intc_2 // 3
-    b enumerate_tuple_for_body@7
-
-
-// test_cases.enumeration.contract.enumerate_bytes(bytes_: bytes) -> uint64, bytes, uint64:
-enumerate_bytes:
-    proto 1 3
-    pushbytes ""
-    intc_1 // 0
-    dup2
-    frame_dig -1
-    len
-    intc_1 // 0
-
-enumerate_bytes_for_header@1:
-    frame_dig 5
-    frame_dig 4
-    <
-    bz enumerate_bytes_after_for@4
-    frame_dig -1
-    frame_dig 5
-    dup
-    cover 2
+main_for_header_1@14:
+    bytec 5 // 0x4e6f77
     intc_0 // 1
-    extract3
-    frame_dig 1
-    intc_0 // 1
-    +
-    frame_bury 1
-    frame_dig 2
-    swap
-    concat
-    frame_bury 2
-    intc_0 // 1
-    +
-    frame_bury 5
-    b enumerate_bytes_for_header@1
-
-enumerate_bytes_after_for@4:
-    intc_1 // 0
-    frame_bury 0
-
-enumerate_bytes_for_header@5:
-    frame_dig 0
-    frame_dig 4
-    <
-    bz enumerate_bytes_after_for@8
-    frame_dig -1
-    frame_dig 0
-    dup
-    cover 2
-    intc_0 // 1
-    extract3
-    frame_dig 1
-    intc_0 // 1
-    +
-    frame_bury 1
-    frame_dig 2
-    swap
-    concat
-    frame_bury 2
-    frame_dig 3
-    dig 1
-    +
-    frame_bury 3
-    intc_0 // 1
-    +
-    frame_bury 0
-    b enumerate_bytes_for_header@5
-
-enumerate_bytes_after_for@8:
-    frame_dig 1
-    frame_dig 2
-    frame_dig 3
-    frame_bury 2
-    frame_bury 1
-    frame_bury 0
-    retsub
+    b main_for_body@12

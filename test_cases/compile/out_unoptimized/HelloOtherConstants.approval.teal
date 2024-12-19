@@ -1,14 +1,18 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.compile.apps.HelloOtherConstants.approval_program:
+// test_cases.compile.apps.HelloOtherConstants.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 0 1
     bytecblock "greeting" "num" "address" "method" 0x151f7c75 TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
     txn ApplicationID
     bnz main_after_if_else@2
+
+main_call___init__@1:
     callsub __init__
 
 main_after_if_else@2:
-    callsub __puya_arc4_router__
+    callsub approval_program
     return
 
 
@@ -40,59 +44,41 @@ __init__:
     retsub
 
 
-// test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+approval_program:
+    proto 0 1
+
+approval_program_block@1:
     // compile/apps.py:76
     // class HelloOtherConstants(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@7
+    bz approval_program_bare_routing@8
+
+approval_program_abi_routing@2:
+    // compile/apps.py:76
+    // class HelloOtherConstants(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xd9285a74 // method "create()uint64"
     pushbytes 0x24378d3c // method "delete()void"
     pushbytes 0x5b0c2375 // method "greet(string)byte[]"
     uncover 3
-    match __puya_arc4_router___create_route@2 __puya_arc4_router___delete_route@3 __puya_arc4_router___greet_route@4
-    b __puya_arc4_router___switch_case_default@5
+    match approval_program_create_route@3 approval_program_delete_route@4 approval_program_greet_route@5
 
-__puya_arc4_router___create_route@2:
-    // compile/apps.py:83
-    // @arc4.abimethod(create="require")
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
+approval_program_switch_case_default@6:
+
+approval_program_switch_case_next@7:
+
+approval_program_after_if_else@9:
+    // compile/apps.py:76
+    // class HelloOtherConstants(ARC4Contract):
     intc_0 // 0
-    ==
-    assert // can only call when creating
-    callsub create
-    itob
-    bytec 4 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
+
+approval_program_after_inlined_test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__@10:
     retsub
 
-__puya_arc4_router___delete_route@3:
-    // compile/apps.py:87
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    assert // OnCompletion is not DeleteApplication
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub delete
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___greet_route@4:
+approval_program_greet_route@5:
     // compile/apps.py:91
     // @arc4.abimethod()
     txn OnCompletion
@@ -121,18 +107,45 @@ __puya_arc4_router___greet_route@4:
     concat
     log
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__@10
 
-__puya_arc4_router___switch_case_default@5:
-    b __puya_arc4_router___after_if_else@8
-
-__puya_arc4_router___bare_routing@7:
-
-__puya_arc4_router___after_if_else@8:
-    // compile/apps.py:76
-    // class HelloOtherConstants(ARC4Contract):
+approval_program_delete_route@4:
+    // compile/apps.py:87
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    txn OnCompletion
+    pushint 5 // DeleteApplication
+    ==
+    assert // OnCompletion is not DeleteApplication
+    txn ApplicationID
     intc_0 // 0
-    retsub
+    !=
+    assert // can only call when not creating
+    callsub delete
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__@10
+
+approval_program_create_route@3:
+    // compile/apps.py:83
+    // @arc4.abimethod(create="require")
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    assert // can only call when creating
+    callsub create
+    itob
+    bytec 4 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__@10
+
+approval_program_bare_routing@8:
+    b approval_program_after_if_else@9
 
 
 // test_cases.compile.apps.HelloOtherConstants.create() -> uint64:

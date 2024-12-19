@@ -1,40 +1,10 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.application.contract.Reference.approval_program:
+// test_cases.application.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
+main:
     txn ApplicationID
     bnz main_after_if_else@2
-    callsub __init__
-
-main_after_if_else@2:
-    // application/contract.py:27
-    // if op.Txn.num_app_args == 1:
-    txn NumAppArgs
-    pushint 1 // 1
-    ==
-    bz main_after_if_else@7
-    // application/contract.py:28
-    // if op.Txn.application_args(0) == b"validate":
-    txna ApplicationArgs 0
-    pushbytes 0x76616c6964617465
-    ==
-    assert // Expected validate
-    // application/contract.py:29
-    // self.validate_asset(op.Global.current_application_id)
-    global CurrentApplicationID
-    callsub validate_asset
-
-main_after_if_else@7:
-    // application/contract.py:32
-    // return True
-    pushint 1 // 1
-    return
-
-
-// test_cases.application.contract.Reference.__init__() -> void:
-__init__:
-    // application/contract.py:14
-    // def __init__(self) -> None:
-    proto 0 0
     // application/contract.py:15
     // self.int_1 = UInt64(0)
     pushbytes "int_1"
@@ -48,25 +18,33 @@ __init__:
     // self.bytes_2 = Bytes(b"")
     pushbytess "bytes_2" 0x // "bytes_2", 0x
     app_global_put
-    retsub
 
-
-// test_cases.application.contract.Reference.validate_asset(app: uint64) -> void:
-validate_asset:
-    // application/contract.py:37-38
-    // @subroutine
-    // def validate_asset(self, app: Application) -> None:
-    proto 1 0
+main_after_if_else@2:
+    // application/contract.py:27
+    // if op.Txn.num_app_args == 1:
+    txn NumAppArgs
+    pushint 1 // 1
+    ==
+    bz main_after_if_else@8
+    // application/contract.py:28
+    // if op.Txn.application_args(0) == b"validate":
+    txna ApplicationArgs 0
+    pushbytes 0x76616c6964617465
+    ==
+    assert // Expected validate
+    // application/contract.py:29
+    // self.validate_asset(op.Global.current_application_id)
+    global CurrentApplicationID
     // application/contract.py:39
     // assert not Txn.sender.is_opted_in(app), "app opted in"
     txn Sender
-    frame_dig -1
+    dig 1
     app_opted_in
     !
     assert // app opted in
     // application/contract.py:40
     // assert app.creator == op.Global.creator_address, "expected creator"
-    frame_dig -1
+    dup
     app_params_get AppCreator
     assert // application exists
     global CreatorAddress
@@ -74,7 +52,7 @@ validate_asset:
     assert // expected creator
     // application/contract.py:41
     // assert app.global_num_uint == 1, "expected global_num_uint"
-    frame_dig -1
+    dup
     app_params_get AppGlobalNumUint
     assert // application exists
     pushint 1 // 1
@@ -82,7 +60,7 @@ validate_asset:
     assert // expected global_num_uint
     // application/contract.py:42
     // assert app.global_num_bytes == 2, "expected global_num_bytes"
-    frame_dig -1
+    dup
     app_params_get AppGlobalNumByteSlice
     assert // application exists
     pushint 2 // 2
@@ -90,7 +68,7 @@ validate_asset:
     assert // expected global_num_bytes
     // application/contract.py:43
     // assert app.local_num_uint == 3, "expected local_num_uint"
-    frame_dig -1
+    dup
     app_params_get AppLocalNumUint
     assert // application exists
     pushint 3 // 3
@@ -98,7 +76,7 @@ validate_asset:
     assert // expected local_num_uint
     // application/contract.py:44
     // assert app.local_num_bytes == 4, "expected local_num_bytes"
-    frame_dig -1
+    dup
     app_params_get AppLocalNumByteSlice
     assert // application exists
     pushint 4 // 4
@@ -106,27 +84,26 @@ validate_asset:
     assert // expected local_num_bytes
     // application/contract.py:45
     // assert app.approval_program, "expected approval_program"
-    frame_dig -1
+    dup
     app_params_get AppApprovalProgram
     assert // application exists
     len
     assert // expected approval_program
     // application/contract.py:46
     // assert app.clear_state_program, "expected clear_state_program"
-    frame_dig -1
+    dup
     app_params_get AppClearStateProgram
     assert // application exists
     len
     assert // expected clear_state_program
     // application/contract.py:47
     // assert app == op.Global.current_application_id, "expected current_application_id"
-    frame_dig -1
+    dup
     global CurrentApplicationID
     ==
     assert // expected current_application_id
     // application/contract.py:49
     // app.address == op.Global.current_application_address
-    frame_dig -1
     app_params_get AppAddress
     assert // application exists
     global CurrentApplicationAddress
@@ -136,4 +113,9 @@ validate_asset:
     //     app.address == op.Global.current_application_address
     // ), "expected current_application_address"
     assert // expected current_application_address
-    retsub
+
+main_after_if_else@8:
+    // application/contract.py:32
+    // return True
+    pushint 1 // 1
+    return

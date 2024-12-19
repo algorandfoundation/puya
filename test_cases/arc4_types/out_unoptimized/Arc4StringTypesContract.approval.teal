@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
+// test_cases.arc4_types.string.Arc4StringTypesContract.approval_program() -> uint64:
+main:
     bytecblock 0x48656c6c6f20576f726c6421 0x00026869 0x0003626565
     // arc4_types/string.py:8
     // some_bytes_as_string = arc4.String(String.from_bytes(HELLO_WORLD))
@@ -196,13 +198,11 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     pushint 0 // 0
     !=
     bz main_ternary_false@2
-    pushbytes 0x0003617965
-    b main_ternary_merge@3
 
-main_ternary_false@2:
+main_ternary_true@1:
     // arc4_types/string.py:41
     // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
-    bytec_2 // 0x0003626565
+    pushbytes 0x0003617965
 
 main_ternary_merge@3:
     // arc4_types/string.py:41
@@ -214,3 +214,9 @@ main_ternary_merge@3:
     // return True
     pushint 1 // 1
     return
+
+main_ternary_false@2:
+    // arc4_types/string.py:41
+    // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
+    bytec_2 // 0x0003626565
+    b main_ternary_merge@3

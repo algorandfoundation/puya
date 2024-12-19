@@ -1,74 +1,46 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.approval_program:
-    intcblock 1 0
-    bytecblock 0x151f7c75 0x000300060009000c00015800015900015a
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    proto 0 1
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    bytecblock 0x151f7c75000300060009000c00015800015900015a
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@6
+    bz main_bare_routing@7
     pushbytess 0x6b10e527 0x94ddb1c2 // method "xyz()string[]", method "xyz_raw()string[]"
     txna ApplicationArgs 0
-    match __puya_arc4_router___xyz_route@2 __puya_arc4_router___xyz_raw_route@3
-    intc_1 // 0
-    retsub
+    match main_xyz_route@3 main_xyz_raw_route@4
 
-__puya_arc4_router___xyz_route@2:
+main_after_if_else@11:
+    pushint 0 // 0
+    return
+
+main_xyz_raw_route@4:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub xyz
-    bytec_0 // 0x151f7c75
-    swap
-    concat
+    bytec_0 // 0x151f7c75000300060009000c00015800015900015a
     log
-    intc_0 // 1
-    retsub
+    pushint 1 // 1
+    return
 
-__puya_arc4_router___xyz_raw_route@3:
+main_xyz_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub xyz_raw
-    bytec_0 // 0x151f7c75
-    swap
-    concat
+    bytec_0 // 0x151f7c75000300060009000c00015800015900015a
     log
-    intc_0 // 1
-    retsub
+    pushint 1 // 1
+    return
 
-__puya_arc4_router___bare_routing@6:
+main_bare_routing@7:
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@10
+    bnz main_after_if_else@11
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@10:
-    intc_1 // 0
-    retsub
-
-
-// test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz() -> bytes:
-xyz:
-    proto 0 1
-    bytec_1 // 0x000300060009000c00015800015900015a
-    retsub
-
-
-// test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw() -> bytes:
-xyz_raw:
-    proto 0 1
-    bytec_1 // 0x000300060009000c00015800015900015a
-    retsub
+    pushint 1 // 1
+    return

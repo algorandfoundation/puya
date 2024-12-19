@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.simple.contract.MyContract.approval_program:
+// test_cases.simple.contract.MyContract.approval_program() -> uint64:
+main:
     intcblock 2 3 4
     // simple/contract.py:10
     // a = algo.UInt64(1) + 2
@@ -19,12 +21,16 @@ test_cases.simple.contract.MyContract.approval_program:
     intc_1 // 3
     ==
     bz main_else_body@6
+
+main_if_body@1:
     // simple/contract.py:13
     // if b < 2:
     dup
     intc_0 // 2
     <
     bz main_else_body@3
+
+main_if_body@2:
     // simple/contract.py:14
     // b = 3 + algo.UInt64(2)
     intc_1 // 3
@@ -49,6 +55,8 @@ main_else_body@3:
     pushint 0 // 0
     !=
     bz main_else_body@5
+
+main_if_body@4:
     // simple/contract.py:19
     // return algo.UInt64(2)
     intc_0 // 2

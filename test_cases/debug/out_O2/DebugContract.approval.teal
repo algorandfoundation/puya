@@ -1,24 +1,25 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.debug.contract.DebugContract.approval_program:
-    intcblock 1 0 10 TMPL_A_MULT
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 1 10 0 TMPL_A_MULT
     bytecblock " " 0x30313233343536373839
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.debug.contract.DebugContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    proto 0 1
+    intc_2 // 0
+    dup
+    pushbytes ""
+    dupn 6
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@5
+    bz main_bare_routing@6
     pushbytes 0x53574bff // method "test(uint64,uint64,uint64)uint64"
     txna ApplicationArgs 0
-    match __puya_arc4_router___test_route@2
-    intc_1 // 0
-    retsub
+    match main_test_route@3
 
-__puya_arc4_router___test_route@2:
+main_after_if_else@10:
+    intc_2 // 0
+    return
+
+main_test_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -28,190 +29,182 @@ __puya_arc4_router___test_route@2:
     btoi
     txna ApplicationArgs 2
     btoi
+    dup
+    cover 2
+    bury 4
     txna ApplicationArgs 3
     btoi
-    callsub test
+    dup
+    bury 4
+    dig 1
+    intc_3 // TMPL_A_MULT
+    *
+    bury 10
+    swap
+    uncover 2
+    +
+    dup
+    bury 7
+    dup
+    uncover 2
+    *
+    dup
+    bury 5
+    <
+    bz main_else_body@16
+    dig 6
+    dig 2
+    +
+    bury 7
+
+main_after_if_else@25:
+    dig 6
+    dig 5
+    +
+    dig 3
+    <
+    bz main_else_body@27
+    dig 6
+    dup
+    dig 3
+    callsub some_func
+    *
+    bury 7
+
+main_after_if_else@28:
+    dig 4
+    dup
+    callsub itoa
+    bury 10
+    dig 7
+    dup
+    uncover 2
+    +
+    dup
+    bury 5
+    dup
+    callsub itoa
+    bury 10
+    dig 1
+    >
+    swap
+    bury 7
+    bz main_after_if_else@30
+    dig 6
+    dig 3
+    +
+    bury 6
+
+main_after_if_else@30:
+    dig 5
+    dup
+    bury 8
+    dup
+    dig 6
+    <
+    swap
+    bury 7
+    bz main_after_if_else@32
+    dig 6
+    dig 5
+    +
+    bury 6
+
+main_after_if_else@32:
+    dig 5
+    dup
+    bury 8
+    dig 5
+    dig 4
+    +
+    dig 1
+    >
+    swap
+    bury 7
+    bz main_after_if_else@34
+    dig 6
+    dig 1
+    *
+    bury 6
+
+main_after_if_else@34:
+    dig 5
+    dup
+    callsub itoa
+    bytec_0 // " "
+    concat
+    dig 10
+    concat
+    bytec_0 // " "
+    concat
+    dig 9
+    concat
+    log
     itob
     pushbytes 0x151f7c75
     swap
     concat
     log
     intc_0 // 1
-    retsub
+    return
 
-__puya_arc4_router___bare_routing@5:
+main_else_body@27:
+    dig 4
+    dup
+    dig 2
+    callsub some_func
+    *
+    bury 5
+    b main_after_if_else@28
+
+main_else_body@16:
+    dig 6
+    dig 3
+    <
+    bz main_else_body@18
+    dig 6
+    dig 1
+    +
+    bury 7
+    b main_after_if_else@25
+
+main_else_body@18:
+    dig 4
+    dig 7
+    <
+    bz main_else_body@20
+    dig 6
+    pushint 3 // 3
+    *
+    bury 7
+    b main_after_if_else@25
+
+main_else_body@20:
+    dig 4
+    dup
+    dig 8
+    >
+    swap
+    bury 5
+    bz main_after_if_else@22
+    dig 4
+    dig 7
+    +
+    bury 4
+
+main_after_if_else@22:
+    dig 3
+    bury 5
+    b main_after_if_else@25
+
+main_bare_routing@6:
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@9
+    bnz main_after_if_else@10
     txn ApplicationID
     !
     assert // can only call when creating
     intc_0 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@9:
-    intc_1 // 0
-    retsub
-
-
-// test_cases.debug.contract.DebugContract.test(x: uint64, y: uint64, z: uint64) -> uint64:
-test:
-    proto 3 1
-    intc_1 // 0
-    dup
-    pushbytes ""
-    dup
-    frame_dig -3
-    intc_3 // TMPL_A_MULT
-    *
-    frame_dig -3
-    frame_dig -2
-    +
-    dupn 2
-    frame_dig -1
-    *
-    dup
-    cover 2
-    <
-    bz test_else_body@2
-    frame_dig 4
-    frame_dig -2
-    +
-    frame_bury 4
-    b test_after_if_else@11
-
-test_else_body@2:
-    frame_dig 4
-    frame_dig 6
-    <
-    bz test_else_body@4
-    frame_dig 4
-    frame_dig -1
-    +
-    frame_bury 4
-    b test_after_if_else@11
-
-test_else_body@4:
-    frame_dig 5
-    frame_dig 4
-    <
-    bz test_else_body@6
-    frame_dig 4
-    pushint 3 // 3
-    *
-    frame_bury 4
-    b test_after_if_else@11
-
-test_else_body@6:
-    frame_dig 5
-    dup
-    frame_dig 4
-    >
-    swap
-    frame_bury 3
-    bz test_after_if_else@8
-    frame_dig 5
-    frame_dig 4
-    +
-    frame_bury 3
-
-test_after_if_else@8:
-    frame_dig 3
-    frame_bury 5
-
-test_after_if_else@11:
-    frame_dig 4
-    frame_dig 5
-    +
-    frame_dig 6
-    <
-    bz test_else_body@13
-    frame_dig 4
-    dup
-    frame_dig -2
-    callsub some_func
-    *
-    frame_bury 4
-    b test_after_if_else@14
-
-test_else_body@13:
-    frame_dig 5
-    dup
-    frame_dig -1
-    callsub some_func
-    *
-    frame_bury 5
-
-test_after_if_else@14:
-    frame_dig 5
-    dup
-    callsub itoa
-    frame_bury 0
-    frame_dig 4
-    dup
-    uncover 2
-    +
-    dup
-    frame_bury 6
-    dup
-    callsub itoa
-    frame_bury 1
-    dig 1
-    >
-    swap
-    frame_bury 2
-    bz test_after_if_else@16
-    frame_dig 4
-    frame_dig 6
-    +
-    frame_bury 2
-
-test_after_if_else@16:
-    frame_dig 2
-    dup
-    frame_bury 4
-    dup
-    frame_dig 5
-    <
-    swap
-    frame_bury 2
-    bz test_after_if_else@18
-    frame_dig 4
-    frame_dig 5
-    +
-    frame_bury 2
-
-test_after_if_else@18:
-    frame_dig 2
-    dup
-    frame_bury 4
-    frame_dig 5
-    frame_dig 6
-    +
-    dig 1
-    >
-    swap
-    frame_bury 2
-    bz test_after_if_else@20
-    frame_dig 4
-    frame_dig -1
-    *
-    frame_bury 2
-
-test_after_if_else@20:
-    frame_dig 2
-    dup
-    callsub itoa
-    bytec_0 // " "
-    concat
-    frame_dig 0
-    concat
-    bytec_0 // " "
-    concat
-    frame_dig 1
-    concat
-    log
-    frame_bury 0
-    retsub
+    return
 
 
 // test_cases.debug.contract.some_func(a: uint64, b: uint64) -> uint64:
@@ -251,7 +244,7 @@ some_func:
 itoa:
     proto 1 1
     frame_dig -1
-    intc_2 // 10
+    intc_1 // 10
     <
     bz itoa_after_if_else@2
     bytec_1 // 0x30313233343536373839
@@ -262,11 +255,11 @@ itoa:
 
 itoa_after_if_else@2:
     frame_dig -1
-    intc_2 // 10
+    intc_1 // 10
     /
     callsub itoa
     frame_dig -1
-    intc_2 // 10
+    intc_1 // 10
     %
     bytec_1 // 0x30313233343536373839
     swap

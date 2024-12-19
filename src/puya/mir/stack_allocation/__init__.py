@@ -10,21 +10,19 @@ from puya.mir.stack_allocation.x_stack import x_stack_allocation
 
 
 def global_stack_allocation(ctx: ProgramMIRContext, program: models.Program) -> None:
-    for idx, (desc, method) in enumerate(
-        {
-            "lstack": l_stack_allocation,
-            "lstack.opt": _peephole_optimization,
-            "xstack": x_stack_allocation,
-            "xstack.opt": _peephole_optimization,
-            "fstack": f_stack_allocation,
-            "fstack.opt": _peephole_optimization,
-        }.items()
-    ):
+    for desc, method in {
+        "lstack": l_stack_allocation,
+        "lstack.opt": _peephole_optimization,
+        "xstack": x_stack_allocation,
+        "xstack.opt": _peephole_optimization,
+        "fstack": f_stack_allocation,
+        "fstack.opt": _peephole_optimization,
+    }.items():
         for mir_sub in program.all_subroutines:
             sub_ctx = ctx.for_subroutine(mir_sub)
             method(sub_ctx)
         if ctx.options.output_memory_ir:
-            output_memory_ir(ctx, program, qualifier=f"{idx}.{desc}")
+            output_memory_ir(ctx, program, qualifier=desc)
     if ctx.options.output_memory_ir:
         output_memory_ir(ctx, program, qualifier="")
 
