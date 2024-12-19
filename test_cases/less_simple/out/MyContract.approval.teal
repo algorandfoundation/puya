@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.less_simple.contract.MyContract.approval_program:
+// test_cases.less_simple.contract.MyContract.approval_program() -> uint64:
+main:
     // less_simple/contract.py:9-10
     // a = UInt64(1)
     // sum_of_evens = UInt64(0)
@@ -40,7 +42,15 @@ main_while_top@1:
     dig 3
     +
     bury 2
-    b main_after_if_else@12
+
+main_after_if_else@12:
+    // less_simple/contract.py:24
+    // a += 1
+    dig 2
+    pushint 1 // 1
+    +
+    bury 3
+    b main_while_top@1
 
 main_else_body@8:
     // less_simple/contract.py:20
@@ -58,15 +68,7 @@ main_else_body@10:
     dig 3
     *
     bury 1
-
-main_after_if_else@12:
-    // less_simple/contract.py:24
-    // a += 1
-    dig 2
-    pushint 1 // 1
-    +
-    bury 3
-    b main_while_top@1
+    b main_after_if_else@12
 
 main_after_while@13:
     // less_simple/contract.py:25

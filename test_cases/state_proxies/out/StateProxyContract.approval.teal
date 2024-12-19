@@ -1,25 +1,15 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.state_proxies.contract.StateProxyContract.approval_program:
-    intcblock 0 1
+// test_cases.state_proxies.contract.StateProxyContract.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 1 0
     txn ApplicationID
     bnz main_after_if_else@2
-    callsub __init__
-
-main_after_if_else@2:
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.state_proxies.contract.StateProxyContract.__init__() -> void:
-__init__:
-    // state_proxies/contract.py:13
-    // def __init__(self) -> None:
-    proto 0 0
     // state_proxies/contract.py:17
     // self.global2 = GlobalState[UInt64](UInt64(0), key=b"g2", description="g2 description")
     pushbytes 0x6732
-    intc_0 // 0
+    intc_1 // 0
     app_global_put
     // state_proxies/contract.py:21
     // else GlobalState(UInt64, key="town")
@@ -36,41 +26,35 @@ __init__:
     // funky_town.value = UInt64(123)
     pushint 123 // 123
     app_global_put
-    retsub
 
-
-// test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_after_if_else@2:
     // state_proxies/contract.py:12
     // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
-    proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___after_if_else@6
+    bz main_after_if_else@6
     pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___create_route@2
-    intc_0 // 0
-    retsub
+    match main_create_route@5
 
-__puya_arc4_router___create_route@2:
+main_after_if_else@6:
+    // state_proxies/contract.py:12
+    // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
+    intc_1 // 0
+    return
+
+main_create_route@5:
     // state_proxies/contract.py:25
     // @arc4.abimethod(allow_actions=["OptIn"], create="require")
     txn OnCompletion
-    intc_1 // OptIn
+    intc_0 // OptIn
     ==
     assert // OnCompletion is not OptIn
     txn ApplicationID
     !
     assert // can only call when creating
     callsub create
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@6:
-    // state_proxies/contract.py:12
-    // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
-    intc_0 // 0
-    retsub
+    intc_0 // 1
+    return
 
 
 // test_cases.state_proxies.contract.StateProxyContract.create() -> void:
@@ -82,7 +66,7 @@ create:
     // state_proxies/contract.py:27
     // self.global1.value = UInt64(1)
     pushbytes "g1"
-    intc_1 // 1
+    intc_0 // 1
     app_global_put
     // state_proxies/contract.py:28
     // self.local1[Txn.sender] = UInt64(2)

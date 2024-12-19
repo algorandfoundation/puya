@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.bug_load_store_load_store.contract.MyContract.approval_program:
+// test_cases.bug_load_store_load_store.contract.MyContract.approval_program() -> uint64:
+main:
     pushbytes ""
     // bug_load_store_load_store/contract.py:11
     // val = UInt64(0)
@@ -31,15 +33,13 @@ main_for_header@1:
     callsub get_bool
     dig 2
     bury 4
-    bnz main_after_if_else@7
+    bnz main_after_if_else@8
     // bug_load_store_load_store/contract.py:17
     // val += UInt64(123)
     dig 1
     pushint 123 // 123
     +
     bury 3
-
-main_after_if_else@7:
 
 main_after_if_else@8:
     dig 2
@@ -64,7 +64,7 @@ main_after_for@11:
 // test_cases.bug_load_store_load_store.contract.get_bool() -> uint64:
 get_bool:
     // bug_load_store_load_store/contract.py:4-5
-    // @subroutine
+    // @subroutine(inline=False)
     // def get_bool() -> bool:
     proto 0 1
     // bug_load_store_load_store/contract.py:6

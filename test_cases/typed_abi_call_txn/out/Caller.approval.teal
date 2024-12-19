@@ -1,95 +1,25 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.typed_abi_call_txn.caller.Caller.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1 3 6
     bytecblock "TEST" "TST" 0x151f7c75 0x6d4700ad
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.typed_abi_call_txn.caller.Caller.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@8
+    bz main_bare_routing@9
     pushbytess 0x284c1e61 0xaa33c1ba 0x4f96071a 0xbb0098a2 // method "test_call_with_txn(byte[],byte[],application)void", method "test_call_with_acfg(byte[],byte[],application)void", method "test_call_with_infer(byte[],byte[],application)void", method "test_call_with_acfg_no_return(byte[],byte[],application)void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___test_call_with_txn_route@2 __puya_arc4_router___test_call_with_acfg_route@3 __puya_arc4_router___test_call_with_infer_route@4 __puya_arc4_router___test_call_with_acfg_no_return_route@5
+    match main_test_call_with_txn_route@3 main_test_call_with_acfg_route@4 main_test_call_with_infer_route@5 main_test_call_with_acfg_no_return_route@6
+
+main_after_if_else@13:
+    // typed_abi_call_txn/caller.py:14
+    // class Caller(ARC4Contract):
     intc_0 // 0
-    retsub
+    return
 
-__puya_arc4_router___test_call_with_txn_route@2:
-    // typed_abi_call_txn/caller.py:15
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // typed_abi_call_txn/caller.py:14
-    // class Caller(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
-    txna ApplicationArgs 2
-    extract 2 0
-    txna ApplicationArgs 3
-    btoi
-    txnas Applications
-    // typed_abi_call_txn/caller.py:15
-    // @arc4.abimethod
-    callsub test_call_with_txn
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___test_call_with_acfg_route@3:
-    // typed_abi_call_txn/caller.py:31
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // typed_abi_call_txn/caller.py:14
-    // class Caller(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
-    txna ApplicationArgs 2
-    extract 2 0
-    txna ApplicationArgs 3
-    btoi
-    txnas Applications
-    // typed_abi_call_txn/caller.py:31
-    // @arc4.abimethod
-    callsub test_call_with_acfg
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___test_call_with_infer_route@4:
-    // typed_abi_call_txn/caller.py:46
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // typed_abi_call_txn/caller.py:14
-    // class Caller(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
-    txna ApplicationArgs 2
-    extract 2 0
-    txna ApplicationArgs 3
-    btoi
-    txnas Applications
-    // typed_abi_call_txn/caller.py:46
-    // @arc4.abimethod
-    callsub test_call_with_infer
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___test_call_with_acfg_no_return_route@5:
+main_test_call_with_acfg_no_return_route@6:
     // typed_abi_call_txn/caller.py:61
     // @arc4.abimethod
     txn OnCompletion
@@ -110,24 +40,87 @@ __puya_arc4_router___test_call_with_acfg_no_return_route@5:
     // @arc4.abimethod
     callsub test_call_with_acfg_no_return
     intc_1 // 1
-    retsub
+    return
 
-__puya_arc4_router___bare_routing@8:
+main_test_call_with_infer_route@5:
+    // typed_abi_call_txn/caller.py:46
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // typed_abi_call_txn/caller.py:14
+    // class Caller(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    txna ApplicationArgs 3
+    btoi
+    txnas Applications
+    // typed_abi_call_txn/caller.py:46
+    // @arc4.abimethod
+    callsub test_call_with_infer
+    intc_1 // 1
+    return
+
+main_test_call_with_acfg_route@4:
+    // typed_abi_call_txn/caller.py:31
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // typed_abi_call_txn/caller.py:14
+    // class Caller(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    txna ApplicationArgs 3
+    btoi
+    txnas Applications
+    // typed_abi_call_txn/caller.py:31
+    // @arc4.abimethod
+    callsub test_call_with_acfg
+    intc_1 // 1
+    return
+
+main_test_call_with_txn_route@3:
+    // typed_abi_call_txn/caller.py:15
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // typed_abi_call_txn/caller.py:14
+    // class Caller(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    txna ApplicationArgs 3
+    btoi
+    txnas Applications
+    // typed_abi_call_txn/caller.py:15
+    // @arc4.abimethod
+    callsub test_call_with_txn
+    intc_1 // 1
+    return
+
+main_bare_routing@9:
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@12
+    bnz main_after_if_else@13
     txn ApplicationID
     !
     assert // can only call when creating
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@12:
-    // typed_abi_call_txn/caller.py:14
-    // class Caller(ARC4Contract):
-    intc_0 // 0
-    retsub
+    return
 
 
 // test_cases.typed_abi_call_txn.caller.Caller.test_call_with_txn(a: bytes, b: bytes, app: uint64) -> void:

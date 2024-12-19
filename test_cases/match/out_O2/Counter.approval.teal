@@ -1,36 +1,19 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.match.counter.Counter.approval_program:
+// test_cases.match.counter.Counter.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 0 1
     bytecblock "counter"
     txn ApplicationID
     bnz main_after_if_else@2
-    callsub __init__
-
-main_after_if_else@2:
-    txn OnCompletion
-    bnz main_switch_case_default@4
-    callsub increment_counter
-    intc_1 // 1
-    return
-
-main_switch_case_default@4:
-    intc_0 // 0
-    return
-
-
-// test_cases.match.counter.Counter.__init__() -> void:
-__init__:
-    proto 0 0
     bytec_0 // "counter"
     intc_0 // 0
     app_global_put
-    retsub
 
-
-// test_cases.match.counter.Counter.increment_counter() -> void:
-increment_counter:
-    proto 0 0
+main_after_if_else@2:
+    txn OnCompletion
+    bnz main_switch_case_default@5
     intc_0 // 0
     bytec_0 // "counter"
     app_global_get_ex
@@ -40,4 +23,9 @@ increment_counter:
     bytec_0 // "counter"
     swap
     app_global_put
-    retsub
+    intc_1 // 1
+    return
+
+main_switch_case_default@5:
+    intc_0 // 0
+    return

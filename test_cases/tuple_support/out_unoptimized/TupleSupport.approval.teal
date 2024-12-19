@@ -1,15 +1,41 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.tuple_support.tuple_support.TupleSupport.approval_program:
+// test_cases.tuple_support.tuple_support.TupleSupport.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 1 2 0 3
     bytecblock 0x "state"
-    bytec_0 // ""
-    dupn 3
     txn ApplicationID
     bnz main_after_if_else@2
+
+main_call___init__@1:
     callsub __init__
 
 main_after_if_else@2:
+    callsub approval_program
+    return
+
+
+// test_cases.tuple_support.tuple_support.TupleSupport.__init__() -> void:
+__init__:
+    // tuple_support/tuple_support.py:5
+    // def __init__(self) -> None:
+    proto 0 0
+    // tuple_support/tuple_support.py:6
+    // self.state = UInt64(0)
+    bytec_1 // "state"
+    intc_2 // 0
+    app_global_put
+    retsub
+
+
+// test_cases.tuple_support.tuple_support.TupleSupport.approval_program() -> uint64:
+approval_program:
+    // tuple_support/tuple_support.py:8
+    // def approval_program(self) -> UInt64:
+    proto 0 1
+    bytec_0 // ""
+    dupn 3
     // tuple_support/tuple_support.py:9
     // total = add_three_values((UInt64(101), UInt64(102), UInt64(103)))
     pushint 101 // 101
@@ -64,30 +90,20 @@ main_after_if_else@2:
     // tuple_support/tuple_support.py:20
     // if a == b:
     ==
-    bz main_else_body@4
+    bz approval_program_else_body@2
+
+approval_program_if_body@1:
     // tuple_support/tuple_support.py:11
     // (a, b) = (UInt64(1), UInt64(2))
     intc_0 // 1
     // tuple_support/tuple_support.py:21
     // tup = ab2
-    bury 1
+    frame_bury 3
     // tuple_support/tuple_support.py:11
     // (a, b) = (UInt64(1), UInt64(2))
     intc_1 // 2
-    b main_after_if_else@5
 
-main_else_body@4:
-    // tuple_support/tuple_support.py:18
-    // c = d = UInt64(3)
-    intc_3 // 3
-    // tuple_support/tuple_support.py:23
-    // tup = cd
-    bury 1
-    // tuple_support/tuple_support.py:18
-    // c = d = UInt64(3)
-    intc_3 // 3
-
-main_after_if_else@5:
+approval_program_after_if_else@3:
     // tuple_support/tuple_support.py:11
     // (a, b) = (UInt64(1), UInt64(2))
     intc_0 // 1
@@ -109,7 +125,7 @@ main_after_if_else@5:
     intc_3 // 3
     // tuple_support/tuple_support.py:26
     // assert cd[0] == tup[0]
-    dig 2
+    frame_dig 3
     ==
     assert
     // tuple_support/tuple_support.py:18
@@ -128,36 +144,28 @@ main_after_if_else@5:
     callsub get_tuple
     dup
     cover 2
-    bury 5
+    frame_bury 1
     dup
-    bury 6
+    frame_bury 0
     dup
     ==
     dig 1
     uncover 2
     ==
     ||
-    bz main_ternary_false@7
-    dig 3
-    bury 2
-    dig 2
-    b main_ternary_merge@8
+    bz approval_program_ternary_false@5
 
-main_ternary_false@7:
-    // tuple_support/tuple_support.py:11
-    // (a, b) = (UInt64(1), UInt64(2))
-    intc_1 // 2
-    intc_0 // 1
+approval_program_ternary_true@4:
     // tuple_support/tuple_support.py:29
     // (m, n) = get_tuple(a, b) or get_tuple(b, a)
-    callsub get_tuple
-    swap
-    bury 3
+    frame_dig 0
+    frame_bury 2
+    frame_dig 1
 
-main_ternary_merge@8:
+approval_program_ternary_merge@6:
     // tuple_support/tuple_support.py:29
     // (m, n) = get_tuple(a, b) or get_tuple(b, a)
-    dig 2
+    frame_dig 2
     // tuple_support/tuple_support.py:11
     // (a, b) = (UInt64(1), UInt64(2))
     intc_0 // 1
@@ -279,25 +287,29 @@ main_ternary_merge@8:
     uncover 2
     ==
     ||
-    bz main_after_if_else@10
+    bz approval_program_after_if_else@8
+
+approval_program_if_body@7:
     // tuple_support/tuple_support.py:56
     // log("not empty")
     pushbytes "not empty"
     log
 
-main_after_if_else@10:
+approval_program_after_if_else@8:
     // tuple_support/tuple_support.py:57
     // if (get_uint_with_side_effect(),):  # noqa: F634
     callsub get_uint_with_side_effect
     dup
     ==
-    bz main_after_if_else@12
+    bz approval_program_after_if_else@10
+
+approval_program_if_body@9:
     // tuple_support/tuple_support.py:58
     // log("not empty2")
     pushbytes "not empty2"
     log
 
-main_after_if_else@12:
+approval_program_after_if_else@10:
     // tuple_support/tuple_support.py:59
     // single_tuple()
     callsub single_tuple
@@ -327,20 +339,32 @@ main_after_if_else@12:
     // tuple_support/tuple_support.py:65
     // return a + b
     +
-    return
-
-
-// test_cases.tuple_support.tuple_support.TupleSupport.__init__() -> void:
-__init__:
-    // tuple_support/tuple_support.py:5
-    // def __init__(self) -> None:
-    proto 0 0
-    // tuple_support/tuple_support.py:6
-    // self.state = UInt64(0)
-    bytec_1 // "state"
-    intc_2 // 0
-    app_global_put
+    frame_bury 0
     retsub
+
+approval_program_ternary_false@5:
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    intc_1 // 2
+    intc_0 // 1
+    // tuple_support/tuple_support.py:29
+    // (m, n) = get_tuple(a, b) or get_tuple(b, a)
+    callsub get_tuple
+    swap
+    frame_bury 2
+    b approval_program_ternary_merge@6
+
+approval_program_else_body@2:
+    // tuple_support/tuple_support.py:18
+    // c = d = UInt64(3)
+    intc_3 // 3
+    // tuple_support/tuple_support.py:23
+    // tup = cd
+    frame_bury 3
+    // tuple_support/tuple_support.py:18
+    // c = d = UInt64(3)
+    intc_3 // 3
+    b approval_program_after_if_else@3
 
 
 // test_cases.tuple_support.tuple_support.add_three_values(values.0: uint64, values.1: uint64, values.2: uint64) -> uint64:
@@ -363,19 +387,17 @@ add_three_values_for_body@1:
     frame_dig 0
     +
     frame_bury 0
+
+add_three_values_for_footer@2:
     // tuple_support/tuple_support.py:141
     // for value in values:
     frame_dig 1
     switch add_three_values_for_header_1@3 add_three_values_for_header_2@4
-    b add_three_values_after_for@5
 
-add_three_values_for_header_1@3:
-    intc_0 // 1
-    frame_bury 1
-    // tuple_support/tuple_support.py:141
-    // for value in values:
-    frame_dig -2
-    b add_three_values_for_body@1
+add_three_values_after_for@5:
+    // tuple_support/tuple_support.py:144
+    // return total
+    retsub
 
 add_three_values_for_header_2@4:
     intc_1 // 2
@@ -385,10 +407,13 @@ add_three_values_for_header_2@4:
     frame_dig -1
     b add_three_values_for_body@1
 
-add_three_values_after_for@5:
-    // tuple_support/tuple_support.py:144
-    // return total
-    retsub
+add_three_values_for_header_1@3:
+    intc_0 // 1
+    frame_bury 1
+    // tuple_support/tuple_support.py:141
+    // for value in values:
+    frame_dig -2
+    b add_three_values_for_body@1
 
 
 // test_cases.tuple_support.tuple_support.get_tuple(a: uint64, b: uint64) -> uint64, uint64:
@@ -494,12 +519,16 @@ bytes_multiply_for_header@1:
     frame_dig 1
     <
     bz bytes_multiply_after_for@4
+
+bytes_multiply_for_body@2:
     // tuple_support/tuple_support.py:134
     // result += b
     frame_dig 2
     frame_dig 0
     concat
     frame_bury 2
+
+bytes_multiply_for_footer@3:
     // tuple_support/tuple_support.py:133
     // for _i in urange(count):
     frame_dig 3

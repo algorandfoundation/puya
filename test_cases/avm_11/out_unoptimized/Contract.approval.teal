@@ -1,27 +1,39 @@
 #pragma version 11
+#pragma typetrack false
 
-test_cases.avm_11.contract.Contract.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1
-    callsub __puya_arc4_router__
-    return
 
-
-// test_cases.avm_11.contract.Contract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_block@1:
     // avm_11/contract.py:9
     // class Contract(ARC4Contract, avm_version=11):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@5
+    bz main_bare_routing@6
+
+main_abi_routing@2:
+    // avm_11/contract.py:9
+    // class Contract(ARC4Contract, avm_version=11):
     txna ApplicationArgs 0
     pushbytes 0xc2b8dd8a // method "test_new_ops()void"
     swap
-    match __puya_arc4_router___test_new_ops_route@2
-    b __puya_arc4_router___switch_case_default@3
+    match main_test_new_ops_route@3
 
-__puya_arc4_router___test_new_ops_route@2:
+main_switch_case_default@4:
+
+main_switch_case_next@5:
+
+main_after_if_else@10:
+    // avm_11/contract.py:9
+    // class Contract(ARC4Contract, avm_version=11):
+    intc_0 // 0
+
+main_after_inlined_test_cases.avm_11.contract.Contract.__puya_arc4_router__@11:
+    return
+
+main_test_new_ops_route@3:
     // avm_11/contract.py:10
     // @arc4.abimethod
     txn OnCompletion
@@ -34,36 +46,32 @@ __puya_arc4_router___test_new_ops_route@2:
     assert // can only call when not creating
     callsub test_new_ops
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.avm_11.contract.Contract.__puya_arc4_router__@11
 
-__puya_arc4_router___switch_case_default@3:
-    b __puya_arc4_router___after_if_else@9
-
-__puya_arc4_router___bare_routing@5:
+main_bare_routing@6:
     // avm_11/contract.py:9
     // class Contract(ARC4Contract, avm_version=11):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@6
-    b __puya_arc4_router___switch_case_default@7
+    match main___algopy_default_create@7
 
-__puya_arc4_router_____algopy_default_create@6:
+main_switch_case_default@8:
+
+main_switch_case_next@9:
+    b main_after_if_else@10
+
+main___algopy_default_create@7:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+main_block@12:
+
+main_after_inlined_test_cases.avm_11.contract.Contract.__algopy_default_create@13:
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@7:
-
-__puya_arc4_router___after_if_else@9:
-    // avm_11/contract.py:9
-    // class Contract(ARC4Contract, avm_version=11):
-    intc_0 // 0
-    retsub
+    b main_after_inlined_test_cases.avm_11.contract.Contract.__puya_arc4_router__@11
 
 
 // test_cases.avm_11.contract.Contract.test_new_ops() -> void:
@@ -196,10 +204,4 @@ test_new_ops:
     intc_0 // 0
     voter_params_get VoterIncentiveEligible
     popn 2
-    retsub
-
-
-// test_cases.avm_11.contract.Contract.__algopy_default_create() -> void:
-__algopy_default_create:
-    proto 0 0
     retsub

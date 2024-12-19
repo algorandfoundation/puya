@@ -1,0 +1,50 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@2 : block@8
+    block@2: // abi_routing_L4
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "discard_op()void" => block@3, method "discard_subroutine()void" => block@4, method "discard_constants()void" => block@5, * => block@12}
+    block@3: // discard_op_route_L5
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (! tmp%3#0)
+        (assert tmp%4#0) // OnCompletion is not NoOp
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        (assert tmp%5#0) // can only call when not creating
+        let test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__%0#0
+        goto block@13
+    block@4: // discard_subroutine_route_L9
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        (assert tmp%8#0) // OnCompletion is not NoOp
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        (assert tmp%9#0) // can only call when not creating
+        let test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__%0#0
+        goto block@13
+    block@5: // discard_constants_route_L13
+        let tmp%11#0: uint64 = (txn OnCompletion)
+        let tmp%12#0: bool = (! tmp%11#0)
+        (assert tmp%12#0) // OnCompletion is not NoOp
+        let tmp%13#0: uint64 = (txn ApplicationID)
+        (assert tmp%13#0) // can only call when not creating
+        let test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__%0#0
+        goto block@13
+    block@8: // bare_routing_L4
+        let tmp%15#0: uint64 = (txn OnCompletion)
+        goto tmp%15#0 ? block@12 : block@9
+    block@9: // __algopy_default_create_L1
+        let tmp%16#0: uint64 = (txn ApplicationID)
+        let tmp%17#0: bool = (! tmp%16#0)
+        (assert tmp%17#0) // can only call when creating
+        let test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__%0#0
+        goto block@13
+    block@12: // after_if_else_L4
+        let test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__%0#0: bool = 0u
+        let tmp%0#0: bool = test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__%0#0
+        goto block@13
+    block@13: // after_inlined_test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router___L1
+        return tmp%0#0

@@ -1,28 +1,40 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.debug.contract.DebugContract.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1 TMPL_A_MULT
     bytecblock 0x30313233343536373839 " "
-    callsub __puya_arc4_router__
-    return
 
-
-// test_cases.debug.contract.DebugContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_block@1:
     // debug/contract.py:4
     // class DebugContract(arc4.ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@5
+    bz main_bare_routing@6
+
+main_abi_routing@2:
+    // debug/contract.py:4
+    // class DebugContract(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x53574bff // method "test(uint64,uint64,uint64)uint64"
     swap
-    match __puya_arc4_router___test_route@2
-    b __puya_arc4_router___switch_case_default@3
+    match main_test_route@3
 
-__puya_arc4_router___test_route@2:
+main_switch_case_default@4:
+
+main_switch_case_next@5:
+
+main_after_if_else@10:
+    // debug/contract.py:4
+    // class DebugContract(arc4.ARC4Contract):
+    intc_0 // 0
+
+main_after_inlined_test_cases.debug.contract.DebugContract.__puya_arc4_router__@11:
+    return
+
+main_test_route@3:
     // debug/contract.py:5
     // @arc4.abimethod
     txn OnCompletion
@@ -53,36 +65,32 @@ __puya_arc4_router___test_route@2:
     concat
     log
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.debug.contract.DebugContract.__puya_arc4_router__@11
 
-__puya_arc4_router___switch_case_default@3:
-    b __puya_arc4_router___after_if_else@9
-
-__puya_arc4_router___bare_routing@5:
+main_bare_routing@6:
     // debug/contract.py:4
     // class DebugContract(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@6
-    b __puya_arc4_router___switch_case_default@7
+    match main___algopy_default_create@7
 
-__puya_arc4_router_____algopy_default_create@6:
+main_switch_case_default@8:
+
+main_switch_case_next@9:
+    b main_after_if_else@10
+
+main___algopy_default_create@7:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+main_block@12:
+
+main_after_inlined_test_cases.debug.contract.DebugContract.__algopy_default_create@13:
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@7:
-
-__puya_arc4_router___after_if_else@9:
-    // debug/contract.py:4
-    // class DebugContract(arc4.ARC4Contract):
-    intc_0 // 0
-    retsub
+    b main_after_inlined_test_cases.debug.contract.DebugContract.__puya_arc4_router__@11
 
 
 // test_cases.debug.contract.DebugContract.test(x: uint64, y: uint64, z: uint64) -> uint64:
@@ -116,68 +124,14 @@ test:
     // if b < c:
     <
     bz test_else_body@2
+
+test_if_body@1:
     // debug/contract.py:11
     // a = a + y
     frame_dig 4
     frame_dig -2
     +
     frame_bury 4
-    b test_after_if_else@11
-
-test_else_body@2:
-    // debug/contract.py:12
-    // elif a < c:
-    frame_dig 4
-    frame_dig 6
-    <
-    bz test_else_body@4
-    // debug/contract.py:13
-    // a = a + z
-    frame_dig 4
-    frame_dig -1
-    +
-    frame_bury 4
-    b test_after_if_else@10
-
-test_else_body@4:
-    // debug/contract.py:14
-    // elif b < a:
-    frame_dig 5
-    frame_dig 4
-    <
-    bz test_else_body@6
-    // debug/contract.py:15
-    // a = a * 3
-    frame_dig 4
-    pushint 3 // 3
-    *
-    frame_bury 4
-    b test_after_if_else@9
-
-test_else_body@6:
-    // debug/contract.py:16
-    // elif b > a:
-    frame_dig 5
-    dup
-    frame_dig 4
-    >
-    swap
-    frame_bury 3
-    bz test_after_if_else@8
-    // debug/contract.py:17
-    // b = b + a
-    frame_dig 5
-    frame_dig 4
-    +
-    frame_bury 3
-
-test_after_if_else@8:
-    frame_dig 3
-    frame_bury 5
-
-test_after_if_else@9:
-
-test_after_if_else@10:
 
 test_after_if_else@11:
     // debug/contract.py:19
@@ -188,6 +142,8 @@ test_after_if_else@11:
     frame_dig 6
     <
     bz test_else_body@13
+
+test_if_body@12:
     // debug/contract.py:20
     // a *= some_func(a, y)
     frame_dig 4
@@ -196,17 +152,6 @@ test_after_if_else@11:
     callsub some_func
     *
     frame_bury 4
-    b test_after_if_else@14
-
-test_else_body@13:
-    // debug/contract.py:22
-    // b *= some_func(b, z)
-    frame_dig 5
-    dup
-    frame_dig -1
-    callsub some_func
-    *
-    frame_bury 5
 
 test_after_if_else@14:
     // debug/contract.py:24
@@ -235,6 +180,8 @@ test_after_if_else@14:
     swap
     frame_bury 2
     bz test_after_if_else@16
+
+test_if_body@15:
     // debug/contract.py:29
     // a += c
     frame_dig 4
@@ -254,6 +201,8 @@ test_after_if_else@16:
     swap
     frame_bury 2
     bz test_after_if_else@18
+
+test_if_body@17:
     // debug/contract.py:31
     // a += b
     frame_dig 4
@@ -275,6 +224,8 @@ test_after_if_else@18:
     swap
     frame_bury 2
     bz test_after_if_else@20
+
+test_if_body@19:
     // debug/contract.py:33
     // a = a * z
     frame_dig 4
@@ -303,6 +254,79 @@ test_after_if_else@20:
     // return a
     frame_bury 0
     retsub
+
+test_else_body@13:
+    // debug/contract.py:22
+    // b *= some_func(b, z)
+    frame_dig 5
+    dup
+    frame_dig -1
+    callsub some_func
+    *
+    frame_bury 5
+    b test_after_if_else@14
+
+test_else_body@2:
+    // debug/contract.py:12
+    // elif a < c:
+    frame_dig 4
+    frame_dig 6
+    <
+    bz test_else_body@4
+
+test_if_body@3:
+    // debug/contract.py:13
+    // a = a + z
+    frame_dig 4
+    frame_dig -1
+    +
+    frame_bury 4
+
+test_after_if_else@10:
+    b test_after_if_else@11
+
+test_else_body@4:
+    // debug/contract.py:14
+    // elif b < a:
+    frame_dig 5
+    frame_dig 4
+    <
+    bz test_else_body@6
+
+test_if_body@5:
+    // debug/contract.py:15
+    // a = a * 3
+    frame_dig 4
+    pushint 3 // 3
+    *
+    frame_bury 4
+
+test_after_if_else@9:
+    b test_after_if_else@10
+
+test_else_body@6:
+    // debug/contract.py:16
+    // elif b > a:
+    frame_dig 5
+    dup
+    frame_dig 4
+    >
+    swap
+    frame_bury 3
+    bz test_after_if_else@8
+
+test_if_body@7:
+    // debug/contract.py:17
+    // b = b + a
+    frame_dig 5
+    frame_dig 4
+    +
+    frame_bury 3
+
+test_after_if_else@8:
+    frame_dig 3
+    frame_bury 5
+    b test_after_if_else@9
 
 
 // test_cases.debug.contract.some_func(a: uint64, b: uint64) -> uint64:
@@ -374,6 +398,8 @@ itoa:
     frame_dig -1
     >
     bz itoa_after_if_else@2
+
+itoa_if_body@1:
     // debug/contract.py:54
     // digits = Bytes(b"0123456789")
     bytec_0 // 0x30313233343536373839
@@ -408,10 +434,4 @@ itoa_after_if_else@2:
     extract3
     concat
     swap
-    retsub
-
-
-// test_cases.debug.contract.DebugContract.__algopy_default_create() -> void:
-__algopy_default_create:
-    proto 0 0
     retsub

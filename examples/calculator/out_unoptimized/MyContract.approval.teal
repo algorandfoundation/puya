@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-examples.calculator.contract.MyContract.approval_program:
+// examples.calculator.contract.MyContract.approval_program() -> uint64:
+main:
     intcblock 0 1 3 2
     bytecblock 0x30313233343536373839 0x202d20
     pushbytes ""
@@ -14,6 +16,8 @@ examples.calculator.contract.MyContract.approval_program:
     intc_0 // 0
     ==
     bz main_else_body@2
+
+main_if_body@1:
     // calculator/contract.py:22
     // a = UInt64(0)
     intc_0 // 0
@@ -39,7 +43,41 @@ examples.calculator.contract.MyContract.approval_program:
     // log(b)
     itob
     log
-    b main_after_if_else@3
+
+main_after_if_else@3:
+    // calculator/contract.py:38
+    // result = self.do_calc(action, a, b)
+    dig 2
+    dup
+    dig 5
+    dup
+    cover 2
+    uncover 4
+    dup
+    cover 5
+    callsub do_calc
+    cover 3
+    // calculator/contract.py:39
+    // result_b = itoa(a) + self.op(action) + itoa(b) + b" = " + itoa(result)
+    callsub itoa
+    swap
+    callsub op
+    concat
+    swap
+    callsub itoa
+    concat
+    pushbytes 0x203d20
+    concat
+    swap
+    callsub itoa
+    concat
+    // calculator/contract.py:40
+    // log(result_b)
+    log
+    // calculator/contract.py:41
+    // return UInt64(1)
+    intc_1 // 1
+    return
 
 main_else_body@2:
     // calculator/contract.py:28
@@ -77,41 +115,7 @@ main_else_body@2:
     // calculator/contract.py:36
     // b = op.btoi(b_bytes)
     btoi
-
-main_after_if_else@3:
-    // calculator/contract.py:38
-    // result = self.do_calc(action, a, b)
-    dig 2
-    dup
-    dig 5
-    dup
-    cover 2
-    uncover 4
-    dup
-    cover 5
-    callsub do_calc
-    cover 3
-    // calculator/contract.py:39
-    // result_b = itoa(a) + self.op(action) + itoa(b) + b" = " + itoa(result)
-    callsub itoa
-    swap
-    callsub op
-    concat
-    swap
-    callsub itoa
-    concat
-    pushbytes 0x203d20
-    concat
-    swap
-    callsub itoa
-    concat
-    // calculator/contract.py:40
-    // log(result_b)
-    log
-    // calculator/contract.py:41
-    // return UInt64(1)
-    intc_1 // 1
-    return
+    b main_after_if_else@3
 
 
 // examples.calculator.contract.MyContract.do_calc(maybe_action: uint64, a: uint64, b: uint64) -> uint64:
@@ -126,6 +130,8 @@ do_calc:
     intc_1 // 1
     ==
     bz do_calc_else_body@2
+
+do_calc_if_body@1:
     // calculator/contract.py:59
     // return self.add(a, b)
     frame_dig -2
@@ -140,6 +146,8 @@ do_calc_else_body@2:
     intc_3 // 2
     ==
     bz do_calc_else_body@4
+
+do_calc_if_body@3:
     // calculator/contract.py:61
     // return self.sub(a, b)
     frame_dig -2
@@ -154,6 +162,8 @@ do_calc_else_body@4:
     intc_2 // 3
     ==
     bz do_calc_else_body@6
+
+do_calc_if_body@5:
     // calculator/contract.py:63
     // return self.mul(a, b)
     frame_dig -2
@@ -168,6 +178,8 @@ do_calc_else_body@6:
     pushint 4 // 4
     ==
     bz do_calc_else_body@8
+
+do_calc_if_body@7:
     // calculator/contract.py:65
     // return self.div(a, b)
     frame_dig -2
@@ -255,6 +267,8 @@ itoa:
     frame_dig -1
     >
     bz itoa_after_if_else@2
+
+itoa_if_body@1:
     // calculator/contract.py:11
     // digits = Bytes(b"0123456789")
     bytec_0 // 0x30313233343536373839
@@ -304,6 +318,8 @@ op:
     intc_1 // 1
     ==
     bz op_else_body@2
+
+op_if_body@1:
     // calculator/contract.py:46
     // return Bytes(b" + ")
     pushbytes 0x202b20
@@ -316,6 +332,8 @@ op_else_body@2:
     intc_3 // 2
     ==
     bz op_else_body@4
+
+op_if_body@3:
     // calculator/contract.py:48
     // return Bytes(b" - ")
     bytec_1 // 0x202d20
@@ -328,6 +346,8 @@ op_else_body@4:
     intc_2 // 3
     ==
     bz op_else_body@6
+
+op_if_body@5:
     // calculator/contract.py:50
     // return Bytes(b" * ")
     pushbytes 0x202a20
@@ -340,6 +360,8 @@ op_else_body@6:
     pushint 4 // 4
     ==
     bz op_else_body@8
+
+op_if_body@7:
     // calculator/contract.py:52
     // return Bytes(b" // ")
     pushbytes 0x202f2f20

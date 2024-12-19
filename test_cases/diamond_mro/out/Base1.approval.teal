@@ -1,69 +1,35 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.diamond_mro.base1.Base1.approval_program:
-    intcblock 0 1
+// test_cases.diamond_mro.base1.Base1.__algopy_entrypoint_with_init() -> uint64:
+main:
     txn ApplicationID
     bnz main_after_if_else@2
-    callsub __init__
-
-main_after_if_else@2:
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.diamond_mro.base1.Base1.__init__() -> void:
-__init__:
-    // diamond_mro/base1.py:7
-    // def __init__(self) -> None:
-    proto 0 0
     // diamond_mro/base1.py:8
     // log("base1.__init__")
     pushbytes "base1.__init__"
     log
-    // diamond_mro/base1.py:9
-    // super().__init__()
-    callsub test_cases.diamond_mro.gp.GP.__init__
-    retsub
-
-
-// test_cases.diamond_mro.gp.GP.__init__() -> void:
-test_cases.diamond_mro.gp.GP.__init__:
-    // diamond_mro/gp.py:7
-    // def __init__(self) -> None:
-    proto 0 0
     // diamond_mro/gp.py:8
     // log("gp.__init__")
     pushbytes "gp.__init__"
     log
-    retsub
 
-
-// test_cases.diamond_mro.base1.Base1.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_after_if_else@2:
     // diamond_mro/base1.py:6
     // class Base1(GP):
-    proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___after_if_else@7
+    bz main_after_if_else@7
     pushbytess 0x4f045d84 0x4c5c61ba // method "method()void", method "create()void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___method_route@2 __puya_arc4_router___create_route@3
-    intc_0 // 0
-    retsub
+    match main_method_route@5 main_create_route@6
 
-__puya_arc4_router___method_route@2:
-    // diamond_mro/base1.py:11
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub method
-    intc_1 // 1
-    retsub
+main_after_if_else@7:
+    // diamond_mro/base1.py:6
+    // class Base1(GP):
+    pushint 0 // 0
+    return
 
-__puya_arc4_router___create_route@3:
+main_create_route@6:
     // diamond_mro/gp.py:11
     // @arc4.abimethod(create="require")
     txn OnCompletion
@@ -72,14 +38,20 @@ __puya_arc4_router___create_route@3:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
-    retsub
+    pushint 1 // 1
+    return
 
-__puya_arc4_router___after_if_else@7:
-    // diamond_mro/base1.py:6
-    // class Base1(GP):
-    intc_0 // 0
-    retsub
+main_method_route@5:
+    // diamond_mro/base1.py:11
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub method
+    pushint 1 // 1
+    return
 
 
 // test_cases.diamond_mro.base1.Base1.method() -> void:
@@ -92,18 +64,6 @@ method:
     // log("base1.method")
     pushbytes "base1.method"
     log
-    // diamond_mro/base1.py:14
-    // super().method()
-    callsub test_cases.diamond_mro.gp.GP.method
-    retsub
-
-
-// test_cases.diamond_mro.gp.GP.method() -> void:
-test_cases.diamond_mro.gp.GP.method:
-    // diamond_mro/gp.py:15-16
-    // @arc4.abimethod
-    // def method(self) -> None:
-    proto 0 0
     // diamond_mro/gp.py:17
     // log("gp.method")
     pushbytes "gp.method"

@@ -7,12 +7,12 @@ contract MinimumARC4
     ['gvalue']: uint64
   }
   
-  subroutine test_cases.abi_routing.minimal.MinimumARC4.approval_program(): bool
+  subroutine test_cases.abi_routing.minimal.MinimumARC4.__algopy_entrypoint_with_init(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return arc4_router()
+    return this::approval_program()
   }
   
   subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
@@ -41,19 +41,12 @@ contract CustomApproval
     algopy.arc4.ARC4Contract,
   )
   
-  subroutine test_cases.abi_routing.custom_approval.CustomApproval.approval_program(): bool
+  subroutine test_cases.abi_routing.custom_approval.CustomApproval.__algopy_entrypoint_with_init(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    if (txn<NumAppArgs>() == 2u and txna<ApplicationArgs, 1>() == itob(42u)) {
-      log('\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89')
-    }
-    result: bool = super::approval_program()
-    if (!(result)) {
-      log("this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here")
-    }
-    return result
+    return this::approval_program()
   }
   
   subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
@@ -107,12 +100,12 @@ contract Reference
     ['app']: application
   }
   
-  subroutine test_cases.abi_routing.contract.Reference.approval_program(): bool
+  subroutine test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return arc4_router()
+    return this::approval_program()
   }
   
   subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool

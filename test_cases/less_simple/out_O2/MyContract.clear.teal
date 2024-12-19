@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.less_simple.contract.MyContract.clear_state_program:
+// test_cases.less_simple.contract.MyContract.clear_state_program() -> uint64:
+main:
     pushbytes ""
     pushints 0 1 // 0, 1
 
@@ -32,7 +34,10 @@ main_after_if_else@4:
     bz main_after_if_else@6
     dig 1
     bury 3
-    b main_after_for@8
+
+main_after_for@8:
+    dig 2
+    return
 
 main_after_if_else@6:
     dup
@@ -40,7 +45,3 @@ main_after_if_else@6:
     +
     bury 1
     b main_for_header@1
-
-main_after_for@8:
-    dig 2
-    return

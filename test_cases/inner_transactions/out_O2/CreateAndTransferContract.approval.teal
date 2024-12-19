@@ -1,49 +1,25 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.approval_program:
-    intcblock 0 1 1000
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    proto 0 1
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1000 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@5
+    bz main_bare_routing@6
     pushbytes 0x48e9ed7c // method "create_and_transfer()void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___create_and_transfer_route@2
-    intc_0 // 0
-    retsub
+    match main_create_and_transfer_route@3
 
-__puya_arc4_router___create_and_transfer_route@2:
+main_after_if_else@10:
+    intc_0 // 0
+    return
+
+main_create_and_transfer_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub create_and_transfer
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___bare_routing@5:
-    txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@9
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@9:
-    intc_0 // 0
-    retsub
-
-
-// test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer() -> void:
-create_and_transfer:
-    proto 0 0
     itxn_begin
     global CurrentApplicationAddress
     dup
@@ -55,7 +31,7 @@ create_and_transfer:
     itxn_field ConfigAssetUnitName
     pushbytes "test"
     itxn_field ConfigAssetName
-    intc_2 // 1000
+    intc_1 // 1000
     itxn_field ConfigAssetTotal
     pushint 3 // acfg
     itxn_field TypeEnum
@@ -70,7 +46,7 @@ create_and_transfer:
     global CurrentApplicationAddress
     uncover 2
     itxn_field XferAsset
-    intc_2 // 1000
+    intc_1 // 1000
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field AssetSender
@@ -79,4 +55,14 @@ create_and_transfer:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    retsub
+    intc_2 // 1
+    return
+
+main_bare_routing@6:
+    txn OnCompletion
+    bnz main_after_if_else@10
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_2 // 1
+    return

@@ -1,19 +1,13 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.unary.contract.UnaryContract.approval_program:
+// test_cases.unary.contract.UnaryContract.approval_program() -> uint64:
+main:
     intcblock 1 18446744073709551615 2
-    callsub uint_unary
-    intc_0 // 1
-    return
-
-
-// test_cases.unary.contract.uint_unary() -> void:
-uint_unary:
-    proto 0 0
     intc_0 // 1
     pushint 0 // 0
 
-uint_unary_for_body@1:
+main_for_body@2:
     intc_1 // 18446744073709551615
     uncover 2
     dup
@@ -22,20 +16,21 @@ uint_unary_for_body@1:
     ~
     ==
     assert // ~ uint
-    switch uint_unary_for_header_1@3 uint_unary_for_header_2@4 uint_unary_for_header_3@5
-    retsub
-
-uint_unary_for_header_1@3:
-    intc_2 // 2
+    switch main_for_header_1@4 main_for_header_2@5 main_for_header_3@6
     intc_0 // 1
-    b uint_unary_for_body@1
+    return
 
-uint_unary_for_header_2@4:
-    pushint 150 // 150
-    intc_2 // 2
-    b uint_unary_for_body@1
-
-uint_unary_for_header_3@5:
+main_for_header_3@6:
     intc_1 // 18446744073709551615
     pushint 3 // 3
-    b uint_unary_for_body@1
+    b main_for_body@2
+
+main_for_header_2@5:
+    pushint 150 // 150
+    intc_2 // 2
+    b main_for_body@2
+
+main_for_header_1@4:
+    intc_2 // 2
+    intc_0 // 1
+    b main_for_body@2

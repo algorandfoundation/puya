@@ -1,11 +1,17 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.asset.contract.Reference.approval_program:
+// test_cases.asset.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 0 1
     bytecblock "asa"
     txn ApplicationID
     bnz main_after_if_else@2
-    callsub __init__
+    // asset/contract.py:18
+    // self.asa = Asset()
+    bytec_0 // "asa"
+    intc_0 // 0
+    app_global_put
 
 main_after_if_else@2:
     // asset/contract.py:21
@@ -13,61 +19,16 @@ main_after_if_else@2:
     txn NumAppArgs
     intc_1 // 1
     ==
-    bz main_after_if_else@10
+    bz main_after_if_else@11
     // asset/contract.py:22
     // if Txn.application_args(0) == b"opt_in":
     txna ApplicationArgs 0
     pushbytes 0x6f70745f696e
     ==
-    bz main_else_body@5
+    bz main_else_body@6
     // asset/contract.py:23
     // asset = Txn.assets(0)
     txna Assets 0
-    // asset/contract.py:24
-    // self.opt_into_asset(asset)
-    callsub opt_into_asset
-    b main_after_if_else@10
-
-main_else_body@5:
-    // asset/contract.py:25
-    // elif Txn.application_args(0) == b"is_opted_in":
-    txna ApplicationArgs 0
-    pushbytes 0x69735f6f707465645f696e
-    ==
-    assert // Expected opt_in or is_opted_in
-    // asset/contract.py:26
-    // asset = Txn.assets(0)
-    txna Assets 0
-    // asset/contract.py:27
-    // self.is_opted_asset(asset)
-    callsub is_opted_asset
-
-main_after_if_else@10:
-    // asset/contract.py:30
-    // return True
-    intc_1 // 1
-    return
-
-
-// test_cases.asset.contract.Reference.__init__() -> void:
-__init__:
-    // asset/contract.py:17
-    // def __init__(self) -> None:
-    proto 0 0
-    // asset/contract.py:18
-    // self.asa = Asset()
-    bytec_0 // "asa"
-    intc_0 // 0
-    app_global_put
-    retsub
-
-
-// test_cases.asset.contract.Reference.opt_into_asset(asset: uint64) -> void:
-opt_into_asset:
-    // asset/contract.py:35-36
-    // @subroutine
-    // def opt_into_asset(self, asset: Asset) -> None:
-    proto 1 0
     // asset/contract.py:37-38
     // # Only allow app creator to opt the app account into a ASA
     // assert Txn.sender == Global.creator_address, "Only creator can opt in to ASA"
@@ -88,7 +49,7 @@ opt_into_asset:
     // # Save ASA ID in global state
     // self.asa = asset
     bytec_0 // "asa"
-    frame_dig -1
+    dig 1
     app_global_put
     // asset/contract.py:44-45
     // # Submit opt-in transaction: 0 asset transfer to self
@@ -108,32 +69,39 @@ opt_into_asset:
     itxn_field AssetReceiver
     // asset/contract.py:49
     // ITxnCreate.set_xfer_asset(asset)
-    frame_dig -1
     itxn_field XferAsset
     // asset/contract.py:50
     // ITxnCreate.submit()
     itxn_submit
-    retsub
 
+main_after_if_else@11:
+    // asset/contract.py:30
+    // return True
+    intc_1 // 1
+    return
 
-// test_cases.asset.contract.Reference.is_opted_asset(asset: uint64) -> void:
-is_opted_asset:
-    // asset/contract.py:52-53
-    // @subroutine
-    // def is_opted_asset(self, asset: Asset) -> None:
-    proto 1 0
+main_else_body@6:
+    // asset/contract.py:25
+    // elif Txn.application_args(0) == b"is_opted_in":
+    txna ApplicationArgs 0
+    pushbytes 0x69735f6f707465645f696e
+    ==
+    assert // Expected opt_in or is_opted_in
+    // asset/contract.py:26
+    // asset = Txn.assets(0)
+    txna Assets 0
     // asset/contract.py:54
     // assert self.asa == asset, "asset self.asa == asset"
     intc_0 // 0
     bytec_0 // "asa"
     app_global_get_ex
     assert // check self.asa exists
-    frame_dig -1
+    dig 1
     ==
     assert // asset self.asa == asset
     // asset/contract.py:55
     // assert asset.total == 10000000, "total"
-    frame_dig -1
+    dup
     asset_params_get AssetTotal
     assert // asset exists
     pushint 10000000 // 10000000
@@ -141,21 +109,21 @@ is_opted_asset:
     assert // total
     // asset/contract.py:56
     // assert asset.decimals == 0, "decimals"
-    frame_dig -1
+    dup
     asset_params_get AssetDecimals
     assert // asset exists
     !
     assert // decimals
     // asset/contract.py:57
     // assert not asset.default_frozen, "default frozen"
-    frame_dig -1
+    dup
     asset_params_get AssetDefaultFrozen
     assert // asset exists
     !
     assert // default frozen
     // asset/contract.py:58
     // assert asset.unit_name == b"a", "unit_name"
-    frame_dig -1
+    dup
     asset_params_get AssetUnitName
     assert // asset exists
     pushbytes 0x61
@@ -163,7 +131,7 @@ is_opted_asset:
     assert // unit_name
     // asset/contract.py:59
     // assert asset.name == b"asset a", "name"
-    frame_dig -1
+    dup
     asset_params_get AssetName
     assert // asset exists
     pushbytes 0x61737365742061
@@ -171,7 +139,7 @@ is_opted_asset:
     assert // name
     // asset/contract.py:60
     // assert asset.url == b"", "URL"
-    frame_dig -1
+    dup
     asset_params_get AssetURL
     assert // asset exists
     pushbytes 0x
@@ -179,7 +147,7 @@ is_opted_asset:
     assert // URL
     // asset/contract.py:61
     // assert asset.metadata_hash == bzero(32), "hash"
-    frame_dig -1
+    dup
     asset_params_get AssetMetadataHash
     assert // asset exists
     pushint 32 // 32
@@ -188,7 +156,7 @@ is_opted_asset:
     assert // hash
     // asset/contract.py:62
     // assert asset.manager == Global.zero_address, "manager"
-    frame_dig -1
+    dup
     asset_params_get AssetManager
     assert // asset exists
     global ZeroAddress
@@ -196,7 +164,7 @@ is_opted_asset:
     assert // manager
     // asset/contract.py:63
     // assert asset.reserve == Global.zero_address, "reserve"
-    frame_dig -1
+    dup
     asset_params_get AssetReserve
     assert // asset exists
     global ZeroAddress
@@ -204,7 +172,7 @@ is_opted_asset:
     assert // reserve
     // asset/contract.py:64
     // assert asset.freeze == Global.zero_address, "freeze"
-    frame_dig -1
+    dup
     asset_params_get AssetFreeze
     assert // asset exists
     global ZeroAddress
@@ -212,7 +180,7 @@ is_opted_asset:
     assert // freeze
     // asset/contract.py:65
     // assert asset.clawback == Global.zero_address, "clawback"
-    frame_dig -1
+    dup
     asset_params_get AssetClawback
     assert // asset exists
     global ZeroAddress
@@ -220,7 +188,7 @@ is_opted_asset:
     assert // clawback
     // asset/contract.py:66
     // assert asset.creator == Global.creator_address, "creator"
-    frame_dig -1
+    dup
     asset_params_get AssetCreator
     assert // asset exists
     global CreatorAddress
@@ -229,8 +197,8 @@ is_opted_asset:
     // asset/contract.py:67
     // assert Global.current_application_address.is_opted_in(asset), "asset opted in"
     global CurrentApplicationAddress
-    frame_dig -1
+    swap
     asset_holding_get AssetBalance
     bury 1
     assert // asset opted in
-    retsub
+    b main_after_if_else@11

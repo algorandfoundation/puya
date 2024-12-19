@@ -1,56 +1,37 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.inner_transactions.array_access.ArrayAccessContract.approval_program:
-    intcblock 0 1 6
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 6 1
     bytecblock 0x098101 0x31 0x32 0x33
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    proto 0 1
+    pushbytes ""
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@5
+    bz main_bare_routing@6
     pushbytes 0x89a8220a // method "test_branching_array_call(bool)void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___test_branching_array_call_route@2
-    intc_0 // 0
-    retsub
+    match main_test_branching_array_call_route@3
 
-__puya_arc4_router___test_branching_array_call_route@2:
+main_after_if_else@10:
+    intc_0 // 0
+    bury 1
+
+main_after_inlined_test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__@11:
+    dup
+    return
+
+main_test_branching_array_call_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
-    callsub test_branching_array_call
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___bare_routing@5:
-    txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@9
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@9:
-    intc_0 // 0
-    retsub
-
-
-// test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call(maybe: bytes) -> void:
-test_branching_array_call:
-    proto 1 0
-    frame_dig -1
     pushbytes 0x00
     !=
     dup
-    bz test_branching_array_call_else_body@3
+    bury 2
+    bz main_else_body@16
     itxn_begin
     bytec_1 // 0x31
     itxn_field ApplicationArgs
@@ -60,14 +41,45 @@ test_branching_array_call:
     itxn_field ClearStateProgramPages
     bytec_0 // 0x098101
     itxn_field ApprovalProgramPages
-    intc_2 // appl
+    intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    b test_branching_array_call_after_if_else@5
 
-test_branching_array_call_else_body@3:
+main_after_if_else@17:
+    dup
+    bz main_else_body@19
+    itxna ApplicationArgs 0
+    bytec_1 // 0x31
+    ==
+    assert // correct args used 1
+    itxna ApplicationArgs 1
+    bytec_2 // 0x32
+    ==
+    assert // correct args used 2
+
+main_after_if_else@20:
+    intc_2 // 1
+    bury 1
+    b main_after_inlined_test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__@11
+
+main_else_body@19:
+    itxna ApplicationArgs 0
+    bytec_3 // 0x33
+    ==
+    assert // correct args used 1
+    itxna ApplicationArgs 1
+    pushbytes 0x34
+    ==
+    assert // correct args used 2
+    itxna ApplicationArgs 2
+    pushbytes 0x35
+    ==
+    assert // correct args used 3
+    b main_after_if_else@20
+
+main_else_body@16:
     itxn_begin
     pushbytes 0x646966666572656e7420706172616d20736574
     itxn_field Note
@@ -81,38 +93,19 @@ test_branching_array_call_else_body@3:
     itxn_field ClearStateProgramPages
     bytec_0 // 0x098101
     itxn_field ApprovalProgramPages
-    intc_2 // appl
+    intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
+    b main_after_if_else@17
 
-test_branching_array_call_after_if_else@5:
-    frame_dig 0
-    bz test_branching_array_call_else_body@7
-    itxna ApplicationArgs 0
-    bytec_1 // 0x31
-    ==
-    assert // correct args used 1
-    itxna ApplicationArgs 1
-    bytec_2 // 0x32
-    ==
-    assert // correct args used 2
-    b test_branching_array_call_after_if_else@8
-
-test_branching_array_call_else_body@7:
-    itxna ApplicationArgs 0
-    bytec_3 // 0x33
-    ==
-    assert // correct args used 1
-    itxna ApplicationArgs 1
-    pushbytes 0x34
-    ==
-    assert // correct args used 2
-    itxna ApplicationArgs 2
-    pushbytes 0x35
-    ==
-    assert // correct args used 3
-
-test_branching_array_call_after_if_else@8:
-    retsub
+main_bare_routing@6:
+    txn OnCompletion
+    bnz main_after_if_else@10
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_2 // 1
+    bury 1
+    b main_after_inlined_test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__@11

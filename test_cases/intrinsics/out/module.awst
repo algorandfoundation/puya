@@ -6,16 +6,12 @@ contract Overloaded
     ['key']: uint64
   }
   
-  subroutine test_cases.intrinsics.overloaded.Overloaded.approval_program(): bool
+  subroutine test_cases.intrinsics.overloaded.Overloaded.__algopy_entrypoint_with_init(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    assert(app_global_get(hex<"6B6579">) == app_global_get(hex<"6B6579">))
-    assert(STATE_GET_EX(GlobalState['key'])[0] == STATE_GET_EX(GlobalState['key'])[0])
-    assert(setbit(0u, 0u, 1u) == setbit(0u, 0u, 1u))
-    assert(select(0u, 1u, true) == select(1u, 0u, false))
-    return true
+    return this::approval_program()
   }
   
   subroutine test_cases.intrinsics.overloaded.Overloaded.clear_state_program(): bool
@@ -34,6 +30,8 @@ contract Overloaded
     assert(STATE_GET_EX(GlobalState['key'])[0] == STATE_GET_EX(GlobalState['key'])[0])
     assert(setbit(0u, 0u, 1u) == setbit(0u, 0u, 1u))
     assert(select(0u, 1u, true) == select(1u, 0u, false))
+    assert(getbit(setbit(18446744073709551615u, 3u, 0u), 3u) == 0u)
+    assert(getbit(setbit(123u, 4u, 1u), 4u) == 1u)
     return true
   }
 }

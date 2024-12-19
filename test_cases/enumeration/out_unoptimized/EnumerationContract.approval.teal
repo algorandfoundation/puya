@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.enumeration.contract.EnumerationContract.approval_program:
+// test_cases.enumeration.contract.EnumerationContract.approval_program() -> uint64:
+main:
     intcblock 1 0 3 21
     bytecblock 0x
     // enumeration/contract.py:6
@@ -114,6 +116,8 @@ enumerate_urange_for_header@1:
     frame_dig -2
     <
     bz enumerate_urange_after_for@4
+
+enumerate_urange_for_body@2:
     // enumeration/contract.py:39
     // iteration_count += 1
     frame_dig 1
@@ -126,6 +130,8 @@ enumerate_urange_for_header@1:
     frame_dig 4
     +
     frame_bury 2
+
+enumerate_urange_for_footer@3:
     // enumeration/contract.py:38
     // for item in urange(start, stop, step):
     frame_dig 4
@@ -151,6 +157,8 @@ enumerate_urange_for_header@5:
     frame_dig -2
     <
     bz enumerate_urange_after_for@8
+
+enumerate_urange_for_body@6:
     // enumeration/contract.py:43
     // iteration_count += 1
     frame_dig 1
@@ -169,6 +177,8 @@ enumerate_urange_for_header@5:
     frame_dig 0
     +
     frame_bury 3
+
+enumerate_urange_for_footer@7:
     // enumeration/contract.py:42
     // for index, item in uenumerate(urange(start, stop, step)):
     frame_dig 4
@@ -225,35 +235,12 @@ enumerate_tuple_for_body@1:
     swap
     concat
     frame_bury 2
+
+enumerate_tuple_for_footer@2:
     // enumeration/contract.py:56
     // for item in tup:
     frame_dig 4
     switch enumerate_tuple_for_header_1@3 enumerate_tuple_for_header_2@4 enumerate_tuple_for_header_3@5
-    b enumerate_tuple_after_for@6
-
-enumerate_tuple_for_header_1@3:
-    intc_0 // 1
-    frame_bury 4
-    // enumeration/contract.py:56
-    // for item in tup:
-    frame_dig -3
-    b enumerate_tuple_for_body@1
-
-enumerate_tuple_for_header_2@4:
-    pushint 2 // 2
-    frame_bury 4
-    // enumeration/contract.py:56
-    // for item in tup:
-    frame_dig -2
-    b enumerate_tuple_for_body@1
-
-enumerate_tuple_for_header_3@5:
-    intc_2 // 3
-    frame_bury 4
-    // enumeration/contract.py:56
-    // for item in tup:
-    frame_dig -1
-    b enumerate_tuple_for_body@1
 
 enumerate_tuple_after_for@6:
     // enumeration/contract.py:59
@@ -281,35 +268,12 @@ enumerate_tuple_for_body@7:
     frame_dig 0
     +
     frame_bury 3
+
+enumerate_tuple_for_footer@8:
     // enumeration/contract.py:59
     // for index, item in uenumerate(tup):
     frame_dig 0
     switch enumerate_tuple_for_header_1@9 enumerate_tuple_for_header_2@10 enumerate_tuple_for_header_3@11
-    b enumerate_tuple_after_for@12
-
-enumerate_tuple_for_header_1@9:
-    // enumeration/contract.py:59
-    // for index, item in uenumerate(tup):
-    frame_dig -3
-    intc_0 // 1
-    frame_bury 0
-    b enumerate_tuple_for_body@7
-
-enumerate_tuple_for_header_2@10:
-    // enumeration/contract.py:59
-    // for index, item in uenumerate(tup):
-    frame_dig -2
-    pushint 2 // 2
-    frame_bury 0
-    b enumerate_tuple_for_body@7
-
-enumerate_tuple_for_header_3@11:
-    // enumeration/contract.py:59
-    // for index, item in uenumerate(tup):
-    frame_dig -1
-    intc_2 // 3
-    frame_bury 0
-    b enumerate_tuple_for_body@7
 
 enumerate_tuple_after_for@12:
     // enumeration/contract.py:64
@@ -321,6 +285,54 @@ enumerate_tuple_after_for@12:
     frame_bury 1
     frame_bury 0
     retsub
+
+enumerate_tuple_for_header_3@11:
+    // enumeration/contract.py:59
+    // for index, item in uenumerate(tup):
+    frame_dig -1
+    intc_2 // 3
+    frame_bury 0
+    b enumerate_tuple_for_body@7
+
+enumerate_tuple_for_header_2@10:
+    // enumeration/contract.py:59
+    // for index, item in uenumerate(tup):
+    frame_dig -2
+    pushint 2 // 2
+    frame_bury 0
+    b enumerate_tuple_for_body@7
+
+enumerate_tuple_for_header_1@9:
+    // enumeration/contract.py:59
+    // for index, item in uenumerate(tup):
+    frame_dig -3
+    intc_0 // 1
+    frame_bury 0
+    b enumerate_tuple_for_body@7
+
+enumerate_tuple_for_header_3@5:
+    intc_2 // 3
+    frame_bury 4
+    // enumeration/contract.py:56
+    // for item in tup:
+    frame_dig -1
+    b enumerate_tuple_for_body@1
+
+enumerate_tuple_for_header_2@4:
+    pushint 2 // 2
+    frame_bury 4
+    // enumeration/contract.py:56
+    // for item in tup:
+    frame_dig -2
+    b enumerate_tuple_for_body@1
+
+enumerate_tuple_for_header_1@3:
+    intc_0 // 1
+    frame_bury 4
+    // enumeration/contract.py:56
+    // for item in tup:
+    frame_dig -3
+    b enumerate_tuple_for_body@1
 
 
 // test_cases.enumeration.contract.enumerate_bytes(bytes_: bytes) -> uint64, bytes, uint64:
@@ -353,6 +365,10 @@ enumerate_bytes_for_header@1:
     frame_dig 5
     <
     bz enumerate_bytes_after_for@4
+
+enumerate_bytes_for_body@2:
+    // enumeration/contract.py:73
+    // for item in bytes_:
     frame_dig -1
     frame_dig 6
     intc_0 // 1
@@ -369,6 +385,8 @@ enumerate_bytes_for_header@1:
     swap
     concat
     frame_bury 3
+
+enumerate_bytes_for_footer@3:
     frame_dig 6
     intc_0 // 1
     +
@@ -391,6 +409,10 @@ enumerate_bytes_for_header@5:
     frame_dig 0
     <
     bz enumerate_bytes_after_for@8
+
+enumerate_bytes_for_body@6:
+    // enumeration/contract.py:76
+    // for index, item in uenumerate(bytes_):
     frame_dig -1
     frame_dig 1
     dup
@@ -414,6 +436,8 @@ enumerate_bytes_for_header@5:
     frame_dig 4
     +
     frame_bury 4
+
+enumerate_bytes_for_footer@7:
     frame_dig 1
     intc_0 // 1
     +

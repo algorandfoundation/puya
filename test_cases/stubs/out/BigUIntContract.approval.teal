@@ -1,131 +1,17 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.stubs.biguint.BigUIntContract.approval_program:
-    bytecblock 0x01 0x02 0x05
-    // stubs/biguint.py:6
-    // one = BigUInt(1)
-    bytec_0 // 0x01
-    // stubs/biguint.py:7
-    // compare_biguints(one, BigUInt(2))
-    bytec_1 // 0x02
-    callsub compare_biguints
-    // stubs/biguint.py:6
-    // one = BigUInt(1)
-    bytec_0 // 0x01
-    // stubs/biguint.py:8
-    // compare_biguint_vs_uint64(one, UInt64(2))
-    pushint 2 // 2
-    callsub compare_biguint_vs_uint64
-    // stubs/biguint.py:9
-    // compare_uint64_vs_biguint(UInt64(1), BigUInt(2))
-    pushint 1 // 1
-    bytec_1 // 0x02
-    callsub compare_uint64_vs_biguint
+// test_cases.stubs.biguint.BigUIntContract.approval_program() -> uint64:
+main:
     // stubs/biguint.py:10
     // assert BigUInt(1 if Txn.num_app_args else 5) == 5, "constructor expressions supported"
-    bytec_2 // 0x05
-    bytec_0 // 0x01
+    pushbytess 0x05 0x01 // 0x05, 0x01
     txn NumAppArgs
     select
-    bytec_2 // 0x05
+    pushbytes 0x05
     b==
     assert // constructor expressions supported
     // stubs/biguint.py:13
     // return True
     pushint 1 // 1
     return
-
-
-// test_cases.stubs.biguint.compare_biguints(one: bytes, two: bytes) -> void:
-compare_biguints:
-    // stubs/biguint.py:20-21
-    // @subroutine
-    // def compare_biguints(one: BigUInt, two: BigUInt) -> None:
-    proto 2 0
-    // stubs/biguint.py:22
-    // assert one < two
-    frame_dig -2
-    frame_dig -1
-    b<
-    assert
-    // stubs/biguint.py:23
-    // assert one <= two
-    frame_dig -2
-    frame_dig -1
-    b<=
-    assert
-    // stubs/biguint.py:25
-    // assert two > one
-    frame_dig -1
-    frame_dig -2
-    b>
-    assert
-    // stubs/biguint.py:26
-    // assert two >= one
-    frame_dig -1
-    frame_dig -2
-    b>=
-    assert
-    // stubs/biguint.py:27
-    // assert one != two
-    frame_dig -2
-    frame_dig -1
-    b!=
-    assert
-    retsub
-
-
-// test_cases.stubs.biguint.compare_biguint_vs_uint64(one: bytes, two: uint64) -> void:
-compare_biguint_vs_uint64:
-    // stubs/biguint.py:30-31
-    // @subroutine
-    // def compare_biguint_vs_uint64(one: BigUInt, two: UInt64) -> None:
-    proto 2 0
-    // stubs/biguint.py:32
-    // assert one < two
-    frame_dig -1
-    itob
-    frame_dig -2
-    dig 1
-    b<
-    assert
-    // stubs/biguint.py:33
-    // assert one <= two
-    frame_dig -2
-    dig 1
-    b<=
-    assert
-    // stubs/biguint.py:37
-    // assert one != two
-    frame_dig -2
-    b!=
-    assert
-    retsub
-
-
-// test_cases.stubs.biguint.compare_uint64_vs_biguint(one: uint64, two: bytes) -> void:
-compare_uint64_vs_biguint:
-    // stubs/biguint.py:40-41
-    // @subroutine
-    // def compare_uint64_vs_biguint(one: UInt64, two: BigUInt) -> None:
-    proto 2 0
-    // stubs/biguint.py:42
-    // assert one < two
-    frame_dig -2
-    itob
-    frame_dig -1
-    dig 1
-    b>
-    assert
-    // stubs/biguint.py:43
-    // assert one <= two
-    frame_dig -1
-    dig 1
-    b>=
-    assert
-    // stubs/biguint.py:47
-    // assert one != two
-    frame_dig -1
-    b!=
-    assert
-    retsub

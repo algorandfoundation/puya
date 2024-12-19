@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.less_simple.contract.MyContract.clear_state_program:
+// test_cases.less_simple.contract.MyContract.clear_state_program() -> uint64:
+main:
     pushbytes ""
     // less_simple/contract.py:28-29
     // sum_of_squares = UInt64(0)
@@ -45,9 +47,12 @@ main_after_if_else@4:
     bz main_after_if_else@6
     dig 1
     bury 3
-    // less_simple/contract.py:34
-    // break
-    b main_after_for@8
+
+main_after_for@8:
+    dig 2
+    // less_simple/contract.py:35
+    // return sum_of_squares
+    return
 
 main_after_if_else@6:
     // less_simple/contract.py:29
@@ -57,9 +62,3 @@ main_after_if_else@6:
     +
     bury 1
     b main_for_header@1
-
-main_after_for@8:
-    dig 2
-    // less_simple/contract.py:35
-    // return sum_of_squares
-    return

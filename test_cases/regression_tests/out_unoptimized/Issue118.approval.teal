@@ -1,28 +1,40 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.regression_tests.issue_118.Issue118.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1 3
     bytecblock 0x 0x0000
-    callsub __puya_arc4_router__
-    return
 
-
-// test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_block@1:
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@5
+    bz main_bare_routing@6
+
+main_abi_routing@2:
+    // regression_tests/issue_118.py:5
+    // class Issue118(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xbc66eb62 // method "verify(uint256[])(bool,string)"
     swap
-    match __puya_arc4_router___verify_route@2
-    b __puya_arc4_router___switch_case_default@3
+    match main_verify_route@3
 
-__puya_arc4_router___verify_route@2:
+main_switch_case_default@4:
+
+main_switch_case_next@5:
+
+main_after_if_else@10:
+    // regression_tests/issue_118.py:5
+    // class Issue118(ARC4Contract):
+    intc_0 // 0
+
+main_after_inlined_test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__@11:
+    return
+
+main_verify_route@3:
     // regression_tests/issue_118.py:6-7
     // # ref: https://github.com/algorandfoundation/puya/issues/118
     // @abimethod
@@ -46,36 +58,32 @@ __puya_arc4_router___verify_route@2:
     concat
     log
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__@11
 
-__puya_arc4_router___switch_case_default@3:
-    b __puya_arc4_router___after_if_else@9
-
-__puya_arc4_router___bare_routing@5:
+main_bare_routing@6:
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@6
-    b __puya_arc4_router___switch_case_default@7
+    match main___algopy_default_create@7
 
-__puya_arc4_router_____algopy_default_create@6:
+main_switch_case_default@8:
+
+main_switch_case_next@9:
+    b main_after_if_else@10
+
+main___algopy_default_create@7:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+main_block@12:
+
+main_after_inlined_test_cases.regression_tests.issue_118.Issue118.__algopy_default_create@13:
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@7:
-
-__puya_arc4_router___after_if_else@9:
-    // regression_tests/issue_118.py:5
-    // class Issue118(ARC4Contract):
-    intc_0 // 0
-    retsub
+    b main_after_inlined_test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__@11
 
 
 // test_cases.regression_tests.issue_118.Issue118.verify(values: bytes) -> bytes:
@@ -106,6 +114,8 @@ verify:
     pushint 2 // 2
     !=
     bz verify_after_if_else@2
+
+verify_if_body@1:
     // regression_tests/issue_118.py:13
     // return Tuple((val1, String("")))
     bytec_0 // 0x
@@ -131,10 +141,4 @@ verify_after_if_else@2:
     concat
     bytec_1 // 0x0000
     concat
-    retsub
-
-
-// test_cases.regression_tests.issue_118.Issue118.__algopy_default_create() -> void:
-__algopy_default_create:
-    proto 0 0
     retsub

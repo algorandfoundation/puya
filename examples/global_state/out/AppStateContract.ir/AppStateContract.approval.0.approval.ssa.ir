@@ -1,0 +1,122 @@
+main examples.global_state.contract.AppStateContract.__algopy_entrypoint_with_init:
+    block@0: // L1
+        let tmp%0#0: bool = (txn ApplicationID)
+        goto tmp%0#0 ? block@2 : block@1
+    block@1: // call __init___L1
+        examples.global_state.contract.AppStateContract.__init__()
+        goto block@2
+    block@2: // after_if_else_L1
+        let tmp%1#0: bool = examples.global_state.contract.AppStateContract.approval_program()
+        return tmp%1#0
+
+subroutine examples.global_state.contract.AppStateContract.__init__() -> void:
+    block@0: // L15
+        (app_global_put "global_int_full" 55u)
+        (app_global_put "global_int_simplified" 33u)
+        (app_global_put "global_bytes_full" 0x48656c6c6f)
+        (app_global_put "global_bytes_simplified" 0x48656c6c6f)
+        (app_global_put "global_bool_full" 0u)
+        (app_global_put "global_bool_simplified" 1u)
+        return 
+
+subroutine examples.global_state.contract.AppStateContract.approval_program() -> bool:
+    block@0: // L32
+        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "global_int_simplified")
+        (assert maybe_exists%0#0) // check self.global_int_simplified exists
+        let tmp%0#0: bool = (== maybe_value%0#0 33u)
+        (assert tmp%0#0)
+        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "global_int_full")
+        (assert maybe_exists%1#0)
+        let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "global_int_full")
+        (assert maybe_exists%2#0) // check self.global_int_full exists
+        let tmp%1#0: bool = (== maybe_value%2#0 55u)
+        (assert tmp%1#0)
+        let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "global_int_no_default")
+        let tmp%2#0: bool = (! maybe_exists%3#0)
+        (assert tmp%2#0)
+        (app_global_put "global_int_no_default" 44u)
+        let (maybe_value%4#0: uint64, maybe_exists%4#0: bool) = (app_global_get_ex 0u "global_int_no_default")
+        let i_value#0: uint64 = maybe_value%4#0
+        let i_exists#0: bool = maybe_exists%4#0
+        (assert i_exists#0)
+        let tmp%3#0: bool = (== i_value#0 44u)
+        (assert tmp%3#0)
+        let tmp%4#0: uint64 = examples.global_state.contract.read_global_uint64(0x676c6f62616c5f696e745f6e6f5f64656661756c74)
+        let tmp%5#0: bool = (== tmp%4#0 44u)
+        (assert tmp%5#0)
+        let (maybe_value%5#0: bytes, maybe_exists%5#0: bool) = (app_global_get_ex 0u "global_bytes_simplified")
+        (assert maybe_exists%5#0) // check self.global_bytes_simplified exists
+        let tmp%6#0: bool = (== maybe_value%5#0 0x48656c6c6f)
+        (assert tmp%6#0)
+        let (maybe_value%6#0: bytes, maybe_exists%6#0: bool) = (app_global_get_ex 0u "global_bytes_full")
+        (assert maybe_exists%6#0)
+        let (maybe_value%7#0: bytes, maybe_exists%7#0: bool) = (app_global_get_ex 0u "global_bytes_full")
+        (assert maybe_exists%7#0) // check self.global_bytes_full exists
+        let tmp%7#0: bool = (== maybe_value%7#0 0x48656c6c6f)
+        (assert tmp%7#0)
+        let (maybe_value%8#0: bytes, maybe_exists%8#0: bool) = (app_global_get_ex 0u "global_bytes_full")
+        let tmp%8#0: bytes = (select 0x64656661756c74 maybe_value%8#0 maybe_exists%8#0)
+        let tmp%9#0: bool = (== tmp%8#0 0x48656c6c6f)
+        (assert tmp%9#0)
+        let (maybe_value%9#0: bytes, maybe_exists%9#0: bool) = (app_global_get_ex 0u "global_bytes_no_default")
+        let tmp%10#0: bool = (! maybe_exists%9#0)
+        (assert tmp%10#0)
+        (app_global_put "global_bytes_no_default" 0x576f726c64)
+        let (maybe_value%10#0: bytes, maybe_exists%10#0: bool) = (app_global_get_ex 0u "global_bytes_no_default")
+        let b_value#0: bytes = maybe_value%10#0
+        let b_exists#0: bool = maybe_exists%10#0
+        (assert b_exists#0)
+        let tmp%11#0: bool = (== b_value#0 0x576f726c64)
+        (assert tmp%11#0)
+        let tmp%12#0: bytes = examples.global_state.contract.read_global_bytes("global_bytes_no_default")
+        let tmp%13#0: bool = (== tmp%12#0 0x576f726c64)
+        (assert tmp%13#0)
+        (app_global_del "global_bytes_no_default")
+        let (maybe_value%11#0: bytes, maybe_exists%11#0: bool) = (app_global_get_ex 0u "global_bytes_no_default")
+        let b_value#1: bytes = maybe_value%11#0
+        let b_exists#1: bool = maybe_exists%11#0
+        let tmp%14#0: bool = (! b_exists#1)
+        (assert tmp%14#0)
+        let (maybe_value%12#0: bytes, maybe_exists%12#0: bool) = (app_global_get_ex 0u "global_bytes_no_default")
+        let tmp%15#0: bytes = (select 0x64656661756c74 maybe_value%12#0 maybe_exists%12#0)
+        let tmp%16#0: bool = (== tmp%15#0 0x64656661756c74)
+        (assert tmp%16#0)
+        let (maybe_value%13#0: bool, maybe_exists%13#0: bool) = (app_global_get_ex 0u "global_bool_full")
+        (assert maybe_exists%13#0)
+        let (maybe_value%14#0: bool, maybe_exists%14#0: bool) = (app_global_get_ex 0u "global_bool_no_default")
+        let tmp%17#0: bool = (! maybe_exists%14#0)
+        (assert tmp%17#0)
+        (app_global_put "global_bool_no_default" 1u)
+        let (maybe_value%15#0: bool, maybe_exists%15#0: bool) = (app_global_get_ex 0u "global_bool_full")
+        (assert maybe_exists%15#0) // check self.global_bool_full exists
+        let tmp%18#0: bool = (! maybe_value%15#0)
+        (assert tmp%18#0)
+        let (maybe_value%16#0: bool, maybe_exists%16#0: bool) = (app_global_get_ex 0u "global_bool_simplified")
+        (assert maybe_exists%16#0) // check self.global_bool_simplified exists
+        (assert maybe_value%16#0)
+        let (maybe_value%17#0: bool, maybe_exists%17#0: bool) = (app_global_get_ex 0u "global_bool_no_default")
+        (assert maybe_exists%17#0) // check self.global_bool_no_default exists
+        (assert maybe_value%17#0)
+        let tmp%19#0: uint64 = examples.global_state.contract.get_global_state_plus_1("global_int_no_default")
+        let tmp%20#0: bool = (== tmp%19#0 45u)
+        (assert tmp%20#0)
+        return 1u
+
+subroutine examples.global_state.contract.read_global_uint64(key: bytes) -> uint64:
+    block@0: // L84
+        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u key#0)
+        (assert maybe_exists%0#0) // check GlobalState exists
+        return maybe_value%0#0
+
+subroutine examples.global_state.contract.read_global_bytes(key: bytes) -> bytes:
+    block@0: // L89
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u key#0)
+        (assert maybe_exists%0#0) // check GlobalState exists
+        return maybe_value%0#0
+
+subroutine examples.global_state.contract.get_global_state_plus_1(state: bytes) -> uint64:
+    block@0: // L79
+        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u state#0)
+        (assert maybe_exists%0#0) // check GlobalState exists
+        let tmp%0#0: uint64 = (+ maybe_value%0#0 1u)
+        return tmp%0#0

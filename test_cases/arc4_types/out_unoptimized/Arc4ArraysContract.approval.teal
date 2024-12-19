@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
+// test_cases.arc4_types.array.Arc4ArraysContract.approval_program() -> uint64:
+main:
     intcblock 0 1 2 4
     bytecblock 0x 0x000548656c6c6f 0x0002 0x0001 0x000450696e67
     intc_0 // 0
@@ -34,6 +36,10 @@ main_for_header@1:
     dig 2
     <
     bz main_after_for@4
+
+main_for_body@2:
+    // arc4_types/array.py:27
+    // for uint8_item in dynamic_uint8_array:
     dig 3
     extract 2 0
     dig 1
@@ -47,6 +53,8 @@ main_for_header@1:
     dig 3
     +
     bury 3
+
+main_for_footer@3:
     dup
     intc_1 // 1
     +
@@ -85,6 +93,10 @@ main_for_header@5:
     dig 10
     <
     bz main_after_for@8
+
+main_for_body@6:
+    // arc4_types/array.py:32
+    // for uint16_item in aliased_dynamic:
     dig 14
     extract 2 0
     dig 8
@@ -98,6 +110,8 @@ main_for_header@5:
     dig 3
     +
     bury 3
+
+main_for_footer@7:
     dig 7
     intc_1 // 1
     +
@@ -193,6 +207,10 @@ main_for_header@9:
     dig 9
     <
     bz main_after_for@15
+
+main_for_body@10:
+    // arc4_types/array.py:39
+    // for index, string_item in uenumerate(dynamic_string_array):
     dig 13
     extract 2 0
     dig 7
@@ -219,11 +237,21 @@ main_for_header@9:
     intc_0 // 0
     ==
     bz main_else_body@12
+
+main_if_body@11:
     // arc4_types/array.py:41
     // result = string_item.native
     extract 2 0
     bury 13
-    b main_after_if_else@13
+
+main_after_if_else@13:
+
+main_for_footer@14:
+    dig 6
+    intc_1 // 1
+    +
+    bury 7
+    b main_for_header@9
 
 main_else_body@12:
     // arc4_types/array.py:43
@@ -236,13 +264,7 @@ main_else_body@12:
     swap
     concat
     bury 13
-
-main_after_if_else@13:
-    dig 6
-    intc_1 // 1
-    +
-    bury 7
-    b main_for_header@9
+    b main_after_if_else@13
 
 main_after_for@15:
     // arc4_types/array.py:45
@@ -276,6 +298,10 @@ main_for_header@16:
     intc_3 // 4
     <
     bz main_after_for@19
+
+main_for_body@17:
+    // arc4_types/array.py:49
+    // for uint32_item in static_uint32_array:
     dig 10
     dig 6
     intc_3 // 4
@@ -288,6 +314,8 @@ main_for_header@16:
     dig 3
     +
     bury 3
+
+main_for_footer@18:
     dig 5
     intc_1 // 1
     +
@@ -370,6 +398,10 @@ main_for_header@20:
     intc_2 // 2
     <
     bz main_after_for@26
+
+main_for_body@21:
+    // arc4_types/array.py:63
+    // for index, string_item in uenumerate(static_string_array):
     dig 11
     dig 5
     dup
@@ -395,11 +427,21 @@ main_for_header@20:
     intc_0 // 0
     ==
     bz main_else_body@23
+
+main_if_body@22:
     // arc4_types/array.py:65
     // result = string_item.native
     extract 2 0
     bury 13
-    b main_after_if_else@24
+
+main_after_if_else@24:
+
+main_for_footer@25:
+    dig 4
+    intc_1 // 1
+    +
+    bury 5
+    b main_for_header@20
 
 main_else_body@23:
     // arc4_types/array.py:67
@@ -412,13 +454,7 @@ main_else_body@23:
     swap
     concat
     bury 13
-
-main_after_if_else@24:
-    dig 4
-    intc_1 // 1
-    +
-    bury 5
-    b main_for_header@20
+    b main_after_if_else@24
 
 main_after_for@26:
     // arc4_types/array.py:69

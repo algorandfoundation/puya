@@ -1,14 +1,18 @@
 #pragma version 10
+#pragma typetrack false
 
-examples.box_storage.contract.BoxContract.approval_program:
+// examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 0 1 2 5
     bytecblock 0x 0x424f585f43 0x626c6f62 "box_d" "box_a" "b" 0x00 0x64 0x68656c6c6f 0x151f7c75 "0" 0x3432 "box_ref" "Hmmmmm" 0x00023432 "default"
     txn ApplicationID
     bnz main_after_if_else@2
+
+main_call___init__@1:
     callsub __init__
 
 main_after_if_else@2:
-    callsub __puya_arc4_router__
+    callsub approval_program
     return
 
 
@@ -20,15 +24,21 @@ __init__:
     retsub
 
 
-// examples.box_storage.contract.BoxContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+approval_program:
+    proto 0 1
+
+approval_program_block@1:
     // box_storage/contract.py:8
     // class BoxContract(arc4.ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@17
+    bz approval_program_bare_routing@18
+
+approval_program_abi_routing@2:
+    // box_storage/contract.py:8
+    // class BoxContract(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x7d37296e // method "set_boxes(uint64,byte[],string)void"
     pushbytes 0x33325d3d // method "check_keys()void"
@@ -44,11 +54,103 @@ __puya_arc4_router__:
     pushbytes 0xe6f68506 // method "box_map_del(uint64)void"
     pushbytes 0x8ee2c364 // method "box_map_exists(uint64)bool"
     uncover 13
-    match __puya_arc4_router___set_boxes_route@2 __puya_arc4_router___check_keys_route@3 __puya_arc4_router___delete_boxes_route@4 __puya_arc4_router___read_boxes_route@5 __puya_arc4_router___boxes_exist_route@6 __puya_arc4_router___slice_box_route@7 __puya_arc4_router___arc4_box_route@8 __puya_arc4_router___test_box_ref_route@9 __puya_arc4_router___box_map_test_route@10 __puya_arc4_router___box_map_set_route@11 __puya_arc4_router___box_map_get_route@12 __puya_arc4_router___box_map_del_route@13 __puya_arc4_router___box_map_exists_route@14
-    b __puya_arc4_router___switch_case_default@15
+    match approval_program_set_boxes_route@3 approval_program_check_keys_route@4 approval_program_delete_boxes_route@5 approval_program_read_boxes_route@6 approval_program_boxes_exist_route@7 approval_program_slice_box_route@8 approval_program_arc4_box_route@9 approval_program_test_box_ref_route@10 approval_program_box_map_test_route@11 approval_program_box_map_set_route@12 approval_program_box_map_get_route@13 approval_program_box_map_del_route@14 approval_program_box_map_exists_route@15
 
-__puya_arc4_router___set_boxes_route@2:
-    // box_storage/contract.py:17
+approval_program_switch_case_default@16:
+
+approval_program_switch_case_next@17:
+
+approval_program_after_if_else@22:
+    // box_storage/contract.py:8
+    // class BoxContract(arc4.ARC4Contract):
+    intc_0 // 0
+
+approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@23:
+    retsub
+
+approval_program_box_map_exists_route@15:
+    // box_storage/contract.py:174
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // box_storage/contract.py:8
+    // class BoxContract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // box_storage/contract.py:174
+    // @arc4.abimethod
+    callsub box_map_exists
+    bytec 6 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec 9 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@23
+
+approval_program_box_map_del_route@14:
+    // box_storage/contract.py:170
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // box_storage/contract.py:8
+    // class BoxContract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // box_storage/contract.py:170
+    // @arc4.abimethod
+    callsub box_map_del
+    intc_1 // 1
+    b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@23
+
+approval_program_box_map_get_route@13:
+    // box_storage/contract.py:166
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // box_storage/contract.py:8
+    // class BoxContract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // box_storage/contract.py:166
+    // @arc4.abimethod
+    callsub box_map_get
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec 9 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@23
+
+approval_program_box_map_set_route@12:
+    // box_storage/contract.py:162
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -63,18 +165,15 @@ __puya_arc4_router___set_boxes_route@2:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
-    txna ApplicationArgs 3
-    // box_storage/contract.py:17
+    extract 2 0
+    // box_storage/contract.py:162
     // @arc4.abimethod
-    uncover 2
-    uncover 2
-    uncover 2
-    callsub set_boxes
+    callsub box_map_set
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@23
 
-__puya_arc4_router___check_keys_route@3:
-    // box_storage/contract.py:48
+approval_program_box_map_test_route@11:
+    // box_storage/contract.py:141
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -84,12 +183,12 @@ __puya_arc4_router___check_keys_route@3:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    callsub check_keys
+    callsub box_map_test
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@23
 
-__puya_arc4_router___delete_boxes_route@4:
-    // box_storage/contract.py:54
+approval_program_test_box_ref_route@10:
+    // box_storage/contract.py:93
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -99,12 +198,12 @@ __puya_arc4_router___delete_boxes_route@4:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    callsub delete_boxes
+    callsub test_box_ref
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@23
 
-__puya_arc4_router___read_boxes_route@5:
-    // box_storage/contract.py:66
+approval_program_arc4_box_route@9:
+    // box_storage/contract.py:83
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -114,44 +213,26 @@ __puya_arc4_router___read_boxes_route@5:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    callsub read_boxes
-    cover 2
-    swap
-    itob
-    swap
-    dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
-    swap
-    bytec_0 // 0x
-    swap
-    concat
-    pushint 12 // 12
-    itob
-    extract 6 2
-    concat
-    dig 1
-    len
-    pushint 12 // 12
-    +
-    itob
-    extract 6 2
-    concat
-    swap
-    concat
-    swap
-    concat
-    bytec 9 // 0x151f7c75
-    swap
-    concat
-    log
+    callsub arc4_box
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@23
 
-__puya_arc4_router___boxes_exist_route@6:
+approval_program_slice_box_route@8:
+    // box_storage/contract.py:74
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub slice_box
+    intc_1 // 1
+    b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@23
+
+approval_program_boxes_exist_route@7:
     // box_storage/contract.py:70
     // @arc4.abimethod
     txn OnCompletion
@@ -201,10 +282,10 @@ __puya_arc4_router___boxes_exist_route@6:
     concat
     log
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@23
 
-__puya_arc4_router___slice_box_route@7:
-    // box_storage/contract.py:74
+approval_program_read_boxes_route@6:
+    // box_storage/contract.py:66
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -214,12 +295,45 @@ __puya_arc4_router___slice_box_route@7:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    callsub slice_box
+    callsub read_boxes
+    cover 2
+    swap
+    itob
+    swap
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    swap
+    bytec_0 // 0x
+    swap
+    concat
+    pushint 12 // 12
+    itob
+    extract 6 2
+    concat
+    dig 1
+    len
+    pushint 12 // 12
+    +
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    swap
+    concat
+    bytec 9 // 0x151f7c75
+    swap
+    concat
+    log
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@23
 
-__puya_arc4_router___arc4_box_route@8:
-    // box_storage/contract.py:83
+approval_program_delete_boxes_route@5:
+    // box_storage/contract.py:54
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -229,12 +343,12 @@ __puya_arc4_router___arc4_box_route@8:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    callsub arc4_box
+    callsub delete_boxes
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@23
 
-__puya_arc4_router___test_box_ref_route@9:
-    // box_storage/contract.py:93
+approval_program_check_keys_route@4:
+    // box_storage/contract.py:48
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -244,27 +358,12 @@ __puya_arc4_router___test_box_ref_route@9:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    callsub test_box_ref
+    callsub check_keys
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@23
 
-__puya_arc4_router___box_map_test_route@10:
-    // box_storage/contract.py:141
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub box_map_test
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___box_map_set_route@11:
-    // box_storage/contract.py:162
+approval_program_set_boxes_route@3:
+    // box_storage/contract.py:17
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -279,122 +378,40 @@ __puya_arc4_router___box_map_set_route@11:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
-    extract 2 0
-    // box_storage/contract.py:162
+    txna ApplicationArgs 3
+    // box_storage/contract.py:17
     // @arc4.abimethod
-    callsub box_map_set
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___box_map_get_route@12:
-    // box_storage/contract.py:166
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // box_storage/contract.py:8
-    // class BoxContract(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    // box_storage/contract.py:166
-    // @arc4.abimethod
-    callsub box_map_get
-    dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
-    bytec 9 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___box_map_del_route@13:
-    // box_storage/contract.py:170
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // box_storage/contract.py:8
-    // class BoxContract(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    // box_storage/contract.py:170
-    // @arc4.abimethod
-    callsub box_map_del
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___box_map_exists_route@14:
-    // box_storage/contract.py:174
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // box_storage/contract.py:8
-    // class BoxContract(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    // box_storage/contract.py:174
-    // @arc4.abimethod
-    callsub box_map_exists
-    bytec 6 // 0x00
-    intc_0 // 0
     uncover 2
-    setbit
-    bytec 9 // 0x151f7c75
-    swap
-    concat
-    log
+    uncover 2
+    uncover 2
+    callsub set_boxes
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@23
 
-__puya_arc4_router___switch_case_default@15:
-    b __puya_arc4_router___after_if_else@21
-
-__puya_arc4_router___bare_routing@17:
+approval_program_bare_routing@18:
     // box_storage/contract.py:8
     // class BoxContract(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@18
-    b __puya_arc4_router___switch_case_default@19
+    match approval_program___algopy_default_create@19
 
-__puya_arc4_router_____algopy_default_create@18:
+approval_program_switch_case_default@20:
+
+approval_program_switch_case_next@21:
+    b approval_program_after_if_else@22
+
+approval_program___algopy_default_create@19:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+approval_program_block@24:
+
+approval_program_after_inlined_examples.box_storage.contract.BoxContract.__algopy_default_create@25:
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@19:
-
-__puya_arc4_router___after_if_else@21:
-    // box_storage/contract.py:8
-    // class BoxContract(arc4.ARC4Contract):
-    intc_0 // 0
-    retsub
+    b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@23
 
 
 // examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: bytes, c: bytes) -> void:
@@ -1623,10 +1640,4 @@ box_map_exists:
     concat
     box_len
     bury 1
-    retsub
-
-
-// examples.box_storage.contract.BoxContract.__algopy_default_create() -> void:
-__algopy_default_create:
-    proto 0 0
     retsub

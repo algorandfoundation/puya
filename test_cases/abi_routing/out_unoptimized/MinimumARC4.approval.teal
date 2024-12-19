@@ -1,13 +1,17 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.abi_routing.minimal.MinimumARC4.approval_program:
+// test_cases.abi_routing.minimal.MinimumARC4.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 0
     txn ApplicationID
     bnz main_after_if_else@2
+
+main_call___init__@1:
     callsub __init__
 
 main_after_if_else@2:
-    callsub __puya_arc4_router__
+    callsub approval_program
     return
 
 
@@ -24,45 +28,49 @@ __init__:
     retsub
 
 
-// test_cases.abi_routing.minimal.MinimumARC4.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+approval_program:
+    proto 0 1
+
+approval_program_block@1:
     // abi_routing/minimal.py:4
     // class MinimumARC4(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@2
-    b __puya_arc4_router___after_if_else@6
+    bz approval_program_bare_routing@3
 
-__puya_arc4_router___bare_routing@2:
+approval_program_abi_routing@2:
+
+approval_program_after_if_else@7:
+    // abi_routing/minimal.py:4
+    // class MinimumARC4(ARC4Contract):
+    intc_0 // 0
+
+approval_program_after_inlined_test_cases.abi_routing.minimal.MinimumARC4.__puya_arc4_router__@8:
+    retsub
+
+approval_program_bare_routing@3:
     // abi_routing/minimal.py:4
     // class MinimumARC4(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@3
-    b __puya_arc4_router___switch_case_default@4
+    match approval_program___algopy_default_create@4
 
-__puya_arc4_router_____algopy_default_create@3:
+approval_program_switch_case_default@5:
+
+approval_program_switch_case_next@6:
+    b approval_program_after_if_else@7
+
+approval_program___algopy_default_create@4:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+approval_program_block@9:
+
+approval_program_after_inlined_test_cases.abi_routing.minimal.MinimumARC4.__algopy_default_create@10:
     pushint 1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@4:
-
-__puya_arc4_router___after_if_else@6:
-    // abi_routing/minimal.py:4
-    // class MinimumARC4(ARC4Contract):
-    intc_0 // 0
-    retsub
-
-
-// test_cases.abi_routing.minimal.MinimumARC4.__algopy_default_create() -> void:
-__algopy_default_create:
-    proto 0 0
-    retsub
+    b approval_program_after_inlined_test_cases.abi_routing.minimal.MinimumARC4.__puya_arc4_router__@8

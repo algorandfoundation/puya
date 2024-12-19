@@ -1,0 +1,41 @@
+main test_cases.diamond_mro.gp.GP.__algopy_entrypoint_with_init:
+    block@0: // L1
+        let tmp%0#0: bool = (txn ApplicationID)
+        goto tmp%0#0 ? block@2 : block@1
+    block@1: // call __init___L1
+        (log "gp.__init__")
+        goto block@2
+    block@2: // after_if_else_L1
+        let tmp%0#1: bool = test_cases.diamond_mro.gp.GP.__puya_arc4_router__()
+        return tmp%0#1
+
+subroutine test_cases.diamond_mro.gp.GP.__puya_arc4_router__() -> bool:
+    block@0: // L6
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        goto tmp%0#0 ? block@1 : block@7
+    block@1: // abi_routing_L6
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "create()void" => block@2, method "method()void" => block@3, * => block@7}
+    block@2: // create_route_L11
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (! tmp%3#0)
+        (assert tmp%4#0) // OnCompletion is not NoOp
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%6#0: bool = (! tmp%5#0)
+        (assert tmp%6#0) // can only call when creating
+        return 1u
+    block@3: // method_route_L15
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        (assert tmp%8#0) // OnCompletion is not NoOp
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        (assert tmp%9#0) // can only call when not creating
+        test_cases.diamond_mro.gp.GP.method()
+        return 1u
+    block@7: // after_if_else_L6
+        return 0u
+
+subroutine test_cases.diamond_mro.gp.GP.method() -> void:
+    block@0: // L15
+        (log "gp.method")
+        return 

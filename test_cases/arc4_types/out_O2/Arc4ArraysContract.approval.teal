@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
+// test_cases.arc4_types.array.Arc4ArraysContract.approval_program() -> uint64:
+main:
     intcblock 2 1 0 4
     bytecblock "" 0x0004000b000548656c6c6f0005576f726c64 0x0004000a000450696e670004506f6e67 " "
     intc_2 // 0
@@ -93,7 +95,13 @@ main_for_header@9:
     bnz main_else_body@12
     extract 2 0
     bury 6
-    b main_after_if_else@13
+
+main_after_if_else@13:
+    dig 4
+    intc_1 // 1
+    +
+    bury 5
+    b main_for_header@9
 
 main_else_body@12:
     extract 2 0
@@ -104,13 +112,7 @@ main_else_body@12:
     swap
     concat
     bury 6
-
-main_after_if_else@13:
-    dig 4
-    intc_1 // 1
-    +
-    bury 5
-    b main_for_header@9
+    b main_after_if_else@13
 
 main_after_for@15:
     dig 5
@@ -176,7 +178,13 @@ main_for_header@20:
     bnz main_else_body@23
     extract 2 0
     bury 6
-    b main_after_if_else@24
+
+main_after_if_else@24:
+    dig 4
+    intc_1 // 1
+    +
+    bury 5
+    b main_for_header@20
 
 main_else_body@23:
     extract 2 0
@@ -187,29 +195,12 @@ main_else_body@23:
     swap
     concat
     bury 6
-
-main_after_if_else@24:
-    dig 4
-    intc_1 // 1
-    +
-    bury 5
-    b main_for_header@20
+    b main_after_if_else@24
 
 main_after_for@26:
     dig 5
     pushbytes "Ping Pong"
     ==
     assert
-    pushbytes 0x54657374696e6720313233
-    callsub hash_as_array
-    pop
     intc_1 // 1
     return
-
-
-// test_cases.arc4_types.array.Arc4ArraysContract.hash_as_array(commitment_args_concat: bytes) -> bytes:
-hash_as_array:
-    proto 1 1
-    frame_dig -1
-    sha3_256
-    retsub

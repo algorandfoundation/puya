@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.with_reentrancy.contract.WithReentrancy.approval_program:
+// test_cases.with_reentrancy.contract.WithReentrancy.approval_program() -> uint64:
+main:
     intcblock 2 1 10
     bytecblock 0x30313233343536373839
     pushint 5 // 5
@@ -40,53 +42,24 @@ fibonacci_after_if_else@2:
 // test_cases.with_reentrancy.contract.silly(x: uint64) -> uint64:
 silly:
     proto 1 1
+    pushbytes ""
     frame_dig -1
     intc_1 // 1
     +
     dup
     frame_bury -1
-    callsub silly2
-    frame_dig -1
-    callsub itoa
-    pushbytes 0x73696c6c79203d20
-    swap
-    concat
-    log
-    retsub
-
-
-// test_cases.with_reentrancy.contract.silly2(x: uint64) -> uint64:
-silly2:
-    proto 1 1
-    frame_dig -1
     intc_0 // 2
     +
-    dup
-    frame_bury -1
-    callsub silly3
-    frame_dig -1
-    callsub itoa
-    pushbytes 0x73696c6c7932203d20
-    swap
-    concat
-    log
-    retsub
-
-
-// test_cases.with_reentrancy.contract.silly3(x: uint64) -> uint64:
-silly3:
-    proto 1 1
-    pushbytes ""
-    frame_dig -1
+    dupn 2
     intc_0 // 2
     %
     dup
-    frame_dig -1
+    uncover 2
     intc_0 // 2
     +
     swap
-    bnz silly3_else_body@2
-    frame_dig 2
+    bnz silly_else_body@3
+    frame_dig 3
     intc_0 // 2
     *
     dup
@@ -95,28 +68,40 @@ silly3:
     /
     intc_0 // 2
     -
-    frame_bury 2
-    b silly3_after_if_else@3
+    frame_bury 3
 
-silly3_else_body@2:
-    frame_dig -1
-    callsub silly
-    frame_bury 0
-
-silly3_after_if_else@3:
-    frame_dig 1
-    bnz silly3_after_if_else@5
+silly_after_if_else@4:
     frame_dig 2
+    bnz silly_after_if_else@6
+    frame_dig 3
     frame_bury 0
 
-silly3_after_if_else@5:
-    frame_dig -1
+silly_after_if_else@6:
+    frame_dig 1
+    dup
     callsub itoa
     pushbytes 0x73696c6c7933203d20
     swap
     concat
     log
+    callsub itoa
+    pushbytes 0x73696c6c7932203d20
+    swap
+    concat
+    log
+    frame_dig -1
+    callsub itoa
+    pushbytes 0x73696c6c79203d20
+    swap
+    concat
+    log
     retsub
+
+silly_else_body@3:
+    frame_dig 1
+    callsub silly
+    frame_bury 0
+    b silly_after_if_else@4
 
 
 // test_cases.with_reentrancy.contract.itoa(i: uint64) -> bytes:

@@ -1,10 +1,14 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.intrinsics.overloaded.Overloaded.approval_program:
+// test_cases.intrinsics.overloaded.Overloaded.__algopy_entrypoint_with_init() -> uint64:
+main:
     bytecblock 0x6b6579
     txn ApplicationID
     bnz main_after_if_else@2
-    callsub __init__
+    bytec_0 // "key"
+    pushint 0 // 0
+    app_global_put
 
 main_after_if_else@2:
     bytec_0 // 0x6b6579
@@ -25,12 +29,3 @@ main_after_if_else@2:
     assert
     pushint 1 // 1
     return
-
-
-// test_cases.intrinsics.overloaded.Overloaded.__init__() -> void:
-__init__:
-    proto 0 0
-    bytec_0 // "key"
-    pushint 0 // 0
-    app_global_put
-    retsub

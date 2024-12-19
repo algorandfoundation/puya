@@ -1,0 +1,93 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@2 : block@6
+    block@2: // abi_routing_L4
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "test_array_rebinding()void" => block@3, * => block@10}
+    block@3: // test_array_rebinding_route_L5
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (! tmp%3#0)
+        (assert tmp%4#0) // OnCompletion is not NoOp
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        (assert tmp%5#0) // can only call when not creating
+        test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding()
+        let test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__%0#0: bool = 1u
+        goto block@11
+    block@6: // bare_routing_L4
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        goto tmp%7#0 ? block@10 : block@7
+    block@7: // __algopy_default_create_L1
+        let tmp%8#0: uint64 = (txn ApplicationID)
+        let tmp%9#0: bool = (! tmp%8#0)
+        (assert tmp%9#0) // can only call when creating
+        test_cases.arc4_types.mutable_params2.MutableParams2.__algopy_default_create()
+        let test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__%0#1: bool = 1u
+        goto block@11
+    block@10: // after_if_else_L4
+        let test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__%0#2: bool = 0u
+        goto block@11
+    block@11: // after_inlined_test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router___L1
+        let tmp%0#0: bool = φ(test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__%0#0 <- block@3, test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__%0#1 <- block@7, test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__%0#2 <- block@10)
+        return tmp%0#0
+
+subroutine test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding() -> void:
+    block@0: // L5
+        let a#1: bytes = test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array(0x000100, 1u)
+        let tmp%0#0: bool = (== a#1 0x00020001)
+        (assert tmp%0#0)
+        let a#3: bytes = test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array(0x000101, 0u)
+        let tmp%1#0: bool = (== a#3 0x0003012a04)
+        (assert tmp%1#0)
+        return 
+
+subroutine test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array(a: bytes, assign_local: bool) -> bytes:
+    block@0: // L15
+        let a%is_original#0: bool = 1u
+        goto assign_local#0 ? block@1 : block@10
+    block@1: // if_body_L18
+        let expr_value_trimmed%0#0: bytes = ((extract 2 0) a#0)
+        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 0x01)
+        let len_%0#0: uint64 = (len concatenated%0#0)
+        let as_bytes%0#0: bytes = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let a#1: bytes = (concat len_16_bit%0#0 concatenated%0#0)
+        let a#2: bytes = 0x0003010203
+        goto block@5
+    block@5: // after_if_else_L1
+        let a#4: bytes = 0x000401020304
+        goto block@7
+    block@7: // after_if_else_L1
+        let a#5: bytes = 0x0003010204
+        let a%is_original#3: bool = 0u
+        goto block@9
+    block@9: // after_if_else_L1
+        goto block@13
+    block@10: // else_body_L23
+        let expr_value_trimmed%2#0: bytes = ((extract 2 0) a#0)
+        let concatenated%2#0: bytes = (concat expr_value_trimmed%2#0 0x2a)
+        let len_%2#0: uint64 = (len concatenated%2#0)
+        let as_bytes%2#0: bytes = (itob len_%2#0)
+        let len_16_bit%2#0: bytes = ((extract 6 2) as_bytes%2#0)
+        let a#6: bytes = (concat len_16_bit%2#0 concatenated%2#0)
+        goto block@13
+    block@13: // after_if_else_L17
+        let a#7: bytes = φ(a#5 <- block@9, a#6 <- block@10)
+        let a%is_original#4: bool = φ(a%is_original#3 <- block@9, a%is_original#0 <- block@10)
+        let a%out#8: bytes = φ(a#1 <- block@9, a#6 <- block@10)
+        let expr_value_trimmed%3#0: bytes = ((extract 2 0) a#7)
+        let concatenated%3#0: bytes = (concat expr_value_trimmed%3#0 0x04)
+        let len_%3#0: uint64 = (len concatenated%3#0)
+        let as_bytes%3#0: bytes = (itob len_%3#0)
+        let len_16_bit%3#0: bytes = ((extract 6 2) as_bytes%3#0)
+        let a#10: bytes = (concat len_16_bit%3#0 concatenated%3#0)
+        goto a%is_original#4 ? block@14 : block@15
+    block@14: // if_body_L1
+        goto block@15
+    block@15: // after_if_else_L1
+        let a%out#7: bytes = φ(a%out#8 <- block@13, a#10 <- block@14)
+        return a%out#7
+
+subroutine test_cases.arc4_types.mutable_params2.MutableParams2.__algopy_default_create() -> void:
+    block@0: // L1
+        return 

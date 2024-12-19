@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.too_many_permutations.contract.MyContract.approval_program:
+// test_cases.too_many_permutations.contract.MyContract.approval_program() -> uint64:
+main:
     intcblock 0 1
     // too_many_permutations/contract.py:6
     // a = op.Txn.application_args(0)
@@ -23,6 +25,10 @@ test_cases.too_many_permutations.contract.MyContract.approval_program:
     // assert (a != c) or (b != d)
     !=
     bnz main_bool_true@2
+
+main_or_contd@1:
+    // too_many_permutations/contract.py:11
+    // assert (a != c) or (b != d)
     dig 2
     dig 1
     !=
@@ -30,10 +36,6 @@ test_cases.too_many_permutations.contract.MyContract.approval_program:
 
 main_bool_true@2:
     intc_1 // 1
-    b main_bool_merge@4
-
-main_bool_false@3:
-    intc_0 // 0
 
 main_bool_merge@4:
     // too_many_permutations/contract.py:11
@@ -66,6 +68,10 @@ main_bool_merge@4:
     // return True
     intc_1 // 1
     return
+
+main_bool_false@3:
+    intc_0 // 0
+    b main_bool_merge@4
 
 
 // test_cases.too_many_permutations.contract.four_args(a: bytes, b: bytes, c: bytes, d: bytes) -> uint64:

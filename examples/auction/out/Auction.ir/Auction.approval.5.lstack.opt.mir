@@ -1,0 +1,507 @@
+// Op                                                                                    Stack (out)
+// examples.auction.contract.Auction.__algopy_entrypoint_with_init() -> uint64:
+main:
+    txn ApplicationID                                                                    tmp%0#0
+    bz main_call___init__@1 ; b main_after_if_else@2
+
+main_call___init__@1:
+    // auction/contract.py:18
+    // self.auction_end = UInt64(0)
+    byte "auction_end"                                                                   "auction_end"
+    int 0                                                                                "auction_end",0
+    app_global_put
+    // auction/contract.py:19
+    // self.previous_bid = UInt64(0)
+    byte "previous_bid"                                                                  "previous_bid"
+    int 0                                                                                "previous_bid",0
+    app_global_put
+    // auction/contract.py:20
+    // self.asa_amount = UInt64(0)
+    byte "asa_amount"                                                                    "asa_amount"
+    int 0                                                                                "asa_amount",0
+    app_global_put
+    // auction/contract.py:21
+    // self.asa = Asset()
+    byte "asa"                                                                           "asa"
+    int 0                                                                                "asa",0
+    app_global_put
+    // auction/contract.py:22
+    // self.previous_bidder = Account()
+    global ZeroAddress                                                                   new_state_value%0#0
+    byte "previous_bidder"                                                               new_state_value%0#0,"previous_bidder"
+    l-load new_state_value%0#0 1                                                         "previous_bidder",new_state_value%0#0
+    app_global_put
+    b main_after_if_else@2
+
+main_after_if_else@2:
+    // auction/contract.py:16
+    // class Auction(ARC4Contract):
+    txn NumAppArgs                                                                       tmp%0#2
+    bz main_bare_routing@11 ; b main_abi_routing@4
+
+main_abi_routing@4:
+    // auction/contract.py:16
+    // class Auction(ARC4Contract):
+    txna ApplicationArgs 0                                                               tmp%2#0
+    method opt_into_asset(asset)void                                                     tmp%2#0,Method(opt_into_asset(asset)void)
+    method start_auction(uint64,uint64,axfer)void                                        tmp%2#0,Method(opt_into_asset(asset)void),Method(start_auction(uint64,uint64,axfer)void)
+    method opt_in()void                                                                  tmp%2#0,Method(opt_into_asset(asset)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void)
+    method bid(pay)void                                                                  tmp%2#0,Method(opt_into_asset(asset)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void)
+    method claim_bids()void                                                              tmp%2#0,Method(opt_into_asset(asset)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void)
+    method claim_asset(asset)void                                                        tmp%2#0,Method(opt_into_asset(asset)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void),Method(claim_asset(asset)void)
+    l-load tmp%2#0 6                                                                     Method(opt_into_asset(asset)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void),Method(claim_asset(asset)void),tmp%2#0
+    match main_opt_into_asset_route@5 main_start_auction_route@6 main_opt_in_route@7 main_bid_route@8 main_claim_bids_route@9 main_claim_asset_route@10 ; b main_after_if_else@13 
+
+main_opt_into_asset_route@5:
+    // auction/contract.py:25
+    // @arc4.abimethod
+    txn OnCompletion                                                                     tmp%3#0
+    !                                                                                    tmp%4#0
+    assert // OnCompletion is not NoOp
+    txn ApplicationID                                                                    tmp%5#0
+    assert // can only call when not creating
+    // auction/contract.py:16
+    // class Auction(ARC4Contract):
+    txna ApplicationArgs 1                                                               tmp%7#0
+    btoi                                                                                 tmp%8#0
+    txnas Assets                                                                         tmp%9#0
+    // auction/contract.py:25
+    // @arc4.abimethod
+    callsub opt_into_asset
+    int 1                                                                                examples.auction.contract.Auction.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_examples.auction.contract.Auction.__puya_arc4_router__@14
+
+main_start_auction_route@6:
+    // auction/contract.py:40
+    // @arc4.abimethod
+    txn OnCompletion                                                                     tmp%10#0
+    !                                                                                    tmp%11#0
+    assert // OnCompletion is not NoOp
+    txn ApplicationID                                                                    tmp%12#0
+    assert // can only call when not creating
+    // auction/contract.py:16
+    // class Auction(ARC4Contract):
+    txna ApplicationArgs 1                                                               tmp%14#0
+    btoi                                                                                 tmp%15#0
+    txna ApplicationArgs 2                                                               tmp%15#0,tmp%16#0
+    btoi                                                                                 tmp%15#0,tmp%17#0
+    txn GroupIndex                                                                       tmp%15#0,tmp%17#0,tmp%18#0
+    int 1                                                                                tmp%15#0,tmp%17#0,tmp%18#0,1
+    -                                                                                    tmp%15#0,tmp%17#0,gtxn_idx%0#0
+    l-load-copy gtxn_idx%0#0 0                                                           tmp%15#0,tmp%17#0,gtxn_idx%0#0,gtxn_idx%0#0 (copy)
+    gtxns TypeEnum                                                                       tmp%15#0,tmp%17#0,gtxn_idx%0#0,gtxn_type%0#0
+    int axfer                                                                            tmp%15#0,tmp%17#0,gtxn_idx%0#0,gtxn_type%0#0,axfer
+    ==                                                                                   tmp%15#0,tmp%17#0,gtxn_idx%0#0,gtxn_type_matches%0#0
+    assert // transaction type is axfer                                                  tmp%15#0,tmp%17#0,gtxn_idx%0#0
+    // auction/contract.py:40
+    // @arc4.abimethod
+    l-load tmp%15#0 2                                                                    tmp%17#0,gtxn_idx%0#0,tmp%15#0
+    l-load tmp%17#0 2                                                                    gtxn_idx%0#0,tmp%15#0,tmp%17#0
+    l-load gtxn_idx%0#0 2                                                                tmp%15#0,tmp%17#0,gtxn_idx%0#0
+    callsub start_auction
+    int 1                                                                                examples.auction.contract.Auction.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_examples.auction.contract.Auction.__puya_arc4_router__@14
+
+main_opt_in_route@7:
+    // auction/contract.py:62
+    // @arc4.abimethod
+    txn OnCompletion                                                                     tmp%19#0
+    !                                                                                    tmp%20#0
+    assert // OnCompletion is not NoOp
+    txn ApplicationID                                                                    tmp%21#0
+    assert // can only call when not creating
+    int 1                                                                                examples.auction.contract.Auction.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_examples.auction.contract.Auction.__puya_arc4_router__@14
+
+main_bid_route@8:
+    // auction/contract.py:66
+    // @arc4.abimethod
+    txn OnCompletion                                                                     tmp%23#0
+    !                                                                                    tmp%24#0
+    assert // OnCompletion is not NoOp
+    txn ApplicationID                                                                    tmp%25#0
+    assert // can only call when not creating
+    // auction/contract.py:16
+    // class Auction(ARC4Contract):
+    txn GroupIndex                                                                       tmp%27#0
+    int 1                                                                                tmp%27#0,1
+    -                                                                                    gtxn_idx%1#0
+    l-load-copy gtxn_idx%1#0 0                                                           gtxn_idx%1#0,gtxn_idx%1#0 (copy)
+    gtxns TypeEnum                                                                       gtxn_idx%1#0,gtxn_type%1#0
+    int pay                                                                              gtxn_idx%1#0,gtxn_type%1#0,pay
+    ==                                                                                   gtxn_idx%1#0,gtxn_type_matches%1#0
+    assert // transaction type is pay                                                    gtxn_idx%1#0
+    // auction/contract.py:66
+    // @arc4.abimethod
+    l-load gtxn_idx%1#0 0                                                                gtxn_idx%1#0
+    callsub bid
+    int 1                                                                                examples.auction.contract.Auction.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_examples.auction.contract.Auction.__puya_arc4_router__@14
+
+main_claim_bids_route@9:
+    // auction/contract.py:82
+    // @arc4.abimethod
+    txn OnCompletion                                                                     tmp%28#0
+    !                                                                                    tmp%29#0
+    assert // OnCompletion is not NoOp
+    txn ApplicationID                                                                    tmp%30#0
+    assert // can only call when not creating
+    callsub claim_bids
+    int 1                                                                                examples.auction.contract.Auction.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_examples.auction.contract.Auction.__puya_arc4_router__@14
+
+main_claim_asset_route@10:
+    // auction/contract.py:97
+    // @arc4.abimethod
+    txn OnCompletion                                                                     tmp%32#0
+    !                                                                                    tmp%33#0
+    assert // OnCompletion is not NoOp
+    txn ApplicationID                                                                    tmp%34#0
+    assert // can only call when not creating
+    // auction/contract.py:16
+    // class Auction(ARC4Contract):
+    txna ApplicationArgs 1                                                               tmp%36#0
+    btoi                                                                                 tmp%37#0
+    txnas Assets                                                                         tmp%38#0
+    // auction/contract.py:97
+    // @arc4.abimethod
+    callsub claim_asset
+    int 1                                                                                examples.auction.contract.Auction.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_examples.auction.contract.Auction.__puya_arc4_router__@14
+
+main_bare_routing@11:
+    // auction/contract.py:16
+    // class Auction(ARC4Contract):
+    txn OnCompletion                                                                     tmp%39#0
+    bz main___algopy_default_create@12 ; b main_after_if_else@13
+
+main___algopy_default_create@12:
+    txn ApplicationID                                                                    tmp%40#0
+    !                                                                                    tmp%41#0
+    assert // can only call when creating
+    int 1                                                                                examples.auction.contract.Auction.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_examples.auction.contract.Auction.__puya_arc4_router__@14
+
+main_after_if_else@13:
+    // auction/contract.py:16
+    // class Auction(ARC4Contract):
+    int 0                                                                                examples.auction.contract.Auction.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_examples.auction.contract.Auction.__puya_arc4_router__@14
+
+main_after_inlined_examples.auction.contract.Auction.__puya_arc4_router__@14:
+    v-load tmp%0#0                                                                       tmp%0#0
+    return
+
+
+// examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> void:
+opt_into_asset:                                                                          (𝕡) asset#0 |
+    // auction/contract.py:28
+    // assert Txn.sender == Global.creator_address, "Only creator can opt in to ASA"
+    txn Sender                                                                           (𝕡) asset#0 | tmp%0#0
+    global CreatorAddress                                                                (𝕡) asset#0 | tmp%0#0,tmp%1#0
+    l-load tmp%0#0 1                                                                     (𝕡) asset#0 | tmp%1#0,tmp%0#0
+    l-load tmp%1#0 1                                                                     (𝕡) asset#0 | tmp%0#0,tmp%1#0
+    ==                                                                                   (𝕡) asset#0 | tmp%2#0
+    assert // Only creator can opt in to ASA                                             (𝕡) asset#0 |
+    // auction/contract.py:30
+    // assert self.asa.id == 0, "ASA already opted in"
+    int 0                                                                                (𝕡) asset#0 | 0
+    byte "asa"                                                                           (𝕡) asset#0 | 0,"asa"
+    app_global_get_ex                                                                    (𝕡) asset#0 | maybe_value%0#0,maybe_exists%0#0
+    assert // check self.asa exists                                                      (𝕡) asset#0 | maybe_value%0#0
+    l-load maybe_value%0#0 0                                                             (𝕡) asset#0 | maybe_value%0#0
+    !                                                                                    (𝕡) asset#0 | tmp%3#0
+    assert // ASA already opted in                                                       (𝕡) asset#0 |
+    // auction/contract.py:32
+    // self.asa = asset
+    byte "asa"                                                                           (𝕡) asset#0 | "asa"
+    p-load asset#0                                                                       (𝕡) asset#0 | "asa",asset#0 (copy)
+    app_global_put                                                                       (𝕡) asset#0 |
+    // auction/contract.py:35-38
+    // itxn.AssetTransfer(
+    //     asset_receiver=Global.current_application_address,
+    //     xfer_asset=asset,
+    // ).submit()
+    itxn_begin                                                                           (𝕡) asset#0 |
+    // auction/contract.py:36
+    // asset_receiver=Global.current_application_address,
+    global CurrentApplicationAddress                                                     (𝕡) asset#0 | inner_txn_params%0%%param_AssetReceiver_idx_0#0
+    p-load asset#0                                                                       (𝕡) asset#0 | inner_txn_params%0%%param_AssetReceiver_idx_0#0,asset#0 (copy)
+    itxn_field XferAsset                                                                 (𝕡) asset#0 | inner_txn_params%0%%param_AssetReceiver_idx_0#0
+    l-load inner_txn_params%0%%param_AssetReceiver_idx_0#0 0                             (𝕡) asset#0 | inner_txn_params%0%%param_AssetReceiver_idx_0#0
+    itxn_field AssetReceiver                                                             (𝕡) asset#0 |
+    // auction/contract.py:35
+    // itxn.AssetTransfer(
+    int axfer                                                                            (𝕡) asset#0 | axfer
+    itxn_field TypeEnum                                                                  (𝕡) asset#0 |
+    int 0                                                                                (𝕡) asset#0 | 0
+    itxn_field Fee                                                                       (𝕡) asset#0 |
+    // auction/contract.py:35-38
+    // itxn.AssetTransfer(
+    //     asset_receiver=Global.current_application_address,
+    //     xfer_asset=asset,
+    // ).submit()
+    itxn_submit                                                                          (𝕡) asset#0 |
+    retsub
+
+
+// examples.auction.contract.Auction.start_auction(starting_price: uint64, length: uint64, axfer: uint64) -> void:
+start_auction:                                                                           (𝕡) starting_price#0,length#0,axfer#0 |
+    // auction/contract.py:47
+    // assert Txn.sender == Global.creator_address, "auction must be started by creator"
+    txn Sender                                                                           (𝕡) starting_price#0,length#0,axfer#0 | tmp%0#0
+    global CreatorAddress                                                                (𝕡) starting_price#0,length#0,axfer#0 | tmp%0#0,tmp%1#0
+    l-load tmp%0#0 1                                                                     (𝕡) starting_price#0,length#0,axfer#0 | tmp%1#0,tmp%0#0
+    l-load tmp%1#0 1                                                                     (𝕡) starting_price#0,length#0,axfer#0 | tmp%0#0,tmp%1#0
+    ==                                                                                   (𝕡) starting_price#0,length#0,axfer#0 | tmp%2#0
+    assert // auction must be started by creator                                         (𝕡) starting_price#0,length#0,axfer#0 |
+    // auction/contract.py:50
+    // assert self.auction_end == 0, "auction already started"
+    int 0                                                                                (𝕡) starting_price#0,length#0,axfer#0 | 0
+    byte "auction_end"                                                                   (𝕡) starting_price#0,length#0,axfer#0 | 0,"auction_end"
+    app_global_get_ex                                                                    (𝕡) starting_price#0,length#0,axfer#0 | maybe_value%0#0,maybe_exists%0#0
+    assert // check self.auction_end exists                                              (𝕡) starting_price#0,length#0,axfer#0 | maybe_value%0#0
+    l-load maybe_value%0#0 0                                                             (𝕡) starting_price#0,length#0,axfer#0 | maybe_value%0#0
+    !                                                                                    (𝕡) starting_price#0,length#0,axfer#0 | tmp%3#0
+    assert // auction already started                                                    (𝕡) starting_price#0,length#0,axfer#0 |
+    // auction/contract.py:54
+    // axfer.asset_receiver == Global.current_application_address
+    p-load axfer#0                                                                       (𝕡) starting_price#0,length#0,axfer#0 | axfer#0 (copy)
+    gtxns AssetReceiver                                                                  (𝕡) starting_price#0,length#0,axfer#0 | tmp%4#0
+    global CurrentApplicationAddress                                                     (𝕡) starting_price#0,length#0,axfer#0 | tmp%4#0,tmp%5#0
+    l-load tmp%4#0 1                                                                     (𝕡) starting_price#0,length#0,axfer#0 | tmp%5#0,tmp%4#0
+    l-load tmp%5#0 1                                                                     (𝕡) starting_price#0,length#0,axfer#0 | tmp%4#0,tmp%5#0
+    ==                                                                                   (𝕡) starting_price#0,length#0,axfer#0 | tmp%6#0
+    // auction/contract.py:53-55
+    // assert (
+    //     axfer.asset_receiver == Global.current_application_address
+    // ), "axfer must transfer to this app"
+    assert // axfer must transfer to this app                                            (𝕡) starting_price#0,length#0,axfer#0 |
+    // auction/contract.py:58
+    // self.asa_amount = axfer.asset_amount
+    p-load axfer#0                                                                       (𝕡) starting_price#0,length#0,axfer#0 | axfer#0 (copy)
+    gtxns AssetAmount                                                                    (𝕡) starting_price#0,length#0,axfer#0 | new_state_value%0#0
+    byte "asa_amount"                                                                    (𝕡) starting_price#0,length#0,axfer#0 | new_state_value%0#0,"asa_amount"
+    l-load new_state_value%0#0 1                                                         (𝕡) starting_price#0,length#0,axfer#0 | "asa_amount",new_state_value%0#0
+    app_global_put                                                                       (𝕡) starting_price#0,length#0,axfer#0 |
+    // auction/contract.py:59
+    // self.auction_end = Global.latest_timestamp + length
+    global LatestTimestamp                                                               (𝕡) starting_price#0,length#0,axfer#0 | tmp%7#0
+    p-load length#0                                                                      (𝕡) starting_price#0,length#0,axfer#0 | tmp%7#0,length#0 (copy)
+    +                                                                                    (𝕡) starting_price#0,length#0,axfer#0 | new_state_value%1#0
+    byte "auction_end"                                                                   (𝕡) starting_price#0,length#0,axfer#0 | new_state_value%1#0,"auction_end"
+    l-load new_state_value%1#0 1                                                         (𝕡) starting_price#0,length#0,axfer#0 | "auction_end",new_state_value%1#0
+    app_global_put                                                                       (𝕡) starting_price#0,length#0,axfer#0 |
+    // auction/contract.py:60
+    // self.previous_bid = starting_price
+    byte "previous_bid"                                                                  (𝕡) starting_price#0,length#0,axfer#0 | "previous_bid"
+    p-load starting_price#0                                                              (𝕡) starting_price#0,length#0,axfer#0 | "previous_bid",starting_price#0 (copy)
+    app_global_put                                                                       (𝕡) starting_price#0,length#0,axfer#0 |
+    retsub
+
+
+// examples.auction.contract.Auction.bid(pay: uint64) -> void:
+bid:                                                                                     (𝕡) pay#0 |
+    // auction/contract.py:69
+    // assert Global.latest_timestamp < self.auction_end, "auction has ended"
+    global LatestTimestamp                                                               (𝕡) pay#0 | tmp%0#0
+    int 0                                                                                (𝕡) pay#0 | tmp%0#0,0
+    byte "auction_end"                                                                   (𝕡) pay#0 | tmp%0#0,0,"auction_end"
+    app_global_get_ex                                                                    (𝕡) pay#0 | tmp%0#0,maybe_value%0#0,maybe_exists%0#0
+    assert // check self.auction_end exists                                              (𝕡) pay#0 | tmp%0#0,maybe_value%0#0
+    l-load tmp%0#0 1                                                                     (𝕡) pay#0 | maybe_value%0#0,tmp%0#0
+    l-load maybe_value%0#0 1                                                             (𝕡) pay#0 | tmp%0#0,maybe_value%0#0
+    <                                                                                    (𝕡) pay#0 | tmp%1#0
+    assert // auction has ended                                                          (𝕡) pay#0 |
+    // auction/contract.py:72
+    // assert pay.sender == Txn.sender, "payment sender must match transaction sender"
+    p-load pay#0                                                                         (𝕡) pay#0 | pay#0 (copy)
+    gtxns Sender                                                                         (𝕡) pay#0 | tmp%2#0
+    txn Sender                                                                           (𝕡) pay#0 | tmp%2#0,tmp%3#0
+    l-load-copy tmp%2#0 1                                                                (𝕡) pay#0 | tmp%2#0,tmp%3#0,tmp%2#0 (copy)
+    l-load tmp%3#0 1                                                                     (𝕡) pay#0 | tmp%2#0,tmp%2#0 (copy),tmp%3#0
+    ==                                                                                   (𝕡) pay#0 | tmp%2#0,tmp%4#0
+    assert // payment sender must match transaction sender                               (𝕡) pay#0 | tmp%2#0
+    // auction/contract.py:73
+    // assert pay.amount > self.previous_bid, "Bid must be higher than previous bid"
+    p-load pay#0                                                                         (𝕡) pay#0 | tmp%2#0,pay#0 (copy)
+    gtxns Amount                                                                         (𝕡) pay#0 | tmp%2#0,tmp%5#0
+    int 0                                                                                (𝕡) pay#0 | tmp%2#0,tmp%5#0,0
+    byte "previous_bid"                                                                  (𝕡) pay#0 | tmp%2#0,tmp%5#0,0,"previous_bid"
+    app_global_get_ex                                                                    (𝕡) pay#0 | tmp%2#0,tmp%5#0,maybe_value%1#0,maybe_exists%1#0
+    assert // check self.previous_bid exists                                             (𝕡) pay#0 | tmp%2#0,tmp%5#0,maybe_value%1#0
+    l-load-copy tmp%5#0 1                                                                (𝕡) pay#0 | tmp%2#0,tmp%5#0,maybe_value%1#0,tmp%5#0 (copy)
+    l-load maybe_value%1#0 1                                                             (𝕡) pay#0 | tmp%2#0,tmp%5#0,tmp%5#0 (copy),maybe_value%1#0
+    >                                                                                    (𝕡) pay#0 | tmp%2#0,tmp%5#0,tmp%6#0
+    assert // Bid must be higher than previous bid                                       (𝕡) pay#0 | tmp%2#0,tmp%5#0
+    // auction/contract.py:76
+    // self.previous_bid = pay.amount
+    byte "previous_bid"                                                                  (𝕡) pay#0 | tmp%2#0,tmp%5#0,"previous_bid"
+    l-load-copy tmp%5#0 1                                                                (𝕡) pay#0 | tmp%2#0,tmp%5#0,"previous_bid",tmp%5#0 (copy)
+    app_global_put                                                                       (𝕡) pay#0 | tmp%2#0,tmp%5#0
+    // auction/contract.py:77
+    // self.previous_bidder = pay.sender
+    byte "previous_bidder"                                                               (𝕡) pay#0 | tmp%2#0,tmp%5#0,"previous_bidder"
+    l-load tmp%2#0 2                                                                     (𝕡) pay#0 | tmp%5#0,"previous_bidder",tmp%2#0
+    app_global_put                                                                       (𝕡) pay#0 | tmp%5#0
+    // auction/contract.py:80
+    // self.claimable_amount[Txn.sender] = pay.amount
+    txn Sender                                                                           (𝕡) pay#0 | tmp%5#0,tmp%7#0
+    byte "claim"                                                                         (𝕡) pay#0 | tmp%5#0,tmp%7#0,"claim"
+    l-load tmp%5#0 2                                                                     (𝕡) pay#0 | tmp%7#0,"claim",tmp%5#0
+    app_local_put                                                                        (𝕡) pay#0 |
+    retsub
+
+
+// examples.auction.contract.Auction.claim_bids() -> void:
+claim_bids:
+    // auction/contract.py:84
+    // amount = original_amount = self.claimable_amount[Txn.sender]
+    txn Sender                                                                           tmp%0#0
+    int 0                                                                                tmp%0#0,0
+    byte "claim"                                                                         tmp%0#0,0,"claim"
+    app_local_get_ex                                                                     original_amount#0,maybe_exists%0#0
+    l-store maybe_exists%0#0 1                                                           maybe_exists%0#0,original_amount#0
+    l-store-copy original_amount#0 1                                                     original_amount#0,maybe_exists%0#0,original_amount#0 (copy)
+    v-store original_amount#0                                                            original_amount#0,maybe_exists%0#0
+    l-load maybe_exists%0#0 0                                                            original_amount#0,maybe_exists%0#0
+    assert // check self.claimable_amount exists for account                             original_amount#0
+    // auction/contract.py:87
+    // if Txn.sender == self.previous_bidder:
+    txn Sender                                                                           original_amount#0,tmp%1#0
+    int 0                                                                                original_amount#0,tmp%1#0,0
+    byte "previous_bidder"                                                               original_amount#0,tmp%1#0,0,"previous_bidder"
+    app_global_get_ex                                                                    original_amount#0,tmp%1#0,maybe_value%1#0,maybe_exists%1#0
+    assert // check self.previous_bidder exists                                          original_amount#0,tmp%1#0,maybe_value%1#0
+    l-load tmp%1#0 1                                                                     original_amount#0,maybe_value%1#0,tmp%1#0
+    l-load maybe_value%1#0 1                                                             original_amount#0,tmp%1#0,maybe_value%1#0
+    ==                                                                                   original_amount#0,tmp%2#0
+    l-load original_amount#0 1                                                           tmp%2#0,original_amount#0
+    v-store amount#1                                                                     tmp%2#0
+    l-load tmp%2#0 0                                                                     tmp%2#0
+    bz claim_bids_after_if_else@2 ; b claim_bids_if_body@1
+
+claim_bids_if_body@1:
+    // auction/contract.py:88
+    // amount -= self.previous_bid
+    int 0                                                                                0
+    byte "previous_bid"                                                                  0,"previous_bid"
+    app_global_get_ex                                                                    maybe_value%2#0,maybe_exists%2#0
+    assert // check self.previous_bid exists                                             maybe_value%2#0
+    v-load original_amount#0                                                             maybe_value%2#0,original_amount#0
+    l-load maybe_value%2#0 1                                                             original_amount#0,maybe_value%2#0
+    -                                                                                    amount#1
+    v-store amount#1
+    b claim_bids_after_if_else@2
+
+claim_bids_after_if_else@2:
+    // auction/contract.py:90-93
+    // itxn.Payment(
+    //     amount=amount,
+    //     receiver=Txn.sender,
+    // ).submit()
+    itxn_begin
+    // auction/contract.py:92
+    // receiver=Txn.sender,
+    txn Sender                                                                           inner_txn_params%0%%param_Receiver_idx_0#0
+    itxn_field Receiver
+    v-load amount#1                                                                      amount#1
+    l-store-copy amount#1 0                                                              amount#1,amount#1 (copy)
+    itxn_field Amount                                                                    amount#1
+    // auction/contract.py:90
+    // itxn.Payment(
+    int pay                                                                              amount#1,pay
+    itxn_field TypeEnum                                                                  amount#1
+    int 0                                                                                amount#1,0
+    itxn_field Fee                                                                       amount#1
+    // auction/contract.py:90-93
+    // itxn.Payment(
+    //     amount=amount,
+    //     receiver=Txn.sender,
+    // ).submit()
+    itxn_submit                                                                          amount#1
+    // auction/contract.py:95
+    // self.claimable_amount[Txn.sender] = original_amount - amount
+    txn Sender                                                                           amount#1,tmp%3#0
+    v-load original_amount#0                                                             amount#1,tmp%3#0,original_amount#0
+    l-load amount#1 2                                                                    tmp%3#0,original_amount#0,amount#1
+    -                                                                                    tmp%3#0,new_state_value%0#0
+    l-load tmp%3#0 1                                                                     new_state_value%0#0,tmp%3#0
+    byte "claim"                                                                         new_state_value%0#0,tmp%3#0,"claim"
+    l-load new_state_value%0#0 2                                                         tmp%3#0,"claim",new_state_value%0#0
+    app_local_put
+    retsub
+
+
+// examples.auction.contract.Auction.claim_asset(asset: uint64) -> void:
+claim_asset:                                                                             (𝕡) asset#0 |
+    // auction/contract.py:99
+    // assert Global.latest_timestamp > self.auction_end, "auction has not ended"
+    global LatestTimestamp                                                               (𝕡) asset#0 | tmp%0#0
+    int 0                                                                                (𝕡) asset#0 | tmp%0#0,0
+    byte "auction_end"                                                                   (𝕡) asset#0 | tmp%0#0,0,"auction_end"
+    app_global_get_ex                                                                    (𝕡) asset#0 | tmp%0#0,maybe_value%0#0,maybe_exists%0#0
+    assert // check self.auction_end exists                                              (𝕡) asset#0 | tmp%0#0,maybe_value%0#0
+    l-load tmp%0#0 1                                                                     (𝕡) asset#0 | maybe_value%0#0,tmp%0#0
+    l-load maybe_value%0#0 1                                                             (𝕡) asset#0 | tmp%0#0,maybe_value%0#0
+    >                                                                                    (𝕡) asset#0 | tmp%1#0
+    assert // auction has not ended                                                      (𝕡) asset#0 |
+    // auction/contract.py:101-106
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset,
+    //     asset_close_to=self.previous_bidder,
+    //     asset_receiver=self.previous_bidder,
+    //     asset_amount=self.asa_amount,
+    // ).submit()
+    itxn_begin                                                                           (𝕡) asset#0 |
+    // auction/contract.py:103
+    // asset_close_to=self.previous_bidder,
+    int 0                                                                                (𝕡) asset#0 | 0
+    byte "previous_bidder"                                                               (𝕡) asset#0 | 0,"previous_bidder"
+    app_global_get_ex                                                                    (𝕡) asset#0 | maybe_value%1#0,maybe_exists%1#0
+    assert // check self.previous_bidder exists                                          (𝕡) asset#0 | maybe_value%1#0
+    // auction/contract.py:104
+    // asset_receiver=self.previous_bidder,
+    int 0                                                                                (𝕡) asset#0 | maybe_value%1#0,0
+    byte "previous_bidder"                                                               (𝕡) asset#0 | maybe_value%1#0,0,"previous_bidder"
+    app_global_get_ex                                                                    (𝕡) asset#0 | maybe_value%1#0,maybe_value%2#0,maybe_exists%2#0
+    assert // check self.previous_bidder exists                                          (𝕡) asset#0 | maybe_value%1#0,maybe_value%2#0
+    // auction/contract.py:105
+    // asset_amount=self.asa_amount,
+    int 0                                                                                (𝕡) asset#0 | maybe_value%1#0,maybe_value%2#0,0
+    byte "asa_amount"                                                                    (𝕡) asset#0 | maybe_value%1#0,maybe_value%2#0,0,"asa_amount"
+    app_global_get_ex                                                                    (𝕡) asset#0 | maybe_value%1#0,maybe_value%2#0,maybe_value%3#0,maybe_exists%3#0
+    assert // check self.asa_amount exists                                               (𝕡) asset#0 | maybe_value%1#0,maybe_value%2#0,maybe_value%3#0
+    l-load maybe_value%3#0 0                                                             (𝕡) asset#0 | maybe_value%1#0,maybe_value%2#0,maybe_value%3#0
+    itxn_field AssetAmount                                                               (𝕡) asset#0 | maybe_value%1#0,maybe_value%2#0
+    l-load maybe_value%2#0 0                                                             (𝕡) asset#0 | maybe_value%1#0,maybe_value%2#0
+    itxn_field AssetReceiver                                                             (𝕡) asset#0 | maybe_value%1#0
+    l-load maybe_value%1#0 0                                                             (𝕡) asset#0 | maybe_value%1#0
+    itxn_field AssetCloseTo                                                              (𝕡) asset#0 |
+    p-load asset#0                                                                       (𝕡) asset#0 | asset#0 (copy)
+    itxn_field XferAsset                                                                 (𝕡) asset#0 |
+    // auction/contract.py:101
+    // itxn.AssetTransfer(
+    int axfer                                                                            (𝕡) asset#0 | axfer
+    itxn_field TypeEnum                                                                  (𝕡) asset#0 |
+    int 0                                                                                (𝕡) asset#0 | 0
+    itxn_field Fee                                                                       (𝕡) asset#0 |
+    // auction/contract.py:101-106
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset,
+    //     asset_close_to=self.previous_bidder,
+    //     asset_receiver=self.previous_bidder,
+    //     asset_amount=self.asa_amount,
+    // ).submit()
+    itxn_submit                                                                          (𝕡) asset#0 |
+    retsub
+
+

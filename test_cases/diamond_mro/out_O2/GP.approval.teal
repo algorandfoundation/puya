@@ -1,63 +1,41 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.diamond_mro.gp.GP.approval_program:
-    intcblock 0 1
+// test_cases.diamond_mro.gp.GP.__algopy_entrypoint_with_init() -> uint64:
+main:
     txn ApplicationID
     bnz main_after_if_else@2
-    callsub __init__
-
-main_after_if_else@2:
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.diamond_mro.gp.GP.__init__() -> void:
-__init__:
-    proto 0 0
     pushbytes "gp.__init__"
     log
-    retsub
 
-
-// test_cases.diamond_mro.gp.GP.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    proto 0 1
+main_after_if_else@2:
     txn NumAppArgs
-    bz __puya_arc4_router___after_if_else@7
+    bz main_after_if_else@7
     pushbytess 0x4c5c61ba 0x4f045d84 // method "create()void", method "method()void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___create_route@2 __puya_arc4_router___method_route@3
-    intc_0 // 0
-    retsub
+    match main_create_route@5 main_method_route@6
 
-__puya_arc4_router___create_route@2:
+main_after_if_else@7:
+    pushint 0 // 0
+    return
+
+main_method_route@6:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytes "gp.method"
+    log
+    pushint 1 // 1
+    return
+
+main_create_route@5:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___method_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub method
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@7:
-    intc_0 // 0
-    retsub
-
-
-// test_cases.diamond_mro.gp.GP.method() -> void:
-method:
-    proto 0 0
-    pushbytes "gp.method"
-    log
-    retsub
+    pushint 1 // 1
+    return

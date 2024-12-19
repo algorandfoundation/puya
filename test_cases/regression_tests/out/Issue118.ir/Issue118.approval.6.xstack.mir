@@ -1,0 +1,108 @@
+// Op                                                                                      Stack (out)
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // regression_tests/issue_118.py:5
+    // class Issue118(ARC4Contract):
+    txn NumAppArgs                                                                         tmp%0#1
+    bz main_bare_routing@6 ; b main_abi_routing@2
+
+main_abi_routing@2:
+    // regression_tests/issue_118.py:5
+    // class Issue118(ARC4Contract):
+    txna ApplicationArgs 0                                                                 tmp%2#0
+    method verify(uint256[])(bool,string)                                                  tmp%2#0,Method(verify(uint256[])(bool,string))
+    l-load tmp%2#0 1                                                                       Method(verify(uint256[])(bool,string)),tmp%2#0
+    match main_verify_route@3 ; b main_after_if_else@10
+
+main_verify_route@3:
+    // regression_tests/issue_118.py:7
+    // @abimethod
+    txn OnCompletion                                                                       tmp%3#0
+    !                                                                                      tmp%4#0
+    assert // OnCompletion is not NoOp
+    txn ApplicationID                                                                      tmp%5#0
+    assert // can only call when not creating
+    // regression_tests/issue_118.py:5
+    // class Issue118(ARC4Contract):
+    txna ApplicationArgs 1                                                                 tmp%7#0
+    // regression_tests/issue_118.py:7
+    // @abimethod
+    callsub verify                                                                         tmp%8#0
+    byte 0x151f7c75                                                                        tmp%8#0,0x151f7c75
+    l-load tmp%8#0 1                                                                       0x151f7c75,tmp%8#0
+    concat                                                                                 tmp%9#0
+    log
+    int 1                                                                                  test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__%0#0
+    x-store tmp%0#0                                                                        (𝕏) tmp%0#0 |
+    b main_after_inlined_test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
+
+main_bare_routing@6:
+    // regression_tests/issue_118.py:5
+    // class Issue118(ARC4Contract):
+    txn OnCompletion                                                                       tmp%10#0
+    bz main___algopy_default_create@7 ; b main_after_if_else@10
+
+main___algopy_default_create@7:
+    txn ApplicationID                                                                      tmp%11#0
+    !                                                                                      tmp%12#0
+    assert // can only call when creating
+    int 1                                                                                  test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__%0#0
+    x-store tmp%0#0                                                                        (𝕏) tmp%0#0 |
+    b main_after_inlined_test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
+
+main_after_if_else@10:
+    // regression_tests/issue_118.py:5
+    // class Issue118(ARC4Contract):
+    int 0                                                                                  test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__%0#0
+    x-store tmp%0#0                                                                        (𝕏) tmp%0#0 |
+    b main_after_inlined_test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
+
+main_after_inlined_test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__@11: (𝕏) tmp%0#0 |
+    x-load tmp%0#0                                                                         tmp%0#0
+    return
+
+
+// test_cases.regression_tests.issue_118.Issue118.verify(values: bytes) -> bytes:
+verify:                                                                                    (𝕡) values#0 |
+    // regression_tests/issue_118.py:10
+    // bool(Txn.num_app_args)
+    txn NumAppArgs                                                                         (𝕡) values#0 | tmp%0#0
+    // regression_tests/issue_118.py:9-11
+    // val1 = Bool(
+    //     bool(Txn.num_app_args)
+    // )  # use a non constant value so the repeated expression is not simplified
+    byte 0x00                                                                              (𝕡) values#0 | tmp%0#0,0x00
+    int 0                                                                                  (𝕡) values#0 | tmp%0#0,0x00,0
+    l-load tmp%0#0 2                                                                       (𝕡) values#0 | 0x00,0,tmp%0#0
+    setbit                                                                                 (𝕡) values#0 | val1#0
+    x-store val1#0                                                                         (𝕡) values#0 | (𝕏) val1#0 |
+    // regression_tests/issue_118.py:12
+    // if values.length != 2:
+    p-load values#0                                                                        (𝕡) values#0 | (𝕏) val1#0 | values#0 (copy)
+    int 0                                                                                  (𝕡) values#0 | (𝕏) val1#0 | values#0 (copy),0
+    extract_uint16                                                                         (𝕡) values#0 | (𝕏) val1#0 | tmp%1#0
+    int 2                                                                                  (𝕡) values#0 | (𝕏) val1#0 | tmp%1#0,2
+    !=                                                                                     (𝕡) values#0 | (𝕏) val1#0 | tmp%2#0
+    bz verify_after_if_else@2 ; b verify_if_body@1                                         (𝕡) values#0 | (𝕏) val1#0 |
+
+verify_if_body@1:                                                                          (𝕡) values#0 | (𝕏) val1#0 |
+    // regression_tests/issue_118.py:13
+    // return Tuple((val1, String("")))
+    x-load val1#0                                                                          (𝕡) values#0 | val1#0
+    byte 0x0003                                                                            (𝕡) values#0 | val1#0,0x0003
+    concat                                                                                 (𝕡) values#0 | encoded_tuple_buffer%2#0
+    byte 0x0000                                                                            (𝕡) values#0 | encoded_tuple_buffer%2#0,0x0000
+    concat                                                                                 (𝕡) values#0 | encoded_tuple_buffer%3#0
+    retsub                                                                                 encoded_tuple_buffer%3#0
+
+verify_after_if_else@2:                                                                    (𝕡) values#0 | (𝕏) val1#0 |
+    // regression_tests/issue_118.py:14
+    // return Tuple((val1, String("")))
+    x-load val1#0                                                                          (𝕡) values#0 | val1#0
+    byte 0x0003                                                                            (𝕡) values#0 | val1#0,0x0003
+    concat                                                                                 (𝕡) values#0 | encoded_tuple_buffer%6#0
+    byte 0x0000                                                                            (𝕡) values#0 | encoded_tuple_buffer%6#0,0x0000
+    concat                                                                                 (𝕡) values#0 | encoded_tuple_buffer%7#0
+    retsub                                                                                 encoded_tuple_buffer%7#0
+
+

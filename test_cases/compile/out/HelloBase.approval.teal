@@ -1,56 +1,34 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.compile.apps.HelloBase.approval_program:
-    intcblock 0 1
+// test_cases.compile.apps.HelloBase.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 1 0
     bytecblock "greeting"
     txn ApplicationID
     bnz main_after_if_else@2
-    callsub __init__
-
-main_after_if_else@2:
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.compile.apps.HelloBase.__init__() -> void:
-__init__:
-    // compile/apps.py:21
-    // def __init__(self) -> None:
-    proto 0 0
     // compile/apps.py:22
     // self.greeting = String()
     bytec_0 // "greeting"
     pushbytes ""
     app_global_put
-    retsub
 
-
-// test_cases.compile.apps.HelloBase.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_after_if_else@2:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@6
+    bz main_bare_routing@7
     pushbytess 0x24378d3c 0xd0a28200 // method "delete()void", method "greet(string)string"
     txna ApplicationArgs 0
-    match __puya_arc4_router___delete_route@2 __puya_arc4_router___greet_route@3
-    intc_0 // 0
-    retsub
+    match main_delete_route@5 main_greet_route@6
 
-__puya_arc4_router___delete_route@2:
-    // compile/apps.py:24
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    assert // OnCompletion is not DeleteApplication
-    txn ApplicationID
-    assert // can only call when not creating
-    intc_1 // 1
-    retsub
+main_after_if_else@10:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    intc_1 // 0
+    return
 
-__puya_arc4_router___greet_route@3:
+main_greet_route@6:
     // compile/apps.py:32
     // @arc4.abimethod()
     txn OnCompletion
@@ -75,20 +53,38 @@ __puya_arc4_router___greet_route@3:
     swap
     concat
     log
-    intc_1 // 1
-    retsub
+    intc_0 // 1
+    return
 
-__puya_arc4_router___bare_routing@6:
+main_delete_route@5:
+    // compile/apps.py:24
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    txn OnCompletion
+    pushint 5 // DeleteApplication
+    ==
+    assert // OnCompletion is not DeleteApplication
+    txn ApplicationID
+    assert // can only call when not creating
+    intc_0 // 1
+    return
+
+main_bare_routing@7:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
     pushint 4 // 4
-    intc_0 // 0
+    intc_1 // 0
     txn OnCompletion
-    match __puya_arc4_router___update@7 __puya_arc4_router_____algopy_default_create@8
-    intc_0 // 0
-    retsub
+    match main_update@8 main___algopy_default_create@9
+    b main_after_if_else@10
 
-__puya_arc4_router___update@7:
+main___algopy_default_create@9:
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return
+
+main_update@8:
     // compile/apps.py:28
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID
@@ -96,15 +92,8 @@ __puya_arc4_router___update@7:
     // compile/apps.py:28-29
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     // def update(self) -> None:
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router_____algopy_default_create@8:
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_1 // 1
-    retsub
+    intc_0 // 1
+    return
 
 
 // test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
@@ -115,7 +104,7 @@ greet:
     proto 1 1
     // compile/apps.py:34
     // return self.greeting + " " + name
-    intc_0 // 0
+    intc_1 // 0
     bytec_0 // "greeting"
     app_global_get_ex
     assert // check self.greeting exists

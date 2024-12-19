@@ -1,14 +1,11 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.control_op_simplification.contract.MyContract.approval_program:
+// test_cases.control_op_simplification.contract.MyContract.approval_program() -> uint64:
+main:
     pushint 0 // 0
     txn NumAppArgs
     switch main_switch_case_next@4 main_switch_case_0@1 main_switch_case_next@4 main_switch_case_0@1
-    b main_switch_case_next@4
-
-main_switch_case_0@1:
-    pushint 1 // 1
-    bury 1
 
 main_switch_case_next@4:
     dup
@@ -20,3 +17,8 @@ main_switch_case_next@4:
 main_after_if_else@6:
     pushint 1 // 1
     return
+
+main_switch_case_0@1:
+    pushint 1 // 1
+    bury 1
+    b main_switch_case_next@4

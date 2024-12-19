@@ -1,14 +1,18 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.abi_routing.contract.Reference.approval_program:
+// test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 0 1 8 2
     bytecblock 0x151f7c75 "asa" 0x 0x07 0x00000000000001c8
     txn ApplicationID
     bnz main_after_if_else@2
+
+main_call___init__@1:
     callsub __init__
 
 main_after_if_else@2:
-    callsub __puya_arc4_router__
+    callsub approval_program
     return
 
 
@@ -63,15 +67,21 @@ __init__:
     retsub
 
 
-// test_cases.abi_routing.contract.Reference.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+approval_program:
+    proto 0 1
+
+approval_program_block@1:
     // abi_routing/contract.py:22
     // class Reference(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@18
+    bz approval_program_bare_routing@19
+
+approval_program_abi_routing@2:
+    // abi_routing/contract.py:22
+    // class Reference(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xd78db35b // method "noop_with_uint64(uint64)uint8"
     pushbytes 0x3a5353fc // method "all_the_things(uint64)uint8"
@@ -88,11 +98,22 @@ __puya_arc4_router__:
     pushbytes 0xd17552fb // method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,asset,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],asset,pay,uint64,uint64)uint64"
     pushbytes 0x9023bb19 // method "hello_with_algopy_string(string)string"
     uncover 14
-    match __puya_arc4_router___noop_with_uint64_route@2 __puya_arc4_router___all_the_things_route@3 __puya_arc4_router___mixed_oca_route@4 __puya_arc4_router___opt_into_asset_route@5 __puya_arc4_router___with_transactions_route@6 __puya_arc4_router___compare_assets_route@7 __puya_arc4_router___get_address_route@8 __puya_arc4_router___get_asset_route@9 __puya_arc4_router___get_application_route@10 __puya_arc4_router___get_an_int_route@11 __puya_arc4_router___method_with_default_args_route@12 __puya_arc4_router___method_with_15_args_route@13 __puya_arc4_router___method_with_more_than_15_args_route@14 __puya_arc4_router___hello_with_algopy_string_route@15
-    b __puya_arc4_router___switch_case_default@16
+    match approval_program_noop_with_uint64_route@3 approval_program_all_the_things_route@4 approval_program_mixed_oca_route@5 approval_program_opt_into_asset_route@6 approval_program_with_transactions_route@7 approval_program_compare_assets_route@8 approval_program_get_address_route@9 approval_program_get_asset_route@10 approval_program_get_application_route@11 approval_program_get_an_int_route@12 approval_program_method_with_default_args_route@13 approval_program_method_with_15_args_route@14 approval_program_method_with_more_than_15_args_route@15 approval_program_hello_with_algopy_string_route@16
 
-__puya_arc4_router___noop_with_uint64_route@2:
-    // abi_routing/contract.py:32
+approval_program_switch_case_default@17:
+
+approval_program_switch_case_next@18:
+
+approval_program_after_if_else@23:
+    // abi_routing/contract.py:22
+    // class Reference(ARC4Contract):
+    intc_0 // 0
+
+approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@24:
+    retsub
+
+approval_program_hello_with_algopy_string_route@16:
+    // abi_routing/contract.py:270
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -105,377 +126,10 @@ __puya_arc4_router___noop_with_uint64_route@2:
     // abi_routing/contract.py:22
     // class Reference(ARC4Contract):
     txna ApplicationArgs 1
-    // abi_routing/contract.py:32
-    // @arc4.abimethod
-    callsub noop_with_uint64
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___all_the_things_route@3:
-    // abi_routing/contract.py:22
-    // class Reference(ARC4Contract):
-    txna ApplicationArgs 1
-    // abi_routing/contract.py:37-48
-    // @arc4.abimethod(
-    //     allow_actions=[
-    //         "NoOp",
-    //         OnCompleteAction.OptIn,
-    //         "CloseOut",
-    //         OnCompleteAction.UpdateApplication,
-    //         OnCompleteAction.DeleteApplication,
-    //     ],
-    //     name="all_the_things",
-    //     create="allow",
-    //     readonly=True,
-    // )
-    callsub full_abi_config
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___mixed_oca_route@4:
-    // abi_routing/contract.py:53-61
-    // @arc4.abimethod(
-    //     allow_actions=[
-    //         "NoOp",
-    //         "CloseOut",
-    //         "DeleteApplication",
-    //     ],
-    //     create="disallow",
-    //     readonly=True,
-    // )
-    txn OnCompletion
-    intc_1 // 1
-    swap
-    shl
-    pushint 37 // 37
-    &
-    assert // OnCompletion is not one of NoOp, CloseOut, DeleteApplication
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // abi_routing/contract.py:22
-    // class Reference(ARC4Contract):
-    txna ApplicationArgs 1
-    // abi_routing/contract.py:53-61
-    // @arc4.abimethod(
-    //     allow_actions=[
-    //         "NoOp",
-    //         "CloseOut",
-    //         "DeleteApplication",
-    //     ],
-    //     create="disallow",
-    //     readonly=True,
-    // )
-    callsub mixed_oca
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___opt_into_asset_route@5:
-    // abi_routing/contract.py:79
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // abi_routing/contract.py:22
-    // class Reference(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    txnas Assets
-    // abi_routing/contract.py:79
-    // @arc4.abimethod
-    callsub opt_into_asset
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___with_transactions_route@6:
-    // abi_routing/contract.py:96
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // abi_routing/contract.py:22
-    // class Reference(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    txnas Assets
-    txna ApplicationArgs 2
-    txn GroupIndex
-    intc_1 // 1
-    -
-    dup
-    gtxns TypeEnum
-    intc_1 // pay
-    ==
-    assert // transaction type is pay
-    txna ApplicationArgs 3
-    // abi_routing/contract.py:96
-    // @arc4.abimethod
-    uncover 3
-    uncover 3
-    uncover 3
-    uncover 3
-    callsub with_transactions
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___compare_assets_route@7:
-    // abi_routing/contract.py:109
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // abi_routing/contract.py:22
-    // class Reference(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    txnas Assets
-    txna ApplicationArgs 2
-    btoi
-    txnas Assets
-    // abi_routing/contract.py:109
-    // @arc4.abimethod
-    callsub compare_assets
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___get_address_route@8:
-    // abi_routing/contract.py:113
-    // @arc4.abimethod(readonly=True)
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub get_address
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___get_asset_route@9:
-    // abi_routing/contract.py:117
-    // @arc4.abimethod(readonly=True)
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub get_asset
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___get_application_route@10:
-    // abi_routing/contract.py:121
-    // @arc4.abimethod(readonly=True, name="get_application")
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub get_app
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___get_an_int_route@11:
-    // abi_routing/contract.py:125
-    // @arc4.abimethod(readonly=True, name="get_an_int")
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub get_a_int
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___method_with_default_args_route@12:
-    // abi_routing/contract.py:129-141
-    // @arc4.abimethod(
-    //     default_args={
-    //         "asset_from_storage": "asa",
-    //         "asset_from_function": get_asset,
-    //         "account_from_storage": "creator",
-    //         "account_from_function": "get_address",
-    //         "application_from_storage": "app",
-    //         "application_from_function": get_app,
-    //         "bytes_from_storage": "some_bytes",
-    //         "int_from_storage": "an_int",
-    //         "int_from_function": "get_a_int",
-    //     }
-    // )
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // abi_routing/contract.py:22
-    // class Reference(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    txnas Assets
-    txna ApplicationArgs 2
-    btoi
-    txnas Assets
-    txna ApplicationArgs 3
-    btoi
-    txnas Accounts
-    txna ApplicationArgs 4
-    btoi
-    txnas Accounts
-    txna ApplicationArgs 5
-    btoi
-    txnas Applications
-    txna ApplicationArgs 6
-    btoi
-    txnas Applications
-    txna ApplicationArgs 7
-    txna ApplicationArgs 8
-    txna ApplicationArgs 9
-    // abi_routing/contract.py:129-141
-    // @arc4.abimethod(
-    //     default_args={
-    //         "asset_from_storage": "asa",
-    //         "asset_from_function": get_asset,
-    //         "account_from_storage": "creator",
-    //         "account_from_function": "get_address",
-    //         "application_from_storage": "app",
-    //         "application_from_function": get_app,
-    //         "bytes_from_storage": "some_bytes",
-    //         "int_from_storage": "an_int",
-    //         "int_from_function": "get_a_int",
-    //     }
-    // )
-    uncover 8
-    uncover 8
-    uncover 8
-    uncover 8
-    uncover 8
-    uncover 8
-    uncover 8
-    uncover 8
-    uncover 8
-    callsub method_with_default_args
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___method_with_15_args_route@13:
-    // abi_routing/contract.py:166
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // abi_routing/contract.py:22
-    // class Reference(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    txna ApplicationArgs 2
-    btoi
-    txna ApplicationArgs 3
-    btoi
-    txna ApplicationArgs 4
-    btoi
-    txna ApplicationArgs 5
-    btoi
-    txna ApplicationArgs 6
-    btoi
-    txna ApplicationArgs 7
-    btoi
-    txna ApplicationArgs 8
-    btoi
-    txna ApplicationArgs 9
-    btoi
-    txna ApplicationArgs 10
-    btoi
-    txna ApplicationArgs 11
-    btoi
-    txna ApplicationArgs 12
-    btoi
-    txna ApplicationArgs 13
-    btoi
-    txna ApplicationArgs 14
-    btoi
-    txna ApplicationArgs 15
     extract 2 0
-    // abi_routing/contract.py:166
+    // abi_routing/contract.py:270
     // @arc4.abimethod
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    callsub method_with_15_args
+    callsub hello_with_algopy_string
     dup
     len
     itob
@@ -487,9 +141,9 @@ __puya_arc4_router___method_with_15_args_route@13:
     concat
     log
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@24
 
-__puya_arc4_router___method_with_more_than_15_args_route@14:
+approval_program_method_with_more_than_15_args_route@15:
     // abi_routing/contract.py:204
     // @arc4.abimethod
     txn OnCompletion
@@ -629,10 +283,10 @@ __puya_arc4_router___method_with_more_than_15_args_route@14:
     concat
     log
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@24
 
-__puya_arc4_router___hello_with_algopy_string_route@15:
-    // abi_routing/contract.py:270
+approval_program_method_with_15_args_route@14:
+    // abi_routing/contract.py:166
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -645,10 +299,53 @@ __puya_arc4_router___hello_with_algopy_string_route@15:
     // abi_routing/contract.py:22
     // class Reference(ARC4Contract):
     txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    btoi
+    txna ApplicationArgs 3
+    btoi
+    txna ApplicationArgs 4
+    btoi
+    txna ApplicationArgs 5
+    btoi
+    txna ApplicationArgs 6
+    btoi
+    txna ApplicationArgs 7
+    btoi
+    txna ApplicationArgs 8
+    btoi
+    txna ApplicationArgs 9
+    btoi
+    txna ApplicationArgs 10
+    btoi
+    txna ApplicationArgs 11
+    btoi
+    txna ApplicationArgs 12
+    btoi
+    txna ApplicationArgs 13
+    btoi
+    txna ApplicationArgs 14
+    btoi
+    txna ApplicationArgs 15
     extract 2 0
-    // abi_routing/contract.py:270
+    // abi_routing/contract.py:166
     // @arc4.abimethod
-    callsub hello_with_algopy_string
+    uncover 14
+    uncover 14
+    uncover 14
+    uncover 14
+    uncover 14
+    uncover 14
+    uncover 14
+    uncover 14
+    uncover 14
+    uncover 14
+    uncover 14
+    uncover 14
+    uncover 14
+    uncover 14
+    uncover 14
+    callsub method_with_15_args
     dup
     len
     itob
@@ -660,12 +357,333 @@ __puya_arc4_router___hello_with_algopy_string_route@15:
     concat
     log
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@24
 
-__puya_arc4_router___switch_case_default@16:
-    b __puya_arc4_router___after_if_else@22
+approval_program_method_with_default_args_route@13:
+    // abi_routing/contract.py:129-141
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //     }
+    // )
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // abi_routing/contract.py:22
+    // class Reference(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    txna ApplicationArgs 2
+    btoi
+    txnas Assets
+    txna ApplicationArgs 3
+    btoi
+    txnas Accounts
+    txna ApplicationArgs 4
+    btoi
+    txnas Accounts
+    txna ApplicationArgs 5
+    btoi
+    txnas Applications
+    txna ApplicationArgs 6
+    btoi
+    txnas Applications
+    txna ApplicationArgs 7
+    txna ApplicationArgs 8
+    txna ApplicationArgs 9
+    // abi_routing/contract.py:129-141
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //     }
+    // )
+    uncover 8
+    uncover 8
+    uncover 8
+    uncover 8
+    uncover 8
+    uncover 8
+    uncover 8
+    uncover 8
+    uncover 8
+    callsub method_with_default_args
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@24
 
-__puya_arc4_router___bare_routing@18:
+approval_program_get_an_int_route@12:
+    // abi_routing/contract.py:125
+    // @arc4.abimethod(readonly=True, name="get_an_int")
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub get_a_int
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@24
+
+approval_program_get_application_route@11:
+    // abi_routing/contract.py:121
+    // @arc4.abimethod(readonly=True, name="get_application")
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub get_app
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@24
+
+approval_program_get_asset_route@10:
+    // abi_routing/contract.py:117
+    // @arc4.abimethod(readonly=True)
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub get_asset
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@24
+
+approval_program_get_address_route@9:
+    // abi_routing/contract.py:113
+    // @arc4.abimethod(readonly=True)
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub get_address
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@24
+
+approval_program_compare_assets_route@8:
+    // abi_routing/contract.py:109
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // abi_routing/contract.py:22
+    // class Reference(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    txna ApplicationArgs 2
+    btoi
+    txnas Assets
+    // abi_routing/contract.py:109
+    // @arc4.abimethod
+    callsub compare_assets
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@24
+
+approval_program_with_transactions_route@7:
+    // abi_routing/contract.py:96
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // abi_routing/contract.py:22
+    // class Reference(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    txna ApplicationArgs 2
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 3
+    // abi_routing/contract.py:96
+    // @arc4.abimethod
+    uncover 3
+    uncover 3
+    uncover 3
+    uncover 3
+    callsub with_transactions
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@24
+
+approval_program_opt_into_asset_route@6:
+    // abi_routing/contract.py:79
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // abi_routing/contract.py:22
+    // class Reference(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    // abi_routing/contract.py:79
+    // @arc4.abimethod
+    callsub opt_into_asset
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@24
+
+approval_program_mixed_oca_route@5:
+    // abi_routing/contract.py:53-61
+    // @arc4.abimethod(
+    //     allow_actions=[
+    //         "NoOp",
+    //         "CloseOut",
+    //         "DeleteApplication",
+    //     ],
+    //     create="disallow",
+    //     readonly=True,
+    // )
+    txn OnCompletion
+    intc_1 // 1
+    swap
+    shl
+    pushint 37 // 37
+    &
+    assert // OnCompletion is not one of NoOp, CloseOut, DeleteApplication
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // abi_routing/contract.py:22
+    // class Reference(ARC4Contract):
+    txna ApplicationArgs 1
+    // abi_routing/contract.py:53-61
+    // @arc4.abimethod(
+    //     allow_actions=[
+    //         "NoOp",
+    //         "CloseOut",
+    //         "DeleteApplication",
+    //     ],
+    //     create="disallow",
+    //     readonly=True,
+    // )
+    callsub mixed_oca
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@24
+
+approval_program_all_the_things_route@4:
+    // abi_routing/contract.py:22
+    // class Reference(ARC4Contract):
+    txna ApplicationArgs 1
+    // abi_routing/contract.py:37-48
+    // @arc4.abimethod(
+    //     allow_actions=[
+    //         "NoOp",
+    //         OnCompleteAction.OptIn,
+    //         "CloseOut",
+    //         OnCompleteAction.UpdateApplication,
+    //         OnCompleteAction.DeleteApplication,
+    //     ],
+    //     name="all_the_things",
+    //     create="allow",
+    //     readonly=True,
+    // )
+    callsub full_abi_config
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@24
+
+approval_program_noop_with_uint64_route@3:
+    // abi_routing/contract.py:32
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // abi_routing/contract.py:22
+    // class Reference(ARC4Contract):
+    txna ApplicationArgs 1
+    // abi_routing/contract.py:32
+    // @arc4.abimethod
+    callsub noop_with_uint64
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@24
+
+approval_program_bare_routing@19:
     // abi_routing/contract.py:22
     // class Reference(ARC4Contract):
     txn OnCompletion
@@ -675,10 +693,14 @@ __puya_arc4_router___bare_routing@18:
     pushint 4 // 4
     pushint 5 // 5
     uncover 5
-    match __puya_arc4_router___bare_abi_config@19 __puya_arc4_router___bare_abi_config@19 __puya_arc4_router___bare_abi_config@19 __puya_arc4_router___bare_abi_config@19 __puya_arc4_router___bare_abi_config@19
-    b __puya_arc4_router___switch_case_default@20
+    match approval_program_bare_abi_config@20 approval_program_bare_abi_config@20 approval_program_bare_abi_config@20 approval_program_bare_abi_config@20 approval_program_bare_abi_config@20
 
-__puya_arc4_router___bare_abi_config@19:
+approval_program_switch_case_default@21:
+
+approval_program_switch_case_next@22:
+    b approval_program_after_if_else@23
+
+approval_program_bare_abi_config@20:
     // abi_routing/contract.py:66-75
     // @arc4.baremethod(
     //     allow_actions=[
@@ -708,15 +730,7 @@ __puya_arc4_router___bare_abi_config@19:
     // def bare_abi_config(self) -> None:
     callsub bare_abi_config
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@20:
-
-__puya_arc4_router___after_if_else@22:
-    // abi_routing/contract.py:22
-    // class Reference(ARC4Contract):
-    intc_0 // 0
-    retsub
+    b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@24
 
 
 // test_cases.abi_routing.contract.Reference.noop_with_uint64(a: bytes) -> bytes:

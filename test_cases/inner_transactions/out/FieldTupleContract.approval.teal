@@ -1,38 +1,25 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 5 6 1
     bytecblock 0x098101 0x3161 0x3261 0x646966666572656e7420706172616d20736574 0x68656c6c6f 0x776f726c64 0x3361 0x3461 0x3561 0x3362 0x3462 0x3562 0x3162 0x3262 0x3163 0x3263 0x3363 0x3463 0x3563
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
     // inner_transactions/field_tuple_assignment.py:24
     // class FieldTupleContract(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@6
+    bz main_bare_routing@7
     pushbytess 0x1ca2c07e 0xec6cd0a8 // method "test_assign_tuple()void", method "test_assign_tuple_mixed()void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___test_assign_tuple_route@2 __puya_arc4_router___test_assign_tuple_mixed_route@3
+    match main_test_assign_tuple_route@3 main_test_assign_tuple_mixed_route@4
+
+main_after_if_else@11:
+    // inner_transactions/field_tuple_assignment.py:24
+    // class FieldTupleContract(ARC4Contract):
     intc_0 // 0
-    retsub
+    return
 
-__puya_arc4_router___test_assign_tuple_route@2:
-    // inner_transactions/field_tuple_assignment.py:25
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub test_assign_tuple
-    intc_3 // 1
-    retsub
-
-__puya_arc4_router___test_assign_tuple_mixed_route@3:
+main_test_assign_tuple_mixed_route@4:
     // inner_transactions/field_tuple_assignment.py:85
     // @arc4.abimethod
     txn OnCompletion
@@ -42,24 +29,30 @@ __puya_arc4_router___test_assign_tuple_mixed_route@3:
     assert // can only call when not creating
     callsub test_assign_tuple_mixed
     intc_3 // 1
-    retsub
+    return
 
-__puya_arc4_router___bare_routing@6:
+main_test_assign_tuple_route@3:
+    // inner_transactions/field_tuple_assignment.py:25
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub test_assign_tuple
+    intc_3 // 1
+    return
+
+main_bare_routing@7:
     // inner_transactions/field_tuple_assignment.py:24
     // class FieldTupleContract(ARC4Contract):
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@10
+    bnz main_after_if_else@11
     txn ApplicationID
     !
     assert // can only call when creating
     intc_3 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@10:
-    // inner_transactions/field_tuple_assignment.py:24
-    // class FieldTupleContract(ARC4Contract):
-    intc_0 // 0
-    retsub
+    return
 
 
 // test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple() -> void:

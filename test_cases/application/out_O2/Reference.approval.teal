@@ -1,30 +1,10 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.application.contract.Reference.approval_program:
+// test_cases.application.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
+main:
     txn ApplicationID
     bnz main_after_if_else@2
-    callsub __init__
-
-main_after_if_else@2:
-    txn NumAppArgs
-    pushint 1 // 1
-    ==
-    bz main_after_if_else@7
-    txna ApplicationArgs 0
-    pushbytes 0x76616c6964617465
-    ==
-    assert // Expected validate
-    global CurrentApplicationID
-    callsub validate_asset
-
-main_after_if_else@7:
-    pushint 1 // 1
-    return
-
-
-// test_cases.application.contract.Reference.__init__() -> void:
-__init__:
-    proto 0 0
     pushbytes "int_1"
     pushint 0 // 0
     app_global_put
@@ -32,65 +12,72 @@ __init__:
     app_global_put
     pushbytess "bytes_2" 0x // "bytes_2", 0x
     app_global_put
-    retsub
 
-
-// test_cases.application.contract.Reference.validate_asset(app: uint64) -> void:
-validate_asset:
-    proto 1 0
+main_after_if_else@2:
+    txn NumAppArgs
+    pushint 1 // 1
+    ==
+    bz main_after_if_else@8
+    txna ApplicationArgs 0
+    pushbytes 0x76616c6964617465
+    ==
+    assert // Expected validate
+    global CurrentApplicationID
     txn Sender
-    frame_dig -1
+    dig 1
     app_opted_in
     !
     assert // app opted in
-    frame_dig -1
+    dup
     app_params_get AppCreator
     assert // application exists
     global CreatorAddress
     ==
     assert // expected creator
-    frame_dig -1
+    dup
     app_params_get AppGlobalNumUint
     assert // application exists
     pushint 1 // 1
     ==
     assert // expected global_num_uint
-    frame_dig -1
+    dup
     app_params_get AppGlobalNumByteSlice
     assert // application exists
     pushint 2 // 2
     ==
     assert // expected global_num_bytes
-    frame_dig -1
+    dup
     app_params_get AppLocalNumUint
     assert // application exists
     pushint 3 // 3
     ==
     assert // expected local_num_uint
-    frame_dig -1
+    dup
     app_params_get AppLocalNumByteSlice
     assert // application exists
     pushint 4 // 4
     ==
     assert // expected local_num_bytes
-    frame_dig -1
+    dup
     app_params_get AppApprovalProgram
     assert // application exists
     len
     assert // expected approval_program
-    frame_dig -1
+    dup
     app_params_get AppClearStateProgram
     assert // application exists
     len
     assert // expected clear_state_program
-    frame_dig -1
+    dup
     global CurrentApplicationID
     ==
     assert // expected current_application_id
-    frame_dig -1
     app_params_get AppAddress
     assert // application exists
     global CurrentApplicationAddress
     ==
     assert // expected current_application_address
-    retsub
+
+main_after_if_else@8:
+    pushint 1 // 1
+    return

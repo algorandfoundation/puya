@@ -1,20 +1,14 @@
 #pragma version 10
+#pragma typetrack false
 
-examples.auction.contract.Auction.approval_program:
+// examples.auction.contract.Auction.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 0 1 4
     bytecblock "auction_end" "previous_bid" "previous_bidder" "asa_amount" "asa" "claim"
+    pushbytes ""
+    dup
     txn ApplicationID
     bnz main_after_if_else@2
-    callsub __init__
-
-main_after_if_else@2:
-    callsub __puya_arc4_router__
-    return
-
-
-// examples.auction.contract.Auction.__init__() -> void:
-__init__:
-    proto 0 0
     bytec_0 // "auction_end"
     intc_0 // 0
     app_global_put
@@ -30,21 +24,19 @@ __init__:
     bytec_2 // "previous_bidder"
     global ZeroAddress
     app_global_put
-    retsub
 
-
-// examples.auction.contract.Auction.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    proto 0 1
+main_after_if_else@2:
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@10
+    bz main_bare_routing@13
     pushbytess 0x2826b202 0xf0aa7023 0x30c6d58a 0xdb7fe843 0xe654625b 0x1ec12bef // method "opt_into_asset(asset)void", method "start_auction(uint64,uint64,axfer)void", method "opt_in()void", method "bid(pay)void", method "claim_bids()void", method "claim_asset(asset)void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___opt_into_asset_route@2 __puya_arc4_router___start_auction_route@3 __puya_arc4_router___opt_in_route@4 __puya_arc4_router___bid_route@5 __puya_arc4_router___claim_bids_route@6 __puya_arc4_router___claim_asset_route@7
-    intc_0 // 0
-    retsub
+    match main_opt_into_asset_route@5 main_start_auction_route@6 main_opt_in_route@7 main_bid_route@8 main_claim_bids_route@9 main_claim_asset_route@12
 
-__puya_arc4_router___opt_into_asset_route@2:
+main_after_if_else@15:
+    intc_0 // 0
+    return
+
+main_claim_asset_route@12:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -53,250 +45,6 @@ __puya_arc4_router___opt_into_asset_route@2:
     txna ApplicationArgs 1
     btoi
     txnas Assets
-    callsub opt_into_asset
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___start_auction_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    btoi
-    txna ApplicationArgs 2
-    btoi
-    txn GroupIndex
-    intc_1 // 1
-    -
-    dup
-    gtxns TypeEnum
-    intc_2 // axfer
-    ==
-    assert // transaction type is axfer
-    callsub start_auction
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___opt_in_route@4:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___bid_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txn GroupIndex
-    intc_1 // 1
-    -
-    dup
-    gtxns TypeEnum
-    intc_1 // pay
-    ==
-    assert // transaction type is pay
-    callsub bid
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___claim_bids_route@6:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub claim_bids
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___claim_asset_route@7:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    btoi
-    txnas Assets
-    callsub claim_asset
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___bare_routing@10:
-    txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@14
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@14:
-    intc_0 // 0
-    retsub
-
-
-// examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> void:
-opt_into_asset:
-    proto 1 0
-    txn Sender
-    global CreatorAddress
-    ==
-    assert // Only creator can opt in to ASA
-    intc_0 // 0
-    bytec 4 // "asa"
-    app_global_get_ex
-    assert // check self.asa exists
-    !
-    assert // ASA already opted in
-    bytec 4 // "asa"
-    frame_dig -1
-    app_global_put
-    itxn_begin
-    global CurrentApplicationAddress
-    frame_dig -1
-    itxn_field XferAsset
-    itxn_field AssetReceiver
-    intc_2 // axfer
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    retsub
-
-
-// examples.auction.contract.Auction.start_auction(starting_price: uint64, length: uint64, axfer: uint64) -> void:
-start_auction:
-    proto 3 0
-    txn Sender
-    global CreatorAddress
-    ==
-    assert // auction must be started by creator
-    intc_0 // 0
-    bytec_0 // "auction_end"
-    app_global_get_ex
-    assert // check self.auction_end exists
-    !
-    assert // auction already started
-    frame_dig -1
-    gtxns AssetReceiver
-    global CurrentApplicationAddress
-    ==
-    assert // axfer must transfer to this app
-    frame_dig -1
-    gtxns AssetAmount
-    bytec_3 // "asa_amount"
-    swap
-    app_global_put
-    global LatestTimestamp
-    frame_dig -2
-    +
-    bytec_0 // "auction_end"
-    swap
-    app_global_put
-    bytec_1 // "previous_bid"
-    frame_dig -3
-    app_global_put
-    retsub
-
-
-// examples.auction.contract.Auction.bid(pay: uint64) -> void:
-bid:
-    proto 1 0
-    global LatestTimestamp
-    intc_0 // 0
-    bytec_0 // "auction_end"
-    app_global_get_ex
-    assert // check self.auction_end exists
-    <
-    assert // auction has ended
-    frame_dig -1
-    gtxns Sender
-    dup
-    txn Sender
-    ==
-    assert // payment sender must match transaction sender
-    frame_dig -1
-    gtxns Amount
-    intc_0 // 0
-    bytec_1 // "previous_bid"
-    app_global_get_ex
-    assert // check self.previous_bid exists
-    dig 1
-    <
-    assert // Bid must be higher than previous bid
-    bytec_1 // "previous_bid"
-    dig 1
-    app_global_put
-    bytec_2 // "previous_bidder"
-    uncover 2
-    app_global_put
-    txn Sender
-    bytec 5 // "claim"
-    uncover 2
-    app_local_put
-    retsub
-
-
-// examples.auction.contract.Auction.claim_bids() -> void:
-claim_bids:
-    proto 0 0
-    txn Sender
-    intc_0 // 0
-    bytec 5 // "claim"
-    app_local_get_ex
-    swap
-    dup
-    uncover 2
-    assert // check self.claimable_amount exists for account
-    txn Sender
-    intc_0 // 0
-    bytec_2 // "previous_bidder"
-    app_global_get_ex
-    assert // check self.previous_bidder exists
-    ==
-    bz claim_bids_after_if_else@2
-    intc_0 // 0
-    bytec_1 // "previous_bid"
-    app_global_get_ex
-    assert // check self.previous_bid exists
-    frame_dig 0
-    swap
-    -
-    frame_bury 1
-
-claim_bids_after_if_else@2:
-    itxn_begin
-    txn Sender
-    itxn_field Receiver
-    frame_dig 1
-    dup
-    itxn_field Amount
-    intc_1 // pay
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    txn Sender
-    frame_dig 0
-    uncover 2
-    -
-    bytec 5 // "claim"
-    swap
-    app_local_put
-    retsub
-
-
-// examples.auction.contract.Auction.claim_asset(asset: uint64) -> void:
-claim_asset:
-    proto 1 0
     global LatestTimestamp
     intc_0 // 0
     bytec_0 // "auction_end"
@@ -320,11 +68,215 @@ claim_asset:
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field AssetCloseTo
-    frame_dig -1
     itxn_field XferAsset
     intc_2 // axfer
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    retsub
+    intc_1 // 1
+    return
+
+main_claim_bids_route@9:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txn Sender
+    intc_0 // 0
+    bytec 5 // "claim"
+    app_local_get_ex
+    swap
+    dup
+    cover 2
+    bury 3
+    assert // check self.claimable_amount exists for account
+    txn Sender
+    intc_0 // 0
+    bytec_2 // "previous_bidder"
+    app_global_get_ex
+    assert // check self.previous_bidder exists
+    ==
+    swap
+    bury 3
+    bz main_after_if_else@11
+    intc_0 // 0
+    bytec_1 // "previous_bid"
+    app_global_get_ex
+    assert // check self.previous_bid exists
+    dig 1
+    swap
+    -
+    bury 2
+
+main_after_if_else@11:
+    itxn_begin
+    txn Sender
+    itxn_field Receiver
+    dig 1
+    dup
+    itxn_field Amount
+    intc_1 // pay
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    txn Sender
+    dig 2
+    uncover 2
+    -
+    bytec 5 // "claim"
+    swap
+    app_local_put
+    intc_1 // 1
+    return
+
+main_bid_route@8:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    global LatestTimestamp
+    intc_0 // 0
+    bytec_0 // "auction_end"
+    app_global_get_ex
+    assert // check self.auction_end exists
+    <
+    assert // auction has ended
+    dup
+    gtxns Sender
+    dup
+    txn Sender
+    ==
+    assert // payment sender must match transaction sender
+    swap
+    gtxns Amount
+    intc_0 // 0
+    bytec_1 // "previous_bid"
+    app_global_get_ex
+    assert // check self.previous_bid exists
+    dig 1
+    <
+    assert // Bid must be higher than previous bid
+    bytec_1 // "previous_bid"
+    dig 1
+    app_global_put
+    bytec_2 // "previous_bidder"
+    uncover 2
+    app_global_put
+    txn Sender
+    bytec 5 // "claim"
+    uncover 2
+    app_local_put
+    intc_1 // 1
+    return
+
+main_opt_in_route@7:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    intc_1 // 1
+    return
+
+main_start_auction_route@6:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    btoi
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_2 // axfer
+    ==
+    assert // transaction type is axfer
+    txn Sender
+    global CreatorAddress
+    ==
+    assert // auction must be started by creator
+    intc_0 // 0
+    bytec_0 // "auction_end"
+    app_global_get_ex
+    assert // check self.auction_end exists
+    !
+    assert // auction already started
+    dup
+    gtxns AssetReceiver
+    global CurrentApplicationAddress
+    ==
+    assert // axfer must transfer to this app
+    gtxns AssetAmount
+    bytec_3 // "asa_amount"
+    swap
+    app_global_put
+    global LatestTimestamp
+    +
+    bytec_0 // "auction_end"
+    swap
+    app_global_put
+    bytec_1 // "previous_bid"
+    swap
+    app_global_put
+    intc_1 // 1
+    return
+
+main_opt_into_asset_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    txn Sender
+    global CreatorAddress
+    ==
+    assert // Only creator can opt in to ASA
+    intc_0 // 0
+    bytec 4 // "asa"
+    app_global_get_ex
+    assert // check self.asa exists
+    !
+    assert // ASA already opted in
+    bytec 4 // "asa"
+    dig 1
+    app_global_put
+    itxn_begin
+    global CurrentApplicationAddress
+    itxn_field AssetReceiver
+    itxn_field XferAsset
+    intc_2 // axfer
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    intc_1 // 1
+    return
+
+main_bare_routing@13:
+    txn OnCompletion
+    bnz main_after_if_else@15
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_1 // 1
+    return

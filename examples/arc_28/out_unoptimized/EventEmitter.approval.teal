@@ -1,50 +1,41 @@
 #pragma version 10
+#pragma typetrack false
 
-examples.arc_28.contract.EventEmitter.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1
     bytecblock 0x 0x1ccbd925
-    callsub __puya_arc4_router__
-    return
 
-
-// examples.arc_28.contract.EventEmitter.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_block@1:
     // arc_28/contract.py:11
     // class EventEmitter(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@6
+    bz main_bare_routing@7
+
+main_abi_routing@2:
+    // arc_28/contract.py:11
+    // class EventEmitter(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x0a9542cd // method "emit_swapped(uint64,uint64)void"
     pushbytes 0x71a3151f // method "emit_ufixed(ufixed256x16,ufixed64x2)void"
     uncover 2
-    match __puya_arc4_router___emit_swapped_route@2 __puya_arc4_router___emit_ufixed_route@3
-    b __puya_arc4_router___switch_case_default@4
+    match main_emit_swapped_route@3 main_emit_ufixed_route@4
 
-__puya_arc4_router___emit_swapped_route@2:
-    // arc_28/contract.py:12
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
+main_switch_case_default@5:
+
+main_switch_case_next@6:
+
+main_after_if_else@11:
     // arc_28/contract.py:11
     // class EventEmitter(ARC4Contract):
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    // arc_28/contract.py:12
-    // @arc4.abimethod
-    callsub emit_swapped
-    intc_1 // 1
-    retsub
+    intc_0 // 0
 
-__puya_arc4_router___emit_ufixed_route@3:
+main_after_inlined_examples.arc_28.contract.EventEmitter.__puya_arc4_router__@12:
+    return
+
+main_emit_ufixed_route@4:
     // arc_28/contract.py:18
     // @arc4.abimethod()
     txn OnCompletion
@@ -63,36 +54,53 @@ __puya_arc4_router___emit_ufixed_route@3:
     // @arc4.abimethod()
     callsub emit_ufixed
     intc_1 // 1
-    retsub
+    b main_after_inlined_examples.arc_28.contract.EventEmitter.__puya_arc4_router__@12
 
-__puya_arc4_router___switch_case_default@4:
-    b __puya_arc4_router___after_if_else@10
+main_emit_swapped_route@3:
+    // arc_28/contract.py:12
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // arc_28/contract.py:11
+    // class EventEmitter(ARC4Contract):
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    // arc_28/contract.py:12
+    // @arc4.abimethod
+    callsub emit_swapped
+    intc_1 // 1
+    b main_after_inlined_examples.arc_28.contract.EventEmitter.__puya_arc4_router__@12
 
-__puya_arc4_router___bare_routing@6:
+main_bare_routing@7:
     // arc_28/contract.py:11
     // class EventEmitter(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@7
-    b __puya_arc4_router___switch_case_default@8
+    match main___algopy_default_create@8
 
-__puya_arc4_router_____algopy_default_create@7:
+main_switch_case_default@9:
+
+main_switch_case_next@10:
+    b main_after_if_else@11
+
+main___algopy_default_create@8:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+main_block@13:
+
+main_after_inlined_examples.arc_28.contract.EventEmitter.__algopy_default_create@14:
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@8:
-
-__puya_arc4_router___after_if_else@10:
-    // arc_28/contract.py:11
-    // class EventEmitter(ARC4Contract):
-    intc_0 // 0
-    retsub
+    b main_after_inlined_examples.arc_28.contract.EventEmitter.__puya_arc4_router__@12
 
 
 // examples.arc_28.contract.EventEmitter.emit_swapped(a: bytes, b: bytes) -> void:
@@ -158,10 +166,4 @@ emit_ufixed:
     swap
     concat
     log
-    retsub
-
-
-// examples.arc_28.contract.EventEmitter.__algopy_default_create() -> void:
-__algopy_default_create:
-    proto 0 0
     retsub

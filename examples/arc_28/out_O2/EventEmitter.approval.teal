@@ -1,23 +1,19 @@
 #pragma version 10
+#pragma typetrack false
 
-examples.arc_28.contract.EventEmitter.approval_program:
-    intcblock 1 0
-    callsub __puya_arc4_router__
-    return
-
-
-// examples.arc_28.contract.EventEmitter.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    proto 0 1
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@6
+    bz main_bare_routing@7
     pushbytess 0x0a9542cd 0x71a3151f // method "emit_swapped(uint64,uint64)void", method "emit_ufixed(ufixed256x16,ufixed64x2)void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___emit_swapped_route@2 __puya_arc4_router___emit_ufixed_route@3
-    intc_1 // 0
-    retsub
+    match main_emit_swapped_route@3 main_emit_ufixed_route@4
 
-__puya_arc4_router___emit_swapped_route@2:
+main_after_if_else@11:
+    pushint 0 // 0
+    return
+
+main_emit_ufixed_route@4:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -25,41 +21,22 @@ __puya_arc4_router___emit_swapped_route@2:
     assert // can only call when not creating
     txna ApplicationArgs 1
     txna ApplicationArgs 2
-    callsub emit_swapped
-    intc_0 // 1
-    retsub
+    concat
+    pushbytes 0x7389b1ba // method "AnEvent(ufixed256x16,ufixed64x2)"
+    swap
+    concat
+    log
+    pushint 1 // 1
+    return
 
-__puya_arc4_router___emit_ufixed_route@3:
+main_emit_swapped_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    txna ApplicationArgs 1
     txna ApplicationArgs 2
-    callsub emit_ufixed
-    intc_0 // 1
-    retsub
-
-__puya_arc4_router___bare_routing@6:
-    txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@10
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_0 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@10:
-    intc_1 // 0
-    retsub
-
-
-// examples.arc_28.contract.EventEmitter.emit_swapped(a: bytes, b: bytes) -> void:
-emit_swapped:
-    proto 2 0
-    frame_dig -1
-    frame_dig -2
+    txna ApplicationArgs 1
     concat
     pushbytes 0x1ccbd925 // method "Swapped(uint64,uint64)"
     swap
@@ -69,17 +46,14 @@ emit_swapped:
     dup
     log
     log
-    retsub
+    pushint 1 // 1
+    return
 
-
-// examples.arc_28.contract.EventEmitter.emit_ufixed(a: bytes, b: bytes) -> void:
-emit_ufixed:
-    proto 2 0
-    frame_dig -2
-    frame_dig -1
-    concat
-    pushbytes 0x7389b1ba // method "AnEvent(ufixed256x16,ufixed64x2)"
-    swap
-    concat
-    log
-    retsub
+main_bare_routing@7:
+    txn OnCompletion
+    bnz main_after_if_else@11
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    pushint 1 // 1
+    return

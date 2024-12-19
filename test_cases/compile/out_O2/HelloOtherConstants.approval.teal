@@ -1,73 +1,37 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.compile.apps.HelloOtherConstants.approval_program:
+// test_cases.compile.apps.HelloOtherConstants.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 0 1
-    bytecblock "greeting" "num" "address" "method" 0x151f7c75 TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
+    bytecblock "greeting" "num" "address" "method" TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
     txn ApplicationID
     bnz main_after_if_else@2
-    callsub __init__
-
-main_after_if_else@2:
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.compile.apps.HelloOtherConstants.__init__() -> void:
-__init__:
-    proto 0 0
     bytec_0 // "greeting"
-    bytec 5 // TMPL_GREETING
+    bytec 4 // TMPL_GREETING
     app_global_put
     bytec_1 // "num"
-    bytec 6 // TMPL_NUM
+    bytec 5 // TMPL_NUM
     app_global_put
     bytec_2 // "address"
-    bytec 7 // TMPL_ACCOUNT
+    bytec 6 // TMPL_ACCOUNT
     app_global_put
     bytec_3 // "method"
-    bytec 8 // TMPL_METHOD
+    bytec 7 // TMPL_METHOD
     app_global_put
-    retsub
 
-
-// test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    proto 0 1
+main_after_if_else@2:
     txn NumAppArgs
-    bz __puya_arc4_router___after_if_else@8
+    bz main_after_if_else@8
     pushbytess 0xd9285a74 0x24378d3c 0x5b0c2375 // method "create()uint64", method "delete()void", method "greet(string)byte[]"
     txna ApplicationArgs 0
-    match __puya_arc4_router___create_route@2 __puya_arc4_router___delete_route@3 __puya_arc4_router___greet_route@4
+    match main_create_route@5 main_delete_route@6 main_greet_route@7
+
+main_after_if_else@8:
     intc_0 // 0
-    retsub
+    return
 
-__puya_arc4_router___create_route@2:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    callsub create
-    itob
-    bytec 4 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___delete_route@3:
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    assert // OnCompletion is not DeleteApplication
-    txn ApplicationID
-    assert // can only call when not creating
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___greet_route@4:
+main_greet_route@7:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -75,35 +39,6 @@ __puya_arc4_router___greet_route@4:
     assert // can only call when not creating
     txna ApplicationArgs 1
     extract 2 0
-    callsub greet
-    dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
-    bytec 4 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@8:
-    intc_0 // 0
-    retsub
-
-
-// test_cases.compile.apps.HelloOtherConstants.create() -> uint64:
-create:
-    proto 0 1
-    intc_1 // 1
-    retsub
-
-
-// test_cases.compile.apps.HelloOtherConstants.greet(name: bytes) -> bytes:
-greet:
-    proto 1 1
     intc_0 // 0
     bytec_1 // "num"
     app_global_get_ex
@@ -122,7 +57,7 @@ greet:
     assert // check self.greeting exists
     pushbytes 0x20
     concat
-    frame_dig -1
+    uncover 2
     concat
     swap
     concat
@@ -136,4 +71,37 @@ greet:
     app_global_get_ex
     assert // check self.method exists
     concat
-    retsub
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_delete_route@6:
+    txn OnCompletion
+    pushint 5 // DeleteApplication
+    ==
+    assert // OnCompletion is not DeleteApplication
+    txn ApplicationID
+    assert // can only call when not creating
+    intc_1 // 1
+    return
+
+main_create_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    pushbytes 0x151f7c750000000000000001
+    log
+    intc_1 // 1
+    return

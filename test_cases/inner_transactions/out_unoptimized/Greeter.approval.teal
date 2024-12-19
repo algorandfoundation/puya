@@ -1,14 +1,18 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.inner_transactions.c2c.Greeter.approval_program:
+// test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init() -> uint64:
+main:
     intcblock 0 1 6
     bytecblock "hello_app" 0x151f7c75
     txn ApplicationID
     bnz main_after_if_else@2
+
+main_call___init__@1:
     callsub __init__
 
 main_after_if_else@2:
-    callsub __puya_arc4_router__
+    callsub approval_program
     return
 
 
@@ -25,43 +29,40 @@ __init__:
     retsub
 
 
-// test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+approval_program:
+    proto 0 1
+
+approval_program_block@1:
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@6
+    bz approval_program_bare_routing@7
+
+approval_program_abi_routing@2:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x786b6291 // method "bootstrap()uint64"
     pushbytes 0x33fb5d48 // method "log_greetings(string)void"
     uncover 2
-    match __puya_arc4_router___bootstrap_route@2 __puya_arc4_router___log_greetings_route@3
-    b __puya_arc4_router___switch_case_default@4
+    match approval_program_bootstrap_route@3 approval_program_log_greetings_route@4
 
-__puya_arc4_router___bootstrap_route@2:
-    // inner_transactions/c2c.py:10
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
+approval_program_switch_case_default@5:
+
+approval_program_switch_case_next@6:
+
+approval_program_after_if_else@11:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
     intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub bootstrap
-    itob
-    bytec_1 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
+
+approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@12:
     retsub
 
-__puya_arc4_router___log_greetings_route@3:
+approval_program_log_greetings_route@4:
     // inner_transactions/c2c.py:23
     // @arc4.abimethod()
     txn OnCompletion
@@ -79,36 +80,52 @@ __puya_arc4_router___log_greetings_route@3:
     // @arc4.abimethod()
     callsub log_greetings
     intc_1 // 1
-    retsub
+    b approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@12
 
-__puya_arc4_router___switch_case_default@4:
-    b __puya_arc4_router___after_if_else@10
+approval_program_bootstrap_route@3:
+    // inner_transactions/c2c.py:10
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub bootstrap
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@12
 
-__puya_arc4_router___bare_routing@6:
+approval_program_bare_routing@7:
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@7
-    b __puya_arc4_router___switch_case_default@8
+    match approval_program___algopy_default_create@8
 
-__puya_arc4_router_____algopy_default_create@7:
+approval_program_switch_case_default@9:
+
+approval_program_switch_case_next@10:
+    b approval_program_after_if_else@11
+
+approval_program___algopy_default_create@8:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+approval_program_block@13:
+
+approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__algopy_default_create@14:
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@8:
-
-__puya_arc4_router___after_if_else@10:
-    // inner_transactions/c2c.py:6
-    // class Greeter(ARC4Contract):
-    intc_0 // 0
-    retsub
+    b approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@12
 
 
 // test_cases.inner_transactions.c2c.Greeter.bootstrap() -> uint64:
@@ -146,6 +163,8 @@ bootstrap:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+
+bootstrap_next_txn@1:
     // inner_transactions/c2c.py:14-18
     // itxn.ApplicationCall(
     //     approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
@@ -215,6 +234,8 @@ log_greetings:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+
+log_greetings_next_txn@1:
     // inner_transactions/c2c.py:25-28
     // hello_call = itxn.ApplicationCall(
     //     app_id=self.hello_app,
@@ -240,10 +261,4 @@ log_greetings:
     extract 2 0
     concat
     log
-    retsub
-
-
-// test_cases.inner_transactions.c2c.Greeter.__algopy_default_create() -> void:
-__algopy_default_create:
-    proto 0 0
     retsub

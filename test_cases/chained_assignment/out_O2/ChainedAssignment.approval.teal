@@ -1,44 +1,20 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.chained_assignment.contract.ChainedAssignment.approval_program:
+// test_cases.chained_assignment.contract.ChainedAssignment.__algopy_entrypoint_with_init() -> uint64:
+main:
+    bytecblock 0x48656c6c6f2c20776f726c642120f09f918b
     txn ApplicationID
     bnz main_after_if_else@2
-    callsub __init__
+    bytec_0 // 0x48656c6c6f2c20776f726c642120f09f918b
+    log
+    pushbytes "state2"
+    bytec_0 // 0x48656c6c6f2c20776f726c642120f09f918b
+    app_global_put
+    pushbytes "state1"
+    bytec_0 // 0x48656c6c6f2c20776f726c642120f09f918b
+    app_global_put
 
 main_after_if_else@2:
     pushint 1 // 1
     return
-
-
-// test_cases.chained_assignment.contract.ChainedAssignment.__init__() -> void:
-__init__:
-    proto 0 0
-    callsub test_cases.chained_assignment.contract.BaseContract.__init__
-    retsub
-
-
-// test_cases.chained_assignment.contract.BaseContract.__init__() -> void:
-test_cases.chained_assignment.contract.BaseContract.__init__:
-    proto 0 0
-    pushbytess 0x48656c6c6f2c20776f726c6421 0xf09f918b // 0x48656c6c6f2c20776f726c6421, 0xf09f918b
-    callsub join_log_and_return
-    pushbytes "state2"
-    dig 1
-    app_global_put
-    pushbytes "state1"
-    swap
-    app_global_put
-    retsub
-
-
-// test_cases.chained_assignment.contract.join_log_and_return(left: bytes, right: bytes) -> bytes:
-join_log_and_return:
-    proto 2 1
-    frame_dig -2
-    pushbytes 0x20
-    concat
-    frame_dig -1
-    concat
-    dup
-    log
-    retsub

@@ -1,21 +1,22 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.typed_abi_call.logger.Logger.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1 8 2
     bytecblock 0x151f7c75 0x 0x6563686f3a20 0x00066563686f3a20
-    callsub __puya_arc4_router__
-    return
 
-
-// test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_block@1:
     // typed_abi_call/logger.py:25
     // class Logger(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@21
+    bz main_bare_routing@22
+
+main_abi_routing@2:
+    // typed_abi_call/logger.py:25
+    // class Logger(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xc77212bc // method "is_a_b(byte[],byte[])void"
     pushbytes 0x9bf81913 // method "echo(string)string"
@@ -35,11 +36,22 @@ __puya_arc4_router__:
     pushbytes 0xba0b4381 // method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]"
     pushbytes 0xddd07185 // method "logs_are_equal((uint64,string),(uint64,string))bool"
     uncover 17
-    match __puya_arc4_router___is_a_b_route@2 __puya_arc4_router___echo_route@3 __puya_arc4_router___no_args_route@4 __puya_arc4_router___log_route@5 __puya_arc4_router___log_route@6 __puya_arc4_router___log_route@7 __puya_arc4_router___log_route@8 __puya_arc4_router___log_route@9 __puya_arc4_router___log_route@10 __puya_arc4_router___echo_native_string_route@11 __puya_arc4_router___echo_native_bytes_route@12 __puya_arc4_router___echo_native_uint64_route@13 __puya_arc4_router___echo_native_biguint_route@14 __puya_arc4_router___echo_native_tuple_route@15 __puya_arc4_router___echo_nested_tuple_route@16 __puya_arc4_router___return_args_after_14th_route@17 __puya_arc4_router___logs_are_equal_route@18
-    b __puya_arc4_router___switch_case_default@19
+    match main_is_a_b_route@3 main_echo_route@4 main_no_args_route@5 main_log_route@6 main_log_route@7 main_log_route@8 main_log_route@9 main_log_route@10 main_log_route@11 main_echo_native_string_route@12 main_echo_native_bytes_route@13 main_echo_native_uint64_route@14 main_echo_native_biguint_route@15 main_echo_native_tuple_route@16 main_echo_nested_tuple_route@17 main_return_args_after_14th_route@18 main_logs_are_equal_route@19
 
-__puya_arc4_router___is_a_b_route@2:
-    // typed_abi_call/logger.py:26
+main_switch_case_default@20:
+
+main_switch_case_next@21:
+
+main_after_if_else@26:
+    // typed_abi_call/logger.py:25
+    // class Logger(ARC4Contract):
+    intc_0 // 0
+
+main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27:
+    return
+
+main_logs_are_equal_route@19:
+    // typed_abi_call/logger.py:124
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -52,41 +64,61 @@ __puya_arc4_router___is_a_b_route@2:
     // typed_abi_call/logger.py:25
     // class Logger(ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    intc_2 // 8
+    extract3 // on error: Index access is out of bounds
+    btoi
+    swap
+    dup
+    intc_2 // 8
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    uncover 2
+    uncover 2
+    substring3
     extract 2 0
     txna ApplicationArgs 2
-    extract 2 0
-    // typed_abi_call/logger.py:26
-    // @arc4.abimethod
-    callsub is_a_b
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___echo_route@3:
-    // typed_abi_call/logger.py:31
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
+    dup
     intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/logger.py:25
-    // class Logger(ARC4Contract):
-    txna ApplicationArgs 1
-    // typed_abi_call/logger.py:31
+    intc_2 // 8
+    extract3 // on error: Index access is out of bounds
+    btoi
+    swap
+    dup
+    intc_2 // 8
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    uncover 2
+    uncover 2
+    substring3
+    extract 2 0
+    // typed_abi_call/logger.py:124
     // @arc4.abimethod
-    callsub echo
+    uncover 3
+    uncover 3
+    uncover 3
+    uncover 3
+    callsub logs_are_equal
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
     bytec_0 // 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
 
-__puya_arc4_router___no_args_route@4:
-    // typed_abi_call/logger.py:35
+main_return_args_after_14th_route@18:
+    // typed_abi_call/logger.py:96
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -96,349 +128,77 @@ __puya_arc4_router___no_args_route@4:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    callsub no_args
-    itob
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___log_route@5:
-    // typed_abi_call/logger.py:39
-    // @arc4.abimethod(name=LOG_METHOD_NAME)
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // typed_abi_call/logger.py:25
     // class Logger(ARC4Contract):
     txna ApplicationArgs 1
-    // typed_abi_call/logger.py:39
-    // @arc4.abimethod(name=LOG_METHOD_NAME)
-    callsub log_uint64
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___log_route@6:
-    // typed_abi_call/logger.py:43
-    // @arc4.abimethod(name=LOG_METHOD_NAME)
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/logger.py:25
-    // class Logger(ARC4Contract):
-    txna ApplicationArgs 1
-    // typed_abi_call/logger.py:43
-    // @arc4.abimethod(name=LOG_METHOD_NAME)
-    callsub log_uint512
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___log_route@7:
-    // typed_abi_call/logger.py:47
-    // @arc4.abimethod(name=LOG_METHOD_NAME)
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/logger.py:25
-    // class Logger(ARC4Contract):
-    txna ApplicationArgs 1
-    // typed_abi_call/logger.py:47
-    // @arc4.abimethod(name=LOG_METHOD_NAME)
-    callsub log_string
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___log_route@8:
-    // typed_abi_call/logger.py:51
-    // @arc4.abimethod(name=LOG_METHOD_NAME)
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/logger.py:25
-    // class Logger(ARC4Contract):
-    txna ApplicationArgs 1
-    // typed_abi_call/logger.py:51
-    // @arc4.abimethod(name=LOG_METHOD_NAME)
-    callsub log_bool
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___log_route@9:
-    // typed_abi_call/logger.py:55
-    // @arc4.abimethod(name=LOG_METHOD_NAME)
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/logger.py:25
-    // class Logger(ARC4Contract):
-    txna ApplicationArgs 1
-    // typed_abi_call/logger.py:55
-    // @arc4.abimethod(name=LOG_METHOD_NAME)
-    callsub log_bytes
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___log_route@10:
-    // typed_abi_call/logger.py:59
-    // @arc4.abimethod(name=LOG_METHOD_NAME)
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/logger.py:25
-    // class Logger(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    txnas Assets
     txna ApplicationArgs 2
-    btoi
-    txnas Accounts
     txna ApplicationArgs 3
-    btoi
-    txnas Applications
-    // typed_abi_call/logger.py:59
-    // @arc4.abimethod(name=LOG_METHOD_NAME)
-    uncover 2
-    uncover 2
-    uncover 2
-    callsub log_asset_account_app
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___echo_native_string_route@11:
-    // typed_abi_call/logger.py:63
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/logger.py:25
-    // class Logger(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
-    // typed_abi_call/logger.py:63
-    // @arc4.abimethod
-    callsub echo_native_string
-    dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___echo_native_bytes_route@12:
-    // typed_abi_call/logger.py:67
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/logger.py:25
-    // class Logger(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
-    // typed_abi_call/logger.py:67
-    // @arc4.abimethod
-    callsub echo_native_bytes
-    dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___echo_native_uint64_route@13:
-    // typed_abi_call/logger.py:71
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/logger.py:25
-    // class Logger(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    // typed_abi_call/logger.py:71
-    // @arc4.abimethod
-    callsub echo_native_uint64
-    itob
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___echo_native_biguint_route@14:
-    // typed_abi_call/logger.py:75
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/logger.py:25
-    // class Logger(ARC4Contract):
-    txna ApplicationArgs 1
-    // typed_abi_call/logger.py:75
-    // @arc4.abimethod
-    callsub echo_native_biguint
-    dup
-    len
-    pushint 64 // 64
-    <=
-    assert // overflow
-    pushint 64 // 64
-    bzero
-    b|
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___echo_native_tuple_route@15:
-    // typed_abi_call/logger.py:79
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/logger.py:25
-    // class Logger(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
-    txna ApplicationArgs 2
-    extract 2 0
-    txna ApplicationArgs 3
-    btoi
     txna ApplicationArgs 4
-    // typed_abi_call/logger.py:79
+    txna ApplicationArgs 5
+    txna ApplicationArgs 6
+    txna ApplicationArgs 7
+    txna ApplicationArgs 8
+    txna ApplicationArgs 9
+    txna ApplicationArgs 10
+    txna ApplicationArgs 11
+    txna ApplicationArgs 12
+    txna ApplicationArgs 13
+    txna ApplicationArgs 14
+    txna ApplicationArgs 15
+    intc_0 // 0
+    intc_1 // 1
+    extract3 // on error: Index access is out of bounds
+    txna ApplicationArgs 15
+    intc_1 // 1
+    dup
+    extract3 // on error: Index access is out of bounds
+    txna ApplicationArgs 15
+    intc_3 // 2
+    intc_1 // 1
+    extract3 // on error: Index access is out of bounds
+    txna ApplicationArgs 15
+    pushint 3 // 3
+    intc_1 // 1
+    extract3 // on error: Index access is out of bounds
+    txna ApplicationArgs 15
+    pushint 4 // 4
+    dup
+    extract3 // on error: Index access is out of bounds
+    txna ApplicationArgs 15
+    intc_2 // 8
+    intc_1 // 1
+    extract3 // on error: Index access is out of bounds
+    // typed_abi_call/logger.py:96
     // @arc4.abimethod
-    uncover 3
-    uncover 3
-    uncover 3
-    uncover 3
-    callsub echo_native_tuple
-    cover 3
-    cover 2
-    swap
-    dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
-    cover 3
-    dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
-    cover 3
-    itob
-    cover 2
-    dup
-    len
-    pushint 64 // 64
-    <=
-    assert // overflow
-    pushint 64 // 64
-    bzero
-    b|
-    pushint 76 // 76
-    itob
-    extract 6 2
-    bytec_1 // 0x
-    swap
-    concat
-    dig 2
-    len
-    pushint 76 // 76
-    +
-    itob
-    extract 6 2
-    concat
-    uncover 3
-    concat
-    swap
-    concat
-    swap
-    concat
-    swap
-    concat
+    uncover 19
+    uncover 19
+    uncover 19
+    uncover 19
+    uncover 19
+    uncover 19
+    uncover 19
+    uncover 19
+    uncover 19
+    uncover 19
+    uncover 19
+    uncover 19
+    uncover 19
+    uncover 19
+    uncover 19
+    uncover 19
+    uncover 19
+    uncover 19
+    uncover 19
+    uncover 19
+    callsub return_args_after_14th
     bytec_0 // 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
 
-__puya_arc4_router___echo_nested_tuple_route@16:
+main_echo_nested_tuple_route@17:
     // typed_abi_call/logger.py:85
     // @arc4.abimethod
     txn OnCompletion
@@ -599,10 +359,10 @@ __puya_arc4_router___echo_nested_tuple_route@16:
     concat
     log
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
 
-__puya_arc4_router___return_args_after_14th_route@17:
-    // typed_abi_call/logger.py:96
+main_echo_native_tuple_route@16:
+    // typed_abi_call/logger.py:79
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -615,75 +375,76 @@ __puya_arc4_router___return_args_after_14th_route@17:
     // typed_abi_call/logger.py:25
     // class Logger(ARC4Contract):
     txna ApplicationArgs 1
+    extract 2 0
     txna ApplicationArgs 2
+    extract 2 0
     txna ApplicationArgs 3
+    btoi
     txna ApplicationArgs 4
-    txna ApplicationArgs 5
-    txna ApplicationArgs 6
-    txna ApplicationArgs 7
-    txna ApplicationArgs 8
-    txna ApplicationArgs 9
-    txna ApplicationArgs 10
-    txna ApplicationArgs 11
-    txna ApplicationArgs 12
-    txna ApplicationArgs 13
-    txna ApplicationArgs 14
-    txna ApplicationArgs 15
-    intc_0 // 0
-    intc_1 // 1
-    extract3 // on error: Index access is out of bounds
-    txna ApplicationArgs 15
-    intc_1 // 1
-    dup
-    extract3 // on error: Index access is out of bounds
-    txna ApplicationArgs 15
-    intc_3 // 2
-    intc_1 // 1
-    extract3 // on error: Index access is out of bounds
-    txna ApplicationArgs 15
-    pushint 3 // 3
-    intc_1 // 1
-    extract3 // on error: Index access is out of bounds
-    txna ApplicationArgs 15
-    pushint 4 // 4
-    dup
-    extract3 // on error: Index access is out of bounds
-    txna ApplicationArgs 15
-    intc_2 // 8
-    intc_1 // 1
-    extract3 // on error: Index access is out of bounds
-    // typed_abi_call/logger.py:96
+    // typed_abi_call/logger.py:79
     // @arc4.abimethod
-    uncover 19
-    uncover 19
-    uncover 19
-    uncover 19
-    uncover 19
-    uncover 19
-    uncover 19
-    uncover 19
-    uncover 19
-    uncover 19
-    uncover 19
-    uncover 19
-    uncover 19
-    uncover 19
-    uncover 19
-    uncover 19
-    uncover 19
-    uncover 19
-    uncover 19
-    uncover 19
-    callsub return_args_after_14th
+    uncover 3
+    uncover 3
+    uncover 3
+    uncover 3
+    callsub echo_native_tuple
+    cover 3
+    cover 2
+    swap
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    cover 3
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    cover 3
+    itob
+    cover 2
+    dup
+    len
+    pushint 64 // 64
+    <=
+    assert // overflow
+    pushint 64 // 64
+    bzero
+    b|
+    pushint 76 // 76
+    itob
+    extract 6 2
+    bytec_1 // 0x
+    swap
+    concat
+    dig 2
+    len
+    pushint 76 // 76
+    +
+    itob
+    extract 6 2
+    concat
+    uncover 3
+    concat
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
     bytec_0 // 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
 
-__puya_arc4_router___logs_are_equal_route@18:
-    // typed_abi_call/logger.py:124
+main_echo_native_biguint_route@15:
+    // typed_abi_call/logger.py:75
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -696,87 +457,334 @@ __puya_arc4_router___logs_are_equal_route@18:
     // typed_abi_call/logger.py:25
     // class Logger(ARC4Contract):
     txna ApplicationArgs 1
-    dup
-    intc_0 // 0
-    intc_2 // 8
-    extract3 // on error: Index access is out of bounds
-    btoi
-    swap
-    dup
-    intc_2 // 8
-    extract_uint16
-    swap
-    dup
-    len
-    swap
-    uncover 2
-    uncover 2
-    substring3
-    extract 2 0
-    txna ApplicationArgs 2
-    dup
-    intc_0 // 0
-    intc_2 // 8
-    extract3 // on error: Index access is out of bounds
-    btoi
-    swap
-    dup
-    intc_2 // 8
-    extract_uint16
-    swap
-    dup
-    len
-    swap
-    uncover 2
-    uncover 2
-    substring3
-    extract 2 0
-    // typed_abi_call/logger.py:124
+    // typed_abi_call/logger.py:75
     // @arc4.abimethod
-    uncover 3
-    uncover 3
-    uncover 3
-    uncover 3
-    callsub logs_are_equal
-    pushbytes 0x00
-    intc_0 // 0
-    uncover 2
-    setbit
+    callsub echo_native_biguint
+    dup
+    len
+    pushint 64 // 64
+    <=
+    assert // overflow
+    pushint 64 // 64
+    bzero
+    b|
     bytec_0 // 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
-    retsub
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
 
-__puya_arc4_router___switch_case_default@19:
-    b __puya_arc4_router___after_if_else@25
+main_echo_native_uint64_route@14:
+    // typed_abi_call/logger.py:71
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // typed_abi_call/logger.py:25
+    // class Logger(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // typed_abi_call/logger.py:71
+    // @arc4.abimethod
+    callsub echo_native_uint64
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
 
-__puya_arc4_router___bare_routing@21:
+main_echo_native_bytes_route@13:
+    // typed_abi_call/logger.py:67
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // typed_abi_call/logger.py:25
+    // class Logger(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    // typed_abi_call/logger.py:67
+    // @arc4.abimethod
+    callsub echo_native_bytes
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
+
+main_echo_native_string_route@12:
+    // typed_abi_call/logger.py:63
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // typed_abi_call/logger.py:25
+    // class Logger(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    // typed_abi_call/logger.py:63
+    // @arc4.abimethod
+    callsub echo_native_string
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
+
+main_log_route@11:
+    // typed_abi_call/logger.py:59
+    // @arc4.abimethod(name=LOG_METHOD_NAME)
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // typed_abi_call/logger.py:25
+    // class Logger(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    txna ApplicationArgs 2
+    btoi
+    txnas Accounts
+    txna ApplicationArgs 3
+    btoi
+    txnas Applications
+    // typed_abi_call/logger.py:59
+    // @arc4.abimethod(name=LOG_METHOD_NAME)
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub log_asset_account_app
+    intc_1 // 1
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
+
+main_log_route@10:
+    // typed_abi_call/logger.py:55
+    // @arc4.abimethod(name=LOG_METHOD_NAME)
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // typed_abi_call/logger.py:25
+    // class Logger(ARC4Contract):
+    txna ApplicationArgs 1
+    // typed_abi_call/logger.py:55
+    // @arc4.abimethod(name=LOG_METHOD_NAME)
+    callsub log_bytes
+    intc_1 // 1
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
+
+main_log_route@9:
+    // typed_abi_call/logger.py:51
+    // @arc4.abimethod(name=LOG_METHOD_NAME)
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // typed_abi_call/logger.py:25
+    // class Logger(ARC4Contract):
+    txna ApplicationArgs 1
+    // typed_abi_call/logger.py:51
+    // @arc4.abimethod(name=LOG_METHOD_NAME)
+    callsub log_bool
+    intc_1 // 1
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
+
+main_log_route@8:
+    // typed_abi_call/logger.py:47
+    // @arc4.abimethod(name=LOG_METHOD_NAME)
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // typed_abi_call/logger.py:25
+    // class Logger(ARC4Contract):
+    txna ApplicationArgs 1
+    // typed_abi_call/logger.py:47
+    // @arc4.abimethod(name=LOG_METHOD_NAME)
+    callsub log_string
+    intc_1 // 1
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
+
+main_log_route@7:
+    // typed_abi_call/logger.py:43
+    // @arc4.abimethod(name=LOG_METHOD_NAME)
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // typed_abi_call/logger.py:25
+    // class Logger(ARC4Contract):
+    txna ApplicationArgs 1
+    // typed_abi_call/logger.py:43
+    // @arc4.abimethod(name=LOG_METHOD_NAME)
+    callsub log_uint512
+    intc_1 // 1
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
+
+main_log_route@6:
+    // typed_abi_call/logger.py:39
+    // @arc4.abimethod(name=LOG_METHOD_NAME)
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // typed_abi_call/logger.py:25
+    // class Logger(ARC4Contract):
+    txna ApplicationArgs 1
+    // typed_abi_call/logger.py:39
+    // @arc4.abimethod(name=LOG_METHOD_NAME)
+    callsub log_uint64
+    intc_1 // 1
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
+
+main_no_args_route@5:
+    // typed_abi_call/logger.py:35
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub no_args
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
+
+main_echo_route@4:
+    // typed_abi_call/logger.py:31
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // typed_abi_call/logger.py:25
+    // class Logger(ARC4Contract):
+    txna ApplicationArgs 1
+    // typed_abi_call/logger.py:31
+    // @arc4.abimethod
+    callsub echo
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
+
+main_is_a_b_route@3:
+    // typed_abi_call/logger.py:26
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // typed_abi_call/logger.py:25
+    // class Logger(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    // typed_abi_call/logger.py:26
+    // @arc4.abimethod
+    callsub is_a_b
+    intc_1 // 1
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
+
+main_bare_routing@22:
     // typed_abi_call/logger.py:25
     // class Logger(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@22
-    b __puya_arc4_router___switch_case_default@23
+    match main___algopy_default_create@23
 
-__puya_arc4_router_____algopy_default_create@22:
+main_switch_case_default@24:
+
+main_switch_case_next@25:
+    b main_after_if_else@26
+
+main___algopy_default_create@23:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+main_block@28:
+
+main_after_inlined_test_cases.typed_abi_call.logger.Logger.__algopy_default_create@29:
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@23:
-
-__puya_arc4_router___after_if_else@25:
-    // typed_abi_call/logger.py:25
-    // class Logger(ARC4Contract):
-    intc_0 // 0
-    retsub
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@27
 
 
 // test_cases.typed_abi_call.logger.Logger.is_a_b(a: bytes, b: bytes) -> void:
@@ -1159,10 +1167,4 @@ logs_are_equal:
     frame_dig -1
     ==
     &&
-    retsub
-
-
-// test_cases.typed_abi_call.logger.Logger.__algopy_default_create() -> void:
-__algopy_default_create:
-    proto 0 0
     retsub

@@ -1,44 +1,25 @@
 #pragma version 10
+#pragma typetrack false
 
-examples.merkle.contract.MerkleTree.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1 32
     bytecblock "root"
-    callsub __puya_arc4_router__
-    return
-
-
-// examples.merkle.contract.MerkleTree.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___after_if_else@7
+    bz main_after_if_else@8
     pushbytess 0x8424203b 0xc0290ad5 // method "create(byte[32])void", method "verify(byte[32][],byte[32])bool"
     txna ApplicationArgs 0
-    match __puya_arc4_router___create_route@2 __puya_arc4_router___verify_route@3
-    intc_0 // 0
-    retsub
+    match main_create_route@3 main_verify_route@4
 
-__puya_arc4_router___create_route@2:
-    // merkle/contract.py:10
-    // @arc4.abimethod(create="require")
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    !
-    assert // can only call when creating
+main_after_if_else@8:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    // merkle/contract.py:10
-    // @arc4.abimethod(create="require")
-    callsub create
-    intc_1 // 1
-    retsub
+    intc_0 // 0
+    return
 
-__puya_arc4_router___verify_route@3:
+main_verify_route@4:
     // merkle/contract.py:14
     // @arc4.abimethod
     txn OnCompletion
@@ -62,13 +43,25 @@ __puya_arc4_router___verify_route@3:
     concat
     log
     intc_1 // 1
-    retsub
+    return
 
-__puya_arc4_router___after_if_else@7:
+main_create_route@3:
+    // merkle/contract.py:10
+    // @arc4.abimethod(create="require")
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    !
+    assert // can only call when creating
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    intc_0 // 0
-    retsub
+    txna ApplicationArgs 1
+    // merkle/contract.py:10
+    // @arc4.abimethod(create="require")
+    callsub create
+    intc_1 // 1
+    return
 
 
 // examples.merkle.contract.MerkleTree.create(root: bytes) -> void:
@@ -97,20 +90,6 @@ verify:
     bytec_0 // "root"
     app_global_get_ex
     assert // check self.root exists
-    frame_dig -2
-    frame_dig -1
-    callsub compute_root_hash
-    frame_bury -2
-    ==
-    retsub
-
-
-// examples.merkle.contract.compute_root_hash(proof: bytes, leaf: bytes) -> bytes, bytes:
-compute_root_hash:
-    // merkle/contract.py:19-20
-    // @subroutine
-    // def compute_root_hash(proof: Proof, leaf: Bytes) -> Bytes:
-    proto 2 2
     // merkle/contract.py:22
     // for idx in urange(proof.length):
     frame_dig -2
@@ -119,71 +98,57 @@ compute_root_hash:
     intc_0 // 0
     frame_dig -1
 
-compute_root_hash_for_header@1:
+verify_for_header@2:
     // merkle/contract.py:22
     // for idx in urange(proof.length):
+    frame_dig 2
     frame_dig 1
-    frame_dig 0
     <
-    bz compute_root_hash_after_for@4
+    bz verify_after_for@5
     // merkle/contract.py:23
     // computed = hash_pair(computed, proof[idx].bytes)
     frame_dig -2
     extract 2 0
-    frame_dig 1
-    dup
-    cover 2
+    frame_dig 2
     intc_2 // 32
     *
     intc_2 // 32
     extract3 // on error: Index access is out of bounds
-    frame_dig 2
+    dup
+    // merkle/contract.py:29
+    // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
+    frame_dig 3
+    b>
+    bz verify_ternary_false@8
+    frame_dig 3
     swap
-    callsub hash_pair
-    frame_bury 2
-    // merkle/contract.py:22
-    // for idx in urange(proof.length):
-    intc_1 // 1
-    +
-    frame_bury 1
-    b compute_root_hash_for_header@1
-
-compute_root_hash_after_for@4:
-    // merkle/contract.py:24
-    // return computed
-    frame_dig 2
-    frame_dig -2
-    frame_bury 1
-    frame_bury 0
-    retsub
-
-
-// examples.merkle.contract.hash_pair(a: bytes, b: bytes) -> bytes:
-hash_pair:
-    // merkle/contract.py:27-28
-    // @subroutine
-    // def hash_pair(a: Bytes, b: Bytes) -> Bytes:
-    proto 2 1
-    // merkle/contract.py:29
-    // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
-    frame_dig -2
-    frame_dig -1
-    b<
-    bz hash_pair_ternary_false@2
-    frame_dig -2
-    frame_dig -1
-    concat
-    b hash_pair_ternary_merge@3
-
-hash_pair_ternary_false@2:
-    // merkle/contract.py:29
-    // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
-    frame_dig -1
-    frame_dig -2
     concat
 
-hash_pair_ternary_merge@3:
+verify_ternary_merge@9:
     // merkle/contract.py:29
     // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
     sha256
+    frame_bury 3
+    // merkle/contract.py:22
+    // for idx in urange(proof.length):
+    frame_dig 2
+    intc_1 // 1
+    +
+    frame_bury 2
+    b verify_for_header@2
+
+verify_ternary_false@8:
+    // merkle/contract.py:29
+    // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
+    frame_dig 3
+    concat
+    b verify_ternary_merge@9
+
+verify_after_for@5:
+    // merkle/contract.py:16
+    // return self.root == compute_root_hash(proof, leaf.bytes)
+    frame_dig 0
+    frame_dig 3
+    ==
+    frame_bury 0
     retsub

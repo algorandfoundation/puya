@@ -1,24 +1,50 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.avm_types_in_abi.contract.TestContract.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1 64
-    bytecblock 0x00 0x151f7c75
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    proto 0 1
+    bytecblock 0x151f7c75 0x00
     txn NumAppArgs
-    bz __puya_arc4_router___after_if_else@7
+    bz main_after_if_else@8
     pushbytess 0xfb716652 0x7ea64078 // method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)", method "tuple_of_arc4((uint8,address))(uint8,address)"
     txna ApplicationArgs 0
-    match __puya_arc4_router___create_route@2 __puya_arc4_router___tuple_of_arc4_route@3
-    intc_0 // 0
-    retsub
+    match main_create_route@3 main_tuple_of_arc4_route@4
 
-__puya_arc4_router___create_route@2:
+main_after_if_else@8:
+    intc_0 // 0
+    return
+
+main_tuple_of_arc4_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    dup
+    extract 0 1 // on error: Index access is out of bounds
+    swap
+    extract 1 32 // on error: Index access is out of bounds
+    dig 1
+    len
+    intc_1 // 1
+    ==
+    assert
+    dup
+    len
+    pushint 32 // 32
+    ==
+    assert
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_create_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -39,7 +65,7 @@ __puya_arc4_router___create_route@2:
     dup
     intc_0 // 0
     getbit
-    bytec_0 // 0x00
+    bytec_1 // 0x00
     intc_0 // 0
     uncover 2
     setbit
@@ -68,8 +94,27 @@ __puya_arc4_router___create_route@2:
     uncover 2
     substring3
     extract 2 0
-    callsub create
-    bytec_0 // 0x00
+    dig 9
+    uncover 5
+    ==
+    dig 8
+    uncover 5
+    ==
+    &&
+    dig 6
+    uncover 4
+    ==
+    &&
+    dig 4
+    uncover 3
+    b==
+    &&
+    dig 2
+    uncover 2
+    ==
+    &&
+    assert
+    bytec_1 // 0x00
     intc_0 // 0
     uncover 6
     setbit
@@ -116,82 +161,9 @@ __puya_arc4_router___create_route@2:
     concat
     swap
     concat
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___tuple_of_arc4_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    dup
-    extract 0 1 // on error: Index access is out of bounds
-    swap
-    extract 1 32 // on error: Index access is out of bounds
-    callsub tuple_of_arc4
-    concat
-    bytec_1 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@7:
-    intc_0 // 0
-    retsub
-
-
-// test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: uint64, uint64_param: uint64, bytes_param: bytes, biguint_param: bytes, string_param: bytes, tuple_param.0: uint64, tuple_param.1: uint64, tuple_param.2: bytes, tuple_param.3: bytes, tuple_param.4: bytes) -> uint64, uint64, bytes, bytes, bytes:
-create:
-    proto 10 5
-    frame_dig -10
-    frame_dig -5
-    ==
-    frame_dig -9
-    frame_dig -4
-    ==
-    &&
-    frame_dig -8
-    frame_dig -3
-    ==
-    &&
-    frame_dig -7
-    frame_dig -2
-    b==
-    &&
-    frame_dig -6
-    frame_dig -1
-    ==
-    &&
-    assert
-    frame_dig -10
-    frame_dig -9
-    frame_dig -8
-    frame_dig -7
-    frame_dig -6
-    retsub
-
-
-// test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(args.0: bytes, args.1: bytes) -> bytes, bytes:
-tuple_of_arc4:
-    proto 2 2
-    frame_dig -2
-    len
-    intc_1 // 1
-    ==
-    assert
-    frame_dig -1
-    len
-    pushint 32 // 32
-    ==
-    assert
-    frame_dig -2
-    frame_dig -1
-    retsub
+    return

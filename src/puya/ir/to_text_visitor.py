@@ -231,6 +231,6 @@ def render_program(
             _render_body(emitter, sub.body)
     if program.kind is not ProgramKind.logic_signature:
         qualifier = f"{program.kind}.{qualifier}"
-    path = out_dir / f"{context.metadata.name}.{qualifier}.ir"
+    path = context.sequential_path(program.kind, qualifier, "ir")
     path.write_text("\n".join(emitter.lines), encoding="utf-8")
     logger.debug(f"Output IR to {make_path_relative_to_cwd(path)}")

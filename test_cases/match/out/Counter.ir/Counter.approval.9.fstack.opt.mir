@@ -1,0 +1,59 @@
+// Op                                                                        Stack (out)
+// test_cases.match.counter.Counter.__algopy_entrypoint_with_init() -> uint64:
+main:
+    txn ApplicationID                                                        tmp%0#0
+    bz main_call___init__@1 ; b main_after_if_else@2
+
+main_call___init__@1:
+    // match/counter.py:6
+    // self.counter = algopy.UInt64(0)
+    byte "counter"                                                           "counter"
+    int 0                                                                    "counter",0
+    app_global_put
+    b main_after_if_else@2
+
+main_after_if_else@2:
+    // match/counter.py:9
+    // match algopy.Txn.on_completion:
+    txn OnCompletion                                                         tmp%0#1
+    // match/counter.py:9-15
+    // match algopy.Txn.on_completion:
+    //     case algopy.OnCompleteAction.NoOp:
+    //         self.increment_counter()
+    //         return True
+    //     case _:
+    //         # reject all OnCompletionAction's other than NoOp
+    //         return False
+    bz main_switch_case_0@4 ; b main_switch_case_default@5
+
+main_switch_case_0@4:
+    // match/counter.py:22
+    // self.counter += 1
+    int 0                                                                    0
+    byte "counter"                                                           0,"counter"
+    app_global_get_ex                                                        maybe_value%0#0,maybe_exists%0#0
+    assert // check self.counter exists                                      maybe_value%0#0
+    l-load maybe_value%0#0 0                                                 maybe_value%0#0
+    int 1                                                                    maybe_value%0#0,1
+    +                                                                        new_state_value%0#0
+    byte "counter"                                                           new_state_value%0#0,"counter"
+    l-load new_state_value%0#0 1                                             "counter",new_state_value%0#0
+    app_global_put
+    // match/counter.py:12
+    // return True
+    int 1                                                                    tmp%1#0
+    x-store tmp%1#0                                                          (𝕏) tmp%1#0 |
+    b main_after_inlined_test_cases.match.counter.Counter.approval_program@6 (𝕏) tmp%1#0 |
+
+main_switch_case_default@5:
+    // match/counter.py:15
+    // return False
+    int 0                                                                    tmp%1#0
+    x-store tmp%1#0                                                          (𝕏) tmp%1#0 |
+    b main_after_inlined_test_cases.match.counter.Counter.approval_program@6 (𝕏) tmp%1#0 |
+
+main_after_inlined_test_cases.match.counter.Counter.approval_program@6:      (𝕏) tmp%1#0 |
+    x-load tmp%1#0                                                           tmp%1#0
+    return
+
+

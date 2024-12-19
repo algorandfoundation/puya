@@ -1,77 +1,127 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.unssa.contract.UnSSAContract.approval_program:
-    intcblock 1 0 2 100 200
+// test_cases.unssa.contract.UnSSAContract.approval_program() -> uint64:
+main:
+    intcblock 1 100 2 0 200
     pushbytes ""
-    callsub test_self_ref_phi
-    pop
+    dupn 5
+    intc_0 // 1
+
+main_while_top@41:
+    dup
+    intc_1 // 100
+    <
+    bz main_after_while@47
+    dup
+    pushint 105 // 105
+    %
+    bz main_while_top@41
+    dup
+    pushint 21 // 21
+    %
+    bz main_after_while@47
+    dup
+    intc_0 // 1
+    +
+    bury 1
+    b main_while_top@41
+
+main_after_while@47:
     intc_0 // 1
     callsub test_swap
-    dupn 2
+    dup
+    bury 6
+    dup
     itob
     log
-    intc_0 // 1
-    >=
     bz main_bool_false@3
-    dup
+    dig 4
     intc_2 // 2
     <=
     bz main_bool_false@3
     intc_0 // 1
-    b main_bool_merge@4
-
-main_bool_false@3:
-    intc_1 // 0
 
 main_bool_merge@4:
     assert
     intc_2 // 2
     callsub test_swap
     dup
-    bury 3
+    bury 5
     dup
     itob
     log
-    intc_0 // 1
-    >=
     bz main_bool_false@7
-    dig 1
+    dig 3
     intc_2 // 2
     <=
     bz main_bool_false@7
     intc_0 // 1
-    b main_bool_merge@8
-
-main_bool_false@7:
-    intc_1 // 0
 
 main_bool_merge@8:
     assert
-    pushints 7 11 // 7, 11
-    callsub test_swap_loop
-    pop
-    intc_1 // 0
-    callsub test_param_update_with_reentrant_entry_block
+    pushint 7 // 7
+    bury 7
+    pushint 11 // 11
+    bury 6
+    intc_0 // 1
+    bury 3
+    intc_2 // 2
+    bury 2
+
+main_while_top@10:
+    dig 6
+    bz main_after_while@15
+
+main_while_top@12:
+    dig 5
+    bz main_after_while@14
+    dig 5
+    intc_0 // 1
+    -
+    bury 6
+    dig 1
+    dig 3
+    bury 3
+    bury 3
+    b main_while_top@12
+
+main_after_while@14:
+    dig 6
+    intc_0 // 1
+    -
+    bury 7
+    b main_while_top@10
+
+main_after_while@15:
+    intc_3 // 0
+    bury 3
+
+main_while_top@18:
+    dig 2
+    intc_0 // 1
+    +
+    dup
+    bury 4
+    pushint 10 // 10
+    >=
+    bz main_while_top@18
+    dig 2
     pushint 10 // 10
     ==
     assert
-    intc_1 // 0
-    callsub test_param_update_with_reentrant_entry_block_v2
-    pop
-    callsub test_param_update_with_reentrant_entry_block_v3
-    callsub test_swap_args
-    intc_3 // 100
+    intc_1 // 100
     intc 4 // 200
-    intc_1 // 0
+    intc_3 // 0
     callsub test_tuple_swap
     swap
-    intc_3 // 100
+    intc_1 // 100
     ==
     assert
     intc 4 // 200
     ==
     assert
-    intc_3 // 100
+    intc_1 // 100
     intc 4 // 200
     intc_0 // 1
     callsub test_tuple_swap
@@ -79,41 +129,19 @@ main_bool_merge@8:
     intc 4 // 200
     ==
     assert
-    intc_3 // 100
+    intc_1 // 100
     ==
     assert
     intc_0 // 1
     return
 
+main_bool_false@7:
+    intc_3 // 0
+    b main_bool_merge@8
 
-// test_cases.unssa.contract.test_self_ref_phi() -> uint64:
-test_self_ref_phi:
-    proto 0 1
-    intc_0 // 1
-
-test_self_ref_phi_while_top@1:
-    frame_dig 0
-    intc_3 // 100
-    <
-    bz test_self_ref_phi_after_while@7
-    frame_dig 0
-    pushint 105 // 105
-    %
-    bz test_self_ref_phi_while_top@1
-    frame_dig 0
-    pushint 21 // 21
-    %
-    bz test_self_ref_phi_after_while@7
-    frame_dig 0
-    intc_0 // 1
-    +
-    frame_bury 0
-    b test_self_ref_phi_while_top@1
-
-test_self_ref_phi_after_while@7:
-    frame_dig 0
-    swap
-    retsub
+main_bool_false@3:
+    intc_3 // 0
+    b main_bool_merge@4
 
 
 // test_cases.unssa.contract.test_swap(i: uint64) -> uint64:
@@ -139,123 +167,10 @@ test_swap_after_while@3:
     retsub
 
 
-// test_cases.unssa.contract.test_swap_loop(i: uint64, j: uint64) -> uint64:
-test_swap_loop:
-    proto 2 1
-    intc_0 // 1
-    intc_2 // 2
-
-test_swap_loop_while_top@1:
-    frame_dig -2
-    bz test_swap_loop_after_while@6
-
-test_swap_loop_while_top@3:
-    frame_dig -1
-    bz test_swap_loop_after_while@5
-    frame_dig -1
-    intc_0 // 1
-    -
-    frame_bury -1
-    frame_dig 1
-    frame_dig 0
-    frame_bury 1
-    frame_bury 0
-    b test_swap_loop_while_top@3
-
-test_swap_loop_after_while@5:
-    frame_dig -2
-    intc_0 // 1
-    -
-    frame_bury -2
-    b test_swap_loop_while_top@1
-
-test_swap_loop_after_while@6:
-    retsub
-
-
-// test_cases.unssa.contract.test_param_update_with_reentrant_entry_block(x: uint64) -> uint64:
-test_param_update_with_reentrant_entry_block:
-    proto 1 1
-
-test_param_update_with_reentrant_entry_block_while_top@1:
-    frame_dig -1
-    intc_0 // 1
-    +
-    dup
-    frame_bury -1
-    pushint 10 // 10
-    >=
-    bz test_param_update_with_reentrant_entry_block_while_top@1
-    frame_dig -1
-    retsub
-
-
-// test_cases.unssa.contract.test_param_update_with_reentrant_entry_block_v2(x: uint64) -> uint64:
-test_param_update_with_reentrant_entry_block_v2:
-    proto 1 1
-    frame_dig -1
-    intc_0 // 1
-    +
-    frame_bury -1
-
-test_param_update_with_reentrant_entry_block_v2_while_top@1:
-    frame_dig -1
-    intc_0 // 1
-    >=
-    bz test_param_update_with_reentrant_entry_block_v2_while_top@1
-    frame_dig -1
-    retsub
-
-
-// test_cases.unssa.contract.test_param_update_with_reentrant_entry_block_v3() -> void:
-test_param_update_with_reentrant_entry_block_v3:
-    proto 0 0
-
-test_param_update_with_reentrant_entry_block_v3_while_top@1:
-    callsub one
-    bz test_param_update_with_reentrant_entry_block_v3_while_top@1
-    retsub
-
-
-// test_cases.unssa.contract.one() -> uint64:
-one:
-    proto 0 1
-    intc_0 // 1
-    retsub
-
-
-// test_cases.unssa.contract.test_swap_args() -> void:
-test_swap_args:
-    proto 0 0
-    callsub one
-    pushint 123 // 123
-    +
-    callsub one
-    pushint 234 // 234
-    +
-    callsub swap_args
-    swap
-    pushint 235 // 235
-    ==
-    assert // a == 235
-    pushint 124 // 124
-    ==
-    assert // b = 124
-    retsub
-
-
-// test_cases.unssa.contract.swap_args(a: uint64, b: uint64) -> uint64, uint64:
-swap_args:
-    proto 2 2
-    frame_dig -1
-    frame_dig -2
-    retsub
-
-
 // test_cases.unssa.contract.test_tuple_swap(a: uint64, b: uint64, i: uint64) -> uint64, uint64:
 test_tuple_swap:
     proto 3 2
-    intc_1 // 0
+    intc_3 // 0
 
 test_tuple_swap_for_header@1:
     frame_dig 0

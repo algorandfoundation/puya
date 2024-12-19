@@ -1,0 +1,23 @@
+main test_cases.ssa2.contract.MyContract.approval_program:
+    block@0: // L7
+        let a#0: uint64 = (+ 1u 2u)
+        let b#0: uint64 = (* 4u 5u)
+        (assert 1u) // Step cannot be zero
+        let i#0: uint64 = 0u
+        goto block@1
+    block@1: // for_header_L15
+        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
+        let b#1: uint64 = φ(b#0 <- block@0, b#2 <- block@3)
+        let a#1: uint64 = φ(a#0 <- block@0, a#2 <- block@3)
+        let continue_looping%0#0: bool = (< i#1 5u)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L16
+        let b#2: uint64 = (+ b#1 a#1)
+        let a#2: uint64 = (+ a#1 i#1)
+        goto block@3
+    block@3: // for_footer_L15
+        let i#2: uint64 = (+ i#1 1u)
+        goto block@1
+    block@4: // after_for_L15
+        let tmp%0#0: uint64 = (+ a#1 b#1)
+        return tmp%0#0

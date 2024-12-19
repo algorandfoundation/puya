@@ -1,57 +1,42 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.group_side_effects.other.AppCall.approval_program:
-    intcblock 1 0
-    callsub __puya_arc4_router__
-    return
-
-
-// test_cases.group_side_effects.other.AppCall.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    proto 0 1
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@5
+    bz main_bare_routing@6
     pushbytes 0xd3479e65 // method "some_value()uint64"
     txna ApplicationArgs 0
-    match __puya_arc4_router___some_value_route@2
-    intc_1 // 0
-    retsub
+    match main_some_value_route@3
 
-__puya_arc4_router___some_value_route@2:
+main_after_if_else@10:
+    pushint 0 // 0
+    return
+
+main_some_value_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub some_value
+    global GroupSize
+    txn GroupIndex
+    pushint 1 // 1
+    +
+    *
     itob
     pushbytes 0x151f7c75
     swap
     concat
     log
-    intc_0 // 1
-    retsub
+    pushint 1 // 1
+    return
 
-__puya_arc4_router___bare_routing@5:
+main_bare_routing@6:
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@9
+    bnz main_after_if_else@10
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
-    retsub
-
-__puya_arc4_router___after_if_else@9:
-    intc_1 // 0
-    retsub
-
-
-// test_cases.group_side_effects.other.AppCall.some_value() -> uint64:
-some_value:
-    proto 0 1
-    global GroupSize
-    txn GroupIndex
-    intc_0 // 1
-    +
-    *
-    retsub
+    pushint 1 // 1
+    return

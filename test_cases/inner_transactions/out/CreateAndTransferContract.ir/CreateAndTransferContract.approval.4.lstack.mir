@@ -1,0 +1,180 @@
+// Op                                                                                                              Stack (out)
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    txn NumAppArgs                                                                                                 tmp%0#1
+    l-load tmp%0#1 0                                                                                               tmp%0#1
+    bz main_bare_routing@6 ; b main_abi_routing@2
+
+main_abi_routing@2:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    txna ApplicationArgs 0                                                                                         tmp%2#0
+    method create_and_transfer()void                                                                               tmp%2#0,Method(create_and_transfer()void)
+    l-load tmp%2#0 1                                                                                               Method(create_and_transfer()void),tmp%2#0
+    match main_create_and_transfer_route@3 ; b main_after_if_else@10
+
+main_create_and_transfer_route@3:
+    // inner_transactions/asset_transfer.py:11
+    // @arc4.abimethod()
+    txn OnCompletion                                                                                               tmp%3#0
+    l-load tmp%3#0 0                                                                                               tmp%3#0
+    !                                                                                                              tmp%4#0
+    l-load tmp%4#0 0                                                                                               tmp%4#0
+    assert // OnCompletion is not NoOp
+    txn ApplicationID                                                                                              tmp%5#0
+    l-load tmp%5#0 0                                                                                               tmp%5#0
+    assert // can only call when not creating
+    callsub create_and_transfer
+    int 1                                                                                                          1
+    l-store test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0 0 test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0
+    l-load test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0 0 test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__@11 
+
+main_bare_routing@6:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    txn OnCompletion                                                                                               tmp%7#0
+    l-load tmp%7#0 0                                                                                               tmp%7#0
+    bz main___algopy_default_create@7 ; b main_after_if_else@10
+
+main___algopy_default_create@7:
+    txn ApplicationID                                                                                              tmp%8#0
+    l-load tmp%8#0 0                                                                                               tmp%8#0
+    !                                                                                                              tmp%9#0
+    l-load tmp%9#0 0                                                                                               tmp%9#0
+    assert // can only call when creating
+    int 1                                                                                                          1
+    l-store test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0 0 test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0
+    l-load test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0 0 test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__@11 
+
+main_after_if_else@10:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    int 0                                                                                                          0
+    l-store test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0 0 test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0
+    l-load test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0 0 test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__@11 
+
+main_after_inlined_test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__@11:
+    v-load tmp%0#0                                                                                                 tmp%0#0
+    return
+
+
+// test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer() -> void:
+create_and_transfer:
+    // inner_transactions/asset_transfer.py:15-23
+    // itxn.AssetConfig(
+    //     total=1000,
+    //     asset_name="test",
+    //     unit_name="TST",
+    //     decimals=0,
+    //     manager=op.Global.current_application_address,
+    //     clawback=op.Global.current_application_address,
+    // )
+    // .submit()
+    itxn_begin
+    // inner_transactions/asset_transfer.py:20
+    // manager=op.Global.current_application_address,
+    global CurrentApplicationAddress                                                                               inner_txn_params%0%%param_ConfigAssetManager_idx_0#0
+    // inner_transactions/asset_transfer.py:21
+    // clawback=op.Global.current_application_address,
+    global CurrentApplicationAddress                                                                               inner_txn_params%0%%param_ConfigAssetManager_idx_0#0,inner_txn_params%0%%param_ConfigAssetClawback_idx_0#0
+    l-load inner_txn_params%0%%param_ConfigAssetClawback_idx_0#0 0                                                 inner_txn_params%0%%param_ConfigAssetManager_idx_0#0,inner_txn_params%0%%param_ConfigAssetClawback_idx_0#0
+    itxn_field ConfigAssetClawback                                                                                 inner_txn_params%0%%param_ConfigAssetManager_idx_0#0
+    l-load inner_txn_params%0%%param_ConfigAssetManager_idx_0#0 0                                                  inner_txn_params%0%%param_ConfigAssetManager_idx_0#0
+    itxn_field ConfigAssetManager
+    // inner_transactions/asset_transfer.py:19
+    // decimals=0,
+    int 0                                                                                                          0
+    itxn_field ConfigAssetDecimals
+    // inner_transactions/asset_transfer.py:18
+    // unit_name="TST",
+    byte "TST"                                                                                                     "TST"
+    itxn_field ConfigAssetUnitName
+    // inner_transactions/asset_transfer.py:17
+    // asset_name="test",
+    byte "test"                                                                                                    "test"
+    itxn_field ConfigAssetName
+    // inner_transactions/asset_transfer.py:16
+    // total=1000,
+    int 1000                                                                                                       1000
+    itxn_field ConfigAssetTotal
+    // inner_transactions/asset_transfer.py:15
+    // itxn.AssetConfig(
+    int acfg                                                                                                       acfg
+    itxn_field TypeEnum
+    int 0                                                                                                          0
+    itxn_field Fee
+    // inner_transactions/asset_transfer.py:15-23
+    // itxn.AssetConfig(
+    //     total=1000,
+    //     asset_name="test",
+    //     unit_name="TST",
+    //     decimals=0,
+    //     manager=op.Global.current_application_address,
+    //     clawback=op.Global.current_application_address,
+    // )
+    // .submit()
+    itxn_submit
+    // inner_transactions/asset_transfer.py:15-24
+    // itxn.AssetConfig(
+    //     total=1000,
+    //     asset_name="test",
+    //     unit_name="TST",
+    //     decimals=0,
+    //     manager=op.Global.current_application_address,
+    //     clawback=op.Global.current_application_address,
+    // )
+    // .submit()
+    // .created_asset
+    itxn CreatedAssetID                                                                                            new_asset#0
+    // inner_transactions/asset_transfer.py:28-33
+    // itxn.AssetTransfer(
+    //     asset_sender=new_asset.creator,
+    //     asset_receiver=Global.current_application_address,
+    //     asset_amount=1000,
+    //     xfer_asset=new_asset,
+    // ).submit()
+    itxn_begin                                                                                                     new_asset#0
+    // inner_transactions/asset_transfer.py:29
+    // asset_sender=new_asset.creator,
+    l-load-copy new_asset#0 0                                                                                      new_asset#0,new_asset#0 (copy)
+    asset_params_get AssetCreator                                                                                  new_asset#0,value%0#0,check%0#0
+    l-load check%0#0 0                                                                                             new_asset#0,value%0#0,check%0#0
+    assert // asset exists                                                                                         new_asset#0,value%0#0
+    // inner_transactions/asset_transfer.py:30
+    // asset_receiver=Global.current_application_address,
+    global CurrentApplicationAddress                                                                               new_asset#0,value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0
+    l-load new_asset#0 2                                                                                           value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0,new_asset#0
+    itxn_field XferAsset                                                                                           value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0
+    // inner_transactions/asset_transfer.py:31
+    // asset_amount=1000,
+    int 1000                                                                                                       value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0,1000
+    itxn_field AssetAmount                                                                                         value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0
+    l-load inner_txn_params%1%%param_AssetReceiver_idx_0#0 0                                                       value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0
+    itxn_field AssetReceiver                                                                                       value%0#0
+    l-load value%0#0 0                                                                                             value%0#0
+    itxn_field AssetSender
+    // inner_transactions/asset_transfer.py:28
+    // itxn.AssetTransfer(
+    int axfer                                                                                                      axfer
+    itxn_field TypeEnum
+    int 0                                                                                                          0
+    itxn_field Fee
+    // inner_transactions/asset_transfer.py:28-33
+    // itxn.AssetTransfer(
+    //     asset_sender=new_asset.creator,
+    //     asset_receiver=Global.current_application_address,
+    //     asset_amount=1000,
+    //     xfer_asset=new_asset,
+    // ).submit()
+    itxn_submit
+    retsub
+
+

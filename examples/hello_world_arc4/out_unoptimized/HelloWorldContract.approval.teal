@@ -1,27 +1,39 @@
 #pragma version 10
+#pragma typetrack false
 
-examples.hello_world_arc4.contract.HelloWorldContract.approval_program:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
     intcblock 0 1
-    callsub __puya_arc4_router__
-    return
 
-
-// examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
+main_block@1:
     // hello_world_arc4/contract.py:9
     // class HelloWorldContract(ARC4Contract):
-    proto 0 1
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz __puya_arc4_router___bare_routing@5
+    bz main_bare_routing@6
+
+main_abi_routing@2:
+    // hello_world_arc4/contract.py:9
+    // class HelloWorldContract(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x02bece11 // method "hello(string)string"
     swap
-    match __puya_arc4_router___hello_route@2
-    b __puya_arc4_router___switch_case_default@3
+    match main_hello_route@3
 
-__puya_arc4_router___hello_route@2:
+main_switch_case_default@4:
+
+main_switch_case_next@5:
+
+main_after_if_else@10:
+    // hello_world_arc4/contract.py:9
+    // class HelloWorldContract(ARC4Contract):
+    intc_0 // 0
+
+main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__@11:
+    return
+
+main_hello_route@3:
     // hello_world_arc4/contract.py:10
     // @arc4.abimethod
     txn OnCompletion
@@ -50,36 +62,32 @@ __puya_arc4_router___hello_route@2:
     concat
     log
     intc_1 // 1
-    retsub
+    b main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__@11
 
-__puya_arc4_router___switch_case_default@3:
-    b __puya_arc4_router___after_if_else@9
-
-__puya_arc4_router___bare_routing@5:
+main_bare_routing@6:
     // hello_world_arc4/contract.py:9
     // class HelloWorldContract(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match __puya_arc4_router_____algopy_default_create@6
-    b __puya_arc4_router___switch_case_default@7
+    match main___algopy_default_create@7
 
-__puya_arc4_router_____algopy_default_create@6:
+main_switch_case_default@8:
+
+main_switch_case_next@9:
+    b main_after_if_else@10
+
+main___algopy_default_create@7:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    callsub __algopy_default_create
+
+main_block@12:
+
+main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__algopy_default_create@13:
     intc_1 // 1
-    retsub
-
-__puya_arc4_router___switch_case_default@7:
-
-__puya_arc4_router___after_if_else@9:
-    // hello_world_arc4/contract.py:9
-    // class HelloWorldContract(ARC4Contract):
-    intc_0 // 0
-    retsub
+    b main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__@11
 
 
 // examples.hello_world_arc4.contract.HelloWorldContract.hello(name: bytes) -> bytes:
@@ -93,10 +101,4 @@ hello:
     pushbytes "Hello, "
     frame_dig -1
     concat
-    retsub
-
-
-// examples.hello_world_arc4.contract.HelloWorldContract.__algopy_default_create() -> void:
-__algopy_default_create:
-    proto 0 0
     retsub

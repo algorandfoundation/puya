@@ -1,6 +1,8 @@
 #pragma version 10
+#pragma typetrack false
 
-test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program:
+// test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program() -> uint64:
+main:
     intcblock 1 0 2
     bytecblock 0x0304 0x03
     pushbytes ""
@@ -103,10 +105,6 @@ main_after_for@12:
     txn NumAppArgs
     bz main_ternary_false@14
     pushbytes 0x000132
-    b main_ternary_merge@15
-
-main_ternary_false@14:
-    pushbytes 0x000133
 
 main_ternary_merge@15:
     extract 2 0
@@ -115,3 +113,7 @@ main_ternary_merge@15:
     assert
     intc_0 // 1
     return
+
+main_ternary_false@14:
+    pushbytes 0x000133
+    b main_ternary_merge@15
