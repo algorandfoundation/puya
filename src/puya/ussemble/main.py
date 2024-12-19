@@ -1,5 +1,7 @@
-from collections.abc import Mapping, Sequence
+import typing
+from collections.abc import Mapping
 
+from puya.avm_type import AVMType
 from puya.context import CompileContext
 from puya.models import TemplateValue
 from puya.teal import models as teal
@@ -12,41 +14,31 @@ from puya.utils import attrs_extend
 def assemble_program(
     ctx: CompileContext,
     program: teal.TealProgram,
-    template_variables: Mapping[str, TemplateValue],
     *,
-    debug_only: bool = False,
+    template_constants: Mapping[str, TemplateValue] | None = None,
+    is_reference: bool = False,
 ) -> models.AssembledProgram:
-    int_template_vars = _gather_template_variables(program, teal.IntBlock)
-    bytes_template_vars = _gather_template_variables(program, teal.BytesBlock)
-    program_template_vars = {*int_template_vars, *bytes_template_vars}
-    if debug_only:
-        # use dummy template values to produce a debug map
-        mocked_template_variables: Mapping[str, TemplateValue] = {
-            **{t: (0, None) for t in int_template_vars if t not in template_variables},
-            **{t: (b"", None) for t in bytes_template_vars if t not in template_variables},
-        }
-    else:
-        mocked_template_variables = {}
-
+    referenced_template_vars = _gather_template_variables(program)
     assemble_ctx = attrs_extend(
         AssembleContext,
         ctx,
-        provided_template_variables={
-            t: v for t, v in template_variables.items() if t in program_template_vars
-        },
-        mocked_template_variables=mocked_template_variables,
+        program_ref=program.ref,
+        is_reference=is_reference,
+        template_variable_types=referenced_template_vars,
+        template_constants=template_constants,
     )
     return assemble_bytecode_and_debug_info(assemble_ctx, program)
 
 
-def _gather_template_variables[T: (teal.IntBlock, teal.BytesBlock)](
-    program: teal.TealProgram, typ: type[T]
-) -> Sequence[str]:
-    return [
-        t
+def _gather_template_variables(
+    program: teal.TealProgram,
+) -> Mapping[str, typing.Literal[AVMType.uint64, AVMType.bytes]]:
+    return {
+        t: AVMType.uint64 if isinstance(op, teal.IntBlock) else AVMType.bytes
         for sub in program.all_subroutines
         for block in sub.blocks
         for op in block.ops
-        for t in (op.constants if isinstance(op, typ) else ())
+        if isinstance(op, teal.IntBlock | teal.BytesBlock)
+        for t in op.constants
         if isinstance(t, str)
-    ]
+    }

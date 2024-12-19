@@ -1,7 +1,7 @@
 from algopy import Contract, UInt64, subroutine, urange
 
 
-@subroutine
+@subroutine(inline=False)
 def get_bool() -> bool:
     return True
 

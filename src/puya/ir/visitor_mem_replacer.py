@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 
 import attrs
 
@@ -8,8 +8,7 @@ from puya.ir.visitor_mutator import IRMutator
 
 @attrs.define
 class MemoryReplacer(IRMutator):
-    _find: frozenset[models.Register]
-    _replacement: models.Register
+    _replacements: Mapping[models.Register, models.Register]
     replaced: int = 0
 
     @classmethod
@@ -17,16 +16,19 @@ class MemoryReplacer(IRMutator):
         cls,
         blocks: Iterable[models.BasicBlock],
         *,
-        find: Iterable[models.Register],
-        replacement: models.Register,
+        replacements: Mapping[models.Register, models.Register],
     ) -> int:
-        replacer = cls(find=frozenset(find), replacement=replacement)
+        if not replacements:
+            return 0
+        replacer = cls(replacements=replacements)
         for block in blocks:
             replacer.visit_block(block)
         return replacer.replaced
 
     def visit_register(self, reg: models.Register) -> models.Register:
-        if reg not in self._find:
+        try:
+            replacement = self._replacements[reg]
+        except KeyError:
             return reg
         self.replaced += 1
-        return self._replacement
+        return replacement

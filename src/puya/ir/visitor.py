@@ -2,7 +2,6 @@
 
 from __future__ import annotations  # needed to break import cycle
 
-import typing
 import typing as t
 from abc import ABC, abstractmethod
 
@@ -11,15 +10,16 @@ if t.TYPE_CHECKING:
 
     import puya.ir.models
 
-T = t.TypeVar("T")
 
-
-class IRVisitor(t.Generic[T], ABC):
+class IRVisitor[T](ABC):
     @abstractmethod
     def visit_assignment(self, ass: puya.ir.models.Assignment) -> T: ...
 
     @abstractmethod
     def visit_register(self, reg: puya.ir.models.Register) -> T: ...
+
+    @abstractmethod
+    def visit_undefined(self, val: puya.ir.models.Undefined) -> T: ...
 
     @abstractmethod
     def visit_uint64_constant(self, const: puya.ir.models.UInt64Constant) -> T: ...
@@ -95,11 +95,8 @@ class IRVisitor(t.Generic[T], ABC):
 
 
 class IRTraverser(IRVisitor[None]):
-    active_block: puya.ir.models.BasicBlock
-
     def visit_all_blocks(self, blocks: Iterable[puya.ir.models.BasicBlock]) -> None:
         for block in blocks:
-            self.active_block = block
             self.visit_block(block)
 
     def visit_block(self, block: puya.ir.models.BasicBlock) -> None:
@@ -112,6 +109,9 @@ class IRTraverser(IRVisitor[None]):
         ass.source.accept(self)
 
     def visit_register(self, reg: puya.ir.models.Register) -> None:
+        pass
+
+    def visit_undefined(self, val: puya.ir.models.Undefined) -> None:
         pass
 
     def visit_uint64_constant(self, const: puya.ir.models.UInt64Constant) -> None:
@@ -177,13 +177,11 @@ class IRTraverser(IRVisitor[None]):
 
     def visit_goto_nth(self, goto_nth: puya.ir.models.GotoNth) -> None:
         goto_nth.value.accept(self)
-        goto_nth.default.accept(self)
 
     def visit_switch(self, switch: puya.ir.models.Switch) -> None:
         switch.value.accept(self)
         for case in switch.cases:
             case.accept(self)
-        switch.default.accept(self)
 
     def visit_subroutine_return(self, retsub: puya.ir.models.SubroutineReturn) -> None:
         for r in retsub.result:
@@ -200,11 +198,14 @@ class IRTraverser(IRVisitor[None]):
             v.accept(self)
 
 
-class NoOpIRVisitor(typing.Generic[T], IRVisitor[T | None]):
+class NoOpIRVisitor[T](IRVisitor[T | None]):
     def visit_assignment(self, ass: puya.ir.models.Assignment) -> T | None:
         return None
 
     def visit_register(self, reg: puya.ir.models.Register) -> T | None:
+        return None
+
+    def visit_undefined(self, val: puya.ir.models.Undefined) -> T | None:
         return None
 
     def visit_uint64_constant(self, const: puya.ir.models.UInt64Constant) -> T | None:

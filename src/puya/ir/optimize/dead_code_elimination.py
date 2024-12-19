@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Iterable, Sequence, Set
 
 import attrs
@@ -7,9 +8,7 @@ from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import models, visitor
 from puya.ir._utils import bfs_block_order
-from puya.ir.models import Constant, InvokeSubroutine, Register, SubroutineReturn, TemplateVar
 from puya.ir.ssa import TrivialPhiRemover
-from puya.ir.visitor_mutator import IRMutator
 from puya.utils import StableSet
 
 logger = log.get_logger(__name__)
@@ -24,6 +23,7 @@ PURE_AVM_OPS = frozenset(
         "keccak256",
         "sha3_256",
         "sha512_256",
+        "bitlen",
         # group: could only fail on a type error
         "!",
         "!=",
@@ -128,6 +128,9 @@ PURE_AVM_OPS = frozenset(
         "ed25519verify",
         "ed25519verify_bare",
         "vrf_verify",
+        # group: v11
+        "falcon_verify",
+        "sumhash512",
     ]
 )
 
@@ -180,6 +183,12 @@ SIDE_EFFECT_FREE_AVM_OPS = frozenset([*PURE_AVM_OPS, *IMPURE_SIDE_EFFECT_FREE_AV
 class SubroutineCollector(visitor.IRTraverser):
     subroutines: StableSet[models.Subroutine] = attrs.field(factory=StableSet)
 
+    @classmethod
+    def collect(cls, program: models.Program) -> StableSet[models.Subroutine]:
+        collector = cls()
+        collector.visit_subroutine(program.main)
+        return collector.subroutines
+
     def visit_subroutine(self, subroutine: models.Subroutine) -> None:
         if subroutine not in self.subroutines:
             self.subroutines.add(subroutine)
@@ -189,17 +198,14 @@ class SubroutineCollector(visitor.IRTraverser):
         self.visit_subroutine(callsub.target)
 
 
-def remove_unused_subroutines(
-    _context: CompileContext, artifact_ir: models.ModuleArtifact
-) -> bool:
-    modified = False
-    for program in artifact_ir.all_programs():
-        collector = SubroutineCollector()
-        collector.visit_subroutine(program.main)
-        to_keep = [p for p in program.subroutines if p in collector.subroutines]
-        if to_keep != program.subroutines:
-            program.subroutines = to_keep
-            modified = True
+def remove_unused_subroutines(program: models.Program) -> bool:
+    subroutines = SubroutineCollector.collect(program)
+    if modified := (len(subroutines) != (1 + len(program.subroutines))):
+        to_keep = [p for p in program.subroutines if p in subroutines]
+        for p in program.subroutines:
+            if p not in subroutines:
+                logger.debug(f"removing unused subroutine {p.id}")
+        program.subroutines = to_keep
     return modified
 
 
@@ -233,45 +239,43 @@ def remove_unused_variables(_context: CompileContext, subroutine: models.Subrout
     return modified > 0
 
 
-def remove_unused_ops(_context: CompileContext, subroutine: models.Subroutine) -> bool:
-    modified = 0
-    for block in subroutine.body:
-        for op in block.ops:
-            if isinstance(op, models.Intrinsic) and op.op.code in SIDE_EFFECT_FREE_AVM_OPS:
-                logger.debug(f"Removing unused pure op {op}")
-                block.ops.remove(op)
-                modified += 1
-    return modified > 0
-
-
-@attrs.define
+@attrs.define(kw_only=True)
 class UnusedRegisterCollector(visitor.IRTraverser):
     used: set[models.Register] = attrs.field(factory=set)
     assigned: dict[models.Register, tuple[models.BasicBlock, models.Assignment | models.Phi]] = (
         attrs.field(factory=dict)
     )
+    active_block: models.BasicBlock
 
     @classmethod
     def collect(
         cls, sub: models.Subroutine
     ) -> Iterable[tuple[models.BasicBlock, models.Assignment | models.Phi, models.Register]]:
-        collector = cls()
+        collector = cls(active_block=sub.entry)
         collector.visit_all_blocks(sub.body)
         for reg, (block, ass) in collector.assigned.items():
             if reg not in collector.used:
                 yield block, ass, reg
 
+    @typing.override
+    def visit_block(self, block: models.BasicBlock) -> None:
+        self.active_block = block
+        super().visit_block(block)
+
+    @typing.override
     def visit_assignment(self, ass: models.Assignment) -> None:
         for target in ass.targets:
             self.assigned[target] = (self.active_block, ass)
         ass.source.accept(self)
 
+    @typing.override
     def visit_phi(self, phi: models.Phi) -> None:
         # don't visit phi.register, as this would mean the phi can never be considered unused
         for arg in phi.args:
             arg.accept(self)
         self.assigned[phi.register] = (self.active_block, phi)
 
+    @typing.override
     def visit_register(self, reg: models.Register) -> None:
         self.used.add(reg)
 
@@ -330,37 +334,3 @@ class UnreachablePhiArgsRemover(visitor.IRTraverser):
                 f"{', '.join(map(str, self._unreachable_blocks))}"
             )
         TrivialPhiRemover.try_remove(phi, self._reachable_blocks)
-
-
-@attrs.define
-class RemoveCallsToNoOpSubroutines(IRMutator):
-    modified: int = 0
-
-    @classmethod
-    def apply(cls, to: models.Subroutine) -> int:
-        remover = cls()
-        for block in to.body:
-            remover.visit_block(block)
-        return remover.modified
-
-    def visit_invoke_subroutine(self, callsub: InvokeSubroutine) -> InvokeSubroutine | None:  # type: ignore[override]
-        callsub = super().visit_invoke_subroutine(callsub)
-        # TODO: find a more flexible way of determining if all args are side-effect free
-        if all(isinstance(a, Register | Constant | TemplateVar) for a in callsub.args):
-            try:
-                (sole_block,) = callsub.target.body
-                (sole_op,) = sole_block.all_ops
-            except ValueError:
-                pass
-            else:
-                match sole_op:
-                    case SubroutineReturn(result=[]):
-                        self.modified += 1
-                        return None
-        return callsub
-
-
-def remove_calls_to_no_op_subroutines(
-    _context: CompileContext, subroutine: models.Subroutine
-) -> bool:
-    return RemoveCallsToNoOpSubroutines.apply(subroutine) > 0

@@ -2,7 +2,7 @@ from collections.abc import Mapping
 
 import attrs
 
-from puya.context import CompileContext
+from puya.context import ArtifactCompileContext
 from puya.ir import models as ir
 from puya.mir import models
 from puya.mir.vla import VariableLifetimeAnalysis
@@ -10,7 +10,7 @@ from puya.utils import attrs_extend
 
 
 @attrs.define(kw_only=True)
-class ProgramMIRContext(CompileContext):
+class ProgramMIRContext(ArtifactCompileContext):
     program: ir.Program
     subroutine_names: Mapping[ir.Subroutine, str] = attrs.field(init=False)
 
@@ -23,8 +23,8 @@ class ProgramMIRContext(CompileContext):
             if subroutine.short_name and subroutine.short_name not in names:
                 name = subroutine.short_name
             else:
-                assert subroutine.full_name not in names
-                name = subroutine.full_name
+                assert subroutine.id not in names
+                name = subroutine.id
             names[name] = subroutine
 
         return {v: k for k, v in names.items()}

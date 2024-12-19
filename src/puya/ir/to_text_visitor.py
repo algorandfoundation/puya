@@ -1,19 +1,21 @@
 import contextlib
 import typing
 from collections.abc import Iterator, Sequence
-from pathlib import Path
 
 from puya import log
+from puya.context import ArtifactCompileContext
 from puya.ir import models
 from puya.ir.types_ import IRType
 from puya.ir.utils import format_bytes, format_error_comment
 from puya.ir.visitor import IRVisitor
+from puya.models import ProgramKind
 from puya.utils import make_path_relative_to_cwd
 
 logger = log.get_logger(__name__)
 
 
 class ToTextVisitor(IRVisitor[str]):
+    @typing.override
     def visit_assignment(self, op: models.Assignment) -> str:
         targets = ", ".join(f"{r.accept(self)}: {r.ir_type.name}" for r in op.targets)
         if len(op.targets) > 1:
@@ -21,27 +23,39 @@ class ToTextVisitor(IRVisitor[str]):
         source = op.source.accept(self)
         return f"let {targets} = {source}"
 
+    @typing.override
     def visit_register(self, op: models.Register) -> str:
         return op.local_id
 
+    @typing.override
+    def visit_undefined(self, op: models.Undefined) -> str:
+        return "undefined"
+
+    @typing.override
     def visit_uint64_constant(self, op: models.UInt64Constant) -> str:
         return f"{op.value}u" if not op.teal_alias else op.teal_alias
 
+    @typing.override
     def visit_biguint_constant(self, op: models.BigUIntConstant) -> str:
         return f"{op.value}b"
 
+    @typing.override
     def visit_bytes_constant(self, op: models.BytesConstant) -> str:
         return format_bytes(op.value, op.encoding)
 
+    @typing.override
     def visit_address_constant(self, op: models.AddressConstant) -> str:
         return f"addr {op.value}"
 
+    @typing.override
     def visit_method_constant(self, op: models.MethodConstant) -> str:
         return f'method "{op.value}"'
 
+    @typing.override
     def visit_itxn_constant(self, op: models.ITxnConstant) -> str:
         return f"{op.ir_type.name}({op.value})"
 
+    @typing.override
     def visit_compiled_contract_reference(self, const: models.CompiledContractReference) -> str:
         return (
             ", ".join(
@@ -58,6 +72,7 @@ class ToTextVisitor(IRVisitor[str]):
             + ")"
         )
 
+    @typing.override
     def visit_compiled_logicsig_reference(self, const: models.CompiledLogicSigReference) -> str:
         return (
             ", ".join(
@@ -72,6 +87,7 @@ class ToTextVisitor(IRVisitor[str]):
             + ")"
         )
 
+    @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> str:
         callee = intrinsic.op.code
         immediates = list(map(str, intrinsic.immediates))
@@ -84,49 +100,57 @@ class ToTextVisitor(IRVisitor[str]):
             callee += f" // {format_error_comment(intrinsic.op.code, intrinsic.error_message)}"
         return callee
 
+    @typing.override
     def visit_inner_transaction_field(self, field: models.InnerTransactionField) -> str:
         group = field.group_index.accept(self)
         array_access = f"[{field.array_index.accept(self)}]" if field.array_index else ""
         return f"itxn[{group}].{field.field}{array_access}"
 
+    @typing.override
     def visit_invoke_subroutine(self, op: models.InvokeSubroutine) -> str:
         args = ", ".join(a.accept(self) for a in op.args)
-        return f"{op.target.full_name}({args})"
+        return f"{op.target.id}({args})"
 
+    @typing.override
     def visit_conditional_branch(self, op: models.ConditionalBranch) -> str:
-        return f"goto {op.condition.accept(self)} ? block@{op.non_zero.id} : block@{op.zero.id}"
+        return f"goto {op.condition.accept(self)} ? {op.non_zero} : {op.zero}"
 
+    @typing.override
     def visit_goto(self, op: models.Goto) -> str:
-        return f"goto block@{op.target.id}"
+        return f"goto {op.target}"
 
+    @typing.override
     def visit_goto_nth(self, op: models.GotoNth) -> str:
-        blocks = ", ".join([f"block@{b.id}" for b in op.blocks])
-        return f"goto_nth [{blocks}][{op.value.accept(self)}] else {op.default.accept(self)}"
+        blocks = ", ".join(map(str, op.blocks))
+        return f"goto_nth [{blocks}][{op.value.accept(self)}] else goto {op.default}"
 
+    @typing.override
     def visit_switch(self, op: models.Switch) -> str:
-        cases = {k.accept(self): f"block@{b.id}" for k, b in op.cases.items()}
-        if isinstance(op.default, models.Goto):
-            cases["*"] = f"block@{op.default.target.id}"
-        else:
-            cases["*"] = op.default.accept(self)
+        cases = {k.accept(self): str(b) for k, b in op.cases.items()}
+        cases["*"] = str(op.default)
         map_ = ", ".join(f"{k} => {v}" for k, v in cases.items())
         return f"switch {op.value.accept(self)} {{{map_}}}"
 
+    @typing.override
     def visit_subroutine_return(self, op: models.SubroutineReturn) -> str:
         results = " ".join(r.accept(self) for r in op.result)
         return f"return {results}"
 
+    @typing.override
     def visit_template_var(self, deploy_var: models.TemplateVar) -> str:
         return f"TemplateVar[{deploy_var.ir_type.name}]({deploy_var.name})"
 
+    @typing.override
     def visit_program_exit(self, op: models.ProgramExit) -> str:
         return f"exit {op.result.accept(self)}"
 
+    @typing.override
     def visit_fail(self, op: models.Fail) -> str:
         if op.error_message:
             return f"fail // {op.error_message}"
         return "fail"
 
+    @typing.override
     def visit_phi(self, op: models.Phi) -> str:
         r = op.register
         target = f"{r.accept(self)}: {r.ir_type.name}"
@@ -137,9 +161,11 @@ class ToTextVisitor(IRVisitor[str]):
             source = "undefined"
         return f"let {target} = {source}"
 
+    @typing.override
     def visit_phi_argument(self, op: models.PhiArgument) -> str:
-        return f"{op.value.accept(self)} <- block@{op.through.id}"
+        return f"{op.value.accept(self)} <- {op.through}"
 
+    @typing.override
     def visit_value_tuple(self, tup: models.ValueTuple) -> str:
         return "(" + ", ".join(val.accept(self) for val in tup.values) + ")"
 
@@ -161,64 +187,50 @@ class TextEmitter:
             self._indent -= spaces
 
 
-def render_body(emitter: TextEmitter, blocks: Sequence[models.BasicBlock]) -> None:
+def _render_block_name(block: models.BasicBlock) -> str:
+    result = f"{block}: // "
+    if block.comment:
+        result += f"{block.comment}_"
+    result += f"L{block.source_location.line}"
+    return result
+
+
+def _render_body(emitter: TextEmitter, blocks: Sequence[models.BasicBlock]) -> None:
     renderer = ToTextVisitor()
     for block in blocks:
         assert block.terminated
-        emitter.append(str(block))
+        emitter.append(_render_block_name(block))
         with emitter.indent():
             for op in block.all_ops:
                 emitter.append(op.accept(renderer))
 
 
-def render_program(emitter: TextEmitter, name: str, program: models.Program) -> None:
-    emitter.append(f"program {name}:")
-    with emitter.indent():
-        for idx, sub in enumerate(program.all_subroutines):
-            if idx > 0:
-                emitter.append("")
-            args = ", ".join(f"{r.name}: {r.ir_type.name}" for r in sub.parameters)
-            match sub.returns:
-                case []:
-                    returns = "void"
-                case [IRType(name=returns)]:
-                    pass
-                case _ as ir_types:
-                    returns = f"<{', '.join(t.name for t in ir_types)}>"
-            emitter.append(f"subroutine {sub.full_name}({args}) -> {returns}:")
-            with emitter.indent():
-                render_body(emitter, sub.body)
-
-
-def render_contract(emitter: TextEmitter, contract: models.Contract) -> None:
-    emitter.append(f"contract {contract.metadata.ref}:")
-    with emitter.indent():
-        render_program(emitter, "approval", contract.approval_program)
-        emitter.append("")
-        render_program(emitter, "clear-state", contract.clear_program)
-
-
-def render_logic_signature(emitter: TextEmitter, logic_sig: models.LogicSignature) -> None:
-    render_program(emitter, f"logicsig {logic_sig.metadata.ref}", logic_sig.program)
-
-
-def output_artifact_ir_to_path(artifact: models.ModuleArtifact, path: Path) -> None:
+def render_program(
+    context: ArtifactCompileContext, program: models.Program, *, qualifier: str
+) -> None:
+    out_dir = context.out_dir
+    if out_dir is None:
+        return
+    out_dir.mkdir(exist_ok=True)
     emitter = TextEmitter()
-    match artifact:
-        case models.Contract():
-            render_contract(emitter, artifact)
-        case models.LogicSignature():
-            render_logic_signature(emitter, artifact)
-        case _:
-            typing.assert_never(artifact)
+    emitter.append(f"main {program.main.id}:")
+    with emitter.indent():
+        _render_body(emitter, program.main.body)
+    for sub in program.subroutines:
+        emitter.append("")
+        args = ", ".join(f"{r.name}: {r.ir_type.name}" for r in sub.parameters)
+        match sub.returns:
+            case []:
+                returns = "void"
+            case [IRType(name=returns)]:
+                pass
+            case _ as ir_types:
+                returns = f"<{', '.join(t.name for t in ir_types)}>"
+        emitter.append(f"subroutine {sub.id}({args}) -> {returns}:")
+        with emitter.indent():
+            _render_body(emitter, sub.body)
+    if program.kind is not ProgramKind.logic_signature:
+        qualifier = f"{program.kind}.{qualifier}"
+    path = out_dir / f"{context.metadata.name}.{qualifier}.ir"
     path.write_text("\n".join(emitter.lines), encoding="utf-8")
     logger.debug(f"Output IR to {make_path_relative_to_cwd(path)}")
-
-
-def ir_to_text(module_irs: dict[str, list[models.Contract]]) -> list[str]:
-    emitter = TextEmitter()
-
-    all_contracts = (c for contracts in module_irs.values() for c in contracts)
-    for contract in all_contracts:
-        render_contract(emitter, contract)
-    return emitter.lines

@@ -1,7 +1,9 @@
 import typing
+from itertools import zip_longest
 
 import attrs
 
+from puya.avm_type import AVMType
 from puya.errors import InternalError
 from puya.ir.types_ import AVMBytesEncoding
 from puya.mir import models as mir
@@ -9,42 +11,60 @@ from puya.mir.visitor import MIRVisitor
 from puya.teal import models as teal
 
 
-@attrs.define
+@attrs.frozen
 class TealBuilder(MIRVisitor[None]):
+    next_block_label: str | None
     use_frame: bool
-    blocks: list[teal.TealBlock] = attrs.field(factory=list)
+    label_stack: list[str]
+    ops: list[teal.TealOp] = attrs.field(factory=list)
 
     @classmethod
     def build_subroutine(cls, mir_sub: mir.MemorySubroutine) -> teal.TealSubroutine:
-        referenced_labels = _get_referenced_labels(mir_sub)
-        builder = cls(use_frame=not mir_sub.is_main)
-        for block_idx, mir_block in enumerate(mir_sub.all_blocks):
-            if block_idx == 0 or mir_block.block_name in referenced_labels:
-                builder.blocks.append(
-                    teal.TealBlock(
-                        label=(
-                            mir_block.block_name
-                            if not (mir_sub.is_main and block_idx == 0)
-                            else mir_sub.signature.name
-                        ),
-                        ops=[],
-                        x_stack_in=mir_block.x_stack_in or (),
-                        entry_stack_height=mir_block.entry_stack_height,
-                        exit_stack_height=-1,
-                    )
-                )
-            builder.blocks[-1].exit_stack_height = mir_block.exit_stack_height
-            for op in mir_block.ops:
-                op.accept(builder)
-
-        return teal.TealSubroutine(
+        result = teal.TealSubroutine(
             is_main=mir_sub.is_main,
             signature=mir_sub.signature,
-            blocks=builder.blocks,
+            blocks=[],
+            source_location=mir_sub.source_location,
         )
+        entry_block = mir_sub.body[0]
+        label_stack = [entry_block.block_name]
+        blocks_by_label = {
+            b.block_name: (b, None if next_b is None else next_b.block_name)
+            for b, next_b in zip_longest(mir_sub.body, mir_sub.body[1:])
+        }
+        while label_stack:
+            label = label_stack.pop()
+            mir_block, next_block_label = blocks_by_label.pop(label, (None, None))
+            if mir_block is None:
+                continue
+            builder = cls(
+                next_block_label=next_block_label,
+                use_frame=not mir_sub.is_main,
+                label_stack=label_stack,
+            )
+            if mir_block is entry_block and not mir_sub.is_main:
+                builder.ops.append(
+                    teal.Proto(
+                        parameters=len(mir_sub.signature.parameters),
+                        returns=len(mir_sub.signature.returns),
+                        source_location=mir_sub.source_location,
+                    )
+                )
+            for op in mir_block.ops:
+                op.accept(builder)
+            teal_block = teal.TealBlock(
+                label=mir_block.block_name,
+                ops=builder.ops,
+                x_stack_in=mir_block.x_stack_in or (),
+                entry_stack_height=mir_block.entry_stack_height,
+                exit_stack_height=mir_block.exit_stack_height,
+            )
+            teal_block.validate_stack_height()
+            result.blocks.append(teal_block)
+        return result
 
     def _add_op(self, op: teal.TealOp) -> None:
-        self.blocks[-1].ops.append(op)
+        self.ops.append(op)
 
     def visit_int(self, const: mir.Int) -> None:
         self._add_op(
@@ -64,6 +84,28 @@ class TealBuilder(MIRVisitor[None]):
                 source_location=const.source_location,
             )
         )
+
+    def visit_undefined(self, push: mir.Undefined) -> None:
+        match push.atype:
+            case AVMType.uint64:
+                self._add_op(
+                    teal.Byte(
+                        b"",
+                        AVMBytesEncoding.utf8,
+                        stack_manipulations=_lstack_manipulations(push),
+                        source_location=push.source_location,
+                    )
+                )
+            case AVMType.bytes:
+                self._add_op(
+                    teal.Int(
+                        0,
+                        stack_manipulations=_lstack_manipulations(push),
+                        source_location=push.source_location,
+                    )
+                )
+            case unexpected:
+                typing.assert_never(unexpected)
 
     def visit_template_var(self, const: mir.TemplateVar) -> None:
         self._add_op(
@@ -249,11 +291,6 @@ class TealBuilder(MIRVisitor[None]):
             )
         )
 
-    def visit_proto(self, proto: mir.Proto) -> None:
-        self._add_op(
-            teal.Proto(proto.parameters, proto.returns, source_location=proto.source_location)
-        )
-
     def visit_allocate(self, allocate: mir.Allocate) -> None:
         bad_bytes_value = teal.Int(
             0,
@@ -305,7 +342,111 @@ class TealBuilder(MIRVisitor[None]):
             n = retsub.returns + fx_height - 1
             for _ in range(fx_height):
                 self._add_op(teal.Uncover(n, source_location=retsub.source_location))
-        self._add_op(teal.RetSub(consumes=retsub.returns, source_location=retsub.source_location))
+        self._add_op(
+            teal.RetSub(
+                consumes=retsub.returns,
+                source_location=retsub.source_location,
+            )
+        )
+
+    def visit_program_exit(self, op: mir.ProgramExit) -> None:
+        self._add_op(
+            teal.Return(
+                error_message=op.error_message,
+                stack_manipulations=_lstack_manipulations(op),
+                source_location=op.source_location,
+            )
+        )
+
+    def visit_err(self, op: mir.Err) -> None:
+        self._add_op(
+            teal.Err(
+                error_message=op.error_message,
+                stack_manipulations=_lstack_manipulations(op),
+                source_location=op.source_location,
+            )
+        )
+
+    def visit_goto(self, op: mir.Goto) -> None:
+        self._add_op(
+            teal.Branch(
+                target=op.target,
+                error_message=op.error_message,
+                stack_manipulations=_lstack_manipulations(op),
+                source_location=op.source_location,
+            )
+        )
+        self.label_stack.append(op.target)
+
+    def visit_conditional_branch(self, op: mir.ConditionalBranch) -> None:
+        condition_op: type[teal.BranchNonZero | teal.BranchZero]
+        if op.nonzero_target == self.next_block_label:
+            condition_op = teal.BranchZero
+            condition_op_target = op.zero_target
+            other_target = op.nonzero_target
+        else:
+            condition_op = teal.BranchNonZero
+            condition_op_target = op.nonzero_target
+            other_target = op.zero_target
+
+        self._add_op(
+            condition_op(
+                target=condition_op_target,
+                error_message=op.error_message,
+                stack_manipulations=_lstack_manipulations(op),
+                source_location=op.source_location,
+            )
+        )
+        self.label_stack.append(condition_op_target)
+        self._add_op(
+            teal.Branch(
+                target=other_target,
+                error_message="",
+                stack_manipulations=[],
+                source_location=op.source_location,
+            )
+        )
+        self.label_stack.append(other_target)
+
+    def visit_switch(self, op: mir.Switch) -> None:
+        self._add_op(
+            teal.Switch(
+                targets=op.switch_targets,
+                error_message=op.error_message,
+                stack_manipulations=_lstack_manipulations(op),
+                source_location=op.source_location,
+            )
+        )
+        self.label_stack.extend(op.switch_targets)
+        self._add_op(
+            teal.Branch(
+                target=op.default_target,
+                error_message="",
+                stack_manipulations=[],
+                source_location=op.source_location,
+            )
+        )
+        self.label_stack.append(op.default_target)
+
+    def visit_match(self, op: mir.Match) -> None:
+        self._add_op(
+            teal.Match(
+                targets=op.match_targets,
+                error_message=op.error_message,
+                stack_manipulations=_lstack_manipulations(op),
+                source_location=op.source_location,
+            )
+        )
+        self.label_stack.extend(op.match_targets)
+        self._add_op(
+            teal.Branch(
+                target=op.default_target,
+                error_message="",
+                stack_manipulations=[],
+                source_location=op.source_location,
+            )
+        )
+        self.label_stack.append(op.default_target)
 
     def visit_intrinsic(self, intrinsic: mir.IntrinsicOp) -> None:
         self._add_op(
@@ -319,15 +460,6 @@ class TealBuilder(MIRVisitor[None]):
                 source_location=intrinsic.source_location,
             )
         )
-
-
-def _get_referenced_labels(subroutine: mir.MemorySubroutine) -> set[str]:
-    result = set[str]()
-    for b in subroutine.all_blocks:
-        for op in b.ops:
-            if isinstance(op, mir.BranchingOp):
-                result.update(op.targets())
-    return result
 
 
 def _lstack_manipulations(op: mir.BaseOp) -> list[teal.StackManipulation]:

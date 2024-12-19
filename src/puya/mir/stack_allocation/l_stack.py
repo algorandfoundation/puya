@@ -79,12 +79,12 @@ def _copy_usage_pairs(
         # step 1. copy define or use to bottom of stack
 
         # redetermine index as block ops may have changed
-        a_index = block.ops.index(a)
+        a_index = block.mem_ops.index(a)
 
         # insert replacement before store, or after load
         insert_index = a_index if isinstance(a, mir.AbstractStore) else a_index + 1
         stack = Stack.begin_block(ctx.subroutine, block)
-        for op in block.ops[:insert_index]:
+        for op in block.mem_ops[:insert_index]:
             op.accept(stack)
         dup = mir.StoreLStack(
             depth=len(stack.l_stack) - 1,
@@ -97,12 +97,12 @@ def _copy_usage_pairs(
             source_location=a.source_location,
             atype=a.atype,
         )
-        block.ops.insert(insert_index, dup)
+        block.mem_ops.insert(insert_index, dup)
         logger.debug(f"Inserted {block.block_name}.ops[{insert_index}]: '{dup}'")
 
         # step 2. replace b usage with instruction to rotate the value from the bottom of the stack
         # determine index of b, as inserts may have shifted its location
-        b_index = block.ops.index(b)
+        b_index = block.mem_ops.index(b)
 
         uncover = mir.LoadLStack(
             # can not determine depth yet
@@ -115,7 +115,7 @@ def _copy_usage_pairs(
             atype=b.atype,
         )
         # replace op
-        block.ops[b_index] = uncover
+        block.mem_ops[b_index] = uncover
 
         # remember replacement in case it is part of another pair
         # an op can only be at most in 2 pairs, so don't need to do this recursively
@@ -124,7 +124,7 @@ def _copy_usage_pairs(
 
 
 def _dead_store_removal(ctx: SubroutineCodeGenContext, block: mir.MemoryBasicBlock) -> None:
-    ops = block.ops
+    ops = block.mem_ops
     op_idx = 0
     while op_idx < len(ops) - 1:
         window = slice(op_idx, op_idx + 2)
@@ -159,7 +159,7 @@ def _dead_store_removal(ctx: SubroutineCodeGenContext, block: mir.MemoryBasicBlo
 
 
 def _implicit_store_removal(block: mir.MemoryBasicBlock) -> None:
-    ops = block.ops
+    ops = block.mem_ops
     op_idx = 0
     while op_idx < len(ops):
         op = ops[op_idx]
@@ -182,8 +182,8 @@ def _implicit_store_removal(block: mir.MemoryBasicBlock) -> None:
 
 def _calculate_load_depths(ctx: SubroutineCodeGenContext, block: mir.MemoryBasicBlock) -> None:
     stack = Stack.begin_block(ctx.subroutine, block)
-    for idx, op in enumerate(block.ops):
+    for idx, op in enumerate(block.mem_ops):
         if isinstance(op, mir.LoadLStack):
             local_id_index = stack.l_stack.index(op.local_id)
-            block.ops[idx] = attrs.evolve(op, depth=len(stack.l_stack) - local_id_index - 1)
+            block.mem_ops[idx] = attrs.evolve(op, depth=len(stack.l_stack) - local_id_index - 1)
         op.accept(stack)

@@ -1,11 +1,7 @@
 import contextlib
 import itertools
-from copy import deepcopy
-
-import attrs
 
 from puya import log
-from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.optimize.collapse_blocks import BlockReferenceReplacer
 from puya.utils import unique
@@ -13,17 +9,12 @@ from puya.utils import unique
 logger = log.get_logger(__name__)
 
 
-def post_ssa_optimizer(
-    context: CompileContext, artifact: models.ModuleArtifact
-) -> models.ModuleArtifact:
-    logger.debug("Performing post-SSA optimizations")
-    cloned = deepcopy(artifact)
-    for sub in cloned.all_subroutines():
+def post_ssa_optimizer(sub: models.Subroutine, optimization_level: int) -> None:
+    logger.debug(f"Performing post-SSA optimizations at level {optimization_level}")
+    if optimization_level >= 1:
         _remove_linear_jumps(sub)
-        if context.options.optimization_level >= 2:
-            _block_deduplication(sub)
-        attrs.validate(sub)
-    return cloned
+    if optimization_level >= 2:
+        _block_deduplication(sub)
 
 
 def _remove_linear_jumps(subroutine: models.Subroutine) -> None:

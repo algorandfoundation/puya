@@ -74,6 +74,7 @@ from puyapy.awst_build.eb.none import NoneTypeBuilder
 from puyapy.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
 from puyapy.awst_build.utils import (
     extract_bytes_literal_from_mypy,
+    get_decorators_by_fullname,
     get_unaliased_fullname,
     maybe_resolve_literal,
     require_callable_type,
@@ -99,6 +100,8 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         func_def: mypy.nodes.FuncDef,
         contract_method_info: ContractMethodInfo | None,
         source_location: SourceLocation,
+        *,
+        inline: bool | None,
     ):
         super().__init__(context=context)
         func_loc = self._location(func_def)  # TODO: why not source_location ??
@@ -177,6 +180,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 return_type=return_wtype,
                 body=translated_body,
                 documentation=documentation,
+                inline=inline,
             )
         else:
             self.result = ContractMethod(
@@ -188,6 +192,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 body=translated_body,
                 documentation=documentation,
                 arc4_method_config=self.contract_method_info.arc4_method_config,
+                inline=inline,
             )
 
     @classmethod
@@ -197,6 +202,8 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         context: ASTConversionModuleContext,
         func_def: mypy.nodes.FuncDef,
         source_location: SourceLocation,
+        *,
+        inline: bool | None,
     ) -> Subroutine: ...
 
     @classmethod
@@ -207,6 +214,8 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         func_def: mypy.nodes.FuncDef,
         source_location: SourceLocation,
         contract_method_info: ContractMethodInfo,
+        *,
+        inline: bool | None,
     ) -> ContractMethod: ...
 
     @classmethod
@@ -216,11 +225,14 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         func_def: mypy.nodes.FuncDef,
         source_location: SourceLocation,
         contract_method_info: ContractMethodInfo | None = None,
+        *,
+        inline: bool | None,
     ) -> Subroutine | ContractMethod:
         return cls(
             context=context,
             func_def=func_def,
             contract_method_info=contract_method_info,
+            inline=inline,
             source_location=source_location,
         ).result
 
@@ -768,12 +780,8 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                     location=expr_loc,
                 )
             case mypy.nodes.RefExpr(
-                node=mypy.nodes.Decorator(decorators=decorators) as dec
-            ) if any(
-                get_unaliased_fullname(de) == constants.SUBROUTINE_HINT
-                for de in decorators
-                if isinstance(de, mypy.nodes.RefExpr)  # TODO: why wouldn't this be a RefExpr
-            ):
+                node=mypy.nodes.Decorator() as dec
+            ) if constants.SUBROUTINE_HINT in get_decorators_by_fullname(self.context, dec):
                 self._precondition(
                     expr.fullname != expr.name,
                     "unqualified name found in call to function",

@@ -29,6 +29,7 @@ from puya.utils import set_add
 __all__ = [
     "create_abi_router",
     "extract_arc4_methods",
+    "maybe_avm_to_arc4_equivalent_type",
 ]
 
 logger = log.get_logger(__name__)
@@ -583,11 +584,13 @@ def extract_arc4_methods(
     arc4_method_metadata = dict[awst_nodes.ContractMethod, ARC4Method]()
     for m, bare_method_config in bare_methods.items():
         arc4_method_metadata[m] = ARC4BareMethod(
+            id=m.full_name,
             desc=m.documentation.description,
             config=bare_method_config,
         )
     for m, abi_method_config in abi_methods.items():
         arc4_method_metadata[m] = ARC4ABIMethod(
+            id=m.full_name,
             name=m.member_name,
             desc=m.documentation.description,
             args=[
@@ -657,6 +660,7 @@ def create_abi_router(
         body=create_block(router_location, None, *router),
         documentation=awst_nodes.MethodDocumentation(),
         arc4_method_config=None,
+        inline=True,
     )
     return approval_program
 

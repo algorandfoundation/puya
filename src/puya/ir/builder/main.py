@@ -102,6 +102,7 @@ class FunctionIRBuilder(
         function: awst_nodes.Function,
         subroutine: Subroutine,
     ) -> None:
+        logger.debug(f"Building IR for function {function.full_name}")
         builder = cls(ctx, function, subroutine)
         func_ctx = builder.context
         with func_ctx.log_exceptions():

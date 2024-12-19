@@ -25,12 +25,12 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
         if not mark or "test_case" not in mark.args[0]:
             params = [
                 ParameterSet.param(
-                    PuyaTestCase(root, item.name),
+                    PuyaTestCase(item),
                     marks=[pytest.mark.slow] if item.name == "stress_tests" else [],
                 )
                 for root in (EXAMPLES_DIR, TEST_CASES_DIR)
                 for item in root.iterdir()
-                if item.is_dir() and any(item.glob("*.py"))
+                if item.is_dir() and not item.name.startswith((".", "_"))
             ]
             metafunc.parametrize("test_case", params, ids=lambda t: t.id)
 

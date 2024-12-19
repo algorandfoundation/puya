@@ -36,8 +36,9 @@ from nacl.signing import SigningKey
 
 from puya.avm_type import AVMType
 from puya.models import CompiledContract, ContractState
+from puyapy.options import PuyaPyOptions
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
-from tests.utils import compile_src
+from tests.utils import compile_src_from_options
 
 pytestmark = pytest.mark.localnet
 
@@ -493,8 +494,12 @@ class _TestHarness:
     def _compile_and_assemble_src(
         self, src_path: Path, optimization_level: int, debug_level: int
     ) -> Compilation:
-        result = compile_src(
-            src_path, optimization_level=optimization_level, debug_level=debug_level
+        result = compile_src_from_options(
+            PuyaPyOptions(
+                paths=(src_path,),
+                optimization_level=optimization_level,
+                debug_level=debug_level,
+            )
         )
         (contract,) = result.teal
         assert isinstance(contract, CompiledContract), "Compilation artifact must be a contract"

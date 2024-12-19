@@ -19,6 +19,7 @@ from puya.models import (
     ContractReference,
     LogicSignatureMetaData,
     LogicSigReference,
+    ProgramKind,
     ProgramReference,
 )
 from puya.parse import SourceLocation
@@ -98,6 +99,12 @@ class Value(ValueProvider, abc.ABC):
         return self
 
 
+@attrs.frozen
+class Undefined(Value):
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_undefined(self)
+
+
 class Constant(Value, abc.ABC):
     """Base class for value constants - any value that is known at compile time"""
 
@@ -126,11 +133,6 @@ class ControlOp(IRVisitable, _Freezable, abc.ABC):
     @property
     def unique_targets(self) -> list["BasicBlock"]:
         return unique(self.targets())
-
-    @property
-    @abc.abstractmethod
-    def can_exit(self) -> bool:
-        """Does this ControlOp exit the current subroutine (somehow - eg terminates, returns)"""
 
 
 @attrs.frozen
@@ -172,7 +174,6 @@ class Phi(IRVisitable, _Freezable):
     register: Register
     args: list[PhiArgument] = attrs.field(factory=list)
     source_location: None = attrs.field(default=None, init=False)
-    undefined_predecessors: list["BasicBlock"] = attrs.field(factory=list)
 
     @property
     def ir_type(self) -> IRType:
@@ -190,7 +191,6 @@ class Phi(IRVisitable, _Freezable):
         return (
             self.register.freeze(),
             tuple((arg.through.id, arg.value.freeze()) for arg in self.args),
-            (b.id for b in self.undefined_predecessors),
         )
 
     @args.validator
@@ -328,7 +328,7 @@ class MethodConstant(Constant):
 
 
 @attrs.define(eq=False)
-class InnerTransactionField(Op, ValueProvider):
+class InnerTransactionField(ValueProvider):
     field: str
     group_index: Value
     is_last_in_group: Value
@@ -458,7 +458,7 @@ class InvokeSubroutine(Op, ValueProvider):
     args: list[Value]
 
     def _frozen_data(self) -> object:
-        return self.target.full_name, tuple(self.args)
+        return self.target.id, tuple(self.args)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_invoke_subroutine(self)
@@ -566,7 +566,7 @@ class BasicBlock(Context):
     def successors(self) -> "Sequence[BasicBlock]":
         if self.terminator is None:
             return ()
-        return self.terminator.targets()
+        return self.terminator.unique_targets
 
     @property
     def is_empty(self) -> bool:
@@ -587,11 +587,7 @@ class BasicBlock(Context):
                 yield from op.targets
 
     def __str__(self) -> str:
-        result = f"block@{self.id}: // "
-        if self.comment:
-            result += f"{self.comment}_"
-        result += f"L{self.source_location.line}"
-        return result
+        return f"block@{self.id}"
 
 
 @attrs.define(eq=False, kw_only=True)
@@ -618,10 +614,6 @@ class ConditionalBranch(ControlOp):
     def targets(self) -> Sequence[BasicBlock]:
         return self.zero, self.non_zero
 
-    @property
-    def can_exit(self) -> bool:
-        return False
-
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_conditional_branch(self)
 
@@ -641,10 +633,6 @@ class Goto(ControlOp):
     def targets(self) -> Sequence[BasicBlock]:
         return (self.target,)
 
-    @property
-    def can_exit(self) -> bool:
-        return False
-
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_goto(self)
 
@@ -658,17 +646,13 @@ class GotoNth(ControlOp):
 
     value: Value
     blocks: list[BasicBlock] = attrs.field()
-    default: ControlOp
+    default: BasicBlock
 
     def _frozen_data(self) -> object:
-        return self.value, tuple(b.id for b in self.blocks), self.default.freeze()
+        return self.value, tuple(b.id for b in self.blocks), self.default.id
 
     def targets(self) -> Sequence[BasicBlock]:
-        return [*self.blocks, *self.default.targets()]
-
-    @property
-    def can_exit(self) -> bool:
-        return self.default.can_exit
+        return *self.blocks, self.default
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_goto_nth(self)
@@ -686,7 +670,7 @@ class Switch(ControlOp):
 
     value: Value
     cases: dict[Value, BasicBlock] = attrs.field()
-    default: ControlOp
+    default: BasicBlock
 
     @cases.validator
     def _check_cases(self, _attribute: object, cases: dict[Value, BasicBlock]) -> None:
@@ -699,15 +683,11 @@ class Switch(ControlOp):
         return (
             self.value,
             tuple((v, b.id) for v, b in self.cases.items()),
-            self.default.freeze(),
+            self.default.id,
         )
 
     def targets(self) -> Sequence[BasicBlock]:
-        return [*self.cases.values(), *self.default.targets()]
-
-    @property
-    def can_exit(self) -> bool:
-        return self.default.can_exit
+        return *self.cases.values(), self.default
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_switch(self)
@@ -727,10 +707,6 @@ class SubroutineReturn(ControlOp):
 
     def targets(self) -> Sequence[BasicBlock]:
         return ()
-
-    @property
-    def can_exit(self) -> bool:
-        return True
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_subroutine_return(self)
@@ -756,10 +732,6 @@ class ProgramExit(ControlOp):
     def targets(self) -> Sequence[BasicBlock]:
         return ()
 
-    @property
-    def can_exit(self) -> bool:
-        return True
-
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_program_exit(self)
 
@@ -780,10 +752,6 @@ class Fail(ControlOp):
     def targets(self) -> Sequence[BasicBlock]:
         return ()
 
-    @property
-    def can_exit(self) -> bool:
-        return True
-
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_fail(self)
 
@@ -798,13 +766,14 @@ class Parameter(Register):
 
 @attrs.define(eq=False, kw_only=True)
 class Subroutine(Context):
-    full_name: str  # TODO: rename to id
+    id: str
     short_name: str
     # source_location might be None if it was synthesized e.g. ARC4 approval method
     source_location: SourceLocation | None
     parameters: Sequence[Parameter]
     _returns: Sequence[IRType]
     body: list[BasicBlock] = attrs.field()
+    inline: bool | None
 
     @property
     def returns(self) -> list[IRType]:
@@ -817,7 +786,7 @@ class Subroutine(Context):
             attrs.validate(block)
             if block.terminator is None:
                 raise InternalError(
-                    f"Unterminated block {block.id} assigned to subroutine {self.full_name}",
+                    f"Unterminated block {block} assigned to subroutine {self.id}",
                     block.source_location,
                 )
             for successor in block.successors:
@@ -826,7 +795,7 @@ class Subroutine(Context):
                     # circular validation issues where you're trying to update the CFG by
                     # replacing a terminator
                     raise InternalError(
-                        f"Block {block.id} does not appear in all {block.terminator}"
+                        f"{block} does not appear in all {block.terminator}"
                         f" target's predecessor lists - missing from {successor.id} at least",
                         block.terminator.source_location
                         or block.source_location
@@ -834,32 +803,28 @@ class Subroutine(Context):
                     )
             if not blocks.issuperset(block.predecessors):
                 raise InternalError(
-                    f"Block {block.id} of subroutine {self.full_name}"
-                    " has predecessor block(s) outside of list",
+                    f"{block} of subroutine {self.id} has predecessor block(s) outside of list",
                     block.source_location,
                 )
             if not blocks.issuperset(block.successors):
                 raise InternalError(
-                    f"Block {block.id} of subroutine {self.full_name}"
-                    " has predecessor block(s) outside of list",
+                    f"{block} of subroutine {self.id} has predecessor block(s) outside of list",
                     block.source_location,
                 )
             block_predecessors = dict.fromkeys(block.predecessors)
             for phi in block.phis:
-                phi_blocks = dict.fromkeys(a.through for a in phi.args) | dict.fromkeys(
-                    phi.undefined_predecessors
-                )
+                phi_blocks = dict.fromkeys(a.through for a in phi.args)
                 if block_predecessors.keys() != phi_blocks.keys():
                     phi_block_labels = list(map(str, phi_blocks.keys()))
                     pred_block_labels = list(map(str, block_predecessors.keys()))
                     raise InternalError(
-                        f"Mismatch between phi predecessors ({phi_block_labels})"
-                        f" and block predecessors ({pred_block_labels})"
+                        f"{self.id}: mismatch between phi predecessors ({phi_block_labels})"
+                        f" and {block} predecessors ({pred_block_labels})"
                         f" for phi node {phi}",
                         self.source_location,
                     )
-        used_registers = frozenset(self.get_used_registers())
-        defined_registers = frozenset(self.get_assigned_registers())
+        used_registers = frozenset(_get_used_registers(body))
+        defined_registers = frozenset(self.parameters) | frozenset(_get_assigned_registers(body))
         bad_reads = used_registers - defined_registers
         if bad_reads:
             raise InternalError(
@@ -874,33 +839,10 @@ class Subroutine(Context):
 
     def get_assigned_registers(self) -> Iterator[Register]:
         yield from self.parameters
-        # TODO: replace with visitor
-        for block in self.body:
-            for phi in block.phis:
-                yield phi.register
-            for op in block.ops:
-                if isinstance(op, Assignment):
-                    yield from op.targets
+        yield from _get_assigned_registers(self.body)
 
     def get_used_registers(self) -> Iterator[Register]:
-        # TODO: replace with visitor
-        for block in self.body:
-            for phi in block.phis:
-                yield from (arg.value for arg in phi.args)
-            for op in block.ops:
-                match op:
-                    case (
-                        Assignment(
-                            source=Intrinsic(args=args)
-                            | Assignment(source=ValueTuple(values=args))
-                            | InvokeSubroutine(args=args)
-                        )
-                        | Intrinsic(args=args)
-                        | InvokeSubroutine(args=args)
-                    ):
-                        yield from (arg for arg in args if isinstance(arg, Register))
-                    case Assignment(source=Register() as reg):
-                        yield reg
+        yield from _get_used_registers(self.body)
 
     def validate_with_ssa(self) -> None:
         all_assigned = set[Register]()
@@ -913,6 +855,37 @@ class Subroutine(Context):
                     )
                 all_assigned.add(register)
         attrs.validate(self)
+
+
+def _get_assigned_registers(blocks: Sequence[BasicBlock]) -> Iterator[Register]:
+    # TODO: replace with visitor
+    for block in blocks:
+        for phi in block.phis:
+            yield phi.register
+        for op in block.ops:
+            if isinstance(op, Assignment):
+                yield from op.targets
+
+
+def _get_used_registers(blocks: Sequence[BasicBlock]) -> Iterator[Register]:
+    # TODO: replace with visitor
+    for block in blocks:
+        for phi in block.phis:
+            yield from (arg.value for arg in phi.args)
+        for op in block.ops:
+            match op:
+                case (
+                    Assignment(
+                        source=Intrinsic(args=args)
+                        | Assignment(source=ValueTuple(values=args))
+                        | InvokeSubroutine(args=args)
+                    )
+                    | Intrinsic(args=args)
+                    | InvokeSubroutine(args=args)
+                ):
+                    yield from (arg for arg in args if isinstance(arg, Register))
+                case Assignment(source=Register() as reg):
+                    yield reg
 
 
 @attrs.define(kw_only=True, eq=False)
@@ -939,8 +912,12 @@ class Program(Context):
     ref: ProgramReference
     main: Subroutine
     subroutines: Sequence[Subroutine]
-    source_location: SourceLocation | None = None
     avm_version: int
+    source_location: SourceLocation | None = None
+
+    @property
+    def kind(self) -> ProgramKind:
+        return self.ref.kind
 
     def __attrs_post_init__(self) -> None:
         if self.source_location is None:
@@ -961,8 +938,6 @@ class Contract(Context):
 
     def all_subroutines(self) -> Iterable[Subroutine]:
         from itertools import chain
-
-        from puya.utils import unique
 
         yield from unique(
             chain(
