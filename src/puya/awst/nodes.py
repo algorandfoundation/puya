@@ -1552,6 +1552,7 @@ class Function(Node, ABC):
     return_type: WType
     body: Block
     documentation: MethodDocumentation
+    inline: bool | None = None
 
     @property
     @abstractmethod
@@ -1562,7 +1563,7 @@ class Function(Node, ABC):
     def full_name(self) -> str: ...
 
 
-@attrs.frozen
+@attrs.frozen(kw_only=True)
 class Subroutine(Function, RootNode):
     id: str
     name: str
@@ -1592,7 +1593,7 @@ class ContractMemberNode(Node, ABC):
     def accept(self, visitor: ContractMemberVisitor[T]) -> T: ...
 
 
-@attrs.frozen
+@attrs.frozen(kw_only=True)
 class ContractMethod(Function, ContractMemberNode):
     cref: ContractReference
     member_name: str

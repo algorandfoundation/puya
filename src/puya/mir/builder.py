@@ -20,14 +20,20 @@ class MemoryIRBuilder(IRVisitor[None]):
     context: ProgramMIRContext = attrs.field(on_setattr=attrs.setters.frozen)
     current_subroutine: ir.Subroutine
     is_main: bool
-    current_ops: list[models.BaseOp] = attrs.field(factory=list)
+    current_ops: list[models.Op] = attrs.field(factory=list)
+    terminator: models.ControlOp | None = None
     active_op: ir.Op | ir.ControlOp | None = None
-    next_block: ir.BasicBlock | None = None
 
-    def _add_op(self, op: models.BaseOp) -> None:
+    def _add_op(self, op: models.Op) -> None:
         self.current_ops.append(op)
 
+    def _terminate(self, op: models.ControlOp) -> None:
+        assert self.terminator is None
+        self.terminator = op
+
     def _get_block_name(self, block: ir.BasicBlock) -> str:
+        if block is self.current_subroutine.entry:
+            return self.context.subroutine_names[self.current_subroutine]
         assert block in self.current_subroutine.body
         comment = (block.comment or "block").replace(" ", "_")
         subroutine_name = self.context.subroutine_names[self.current_subroutine]
@@ -95,6 +101,14 @@ class MemoryIRBuilder(IRVisitor[None]):
                     atype=reg.atype,
                 )
             )
+
+    def visit_undefined(self, val: ir.Undefined) -> None:
+        self._add_op(
+            models.Undefined(
+                atype=val.atype,
+                source_location=val.source_location,
+            )
+        )
 
     def visit_template_var(self, deploy_var: ir.TemplateVar) -> None:
         self._add_op(
@@ -200,32 +214,18 @@ class MemoryIRBuilder(IRVisitor[None]):
 
     def visit_conditional_branch(self, branch: ir.ConditionalBranch) -> None:
         branch.condition.accept(self)
-        if self.next_block is branch.zero:
-            other = branch.zero
-            self._add_op(
-                models.BranchNonZero(
-                    immediates=[self._get_block_name(branch.non_zero)],
-                    source_location=branch.source_location,
-                )
-            )
-        else:
-            other = branch.non_zero
-            self._add_op(
-                models.BranchZero(
-                    immediates=[self._get_block_name(branch.zero)],
-                    source_location=branch.source_location,
-                )
-            )
-        self._add_op(
-            models.Branch(
-                immediates=[self._get_block_name(other)], source_location=branch.source_location
+        self._terminate(
+            models.ConditionalBranch(
+                nonzero_target=self._get_block_name(branch.non_zero),
+                zero_target=self._get_block_name(branch.zero),
+                source_location=branch.source_location,
             )
         )
 
     def visit_goto(self, goto: ir.Goto) -> None:
-        self._add_op(
-            models.Branch(
-                immediates=[self._get_block_name(goto.target)],
+        self._terminate(
+            models.Goto(
+                target=self._get_block_name(goto.target),
                 source_location=goto.source_location,
             )
         )
@@ -233,10 +233,13 @@ class MemoryIRBuilder(IRVisitor[None]):
     def visit_goto_nth(self, goto_nth: ir.GotoNth) -> None:
         block_labels = [self._get_block_name(block) for block in goto_nth.blocks]
         goto_nth.value.accept(self)
-        self._add_op(
-            models.Switch(immediates=block_labels, source_location=goto_nth.source_location)
+        self._terminate(
+            models.Switch(
+                switch_targets=block_labels,
+                default_target=self._get_block_name(goto_nth.default),
+                source_location=goto_nth.source_location,
+            )
         )
-        goto_nth.default.accept(self)
 
     def visit_switch(self, switch: ir.Switch) -> None:
         blocks = list[str]()
@@ -245,75 +248,52 @@ class MemoryIRBuilder(IRVisitor[None]):
             block_name = self._get_block_name(block)
             blocks.append(block_name)
         switch.value.accept(self)
-
-        self._add_op(models.Match(immediates=blocks, source_location=switch.source_location))
-        switch.default.accept(self)
+        self._terminate(
+            models.Match(
+                match_targets=blocks,
+                default_target=self._get_block_name(switch.default),
+                source_location=switch.source_location,
+            )
+        )
 
     def visit_subroutine_return(self, retsub: ir.SubroutineReturn) -> None:
         for r in retsub.result:
             r.accept(self)
-        self._add_op(
-            models.IntrinsicOp(
-                op_code="return",
-                source_location=retsub.source_location,
-                consumes=len(retsub.result),
-                produces=(),
+        if self.is_main:
+            assert len(retsub.result) == 1
+            self._terminate(models.ProgramExit(source_location=retsub.source_location))
+        else:
+            self._terminate(
+                models.RetSub(returns=len(retsub.result), source_location=retsub.source_location)
             )
-            if self.is_main
-            else models.RetSub(source_location=retsub.source_location, returns=len(retsub.result))
-        )
 
     def visit_program_exit(self, exit_: ir.ProgramExit) -> None:
         exit_.result.accept(self)
-        self._add_op(
-            models.IntrinsicOp(
-                op_code="return",
-                source_location=exit_.source_location,
-                consumes=0,
-                produces=(),
-            )
-        )
+        self._terminate(models.ProgramExit(source_location=exit_.source_location))
 
     def visit_fail(self, fail: ir.Fail) -> None:
-        self._add_op(
-            models.IntrinsicOp(
-                op_code="err",
-                error_message=fail.error_message,
-                source_location=fail.source_location,
-                consumes=0,
-                produces=(),
-            )
+        self._terminate(
+            models.Err(error_message=fail.error_message, source_location=fail.source_location)
         )
 
-    def lower_block_to_mir(
-        self, block: ir.BasicBlock, next_block: ir.BasicBlock | None
-    ) -> models.MemoryBasicBlock:
-        self.next_block = next_block
-        self.current_ops = list[models.BaseOp]()
+    def lower_block_to_mir(self, block: ir.BasicBlock) -> models.MemoryBasicBlock:
+        self.current_ops = list[models.Op]()
+        self.terminator = None
         for op in block.all_ops:
             assert not isinstance(op, ir.Phi)
             self.active_op = op
             op.accept(self)
-        if (
-            next_block is not None
-            and self.current_ops
-            and isinstance((last_op := self.current_ops[-1]), models.IntrinsicOp)
-            and last_op.op_code == "b"
-            and last_op.immediates[0] == (next_block_name := self._get_block_name(next_block))
-        ):
-            self.current_ops[-1] = models.Comment(
-                f"Implicit fall through to {next_block_name}",
-                source_location=last_op.source_location,
-            )
 
+        assert self.terminator is not None
         block_name = self._get_block_name(block)
         predecessors = [self._get_block_name(b) for b in block.predecessors]
-        successors = [self._get_block_name(b) for b in block.successors]
+        assert block.id is not None
         return models.MemoryBasicBlock(
+            id=block.id,
             block_name=block_name,
-            ops=self.current_ops,
+            mem_ops=self.current_ops,
+            terminator=self.terminator,
             predecessors=predecessors,
-            successors=successors,
             source_location=block.source_location,
         )
 

@@ -73,6 +73,14 @@ class Size:
             ops=(self.ops or 0) + (other.ops or 0),
         )
 
+    def __sub__(self, other: object) -> "Size":
+        if not isinstance(other, Size):
+            return NotImplemented
+        return Size(
+            bytecode=(self.bytecode or 0) - (other.bytecode or 0),
+            ops=(self.ops or 0) - (other.ops or 0),
+        )
+
 
 def _program_to_sizes() -> defaultdict[str, defaultdict[int, Size]]:
     def _opt_to_sizes() -> defaultdict[int, Size]:
@@ -94,8 +102,8 @@ class ProgramSizes:
         )
 
     @classmethod
-    def read_file(cls, path: Path) -> "ProgramSizes":
-        lines = list(filter(None, path.read_text("utf-8").splitlines()))
+    def load(cls, text: str) -> "ProgramSizes":
+        lines = list(filter(None, text.splitlines()))
         program_sizes = ProgramSizes()
         sizes = program_sizes.sizes
         for line in lines[1:-1]:
@@ -196,9 +204,7 @@ def _stabilise_logs(stdout: str) -> list[str]:
     ]
 
 
-def checked_compile(
-    p: Path, flags: list[str], *, out_suffix: str, write_logs: bool
-) -> CompilationResult:
+def checked_compile(p: Path, flags: list[str], *, out_suffix: str) -> CompilationResult:
     assert p.is_dir()
     out_dir = (p / f"out{out_suffix}").resolve()
     template_vars_path = p / "template.vars"
@@ -241,14 +247,10 @@ def checked_compile(
     for arc56_file in arc56_files_written:
         _normalize_arc56(root / arc56_file)
 
-    if write_logs:
-        if p.is_dir():
-            log_path = p / "puya.log"
-        else:
-            log_path = p.with_suffix(".puya.log")
+    log_path = p / f"puya{out_suffix}.log"
+    log_txt = "\n".join(_stabilise_logs(result.stdout))
+    log_path.write_text(log_txt, encoding="utf8")
 
-        log_txt = "\n".join(_stabilise_logs(result.stdout))
-        log_path.write_text(log_txt, encoding="utf8")
     ok = result.returncode == 0
     return CompilationResult(
         rel_path=rel_path,
@@ -290,7 +292,6 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
             "--no-output-arc32",
         ]
         out_suffix = SUFFIX_O0
-        write_logs = False
     elif optimization_level == 2:
         flags = [
             "-O2",
@@ -298,7 +299,6 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
             "-g0",
         ]
         out_suffix = SUFFIX_O2
-        write_logs = False
     else:
         assert optimization_level == 1
         flags = [
@@ -312,8 +312,7 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
             "--output-arc56",
         ]
         out_suffix = SUFFIX_O1
-        write_logs = True
-    result = checked_compile(p, flags=flags, out_suffix=out_suffix, write_logs=write_logs)
+    result = checked_compile(p, flags=flags, out_suffix=out_suffix)
     return result, optimization_level
 
 
@@ -371,7 +370,7 @@ def main(options: CompileAllOptions) -> None:
     if limit_to or options.optimization_level:
         print("Loading existing sizes.txt")
         # load existing sizes for non-default options
-        merged = ProgramSizes.read_file(SIZE_TALLY_PATH)
+        merged = ProgramSizes.load(SIZE_TALLY_PATH.read_text("utf8"))
         for program, sizes in program_sizes.sizes.items():
             for o, size in sizes.items():
                 merged.sizes[program][o] = size

@@ -33,7 +33,7 @@ class BlockRecord:
 
     @staticmethod
     def by_index(block: "BlockRecord") -> int:
-        return int(block.block.block_name.split("@")[1])
+        return block.block.id
 
 
 @attrs.frozen
@@ -136,12 +136,12 @@ def add_x_stack_ops(ctx: SubroutineCodeGenContext, record: BlockRecord) -> None:
     store_ops = get_x_stack_store_ops(record)
 
     stack = Stack.begin_block(ctx.subroutine, block)
-    for index, op in enumerate(block.ops):
+    for index, op in enumerate(block.mem_ops):
         if op in store_ops:
             assert isinstance(op, mir.AbstractStore)
             # can replace virtual store op because only variables that could be fully
             # scheduled are on the x-stack
-            block.ops[index] = op = mir.StoreXStack(
+            block.mem_ops[index] = op = mir.StoreXStack(
                 local_id=op.local_id,
                 depth=stack.xl_height - 1,  # store to bottom
                 atype=op.atype,
@@ -149,7 +149,7 @@ def add_x_stack_ops(ctx: SubroutineCodeGenContext, record: BlockRecord) -> None:
             )
         elif op in load_ops:
             assert isinstance(op, mir.AbstractLoad)
-            block.ops[index] = op = mir.LoadXStack(
+            block.mem_ops[index] = op = mir.LoadXStack(
                 local_id=op.local_id,
                 depth=stack.xl_height - stack.x_stack.index(op.local_id) - 1,
                 atype=op.atype,

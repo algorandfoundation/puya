@@ -97,11 +97,12 @@ def _build_ir_and_return_errors(expr: awst.Expression) -> list[str]:
     )
     subroutine = ir.Subroutine(
         source_location=_location,
-        full_name=function.id,
+        id=function.id,
         short_name=function.short_name,
         parameters=(),
         returns=(),
         body=[],
+        inline=function.inline,
     )
     with logging_context() as log_ctx:
         FunctionIRBuilder.build_body(ctx, function, subroutine)

@@ -2,21 +2,22 @@ import textwrap
 
 import attrs
 
-from puya.context import CompileContext
+from puya.context import ArtifactCompileContext
 from puya.teal import models
 
 
-def emit_teal(context: CompileContext, program: models.TealProgram) -> str:
+def emit_teal(context: ArtifactCompileContext, program: models.TealProgram) -> str:
     indent = " " * 4
 
     result = [
         f"#pragma version {program.avm_version}",
+        "#pragma typetrack false",
         "",
     ]
-    for subroutine in program.all_subroutines:
-        if not subroutine.is_main:
+    for idx, subroutine in enumerate(program.all_subroutines):
+        if idx > 0:
             result.append("")
-            result.append(f"// {subroutine.signature}")
+        result.append(f"// {subroutine.signature}")
 
         for block in subroutine.blocks:
             last_location = None

@@ -55,7 +55,7 @@ def simplify_repeated_rotation_ops(block: models.TealBlock) -> bool:
         preserve_stack_manipulations(
             result, slice(idx - len(maybe_simplify), idx), maybe_simplified
         )
-    block.ops = result
+    block.ops[:] = result
     return modified
 
 
@@ -72,5 +72,5 @@ def simplify_swap_ops(block: models.TealBlock) -> bool:
             )
         else:
             result.append(op)
-    block.ops = result
+    block.ops[:] = result
     return modified

@@ -28,7 +28,7 @@ from puyapy.awst_build.arc4_utils import get_arc4_abimethod_data, get_arc4_barem
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter
-from puyapy.awst_build.utils import get_decorators_by_fullname
+from puyapy.awst_build.utils import get_decorators_by_fullname, get_subroutine_decorator_inline_arg
 from puyapy.models import (
     ARC4BareMethodData,
     ARC4MethodData,
@@ -161,6 +161,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         documentation=awst_nodes.MethodDocumentation(),
                         arc4_method_config=default_create_config,
                         source_location=_SYNTHETIC_LOCATION,
+                        inline=True,
                     ),
                 )
             )
@@ -185,7 +186,9 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         else:
             approval_program = approval_method.implementation
             if self.fragment.resolve_method(_INIT_METHOD) is not None:
-                approval_program = _insert_init_call_on_create(self.fragment.id, approval_program)
+                approval_program = _insert_init_call_on_create(
+                    self.fragment.id, approval_program.return_type
+                )
 
         clear_method = self.fragment.resolve_method(constants.CLEAR_STATE_METHOD)
         if clear_method is None or clear_method.is_trivial:
@@ -255,6 +258,10 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
 
         # TODO: handle difference of subroutine vs abimethod and overrides???
 
+        inline = None
+        if subroutine_dec is not None:
+            inline = get_subroutine_decorator_inline_arg(self.context, subroutine_dec)
+
         arc4_method_data: ARC4MethodData | None = None
         if method_name in (_INIT_METHOD, constants.APPROVAL_METHOD, constants.CLEAR_STATE_METHOD):
             for invalid_dec in (subroutine_dec, abimethod_dec, baremethod_dec):
@@ -320,6 +327,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         ctx,
                         func_def=func_def,
                         source_location=source_location,
+                        inline=inline,
                         contract_method_info=ContractMethodInfo(
                             fragment=self.fragment,
                             contract_type=self.fragment.pytype,
@@ -529,7 +537,7 @@ class _ContractFragment(_UserContractBase):
 
 
 def _insert_init_call_on_create(
-    current_contract: ContractReference, approval_method: ContractMethod
+    current_contract: ContractReference, return_type: wtypes.WType
 ) -> ContractMethod:
     call_init = awst_nodes.Block(
         comment="call __init__",
@@ -554,14 +562,28 @@ def _insert_init_call_on_create(
         else_branch=None,
         source_location=_SYNTHETIC_LOCATION,
     )
-    return attrs.evolve(
-        approval_method,
+    return awst_nodes.ContractMethod(
         cref=current_contract,
-        body=attrs.evolve(
-            approval_method.body,
-            # TODO: once method inlining is supported, call this as
-            #       a subroutine instead of this body inlining
-            body=[call_init_on_create, *approval_method.body.body],
+        member_name="__algopy_entrypoint_with_init",
+        args=[],
+        arc4_method_config=None,
+        return_type=return_type,
+        documentation=awst_nodes.MethodDocumentation(),
+        body=awst_nodes.Block(
+            body=[
+                call_init_on_create,
+                awst_nodes.ReturnStatement(
+                    value=awst_nodes.SubroutineCallExpression(
+                        target=awst_nodes.InstanceMethodTarget(
+                            member_name=constants.APPROVAL_METHOD,
+                        ),
+                        args=[],
+                        wtype=return_type,
+                        source_location=_SYNTHETIC_LOCATION,
+                    ),
+                    source_location=_SYNTHETIC_LOCATION,
+                ),
+            ],
             source_location=_SYNTHETIC_LOCATION,
         ),
         source_location=_SYNTHETIC_LOCATION,
@@ -614,6 +636,7 @@ def _arc4_contract_fragment() -> _UserContractBase:
             return_type=return_type.wtype,
             documentation=awst_nodes.MethodDocumentation(),
             body=awst_nodes.Block(body=body, source_location=_SYNTHETIC_LOCATION),
+            inline=None,
         )
         result.methods_[name] = ContractFragmentMethod(
             member_name=name,

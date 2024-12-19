@@ -1,48 +1,58 @@
 import textwrap
-from pathlib import Path
 
 import attrs
 
 from puya import log
-from puya.context import CompileContext
+from puya.context import ArtifactCompileContext, CompileContext
 from puya.mir import models
 from puya.mir.aligned_writer import AlignedWriter
 from puya.mir.stack import Stack
+from puya.models import ProgramKind
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-def output_memory_ir(ctx: CompileContext, program: models.Program, output_path: Path) -> None:
+def output_memory_ir(
+    ctx: ArtifactCompileContext, program: models.Program, *, qualifier: str
+) -> None:
+    out_dir = ctx.out_dir
+    if out_dir is None:
+        return
+    out_dir.mkdir(exist_ok=True)
+    if qualifier:
+        qualifier = f".{qualifier}"
+    if program.kind is not ProgramKind.logic_signature:
+        qualifier = f".{program.kind}{qualifier}"
+    output_path = out_dir / f"{ctx.metadata.name}{qualifier}.mir"
     writer = AlignedWriter()
     writer.add_header("// Op")
     writer.add_header("Stack (out)", 4)
     for subroutine in program.all_subroutines:
         writer.append_line(f"// {subroutine.signature}")
-        for block in subroutine.all_blocks:
+        for block in subroutine.body:
             stack = Stack.begin_block(subroutine, block)
             last_location = None
-            if block.ops:
-                writer.append(f"{block.block_name}:")
-                writer.append(stack.full_stack_desc)
-                writer.new_line()
-                with writer.indent():
-                    for op in block.ops:
-                        last_location = _output_src_comment(
-                            ctx, writer, last_location, op.source_location
+            writer.append(f"{block.block_name}:")
+            writer.append(stack.full_stack_desc)
+            writer.new_line()
+            with writer.indent():
+                for op in block.ops:
+                    last_location = _output_src_comment(
+                        ctx, writer, last_location, op.source_location
+                    )
+                    op_str = str(op)
+                    op.accept(stack)
+                    # some ops can be very long (generally due to labels)
+                    # in those (rare?) cases bypass the column alignment
+                    if len(op_str) > 80:
+                        writer.append_line(
+                            writer.current_indent + op_str + " " + stack.full_stack_desc
                         )
-                        op_str = str(op)
-                        op.accept(stack)
-                        # some ops can be very long (generally due to labels)
-                        # in those (rare?) cases bypass the column alignment
-                        if len(op_str) > 80:
-                            writer.append_line(
-                                writer.current_indent + op_str + " " + stack.full_stack_desc
-                            )
-                        else:
-                            writer.append(op_str)
-                            writer.append(stack.full_stack_desc)
-                            writer.new_line()
+                    else:
+                        writer.append(op_str)
+                        writer.append(stack.full_stack_desc)
+                        writer.new_line()
                 writer.new_line()
         writer.new_line()
     writer.new_line()

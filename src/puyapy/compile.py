@@ -33,7 +33,7 @@ from puyapy.utils import determine_out_dir
 
 # this should contain the lowest version number that this compiler does NOT support
 # i.e. the next minor version after what is defined in stubs/pyproject.toml:tool.poetry.version
-MAX_SUPPORTED_ALGOPY_VERSION_EX = version.parse("2.4.0")
+MAX_SUPPORTED_ALGOPY_VERSION_EX = version.parse("2.5.0")
 MIN_SUPPORTED_ALGOPY_VERSION = version.parse(f"{MAX_SUPPORTED_ALGOPY_VERSION_EX.major}.0.0")
 
 logger = log.get_logger(__name__)

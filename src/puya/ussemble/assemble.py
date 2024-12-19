@@ -4,7 +4,7 @@ from collections import defaultdict
 from collections.abc import Callable, Iterable, Mapping, Sequence
 
 from puya import log
-from puya.errors import CodeError, InternalError
+from puya.errors import InternalError
 from puya.models import DebugEvent
 from puya.parse import SourceLocation
 from puya.teal import models as teal
@@ -28,7 +28,7 @@ def assemble_bytecode_and_debug_info(
     function_block_ids = {s.blocks[0].label: s.signature.name for s in program.all_subroutines}
 
     version_bytes = _encode_varuint(program.avm_version)
-    pc_events = defaultdict[int, DebugEvent](DebugEvent)  # type: ignore[arg-type]
+    pc_events = defaultdict[int, DebugEvent](lambda: DebugEvent())
     pc_ops = dict[int, models.AVMOp]()
     label_pcs = dict[str, int]()
 
@@ -85,14 +85,10 @@ def assemble_bytecode_and_debug_info(
 
     return models.AssembledProgram(
         bytecode=b"".join(bytecode),
-        debug_info=build_debug_info(
-            ctx,
-            pc_ops,
-            pc_events,
-        ),
+        debug_info=build_debug_info(ctx, pc_ops, pc_events),
         template_variables={
-            var: value[0] if var in ctx.provided_template_variables else None
-            for var, value in ctx.template_variables.items()
+            var: ctx.provided_template_variables.get(var, (None, None))[0]
+            for var in ctx.template_variable_types
         },
     )
 
@@ -203,30 +199,36 @@ def _lower_op(ctx: AssembleContext, op: teal.TealOp) -> models.AVMOp:
             raise InternalError(f"invalid teal op: {op}", loc)
 
 
-_T = typing.TypeVar("_T")
-
-
-def _resolve_template_vars(
-    ctx: AssembleContext, typ: type[_T], values: Iterable[tuple[_T | str, SourceLocation | None]]
-) -> Sequence[_T]:
+def _resolve_template_vars[T: (int, bytes)](
+    ctx: AssembleContext, typ: type[T], values: Iterable[tuple[T | str, SourceLocation | None]]
+) -> Sequence[T]:
     result = []
     for value_or_template, var_loc in values:
         if not isinstance(value_or_template, str):
-            value: _T = value_or_template
+            value = value_or_template
         else:
             try:
-                maybe_value, val_loc = ctx.template_variables[value_or_template]
+                maybe_value, val_loc = ctx.provided_template_variables[value_or_template]
             except KeyError:
-                raise CodeError(
-                    f"template variable not defined: {value_or_template}", var_loc
-                ) from None
-            if not isinstance(maybe_value, typ):
-                raise CodeError(
-                    f"invalid template value type for {value_or_template!r},"
-                    f" expected {typ.__name__}",
-                    val_loc or var_loc,
+                # if bytecode isn't required for this program, then a dummy value is sufficient
+                bytecode_required = ctx.options.output_bytecode and (
+                    ctx.program_ref.reference in ctx.compilation_set
                 )
-            value = maybe_value
+                if ctx.is_reference or bytecode_required:
+                    logger.error(  # noqa: TRY400
+                        f"template variable not defined: {value_or_template}", location=var_loc
+                    )
+                value = typ()
+            else:
+                if isinstance(maybe_value, typ):
+                    value = maybe_value
+                else:
+                    logger.error(
+                        f"invalid template value type for {value_or_template!r},"
+                        f" expected {typ.__name__}",
+                        location=val_loc or var_loc,
+                    )
+                    value = typ()
         result.append(value)
     return result
 

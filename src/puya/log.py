@@ -174,6 +174,8 @@ class PuyaConsoleRender(structlog.dev.ConsoleRenderer):
             lines.extend(related_errors)
         important: bool = event_dict.pop("important", False)
         location: SourceLocation | None = event_dict.pop("location", None)
+        if location and location.file is None:
+            location = None
         location_as_link = self._location_as_link(location) if location else ""
         level = event_dict.pop("level", "info")
 

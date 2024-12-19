@@ -74,6 +74,9 @@ class Stack(MIRVisitor[None]):
     def visit_byte(self, const: models.Byte) -> None:
         self._apply_lstack_effects(const)
 
+    def visit_undefined(self, const: models.Undefined) -> None:
+        self._apply_lstack_effects(const)
+
     def visit_template_var(self, const: models.TemplateVar) -> None:
         self._apply_lstack_effects(const)
 
@@ -172,9 +175,6 @@ class Stack(MIRVisitor[None]):
         assert store.local_id in self.parameters, f"{store.local_id} is not a parameter"
         self._apply_lstack_effects(store)
 
-    def visit_proto(self, proto: models.Proto) -> None:
-        pass
-
     def visit_allocate(self, allocate: models.Allocate) -> None:
         self._f_stack.extend(allocate.allocate_on_entry)
 
@@ -197,6 +197,24 @@ class Stack(MIRVisitor[None]):
         self.parameters = []
         self._f_stack = []
         self._x_stack = []
+
+    def visit_conditional_branch(self, op: models.ConditionalBranch) -> None:
+        self._apply_lstack_effects(op)
+
+    def visit_err(self, op: models.Err) -> None:
+        self._apply_lstack_effects(op)
+
+    def visit_goto(self, op: models.Goto) -> None:
+        self._apply_lstack_effects(op)
+
+    def visit_match(self, op: models.Match) -> None:
+        self._apply_lstack_effects(op)
+
+    def visit_program_exit(self, op: models.ProgramExit) -> None:
+        self._apply_lstack_effects(op)
+
+    def visit_switch(self, op: models.Switch) -> None:
+        self._apply_lstack_effects(op)
 
     def visit_intrinsic(self, intrinsic: models.IntrinsicOp) -> None:
         self._apply_lstack_effects(intrinsic)

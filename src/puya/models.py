@@ -21,7 +21,17 @@ class LogicSigReference(str):  # can't use typing.NewType with pattern matching
     __slots__ = ()
 
 
+class ProgramKind(enum.StrEnum):
+    approval = "approval"
+    clear_state = "clear"
+    logic_signature = "lsig"
+
+
 class ProgramReference(abc.ABC):
+    @property
+    @abc.abstractmethod
+    def kind(self) -> ProgramKind: ...
+
     @property
     @abc.abstractmethod
     def reference(self) -> ContractReference | LogicSigReference: ...
@@ -33,6 +43,9 @@ class ProgramReference(abc.ABC):
 
 @attrs.frozen
 class LogicSigProgramReference(ProgramReference):
+    kind: typing.Literal[ProgramKind.logic_signature] = attrs.field(
+        default=ProgramKind.logic_signature, init=False
+    )
     reference: LogicSigReference
 
     @property
@@ -42,6 +55,7 @@ class LogicSigProgramReference(ProgramReference):
 
 @attrs.frozen
 class ContractProgramReference(ProgramReference):
+    kind: typing.Literal[ProgramKind.approval, ProgramKind.clear_state]
     reference: ContractReference
     program_name: str
 
@@ -138,6 +152,7 @@ class ARC4Returns:
 
 @attrs.frozen
 class ARC4ABIMethod:
+    id: str
     name: str
     desc: str | None = attrs.field(hash=False)
     args: Sequence[ARC4MethodArg] = attrs.field(converter=tuple[ARC4MethodArg, ...])
@@ -152,6 +167,7 @@ class ARC4ABIMethod:
 
 @attrs.frozen
 class ARC4BareMethod:
+    id: str
     desc: str | None = attrs.field(hash=False)
     config: ARC4BareMethodConfig
 

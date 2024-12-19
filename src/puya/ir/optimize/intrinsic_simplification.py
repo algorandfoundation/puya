@@ -1,9 +1,10 @@
 import base64
-import enum
+import contextlib
 import math
 import operator
 import typing
-from collections.abc import Callable, Iterable
+from collections import defaultdict, deque
+from collections.abc import Callable, Generator, Iterable, Mapping, Sequence, Set
 from itertools import zip_longest
 
 import attrs
@@ -11,191 +12,395 @@ import attrs
 from puya import algo_constants, log
 from puya.avm_type import AVMType
 from puya.context import CompileContext
-from puya.errors import InternalError
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
-from puya.ir.models import Assignment, BasicBlock, Intrinsic, UInt64Constant
-from puya.ir.optimize._utils import get_definition
+from puya.ir.models import Intrinsic, UInt64Constant
+from puya.ir.optimize.dead_code_elimination import SIDE_EFFECT_FREE_AVM_OPS
+from puya.ir.register_read_collector import RegisterReadCollector
 from puya.ir.types_ import AVMBytesEncoding, IRType
 from puya.ir.visitor_mutator import IRMutator
-from puya.utils import biguint_bytes_eval
+from puya.utils import biguint_bytes_eval, method_selector_hash, set_add
 
 logger = log.get_logger(__name__)
 
 
+_AnyOp = models.Op | models.ControlOp | models.Phi
+
+_RegisterAssignments = Mapping[models.Register, models.Assignment]
+
+COMPILE_TIME_CONSTANT_OPS = frozenset(
+    [
+        # "generic" comparison ops
+        "==",
+        "!=",
+        # uint64 comparison ops
+        "<",
+        "<=",
+        ">",
+        ">=",
+        # boolean ops
+        "!",
+        "&&",
+        "||",
+        # uint64 bitwise ops
+        "&",
+        "|",
+        "^",
+        "~",
+        "shl",
+        "shr",
+        # uint64 math
+        "+",
+        "-",
+        "*",
+        "/",
+        "%",
+        "exp",
+        "sqrt",
+        # wide math
+        "addw",
+        "mulw",
+        "divw",
+        "expw",
+        "divmodw",
+        # bit/byte ops
+        "concat",
+        "extract",
+        "extract3",
+        "getbit",
+        "getbyte",
+        "len",
+        "replace2",
+        "replace3",
+        "setbit",
+        "setbyte",
+        "substring",
+        "substring3",
+        # conversion
+        "itob",
+        "btoi",
+        "extract_uint16",
+        "extract_uint32",
+        "extract_uint64",
+        # byte math
+        "b+",
+        "b-",
+        "b*",
+        "b/",
+        "b%",
+        "bsqrt",
+        # byte comaprison ops
+        "b==",
+        "b!=",
+        "b<",
+        "b<=",
+        "b>",
+        "b>=",
+        # byte bitwise ops
+        "b&",
+        "b|",
+        "b^",
+        "b~",
+        # misc
+        "assert",
+        "bzero",
+        "select",
+        "bitlen",
+        # ! unimplemented for constant arg evaluation
+        "base64_decode",
+        "ec_add",
+        "ec_map_to",
+        "ec_multi_scalar_mul",
+        "ec_pairing_check",
+        "ec_scalar_mul",
+        "ec_subgroup_check",
+        "ecdsa_pk_decompress",
+        "ecdsa_pk_recover",
+        "ecdsa_verify",
+        "ed25519verify",
+        "ed25519verify_bare",
+        "json_ref",
+        "keccak256",
+        "sha256",
+        "sha3_256",
+        "sha512_256",
+        "vrf_verify",
+        "sumhash512",  # AVM 11
+    ]
+)
+_CONSTANT_EVALUABLE: typing.Final[frozenset[str]] = COMPILE_TIME_CONSTANT_OPS - {
+    AVMOp.itob.code,
+    AVMOp.bzero.code,
+}
+
+
 def intrinsic_simplifier(_context: CompileContext, subroutine: models.Subroutine) -> bool:
-    modified = IntrinsicSimplifier.apply(subroutine)
+    work_list = _AssignmentWorkQueue()
+    ssa_reads = _SSAReadTracker()
+
+    register_assignments = dict[models.Register, models.Assignment]()
+    for block in subroutine.body:
+        for op in block.all_ops:
+            ssa_reads.add(op)
+            if isinstance(op, models.Assignment):
+                work_list.enqueue(op)
+                if len(op.targets) == 1:
+                    (target,) = op.targets
+                    register_assignments[target] = op
+
+    modified = 0
+    while work_list:
+        ass, source = work_list.dequeue()
+        simplified = _try_fold_intrinsic(register_assignments, source)
+        if simplified is not None:
+            logger.debug(f"Simplified {source} to {simplified}")
+            with ssa_reads.update(ass):
+                ass.source = simplified
+            modified += 1
+            # if it became a Value, propagate to any assignment-readers and add to work list
+            if isinstance(simplified, models.Value):
+                (target,) = ass.targets
+                replacer = _RegisterValueReplacer(register=target, replacement=simplified)
+                for target_read in ssa_reads.get(target, copy=True):
+                    if isinstance(target_read, models.Assignment):
+                        work_list.enqueue(target_read)
+                        # special case for indirection of otherwise non-inlined constants
+                        match target_read:
+                            case models.Assignment(
+                                targets=[target_read_target],
+                                source=models.Intrinsic(op=(AVMOp.bzero | AVMOp.itob)),
+                            ):
+                                for indirect_target_read in ssa_reads.get(target_read_target):
+                                    if isinstance(indirect_target_read, models.Assignment):
+                                        work_list.enqueue(indirect_target_read)
+                    with ssa_reads.update(target_read):
+                        target_read.accept(replacer)
+                modified += replacer.modified
+            else:
+                typing.assert_type(simplified, models.Intrinsic)
+                # source is still an intrinsic, add it back to the work list
+                work_list.enqueue(ass)
+                # add any assignment-readers to the work list
+                for target in ass.targets:
+                    for target_read in ssa_reads.get(target):
+                        if isinstance(target_read, models.Assignment):
+                            work_list.enqueue(target_read)
+
+    for block in subroutine.body:
+        for op in block.ops:
+            if (
+                isinstance(op, models.Assignment)
+                and isinstance(op.source, models.Intrinsic)
+                and op.source.args
+            ):
+                with_immediates = _try_convert_stack_args_to_immediates(op.source)
+                if with_immediates is not None:
+                    logger.debug(f"Simplified {op.source} to {with_immediates}")
+                    op.source = with_immediates
+                    modified += 1
+
+    register_intrinsics = {
+        target: ass.source
+        for target, ass in register_assignments.items()
+        if isinstance(ass.source, models.Intrinsic)
+    }
+    modified += _simplify_conditional_branches(subroutine, register_intrinsics)
+    modified += _simplify_non_returning_intrinsics(subroutine, register_intrinsics)
     return modified > 0
 
 
-@attrs.define
-class IntrinsicSimplifier(IRMutator):
-    subroutine: models.Subroutine
+class _AssignmentWorkQueue:
+    def __init__(self) -> None:
+        self._dq = deque[tuple[models.Assignment, models.Intrinsic]]()
+        self._set = set[Sequence[models.Register]]()
+
+    def enqueue(self, op: models.Assignment) -> bool:
+        if (
+            isinstance(op.source, models.Intrinsic)
+            and op.source.op.code in _CONSTANT_EVALUABLE
+            and set_add(self._set, op.targets)
+        ):
+            self._dq.append((op, op.source))
+            return True
+        return False
+
+    def dequeue(self) -> tuple[models.Assignment, models.Intrinsic]:
+        op, source = self._dq.popleft()
+        assert source is op.source
+        self._set.remove(op.targets)
+        return op, source
+
+    def __bool__(self) -> int:
+        return bool(self._dq)
+
+
+class _SSAReadTracker:
+    def __init__(self) -> None:
+        self._data = defaultdict[models.Register, set[_AnyOp]](set)
+
+    def add(self, op: _AnyOp) -> None:
+        for read_reg in self._register_reads(op):
+            self._data[read_reg].add(op)
+
+    def get(self, reg: models.Register, *, copy: bool = False) -> Iterable[_AnyOp]:
+        reads = self._data.get(reg)
+        if reads is None:
+            return ()
+        if copy:
+            return reads.copy()
+        return reads
+
+    @contextlib.contextmanager
+    def update(self, op: _AnyOp) -> Generator[None, None, None]:
+        old_reads = self._register_reads(op)
+        yield
+        new_reads = self._register_reads(op)
+        for removed_read in old_reads - new_reads:
+            self._data[removed_read].remove(op)
+        for added_read in new_reads - old_reads:
+            self._data[added_read].add(op)
+
+    @staticmethod
+    def _register_reads(visitable: models.IRVisitable) -> Set[models.Register]:
+        collector = RegisterReadCollector()
+        visitable.accept(collector)
+        return collector.used_registers
+
+
+@attrs.define(kw_only=True)
+class _RegisterValueReplacer(IRMutator):
+    register: models.Register
+    replacement: models.Value
     modified: int = 0
-    current_block: BasicBlock | None = None
 
-    @classmethod
-    def apply(cls, to: models.Subroutine) -> int:
-        replacer = cls(to)
-        for block in to.body:
-            replacer.visit_block(block)
-        return replacer.modified
-
-    def visit_block(self, block: BasicBlock) -> None:
-        self.current_block = block
-        super().visit_block(block)
-        self.current_block = None
-
-    def visit_assignment(self, ass: Assignment) -> Assignment | None:
-        match ass.source:
-            case models.Intrinsic() as source:
-                simplified = _try_fold_intrinsic(self.subroutine, source)
-                if simplified is None:
-                    simplified = _try_convert_stack_args_to_immediates(source)
-                if simplified is not None:
-                    logger.debug(f"Simplified {source} to {simplified}")
-                    ass.source = simplified
-                    self.modified += 1
+    @typing.override
+    def visit_assignment(self, ass: models.Assignment) -> models.Assignment:
+        # don't visit target(s), needs to stay as Register
+        ass.source = ass.source.accept(self)
         return ass
 
-    def visit_intrinsic_op(self, intrinsic: Intrinsic) -> Intrinsic | None:
-        # if we get here, it means either the intrinsic doesn't have a return or it's ignored,
-        # in either case, the result has to be either an Op or None (ie delete),
-        # so we don't invoke _try_fold_intrinsic here
-        match intrinsic:
-            case Intrinsic(op=AVMOp.assert_, args=[cond]):
-                if isinstance(cond, models.UInt64Constant):
-                    value = cond.value
-                    if value:
-                        self.modified += 1
-                        return None
-                    else:
-                        # an assert 0 could be simplified to an err, but
-                        # this would make it a ControlOp, so the block would
-                        # need to be restructured
-                        pass
-                else:
-                    assert_cond_maybe_simplified = _try_simplify_bool_condition(
-                        self.subroutine, cond
-                    )
-                    if assert_cond_maybe_simplified is not None:
-                        self.modified += 1
-                        return attrs.evolve(intrinsic, args=[assert_cond_maybe_simplified])
-            case Intrinsic(
-                op=AVMOp.itxn_field,
-                immediates=["ApprovalProgramPages" | "ClearStateProgramPages"],
-                args=[models.BytesConstant(value=b"")],
-            ):
-                return None
-            # remove some app allocation itxn_fields if they are not needed and
-            # can be safely removed
+    @typing.override
+    def visit_phi(self, phi: models.Phi) -> models.Phi:
+        # don't visit phi nodes, needs to stay as Register
+        return phi
+
+    @typing.override
+    def visit_register(self, reg: models.Register) -> models.Value:  # type: ignore[override]
+        if reg != self.register:
+            return reg
+        self.modified += 1
+        return self.replacement
+
+
+def _simplify_conditional_branches(
+    subroutine: models.Subroutine, register_intrinsics: Mapping[models.Register, models.Intrinsic]
+) -> int:
+    modified = 0
+    branch_registers = dict[
+        models.Register, list[tuple[models.ConditionalBranch, models.BasicBlock]]
+    ]()
+    for block in subroutine.body:
+        match block.terminator:
             case (
-                Intrinsic(
-                    op=AVMOp.itxn_field,
-                    immediates=[
-                        "ExtraProgramPages"
-                        | "GlobalNumUint"
-                        | "GlobalNumByteSlice"
-                        | "LocalNumUint"
-                        | "LocalNumByteSlice"
-                    ],
-                    args=[arg],
-                ) as op
-            ) if (state := _get_itxn_field_txn_sequence(self.current_block, op)) and (
-                # if one of these fields is set multiple times in a transaction,
-                # then only the last value set needs to be kept
-                state == _ITxnFieldPosition.not_last_in_txn
-                # if it is the last time the field is set in a txn (and all prior sets have been
-                # removed) then it can also be removed if it is being set to the default value
-                or (
-                    state == _ITxnFieldPosition.last_in_txn
-                    and isinstance(arg, UInt64Constant)
-                    and arg.value == 0
-                )
-            ):
+                models.ConditionalBranch(condition=models.Register() as cond) as branch
+            ) if cond in register_intrinsics:
+                branch_registers.setdefault(cond, []).append((branch, block))
+    for target, usages in branch_registers.items():
+        intrinsic = register_intrinsics[target]
+        cond_maybe_simplified = _try_simplify_bool_intrinsic(intrinsic)
+        if cond_maybe_simplified is not None:
+            for branch, used_block in usages:
+                used_block.terminator = attrs.evolve(branch, condition=cond_maybe_simplified)
+                modified += 1
+    return modified
+
+
+def _simplify_non_returning_intrinsics(
+    subroutine: models.Subroutine, register_intrinsics: Mapping[models.Register, models.Intrinsic]
+) -> int:
+    modified = 0
+    for block in subroutine.body:
+        ops = []
+        for op in block.ops:
+            if not isinstance(op, models.Intrinsic):
+                ops.append(op)
+            else:
+                result = _visit_intrinsic_op(op, register_intrinsics)
+                if result is not op:
+                    modified += 1
+                if result is not None:
+                    ops.append(result)
+        block.ops[:] = ops
+    return modified
+
+
+def _visit_intrinsic_op(
+    intrinsic: Intrinsic, register_intrinsics: Mapping[models.Register, models.Intrinsic]
+) -> Intrinsic | None:
+    # if we get here, it means either the intrinsic doesn't have a return or it's ignored,
+    # in either case, the result has to be either an Op or None (ie delete),
+    # so we don't invoke _try_fold_intrinsic here
+    if intrinsic.op == AVMOp.assert_:
+        (cond,) = intrinsic.args
+        if isinstance(cond, models.UInt64Constant):
+            value = cond.value
+            if value:
                 return None
-            case _:
-                simplified = _try_convert_stack_args_to_immediates(intrinsic)
-                if simplified is not None:
-                    self.modified += 1
-                    return simplified
+            else:
+                # an assert 0 could be simplified to an err, but
+                # this would make it a ControlOp, so the block would
+                # need to be restructured
+                pass
+        elif cond in register_intrinsics:
+            cond_op = register_intrinsics[cond]  # type: ignore[index]
+            assert_cond_maybe_simplified = _try_simplify_bool_intrinsic(cond_op)
+            if assert_cond_maybe_simplified is not None:
+                return attrs.evolve(intrinsic, args=[assert_cond_maybe_simplified])
         return intrinsic
-
-    def visit_conditional_branch(self, branch: models.ConditionalBranch) -> models.ControlOp:
-        branch_cond_maybe_simplified = _try_simplify_bool_condition(
-            self.subroutine, branch.condition
-        )
-        if branch_cond_maybe_simplified is not None:
-            self.modified += 1
-            return attrs.evolve(branch, condition=branch_cond_maybe_simplified)
-        return branch
-
-
-class _ITxnFieldPosition(enum.StrEnum):
-    last_in_txn = enum.auto()
-    not_last_in_txn = enum.auto()
-    unknown = enum.auto()
-
-
-def _get_itxn_field_txn_sequence(
-    current_block: BasicBlock | None, set_field: Intrinsic
-) -> _ITxnFieldPosition:
-    if current_block is None or set_field.op != AVMOp.itxn_field:
-        raise InternalError("expect current block and itxn_field op", set_field.source_location)
-    for itxn_fields in _get_matching_itxn_fields(current_block, set_field):
-        if set_field in itxn_fields:
-            return (
-                _ITxnFieldPosition.last_in_txn
-                if set_field == itxn_fields[-1]
-                else _ITxnFieldPosition.not_last_in_txn
-            )
-    return _ITxnFieldPosition.unknown
-
-
-def _get_matching_itxn_fields(
-    block: BasicBlock, set_field: Intrinsic
-) -> Iterable[list[Intrinsic]]:
-    to_match = (set_field.op, set_field.immediates)
-    matching_fields: list[Intrinsic] | None = None
-    for op in block.ops:
-        if not isinstance(op, Intrinsic):
-            continue
-        # begin a txn
-        if op.op == AVMOp.itxn_begin:
-            matching_fields = []
-        # end/begin a txn
-        elif op.op == AVMOp.itxn_next:
-            if matching_fields is not None:
-                yield matching_fields
-            matching_fields = []
-        # end a txn
-        elif op.op == AVMOp.itxn_submit:
-            if matching_fields is not None:
-                yield matching_fields
-            matching_fields = None
-        elif matching_fields is not None and to_match == (op.op, op.immediates):
-            matching_fields.append(op)
+    elif intrinsic.op == AVMOp.itxn_field:
+        (field_im,) = intrinsic.immediates
+        if field_im in ("ApprovalProgramPages", "ClearStateProgramPages"):
+            (page_value,) = intrinsic.args
+            if isinstance(page_value, models.BytesConstant) and page_value.value == b"":
+                return None
+        return intrinsic
+    elif intrinsic.op.code in SIDE_EFFECT_FREE_AVM_OPS:
+        logger.debug(f"Removing unused pure op {intrinsic}")
+        return None
+    elif intrinsic.args:
+        simplified = _try_convert_stack_args_to_immediates(intrinsic)
+        if simplified is not None:
+            return simplified
+        else:
+            return intrinsic
+    else:
+        return intrinsic
 
 
 def _try_simplify_bool_condition(
-    subroutine: models.Subroutine, cond: models.Value
+    register_assignments: _RegisterAssignments, cond: models.Value
 ) -> models.Value | None:
-    if isinstance(cond, models.Register):
-        cond_defn = get_definition(subroutine, cond)
-        match cond_defn:
-            case models.Assignment(
-                source=models.Intrinsic(
-                    args=[
-                        models.Value(atype=AVMType.uint64) as a,
-                        models.Value(atype=AVMType.uint64) as b,
-                    ]
-                ) as cond_op
-            ):
-                cond_maybe_simplified = _try_simplify_uint64_binary_op(
-                    cond_op, a, b, bool_context=True
-                )
-                if isinstance(cond_maybe_simplified, models.Value):
-                    return cond_maybe_simplified
+    if cond in register_assignments:
+        cond_defn = register_assignments[cond]  # type: ignore[index]
+        return _try_simplify_bool_intrinsic(cond_defn.source)
+    return None
+
+
+def _try_simplify_bool_intrinsic(cond_op: models.ValueProvider) -> models.Value | None:
+    match cond_op:
+        case (
+            models.Intrinsic(
+                args=[
+                    models.Value(atype=AVMType.uint64) as a,
+                    models.Value(atype=AVMType.uint64) as b,
+                ]
+            ) as intrinsic
+        ):
+            cond_maybe_simplified = _try_simplify_uint64_binary_op(
+                intrinsic, a, b, bool_context=True
+            )
+            if isinstance(cond_maybe_simplified, models.Value):
+                return cond_maybe_simplified
     return None
 
 
@@ -271,30 +476,23 @@ def _try_convert_stack_args_to_immediates(intrinsic: Intrinsic) -> Intrinsic | N
 
 
 def _try_fold_intrinsic(
-    subroutine: models.Subroutine, intrinsic: models.Intrinsic
-) -> models.ValueProvider | None:
-    if intrinsic.op in (AVMOp.loads, AVMOp.gloads) or (
-        intrinsic.op.code.startswith(("box_", "app_global_", "app_local_"))
-    ):
-        # can't simplify these
-        return None
-    elif intrinsic.op in (AVMOp.itob, AVMOp.bzero):
-        # we deliberately don't simplify these unless they're part of something else,
-        # since they can drastically increase program size
-        return None
-
+    register_assignments: _RegisterAssignments, intrinsic: models.Intrinsic
+) -> models.Value | models.Intrinsic | None:
     op_loc = intrinsic.source_location
     if intrinsic.op is AVMOp.select:
         false, true, selector = intrinsic.args
         selector_const = _get_int_constant(selector)
         if selector_const is not None:
             return true if selector_const else false
-        maybe_simplified_select_cond = _try_simplify_bool_condition(subroutine, selector)
+        maybe_simplified_select_cond = _try_simplify_bool_condition(register_assignments, selector)
         if maybe_simplified_select_cond is not None:
             return attrs.evolve(intrinsic, args=[false, true, maybe_simplified_select_cond])
         if false == true:
             return true
-        match _get_byte_constant(subroutine, false), _get_byte_constant(subroutine, true):
+        match (
+            _get_byte_constant(register_assignments, false),
+            _get_byte_constant(register_assignments, true),
+        ):
             case (None, _) | (_, None):
                 pass
             case (
@@ -314,12 +512,46 @@ def _try_fold_intrinsic(
             case 0, 1:
                 zero_const = UInt64Constant(value=0, source_location=intrinsic.source_location)
                 return attrs.evolve(intrinsic, op=AVMOp.neq, args=[selector, zero_const])
+    elif intrinsic.op is AVMOp.replace2:
+        (start,) = intrinsic.immediates
+        assert isinstance(start, int)
+        byte_arg_a, byte_arg_b = intrinsic.args
+        if (byte_const_a := _get_byte_constant(register_assignments, byte_arg_a)) is not None and (
+            byte_const_b := _get_byte_constant(register_assignments, byte_arg_b)
+        ) is not None:
+            replaced = bytearray(byte_const_a.value)
+            replaced[start : start + len(byte_const_b.value)] = byte_const_b.value
+            return models.BytesConstant(
+                value=bytes(replaced),
+                encoding=_choose_encoding(byte_const_a.encoding, byte_const_b.encoding),
+                source_location=op_loc,
+            )
+    elif intrinsic.op is AVMOp.replace3:
+        byte_arg_a, start_s, byte_arg_b = intrinsic.args
+        if (
+            (start2 := _get_int_constant(start_s)) is not None
+            and (byte_const_a := _get_byte_constant(register_assignments, byte_arg_a)) is not None
+            and (byte_const_b := _get_byte_constant(register_assignments, byte_arg_b)) is not None
+        ):
+            replaced = bytearray(byte_const_a.value)
+            replaced[start2 : start2 + len(byte_const_b.value)] = byte_const_b.value
+            return models.BytesConstant(
+                value=bytes(replaced),
+                encoding=_choose_encoding(byte_const_a.encoding, byte_const_b.encoding),
+                source_location=op_loc,
+            )
     elif intrinsic.op is AVMOp.getbit:
         match intrinsic.args:
             case [
-                byte_arg,
+                models.UInt64Constant(value=source, ir_type=IRType.uint64),
                 models.UInt64Constant(value=index),
-            ] if (byte_const := _get_byte_constant(subroutine, byte_arg)) is not None:
+            ]:
+                getbit_result = 1 if (source & (1 << index)) else 0
+                return models.UInt64Constant(value=getbit_result, source_location=op_loc)
+            case [
+                models.Value(atype=AVMType.bytes) as byte_arg,
+                models.UInt64Constant(value=index),
+            ] if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
                 binary_array = [
                     x for xs in [bin(bb)[2:].zfill(8) for bb in byte_const.value] for x in xs
                 ]
@@ -328,10 +560,20 @@ def _try_fold_intrinsic(
     elif intrinsic.op is AVMOp.setbit:
         match intrinsic.args:
             case [
-                byte_arg,
+                models.UInt64Constant(value=source, ir_type=IRType.uint64),
                 models.UInt64Constant(value=index),
                 models.UInt64Constant(value=value),
-            ] if (byte_const := _get_byte_constant(subroutine, byte_arg)) is not None:
+            ]:
+                if value:
+                    setbit_result = source | (1 << index)
+                else:
+                    setbit_result = source & ~(1 << index)
+                return models.UInt64Constant(value=setbit_result, source_location=op_loc)
+            case [
+                models.Value(atype=AVMType.bytes) as byte_arg,
+                models.UInt64Constant(value=index),
+                models.UInt64Constant(value=value),
+            ] if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
                 binary_array = [
                     x for xs in [bin(bb)[2:].zfill(8) for bb in byte_const.value] for x in xs
                 ]
@@ -349,7 +591,7 @@ def _try_fold_intrinsic(
                     value=adjusted_const_value,
                 )
             case [a, b, c]:
-                bool_arg_maybe_simplified = _try_simplify_bool_condition(subroutine, c)
+                bool_arg_maybe_simplified = _try_simplify_bool_condition(register_assignments, c)
                 if bool_arg_maybe_simplified is not None:
                     return attrs.evolve(intrinsic, args=[a, b, bool_arg_maybe_simplified])
     elif intrinsic.op.code.startswith("extract_uint"):
@@ -370,8 +612,8 @@ def _try_fold_intrinsic(
                 )
     elif intrinsic.op is AVMOp.concat:
         left_arg, right_arg = intrinsic.args
-        left_const = _get_byte_constant(subroutine, left_arg)
-        right_const = _get_byte_constant(subroutine, right_arg)
+        left_const = _get_byte_constant(register_assignments, left_arg)
+        right_const = _get_byte_constant(register_assignments, right_arg)
         if left_const is not None:
             if left_const.value == b"":
                 return right_arg
@@ -403,7 +645,7 @@ def _try_fold_intrinsic(
                         models.UInt64Constant(value=L),
                     ],
                 )
-            ) if (byte_const := _get_byte_constant(subroutine, byte_arg)) is not None:
+            ) if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
                 # note there is a difference of behaviour between extract with stack args
                 # and with immediates - zero is to the end with immediates,
                 # and zero length with stacks
@@ -429,7 +671,7 @@ def _try_fold_intrinsic(
                         models.UInt64Constant(value=E),
                     ],
                 )
-            ) if (byte_const := _get_byte_constant(subroutine, byte_arg)) is not None:
+            ) if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
                 if E < S:
                     return None  # would fail at runtime, lets hope this is unreachable 😬
                 extracted = byte_const.value[S:E]
@@ -446,12 +688,12 @@ def _try_fold_intrinsic(
             ]:
                 return _try_simplify_uint64_binary_op(intrinsic, a, b)
             case [models.Value(atype=AVMType.bytes) as x]:
-                return _try_simplify_bytes_unary_op(subroutine, intrinsic, x)
+                return _try_simplify_bytes_unary_op(register_assignments, intrinsic, x)
             case [
                 models.Value(atype=AVMType.bytes) as a,
                 models.Value(atype=AVMType.bytes) as b,
             ]:
-                return _try_simplify_bytes_binary_op(subroutine, intrinsic, a, b)
+                return _try_simplify_bytes_binary_op(register_assignments, intrinsic, a, b)
 
     return None
 
@@ -463,11 +705,11 @@ def _get_int_constant(value: models.Value) -> int | None:
 
 
 def _get_biguint_constant(
-    subroutine: models.Subroutine, value: models.Value
+    register_assignments: _RegisterAssignments, value: models.Value
 ) -> tuple[int, bytes, AVMBytesEncoding] | tuple[None, None, None]:
     if isinstance(value, models.BigUIntConstant):
         return value.value, biguint_bytes_eval(value.value), AVMBytesEncoding.base16
-    byte_const = _get_byte_constant(subroutine, value)
+    byte_const = _get_byte_constant(register_assignments, value)
     if byte_const is not None and len(byte_const.value) <= 64:
         return (
             int.from_bytes(byte_const.value, byteorder="big", signed=False),
@@ -508,54 +750,58 @@ def _decode_address(address: str) -> bytes:
 
 
 def _get_byte_constant(
-    subroutine: models.Subroutine, byte_arg: models.Value
+    register_assignments: _RegisterAssignments, byte_arg: models.Value
 ) -> models.BytesConstant | None:
-    if isinstance(byte_arg, models.BytesConstant):
-        return byte_arg
-    if isinstance(byte_arg, models.BigUIntConstant):
-        return models.BytesConstant(
-            value=biguint_bytes_eval(byte_arg.value),
-            encoding=AVMBytesEncoding.base16,
-            source_location=byte_arg.source_location,
-        )
-    if isinstance(byte_arg, models.AddressConstant):
-        return models.BytesConstant(
-            value=_decode_address(byte_arg.value),
-            encoding=AVMBytesEncoding.base32,
-            source_location=byte_arg.source_location,
-        )
-    if isinstance(byte_arg, models.Register):
-        byte_arg_defn = get_definition(subroutine, byte_arg)
-        if isinstance(byte_arg_defn, models.Assignment) and isinstance(
-            byte_arg_defn.source, models.Intrinsic
-        ):
-            match byte_arg_defn.source:
-                case models.Intrinsic(op=AVMOp.itob, args=[models.UInt64Constant(value=itob_arg)]):
-                    return models.BytesConstant(
-                        source_location=byte_arg_defn.source_location,
-                        value=itob_arg.to_bytes(8, byteorder="big", signed=False),
-                        encoding=AVMBytesEncoding.base16,
-                    )
-                case models.Intrinsic(
-                    op=AVMOp.bzero, args=[models.UInt64Constant(value=bzero_arg)]
-                ) if bzero_arg <= 64:
-                    return models.BytesConstant(
-                        source_location=byte_arg_defn.source_location,
-                        value=b"\x00" * bzero_arg,
-                        encoding=AVMBytesEncoding.base16,
-                    )
-                case models.Intrinsic(op=AVMOp.global_, immediates=["ZeroAddress"]):
-                    return models.BytesConstant(
-                        value=_decode_address(algo_constants.ZERO_ADDRESS),
-                        encoding=AVMBytesEncoding.base32,
-                        source_location=byte_arg.source_location,
-                    )
+    if byte_arg in register_assignments:
+        byte_arg_defn = register_assignments[byte_arg]  # type: ignore[index]
+        match byte_arg_defn.source:
+            case models.Intrinsic(op=AVMOp.itob, args=[models.UInt64Constant(value=itob_arg)]):
+                return models.BytesConstant(
+                    source_location=byte_arg_defn.source_location,
+                    value=itob_arg.to_bytes(8, byteorder="big", signed=False),
+                    encoding=AVMBytesEncoding.base16,
+                )
+            case models.Intrinsic(
+                op=AVMOp.bzero, args=[models.UInt64Constant(value=bzero_arg)]
+            ) if bzero_arg <= 64:
+                return models.BytesConstant(
+                    source_location=byte_arg_defn.source_location,
+                    value=b"\x00" * bzero_arg,
+                    encoding=AVMBytesEncoding.base16,
+                )
+            case models.Intrinsic(op=AVMOp.global_, immediates=["ZeroAddress"]):
+                return models.BytesConstant(
+                    value=_decode_address(algo_constants.ZERO_ADDRESS),
+                    encoding=AVMBytesEncoding.base32,
+                    source_location=byte_arg.source_location,
+                )
+    elif isinstance(byte_arg, models.Constant):
+        if isinstance(byte_arg, models.BytesConstant):
+            return byte_arg
+        if isinstance(byte_arg, models.BigUIntConstant):
+            return models.BytesConstant(
+                value=biguint_bytes_eval(byte_arg.value),
+                encoding=AVMBytesEncoding.base16,
+                source_location=byte_arg.source_location,
+            )
+        if isinstance(byte_arg, models.AddressConstant):
+            return models.BytesConstant(
+                value=_decode_address(byte_arg.value),
+                encoding=AVMBytesEncoding.base32,
+                source_location=byte_arg.source_location,
+            )
+        if isinstance(byte_arg, models.MethodConstant):
+            return models.BytesConstant(
+                value=method_selector_hash(byte_arg.value),
+                encoding=AVMBytesEncoding.base16,
+                source_location=byte_arg.source_location,
+            )
     return None
 
 
 def _try_simplify_uint64_unary_op(
     intrinsic: models.Intrinsic, arg: models.Value
-) -> models.ValueProvider | None:
+) -> models.Value | None:
     op_loc = intrinsic.source_location
     x = _get_int_constant(arg)
     if x is not None:
@@ -568,22 +814,24 @@ def _try_simplify_uint64_unary_op(
         elif intrinsic.op is AVMOp.sqrt:
             value = math.isqrt(x)
             return models.UInt64Constant(value=value, source_location=op_loc)
+        elif intrinsic.op is AVMOp.bitlen:
+            return UInt64Constant(value=x.bit_length(), source_location=op_loc)
         else:
             logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {x}")
     return None
 
 
 def _try_simplify_bytes_unary_op(
-    subroutine: models.Subroutine, intrinsic: models.Intrinsic, arg: models.Value
-) -> models.ValueProvider | None:
+    register_assignments: _RegisterAssignments, intrinsic: models.Intrinsic, arg: models.Value
+) -> models.Value | None:
     op_loc = intrinsic.source_location
     if intrinsic.op is AVMOp.bsqrt:
-        biguint_const, _, _ = _get_biguint_constant(subroutine, arg)
+        biguint_const, _, _ = _get_biguint_constant(register_assignments, arg)
         if biguint_const is not None:
             value = math.isqrt(biguint_const)
             return models.BigUIntConstant(value=value, source_location=op_loc)
     else:
-        byte_const = _get_byte_constant(subroutine, arg)
+        byte_const = _get_byte_constant(register_assignments, arg)
         if byte_const is not None:
             if intrinsic.op is AVMOp.bitwise_not_bytes:
                 inverted = bytes([x ^ 0xFF for x in byte_const.value])
@@ -596,6 +844,9 @@ def _try_simplify_bytes_unary_op(
             elif intrinsic.op is AVMOp.len_:
                 length = len(byte_const.value)
                 return models.UInt64Constant(value=length, source_location=op_loc)
+            elif intrinsic.op is AVMOp.bitlen:
+                converted = int.from_bytes(byte_const.value, byteorder="big", signed=False)
+                return UInt64Constant(value=converted.bit_length(), source_location=op_loc)
             else:
                 logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {byte_const}")
     return None
@@ -603,7 +854,7 @@ def _try_simplify_bytes_unary_op(
 
 def _try_simplify_uint64_binary_op(
     intrinsic: models.Intrinsic, a: models.Value, b: models.Value, *, bool_context: bool = False
-) -> models.ValueProvider | None:
+) -> models.Value | models.Intrinsic | None:
     op = intrinsic.op
     c: models.Value | int | None = None
 
@@ -624,14 +875,9 @@ def _try_simplify_uint64_binary_op(
     if c is None:
         a_const = _get_int_constant(a)
         b_const = _get_int_constant(b)
-        # 0 == b <-> !b
-        if a_const == 0 and op == AVMOp.eq:
-            return attrs.evolve(intrinsic, op=AVMOp.not_, args=[b])
-        # a == 0 <-> !a
-        elif b_const == 0 and op == AVMOp.eq:
-            return attrs.evolve(intrinsic, op=AVMOp.not_, args=[a])
+
         # a >= 0 <-> 1
-        elif b_const == 0 and op == AVMOp.gte:  # noqa: SIM114
+        if b_const == 0 and op == AVMOp.gte:  # noqa: SIM114
             c = 1
         # 0 <= b <-> 1
         elif a_const == 0 and op == AVMOp.lte:
@@ -649,19 +895,19 @@ def _try_simplify_uint64_binary_op(
         # 0 != b <-> b
         #   OR
         # 0 < b <-> b
-        elif (
-            (bool_context or b.ir_type == IRType.bool)
-            and a_const == 0
-            and op in (AVMOp.neq, AVMOp.lt)
+        #   OR
+        # 1 <= b <-> b
+        elif (bool_context or b.ir_type == IRType.bool) and (
+            (a_const == 0 and op in (AVMOp.neq, AVMOp.lt)) or (a_const == 1 and op == AVMOp.lte)
         ):
             c = b
         # a != 0 <-> a
         #   OR
         # a > 0 <-> a
-        elif (
-            (bool_context or a.ir_type == IRType.bool)
-            and b_const == 0
-            and op in (AVMOp.neq, AVMOp.gt)
+        #   OR
+        # a >= 1 <-> a
+        elif (bool_context or a.ir_type == IRType.bool) and (
+            (b_const == 0 and op in (AVMOp.neq, AVMOp.gt)) or (b_const == 1 and op == AVMOp.gte)
         ):
             c = a
         elif a_const is not None and b_const is not None:
@@ -710,6 +956,12 @@ def _try_simplify_uint64_binary_op(
                     logger.debug(
                         f"Don't know how to simplify {a_const} {intrinsic.op.code} {b_const}"
                     )
+        # 0 == b <-> !b
+        elif a_const == 0 and op == AVMOp.eq:
+            return attrs.evolve(intrinsic, op=AVMOp.not_, args=[b])
+        # a == 0 <-> !a
+        elif b_const == 0 and op == AVMOp.eq:
+            return attrs.evolve(intrinsic, op=AVMOp.not_, args=[a])
     if not isinstance(c, int):
         return c
     if c < 0:
@@ -719,8 +971,11 @@ def _try_simplify_uint64_binary_op(
 
 
 def _try_simplify_bytes_binary_op(
-    subroutine: models.Subroutine, intrinsic: models.Intrinsic, a: models.Value, b: models.Value
-) -> models.ValueProvider | None:
+    register_assignments: _RegisterAssignments,
+    intrinsic: models.Intrinsic,
+    a: models.Value,
+    b: models.Value,
+) -> models.Value | None:
     op = intrinsic.op
     op_loc = intrinsic.source_location
     c: models.Value | int | None = None
@@ -740,8 +995,8 @@ def _try_simplify_bytes_binary_op(
             case AVMOp.bitwise_and_bytes | AVMOp.bitwise_or_bytes:
                 c = a
     if c is None:
-        a_const, a_const_bytes, a_encoding = _get_biguint_constant(subroutine, a)
-        b_const, b_const_bytes, b_encoding = _get_biguint_constant(subroutine, b)
+        a_const, a_const_bytes, a_encoding = _get_biguint_constant(register_assignments, a)
+        b_const, b_const_bytes, b_encoding = _get_biguint_constant(register_assignments, b)
         if a_const == 1 and op == AVMOp.mul_bytes:
             c = b
         elif b_const == 1 and op == AVMOp.mul_bytes:

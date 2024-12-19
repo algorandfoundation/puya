@@ -1,3 +1,4 @@
+import abc
 import typing
 from collections.abc import Iterable, Mapping, Sequence
 
@@ -6,7 +7,7 @@ import attrs
 from puya.errors import InternalError
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.utils import format_bytes, format_error_comment
-from puya.mir.models import Signature
+from puya.mir import models as mir
 from puya.models import OnCompletionAction, ProgramReference, TransactionType
 from puya.parse import SourceLocation
 from puya.utils import valid_bytes, valid_int64
@@ -68,13 +69,12 @@ class TealOp:
         return ()
 
     def teal(self) -> str:
-        return self._teal_str(self.op_code, *self.immediates)
-
-    def _teal_str(self, op_code: str, *immediates: int | str) -> str:
-        teal_args = [op_code, *map(str, immediates)]
+        teal_args = [self.op_code, *map(str, self.immediates)]
         if self.comment or self.error_message:
             error_message = (
-                format_error_comment(op_code, self.error_message) if self.error_message else ""
+                format_error_comment(self.op_code, self.error_message)
+                if self.error_message
+                else ""
             )
             comment_lines = error_message.splitlines()
             comment_lines += (self.comment or "").splitlines()
@@ -105,12 +105,6 @@ class Dup2(TealOp):
 class Pop(TealOp):
     op_code: str = attrs.field(default="pop", init=False)
     consumes: int = attrs.field(default=1, init=False)
-    produces: int = attrs.field(default=0, init=False)
-
-
-@attrs.frozen
-class RetSub(TealOp):
-    op_code: str = attrs.field(default="retsub", init=False)
     produces: int = attrs.field(default=0, init=False)
 
 
@@ -474,6 +468,121 @@ class Intrinsic(TealOp):
 
 
 @attrs.frozen
+class ControlOp(TealOp, abc.ABC):
+    @property
+    @abc.abstractmethod
+    def targets(self) -> Sequence[str]: ...
+
+
+@attrs.frozen
+class RetSub(ControlOp):
+    op_code: str = attrs.field(default="retsub", init=False)
+    produces: int = attrs.field(default=0, init=False)
+
+    @property
+    def targets(self) -> Sequence[str]:
+        return ()
+
+
+@attrs.frozen
+class Return(ControlOp):
+    op_code: str = attrs.field(default="return", init=False)
+    consumes: int = attrs.field(default=1, init=False)
+    produces: int = attrs.field(default=0, init=False)
+
+    @property
+    def targets(self) -> Sequence[str]:
+        return ()
+
+
+@attrs.frozen
+class Err(ControlOp):
+    op_code: str = attrs.field(default="err", init=False)
+    consumes: int = attrs.field(default=0, init=False)
+    produces: int = attrs.field(default=0, init=False)
+
+    @property
+    def targets(self) -> Sequence[str]:
+        return ()
+
+
+@attrs.frozen
+class Branch(ControlOp):
+    target: str
+    op_code: str = attrs.field(default="b", init=False)
+    consumes: int = attrs.field(default=0, init=False)
+    produces: int = attrs.field(default=0, init=False)
+
+    @property
+    def immediates(self) -> Sequence[int | str]:
+        return (self.target,)
+
+    @property
+    def targets(self) -> Sequence[str]:
+        return (self.target,)
+
+
+@attrs.frozen
+class BranchNonZero(ControlOp):
+    target: str
+    op_code: str = attrs.field(default="bnz", init=False)
+    consumes: int = attrs.field(default=1, init=False)
+    produces: int = attrs.field(default=0, init=False)
+
+    @property
+    def immediates(self) -> Sequence[int | str]:
+        return (self.target,)
+
+    @property
+    def targets(self) -> Sequence[str]:
+        return (self.target,)
+
+
+@attrs.frozen
+class BranchZero(ControlOp):
+    target: str
+    op_code: str = attrs.field(default="bz", init=False)
+    consumes: int = attrs.field(default=1, init=False)
+    produces: int = attrs.field(default=0, init=False)
+
+    @property
+    def immediates(self) -> Sequence[int | str]:
+        return (self.target,)
+
+    @property
+    def targets(self) -> Sequence[str]:
+        return (self.target,)
+
+
+@attrs.frozen
+class Switch(ControlOp):
+    targets: Sequence[str] = attrs.field(converter=tuple[str, ...])
+    op_code: str = attrs.field(default="switch", init=False)
+    consumes: int = attrs.field(default=1, init=False)
+    produces: int = attrs.field(default=0, init=False)
+
+    @property
+    def immediates(self) -> Sequence[int | str]:
+        return self.targets
+
+
+@attrs.frozen
+class Match(ControlOp):
+    targets: Sequence[str] = attrs.field(converter=tuple[str, ...])
+    op_code: str = attrs.field(default="match", init=False)
+    consumes: int = attrs.field(init=False)
+    produces: int = attrs.field(default=0, init=False)
+
+    @consumes.default
+    def _consumes(self) -> int:
+        return len(self.targets) + 1
+
+    @property
+    def immediates(self) -> Sequence[int | str]:
+        return self.targets
+
+
+@attrs.frozen
 class CallSub(TealOp):
     target: str
     op_code: str = attrs.field(default="callsub", init=False)
@@ -483,13 +592,13 @@ class CallSub(TealOp):
         return (self.target,)
 
 
-@attrs.define
+@attrs.frozen
 class TealBlock:
     label: str
     ops: list[TealOp]
     x_stack_in: Sequence[str]
-    entry_stack_height: int
-    exit_stack_height: int
+    entry_stack_height: int = attrs.field(validator=attrs.validators.ge(0))
+    exit_stack_height: int = attrs.field(validator=attrs.validators.ge(0))
 
     def validate_stack_height(self) -> None:
         stack_height = self.entry_stack_height
@@ -509,11 +618,12 @@ class TealBlock:
             )
 
 
-@attrs.define
+@attrs.frozen
 class TealSubroutine:
     is_main: bool
-    signature: Signature
+    signature: mir.Signature
     blocks: list[TealBlock]
+    source_location: SourceLocation | None
 
 
 @attrs.define

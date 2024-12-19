@@ -1,5 +1,4 @@
 from collections.abc import Mapping
-from pathlib import Path
 
 import algosdk.error
 import pytest
@@ -37,7 +36,6 @@ def test_assemble_matches_algod(
         optimization_level=optimization_level,
         debug_level=0,
         output_bytecode=True,
-        out_dir=Path("out"),
         template_vars_prefix=prefix,
         cli_template_definitions=template_vars,
     )
@@ -134,10 +132,10 @@ def test_assemble_last_op_jump() -> None:
                 is_main=True,
                 signature=Signature(name="", parameters=(), returns=()),
                 blocks=[looping_block],
+                source_location=None,
             ),
             subroutines=[],
         ),
-        template_variables={},
     ).bytecode
 
     assert bytecode == b"".join(

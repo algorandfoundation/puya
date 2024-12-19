@@ -45,7 +45,7 @@ def perform_constant_stack_shuffling(block: models.TealBlock) -> bool:
     if loads_modified and loads:
         window = slice(start_idx, len(result))
         preserve_stack_manipulations(result, window, loads)
-    block.ops = result
+    block.ops[:] = result
     return modified
 
 
@@ -68,7 +68,7 @@ def constant_dupn_insertion(block: models.TealBlock) -> bool:
     if loads:
         modified = _collapse_loads(loads) or modified
         result.extend(loads)
-    block.ops = result
+    block.ops[:] = result
     return modified
 
 
@@ -92,7 +92,7 @@ def constant_dup2_insertion(block: models.TealBlock) -> bool:
             idx += 3
         else:
             idx += 1
-    block.ops = result
+    block.ops[:] = result
     return modified
 
 

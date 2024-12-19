@@ -1,10 +1,20 @@
+import typing
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 import attrs
+from immutabledict import immutabledict
 
 from puya import log
-from puya.models import ContractReference, LogicSigReference
+from puya.models import (
+    ContractMetaData,
+    ContractReference,
+    LogicSignatureMetaData,
+    LogicSigReference,
+    ProgramKind,
+    StateTotals,
+    TemplateValue,
+)
 from puya.options import PuyaOptions
 from puya.parse import SourceLocation
 
@@ -41,3 +51,21 @@ def try_get_source(
         if start_column is not None:
             src_content[0] = src_content[0][start_column:]
     return src_content
+
+
+class ProgramBytecodeProtocol(typing.Protocol):
+    def __call__(
+        self,
+        ref: ContractReference | LogicSigReference,
+        kind: ProgramKind,
+        *,
+        template_constants: immutabledict[str, TemplateValue],
+    ) -> bytes: ...
+
+
+@attrs.define
+class ArtifactCompileContext(CompileContext):
+    metadata: ContractMetaData | LogicSignatureMetaData
+    out_dir: Path | None
+    get_program_bytecode: ProgramBytecodeProtocol
+    state_totals: Mapping[ContractReference, StateTotals]
