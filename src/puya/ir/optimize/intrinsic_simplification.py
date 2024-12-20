@@ -432,10 +432,12 @@ def _try_convert_stack_args_to_immediates(intrinsic: Intrinsic) -> Intrinsic | N
             op=(AVMOp.loads | AVMOp.stores as op),
             args=[models.UInt64Constant(value=slot), *rest],
         ):
-            intrinsic.op = AVMOp.load if op == AVMOp.loads else AVMOp.store
-            intrinsic.args = rest
-            intrinsic.immediates = [slot]
-            return intrinsic
+            return attrs.evolve(
+                intrinsic,
+                op=AVMOp.load if op == AVMOp.loads else AVMOp.store,
+                args=rest,
+                immediates=[slot],
+            )
         case Intrinsic(
             op=(AVMOp.extract3 | AVMOp.extract),
             args=[
@@ -446,10 +448,12 @@ def _try_convert_stack_args_to_immediates(intrinsic: Intrinsic) -> Intrinsic | N
         ) if S <= 255 and 1 <= L <= 255:
             # note the lower bound of 1 on length, extract with immediates vs extract3
             # have *very* different behaviour if the length is 0
-            intrinsic.op = AVMOp.extract
-            intrinsic.immediates = [S, L]
-            intrinsic.args = intrinsic.args[:1]
-            return intrinsic
+            return attrs.evolve(
+                intrinsic,
+                op=AVMOp.extract,
+                immediates=[S, L],
+                args=intrinsic.args[:1],
+            )
         case Intrinsic(
             op=AVMOp.substring3,
             args=[
@@ -728,6 +732,7 @@ def _simplify_chained_extracts(
         elif isinstance(src_start, int) and isinstance(op_start, int):
             start = _to_value(src_start + op_start)
         else:
+            logger.debug(f"couldn't simplify {extract} due to starts: {src_start=}, {op_start=}")
             return None
 
         src_length = _get_extract_length(src)
@@ -742,6 +747,9 @@ def _simplify_chained_extracts(
         elif src_length and op_length and src_length == op_length:
             length = _to_value(src_length)
         else:
+            logger.debug(
+                f"couldn't simplify {extract} due to lengths: {src_length=}, {op_length=}"
+            )
             return None
         return models.Intrinsic(
             op=AVMOp.extract3,  # this may get simplified further
@@ -763,35 +771,37 @@ def _to_value(value: models.Value | int) -> models.Value:
 
 def _get_extract_start(intrinsic: models.Intrinsic) -> models.Value | int | None:
     try:
-        start_arg = intrinsic.args[1]
+        arg = intrinsic.args[1]
     except IndexError:
         pass
     else:
-        return _get_int_constant(start_arg) or start_arg
+        maybe_const = _get_int_constant(arg)
+        return arg if maybe_const is None else maybe_const
     try:
-        start = intrinsic.immediates[0]
+        imm = intrinsic.immediates[0]
     except IndexError:
         pass
     else:
-        assert isinstance(start, int)
-        return start
+        assert isinstance(imm, int)
+        return imm
     return None
 
 
 def _get_extract_length(intrinsic: models.Intrinsic) -> models.Value | int | None:
     try:
-        length_arg = intrinsic.args[2]
+        arg = intrinsic.args[2]
     except IndexError:
         pass
     else:
-        return _get_int_constant(length_arg) or length_arg
+        maybe_const = _get_int_constant(arg)
+        return arg if maybe_const is None else maybe_const
     try:
-        length = intrinsic.immediates[1]
+        imm = intrinsic.immediates[1]
     except IndexError:
         pass
     else:
-        assert isinstance(length, int)
-        return length
+        assert isinstance(imm, int)
+        return imm
     return None
 
 
@@ -897,24 +907,25 @@ def _try_simplify_bytes_unary_op(
             else:
                 logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {byte_const}")
         elif arg in register_assignments and intrinsic.op is AVMOp.btoi:
+            src = register_assignments[arg].source  # type: ignore[index]
             # extract* BYTES, START, LEN; btoi -> extract_uint* BYTES, START
-            match register_assignments[arg].source:  # type: ignore[index]
+            match src:
                 case models.Intrinsic(
                     op=AVMOp.extract, args=[bites], immediates=[int(start), int(length)]
                 ) if length in _EXTRACT_UINT_OPS_BY_LENGTH:
-                    return models.Intrinsic(
+                    return attrs.evolve(
+                        intrinsic,
                         op=_EXTRACT_UINT_OPS_BY_LENGTH[length],
                         args=[bites, UInt64Constant(value=start, source_location=None)],
-                        source_location=intrinsic.source_location,
                     )
                 case models.Intrinsic(
                     op=AVMOp.extract3,
                     args=[bites, start_arg, models.UInt64Constant(value=length)],
                 ) if length in _EXTRACT_UINT_OPS_BY_LENGTH:
-                    return models.Intrinsic(
+                    return attrs.evolve(
+                        intrinsic,
                         op=_EXTRACT_UINT_OPS_BY_LENGTH[length],
                         args=[bites, start_arg],
-                        source_location=intrinsic.source_location,
                     )
     return None
 

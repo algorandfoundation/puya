@@ -30,9 +30,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let encoded%8#0: (bytes[8],uint64,bytes[32])[] = (concat encoded%7#0 tmp%4#1)
         let array%array_contents%2#1: (bytes[8],uint64,bytes[32])[] = (concat array%array_contents%1#1 encoded%8#0) // on error: max array length exceeded
         write(local.0, array%array_contents%2#1)
-        let array%value%0#1: bytes = ((extract 0 48) array%array_contents%2#1)
         let last_point.x#0: bytes[8] = ((extract 0 8) array%array_contents%2#1)
-        let last_point.y#0: uint64 = (extract_uint64 array%value%0#1 8u)
+        let last_point.y#0: uint64 = (extract_uint64 array%array_contents%2#1 8u)
         let length#0: uint64 = 0u
         let array%bytes_len%1#1: uint64 = (len array%array_contents%2#1)
         let array%array_len%1#1: uint64 = (/ array%bytes_len%1#1 48u)
@@ -50,13 +49,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%1#2: bool = (b< point.x#0 last_point.x#0)
         goto tmp%1#2 ? block@17 : block@18
     block@17: // if_body_L32
-        let tmp%2#2: uint64 = (extract_uint64 array%value%0#1 0u)
-        let tmp%3#0: uint64 = (extract_uint64 array%value%1#1 0u)
+        let tmp%2#2: uint64 = (extract_uint64 array%array_contents%2#1 0u)
+        let tmp%3#0: uint64 = (extract_uint64 slot_contents%2#1 array%bytes_index%1#1)
         let dx#0: uint64 = (- tmp%2#2 tmp%3#0)
         goto block@19
     block@18: // else_body_L34
-        let tmp%4#2: uint64 = (extract_uint64 array%value%1#1 0u)
-        let tmp%5#0: uint64 = (extract_uint64 array%value%0#1 0u)
+        let tmp%4#2: uint64 = (extract_uint64 slot_contents%2#1 array%bytes_index%1#1)
+        let tmp%5#0: uint64 = (extract_uint64 array%array_contents%2#1 0u)
         let dx#0: uint64 = (- tmp%4#2 tmp%5#0)
         goto block@19
     block@19: // after_if_else_L31

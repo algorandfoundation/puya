@@ -7,7 +7,7 @@ main:
     intc_0 // 0
     dupn 2
     pushbytes ""
-    dupn 5
+    dupn 6
     txn NumAppArgs
     bz main_bare_routing@6
     pushbytes 0x28d7c1b8 // method "test_array(uint64,uint64,uint64,uint64)uint64"
@@ -52,16 +52,13 @@ main_test_array_route@3:
     concat
     concat // on error: max array length exceeded
     dup
-    bury 8
-    dup
-    extract 0 48
-    dup
-    cover 2
     bury 11
+    dup
+    bury 9
     dup
     extract 0 8
     bury 10
-    swap
+    dup
     intc_2 // 8
     extract_uint64
     bury 5
@@ -70,39 +67,40 @@ main_test_array_route@3:
     len
     intc_3 // 48
     /
-    bury 6
+    bury 7
     intc_1 // 1
     bury 1
 
 main_for_header@15:
     dup
-    dig 6
+    dig 7
     <
     bz main_after_for@23
-    dig 6
-    dig 1
+    dig 7
+    dup
+    dig 2
     intc_3 // 48
     *
+    dup
+    bury 9
     dup2
     intc_3 // 48
     extract3
-    dup
-    cover 3
-    cover 3
+    cover 2
     intc_2 // 8
     extract3
     swap
     intc_2 // 8
     extract_uint64
     bury 4
-    dig 9
+    dig 10
     b<
     bz main_else_body@18
-    dig 9
+    dig 10
     intc_0 // 0
     extract_uint64
     swap
-    intc_0 // 0
+    dig 7
     extract_uint64
     -
     bury 5
@@ -141,9 +139,9 @@ main_else_body@21:
     b main_after_if_else@22
 
 main_else_body@18:
-    intc_0 // 0
+    dig 6
     extract_uint64
-    dig 9
+    dig 10
     intc_0 // 0
     extract_uint64
     -

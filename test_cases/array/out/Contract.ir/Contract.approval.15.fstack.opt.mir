@@ -191,7 +191,7 @@ test_array:
     // array/uint64.py:7
     // arr = Array[UInt64]()
     callsub _puya_lib.mem.new_slot                                                arr#0
-    l-store-copy arr#0 0                                                          arr#0,arr#0 (copy)
+    l-store-copy arr#0 0                                                          arr#0,arr#0
     f-store arr#0                                                                 (𝕗) arr#0 | arr#0
     // array/uint64.py:10
     // arr.append(UInt64(42))
@@ -226,9 +226,6 @@ test_array:
     *                                                                             (𝕗) arr#0 | arr#0,slot_contents%5#0,array%bytes_index%1#1
     l-load-copy slot_contents%5#0 1                                               (𝕗) arr#0 | arr#0,slot_contents%5#0,array%bytes_index%1#1,slot_contents%5#0 (copy)
     l-load array%bytes_index%1#1 1                                                (𝕗) arr#0 | arr#0,slot_contents%5#0,slot_contents%5#0 (copy),array%bytes_index%1#1
-    int 8                                                                         (𝕗) arr#0 | arr#0,slot_contents%5#0,slot_contents%5#0 (copy),array%bytes_index%1#1,8
-    extract3                                                                      (𝕗) arr#0 | arr#0,slot_contents%5#0,array%value%1#1
-    int 0                                                                         (𝕗) arr#0 | arr#0,slot_contents%5#0,array%value%1#1,0
     extract_uint64                                                                (𝕗) arr#0 | arr#0,slot_contents%5#0,array%sub_item%3#1
     int 4                                                                         (𝕗) arr#0 | arr#0,slot_contents%5#0,array%sub_item%3#1,4
     ==                                                                            (𝕗) arr#0 | arr#0,slot_contents%5#0,tmp%13#0
@@ -262,9 +259,6 @@ test_array:
     *                                                                             (𝕗) arr#0 | array%array_contents%1#1,array%bytes_index%2#1
     l-load-copy array%array_contents%1#1 1                                        (𝕗) arr#0 | array%array_contents%1#1,array%bytes_index%2#1,array%array_contents%1#1 (copy)
     l-load array%bytes_index%2#1 1                                                (𝕗) arr#0 | array%array_contents%1#1,array%array_contents%1#1 (copy),array%bytes_index%2#1
-    int 8                                                                         (𝕗) arr#0 | array%array_contents%1#1,array%array_contents%1#1 (copy),array%bytes_index%2#1,8
-    extract3                                                                      (𝕗) arr#0 | array%array_contents%1#1,array%value%2#1
-    int 0                                                                         (𝕗) arr#0 | array%array_contents%1#1,array%value%2#1,0
     extract_uint64                                                                (𝕗) arr#0 | array%array_contents%1#1,array%sub_item%5#1
     int 43                                                                        (𝕗) arr#0 | array%array_contents%1#1,array%sub_item%5#1,43
     ==                                                                            (𝕗) arr#0 | array%array_contents%1#1,tmp%19#0
@@ -272,15 +266,14 @@ test_array:
     // array/uint64.py:21
     // assert arr[0] == 42
     l-load array%array_contents%1#1 0                                             (𝕗) arr#0 | array%array_contents%1#1
-    extract 0 8                                                                   (𝕗) arr#0 | array%value%3#1
-    int 0                                                                         (𝕗) arr#0 | array%value%3#1,0
+    int 0                                                                         (𝕗) arr#0 | array%array_contents%1#1,0
     extract_uint64                                                                (𝕗) arr#0 | array%sub_item%7#1
     int 42                                                                        (𝕗) arr#0 | array%sub_item%7#1,42
     ==                                                                            (𝕗) arr#0 | tmp%21#0
     assert                                                                        (𝕗) arr#0 |
     // array/uint64.py:226
     // for _i in urange(x):
-    int 0                                                                         (𝕗) arr#0 | 0
+    int 0                                                                         (𝕗) arr#0 | _i#0
     f-store _i#0                                                                  (𝕗) arr#0,_i#0 |
     b test_array_for_header@2                                                     (𝕗) arr#0,_i#0 |
 
@@ -344,9 +337,6 @@ test_array_after_for@5:                                                         
     *                                                                             (𝕗) arr#0,_i#0 | arr#0,slot_contents%13#0,array%bytes_index%5#1
     l-load slot_contents%13#0 1                                                   (𝕗) arr#0,_i#0 | arr#0,array%bytes_index%5#1,slot_contents%13#0
     l-load array%bytes_index%5#1 1                                                (𝕗) arr#0,_i#0 | arr#0,slot_contents%13#0,array%bytes_index%5#1
-    int 8                                                                         (𝕗) arr#0,_i#0 | arr#0,slot_contents%13#0,array%bytes_index%5#1,8
-    extract3                                                                      (𝕗) arr#0,_i#0 | arr#0,array%value%5#1
-    int 0                                                                         (𝕗) arr#0,_i#0 | arr#0,array%value%5#1,0
     extract_uint64                                                                (𝕗) arr#0,_i#0 | arr#0,array%sub_item%11#1
     int 2                                                                         (𝕗) arr#0,_i#0 | arr#0,array%sub_item%11#1,2
     ==                                                                            (𝕗) arr#0,_i#0 | arr#0,tmp%27#0
@@ -377,9 +367,6 @@ test_array_after_for@5:                                                         
     *                                                                             (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,array%bytes_index%6#1
     l-load-copy slot_contents%16#0 1                                              (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,array%bytes_index%6#1,slot_contents%16#0 (copy)
     l-load array%bytes_index%6#1 1                                                (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,slot_contents%16#0 (copy),array%bytes_index%6#1
-    int 8                                                                         (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,slot_contents%16#0 (copy),array%bytes_index%6#1,8
-    extract3                                                                      (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,array%value%6#1
-    int 0                                                                         (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,array%value%6#1,0
     extract_uint64                                                                (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,array%sub_item%13#1
     int 9                                                                         (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,array%sub_item%13#1,9
     ==                                                                            (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,tmp%33#0
@@ -410,9 +397,6 @@ test_array_after_for@5:                                                         
     *                                                                             (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,array%array_contents%3#1,array%bytes_index%7#1
     l-load array%array_contents%3#1 1                                             (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,array%bytes_index%7#1,array%array_contents%3#1
     l-load array%bytes_index%7#1 1                                                (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,array%array_contents%3#1,array%bytes_index%7#1
-    int 8                                                                         (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,array%array_contents%3#1,array%bytes_index%7#1,8
-    extract3                                                                      (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,array%value%7#1
-    int 0                                                                         (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,array%value%7#1,0
     extract_uint64                                                                (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,array%sub_item%15#1
     int 44                                                                        (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,array%sub_item%15#1,44
     ==                                                                            (𝕗) arr#0,_i#0 | arr#0,slot_contents%16#0,tmp%39#0
@@ -429,8 +413,7 @@ test_array_after_for@5:                                                         
     // array/uint64.py:35
     // return_ref(arr, arr)[0] += 2
     l-load-copy array%array_contents%5#1 0                                        (𝕗) arr#0,_i#0 | arr#0,array%array_contents%5#1,array%array_contents%5#1 (copy)
-    extract 0 8                                                                   (𝕗) arr#0,_i#0 | arr#0,array%array_contents%5#1,array%value%8#1
-    int 0                                                                         (𝕗) arr#0,_i#0 | arr#0,array%array_contents%5#1,array%value%8#1,0
+    int 0                                                                         (𝕗) arr#0,_i#0 | arr#0,array%array_contents%5#1,array%array_contents%5#1 (copy),0
     extract_uint64                                                                (𝕗) arr#0,_i#0 | arr#0,array%array_contents%5#1,array%sub_item%17#1
     int 2                                                                         (𝕗) arr#0,_i#0 | arr#0,array%array_contents%5#1,array%sub_item%17#1,2
     +                                                                             (𝕗) arr#0,_i#0 | arr#0,array%array_contents%5#1,new_box_value%0#0
@@ -454,8 +437,7 @@ test_array_after_for@5:                                                         
     // array/uint64.py:37
     // assert arr[0] == 44
     l-load-copy array%updated_array%0#1 1                                         (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%array_len%13#1,array%updated_array%0#1 (copy)
-    extract 0 8                                                                   (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%array_len%13#1,array%value%9#1
-    int 0                                                                         (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%array_len%13#1,array%value%9#1,0
+    int 0                                                                         (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%array_len%13#1,array%updated_array%0#1 (copy),0
     extract_uint64                                                                (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%array_len%13#1,array%sub_item%20#1
     int 44                                                                        (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%array_len%13#1,array%sub_item%20#1,44
     ==                                                                            (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%array_len%13#1,tmp%45#0
@@ -469,9 +451,6 @@ test_array_after_for@5:                                                         
     *                                                                             (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%array_len%13#1,array%bytes_index%11#1
     l-load-copy array%updated_array%0#1 2                                         (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%array_len%13#1,array%bytes_index%11#1,array%updated_array%0#1 (copy)
     l-load array%bytes_index%11#1 1                                               (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%array_len%13#1,array%updated_array%0#1 (copy),array%bytes_index%11#1
-    int 8                                                                         (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%array_len%13#1,array%updated_array%0#1 (copy),array%bytes_index%11#1,8
-    extract3                                                                      (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%array_len%13#1,array%value%10#1
-    int 0                                                                         (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%array_len%13#1,array%value%10#1,0
     extract_uint64                                                                (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%array_len%13#1,array%sub_item%22#1
     int 99                                                                        (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%array_len%13#1,array%sub_item%22#1,99
     ==                                                                            (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%array_len%13#1,tmp%49#0
@@ -485,9 +464,6 @@ test_array_after_for@5:                                                         
     *                                                                             (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%bytes_index%12#1
     l-load array%updated_array%0#1 1                                              (𝕗) arr#0,_i#0 | array%bytes_index%12#1,array%updated_array%0#1
     l-load array%bytes_index%12#1 1                                               (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%bytes_index%12#1
-    int 8                                                                         (𝕗) arr#0,_i#0 | array%updated_array%0#1,array%bytes_index%12#1,8
-    extract3                                                                      (𝕗) arr#0,_i#0 | array%value%11#1
-    int 0                                                                         (𝕗) arr#0,_i#0 | array%value%11#1,0
     extract_uint64                                                                (𝕗) arr#0,_i#0 | array%sub_item%24#1
     int 100                                                                       (𝕗) arr#0,_i#0 | array%sub_item%24#1,100
     ==                                                                            (𝕗) arr#0,_i#0 | tmp%53#0
@@ -499,7 +475,7 @@ test_array_after_for@5:                                                         
 add_x:                                                                            (𝕡) arr#0,x#0 |
     // array/uint64.py:220
     // for i in urange(x):
-    int 0                                                                         (𝕡) arr#0,x#0 | 0
+    int 0                                                                         (𝕡) arr#0,x#0 | i#0
     f-store i#0                                                                   (𝕡) arr#0,x#0 | (𝕗) i#0 |
     b add_x_for_header@1                                                          (𝕡) arr#0,x#0 | (𝕗) i#0 |
 
@@ -626,11 +602,11 @@ test_array_multiple_append:
 test_array_too_long:
     // array/uint64.py:68
     // array = Array[UInt64]()
-    byte 0x                                                                       0x
+    byte 0x                                                                       slot%0
     f-store slot%0                                                                (𝕗) slot%0 |
     // array/uint64.py:69
     // for i in urange(512):
-    int 0                                                                         (𝕗) slot%0 | 0
+    int 0                                                                         (𝕗) slot%0 | i#0
     f-store i#0                                                                   (𝕗) slot%0,i#0 |
     b test_array_too_long_for_header@1                                            (𝕗) slot%0,i#0 |
 
@@ -650,7 +626,7 @@ test_array_too_long_for_body@2:                                                 
     itob                                                                          (𝕗) slot%0,i#0 | i#0,sub_item%0#0
     f-load slot%0                                                                 (𝕗) slot%0,i#0 | i#0,sub_item%0#0,slot_contents%0#0
     l-load sub_item%0#0 1                                                         (𝕗) slot%0,i#0 | i#0,slot_contents%0#0,sub_item%0#0
-    concat // on error: max array length exceeded                                 (𝕗) slot%0,i#0 | i#0,array%array_contents%0#1
+    concat // on error: max array length exceeded                                 (𝕗) slot%0,i#0 | i#0,slot%0
     f-store slot%0                                                                (𝕗) slot%0,i#0 | i#0
     // array/uint64.py:69
     // for i in urange(512):
@@ -686,11 +662,11 @@ test_array_too_long_after_for@4:                                                
 test_array_copy_and_extend:
     // array/uint64.py:79
     // array = Array[UInt64]()
-    byte 0x                                                                       0x
+    byte 0x                                                                       slot%0
     f-store slot%0                                                                (𝕗) slot%0 |
     // array/uint64.py:80
     // for i in urange(5):
-    int 0                                                                         (𝕗) slot%0 | 0
+    int 0                                                                         (𝕗) slot%0 | i#0
     f-store i#0                                                                   (𝕗) slot%0,i#0 |
     b test_array_copy_and_extend_for_header@1                                     (𝕗) slot%0,i#0 |
 
@@ -710,7 +686,7 @@ test_array_copy_and_extend_for_body@2:                                          
     itob                                                                          (𝕗) slot%0,i#0 | i#0,sub_item%0#0
     f-load slot%0                                                                 (𝕗) slot%0,i#0 | i#0,sub_item%0#0,slot_contents%0#0
     l-load sub_item%0#0 1                                                         (𝕗) slot%0,i#0 | i#0,slot_contents%0#0,sub_item%0#0
-    concat // on error: max array length exceeded                                 (𝕗) slot%0,i#0 | i#0,array%array_contents%0#1
+    concat // on error: max array length exceeded                                 (𝕗) slot%0,i#0 | i#0,slot%0
     f-store slot%0                                                                (𝕗) slot%0,i#0 | i#0
     // array/uint64.py:80
     // for i in urange(5):
@@ -752,9 +728,6 @@ test_array_copy_and_extend_after_for@4:                                         
     *                                                                             (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,array%bytes_index%0#1
     l-load-copy array%array_contents%1#1 1                                        (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,array%bytes_index%0#1,array%array_contents%1#1 (copy)
     l-load array%bytes_index%0#1 1                                                (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,array%array_contents%1#1 (copy),array%bytes_index%0#1
-    int 8                                                                         (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,array%array_contents%1#1 (copy),array%bytes_index%0#1,8
-    extract3                                                                      (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,array%value%0#1
-    int 0                                                                         (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,array%value%0#1,0
     extract_uint64                                                                (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,array%sub_item%1#1
     int 5                                                                         (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,array%sub_item%1#1,5
     ==                                                                            (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,tmp%5#0
@@ -779,9 +752,6 @@ test_array_copy_and_extend_after_for@4:                                         
     *                                                                             (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,slot_contents%6#0,array%bytes_index%1#1
     l-load-copy slot_contents%6#0 1                                               (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,slot_contents%6#0,array%bytes_index%1#1,slot_contents%6#0 (copy)
     l-load array%bytes_index%1#1 1                                                (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,slot_contents%6#0,slot_contents%6#0 (copy),array%bytes_index%1#1
-    int 8                                                                         (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,slot_contents%6#0,slot_contents%6#0 (copy),array%bytes_index%1#1,8
-    extract3                                                                      (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,slot_contents%6#0,array%value%1#1
-    int 0                                                                         (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,slot_contents%6#0,array%value%1#1,0
     extract_uint64                                                                (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,slot_contents%6#0,array%sub_item%3#1
     int 4                                                                         (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,slot_contents%6#0,array%sub_item%3#1,4
     ==                                                                            (𝕗) slot%0,i#0 | slot%1,array%array_contents%1#1,slot_contents%6#0,tmp%11#0
@@ -821,9 +791,6 @@ test_array_copy_and_extend_after_for@4:                                         
     *                                                                             (𝕗) slot%0,i#0 | array%array_contents%2#1,array%bytes_index%2#1
     l-load-copy array%array_contents%2#1 1                                        (𝕗) slot%0,i#0 | array%array_contents%2#1,array%bytes_index%2#1,array%array_contents%2#1 (copy)
     l-load array%bytes_index%2#1 1                                                (𝕗) slot%0,i#0 | array%array_contents%2#1,array%array_contents%2#1 (copy),array%bytes_index%2#1
-    int 8                                                                         (𝕗) slot%0,i#0 | array%array_contents%2#1,array%array_contents%2#1 (copy),array%bytes_index%2#1,8
-    extract3                                                                      (𝕗) slot%0,i#0 | array%array_contents%2#1,array%value%2#1
-    int 0                                                                         (𝕗) slot%0,i#0 | array%array_contents%2#1,array%value%2#1,0
     extract_uint64                                                                (𝕗) slot%0,i#0 | array%array_contents%2#1,array%sub_item%5#1
     int 4                                                                         (𝕗) slot%0,i#0 | array%array_contents%2#1,array%sub_item%5#1,4
     ==                                                                            (𝕗) slot%0,i#0 | array%array_contents%2#1,tmp%19#0
@@ -831,8 +798,7 @@ test_array_copy_and_extend_after_for@4:                                         
     // array/uint64.py:95
     // assert array[4] == 4, "expected 4"
     l-load-copy array%array_contents%2#1 0                                        (𝕗) slot%0,i#0 | array%array_contents%2#1,array%array_contents%2#1 (copy)
-    extract 32 8                                                                  (𝕗) slot%0,i#0 | array%array_contents%2#1,array%value%3#1
-    int 0                                                                         (𝕗) slot%0,i#0 | array%array_contents%2#1,array%value%3#1,0
+    int 32                                                                        (𝕗) slot%0,i#0 | array%array_contents%2#1,array%array_contents%2#1 (copy),32
     extract_uint64                                                                (𝕗) slot%0,i#0 | array%array_contents%2#1,array%sub_item%7#1
     int 4                                                                         (𝕗) slot%0,i#0 | array%array_contents%2#1,array%sub_item%7#1,4
     ==                                                                            (𝕗) slot%0,i#0 | array%array_contents%2#1,tmp%21#0
@@ -840,8 +806,7 @@ test_array_copy_and_extend_after_for@4:                                         
     // array/uint64.py:96
     // assert array[5] == 5, "expected 4"
     l-load-copy array%array_contents%2#1 0                                        (𝕗) slot%0,i#0 | array%array_contents%2#1,array%array_contents%2#1 (copy)
-    extract 40 8                                                                  (𝕗) slot%0,i#0 | array%array_contents%2#1,array%value%4#1
-    int 0                                                                         (𝕗) slot%0,i#0 | array%array_contents%2#1,array%value%4#1,0
+    int 40                                                                        (𝕗) slot%0,i#0 | array%array_contents%2#1,array%array_contents%2#1 (copy),40
     extract_uint64                                                                (𝕗) slot%0,i#0 | array%array_contents%2#1,array%sub_item%9#1
     int 5                                                                         (𝕗) slot%0,i#0 | array%array_contents%2#1,array%sub_item%9#1,5
     ==                                                                            (𝕗) slot%0,i#0 | array%array_contents%2#1,tmp%23#0
@@ -849,8 +814,7 @@ test_array_copy_and_extend_after_for@4:                                         
     // array/uint64.py:97
     // assert array[6] == 0, "expected 4"
     l-load array%array_contents%2#1 0                                             (𝕗) slot%0,i#0 | array%array_contents%2#1
-    extract 48 8                                                                  (𝕗) slot%0,i#0 | array%value%5#1
-    int 0                                                                         (𝕗) slot%0,i#0 | array%value%5#1,0
+    int 48                                                                        (𝕗) slot%0,i#0 | array%array_contents%2#1,48
     extract_uint64                                                                (𝕗) slot%0,i#0 | array%sub_item%11#1
     !                                                                             (𝕗) slot%0,i#0 | tmp%25#0
     assert // expected 4                                                          (𝕗) slot%0,i#0 |
@@ -897,8 +861,7 @@ test_array_evaluation_order:
     // array/uint64.py:105
     // assert arr[0] == 1
     l-load-copy slot_contents%3#0 0                                               slot_contents%3#0,slot_contents%3#0 (copy)
-    extract 0 8                                                                   slot_contents%3#0,array%value%0#1
-    int 0                                                                         slot_contents%3#0,array%value%0#1,0
+    int 0                                                                         slot_contents%3#0,slot_contents%3#0 (copy),0
     extract_uint64                                                                slot_contents%3#0,array%sub_item%1#1
     int 1                                                                         slot_contents%3#0,array%sub_item%1#1,1
     ==                                                                            slot_contents%3#0,tmp%5#0
@@ -906,8 +869,7 @@ test_array_evaluation_order:
     // array/uint64.py:106
     // assert arr[1] == 5
     l-load-copy slot_contents%3#0 0                                               slot_contents%3#0,slot_contents%3#0 (copy)
-    extract 8 8                                                                   slot_contents%3#0,array%value%1#1
-    int 0                                                                         slot_contents%3#0,array%value%1#1,0
+    int 8                                                                         slot_contents%3#0,slot_contents%3#0 (copy),8
     extract_uint64                                                                slot_contents%3#0,array%sub_item%3#1
     int 5                                                                         slot_contents%3#0,array%sub_item%3#1,5
     ==                                                                            slot_contents%3#0,tmp%7#0
@@ -915,8 +877,7 @@ test_array_evaluation_order:
     // array/uint64.py:107
     // assert arr[2] == 5
     l-load-copy slot_contents%3#0 0                                               slot_contents%3#0,slot_contents%3#0 (copy)
-    extract 16 8                                                                  slot_contents%3#0,array%value%2#1
-    int 0                                                                         slot_contents%3#0,array%value%2#1,0
+    int 16                                                                        slot_contents%3#0,slot_contents%3#0 (copy),16
     extract_uint64                                                                slot_contents%3#0,array%sub_item%5#1
     int 5                                                                         slot_contents%3#0,array%sub_item%5#1,5
     ==                                                                            slot_contents%3#0,tmp%9#0
@@ -924,8 +885,7 @@ test_array_evaluation_order:
     // array/uint64.py:108
     // assert arr[3] == 1
     l-load-copy slot_contents%3#0 0                                               slot_contents%3#0,slot_contents%3#0 (copy)
-    extract 24 8                                                                  slot_contents%3#0,array%value%3#1
-    int 0                                                                         slot_contents%3#0,array%value%3#1,0
+    int 24                                                                        slot_contents%3#0,slot_contents%3#0 (copy),24
     extract_uint64                                                                slot_contents%3#0,array%sub_item%7#1
     int 1                                                                         slot_contents%3#0,array%sub_item%7#1,1
     ==                                                                            slot_contents%3#0,tmp%11#0
@@ -933,8 +893,7 @@ test_array_evaluation_order:
     // array/uint64.py:109
     // assert arr[4] == 5
     l-load-copy slot_contents%3#0 0                                               slot_contents%3#0,slot_contents%3#0 (copy)
-    extract 32 8                                                                  slot_contents%3#0,array%value%4#1
-    int 0                                                                         slot_contents%3#0,array%value%4#1,0
+    int 32                                                                        slot_contents%3#0,slot_contents%3#0 (copy),32
     extract_uint64                                                                slot_contents%3#0,array%sub_item%9#1
     int 5                                                                         slot_contents%3#0,array%sub_item%9#1,5
     ==                                                                            slot_contents%3#0,tmp%13#0
@@ -942,8 +901,7 @@ test_array_evaluation_order:
     // array/uint64.py:110
     // assert arr[5] == 5
     l-load slot_contents%3#0 0                                                    slot_contents%3#0
-    extract 40 8                                                                  array%value%5#1
-    int 0                                                                         array%value%5#1,0
+    int 40                                                                        slot_contents%3#0,40
     extract_uint64                                                                array%sub_item%11#1
     int 5                                                                         array%sub_item%11#1,5
     ==                                                                            tmp%15#0
@@ -974,7 +932,7 @@ append_5_and_return:                                                            
 test_allocations:                                                                 (𝕡) num#0 |
     // array/uint64.py:114
     // for _i in urange(num):
-    int 0                                                                         (𝕡) num#0 | 0
+    int 0                                                                         (𝕡) num#0 | _i#0
     f-store _i#0                                                                  (𝕡) num#0 | (𝕗) _i#0 |
     b test_allocations_for_header@1                                               (𝕡) num#0 | (𝕗) _i#0 |
 
@@ -1015,11 +973,11 @@ test_iteration:
     allocate 6 to stack                                                           (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1 |
     // array/uint64.py:121
     // arr = Array[UInt64]()
-    byte 0x                                                                       (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1 | 0x
+    byte 0x                                                                       (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1 | slot%0
     f-store slot%0                                                                (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0 |
     // array/uint64.py:122
     // for val in urange(5):
-    int 0                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0 | 0
+    int 0                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0 | val#0
     f-store val#0                                                                 (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 |
     b test_iteration_for_header@1                                                 (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 |
 
@@ -1039,7 +997,7 @@ test_iteration_for_body@2:                                                      
     itob                                                                          (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | val#0,sub_item%0#0
     f-load slot%0                                                                 (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | val#0,sub_item%0#0,slot_contents%0#0
     l-load sub_item%0#0 1                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | val#0,slot_contents%0#0,sub_item%0#0
-    concat // on error: max array length exceeded                                 (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | val#0,array%array_contents%0#1
+    concat // on error: max array length exceeded                                 (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | val#0,slot%0
     f-store slot%0                                                                (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | val#0
     // array/uint64.py:122
     // for val in urange(5):
@@ -1056,7 +1014,7 @@ test_iteration_after_for@4:                                                     
     len                                                                           (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | array%bytes_len%0#1
     int 8                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | array%bytes_len%0#1,8
     /                                                                             (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | array%array_len%0#1
-    l-store-copy array%array_len%0#1 0                                            (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | array%array_len%0#1,array%array_len%0#1 (copy)
+    l-store-copy array%array_len%0#1 0                                            (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | array%array_len%0#1,array%array_len%0#1
     f-store array%array_len%0#1                                                   (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | array%array_len%0#1
     l-load array%array_len%0#1 0                                                  (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | array%array_len%0#1
     int 5                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | array%array_len%0#1,5
@@ -1064,9 +1022,9 @@ test_iteration_after_for@4:                                                     
     assert // expected array of length 5                                          (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 |
     // array/uint64.py:127
     // last = UInt64(0)
-    int 0                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | 0
+    int 0                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | last#0
     f-store last#0                                                                (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 |
-    int 0                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | 0
+    int 0                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | item_index_internal%0#0
     f-store item_index_internal%0#0                                               (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 |
     b test_iteration_for_header@5                                                 (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 |
 
@@ -1088,9 +1046,6 @@ test_iteration_for_body@6:                                                      
     *                                                                             (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | item_index_internal%0#0,slot_contents%3#0,array%bytes_index%0#1
     l-load slot_contents%3#0 1                                                    (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | item_index_internal%0#0,array%bytes_index%0#1,slot_contents%3#0
     l-load array%bytes_index%0#1 1                                                (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | item_index_internal%0#0,slot_contents%3#0,array%bytes_index%0#1
-    int 8                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | item_index_internal%0#0,slot_contents%3#0,array%bytes_index%0#1,8
-    extract3                                                                      (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | item_index_internal%0#0,array%value%0#1
-    int 0                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | item_index_internal%0#0,array%value%0#1,0
     extract_uint64                                                                (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | item_index_internal%0#0,value#0
     // array/uint64.py:129
     // assert value >= last, "array is not sorted"
@@ -1102,7 +1057,7 @@ test_iteration_for_body@6:                                                      
     int 1                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | value#0,item_index_internal%0#0,1
     +                                                                             (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | value#0,item_index_internal%0#0
     f-store item_index_internal%0#0                                               (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | value#0
-    l-load value#0 0                                                              (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | value#0
+    l-load value#0 0                                                              (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | last#0
     f-store last#0                                                                (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 |
     b test_iteration_for_header@5                                                 (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 |
 
@@ -1114,7 +1069,7 @@ test_iteration_after_for@8:                                                     
     int 8                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | array%bytes_len%2#1,8
     /                                                                             (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | array%array_len%2#1
     f-store array%array_len%2#1                                                   (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 |
-    int 0                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | item_index_internal%1#0
+    int 0                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | idx#0
     f-store idx#0                                                                 (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 |
     b test_iteration_for_header@9                                                 (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 |
 
@@ -1136,9 +1091,6 @@ test_iteration_for_body@10:                                                     
     *                                                                             (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | idx#0,slot_contents%5#0,array%bytes_index%1#1
     l-load slot_contents%5#0 1                                                    (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | idx#0,array%bytes_index%1#1,slot_contents%5#0
     l-load array%bytes_index%1#1 1                                                (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | idx#0,slot_contents%5#0,array%bytes_index%1#1
-    int 8                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | idx#0,slot_contents%5#0,array%bytes_index%1#1,8
-    extract3                                                                      (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | idx#0,array%value%1#1
-    int 0                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | idx#0,array%value%1#1,0
     extract_uint64                                                                (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | idx#0,value#0
     // array/uint64.py:134
     // assert value == idx, "incorrect array value"
@@ -1147,7 +1099,7 @@ test_iteration_for_body@10:                                                     
     assert // incorrect array value                                               (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | idx#0
     l-load idx#0 0                                                                (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | idx#0
     int 1                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | idx#0,1
-    +                                                                             (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | item_index_internal%1#0
+    +                                                                             (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | idx#0
     f-store idx#0                                                                 (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 |
     b test_iteration_for_header@9                                                 (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 |
 
@@ -1157,7 +1109,7 @@ test_iteration_after_for@12:                                                    
     // for value in reversed(arr):
     len                                                                           (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | array%bytes_len%3#1
     int 8                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | array%bytes_len%3#1,8
-    /                                                                             (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | array%array_len%3#1
+    /                                                                             (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | reverse_index_internal%2#1
     f-store reverse_index_internal%2#1                                            (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 |
     b test_iteration_for_header@13                                                (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 |
 
@@ -1171,7 +1123,7 @@ test_iteration_for_body@14:                                                     
     f-load reverse_index_internal%2#1                                             (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | reverse_index_internal%2#1
     int 1                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | reverse_index_internal%2#1,1
     -                                                                             (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | reverse_index_internal%2#1
-    l-store-copy reverse_index_internal%2#1 0                                     (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | reverse_index_internal%2#1,reverse_index_internal%2#1 (copy)
+    l-store-copy reverse_index_internal%2#1 0                                     (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | reverse_index_internal%2#1,reverse_index_internal%2#1
     f-store reverse_index_internal%2#1                                            (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | reverse_index_internal%2#1
     f-load slot%0                                                                 (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | reverse_index_internal%2#1,slot_contents%7#0
     // array/uint64.py:137
@@ -1182,9 +1134,6 @@ test_iteration_for_body@14:                                                     
     *                                                                             (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | slot_contents%7#0,array%bytes_index%2#1
     l-load slot_contents%7#0 1                                                    (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | array%bytes_index%2#1,slot_contents%7#0
     l-load array%bytes_index%2#1 1                                                (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | slot_contents%7#0,array%bytes_index%2#1
-    int 8                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | slot_contents%7#0,array%bytes_index%2#1,8
-    extract3                                                                      (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | array%value%2#1
-    int 0                                                                         (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | array%value%2#1,0
     extract_uint64                                                                (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | value#0
     // array/uint64.py:138
     // assert value <= last, "array is not sorted"
@@ -1192,7 +1141,7 @@ test_iteration_for_body@14:                                                     
     f-load last#0                                                                 (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | value#0,value#0 (copy),last#0
     <=                                                                            (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | value#0,tmp%4#0
     assert // array is not sorted                                                 (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | value#0
-    l-load value#0 0                                                              (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | value#0
+    l-load value#0 0                                                              (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 | last#0
     f-store last#0                                                                (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 |
     b test_iteration_for_header@13                                                (𝕗) array%array_len%0#1,array%array_len%2#1,idx#0,item_index_internal%0#0,last#0,reverse_index_internal%2#1,slot%0,val#0 |
 
@@ -1206,7 +1155,7 @@ test_quicksort:
     // array/uint64.py:144
     // rnd = Array[UInt64]()
     callsub _puya_lib.mem.new_slot                                                (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0 | rnd#0
-    l-store-copy rnd#0 0                                                          (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0 | rnd#0,rnd#0 (copy)
+    l-store-copy rnd#0 0                                                          (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0 | rnd#0,rnd#0
     f-store rnd#0                                                                 (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0 | rnd#0
     l-load rnd#0 0                                                                (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0 | rnd#0
     byte 0x                                                                       (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0 | rnd#0,0x
@@ -1214,12 +1163,12 @@ test_quicksort:
     // array/uint64.py:145
     // for b in Txn.sender.bytes:
     txn Sender                                                                    (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0 | reinterpret_bytes%0#0
-    l-store-copy reinterpret_bytes%0#0 0                                          (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0 | reinterpret_bytes%0#0,reinterpret_bytes%0#0 (copy)
+    l-store-copy reinterpret_bytes%0#0 0                                          (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0 | reinterpret_bytes%0#0,reinterpret_bytes%0#0
     f-store reinterpret_bytes%0#0                                                 (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0 | reinterpret_bytes%0#0
     l-load reinterpret_bytes%0#0 0                                                (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0 | reinterpret_bytes%0#0
     len                                                                           (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0 | bytes_length%0#0
     f-store bytes_length%0#0                                                      (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0 |
-    int 0                                                                         (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0 | 0
+    int 0                                                                         (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0 | item_index_internal%0#0
     f-store item_index_internal%0#0                                               (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 |
     b test_quicksort_for_header@1                                                 (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 |
 
@@ -1277,7 +1226,7 @@ test_quicksort_after_for@4:                                                     
     callsub quicksort_window                                                      (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | rnd#0
     // array/uint64.py:153
     // last = UInt64(0)
-    int 0                                                                         (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | rnd#0,0
+    int 0                                                                         (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | rnd#0,last#0
     f-store last#0                                                                (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | rnd#0
     // array/uint64.py:154
     // for value in rnd:
@@ -1287,7 +1236,7 @@ test_quicksort_after_for@4:                                                     
     int 8                                                                         (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | array%bytes_len%2#1,8
     /                                                                             (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | array%array_len%2#1
     f-store array%array_len%2#1                                                   (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 |
-    int 0                                                                         (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | 0
+    int 0                                                                         (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%1#0
     f-store item_index_internal%1#0                                               (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 |
     b test_quicksort_for_header@5                                                 (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 |
 
@@ -1310,9 +1259,6 @@ test_quicksort_for_body@6:                                                      
     *                                                                             (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%1#0,slot_contents%4#0,array%bytes_index%0#1
     l-load slot_contents%4#0 1                                                    (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%1#0,array%bytes_index%0#1,slot_contents%4#0
     l-load array%bytes_index%0#1 1                                                (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%1#0,slot_contents%4#0,array%bytes_index%0#1
-    int 8                                                                         (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%1#0,slot_contents%4#0,array%bytes_index%0#1,8
-    extract3                                                                      (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%1#0,array%value%0#1
-    int 0                                                                         (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%1#0,array%value%0#1,0
     extract_uint64                                                                (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%1#0,value#0
     // array/uint64.py:155
     // assert value >= last, "array is not sorted"
@@ -1324,7 +1270,7 @@ test_quicksort_for_body@6:                                                      
     int 1                                                                         (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | value#0,item_index_internal%1#0,1
     +                                                                             (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | value#0,item_index_internal%1#0
     f-store item_index_internal%1#0                                               (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | value#0
-    l-load value#0 0                                                              (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | value#0
+    l-load value#0 0                                                              (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 | last#0
     f-store last#0                                                                (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 |
     b test_quicksort_for_header@5                                                 (𝕗) array%array_len%2#1,item_index_internal%1#0,last#0,rnd#0,reinterpret_bytes%0#0,bytes_length%0#0,item_index_internal%0#0 |
 
@@ -1349,9 +1295,6 @@ quicksort_window:                                                               
     *                                                                             (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16 | slot_contents%0#0,array%bytes_index%0#1
     l-load slot_contents%0#0 1                                                    (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16 | array%bytes_index%0#1,slot_contents%0#0
     l-load array%bytes_index%0#1 1                                                (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16 | slot_contents%0#0,array%bytes_index%0#1
-    int 8                                                                         (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16 | slot_contents%0#0,array%bytes_index%0#1,8
-    extract3                                                                      (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16 | array%value%0#1
-    int 0                                                                         (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16 | array%value%0#1,0
     extract_uint64                                                                (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16 | pivot#0
     f-store pivot#0                                                               (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0 |
     p-load window_right#0                                                         (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0 | right#1
@@ -1368,13 +1311,10 @@ quicksort_window_while_top@3:                                                   
     f-load left#1                                                                 (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%1#0,left#1
     int 8                                                                         (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%1#0,left#1,8
     *                                                                             (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%1#0,array%bytes_index%1#1
-    l-store-copy array%bytes_index%1#1 0                                          (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%1#0,array%bytes_index%1#1,array%bytes_index%1#1 (copy)
+    l-store-copy array%bytes_index%1#1 0                                          (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%1#0,array%bytes_index%1#1,array%bytes_index%1#1
     f-store array%bytes_index%1#1                                                 (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%1#0,array%bytes_index%1#1
     l-load slot_contents%1#0 1                                                    (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%bytes_index%1#1,slot_contents%1#0
     l-load array%bytes_index%1#1 1                                                (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%1#0,array%bytes_index%1#1
-    int 8                                                                         (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%1#0,array%bytes_index%1#1,8
-    extract3                                                                      (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%value%1#1
-    int 0                                                                         (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%value%1#1,0
     extract_uint64                                                                (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%sub_item%3#1
     f-load pivot#0                                                                (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%sub_item%3#1,pivot#0
     <                                                                             (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | tmp%3#0
@@ -1397,13 +1337,10 @@ quicksort_window_while_top@6:                                                   
     f-load right#1                                                                (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%2#0,right#1
     int 8                                                                         (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%2#0,right#1,8
     *                                                                             (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%2#0,array%bytes_index%2#1
-    l-store-copy array%bytes_index%2#1 0                                          (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%2#0,array%bytes_index%2#1,array%bytes_index%2#1 (copy)
+    l-store-copy array%bytes_index%2#1 0                                          (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%2#0,array%bytes_index%2#1,array%bytes_index%2#1
     f-store array%bytes_index%2#1                                                 (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%2#0,array%bytes_index%2#1
     l-load slot_contents%2#0 1                                                    (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%bytes_index%2#1,slot_contents%2#0
     l-load array%bytes_index%2#1 1                                                (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%2#0,array%bytes_index%2#1
-    int 8                                                                         (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%2#0,array%bytes_index%2#1,8
-    extract3                                                                      (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%value%2#1
-    int 0                                                                         (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%value%2#1,0
     extract_uint64                                                                (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%sub_item%5#1
     f-load pivot#0                                                                (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%sub_item%5#1,pivot#0
     l-load array%sub_item%5#1 1                                                   (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | pivot#0,array%sub_item%5#1
@@ -1441,16 +1378,10 @@ quicksort_window_if_body@11:                                                    
     l-load-copy slot_contents%3#0 0                                               (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%3#0,slot_contents%3#0 (copy)
     f-load array%bytes_index%2#1                                                  (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | slot_contents%3#0,slot_contents%3#0 (copy),array%bytes_index%2#1
     l-store-copy array%bytes_index%2#1 2                                          (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%bytes_index%2#1,slot_contents%3#0,slot_contents%3#0 (copy),array%bytes_index%2#1 (copy)
-    int 8                                                                         (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%bytes_index%2#1,slot_contents%3#0,slot_contents%3#0 (copy),array%bytes_index%2#1 (copy),8
-    extract3                                                                      (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%bytes_index%2#1,slot_contents%3#0,array%value%3#1
-    int 0                                                                         (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%bytes_index%2#1,slot_contents%3#0,array%value%3#1,0
     extract_uint64                                                                (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%bytes_index%2#1,slot_contents%3#0,array%sub_item%7#1
     l-load-copy slot_contents%3#0 1                                               (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%bytes_index%2#1,slot_contents%3#0,array%sub_item%7#1,slot_contents%3#0 (copy)
     f-load array%bytes_index%1#1                                                  (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%bytes_index%2#1,slot_contents%3#0,array%sub_item%7#1,slot_contents%3#0 (copy),array%bytes_index%1#1
     l-store-copy array%bytes_index%1#1 3                                          (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%bytes_index%2#1,array%bytes_index%1#1,slot_contents%3#0,array%sub_item%7#1,slot_contents%3#0 (copy),array%bytes_index%1#1 (copy)
-    int 8                                                                         (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%bytes_index%2#1,array%bytes_index%1#1,slot_contents%3#0,array%sub_item%7#1,slot_contents%3#0 (copy),array%bytes_index%1#1 (copy),8
-    extract3                                                                      (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%bytes_index%2#1,array%bytes_index%1#1,slot_contents%3#0,array%sub_item%7#1,array%value%4#1
-    int 0                                                                         (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%bytes_index%2#1,array%bytes_index%1#1,slot_contents%3#0,array%sub_item%7#1,array%value%4#1,0
     extract_uint64                                                                (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%bytes_index%2#1,array%bytes_index%1#1,slot_contents%3#0,array%sub_item%7#1,array%sub_item%9#1
     l-load array%sub_item%7#1 1                                                   (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%bytes_index%2#1,array%bytes_index%1#1,slot_contents%3#0,array%sub_item%9#1,array%sub_item%7#1
     itob                                                                          (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | array%bytes_index%2#1,array%bytes_index%1#1,slot_contents%3#0,array%sub_item%9#1,array%sub_item%10#1
@@ -1484,7 +1415,7 @@ quicksort_window_after_if_else@13:                                              
     f-load right#1                                                                (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | right#1
     int 1                                                                         (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | right#1,1
     -                                                                             (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | right#1
-    l-store-copy right#1 0                                                        (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | right#1,right#1 (copy)
+    l-store-copy right#1 0                                                        (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | right#1,right#1
     f-store right#1                                                               (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | right#1
     // array/uint64.py:186
     // if left <= right:
@@ -1509,7 +1440,7 @@ quicksort_window_if_body@17:                                                    
     +                                                                             (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | left#1
     f-store left#1                                                                (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 |
     f-load right#1                                                                (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | right#1
-    l-store-copy right#1 0                                                        (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | right#1,right#1 (copy)
+    l-store-copy right#1 0                                                        (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | right#1,right#16
     f-store right#16                                                              (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | right#1
     // array/uint64.py:195
     // if right:
@@ -1521,7 +1452,7 @@ quicksort_window_if_body@18:                                                    
     // right -= 1
     f-load right#1                                                                (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | right#1
     int 1                                                                         (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | right#1,1
-    -                                                                             (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | right#1
+    -                                                                             (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 | right#16
     f-store right#16                                                              (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 |
     b quicksort_window_after_if_else@19                                           (𝕡) arr#0,window_left#0,window_right#0 | (𝕗) array%bytes_index%1#1,array%bytes_index%2#1,right#16,pivot#0,right#1,left#1 |
 

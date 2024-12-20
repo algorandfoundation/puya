@@ -64,7 +64,7 @@ test_array:
     // def test_array(self, x1: arc4.UInt64, y1: UInt64, x2: arc4.UInt64, y2: UInt64) -> UInt64:
     proto 4 1
     pushbytes ""
-    dup
+    dupn 2
     // array/fixed_size.py:18
     // path.append(Point(x=arc4.UInt64(), y=UInt64(), z=Txn.sender))
     pushbytes 0x00000000000000000000000000000000
@@ -92,16 +92,12 @@ test_array:
     swap
     concat
     concat // on error: max array length exceeded
-    dupn 2
+    dupn 3
     // array/fixed_size.py:27
     // last_point = path[0]
-    extract 0 48
-    dup
-    uncover 2
-    dup
     extract 0 8
-    cover 2
     swap
+    dup
     intc_2 // 8
     extract_uint64
     swap
@@ -119,69 +115,62 @@ test_array:
 test_array_for_header@2:
     // array/fixed_size.py:29
     // for point_idx in urange(1, path.length):
+    frame_dig 9
     frame_dig 8
-    frame_dig 7
     <
     bz test_array_after_for@11
-    frame_dig 2
+    frame_dig 4
     // array/fixed_size.py:30
     // point = path[point_idx]
-    frame_dig 8
+    dup
+    frame_dig 9
     intc_3 // 48
     *
+    dup
+    frame_bury 0
     dup2
     intc_3 // 48
     extract3
-    dup
-    cover 3
-    cover 3
+    cover 2
     intc_2 // 8
     extract3
     swap
     intc_2 // 8
     extract_uint64
-    frame_bury 1
+    frame_bury 2
     // array/fixed_size.py:31
     // if point.x < last_point.x:
-    frame_dig 4
+    frame_dig 5
     b<
     bz test_array_else_body@5
     // array/fixed_size.py:32
     // dx = last_point.x.native - point.x.native
     frame_dig 3
-    // array/fixed_size.py:27
-    // last_point = path[0]
     intc_0 // 0
-    // array/fixed_size.py:32
-    // dx = last_point.x.native - point.x.native
     extract_uint64
     swap
-    // array/fixed_size.py:30
-    // point = path[point_idx]
-    intc_0 // 0
-    // array/fixed_size.py:32
-    // dx = last_point.x.native - point.x.native
+    frame_dig 0
     extract_uint64
     -
-    frame_bury 0
+    frame_bury 1
 
 test_array_after_if_else@6:
     // array/fixed_size.py:35
     // if point.y < last_point.y:
-    frame_dig 1
-    frame_dig 5
+    frame_dig 2
+    frame_dig 6
     <
     bz test_array_else_body@8
     // array/fixed_size.py:36
     // dy = last_point.y - point.y
-    frame_dig 5
-    frame_dig 1
+    frame_dig 6
+    frame_dig 2
     -
 
 test_array_after_if_else@9:
     // array/fixed_size.py:39
     // length += op.sqrt(dx * dx + dy * dy)
-    frame_dig 0
+    frame_dig 1
     dup
     *
     swap
@@ -189,46 +178,40 @@ test_array_after_if_else@9:
     *
     +
     sqrt
-    frame_dig 6
+    frame_dig 7
     +
-    frame_bury 6
+    frame_bury 7
     // array/fixed_size.py:29
     // for point_idx in urange(1, path.length):
-    frame_dig 8
+    frame_dig 9
     intc_1 // 1
     +
-    frame_bury 8
+    frame_bury 9
     b test_array_for_header@2
 
 test_array_else_body@8:
     // array/fixed_size.py:38
     // dy = point.y - last_point.y
-    frame_dig 1
-    frame_dig 5
+    frame_dig 2
+    frame_dig 6
     -
     b test_array_after_if_else@9
 
 test_array_else_body@5:
-    // array/fixed_size.py:30
-    // point = path[point_idx]
-    intc_0 // 0
     // array/fixed_size.py:34
     // dx = point.x.native - last_point.x.native
+    frame_dig 0
     extract_uint64
     frame_dig 3
-    // array/fixed_size.py:27
-    // last_point = path[0]
     intc_0 // 0
-    // array/fixed_size.py:34
-    // dx = point.x.native - last_point.x.native
     extract_uint64
     -
-    frame_bury 0
+    frame_bury 1
     b test_array_after_if_else@6
 
 test_array_after_for@11:
     // array/fixed_size.py:22
     // return path_length(path)
-    frame_dig 6
+    frame_dig 7
     frame_bury 0
     retsub

@@ -1769,8 +1769,7 @@ def test_array_uint64(
     consumed = (
         simulate_response.simulate_response["txn-groups"][0]["app-budget-consumed"] - overhead
     )
-    # TODO: add optimizations to bring op budget back down to original low point
-    assert consumed == 7032, "expected more efficient implementation"
+    assert consumed == 6968, "expected more efficient implementation"
 
 
 def test_array_fixed_size(
