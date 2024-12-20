@@ -8,7 +8,7 @@ main test_cases.augmented_assignment.contract.Augmented.__algopy_entrypoint_with
         (app_global_put "global_bytes" 0x)
         goto block@2
     block@2: // after_if_else_L1
-        let me#0: bytes = (txn Sender)
+        let me#0: bytes[32] = (txn Sender)
         let tmp%0#1: uint64 = (txn OnCompletion)
         let tmp%1#1: bool = (== tmp%0#1 OptIn)
         goto tmp%1#1 ? block@4 : block@5
@@ -43,7 +43,7 @@ main test_cases.augmented_assignment.contract.Augmented.__algopy_entrypoint_with
         (assert maybe_exists%4#0) // check self.counter exists
         let tmp%2#0: bool = (! maybe_value%4#0)
         (assert tmp%2#0)
-        let tmp%3#0: bytes = test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect()
+        let tmp%3#0: bytes[32] = test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect()
         let (maybe_value%5#0: uint64, maybe_exists%5#0: bool) = (app_local_get_ex tmp%3#0 0u "my_uint")
         (assert maybe_exists%5#0) // check self.my_uint exists for account
         let new_state_value%4#0: uint64 = (+ maybe_value%5#0 1u)
@@ -52,7 +52,7 @@ main test_cases.augmented_assignment.contract.Augmented.__algopy_entrypoint_with
         (assert maybe_exists%6#0) // check self.counter exists
         let tmp%4#0: bool = (== maybe_value%6#0 1u)
         (assert tmp%4#0) // this should not error
-        let tmp%5#0: bytes = test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect()
+        let tmp%5#0: bytes[32] = test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect()
         let (maybe_value%7#0: uint64, maybe_exists%7#0: bool) = (app_local_get_ex tmp%5#0 0u "my_uint")
         (assert maybe_exists%7#0) // check self.my_uint exists for account
         let new_state_value%5#0: uint64 = (- maybe_value%7#0 1u)
@@ -65,11 +65,11 @@ main test_cases.augmented_assignment.contract.Augmented.__algopy_entrypoint_with
     block@7: // after_if_else_L28
         return 1u
 
-subroutine test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect() -> bytes:
+subroutine test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect() -> bytes[32]:
     block@0: // L53
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%0#0) // check self.counter exists
         let new_state_value%0#0: uint64 = (+ maybe_value%0#0 1u)
         (app_global_put "counter" new_state_value%0#0)
-        let tmp%0#0: bytes = (txn Sender)
+        let tmp%0#0: bytes[32] = (txn Sender)
         return tmp%0#0

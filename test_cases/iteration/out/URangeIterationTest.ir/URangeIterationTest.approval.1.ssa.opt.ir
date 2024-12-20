@@ -14,6 +14,11 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
         goto block@2
     block@5: // after_for_L13
         (log "test_reversed")
+        let should_loop%0#0: bool = 1u
+        let range_length%0#0: uint64 = 6u
+        let range_length_minus_one%0#0: uint64 = 5u
+        let iteration_count_minus_one%0#0: uint64 = 2u
+        let range_delta%0#0: uint64 = 4u
         let i#4: uint64 = 5u
         goto block@9
     block@9: // for_body_L22
@@ -43,7 +48,12 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
         goto block@15
     block@18: // after_for_L29
         (log "test_forwards_with_reverse_index")
+        let should_loop%0#1: bool = 1u
+        let range_length%0#1: uint64 = 6u
+        let range_length_minus_one%0#1: uint64 = 5u
         let idx#4: uint64 = 2u
+        let range_delta%0#1: uint64 = 4u
+        let max_range_item%0#1: uint64 = 5u
         let i#12: uint64 = 1u
         goto block@22
     block@22: // for_body_L39
@@ -59,6 +69,11 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
         goto block@22
     block@25: // after_for_L38
         (log "test_reverse_with_forwards_index")
+        let should_loop%0#2: bool = 1u
+        let range_length%0#2: uint64 = 6u
+        let range_length_minus_one%0#2: uint64 = 5u
+        let iteration_count_minus_one%0#2: uint64 = 2u
+        let range_delta%0#2: uint64 = 4u
         let i#16: uint64 = 5u
         let idx#8: uint64 = 0u
         goto block@29
@@ -75,7 +90,11 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
         goto block@29
     block@32: // after_for_L47
         (log "test_reverse_with_reverse_index")
+        let should_loop%0#3: bool = 1u
+        let range_length%0#3: uint64 = 6u
+        let range_length_minus_one%0#3: uint64 = 5u
         let idx#12: uint64 = 2u
+        let range_delta%0#3: uint64 = 4u
         let i#20: uint64 = 5u
         goto block@36
     block@36: // for_body_L57
@@ -96,12 +115,15 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
     block@42: // for_header_L64
         let i#25: uint64 = φ(i#24 <- block@39, i#26 <- block@43)
         let continue_looping%0#6: bool = (< i#25 0u)
-        goto continue_looping%0#6 ? block@43 : block@50
+        goto continue_looping%0#6 ? block@43 : block@45
     block@43: // for_body_L65
         let tmp%0#6: bytes = (itob i#25)
         (log tmp%0#6)
         let i#26: uint64 = (+ i#25 1u)
         goto block@42
+    block@45: // after_for_L64
+        let should_loop%0#4: bool = 0u
+        goto block@50
     block@50: // after_for_L66
         let i#30: uint64 = 0u
         let idx#16: uint64 = 0u
@@ -110,17 +132,29 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
         let i#31: uint64 = φ(i#30 <- block@50, i#32 <- block@52)
         let idx#17: uint64 = φ(idx#16 <- block@50, idx#18 <- block@52)
         let continue_looping%2#0: bool = (< i#31 0u)
-        goto continue_looping%2#0 ? block@52 : block@69
+        goto continue_looping%2#0 ? block@52 : block@54
     block@52: // for_body_L69
         let tmp%2#0: bytes = (itob idx#17)
+        let tmp%3#0: bytes = tmp%2#0
         let tmp%4#0: bytes = (itob i#31)
         let tmp%5#0: bytes = (concat tmp%2#0 tmp%4#0)
         (log tmp%5#0)
         let i#32: uint64 = (+ i#31 1u)
         let idx#18: uint64 = (+ idx#17 1u)
         goto block@51
+    block@54: // after_for_L68
+        let should_loop%1#0: bool = 0u
+        goto block@59
+    block@59: // after_for_L70
+        let should_loop%2#0: bool = 0u
+        goto block@64
+    block@64: // after_for_L72
+        let should_loop%3#0: bool = 0u
+        goto block@69
     block@69: // after_for_L74
         (log "test_break")
+        let continue_looping%0#7: bool = 1u
+        let tmp%0#7: bytes = 0x61
         (log 0x61)
         (log "test_tuple_target")
         let tup.1#0: uint64 = 0u

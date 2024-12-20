@@ -1,11 +1,12 @@
 import typing
 
-from algopy import Array, UInt64, arc4, op, subroutine, urange
+from algopy import Account, Array, Txn, UInt64, arc4, op, subroutine, urange
 
 
 class Point(typing.NamedTuple):
     x: arc4.UInt64
     y: UInt64
+    z: Account
 
 
 class FixedSizeContract(arc4.ARC4Contract):
@@ -14,9 +15,9 @@ class FixedSizeContract(arc4.ARC4Contract):
         path = Array[Point]()
         assert path.length == 0
 
-        path.append(Point(x=arc4.UInt64(), y=UInt64()))
-        path.append(Point(x=x1, y=y1))
-        path.append(Point(x=x2, y=y2))
+        path.append(Point(x=arc4.UInt64(), y=UInt64(), z=Txn.sender))
+        path.append(Point(x=x1, y=y1, z=Txn.sender))
+        path.append(Point(x=x2, y=y2, z=Txn.sender))
 
         return path_length(path)
 

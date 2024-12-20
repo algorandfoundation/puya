@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 64
+    intcblock 1 0 64
     txn NumAppArgs
     bz main_bare_routing@7
     pushbytess 0x456eeace 0x6f9f5bf0 // method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])", method "test_tuple((uint64,uint512,string,byte[]))void"
@@ -11,7 +11,7 @@ main:
     match main_build_tuple_route@3 main_test_tuple_route@4
 
 main_after_if_else@11:
-    pushint 0 // 0
+    intc_1 // 0
     return
 
 main_test_tuple_route@4:
@@ -22,8 +22,8 @@ main_test_tuple_route@4:
     assert // can only call when not creating
     txna ApplicationArgs 1
     dup
-    extract 0 8 // on error: Index access is out of bounds
-    btoi
+    intc_1 // 0
+    extract_uint64
     dig 1
     extract 8 64 // on error: Index access is out of bounds
     dig 2
@@ -80,10 +80,10 @@ main_build_tuple_route@3:
     itob
     dig 3
     len
-    intc_1 // 64
+    intc_2 // 64
     <=
     assert // overflow
-    intc_1 // 64
+    intc_2 // 64
     bzero
     uncover 4
     b|

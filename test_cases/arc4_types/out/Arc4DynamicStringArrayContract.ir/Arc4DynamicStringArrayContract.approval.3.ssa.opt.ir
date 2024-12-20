@@ -1,0 +1,42 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@2 : block@7
+    block@2: // abi_routing_L4
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "xyz()string[]" => block@3, method "xyz_raw()string[]" => block@4, * => block@11}
+    block@3: // xyz_route_L5
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (! tmp%3#0)
+        (assert tmp%4#0) // OnCompletion is not NoOp
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        (assert tmp%5#0) // can only call when not creating
+        let tmp%8#0: bytes = 0x151f7c75000300060009000c00015800015900015a
+        (log 0x151f7c75000300060009000c00015800015900015a)
+        let test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__puya_arc4_router__%0#0: bool = 1u
+        goto block@12
+    block@4: // xyz_raw_route_L13
+        let tmp%9#0: uint64 = (txn OnCompletion)
+        let tmp%10#0: bool = (! tmp%9#0)
+        (assert tmp%10#0) // OnCompletion is not NoOp
+        let tmp%11#0: uint64 = (txn ApplicationID)
+        (assert tmp%11#0) // can only call when not creating
+        let tmp%14#0: bytes = 0x151f7c75000300060009000c00015800015900015a
+        (log 0x151f7c75000300060009000c00015800015900015a)
+        let test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__puya_arc4_router__%0#1: bool = 1u
+        goto block@12
+    block@7: // bare_routing_L4
+        let tmp%15#0: uint64 = (txn OnCompletion)
+        goto tmp%15#0 ? block@11 : block@8
+    block@8: // __algopy_default_create_L1
+        let tmp%16#0: uint64 = (txn ApplicationID)
+        let tmp%17#0: bool = (! tmp%16#0)
+        (assert tmp%17#0) // can only call when creating
+        let test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__puya_arc4_router__%0#2: bool = 1u
+        goto block@12
+    block@11: // after_if_else_L4
+        let test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__puya_arc4_router__%0#3: bool = 0u
+        goto block@12
+    block@12: // after_inlined_test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__puya_arc4_router___L1
+        let tmp%0#0: bool = φ(test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__puya_arc4_router__%0#0 <- block@3, test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__puya_arc4_router__%0#1 <- block@4, test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__puya_arc4_router__%0#2 <- block@8, test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__puya_arc4_router__%0#3 <- block@11)
+        return tmp%0#0

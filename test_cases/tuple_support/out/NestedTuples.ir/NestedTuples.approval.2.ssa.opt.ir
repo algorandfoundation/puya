@@ -41,8 +41,7 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         let item0%1#0: bytes = (substring3 item1%0#0 item_start_offset%2#0 item_end_offset%2#0)
         let item0%1%0#0: bytes = ((extract 2 0) item0%1#0)
         let item1%1#0: bytes = ((extract 2 8) item1%0#0) // on error: Index access is out of bounds
-        let item0%2#0: bytes = ((extract 0 8) item1%1#0) // on error: Index access is out of bounds
-        let item0%2%0#0: uint64 = (btoi item0%2#0)
+        let item0%2%0#0: uint64 = (extract_uint64 item1%1#0 0u)
         let (elements_to_encode%0#0: bytes, elements_to_encode%1#0: bytes, elements_to_encode%2#0: uint64) = test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_params(item0%0%0#0, item0%1%0#0, item0%2%0#0)
         let length%0#0: uint64 = (len elements_to_encode%0#0)
         let as_bytes%0#0: bytes = (itob length%0#0)
@@ -73,8 +72,7 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         let tmp%16#0: uint64 = (txn ApplicationID)
         (assert tmp%16#0) // can only call when not creating
         let tmp%18#0: bytes = (txna ApplicationArgs 1)
-        let item0%3#0: bytes = ((extract 0 8) tmp%18#0) // on error: Index access is out of bounds
-        let item0%3%0#0: uint64 = (btoi item0%3#0)
+        let item0%3%0#0: uint64 = (extract_uint64 tmp%18#0 0u)
         let item_start_offset%3#0: uint64 = (extract_uint16 tmp%18#0 8u)
         let item_end_offset%3#0: uint64 = (extract_uint16 tmp%18#0 10u)
         let item1%2#0: bytes = (substring3 tmp%18#0 item_start_offset%3#0 item_end_offset%3#0)
@@ -111,14 +109,12 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         let tmp%22#0: uint64 = (txn ApplicationID)
         (assert tmp%22#0) // can only call when not creating
         let tmp%24#0: bytes = (txna ApplicationArgs 1)
-        let item0%4#0: bytes = ((extract 0 8) tmp%24#0) // on error: Index access is out of bounds
-        let item0%4%0#0: uint64 = (btoi item0%4#0)
+        let item0%4%0#0: uint64 = (extract_uint64 tmp%24#0 0u)
         let item1%3#0: bytes = ((extract 8 8) tmp%24#0) // on error: Index access is out of bounds
         let item_start_offset%5#0: uint64 = (extract_uint16 tmp%24#0 16u)
         let item_end_offset%5#0: uint64 = (len tmp%24#0)
         let item2%1#0: bytes = (substring3 tmp%24#0 item_start_offset%5#0 item_end_offset%5#0)
-        let item0%5#0: bytes = ((extract 0 8) item2%1#0) // on error: Index access is out of bounds
-        let item0%5%0#0: uint64 = (btoi item0%5#0)
+        let item0%5%0#0: uint64 = (extract_uint64 item2%1#0 0u)
         let item_start_offset%6#0: uint64 = (extract_uint16 item2%1#0 8u)
         let item_end_offset%6#0: uint64 = (extract_uint16 item2%1#0 10u)
         let item1%4#0: bytes = (substring3 item2%1#0 item_start_offset%6#0 item_end_offset%6#0)
@@ -126,7 +122,7 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         let item_end_offset%7#0: uint64 = (len item2%1#0)
         let item2%2#0: bytes = (substring3 item2%1#0 item_end_offset%6#0 item_end_offset%7#0)
         let item2%2%0#0: bytes = ((extract 2 0) item2%2#0)
-        let (elements_to_encode%6#0: uint64, elements_to_encode%7#0: bytes, elements_to_encode%8#0: uint64, elements_to_encode%9#0: bytes, elements_to_encode%10#0: bytes) = test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tuple_params(item0%4%0#0, item1%3#0, item0%5%0#0, item1%4%0#0, item2%2%0#0)
+        let (elements_to_encode%6#0: uint64, elements_to_encode%7#0: bytes[8], elements_to_encode%8#0: uint64, elements_to_encode%9#0: bytes, elements_to_encode%10#0: bytes) = test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tuple_params(item0%4%0#0, item1%3#0, item0%5%0#0, item1%4%0#0, item2%2%0#0)
         let val_as_bytes%2#0: bytes = (itob elements_to_encode%6#0)
         let val_as_bytes%3#0: bytes = (itob elements_to_encode%8#0)
         let length%4#0: uint64 = (len elements_to_encode%9#0)
@@ -244,6 +240,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.run_tests() -> bo
         (assert maybe_exists%0#1) // check self.build_nested_call_count exists
         let new_state_value%0#0: uint64 = (+ maybe_value%0#1 1u)
         (app_global_put "build_nested_call_count" new_state_value%0#0)
+        let tmp%5#3: bool = 1u
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "build_nested_call_count")
         (assert maybe_exists%0#0) // check self.build_nested_call_count exists
         let tmp%6#3: bool = (== maybe_value%0#0 1u)
@@ -288,6 +285,6 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.named_tuple(args.
     block@0: // L58
         return args.a#0 args.b#0 args.c#0
 
-subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tuple_params(args.foo: uint64, args.foo_arc: bytes, args.child.a: uint64, args.child.b: bytes, args.child.c: bytes) -> <uint64, bytes, uint64, bytes, bytes>:
+subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tuple_params(args.foo: uint64, args.foo_arc: bytes[8], args.child.a: uint64, args.child.b: bytes, args.child.c: bytes) -> <uint64, bytes[8], uint64, bytes, bytes>:
     block@0: // L63
         return args.foo#0 args.foo_arc#0 args.child.a#0 args.child.b#0 args.child.c#0

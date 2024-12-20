@@ -41,7 +41,7 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine test_cases.inner_transactions_assignment.contract.Contract.test_itxn_slice() -> void:
     block@0: // L12
-        let pay1%%param_Receiver_idx_0#0: bytes = (txn Sender)
+        let pay1%%param_Receiver_idx_0#0: bytes[32] = (txn Sender)
         itxn_begin
         ((itxn_field Note) "pay1")
         ((itxn_field Amount) 0u)
@@ -78,7 +78,7 @@ subroutine test_cases.inner_transactions_assignment.contract.Contract.test_itxn_
 
 subroutine test_cases.inner_transactions_assignment.contract.Contract.test_itxn_nested() -> void:
     block@0: // L29
-        let pay1%%param_Receiver_idx_0#0: bytes = (txn Sender)
+        let pay1%%param_Receiver_idx_0#0: bytes[32] = (txn Sender)
         itxn_begin
         ((itxn_field Note) "pay1")
         ((itxn_field Amount) 0u)
@@ -133,8 +133,10 @@ subroutine test_cases.inner_transactions_assignment.contract.Contract.test_itxn_
         itxn_submit
         let nested_tuple.1.0.Note#1: bytes = (gitxn 1 Note)
         let nested_tuple.1.1.Note#1: bytes = (itxn Note)
+        let tmp%10#0: bool = 1u
         let tmp%11#0: bool = (== nested_tuple.1.0.Note#1 0x6163666732)
         (assert tmp%11#0)
         let tmp%12#0: bool = (== nested_tuple.1.1.Note#1 0x70617935)
         (assert tmp%12#0)
+        let tmp%13#0: bool = 1u
         return 

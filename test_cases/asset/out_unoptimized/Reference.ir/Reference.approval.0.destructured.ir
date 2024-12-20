@@ -46,8 +46,8 @@ subroutine test_cases.asset.contract.Reference.approval_program() -> bool:
 
 subroutine test_cases.asset.contract.Reference.opt_into_asset(asset: uint64) -> void:
     block@0: // L35
-        let tmp%0#0: bytes = (txn Sender)
-        let tmp%1#0: bytes = (global CreatorAddress)
+        let tmp%0#0: bytes[32] = (txn Sender)
+        let tmp%1#0: bytes[32] = (global CreatorAddress)
         let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
         (assert tmp%2#0) // Only creator can opt in to ASA
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "asa")
@@ -59,7 +59,7 @@ subroutine test_cases.asset.contract.Reference.opt_into_asset(asset: uint64) -> 
         itxn_begin
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
-        let tmp%4#0: bytes = (global CurrentApplicationAddress)
+        let tmp%4#0: bytes[32] = (global CurrentApplicationAddress)
         ((itxn_field AssetReceiver) tmp%4#0)
         ((itxn_field XferAsset) asset#0)
         itxn_submit
@@ -100,32 +100,32 @@ subroutine test_cases.asset.contract.Reference.is_opted_asset(asset: uint64) -> 
         let tmp%7#0: bytes = (bzero 32u)
         let tmp%8#0: bool = (== value%6#0 tmp%7#0)
         (assert tmp%8#0) // hash
-        let (value%7#0: bytes, check%7#0: bool) = ((asset_params_get AssetManager) asset#0)
+        let (value%7#0: bytes[32], check%7#0: bool) = ((asset_params_get AssetManager) asset#0)
         (assert check%7#0) // asset exists
-        let tmp%9#0: bytes = (global ZeroAddress)
+        let tmp%9#0: bytes[32] = (global ZeroAddress)
         let tmp%10#0: bool = (== value%7#0 tmp%9#0)
         (assert tmp%10#0) // manager
-        let (value%8#0: bytes, check%8#0: bool) = ((asset_params_get AssetReserve) asset#0)
+        let (value%8#0: bytes[32], check%8#0: bool) = ((asset_params_get AssetReserve) asset#0)
         (assert check%8#0) // asset exists
-        let tmp%11#0: bytes = (global ZeroAddress)
+        let tmp%11#0: bytes[32] = (global ZeroAddress)
         let tmp%12#0: bool = (== value%8#0 tmp%11#0)
         (assert tmp%12#0) // reserve
-        let (value%9#0: bytes, check%9#0: bool) = ((asset_params_get AssetFreeze) asset#0)
+        let (value%9#0: bytes[32], check%9#0: bool) = ((asset_params_get AssetFreeze) asset#0)
         (assert check%9#0) // asset exists
-        let tmp%13#0: bytes = (global ZeroAddress)
+        let tmp%13#0: bytes[32] = (global ZeroAddress)
         let tmp%14#0: bool = (== value%9#0 tmp%13#0)
         (assert tmp%14#0) // freeze
-        let (value%10#0: bytes, check%10#0: bool) = ((asset_params_get AssetClawback) asset#0)
+        let (value%10#0: bytes[32], check%10#0: bool) = ((asset_params_get AssetClawback) asset#0)
         (assert check%10#0) // asset exists
-        let tmp%15#0: bytes = (global ZeroAddress)
+        let tmp%15#0: bytes[32] = (global ZeroAddress)
         let tmp%16#0: bool = (== value%10#0 tmp%15#0)
         (assert tmp%16#0) // clawback
-        let (value%11#0: bytes, check%11#0: bool) = ((asset_params_get AssetCreator) asset#0)
+        let (value%11#0: bytes[32], check%11#0: bool) = ((asset_params_get AssetCreator) asset#0)
         (assert check%11#0) // asset exists
-        let tmp%17#0: bytes = (global CreatorAddress)
+        let tmp%17#0: bytes[32] = (global CreatorAddress)
         let tmp%18#0: bool = (== value%11#0 tmp%17#0)
         (assert tmp%18#0) // creator
-        let tmp%19#0: bytes = (global CurrentApplicationAddress)
+        let tmp%19#0: bytes[32] = (global CurrentApplicationAddress)
         let (tmp%20#0: uint64, tmp%21#0: bool) = ((asset_holding_get AssetBalance) tmp%19#0 asset#0)
         (assert tmp%21#0) // asset opted in
         return 

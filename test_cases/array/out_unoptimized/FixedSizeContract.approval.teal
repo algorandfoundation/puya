@@ -1,14 +1,15 @@
 #pragma version 10
+#pragma typetrack false
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 16 1 8
+    intcblock 0 48 1 8
     bytecblock 0x
     pushbytes 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     store 0
 
 main_block@1:
-    // array/fixed_size.py:11
+    // array/fixed_size.py:12
     // class FixedSizeContract(arc4.ARC4Contract):
     txn NumAppArgs
     intc_0 // 0
@@ -16,7 +17,7 @@ main_block@1:
     bz main_bare_routing@6
 
 main_abi_routing@2:
-    // array/fixed_size.py:11
+    // array/fixed_size.py:12
     // class FixedSizeContract(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x28d7c1b8 // method "test_array(uint64,uint64,uint64,uint64)uint64"
@@ -28,7 +29,7 @@ main_switch_case_default@4:
 main_switch_case_next@5:
 
 main_after_if_else@10:
-    // array/fixed_size.py:11
+    // array/fixed_size.py:12
     // class FixedSizeContract(arc4.ARC4Contract):
     intc_0 // 0
 
@@ -36,7 +37,7 @@ main_after_inlined_test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_rou
     return
 
 main_test_array_route@3:
-    // array/fixed_size.py:12
+    // array/fixed_size.py:13
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -46,7 +47,7 @@ main_test_array_route@3:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    // array/fixed_size.py:11
+    // array/fixed_size.py:12
     // class FixedSizeContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     txna ApplicationArgs 2
@@ -54,7 +55,7 @@ main_test_array_route@3:
     txna ApplicationArgs 3
     txna ApplicationArgs 4
     btoi
-    // array/fixed_size.py:12
+    // array/fixed_size.py:13
     // @arc4.abimethod()
     uncover 3
     uncover 3
@@ -70,7 +71,7 @@ main_test_array_route@3:
     b main_after_inlined_test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__@11
 
 main_bare_routing@6:
-    // array/fixed_size.py:11
+    // array/fixed_size.py:12
     // class FixedSizeContract(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // 0
@@ -97,51 +98,36 @@ main_after_inlined_test_cases.array.fixed_size.FixedSizeContract.__algopy_defaul
 
 // test_cases.array.fixed_size.FixedSizeContract.test_array(x1: bytes, y1: uint64, x2: bytes, y2: uint64) -> uint64:
 test_array:
-    // array/fixed_size.py:12-13
+    // array/fixed_size.py:13-14
     // @arc4.abimethod()
     // def test_array(self, x1: arc4.UInt64, y1: UInt64, x2: arc4.UInt64, y2: UInt64) -> UInt64:
     proto 4 1
-    // array/fixed_size.py:14
+    // array/fixed_size.py:15
     // path = Array[Point]()
     callsub _puya_lib.mem.new_slot
     dup
     bytec_0 // 0x
     stores
-    // array/fixed_size.py:15
+    // array/fixed_size.py:16
     // assert path.length == 0
     dup
     loads
     len
-    intc_1 // 16
+    intc_1 // 48
     /
     intc_0 // 0
     ==
     assert
-    // array/fixed_size.py:17
-    // path.append(Point(x=arc4.UInt64(), y=UInt64()))
+    // array/fixed_size.py:18
+    // path.append(Point(x=arc4.UInt64(), y=UInt64(), z=Txn.sender))
+    txn Sender
     bytec_0 // 0x
     pushbytes 0x0000000000000000
     concat
     intc_0 // 0
     itob
     concat
-    bytec_0 // 0x
     swap
-    concat
-    dig 1
-    loads
-    swap
-    concat // on error: max array length exceeded
-    dig 1
-    swap
-    stores
-    // array/fixed_size.py:18
-    // path.append(Point(x=x1, y=y1))
-    bytec_0 // 0x
-    frame_dig -4
-    concat
-    frame_dig -3
-    itob
     concat
     bytec_0 // 0x
     swap
@@ -154,12 +140,15 @@ test_array:
     swap
     stores
     // array/fixed_size.py:19
-    // path.append(Point(x=x2, y=y2))
+    // path.append(Point(x=x1, y=y1, z=Txn.sender))
+    txn Sender
     bytec_0 // 0x
-    frame_dig -2
+    frame_dig -4
     concat
-    frame_dig -1
+    frame_dig -3
     itob
+    concat
+    swap
     concat
     bytec_0 // 0x
     swap
@@ -171,7 +160,28 @@ test_array:
     dig 1
     swap
     stores
-    // array/fixed_size.py:21
+    // array/fixed_size.py:20
+    // path.append(Point(x=x2, y=y2, z=Txn.sender))
+    txn Sender
+    bytec_0 // 0x
+    frame_dig -2
+    concat
+    frame_dig -1
+    itob
+    concat
+    swap
+    concat
+    bytec_0 // 0x
+    swap
+    concat
+    dig 1
+    loads
+    swap
+    concat // on error: max array length exceeded
+    dig 1
+    swap
+    stores
+    // array/fixed_size.py:22
     // return path_length(path)
     callsub path_length
     retsub
@@ -179,20 +189,20 @@ test_array:
 
 // test_cases.array.fixed_size.path_length(path: uint64) -> uint64:
 path_length:
-    // array/fixed_size.py:24-25
+    // array/fixed_size.py:25-26
     // @subroutine
     // def path_length(path: Array[Point]) -> UInt64:
     proto 1 1
     bytec_0 // ""
     dup
-    // array/fixed_size.py:26
+    // array/fixed_size.py:27
     // last_point = path[0]
     frame_dig -1
     loads
     intc_0 // 0
-    intc_1 // 16
+    intc_1 // 48
     *
-    intc_1 // 16
+    intc_1 // 48
     extract3
     dup
     intc_0 // 0
@@ -203,22 +213,22 @@ path_length:
     dup
     extract3
     btoi
-    // array/fixed_size.py:27
+    // array/fixed_size.py:28
     // length = UInt64()
     intc_0 // 0
-    // array/fixed_size.py:28
+    // array/fixed_size.py:29
     // for point_idx in urange(1, path.length):
     frame_dig -1
     loads
     len
-    intc_1 // 16
+    intc_1 // 48
     /
     intc_2 // 1
     assert // Step cannot be zero
     intc_2 // 1
 
 path_length_for_header@1:
-    // array/fixed_size.py:28
+    // array/fixed_size.py:29
     // for point_idx in urange(1, path.length):
     frame_dig 6
     frame_dig 5
@@ -226,14 +236,14 @@ path_length_for_header@1:
     bz path_length_after_for@10
 
 path_length_for_body@2:
-    // array/fixed_size.py:29
+    // array/fixed_size.py:30
     // point = path[point_idx]
     frame_dig -1
     loads
     frame_dig 6
-    intc_1 // 16
+    intc_1 // 48
     *
-    intc_1 // 16
+    intc_1 // 48
     extract3
     dup
     intc_0 // 0
@@ -249,14 +259,14 @@ path_length_for_body@2:
     cover 2
     cover 2
     frame_bury 1
-    // array/fixed_size.py:30
+    // array/fixed_size.py:31
     // if point.x < last_point.x:
     frame_dig 2
     b<
     bz path_length_else_body@4
 
 path_length_if_body@3:
-    // array/fixed_size.py:31
+    // array/fixed_size.py:32
     // dx = last_point.x.native - point.x.native
     frame_dig 2
     btoi
@@ -266,7 +276,7 @@ path_length_if_body@3:
     frame_bury 0
 
 path_length_after_if_else@5:
-    // array/fixed_size.py:34
+    // array/fixed_size.py:35
     // if point.y < last_point.y:
     frame_dig 1
     frame_dig 3
@@ -274,14 +284,14 @@ path_length_after_if_else@5:
     bz path_length_else_body@7
 
 path_length_if_body@6:
-    // array/fixed_size.py:35
+    // array/fixed_size.py:36
     // dy = last_point.y - point.y
     frame_dig 3
     frame_dig 1
     -
 
 path_length_after_if_else@8:
-    // array/fixed_size.py:38
+    // array/fixed_size.py:39
     // length += op.sqrt(dx * dx + dy * dy)
     frame_dig 0
     dup
@@ -296,7 +306,7 @@ path_length_after_if_else@8:
     frame_bury 4
 
 path_length_for_footer@9:
-    // array/fixed_size.py:28
+    // array/fixed_size.py:29
     // for point_idx in urange(1, path.length):
     frame_dig 6
     intc_2 // 1
@@ -305,7 +315,7 @@ path_length_for_footer@9:
     b path_length_for_header@1
 
 path_length_else_body@7:
-    // array/fixed_size.py:37
+    // array/fixed_size.py:38
     // dy = point.y - last_point.y
     frame_dig 1
     frame_dig 3
@@ -313,7 +323,7 @@ path_length_else_body@7:
     b path_length_after_if_else@8
 
 path_length_else_body@4:
-    // array/fixed_size.py:33
+    // array/fixed_size.py:34
     // dx = point.x.native - last_point.x.native
     btoi
     frame_dig 2
@@ -323,7 +333,7 @@ path_length_else_body@4:
     b path_length_after_if_else@5
 
 path_length_after_for@10:
-    // array/fixed_size.py:39
+    // array/fixed_size.py:40
     // return length
     frame_dig 4
     frame_bury 0

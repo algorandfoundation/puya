@@ -3,15 +3,15 @@
 
 // test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 123 2 0
+    intcblock 1 0 123 2
     bytecblock 0x151f7c75 "asa" 0x151f7c7500000000000001c8
     txn ApplicationID
     bnz main_after_if_else@2
     bytec_1 // "asa"
-    intc_1 // 123
+    intc_2 // 123
     app_global_put
     pushbytes "an_int"
-    intc_2 // 2
+    intc_3 // 2
     app_global_put
     pushbytess "some_bytes" 0x070809 // "some_bytes", 0x070809
     app_global_put
@@ -19,7 +19,7 @@ main:
     txn Sender
     app_global_put
     pushbytes "app"
-    intc_1 // 123
+    intc_2 // 123
     app_global_put
 
 main_after_if_else@2:
@@ -30,7 +30,7 @@ main_after_if_else@2:
     match main_noop_with_uint64_route@5 main_all_the_things_route@6 main_mixed_oca_route@7 main_opt_into_asset_route@8 main_with_transactions_route@9 main_compare_assets_route@10 main_get_address_route@11 main_get_asset_route@12 main_get_application_route@13 main_get_an_int_route@14 main_method_with_default_args_route@15 main_method_with_15_args_route@16 main_method_with_more_than_15_args_route@17 main_hello_with_algopy_string_route@18
 
 main_after_if_else@21:
-    intc_3 // 0
+    intc_1 // 0
     return
 
 main_hello_with_algopy_string_route@18:
@@ -76,7 +76,7 @@ main_method_with_more_than_15_args_route@17:
     txna ApplicationArgs 6
     txna ApplicationArgs 7
     txn GroupIndex
-    intc_2 // 2
+    intc_3 // 2
     -
     dup
     gtxns TypeEnum
@@ -91,18 +91,11 @@ main_method_with_more_than_15_args_route@17:
     txna ApplicationArgs 13
     txna ApplicationArgs 14
     txna ApplicationArgs 15
-    extract 0 8 // on error: Index access is out of bounds
+    dupn 2
+    pushint 16 // 16
+    extract_uint64
     txna ApplicationArgs 15
-    extract 8 8 // on error: Index access is out of bounds
-    txna ApplicationArgs 15
-    extract 16 8 // on error: Index access is out of bounds
-    btoi
-    txna ApplicationArgs 15
-    extract 24 8 // on error: Index access is out of bounds
-    txna ApplicationArgs 15
-    extract 32 8 // on error: Index access is out of bounds
-    txna ApplicationArgs 15
-    dup
+    dupn 3
     pushint 40 // 40
     extract_uint16
     dig 1
@@ -119,8 +112,8 @@ main_method_with_more_than_15_args_route@17:
     substring3
     extract 2 0
     txna ApplicationArgs 15
-    extract 44 1 // on error: Index access is out of bounds
-    btoi
+    pushint 44 // 44
+    getbyte
     txnas Assets
     txn GroupIndex
     intc_0 // 1
@@ -131,9 +124,7 @@ main_method_with_more_than_15_args_route@17:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 15
-    extract 45 8 // on error: Index access is out of bounds
-    txna ApplicationArgs 15
-    extract 53 8 // on error: Index access is out of bounds
+    dup
     txn NumAppArgs
     pushint 16 // 16
     ==
@@ -194,24 +185,30 @@ main_method_with_more_than_15_args_route@17:
     btoi
     +
     uncover 7
-    btoi
+    intc_1 // 0
+    extract_uint64
     +
     uncover 6
-    btoi
+    pushint 8 // 8
+    extract_uint64
     +
     uncover 5
     +
     uncover 4
-    btoi
+    pushint 24 // 24
+    extract_uint64
     +
     uncover 3
-    btoi
+    pushint 32 // 32
+    extract_uint64
     +
     uncover 2
-    btoi
+    pushint 45 // 45
+    extract_uint64
     +
     swap
-    btoi
+    pushint 53 // 53
+    extract_uint64
     +
     itob
     bytec_0 // 0x151f7c75
@@ -326,7 +323,7 @@ main_method_with_default_args_route@15:
     txna ApplicationArgs 8
     txna ApplicationArgs 9
     uncover 8
-    intc_1 // 123
+    intc_2 // 123
     ==
     assert // wrong asset from storage
     uncover 7
@@ -342,7 +339,7 @@ main_method_with_default_args_route@15:
     ==
     assert // wrong account from function
     uncover 4
-    intc_1 // 123
+    intc_2 // 123
     ==
     assert // wrong application from storage
     uncover 3
@@ -366,7 +363,7 @@ main_method_with_default_args_route@15:
     assert // wrong 2nd byte from storage
     swap
     btoi
-    intc_2 // 2
+    intc_3 // 2
     ==
     assert // wrong int from storage
     btoi
@@ -456,7 +453,7 @@ main_with_transactions_route@9:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 3
-    intc_3 // 0
+    intc_1 // 0
     bytec_1 // "asa"
     app_global_get_ex
     assert // check self.asa exists
@@ -474,7 +471,7 @@ main_with_transactions_route@9:
     ==
     assert // is payment to app
     btoi
-    intc_2 // 2
+    intc_3 // 2
     ==
     assert // is correct int
     intc_0 // 1
@@ -493,7 +490,7 @@ main_opt_into_asset_route@8:
     global CreatorAddress
     ==
     assert // Only creator can opt in to ASA
-    intc_3 // 0
+    intc_1 // 0
     bytec_1 // "asa"
     app_global_get_ex
     assert // check self.asa exists
@@ -505,7 +502,7 @@ main_opt_into_asset_route@8:
     itxn_begin
     pushint 4 // axfer
     itxn_field TypeEnum
-    intc_3 // 0
+    intc_1 // 0
     itxn_field Fee
     global CurrentApplicationAddress
     itxn_field AssetReceiver

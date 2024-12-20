@@ -3,10 +3,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
         goto tmp%0#1 ? block@2 : block@6
-    block@2: // abi_routing_L11
+    block@2: // abi_routing_L12
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
         switch tmp%2#0 {method "test_array(uint64,uint64,uint64,uint64)uint64" => block@3, * => block@10}
-    block@3: // test_array_route_L12
+    block@3: // test_array_route_L13
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (! tmp%3#0)
         (assert tmp%4#0) // OnCompletion is not NoOp
@@ -25,7 +25,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log tmp%9#0)
         let test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__%0#0: bool = 1u
         goto block@11
-    block@6: // bare_routing_L11
+    block@6: // bare_routing_L12
         let tmp%10#0: uint64 = (txn OnCompletion)
         goto tmp%10#0 ? block@10 : block@7
     block@7: // __algopy_default_create_L1
@@ -35,7 +35,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         test_cases.array.fixed_size.FixedSizeContract.__algopy_default_create()
         let test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__%0#1: bool = 1u
         goto block@11
-    block@10: // after_if_else_L11
+    block@10: // after_if_else_L12
         let test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__%0#2: bool = 0u
         goto block@11
     block@11: // after_inlined_test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router___L1
@@ -43,69 +43,75 @@ main algopy.arc4.ARC4Contract.approval_program:
         return tmp%0#0
 
 subroutine test_cases.array.fixed_size.FixedSizeContract.test_array(x1: bytes[8], y1: uint64, x2: bytes[8], y2: uint64) -> uint64:
-    block@0: // L12
-        let path#0: (bytes[8],uint64)[]* = new()
-        let slot_contents%0#0: (bytes[8],uint64)[] = 0x
+    block@0: // L13
+        let path#0: (bytes[8],uint64,bytes[32])[]* = new()
+        let slot_contents%0#0: (bytes[8],uint64,bytes[32])[] = 0x
         let tmp%0#0: uint64 = slot_contents%0#0.length
         let tmp%1#0: bool = (! tmp%0#0)
         (assert tmp%1#0)
-        let encoded%0#0: (bytes[8],uint64)[] = 0x0000000000000000
-        let sub_item%0#0: (bytes[8],uint64)[] = (itob 0u)
-        let encoded%1#0: (bytes[8],uint64)[] = (concat encoded%0#0 sub_item%0#0)
-        let data%0#0: (bytes[8],uint64)[] = encoded%1#0
-        let slot_contents%1#0: (bytes[8],uint64)[] = 0x
-        let extended%0#0: (bytes[8],uint64)[] = slot_contents%1#0.extend(data%0#0)
-        let encoded%2#0: (bytes[8],uint64)[] = x1#0
-        let sub_item%1#0: (bytes[8],uint64)[] = (itob y1#0)
-        let encoded%3#0: (bytes[8],uint64)[] = (concat encoded%2#0 sub_item%1#0)
-        let data%1#0: (bytes[8],uint64)[] = encoded%3#0
-        let slot_contents%2#0: (bytes[8],uint64)[] = extended%0#0
-        let extended%1#0: (bytes[8],uint64)[] = slot_contents%2#0.extend(data%1#0)
-        let encoded%4#0: (bytes[8],uint64)[] = x2#0
-        let sub_item%2#0: (bytes[8],uint64)[] = (itob y2#0)
-        let encoded%5#0: (bytes[8],uint64)[] = (concat encoded%4#0 sub_item%2#0)
-        let data%2#0: (bytes[8],uint64)[] = encoded%5#0
-        let slot_contents%3#0: (bytes[8],uint64)[] = extended%1#0
-        let extended%2#0: (bytes[8],uint64)[] = slot_contents%3#0.extend(data%2#0)
+        let tmp%2#0: bytes[32] = (txn Sender)
+        let encoded%0#0: (bytes[8],uint64,bytes[32])[] = 0x0000000000000000
+        let sub_item%0#0: (bytes[8],uint64,bytes[32])[] = (itob 0u)
+        let encoded%1#0: (bytes[8],uint64,bytes[32])[] = 0x00000000000000000000000000000000
+        let encoded%2#0: (bytes[8],uint64,bytes[32])[] = (concat 0x00000000000000000000000000000000 tmp%2#0)
+        let data%0#0: (bytes[8],uint64,bytes[32])[] = encoded%2#0
+        let slot_contents%1#0: (bytes[8],uint64,bytes[32])[] = 0x
+        let extended%0#0: (bytes[8],uint64,bytes[32])[] = slot_contents%1#0.extend(encoded%2#0)
+        let tmp%3#0: bytes[32] = (txn Sender)
+        let encoded%3#0: (bytes[8],uint64,bytes[32])[] = x1#0
+        let sub_item%1#0: (bytes[8],uint64,bytes[32])[] = (itob y1#0)
+        let encoded%4#0: (bytes[8],uint64,bytes[32])[] = (concat x1#0 sub_item%1#0)
+        let encoded%5#0: (bytes[8],uint64,bytes[32])[] = (concat encoded%4#0 tmp%3#0)
+        let data%1#0: (bytes[8],uint64,bytes[32])[] = encoded%5#0
+        let slot_contents%2#0: (bytes[8],uint64,bytes[32])[] = extended%0#0
+        let extended%1#0: (bytes[8],uint64,bytes[32])[] = slot_contents%2#0.extend(encoded%5#0)
+        let tmp%4#0: bytes[32] = (txn Sender)
+        let encoded%6#0: (bytes[8],uint64,bytes[32])[] = x2#0
+        let sub_item%2#0: (bytes[8],uint64,bytes[32])[] = (itob y2#0)
+        let encoded%7#0: (bytes[8],uint64,bytes[32])[] = (concat x2#0 sub_item%2#0)
+        let encoded%8#0: (bytes[8],uint64,bytes[32])[] = (concat encoded%7#0 tmp%4#0)
+        let data%2#0: (bytes[8],uint64,bytes[32])[] = encoded%8#0
+        let slot_contents%3#0: (bytes[8],uint64,bytes[32])[] = extended%1#0
+        let extended%2#0: (bytes[8],uint64,bytes[32])[] = slot_contents%3#0.extend(encoded%8#0)
         write(path#0, extended%2#0)
-        let slot_contents%0#1: (bytes[8],uint64)[] = extended%2#0
-        let (last_point.x#0: bytes[8], last_point.y#0: uint64) = slot_contents%0#1[0u]
+        let slot_contents%0#1: (bytes[8],uint64,bytes[32])[] = extended%2#0
+        let (last_point.x#0: bytes[8], last_point.y#0: uint64, last_point.z#0: bytes[32]) = slot_contents%0#1[0u]
         let length#0: uint64 = 0u
-        let slot_contents%1#1: (bytes[8],uint64)[] = extended%2#0
+        let slot_contents%1#1: (bytes[8],uint64,bytes[32])[] = extended%2#0
         let tmp%0#1: uint64 = slot_contents%1#1.length
         let point_idx#0: uint64 = 1u
         goto block@2
-    block@2: // for_header_L28
+    block@2: // for_header_L29
         let point_idx#1: uint64 = φ(point_idx#0 <- block@0, point_idx#2 <- block@9)
         let length#3: uint64 = φ(length#0 <- block@0, length#4 <- block@9)
         let continue_looping%0#0: bool = (< point_idx#1 tmp%0#1)
         goto continue_looping%0#0 ? block@3 : block@11
-    block@3: // for_body_L29
-        let slot_contents%2#1: (bytes[8],uint64)[] = read(path#0)
-        let (point.x#0: bytes[8], point.y#0: uint64) = slot_contents%2#1[point_idx#1]
+    block@3: // for_body_L30
+        let slot_contents%2#1: (bytes[8],uint64,bytes[32])[] = read(path#0)
+        let (point.x#0: bytes[8], point.y#0: uint64, point.z#0: bytes[32]) = slot_contents%2#1[point_idx#1]
         let tmp%1#1: bool = (b< point.x#0 last_point.x#0)
         goto tmp%1#1 ? block@4 : block@5
-    block@4: // if_body_L31
+    block@4: // if_body_L32
         let tmp%2#1: uint64 = (btoi last_point.x#0)
-        let tmp%3#0: uint64 = (btoi point.x#0)
-        let dx#0: uint64 = (- tmp%2#1 tmp%3#0)
+        let tmp%3#1: uint64 = (btoi point.x#0)
+        let dx#0: uint64 = (- tmp%2#1 tmp%3#1)
         goto block@6
-    block@5: // else_body_L33
-        let tmp%4#0: uint64 = (btoi point.x#0)
-        let tmp%5#0: uint64 = (btoi last_point.x#0)
-        let dx#1: uint64 = (- tmp%4#0 tmp%5#0)
+    block@5: // else_body_L34
+        let tmp%4#1: uint64 = (btoi point.x#0)
+        let tmp%5#1: uint64 = (btoi last_point.x#0)
+        let dx#1: uint64 = (- tmp%4#1 tmp%5#1)
         goto block@6
-    block@6: // after_if_else_L30
+    block@6: // after_if_else_L31
         let dx#3: uint64 = φ(dx#0 <- block@4, dx#1 <- block@5)
         let tmp%6#0: bool = (< point.y#0 last_point.y#0)
         goto tmp%6#0 ? block@7 : block@8
-    block@7: // if_body_L35
+    block@7: // if_body_L36
         let dy#0: uint64 = (- last_point.y#0 point.y#0)
         goto block@9
-    block@8: // else_body_L37
+    block@8: // else_body_L38
         let dy#1: uint64 = (- point.y#0 last_point.y#0)
         goto block@9
-    block@9: // after_if_else_L34
+    block@9: // after_if_else_L35
         let dy#2: uint64 = φ(dy#0 <- block@7, dy#1 <- block@8)
         let tmp%7#0: uint64 = (* dx#3 dx#3)
         let tmp%8#0: uint64 = (* dy#2 dy#2)
@@ -114,7 +120,7 @@ subroutine test_cases.array.fixed_size.FixedSizeContract.test_array(x1: bytes[8]
         let length#4: uint64 = (+ length#3 tmp%10#0)
         let point_idx#2: uint64 = (+ point_idx#1 1u)
         goto block@2
-    block@11: // after_for_L28
+    block@11: // after_for_L29
         return length#3
 
 subroutine test_cases.array.fixed_size.FixedSizeContract.__algopy_default_create() -> void:
