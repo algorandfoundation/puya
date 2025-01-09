@@ -551,54 +551,58 @@ def _validate_member_default_arg(
 
 
 def extract_arc4_methods(
-    ctx: IRBuildContext,
-    contract: awst_nodes.Contract,
-    arc4_methods_with_configs: dict[awst_nodes.ContractMethod, ARC4MethodConfig],
+    ctx: IRBuildContext, contract: awst_nodes.Contract
 ) -> dict[awst_nodes.ContractMethod, ARC4Method]:
+    seen_method_names = set[str]()
     arc4_method_metadata = dict[awst_nodes.ContractMethod, ARC4Method]()
-    for m, arc4_config in arc4_methods_with_configs.items():
-        assert arc4_config is m.arc4_method_config
-        if isinstance(arc4_config, ARC4BareMethodConfig):
-            arc4_method_metadata[m] = ARC4BareMethod(
-                id=m.full_name,
-                desc=m.documentation.description,
-                config=arc4_config,
-            )
-        elif isinstance(arc4_config, ARC4ABIMethodConfig):
-            args_by_name = {a.name: a for a in m.args}
-            for parameter_name, default_source in arc4_config.default_args.items():
-                # any invalid parameter matches should have been caught earlier
-                parameter = args_by_name[parameter_name]
-                if isinstance(default_source, ABIMethodArgConstantDefault):
-                    assert (
-                        _wtype_to_arc4(parameter.wtype) == default_source.arc56_type
-                    ), "TODO: check this?"
-                else:
-                    _validate_member_default_arg(ctx, contract, parameter, default_source)
-            arc4_method_metadata[m] = ARC4ABIMethod(
-                id=m.full_name,
-                name=m.member_name,
-                desc=m.documentation.description,
-                args=[
-                    ARC4MethodArg(
-                        name=a.name,
-                        type_=_wtype_to_arc4(a.wtype),
-                        struct=_get_arc4_struct_name(a.wtype),
-                        desc=m.documentation.args.get(a.name),
+    for cref in (contract.id, *contract.method_resolution_order):
+        for m in contract.methods:
+            if (
+                m.cref == cref
+                and set_add(seen_method_names, m.member_name)
+                and m.arc4_method_config is not None
+            ):
+                arc4_config = m.arc4_method_config
+                if isinstance(arc4_config, ARC4BareMethodConfig):
+                    arc4_method_metadata[m] = ARC4BareMethod(
+                        id=m.full_name,
+                        desc=m.documentation.description,
+                        config=arc4_config,
                     )
-                    for a in m.args
-                ],
-                returns=ARC4Returns(
-                    desc=m.documentation.returns,
-                    type_=_wtype_to_arc4(m.return_type),
-                    struct=_get_arc4_struct_name(m.return_type),
-                ),
-                events=[],
-                config=arc4_config,
-            )
-        else:
-            typing.assert_never(arc4_config)
-
+                elif isinstance(arc4_config, ARC4ABIMethodConfig):
+                    args_by_name = {a.name: a for a in m.args}
+                    for parameter_name, default_source in arc4_config.default_args.items():
+                        # any invalid parameter matches should have been caught earlier
+                        parameter = args_by_name[parameter_name]
+                        if isinstance(default_source, ABIMethodArgConstantDefault):
+                            assert (
+                                _wtype_to_arc4(parameter.wtype) == default_source.arc56_type
+                            ), "TODO: check this?"
+                        else:
+                            _validate_member_default_arg(ctx, contract, parameter, default_source)
+                    arc4_method_metadata[m] = ARC4ABIMethod(
+                        id=m.full_name,
+                        name=m.member_name,
+                        desc=m.documentation.description,
+                        args=[
+                            ARC4MethodArg(
+                                name=a.name,
+                                type_=_wtype_to_arc4(a.wtype),
+                                struct=_get_arc4_struct_name(a.wtype),
+                                desc=m.documentation.args.get(a.name),
+                            )
+                            for a in m.args
+                        ],
+                        returns=ARC4Returns(
+                            desc=m.documentation.returns,
+                            type_=_wtype_to_arc4(m.return_type),
+                            struct=_get_arc4_struct_name(m.return_type),
+                        ),
+                        events=[],
+                        config=arc4_config,
+                    )
+                else:
+                    typing.assert_never(arc4_config)
     return arc4_method_metadata
 
 

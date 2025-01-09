@@ -42,7 +42,6 @@ from puya.ir.validation.main import validate_module_artifact
 from puya.models import (
     ARC4ABIMethod,
     ARC4Method,
-    ARC4MethodConfig,
     ARC4Struct,
     ARC4StructField,
     ContractMetaData,
@@ -535,34 +534,18 @@ class FoldedContract:
         return merged
 
 
-def _gather_arc4_methods(
-    contract: awst_nodes.Contract,
-) -> dict[awst_nodes.ContractMethod, ARC4MethodConfig]:
-    maybe_arc4_method_refs = dict[str, tuple[awst_nodes.ContractMethod, ARC4MethodConfig] | None]()
-    for cref in (contract.id, *contract.method_resolution_order):
-        for cm in contract.methods:
-            if cm.cref == cref:
-                if cm.arc4_method_config:
-                    maybe_arc4_method_refs.setdefault(cm.member_name, (cm, cm.arc4_method_config))
-                else:
-                    maybe_arc4_method_refs.setdefault(cm.member_name, None)
-    arc4_method_refs = dict(filter(None, maybe_arc4_method_refs.values()))
-    return arc4_method_refs
-
-
 def _fold_state_and_special_methods(
     ctx: IRBuildContext,
     contract: awst_nodes.Contract,
 ) -> tuple[FoldedContract, dict[awst_nodes.ContractMethod, ARC4Method]]:
     result = FoldedContract(declared_totals=contract.state_totals)
     for state in contract.app_state:
+        for typ in (state.key_wtype, state.storage_wtype):
+            if _is_arc4_struct(typ):
+                result.structs.append(typ)
         key_type = None
         if state.key_wtype is not None:
             key_type = wtypes.persistable_stack_type(state.key_wtype, state.source_location)
-            if _is_arc4_struct(state.key_wtype):
-                result.structs.append(state.key_wtype)
-        if _is_arc4_struct(state.storage_wtype):
-            result.structs.append(state.storage_wtype)
         translated = _get_contract_state(state)
         match state.kind:
             case awst_nodes.AppStorageKind.app_global:
@@ -581,20 +564,19 @@ def _fold_state_and_special_methods(
                 result.boxes[state.member_name] = translated
             case _:
                 typing.assert_never(state.kind)
-    arc4_method_refs = _gather_arc4_methods(contract)
-    if arc4_method_refs:
-        for arc4_method in arc4_method_refs:
-            for wtype in (arc4_method.return_type, *(arg.wtype for arg in arc4_method.args)):
-                if _is_arc4_struct(wtype):
-                    result.structs.append(wtype)
-        methods = extract_arc4_methods(ctx, contract, arc4_method_refs)
-        result.arc4_methods = list(methods.values())
-    else:
-        methods = {}
+
+    methods = extract_arc4_methods(ctx, contract)
+    result.arc4_methods = list(methods.values())
+    for arc4_method in methods:
+        for wtype in (arc4_method.return_type, *(arg.wtype for arg in arc4_method.args)):
+            if _is_arc4_struct(wtype):
+                result.structs.append(wtype)
     return result, methods
 
 
-def _is_arc4_struct(wtype: wtypes.WType) -> typing.TypeGuard[wtypes.ARC4Struct | wtypes.WTuple]:
+def _is_arc4_struct(
+    wtype: wtypes.WType | None,
+) -> typing.TypeGuard[wtypes.ARC4Struct | wtypes.WTuple]:
     return isinstance(wtype, wtypes.ARC4Struct | wtypes.WTuple) and bool(wtype.fields)
 
 
