@@ -234,7 +234,7 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
     structs = _extract_arc4_structs(contract, arc4_method_data)
 
     arc4_router_func = arc4_router.create_abi_router(
-        contract, {md.source: md.metadata for md in arc4_method_data}
+        contract, {md.source: md.metadata.config for md in arc4_method_data}
     )
     ctx.subroutines[arc4_router_func] = ctx.routers[contract.id] = _make_subroutine(
         arc4_router_func, allow_implicits=False

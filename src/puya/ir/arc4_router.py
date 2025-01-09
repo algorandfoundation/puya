@@ -12,7 +12,6 @@ from puya.models import (
     ARC4ABIMethodConfig,
     ARC4BareMethodConfig,
     ARC4CreateOption,
-    ARC4Method,
     ARC4MethodConfig,
     OnCompletionAction,
 )
@@ -458,13 +457,12 @@ def _maybe_switch(
 
 def create_abi_router(
     contract: awst_nodes.Contract,
-    arc4_methods_with_configs: dict[awst_nodes.ContractMethod, ARC4Method],
+    arc4_methods_with_configs: Mapping[awst_nodes.ContractMethod, ARC4MethodConfig],
 ) -> awst_nodes.ContractMethod:
     router_location = contract.source_location
     abi_methods = {}
     bare_methods = {}
-    for m, arc4_method in arc4_methods_with_configs.items():
-        arc4_config = arc4_method.config
+    for m, arc4_config in arc4_methods_with_configs.items():
         assert arc4_config is m.arc4_method_config
         if isinstance(arc4_config, ARC4BareMethodConfig):
             bare_methods[m] = arc4_config
