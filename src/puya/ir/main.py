@@ -246,9 +246,20 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
     function_emits = EventCollector.collect(ctx, unique((*approval_subs_srefs, *clear_subs_srefs)))
 
     # collect emitted events by method, and include any referenced structs
-    structs = list(folded.structs)
+    structs = [
+        typ
+        for state in contract.app_state
+        for typ in (state.key_wtype, state.storage_wtype)
+        if _is_arc4_struct(typ)
+    ]
+
     arc4_methods = []
     for method, arc4_method in arc4_method_data.items():
+        structs.extend(
+            wtype
+            for wtype in (method.return_type, *(arg.wtype for arg in method.args))
+            if _is_arc4_struct(wtype)
+        )
         if isinstance(arc4_method, puya_models.ARC4ABIMethod):
             method_structs = function_emits[method]
             # extend structs with any arc4 struct types that are part of an event
@@ -473,8 +484,6 @@ class FoldedContract:
     global_state: dict[str, puya_models.ContractState] = attrs.field(factory=dict)
     local_state: dict[str, puya_models.ContractState] = attrs.field(factory=dict)
     boxes: dict[str, puya_models.ContractState] = attrs.field(factory=dict)
-    arc4_methods: list[puya_models.ARC4Method] = attrs.field(factory=list)
-    structs: list[wtypes.ARC4Struct | wtypes.WTuple] = attrs.field(factory=list)
     declared_totals: awst_nodes.StateTotals | None
 
     def build_state_totals(self, *, location: SourceLocation) -> puya_models.StateTotals:
@@ -518,14 +527,10 @@ class FoldedContract:
 
 
 def _fold_state_and_special_methods(
-    ctx: IRBuildContext,
-    contract: awst_nodes.Contract,
+    ctx: IRBuildContext, contract: awst_nodes.Contract
 ) -> tuple[FoldedContract, dict[awst_nodes.ContractMethod, puya_models.ARC4Method]]:
     result = FoldedContract(declared_totals=contract.state_totals)
     for state in contract.app_state:
-        for typ in (state.key_wtype, state.storage_wtype):
-            if _is_arc4_struct(typ):
-                result.structs.append(typ)
         key_type = None
         if state.key_wtype is not None:
             key_type = wtypes.persistable_stack_type(state.key_wtype, state.source_location)
@@ -545,15 +550,10 @@ def _fold_state_and_special_methods(
                 result.local_state[state.member_name] = translated
             case awst_nodes.AppStorageKind.box:
                 result.boxes[state.member_name] = translated
-            case _:
-                typing.assert_never(state.kind)
+            case unexpected:
+                typing.assert_never(unexpected)
 
     methods = _extract_arc4_methods(ctx, contract)
-    result.arc4_methods = list(methods.values())
-    for arc4_method in methods:
-        for wtype in (arc4_method.return_type, *(arg.wtype for arg in arc4_method.args)):
-            if _is_arc4_struct(wtype):
-                result.structs.append(wtype)
     return result, methods
 
 
