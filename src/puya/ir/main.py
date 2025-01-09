@@ -247,7 +247,7 @@ def _build_embedded_ir(ctx: CompileContext) -> Mapping[str, Subroutine]:
 
 
 def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
-    folded, arc4_method_data = _fold_state_and_special_methods(contract)
+    folded, arc4_method_data = _fold_state_and_special_methods(ctx, contract)
     arc4_router_func = arc4_router.create_abi_router(contract, arc4_method_data)
     ctx.subroutines[arc4_router_func] = ctx.routers[contract.id] = _make_subroutine(
         arc4_router_func, allow_implicits=False
@@ -551,20 +551,18 @@ def _gather_arc4_methods(
 
 
 def _fold_state_and_special_methods(
+    ctx: IRBuildContext,
     contract: awst_nodes.Contract,
 ) -> tuple[FoldedContract, dict[awst_nodes.ContractMethod, ARC4Method]]:
-    result = FoldedContract(
-        declared_totals=contract.state_totals,
-    )
-    struct_types = list[wtypes.ARC4Struct | wtypes.WTuple]()
+    result = FoldedContract(declared_totals=contract.state_totals)
     for state in contract.app_state:
         key_type = None
         if state.key_wtype is not None:
             key_type = wtypes.persistable_stack_type(state.key_wtype, state.source_location)
             if _is_arc4_struct(state.key_wtype):
-                struct_types.append(state.key_wtype)
+                result.structs.append(state.key_wtype)
         if _is_arc4_struct(state.storage_wtype):
-            struct_types.append(state.storage_wtype)
+            result.structs.append(state.storage_wtype)
         translated = _get_contract_state(state)
         match state.kind:
             case awst_nodes.AppStorageKind.app_global:
@@ -584,20 +582,15 @@ def _fold_state_and_special_methods(
             case _:
                 typing.assert_never(state.kind)
     arc4_method_refs = _gather_arc4_methods(contract)
-    for arc4_method in arc4_method_refs:
-        for wtype in (arc4_method.return_type, *(arg.wtype for arg in arc4_method.args)):
-            if _is_arc4_struct(wtype):
-                struct_types.append(wtype)
     if arc4_method_refs:
-        methods = extract_arc4_methods(
-            arc4_method_refs,
-            local_state=result.local_state,
-            global_state=result.global_state,
-        )
+        for arc4_method in arc4_method_refs:
+            for wtype in (arc4_method.return_type, *(arg.wtype for arg in arc4_method.args)):
+                if _is_arc4_struct(wtype):
+                    result.structs.append(wtype)
+        methods = extract_arc4_methods(ctx, contract, arc4_method_refs)
         result.arc4_methods = list(methods.values())
     else:
         methods = {}
-    result.structs = struct_types
     return result, methods
 
 

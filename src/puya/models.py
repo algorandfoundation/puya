@@ -122,7 +122,8 @@ class ARC4BareMethodConfig:
 
 @attrs.frozen(kw_only=True)
 class ABIMethodArgConstantDefault:
-    value: int | str
+    data: bytes
+    arc56_type: str
 
 
 @attrs.frozen(kw_only=True)

@@ -97,7 +97,7 @@ def _encode_default_arg(
     metadata: ContractMetaData, source: ABIMethodArgDefault, loc: SourceLocation | None
 ) -> JSONDict:
     if isinstance(source, ABIMethodArgConstantDefault):
-        return {"source": "constant", "data": source.value}
+        return {"source": "constant", "data": source.data.decode("utf-8")}
     if state := metadata.global_state.get(source.name):
         return {
             "source": "global-state",

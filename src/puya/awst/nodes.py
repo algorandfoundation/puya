@@ -1530,13 +1530,21 @@ class RootNode(Node, ABC):
 @attrs.frozen(kw_only=True)
 class SubroutineArgument:
     name: str
+    source_location: SourceLocation
     wtype: WType = attrs.field()
-    source_location: SourceLocation | None
+    default_value: Expression | None = attrs.field(default=None)
 
     @wtype.validator
     def _wtype_validator(self, _attribute: object, wtype: WType) -> None:
         if wtype == wtypes.void_wtype:
             raise CodeError("void type arguments are not supported", self.source_location)
+
+    @default_value.validator
+    def _default_value_validator(self, _attribute: object, value: Expression | None) -> None:
+        if value is not None and value.wtype != self.wtype:
+            raise CodeError(
+                "mismatch between argument default and argument type", self.source_location
+            )
 
 
 @attrs.frozen
