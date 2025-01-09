@@ -17,8 +17,6 @@ from puya.models import (
     ARC4ABIMethodConfig,
     ARC4BareMethodConfig,
     ARC4CreateOption,
-    ARC4Struct,
-    ARC4StructField,
     OnCompletionAction,
     TransactionType,
 )
@@ -295,20 +293,6 @@ class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
     @typing.override
     def visit_dict_expr(self, o: mypy.nodes.DictExpr) -> dict[object, object]:
         return {key.accept(self) if key else None: value.accept(self) for key, value in o.items}
-
-
-def _pytype_to_struct_def(typ: pytypes.StructType) -> ARC4Struct:
-    return ARC4Struct(
-        fullname=typ.name,
-        fields=[
-            ARC4StructField(
-                name=n,
-                type=pytype_to_arc4(t),
-                struct=t.name if pytypes.ARC4StructBaseType in t.mro else None,
-            )
-            for n, t in typ.fields.items()
-        ],
-    )
 
 
 def _get_func_types(
