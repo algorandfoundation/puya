@@ -8,8 +8,6 @@ The `algorand-python-testing` package provides:
 -   An offline testing environment that simulates core AVM functionality
 -   A familiar Pythonic experience, compatible with testing frameworks like [pytest](https://docs.pytest.org/en/latest/), [unittest](https://docs.python.org/3/library/unittest.html), and [hypothesis](https://hypothesis.readthedocs.io/en/latest/)
 
-> **NOTE**: This package is currently in **preview** and should be used with caution until the first stable release.
-
 ## Quick Start
 
 To get started refer to the [official documentation](https://algorandfoundation.github.io/algorand-python-testing/).
