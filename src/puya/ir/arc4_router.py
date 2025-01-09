@@ -1,29 +1,19 @@
 import typing
 from collections.abc import Iterable, Mapping, Sequence
 
-from immutabledict import immutabledict
-
 from puya import log
-from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.wtypes import persistable_stack_type
 from puya.errors import CodeError
-from puya.ir.context import IRBuildContext
+from puya.ir._utils import maybe_avm_to_arc4_equivalent_type, wtype_to_arc4
 from puya.models import (
-    ABIMethodArgConstantDefault,
-    ABIMethodArgMemberDefault,
-    ARC4ABIMethod,
     ARC4ABIMethodConfig,
-    ARC4BareMethod,
     ARC4BareMethodConfig,
     ARC4CreateOption,
     ARC4Method,
-    ARC4MethodArg,
     ARC4MethodConfig,
-    ARC4Returns,
     OnCompletionAction,
 )
 from puya.parse import SourceLocation
@@ -31,8 +21,6 @@ from puya.utils import set_add
 
 __all__ = [
     "create_abi_router",
-    "extract_arc4_methods",
-    "maybe_avm_to_arc4_equivalent_type",
 ]
 
 logger = log.get_logger(__name__)
@@ -468,152 +456,6 @@ def _maybe_switch(
     ]
 
 
-def _validate_member_default_arg(
-    ctx: IRBuildContext,
-    contract: awst_nodes.Contract,
-    param: awst_nodes.SubroutineArgument,
-    default_source: ABIMethodArgMemberDefault,
-) -> None:
-    param_arc4_type = _wtype_to_arc4(param.wtype)
-
-    # special handling for reference types
-    match param_arc4_type:
-        case "asset" | "application":
-            param_arc4_type = "uint64"
-        case "account":
-            param_arc4_type = "address"
-
-    source_name = default_source.name
-    state_source = next((s for s in contract.app_state if s.member_name == source_name), None)
-    if state_source is not None:
-        storage_type = persistable_stack_type(state_source.storage_wtype, param.source_location)
-        if (
-            storage_type is AVMType.uint64
-            # storage can provide an int to types <= uint64
-            # TODO: check what ATC does with ufixed, see if it can be added
-            and (param_arc4_type == "byte" or param_arc4_type.startswith("uint"))
-        ) or (
-            storage_type is AVMType.bytes
-            # storage can provide fixed byte arrays
-            and (
-                (param_arc4_type.startswith("byte[") and param_arc4_type != "byte[]")
-                or param_arc4_type == "address"
-            )
-        ):
-            pass
-        else:
-            raise CodeError(
-                f"'{source_name}' cannot provide '{param_arc4_type}' type",
-                param.source_location,
-            )
-    else:
-        method_source = ctx.resolve_contract_method(source_name, param.source_location)
-        match method_source:
-            case None:
-                raise CodeError(
-                    f"'{source_name}' is not a known state or method attribute",
-                    param.source_location,
-                )
-            case awst_nodes.ContractMethod(
-                arc4_method_config=abi_method_config, args=args, return_type=return_type
-            ):
-                if not isinstance(abi_method_config, ARC4ABIMethodConfig):
-                    raise CodeError(
-                        "only ARC-4 ABI methods can be used as default values",
-                        param.source_location,
-                    )
-                if OnCompletionAction.NoOp not in abi_method_config.allowed_completion_types:
-                    raise CodeError(
-                        f"'{source_name}' does not allow no_op on completion calls",
-                        param.source_location,
-                    )
-                if abi_method_config.create == ARC4CreateOption.require:
-                    raise CodeError(
-                        f"'{source_name}' can only be used for create calls", param.source_location
-                    )
-                if not abi_method_config.readonly:
-                    raise CodeError(f"'{source_name}' is not readonly", param.source_location)
-                if args:
-                    raise CodeError(
-                        f"'{source_name}' does not take zero arguments", param.source_location
-                    )
-                if return_type is wtypes.void_wtype:
-                    raise CodeError(
-                        f"'{source_name}' does not provide a value", param.source_location
-                    )
-                if _wtype_to_arc4(return_type) != param_arc4_type:
-                    raise CodeError(
-                        f"'{source_name}' does not provide '{param_arc4_type}' type",
-                        param.source_location,
-                    )
-            case unexpected:
-                typing.assert_never(unexpected)
-
-
-def extract_arc4_methods(
-    ctx: IRBuildContext, contract: awst_nodes.Contract
-) -> dict[awst_nodes.ContractMethod, ARC4Method]:
-    seen_method_names = set[str]()
-    arc4_method_metadata = dict[awst_nodes.ContractMethod, ARC4Method]()
-    for cref in (contract.id, *contract.method_resolution_order):
-        for m in contract.methods:
-            if (
-                m.cref == cref
-                and set_add(seen_method_names, m.member_name)
-                and m.arc4_method_config is not None
-            ):
-                arc4_config = m.arc4_method_config
-                if isinstance(arc4_config, ARC4BareMethodConfig):
-                    arc4_method_metadata[m] = ARC4BareMethod(
-                        id=m.full_name,
-                        desc=m.documentation.description,
-                        config=arc4_config,
-                    )
-                elif isinstance(arc4_config, ARC4ABIMethodConfig):
-                    args_by_name = {a.name: a for a in m.args}
-                    for parameter_name, default_source in arc4_config.default_args.items():
-                        # any invalid parameter matches should have been caught earlier
-                        parameter = args_by_name[parameter_name]
-                        if isinstance(default_source, ABIMethodArgConstantDefault):
-                            assert (
-                                _wtype_to_arc4(parameter.wtype) == default_source.arc56_type
-                            ), "TODO: check this?"
-                        else:
-                            _validate_member_default_arg(ctx, contract, parameter, default_source)
-                    arc4_method_metadata[m] = ARC4ABIMethod(
-                        id=m.full_name,
-                        name=m.member_name,
-                        desc=m.documentation.description,
-                        args=[
-                            ARC4MethodArg(
-                                name=a.name,
-                                type_=_wtype_to_arc4(a.wtype),
-                                struct=_get_arc4_struct_name(a.wtype),
-                                desc=m.documentation.args.get(a.name),
-                            )
-                            for a in m.args
-                        ],
-                        returns=ARC4Returns(
-                            desc=m.documentation.returns,
-                            type_=_wtype_to_arc4(m.return_type),
-                            struct=_get_arc4_struct_name(m.return_type),
-                        ),
-                        events=[],
-                        config=arc4_config,
-                    )
-                else:
-                    typing.assert_never(arc4_config)
-    return arc4_method_metadata
-
-
-def _get_arc4_struct_name(wtype: wtypes.WType) -> str | None:
-    return (
-        wtype.name
-        if isinstance(wtype, wtypes.ARC4Struct | wtypes.WTuple) and wtype.fields
-        else None
-    )
-
-
 def create_abi_router(
     contract: awst_nodes.Contract,
     arc4_methods_with_configs: dict[awst_nodes.ContractMethod, ARC4Method],
@@ -658,28 +500,9 @@ def create_abi_router(
 
 
 def _get_abi_signature(subroutine: awst_nodes.ContractMethod, config: ARC4ABIMethodConfig) -> str:
-    arg_types = [_wtype_to_arc4(a.wtype, a.source_location) for a in subroutine.args]
-    return_type = _wtype_to_arc4(subroutine.return_type, subroutine.source_location)
+    arg_types = [wtype_to_arc4(a.wtype, a.source_location) for a in subroutine.args]
+    return_type = wtype_to_arc4(subroutine.return_type, subroutine.source_location)
     return f"{config.name}({','.join(arg_types)}){return_type}"
-
-
-def _wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> str:
-    match wtype:
-        case wtypes.ARC4Type(arc4_name=arc4_name):
-            return arc4_name
-        case (
-            wtypes.void_wtype
-            | wtypes.asset_wtype
-            | wtypes.account_wtype
-            | wtypes.application_wtype
-        ):
-            return wtype.name
-        case wtypes.WGroupTransaction(transaction_type=transaction_type):
-            return transaction_type.name if transaction_type else "txn"
-    converted = maybe_avm_to_arc4_equivalent_type(wtype)
-    if converted is None:
-        raise CodeError(f"not an ARC4 type or native equivalent: {wtype}", loc)
-    return _wtype_to_arc4(converted, loc)
 
 
 def _reference_type_array(wtype: wtypes.WType) -> str | None:
@@ -691,40 +514,3 @@ def _reference_type_array(wtype: wtypes.WType) -> str | None:
         case wtypes.application_wtype:
             return "Applications"
     return None
-
-
-def maybe_avm_to_arc4_equivalent_type(wtype: wtypes.WType) -> wtypes.ARC4Type | None:
-    match wtype:
-        case wtypes.bool_wtype:
-            return wtypes.arc4_bool_wtype
-        case wtypes.uint64_wtype:
-            return wtypes.ARC4UIntN(n=64, source_location=None)
-        case wtypes.biguint_wtype:
-            return wtypes.ARC4UIntN(n=512, source_location=None)
-        case wtypes.bytes_wtype:
-            return wtypes.ARC4DynamicArray(
-                element_type=wtypes.arc4_byte_alias, native_type=wtype, source_location=None
-            )
-        case wtypes.string_wtype:
-            return wtypes.arc4_string_alias
-        case wtypes.WTuple(types=tuple_item_types) as wtuple:
-            arc4_item_types = []
-            for t in tuple_item_types:
-                if isinstance(t, wtypes.ARC4Type):
-                    arc4_item_types.append(t)
-                else:
-                    converted = maybe_avm_to_arc4_equivalent_type(t)
-                    if converted is None:
-                        return None
-                    arc4_item_types.append(converted)
-            if wtuple.fields:
-                return wtypes.ARC4Struct(
-                    name=wtuple.name,
-                    desc=wtuple.desc,
-                    frozen=True,
-                    fields=immutabledict(zip(wtuple.fields, arc4_item_types, strict=True)),
-                )
-            else:
-                return wtypes.ARC4Tuple(types=arc4_item_types, source_location=None)
-        case _:
-            return None

@@ -9,7 +9,11 @@ from pathlib import Path
 import attrs
 from immutabledict import immutabledict
 
-from puya import algo_constants, log
+from puya import (
+    algo_constants,
+    log,
+    models as puya_models,
+)
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -19,44 +23,21 @@ from puya.awst.awst_traverser import AWSTTraverser
 from puya.awst.function_traverser import FunctionTraverser
 from puya.awst.serialize import awst_from_json
 from puya.context import ArtifactCompileContext, CompileContext
-from puya.errors import InternalError
+from puya.errors import CodeError, InternalError
 from puya.ir import arc4_router
-from puya.ir.arc4_router import extract_arc4_methods, maybe_avm_to_arc4_equivalent_type
+from puya.ir._utils import maybe_avm_to_arc4_equivalent_type, wtype_to_arc4
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
 from puya.ir.destructure.main import destructure_ssa
-from puya.ir.models import (
-    Contract,
-    LogicSignature,
-    ModuleArtifact,
-    Parameter,
-    Program,
-    Subroutine,
-)
+from puya.ir.models import Contract, LogicSignature, ModuleArtifact, Parameter, Program, Subroutine
 from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
 from puya.ir.optimize.main import optimize_program_ir
 from puya.ir.to_text_visitor import render_program
 from puya.ir.types_ import wtype_to_ir_type, wtype_to_ir_types
 from puya.ir.utils import format_tuple_index
 from puya.ir.validation.main import validate_module_artifact
-from puya.models import (
-    ARC4ABIMethod,
-    ARC4Method,
-    ARC4Struct,
-    ARC4StructField,
-    ContractMetaData,
-    ContractProgramReference,
-    ContractReference,
-    ContractState,
-    LogicSignatureMetaData,
-    LogicSigProgramReference,
-    LogicSigReference,
-    ProgramKind,
-    ProgramReference,
-    StateTotals,
-)
 from puya.parse import SourceLocation
-from puya.utils import StableSet, attrs_extend, coalesce, set_remove, unique
+from puya.utils import StableSet, attrs_extend, coalesce, set_add, set_remove, unique
 
 logger = log.get_logger(__name__)
 
@@ -205,7 +186,9 @@ def optimize_and_destructure_ir(
 
 
 def _optimize_and_destructure_program_ir(
-    context: ArtifactCompileContext, ref: ContractReference | LogicSigReference, program: Program
+    context: ArtifactCompileContext,
+    ref: puya_models.ContractReference | puya_models.LogicSigReference,
+    program: Program,
 ) -> Program:
     if context.options.output_ssa_ir:
         render_program(context, program, qualifier="ssa")
@@ -266,7 +249,7 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
     structs = list(folded.structs)
     arc4_methods = []
     for method, arc4_method in arc4_method_data.items():
-        if isinstance(arc4_method, ARC4ABIMethod):
+        if isinstance(arc4_method, puya_models.ARC4ABIMethod):
             method_structs = function_emits[method]
             # extend structs with any arc4 struct types that are part of an event
             structs.extend(
@@ -301,10 +284,10 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
             *(ctx.subroutines[ref] for ref in approval_subs_srefs),
             *ctx.embedded_funcs_lookup.values(),
         ),
-        ref=ContractProgramReference(
+        ref=puya_models.ContractProgramReference(
             reference=contract.id,
             program_name=contract.approval_program.short_name,
-            kind=ProgramKind.approval,
+            kind=puya_models.ProgramKind.approval,
         ),
         avm_version=avm_version,
     )
@@ -315,10 +298,10 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
             *(ctx.subroutines[ref] for ref in clear_subs_srefs),
             *ctx.embedded_funcs_lookup.values(),
         ),
-        ref=ContractProgramReference(
+        ref=puya_models.ContractProgramReference(
             reference=contract.id,
             program_name=contract.clear_program.short_name,
-            kind=ProgramKind.clear_state,
+            kind=puya_models.ProgramKind.clear_state,
         ),
         avm_version=avm_version,
     )
@@ -326,7 +309,7 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
         source_location=contract.source_location,
         approval_program=approval_ir,
         clear_program=clear_state_ir,
-        metadata=ContractMetaData(
+        metadata=puya_models.ContractMetaData(
             description=contract.description,
             name=contract.name,
             ref=contract.id,
@@ -371,13 +354,13 @@ def _build_logic_sig_ir(
             *(ctx.subroutines[ref] for ref in program_sub_refs),
             *ctx.embedded_funcs_lookup.values(),
         ),
-        ref=LogicSigProgramReference(reference=logic_sig.id),
+        ref=puya_models.LogicSigProgramReference(reference=logic_sig.id),
         avm_version=coalesce(logic_sig.avm_version, ctx.options.target_avm_version),
     )
     result = LogicSignature(
         source_location=logic_sig.source_location,
         program=sig_ir,
-        metadata=LogicSignatureMetaData(
+        metadata=puya_models.LogicSignatureMetaData(
             ref=logic_sig.id,
             description=logic_sig.docstring,
             name=logic_sig.short_name,
@@ -457,7 +440,7 @@ def _make_program(
     main: awst_nodes.Function,
     references: Iterable[Subroutine],
     *,
-    ref: ProgramReference,
+    ref: puya_models.ProgramReference,
     avm_version: int,
 ) -> Program:
     if main.args:
@@ -487,17 +470,17 @@ def _make_program(
 
 @attrs.define(kw_only=True)
 class FoldedContract:
-    global_state: dict[str, ContractState] = attrs.field(factory=dict)
-    local_state: dict[str, ContractState] = attrs.field(factory=dict)
-    boxes: dict[str, ContractState] = attrs.field(factory=dict)
-    arc4_methods: list[ARC4Method] = attrs.field(factory=list)
+    global_state: dict[str, puya_models.ContractState] = attrs.field(factory=dict)
+    local_state: dict[str, puya_models.ContractState] = attrs.field(factory=dict)
+    boxes: dict[str, puya_models.ContractState] = attrs.field(factory=dict)
+    arc4_methods: list[puya_models.ARC4Method] = attrs.field(factory=list)
     structs: list[wtypes.ARC4Struct | wtypes.WTuple] = attrs.field(factory=list)
     declared_totals: awst_nodes.StateTotals | None
 
-    def build_state_totals(self, *, location: SourceLocation) -> StateTotals:
+    def build_state_totals(self, *, location: SourceLocation) -> puya_models.StateTotals:
         global_by_type = Counter(s.storage_type for s in self.global_state.values())
         local_by_type = Counter(s.storage_type for s in self.local_state.values())
-        merged = StateTotals(
+        merged = puya_models.StateTotals(
             global_uints=global_by_type[AVMType.uint64],
             global_bytes=global_by_type[AVMType.bytes],
             local_uints=local_by_type[AVMType.uint64],
@@ -537,7 +520,7 @@ class FoldedContract:
 def _fold_state_and_special_methods(
     ctx: IRBuildContext,
     contract: awst_nodes.Contract,
-) -> tuple[FoldedContract, dict[awst_nodes.ContractMethod, ARC4Method]]:
+) -> tuple[FoldedContract, dict[awst_nodes.ContractMethod, puya_models.ARC4Method]]:
     result = FoldedContract(declared_totals=contract.state_totals)
     for state in contract.app_state:
         for typ in (state.key_wtype, state.storage_wtype):
@@ -565,7 +548,7 @@ def _fold_state_and_special_methods(
             case _:
                 typing.assert_never(state.kind)
 
-    methods = extract_arc4_methods(ctx, contract)
+    methods = _extract_arc4_methods(ctx, contract)
     result.arc4_methods = list(methods.values())
     for arc4_method in methods:
         for wtype in (arc4_method.return_type, *(arg.wtype for arg in arc4_method.args)):
@@ -582,13 +565,13 @@ def _is_arc4_struct(
 
 def _wtypes_to_structs(
     structs: Sequence[wtypes.ARC4Struct | wtypes.WTuple],
-) -> dict[str, ARC4Struct]:
+) -> dict[str, puya_models.ARC4Struct]:
     """
     Produce a unique mapping of struct names to ARC4Struct definitions.
     Will recursively include any structs referenced in fields
     """
     structs = list(structs)
-    struct_results = dict[str, ARC4Struct]()
+    struct_results = dict[str, puya_models.ARC4Struct]()
     while structs:
         struct = structs.pop()
         if struct.name in struct_results:
@@ -602,7 +585,7 @@ def _wtypes_to_structs(
     return dict(sorted(struct_results.items(), key=lambda item: item[0]))
 
 
-def _wtype_to_struct(struct: wtypes.ARC4Struct | wtypes.WTuple) -> ARC4Struct:
+def _wtype_to_struct(struct: wtypes.ARC4Struct | wtypes.WTuple) -> puya_models.ARC4Struct:
     fields = []
     for field_name, field_wtype in struct.fields.items():
         if not isinstance(field_wtype, wtypes.ARC4Type):
@@ -611,20 +594,20 @@ def _wtype_to_struct(struct: wtypes.ARC4Struct | wtypes.WTuple) -> ARC4Struct:
                 raise InternalError("expected ARC4 type")
             field_wtype = maybe_arc4_field_wtype
         fields.append(
-            ARC4StructField(
+            puya_models.ARC4StructField(
                 name=field_name,
                 type=field_wtype.arc4_name,
                 struct=field_wtype.name if _is_arc4_struct(field_wtype) else None,
             )
         )
-    return ARC4Struct(
+    return puya_models.ARC4Struct(
         fullname=struct.name,
         desc=struct.desc,
         fields=fields,
     )
 
 
-def _get_contract_state(state: awst_nodes.AppStorageDefinition) -> ContractState:
+def _get_contract_state(state: awst_nodes.AppStorageDefinition) -> puya_models.ContractState:
     storage_type = wtypes.persistable_stack_type(state.storage_wtype, state.source_location)
     if state.key_wtype is not None:
         arc56_key_type = _get_arc56_type(state.key_wtype, state.source_location)
@@ -635,7 +618,7 @@ def _get_contract_state(state: awst_nodes.AppStorageDefinition) -> ContractState
         )
         is_map = False
     arc56_value_type = _get_arc56_type(state.storage_wtype, state.source_location)
-    return ContractState(
+    return puya_models.ContractState(
         name=state.member_name,
         source_location=state.source_location,
         key_or_prefix=state.key.value,
@@ -794,3 +777,154 @@ class TemplateVariableTypeCollector(FunctionTraverser):
                     location=var.source_location,
                 )
                 logger.info("other template var", location=existing.source_location)
+
+
+def _validate_member_default_arg(
+    ctx: IRBuildContext,
+    contract: awst_nodes.Contract,
+    param: awst_nodes.SubroutineArgument,
+    default_source: puya_models.ABIMethodArgMemberDefault,
+) -> None:
+    param_arc4_type = wtype_to_arc4(param.wtype)
+
+    # special handling for reference types
+    match param_arc4_type:
+        case "asset" | "application":
+            param_arc4_type = "uint64"
+        case "account":
+            param_arc4_type = "address"
+
+    source_name = default_source.name
+    state_source = next((s for s in contract.app_state if s.member_name == source_name), None)
+    if state_source is not None:
+        storage_type = wtypes.persistable_stack_type(
+            state_source.storage_wtype, param.source_location
+        )
+        if (
+            storage_type is AVMType.uint64
+            # storage can provide an int to types <= uint64
+            # TODO: check what ATC does with ufixed, see if it can be added
+            and (param_arc4_type == "byte" or param_arc4_type.startswith("uint"))
+        ) or (
+            storage_type is AVMType.bytes
+            # storage can provide fixed byte arrays
+            and (
+                (param_arc4_type.startswith("byte[") and param_arc4_type != "byte[]")
+                or param_arc4_type == "address"
+            )
+        ):
+            pass
+        else:
+            raise CodeError(
+                f"'{source_name}' cannot provide '{param_arc4_type}' type",
+                param.source_location,
+            )
+    else:
+        method_source = ctx.resolve_contract_method(source_name, param.source_location)
+        match method_source:
+            case None:
+                raise CodeError(
+                    f"'{source_name}' is not a known state or method attribute",
+                    param.source_location,
+                )
+            case awst_nodes.ContractMethod(
+                arc4_method_config=abi_method_config, args=args, return_type=return_type
+            ):
+                if not isinstance(abi_method_config, puya_models.ARC4ABIMethodConfig):
+                    raise CodeError(
+                        "only ARC-4 ABI methods can be used as default values",
+                        param.source_location,
+                    )
+                if (
+                    puya_models.OnCompletionAction.NoOp
+                    not in abi_method_config.allowed_completion_types
+                ):
+                    raise CodeError(
+                        f"'{source_name}' does not allow no_op on completion calls",
+                        param.source_location,
+                    )
+                if abi_method_config.create == puya_models.ARC4CreateOption.require:
+                    raise CodeError(
+                        f"'{source_name}' can only be used for create calls", param.source_location
+                    )
+                if not abi_method_config.readonly:
+                    raise CodeError(f"'{source_name}' is not readonly", param.source_location)
+                if args:
+                    raise CodeError(
+                        f"'{source_name}' does not take zero arguments", param.source_location
+                    )
+                if return_type is wtypes.void_wtype:
+                    raise CodeError(
+                        f"'{source_name}' does not provide a value", param.source_location
+                    )
+                if wtype_to_arc4(return_type) != param_arc4_type:
+                    raise CodeError(
+                        f"'{source_name}' does not provide '{param_arc4_type}' type",
+                        param.source_location,
+                    )
+            case unexpected:
+                typing.assert_never(unexpected)
+
+
+def _extract_arc4_methods(
+    ctx: IRBuildContext, contract: awst_nodes.Contract
+) -> dict[awst_nodes.ContractMethod, puya_models.ARC4Method]:
+    seen_method_names = set[str]()
+    arc4_method_metadata = dict[awst_nodes.ContractMethod, puya_models.ARC4Method]()
+    for cref in (contract.id, *contract.method_resolution_order):
+        for m in contract.methods:
+            if (
+                m.cref == cref
+                and set_add(seen_method_names, m.member_name)
+                and m.arc4_method_config is not None
+            ):
+                arc4_config = m.arc4_method_config
+                if isinstance(arc4_config, puya_models.ARC4BareMethodConfig):
+                    arc4_method_metadata[m] = puya_models.ARC4BareMethod(
+                        id=m.full_name,
+                        desc=m.documentation.description,
+                        config=arc4_config,
+                    )
+                elif isinstance(arc4_config, puya_models.ARC4ABIMethodConfig):
+                    args_by_name = {a.name: a for a in m.args}
+                    for parameter_name, default_source in arc4_config.default_args.items():
+                        # any invalid parameter matches should have been caught earlier
+                        parameter = args_by_name[parameter_name]
+                        if isinstance(default_source, puya_models.ABIMethodArgConstantDefault):
+                            assert (
+                                wtype_to_arc4(parameter.wtype) == default_source.arc56_type
+                            ), "TODO: check this?"
+                        else:
+                            _validate_member_default_arg(ctx, contract, parameter, default_source)
+                    arc4_method_metadata[m] = puya_models.ARC4ABIMethod(
+                        id=m.full_name,
+                        name=m.member_name,
+                        desc=m.documentation.description,
+                        args=[
+                            puya_models.ARC4MethodArg(
+                                name=a.name,
+                                type_=wtype_to_arc4(a.wtype),
+                                struct=_get_arc4_struct_name(a.wtype),
+                                desc=m.documentation.args.get(a.name),
+                            )
+                            for a in m.args
+                        ],
+                        returns=puya_models.ARC4Returns(
+                            desc=m.documentation.returns,
+                            type_=wtype_to_arc4(m.return_type),
+                            struct=_get_arc4_struct_name(m.return_type),
+                        ),
+                        events=[],
+                        config=arc4_config,
+                    )
+                else:
+                    typing.assert_never(arc4_config)
+    return arc4_method_metadata
+
+
+def _get_arc4_struct_name(wtype: wtypes.WType) -> str | None:
+    return (
+        wtype.name
+        if isinstance(wtype, wtypes.ARC4Struct | wtypes.WTuple) and wtype.fields
+        else None
+    )
