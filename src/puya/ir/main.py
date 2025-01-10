@@ -2,7 +2,7 @@ import contextlib
 import itertools
 import typing
 from collections import Counter, defaultdict
-from collections.abc import Collection, Iterable, Iterator, Mapping, Sequence
+from collections.abc import Collection, Iterable, Iterator, Mapping
 from copy import deepcopy
 from pathlib import Path
 
@@ -230,11 +230,10 @@ def _build_embedded_ir(ctx: CompileContext) -> Mapping[str, Subroutine]:
 
 def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
     state = _fold_state(contract)
-    arc4_method_data = _extract_arc4_methods(ctx, contract)
-    structs = _extract_arc4_structs(contract, arc4_method_data)
+    arc4_method_data, structs = _extract_arc4_methods_and_structs(ctx, contract)
 
     arc4_router_func = arc4_router.create_abi_router(
-        contract, {md.source: md.metadata.config for md in arc4_method_data}
+        contract, {cm: md.config for cm, md in arc4_method_data.items()}
     )
     ctx.subroutines[arc4_router_func] = ctx.routers[contract.id] = _make_subroutine(
         arc4_router_func, allow_implicits=False
@@ -300,7 +299,7 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
             description=contract.description,
             name=contract.name,
             ref=contract.id,
-            arc4_methods=[md.metadata for md in arc4_method_data],
+            arc4_methods=list(arc4_method_data.values()),
             global_state=immutabledict(state.global_state),
             local_state=immutabledict(state.local_state),
             boxes=immutabledict(state.boxes),
@@ -809,20 +808,25 @@ def _validate_member_default_arg(
                 typing.assert_never(unexpected)
 
 
-@attrs.frozen
-class _ARC4MethodInfo:
-    source: awst_nodes.ContractMethod
-    metadata: puya_models.ARC4Method
-    event_types: StableSet[wtypes.ARC4Struct] | None = None
-
-
-def _extract_arc4_methods(
+def _extract_arc4_methods_and_structs(
     ctx: IRBuildContext, contract: awst_nodes.Contract
-) -> list[_ARC4MethodInfo]:
+) -> tuple[
+    dict[awst_nodes.ContractMethod, puya_models.ARC4Method],
+    immutabledict[str, puya_models.ARC4Struct],
+]:
     event_collector = EventCollector(ctx)
 
     seen_method_names = set[str]()
-    result = list[_ARC4MethodInfo]()
+    result = dict[awst_nodes.ContractMethod, puya_models.ARC4Method]()
+
+    # collect emitted events by method, and include any referenced structs
+    struct_wtypes = [
+        typ
+        for state in contract.app_state
+        for typ in (state.key_wtype, state.storage_wtype)
+        if _is_arc4_struct(typ)
+    ]
+
     for cref in (contract.id, *contract.method_resolution_order):
         for m in contract.methods:
             if (
@@ -832,19 +836,30 @@ def _extract_arc4_methods(
             ):
                 arc4_config = m.arc4_method_config
                 if isinstance(arc4_config, puya_models.ARC4BareMethodConfig):
-                    result.append(
-                        _ARC4MethodInfo(
-                            m,
-                            puya_models.ARC4BareMethod(
-                                id=m.full_name,
-                                desc=m.documentation.description,
-                                config=arc4_config,
-                            ),
-                        )
+                    result[m] = puya_models.ARC4BareMethod(
+                        id=m.full_name,
+                        desc=m.documentation.description,
+                        config=arc4_config,
                     )
                 elif isinstance(arc4_config, puya_models.ARC4ABIMethodConfig):
                     args_by_name = {a.name: a for a in m.args}
-                    method_structs = event_collector.process_func(m)
+                    event_wtypes = event_collector.process_func(m)
+                    struct_wtypes.extend(
+                        wtype
+                        for wtype in (
+                            m.return_type,
+                            *(arg.wtype for arg in m.args),
+                        )
+                        if _is_arc4_struct(wtype)
+                    )
+                    # extend structs with any arc4 struct types that are part of an event
+                    struct_wtypes.extend(
+                        t
+                        for method_struct in event_wtypes
+                        for t in method_struct.fields.values()
+                        if isinstance(t, wtypes.ARC4Struct)
+                    )
+
                     for parameter_name, default_source in arc4_config.default_args.items():
                         # any invalid parameter matches should have been caught earlier
                         parameter = args_by_name[parameter_name]
@@ -854,76 +869,31 @@ def _extract_arc4_methods(
                             ), "TODO: check this?"
                         else:
                             _validate_member_default_arg(ctx, contract, parameter, default_source)
-                    result.append(
-                        _ARC4MethodInfo(
-                            m,
-                            puya_models.ARC4ABIMethod(
-                                id=m.full_name,
-                                name=m.member_name,
-                                desc=m.documentation.description,
-                                args=[
-                                    puya_models.ARC4MethodArg(
-                                        name=a.name,
-                                        type_=wtype_to_arc4(a.wtype),
-                                        struct=_get_arc4_struct_name(a.wtype),
-                                        desc=m.documentation.args.get(a.name),
-                                    )
-                                    for a in m.args
-                                ],
-                                returns=puya_models.ARC4Returns(
-                                    desc=m.documentation.returns,
-                                    type_=wtype_to_arc4(m.return_type),
-                                    struct=_get_arc4_struct_name(m.return_type),
-                                ),
-                                events=list(map(_wtype_to_struct, method_structs)),
-                                config=arc4_config,
-                            ),
-                            method_structs,
+                    result[m] = puya_models.ARC4ABIMethod(
+                        id=m.full_name,
+                        name=m.member_name,
+                        desc=m.documentation.description,
+                        args=[
+                            puya_models.ARC4MethodArg(
+                                name=a.name,
+                                type_=wtype_to_arc4(a.wtype),
+                                struct=_get_arc4_struct_name(a.wtype),
+                                desc=m.documentation.args.get(a.name),
+                            )
+                            for a in m.args
+                        ],
+                        returns=puya_models.ARC4Returns(
+                            desc=m.documentation.returns,
+                            type_=wtype_to_arc4(m.return_type),
+                            struct=_get_arc4_struct_name(m.return_type),
                         ),
+                        events=list(map(_wtype_to_struct, event_wtypes)),
+                        config=arc4_config,
                     )
                 else:
                     typing.assert_never(arc4_config)
-    return result
-
-
-def _get_arc4_struct_name(wtype: wtypes.WType) -> str | None:
-    return (
-        wtype.name
-        if isinstance(wtype, wtypes.ARC4Struct | wtypes.WTuple) and wtype.fields
-        else None
-    )
-
-
-def _extract_arc4_structs(
-    contract: awst_nodes.Contract, arc4_method_data: Sequence[_ARC4MethodInfo]
-) -> immutabledict[str, puya_models.ARC4Struct]:
-    """
-    Produce a unique mapping of struct names to ARC4Struct definitions.
-    Will recursively include any structs referenced in fields
-    """
-
-    # collect emitted events by method, and include any referenced structs
-    struct_wtypes = [
-        typ
-        for state in contract.app_state
-        for typ in (state.key_wtype, state.storage_wtype)
-        if _is_arc4_struct(typ)
-    ]
-    for md in arc4_method_data:
-        struct_wtypes.extend(
-            wtype
-            for wtype in (md.source.return_type, *(arg.wtype for arg in md.source.args))
-            if _is_arc4_struct(wtype)
-        )
-        if md.event_types is not None:
-            # extend structs with any arc4 struct types that are part of an event
-            struct_wtypes.extend(
-                t
-                for method_struct in md.event_types
-                for t in method_struct.fields.values()
-                if isinstance(t, wtypes.ARC4Struct)
-            )
-
+    # Produce a unique mapping of struct names to ARC4Struct definitions.
+    # Will recursively include any structs referenced in fields
     struct_results = dict[str, puya_models.ARC4Struct]()
     while struct_wtypes:
         struct = struct_wtypes.pop()
@@ -935,4 +905,8 @@ def _extract_arc4_structs(
             if isinstance(wtype, wtypes.ARC4Struct) and wtype.name not in struct_results
         )
         struct_results[struct.name] = _wtype_to_struct(struct)
-    return immutabledict(dict(sorted(struct_results.items(), key=lambda item: item[0])))
+    return result, immutabledict(sorted(struct_results.items(), key=lambda item: item[0]))
+
+
+def _get_arc4_struct_name(wtype: wtypes.WType) -> str | None:
+    return wtype.name if _is_arc4_struct(wtype) else None
