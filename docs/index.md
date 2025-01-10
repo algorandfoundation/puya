@@ -59,5 +59,6 @@ language-guide
 principles
 api
 compiler
-algopy_testing/index
+references/algopy_testing
+references/avm_debugger
 ```
