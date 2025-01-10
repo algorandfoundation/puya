@@ -19,13 +19,13 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.arc4_types import maybe_avm_to_arc4_equivalent_type, wtype_to_arc4
 from puya.awst.awst_traverser import AWSTTraverser
 from puya.awst.function_traverser import FunctionTraverser
 from puya.awst.serialize import awst_from_json
 from puya.context import ArtifactCompileContext, CompileContext
-from puya.errors import CodeError, InternalError
+from puya.errors import InternalError
 from puya.ir import arc4_router
-from puya.ir._utils import maybe_avm_to_arc4_equivalent_type, wtype_to_arc4
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
 from puya.ir.destructure.main import destructure_ssa
@@ -529,34 +529,6 @@ def _fold_state(contract: awst_nodes.Contract) -> _FoldedContractState:
     return result
 
 
-def _is_arc4_struct(
-    wtype: wtypes.WType | None,
-) -> typing.TypeGuard[wtypes.ARC4Struct | wtypes.WTuple]:
-    return isinstance(wtype, wtypes.ARC4Struct | wtypes.WTuple) and bool(wtype.fields)
-
-
-def _wtype_to_struct(struct: wtypes.ARC4Struct | wtypes.WTuple) -> puya_models.ARC4Struct:
-    fields = []
-    for field_name, field_wtype in struct.fields.items():
-        if not isinstance(field_wtype, wtypes.ARC4Type):
-            maybe_arc4_field_wtype = maybe_avm_to_arc4_equivalent_type(field_wtype)
-            if maybe_arc4_field_wtype is None:
-                raise InternalError("expected ARC4 type")
-            field_wtype = maybe_arc4_field_wtype
-        fields.append(
-            puya_models.ARC4StructField(
-                name=field_name,
-                type=field_wtype.arc4_name,
-                struct=field_wtype.name if _is_arc4_struct(field_wtype) else None,
-            )
-        )
-    return puya_models.ARC4Struct(
-        fullname=struct.name,
-        desc=struct.desc,
-        fields=fields,
-    )
-
-
 def _get_contract_state(state: awst_nodes.AppStorageDefinition) -> puya_models.ContractState:
     storage_type = wtypes.persistable_stack_type(state.storage_wtype, state.source_location)
     if state.key_wtype is not None:
@@ -721,93 +693,6 @@ class TemplateVariableTypeCollector(FunctionTraverser):
                 logger.info("other template var", location=existing.source_location)
 
 
-def _validate_member_default_arg(
-    ctx: IRBuildContext,
-    contract: awst_nodes.Contract,
-    param: awst_nodes.SubroutineArgument,
-    default_source: puya_models.ABIMethodArgMemberDefault,
-) -> None:
-    param_arc4_type = wtype_to_arc4(param.wtype)
-
-    # special handling for reference types
-    match param_arc4_type:
-        case "asset" | "application":
-            param_arc4_type = "uint64"
-        case "account":
-            param_arc4_type = "address"
-
-    source_name = default_source.name
-    state_source = next((s for s in contract.app_state if s.member_name == source_name), None)
-    if state_source is not None:
-        storage_type = wtypes.persistable_stack_type(
-            state_source.storage_wtype, param.source_location
-        )
-        if (
-            storage_type is AVMType.uint64
-            # storage can provide an int to types <= uint64
-            # TODO: check what ATC does with ufixed, see if it can be added
-            and (param_arc4_type == "byte" or param_arc4_type.startswith("uint"))
-        ) or (
-            storage_type is AVMType.bytes
-            # storage can provide fixed byte arrays
-            and (
-                (param_arc4_type.startswith("byte[") and param_arc4_type != "byte[]")
-                or param_arc4_type == "address"
-            )
-        ):
-            pass
-        else:
-            raise CodeError(
-                f"'{source_name}' cannot provide '{param_arc4_type}' type",
-                param.source_location,
-            )
-    else:
-        method_source = ctx.resolve_contract_method(source_name, param.source_location)
-        match method_source:
-            case None:
-                raise CodeError(
-                    f"'{source_name}' is not a known state or method attribute",
-                    param.source_location,
-                )
-            case awst_nodes.ContractMethod(
-                arc4_method_config=abi_method_config, args=args, return_type=return_type
-            ):
-                if not isinstance(abi_method_config, puya_models.ARC4ABIMethodConfig):
-                    raise CodeError(
-                        "only ARC-4 ABI methods can be used as default values",
-                        param.source_location,
-                    )
-                if (
-                    puya_models.OnCompletionAction.NoOp
-                    not in abi_method_config.allowed_completion_types
-                ):
-                    raise CodeError(
-                        f"'{source_name}' does not allow no_op on completion calls",
-                        param.source_location,
-                    )
-                if abi_method_config.create == puya_models.ARC4CreateOption.require:
-                    raise CodeError(
-                        f"'{source_name}' can only be used for create calls", param.source_location
-                    )
-                if not abi_method_config.readonly:
-                    raise CodeError(f"'{source_name}' is not readonly", param.source_location)
-                if args:
-                    raise CodeError(
-                        f"'{source_name}' does not take zero arguments", param.source_location
-                    )
-                if return_type is wtypes.void_wtype:
-                    raise CodeError(
-                        f"'{source_name}' does not provide a value", param.source_location
-                    )
-                if wtype_to_arc4(return_type) != param_arc4_type:
-                    raise CodeError(
-                        f"'{source_name}' does not provide '{param_arc4_type}' type",
-                        param.source_location,
-                    )
-            case unexpected:
-                typing.assert_never(unexpected)
-
-
 def _extract_arc4_methods_and_structs(
     ctx: IRBuildContext, contract: awst_nodes.Contract
 ) -> tuple[
@@ -842,7 +727,6 @@ def _extract_arc4_methods_and_structs(
                         config=arc4_config,
                     )
                 elif isinstance(arc4_config, puya_models.ARC4ABIMethodConfig):
-                    args_by_name = {a.name: a for a in m.args}
                     event_wtypes = event_collector.process_func(m)
                     struct_wtypes.extend(
                         wtype
@@ -860,15 +744,6 @@ def _extract_arc4_methods_and_structs(
                         if isinstance(t, wtypes.ARC4Struct)
                     )
 
-                    for parameter_name, default_source in arc4_config.default_args.items():
-                        # any invalid parameter matches should have been caught earlier
-                        parameter = args_by_name[parameter_name]
-                        if isinstance(default_source, puya_models.ABIMethodArgConstantDefault):
-                            assert (
-                                wtype_to_arc4(parameter.wtype) == default_source.arc56_type
-                            ), "TODO: check this?"
-                        else:
-                            _validate_member_default_arg(ctx, contract, parameter, default_source)
                     result[m] = puya_models.ARC4ABIMethod(
                         id=m.full_name,
                         name=m.member_name,
@@ -908,5 +783,33 @@ def _extract_arc4_methods_and_structs(
     return result, immutabledict(sorted(struct_results.items(), key=lambda item: item[0]))
 
 
+def _is_arc4_struct(
+    wtype: wtypes.WType | None,
+) -> typing.TypeGuard[wtypes.ARC4Struct | wtypes.WTuple]:
+    return isinstance(wtype, wtypes.ARC4Struct | wtypes.WTuple) and bool(wtype.fields)
+
+
 def _get_arc4_struct_name(wtype: wtypes.WType) -> str | None:
     return wtype.name if _is_arc4_struct(wtype) else None
+
+
+def _wtype_to_struct(struct: wtypes.ARC4Struct | wtypes.WTuple) -> puya_models.ARC4Struct:
+    fields = []
+    for field_name, field_wtype in struct.fields.items():
+        if not isinstance(field_wtype, wtypes.ARC4Type):
+            maybe_arc4_field_wtype = maybe_avm_to_arc4_equivalent_type(field_wtype)
+            if maybe_arc4_field_wtype is None:
+                raise InternalError("expected ARC4 type")
+            field_wtype = maybe_arc4_field_wtype
+        fields.append(
+            puya_models.ARC4StructField(
+                name=field_name,
+                type=field_wtype.arc4_name,
+                struct=field_wtype.name if _is_arc4_struct(field_wtype) else None,
+            )
+        )
+    return puya_models.ARC4Struct(
+        fullname=struct.name,
+        desc=struct.desc,
+        fields=fields,
+    )

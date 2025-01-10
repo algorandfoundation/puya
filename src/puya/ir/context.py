@@ -60,16 +60,16 @@ class IRBuildContext(CompileContext):
             case awst_nodes.SubroutineID(sub_id):
                 func: awst_nodes.Node | None = self._awst_lookup.get(sub_id)
             case awst_nodes.InstanceMethodTarget(member_name=member_name):
-                func = self.resolve_contract_method(member_name, source_location)
+                func = self._resolve_contract_method(member_name, source_location)
             case awst_nodes.ContractMethodTarget(cref=start_at, member_name=member_name):
-                func = self.resolve_contract_method(member_name, source_location, start=start_at)
+                func = self._resolve_contract_method(member_name, source_location, start=start_at)
             case awst_nodes.InstanceSuperMethodTarget(member_name=member_name):
                 if not isinstance(caller, awst_nodes.ContractMethod):
                     raise CodeError(
                         "call to contract method from outside of contract class",
                         source_location,
                     )
-                func = self.resolve_contract_method(
+                func = self._resolve_contract_method(
                     member_name, source_location, start=caller.cref, skip=True
                 )
             case unexpected:
@@ -83,12 +83,12 @@ class IRBuildContext(CompileContext):
         return func
 
     @typing.overload
-    def resolve_contract_method(
+    def _resolve_contract_method(
         self, name: str, source_location: SourceLocation
     ) -> awst_nodes.ContractMethod: ...
 
     @typing.overload
-    def resolve_contract_method(
+    def _resolve_contract_method(
         self,
         name: str,
         source_location: SourceLocation,
@@ -97,7 +97,7 @@ class IRBuildContext(CompileContext):
         skip: bool = False,
     ) -> awst_nodes.ContractMethod: ...
 
-    def resolve_contract_method(
+    def _resolve_contract_method(
         self,
         name: str,
         source_location: SourceLocation,
@@ -111,22 +111,7 @@ class IRBuildContext(CompileContext):
                 f"cannot resolve contract member {name} as there is no current contract",
                 source_location,
             )
-        mro = [root.id, *root.method_resolution_order]
-        if start:
-            try:
-                curr_idx = mro.index(start)
-            except ValueError:
-                raise CodeError(
-                    "call to base method outside current hierarchy", source_location
-                ) from None
-            mro = mro[curr_idx:]
-        if skip:
-            mro = mro[1:]
-        for cref in mro:
-            for method in root.methods:
-                if method.member_name == name and method.cref == cref:
-                    return method
-        return None
+        return root.resolve_contract_method(name, source_location, start=start, skip=skip)
 
     @property
     def default_fallback(self) -> SourceLocation | None:

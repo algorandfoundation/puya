@@ -6,8 +6,8 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.arc4_types import maybe_avm_to_arc4_equivalent_type, wtype_to_arc4
 from puya.errors import CodeError
-from puya.ir._utils import maybe_avm_to_arc4_equivalent_type, wtype_to_arc4
 from puya.models import (
     ARC4ABIMethodConfig,
     ARC4BareMethodConfig,
