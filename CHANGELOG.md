@@ -1,4 +1,34 @@
 # CHANGELOG
+## v4.1.0 (2025-01-11)
+
+### Feature
+
+* optimizer enhancements ([`4bc09cb`](https://github.com/algorandfoundation/puya/commit/4bc09cbe5a589ea4ae255aa59adab8c45775d495))
+
+### Fix
+
+* ensure chained linear jumps are inlined as part of post-SSA optimization ([`9a3ff3a`](https://github.com/algorandfoundation/puya/commit/9a3ff3a9909cc2d410283baba688a4fea572bcd9))
+
+* don&#39;t attempt to assemble contracts that aren&#39;t explicitly selected for compilation and may not have template variables defined ([`e933640`](https://github.com/algorandfoundation/puya/commit/e9336402eb4e19d637a54dd230c1316df664f930))
+
+* correctly handle name collisions with structs in ARC-56 ([`5a4f134`](https://github.com/algorandfoundation/puya/commit/5a4f13487dfa1f95b893430c91e385951f2a4e40))
+
+* Identify WTuples by name when treating them as structs in an ABI method ([`1db0efc`](https://github.com/algorandfoundation/puya/commit/1db0efc3d0d7871e86bcac01ee0ab872e2250424))
+
+### Documentation
+
+* add debugger ref; remove note from algopy testing doc as its no longer in preview (#368) ([`d3ff6d1`](https://github.com/algorandfoundation/puya/commit/d3ff6d17cc9b37c38d233bdc07aea10485fe96e9))
+
+  * docs: add debugger ref; remove note from algopy testing doc as its no longer in preview
+
+  * docs: apply suggestions from code review
+
+  Co-authored-by: Rob Moore (MakerX) &lt;rob.moore@makerx.com.au&gt;
+
+* add initial array adr (#362) ([`1f278f4`](https://github.com/algorandfoundation/puya/commit/1f278f4b2e4867e1b986a9b4ca1818c8c1ea9870))
+
+  * docs: add initial array adr * docs: add feedback suggestion
+
 ## v4.0.0 (2024-11-14)
 
 ### Breaking
