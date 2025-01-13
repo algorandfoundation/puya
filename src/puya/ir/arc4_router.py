@@ -13,6 +13,7 @@ from puya.models import (
     ARC4BareMethodConfig,
     ARC4CreateOption,
     ARC4MethodConfig,
+    ContractReference,
     OnCompletionAction,
 )
 from puya.parse import SourceLocation
@@ -20,6 +21,7 @@ from puya.utils import set_add
 
 __all__ = [
     "create_abi_router",
+    "AWSTContractMethodSignature",
 ]
 
 logger = log.get_logger(__name__)
@@ -31,6 +33,19 @@ ALL_VALID_APPROVAL_ON_COMPLETION_ACTIONS = {
     OnCompletionAction.UpdateApplication,
     OnCompletionAction.DeleteApplication,
 }
+
+
+class AWSTContractMethodSignature(typing.Protocol):
+    @property
+    def args(self) -> Sequence[awst_nodes.SubroutineArgument]: ...
+    @property
+    def return_type(self) -> wtypes.WType: ...
+    @property
+    def cref(self) -> ContractReference: ...
+    @property
+    def member_name(self) -> str: ...
+    @property
+    def source_location(self) -> SourceLocation: ...
 
 
 def _btoi(
@@ -71,7 +86,7 @@ def create_block(
 
 
 def call(
-    location: SourceLocation, method: awst_nodes.ContractMethod, *args: awst_nodes.Expression
+    location: SourceLocation, method: AWSTContractMethodSignature, *args: awst_nodes.Expression
 ) -> awst_nodes.SubroutineCallExpression:
     return awst_nodes.SubroutineCallExpression(
         target=awst_nodes.ContractMethodTarget(cref=method.cref, member_name=method.member_name),
@@ -137,7 +152,7 @@ def on_completion(location: SourceLocation) -> awst_nodes.Expression:
 
 def route_bare_methods(
     location: SourceLocation,
-    bare_methods: dict[awst_nodes.ContractMethod, ARC4BareMethodConfig],
+    bare_methods: dict[AWSTContractMethodSignature, ARC4BareMethodConfig],
 ) -> awst_nodes.Block | None:
     bare_blocks = dict[OnCompletionAction, awst_nodes.Block]()
     for bare_method, config in bare_methods.items():
@@ -391,7 +406,7 @@ def _map_abi_args(
 
 def route_abi_methods(
     location: SourceLocation,
-    methods: dict[awst_nodes.ContractMethod, ARC4ABIMethodConfig],
+    methods: dict[AWSTContractMethodSignature, ARC4ABIMethodConfig],
 ) -> awst_nodes.Block:
     method_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
     seen_signatures = set[str]()
@@ -457,19 +472,16 @@ def _maybe_switch(
 
 def create_abi_router(
     contract: awst_nodes.Contract,
-    arc4_methods_with_configs: Mapping[awst_nodes.ContractMethod, ARC4MethodConfig],
+    arc4_methods_with_configs: Mapping[AWSTContractMethodSignature, ARC4MethodConfig],
 ) -> awst_nodes.ContractMethod:
     router_location = contract.source_location
     abi_methods = {}
     bare_methods = {}
     for m, arc4_config in arc4_methods_with_configs.items():
-        assert arc4_config is m.arc4_method_config
         if isinstance(arc4_config, ARC4BareMethodConfig):
             bare_methods[m] = arc4_config
-        elif isinstance(arc4_config, ARC4ABIMethodConfig):
-            abi_methods[m] = arc4_config
         else:
-            typing.assert_never(arc4_config)
+            abi_methods[m] = arc4_config
 
     abi_routing = route_abi_methods(router_location, abi_methods)
     bare_routing = route_bare_methods(router_location, bare_methods)
@@ -497,7 +509,9 @@ def create_abi_router(
     return approval_program
 
 
-def _get_abi_signature(subroutine: awst_nodes.ContractMethod, config: ARC4ABIMethodConfig) -> str:
+def _get_abi_signature(
+    subroutine: AWSTContractMethodSignature, config: ARC4ABIMethodConfig
+) -> str:
     arg_types = [wtype_to_arc4(a.wtype, a.source_location) for a in subroutine.args]
     return_type = wtype_to_arc4(subroutine.return_type, subroutine.source_location)
     return f"{config.name}({','.join(arg_types)}){return_type}"
