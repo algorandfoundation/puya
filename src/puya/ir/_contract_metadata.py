@@ -2,6 +2,7 @@ import contextlib
 import typing
 from collections import Counter
 from collections.abc import Iterable, Iterator, Mapping
+from operator import itemgetter
 
 import attrs
 from immutabledict import immutabledict
@@ -295,7 +296,7 @@ def _extract_arc4_methods_and_structs(
             if _is_arc4_struct(wtype) and wtype.name not in struct_results
         )
         struct_results[struct.name] = _wtype_to_struct(struct)
-    return result, immutabledict(sorted(struct_results.items(), key=lambda item: item[0]))
+    return result, immutabledict(sorted(struct_results.items(), key=itemgetter(0)))
 
 
 def _is_arc4_struct(
