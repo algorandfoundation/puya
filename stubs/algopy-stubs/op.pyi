@@ -3864,7 +3864,7 @@ class VoterParamsGet:
     Native TEAL op: [`voter_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#voter_params_get)
     """
     @staticmethod
-    def voter_balance(a: Bytes | UInt64 | bytes | int, /) -> tuple[UInt64, bool]:
+    def voter_balance(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         Min AVM version: 11
         :returns tuple[UInt64, bool]: Online stake in microalgos
@@ -3873,7 +3873,7 @@ class VoterParamsGet:
         """
 
     @staticmethod
-    def voter_incentive_eligible(a: Bytes | UInt64 | bytes | int, /) -> tuple[bool, bool]:
+    def voter_incentive_eligible(a: Account | UInt64 | int, /) -> tuple[bool, bool]:
         """
         Min AVM version: 11
         :returns tuple[bool, bool]: Had this account opted into block payouts

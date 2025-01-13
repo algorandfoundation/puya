@@ -260,6 +260,7 @@ def _patch_lang_spec(lang_spec: dict[str, typing.Any]) -> None:
         "asset_holding_get",
         "balance",
         "min_balance",
+        "voter_params_get",
     ):
         _patch_arg_type(ops, op_name, 0, "any", "address_or_index")
 

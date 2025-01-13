@@ -5382,7 +5382,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "voter_params_get",
                     immediates=["VoterBalance"],
-                    args=[(pytypes.BytesType, pytypes.UInt64Type)],
+                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
                 ),
             ],
         ),
@@ -5395,7 +5395,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "voter_params_get",
                     immediates=["VoterIncentiveEligible"],
-                    args=[(pytypes.BytesType, pytypes.UInt64Type)],
+                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
                 ),
             ],
         ),

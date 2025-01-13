@@ -6258,7 +6258,8 @@ class AVMOp(enum.StrEnum):
             variant_map={
                 "VoterBalance": Variant(
                     signature=OpSignature(
-                        args=[StackType.any], returns=[StackType.uint64, StackType.bool]
+                        args=[StackType.address_or_index],
+                        returns=[StackType.uint64, StackType.bool],
                     ),
                     enum="VoterBalance",
                     supported_modes=RunMode.app,
@@ -6266,7 +6267,7 @@ class AVMOp(enum.StrEnum):
                 ),
                 "VoterIncentiveEligible": Variant(
                     signature=OpSignature(
-                        args=[StackType.any], returns=[StackType.bool, StackType.bool]
+                        args=[StackType.address_or_index], returns=[StackType.bool, StackType.bool]
                     ),
                     enum="VoterIncentiveEligible",
                     supported_modes=RunMode.app,
