@@ -1,4 +1,10 @@
 # CHANGELOG
+## v4.1.1 (2025-01-13)
+
+### Fix
+
+* accept address or index param for VoterParamsGet methods (#369) ([`8cb9ffc`](https://github.com/algorandfoundation/puya/commit/8cb9ffc38e34563f2335b12e767d6794478fe7f8))
+
 ## v4.1.0 (2025-01-11)
 
 ### Feature
