@@ -256,8 +256,7 @@ def _extract_arc4_methods_and_structs(
                 t
                 for method_struct in event_wtypes
                 for t in method_struct.fields.values()
-                # TODO: use _is_arc4_struct?
-                if isinstance(t, wtypes.ARC4Struct)
+                if _is_arc4_struct(t)
             )
 
             result[m] = puya_models.ARC4ABIMethod(
@@ -293,8 +292,7 @@ def _extract_arc4_methods_and_structs(
         struct_wtypes.extend(
             wtype
             for wtype in struct.fields.values()
-            # TODO: use _is_arc4_struct?
-            if isinstance(wtype, wtypes.ARC4Struct) and wtype.name not in struct_results
+            if _is_arc4_struct(wtype) and wtype.name not in struct_results
         )
         struct_results[struct.name] = _wtype_to_struct(struct)
     return result, immutabledict(sorted(struct_results.items(), key=lambda item: item[0]))
