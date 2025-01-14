@@ -39,104 +39,51 @@ def build_contract_metadata(
     puya_models.ContractMetaData,
     Mapping[AWSTContractMethodSignature, puya_models.ARC4MethodConfig],
 ]:
-    state = _fold_state(contract)
+    global_state = dict[str, puya_models.ContractState]()
+    local_state = dict[str, puya_models.ContractState]()
+    boxes = dict[str, puya_models.ContractState]()
+    for state in contract.app_state:
+        translated = _translate_state(state)
+        match state.kind:
+            case awst_nodes.AppStorageKind.app_global:
+                global_state[state.member_name] = translated
+            case awst_nodes.AppStorageKind.account_local:
+                local_state[state.member_name] = translated
+            case awst_nodes.AppStorageKind.box:
+                boxes[state.member_name] = translated
+            case unexpected:
+                typing.assert_never(unexpected)
+    state_totals = _build_state_totals(
+        contract.state_totals,
+        global_state=global_state,
+        local_state=local_state,
+        location=contract.source_location,
+    )
     arc4_method_data, type_refs = _extract_arc4_methods_and_type_refs(ctx, contract)
     structs = _extract_structs(type_refs)
+    template_var_types = _TemplateVariableTypeCollector.collect(ctx, contract, arc4_method_data)
     metadata = puya_models.ContractMetaData(
         description=contract.description,
         name=contract.name,
         ref=contract.id,
         arc4_methods=list(arc4_method_data.values()),
-        global_state=immutabledict(state.global_state),
-        local_state=immutabledict(state.local_state),
-        boxes=immutabledict(state.boxes),
-        state_totals=state.build_state_totals(location=contract.source_location),
+        global_state=immutabledict(global_state),
+        local_state=immutabledict(local_state),
+        boxes=immutabledict(boxes),
+        state_totals=state_totals,
         structs=immutabledict(structs),
-        template_variable_types=immutabledict(
-            _TemplateVariableTypeCollector.collect(ctx, contract, arc4_method_data)
-        ),
+        template_variable_types=immutabledict(template_var_types),
     )
     return metadata, {cm: md.config for cm, md in arc4_method_data.items()}
 
 
-@attrs.define(kw_only=True)
-class _FoldedContractState:
-    global_state: dict[str, puya_models.ContractState] = attrs.field(factory=dict)
-    local_state: dict[str, puya_models.ContractState] = attrs.field(factory=dict)
-    boxes: dict[str, puya_models.ContractState] = attrs.field(factory=dict)
-    declared_totals: awst_nodes.StateTotals | None
-
-    def build_state_totals(self, *, location: SourceLocation) -> puya_models.StateTotals:
-        global_by_type = Counter(s.storage_type for s in self.global_state.values())
-        local_by_type = Counter(s.storage_type for s in self.local_state.values())
-        merged = puya_models.StateTotals(
-            global_uints=global_by_type[AVMType.uint64],
-            global_bytes=global_by_type[AVMType.bytes],
-            local_uints=local_by_type[AVMType.uint64],
-            local_bytes=local_by_type[AVMType.bytes],
-        )
-        if self.declared_totals is not None:
-            insufficient_fields = []
-            declared_dict = attrs.asdict(self.declared_totals, filter=attrs.filters.include(int))
-            for field, declared in declared_dict.items():
-                calculated = getattr(merged, field)
-                if declared < calculated:
-                    insufficient_fields.append(f"{field}: {declared=}, {calculated=}")
-                merged = attrs.evolve(merged, **{field: declared})
-            if insufficient_fields:
-                logger.warning(
-                    f"State totals declared on the class are less than totals calculated from"
-                    f" explicitly declared properties: {', '.join(sorted(insufficient_fields))}.",
-                    location=location,
-                )
-        global_total = merged.global_uints + merged.global_bytes
-        local_total = merged.local_uints + merged.local_bytes
-        if global_total > algo_constants.MAX_GLOBAL_STATE_KEYS:
-            logger.warning(
-                f"Total global state key count of {global_total}"
-                f" exceeds consensus parameter value {algo_constants.MAX_GLOBAL_STATE_KEYS}",
-                location=location,
-            )
-        if local_total > algo_constants.MAX_LOCAL_STATE_KEYS:
-            logger.warning(
-                f"Total local state key count of {local_total}"
-                f" exceeds consensus parameter value {algo_constants.MAX_LOCAL_STATE_KEYS}",
-                location=location,
-            )
-        return merged
-
-
-def _fold_state(contract: awst_nodes.Contract) -> _FoldedContractState:
-    result = _FoldedContractState(declared_totals=contract.state_totals)
-    for state in contract.app_state:
-        key_type = None
-        if state.key_wtype is not None:
-            key_type = wtypes.persistable_stack_type(state.key_wtype, state.source_location)
-        translated = _get_contract_state(state)
-        match state.kind:
-            case awst_nodes.AppStorageKind.app_global:
-                if key_type is not None:
-                    raise InternalError(
-                        f"maps of {state.kind} are not supported yet", state.source_location
-                    )
-                result.global_state[state.member_name] = translated
-            case awst_nodes.AppStorageKind.account_local:
-                if key_type is not None:
-                    raise InternalError(
-                        f"maps of {state.kind} are not supported yet", state.source_location
-                    )
-                result.local_state[state.member_name] = translated
-            case awst_nodes.AppStorageKind.box:
-                result.boxes[state.member_name] = translated
-            case unexpected:
-                typing.assert_never(unexpected)
-
-    return result
-
-
-def _get_contract_state(state: awst_nodes.AppStorageDefinition) -> puya_models.ContractState:
+def _translate_state(state: awst_nodes.AppStorageDefinition) -> puya_models.ContractState:
     storage_type = wtypes.persistable_stack_type(state.storage_wtype, state.source_location)
     if state.key_wtype is not None:
+        if state.kind is not awst_nodes.AppStorageKind.box:
+            raise InternalError(
+                f"maps of {state.kind} are not supported by IR backend yet", state.source_location
+            )
         arc56_key_type = _get_arc56_type(state.key_wtype, state.source_location)
         is_map = True
     else:
@@ -155,6 +102,52 @@ def _get_contract_state(state: awst_nodes.AppStorageDefinition) -> puya_models.C
         description=state.description,
         is_map=is_map,
     )
+
+
+def _build_state_totals(
+    declared_totals: awst_nodes.StateTotals | None,
+    *,
+    global_state: Mapping[str, puya_models.ContractState],
+    local_state: Mapping[str, puya_models.ContractState],
+    location: SourceLocation,
+) -> puya_models.StateTotals:
+    global_by_type = Counter(s.storage_type for s in global_state.values())
+    local_by_type = Counter(s.storage_type for s in local_state.values())
+    merged = puya_models.StateTotals(
+        global_uints=global_by_type[AVMType.uint64],
+        global_bytes=global_by_type[AVMType.bytes],
+        local_uints=local_by_type[AVMType.uint64],
+        local_bytes=local_by_type[AVMType.bytes],
+    )
+    if declared_totals is not None:
+        insufficient_fields = []
+        declared_dict = attrs.asdict(declared_totals, filter=attrs.filters.include(int))
+        for field, declared in declared_dict.items():
+            calculated = getattr(merged, field)
+            if declared < calculated:
+                insufficient_fields.append(f"{field}: {declared=}, {calculated=}")
+            merged = attrs.evolve(merged, **{field: declared})
+        if insufficient_fields:
+            logger.warning(
+                f"State totals declared on the class are less than totals calculated from"
+                f" explicitly declared properties: {', '.join(sorted(insufficient_fields))}.",
+                location=location,
+            )
+    global_total = merged.global_uints + merged.global_bytes
+    local_total = merged.local_uints + merged.local_bytes
+    if global_total > algo_constants.MAX_GLOBAL_STATE_KEYS:
+        logger.warning(
+            f"Total global state key count of {global_total}"
+            f" exceeds consensus parameter value {algo_constants.MAX_GLOBAL_STATE_KEYS}",
+            location=location,
+        )
+    if local_total > algo_constants.MAX_LOCAL_STATE_KEYS:
+        logger.warning(
+            f"Total local state key count of {local_total}"
+            f" exceeds consensus parameter value {algo_constants.MAX_LOCAL_STATE_KEYS}",
+            location=location,
+        )
+    return merged
 
 
 class _TemplateVariableTypeCollector(FunctionTraverser):
