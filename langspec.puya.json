@@ -4090,7 +4090,7 @@
                 "value": 1700,
                 "doc": "1700"
             },
-            "min_avm_version": 11,
+            "min_avm_version": 12,
             "halts": false,
             "mode": "any",
             "groups": [
@@ -5616,6 +5616,51 @@
             ],
             "stack_outputs": []
         },
+        "mimc": {
+            "name": "mimc",
+            "code": 230,
+            "size": 2,
+            "doc": [
+                "MiMC hash of scalars A, using curve and parameters specified by configuration C",
+                "A is a list of concatenated 32 byte big-endian unsigned integer scalars.  Fail if A's length is not a multiple of 32 or any element exceeds the curve modulus.",
+                "",
+                "The MiMC hash function has known collisions since any input which is a multiple of the elliptic curve modulus will hash to the same value. MiMC is thus not a general purpose hash function, but meant to be used in zero knowledge applications to match a zk-circuit implementation."
+            ],
+            "cost": {
+                "value": null,
+                "doc": "BN254Mp110=10 + 550 per 32 bytes of A; BLS12_381Mp111=10 + 550 per 32 bytes of A"
+            },
+            "min_avm_version": 11,
+            "halts": false,
+            "mode": "any",
+            "groups": [
+                "Cryptography"
+            ],
+            "stack_inputs": [
+                {
+                    "name": "A",
+                    "stack_type": "[]byte",
+                    "doc": null
+                }
+            ],
+            "immediate_args": [
+                {
+                    "name": "C",
+                    "immediate_type": "arg_enum",
+                    "arg_enum": "Mimc Configurations",
+                    "modifies_stack_input": null,
+                    "modifies_stack_output": null,
+                    "doc": "configuration index"
+                }
+            ],
+            "stack_outputs": [
+                {
+                    "name": "X",
+                    "stack_type": "[32]byte",
+                    "doc": null
+                }
+            ]
+        },
         "min_balance": {
             "name": "min_balance",
             "code": 120,
@@ -6603,7 +6648,7 @@
                 "value": null,
                 "doc": "150 + 7 per 4 bytes of A"
             },
-            "min_avm_version": 11,
+            "min_avm_version": 12,
             "halts": false,
             "mode": "any",
             "groups": [
@@ -8324,7 +8369,7 @@
             },
             {
                 "name": "PayoutsMinBalance",
-                "doc": "The minimum algo balance an account must have in the agreement round to receive block payouts in the proposal round.",
+                "doc": "The minimum balance an account must have in the agreement round to receive block payouts in the proposal round.",
                 "stack_type": "uint64",
                 "mode": "any",
                 "value": 21,
@@ -8332,7 +8377,7 @@
             },
             {
                 "name": "PayoutsMaxBalance",
-                "doc": "The maximum algo balance an account can have in the agreement round to receive block payouts in the proposal round.",
+                "doc": "The maximum balance an account can have in the agreement round to receive block payouts in the proposal round.",
                 "stack_type": "uint64",
                 "mode": "any",
                 "value": 22,
@@ -8775,6 +8820,24 @@
                 "min_avm_version": 7
             }
         ],
+        "Mimc Configurations": [
+            {
+                "name": "BN254Mp110",
+                "doc": "MiMC configuration for the BN254 curve with Miyaguchi-Preneel mode, 110 rounds, exponent 5, seed \"seed\"",
+                "stack_type": null,
+                "mode": "any",
+                "value": 0,
+                "min_avm_version": 11
+            },
+            {
+                "name": "BLS12_381Mp111",
+                "doc": "MiMC configuration for the BLS12-381 curve with Miyaguchi-Preneel mode, 111 rounds, exponent 5, seed \"seed\"",
+                "stack_type": null,
+                "mode": "any",
+                "value": 1,
+                "min_avm_version": 11
+            }
+        ],
         "voter_params": [
             {
                 "name": "VoterBalance",
@@ -8782,7 +8845,7 @@
                 "stack_type": "uint64",
                 "mode": "app",
                 "value": 0,
-                "min_avm_version": 6
+                "min_avm_version": 11
             },
             {
                 "name": "VoterIncentiveEligible",

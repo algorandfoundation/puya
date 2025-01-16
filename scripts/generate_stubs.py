@@ -31,7 +31,9 @@ INDENT = " " * 4
 VCS_ROOT = Path(__file__).parent.parent
 MIN_SUPPORTED_VERSION = min(SUPPORTED_AVM_VERSIONS)
 
-
+PYTHON_ENUM_CLASS = {
+    "Mimc Configurations": "MiMCConfigurations",
+}
 PYTYPE_TO_LITERAL: dict[pytypes.PyType, pytypes.LiteralOnlyType | None] = {
     pytypes.BytesType: pytypes.BytesLiteralType,
     pytypes.UInt64Type: pytypes.IntLiteralType,
@@ -602,6 +604,10 @@ def get_op_doc(op: Op) -> list[str]:
 
 
 def get_python_enum_class(arg_enum: str) -> str:
+    try:
+        return PYTHON_ENUM_CLASS[arg_enum]
+    except KeyError:
+        pass
     # don't change acronyms
     if arg_enum.isupper():
         return arg_enum

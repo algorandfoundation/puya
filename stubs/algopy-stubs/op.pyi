@@ -49,6 +49,20 @@ class ECDSA(str):
     secp256r1 curve, NIST standard
     """
 
+class MiMCConfigurations(str):
+    """Available values for the `Mimc Configurations` enum"""
+
+    BN254Mp110: MiMCConfigurations = ...
+    """
+    MiMC configuration for the BN254 curve with Miyaguchi-Preneel mode, 110 rounds, exponent 5, seed "seed"
+    Min AVM version: 11
+    """
+    BLS12_381Mp111: MiMCConfigurations = ...
+    """
+    MiMC configuration for the BLS12-381 curve with Miyaguchi-Preneel mode, 111 rounds, exponent 5, seed "seed"
+    Min AVM version: 11
+    """
+
 class VrfVerify(str):
     """Available values for the `vrf_verify` enum"""
 
@@ -265,7 +279,7 @@ def extract_uint64(a: Bytes | bytes, b: UInt64 | int, /) -> UInt64:
 def falcon_verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bool:
     """
     for (data A, compressed-format signature B, pubkey C) verify the signature of data against the pubkey
-    Min AVM version: 11
+    Min AVM version: 12
 
     Native TEAL opcode: [`falcon_verify`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#falcon_verify)
     """
@@ -319,6 +333,18 @@ def keccak256(a: Bytes | bytes, /) -> Bytes:
     Keccak256 hash of value A, yields [32]byte
 
     Native TEAL opcode: [`keccak256`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#keccak256)
+    """
+
+def mimc(c: MiMCConfigurations, a: Bytes | bytes, /) -> Bytes:
+    """
+    MiMC hash of scalars A, using curve and parameters specified by configuration C
+    A is a list of concatenated 32 byte big-endian unsigned integer scalars.  Fail if A's length is not a multiple of 32 or any element exceeds the curve modulus.
+
+    The MiMC hash function has known collisions since any input which is a multiple of the elliptic curve modulus will hash to the same value. MiMC is thus not a general purpose hash function, but meant to be used in zero knowledge applications to match a zk-circuit implementation.
+    Min AVM version: 11
+    :param MiMCConfigurations c: configuration index
+
+    Native TEAL opcode: [`mimc`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#mimc)
     """
 
 def min_balance(a: Account | UInt64 | int, /) -> UInt64:
@@ -441,7 +467,7 @@ def substring(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
 def sumhash512(a: Bytes | bytes, /) -> Bytes:
     """
     sumhash512 of value A, yields [64]byte
-    Min AVM version: 11
+    Min AVM version: 12
 
     Native TEAL opcode: [`sumhash512`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#sumhash512)
     """
@@ -2437,13 +2463,13 @@ class Global:
 
     payouts_min_balance: typing.Final[UInt64] = ...
     """
-    The minimum algo balance an account must have in the agreement round to receive block payouts in the proposal round.
+    The minimum balance an account must have in the agreement round to receive block payouts in the proposal round.
     Min AVM version: 11
     """
 
     payouts_max_balance: typing.Final[UInt64] = ...
     """
-    The maximum algo balance an account can have in the agreement round to receive block payouts in the proposal round.
+    The maximum balance an account can have in the agreement round to receive block payouts in the proposal round.
     Min AVM version: 11
     """
 

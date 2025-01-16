@@ -1,18 +1,12 @@
-from algopy import ARC4Contract, Txn, UInt64, arc4, logicsig, op
-
-
-@logicsig(avm_version=11)
-def avm_11_sig() -> UInt64:
-    return op.sumhash512(b"").length
+from algopy import ARC4Contract, Txn, arc4, op
 
 
 class Contract(ARC4Contract, avm_version=11):
     @arc4.abimethod
     def test_new_ops(self) -> None:
         # op functions
-        assert not op.falcon_verify(b"", b"", op.bzero(1793))
-        assert op.sumhash512(b"")
         assert op.online_stake()
+        assert op.mimc(op.MiMCConfigurations.BN254Mp110, op.bzero(32))
 
         # AcctParamsGet, TODO: add to Account once 11 is in mainnet?
         a, b = op.AcctParamsGet.acct_incentive_eligible(Txn.sender)

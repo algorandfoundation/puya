@@ -1,0 +1,102 @@
+#pragma version 12
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1
+
+main_block@1:
+    // avm_12/contract.py:9
+    // class Contract(ARC4Contract, avm_version=12):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main_bare_routing@6
+
+main_abi_routing@2:
+    // avm_12/contract.py:9
+    // class Contract(ARC4Contract, avm_version=12):
+    txna ApplicationArgs 0
+    pushbytes 0xc2b8dd8a // method "test_new_ops()void"
+    swap
+    match main_test_new_ops_route@3
+
+main_switch_case_default@4:
+
+main_switch_case_next@5:
+
+main_after_if_else@10:
+    // avm_12/contract.py:9
+    // class Contract(ARC4Contract, avm_version=12):
+    intc_0 // 0
+
+main_after_inlined_test_cases.avm_12.contract.Contract.__puya_arc4_router__@11:
+    return
+
+main_test_new_ops_route@3:
+    // avm_12/contract.py:10
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub test_new_ops
+    intc_1 // 1
+    b main_after_inlined_test_cases.avm_12.contract.Contract.__puya_arc4_router__@11
+
+main_bare_routing@6:
+    // avm_12/contract.py:9
+    // class Contract(ARC4Contract, avm_version=12):
+    txn OnCompletion
+    intc_0 // 0
+    swap
+    match main___algopy_default_create@7
+
+main_switch_case_default@8:
+
+main_switch_case_next@9:
+    b main_after_if_else@10
+
+main___algopy_default_create@7:
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    assert // can only call when creating
+
+main_block@12:
+
+main_after_inlined_test_cases.avm_12.contract.Contract.__algopy_default_create@13:
+    intc_1 // 1
+    b main_after_inlined_test_cases.avm_12.contract.Contract.__puya_arc4_router__@11
+
+
+// test_cases.avm_12.contract.Contract.test_new_ops() -> void:
+test_new_ops:
+    // avm_12/contract.py:10-11
+    // @arc4.abimethod
+    // def test_new_ops(self) -> None:
+    proto 0 0
+    // avm_12/contract.py:12-13
+    // # op functions
+    // assert not op.falcon_verify(b"", b"", op.bzero(1793))
+    pushint 1793 // 1793
+    bzero
+    pushbytes 0x
+    dup
+    uncover 2
+    falcon_verify
+    !
+    assert
+    // avm_12/contract.py:14
+    // assert op.sumhash512(b"")
+    pushbytes 0x
+    sumhash512
+    len
+    intc_0 // 0
+    !=
+    assert
+    retsub

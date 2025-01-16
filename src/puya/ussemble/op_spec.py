@@ -986,4 +986,9 @@ OP_SPECS = {
             ImmediateEnum(codes={"BN254g1": 0, "BN254g2": 1, "BLS12_381g1": 2, "BLS12_381g2": 3})
         ],
     ),
+    "mimc": OpSpec(
+        name="mimc",
+        code=230,
+        immediates=[ImmediateEnum(codes={"BN254Mp110": 0, "BLS12_381Mp111": 1})],
+    ),
 }

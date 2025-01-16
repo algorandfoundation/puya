@@ -1952,11 +1952,11 @@ class AVMOp(enum.StrEnum):
             ),
             enum=None,
             supported_modes=RunMode.any,
-            min_avm_version=11,
+            min_avm_version=12,
         ),
         immediate_types=(),
         cost=1700,
-        min_avm_version=11,
+        min_avm_version=12,
         supported_modes=RunMode.any,
     )
     """
@@ -5151,6 +5151,31 @@ class AVMOp(enum.StrEnum):
     integers
     """
 
+    mimc = AVMOpData(
+        op_code="mimc",
+        variants=Variant(
+            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            enum=None,
+            supported_modes=RunMode.any,
+            min_avm_version=11,
+        ),
+        immediate_types=(ImmediateKind.arg_enum,),
+        cost=None,
+        min_avm_version=11,
+        supported_modes=RunMode.any,
+    )
+    """
+    MiMC hash of scalars A, using curve and parameters specified by configuration C
+
+    A is a list of concatenated 32 byte big-endian unsigned integer scalars.  Fail if A's length is
+    not a multiple of 32 or any element exceeds the curve modulus.
+
+
+    The MiMC hash function has known collisions since any input which is a multiple of the elliptic
+    curve modulus will hash to the same value. MiMC is thus not a general purpose hash function,
+    but meant to be used in zero knowledge applications to match a zk-circuit implementation.
+    """
+
     min_balance = AVMOpData(
         op_code="min_balance",
         variants=Variant(
@@ -5696,11 +5721,11 @@ class AVMOp(enum.StrEnum):
             signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
             enum=None,
             supported_modes=RunMode.any,
-            min_avm_version=11,
+            min_avm_version=12,
         ),
         immediate_types=(),
         cost=None,
-        min_avm_version=11,
+        min_avm_version=12,
         supported_modes=RunMode.any,
     )
     """
@@ -6263,7 +6288,7 @@ class AVMOp(enum.StrEnum):
                     ),
                     enum="VoterBalance",
                     supported_modes=RunMode.app,
-                    min_avm_version=6,
+                    min_avm_version=11,
                 ),
                 "VoterIncentiveEligible": Variant(
                     signature=OpSignature(
