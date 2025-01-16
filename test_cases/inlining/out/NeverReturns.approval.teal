@@ -1,0 +1,41 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // inlining/contract.py:34
+    // class NeverReturns(arc4.ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@6
+    pushbytes 0xa79bc532 // method "err()void"
+    txna ApplicationArgs 0
+    match main_err_route@3
+
+main_after_if_else@10:
+    // inlining/contract.py:34
+    // class NeverReturns(arc4.ARC4Contract):
+    pushint 0 // 0
+    return
+
+main_err_route@3:
+    // inlining/contract.py:35
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // inlining/contract.py:37
+    // op.err()
+    err
+
+main_bare_routing@6:
+    // inlining/contract.py:34
+    // class NeverReturns(arc4.ARC4Contract):
+    txn OnCompletion
+    bnz main_after_if_else@10
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    pushint 1 // 1
+    return
