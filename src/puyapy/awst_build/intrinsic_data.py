@@ -23,6 +23,10 @@ ENUM_CLASSES: typing.Final[Mapping[str, Mapping[str, str]]] = dict(
         Secp256k1="Secp256k1",
         Secp256r1="Secp256r1",
     ),
+    MiMCConfigurations=dict(
+        BN254Mp110="BN254Mp110",
+        BLS12_381Mp111="BLS12_381Mp111",
+    ),
     VrfVerify=dict(
         VrfAlgorand="VrfAlgorand",
     ),
@@ -426,6 +430,17 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
             FunctionOpMapping(
                 "keccak256",
                 args=[(pytypes.BytesType,)],
+            ),
+        ],
+    ),
+    mimc=OpMappingWithOverloads(
+        result=pytypes.BytesType,
+        arity=2,
+        overloads=[
+            FunctionOpMapping(
+                "mimc",
+                immediates=[str],
+                args=[0, (pytypes.BytesType,)],
             ),
         ],
     ),

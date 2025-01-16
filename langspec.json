@@ -1,6 +1,6 @@
 {
-  "Version": 11,
-  "LogicSigVersion": 10,
+  "Version": 12,
+  "LogicSigVersion": 11,
   "NamedTypes": [
     {
       "Name": "[]byte",
@@ -1628,8 +1628,8 @@
         "Whether block proposal payouts are enabled.",
         "The fee required in a keyreg transaction to make an account incentive eligible.",
         "The percentage of transaction fees in a block that can be paid to the block proposer.",
-        "The minimum algo balance an account must have in the agreement round to receive block payouts in the proposal round.",
-        "The maximum algo balance an account can have in the agreement round to receive block payouts in the proposal round."
+        "The minimum balance an account must have in the agreement round to receive block payouts in the proposal round.",
+        "The maximum balance an account can have in the agreement round to receive block payouts in the proposal round."
       ],
       "ArgEnumTypes": [
         "uint64",
@@ -4482,7 +4482,7 @@
         2
       ],
       "ArgEnumVersion": [
-        6,
+        11,
         11
       ],
       "DocCost": "1",
@@ -4663,7 +4663,7 @@
       "Size": 1,
       "DocCost": "1700",
       "Doc": "for (data A, compressed-format signature B, pubkey C) verify the signature of data against the pubkey",
-      "IntroducedVersion": 11,
+      "IntroducedVersion": 12,
       "Groups": [
         "Cryptography"
       ],
@@ -4682,7 +4682,7 @@
       "Size": 1,
       "DocCost": "150 + 7 per 4 bytes of A",
       "Doc": "sumhash512 of value A, yields [64]byte",
-      "IntroducedVersion": 11,
+      "IntroducedVersion": 12,
       "Groups": [
         "Cryptography"
       ],
@@ -7816,6 +7816,54 @@
         }
       ],
       "IntroducedVersion": 10,
+      "Groups": [
+        "Cryptography"
+      ],
+      "Modes": 3
+    },
+    {
+      "Opcode": 230,
+      "Name": "mimc",
+      "Cost": "BN254Mp110=10 + 550 per 32 bytes of A; BLS12_381Mp111=10 + 550 per 32 bytes of A",
+      "Args": [
+        "[]byte"
+      ],
+      "Returns": [
+        "[32]byte"
+      ],
+      "Size": 2,
+      "ArgEnum": [
+        "BN254Mp110",
+        "BLS12_381Mp111"
+      ],
+      "ArgEnumDoc": [
+        "MiMC configuration for the BN254 curve with Miyaguchi-Preneel mode, 110 rounds, exponent 5, seed \"seed\"",
+        "MiMC configuration for the BLS12-381 curve with Miyaguchi-Preneel mode, 111 rounds, exponent 5, seed \"seed\""
+      ],
+      "ArgEnumBytes": [
+        0,
+        1
+      ],
+      "ArgModes": [
+        0,
+        0
+      ],
+      "ArgEnumVersion": [
+        11,
+        11
+      ],
+      "DocCost": "BN254Mp110=10 + 550 per 32 bytes of A; BLS12_381Mp111=10 + 550 per 32 bytes of A",
+      "Doc": "MiMC hash of scalars A, using curve and parameters specified by configuration C",
+      "DocExtra": "A is a list of concatenated 32 byte big-endian unsigned integer scalars.  Fail if A's length is not a multiple of 32 or any element exceeds the curve modulus.\n\nThe MiMC hash function has known collisions since any input which is a multiple of the elliptic curve modulus will hash to the same value. MiMC is thus not a general purpose hash function, but meant to be used in zero knowledge applications to match a zk-circuit implementation.",
+      "ImmediateNote": [
+        {
+          "Comment": "configuration index",
+          "Encoding": "uint8",
+          "Name": "C",
+          "Reference": "Mimc Configurations"
+        }
+      ],
+      "IntroducedVersion": 11,
       "Groups": [
         "Cryptography"
       ],
