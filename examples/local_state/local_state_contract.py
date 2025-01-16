@@ -63,7 +63,8 @@ class LocalStateContract(Contract):
 
     @subroutine
     def get_data_with_default(self, for_account: Account, default: Bytes) -> Bytes:
-        return self.local.get(for_account, default)
+        # offset contract use arguments without kwarg
+        return self.local.get(account=for_account, default=default)
 
     @subroutine
     def get_data_or_assert(self, for_account: Account) -> Bytes:

@@ -241,10 +241,10 @@ class _Get(_MemberFunction):
         location: SourceLocation,
     ) -> InstanceBuilder:
         content_typ = self._base.pytype.content
-        key_arg_name = "key"
+        account_arg_name = "account"
         default_arg_name = "default"
         args_map, any_missing = get_arg_mapping(
-            required_positional_names=[key_arg_name, default_arg_name],
+            required_positional_names=[account_arg_name, default_arg_name],
             args=args,
             arg_names=arg_names,
             call_location=location,
@@ -252,11 +252,11 @@ class _Get(_MemberFunction):
         )
         if any_missing:
             return dummy_value(content_typ, location)
-        item = args_map[key_arg_name]
+        item = args_map[account_arg_name]
         default_arg = expect.argument_of_type_else_dummy(args_map[default_arg_name], content_typ)
-        key = _build_field(self._base, item, location)
+        account = _build_field(self._base, item, location)
         default = default_arg.resolve()
-        expr = StateGet(field=key, default=default, source_location=location)
+        expr = StateGet(field=account, default=default, source_location=location)
         return builder_for_instance(content_typ, expr)
 
 
