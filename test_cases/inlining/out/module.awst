@@ -33,3 +33,29 @@ subroutine zero(): uint64
 {
   return 0u
 }
+
+contract NeverReturns
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.inlining.contract.NeverReturns.err(): void
+  {
+    err()
+  }
+  
+  baremethod test_cases.inlining.contract.NeverReturns.__algopy_default_create(): void
+  {
+  }
+}

@@ -164,12 +164,11 @@ def perform_subroutine_inlining(
                 return_targets,
                 list(subroutine.get_assigned_registers()),
             )
-            if remainder is not None:
-                # only visit the remainder of the block, the newly created blocks
-                # come from a different subroutine, so shouldn't be tested for inlining
-                # within the curren subroutine
-                blocks_to_visit.append(remainder)
-                created_blocks.append(remainder)
+            # only visit the remainder of the block, the newly created blocks
+            # come from a different subroutine, so shouldn't be tested for inlining
+            # within the curren subroutine
+            blocks_to_visit.append(remainder)
+            created_blocks.append(remainder)
             idx_after_block = subroutine.body.index(block) + 1
             subroutine.body[idx_after_block:idx_after_block] = created_blocks
             modified = True
@@ -184,7 +183,7 @@ def _inline_call(
     op_index: int,
     return_targets: Sequence[models.Register],
     host_assigned_registers: list[models.Register],
-) -> tuple[models.BasicBlock | None, list[models.BasicBlock]]:
+) -> tuple[models.BasicBlock, list[models.BasicBlock]]:
     # make a copy of the entire block graph, and adjust register versions
     # to avoid any collisions, as well as updating block IDs
     register_offsets = defaultdict[str, int](int)
@@ -238,10 +237,6 @@ def _inline_call(
         for new_block in new_blocks
         if isinstance(new_block.terminator, models.SubroutineReturn)
     ]
-    if not returning_blocks:
-        # in the case the inlined subroutine never returned, then there's no control flow
-        # to pass on and no returns to assign
-        return None, new_blocks
     # create the return block and insert as a predecessor of the original blocks target(s)
     remainder = models.BasicBlock(
         id=next(next_id),
@@ -263,7 +258,8 @@ def _inline_call(
         new_block.terminator = models.Goto(target=remainder, source_location=call.source_location)
         remainder.predecessors.append(new_block)
 
-    if len(returning_blocks) == 1:
+    num_returns = len(returning_blocks)
+    if num_returns == 1:
         # if there is a single retsub, we can assign to the return variables in that block
         # directly without violating SSA
         ((new_block, return_values),) = returning_blocks
@@ -275,7 +271,7 @@ def _inline_call(
                     source_location=None,
                 )
             )
-    else:
+    elif num_returns > 1:
         # otherwise when there's more than on restsub block,
         # return value(s) become phi node(s) in the second block half
         return_phis = [models.Phi(register=ret_target) for ret_target in return_targets]

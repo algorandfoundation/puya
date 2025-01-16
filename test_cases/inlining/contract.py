@@ -1,6 +1,6 @@
 import typing
 
-from algopy import Contract, UInt64, op, subroutine
+from algopy import Contract, UInt64, arc4, op, subroutine
 
 
 class MyContract(Contract):
@@ -29,3 +29,9 @@ def one() -> UInt64:
 @subroutine(inline=True)
 def zero() -> UInt64:
     return UInt64(0)
+
+
+class NeverReturns(arc4.ARC4Contract):
+    @arc4.abimethod()
+    def err(self) -> None:
+        op.err()
