@@ -30,7 +30,9 @@ class ABIMethodDefaultArgsValidator(AWSTTraverser):
 
     def __init__(self, contract: awst_nodes.Contract):
         self._contract: typing.Final = contract
-        self._state_by_name: typing.Final[Mapping] = {s.member_name: s for s in contract.app_state}
+        self._state_by_name: typing.Final[Mapping[str, awst_nodes.AppStorageDefinition]] = {
+            s.member_name: s for s in contract.app_state
+        }
 
     @typing.override
     def visit_contract_method(self, method: awst_nodes.ContractMethod) -> None:
