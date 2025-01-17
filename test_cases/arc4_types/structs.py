@@ -55,6 +55,10 @@ class Arc4StructsTypeContract(Contract):
         no_copy = immutable
         assert no_copy == immutable
 
+        immutable2 = immutable._replace(two=arc4.UInt64(123))
+        assert immutable2.two == 123
+        assert immutable2.one == immutable.one
+
         return True
 
     def clear_state_program(self) -> bool:

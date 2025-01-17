@@ -474,7 +474,7 @@ class StructType(RuntimeType):
         converter=immutabledict, validator=[attrs.validators.min_len(1)]
     )
     frozen: bool
-    wtype: wtypes.WType
+    wtype: wtypes.ARC4Struct | wtypes.WStructType
     source_location: SourceLocation | None
     generic: None = None
     desc: str | None = None

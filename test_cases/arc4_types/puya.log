@@ -3175,7 +3175,8 @@ debug: Found equivalence set: encoded_tuple_buffer%16#0, mutable#0, copy%5#0, co
 debug: Found equivalence set: concat_result%0#0, assigned_value%0#0
 debug: Found equivalence set: updated_data%0#0, copy#1
 debug: Found equivalence set: encoded_tuple_buffer%19#0, immutable#0, no_copy#0
-debug: Copy propagation made 27 modifications
+debug: Found equivalence set: encoded_tuple_buffer%22#0, immutable2#0
+debug: Copy propagation made 28 modifications
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x 0x000000083cfbf217) to 0x000000083cfbf217
 debug: Simplified (concat 0x000000083cfbf217 0x000000230384b842) to 0x000000083cfbf217000000230384b842
@@ -3245,6 +3246,14 @@ debug: Simplified (!= 0x00020000 0x000200012a) to 1u
 debug: Simplified (concat 0x 0x000000000000000c) to 0x000000000000000c
 debug: Simplified (concat 0x000000000000000c 0x0000000000000022) to 0x000000000000000c0000000000000022
 debug: Simplified (== 0x000000000000000c0000000000000022 0x000000000000000c0000000000000022) to 1u
+debug: Simplified (extract3 0x000000000000000c0000000000000022 0u 8u) // on error: Index access is out of bounds to 0x000000000000000c
+debug: Simplified (concat 0x 0x000000000000000c) to 0x000000000000000c
+debug: Simplified (concat 0x000000000000000c 0x000000000000007b) to 0x000000000000000c000000000000007b
+debug: Simplified (extract3 0x000000000000000c000000000000007b 8u 8u) // on error: Index access is out of bounds to 0x000000000000007b
+debug: Simplified (b== 0x000000000000007b 0x000000000000007b) to 1u
+debug: Simplified (extract3 0x000000000000000c000000000000007b 0u 8u) // on error: Index access is out of bounds to 0x000000000000000c
+debug: Simplified (extract3 0x000000000000000c0000000000000022 0u 8u) // on error: Index access is out of bounds to 0x000000000000000c
+debug: Simplified (b== 0x000000000000000c 0x000000000000000c) to 1u
 debug: Simplified (extract3 coord_3#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) coord_3#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 coord_3#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) coord_3#0) // on error: Index access is out of bounds
 debug: Optimizer: Elide Itxn Field Calls
@@ -3339,6 +3348,17 @@ debug: Removing unused variable encoded_tuple_buffer%17#0
 debug: Removing unused variable encoded_tuple_buffer%18#0
 debug: Removing unused variable immutable#0
 debug: Removing unused variable tmp%5#0
+debug: Removing unused variable tmp%6#0
+debug: Removing unused variable current_tail_offset%7#0
+debug: Removing unused variable encoded_tuple_buffer%20#0
+debug: Removing unused variable encoded_tuple_buffer%21#0
+debug: Removing unused variable immutable2#0
+debug: Removing unused variable reinterpret_biguint%0#0
+debug: Removing unused variable reinterpret_biguint%1#0
+debug: Removing unused variable tmp%7#0
+debug: Removing unused variable reinterpret_biguint%2#0
+debug: Removing unused variable reinterpret_biguint%3#0
+debug: Removing unused variable tmp%8#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -3451,8 +3471,8 @@ debug: Begin optimization pass 2/100
 debug: marking simple function test_cases.arc4_types.structs.add_decimal for inlining (complexity=4 <= threshold=4)
 debug: Optimizing subroutine test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
-arc4_types/structs.py:67:11 debug: inlining call to test_cases.arc4_types.structs.add_decimal in test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program
-arc4_types/structs.py:68:11 debug: inlining call to test_cases.arc4_types.structs.add_decimal in test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program
+arc4_types/structs.py:71:11 debug: inlining call to test_cases.arc4_types.structs.add_decimal in test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program
+arc4_types/structs.py:72:11 debug: inlining call to test_cases.arc4_types.structs.add_decimal in test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
@@ -3599,7 +3619,7 @@ debug: test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program f-
 arc4_types/structs.py:35 debug: optimizing TEAL subroutine test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program() -> uint64:
 debug: inlining single reference block main_for_header_1@3 into main_for_body@1
 debug: removing explicit jump to fall-through block main_for_body@1
-arc4_types/structs.py:60 debug: optimizing TEAL subroutine test_cases.arc4_types.structs.Arc4StructsTypeContract.clear_state_program() -> uint64:
+arc4_types/structs.py:64 debug: optimizing TEAL subroutine test_cases.arc4_types.structs.Arc4StructsTypeContract.clear_state_program() -> uint64:
 debug: Output IR to arc4_types/out/Arc4StringTypesContract.ir/Arc4StringTypesContract.approval.0.ssa.ir
 info: optimizing approval program of test_cases.arc4_types.string.Arc4StringTypesContract at level 1
 debug: Begin optimization pass 1/100

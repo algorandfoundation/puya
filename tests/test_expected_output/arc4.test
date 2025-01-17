@@ -211,13 +211,15 @@ class Arc4CopyContract(arc4.ARC4Contract):
             assert an_array.length
 
 ## case: copy_arc4_struct
-from algopy import GlobalState, LocalState, Txn, arc4, subroutine, uenumerate
+from algopy import *
 
 class FrozenMutable(arc4.Struct, frozen=True):
     mutable: arc4.DynamicBytes
+    number: arc4.UInt64
 
 class FrozenImmutable(arc4.Struct, frozen=True):
     number: arc4.UInt64
+    string: arc4.String
 
 class InnerStruct(arc4.Struct):
     number: arc4.UInt64
@@ -270,14 +272,35 @@ def new_outer() -> OuterStruct:
 def new_inner_in_tup() -> tuple[InnerStruct, bool]:
     return new_inner(), True
 
+@subroutine
+def struct_replace() -> None:
+    frozen_mut = FrozenMutable(arc4.DynamicBytes(), arc4.UInt64())
+    frozen_mut = frozen_mut._replace(mutable=arc4.DynamicBytes(b"ok"))
+    frozen_mut = frozen_mut._replace(number=arc4.UInt64(1)) ## E: mutable field 'mutable' requires explicit copy
+
+    frozen_imm = FrozenImmutable(arc4.UInt64(), arc4.String())
+    frozen_imm = frozen_imm._replace()
+    frozen_imm = frozen_imm._replace(number=frozen_mut.number, string=arc4.String("hi"))
+
+    thawed_imm = InnerStruct(arc4.UInt64())
+
+    thawed_imm = thawed_imm._replace()
+    one = arc4.UInt64(1)
+    thawed_imm = thawed_imm._replace(number=one)
+
+    thawed_mut = OuterStruct(arc4.UInt64(), thawed_imm.copy())
+    thawed_mut = thawed_mut._replace(inner=thawed_imm.copy())
+    thawed_mut = thawed_mut._replace() ## E: mutable field 'inner' requires explicit copy
+
+
 class Arc4StructCopyTests(arc4.ARC4Contract):
     def __init__(self) -> None:
         self.global_inner = InnerStruct(number=arc4.UInt64(1))
         self.global_outer = OuterStruct(number=arc4.UInt64(2), inner=InnerStruct(number=arc4.UInt64(3)))
         self.global_proxy = GlobalState(OuterStruct(number=arc4.UInt64(1), inner=InnerStruct(number=arc4.UInt64(2))))
-        self.global_mutable = FrozenMutable(arc4.DynamicBytes())
-        self.global_immutable = FrozenImmutable(arc4.UInt64(42))
-        self.global_mutable_proxy = GlobalState(FrozenMutable(arc4.DynamicBytes()))
+        self.global_mutable = FrozenMutable(arc4.DynamicBytes(), arc4.UInt64(0))
+        self.global_immutable = FrozenImmutable(arc4.UInt64(42), arc4.String("abc"))
+        self.global_mutable_proxy = GlobalState(FrozenMutable(arc4.DynamicBytes(), arc4.UInt64(0)))
         self.local = LocalState(OuterStruct)
 
     @arc4.abimethod
@@ -285,8 +308,8 @@ class Arc4StructCopyTests(arc4.ARC4Contract):
         # **INIT**
         var_inner = InnerStruct(number=arc4.UInt64(4))
         var_outer = OuterStruct(number=arc4.UInt64(5), inner=InnerStruct(number=arc4.UInt64(6)))
-        var_mutable_struct = FrozenMutable(arc4.DynamicBytes())
-        var_immutable_struct = FrozenImmutable(arc4.UInt64(12))
+        var_mutable_struct = FrozenMutable(arc4.DynamicBytes(), arc4.UInt64(0))
+        var_immutable_struct = FrozenImmutable(arc4.UInt64(12), arc4.String("abc"))
 
         number = arc4.UInt64(42)
         bad_outer_from_locals = OuterStruct(number, var_inner) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a struct constructor

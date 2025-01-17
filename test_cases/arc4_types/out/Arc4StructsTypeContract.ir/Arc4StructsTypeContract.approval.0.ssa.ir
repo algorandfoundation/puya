@@ -101,10 +101,24 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let no_copy#0: bytes = immutable#0
         let tmp%5#0: bool = (== no_copy#0 immutable#0)
         (assert tmp%5#0)
+        let tmp%6#0: bytes = (extract3 immutable#0 0u 8u) // on error: Index access is out of bounds
+        let current_tail_offset%7#0: uint64 = 16u
+        let encoded_tuple_buffer%20#0: bytes = 0x
+        let encoded_tuple_buffer%21#0: bytes = (concat encoded_tuple_buffer%20#0 tmp%6#0)
+        let encoded_tuple_buffer%22#0: bytes = (concat encoded_tuple_buffer%21#0 0x000000000000007b)
+        let immutable2#0: bytes = encoded_tuple_buffer%22#0
+        let reinterpret_biguint%0#0: biguint = (extract3 immutable2#0 8u 8u) // on error: Index access is out of bounds
+        let reinterpret_biguint%1#0: biguint = 0x000000000000007b
+        let tmp%7#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
+        (assert tmp%7#0)
+        let reinterpret_biguint%2#0: biguint = (extract3 immutable2#0 0u 8u) // on error: Index access is out of bounds
+        let reinterpret_biguint%3#0: biguint = (extract3 immutable#0 0u 8u) // on error: Index access is out of bounds
+        let tmp%8#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
+        (assert tmp%8#0)
         return 1u
 
 subroutine test_cases.arc4_types.structs.add(v1: bytes, v2: bytes) -> <bytes, bytes, bytes>:
-    block@0: // L64
+    block@0: // L68
         let v1%is_original#0: bool = 1u
         let v1%out#0: bytes = v1#0
         let v2%is_original#0: bool = 1u
@@ -122,7 +136,7 @@ subroutine test_cases.arc4_types.structs.add(v1: bytes, v2: bytes) -> <bytes, by
         return encoded_tuple_buffer%2#0 v1#0 v2#0
 
 subroutine test_cases.arc4_types.structs.add_decimal(x: bytes, y: bytes) -> bytes:
-    block@0: // L86
+    block@0: // L90
         let tmp%0#0: uint64 = (btoi x#0)
         let tmp%1#0: uint64 = (btoi y#0)
         let tmp%2#0: uint64 = (+ tmp%0#0 tmp%1#0)
@@ -130,7 +144,7 @@ subroutine test_cases.arc4_types.structs.add_decimal(x: bytes, y: bytes) -> byte
         return tmp%3#0
 
 subroutine test_cases.arc4_types.structs.check(flags: bytes) -> bytes:
-    block@0: // L72
+    block@0: // L76
         let flags%is_original#0: bool = 1u
         let flags%out#0: bytes = flags#0
         let is_true%0#0: uint64 = (getbit flags#0 0u)
@@ -154,7 +168,7 @@ subroutine test_cases.arc4_types.structs.check(flags: bytes) -> bytes:
         return flags%out#0
 
 subroutine test_cases.arc4_types.structs.nested_decode(vector_flags: bytes) -> bytes:
-    block@0: // L80
+    block@0: // L84
         let vector_flags%is_original#0: bool = 1u
         let vector_flags%out#0: bytes = vector_flags#0
         let tmp%0#0: bytes = (extract3 vector_flags#0 0u 16u) // on error: Index access is out of bounds
