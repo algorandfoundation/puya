@@ -772,3 +772,25 @@ class Client(arc4.ARC4Client, typing.Protocol):
 def stack_uint64_to_arc4_uint8() -> None:
     arr = ImmutableArray[UInt64]()
     arc4.abi_call(Client.take_arc4_uint8, arr, app_id=1234) ## E: unsupported ARC4 encode operation to type uint8[]
+
+## case: abimethod_reference_type_in_tuple
+from algopy import *
+
+class ARC4Reference(arc4.ARC4Contract):
+    @arc4.abimethod()
+    def test(self,
+        arg: tuple[Account, Asset], ## E: ARC4 tuples can only contain ARC-4 types but elements 0 and 1 are not ARC-4 types
+        arg2: tuple[Account, Application],
+    ) -> None:
+        pass
+
+
+## case: abimethod_reference_type_in_array
+from algopy import *
+
+class ARC4Reference(arc4.ARC4Contract):
+    @arc4.abimethod()
+    def test(self,
+        arg: ImmutableArray[Asset], ## E: ARC-4 arrays can only contain ARC-4 elements
+    ) -> None:
+        pass

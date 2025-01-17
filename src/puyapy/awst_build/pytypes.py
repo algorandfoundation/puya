@@ -244,7 +244,7 @@ class TypeType(PyType):
 @attrs.frozen(order=False)
 class TypingLiteralType(PyType):
     value: TypingLiteralValue
-    source_location: SourceLocation | None
+    source_location: SourceLocation | None = attrs.field(eq=False)
     name: str = attrs.field(init=False)
     generic: None = attrs.field(default=None, init=False)
     bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
@@ -280,7 +280,7 @@ class UnionType(PyType):
     generic: None = attrs.field(default=None, init=False)
     bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
     mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
-    source_location: SourceLocation
+    source_location: SourceLocation = attrs.field(eq=False)
 
     @name.default
     def _name(self) -> str:
@@ -308,7 +308,7 @@ class _BaseType(PyType):
 @attrs.frozen(kw_only=True, order=False)
 class TupleLikeType(PyType, abc.ABC):
     items: tuple[PyType, ...]
-    source_location: SourceLocation | None
+    source_location: SourceLocation | None = attrs.field(eq=False)
 
 
 def _parameterise_tuple(
@@ -390,6 +390,7 @@ class ArrayType(SequenceType, RuntimeType):
     wtype: wtypes.WType
     # convenience accessors
     items_wtype: wtypes.WType
+    source_location: SourceLocation | None = attrs.field(eq=False)
 
 
 @typing.final
@@ -453,7 +454,7 @@ class ContractType(PyType):
     module_name: str
     class_name: str
     name: ContractReference = attrs.field(init=False)
-    source_location: SourceLocation
+    source_location: SourceLocation = attrs.field(eq=False)
 
     @name.default
     def _name(self) -> ContractReference:
@@ -476,7 +477,7 @@ class StructType(RuntimeType):
     )
     frozen: bool
     wtype: wtypes.ARC4Struct | wtypes.WStructType
-    source_location: SourceLocation | None
+    source_location: SourceLocation | None = attrs.field(eq=False)
     generic: None = None
     desc: str | None = None
 
@@ -860,6 +861,7 @@ def _make_array_parameterise(
             items=arg,
             wtype=typ(element_type=items_wtype, source_location=source_location),
             items_wtype=items_wtype,
+            source_location=source_location,
         )
 
     return parameterise
@@ -888,6 +890,7 @@ ARC4DynamicBytesType: typing.Final = _register_builtin(
         items_wtype=ARC4ByteType.wtype,
         bases=[GenericARC4DynamicArrayType.parameterise([ARC4ByteType], source_location=None)],
         mro=[GenericARC4DynamicArrayType.parameterise([ARC4ByteType], source_location=None)],
+        source_location=None,
     )
 )
 
@@ -917,6 +920,7 @@ def _parameterise_arc4_static_array(
             element_type=items_wtype, array_size=size, source_location=source_location
         ),
         items_wtype=items_wtype,
+        source_location=source_location,
     )
 
 
@@ -944,6 +948,7 @@ ARC4AddressType: typing.Final = _register_builtin(
                 source_location=None,
             )
         ],
+        source_location=None,
     )
 )
 

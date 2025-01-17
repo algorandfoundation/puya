@@ -390,15 +390,19 @@ class ARC4Tuple(ARC4Type):
         return all(typ.immutable for typ in self.types)
 
 
-def _expect_arc4_type(wtype: WType) -> ARC4Type:
+def _array_requires_arc4_type(wtype: WType, arr: attrs.AttrsInstance) -> ARC4Type:
+    assert isinstance(arr, ARC4Array)
     if not isinstance(wtype, ARC4Type):
-        raise CodeError(f"expected ARC4 type: {wtype}")
+        raise CodeError("ARC-4 arrays can only contain ARC-4 elements", arr.source_location)
     return wtype
 
 
 @attrs.frozen(kw_only=True)
 class ARC4Array(ARC4Type):
-    element_type: ARC4Type = attrs.field(converter=_expect_arc4_type)
+    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
+    element_type: ARC4Type = attrs.field(
+        converter=attrs.Converter(_array_requires_arc4_type, takes_self=True)  # type: ignore[misc]
+    )
     immutable: bool = False
 
 
@@ -407,7 +411,6 @@ class ARC4Array(ARC4Type):
 class ARC4DynamicArray(ARC4Array):
     name: str = attrs.field(init=False)
     arc4_name: str = attrs.field(eq=False)
-    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
 
     @name.default
     def _name(self) -> str:
@@ -424,7 +427,6 @@ class ARC4StaticArray(ARC4Array):
     array_size: int = attrs.field(validator=attrs.validators.ge(0))
     name: str = attrs.field(init=False)
     arc4_name: str = attrs.field(eq=False)
-    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
 
     @name.default
     def _name(self) -> str:
