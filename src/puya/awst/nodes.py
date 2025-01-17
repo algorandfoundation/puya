@@ -21,11 +21,7 @@ from puya.awst.visitors import (
 )
 from puya.awst.wtypes import WType
 from puya.errors import CodeError, InternalError
-from puya.models import (
-    ARC4MethodConfig,
-    ContractReference,
-    LogicSigReference,
-)
+from puya.models import ARC4MethodConfig, ContractReference, LogicSigReference
 from puya.parse import SourceLocation
 from puya.utils import unique
 
@@ -1530,8 +1526,8 @@ class RootNode(Node, ABC):
 @attrs.frozen(kw_only=True)
 class SubroutineArgument:
     name: str
+    source_location: SourceLocation
     wtype: WType = attrs.field()
-    source_location: SourceLocation | None
 
     @wtype.validator
     def _wtype_validator(self, _attribute: object, wtype: WType) -> None:
@@ -1819,3 +1815,41 @@ class Contract(RootNode):
 
     def accept(self, visitor: RootNodeVisitor[T]) -> T:
         return visitor.visit_contract(self)
+
+    @typing.overload
+    def resolve_contract_method(self, name: str) -> ContractMethod: ...
+
+    @typing.overload
+    def resolve_contract_method(
+        self,
+        name: str,
+        source_location: SourceLocation,
+        *,
+        start: ContractReference,
+        skip: bool = False,
+    ) -> ContractMethod: ...
+
+    def resolve_contract_method(
+        self,
+        name: str,
+        source_location: SourceLocation | None = None,
+        *,
+        start: ContractReference | None = None,
+        skip: bool = False,
+    ) -> ContractMethod | None:
+        mro = [self.id, *self.method_resolution_order]
+        if start:
+            try:
+                curr_idx = mro.index(start)
+            except ValueError:
+                raise CodeError(
+                    "call to base method outside current hierarchy", source_location
+                ) from None
+            mro = mro[curr_idx:]
+        if skip:
+            mro = mro[1:]
+        for cref in mro:
+            for method in self.methods:
+                if method.member_name == name and method.cref == cref:
+                    return method
+        return None

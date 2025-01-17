@@ -10,7 +10,7 @@ import attrs
 import puya.awst.nodes as awst_nodes
 import puya.models
 from puya.context import CompileContext
-from puya.errors import CodeError, InternalError, log_exceptions
+from puya.errors import CodeError, log_exceptions
 from puya.ir.builder.blocks import BlocksBuilder
 from puya.ir.models import Subroutine
 from puya.ir.ssa import BraunSSA
@@ -56,24 +56,31 @@ class IRBuildContext(CompileContext):
         source_location: SourceLocation,
         caller: awst_nodes.Function,
     ) -> awst_nodes.Function:
-        match target:
-            case awst_nodes.SubroutineID(sub_id):
-                func: awst_nodes.Node | None = self._awst_lookup.get(sub_id)
-            case awst_nodes.InstanceMethodTarget(member_name=member_name):
-                func = self._resolve_contract_method(member_name, source_location)
-            case awst_nodes.ContractMethodTarget(cref=start_at, member_name=member_name):
-                func = self._resolve_contract_method(member_name, source_location, start=start_at)
-            case awst_nodes.InstanceSuperMethodTarget(member_name=member_name):
-                if not isinstance(caller, awst_nodes.ContractMethod):
-                    raise CodeError(
-                        "call to contract method from outside of contract class",
-                        source_location,
-                    )
-                func = self._resolve_contract_method(
-                    member_name, source_location, start=caller.cref, skip=True
+        if isinstance(target, awst_nodes.SubroutineID):
+            func: awst_nodes.Node | None = self._awst_lookup.get(target.target)
+        else:
+            contract = self.root
+            if not (
+                isinstance(contract, awst_nodes.Contract)
+                and isinstance(caller, awst_nodes.ContractMethod)
+            ):
+                raise CodeError(
+                    "call to contract method from outside of contract class",
+                    source_location,
                 )
-            case unexpected:
-                typing.assert_never(unexpected)
+            match target:
+                case awst_nodes.InstanceMethodTarget(member_name=member_name):
+                    func = contract.resolve_contract_method(member_name)
+                case awst_nodes.ContractMethodTarget(cref=start_at, member_name=member_name):
+                    func = contract.resolve_contract_method(
+                        member_name, source_location, start=start_at
+                    )
+                case awst_nodes.InstanceSuperMethodTarget(member_name=member_name):
+                    func = contract.resolve_contract_method(
+                        member_name, source_location, start=caller.cref, skip=True
+                    )
+                case unexpected:
+                    typing.assert_never(unexpected)
         if func is None:
             raise CodeError(f"unable to resolve function reference {target}", source_location)
         if not isinstance(func, awst_nodes.Function):
@@ -81,52 +88,6 @@ class IRBuildContext(CompileContext):
                 f"function reference {target} resolved to non-function {func}", source_location
             )
         return func
-
-    @typing.overload
-    def _resolve_contract_method(
-        self, name: str, source_location: SourceLocation
-    ) -> awst_nodes.ContractMethod: ...
-
-    @typing.overload
-    def _resolve_contract_method(
-        self,
-        name: str,
-        source_location: SourceLocation,
-        *,
-        start: puya.models.ContractReference,
-        skip: bool = False,
-    ) -> awst_nodes.ContractMethod: ...
-
-    def _resolve_contract_method(
-        self,
-        name: str,
-        source_location: SourceLocation,
-        *,
-        start: puya.models.ContractReference | None = None,
-        skip: bool = False,
-    ) -> awst_nodes.ContractMethod | None:
-        root = self.root
-        if not isinstance(root, awst_nodes.Contract):
-            raise InternalError(
-                f"cannot resolve contract member {name} as there is no current contract",
-                source_location,
-            )
-        mro = [root.id, *root.method_resolution_order]
-        if start:
-            try:
-                curr_idx = mro.index(start)
-            except ValueError:
-                raise CodeError(
-                    "call to base method outside current hierarchy", source_location
-                ) from None
-            mro = mro[curr_idx:]
-        if skip:
-            mro = mro[1:]
-        for cref in mro:
-            for method in root.methods:
-                if method.member_name == name and method.cref == cref:
-                    return method
-        return None
 
     @property
     def default_fallback(self) -> SourceLocation | None:

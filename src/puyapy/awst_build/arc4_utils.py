@@ -12,11 +12,11 @@ from puya import log
 from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
 from puya.models import (
+    ABIMethodArgDefault,
+    ABIMethodArgMemberDefault,
     ARC4ABIMethodConfig,
     ARC4BareMethodConfig,
     ARC4CreateOption,
-    ARC4Struct,
-    ARC4StructField,
     OnCompletionAction,
     TransactionType,
 )
@@ -175,7 +175,7 @@ def get_arc4_abimethod_data(
             readonly = default_readonly
 
     # map "default_args" param
-    default_args = dict[str, str]()
+    default_args = dict[str, ABIMethodArgDefault]()
     match evaluated_args.pop("default_args", {}):
         case {**options}:
             method_arg_names = func_types.keys() - {"output"}
@@ -190,7 +190,7 @@ def get_arc4_abimethod_data(
                 else:
                     # if it's in method_arg_names, it's a str
                     assert isinstance(parameter, str)
-                    default_args[parameter] = value
+                    default_args[parameter] = ABIMethodArgMemberDefault(name=value)
         case invalid_default_args_option:
             context.error(f"invalid default_args option: {invalid_default_args_option}", dec_loc)
 
@@ -293,20 +293,6 @@ class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
     @typing.override
     def visit_dict_expr(self, o: mypy.nodes.DictExpr) -> dict[object, object]:
         return {key.accept(self) if key else None: value.accept(self) for key, value in o.items}
-
-
-def _pytype_to_struct_def(typ: pytypes.StructType) -> ARC4Struct:
-    return ARC4Struct(
-        fullname=typ.name,
-        fields=[
-            ARC4StructField(
-                name=n,
-                type=pytype_to_arc4(t),
-                struct=t.name if pytypes.ARC4StructBaseType in t.mro else None,
-            )
-            for n, t in typ.fields.items()
-        ],
-    )
 
 
 def _get_func_types(
