@@ -17,12 +17,13 @@ import mypy.fscache
 import mypy.modulefinder
 import mypy.nodes
 import mypy.options
+import mypy.types
 import mypy.util
 
 from puya import log
 from puya.awst.nodes import MethodDocumentation
 from puya.parse import SourceLocation
-from puya.utils import make_path_relative_to_cwd
+from puya.utils import coalesce, make_path_relative_to_cwd
 
 if typing.TYPE_CHECKING:
     from collections.abc import Mapping, Sequence, Set
@@ -304,7 +305,7 @@ def parse_docstring(docstring_raw: str | None) -> MethodDocumentation:
     )
 
 
-def source_location_from_mypy(file: Path, node: mypy.nodes.Context) -> SourceLocation:
+def source_location_from_mypy(file: Path | None, node: mypy.nodes.Context) -> SourceLocation:
     assert node.line is not None
     assert node.line >= 1
 
@@ -362,6 +363,28 @@ def source_location_from_mypy(file: Path, node: mypy.nodes.Context) -> SourceLoc
                 file=file,
                 line=node.line,
                 end_line=end_line,
+            )
+        case mypy.types.Type():
+            # mypy types seem to not have an end_column specified, which ends up implying to
+            # end of line, so instead make end_column end after column so it is just a
+            # single character reference
+
+            if node.column < 0:
+                typ_column: int | None = None
+                typ_end_column: int | None = None
+            else:
+                typ_column = node.column
+                typ_end_column = coalesce(node.end_column, typ_column + 1)
+            return SourceLocation(
+                file=file,
+                line=node.line,
+                end_line=(
+                    node.end_line
+                    if (node.end_line is not None and node.end_line >= 1)
+                    else node.line
+                ),
+                column=typ_column,
+                end_column=typ_end_column,
             )
     return SourceLocation(
         file=file,

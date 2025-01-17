@@ -60,7 +60,7 @@ def pytype_to_arc4_pytype(
             )
         case pytypes.ArrayType(generic=pytypes.GenericImmutableArrayType, items=items):
             result = pytypes.GenericARC4DynamicArrayType.parameterise(
-                [pytype_to_arc4_pytype(items, on_error)], None
+                [pytype_to_arc4_pytype(items, on_error)], pytype.source_location
             )
             result2 = attrs.evolve(result, wtype=attrs.evolve(result.wtype, immutable=True))
             return result2
