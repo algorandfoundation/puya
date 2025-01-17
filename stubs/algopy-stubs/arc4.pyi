@@ -503,6 +503,11 @@ class Struct(metaclass=_StructMeta):
     def copy(self) -> typing.Self:
         """Create a copy of this struct"""
 
+    def _replace(self, **kwargs: typing.Any) -> typing.Self:  # type: ignore[misc]
+        """Return a new instance of the struct replacing specified fields with new values.
+
+        Note that any mutable fields must be explicitly copied to avoid aliasing."""
+
 class ARC4Client(typing.Protocol):
     """Used to provide typed method signatures for ARC4 contracts"""
 
