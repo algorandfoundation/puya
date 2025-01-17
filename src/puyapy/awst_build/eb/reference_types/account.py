@@ -180,7 +180,10 @@ class _IsOptedIn(FunctionBuilder):
                         op_code="asset_holding_get",
                         immediates=["AssetBalance"],
                         stack_args=[self.expr, arg.resolve()],
-                        wtype=wtypes.WTuple((wtypes.uint64_wtype, wtypes.bool_wtype), location),
+                        wtype=wtypes.WTuple(
+                            types=(wtypes.uint64_wtype, wtypes.bool_wtype),
+                            source_location=location,
+                        ),
                         source_location=location,
                     ),
                     index=1,
