@@ -1,4 +1,22 @@
 # CHANGELOG
+## v4.2.0 (2025-01-20)
+
+### Feature
+
+* support _replace method on ARC4Struct ([`3b1268d`](https://github.com/algorandfoundation/puya/commit/3b1268da00bd20bd507cb392e2aac37675a0e478))
+
+* update ops with AVM 11 changes ([`6814370`](https://github.com/algorandfoundation/puya/commit/68143702a37dc90d4e95fc97ae5ba90a8c98e306))
+
+### Fix
+
+* prevent compilation failure when there are multiple functions inlined into another function and at least one of them unconditionally exits the program ([`9e78626`](https://github.com/algorandfoundation/puya/commit/9e786260ce0f0d3b3206f61cf7518b43b8572b8c))
+
+* `algopy.LocalState.get` now works with `account` keyword argument ([`0722493`](https://github.com/algorandfoundation/puya/commit/07224938c750aa2ad2fe26032d9081739dc05939))
+
+### Documentation
+
+* add documentation on how to update langspec.json to support new AVM versions ([`a06b254`](https://github.com/algorandfoundation/puya/commit/a06b25425b6c583a04f2735400cdd7febd25f5a6))
+
 ## v4.1.1 (2025-01-13)
 
 ### Fix
