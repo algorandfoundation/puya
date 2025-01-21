@@ -71,7 +71,6 @@ autodoc2_docstring_parser_regexes = [
     (r".*", "myst"),
 ]
 autodoc2_hidden_objects = [
-    "private",  # single-underscore methods, e.g. _private
     "undoc",
 ]
 autodoc2_hidden_regexes = [
