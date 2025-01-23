@@ -174,13 +174,13 @@ def _remove_unreachable_blocks(teal_sub: models.TealSubroutine) -> None:
 
 
 def _inline_singly_referenced_blocks(teal_sub: models.TealSubroutine) -> None:
-    predecessors = defaultdict[str, set[str]](set)
-    predecessors[teal_sub.blocks[0].label].add("<entrypoint>")
+    predecessors = defaultdict[str, list[str]](list)
+    predecessors[teal_sub.blocks[0].label].append("<entrypoint>")
     for block in teal_sub.blocks:
         for op in block.ops:
             if isinstance(op, models.ControlOp):
                 for target_label in op.targets:
-                    predecessors[target_label].add(block.label)
+                    predecessors[target_label].append(block.label)
 
     pairs = dict[str, str]()
     inlineable = set[str]()
@@ -189,7 +189,7 @@ def _inline_singly_referenced_blocks(teal_sub: models.TealSubroutine) -> None:
             case models.Branch(target=target_label):
                 target_predecessors = predecessors[target_label]
                 if len(target_predecessors) == 1:
-                    assert target_predecessors == {block.label}
+                    assert target_predecessors == [block.label]
                     pairs[block.label] = target_label
                     inlineable.add(target_label)
 
