@@ -1,0 +1,51 @@
+#pragma version 10
+#pragma typetrack false
+
+// test_cases.regression_tests.teal_switch_inlining.TealSwitchInlining.approval_program() -> uint64:
+main:
+    intcblock 1 0
+    // regression_tests/teal_switch_inlining.py:11
+    // match a.Txn.num_app_args:
+    txn NumAppArgs
+    // regression_tests/teal_switch_inlining.py:12-16
+    // # at -O2, this block and the default block will be de-duplicated,
+    // # resulting in there being a reference to the default block in the `switch` cases
+    // # also, which cannot be inlined an must be preserved despite only having a single
+    // # predecessor block
+    // case 0:
+    intc_1 // 0
+    // regression_tests/teal_switch_inlining.py:18
+    // case 1:
+    intc_0 // 1
+    // regression_tests/teal_switch_inlining.py:11-21
+    // match a.Txn.num_app_args:
+    //     # at -O2, this block and the default block will be de-duplicated,
+    //     # resulting in there being a reference to the default block in the `switch` cases
+    //     # also, which cannot be inlined an must be preserved despite only having a single
+    //     # predecessor block
+    //     case 0:
+    //         return True
+    //     case 1:
+    //         return False
+    //     case _:
+    //         return True
+    uncover 2
+    match main_switch_case_0@1 main_switch_case_1@2
+
+main_switch_case_default@3:
+    // regression_tests/teal_switch_inlining.py:21
+    // return True
+    intc_0 // 1
+    return
+
+main_switch_case_1@2:
+    // regression_tests/teal_switch_inlining.py:19
+    // return False
+    intc_1 // 0
+    return
+
+main_switch_case_0@1:
+    // regression_tests/teal_switch_inlining.py:17
+    // return True
+    intc_0 // 1
+    return
