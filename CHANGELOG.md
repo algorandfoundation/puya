@@ -1,4 +1,14 @@
 # CHANGELOG
+## v4.2.1 (2025-01-27)
+
+### Fix
+
+* Don&#39;t inline TEAL blocks with a single predecessor when their label is referenced multiple times. This issue could occur when there is a default fall through block in a switch or match scenario, which is also targeted by said op, and would cause a compilation failure. ([`d193042`](https://github.com/algorandfoundation/puya/commit/d193042b58e9f377804abb7a4d94ef2bc84ac3fd))
+
+### Documentation
+
+* make `algopy.arc4.Struct._replace` visible in docs ([`cd88089`](https://github.com/algorandfoundation/puya/commit/cd88089ea67ff154abfee5c09f6eed26f95b823e))
+
 ## v4.2.0 (2025-01-20)
 
 ### Feature
