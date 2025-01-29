@@ -14,10 +14,11 @@ from puya.avm import AVMType
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
 from puya.ir.models import Intrinsic, UInt64Constant
+from puya.ir.optimize._utils import get_byte_constant
 from puya.ir.optimize.context import IROptimizationContext
 from puya.ir.optimize.dead_code_elimination import SIDE_EFFECT_FREE_AVM_OPS
 from puya.ir.register_read_collector import RegisterReadCollector
-from puya.ir.types_ import AVMBytesEncoding, IRType
+from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.ir.visitor_mutator import IRMutator
 from puya.parse import SourceLocation
 from puya.utils import biguint_bytes_eval, method_selector_hash, set_add
@@ -439,9 +440,9 @@ def _try_convert_stack_args_to_immediates(intrinsic: Intrinsic) -> Intrinsic | N
         ):
             return attrs.evolve(
                 intrinsic,
-                immediates=[slot],
-                args=rest,
                 op=AVMOp.load if op == AVMOp.loads else AVMOp.store,
+                args=rest,
+                immediates=[slot],
             )
         case Intrinsic(
             op=(AVMOp.extract3 | AVMOp.extract),
@@ -454,7 +455,10 @@ def _try_convert_stack_args_to_immediates(intrinsic: Intrinsic) -> Intrinsic | N
             # note the lower bound of 1 on length, extract with immediates vs extract3
             # have *very* different behaviour if the length is 0
             return attrs.evolve(
-                intrinsic, immediates=[S, L], args=intrinsic.args[:1], op=AVMOp.extract
+                intrinsic,
+                op=AVMOp.extract,
+                immediates=[S, L],
+                args=intrinsic.args[:1],
             )
         case Intrinsic(
             op=AVMOp.substring3,
@@ -465,7 +469,10 @@ def _try_convert_stack_args_to_immediates(intrinsic: Intrinsic) -> Intrinsic | N
             ],
         ) if S <= 255 and E <= 255:
             return attrs.evolve(
-                intrinsic, immediates=[S, E], args=intrinsic.args[:1], op=AVMOp.substring
+                intrinsic,
+                immediates=[S, E],
+                args=intrinsic.args[:1],
+                op=AVMOp.substring,
             )
         case Intrinsic(
             op=AVMOp.replace3,
@@ -495,8 +502,8 @@ def _try_fold_intrinsic(
         if false == true:
             return true
         match (
-            _get_byte_constant(register_assignments, false),
-            _get_byte_constant(register_assignments, true),
+            get_byte_constant(register_assignments, false),
+            get_byte_constant(register_assignments, true),
         ):
             case (None, _) | (_, None):
                 pass
@@ -510,7 +517,7 @@ def _try_fold_intrinsic(
                 pass
             case 1, 0:
                 return attrs.evolve(intrinsic, op=AVMOp.not_, args=[selector])
-            case 0, int(true_int_value) if selector.ir_type == IRType.bool:
+            case 0, int(true_int_value) if selector.ir_type == PrimitiveIRType.bool:
                 if true_int_value == 1:
                     return selector
                 return attrs.evolve(intrinsic, op=AVMOp.mul, args=[selector, true])
@@ -521,8 +528,8 @@ def _try_fold_intrinsic(
         (start,) = intrinsic.immediates
         assert isinstance(start, int)
         byte_arg_a, byte_arg_b = intrinsic.args
-        if (byte_const_a := _get_byte_constant(register_assignments, byte_arg_a)) is not None and (
-            byte_const_b := _get_byte_constant(register_assignments, byte_arg_b)
+        if (byte_const_a := get_byte_constant(register_assignments, byte_arg_a)) is not None and (
+            byte_const_b := get_byte_constant(register_assignments, byte_arg_b)
         ) is not None:
             replaced = bytearray(byte_const_a.value)
             replaced[start : start + len(byte_const_b.value)] = byte_const_b.value
@@ -535,8 +542,8 @@ def _try_fold_intrinsic(
         byte_arg_a, start_s, byte_arg_b = intrinsic.args
         if (
             (start2 := _get_int_constant(start_s)) is not None
-            and (byte_const_a := _get_byte_constant(register_assignments, byte_arg_a)) is not None
-            and (byte_const_b := _get_byte_constant(register_assignments, byte_arg_b)) is not None
+            and (byte_const_a := get_byte_constant(register_assignments, byte_arg_a)) is not None
+            and (byte_const_b := get_byte_constant(register_assignments, byte_arg_b)) is not None
         ):
             replaced = bytearray(byte_const_a.value)
             replaced[start2 : start2 + len(byte_const_b.value)] = byte_const_b.value
@@ -548,7 +555,7 @@ def _try_fold_intrinsic(
     elif intrinsic.op is AVMOp.getbit:
         match intrinsic.args:
             case [
-                models.UInt64Constant(value=source, ir_type=IRType.uint64),
+                models.UInt64Constant(value=source, ir_type=PrimitiveIRType.uint64),
                 models.UInt64Constant(value=index),
             ]:
                 getbit_result = 1 if (source & (1 << index)) else 0
@@ -556,7 +563,7 @@ def _try_fold_intrinsic(
             case [
                 models.Value(atype=AVMType.bytes) as byte_arg,
                 models.UInt64Constant(value=index),
-            ] if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
+            ] if (byte_const := get_byte_constant(register_assignments, byte_arg)) is not None:
                 binary_array = [
                     x for xs in [bin(bb)[2:].zfill(8) for bb in byte_const.value] for x in xs
                 ]
@@ -565,7 +572,7 @@ def _try_fold_intrinsic(
     elif intrinsic.op is AVMOp.setbit:
         match intrinsic.args:
             case [
-                models.UInt64Constant(value=source, ir_type=IRType.uint64),
+                models.UInt64Constant(value=source, ir_type=PrimitiveIRType.uint64),
                 models.UInt64Constant(value=index),
                 models.UInt64Constant(value=value),
             ]:
@@ -578,7 +585,7 @@ def _try_fold_intrinsic(
                 models.Value(atype=AVMType.bytes) as byte_arg,
                 models.UInt64Constant(value=index),
                 models.UInt64Constant(value=value),
-            ] if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
+            ] if (byte_const := get_byte_constant(register_assignments, byte_arg)) is not None:
                 binary_array = [
                     x for xs in [bin(bb)[2:].zfill(8) for bb in byte_const.value] for x in xs
                 ]
@@ -617,8 +624,8 @@ def _try_fold_intrinsic(
                 )
     elif intrinsic.op is AVMOp.concat:
         left_arg, right_arg = intrinsic.args
-        left_const = _get_byte_constant(register_assignments, left_arg)
-        right_const = _get_byte_constant(register_assignments, right_arg)
+        left_const = get_byte_constant(register_assignments, left_arg)
+        right_const = get_byte_constant(register_assignments, right_arg)
         if left_const is not None:
             if left_const.value == b"":
                 return right_arg
@@ -636,6 +643,9 @@ def _try_fold_intrinsic(
             if right_const.value == b"":
                 return left_arg
     elif intrinsic.op.code.startswith("extract"):
+        extract_chain = _simplify_chained_extracts(register_assignments, intrinsic)
+        if extract_chain is not None:
+            return extract_chain
         match intrinsic:
             case (
                 models.Intrinsic(
@@ -650,7 +660,7 @@ def _try_fold_intrinsic(
                         models.UInt64Constant(value=L),
                     ],
                 )
-            ) if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
+            ) if (byte_const := get_byte_constant(register_assignments, byte_arg)) is not None:
                 # note there is a difference of behaviour between extract with stack args
                 # and with immediates - zero is to the end with immediates,
                 # and zero length with stacks
@@ -659,7 +669,9 @@ def _try_fold_intrinsic(
                 else:
                     extracted = byte_const.value[S : S + L]
                 return models.BytesConstant(
-                    source_location=op_loc, encoding=byte_const.encoding, value=extracted
+                    source_location=op_loc,
+                    encoding=byte_const.encoding,
+                    value=extracted,
                 )
     elif intrinsic.op.code.startswith("substring"):
         match intrinsic:
@@ -676,12 +688,14 @@ def _try_fold_intrinsic(
                         models.UInt64Constant(value=E),
                     ],
                 )
-            ) if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
+            ) if (byte_const := get_byte_constant(register_assignments, byte_arg)) is not None:
                 if E < S:
                     return None  # would fail at runtime, lets hope this is unreachable 😬
                 extracted = byte_const.value[S:E]
                 return models.BytesConstant(
-                    source_location=op_loc, encoding=byte_const.encoding, value=extracted
+                    source_location=op_loc,
+                    encoding=byte_const.encoding,
+                    value=extracted,
                 )
     elif not intrinsic.immediates:
         match intrinsic.args:
@@ -703,6 +717,99 @@ def _try_fold_intrinsic(
     return None
 
 
+def _simplify_chained_extracts(
+    register_assignments: _RegisterAssignments, extract: models.Intrinsic
+) -> models.Intrinsic | None:
+    try:
+        extract_bytes_ass = register_assignments[extract.args[0]]  # type: ignore[index]
+    except KeyError:
+        return None
+    src = extract_bytes_ass.source
+    if isinstance(src, models.Intrinsic) and src.op in (AVMOp.extract, AVMOp.extract3):
+        src_bytes_arg = src.args[0]
+        src_start = _get_extract_start(src)
+        op_start = _get_extract_start(extract)
+        start: int | models.Value
+        if src_start == 0 and op_start is not None:
+            start = _to_value(op_start)
+        elif op_start == 0 and src_start is not None:
+            start = _to_value(src_start)
+        elif isinstance(src_start, int) and isinstance(op_start, int):
+            start = _to_value(src_start + op_start)
+        else:
+            logger.debug(f"couldn't simplify {extract} due to starts: {src_start=}, {op_start=}")
+            return None
+
+        src_length = _get_extract_length(src)
+        op_length = _get_extract_length(extract)
+        length: int | models.Value
+        if (
+            isinstance(src_length, int)
+            and isinstance(op_length, int)
+            and min(src_length, op_length) != 0  # 0 is a special case
+        ):
+            length = _to_value(min(src_length, op_length))
+        elif src_length and op_length and src_length == op_length:
+            length = _to_value(src_length)
+        else:
+            logger.debug(
+                f"couldn't simplify {extract} due to lengths: {src_length=}, {op_length=}"
+            )
+            return None
+        return models.Intrinsic(
+            op=AVMOp.extract3,  # this may get simplified further
+            args=[
+                src_bytes_arg,
+                start,
+                length,
+            ],
+            source_location=extract.source_location,
+        )
+    return None
+
+
+def _to_value(value: models.Value | int) -> models.Value:
+    if isinstance(value, int):
+        value = models.UInt64Constant(value=value, source_location=None)
+    return value
+
+
+def _get_extract_start(intrinsic: models.Intrinsic) -> models.Value | int | None:
+    try:
+        arg = intrinsic.args[1]
+    except IndexError:
+        pass
+    else:
+        maybe_const = _get_int_constant(arg)
+        return arg if maybe_const is None else maybe_const
+    try:
+        imm = intrinsic.immediates[0]
+    except IndexError:
+        pass
+    else:
+        assert isinstance(imm, int)
+        return imm
+    return None
+
+
+def _get_extract_length(intrinsic: models.Intrinsic) -> models.Value | int | None:
+    try:
+        arg = intrinsic.args[2]
+    except IndexError:
+        pass
+    else:
+        maybe_const = _get_int_constant(arg)
+        return arg if maybe_const is None else maybe_const
+    try:
+        imm = intrinsic.immediates[1]
+    except IndexError:
+        pass
+    else:
+        assert isinstance(imm, int)
+        return imm
+    return None
+
+
 def _get_int_constant(value: models.Value) -> int | None:
     if isinstance(value, models.UInt64Constant):
         return value.value
@@ -714,7 +821,7 @@ def _get_biguint_constant(
 ) -> tuple[int, bytes, AVMBytesEncoding] | tuple[None, None, None]:
     if isinstance(value, models.BigUIntConstant):
         return value.value, biguint_bytes_eval(value.value), AVMBytesEncoding.base16
-    byte_const = _get_byte_constant(register_assignments, value)
+    byte_const = get_byte_constant(register_assignments, value)
     if byte_const is not None and len(byte_const.value) <= 64:
         return (
             int.from_bytes(byte_const.value, byteorder="big", signed=False),
@@ -838,9 +945,17 @@ def _try_simplify_uint64_unary_op(
     return None
 
 
+_EXTRACT_UINT_OPS_BY_LENGTH = {
+    1: AVMOp.getbyte,
+    2: AVMOp.extract_uint16,
+    4: AVMOp.extract_uint32,
+    8: AVMOp.extract_uint64,
+}
+
+
 def _try_simplify_bytes_unary_op(
     register_assignments: _RegisterAssignments, intrinsic: models.Intrinsic, arg: models.Value
-) -> models.Value | None:
+) -> models.Value | models.Intrinsic | None:
     op_loc = intrinsic.source_location
     if intrinsic.op is AVMOp.bsqrt:
         biguint_const, _, _ = _get_biguint_constant(register_assignments, arg)
@@ -848,7 +963,7 @@ def _try_simplify_bytes_unary_op(
             value = math.isqrt(biguint_const)
             return models.BigUIntConstant(value=value, source_location=op_loc)
     else:
-        byte_const = _get_byte_constant(register_assignments, arg)
+        byte_const = get_byte_constant(register_assignments, arg)
         if byte_const is not None:
             if intrinsic.op is AVMOp.bitwise_not_bytes:
                 inverted = bytes([x ^ 0xFF for x in byte_const.value])
@@ -866,6 +981,27 @@ def _try_simplify_bytes_unary_op(
                 return UInt64Constant(value=converted.bit_length(), source_location=op_loc)
             else:
                 logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {byte_const}")
+        elif arg in register_assignments and intrinsic.op is AVMOp.btoi:
+            src = register_assignments[arg].source  # type: ignore[index]
+            # extract* BYTES, START, LEN; btoi -> extract_uint* BYTES, START
+            match src:
+                case models.Intrinsic(
+                    op=AVMOp.extract, args=[bites], immediates=[int(start), int(length)]
+                ) if length in _EXTRACT_UINT_OPS_BY_LENGTH:
+                    return attrs.evolve(
+                        intrinsic,
+                        op=_EXTRACT_UINT_OPS_BY_LENGTH[length],
+                        args=[bites, UInt64Constant(value=start, source_location=None)],
+                    )
+                case models.Intrinsic(
+                    op=AVMOp.extract3,
+                    args=[bites, start_arg, models.UInt64Constant(value=length)],
+                ) if length in _EXTRACT_UINT_OPS_BY_LENGTH:
+                    return attrs.evolve(
+                        intrinsic,
+                        op=_EXTRACT_UINT_OPS_BY_LENGTH[length],
+                        args=[bites, start_arg],
+                    )
     return None
 
 
@@ -914,7 +1050,7 @@ def _try_simplify_uint64_binary_op(
         # 0 < b <-> b
         #   OR
         # 1 <= b <-> b
-        elif (bool_context or b.ir_type == IRType.bool) and (
+        elif (bool_context or b.ir_type == PrimitiveIRType.bool) and (
             (a_const == 0 and op in (AVMOp.neq, AVMOp.lt)) or (a_const == 1 and op == AVMOp.lte)
         ):
             c = b
@@ -923,7 +1059,7 @@ def _try_simplify_uint64_binary_op(
         # a > 0 <-> a
         #   OR
         # a >= 1 <-> a
-        elif (bool_context or a.ir_type == IRType.bool) and (
+        elif (bool_context or a.ir_type == PrimitiveIRType.bool) and (
             (b_const == 0 and op in (AVMOp.neq, AVMOp.gt)) or (b_const == 1 and op == AVMOp.gte)
         ):
             c = a

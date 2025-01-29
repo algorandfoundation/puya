@@ -30,7 +30,7 @@ from puya.ir.models import (
     ValueTuple,
 )
 from puya.ir.ssa import BraunSSA
-from puya.ir.types_ import IRType, wtype_to_ir_type
+from puya.ir.types_ import PrimitiveIRType, wtype_to_ir_type
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 from puya.utils import StableSet, positive_index
@@ -190,7 +190,9 @@ class InnerTransactionBuilder:
         # the only case they aren't registers is when assigning to storage, which will
         # never be supported for itxn's because they're ephemeral
         itx_targets = [
-            t for t in targets if isinstance(t, Register) and t.ir_type == IRType.itxn_group_idx
+            t
+            for t in targets
+            if isinstance(t, Register) and t.ir_type == PrimitiveIRType.itxn_group_idx
         ]
         source_actions = SourceActionExtractor.visit(source_expr)
         if len(itx_targets) != len(source_actions):
@@ -242,14 +244,14 @@ class InnerTransactionBuilder:
             case Register(name=itxn_name) if self.ssa.has_version(_get_txn_is_last(itxn_name)):
                 is_last_in_group: Value = self.ssa.read_variable(
                     _get_txn_is_last(itxn_name),
-                    IRType.bool,
+                    PrimitiveIRType.bool,
                     self.block_builder.active_block,
                 )
             # otherwise infer based on itxn expr
             case _:
                 is_last_in_group = UInt64Constant(
                     value=int(_is_last_itxn(itxn_field.itxn)),
-                    ir_type=IRType.bool,
+                    ir_type=PrimitiveIRType.bool,
                     source_location=src_loc,
                 )
 
@@ -335,7 +337,7 @@ class InnerTransactionBuilder:
                 ITxnConstant(
                     value=group_index,
                     source_location=submit_var_loc,
-                    ir_type=IRType.itxn_group_idx,
+                    ir_type=PrimitiveIRType.itxn_group_idx,
                 )
             )
 
@@ -362,7 +364,7 @@ class InnerTransactionBuilder:
             self.context,
             source=UInt64Constant(
                 value=int(is_last),
-                ir_type=IRType.bool,
+                ir_type=PrimitiveIRType.bool,
                 source_location=None,
             ),
             name=_get_txn_is_last(var_name),
@@ -430,7 +432,7 @@ class InnerTransactionBuilder:
         field = field_data.field
         len_register = self.ssa.read_variable(
             field_data.field_count_register_name,
-            IRType.uint64,
+            PrimitiveIRType.uint64,
             self.block_builder.active_block,
         )
 
@@ -461,7 +463,7 @@ class InnerTransactionBuilder:
             source=ITxnConstant(
                 value=next(self._create_itxn_counter),
                 source_location=var_loc,
-                ir_type=IRType.itxn_field_set,
+                ir_type=PrimitiveIRType.itxn_field_set,
             ),
             name=var_name,
             assignment_location=var_loc,
@@ -534,7 +536,7 @@ class InnerTransactionBuilder:
                 context=self.context,
                 source=self.ssa.read_variable(
                     src_field_data.field_count_register_name,
-                    IRType.uint64,
+                    PrimitiveIRType.uint64,
                     self.block_builder.active_block,
                 ),
                 name=dest_field_data.field_count_register_name,
@@ -637,7 +639,7 @@ class SourceActionExtractor(FunctionTraverser):
                 for name, ir_type in build_tuple_item_names(
                     expr.name, expr.wtype, expr.source_location
                 )
-                if ir_type == IRType.itxn_group_idx
+                if ir_type == PrimitiveIRType.itxn_group_idx
             ]
         )
 

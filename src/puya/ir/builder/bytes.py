@@ -1,9 +1,9 @@
 from puya.awst import nodes as awst_nodes
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._utils import assign_intrinsic_op, assign_temp
+from puya.ir.builder._utils import OpFactory, assign_intrinsic_op, assign_temp
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import Intrinsic, UInt64Constant, Value, ValueProvider
-from puya.ir.types_ import IRType
+from puya.ir.types_ import PrimitiveIRType
 from puya.parse import SourceLocation
 
 
@@ -88,13 +88,13 @@ def visit_bytes_intersection_slice_expression(
             args=[end, start],
             source_location=expr.source_location,
         )
-        end = assign_intrinsic_op(
-            context,
-            target="end",
-            op=AVMOp.select,
-            args=[end, start, end_before_start],
-            source_location=expr.source_location,
-            return_type=IRType.uint64,
+        factory = OpFactory(context, expr.source_location)
+        end = factory.select(
+            false=end,
+            true=start,
+            condition=end_before_start,
+            temp_desc="end",
+            ir_type=PrimitiveIRType.uint64,
         )
     return Intrinsic(
         op=AVMOp.substring3,
@@ -160,13 +160,13 @@ def get_bounded_value(
             source_location=source_location,
         )
         # length if is_out_of_bounds else abs(value)
-        bounded_offset = assign_intrinsic_op(
-            context,
-            op=AVMOp.select,
-            args=[abs(value), length, is_out_of_bounds],
-            source_location=source_location,
-            target="bounded_offset",
-            return_type=IRType.uint64,
+        factory = OpFactory(context, source_location)
+        bounded_offset = factory.select(
+            false=abs(value),
+            true=length,
+            condition=is_out_of_bounds,
+            temp_desc="bounded_offset",
+            ir_type=PrimitiveIRType.uint64,
         )
         # length - bounded_offset
         bounded_index = assign_intrinsic_op(
@@ -191,12 +191,12 @@ def get_bounded_value(
         source_location=source_location,
     )
     # length if is_out_of_bounds else unbounded
-    bounded_index = assign_intrinsic_op(
-        context,
-        op=AVMOp.select,
-        args=[unbounded, length, is_out_of_bounds],
-        source_location=source_location,
-        target="bounded_index",
-        return_type=IRType.uint64,
+    factory = OpFactory(context, source_location)
+    bounded_index = factory.select(
+        false=unbounded,
+        true=length,
+        condition=is_out_of_bounds,
+        temp_desc="bounded_index",
+        ir_type=PrimitiveIRType.uint64,
     )
     return bounded_index

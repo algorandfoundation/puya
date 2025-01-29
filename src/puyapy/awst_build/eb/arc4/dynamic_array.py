@@ -9,14 +9,13 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     ArrayConcat,
     ArrayExtend,
+    ArrayLength,
     ArrayPop,
     Expression,
     ExpressionStatement,
-    IntrinsicCall,
     NewArray,
     Statement,
     TupleExpression,
-    UInt64Constant,
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -95,13 +94,12 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
 
     @typing.override
     def length(self, location: SourceLocation) -> InstanceBuilder:
-        length = IntrinsicCall(
-            op_code="extract_uint16",
-            stack_args=[self.resolve(), UInt64Constant(value=0, source_location=location)],
-            wtype=wtypes.uint64_wtype,
-            source_location=location,
+        return UInt64ExpressionBuilder(
+            ArrayLength(
+                array=self.resolve(),
+                source_location=location,
+            )
         )
-        return UInt64ExpressionBuilder(length)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:

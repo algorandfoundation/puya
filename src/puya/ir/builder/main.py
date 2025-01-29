@@ -4,7 +4,6 @@ from collections.abc import Iterator, Sequence
 import attrs
 
 import puya.awst.visitors
-import puya.ir.builder.storage
 from puya import algo_constants, log, utils
 from puya.avm import AVMType
 from puya.awst import (
@@ -17,7 +16,7 @@ from puya.awst.txn_fields import TxnField
 from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, flow_control, storage
+from puya.ir.builder import arc4, arrays, flow_control, mem, storage
 from puya.ir.builder._tuple_util import get_tuple_item_values
 from puya.ir.builder._utils import (
     OpFactory,
@@ -66,10 +65,13 @@ from puya.ir.models import (
     Value,
     ValueProvider,
     ValueTuple,
+    WriteSlot,
 )
 from puya.ir.types_ import (
+    ArrayType,
     AVMBytesEncoding,
-    IRType,
+    PrimitiveIRType,
+    SlotType,
     bytes_enc_to_avm_bytes_enc,
     wtype_to_ir_type,
     wtype_to_ir_types,
@@ -111,7 +113,9 @@ class FunctionIRBuilder(
                 if p.implicit_return:
                     assign(
                         func_ctx,
-                        UInt64Constant(value=1, ir_type=IRType.bool, source_location=None),
+                        UInt64Constant(
+                            value=1, ir_type=PrimitiveIRType.bool, source_location=None
+                        ),
                         name=get_implicit_return_is_original(p.name),
                         assignment_location=None,
                     )
@@ -156,6 +160,14 @@ class FunctionIRBuilder(
                     source_location=expr.source_location,
                     context=self.context,
                 )
+            case wtypes.WArray():
+                loc = expr.source_location
+                original_slot = self.visit_and_materialise_single(expr.value)
+                new_slot = puya.ir.builder.mem.new_slot(self.context, original_slot.ir_type, loc)
+                value = puya.ir.builder.mem.read_slot(self.context, original_slot, loc)
+                puya.ir.builder.mem.write_slot(self.context, new_slot, value, loc)
+                return new_slot
+
         raise InternalError(
             f"Invalid source wtype for Copy {expr.value.wtype}", expr.source_location
         )
@@ -183,7 +195,7 @@ class FunctionIRBuilder(
                 artifact=expr.contract,
                 field=field,
                 program_page=page,
-                ir_type=IRType.bytes,
+                ir_type=PrimitiveIRType.bytes,
                 source_location=expr.source_location,
                 template_variables=template_variables,
             )
@@ -202,7 +214,7 @@ class FunctionIRBuilder(
                     else CompiledContractReference(
                         artifact=expr.contract,
                         field=field,
-                        ir_type=IRType.uint64,
+                        ir_type=PrimitiveIRType.uint64,
                         source_location=expr.source_location,
                         template_variables=template_variables,
                     )
@@ -228,7 +240,7 @@ class FunctionIRBuilder(
             values=[
                 CompiledLogicSigReference(
                     artifact=expr.logic_sig,
-                    ir_type=IRType.bytes,
+                    ir_type=PrimitiveIRType.bytes,
                     source_location=expr.source_location,
                     template_variables=template_variables,
                 )
@@ -400,14 +412,14 @@ class FunctionIRBuilder(
             case wtypes.bool_wtype:
                 return UInt64Constant(
                     value=int(expr.value),
-                    ir_type=IRType.bool,
+                    ir_type=PrimitiveIRType.bool,
                     source_location=expr.source_location,
                 )
             case wtypes.arc4_bool_wtype:
                 return BytesConstant(
                     value=(ARC4_TRUE if expr.value else ARC4_FALSE),
                     encoding=AVMBytesEncoding.base16,
-                    ir_type=IRType.bytes,
+                    ir_type=PrimitiveIRType.bytes,
                     source_location=expr.source_location,
                 )
             case _:
@@ -775,7 +787,10 @@ class FunctionIRBuilder(
                     source_location=expr.source_location,
                 )
         elif isinstance(expr.base.wtype, wtypes.WArray):
-            raise NotImplementedError
+            array_slot = self.visit_and_materialise_single(expr.base)
+            array = mem.read_slot(self.context, array_slot, expr.base.source_location)
+            index = self.visit_and_materialise_single(expr.index)
+            return arrays.read_array_index(self.context, array, index, expr.source_location)
         elif isinstance(expr.base.wtype, wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray):
             return arc4.arc4_array_index(
                 self.context,
@@ -837,8 +852,20 @@ class FunctionIRBuilder(
         match expr.wtype:
             case wtypes.ARC4Array():
                 return arc4.encode_arc4_array(self.context, expr)
-            case wtypes.WArray():
-                raise NotImplementedError
+            case wtypes.WArray() as arr:
+                loc = expr.source_location
+                array_slot_type = wtype_to_ir_type(arr)
+                assert isinstance(array_slot_type, SlotType)
+                array_type = array_slot_type.contents
+                assert isinstance(array_type, ArrayType)
+                array_contents = arrays.serialize_array_items(
+                    self.context,
+                    awst_nodes.TupleExpression.from_items(expr.values, expr.source_location),
+                    array_type=array_type,
+                )
+                slot = mem.new_slot(self.context, array_slot_type, loc)
+                mem.write_slot(self.context, slot, array_contents, loc)
+                return slot
             case _:
                 typing.assert_never(expr.wtype)
 
@@ -889,7 +916,7 @@ class FunctionIRBuilder(
             self.context.block_builder.activate_block(true_block)
             assign(
                 self.context,
-                UInt64Constant(value=1, ir_type=IRType.bool, source_location=None),
+                UInt64Constant(value=1, ir_type=PrimitiveIRType.bool, source_location=None),
                 name=tmp_name,
                 assignment_location=None,
             )
@@ -898,14 +925,14 @@ class FunctionIRBuilder(
             self.context.block_builder.activate_block(false_block)
             assign(
                 self.context,
-                UInt64Constant(value=0, ir_type=IRType.bool, source_location=None),
+                UInt64Constant(value=0, ir_type=PrimitiveIRType.bool, source_location=None),
                 name=tmp_name,
                 assignment_location=None,
             )
             self.context.block_builder.goto(merge_block)
             self.context.block_builder.activate_block(merge_block)
             return self.context.ssa.read_variable(
-                variable=tmp_name, ir_type=IRType.bool, block=merge_block
+                variable=tmp_name, ir_type=PrimitiveIRType.bool, block=merge_block
             )
 
         left = self.visit_and_materialise_single(expr.left)
@@ -939,8 +966,8 @@ class FunctionIRBuilder(
         source = self.visit_expr(expr.expr)
         (inner_ir_type,) = source.types
         outer_ir_type = wtype_to_ir_type(expr)
-        # don't need to do anything further if ir types are the same
-        if inner_ir_type == outer_ir_type:
+        # don't need to do anything further if outer type is a super type of inner type
+        if outer_ir_type <= inner_ir_type:
             return source
         inner_avm_type = inner_ir_type.avm_type
         outer_avm_type = outer_ir_type.avm_type
@@ -1005,7 +1032,9 @@ class FunctionIRBuilder(
                     )
                 )
         return_types = [r.ir_type for r in result]
-        if return_types != self.context.subroutine.returns:
+        if [t.avm_type for t in return_types] != [
+            t.avm_type for t in self.context.subroutine.returns
+        ]:
             raise CodeError(
                 f"invalid return type {return_types}, expected {self.context.subroutine.returns}",
                 statement.source_location,
@@ -1130,37 +1159,82 @@ class FunctionIRBuilder(
                 typing.assert_never(expr.wtype)
 
     def visit_array_pop(self, expr: awst_nodes.ArrayPop) -> TExpression:
-        source_location = expr.source_location
-        match expr.base.wtype:
-            case wtypes.ARC4DynamicArray() as array_wtype:
-                return arc4.pop_arc4_array(self.context, expr, array_wtype)
-            case _:
-                raise InternalError(
-                    f"Unsupported target for array pop: {expr.base.wtype}", source_location
+        loc = expr.source_location
+        if isinstance(expr.base.wtype, wtypes.ARC4DynamicArray):
+            return arc4.pop_arc4_array(self.context, expr, expr.base.wtype)
+        elif isinstance(expr.base.wtype, wtypes.WArray):
+            slot = self.context.visitor.visit_and_materialise_single(expr.base)
+            contents = mem.read_slot(self.context, slot, expr.base.source_location)
+            contents, popped_item = arrays.pop_array(self.context, contents, expr.source_location)
+            self.context.add_op(
+                WriteSlot(
+                    slot=slot,
+                    value=contents,
+                    source_location=expr.source_location,
                 )
+            )
+            return popped_item
+        else:
+            raise InternalError(f"Unsupported target for array pop: {expr.base.wtype}", loc)
 
     def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> TExpression:
-        return arc4.concat_values(
-            self.context,
-            left_expr=expr.left,
-            right_expr=expr.right,
-            source_location=expr.source_location,
-        )
+        if isinstance(expr.wtype, wtypes.ARC4Array):
+            return arc4.concat_values(
+                self.context,
+                left_expr=expr.left,
+                right_expr=expr.right,
+                source_location=expr.source_location,
+            )
+        elif isinstance(expr.wtype, wtypes.WArray):
+            raise CodeError("TODO: support concat", expr.source_location)
+        else:
+            raise InternalError("unsupported array type", expr.source_location)
 
     def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> TExpression:
-        concat_result = arc4.concat_values(
-            self.context,
-            left_expr=expr.base,
-            right_expr=expr.other,
-            source_location=expr.source_location,
-        )
-        return arc4.handle_arc4_assign(
-            self.context,
-            target=expr.base,
-            value=concat_result,
-            is_nested_update=True,
-            source_location=expr.source_location,
-        )
+        if isinstance(expr.base.wtype, wtypes.ARC4Array):
+            concat_result = arc4.concat_values(
+                self.context,
+                left_expr=expr.base,
+                right_expr=expr.other,
+                source_location=expr.source_location,
+            )
+            return arc4.handle_arc4_assign(
+                self.context,
+                target=expr.base,
+                value=concat_result,
+                is_nested_update=True,
+                source_location=expr.source_location,
+            )
+        elif isinstance(expr.base.wtype, wtypes.WArray):
+            array_slot = self.context.visitor.visit_and_materialise_single(expr.base)
+            array_slot_type = array_slot.ir_type
+            assert isinstance(array_slot_type, SlotType)
+            array_type = array_slot_type.contents
+            assert isinstance(array_type, ArrayType)
+            to_extend = arrays.serialize_array_items(self.context, expr.other, array_type)
+            array_contents = mem.read_slot(self.context, array_slot, expr.source_location)
+            array_contents = arrays.extend_array(
+                self.context, array_contents, to_extend, expr.source_location
+            )
+            mem.write_slot(self.context, array_slot, array_contents, expr.source_location)
+            return None
+        else:
+            raise InternalError("unsupported array type", expr.source_location)
+
+    def visit_array_length(self, expr: awst_nodes.ArrayLength) -> TExpression:
+        if isinstance(expr.array.wtype, wtypes.WArray):
+            array_slot = self.context.visitor.visit_and_materialise_single(expr.array)
+            array = mem.read_slot(self.context, array_slot, expr.array.source_location)
+            return arrays.array_length(self.context, array, expr.source_location)
+        elif isinstance(expr.array.wtype, wtypes.ARC4Array):
+            array = self.context.visitor.visit_and_materialise_single(expr.array)
+            return arc4.get_arc4_array_length(
+                expr.array.wtype,
+                array,
+                expr.source_location,
+            )
+        else:
+            raise InternalError("unsupported array type", expr.source_location)
 
     def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> TExpression:
         root = self.context.root
@@ -1346,7 +1420,10 @@ def create_biguint_binary_op(
                     f"Unhandled uint64 binary operator: {op}", source_location
                 ) from ex
     return Intrinsic(
-        op=avm_op, args=[left, right], types=(IRType.biguint,), source_location=source_location
+        op=avm_op,
+        args=[left, right],
+        types=(PrimitiveIRType.biguint,),
+        source_location=source_location,
     )
 
 

@@ -8,9 +8,14 @@ import algosdk
 import pytest
 from algokit_utils import LogicError
 from algosdk import abi, constants, transaction
-from algosdk.atomic_transaction_composer import AtomicTransactionComposer, TransactionWithSigner
+from algosdk.atomic_transaction_composer import (
+    AtomicTransactionComposer,
+    SimulateAtomicTransactionResponse,
+    TransactionWithSigner,
+)
 from algosdk.transaction import OnComplete
 from algosdk.v2client.algod import AlgodClient
+from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
 from nacl.signing import SigningKey
 
 from puya.arc32 import create_arc32_json
@@ -54,7 +59,9 @@ def compile_arc32(
 
     assert isinstance(contract, CompiledContract), "Compilation artifact must be a contract"
     return create_arc32_json(
-        contract.approval_program.teal_src, contract.clear_program.teal_src, contract.metadata
+        contract.approval_program.teal_src,
+        contract.clear_program.teal_src,
+        contract.metadata,
     )
 
 
@@ -910,7 +917,9 @@ def test_merkle(algod_client: AlgodClient, account: algokit_utils.Account) -> No
     app_client.create(call_abi_method="create", root=test_tree.root)
 
     assert app_client.call(
-        call_abi_method="verify", leaf=sha_256_raw(b"a"), proof=test_tree.get_proof(b"a")
+        call_abi_method="verify",
+        leaf=sha_256_raw(b"a"),
+        proof=test_tree.get_proof(b"a"),
     ).return_value
 
 
@@ -1079,7 +1088,9 @@ def other_account(algod_client: AlgodClient) -> algokit_utils.Account:
 
 
 def test_tictactoe(
-    algod_client: AlgodClient, account: algokit_utils.Account, other_account: algokit_utils.Account
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+    other_account: algokit_utils.Account,
 ) -> None:
     app_spec = algokit_utils.ApplicationSpecification.from_json(
         compile_arc32(EXAMPLES_DIR / "tictactoe" / "tictactoe.py")
@@ -1474,7 +1485,8 @@ def test_box(box_client: algokit_utils.ApplicationClient) -> None:
     assert not c_exist
 
     box_client.call(
-        call_abi_method="slice_box", transaction_parameters=_params_with_boxes(b"0", box_c)
+        call_abi_method="slice_box",
+        transaction_parameters=_params_with_boxes(b"0", box_c),
     )
 
     box_client.call(call_abi_method="arc4_box", transaction_parameters=_params_with_boxes(b"d"))
@@ -1606,7 +1618,8 @@ def test_named_tuples(
     app_client.call("test_tuple", value=(a, b, c, d))
 
     app_client.call(
-        "test_tuple", value={"a": 34, "b": 53934433, "c": "hmmmm", "d": account.public_key}
+        "test_tuple",
+        value={"a": 34, "b": 53934433, "c": "hmmmm", "d": account.public_key},
     )
 
 
@@ -1743,3 +1756,97 @@ def test_diamond_mro(
     method_logs_raw = method_response.tx_info["logs"]
     method_logs = decode_logs(method_logs_raw, len(method_logs_raw) * "u")
     assert method_logs == expected_method_log
+
+
+def test_array_uint64(
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+) -> None:
+    example = TEST_CASES_DIR / "array" / "uint64.py"
+
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    simulate_call(app_client, "test_array")
+    simulate_call(app_client, "test_array_extend")
+    simulate_call(app_client, "test_array_multiple_append")
+    simulate_call(app_client, "test_iteration")
+    simulate_call(app_client, "test_array_copy_and_extend")
+    simulate_call(app_client, "test_array_evaluation_order")
+
+    simulate_call(app_client, "test_allocations", num=255)
+    with pytest.raises(LogicError, match="no available slots\t\t<-- Error"):
+        simulate_call(app_client, "test_allocations", num=256)
+
+    with pytest.raises(LogicError, match="max array length exceeded\t\t<-- Error"):
+        simulate_call(app_client, "test_array_too_long")
+
+    simulate_call(app_client, "test_quicksort")
+
+
+def test_array_fixed_size(
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+) -> None:
+    example = TEST_CASES_DIR / "array" / "fixed_size.py"
+
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    response = simulate_call(app_client, "test_array", x1=3, y1=4, x2=6, y2=8)
+    assert response.abi_results[0].return_value == 15
+
+    response = simulate_call(app_client, "test_arc4_conversion", length=5)
+    assert response.abi_results[0].return_value == [1, 2, 3, 4, 5]
+
+    response = simulate_call(app_client, "sum_array", arc4_arr=[1, 2, 3, 4, 5])
+    assert response.abi_results[0].return_value == 15
+
+    response = simulate_call(app_client, "test_bool_array", length=5)
+    assert response.abi_results[0].return_value == 2
+    response = simulate_call(app_client, "test_bool_array", length=4)
+    assert response.abi_results[0].return_value == 2
+    response = simulate_call(app_client, "test_bool_array", length=6)
+    assert response.abi_results[0].return_value == 3
+
+    response = simulate_call(app_client, "test_bool_array", length=5)
+    assert response.abi_results[0].return_value == 2
+
+
+def simulate_call(
+    app_client: algokit_utils.ApplicationClient,
+    method: str,
+    extra_budget: int = 20_000,
+    **kwargs: object,
+) -> SimulateAtomicTransactionResponse:
+    atc = algosdk.atomic_transaction_composer.AtomicTransactionComposer()
+    app_client.compose_call(atc, call_abi_method=method, transaction_parameters=None, **kwargs)
+    simulate_response = atc.simulate(
+        app_client.algod_client,
+        SimulateRequest(
+            txn_groups=[],
+            extra_opcode_budget=extra_budget,
+            exec_trace_config=SimulateTraceConfig(
+                enable=True,
+                stack_change=True,
+                scratch_change=True,
+                state_change=True,
+            ),
+        ),
+    )
+
+    if simulate_response.failure_message:
+        logic_error_data = algokit_utils.logic_error.parse_logic_error(
+            simulate_response.failure_message
+        )
+        assert logic_error_data is not None, "expected LogicError"
+        assert app_client.approval is not None, "expected approval program"
+        raise algokit_utils.LogicError(
+            logic_error_str=simulate_response.failure_message,
+            program=app_client.approval.teal,
+            source_map=app_client.approval.source_map,
+            **logic_error_data,
+        )
+    return simulate_response

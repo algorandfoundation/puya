@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Callable
+from collections.abc import Callable, Set
 
 import attrs
 import mypy.nodes
@@ -44,6 +44,7 @@ StatementResult: typing.TypeAlias = list[DeferredRootNode]
 class _LogicSigDecoratorInfo:
     name_override: str | None
     avm_version: int | None
+    scratch_slots: Set[int]
 
 
 _BUILTIN_INHERITABLE: typing.Final = frozenset(
@@ -109,6 +110,7 @@ class ModuleASTConverter(
                     docstring=func_def.docstring,
                     source_location=self._location(logicsig_dec),
                     avm_version=info.avm_version,
+                    reserved_scratch_space=info.scratch_slots,
                 )
 
             return [deferred]
@@ -137,6 +139,7 @@ class ModuleASTConverter(
     ) -> _LogicSigDecoratorInfo:
         name_override = None
         avm_version = None
+        scratch_slot_reservations = set[int]()
         match decorator:
             case mypy.nodes.NameExpr():
                 pass
@@ -155,13 +158,34 @@ class ModuleASTConverter(
                                 avm_version = version_const
                             else:
                                 self.context.error("expected an int", arg)
-                        case _:
-                            self.context.error("unexpected argument", arg)
+                        case "scratch_slots":
+                            if isinstance(arg, mypy.nodes.TupleExpr | mypy.nodes.ListExpr):
+                                slot_items = arg.items
+                            else:
+                                slot_items = [arg]
+                            for item_expr in slot_items:
+                                slots = _map_scratch_space_reservation(
+                                    self.context, self, item_expr
+                                )
+                                if not slots:
+                                    self.context.error("range is empty", item_expr)
+                                elif (min(slots) < 0) or (max(slots) > MAX_SCRATCH_SLOT_NUMBER):
+                                    self.context.error(
+                                        "invalid scratch slot reservation - range must fall"
+                                        f" entirely between 0 and {MAX_SCRATCH_SLOT_NUMBER}",
+                                        item_expr,
+                                    )
+                                else:
+                                    scratch_slot_reservations.update(slots)
             case _:
                 self.context.error(
                     f"invalid {constants.LOGICSIG_DECORATOR_ALIAS} usage", decorator
                 )
-        return _LogicSigDecoratorInfo(name_override=name_override, avm_version=avm_version)
+        return _LogicSigDecoratorInfo(
+            name_override=name_override,
+            avm_version=avm_version,
+            scratch_slots=scratch_slot_reservations,
+        )
 
     def visit_class_def(self, cdef: mypy.nodes.ClassDef) -> StatementResult:
         self.check_fatal_decorators(cdef.decorators)

@@ -5,6 +5,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.wtypes import ARC4Type
 from puya.ir import models
 from puya.ir.models import Parameter, Subroutine
 from puya.ir.types_ import wtype_to_ir_type, wtype_to_ir_types
@@ -63,6 +64,6 @@ def _expand_tuple_parameters(
             name=name,
             ir_type=wtype_to_ir_type(typ),
             version=0,
-            implicit_return=allow_implicits and not typ.immutable,
+            implicit_return=allow_implicits and not typ.immutable and isinstance(typ, ARC4Type),
             source_location=source_location,
         )

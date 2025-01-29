@@ -8,7 +8,7 @@ import attrs
 from puya import log
 from puya.avm import AVMType
 from puya.ir import models
-from puya.ir.types_ import IRType
+from puya.ir.types_ import PrimitiveIRType
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 from puya.ir.vla import VariableLifetimeAnalysis
 from puya.options import LocalsCoalescingStrategy
@@ -133,9 +133,9 @@ class AggressiveGrouping(CoalesceGroupStrategy):
         (atype,) = {r.atype for r in regs}
         match atype:
             case AVMType.uint64:
-                ir_type = IRType.uint64
+                ir_type = PrimitiveIRType.uint64
             case AVMType.bytes:
-                ir_type = IRType.bytes
+                ir_type = PrimitiveIRType.bytes
             case _:
                 typing.assert_never(atype)
         return models.Register(

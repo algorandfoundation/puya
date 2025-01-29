@@ -42,6 +42,11 @@ class ToCodeVisitor(
         return f"{base}.pop()"
 
     @typing.override
+    def visit_array_length(self, expr: nodes.ArrayLength) -> str:
+        base = expr.array.accept(self)
+        return f"{base}.length"
+
+    @typing.override
     def visit_copy(self, expr: nodes.Copy) -> str:
         value = expr.value.accept(self)
         return f"{value}.copy()"

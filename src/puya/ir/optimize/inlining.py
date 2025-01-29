@@ -9,7 +9,6 @@ import networkx as nx  # type: ignore[import-untyped]
 
 from puya import log
 from puya.ir import models
-from puya.ir.context import TMP_VAR_INDICATOR
 from puya.ir.optimize._call_graph import CallGraph
 from puya.ir.optimize.context import IROptimizationContext
 from puya.ir.optimize.intrinsic_simplification import COMPILE_TIME_CONSTANT_OPS
@@ -283,7 +282,7 @@ def _inline_call(
                 ret_value = return_values[ret_idx]
                 if not isinstance(ret_value, models.Register):
                     tmp_value = ret_value
-                    tmp_reg_name = f"{call.target.id}{TMP_VAR_INDICATOR}{ret_idx}"
+                    tmp_reg_name = f"{call.target.id}{models.TMP_VAR_INDICATOR}{ret_idx}"
                     ret_value = models.Register(
                         ir_type=ret_value.ir_type,
                         source_location=ret_value.source_location,

@@ -4,9 +4,8 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import InternalError
-from puya.ir import intrinsic_factory
 from puya.ir.builder._tuple_util import build_tuple_registers
-from puya.ir.builder._utils import assign_targets, new_register_version
+from puya.ir.builder._utils import OpFactory, assign_targets, new_register_version
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BasicBlock,
@@ -181,12 +180,13 @@ def handle_conditional_expression(
         false_reg = context.visitor.visit_and_materialise_single(expr.false_expr)
         true_reg = context.visitor.visit_and_materialise_single(expr.true_expr)
         condition_value = context.visitor.visit_and_materialise_single(expr.condition)
+        intrinsic_factory = OpFactory(context, expr.source_location)
         return intrinsic_factory.select(
             condition=condition_value,
             true=true_reg,
             false=false_reg,
-            type_=wtype_to_ir_type(expr),
-            source_location=expr.source_location,
+            temp_desc="select",
+            ir_type=wtype_to_ir_type(expr),
         )
     true_block, false_block, merge_block = context.block_builder.mkblocks(
         "ternary_true", "ternary_false", "ternary_merge", source_location=expr.source_location

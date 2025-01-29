@@ -209,6 +209,9 @@ class ExpressionVisitor[T](ABC):
     def visit_new_array(self, expr: puya.awst.nodes.NewArray) -> T: ...
 
     @abstractmethod
+    def visit_array_length(self, expr: puya.awst.nodes.ArrayLength) -> T: ...
+
+    @abstractmethod
     def visit_new_struct(self, expr: puya.awst.nodes.NewStruct) -> T: ...
 
     @abstractmethod

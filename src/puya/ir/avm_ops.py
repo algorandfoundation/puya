@@ -9,9 +9,9 @@ from puya.ir.avm_ops_models import (
     ImmediateKind,
     OpSignature,
     RunMode,
-    StackType,
     Variant,
 )
+from puya.ir.types_ import FixedBytesType, PrimitiveIRType, UnionType
 
 
 class AVMOp(enum.StrEnum):
@@ -53,8 +53,8 @@ class AVMOp(enum.StrEnum):
             variant_map={
                 "AcctBalance": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index],
-                        returns=[StackType.uint64, StackType.bool],
+                        args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AcctBalance",
                     supported_modes=RunMode.app,
@@ -62,8 +62,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AcctMinBalance": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index],
-                        returns=[StackType.uint64, StackType.bool],
+                        args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AcctMinBalance",
                     supported_modes=RunMode.app,
@@ -71,8 +71,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AcctAuthAddr": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index],
-                        returns=[StackType.address, StackType.bool],
+                        args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                        returns=[FixedBytesType(size=32), PrimitiveIRType.bool],
                     ),
                     enum="AcctAuthAddr",
                     supported_modes=RunMode.app,
@@ -80,8 +80,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AcctTotalNumUint": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index],
-                        returns=[StackType.uint64, StackType.bool],
+                        args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AcctTotalNumUint",
                     supported_modes=RunMode.app,
@@ -89,8 +89,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AcctTotalNumByteSlice": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index],
-                        returns=[StackType.uint64, StackType.bool],
+                        args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AcctTotalNumByteSlice",
                     supported_modes=RunMode.app,
@@ -98,8 +98,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AcctTotalExtraAppPages": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index],
-                        returns=[StackType.uint64, StackType.bool],
+                        args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AcctTotalExtraAppPages",
                     supported_modes=RunMode.app,
@@ -107,8 +107,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AcctTotalAppsCreated": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index],
-                        returns=[StackType.uint64, StackType.bool],
+                        args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AcctTotalAppsCreated",
                     supported_modes=RunMode.app,
@@ -116,8 +116,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AcctTotalAppsOptedIn": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index],
-                        returns=[StackType.uint64, StackType.bool],
+                        args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AcctTotalAppsOptedIn",
                     supported_modes=RunMode.app,
@@ -125,8 +125,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AcctTotalAssetsCreated": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index],
-                        returns=[StackType.uint64, StackType.bool],
+                        args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AcctTotalAssetsCreated",
                     supported_modes=RunMode.app,
@@ -134,8 +134,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AcctTotalAssets": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index],
-                        returns=[StackType.uint64, StackType.bool],
+                        args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AcctTotalAssets",
                     supported_modes=RunMode.app,
@@ -143,8 +143,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AcctTotalBoxes": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index],
-                        returns=[StackType.uint64, StackType.bool],
+                        args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AcctTotalBoxes",
                     supported_modes=RunMode.app,
@@ -152,8 +152,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AcctTotalBoxBytes": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index],
-                        returns=[StackType.uint64, StackType.bool],
+                        args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AcctTotalBoxBytes",
                     supported_modes=RunMode.app,
@@ -161,7 +161,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AcctIncentiveEligible": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index], returns=[StackType.bool, StackType.bool]
+                        args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                        returns=[PrimitiveIRType.bool, PrimitiveIRType.bool],
                     ),
                     enum="AcctIncentiveEligible",
                     supported_modes=RunMode.app,
@@ -169,8 +170,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AcctLastProposed": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index],
-                        returns=[StackType.uint64, StackType.bool],
+                        args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AcctLastProposed",
                     supported_modes=RunMode.app,
@@ -178,8 +179,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AcctLastHeartbeat": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index],
-                        returns=[StackType.uint64, StackType.bool],
+                        args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AcctLastHeartbeat",
                     supported_modes=RunMode.app,
@@ -200,7 +201,8 @@ class AVMOp(enum.StrEnum):
         op_code="+",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -222,7 +224,8 @@ class AVMOp(enum.StrEnum):
         op_code="b+",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bigint, StackType.bigint], returns=[StackType.bigint]
+                args=[PrimitiveIRType.biguint, PrimitiveIRType.biguint],
+                returns=[PrimitiveIRType.biguint],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -241,8 +244,8 @@ class AVMOp(enum.StrEnum):
         op_code="addw",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64],
-                returns=[StackType.uint64, StackType.uint64],
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -261,7 +264,8 @@ class AVMOp(enum.StrEnum):
         op_code="&&",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -279,7 +283,7 @@ class AVMOp(enum.StrEnum):
     app_global_del = AVMOpData(
         op_code="app_global_del",
         variants=Variant(
-            signature=OpSignature(args=[StackType.state_key], returns=[]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[]),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=2,
@@ -302,7 +306,7 @@ class AVMOp(enum.StrEnum):
     app_global_get = AVMOpData(
         op_code="app_global_get",
         variants=Variant(
-            signature=OpSignature(args=[StackType.state_key], returns=[StackType.any]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[PrimitiveIRType.any]),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=2,
@@ -322,8 +326,8 @@ class AVMOp(enum.StrEnum):
         op_code="app_global_get_ex",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.application, StackType.state_key],
-                returns=[StackType.any, StackType.bool],
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.bytes],
+                returns=[PrimitiveIRType.any, PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.app,
@@ -345,7 +349,7 @@ class AVMOp(enum.StrEnum):
     app_global_put = AVMOpData(
         op_code="app_global_put",
         variants=Variant(
-            signature=OpSignature(args=[StackType.state_key, StackType.any], returns=[]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes, PrimitiveIRType.any], returns=[]),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=2,
@@ -363,7 +367,11 @@ class AVMOp(enum.StrEnum):
         op_code="app_local_del",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.address_or_index, StackType.state_key], returns=[]
+                args=[
+                    UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64)),
+                    PrimitiveIRType.bytes,
+                ],
+                returns=[],
             ),
             enum=None,
             supported_modes=RunMode.app,
@@ -388,7 +396,11 @@ class AVMOp(enum.StrEnum):
         op_code="app_local_get",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.address_or_index, StackType.state_key], returns=[StackType.any]
+                args=[
+                    UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64)),
+                    PrimitiveIRType.bytes,
+                ],
+                returns=[PrimitiveIRType.any],
             ),
             enum=None,
             supported_modes=RunMode.app,
@@ -410,8 +422,12 @@ class AVMOp(enum.StrEnum):
         op_code="app_local_get_ex",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.address_or_index, StackType.application, StackType.state_key],
-                returns=[StackType.any, StackType.bool],
+                args=[
+                    UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64)),
+                    PrimitiveIRType.uint64,
+                    PrimitiveIRType.bytes,
+                ],
+                returns=[PrimitiveIRType.any, PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.app,
@@ -435,7 +451,12 @@ class AVMOp(enum.StrEnum):
         op_code="app_local_put",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.address_or_index, StackType.state_key, StackType.any], returns=[]
+                args=[
+                    UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64)),
+                    PrimitiveIRType.bytes,
+                    PrimitiveIRType.any,
+                ],
+                returns=[],
             ),
             enum=None,
             supported_modes=RunMode.app,
@@ -456,7 +477,11 @@ class AVMOp(enum.StrEnum):
         op_code="app_opted_in",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.address_or_index, StackType.application], returns=[StackType.bool]
+                args=[
+                    UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64)),
+                    PrimitiveIRType.uint64,
+                ],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.app,
@@ -481,7 +506,8 @@ class AVMOp(enum.StrEnum):
             variant_map={
                 "AppApprovalProgram": Variant(
                     signature=OpSignature(
-                        args=[StackType.application], returns=[StackType.bytes, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.bytes, PrimitiveIRType.bool],
                     ),
                     enum="AppApprovalProgram",
                     supported_modes=RunMode.app,
@@ -489,7 +515,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AppClearStateProgram": Variant(
                     signature=OpSignature(
-                        args=[StackType.application], returns=[StackType.bytes, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.bytes, PrimitiveIRType.bool],
                     ),
                     enum="AppClearStateProgram",
                     supported_modes=RunMode.app,
@@ -497,7 +524,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AppGlobalNumUint": Variant(
                     signature=OpSignature(
-                        args=[StackType.application], returns=[StackType.uint64, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AppGlobalNumUint",
                     supported_modes=RunMode.app,
@@ -505,7 +533,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AppGlobalNumByteSlice": Variant(
                     signature=OpSignature(
-                        args=[StackType.application], returns=[StackType.uint64, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AppGlobalNumByteSlice",
                     supported_modes=RunMode.app,
@@ -513,7 +542,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AppLocalNumUint": Variant(
                     signature=OpSignature(
-                        args=[StackType.application], returns=[StackType.uint64, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AppLocalNumUint",
                     supported_modes=RunMode.app,
@@ -521,7 +551,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AppLocalNumByteSlice": Variant(
                     signature=OpSignature(
-                        args=[StackType.application], returns=[StackType.uint64, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AppLocalNumByteSlice",
                     supported_modes=RunMode.app,
@@ -529,7 +560,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AppExtraProgramPages": Variant(
                     signature=OpSignature(
-                        args=[StackType.application], returns=[StackType.uint64, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AppExtraProgramPages",
                     supported_modes=RunMode.app,
@@ -537,7 +569,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AppCreator": Variant(
                     signature=OpSignature(
-                        args=[StackType.application], returns=[StackType.address, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[FixedBytesType(size=32), PrimitiveIRType.bool],
                     ),
                     enum="AppCreator",
                     supported_modes=RunMode.app,
@@ -545,7 +578,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AppAddress": Variant(
                     signature=OpSignature(
-                        args=[StackType.application], returns=[StackType.address, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[FixedBytesType(size=32), PrimitiveIRType.bool],
                     ),
                     enum="AppAddress",
                     supported_modes=RunMode.app,
@@ -568,7 +602,7 @@ class AVMOp(enum.StrEnum):
     arg = AVMOpData(
         op_code="arg",
         variants=Variant(
-            signature=OpSignature(args=[], returns=[StackType.bytes]),
+            signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
             enum=None,
             supported_modes=RunMode.lsig,
             min_avm_version=1,
@@ -585,7 +619,7 @@ class AVMOp(enum.StrEnum):
     arg_0 = AVMOpData(
         op_code="arg_0",
         variants=Variant(
-            signature=OpSignature(args=[], returns=[StackType.bytes]),
+            signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
             enum=None,
             supported_modes=RunMode.lsig,
             min_avm_version=1,
@@ -602,7 +636,7 @@ class AVMOp(enum.StrEnum):
     arg_1 = AVMOpData(
         op_code="arg_1",
         variants=Variant(
-            signature=OpSignature(args=[], returns=[StackType.bytes]),
+            signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
             enum=None,
             supported_modes=RunMode.lsig,
             min_avm_version=1,
@@ -619,7 +653,7 @@ class AVMOp(enum.StrEnum):
     arg_2 = AVMOpData(
         op_code="arg_2",
         variants=Variant(
-            signature=OpSignature(args=[], returns=[StackType.bytes]),
+            signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
             enum=None,
             supported_modes=RunMode.lsig,
             min_avm_version=1,
@@ -636,7 +670,7 @@ class AVMOp(enum.StrEnum):
     arg_3 = AVMOpData(
         op_code="arg_3",
         variants=Variant(
-            signature=OpSignature(args=[], returns=[StackType.bytes]),
+            signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
             enum=None,
             supported_modes=RunMode.lsig,
             min_avm_version=1,
@@ -653,7 +687,7 @@ class AVMOp(enum.StrEnum):
     args = AVMOpData(
         op_code="args",
         variants=Variant(
-            signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+            signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]),
             enum=None,
             supported_modes=RunMode.lsig,
             min_avm_version=5,
@@ -670,7 +704,7 @@ class AVMOp(enum.StrEnum):
     assert_ = AVMOpData(
         op_code="assert",
         variants=Variant(
-            signature=OpSignature(args=[StackType.uint64], returns=[]),
+            signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=3,
@@ -691,8 +725,11 @@ class AVMOp(enum.StrEnum):
             variant_map={
                 "AssetBalance": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index, StackType.asset],
-                        returns=[StackType.uint64, StackType.bool],
+                        args=[
+                            UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64)),
+                            PrimitiveIRType.uint64,
+                        ],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AssetBalance",
                     supported_modes=RunMode.app,
@@ -700,8 +737,11 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AssetFrozen": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index, StackType.asset],
-                        returns=[StackType.bool, StackType.bool],
+                        args=[
+                            UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64)),
+                            PrimitiveIRType.uint64,
+                        ],
+                        returns=[PrimitiveIRType.bool, PrimitiveIRType.bool],
                     ),
                     enum="AssetFrozen",
                     supported_modes=RunMode.app,
@@ -729,7 +769,8 @@ class AVMOp(enum.StrEnum):
             variant_map={
                 "AssetTotal": Variant(
                     signature=OpSignature(
-                        args=[StackType.asset], returns=[StackType.uint64, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AssetTotal",
                     supported_modes=RunMode.app,
@@ -737,7 +778,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AssetDecimals": Variant(
                     signature=OpSignature(
-                        args=[StackType.asset], returns=[StackType.uint64, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="AssetDecimals",
                     supported_modes=RunMode.app,
@@ -745,7 +787,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AssetDefaultFrozen": Variant(
                     signature=OpSignature(
-                        args=[StackType.asset], returns=[StackType.bool, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.bool, PrimitiveIRType.bool],
                     ),
                     enum="AssetDefaultFrozen",
                     supported_modes=RunMode.app,
@@ -753,7 +796,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AssetUnitName": Variant(
                     signature=OpSignature(
-                        args=[StackType.asset], returns=[StackType.bytes, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.bytes, PrimitiveIRType.bool],
                     ),
                     enum="AssetUnitName",
                     supported_modes=RunMode.app,
@@ -761,7 +805,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AssetName": Variant(
                     signature=OpSignature(
-                        args=[StackType.asset], returns=[StackType.bytes, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.bytes, PrimitiveIRType.bool],
                     ),
                     enum="AssetName",
                     supported_modes=RunMode.app,
@@ -769,7 +814,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AssetURL": Variant(
                     signature=OpSignature(
-                        args=[StackType.asset], returns=[StackType.bytes, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.bytes, PrimitiveIRType.bool],
                     ),
                     enum="AssetURL",
                     supported_modes=RunMode.app,
@@ -777,7 +823,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AssetMetadataHash": Variant(
                     signature=OpSignature(
-                        args=[StackType.asset], returns=[StackType.bytes, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[FixedBytesType(size=32), PrimitiveIRType.bool],
                     ),
                     enum="AssetMetadataHash",
                     supported_modes=RunMode.app,
@@ -785,7 +832,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AssetManager": Variant(
                     signature=OpSignature(
-                        args=[StackType.asset], returns=[StackType.address, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[FixedBytesType(size=32), PrimitiveIRType.bool],
                     ),
                     enum="AssetManager",
                     supported_modes=RunMode.app,
@@ -793,7 +841,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AssetReserve": Variant(
                     signature=OpSignature(
-                        args=[StackType.asset], returns=[StackType.address, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[FixedBytesType(size=32), PrimitiveIRType.bool],
                     ),
                     enum="AssetReserve",
                     supported_modes=RunMode.app,
@@ -801,7 +850,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AssetFreeze": Variant(
                     signature=OpSignature(
-                        args=[StackType.asset], returns=[StackType.address, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[FixedBytesType(size=32), PrimitiveIRType.bool],
                     ),
                     enum="AssetFreeze",
                     supported_modes=RunMode.app,
@@ -809,7 +859,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AssetClawback": Variant(
                     signature=OpSignature(
-                        args=[StackType.asset], returns=[StackType.address, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[FixedBytesType(size=32), PrimitiveIRType.bool],
                     ),
                     enum="AssetClawback",
                     supported_modes=RunMode.app,
@@ -817,7 +868,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "AssetCreator": Variant(
                     signature=OpSignature(
-                        args=[StackType.asset], returns=[StackType.address, StackType.bool]
+                        args=[PrimitiveIRType.uint64],
+                        returns=[FixedBytesType(size=32), PrimitiveIRType.bool],
                     ),
                     enum="AssetCreator",
                     supported_modes=RunMode.app,
@@ -840,7 +892,10 @@ class AVMOp(enum.StrEnum):
     balance = AVMOpData(
         op_code="balance",
         variants=Variant(
-            signature=OpSignature(args=[StackType.address_or_index], returns=[StackType.uint64]),
+            signature=OpSignature(
+                args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                returns=[PrimitiveIRType.uint64],
+            ),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=2,
@@ -862,7 +917,7 @@ class AVMOp(enum.StrEnum):
     base64_decode = AVMOpData(
         op_code="base64_decode",
         variants=Variant(
-            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[PrimitiveIRType.bytes]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=7,
@@ -895,7 +950,7 @@ class AVMOp(enum.StrEnum):
     bitlen = AVMOpData(
         op_code="bitlen",
         variants=Variant(
-            signature=OpSignature(args=[StackType.any], returns=[StackType.uint64]),
+            signature=OpSignature(args=[PrimitiveIRType.any], returns=[PrimitiveIRType.uint64]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=4,
@@ -916,7 +971,8 @@ class AVMOp(enum.StrEnum):
         op_code="&",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -935,7 +991,8 @@ class AVMOp(enum.StrEnum):
         op_code="b&",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.bytes],
+                returns=[PrimitiveIRType.bytes],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -953,7 +1010,7 @@ class AVMOp(enum.StrEnum):
     bitwise_not = AVMOpData(
         op_code="~",
         variants=Variant(
-            signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+            signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=1,
@@ -970,7 +1027,7 @@ class AVMOp(enum.StrEnum):
     bitwise_not_bytes = AVMOpData(
         op_code="b~",
         variants=Variant(
-            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[PrimitiveIRType.bytes]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=4,
@@ -988,7 +1045,8 @@ class AVMOp(enum.StrEnum):
         op_code="|",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1007,7 +1065,8 @@ class AVMOp(enum.StrEnum):
         op_code="b|",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.bytes],
+                returns=[PrimitiveIRType.bytes],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1026,7 +1085,8 @@ class AVMOp(enum.StrEnum):
         op_code="^",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1045,7 +1105,8 @@ class AVMOp(enum.StrEnum):
         op_code="b^",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.bytes],
+                returns=[PrimitiveIRType.bytes],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1066,61 +1127,81 @@ class AVMOp(enum.StrEnum):
             immediate_index=0,
             variant_map={
                 "BlkSeed": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="BlkSeed",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "BlkTimestamp": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="BlkTimestamp",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "BlkProposer": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="BlkProposer",
                     supported_modes=RunMode.any,
                     min_avm_version=11,
                 ),
                 "BlkFeesCollected": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="BlkFeesCollected",
                     supported_modes=RunMode.any,
                     min_avm_version=11,
                 ),
                 "BlkBonus": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="BlkBonus",
                     supported_modes=RunMode.any,
                     min_avm_version=11,
                 ),
                 "BlkBranch": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="BlkBranch",
                     supported_modes=RunMode.any,
                     min_avm_version=11,
                 ),
                 "BlkFeeSink": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="BlkFeeSink",
                     supported_modes=RunMode.any,
                     min_avm_version=11,
                 ),
                 "BlkProtocol": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="BlkProtocol",
                     supported_modes=RunMode.any,
                     min_avm_version=11,
                 ),
                 "BlkTxnCounter": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="BlkTxnCounter",
                     supported_modes=RunMode.any,
                     min_avm_version=11,
                 ),
                 "BlkProposerPayout": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="BlkProposerPayout",
                     supported_modes=RunMode.any,
                     min_avm_version=11,
@@ -1141,7 +1222,8 @@ class AVMOp(enum.StrEnum):
         op_code="box_create",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.box_name, StackType.uint64], returns=[StackType.bool]
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.app,
@@ -1163,7 +1245,7 @@ class AVMOp(enum.StrEnum):
     box_del = AVMOpData(
         op_code="box_del",
         variants=Variant(
-            signature=OpSignature(args=[StackType.box_name], returns=[StackType.bool]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[PrimitiveIRType.bool]),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=8,
@@ -1181,8 +1263,8 @@ class AVMOp(enum.StrEnum):
         op_code="box_extract",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.box_name, StackType.uint64, StackType.uint64],
-                returns=[StackType.bytes],
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.bytes],
             ),
             enum=None,
             supported_modes=RunMode.app,
@@ -1202,7 +1284,7 @@ class AVMOp(enum.StrEnum):
         op_code="box_get",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.box_name], returns=[StackType.bytes, StackType.bool]
+                args=[PrimitiveIRType.bytes], returns=[PrimitiveIRType.bytes, PrimitiveIRType.bool]
             ),
             enum=None,
             supported_modes=RunMode.app,
@@ -1223,7 +1305,8 @@ class AVMOp(enum.StrEnum):
         op_code="box_len",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.box_name], returns=[StackType.uint64, StackType.bool]
+                args=[PrimitiveIRType.bytes],
+                returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.app,
@@ -1241,7 +1324,7 @@ class AVMOp(enum.StrEnum):
     box_put = AVMOpData(
         op_code="box_put",
         variants=Variant(
-            signature=OpSignature(args=[StackType.box_name, StackType.bytes], returns=[]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes, PrimitiveIRType.bytes], returns=[]),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=8,
@@ -1262,7 +1345,8 @@ class AVMOp(enum.StrEnum):
         op_code="box_replace",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.box_name, StackType.uint64, StackType.bytes], returns=[]
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.uint64, PrimitiveIRType.bytes],
+                returns=[],
             ),
             enum=None,
             supported_modes=RunMode.app,
@@ -1281,7 +1365,9 @@ class AVMOp(enum.StrEnum):
     box_resize = AVMOpData(
         op_code="box_resize",
         variants=Variant(
-            signature=OpSignature(args=[StackType.box_name, StackType.uint64], returns=[]),
+            signature=OpSignature(
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.uint64], returns=[]
+            ),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=10,
@@ -1301,7 +1387,12 @@ class AVMOp(enum.StrEnum):
         op_code="box_splice",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.box_name, StackType.uint64, StackType.uint64, StackType.bytes],
+                args=[
+                    PrimitiveIRType.bytes,
+                    PrimitiveIRType.uint64,
+                    PrimitiveIRType.uint64,
+                    PrimitiveIRType.bytes,
+                ],
                 returns=[],
             ),
             enum=None,
@@ -1324,7 +1415,9 @@ class AVMOp(enum.StrEnum):
     bsqrt = AVMOpData(
         op_code="bsqrt",
         variants=Variant(
-            signature=OpSignature(args=[StackType.bigint], returns=[StackType.bigint]),
+            signature=OpSignature(
+                args=[PrimitiveIRType.biguint], returns=[PrimitiveIRType.biguint]
+            ),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=6,
@@ -1342,7 +1435,7 @@ class AVMOp(enum.StrEnum):
     btoi = AVMOpData(
         op_code="btoi",
         variants=Variant(
-            signature=OpSignature(args=[StackType.bytes], returns=[StackType.uint64]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[PrimitiveIRType.uint64]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=1,
@@ -1362,7 +1455,7 @@ class AVMOp(enum.StrEnum):
     bzero = AVMOpData(
         op_code="bzero",
         variants=Variant(
-            signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+            signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=4,
@@ -1380,7 +1473,8 @@ class AVMOp(enum.StrEnum):
         op_code="concat",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.bytes],
+                returns=[PrimitiveIRType.bytes],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1401,7 +1495,8 @@ class AVMOp(enum.StrEnum):
         op_code="/",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1422,7 +1517,8 @@ class AVMOp(enum.StrEnum):
         op_code="b/",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bigint, StackType.bigint], returns=[StackType.bigint]
+                args=[PrimitiveIRType.biguint, PrimitiveIRType.biguint],
+                returns=[PrimitiveIRType.biguint],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1442,8 +1538,18 @@ class AVMOp(enum.StrEnum):
         op_code="divmodw",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64, StackType.uint64, StackType.uint64],
-                returns=[StackType.uint64, StackType.uint64, StackType.uint64, StackType.uint64],
+                args=[
+                    PrimitiveIRType.uint64,
+                    PrimitiveIRType.uint64,
+                    PrimitiveIRType.uint64,
+                    PrimitiveIRType.uint64,
+                ],
+                returns=[
+                    PrimitiveIRType.uint64,
+                    PrimitiveIRType.uint64,
+                    PrimitiveIRType.uint64,
+                    PrimitiveIRType.uint64,
+                ],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1465,8 +1571,8 @@ class AVMOp(enum.StrEnum):
         op_code="divw",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64, StackType.uint64],
-                returns=[StackType.uint64],
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1488,7 +1594,8 @@ class AVMOp(enum.StrEnum):
         op_code="ec_add",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.bytes],
+                returns=[PrimitiveIRType.bytes],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1529,7 +1636,7 @@ class AVMOp(enum.StrEnum):
     ec_map_to = AVMOpData(
         op_code="ec_map_to",
         variants=Variant(
-            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[PrimitiveIRType.bytes]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=10,
@@ -1555,7 +1662,8 @@ class AVMOp(enum.StrEnum):
         op_code="ec_multi_scalar_mul",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.bytes],
+                returns=[PrimitiveIRType.bytes],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1581,7 +1689,7 @@ class AVMOp(enum.StrEnum):
         op_code="ec_pairing_check",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.bytes], returns=[StackType.bool]
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.bytes], returns=[PrimitiveIRType.bool]
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1608,7 +1716,8 @@ class AVMOp(enum.StrEnum):
         op_code="ec_scalar_mul",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.bytes],
+                returns=[PrimitiveIRType.bytes],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1630,7 +1739,7 @@ class AVMOp(enum.StrEnum):
     ec_subgroup_check = AVMOpData(
         op_code="ec_subgroup_check",
         variants=Variant(
-            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bool]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[PrimitiveIRType.bool]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=10,
@@ -1649,7 +1758,8 @@ class AVMOp(enum.StrEnum):
         op_code="ecdsa_pk_decompress",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes], returns=[StackType.bytes, StackType.bytes]
+                args=[FixedBytesType(size=33)],
+                returns=[FixedBytesType(size=32), FixedBytesType(size=32)],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1671,8 +1781,13 @@ class AVMOp(enum.StrEnum):
         op_code="ecdsa_pk_recover",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.uint64, StackType.bytes, StackType.bytes],
-                returns=[StackType.bytes, StackType.bytes],
+                args=[
+                    FixedBytesType(size=32),
+                    PrimitiveIRType.uint64,
+                    FixedBytesType(size=32),
+                    FixedBytesType(size=32),
+                ],
+                returns=[FixedBytesType(size=32), FixedBytesType(size=32)],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1696,13 +1811,13 @@ class AVMOp(enum.StrEnum):
         variants=Variant(
             signature=OpSignature(
                 args=[
-                    StackType.bytes,
-                    StackType.bytes,
-                    StackType.bytes,
-                    StackType.bytes,
-                    StackType.bytes,
+                    FixedBytesType(size=32),
+                    FixedBytesType(size=32),
+                    FixedBytesType(size=32),
+                    FixedBytesType(size=32),
+                    FixedBytesType(size=32),
                 ],
-                returns=[StackType.bool],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1727,7 +1842,8 @@ class AVMOp(enum.StrEnum):
         op_code="ed25519verify",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.bytes, StackType.bytes], returns=[StackType.bool]
+                args=[PrimitiveIRType.bytes, FixedBytesType(size=64), FixedBytesType(size=32)],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1751,7 +1867,8 @@ class AVMOp(enum.StrEnum):
         op_code="ed25519verify_bare",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.bytes, StackType.bytes], returns=[StackType.bool]
+                args=[PrimitiveIRType.bytes, FixedBytesType(size=64), FixedBytesType(size=32)],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1770,7 +1887,9 @@ class AVMOp(enum.StrEnum):
     eq = AVMOpData(
         op_code="==",
         variants=Variant(
-            signature=OpSignature(args=[StackType.any, StackType.any], returns=[StackType.bool]),
+            signature=OpSignature(
+                args=[PrimitiveIRType.any, PrimitiveIRType.any], returns=[PrimitiveIRType.bool]
+            ),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=1,
@@ -1788,7 +1907,8 @@ class AVMOp(enum.StrEnum):
         op_code="b==",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]
+                args=[PrimitiveIRType.biguint, PrimitiveIRType.biguint],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1807,7 +1927,8 @@ class AVMOp(enum.StrEnum):
         op_code="exp",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1826,8 +1947,8 @@ class AVMOp(enum.StrEnum):
         op_code="expw",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64],
-                returns=[StackType.uint64, StackType.uint64],
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1846,7 +1967,7 @@ class AVMOp(enum.StrEnum):
     extract = AVMOpData(
         op_code="extract",
         variants=Variant(
-            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[PrimitiveIRType.bytes]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=5,
@@ -1865,8 +1986,8 @@ class AVMOp(enum.StrEnum):
         op_code="extract3",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.uint64, StackType.uint64],
-                returns=[StackType.bytes],
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.bytes],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1888,7 +2009,8 @@ class AVMOp(enum.StrEnum):
         op_code="extract_uint16",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.uint64], returns=[StackType.uint64]
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1908,7 +2030,8 @@ class AVMOp(enum.StrEnum):
         op_code="extract_uint32",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.uint64], returns=[StackType.uint64]
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1928,7 +2051,8 @@ class AVMOp(enum.StrEnum):
         op_code="extract_uint64",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.uint64], returns=[StackType.uint64]
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1948,7 +2072,8 @@ class AVMOp(enum.StrEnum):
         op_code="falcon_verify",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.bytes, StackType.bytes], returns=[StackType.bool]
+                args=[PrimitiveIRType.bytes, FixedBytesType(size=1232), FixedBytesType(size=1793)],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -1967,7 +2092,7 @@ class AVMOp(enum.StrEnum):
     gaid = AVMOpData(
         op_code="gaid",
         variants=Variant(
-            signature=OpSignature(args=[], returns=[StackType.uint64]),
+            signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=4,
@@ -1987,7 +2112,7 @@ class AVMOp(enum.StrEnum):
     gaids = AVMOpData(
         op_code="gaids",
         variants=Variant(
-            signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+            signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=4,
@@ -2008,7 +2133,8 @@ class AVMOp(enum.StrEnum):
         op_code="getbit",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.any, StackType.uint64], returns=[StackType.uint64]
+                args=[PrimitiveIRType.any, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -2030,7 +2156,8 @@ class AVMOp(enum.StrEnum):
         op_code="getbyte",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.uint64], returns=[StackType.uint64]
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -2052,409 +2179,409 @@ class AVMOp(enum.StrEnum):
             immediate_index=1,
             variant_map={
                 "Sender": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Sender",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Fee": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Fee",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "FirstValid": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="FirstValid",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "FirstValidTime": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="FirstValidTime",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "LastValid": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="LastValid",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Note": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="Note",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Lease": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Lease",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Receiver": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Receiver",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Amount": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Amount",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "CloseRemainderTo": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="CloseRemainderTo",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VotePK": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="VotePK",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "SelectionPK": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="SelectionPK",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteFirst": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="VoteFirst",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteLast": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="VoteLast",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteKeyDilution": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="VoteKeyDilution",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Type": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="Type",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "TypeEnum": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="TypeEnum",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "XferAsset": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="XferAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetAmount": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="AssetAmount",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetSender": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="AssetSender",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetReceiver": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="AssetReceiver",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetCloseTo": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="AssetCloseTo",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "GroupIndex": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="GroupIndex",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "TxID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="TxID",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "ApplicationID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ApplicationID",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "OnCompletion": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="OnCompletion",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ApplicationArgs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApplicationArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "NumAppArgs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumAppArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Accounts": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Accounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "NumAccounts": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumAccounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ApprovalProgram": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApprovalProgram",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ClearStateProgram": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ClearStateProgram",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "RekeyTo": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="RekeyTo",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAsset": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ConfigAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetTotal": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ConfigAssetTotal",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetDecimals": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ConfigAssetDecimals",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetDefaultFrozen": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bool]),
                     enum="ConfigAssetDefaultFrozen",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetUnitName": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ConfigAssetUnitName",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetName": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ConfigAssetName",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetURL": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ConfigAssetURL",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetMetadataHash": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetMetadataHash",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetManager": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetManager",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetReserve": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetReserve",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetFreeze": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetFreeze",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetClawback": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetClawback",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAsset": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="FreezeAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAssetAccount": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="FreezeAssetAccount",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAssetFrozen": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bool]),
                     enum="FreezeAssetFrozen",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Assets": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Assets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "NumAssets": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumAssets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Applications": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Applications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "NumApplications": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumApplications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "GlobalNumUint": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="GlobalNumUint",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "GlobalNumByteSlice": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="GlobalNumByteSlice",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "LocalNumUint": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="LocalNumUint",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "LocalNumByteSlice": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="LocalNumByteSlice",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "ExtraProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ExtraProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=4,
                 ),
                 "Nonparticipation": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bool]),
                     enum="Nonparticipation",
                     supported_modes=RunMode.any,
                     min_avm_version=5,
                 ),
                 "Logs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="Logs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "NumLogs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumLogs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "CreatedAssetID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="CreatedAssetID",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "CreatedApplicationID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="CreatedApplicationID",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "LastLog": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="LastLog",
                     supported_modes=RunMode.app,
                     min_avm_version=6,
                 ),
                 "StateProofPK": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="StateProofPK",
                     supported_modes=RunMode.any,
                     min_avm_version=6,
                 ),
                 "ApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "NumApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "ClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "NumClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
@@ -2476,43 +2603,43 @@ class AVMOp(enum.StrEnum):
             immediate_index=1,
             variant_map={
                 "ApplicationArgs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApplicationArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Accounts": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Accounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Assets": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Assets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Applications": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Applications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Logs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="Logs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "ApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "ClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
@@ -2534,45 +2661,57 @@ class AVMOp(enum.StrEnum):
             immediate_index=1,
             variant_map={
                 "ApplicationArgs": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ApplicationArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Accounts": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="Accounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Assets": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="Assets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Applications": Variant(
                     signature=OpSignature(
-                        args=[StackType.uint64], returns=[StackType.application]
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
                     ),
                     enum="Applications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Logs": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="Logs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "ApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "ClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
@@ -2591,7 +2730,7 @@ class AVMOp(enum.StrEnum):
     gload = AVMOpData(
         op_code="gload",
         variants=Variant(
-            signature=OpSignature(args=[], returns=[StackType.any]),
+            signature=OpSignature(args=[], returns=[PrimitiveIRType.any]),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=4,
@@ -2610,7 +2749,7 @@ class AVMOp(enum.StrEnum):
     gloads = AVMOpData(
         op_code="gloads",
         variants=Variant(
-            signature=OpSignature(args=[StackType.uint64], returns=[StackType.any]),
+            signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.any]),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=4,
@@ -2630,7 +2769,8 @@ class AVMOp(enum.StrEnum):
         op_code="gloadss",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.any]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.any],
             ),
             enum=None,
             supported_modes=RunMode.app,
@@ -2651,139 +2791,139 @@ class AVMOp(enum.StrEnum):
             immediate_index=0,
             variant_map={
                 "MinTxnFee": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="MinTxnFee",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "MinBalance": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="MinBalance",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "MaxTxnLife": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="MaxTxnLife",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "ZeroAddress": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ZeroAddress",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "GroupSize": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="GroupSize",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "LogicSigVersion": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="LogicSigVersion",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Round": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Round",
                     supported_modes=RunMode.app,
                     min_avm_version=2,
                 ),
                 "LatestTimestamp": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="LatestTimestamp",
                     supported_modes=RunMode.app,
                     min_avm_version=2,
                 ),
                 "CurrentApplicationID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="CurrentApplicationID",
                     supported_modes=RunMode.app,
                     min_avm_version=2,
                 ),
                 "CreatorAddress": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="CreatorAddress",
                     supported_modes=RunMode.app,
                     min_avm_version=3,
                 ),
                 "CurrentApplicationAddress": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="CurrentApplicationAddress",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "GroupID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="GroupID",
                     supported_modes=RunMode.any,
                     min_avm_version=5,
                 ),
                 "OpcodeBudget": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="OpcodeBudget",
                     supported_modes=RunMode.any,
                     min_avm_version=6,
                 ),
                 "CallerApplicationID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="CallerApplicationID",
                     supported_modes=RunMode.app,
                     min_avm_version=6,
                 ),
                 "CallerApplicationAddress": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="CallerApplicationAddress",
                     supported_modes=RunMode.app,
                     min_avm_version=6,
                 ),
                 "AssetCreateMinBalance": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="AssetCreateMinBalance",
                     supported_modes=RunMode.any,
                     min_avm_version=10,
                 ),
                 "AssetOptInMinBalance": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="AssetOptInMinBalance",
                     supported_modes=RunMode.any,
                     min_avm_version=10,
                 ),
                 "GenesisHash": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="GenesisHash",
                     supported_modes=RunMode.any,
                     min_avm_version=10,
                 ),
                 "PayoutsEnabled": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bool]),
                     enum="PayoutsEnabled",
                     supported_modes=RunMode.any,
                     min_avm_version=11,
                 ),
                 "PayoutsGoOnlineFee": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="PayoutsGoOnlineFee",
                     supported_modes=RunMode.any,
                     min_avm_version=11,
                 ),
                 "PayoutsPercent": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="PayoutsPercent",
                     supported_modes=RunMode.any,
                     min_avm_version=11,
                 ),
                 "PayoutsMinBalance": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="PayoutsMinBalance",
                     supported_modes=RunMode.any,
                     min_avm_version=11,
                 ),
                 "PayoutsMaxBalance": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="PayoutsMaxBalance",
                     supported_modes=RunMode.any,
                     min_avm_version=11,
@@ -2803,7 +2943,8 @@ class AVMOp(enum.StrEnum):
         op_code=">",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -2822,7 +2963,8 @@ class AVMOp(enum.StrEnum):
         op_code="b>",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]
+                args=[PrimitiveIRType.biguint, PrimitiveIRType.biguint],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -2841,7 +2983,8 @@ class AVMOp(enum.StrEnum):
         op_code=">=",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -2860,7 +3003,8 @@ class AVMOp(enum.StrEnum):
         op_code="b>=",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]
+                args=[PrimitiveIRType.biguint, PrimitiveIRType.biguint],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -2882,409 +3026,409 @@ class AVMOp(enum.StrEnum):
             immediate_index=1,
             variant_map={
                 "Sender": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Sender",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Fee": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Fee",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "FirstValid": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="FirstValid",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "FirstValidTime": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="FirstValidTime",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "LastValid": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="LastValid",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Note": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="Note",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Lease": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Lease",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Receiver": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Receiver",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Amount": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Amount",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "CloseRemainderTo": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="CloseRemainderTo",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VotePK": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="VotePK",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "SelectionPK": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="SelectionPK",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteFirst": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="VoteFirst",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteLast": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="VoteLast",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteKeyDilution": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="VoteKeyDilution",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Type": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="Type",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "TypeEnum": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="TypeEnum",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "XferAsset": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="XferAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetAmount": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="AssetAmount",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetSender": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="AssetSender",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetReceiver": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="AssetReceiver",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetCloseTo": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="AssetCloseTo",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "GroupIndex": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="GroupIndex",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "TxID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="TxID",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "ApplicationID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ApplicationID",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "OnCompletion": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="OnCompletion",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ApplicationArgs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApplicationArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "NumAppArgs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumAppArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Accounts": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Accounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "NumAccounts": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumAccounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ApprovalProgram": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApprovalProgram",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ClearStateProgram": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ClearStateProgram",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "RekeyTo": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="RekeyTo",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAsset": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ConfigAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetTotal": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ConfigAssetTotal",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetDecimals": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ConfigAssetDecimals",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetDefaultFrozen": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bool]),
                     enum="ConfigAssetDefaultFrozen",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetUnitName": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ConfigAssetUnitName",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetName": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ConfigAssetName",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetURL": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ConfigAssetURL",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetMetadataHash": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetMetadataHash",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetManager": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetManager",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetReserve": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetReserve",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetFreeze": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetFreeze",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetClawback": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetClawback",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAsset": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="FreezeAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAssetAccount": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="FreezeAssetAccount",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAssetFrozen": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bool]),
                     enum="FreezeAssetFrozen",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Assets": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Assets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "NumAssets": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumAssets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Applications": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Applications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "NumApplications": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumApplications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "GlobalNumUint": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="GlobalNumUint",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "GlobalNumByteSlice": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="GlobalNumByteSlice",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "LocalNumUint": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="LocalNumUint",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "LocalNumByteSlice": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="LocalNumByteSlice",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "ExtraProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ExtraProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=4,
                 ),
                 "Nonparticipation": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bool]),
                     enum="Nonparticipation",
                     supported_modes=RunMode.any,
                     min_avm_version=5,
                 ),
                 "Logs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="Logs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "NumLogs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumLogs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "CreatedAssetID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="CreatedAssetID",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "CreatedApplicationID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="CreatedApplicationID",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "LastLog": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="LastLog",
                     supported_modes=RunMode.app,
                     min_avm_version=6,
                 ),
                 "StateProofPK": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="StateProofPK",
                     supported_modes=RunMode.any,
                     min_avm_version=6,
                 ),
                 "ApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "NumApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "ClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "NumClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
@@ -3309,43 +3453,43 @@ class AVMOp(enum.StrEnum):
             immediate_index=1,
             variant_map={
                 "ApplicationArgs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApplicationArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Accounts": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Accounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Assets": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Assets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Applications": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Applications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Logs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="Logs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "ApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "ClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
@@ -3369,45 +3513,57 @@ class AVMOp(enum.StrEnum):
             immediate_index=1,
             variant_map={
                 "ApplicationArgs": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ApplicationArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Accounts": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="Accounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Assets": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="Assets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Applications": Variant(
                     signature=OpSignature(
-                        args=[StackType.uint64], returns=[StackType.application]
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
                     ),
                     enum="Applications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Logs": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="Logs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "ApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "ClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
@@ -3429,413 +3585,545 @@ class AVMOp(enum.StrEnum):
             immediate_index=0,
             variant_map={
                 "Sender": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="Sender",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Fee": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="Fee",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "FirstValid": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="FirstValid",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "FirstValidTime": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="FirstValidTime",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "LastValid": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="LastValid",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Note": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="Note",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Lease": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="Lease",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Receiver": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="Receiver",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Amount": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="Amount",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "CloseRemainderTo": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="CloseRemainderTo",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VotePK": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="VotePK",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "SelectionPK": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="SelectionPK",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteFirst": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="VoteFirst",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteLast": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="VoteLast",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteKeyDilution": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="VoteKeyDilution",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Type": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="Type",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "TypeEnum": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="TypeEnum",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "XferAsset": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="XferAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetAmount": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="AssetAmount",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetSender": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="AssetSender",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetReceiver": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="AssetReceiver",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetCloseTo": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="AssetCloseTo",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "GroupIndex": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="GroupIndex",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "TxID": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="TxID",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "ApplicationID": Variant(
                     signature=OpSignature(
-                        args=[StackType.uint64], returns=[StackType.application]
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
                     ),
                     enum="ApplicationID",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "OnCompletion": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="OnCompletion",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ApplicationArgs": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ApplicationArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "NumAppArgs": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="NumAppArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Accounts": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="Accounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "NumAccounts": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="NumAccounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ApprovalProgram": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ApprovalProgram",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ClearStateProgram": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ClearStateProgram",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "RekeyTo": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="RekeyTo",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAsset": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="ConfigAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetTotal": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="ConfigAssetTotal",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetDecimals": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="ConfigAssetDecimals",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetDefaultFrozen": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bool]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bool]
+                    ),
                     enum="ConfigAssetDefaultFrozen",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetUnitName": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ConfigAssetUnitName",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetName": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ConfigAssetName",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetURL": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ConfigAssetURL",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetMetadataHash": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="ConfigAssetMetadataHash",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetManager": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="ConfigAssetManager",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetReserve": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="ConfigAssetReserve",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetFreeze": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="ConfigAssetFreeze",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetClawback": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="ConfigAssetClawback",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAsset": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="FreezeAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAssetAccount": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="FreezeAssetAccount",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAssetFrozen": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bool]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bool]
+                    ),
                     enum="FreezeAssetFrozen",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Assets": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="Assets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "NumAssets": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="NumAssets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Applications": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="Applications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "NumApplications": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="NumApplications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "GlobalNumUint": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="GlobalNumUint",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "GlobalNumByteSlice": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="GlobalNumByteSlice",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "LocalNumUint": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="LocalNumUint",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "LocalNumByteSlice": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="LocalNumByteSlice",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "ExtraProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="ExtraProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=4,
                 ),
                 "Nonparticipation": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bool]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bool]
+                    ),
                     enum="Nonparticipation",
                     supported_modes=RunMode.any,
                     min_avm_version=5,
                 ),
                 "Logs": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="Logs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "NumLogs": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="NumLogs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "CreatedAssetID": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="CreatedAssetID",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "CreatedApplicationID": Variant(
                     signature=OpSignature(
-                        args=[StackType.uint64], returns=[StackType.application]
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
                     ),
                     enum="CreatedApplicationID",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "LastLog": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="LastLog",
                     supported_modes=RunMode.app,
                     min_avm_version=6,
                 ),
                 "StateProofPK": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="StateProofPK",
                     supported_modes=RunMode.any,
                     min_avm_version=6,
                 ),
                 "ApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "NumApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="NumApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "ClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "NumClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="NumClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
@@ -3861,45 +4149,57 @@ class AVMOp(enum.StrEnum):
             immediate_index=0,
             variant_map={
                 "ApplicationArgs": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ApplicationArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Accounts": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="Accounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Assets": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="Assets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Applications": Variant(
                     signature=OpSignature(
-                        args=[StackType.uint64], returns=[StackType.application]
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
                     ),
                     enum="Applications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Logs": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="Logs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "ApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "ClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
@@ -3924,7 +4224,8 @@ class AVMOp(enum.StrEnum):
             variant_map={
                 "ApplicationArgs": Variant(
                     signature=OpSignature(
-                        args=[StackType.uint64, StackType.uint64], returns=[StackType.bytes]
+                        args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.bytes],
                     ),
                     enum="ApplicationArgs",
                     supported_modes=RunMode.any,
@@ -3932,7 +4233,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "Accounts": Variant(
                     signature=OpSignature(
-                        args=[StackType.uint64, StackType.uint64], returns=[StackType.address]
+                        args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                        returns=[FixedBytesType(size=32)],
                     ),
                     enum="Accounts",
                     supported_modes=RunMode.any,
@@ -3940,7 +4242,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "Assets": Variant(
                     signature=OpSignature(
-                        args=[StackType.uint64, StackType.uint64], returns=[StackType.asset]
+                        args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.uint64],
                     ),
                     enum="Assets",
                     supported_modes=RunMode.any,
@@ -3948,7 +4251,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "Applications": Variant(
                     signature=OpSignature(
-                        args=[StackType.uint64, StackType.uint64], returns=[StackType.application]
+                        args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.uint64],
                     ),
                     enum="Applications",
                     supported_modes=RunMode.any,
@@ -3956,7 +4260,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "Logs": Variant(
                     signature=OpSignature(
-                        args=[StackType.uint64, StackType.uint64], returns=[StackType.bytes]
+                        args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.bytes],
                     ),
                     enum="Logs",
                     supported_modes=RunMode.app,
@@ -3964,7 +4269,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "ApprovalProgramPages": Variant(
                     signature=OpSignature(
-                        args=[StackType.uint64, StackType.uint64], returns=[StackType.bytes]
+                        args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.bytes],
                     ),
                     enum="ApprovalProgramPages",
                     supported_modes=RunMode.any,
@@ -3972,7 +4278,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "ClearStateProgramPages": Variant(
                     signature=OpSignature(
-                        args=[StackType.uint64, StackType.uint64], returns=[StackType.bytes]
+                        args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.bytes],
                     ),
                     enum="ClearStateProgramPages",
                     supported_modes=RunMode.any,
@@ -3992,7 +4299,7 @@ class AVMOp(enum.StrEnum):
     itob = AVMOpData(
         op_code="itob",
         variants=Variant(
-            signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+            signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=8)]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=1,
@@ -4012,409 +4319,409 @@ class AVMOp(enum.StrEnum):
             immediate_index=0,
             variant_map={
                 "Sender": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Sender",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Fee": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Fee",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "FirstValid": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="FirstValid",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "FirstValidTime": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="FirstValidTime",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "LastValid": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="LastValid",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Note": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="Note",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Lease": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Lease",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Receiver": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Receiver",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Amount": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Amount",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "CloseRemainderTo": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="CloseRemainderTo",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VotePK": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="VotePK",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "SelectionPK": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="SelectionPK",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteFirst": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="VoteFirst",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteLast": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="VoteLast",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteKeyDilution": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="VoteKeyDilution",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Type": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="Type",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "TypeEnum": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="TypeEnum",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "XferAsset": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="XferAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetAmount": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="AssetAmount",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetSender": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="AssetSender",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetReceiver": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="AssetReceiver",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetCloseTo": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="AssetCloseTo",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "GroupIndex": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="GroupIndex",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "TxID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="TxID",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "ApplicationID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ApplicationID",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "OnCompletion": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="OnCompletion",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ApplicationArgs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApplicationArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "NumAppArgs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumAppArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Accounts": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Accounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "NumAccounts": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumAccounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ApprovalProgram": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApprovalProgram",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ClearStateProgram": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ClearStateProgram",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "RekeyTo": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="RekeyTo",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAsset": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ConfigAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetTotal": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ConfigAssetTotal",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetDecimals": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ConfigAssetDecimals",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetDefaultFrozen": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bool]),
                     enum="ConfigAssetDefaultFrozen",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetUnitName": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ConfigAssetUnitName",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetName": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ConfigAssetName",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetURL": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ConfigAssetURL",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetMetadataHash": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetMetadataHash",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetManager": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetManager",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetReserve": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetReserve",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetFreeze": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetFreeze",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetClawback": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetClawback",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAsset": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="FreezeAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAssetAccount": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="FreezeAssetAccount",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAssetFrozen": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bool]),
                     enum="FreezeAssetFrozen",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Assets": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Assets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "NumAssets": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumAssets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Applications": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Applications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "NumApplications": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumApplications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "GlobalNumUint": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="GlobalNumUint",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "GlobalNumByteSlice": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="GlobalNumByteSlice",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "LocalNumUint": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="LocalNumUint",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "LocalNumByteSlice": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="LocalNumByteSlice",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "ExtraProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ExtraProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=4,
                 ),
                 "Nonparticipation": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bool]),
                     enum="Nonparticipation",
                     supported_modes=RunMode.any,
                     min_avm_version=5,
                 ),
                 "Logs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="Logs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "NumLogs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumLogs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "CreatedAssetID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="CreatedAssetID",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "CreatedApplicationID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="CreatedApplicationID",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "LastLog": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="LastLog",
                     supported_modes=RunMode.app,
                     min_avm_version=6,
                 ),
                 "StateProofPK": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="StateProofPK",
                     supported_modes=RunMode.any,
                     min_avm_version=6,
                 ),
                 "ApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "NumApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "ClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "NumClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
@@ -4458,307 +4765,307 @@ class AVMOp(enum.StrEnum):
             immediate_index=0,
             variant_map={
                 "Sender": Variant(
-                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    signature=OpSignature(args=[FixedBytesType(size=32)], returns=[]),
                     enum="Sender",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Fee": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="Fee",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Note": Variant(
-                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[]),
                     enum="Note",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Receiver": Variant(
-                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    signature=OpSignature(args=[FixedBytesType(size=32)], returns=[]),
                     enum="Receiver",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Amount": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="Amount",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "CloseRemainderTo": Variant(
-                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    signature=OpSignature(args=[FixedBytesType(size=32)], returns=[]),
                     enum="CloseRemainderTo",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VotePK": Variant(
-                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    signature=OpSignature(args=[FixedBytesType(size=32)], returns=[]),
                     enum="VotePK",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "SelectionPK": Variant(
-                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    signature=OpSignature(args=[FixedBytesType(size=32)], returns=[]),
                     enum="SelectionPK",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteFirst": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="VoteFirst",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteLast": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="VoteLast",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteKeyDilution": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="VoteKeyDilution",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Type": Variant(
-                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[]),
                     enum="Type",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "TypeEnum": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="TypeEnum",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "XferAsset": Variant(
-                    signature=OpSignature(args=[StackType.asset], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="XferAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetAmount": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="AssetAmount",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetSender": Variant(
-                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    signature=OpSignature(args=[FixedBytesType(size=32)], returns=[]),
                     enum="AssetSender",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetReceiver": Variant(
-                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    signature=OpSignature(args=[FixedBytesType(size=32)], returns=[]),
                     enum="AssetReceiver",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetCloseTo": Variant(
-                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    signature=OpSignature(args=[FixedBytesType(size=32)], returns=[]),
                     enum="AssetCloseTo",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "ApplicationID": Variant(
-                    signature=OpSignature(args=[StackType.application], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="ApplicationID",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "OnCompletion": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="OnCompletion",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ApplicationArgs": Variant(
-                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[]),
                     enum="ApplicationArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Accounts": Variant(
-                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    signature=OpSignature(args=[FixedBytesType(size=32)], returns=[]),
                     enum="Accounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ApprovalProgram": Variant(
-                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[]),
                     enum="ApprovalProgram",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ClearStateProgram": Variant(
-                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[]),
                     enum="ClearStateProgram",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "RekeyTo": Variant(
-                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    signature=OpSignature(args=[FixedBytesType(size=32)], returns=[]),
                     enum="RekeyTo",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAsset": Variant(
-                    signature=OpSignature(args=[StackType.asset], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="ConfigAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetTotal": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="ConfigAssetTotal",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetDecimals": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="ConfigAssetDecimals",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetDefaultFrozen": Variant(
-                    signature=OpSignature(args=[StackType.bool], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.bool], returns=[]),
                     enum="ConfigAssetDefaultFrozen",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetUnitName": Variant(
-                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[]),
                     enum="ConfigAssetUnitName",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetName": Variant(
-                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[]),
                     enum="ConfigAssetName",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetURL": Variant(
-                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[]),
                     enum="ConfigAssetURL",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetMetadataHash": Variant(
-                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    signature=OpSignature(args=[FixedBytesType(size=32)], returns=[]),
                     enum="ConfigAssetMetadataHash",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetManager": Variant(
-                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    signature=OpSignature(args=[FixedBytesType(size=32)], returns=[]),
                     enum="ConfigAssetManager",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetReserve": Variant(
-                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    signature=OpSignature(args=[FixedBytesType(size=32)], returns=[]),
                     enum="ConfigAssetReserve",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetFreeze": Variant(
-                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    signature=OpSignature(args=[FixedBytesType(size=32)], returns=[]),
                     enum="ConfigAssetFreeze",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetClawback": Variant(
-                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    signature=OpSignature(args=[FixedBytesType(size=32)], returns=[]),
                     enum="ConfigAssetClawback",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAsset": Variant(
-                    signature=OpSignature(args=[StackType.asset], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="FreezeAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAssetAccount": Variant(
-                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    signature=OpSignature(args=[FixedBytesType(size=32)], returns=[]),
                     enum="FreezeAssetAccount",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAssetFrozen": Variant(
-                    signature=OpSignature(args=[StackType.bool], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.bool], returns=[]),
                     enum="FreezeAssetFrozen",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Assets": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="Assets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Applications": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="Applications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "GlobalNumUint": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="GlobalNumUint",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "GlobalNumByteSlice": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="GlobalNumByteSlice",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "LocalNumUint": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="LocalNumUint",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "LocalNumByteSlice": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="LocalNumByteSlice",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "ExtraProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
                     enum="ExtraProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=4,
                 ),
                 "Nonparticipation": Variant(
-                    signature=OpSignature(args=[StackType.bool], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.bool], returns=[]),
                     enum="Nonparticipation",
                     supported_modes=RunMode.any,
                     min_avm_version=5,
                 ),
                 "StateProofPK": Variant(
-                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[]),
                     enum="StateProofPK",
                     supported_modes=RunMode.any,
                     min_avm_version=6,
                 ),
                 "ApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[]),
                     enum="ApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "ClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[]),
                     enum="ClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
@@ -4826,43 +5133,43 @@ class AVMOp(enum.StrEnum):
             immediate_index=0,
             variant_map={
                 "ApplicationArgs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApplicationArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Accounts": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Accounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Assets": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Assets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Applications": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Applications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Logs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="Logs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "ApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "ClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
@@ -4884,45 +5191,57 @@ class AVMOp(enum.StrEnum):
             immediate_index=0,
             variant_map={
                 "ApplicationArgs": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ApplicationArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Accounts": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="Accounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Assets": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="Assets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Applications": Variant(
                     signature=OpSignature(
-                        args=[StackType.uint64], returns=[StackType.application]
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
                     ),
                     enum="Applications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Logs": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="Logs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "ApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "ClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
@@ -4945,7 +5264,8 @@ class AVMOp(enum.StrEnum):
             variant_map={
                 "JSONString": Variant(
                     signature=OpSignature(
-                        args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+                        args=[PrimitiveIRType.bytes, PrimitiveIRType.bytes],
+                        returns=[PrimitiveIRType.bytes],
                     ),
                     enum="JSONString",
                     supported_modes=RunMode.any,
@@ -4953,7 +5273,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "JSONUint64": Variant(
                     signature=OpSignature(
-                        args=[StackType.bytes, StackType.bytes], returns=[StackType.uint64]
+                        args=[PrimitiveIRType.bytes, PrimitiveIRType.bytes],
+                        returns=[PrimitiveIRType.uint64],
                     ),
                     enum="JSONUint64",
                     supported_modes=RunMode.any,
@@ -4961,7 +5282,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "JSONObject": Variant(
                     signature=OpSignature(
-                        args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+                        args=[PrimitiveIRType.bytes, PrimitiveIRType.bytes],
+                        returns=[PrimitiveIRType.bytes],
                     ),
                     enum="JSONObject",
                     supported_modes=RunMode.any,
@@ -4989,7 +5311,7 @@ class AVMOp(enum.StrEnum):
     keccak256 = AVMOpData(
         op_code="keccak256",
         variants=Variant(
-            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[FixedBytesType(size=32)]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=1,
@@ -5006,7 +5328,7 @@ class AVMOp(enum.StrEnum):
     len_ = AVMOpData(
         op_code="len",
         variants=Variant(
-            signature=OpSignature(args=[StackType.bytes], returns=[StackType.uint64]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[PrimitiveIRType.uint64]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=1,
@@ -5023,7 +5345,7 @@ class AVMOp(enum.StrEnum):
     load = AVMOpData(
         op_code="load",
         variants=Variant(
-            signature=OpSignature(args=[], returns=[StackType.any]),
+            signature=OpSignature(args=[], returns=[PrimitiveIRType.any]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=1,
@@ -5040,7 +5362,7 @@ class AVMOp(enum.StrEnum):
     loads = AVMOpData(
         op_code="loads",
         variants=Variant(
-            signature=OpSignature(args=[StackType.uint64], returns=[StackType.any]),
+            signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.any]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=5,
@@ -5057,7 +5379,7 @@ class AVMOp(enum.StrEnum):
     log = AVMOpData(
         op_code="log",
         variants=Variant(
-            signature=OpSignature(args=[StackType.bytes], returns=[]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[]),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=5,
@@ -5078,7 +5400,8 @@ class AVMOp(enum.StrEnum):
         op_code="<",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5097,7 +5420,8 @@ class AVMOp(enum.StrEnum):
         op_code="b<",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]
+                args=[PrimitiveIRType.biguint, PrimitiveIRType.biguint],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5116,7 +5440,8 @@ class AVMOp(enum.StrEnum):
         op_code="<=",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5135,7 +5460,8 @@ class AVMOp(enum.StrEnum):
         op_code="b<=",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]
+                args=[PrimitiveIRType.biguint, PrimitiveIRType.biguint],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5154,7 +5480,7 @@ class AVMOp(enum.StrEnum):
     mimc = AVMOpData(
         op_code="mimc",
         variants=Variant(
-            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[FixedBytesType(size=32)]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=11,
@@ -5179,7 +5505,10 @@ class AVMOp(enum.StrEnum):
     min_balance = AVMOpData(
         op_code="min_balance",
         variants=Variant(
-            signature=OpSignature(args=[StackType.address_or_index], returns=[StackType.uint64]),
+            signature=OpSignature(
+                args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                returns=[PrimitiveIRType.uint64],
+            ),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=3,
@@ -5204,7 +5533,8 @@ class AVMOp(enum.StrEnum):
         op_code="%",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5223,7 +5553,8 @@ class AVMOp(enum.StrEnum):
         op_code="b%",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bigint, StackType.bigint], returns=[StackType.bigint]
+                args=[PrimitiveIRType.biguint, PrimitiveIRType.biguint],
+                returns=[PrimitiveIRType.biguint],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5242,7 +5573,8 @@ class AVMOp(enum.StrEnum):
         op_code="*",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5264,7 +5596,8 @@ class AVMOp(enum.StrEnum):
         op_code="b*",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bigint, StackType.bigint], returns=[StackType.bigint]
+                args=[PrimitiveIRType.biguint, PrimitiveIRType.biguint],
+                returns=[PrimitiveIRType.biguint],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5283,8 +5616,8 @@ class AVMOp(enum.StrEnum):
         op_code="mulw",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64],
-                returns=[StackType.uint64, StackType.uint64],
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5302,7 +5635,9 @@ class AVMOp(enum.StrEnum):
     neq = AVMOpData(
         op_code="!=",
         variants=Variant(
-            signature=OpSignature(args=[StackType.any, StackType.any], returns=[StackType.bool]),
+            signature=OpSignature(
+                args=[PrimitiveIRType.any, PrimitiveIRType.any], returns=[PrimitiveIRType.bool]
+            ),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=1,
@@ -5320,7 +5655,8 @@ class AVMOp(enum.StrEnum):
         op_code="b!=",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]
+                args=[PrimitiveIRType.biguint, PrimitiveIRType.biguint],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5338,7 +5674,7 @@ class AVMOp(enum.StrEnum):
     not_ = AVMOpData(
         op_code="!",
         variants=Variant(
-            signature=OpSignature(args=[StackType.uint64], returns=[StackType.bool]),
+            signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bool]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=1,
@@ -5355,7 +5691,7 @@ class AVMOp(enum.StrEnum):
     online_stake = AVMOpData(
         op_code="online_stake",
         variants=Variant(
-            signature=OpSignature(args=[], returns=[StackType.uint64]),
+            signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=11,
@@ -5373,7 +5709,8 @@ class AVMOp(enum.StrEnum):
         op_code="||",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5392,7 +5729,8 @@ class AVMOp(enum.StrEnum):
         op_code="replace2",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.bytes],
+                returns=[PrimitiveIRType.bytes],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5414,8 +5752,8 @@ class AVMOp(enum.StrEnum):
         op_code="replace3",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.uint64, StackType.bytes],
-                returns=[StackType.bytes],
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.uint64, PrimitiveIRType.bytes],
+                returns=[PrimitiveIRType.bytes],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5437,7 +5775,8 @@ class AVMOp(enum.StrEnum):
         op_code="select",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.any, StackType.any, StackType.bool], returns=[StackType.any]
+                args=[PrimitiveIRType.any, PrimitiveIRType.any, PrimitiveIRType.bool],
+                returns=[PrimitiveIRType.any],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5456,7 +5795,8 @@ class AVMOp(enum.StrEnum):
         op_code="setbit",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.any, StackType.uint64, StackType.uint64], returns=[StackType.any]
+                args=[PrimitiveIRType.any, PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.any],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5481,8 +5821,8 @@ class AVMOp(enum.StrEnum):
         op_code="setbyte",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.uint64, StackType.uint64],
-                returns=[StackType.bytes],
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.bytes],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5501,7 +5841,7 @@ class AVMOp(enum.StrEnum):
     sha256 = AVMOpData(
         op_code="sha256",
         variants=Variant(
-            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[FixedBytesType(size=32)]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=1,
@@ -5518,7 +5858,7 @@ class AVMOp(enum.StrEnum):
     sha3_256 = AVMOpData(
         op_code="sha3_256",
         variants=Variant(
-            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[FixedBytesType(size=32)]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=7,
@@ -5535,7 +5875,7 @@ class AVMOp(enum.StrEnum):
     sha512_256 = AVMOpData(
         op_code="sha512_256",
         variants=Variant(
-            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[FixedBytesType(size=32)]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=1,
@@ -5553,7 +5893,8 @@ class AVMOp(enum.StrEnum):
         op_code="shl",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5572,7 +5913,8 @@ class AVMOp(enum.StrEnum):
         op_code="shr",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5590,7 +5932,7 @@ class AVMOp(enum.StrEnum):
     sqrt = AVMOpData(
         op_code="sqrt",
         variants=Variant(
-            signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+            signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=4,
@@ -5607,7 +5949,7 @@ class AVMOp(enum.StrEnum):
     store = AVMOpData(
         op_code="store",
         variants=Variant(
-            signature=OpSignature(args=[StackType.any], returns=[]),
+            signature=OpSignature(args=[PrimitiveIRType.any], returns=[]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=1,
@@ -5624,7 +5966,7 @@ class AVMOp(enum.StrEnum):
     stores = AVMOpData(
         op_code="stores",
         variants=Variant(
-            signature=OpSignature(args=[StackType.uint64, StackType.any], returns=[]),
+            signature=OpSignature(args=[PrimitiveIRType.uint64, PrimitiveIRType.any], returns=[]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=5,
@@ -5642,7 +5984,8 @@ class AVMOp(enum.StrEnum):
         op_code="-",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.uint64],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5661,7 +6004,8 @@ class AVMOp(enum.StrEnum):
         op_code="b-",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bigint, StackType.bigint], returns=[StackType.bigint]
+                args=[PrimitiveIRType.biguint, PrimitiveIRType.biguint],
+                returns=[PrimitiveIRType.biguint],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5679,7 +6023,7 @@ class AVMOp(enum.StrEnum):
     substring = AVMOpData(
         op_code="substring",
         variants=Variant(
-            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[PrimitiveIRType.bytes]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=2,
@@ -5698,8 +6042,8 @@ class AVMOp(enum.StrEnum):
         op_code="substring3",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.uint64, StackType.uint64],
-                returns=[StackType.bytes],
+                args=[PrimitiveIRType.bytes, PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                returns=[PrimitiveIRType.bytes],
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5718,7 +6062,7 @@ class AVMOp(enum.StrEnum):
     sumhash512 = AVMOpData(
         op_code="sumhash512",
         variants=Variant(
-            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[FixedBytesType(size=64)]),
             enum=None,
             supported_modes=RunMode.any,
             min_avm_version=12,
@@ -5738,409 +6082,409 @@ class AVMOp(enum.StrEnum):
             immediate_index=0,
             variant_map={
                 "Sender": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Sender",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Fee": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Fee",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "FirstValid": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="FirstValid",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "FirstValidTime": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="FirstValidTime",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "LastValid": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="LastValid",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Note": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="Note",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Lease": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Lease",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Receiver": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Receiver",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Amount": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Amount",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "CloseRemainderTo": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="CloseRemainderTo",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VotePK": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="VotePK",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "SelectionPK": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="SelectionPK",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteFirst": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="VoteFirst",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteLast": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="VoteLast",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "VoteKeyDilution": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="VoteKeyDilution",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "Type": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="Type",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "TypeEnum": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="TypeEnum",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "XferAsset": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="XferAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetAmount": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="AssetAmount",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetSender": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="AssetSender",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetReceiver": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="AssetReceiver",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "AssetCloseTo": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="AssetCloseTo",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "GroupIndex": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="GroupIndex",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "TxID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="TxID",
                     supported_modes=RunMode.any,
                     min_avm_version=0,
                 ),
                 "ApplicationID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ApplicationID",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "OnCompletion": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="OnCompletion",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ApplicationArgs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApplicationArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "NumAppArgs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumAppArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Accounts": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Accounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "NumAccounts": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumAccounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ApprovalProgram": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApprovalProgram",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ClearStateProgram": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ClearStateProgram",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "RekeyTo": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="RekeyTo",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAsset": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ConfigAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetTotal": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ConfigAssetTotal",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetDecimals": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ConfigAssetDecimals",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetDefaultFrozen": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bool]),
                     enum="ConfigAssetDefaultFrozen",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetUnitName": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ConfigAssetUnitName",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetName": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ConfigAssetName",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetURL": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ConfigAssetURL",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetMetadataHash": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetMetadataHash",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetManager": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetManager",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetReserve": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetReserve",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetFreeze": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetFreeze",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "ConfigAssetClawback": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="ConfigAssetClawback",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAsset": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="FreezeAsset",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAssetAccount": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="FreezeAssetAccount",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "FreezeAssetFrozen": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bool]),
                     enum="FreezeAssetFrozen",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Assets": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Assets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "NumAssets": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumAssets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Applications": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Applications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "NumApplications": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumApplications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "GlobalNumUint": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="GlobalNumUint",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "GlobalNumByteSlice": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="GlobalNumByteSlice",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "LocalNumUint": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="LocalNumUint",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "LocalNumByteSlice": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="LocalNumByteSlice",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "ExtraProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="ExtraProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=4,
                 ),
                 "Nonparticipation": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bool]),
                     enum="Nonparticipation",
                     supported_modes=RunMode.any,
                     min_avm_version=5,
                 ),
                 "Logs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="Logs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "NumLogs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumLogs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "CreatedAssetID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="CreatedAssetID",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "CreatedApplicationID": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="CreatedApplicationID",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "LastLog": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="LastLog",
                     supported_modes=RunMode.app,
                     min_avm_version=6,
                 ),
                 "StateProofPK": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="StateProofPK",
                     supported_modes=RunMode.any,
                     min_avm_version=6,
                 ),
                 "ApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "NumApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "ClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "NumClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="NumClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
@@ -6162,43 +6506,43 @@ class AVMOp(enum.StrEnum):
             immediate_index=0,
             variant_map={
                 "ApplicationArgs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApplicationArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Accounts": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    signature=OpSignature(args=[], returns=[FixedBytesType(size=32)]),
                     enum="Accounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Assets": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Assets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Applications": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
                     enum="Applications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Logs": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="Logs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "ApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "ClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
                     enum="ClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
@@ -6222,45 +6566,57 @@ class AVMOp(enum.StrEnum):
             immediate_index=0,
             variant_map={
                 "ApplicationArgs": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ApplicationArgs",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Accounts": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[FixedBytesType(size=32)]
+                    ),
                     enum="Accounts",
                     supported_modes=RunMode.any,
                     min_avm_version=2,
                 ),
                 "Assets": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
                     enum="Assets",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Applications": Variant(
                     signature=OpSignature(
-                        args=[StackType.uint64], returns=[StackType.application]
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
                     ),
                     enum="Applications",
                     supported_modes=RunMode.any,
                     min_avm_version=3,
                 ),
                 "Logs": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="Logs",
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
                 "ApprovalProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ApprovalProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
                 ),
                 "ClearStateProgramPages": Variant(
-                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                    ),
                     enum="ClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
@@ -6283,8 +6639,8 @@ class AVMOp(enum.StrEnum):
             variant_map={
                 "VoterBalance": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index],
-                        returns=[StackType.uint64, StackType.bool],
+                        args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
                     ),
                     enum="VoterBalance",
                     supported_modes=RunMode.app,
@@ -6292,7 +6648,8 @@ class AVMOp(enum.StrEnum):
                 ),
                 "VoterIncentiveEligible": Variant(
                     signature=OpSignature(
-                        args=[StackType.address_or_index], returns=[StackType.bool, StackType.bool]
+                        args=[UnionType(types=(FixedBytesType(size=32), PrimitiveIRType.uint64))],
+                        returns=[PrimitiveIRType.bool, PrimitiveIRType.bool],
                     ),
                     enum="VoterIncentiveEligible",
                     supported_modes=RunMode.app,
@@ -6315,8 +6672,8 @@ class AVMOp(enum.StrEnum):
         op_code="vrf_verify",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bytes, StackType.bytes, StackType.bytes],
-                returns=[StackType.bytes, StackType.bool],
+                args=[PrimitiveIRType.bytes, FixedBytesType(size=80), FixedBytesType(size=32)],
+                returns=[FixedBytesType(size=64), PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.any,

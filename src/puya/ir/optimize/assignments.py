@@ -1,7 +1,6 @@
 from puya import log
 from puya.context import CompileContext
 from puya.ir import models
-from puya.ir.context import TMP_VAR_INDICATOR
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 
 logger = log.get_logger(__name__)
@@ -33,7 +32,7 @@ def copy_propagation(_context: CompileContext, subroutine: models.Subroutine) ->
         equiv_set_ids = ", ".join(x.local_id for x in equivalence_set)
         logger.debug(f"Found equivalence set: {equiv_set_ids}")
         for reg in equivalence_set:
-            if TMP_VAR_INDICATOR not in reg.name:
+            if models.TMP_VAR_INDICATOR not in reg.name:
                 replacement = reg
                 break
         else:

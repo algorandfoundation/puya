@@ -55,9 +55,11 @@ def format_bytes(b: bytes, encoding: AVMBytesEncoding) -> str:
             return f"0x{b.hex()}"
 
 
-def format_tuple_index(var_type: wtypes.WTuple, base_name: str, index_or_name: int | str) -> str:
+def format_tuple_index(
+    var_type: wtypes.WTuple | None, base_name: str, index_or_name: int | str
+) -> str:
     # If a named tuple is indexed numerical, convert this to the item name
-    if isinstance(index_or_name, int) and var_type.names is not None:
+    if isinstance(index_or_name, int) and var_type and var_type.names is not None:
         index_or_name = var_type.names[index_or_name]
     return f"{base_name}.{index_or_name}"
 

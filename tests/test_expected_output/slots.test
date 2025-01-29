@@ -1,0 +1,86 @@
+# ruff: noqa
+# fmt: off
+# type: ignore
+
+## case: test_static_slot_load
+from algopy import *
+
+class StaticLoad(arc4.ARC4Contract):
+
+    @arc4.abimethod()
+    def static_load(self) -> None:
+        assert op.Scratch.load_bytes(1)
+
+## case: test_static_slot_store
+from algopy import *
+
+class StaticStore(arc4.ARC4Contract):
+
+    @arc4.abimethod()
+    def static_store(self) -> None:
+        op.Scratch.store(2, 42)
+
+## case: test_static_dynamic_load_no_reservation
+from algopy import *
+
+class DynamicLoad(arc4.ARC4Contract):
+
+    @arc4.abimethod()
+    def static_load(self) -> None:
+        assert op.Scratch.load_bytes(Txn.num_app_args) ## E: dynamic slot usage detected, but no slots reserved on class, please reserve slots or use constant values for slots
+## case: test_static_dynamic_load_with_reservation
+from algopy import *
+
+class DynamicLoadReservation(arc4.ARC4Contract, scratch_slots=urange(17)):
+
+    @arc4.abimethod()
+    def static_load(self) -> None:
+        assert op.Scratch.load_bytes(Txn.num_app_args)
+## case: test_static_dynamic_store_no_reservation
+from algopy import *
+
+class DynamicStore(arc4.ARC4Contract):
+
+    @arc4.abimethod()
+    def static_store(self) -> None:
+        op.Scratch.store(Txn.num_app_args, 42) ## E: dynamic slot usage detected, but no slots reserved on class, please reserve slots or use constant values for slots
+
+## case: test_static_dynamic_store_with_reservation
+from algopy import *
+
+class DynamicStoreReservation(arc4.ARC4Contract, scratch_slots=urange(17)):
+
+    @arc4.abimethod()
+    def static_store(self) -> None:
+        op.Scratch.store(Txn.num_app_args, 42)
+
+## case: test_array_usage_with_reserved_slots
+from algopy import *
+
+class _ScratchArray(arc4.ARC4Contract):
+
+    @arc4.abimethod()
+    def scratch_array(self) -> UInt64:
+        arr = Array(UInt64(1))
+        add_x(arr)
+        add_x(arr)
+        add_x(arr)
+        return arr.length
+
+
+@subroutine
+def add_x(arr: Array[UInt64]) -> None:
+    for x in urange(Txn.num_app_args):
+        arr.append(x)
+
+class MinMaxRangeReservedSlots(_ScratchArray, scratch_slots=(urange(10), urange(245, 256))):
+    pass
+
+class NoFreeSlots(_ScratchArray, scratch_slots=urange(256)): ## E: not enough available slots for dynamic slot usage, consider reserving less slots
+    pass
+
+class OneFreeSlot(_ScratchArray, scratch_slots=urange(255)): ## E: not enough available slots for dynamic slot usage, consider reserving less slots
+    pass
+
+class TwoFreeSlots(_ScratchArray, scratch_slots=urange(254)):
+    pass

@@ -3,7 +3,7 @@ import json
 import keyword
 import subprocess
 import textwrap
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
 
 from puya import log
@@ -13,9 +13,9 @@ from puya.ir.avm_ops_models import (
     ImmediateKind,
     OpSignature,
     RunMode,
-    StackType,
     Variant,
 )
+from puya.ir.types_ import FixedBytesType, IRType, PrimitiveIRType, UnionType
 from puya.utils import normalise_path_to_str
 from scripts import transform_lang_spec as langspec
 
@@ -23,7 +23,22 @@ logger = log.get_logger(__name__)
 VCS_ROOT = Path(__file__).parent.parent
 
 SUPPORTED_IMMEDIATE_KINDS = (langspec.ImmediateKind.uint8, langspec.ImmediateKind.arg_enum)
-
+STACK_TYPE_TO_IR_TYPE: Mapping[langspec.StackType, IRType] = {
+    langspec.StackType.bool: PrimitiveIRType.bool,
+    langspec.StackType.bigint: PrimitiveIRType.biguint,
+    langspec.StackType.uint64: PrimitiveIRType.uint64,
+    langspec.StackType.asset: PrimitiveIRType.uint64,
+    langspec.StackType.application: PrimitiveIRType.uint64,
+    # NOTE: fixed sized bytes are mapped separately
+    langspec.StackType.bytes: PrimitiveIRType.bytes,
+    langspec.StackType.box_name: PrimitiveIRType.bytes,
+    langspec.StackType.state_key: PrimitiveIRType.bytes,
+    langspec.StackType.address: FixedBytesType(size=32),
+    langspec.StackType.any: PrimitiveIRType.any,
+    langspec.StackType.address_or_index: UnionType(
+        types=(FixedBytesType(size=32), PrimitiveIRType.uint64)
+    ),
+}
 operator_names = {
     # bool
     "&&": "and",
@@ -203,11 +218,11 @@ def _map_run_mode(mode: langspec.RunMode) -> RunMode:
             raise ValueError(f"Unsupported mode {mode}")
 
 
-def get_stack_type(stack_type: langspec.StackType) -> StackType:
+def get_stack_type(stack_type: langspec.StackType) -> IRType:
     if stack_type.name.startswith("bytes_"):
-        return StackType.bytes
+        return FixedBytesType(size=int(stack_type.name.removeprefix("bytes_")))
     else:
-        return StackType[stack_type.name]
+        return STACK_TYPE_TO_IR_TYPE[stack_type]
 
 
 def get_immediate_type(immediate: langspec.Immediate) -> ImmediateKind:
@@ -232,9 +247,9 @@ from puya.ir.avm_ops_models import (
     ImmediateKind,
     OpSignature,
     RunMode,
-    StackType,
     Variant
 )
+from puya.ir.types_ import FixedBytesType, PrimitiveIRType, UnionType
 
 
 class AVMOp(enum.StrEnum):

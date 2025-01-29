@@ -8,13 +8,11 @@ from puya.awst.validation.inner_transactions import (
     StaleInnerTransactionsValidator,
 )
 from puya.awst.validation.labels import LabelsValidator
-from puya.awst.validation.scratch_slots import ScratchSlotReservationValidator
 from puya.awst.validation.storage import StorageTypesValidator
 
 
 def validate_awst(module: awst_nodes.AWST) -> None:
     ARC4CopyValidator.validate(module)
-    ScratchSlotReservationValidator.validate(module)
     InnerTransactionsValidator.validate(module)
     InnerTransactionUsedInALoopValidator.validate(module)
     StaleInnerTransactionsValidator.validate(module)

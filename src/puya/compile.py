@@ -2,7 +2,7 @@ import itertools
 import shutil
 import typing
 from collections import defaultdict
-from collections.abc import Iterator, Mapping, Sequence, Set
+from collections.abc import Iterator, Mapping, Sequence
 from pathlib import Path
 
 import attrs
@@ -32,11 +32,8 @@ from puya.context import (
 )
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir_models
-from puya.ir.destructure.main import destructure_ssa
-from puya.ir.main import awst_to_ir
-from puya.ir.optimize.main import optimize_program_ir
+from puya.ir.main import awst_to_ir, transform_ir
 from puya.ir.to_text_visitor import render_program
-from puya.ir.validation.main import validate_module_artifact
 from puya.log import LoggingContext
 from puya.mir.main import program_ir_to_mir
 from puya.options import PuyaOptions
@@ -116,12 +113,18 @@ def _ir_to_teal(
             compiled_program_provider=compiled_program_provider,
         )
 
-        num_errors_before_optimization = log_ctx.num_errors
-        artifact_ir = _optimize_and_destructure_ir(artifact_context, artifact.ir)
+        num_errors_before_transforms = log_ctx.num_errors
+        artifact_ir = artifact.ir
+        if artifact_context.options.output_ssa_ir:
+            for program in artifact_ir.all_programs():
+                render_program(artifact_context, program, qualifier="ssa")
+        artifact_ir = transform_ir(artifact_context, artifact_ir)
+
         # IR validation that occurs at the end of optimize_and_destructure_ir may have revealed
         # further errors, add dummy artifacts and continue so other artifacts can still be lowered
         # and report any errors they encounter
-        errors_in_optimization = log_ctx.num_errors > num_errors_before_optimization
+        errors_in_optimization = log_ctx.num_errors > num_errors_before_transforms
+
         if not errors_in_optimization:
             compiled: _CompiledContract | _CompiledLogicSig
             if isinstance(artifact_ir, ir_models.Contract):
@@ -212,41 +215,6 @@ class _SequentialOutputPathProvider(OutputPathProvider):
         if kind is not ProgramKind.logic_signature:
             qualifier = f"{kind}.{qualifier}"
         return out_dir / f"{self._metadata.name}.{qualifier}.{suffix}"
-
-
-def _optimize_and_destructure_ir(
-    context: ArtifactCompileContext, artifact_ir: ir_models.ModuleArtifact
-) -> ir_models.ModuleArtifact:
-    if isinstance(artifact_ir, ir_models.LogicSignature):
-        routable_method_ids = None
-    else:
-        routable_method_ids = {a4m.id for a4m in artifact_ir.metadata.arc4_methods}
-    for program in artifact_ir.all_programs():
-        _optimize_and_destructure_program_ir(
-            context, artifact_ir.metadata.ref, program, routable_method_ids=routable_method_ids
-        )
-    # validation is run as the last step, in case we've accidentally inserted something,
-    # and in particular post subroutine removal, because some things that are "linked"
-    # are not necessarily used from the current artifact
-    validate_module_artifact(context, artifact_ir)
-    return artifact_ir
-
-
-def _optimize_and_destructure_program_ir(
-    context: ArtifactCompileContext,
-    ref: ContractReference | LogicSigReference,
-    program: ir_models.Program,
-    routable_method_ids: Set[str] | None = None,
-) -> None:
-    if context.options.output_ssa_ir:
-        render_program(context, program, qualifier="ssa")
-    logger.info(
-        f"optimizing {program.kind} program of {ref} at level {context.options.optimization_level}"
-    )
-    optimize_program_ir(context, program, routable_method_ids=routable_method_ids)
-    destructure_ssa(context, program)
-    if context.options.output_destructured_ir:
-        render_program(context, program, qualifier="destructured")
 
 
 @attrs.frozen

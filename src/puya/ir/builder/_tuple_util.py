@@ -4,7 +4,13 @@ from puya.awst import wtypes
 from puya.errors import InternalError
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import Register, Value, ValueProvider, ValueTuple
-from puya.ir.types_ import IRType, get_wtype_arity, sum_wtypes_arity, wtype_to_ir_type
+from puya.ir.types_ import (
+    EncodedTupleType,
+    IRType,
+    get_wtype_arity,
+    sum_wtypes_arity,
+    wtype_to_ir_type,
+)
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
@@ -39,26 +45,37 @@ def get_tuple_item_values(
 def build_tuple_registers(
     context: IRFunctionBuildContext,
     base_name: str,
-    wtype: wtypes.WType,
+    typ: wtypes.WType | IRType,
     source_location: SourceLocation | None,
 ) -> list[Register]:
     return [
-        context.ssa.new_register(name, ir_type, source_location)
-        for name, ir_type in build_tuple_item_names(base_name, wtype, source_location)
+        context.new_register(name, ir_type, source_location)
+        for name, ir_type in build_tuple_item_names(base_name, typ, source_location)
     ]
 
 
 def build_tuple_item_names(
     base_name: str,
-    wtype: wtypes.WType,
+    typ: wtypes.WType | IRType,
     source_location: SourceLocation | None,
 ) -> list[tuple[str, IRType]]:
-    if not isinstance(wtype, wtypes.WTuple):
-        return [(base_name, wtype_to_ir_type(wtype, source_location))]
-    return [
-        reg
-        for idx, item_type in enumerate(wtype.types)
-        for reg in build_tuple_item_names(
-            format_tuple_index(wtype, base_name, idx), item_type, source_location
-        )
-    ]
+    if isinstance(typ, wtypes.WTuple):
+        return [
+            reg
+            for idx, item_type in enumerate(typ.types)
+            for reg in build_tuple_item_names(
+                format_tuple_index(typ, base_name, idx), item_type, source_location
+            )
+        ]
+    elif isinstance(typ, wtypes.WType):
+        return [(base_name, wtype_to_ir_type(typ, source_location))]
+    elif isinstance(typ, EncodedTupleType):
+        return [
+            reg
+            for idx, item_type in enumerate(typ.elements)
+            for reg in build_tuple_item_names(
+                format_tuple_index(None, base_name, idx), item_type, source_location
+            )
+        ]
+    elif isinstance(typ, IRType):
+        return [(base_name, typ)]
