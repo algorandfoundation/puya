@@ -473,10 +473,29 @@ class ArrayConcat(Expression):
 
 @attrs.frozen
 class ArrayPop(Expression):
+    """Removes the last item of an array and returns it"""
+
     base: Expression
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_array_pop(self)
+
+
+@attrs.frozen
+class ArrayReplace(Expression):
+    """Replaces the item at index with value and returns the updated array"""
+
+    base: Expression
+    index: Expression
+    value: Expression
+    wtype: wtypes.WType = attrs.field()
+
+    @wtype.default
+    def _wtype(self) -> wtypes.WType:
+        return self.base.wtype
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_array_replace(self)
 
 
 @attrs.frozen
@@ -795,6 +814,7 @@ class IntersectionSliceExpression(Expression):
         validator=expression_has_wtype(
             wtypes.bytes_wtype,
             wtypes.WTuple,
+            wtypes.WArray,
         )
     )
 

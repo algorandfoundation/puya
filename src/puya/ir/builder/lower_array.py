@@ -11,8 +11,9 @@ from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import OpFactory, assign_intrinsic_op
+from puya.ir.builder.arc4 import ARC4_FALSE, ARC4_TRUE
 from puya.ir.register_context import IRRegisterContext
-from puya.ir.types_ import ArrayType, EncodedTupleType, IRType
+from puya.ir.types_ import ArrayType, EncodedTupleType, IRType, PrimitiveIRType
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
 from puya.parse import SourceLocation, sequential_source_locations_merge
@@ -233,14 +234,48 @@ def _encode_array_item(
     # encoded items are essentially an array of size 1, so use that as the base type
     array_type = ArrayType(element=element_type)
     encoded = factory.constant(b"", ir_type=array_type)
-    for value, sub_type in zip(values, EncodedTupleType.expand_types(element_type), strict=True):
-        if sub_type.avm_type == AVMType.uint64:
+    last_type_and_group = None
+    bit_packed_index = 0
+    encoded_length = 0
+    for value, (sub_type, tuple_group) in zip(
+        values, EncodedTupleType.expand_type_and_group_id(element_type), strict=True
+    ):
+        if sub_type == PrimitiveIRType.bool:
+            # sequential bits in the same tuple are bit-packed
+            if last_type_and_group == (sub_type, tuple_group):
+                bit_packed_index += 1
+                bit_index = bit_packed_index % 8
+                if bit_index:
+                    bit_index += (encoded_length - 1) * 8
+                bytes_to_set = encoded if bit_index else ARC4_FALSE
+                value = factory.set_bit(
+                    value=bytes_to_set, index=bit_index, bit=value, temp_desc="sub_item"
+                )
+                # if bit_index is not 0, then just update encoded and continue
+                # as there is nothing to concat
+                if bit_index:
+                    encoded = value
+                    continue
+            else:
+                value = factory.select(
+                    false=ARC4_FALSE,
+                    true=ARC4_TRUE,
+                    condition=value,
+                    ir_type=PrimitiveIRType.bytes,
+                    temp_desc="encoded_bit",
+                )
+                bit_packed_index = 0
+        elif sub_type.avm_type == AVMType.uint64:
             value = factory.itob(value, "sub_item")
             if sub_type.size != 8:
                 assert sub_type.size is not None, "expected fixed type"
                 value = factory.extract3(
                     value, 8 - sub_type.size, sub_type.size, "sub_item_truncated"
                 )
+        if sub_type.size is None:
+            raise InternalError("expected fixed size element", loc)
+        encoded_length += sub_type.size
+        last_type_and_group = sub_type, tuple_group
         encoded = factory.concat(encoded, value, "encoded", ir_type=array_type)
     return encoded
 
@@ -252,13 +287,26 @@ def _decode_array_item(
     loc: SourceLocation | None,
 ) -> Sequence[ir.Value]:
     factory = OpFactory(context, loc)
-    offset = 0
+    bit_offset = offset = 0
     values = []
-    for sub_type in EncodedTupleType.expand_types(element_type):
-        sub_type_size = _get_element_size(sub_type, loc)
-        sub_item = factory.extract3(item_bytes, offset, sub_type_size, "sub_item")
-        if sub_type.avm_type == AVMType.uint64:
-            sub_item = factory.btoi(sub_item, "sub_item")
+    last_sub_typ = None
+    for sub_type, group_id in EncodedTupleType.expand_type_and_group_id(element_type):
+        # special handling for bit-packed bools in aggregate types
+        if sub_type == PrimitiveIRType.bool and element_type != PrimitiveIRType.bool:
+            if last_sub_typ == (sub_type, group_id):
+                bit_offset += 1
+            sub_item = factory.get_bit(item_bytes, offset * 8 + bit_offset, "sub_item")
+        else:
+            sub_type_size = _get_element_size(sub_type, loc)
+            bit_offset = 0
+            sub_item = factory.extract3(item_bytes, offset, sub_type_size, "sub_item")
+            if sub_type.avm_type == AVMType.uint64:
+                sub_item = factory.btoi(sub_item, "sub_item")
+            offset += sub_type_size
+        # also increment offset if we reach the end of a bit-packed byte
+        if bit_offset % 8 == 7:
+            bit_offset = 0
+            offset += 1
+        last_sub_typ = sub_type, group_id
         values.append(sub_item)
-        offset += sub_type_size
     return values

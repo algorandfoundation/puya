@@ -13,7 +13,10 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.arc4_types import maybe_avm_to_arc4_equivalent_type, wtype_to_arc4
+from puya.awst.arc4_types import (
+    maybe_wtype_to_arc4_wtype,
+    wtype_to_arc4,
+)
 from puya.context import CompiledProgramProvider
 from puya.errors import CodeError
 from puya.ir._utils import make_subroutine
@@ -137,7 +140,7 @@ def _compile_arc4_default_constant(
     if isinstance(expr.wtype, wtypes.ARC4Type):
         arc4_type_name = expr.wtype.arc4_name
     else:
-        arc4_type = maybe_avm_to_arc4_equivalent_type(expr.wtype)
+        arc4_type = maybe_wtype_to_arc4_wtype(expr.wtype)
         if arc4_type is None:
             logger.error("unsupported type for argument default", location=location)
             return None

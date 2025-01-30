@@ -188,6 +188,29 @@ class EncodedTupleType(IRType):
             return tuple(t for element in ir_type.elements for t in cls.expand_types(element))
         return (ir_type,)
 
+    @classmethod
+    def expand_type_and_group_id(cls, ir_type: IRType) -> Sequence[tuple[IRType, int]]:
+        """
+        Returns a sequence of (type, group_id) values.
+        Where group_id is an int representing the original tuple they were part of.
+        Items from the same tuple will have the same id.
+
+        e.g.
+        bool,(bool,bool),(bool,bool),bool
+        will return
+        [(bool,1),(bool,2),(bool,2),(bool,3),(bool,3),(bool,1)]
+        """
+        group = idx = 0
+        result = [(ir_type, group)]
+        while idx < len(result):
+            typ = result[idx][0]
+            if isinstance(typ, cls):
+                group += 1
+                result[idx : idx + 1] = [(e, group) for e in typ.elements]
+            else:
+                idx += 1
+        return result
+
     def __str__(self) -> str:
         return self.name
 
@@ -297,9 +320,12 @@ def wtype_to_ir_type(
             return PrimitiveIRType.itxn_group_idx
         case wtypes.WInnerTransactionFields():
             return PrimitiveIRType.itxn_field_set
-        case wtypes.WArray(element_type=element_wtype):
+        case wtypes.WArray(element_type=element_wtype, immutable=immutable):
             element_ir_type = wtype_to_encoded_ir_type(element_wtype, source_location)
-            return SlotType(ArrayType(element=element_ir_type))
+            array_type = ArrayType(element=element_ir_type)
+            return array_type if immutable else SlotType(array_type)
+        case wtypes.WArray(immutable=True):
+            return PrimitiveIRType.bytes
         case wtypes.ARC4Type() as arc4_wtype if is_arc4_static_size(arc4_wtype):
             return FixedBytesType(bits_to_bytes(get_arc4_static_bit_size(arc4_wtype)))
         case wtypes.arc4_address_alias | wtypes.account_wtype:

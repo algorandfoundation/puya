@@ -1,3 +1,4 @@
+import base64
 import math
 import random
 from pathlib import Path
@@ -6,7 +7,7 @@ import algokit_utils
 import algokit_utils.config
 import algosdk
 import pytest
-from algokit_utils import LogicError
+from algokit_utils import ApplicationClient, LogicError, OnCompleteCallParametersDict
 from algosdk import abi, constants, transaction
 from algosdk.atomic_transaction_composer import (
     AtomicTransactionComposer,
@@ -1794,9 +1795,28 @@ def test_array_fixed_size(
     app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
     app_client.create()
+    # ensure app meets minimum balance requirements
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=200_000,
+        ),
+    )
 
-    response = simulate_call(app_client, "test_array", x1=3, y1=4, x2=6, y2=8)
+    x1, y1 = 3, 4
+    x2, y2 = 6, 8
+    sender = account.public_key[:32]
+    response = simulate_call(app_client, "test_array", x1=x1, y1=y1, x2=x2, y2=y2)
     assert response.abi_results[0].return_value == 15
+    assert _get_box_state(response, b"a") == _get_arc4_bytes(
+        "(uint64,uint64,(uint64,uint64,address,(uint64,uint64)))[]",
+        [
+            (0, 0, (5, 1, sender, (2, 1))),
+            (x1, y1, (5, 2, sender, (3, 4))),
+            (x2, y2, (5, 3, sender, (4, 9))),
+        ],
+    )
 
     response = simulate_call(app_client, "test_arc4_conversion", length=5)
     assert response.abi_results[0].return_value == [1, 2, 3, 4, 5]
@@ -1815,19 +1835,100 @@ def test_array_fixed_size(
     assert response.abi_results[0].return_value == 2
 
 
+@pytest.fixture(scope="session")
+def immutable_array_app(
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+) -> ApplicationClient:
+    example = TEST_CASES_DIR / "array" / "immutable.py"
+
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    return app_client
+
+
+def test_immutable_array(immutable_array_app: ApplicationClient) -> None:
+    response = simulate_call(immutable_array_app, "test_uint64_array")
+    assert _get_global_state(response, b"a") == _get_arc4_bytes(
+        "uint64[]", [42, 0, 23, 2, *range(10), 44]
+    )
+
+    response = simulate_call(immutable_array_app, "test_fixed_size_tuple_array")
+    assert _get_global_state(response, b"c") == _get_arc4_bytes(
+        "(uint64,uint64)[]", [(i + 1, i + 2) for i in range(4)]
+    )
+
+    response = simulate_call(immutable_array_app, "test_fixed_size_named_tuple_array")
+    assert _get_global_state(response, b"d") == _get_arc4_bytes(
+        "(uint64,bool,bool)[]", [(i, i % 2 == 0, i * 3 % 2 == 0) for i in range(5)]
+    )
+
+    response = simulate_call(immutable_array_app, "test_dynamic_sized_tuple_array")
+    assert _get_global_state(response, b"e") == _get_arc4_bytes(
+        "(uint64,byte[])[]", [(i + 1, b"\x00" * i) for i in range(4)]
+    )
+
+    response = simulate_call(immutable_array_app, "test_dynamic_sized_named_tuple_array")
+    assert _get_global_state(response, b"f") == _get_arc4_bytes(
+        "(uint64,string)[]", [(i + 1, " " * i) for i in range(4)]
+    )
+
+    response = simulate_call(immutable_array_app, "test_bit_packed_tuples")
+    assert _get_global_state(response, b"bool2") == _get_arc4_bytes(
+        "(bool,bool)[]", [(i == 0, i == 1) for i in range(5)]
+    )
+    assert _get_global_state(response, b"bool7") == _get_arc4_bytes(
+        "(uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[]",
+        [(i, i == 0, i == 1, i == 2, i == 3, i == 4, i == 5, i == 6, i + 1) for i in range(5)],
+    )
+    assert _get_global_state(response, b"bool8") == _get_arc4_bytes(
+        "(uint64,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[]",
+        [
+            (i, i == 0, i == 1, i == 2, i == 3, i == 4, i == 5, i == 6, i == 7, i + 1)
+            for i in range(5)
+        ],
+    )
+    assert _get_global_state(response, b"bool9") == _get_arc4_bytes(
+        "(uint64,bool,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[]",
+        [
+            (i, i == 0, i == 1, i == 2, i == 3, i == 4, i == 5, i == 6, i == 7, i == 8, i + 1)
+            for i in range(5)
+        ],
+    )
+
+
+_EXPECTED_LENGTH_20 = [False, False, True, *(False,) * 17]
+
+
+@pytest.mark.parametrize("length", [0, 1, 2, 3, 4, 7, 8, 9, 15, 16, 17])
+def test_immutable_bool_array(immutable_array_app: ApplicationClient, length: int) -> None:
+    response = simulate_call(immutable_array_app, "test_bool_array", length=length)
+    expected = _EXPECTED_LENGTH_20[:length]
+    assert _get_global_state(response, b"g") == _get_arc4_bytes("bool[]", expected)
+
+def test_immutable_returns(immutable_array_app: ApplicationClient) -> None:
+    response = simulate_call(immutable_array_app, "test_bool_return")
+    assert response.abi_results[0].return_value == [True, False, True, False, True]
+
 def simulate_call(
     app_client: algokit_utils.ApplicationClient,
     method: str,
     extra_budget: int = 20_000,
+    txn_params: OnCompleteCallParametersDict | None = None,
     **kwargs: object,
 ) -> SimulateAtomicTransactionResponse:
     atc = algosdk.atomic_transaction_composer.AtomicTransactionComposer()
-    app_client.compose_call(atc, call_abi_method=method, transaction_parameters=None, **kwargs)
+    app_client.compose_call(
+        atc, call_abi_method=method, transaction_parameters=txn_params, **kwargs
+    )
     simulate_response = atc.simulate(
         app_client.algod_client,
         SimulateRequest(
             txn_groups=[],
             extra_opcode_budget=extra_budget,
+            allow_unnamed_resources=True,
             exec_trace_config=SimulateTraceConfig(
                 enable=True,
                 stack_change=True,
@@ -1837,11 +1938,20 @@ def simulate_call(
         ),
     )
 
+    import json
+
+    simulate_json = json.dumps(simulate_response.simulate_response, indent=2)
+    trace_dir = TEST_CASES_DIR / "array" / "debug_traces"
+    trace_dir.mkdir(exist_ok=True)
+    (trace_dir / method).with_suffix(".trace.avm.json").write_text(simulate_json)
+
     if simulate_response.failure_message:
         logic_error_data = algokit_utils.logic_error.parse_logic_error(
             simulate_response.failure_message
         )
-        assert logic_error_data is not None, "expected LogicError"
+        assert (
+            logic_error_data is not None
+        ), f"expected LogicError, got {simulate_response.failure_message}"
         assert app_client.approval is not None, "expected approval program"
         raise algokit_utils.LogicError(
             logic_error_str=simulate_response.failure_message,
@@ -1850,3 +1960,36 @@ def simulate_call(
             **logic_error_data,
         )
     return simulate_response
+
+
+def _get_arc4_bytes(arc4_type: str, value: object) -> bytes:
+    return algosdk.abi.ABIType.from_string(arc4_type).encode(value)
+
+
+def _get_global_state(
+    sim: SimulateAtomicTransactionResponse,
+    key: bytes,
+) -> bytes:
+    group = sim.simulate_response["txn-groups"][0]
+    deltas = group["txn-results"][0]["txn-result"]["global-state-delta"]
+    key_b64 = base64.b64encode(key).decode("utf8")
+    (match,) = (base64.b64decode(d["value"]["bytes"]) for d in deltas if d["key"] == key_b64)
+    return match
+
+
+def _get_box_state(
+    sim: SimulateAtomicTransactionResponse,
+    key: bytes,
+) -> bytes:
+    group = sim.simulate_response["txn-groups"][0]
+    trace = group["txn-results"][0]["exec-trace"]["approval-program-trace"]
+    scs = [sc for t in trace for sc in t.get("state-changes", [])]
+    key_b64 = base64.b64encode(key).decode("utf8")
+    *_, sc = (  # get last matching write to state-change
+        sc
+        for sc in scs
+        if sc.get("app-state-type") == "b"  # box
+        and sc.get("operation") == "w"  # write
+        and sc.get("key") == key_b64  # matching key
+    )
+    return base64.b64decode(sc["new-value"]["bytes"])

@@ -16,7 +16,7 @@ from puya.ir.models import (
     ValueProvider,
 )
 from puya.ir.register_context import IRRegisterContext
-from puya.ir.types_ import AVMBytesEncoding, IRType
+from puya.ir.types_ import AVMBytesEncoding, IRType, PrimitiveIRType
 from puya.parse import SourceLocation
 
 
@@ -269,7 +269,7 @@ class OpFactory:
             target=temp_desc,
             op=AVMOp.select,
             args=[false, true, condition],
-            return_type=ir_type or attrs.NOTHING,  # type: ignore[arg-type]
+            return_type=ir_type,
             source_location=self.source_location,
         )
         return result
@@ -362,14 +362,14 @@ class OpFactory:
             )
 
     def set_bit(
-        self, *, value: Value, index: Value | int, bit: Value | int, temp_desc: str
+        self, *, value: Value | bytes, index: Value | int, bit: Value | int, temp_desc: str
     ) -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.setbit,
             args=[value, index, bit],
-            return_type=value.ir_type,
+            return_type=value.ir_type if isinstance(value, Value) else PrimitiveIRType.bytes,
             source_location=self.source_location,
         )
         return result

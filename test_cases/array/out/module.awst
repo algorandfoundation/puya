@@ -253,6 +253,216 @@ subroutine do_something_with_array(arr: array<uint64>): void
   arr.extend((1u))
 }
 
+contract ImmutableArrayContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  globals {
+    ['a']: array<uint64>
+    ['g']: array<bool>
+    ['c']: array<tuple<uint64,uint64>>
+    ['d']: array<test_cases.array.immutable.MyTuple>
+    ['e']: array<tuple<uint64,bytes>>
+    ['f']: array<test_cases.array.immutable.MyDynamicSizedTuple>
+    ['bool2']: array<test_cases.array.immutable.TwoBoolTuple>
+    ['bool7']: array<test_cases.array.immutable.SevenBoolTuple>
+    ['bool8']: array<test_cases.array.immutable.EightBoolTuple>
+    ['bool9']: array<test_cases.array.immutable.NineBoolTuple>
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_uint64_array(): void
+  {
+    arr: array<uint64> = new array<uint64>()
+    assert(arr.length == 0u)
+    arr: array<uint64> = arr + (42u)
+    assert(arr.length == 1u)
+    assert(arr[arr.length - 1u] == 42u)
+    arr: array<uint64> = test_cases.array.immutable.add_x(arr, 5u)
+    assert(arr.length == 6u)
+    assert(arr[arr.length - 1u] == 4u)
+    arr: array<uint64> = arr + (43u)
+    assert(arr.length == 7u)
+    assert(arr[arr.length - 1u] == 43u)
+    assert(arr[0u] == 42u)
+    arr: array<uint64> = test_cases.array.immutable.pop_x(arr, 3u)
+    assert(arr.length == 4u)
+    assert(arr[arr.length - 1u] == 2u)
+    arr: array<uint64> = test_cases.array.immutable.add_x(arr, 10u)
+    assert(arr.length == 14u)
+    assert(arr[arr.length - 1u] == 9u)
+    arr: array<uint64> = arr + (44u)
+    assert(arr.length == 15u)
+    assert(arr[arr.length - 1u] == 44u)
+    arr: array<uint64> = arr.replace(2u, 23u)
+    assert(arr.length == 15u)
+    assert(arr[2u] == 23u)
+    GlobalState['a']: array<uint64> = arr
+  }
+  
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_bool_array(length: uint64): void
+  {
+    arr: array<bool> = new array<bool>()
+    assert(arr.length == 0u)
+    for i in range(0u, length, 1u) {
+      arr: array<bool> = arr + (i == txn<NumAppArgs>())
+    }
+    assert(arr.length == length)
+    if (length > 0u) {
+      assert(!(arr[0u]), comment="expected element 0 to be False")
+    }
+    if (length > 1u) {
+      assert(!(arr[1u]), comment="expected element 1 to be False")
+    }
+    if (length > 2u) {
+      assert(arr[2u], comment="expected element 2 to be True")
+    }
+    if (length > 3u) {
+      assert(!(arr[length - 1u]), comment="expected last element to be False")
+    }
+    GlobalState['g']: array<bool> = arr
+    if (length != 0u) {
+      arr: array<bool> = arr[:-1]
+      assert(arr.length == length - 1u)
+    }
+  }
+  
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tuple_array(): void
+  {
+    arr: array<tuple<uint64,uint64>> = new array<tuple<uint64,uint64>>()
+    assert(arr.length == 0u)
+    for i in range(0u, 5u, 1u) {
+      arr: array<tuple<uint64,uint64>> = arr + ((i + 1u, i + 2u))
+    }
+    assert(arr.length == 5u)
+    assert(&&(SINGLE_EVAL(id=0, source=arr[0u])[0] == 1u, SINGLE_EVAL(id=0)[1] == 2u))
+    assert(&&(SINGLE_EVAL(id=1, source=arr[arr.length - 1u])[0] == 5u, SINGLE_EVAL(id=1)[1] == 6u))
+    arr: array<tuple<uint64,uint64>> = arr[:-1]
+    assert(arr.length == 4u)
+    assert(&&(SINGLE_EVAL(id=2, source=arr[0u])[0] == 1u, SINGLE_EVAL(id=2)[1] == 2u))
+    assert(&&(SINGLE_EVAL(id=3, source=arr[arr.length - 1u])[0] == 4u, SINGLE_EVAL(id=3)[1] == 5u))
+    GlobalState['c']: array<tuple<uint64,uint64>> = arr
+  }
+  
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_named_tuple_array(): void
+  {
+    arr: array<test_cases.array.immutable.MyTuple> = new array<test_cases.array.immutable.MyTuple>()
+    assert(arr.length == 0u)
+    for i in range(0u, 5u, 1u) {
+      arr: array<test_cases.array.immutable.MyTuple> = arr + ((i, i % 2u == 0u, i * 3u % 2u == 0u))
+    }
+    assert(arr.length == 5u)
+    (foo, bar, baz): tuple<uint64,bool,bool> = arr[0u]
+    assert(foo == 0u)
+    assert(bar)
+    assert(baz)
+    GlobalState['d']: array<test_cases.array.immutable.MyTuple> = arr
+  }
+  
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array(): void
+  {
+    arr: array<tuple<uint64,bytes>> = new array<tuple<uint64,bytes>>()
+    assert(arr.length == 0u)
+    for i in range(0u, 5u, 1u) {
+      arr: array<tuple<uint64,bytes>> = arr + ((i + 1u, bzero(i)))
+    }
+    assert(arr.length == 5u)
+    for i in range(0u, 5u, 1u) {
+      assert(arr[i][0] == i + 1u, comment="expected 1st element to be correct")
+      assert(len(arr[i][1]) == i, comment="expected 2nd element to be correct")
+    }
+    arr: array<tuple<uint64,bytes>> = arr[:-1]
+    assert(arr.length == 4u)
+    assert(&&(SINGLE_EVAL(id=4, source=arr[0u])[0] == 1u, SINGLE_EVAL(id=4)[1] == bzero(0u)), comment="expected 1, 0")
+    assert(&&(SINGLE_EVAL(id=5, source=arr[arr.length - 1u])[0] == 4u, SINGLE_EVAL(id=5)[1] == bzero(3u)), comment="expected 4, 3")
+    GlobalState['e']: array<tuple<uint64,bytes>> = arr
+  }
+  
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array(): void
+  {
+    arr: array<test_cases.array.immutable.MyDynamicSizedTuple> = new array<test_cases.array.immutable.MyDynamicSizedTuple>()
+    assert(arr.length == 0u)
+    for i in range(0u, 5u, 1u) {
+      arr: array<test_cases.array.immutable.MyDynamicSizedTuple> = arr + ((i + 1u, test_cases.array.immutable.times(i)))
+    }
+    assert(arr.length == 5u)
+    for i in range(0u, 5u, 1u) {
+      assert(arr[i][0] == i + 1u, comment="expected 1st element to be correct")
+      assert(arr[i][1] == test_cases.array.immutable.times(i), comment="expected 2nd element to be correct")
+    }
+    arr: array<test_cases.array.immutable.MyDynamicSizedTuple> = arr[:-1]
+    assert(arr.length == 4u)
+    assert(&&(SINGLE_EVAL(id=6, source=arr[0u])[0] == SINGLE_EVAL(id=7, source=(1u, ''))[0], SINGLE_EVAL(id=6)[1] == SINGLE_EVAL(id=7)[1]), comment="expected 1, 0")
+    assert(&&(SINGLE_EVAL(id=8, source=arr[arr.length - 1u])[0] == SINGLE_EVAL(id=9, source=(4u, '   '))[0], SINGLE_EVAL(id=8)[1] == SINGLE_EVAL(id=9)[1]), comment="expected 4, 3")
+    GlobalState['f']: array<test_cases.array.immutable.MyDynamicSizedTuple> = arr
+  }
+  
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples(): void
+  {
+    arr2: array<test_cases.array.immutable.TwoBoolTuple> = new array<test_cases.array.immutable.TwoBoolTuple>()
+    arr7: array<test_cases.array.immutable.SevenBoolTuple> = new array<test_cases.array.immutable.SevenBoolTuple>()
+    arr8: array<test_cases.array.immutable.EightBoolTuple> = new array<test_cases.array.immutable.EightBoolTuple>()
+    arr9: array<test_cases.array.immutable.NineBoolTuple> = new array<test_cases.array.immutable.NineBoolTuple>()
+    assert(arr2.length == 0u)
+    assert(arr7.length == 0u)
+    assert(arr8.length == 0u)
+    assert(arr9.length == 0u)
+    for i in range(0u, 5u, 1u) {
+      arr2: array<test_cases.array.immutable.TwoBoolTuple> = arr2 + ((i == 0u, i == 1u))
+      arr7: array<test_cases.array.immutable.SevenBoolTuple> = arr7 + ((i, i == 0u, i == 1u, i == 2u, i == 3u, i == 4u, i == 5u, i == 6u, i + 1u))
+      arr8: array<test_cases.array.immutable.EightBoolTuple> = arr8 + ((i, i == 0u, i == 1u, i == 2u, i == 3u, i == 4u, i == 5u, i == 6u, i == 7u, i + 1u))
+      arr9: array<test_cases.array.immutable.NineBoolTuple> = arr9 + ((i, i == 0u, i == 1u, i == 2u, i == 3u, i == 4u, i == 5u, i == 6u, i == 7u, i == 8u, i + 1u))
+    }
+    assert(arr2.length == 5u)
+    assert(arr7.length == 5u)
+    assert(arr8.length == 5u)
+    assert(arr9.length == 5u)
+    GlobalState['bool2']: array<test_cases.array.immutable.TwoBoolTuple> = arr2
+    GlobalState['bool7']: array<test_cases.array.immutable.SevenBoolTuple> = arr7
+    GlobalState['bool8']: array<test_cases.array.immutable.EightBoolTuple> = arr8
+    GlobalState['bool9']: array<test_cases.array.immutable.NineBoolTuple> = arr9
+  }
+  
+  baremethod test_cases.array.immutable.ImmutableArrayContract.__algopy_default_create(): void
+  {
+  }
+}
+
+subroutine times(n: uint64): string
+{
+  result: string = ''
+  for _i in range(0u, n, 1u) {
+    result += ' '
+  }
+  return result
+}
+
+subroutine add_x(arr: array<uint64>, x: uint64): array<uint64>
+{
+  for i in range(0u, x, 1u) {
+    arr: array<uint64> = arr + (i)
+  }
+  return arr
+}
+
+subroutine pop_x(arr: array<uint64>, x: uint64): array<uint64>
+{
+  for _i in range(0u, x, 1u) {
+    arr: array<uint64> = arr[:-1]
+  }
+  return arr
+}
+
 contract FixedSizeContract
 {
   method_resolution_order: (
@@ -289,6 +499,7 @@ contract FixedSizeContract
       assert(reinterpret_cast<biguint>(path[i].other.d.foo) == itob(i + 2u))
       assert(reinterpret_cast<biguint>(path[i].other.d.bar) == itob(i + 1u * i + 1u))
     }
+    Box['a']: array<test_cases.array.fixed_size.Point> = new array<test_cases.array.fixed_size.Point>() + path
     return test_cases.array.fixed_size.path_length(path)
   }
   

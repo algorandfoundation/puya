@@ -185,14 +185,22 @@ class WStructType(WType):
 class WArray(WType):
     element_type: WType = attrs.field()
     name: str = attrs.field(init=False)
-    scalar_type: None = attrs.field(default=None, init=False)
     source_location: SourceLocation | None = attrs.field(eq=False)
-    immutable: bool = attrs.field(default=False, init=False)
+    immutable: bool = attrs.field(default=False)
+    scalar_type: typing.Literal[AVMType.bytes, None] = attrs.field(init=False)
+
+    @scalar_type.default
+    def _scalar_type(self) -> typing.Literal[AVMType.bytes, None]:
+        return AVMType.bytes if self.immutable else None
 
     @element_type.validator
     def _element_type_validator(self, _: object, element_type: WType) -> None:
         if element_type == void_wtype:
             raise CodeError("array element type cannot be void", self.source_location)
+        if self.immutable and not element_type.immutable:
+            raise CodeError(
+                "an immutable array must have immutable elements", self.source_location
+            )
 
     @name.default
     def _name(self) -> str:
@@ -417,6 +425,13 @@ class ARC4DynamicArray(ARC4Array):
     @arc4_name.default
     def _arc4_name(self) -> str:
         return f"{self.element_type.arc4_name}[]"
+
+    def can_encode_type(self, wtype: WType) -> bool:
+        return super().can_encode_type(wtype) or (
+            isinstance(wtype, WArray)
+            and wtype.immutable
+            and self.element_type.can_encode_type(wtype.element_type)
+        )
 
 
 @typing.final

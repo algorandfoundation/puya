@@ -4,7 +4,7 @@
 // test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0 8 80
-    bytecblock "count" 0x151f7c75 0x
+    bytecblock "count" 0x151f7c75 0x "a"
     intc_1 // 0
     dupn 5
     bytec_2 // ""
@@ -41,17 +41,17 @@ main_sum_array_route@27:
     len
     intc_2 // 8
     /
-    bury 13
+    bury 14
     intc_1 // 0
-    bury 7
+    bury 8
 
 main_for_header@28:
-    dig 6
-    dig 13
+    dig 7
+    dig 14
     <
     bz main_after_for@30
     dig 17
-    dig 7
+    dig 8
     dup
     cover 2
     intc_2 // 8
@@ -62,7 +62,7 @@ main_for_header@28:
     bury 2
     intc_0 // 1
     +
-    bury 7
+    bury 8
     b main_for_header@28
 
 main_after_for@30:
@@ -91,14 +91,14 @@ main_test_arc4_conversion_route@18:
     +
     bury 2
     intc_0 // 1
-    bury 8
+    bury 9
 
 main_for_header@19:
-    dig 7
+    dig 8
     dig 2
     <
     bz main_after_for@21
-    dig 7
+    dig 8
     dup
     itob
     dig 20
@@ -107,7 +107,7 @@ main_for_header@19:
     bury 20
     intc_0 // 1
     +
-    bury 8
+    bury 9
     b main_for_header@19
 
 main_after_for@21:
@@ -116,43 +116,43 @@ main_after_for@21:
     intc_2 // 8
     /
     dup
-    bury 15
+    bury 16
     dig 5
     ==
     assert // expected correct length
     intc_1 // 0
-    bury 11
+    bury 12
     intc_1 // 0
-    bury 7
+    bury 8
 
 main_for_header@22:
-    dig 6
-    dig 14
+    dig 7
+    dig 15
     <
     bz main_after_for@26
     dig 18
-    dig 7
+    dig 8
     intc_2 // 8
     *
     intc_2 // 8
     extract3
     pushbytes 0x0000000000000000
     !=
-    dig 11
-    bury 11
+    dig 12
+    bury 12
     bz main_after_if_else@25
-    dig 10
+    dig 11
     intc_0 // 1
     +
-    bury 10
+    bury 11
 
 main_after_if_else@25:
-    dig 9
-    bury 11
-    dig 6
+    dig 10
+    bury 12
+    dig 7
     intc_0 // 1
     +
-    bury 7
+    bury 8
     b main_for_header@22
 
 main_after_for@26:
@@ -188,27 +188,28 @@ main_test_bool_array_route@9:
     +
     bury 2
     intc_0 // 1
-    bury 8
+    bury 9
 
 main_for_header@10:
-    dig 7
+    dig 8
     dig 2
     <
     bz main_after_for@12
-    dig 7
+    dig 8
     dup
     pushint 2 // 2
     %
     !
-    itob
-    extract 7 1
+    pushbytess 0x00 0x80 // 0x00, 0x80
+    uncover 2
+    select
     dig 21
     swap
     concat // on error: max array length exceeded
     bury 21
     intc_0 // 1
     +
-    bury 8
+    bury 9
     b main_for_header@10
 
 main_after_for@12:
@@ -217,42 +218,42 @@ main_after_for@12:
     intc_0 // 1
     /
     dup
-    bury 16
+    bury 17
     dig 5
     ==
     assert // expected correct length
     intc_1 // 0
-    bury 11
+    bury 12
     intc_1 // 0
-    bury 7
+    bury 8
 
 main_for_header@13:
-    dig 6
-    dig 15
+    dig 7
+    dig 16
     <
     bz main_after_for@17
     dig 19
-    dig 7
+    dig 8
     getbyte
-    dig 11
-    bury 11
+    dig 12
+    bury 12
     bz main_after_if_else@16
-    dig 10
+    dig 11
     intc_0 // 1
     +
-    bury 10
+    bury 11
 
 main_after_if_else@16:
-    dig 9
-    bury 11
-    dig 6
+    dig 10
+    bury 12
+    dig 7
     intc_0 // 1
     +
-    bury 7
+    bury 8
     b main_for_header@13
 
 main_after_for@17:
-    dig 10
+    dig 11
     itob
     bytec_1 // 0x151f7c75
     swap
@@ -325,15 +326,15 @@ main_test_array_route@5:
     concat
     bury 21
     intc_1 // 0
-    bury 8
+    bury 9
 
 main_for_header@6:
-    dig 7
+    dig 8
     pushint 3 // 3
     <
     bz main_after_for@8
     dig 20
-    dig 8
+    dig 9
     dup
     cover 2
     intc_3 // 80
@@ -366,7 +367,7 @@ main_for_header@6:
     itob
     b==
     assert
-    bury 8
+    bury 9
     b main_for_header@6
 
 main_after_for@8:
@@ -374,24 +375,35 @@ main_after_for@8:
     dup
     bury 18
     dup
+    len
+    intc_3 // 80
+    /
+    dup
+    bury 8
+    itob
+    extract 6 2
+    dig 1
+    concat
+    bytec_3 // "a"
+    box_del
+    pop
+    bytec_3 // "a"
+    swap
+    box_put
+    dup
     extract 0 8
     bury 23
-    dup
     intc_2 // 8
     extract_uint64
     bury 7
     intc_1 // 0
-    bury 6
-    len
-    intc_3 // 80
-    /
-    bury 16
+    bury 5
     intc_0 // 1
     bury 3
 
 main_for_header@36:
     dig 2
-    dig 16
+    dig 6
     <
     bz main_after_for@44
     dig 20
@@ -400,7 +412,7 @@ main_for_header@36:
     intc_3 // 80
     *
     dup
-    bury 15
+    bury 16
     dup2
     intc_3 // 80
     extract3
@@ -418,22 +430,22 @@ main_for_header@36:
     intc_1 // 0
     extract_uint64
     swap
-    dig 13
+    dig 14
     extract_uint64
     -
-    bury 9
+    bury 10
 
 main_after_if_else@40:
     dig 3
-    dig 6
+    dig 7
     <
     bz main_else_body@42
-    dig 5
+    dig 6
     dig 4
     -
 
 main_after_if_else@43:
-    dig 9
+    dig 10
     dup
     *
     swap
@@ -452,18 +464,18 @@ main_after_if_else@43:
 
 main_else_body@42:
     dig 3
-    dig 6
+    dig 7
     -
     b main_after_if_else@43
 
 main_else_body@39:
-    dig 12
+    dig 13
     extract_uint64
     dig 17
     intc_1 // 0
     extract_uint64
     -
-    bury 9
+    bury 10
     b main_after_if_else@40
 
 main_after_for@44:

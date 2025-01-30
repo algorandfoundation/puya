@@ -47,6 +47,13 @@ class ToCodeVisitor(
         return f"{base}.length"
 
     @typing.override
+    def visit_array_replace(self, expr: nodes.ArrayReplace) -> str:
+        base = expr.base.accept(self)
+        index = expr.index.accept(self)
+        value = expr.value.accept(self)
+        return f"{base}.replace({index}, {value})"
+
+    @typing.override
     def visit_copy(self, expr: nodes.Copy) -> str:
         value = expr.value.accept(self)
         return f"{value}.copy()"

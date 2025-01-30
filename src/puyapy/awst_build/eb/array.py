@@ -7,6 +7,7 @@ import mypy.nodes
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    ArrayConcat,
     ArrayExtend,
     ArrayLength,
     ArrayPop,
@@ -150,6 +151,8 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
                 return _Extend(self.resolve(), self.pytype, location)
             case "pop":
                 return _Pop(self.resolve(), self.pytype, location)
+            case "freeze":
+                return _Freeze(self.resolve(), self.pytype, location)
             case "copy":
                 return CopyBuilder(self.resolve(), location, self.pytype)
             case _:
@@ -239,6 +242,30 @@ class _Extend(_ArrayFunc):
                 wtype=wtypes.void_wtype,
                 source_location=location,
             )
+        )
+
+
+class _Freeze(_ArrayFunc):
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        expect.no_args(args, location)
+        imm_type = pytypes.GenericImmutableArrayType.parameterise([self.typ.items], location)
+        imm_wtype = imm_type.wtype
+        assert isinstance(imm_wtype, wtypes.WArray)
+        return builder_for_instance(
+            imm_type,
+            ArrayConcat(
+                left=NewArray(wtype=imm_wtype, values=[], source_location=location),
+                right=self.expr,
+                wtype=imm_type.wtype,
+                source_location=location,
+            ),
         )
 
 

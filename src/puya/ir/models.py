@@ -113,12 +113,16 @@ class Value(ValueProvider, abc.ABC):
 
 def is_array_type(_op: Context, _attribute: object, value: Value) -> None:
     if not isinstance(value.ir_type, ArrayType):
-        raise InternalError("expected array type", value.source_location)
+        raise InternalError(
+            f"expected array type, received: {value.ir_type}", value.source_location
+        )
 
 
 def is_uint64_type(_op: Context, _attribute: object, value: Value) -> None:
     if value.ir_type != PrimitiveIRType.uint64:
-        raise InternalError("expected uint64 type", value.source_location)
+        raise InternalError(
+            f"expected uint64 type, received: {value.ir_type}", value.source_location
+        )
 
 
 def is_slot_type(_op: Context, _attribute: object, value: Value) -> None:

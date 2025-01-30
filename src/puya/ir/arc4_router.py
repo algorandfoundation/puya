@@ -12,7 +12,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.arc4_types import maybe_avm_to_arc4_equivalent_type
+from puya.awst.arc4_types import wtype_to_arc4_wtype
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puya.utils import set_add
@@ -335,14 +335,10 @@ def _map_abi_args(
         else:
             if isinstance(a, wtypes.ARC4Type):
                 arc4_type = a
+            elif _reference_type_array(a) is not None:
+                arc4_type = wtypes.arc4_byte_alias
             else:
-                converted = maybe_avm_to_arc4_equivalent_type(a)
-                if converted is not None:
-                    arc4_type = converted
-                elif _reference_type_array(a) is not None:
-                    arc4_type = wtypes.arc4_byte_alias
-                else:
-                    raise CodeError(f"not an ARC4 type or native equivalent: {a}", location)
+                arc4_type = wtype_to_arc4_wtype(a, location)
             incoming_types.append(arc4_type)
 
     if len(incoming_types) > 15:
@@ -391,7 +387,7 @@ def _map_abi_args(
             else:
                 if abi_arg.wtype != arg:
                     abi_arg = awst_nodes.ARC4Decode(
-                        value=abi_arg, wtype=arg, source_location=location
+                        value=abi_arg, wtype=arg, source_location=abi_arg.source_location
                     )
                 yield abi_arg
 
@@ -409,12 +405,10 @@ def route_abi_methods(
         match sig.return_type:
             case wtypes.void_wtype:
                 call_and_maybe_log = awst_nodes.ExpressionStatement(method_result)
-            case wtypes.ARC4Type():
+            case wtypes.ARC4Type() | wtypes.WArray(immutable=True):
                 call_and_maybe_log = log_arc4_result(abi_loc, method_result)
             case _:
-                converted_return_type = maybe_avm_to_arc4_equivalent_type(sig.return_type)
-                if converted_return_type is None:
-                    raise CodeError(f"{sig.return_type} is not a valid ABI return type", abi_loc)
+                converted_return_type = wtype_to_arc4_wtype(sig.return_type, abi_loc)
                 arc4_encoded = awst_nodes.ARC4Encode(
                     value=method_result,
                     wtype=converted_return_type,

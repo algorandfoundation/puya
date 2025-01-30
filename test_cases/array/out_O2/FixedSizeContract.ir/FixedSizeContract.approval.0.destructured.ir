@@ -78,18 +78,23 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
         let i#0: uint64 = i#8
         goto block@6
     block@8: // after_for_L36
-        let slot_contents%0#3: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = read(local.0)
-        let last_point.x#0: bytes[8] = ((extract 0 8) slot_contents%0#3)
-        let last_point.y#0: uint64 = (extract_uint64 slot_contents%0#3 8u)
+        let slot_contents%3#2: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = read(local.0)
+        let byte_len%0#0: uint64 = (len slot_contents%3#2)
+        let len_%0#0: uint64 = (/ byte_len%0#0 80u)
+        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let concat_result%0#1: bytes = (concat len_16_bit%0#0 slot_contents%3#2)
+        (box_del "a")
+        (box_put "a" concat_result%0#1)
+        let last_point.x#0: bytes[8] = ((extract 0 8) slot_contents%3#2)
+        let last_point.y#0: uint64 = (extract_uint64 slot_contents%3#2 8u)
         let length#0: uint64 = 0u
-        let array%bytes_len%0#1: uint64 = (len slot_contents%0#3)
-        let array%array_len%0#1: uint64 = (/ array%bytes_len%0#1 80u)
         let point_idx#0: uint64 = 1u
         goto block@36
-    block@36: // for_header_L101
-        let continue_looping%0#0: bool = (< point_idx#0 array%array_len%0#1)
+    block@36: // for_header_L102
+        let continue_looping%0#0: bool = (< point_idx#0 len_%0#0)
         goto continue_looping%0#0 ? block@37 : block@44
-    block@37: // for_body_L102
+    block@37: // for_body_L103
         let slot_contents%2#3: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = read(local.0)
         let array%bytes_index%4#1: uint64 = (* point_idx#0 80u)
         let array%value%4#1: bytes = (extract3 slot_contents%2#3 array%bytes_index%4#1 80u)
@@ -97,26 +102,26 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
         let point.y#0: uint64 = (extract_uint64 array%value%4#1 8u)
         let tmp%1#4: bool = (b< point.x#0 last_point.x#0)
         goto tmp%1#4 ? block@38 : block@39
-    block@38: // if_body_L104
-        let tmp%2#1: uint64 = (extract_uint64 slot_contents%0#3 0u)
+    block@38: // if_body_L105
+        let tmp%2#1: uint64 = (extract_uint64 slot_contents%3#2 0u)
         let tmp%3#0: uint64 = (extract_uint64 slot_contents%2#3 array%bytes_index%4#1)
         let dx#0: uint64 = (- tmp%2#1 tmp%3#0)
         goto block@40
-    block@39: // else_body_L106
+    block@39: // else_body_L107
         let tmp%4#3: uint64 = (extract_uint64 slot_contents%2#3 array%bytes_index%4#1)
-        let tmp%5#0: uint64 = (extract_uint64 slot_contents%0#3 0u)
+        let tmp%5#0: uint64 = (extract_uint64 slot_contents%3#2 0u)
         let dx#0: uint64 = (- tmp%4#3 tmp%5#0)
         goto block@40
-    block@40: // after_if_else_L103
+    block@40: // after_if_else_L104
         let tmp%6#1: bool = (< point.y#0 last_point.y#0)
         goto tmp%6#1 ? block@41 : block@42
-    block@41: // if_body_L108
+    block@41: // if_body_L109
         let dy#0: uint64 = (- last_point.y#0 point.y#0)
         goto block@43
-    block@42: // else_body_L110
+    block@42: // else_body_L111
         let dy#0: uint64 = (- point.y#0 last_point.y#0)
         goto block@43
-    block@43: // after_if_else_L107
+    block@43: // after_if_else_L108
         let tmp%7#2: uint64 = (* dx#0 dx#0)
         let tmp%8#1: uint64 = (* dy#0 dy#0)
         let tmp%9#1: uint64 = (+ tmp%7#2 tmp%8#1)
@@ -124,14 +129,14 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
         let length#0: uint64 = (+ length#0 tmp%10#0)
         let point_idx#0: uint64 = (+ point_idx#0 1u)
         goto block@36
-    block@44: // after_for_L101
+    block@44: // after_for_L102
         let val_as_bytes%0#0: bytes[8] = (itob length#0)
         let tmp%9#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
         (log tmp%9#0)
         let test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__%0#0
         goto block@34
-    block@9: // test_bool_array_route_L43
+    block@9: // test_bool_array_route_L44
         let tmp%10#0: uint64 = (txn OnCompletion)
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // OnCompletion is not NoOp
@@ -143,10 +148,10 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
         let tmp%2#1: uint64 = (+ length#0 1u)
         let i#0: uint64 = 1u
         goto block@10
-    block@10: // for_header_L48
+    block@10: // for_header_L49
         let continue_looping%0#0: bool = (< i#0 tmp%2#1)
         goto continue_looping%0#0 ? block@11 : block@12
-    block@11: // for_body_L49
+    block@11: // for_body_L50
         let tmp%3#0: uint64 = (% i#0 2u)
         let tmp%4#0: bool = (! tmp%3#0)
         let array%sub_item%54#1: bytes[8] = (itob tmp%4#0)
@@ -156,7 +161,7 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
         write(local.1, array%array_contents%0#1)
         let i#0: uint64 = (+ i#0 1u)
         goto block@10
-    block@12: // after_for_L48
+    block@12: // after_for_L49
         let slot_contents%2#2: bool[] = read(local.1)
         let array%bytes_len%2#1: uint64 = (len slot_contents%2#2)
         let array%array_len%2#1: uint64 = (/ array%bytes_len%2#1 1u)
@@ -165,30 +170,30 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
         let count#0: uint64 = 0u
         let item_index_internal%0#0: uint64 = 0u
         goto block@13
-    block@13: // for_header_L52
+    block@13: // for_header_L53
         let continue_looping%1#0: bool = (< item_index_internal%0#0 array%array_len%2#1)
         goto continue_looping%1#0 ? block@14 : block@17
-    block@14: // for_body_L53
+    block@14: // for_body_L54
         let slot_contents%4#1: bool[] = read(local.1)
         let val#1: bool = (getbyte slot_contents%4#1 item_index_internal%0#0)
         let count#13: uint64 = count#0
         goto val#1 ? block@15 : block@16
-    block@15: // if_body_L54
+    block@15: // if_body_L55
         let count#0: uint64 = (+ count#0 1u)
         let count#13: uint64 = count#0
         goto block@16
-    block@16: // after_if_else_L53
+    block@16: // after_if_else_L54
         let count#0: uint64 = count#13
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@13
-    block@17: // after_for_L52
+    block@17: // after_for_L53
         let val_as_bytes%1#0: bytes[8] = (itob count#0)
         let tmp%15#0: bytes = (concat 0x151f7c75 val_as_bytes%1#0)
         (log tmp%15#0)
         let test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__%0#0
         goto block@34
-    block@18: // test_arc4_conversion_route_L57
+    block@18: // test_arc4_conversion_route_L58
         let tmp%16#0: uint64 = (txn OnCompletion)
         let tmp%17#0: bool = (! tmp%16#0)
         (assert tmp%17#0) // OnCompletion is not NoOp
@@ -200,17 +205,17 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
         let tmp%2#1: uint64 = (+ length#0 1u)
         let i#0: uint64 = 1u
         goto block@19
-    block@19: // for_header_L62
+    block@19: // for_header_L63
         let continue_looping%0#0: bool = (< i#0 tmp%2#1)
         goto continue_looping%0#0 ? block@20 : block@21
-    block@20: // for_body_L63
+    block@20: // for_body_L64
         let val_as_bytes%0#0: bytes[8] = (itob i#0)
         let slot_contents%1#1: bytes[8][] = read(local.2)
         let array%array_contents%1#1: bytes = (concat slot_contents%1#1 val_as_bytes%0#0) // on error: max array length exceeded
         write(local.2, array%array_contents%1#1)
         let i#0: uint64 = (+ i#0 1u)
         goto block@19
-    block@21: // after_for_L62
+    block@21: // after_for_L63
         let slot_contents%2#0: bytes[8][] = read(local.2)
         let array%bytes_len%5#1: uint64 = (len slot_contents%2#0)
         let array%array_len%5#1: uint64 = (/ array%bytes_len%5#1 8u)
@@ -219,25 +224,25 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
         let count#0: uint64 = 0u
         let item_index_internal%0#0: uint64 = 0u
         goto block@22
-    block@22: // for_header_L66
+    block@22: // for_header_L67
         let continue_looping%1#0: bool = (< item_index_internal%0#0 array%array_len%5#1)
         goto continue_looping%1#0 ? block@23 : block@26
-    block@23: // for_body_L67
+    block@23: // for_body_L68
         let slot_contents%4#0: bytes[8][] = read(local.2)
         let array%bytes_index%6#1: uint64 = (* item_index_internal%0#0 8u)
         let val#0: bytes[8] = (extract3 slot_contents%4#0 array%bytes_index%6#1 8u)
         let tmp%5#1: bool = (!= val#0 0x0000000000000000)
         let count#13: uint64 = count#0
         goto tmp%5#1 ? block@24 : block@25
-    block@24: // if_body_L68
+    block@24: // if_body_L69
         let count#0: uint64 = (+ count#0 1u)
         let count#13: uint64 = count#0
         goto block@25
-    block@25: // after_if_else_L67
+    block@25: // after_if_else_L68
         let count#0: uint64 = count#13
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@22
-    block@26: // after_for_L66
+    block@26: // after_for_L67
         let slot_contents%5#0: bytes[8][] = read(local.2)
         let byte_len%0#0: uint64 = (len slot_contents%5#0)
         let len_%0#0: uint64 = (/ byte_len%0#0 8u)
@@ -249,7 +254,7 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
         let test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__%0#0
         goto block@34
-    block@27: // sum_array_route_L75
+    block@27: // sum_array_route_L76
         let tmp%23#0: uint64 = (txn OnCompletion)
         let tmp%24#0: bool = (! tmp%23#0)
         (assert tmp%24#0) // OnCompletion is not NoOp
@@ -263,17 +268,17 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
         let array%array_len%7#1: uint64 = (/ array%bytes_len%7#1 8u)
         let item_index_internal%0#0: uint64 = 0u
         goto block@28
-    block@28: // for_header_L81
+    block@28: // for_header_L82
         let continue_looping%0#0: bool = (< item_index_internal%0#0 array%array_len%7#1)
         goto continue_looping%0#0 ? block@29 : block@30
-    block@29: // for_body_L82
+    block@29: // for_body_L83
         let slot_contents%2#0: bytes[8][] = read(local.3)
         let array%bytes_index%7#1: uint64 = (* item_index_internal%0#0 8u)
         let tmp%0#2: uint64 = (extract_uint64 slot_contents%2#0 array%bytes_index%7#1)
         let total#0: uint64 = (+ total#0 tmp%0#2)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@28
-    block@30: // after_for_L81
+    block@30: // after_for_L82
         let val_as_bytes%2#0: bytes[8] = (itob total#0)
         let tmp%28#0: bytes = (concat 0x151f7c75 val_as_bytes%2#0)
         (log tmp%28#0)
@@ -298,7 +303,7 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
         return tmp%0#0
 
 subroutine test_cases.array.fixed_size.FixedSizeContract.xtra() -> <uint64, uint64, bytes[32], bytes[16]>:
-    block@0: // L86
+    block@0: // L87
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "count")
         (assert maybe_exists%0#0) // check self.count exists
         let new_state_value%0#0: uint64 = (+ maybe_value%0#0 1u)

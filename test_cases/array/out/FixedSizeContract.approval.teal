@@ -4,7 +4,7 @@
 // test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0 8 80
-    bytecblock "count" 0x151f7c75 ""
+    bytecblock "count" 0x151f7c75 "" "a"
     txn ApplicationID
     bnz main_after_if_else@2
     // array/fixed_size.py:26
@@ -29,7 +29,7 @@ main_after_if_else@11:
     return
 
 main_sum_array_route@8:
-    // array/fixed_size.py:75
+    // array/fixed_size.py:76
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -39,7 +39,7 @@ main_sum_array_route@8:
     // array/fixed_size.py:24
     // class FixedSizeContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
-    // array/fixed_size.py:75
+    // array/fixed_size.py:76
     // @arc4.abimethod()
     callsub sum_array
     itob
@@ -51,7 +51,7 @@ main_sum_array_route@8:
     return
 
 main_test_arc4_conversion_route@7:
-    // array/fixed_size.py:57
+    // array/fixed_size.py:58
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -62,7 +62,7 @@ main_test_arc4_conversion_route@7:
     // class FixedSizeContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
-    // array/fixed_size.py:57
+    // array/fixed_size.py:58
     // @arc4.abimethod()
     callsub test_arc4_conversion
     bytec_1 // 0x151f7c75
@@ -73,7 +73,7 @@ main_test_arc4_conversion_route@7:
     return
 
 main_test_bool_array_route@6:
-    // array/fixed_size.py:43
+    // array/fixed_size.py:44
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -84,7 +84,7 @@ main_test_bool_array_route@6:
     // class FixedSizeContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
-    // array/fixed_size.py:43
+    // array/fixed_size.py:44
     // @arc4.abimethod()
     callsub test_bool_array
     itob
@@ -276,46 +276,59 @@ test_array_for_header@1:
 
 test_array_after_for@4:
     frame_dig 9
-    // array/fixed_size.py:99
-    // last_point = path[0]
+    // array/fixed_size.py:41
+    // Box(ImmutableArray[Point], key="a").value = path.freeze()
     dup
     frame_bury 1
     dup
-    extract 0 8
-    frame_bury 0
-    dup
-    intc_2 // 8
-    extract_uint64
-    frame_bury 5
-    // array/fixed_size.py:100
-    // length = UInt64()
-    intc_1 // 0
-    frame_bury 6
-    // array/fixed_size.py:101
-    // for point_idx in urange(1, path.length):
     len
     intc_3 // 80
     /
-    frame_bury 2
+    dup
+    frame_bury 5
+    itob
+    extract 6 2
+    dig 1
+    concat
+    bytec_3 // "a"
+    box_del
+    pop
+    bytec_3 // "a"
+    swap
+    box_put
+    // array/fixed_size.py:100
+    // last_point = path[0]
+    dup
+    extract 0 8
+    frame_bury 0
+    intc_2 // 8
+    extract_uint64
+    frame_bury 4
+    // array/fixed_size.py:101
+    // length = UInt64()
+    intc_1 // 0
+    frame_bury 6
+    // array/fixed_size.py:102
+    // for point_idx in urange(1, path.length):
     intc_0 // 1
     frame_bury 8
 
 test_array_for_header@6:
-    // array/fixed_size.py:101
+    // array/fixed_size.py:102
     // for point_idx in urange(1, path.length):
     frame_dig 8
-    frame_dig 2
+    frame_dig 5
     <
     bz test_array_after_for@14
     frame_dig 9
-    // array/fixed_size.py:102
+    // array/fixed_size.py:103
     // point = path[point_idx]
     dup
     frame_dig 8
     intc_3 // 80
     *
     dup
-    frame_bury 3
+    frame_bury 2
     dup2
     intc_3 // 80
     extract3
@@ -326,39 +339,39 @@ test_array_for_header@6:
     intc_2 // 8
     extract_uint64
     frame_bury 7
-    // array/fixed_size.py:103
+    // array/fixed_size.py:104
     // if point.x < last_point.x:
     frame_dig 0
     b<
     bz test_array_else_body@9
-    // array/fixed_size.py:104
+    // array/fixed_size.py:105
     // dx = last_point.x.native - point.x.native
     frame_dig 1
     intc_1 // 0
     extract_uint64
     swap
-    frame_dig 3
+    frame_dig 2
     extract_uint64
     -
-    frame_bury 4
+    frame_bury 3
 
 test_array_after_if_else@10:
-    // array/fixed_size.py:107
+    // array/fixed_size.py:108
     // if point.y < last_point.y:
     frame_dig 7
-    frame_dig 5
+    frame_dig 4
     <
     bz test_array_else_body@12
-    // array/fixed_size.py:108
+    // array/fixed_size.py:109
     // dy = last_point.y - point.y
-    frame_dig 5
+    frame_dig 4
     frame_dig 7
     -
 
 test_array_after_if_else@13:
-    // array/fixed_size.py:111
+    // array/fixed_size.py:112
     // length += op.sqrt(dx * dx + dy * dy)
-    frame_dig 4
+    frame_dig 3
     dup
     *
     swap
@@ -369,7 +382,7 @@ test_array_after_if_else@13:
     frame_dig 6
     +
     frame_bury 6
-    // array/fixed_size.py:101
+    // array/fixed_size.py:102
     // for point_idx in urange(1, path.length):
     frame_dig 8
     intc_0 // 1
@@ -378,27 +391,27 @@ test_array_after_if_else@13:
     b test_array_for_header@6
 
 test_array_else_body@12:
-    // array/fixed_size.py:110
+    // array/fixed_size.py:111
     // dy = point.y - last_point.y
     frame_dig 7
-    frame_dig 5
+    frame_dig 4
     -
     b test_array_after_if_else@13
 
 test_array_else_body@9:
-    // array/fixed_size.py:106
+    // array/fixed_size.py:107
     // dx = point.x.native - last_point.x.native
-    frame_dig 3
+    frame_dig 2
     extract_uint64
     frame_dig 1
     intc_1 // 0
     extract_uint64
     -
-    frame_bury 4
+    frame_bury 3
     b test_array_after_if_else@10
 
 test_array_after_for@14:
-    // array/fixed_size.py:41
+    // array/fixed_size.py:42
     // return path_length(path)
     frame_dig 6
     frame_bury 0
@@ -407,15 +420,15 @@ test_array_after_for@14:
 
 // test_cases.array.fixed_size.FixedSizeContract.test_bool_array(length: uint64) -> uint64:
 test_bool_array:
-    // array/fixed_size.py:43-44
+    // array/fixed_size.py:44-45
     // @arc4.abimethod()
     // def test_bool_array(self, length: UInt64) -> UInt64:
     proto 1 1
     bytec_2 // ""
-    // array/fixed_size.py:45
+    // array/fixed_size.py:46
     // arr = Array[bool]()
     dupn 4
-    // array/fixed_size.py:48
+    // array/fixed_size.py:49
     // for i in urange(1, length + 1):
     frame_dig -1
     intc_0 // 1
@@ -423,26 +436,27 @@ test_bool_array:
     intc_0 // 1
 
 test_bool_array_for_header@1:
-    // array/fixed_size.py:48
+    // array/fixed_size.py:49
     // for i in urange(1, length + 1):
     frame_dig 6
     frame_dig 5
     <
     bz test_bool_array_after_for@4
-    // array/fixed_size.py:49
+    // array/fixed_size.py:50
     // arr.append(i % 2 == 0)
     frame_dig 6
     dup
     pushint 2 // 2
     %
     !
-    itob
-    extract 7 1
+    pushbytess 0x00 0x80 // 0x00, 0x80
+    uncover 2
+    select
     frame_dig 4
     swap
     concat // on error: max array length exceeded
     frame_bury 4
-    // array/fixed_size.py:48
+    // array/fixed_size.py:49
     // for i in urange(1, length + 1):
     intc_0 // 1
     +
@@ -451,7 +465,7 @@ test_bool_array_for_header@1:
 
 test_bool_array_after_for@4:
     frame_dig 4
-    // array/fixed_size.py:50
+    // array/fixed_size.py:51
     // assert arr.length == length, "expected correct length"
     len
     intc_0 // 1
@@ -461,7 +475,7 @@ test_bool_array_after_for@4:
     frame_dig -1
     ==
     assert // expected correct length
-    // array/fixed_size.py:51
+    // array/fixed_size.py:52
     // count = UInt64(0)
     intc_1 // 0
     frame_bury 1
@@ -469,7 +483,7 @@ test_bool_array_after_for@4:
     frame_bury 3
 
 test_bool_array_for_header@5:
-    // array/fixed_size.py:52
+    // array/fixed_size.py:53
     // for val in arr:
     frame_dig 3
     frame_dig 0
@@ -480,10 +494,10 @@ test_bool_array_for_header@5:
     getbyte
     frame_dig 1
     frame_bury 2
-    // array/fixed_size.py:53
+    // array/fixed_size.py:54
     // if val:
     bz test_bool_array_after_if_else@8
-    // array/fixed_size.py:54
+    // array/fixed_size.py:55
     // count += 1
     frame_dig 1
     intc_0 // 1
@@ -500,7 +514,7 @@ test_bool_array_after_if_else@8:
     b test_bool_array_for_header@5
 
 test_bool_array_after_for@10:
-    // array/fixed_size.py:55
+    // array/fixed_size.py:56
     // return count
     frame_dig 1
     frame_bury 0
@@ -509,15 +523,15 @@ test_bool_array_after_for@10:
 
 // test_cases.array.fixed_size.FixedSizeContract.test_arc4_conversion(length: uint64) -> bytes:
 test_arc4_conversion:
-    // array/fixed_size.py:57-58
+    // array/fixed_size.py:58-59
     // @arc4.abimethod()
     // def test_arc4_conversion(self, length: UInt64) -> arc4.DynamicArray[arc4.UInt64]:
     proto 1 1
     bytec_2 // ""
-    // array/fixed_size.py:59
+    // array/fixed_size.py:60
     // arr = Array[arc4.UInt64]()
     dupn 4
-    // array/fixed_size.py:62
+    // array/fixed_size.py:63
     // for i in urange(1, length + 1):
     frame_dig -1
     intc_0 // 1
@@ -525,13 +539,13 @@ test_arc4_conversion:
     intc_0 // 1
 
 test_arc4_conversion_for_header@1:
-    // array/fixed_size.py:62
+    // array/fixed_size.py:63
     // for i in urange(1, length + 1):
     frame_dig 6
     frame_dig 5
     <
     bz test_arc4_conversion_after_for@4
-    // array/fixed_size.py:63
+    // array/fixed_size.py:64
     // arr.append(arc4.UInt64(i))
     frame_dig 6
     dup
@@ -540,7 +554,7 @@ test_arc4_conversion_for_header@1:
     swap
     concat // on error: max array length exceeded
     frame_bury 4
-    // array/fixed_size.py:62
+    // array/fixed_size.py:63
     // for i in urange(1, length + 1):
     intc_0 // 1
     +
@@ -549,7 +563,7 @@ test_arc4_conversion_for_header@1:
 
 test_arc4_conversion_after_for@4:
     frame_dig 4
-    // array/fixed_size.py:64
+    // array/fixed_size.py:65
     // assert arr.length == length, "expected correct length"
     len
     intc_2 // 8
@@ -559,7 +573,7 @@ test_arc4_conversion_after_for@4:
     frame_dig -1
     ==
     assert // expected correct length
-    // array/fixed_size.py:65
+    // array/fixed_size.py:66
     // count = UInt64(0)
     intc_1 // 0
     frame_bury 1
@@ -567,7 +581,7 @@ test_arc4_conversion_after_for@4:
     frame_bury 3
 
 test_arc4_conversion_for_header@5:
-    // array/fixed_size.py:66
+    // array/fixed_size.py:67
     // for val in arr:
     frame_dig 3
     frame_dig 0
@@ -579,14 +593,14 @@ test_arc4_conversion_for_header@5:
     *
     intc_2 // 8
     extract3
-    // array/fixed_size.py:67
+    // array/fixed_size.py:68
     // if val:
     pushbytes 0x0000000000000000
     !=
     frame_dig 1
     frame_bury 2
     bz test_arc4_conversion_after_if_else@8
-    // array/fixed_size.py:68
+    // array/fixed_size.py:69
     // count += 1
     frame_dig 1
     intc_0 // 1
@@ -604,7 +618,7 @@ test_arc4_conversion_after_if_else@8:
 
 test_arc4_conversion_after_for@10:
     frame_dig 4
-    // array/fixed_size.py:71
+    // array/fixed_size.py:72
     // arc4_arr.extend(arr)
     dup
     len
@@ -614,7 +628,7 @@ test_arc4_conversion_after_for@10:
     extract 6 2
     swap
     concat
-    // array/fixed_size.py:73
+    // array/fixed_size.py:74
     // return arc4_arr
     frame_bury 0
     retsub
@@ -622,20 +636,20 @@ test_arc4_conversion_after_for@10:
 
 // test_cases.array.fixed_size.FixedSizeContract.sum_array(arc4_arr: bytes) -> uint64:
 sum_array:
-    // array/fixed_size.py:75-76
+    // array/fixed_size.py:76-77
     // @arc4.abimethod()
     // def sum_array(self, arc4_arr: arc4.DynamicArray[arc4.UInt64]) -> UInt64:
     proto 1 1
-    // array/fixed_size.py:78
+    // array/fixed_size.py:79
     // arr.extend(arc4_arr)
     frame_dig -1
     extract 2 0
     dup
-    // array/fixed_size.py:80
+    // array/fixed_size.py:81
     // total = UInt64(0)
     intc_1 // 0
     swap
-    // array/fixed_size.py:81
+    // array/fixed_size.py:82
     // for item in arr:
     len
     intc_2 // 8
@@ -643,7 +657,7 @@ sum_array:
     intc_1 // 0
 
 sum_array_for_header@1:
-    // array/fixed_size.py:81
+    // array/fixed_size.py:82
     // for item in arr:
     frame_dig 3
     frame_dig 2
@@ -655,7 +669,7 @@ sum_array_for_header@1:
     cover 2
     intc_2 // 8
     *
-    // array/fixed_size.py:82
+    // array/fixed_size.py:83
     // total += item.native
     extract_uint64
     frame_dig 1
@@ -667,7 +681,7 @@ sum_array_for_header@1:
     b sum_array_for_header@1
 
 sum_array_after_for@4:
-    // array/fixed_size.py:84
+    // array/fixed_size.py:85
     // return total
     frame_dig 1
     frame_bury 0
@@ -676,7 +690,7 @@ sum_array_after_for@4:
 
 // test_cases.array.fixed_size.FixedSizeContract.xtra() -> uint64, uint64, bytes, bytes:
 xtra:
-    // array/fixed_size.py:88
+    // array/fixed_size.py:89
     // self.count += 1
     intc_1 // 0
     bytec_0 // "count"
@@ -687,19 +701,19 @@ xtra:
     bytec_0 // "count"
     swap
     app_global_put
-    // array/fixed_size.py:90
+    // array/fixed_size.py:91
     // a=Txn.num_app_args,
     txn NumAppArgs
-    // array/fixed_size.py:91
+    // array/fixed_size.py:92
     // b=self.count,
     intc_1 // 0
     bytec_0 // "count"
     app_global_get_ex
     assert // check self.count exists
-    // array/fixed_size.py:92
+    // array/fixed_size.py:93
     // c=Txn.sender,
     txn Sender
-    // array/fixed_size.py:93
+    // array/fixed_size.py:94
     // d=More(foo=arc4.UInt64(self.count + 1), bar=arc4.UInt64(self.count * self.count)),
     intc_1 // 0
     bytec_0 // "count"
@@ -719,7 +733,7 @@ xtra:
     *
     itob
     concat
-    // array/fixed_size.py:89-94
+    // array/fixed_size.py:90-95
     // return Xtra(
     //     a=Txn.num_app_args,
     //     b=self.count,

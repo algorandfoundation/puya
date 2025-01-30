@@ -1,3 +1,4 @@
+import enum
 from collections.abc import Callable
 
 import attrs
@@ -21,6 +22,63 @@ class ArrayIterator:
     get_value_at_index: Callable[[ir.Value], ir.ValueProvider]
 
 
+def array_length(
+    _context: IRFunctionBuildContext,
+    array: ir.Value,
+    loc: SourceLocation,
+) -> ir.ArrayLength:
+    return ir.ArrayLength(array=array, source_location=loc)
+
+
+def read_array_index(
+    _context: IRFunctionBuildContext,
+    array: ir.Value,
+    index: ir.Value,
+    loc: SourceLocation,
+) -> ir.ArrayReadIndex:
+    return ir.ArrayReadIndex(
+        array=array,
+        index=index,
+        source_location=loc,
+    )
+
+
+def assign_array_index(
+    _context: IRFunctionBuildContext,
+    array: ir.Value,
+    index: ir.Value,
+    value: ir.Value | ir.ValueTuple,
+    loc: SourceLocation,
+) -> ir.ArrayWriteIndex:
+    return ir.ArrayWriteIndex(
+        array=array,
+        index=index,
+        value=value,
+        source_location=loc,
+    )
+
+
+# TODO: Maybe do something like this?
+class EncodingType(enum.StrEnum):
+    arc4 = enum.auto()
+    puya = enum.auto()
+    """
+    Variant of ARC4 encoding
+    Used for fixed size elements, same as ARC4 but omits u16 length header, as it can be derived
+    from len(array.bytes) / size(element)
+    """
+
+
+def get_encoding_type(wtype: wtypes.WType) -> EncodingType:
+    match wtype:
+        case wtypes.ARC4Array() | wtypes.WArray(immutable=True):
+            return EncodingType.arc4
+        case wtypes.WArray(immutable=False):
+            return EncodingType.puya
+        case _:
+            raise InternalError("unexpected array type")
+
+
 def get_array_encoded_items(
     context: IRFunctionBuildContext, items: awst.Expression, array_type: ArrayType
 ) -> ir.Value:
@@ -30,10 +88,10 @@ def get_array_encoded_items(
             value = context.visitor.visit_and_materialise_single(items)
             # TODO: reinterpret to array_type
             return value
-        case wtypes.ARC4DynamicArray():
+        case wtypes.ARC4DynamicArray() | wtypes.WArray(immutable=True):
             expr_value = context.visitor.visit_and_materialise_single(items)
             return factory.extract_to_end(expr_value, 2, "expr_value_trimmed", ir_type=array_type)
-        case wtypes.WArray():  # TODO: update this for immutable array
+        case wtypes.WArray(immutable=False):  # TODO: update this for immutable array
             slot = context.visitor.visit_and_materialise_single(items)
             return read_slot(context, slot, items.source_location)
         case wtypes.WTuple():

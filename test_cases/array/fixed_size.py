@@ -1,6 +1,6 @@
 import typing
 
-from algopy import Account, Array, Txn, UInt64, arc4, op, subroutine, urange
+from algopy import Account, Array, Box, ImmutableArray, Txn, UInt64, arc4, op, subroutine, urange
 
 
 class More(arc4.Struct, frozen=True):
@@ -38,6 +38,7 @@ class FixedSizeContract(arc4.ARC4Contract):
             assert path[i].other.d.foo == i + 2
             assert path[i].other.d.bar == (i + 1) * (i + 1)
 
+        Box(ImmutableArray[Point], key="a").value = path.freeze()
         return path_length(path)
 
     @arc4.abimethod()

@@ -14,7 +14,10 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.arc4_types import maybe_avm_to_arc4_equivalent_type, wtype_to_arc4
+from puya.awst.arc4_types import (
+    wtype_to_arc4,
+    wtype_to_arc4_wtype,
+)
 from puya.awst.function_traverser import FunctionTraverser
 from puya.errors import InternalError
 from puya.ir._arc4_default_args import convert_default_args
@@ -311,10 +314,7 @@ def _wtype_to_struct(s: wtypes.ARC4Struct | wtypes.WTuple) -> models.ARC4Struct:
     assert s.fields
     for field_name, field_wtype in s.fields.items():
         if not isinstance(field_wtype, wtypes.ARC4Type):
-            maybe_arc4_field_wtype = maybe_avm_to_arc4_equivalent_type(field_wtype)
-            if maybe_arc4_field_wtype is None:
-                raise InternalError("expected ARC4 type")
-            field_wtype = maybe_arc4_field_wtype
+            field_wtype = wtype_to_arc4_wtype(field_wtype, None)
         fields.append(
             models.ARC4StructField(
                 name=field_name,
