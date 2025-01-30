@@ -1,0 +1,524 @@
+#pragma version 10
+#pragma typetrack false
+
+// test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 1 0 8 80
+    bytecblock "count" 0x151f7c75 0x
+    intc_1 // 0
+    dupn 5
+    bytec_2 // ""
+    dupn 15
+    txn ApplicationID
+    bnz main_after_if_else@2
+    bytec_0 // "count"
+    intc_1 // 0
+    app_global_put
+
+main_after_if_else@2:
+    txn NumAppArgs
+    bz main_bare_routing@31
+    pushbytess 0x28d7c1b8 0xf8fd68a7 0x1f028db1 0x096b3a59 // method "test_array(uint64,uint64,uint64,uint64)uint64", method "test_bool_array(uint64)uint64", method "test_arc4_conversion(uint64)uint64[]", method "sum_array(uint64[])uint64"
+    txna ApplicationArgs 0
+    match main_test_array_route@5 main_test_bool_array_route@9 main_test_arc4_conversion_route@18 main_sum_array_route@27
+
+main_after_if_else@33:
+    intc_1 // 0
+    return
+
+main_sum_array_route@27:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    extract 2 0
+    dup
+    bury 19
+    intc_1 // 0
+    bury 2
+    len
+    intc_2 // 8
+    /
+    bury 13
+    intc_1 // 0
+    bury 7
+
+main_for_header@28:
+    dig 6
+    dig 13
+    <
+    bz main_after_for@30
+    dig 17
+    dig 7
+    dup
+    cover 2
+    intc_2 // 8
+    *
+    extract_uint64
+    dig 2
+    +
+    bury 2
+    intc_0 // 1
+    +
+    bury 7
+    b main_for_header@28
+
+main_after_for@30:
+    dup
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_test_arc4_conversion_route@18:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    dup
+    bury 6
+    bytec_2 // 0x
+    bury 20
+    intc_0 // 1
+    +
+    bury 2
+    intc_0 // 1
+    bury 8
+
+main_for_header@19:
+    dig 7
+    dig 2
+    <
+    bz main_after_for@21
+    dig 7
+    dup
+    itob
+    dig 20
+    swap
+    concat // on error: max array length exceeded
+    bury 20
+    intc_0 // 1
+    +
+    bury 8
+    b main_for_header@19
+
+main_after_for@21:
+    dig 18
+    len
+    intc_2 // 8
+    /
+    dup
+    bury 15
+    dig 5
+    ==
+    assert // expected correct length
+    intc_1 // 0
+    bury 11
+    intc_1 // 0
+    bury 7
+
+main_for_header@22:
+    dig 6
+    dig 14
+    <
+    bz main_after_for@26
+    dig 18
+    dig 7
+    intc_2 // 8
+    *
+    intc_2 // 8
+    extract3
+    pushbytes 0x0000000000000000
+    !=
+    dig 11
+    bury 11
+    bz main_after_if_else@25
+    dig 10
+    intc_0 // 1
+    +
+    bury 10
+
+main_after_if_else@25:
+    dig 9
+    bury 11
+    dig 6
+    intc_0 // 1
+    +
+    bury 7
+    b main_for_header@22
+
+main_after_for@26:
+    dig 18
+    dup
+    len
+    intc_2 // 8
+    /
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_test_bool_array_route@9:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    dup
+    bury 6
+    bytec_2 // 0x
+    bury 21
+    intc_0 // 1
+    +
+    bury 2
+    intc_0 // 1
+    bury 8
+
+main_for_header@10:
+    dig 7
+    dig 2
+    <
+    bz main_after_for@12
+    dig 7
+    dup
+    pushint 2 // 2
+    %
+    !
+    itob
+    extract 7 1
+    dig 21
+    swap
+    concat // on error: max array length exceeded
+    bury 21
+    intc_0 // 1
+    +
+    bury 8
+    b main_for_header@10
+
+main_after_for@12:
+    dig 19
+    len
+    intc_0 // 1
+    /
+    dup
+    bury 16
+    dig 5
+    ==
+    assert // expected correct length
+    intc_1 // 0
+    bury 11
+    intc_1 // 0
+    bury 7
+
+main_for_header@13:
+    dig 6
+    dig 15
+    <
+    bz main_after_for@17
+    dig 19
+    dig 7
+    getbyte
+    dig 11
+    bury 11
+    bz main_after_if_else@16
+    dig 10
+    intc_0 // 1
+    +
+    bury 10
+
+main_after_if_else@16:
+    dig 9
+    bury 11
+    dig 6
+    intc_0 // 1
+    +
+    bury 7
+    b main_for_header@13
+
+main_after_for@17:
+    dig 10
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_test_array_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    btoi
+    txna ApplicationArgs 3
+    txna ApplicationArgs 4
+    btoi
+    bytec_0 // "count"
+    intc_1 // 0
+    app_global_put
+    callsub xtra
+    callsub xtra
+    callsub xtra
+    uncover 11
+    itob
+    pushbytes 0x00000000000000000000000000000000
+    swap
+    concat
+    uncover 11
+    itob
+    concat
+    uncover 10
+    concat
+    uncover 9
+    concat
+    uncover 11
+    itob
+    uncover 12
+    swap
+    concat
+    uncover 9
+    itob
+    concat
+    uncover 8
+    itob
+    concat
+    uncover 7
+    concat
+    uncover 6
+    concat
+    concat
+    uncover 5
+    itob
+    uncover 6
+    swap
+    concat
+    uncover 5
+    itob
+    concat
+    uncover 4
+    itob
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    concat
+    bury 21
+    intc_1 // 0
+    bury 8
+
+main_for_header@6:
+    dig 7
+    pushint 3 // 3
+    <
+    bz main_after_for@8
+    dig 20
+    dig 8
+    dup
+    cover 2
+    intc_3 // 80
+    *
+    intc_3 // 80
+    extract3
+    dup
+    pushint 24 // 24
+    extract_uint64
+    dig 2
+    intc_0 // 1
+    +
+    swap
+    dig 1
+    ==
+    assert
+    dig 1
+    extract 64 8
+    uncover 3
+    pushint 2 // 2
+    +
+    itob
+    b==
+    assert
+    swap
+    extract 72 8
+    dig 1
+    dig 2
+    *
+    itob
+    b==
+    assert
+    bury 8
+    b main_for_header@6
+
+main_after_for@8:
+    dig 20
+    dup
+    bury 18
+    dup
+    extract 0 8
+    bury 23
+    dup
+    intc_2 // 8
+    extract_uint64
+    bury 7
+    intc_1 // 0
+    bury 6
+    len
+    intc_3 // 80
+    /
+    bury 16
+    intc_0 // 1
+    bury 3
+
+main_for_header@36:
+    dig 2
+    dig 16
+    <
+    bz main_after_for@44
+    dig 20
+    dup
+    dig 4
+    intc_3 // 80
+    *
+    dup
+    bury 15
+    dup2
+    intc_3 // 80
+    extract3
+    cover 2
+    intc_2 // 8
+    extract3
+    swap
+    intc_2 // 8
+    extract_uint64
+    bury 6
+    dig 23
+    b<
+    bz main_else_body@39
+    dig 17
+    intc_1 // 0
+    extract_uint64
+    swap
+    dig 13
+    extract_uint64
+    -
+    bury 9
+
+main_after_if_else@40:
+    dig 3
+    dig 6
+    <
+    bz main_else_body@42
+    dig 5
+    dig 4
+    -
+
+main_after_if_else@43:
+    dig 9
+    dup
+    *
+    swap
+    dup
+    *
+    +
+    sqrt
+    dig 5
+    +
+    bury 5
+    dig 2
+    intc_0 // 1
+    +
+    bury 3
+    b main_for_header@36
+
+main_else_body@42:
+    dig 3
+    dig 6
+    -
+    b main_after_if_else@43
+
+main_else_body@39:
+    dig 12
+    extract_uint64
+    dig 17
+    intc_1 // 0
+    extract_uint64
+    -
+    bury 9
+    b main_after_if_else@40
+
+main_after_for@44:
+    dig 4
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_bare_routing@31:
+    txn OnCompletion
+    bnz main_after_if_else@33
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return
+
+
+// test_cases.array.fixed_size.FixedSizeContract.xtra() -> uint64, uint64, bytes, bytes:
+xtra:
+    intc_1 // 0
+    bytec_0 // "count"
+    app_global_get_ex
+    assert // check self.count exists
+    intc_0 // 1
+    +
+    bytec_0 // "count"
+    swap
+    app_global_put
+    txn NumAppArgs
+    intc_1 // 0
+    bytec_0 // "count"
+    app_global_get_ex
+    assert // check self.count exists
+    txn Sender
+    intc_1 // 0
+    bytec_0 // "count"
+    app_global_get_ex
+    assert // check self.count exists
+    intc_0 // 1
+    +
+    itob
+    intc_1 // 0
+    bytec_0 // "count"
+    app_global_get_ex
+    assert // check self.count exists
+    intc_1 // 0
+    bytec_0 // "count"
+    app_global_get_ex
+    assert // check self.count exists
+    *
+    itob
+    concat
+    retsub

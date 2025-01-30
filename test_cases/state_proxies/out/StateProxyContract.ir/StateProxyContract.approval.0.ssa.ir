@@ -40,16 +40,17 @@ subroutine test_cases.state_proxies.contract.StateProxyContract.__init__() -> vo
         (app_global_put 0x6732 0u)
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        let funky_town#0: bytes = (select "town" "funky" tmp%1#0)
+        let select%0#0: bytes = (select "town" "funky" tmp%1#0)
+        let funky_town#0: bytes = select%0#0
         (app_global_put funky_town#0 123u)
         return 
 
 subroutine test_cases.state_proxies.contract.StateProxyContract.create() -> void:
     block@0: // L25
         (app_global_put "g1" 1u)
-        let tmp%0#0: bytes = (txn Sender)
+        let tmp%0#0: bytes[32] = (txn Sender)
         (app_local_put tmp%0#0 "l1" 2u)
-        let tmp%1#0: bytes = (txn Sender)
+        let tmp%1#0: bytes[32] = (txn Sender)
         (app_local_put tmp%1#0 0x6c32 3u)
         return 
 

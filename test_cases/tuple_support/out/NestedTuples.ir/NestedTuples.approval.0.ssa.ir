@@ -93,25 +93,25 @@ subroutine test_cases.tuple_support.nested_tuples.test_nested_singles(one: uint6
         let s.0.0#2: uint64 = φ(s.0.0#0 <- block@0, s.0.0#1 <- block@1)
         let s.1.0#2: uint64 = φ(s.1.0#0 <- block@0, s.1.0#1 <- block@1)
         let s.2.0#2: uint64 = φ(s.2.0#0 <- block@0, s.2.0#1 <- block@1)
-        let tmp%6#0: uint64 = (select 0u 3u reassign#0)
-        let tmp%7#0: bool = (== s.0.0#2 tmp%6#0)
-        (assert tmp%7#0)
+        let select%0#0: uint64 = (select 0u 3u reassign#0)
+        let tmp%6#0: bool = (== s.0.0#2 select%0#0)
+        (assert tmp%6#0)
         let tmp#0: uint64 = s.2.0#2
-        let tmp%8#0: uint64 = (select 2u 5u reassign#0)
-        let tmp%9#0: bool = (== tmp#0 tmp%8#0)
-        (assert tmp%9#0)
-        let tmp%10#0: bool = (== t.0#0 one#0)
-        (assert tmp%10#0)
+        let select%1#0: uint64 = (select 2u 5u reassign#0)
+        let tmp%7#0: bool = (== tmp#0 select%1#0)
+        (assert tmp%7#0)
+        let tmp%8#0: bool = (== t.0#0 one#0)
+        (assert tmp%8#0)
         let s0.0#0: uint64 = s.0.0#2
         let s1#0: uint64 = s.1.0#2
         let s2.0#0: uint64 = s.2.0#2
         let s1#1: uint64 = (+ s1#0 one#0)
-        let tmp%11#0: uint64 = (select 2u 5u reassign#0)
-        let tmp%12#0: bool = (== s1#1 tmp%11#0)
-        (assert tmp%12#0)
-        let tmp%13#0: uint64 = (select 1u 4u reassign#0)
-        let tmp%14#0: bool = (== s.1.0#2 tmp%13#0)
-        (assert tmp%14#0)
+        let select%2#0: uint64 = (select 2u 5u reassign#0)
+        let tmp%9#0: bool = (== s1#1 select%2#0)
+        (assert tmp%9#0)
+        let select%3#0: uint64 = (select 1u 4u reassign#0)
+        let tmp%10#0: bool = (== s.1.0#2 select%3#0)
+        (assert tmp%10#0)
         return 
 
 subroutine test_cases.tuple_support.nested_tuples.test_nested_mutation() -> void:
@@ -124,7 +124,7 @@ subroutine test_cases.tuple_support.nested_tuples.test_nested_mutation() -> void
         let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 data%0#0)
         let byte_len%0#0: uint64 = (len concatenated%0#0)
         let len_%0#0: uint64 = (/ byte_len%0#0 8u)
-        let as_bytes%0#0: bytes = (itob len_%0#0)
+        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
         let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
         let x.0.0#1: bytes = concat_result%0#0
@@ -213,7 +213,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_route
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
         let to_encode%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.run_tests()
-        let encoded_bool%0#0: bytes = (setbit 0x00 0u to_encode%0#0)
+        let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u to_encode%0#0)
         let tmp%7#0: bytes = (concat 0x151f7c75 encoded_bool%0#0)
         (log tmp%7#0)
         return 1u
@@ -241,17 +241,17 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_route
         let item0%2%0#0: uint64 = (btoi item0%2#0)
         let (elements_to_encode%0#0: bytes, elements_to_encode%1#0: bytes, elements_to_encode%2#0: uint64) = test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_params(item0%0%0#0, item0%1%0#0, item0%2%0#0)
         let length%0#0: uint64 = (len elements_to_encode%0#0)
-        let as_bytes%0#0: bytes = (itob length%0#0)
+        let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 elements_to_encode%0#0)
         let length%1#0: uint64 = (len elements_to_encode%1#0)
-        let as_bytes%1#0: bytes = (itob length%1#0)
+        let as_bytes%1#0: bytes[8] = (itob length%1#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded_value%1#0: bytes = (concat length_uint16%1#0 elements_to_encode%1#0)
-        let val_as_bytes%0#0: bytes = (itob elements_to_encode%2#0)
+        let val_as_bytes%0#0: bytes[8] = (itob elements_to_encode%2#0)
         let current_tail_offset%0#0: uint64 = 10u
-        let encoded_tuple_buffer%0#0: bytes = 0x
-        let as_bytes%2#0: bytes = (itob current_tail_offset%0#0)
+        let encoded_tuple_buffer%0#0: bytes[0] = 0x
+        let as_bytes%2#0: bytes[8] = (itob current_tail_offset%0#0)
         let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%2#0)
         let encoded_tuple_buffer%1#0: bytes = (concat encoded_tuple_buffer%0#0 offset_as_uint16%0#0)
         let data_length%0#0: uint64 = (len encoded_value%1#0)
@@ -259,13 +259,13 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_route
         let encoded_tuple_buffer%2#0: bytes = (concat encoded_tuple_buffer%1#0 val_as_bytes%0#0)
         let encoded_tuple_buffer%3#0: bytes = (concat encoded_tuple_buffer%2#0 encoded_value%1#0)
         let current_tail_offset%2#0: uint64 = 4u
-        let encoded_tuple_buffer%4#0: bytes = 0x
-        let as_bytes%3#0: bytes = (itob current_tail_offset%2#0)
+        let encoded_tuple_buffer%4#0: bytes[0] = 0x
+        let as_bytes%3#0: bytes[8] = (itob current_tail_offset%2#0)
         let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%3#0)
         let encoded_tuple_buffer%5#0: bytes = (concat encoded_tuple_buffer%4#0 offset_as_uint16%1#0)
         let data_length%1#0: uint64 = (len encoded_value%0#0)
         let current_tail_offset%3#0: uint64 = (+ current_tail_offset%2#0 data_length%1#0)
-        let as_bytes%4#0: bytes = (itob current_tail_offset%3#0)
+        let as_bytes%4#0: bytes[8] = (itob current_tail_offset%3#0)
         let offset_as_uint16%2#0: bytes = ((extract 6 2) as_bytes%4#0)
         let encoded_tuple_buffer%6#0: bytes = (concat encoded_tuple_buffer%5#0 offset_as_uint16%2#0)
         let data_length%2#0: uint64 = (len encoded_tuple_buffer%3#0)
@@ -294,24 +294,24 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_route
         let item2%0#0: bytes = (substring3 tmp%18#0 item_start_offset%4#0 item_end_offset%4#0)
         let item2%0%0#0: bytes = ((extract 2 0) item2%0#0)
         let (elements_to_encode%3#0: uint64, elements_to_encode%4#0: bytes, elements_to_encode%5#0: bytes) = test_cases.tuple_support.nested_tuples.NestedTuples.named_tuple(item0%3%0#0, item1%2%0#0, item2%0%0#0)
-        let val_as_bytes%1#0: bytes = (itob elements_to_encode%3#0)
+        let val_as_bytes%1#0: bytes[8] = (itob elements_to_encode%3#0)
         let length%2#0: uint64 = (len elements_to_encode%4#0)
-        let as_bytes%5#0: bytes = (itob length%2#0)
+        let as_bytes%5#0: bytes[8] = (itob length%2#0)
         let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%5#0)
         let encoded_value%2#0: bytes = (concat length_uint16%2#0 elements_to_encode%4#0)
         let length%3#0: uint64 = (len elements_to_encode%5#0)
-        let as_bytes%6#0: bytes = (itob length%3#0)
+        let as_bytes%6#0: bytes[8] = (itob length%3#0)
         let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%6#0)
         let encoded_value%3#0: bytes = (concat length_uint16%3#0 elements_to_encode%5#0)
         let current_tail_offset%5#0: uint64 = 12u
-        let encoded_tuple_buffer%9#0: bytes = 0x
+        let encoded_tuple_buffer%9#0: bytes[0] = 0x
         let encoded_tuple_buffer%10#0: bytes = (concat encoded_tuple_buffer%9#0 val_as_bytes%1#0)
-        let as_bytes%7#0: bytes = (itob current_tail_offset%5#0)
+        let as_bytes%7#0: bytes[8] = (itob current_tail_offset%5#0)
         let offset_as_uint16%3#0: bytes = ((extract 6 2) as_bytes%7#0)
         let encoded_tuple_buffer%11#0: bytes = (concat encoded_tuple_buffer%10#0 offset_as_uint16%3#0)
         let data_length%3#0: uint64 = (len encoded_value%2#0)
         let current_tail_offset%6#0: uint64 = (+ current_tail_offset%5#0 data_length%3#0)
-        let as_bytes%8#0: bytes = (itob current_tail_offset%6#0)
+        let as_bytes%8#0: bytes[8] = (itob current_tail_offset%6#0)
         let offset_as_uint16%4#0: bytes = ((extract 6 2) as_bytes%8#0)
         let encoded_tuple_buffer%12#0: bytes = (concat encoded_tuple_buffer%11#0 offset_as_uint16%4#0)
         let data_length%4#0: uint64 = (len encoded_value%3#0)
@@ -345,26 +345,26 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_route
         let item_end_offset%7#0: uint64 = (len item2%1#0)
         let item2%2#0: bytes = (substring3 item2%1#0 item_start_offset%7#0 item_end_offset%7#0)
         let item2%2%0#0: bytes = ((extract 2 0) item2%2#0)
-        let (elements_to_encode%6#0: uint64, elements_to_encode%7#0: bytes, elements_to_encode%8#0: uint64, elements_to_encode%9#0: bytes, elements_to_encode%10#0: bytes) = test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tuple_params(item0%4%0#0, item1%3#0, item0%5%0#0, item1%4%0#0, item2%2%0#0)
-        let val_as_bytes%2#0: bytes = (itob elements_to_encode%6#0)
-        let val_as_bytes%3#0: bytes = (itob elements_to_encode%8#0)
+        let (elements_to_encode%6#0: uint64, elements_to_encode%7#0: bytes[8], elements_to_encode%8#0: uint64, elements_to_encode%9#0: bytes, elements_to_encode%10#0: bytes) = test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tuple_params(item0%4%0#0, item1%3#0, item0%5%0#0, item1%4%0#0, item2%2%0#0)
+        let val_as_bytes%2#0: bytes[8] = (itob elements_to_encode%6#0)
+        let val_as_bytes%3#0: bytes[8] = (itob elements_to_encode%8#0)
         let length%4#0: uint64 = (len elements_to_encode%9#0)
-        let as_bytes%9#0: bytes = (itob length%4#0)
+        let as_bytes%9#0: bytes[8] = (itob length%4#0)
         let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%9#0)
         let encoded_value%4#0: bytes = (concat length_uint16%4#0 elements_to_encode%9#0)
         let length%5#0: uint64 = (len elements_to_encode%10#0)
-        let as_bytes%10#0: bytes = (itob length%5#0)
+        let as_bytes%10#0: bytes[8] = (itob length%5#0)
         let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%10#0)
         let encoded_value%5#0: bytes = (concat length_uint16%5#0 elements_to_encode%10#0)
         let current_tail_offset%8#0: uint64 = 12u
-        let encoded_tuple_buffer%15#0: bytes = 0x
+        let encoded_tuple_buffer%15#0: bytes[0] = 0x
         let encoded_tuple_buffer%16#0: bytes = (concat encoded_tuple_buffer%15#0 val_as_bytes%3#0)
-        let as_bytes%11#0: bytes = (itob current_tail_offset%8#0)
+        let as_bytes%11#0: bytes[8] = (itob current_tail_offset%8#0)
         let offset_as_uint16%5#0: bytes = ((extract 6 2) as_bytes%11#0)
         let encoded_tuple_buffer%17#0: bytes = (concat encoded_tuple_buffer%16#0 offset_as_uint16%5#0)
         let data_length%5#0: uint64 = (len encoded_value%4#0)
         let current_tail_offset%9#0: uint64 = (+ current_tail_offset%8#0 data_length%5#0)
-        let as_bytes%12#0: bytes = (itob current_tail_offset%9#0)
+        let as_bytes%12#0: bytes[8] = (itob current_tail_offset%9#0)
         let offset_as_uint16%6#0: bytes = ((extract 6 2) as_bytes%12#0)
         let encoded_tuple_buffer%18#0: bytes = (concat encoded_tuple_buffer%17#0 offset_as_uint16%6#0)
         let data_length%6#0: uint64 = (len encoded_value%5#0)
@@ -372,10 +372,10 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_route
         let encoded_tuple_buffer%19#0: bytes = (concat encoded_tuple_buffer%18#0 encoded_value%4#0)
         let encoded_tuple_buffer%20#0: bytes = (concat encoded_tuple_buffer%19#0 encoded_value%5#0)
         let current_tail_offset%11#0: uint64 = 18u
-        let encoded_tuple_buffer%21#0: bytes = 0x
+        let encoded_tuple_buffer%21#0: bytes[0] = 0x
         let encoded_tuple_buffer%22#0: bytes = (concat encoded_tuple_buffer%21#0 val_as_bytes%2#0)
         let encoded_tuple_buffer%23#0: bytes = (concat encoded_tuple_buffer%22#0 elements_to_encode%7#0)
-        let as_bytes%13#0: bytes = (itob current_tail_offset%11#0)
+        let as_bytes%13#0: bytes[8] = (itob current_tail_offset%11#0)
         let offset_as_uint16%7#0: bytes = ((extract 6 2) as_bytes%13#0)
         let encoded_tuple_buffer%24#0: bytes = (concat encoded_tuple_buffer%23#0 offset_as_uint16%7#0)
         let data_length%7#0: uint64 = (len encoded_tuple_buffer%20#0)
@@ -470,10 +470,10 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.named_tuple(args.
         let c#0: bytes = args.c#0
         return a#0 b#0 c#0
 
-subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tuple_params(args.foo: uint64, args.foo_arc: bytes, args.child.a: uint64, args.child.b: bytes, args.child.c: bytes) -> <uint64, bytes, uint64, bytes, bytes>:
+subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tuple_params(args.foo: uint64, args.foo_arc: bytes[8], args.child.a: uint64, args.child.b: bytes, args.child.c: bytes) -> <uint64, bytes[8], uint64, bytes, bytes>:
     block@0: // L63
         let foo#0: uint64 = args.foo#0
-        let foo_arc#0: bytes = args.foo_arc#0
+        let foo_arc#0: bytes[8] = args.foo_arc#0
         let a#0: uint64 = args.child.a#0
         let b#0: bytes = args.child.b#0
         let c#0: bytes = args.child.c#0

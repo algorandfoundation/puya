@@ -1,0 +1,377 @@
+contract Contract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.array.uint64.Contract.test_array(): void
+  {
+    arr: array<uint64> = new array<uint64>()
+    assert(arr.length == 0u)
+    arr.extend((42u))
+    assert(arr.length == 1u)
+    assert(arr[arr.length - 1u] == 42u)
+    test_cases.array.uint64.add_x(arr, 5u)
+    assert(arr.length == 6u)
+    assert(arr[arr.length - 1u] == 4u)
+    arr.extend((43u))
+    assert(arr.length == 7u)
+    assert(arr[arr.length - 1u] == 43u)
+    assert(arr[0u] == 42u)
+    test_cases.array.uint64.pop_x(arr, 3u)
+    assert(arr.length == 4u)
+    assert(arr[arr.length - 1u] == 2u)
+    test_cases.array.uint64.add_x(arr, 10u)
+    assert(arr.length == 14u)
+    assert(arr[arr.length - 1u] == 9u)
+    arr.extend((44u))
+    assert(arr.length == 15u)
+    assert(arr[arr.length - 1u] == 44u)
+    test_cases.array.uint64.return_ref(arr, arr)[0u] += 2u
+    assert(arr.length == 17u)
+    assert(arr[0u] == 44u)
+    assert(arr[arr.length - 2u] == 99u)
+    assert(arr[arr.length - 1u] == 100u)
+  }
+  
+  abimethod test_cases.array.uint64.Contract.test_array_extend(): void
+  {
+    arr: array<uint64> = new array<uint64>()
+    test_cases.array.uint64.add_x(arr, 1u)
+    arr2: array<uint64> = new array<uint64>()
+    arr2.extend((1u))
+    arr2.extend((2u))
+    arr2.extend((3u))
+    arr.extend(arr2)
+    assert(arr.length == 4u)
+  }
+  
+  abimethod test_cases.array.uint64.Contract.test_array_multiple_append(): void
+  {
+    arr: array<uint64> = new array<uint64>()
+    test_cases.array.uint64.add_x(arr, 1u)
+    arr.extend((1u))
+    arr.extend((2u))
+    arr.extend((3u))
+    assert(arr.length == 4u)
+  }
+  
+  abimethod test_cases.array.uint64.Contract.overhead(): void
+  {
+  }
+  
+  abimethod test_cases.array.uint64.Contract.test_array_too_long(): void
+  {
+    array: array<uint64> = new array<uint64>()
+    for i in range(0u, 512u, 1u) {
+      array.extend((i))
+    }
+    assert(array.length == 512u, comment="array is expected length")
+    array.extend((512u))
+  }
+  
+  abimethod test_cases.array.uint64.Contract.test_array_copy_and_extend(): void
+  {
+    array: array<uint64> = new array<uint64>()
+    for i in range(0u, 5u, 1u) {
+      array.extend((i))
+    }
+    array2: array<uint64> = array.copy()
+    array.extend((5u))
+    assert(array.length == 6u)
+    assert(array[array.length - 1u] == 5u, comment="expected 5")
+    assert(array2.length == 5u)
+    assert(array2[array2.length - 1u] == 4u, comment="expected 4")
+    array.extend(array2)
+    assert(array.length == 11u)
+    assert(array2.length == 5u)
+    assert(array[array.length - 1u] == 4u, comment="expected 4")
+    assert(array[4u] == 4u, comment="expected 4")
+    assert(array[5u] == 5u, comment="expected 4")
+    assert(array[6u] == 0u, comment="expected 4")
+  }
+  
+  abimethod test_cases.array.uint64.Contract.test_array_evaluation_order(): void
+  {
+    arr: array<uint64> = new array<uint64>()
+    arr.extend((1u))
+    test_cases.array.uint64.append_5_and_return(arr).extend(test_cases.array.uint64.append_5_and_return(arr))
+    assert(arr.length == 6u)
+    assert(arr[0u] == 1u)
+    assert(arr[1u] == 5u)
+    assert(arr[2u] == 5u)
+    assert(arr[3u] == 1u)
+    assert(arr[4u] == 5u)
+    assert(arr[5u] == 5u)
+  }
+  
+  abimethod test_cases.array.uint64.Contract.test_allocations(num: uint64): void
+  {
+    for _i in range(0u, num, 1u) {
+      alloc_test: array<uint64> = new array<uint64>()
+      test_cases.array.uint64.add_x(alloc_test, 1u)
+    }
+  }
+  
+  abimethod test_cases.array.uint64.Contract.test_iteration(): void
+  {
+    arr: array<uint64> = new array<uint64>()
+    for val in range(0u, 5u, 1u) {
+      arr.extend((val))
+    }
+    assert(arr.length == 5u, comment="expected array of length 5")
+    last: uint64 = 0u
+    for value in arr {
+      assert(value >= last, comment="array is not sorted")
+      last: uint64 = value
+    }
+    for (idx, value) in enumerate(arr) {
+      assert(value == idx, comment="incorrect array value")
+    }
+    for value in reversed(arr) {
+      assert(value <= last, comment="array is not sorted")
+      last: uint64 = value
+    }
+    arc4_arr: arc4.dynamic_array<arc4.uint64> = new arc4.dynamic_array<arc4.uint64>()
+    native_arr: array<arc4.uint64> = new array<arc4.uint64>()
+    for i in range(0u, 5u, 1u) {
+      arc4_arr.extend((arc4_encode(i, arc4.uint64)))
+      native_arr.extend((arc4_encode(i, arc4.uint64)))
+    }
+    combined_arr: arc4.dynamic_array<arc4.uint64> = arc4_arr + native_arr
+    assert(combined_arr.length == 10u)
+    assert(reinterpret_cast<biguint>(combined_arr[0u]) == reinterpret_cast<biguint>(0_arc4u64))
+    assert(reinterpret_cast<biguint>(combined_arr[4u]) == reinterpret_cast<biguint>(4_arc4u64))
+    assert(reinterpret_cast<biguint>(combined_arr[5u]) == reinterpret_cast<biguint>(0_arc4u64))
+    assert(reinterpret_cast<biguint>(combined_arr[9u]) == reinterpret_cast<biguint>(4_arc4u64))
+  }
+  
+  abimethod test_cases.array.uint64.Contract.test_quicksort(): void
+  {
+    rnd: array<uint64> = new array<uint64>()
+    for b in reinterpret_cast<bytes>(txn<Sender>()) {
+      rnd.extend((btoi(b)))
+    }
+    assert(rnd.length == 32u, comment="expected array of length 32")
+    test_cases.array.uint64.quicksort_window(rnd, 0u, rnd.length - 1u)
+    last: uint64 = 0u
+    for value in rnd {
+      assert(value >= last, comment="array is not sorted")
+      last: uint64 = value
+    }
+  }
+  
+  baremethod test_cases.array.uint64.Contract.__algopy_default_create(): void
+  {
+  }
+}
+
+subroutine quicksort_window(arr: array<uint64>, window_left: uint64, window_right: uint64): void
+{
+  left: uint64 = window_left
+  right: uint64 = window_right
+  pivot: uint64 = arr[window_left + window_right // 2u]
+  while (true) {
+    while (arr[left] < pivot) {
+      left += 1u
+    }
+    while (pivot < arr[right]) {
+      if (right == 0u) {
+        goto after_loop_L180
+      }
+      right -= 1u
+    }
+    if (left < right) {
+      (arr[left], arr[right]): tuple<uint64,uint64> = (arr[right], arr[left])
+      left += 1u
+      if (right == 0u) {
+        break
+      }
+      right -= 1u
+      if (left <= right) {
+        continue
+      }
+      break
+    }
+    if (left == right) {
+      left += 1u
+      if (right != 0u) {
+        right -= 1u
+      }
+      break
+    }
+    after_loop_L180:
+    break
+  }
+  if (window_left < right) {
+    test_cases.array.uint64.quicksort_window(arr, window_left, right)
+  }
+  if (left < window_right) {
+    test_cases.array.uint64.quicksort_window(arr, left, window_right)
+  }
+}
+
+subroutine return_ref(arr: array<uint64>, arr2: array<uint64>): array<uint64>
+{
+  arr.extend((99u))
+  arr2.extend((100u))
+  return arr
+}
+
+subroutine add_x(arr: array<uint64>, x: uint64): void
+{
+  for i in range(0u, x, 1u) {
+    arr.extend((i))
+  }
+}
+
+subroutine pop_x(arr: array<uint64>, x: uint64): void
+{
+  for _i in range(0u, x, 1u) {
+    arr.pop()
+  }
+}
+
+subroutine append_5_and_return(arr: array<uint64>): array<uint64>
+{
+  arr.extend((5u))
+  return arr
+}
+
+subroutine do_something_with_array(arr: array<uint64>): void
+{
+  arr.extend((1u))
+}
+
+contract FixedSizeContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  globals {
+    ['count']: uint64
+  }
+  
+  subroutine test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.array.fixed_size.FixedSizeContract.__init__(): void
+  {
+    GlobalState['count']: uint64 = 0u
+  }
+  
+  abimethod test_cases.array.fixed_size.FixedSizeContract.test_array(x1: arc4.uint64, y1: uint64, x2: arc4.uint64, y2: uint64): uint64
+  {
+    GlobalState['count']: uint64 = 0u
+    path: array<test_cases.array.fixed_size.Point> = new array<test_cases.array.fixed_size.Point>((0_arc4u64, 0u, this::xtra()), (x1, y1, this::xtra()), (x2, y2, this::xtra()))
+    for i in range(0u, 3u, 1u) {
+      assert(path[i].other.b == i + 1u)
+      assert(reinterpret_cast<biguint>(path[i].other.d.foo) == itob(i + 2u))
+      assert(reinterpret_cast<biguint>(path[i].other.d.bar) == itob(i + 1u * i + 1u))
+    }
+    return test_cases.array.fixed_size.path_length(path)
+  }
+  
+  abimethod test_cases.array.fixed_size.FixedSizeContract.test_bool_array(length: uint64): uint64
+  {
+    arr: array<bool> = new array<bool>()
+    assert(arr.length == 0u)
+    for i in range(1u, length + 1u, 1u) {
+      arr.extend((i % 2u == 0u))
+    }
+    assert(arr.length == length, comment="expected correct length")
+    count: uint64 = 0u
+    for val in arr {
+      if (val) {
+        count += 1u
+      }
+    }
+    return count
+  }
+  
+  abimethod test_cases.array.fixed_size.FixedSizeContract.test_arc4_conversion(length: uint64): arc4.dynamic_array<arc4.uint64>
+  {
+    arr: array<arc4.uint64> = new array<arc4.uint64>()
+    assert(arr.length == 0u)
+    for i in range(1u, length + 1u, 1u) {
+      arr.extend((arc4_encode(i, arc4.uint64)))
+    }
+    assert(arr.length == length, comment="expected correct length")
+    count: uint64 = 0u
+    for val in arr {
+      if (val != hex<"0000000000000000">) {
+        count += 1u
+      }
+    }
+    arc4_arr: arc4.dynamic_array<arc4.uint64> = new arc4.dynamic_array<arc4.uint64>()
+    arc4_arr.extend(arr)
+    return arc4_arr
+  }
+  
+  abimethod test_cases.array.fixed_size.FixedSizeContract.sum_array(arc4_arr: arc4.dynamic_array<arc4.uint64>): uint64
+  {
+    arr: array<arc4.uint64> = new array<arc4.uint64>()
+    arr.extend(arc4_arr)
+    total: uint64 = 0u
+    for item in arr {
+      total += arc4_decode(item, uint64)
+    }
+    return total
+  }
+  
+  subroutine test_cases.array.fixed_size.FixedSizeContract.xtra(): test_cases.array.fixed_size.Xtra
+  {
+    GlobalState['count'] += 1u
+    return (txn<NumAppArgs>(), GlobalState['count'], txn<Sender>(), new test_cases.array.fixed_size.More(foo=arc4_encode(GlobalState['count'] + 1u, arc4.uint64), bar=arc4_encode(GlobalState['count'] * GlobalState['count'], arc4.uint64)))
+  }
+  
+  baremethod test_cases.array.fixed_size.FixedSizeContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+}
+
+subroutine path_length(path: array<test_cases.array.fixed_size.Point>): uint64
+{
+  last_point: test_cases.array.fixed_size.Point = path[0u]
+  length: uint64 = 0u
+  for point_idx in range(1u, path.length, 1u) {
+    point: test_cases.array.fixed_size.Point = path[point_idx]
+    if (reinterpret_cast<biguint>(point.x) < reinterpret_cast<biguint>(last_point.x)) {
+      dx: uint64 = arc4_decode(last_point.x, uint64) - arc4_decode(point.x, uint64)
+    } else {
+      dx: uint64 = arc4_decode(point.x, uint64) - arc4_decode(last_point.x, uint64)
+    }
+    if (point.y < last_point.y) {
+      dy: uint64 = last_point.y - point.y
+    } else {
+      dy: uint64 = point.y - last_point.y
+    }
+    length += sqrt(dx * dx + dy * dy)
+  }
+  return length
+}

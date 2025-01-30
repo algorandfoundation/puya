@@ -1,15 +1,15 @@
 main test_cases.arc4_types.reference_types.Arc4RefTypesContract.approval_program:
     block@0: // L5
-        let sender_address#0: bytes = (txn Sender)
-        let tmp%0#0: bytes = (txn Sender)
+        let sender_address#0: bytes[32] = (txn Sender)
+        let tmp%0#0: bytes[32] = (txn Sender)
         let tmp%1#0: bool = (== sender_address#0 tmp%0#0)
         (assert tmp%1#0)
-        let awst_tmp%0#0: bytes = (txn Sender)
+        let awst_tmp%0#0: bytes[32] = (txn Sender)
         let tmp%2#0: uint64 = (len awst_tmp%0#0)
         let tmp%3#0: bool = (== 32u tmp%2#0)
         (assert tmp%3#0) // Address length is 32 bytes
-        let checked_address#0: bytes = awst_tmp%0#0
-        let unchecked_address#0: bytes = (txn Sender)
+        let checked_address#0: bytes[32] = awst_tmp%0#0
+        let unchecked_address#0: bytes[32] = (txn Sender)
         let tmp%4#0: bool = (== sender_address#0 checked_address#0)
         goto tmp%4#0 ? block@1 : block@3
     block@1: // and_contd_L16
@@ -24,7 +24,7 @@ main test_cases.arc4_types.reference_types.Arc4RefTypesContract.approval_program
     block@4: // bool_merge_L16
         let and_result%0#2: bool = φ(and_result%0#0 <- block@2, and_result%0#1 <- block@3)
         (assert and_result%0#2)
-        let tmp%6#0: bytes = (global ZeroAddress)
+        let tmp%6#0: bytes[32] = (global ZeroAddress)
         let tmp%7#0: bool = (== tmp%6#0 addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ)
         (assert tmp%7#0)
         return 1u

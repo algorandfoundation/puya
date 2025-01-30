@@ -17,7 +17,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     block@2: // for_body_L28
         let array_head_and_tail%0#0: bytes = ((extract 2 0) dynamic_uint8_array#0)
         let item_offset%0#0: uint64 = (* item_index_internal%0#1 1u)
-        let uint8_item#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 1u) // on error: Index access is out of bounds
+        let uint8_item#0: bytes[1] = (extract3 array_head_and_tail%0#0 item_offset%0#0 1u) // on error: Index access is out of bounds
         let tmp%0#0: uint64 = (btoi uint8_item#0)
         let total#2: uint64 = (+ total#1 tmp%0#0)
         goto block@3
@@ -42,7 +42,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     block@6: // for_body_L33
         let array_head_and_tail%1#0: bytes = ((extract 2 0) aliased_dynamic#0)
         let item_offset%1#0: uint64 = (* item_index_internal%1#1 2u)
-        let uint16_item#0: bytes = (extract3 array_head_and_tail%1#0 item_offset%1#0 2u) // on error: Index access is out of bounds
+        let uint16_item#0: bytes[2] = (extract3 array_head_and_tail%1#0 item_offset%1#0 2u) // on error: Index access is out of bounds
         let tmp%2#0: uint64 = (btoi uint16_item#0)
         let total#4: uint64 = (+ total#3 tmp%2#0)
         goto block@7
@@ -52,12 +52,12 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     block@8: // after_for_L32
         let tmp%3#0: bool = (== total#3 4u)
         (assert tmp%3#0) // Total should now include sum of aliased_dynamic items
-        let as_bytes%0#0: bytes = (itob 4u)
+        let as_bytes%0#0: bytes[8] = (itob 4u)
         let next_item_head%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let result%3#0: bytes = (concat 0x next_item_head%0#0)
         let next_item_len%0#0: uint64 = (len 0x000548656c6c6f)
         let tail_offset%0#0: uint64 = (+ 4u next_item_len%0#0)
-        let as_bytes%1#0: bytes = (itob tail_offset%0#0)
+        let as_bytes%1#0: bytes[8] = (itob tail_offset%0#0)
         let next_item_head%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let result%4#0: bytes = (concat result%3#0 next_item_head%1#0)
         let next_item_len%1#0: uint64 = (len 0x0005576f726c64)
@@ -124,7 +124,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let result%9#0: bytes = (concat result%8#0 0x000000ff)
         let result%10#0: bytes = (concat result%9#0 0x00000080)
         let array_data%3#0: bytes = (concat 0x result%10#0)
-        let static_uint32_array#0: bytes = array_data%3#0
+        let static_uint32_array#0: bytes[16] = array_data%3#0
         let array_length%4#0: uint64 = 4u
         let item_index_internal%3#0: uint64 = 0u
         let reverse_index_internal%3#0: uint64 = array_length%4#0
@@ -135,9 +135,9 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let continue_looping%3#0: bool = (< item_index_internal%3#1 array_length%4#0)
         goto continue_looping%3#0 ? block@17 : block@19
     block@17: // for_body_L50
-        let array_head_and_tail%4#0: bytes = static_uint32_array#0
+        let array_head_and_tail%4#0: bytes[16] = static_uint32_array#0
         let item_offset%4#0: uint64 = (* item_index_internal%3#1 4u)
-        let uint32_item#0: bytes = (extract3 array_head_and_tail%4#0 item_offset%4#0 4u) // on error: Index access is out of bounds
+        let uint32_item#0: bytes[4] = (extract3 array_head_and_tail%4#0 item_offset%4#0 4u) // on error: Index access is out of bounds
         let tmp%12#0: uint64 = (btoi uint32_item#0)
         let total#6: uint64 = (+ total#5 tmp%12#0)
         goto block@18
@@ -149,25 +149,25 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         (assert tmp%13#0)
         let result%11#0: bytes = (concat 0x 0x65)
         let array_data%4#0: bytes = (concat 0x result%11#0)
-        let aliased_static#0: bytes = array_data%4#0
+        let aliased_static#0: bytes[1] = array_data%4#0
         let index#1: uint64 = 0u
-        let array_head_and_tail%5#0: bytes = aliased_static#0
+        let array_head_and_tail%5#0: bytes[1] = aliased_static#0
         let item_offset%5#0: uint64 = (* 0u 1u)
         let tmp%14#0: bytes = (extract3 array_head_and_tail%5#0 item_offset%5#0 1u) // on error: Index access is out of bounds
         let tmp%15#0: uint64 = (btoi tmp%14#0)
-        let array_head_and_tail%6#0: bytes = aliased_static#0
+        let array_head_and_tail%6#0: bytes[1] = aliased_static#0
         let item_offset%6#0: uint64 = (* index#1 1u)
         let tmp%16#0: bytes = (extract3 array_head_and_tail%6#0 item_offset%6#0 1u) // on error: Index access is out of bounds
         let tmp%17#0: uint64 = (btoi tmp%16#0)
         let tmp%18#0: uint64 = (+ tmp%15#0 tmp%17#0)
         let tmp%19#0: bool = (== tmp%18#0 202u)
         (assert tmp%19#0)
-        let as_bytes%2#0: bytes = (itob 4u)
+        let as_bytes%2#0: bytes[8] = (itob 4u)
         let next_item_head%2#0: bytes = ((extract 6 2) as_bytes%2#0)
         let result%12#0: bytes = (concat 0x next_item_head%2#0)
         let next_item_len%2#0: uint64 = (len 0x000450696e67)
         let tail_offset%2#0: uint64 = (+ 4u next_item_len%2#0)
-        let as_bytes%3#0: bytes = (itob tail_offset%2#0)
+        let as_bytes%3#0: bytes[8] = (itob tail_offset%2#0)
         let next_item_head%3#0: bytes = ((extract 6 2) as_bytes%3#0)
         let result%13#0: bytes = (concat result%12#0 next_item_head%3#0)
         let next_item_len%3#0: uint64 = (len 0x0004506f6e67)
@@ -217,7 +217,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         test_cases.arc4_types.array.Arc4ArraysContract.hash_as_array(0x54657374696e6720313233)
         return 1u
 
-subroutine test_cases.arc4_types.array.Arc4ArraysContract.hash_as_array(commitment_args_concat: bytes) -> bytes:
+subroutine test_cases.arc4_types.array.Arc4ArraysContract.hash_as_array(commitment_args_concat: bytes) -> bytes[32]:
     block@0: // L75
-        let tmp%0#0: bytes = (sha3_256 commitment_args_concat#0)
-        return tmp%0#0
+        let reinterpret_bytes[32]%0#0: bytes[32] = (sha3_256 commitment_args_concat#0)
+        return reinterpret_bytes[32]%0#0

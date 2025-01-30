@@ -107,9 +107,9 @@ contract VotingRoundApp
     assert(this::allowed_to_vote(signature), comment="Not allowed to vote")
     assert(this::voting_open(), comment="Voting not open")
     assert(!(this::already_voted()), comment="Already voted")
-    questions_count: uint64 = extract_uint16(GlobalState['option_counts'], 0u)
-    assert(extract_uint16(answer_ids, 0u) == questions_count, comment="Number of answers incorrect")
-    min_bal_req: uint64 = 2500u + 34u + 1u * extract_uint16(answer_ids, 0u) * 400u
+    questions_count: uint64 = GlobalState['option_counts'].length
+    assert(answer_ids.length == questions_count, comment="Number of answers incorrect")
+    min_bal_req: uint64 = 2500u + 34u + 1u * answer_ids.length * 400u
     assert(gtxns<Receiver>(fund_min_bal_req) == global<CurrentApplicationAddress>(), comment="Payment must be to app address")
     log(itob(min_bal_req))
     assert(gtxns<Amount>(fund_min_bal_req) == min_bal_req, comment="Payment must be the exact min balance")
@@ -137,8 +137,8 @@ contract VotingRoundApp
   
   subroutine examples.voting.voting.VotingRoundApp.store_option_counts(option_counts: arc4.dynamic_array<arc4.uint8>): void
   {
-    assert(extract_uint16(option_counts, 0u) != 0u, comment="option_counts should be non-empty")
-    assert(extract_uint16(option_counts, 0u) <= 112u, comment="Can't have more than 112 questions")
+    assert(option_counts.length != 0u, comment="option_counts should be non-empty")
+    assert(option_counts.length <= 112u, comment="Can't have more than 112 questions")
     total_options: uint64 = 0u
     for item in option_counts {
       total_options += arc4_decode(item, uint64)

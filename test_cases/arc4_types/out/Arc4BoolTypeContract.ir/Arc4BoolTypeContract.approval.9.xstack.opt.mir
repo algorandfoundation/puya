@@ -1,0 +1,24 @@
+// Op                                                          Stack (out)
+// test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program() -> uint64:
+main:
+    // arc4_types/bool.py:15
+    // False if Txn.num_app_args else True  # noqa: SIM211
+    txn NumAppArgs                                             tmp%0#0
+    !                                                          select%0#0
+    // arc4_types/bool.py:14-16
+    // assert ARC4Bool(
+    //     False if Txn.num_app_args else True  # noqa: SIM211
+    // ).native, "conditional expr"
+    byte 0x00                                                  select%0#0,0x00
+    int 0                                                      select%0#0,0x00,0
+    l-load select%0#0 2                                        0x00,0,select%0#0
+    setbit                                                     encoded_bool%2#0
+    int 0                                                      encoded_bool%2#0,0
+    getbit                                                     tmp%2#0
+    assert // conditional expr
+    // arc4_types/bool.py:49
+    // return True
+    int 1                                                      1
+    return
+
+

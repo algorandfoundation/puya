@@ -1,6 +1,7 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#1 0u)
         goto tmp%0#1 ? block@2 : block@8
     block@2: // abi_routing_L11
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
@@ -10,6 +11,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%4#0: bool = (! tmp%3#0)
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%5#0) // can only call when not creating
         let tmp%7#0: bytes = (txna ApplicationArgs 1)
         let tmp%8#0: bytes = ((extract 2 0) tmp%7#0)
@@ -18,7 +20,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%10#0: bytes = (txna ApplicationArgs 2)
         let tmp%11#0: bytes = ((extract 2 0) tmp%10#0)
         let to_encode%0#0: uint64 = test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn(tmp%8#0, gtxn_idx%0#0, tmp%11#0)
-        let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
+        let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
         let tmp%12#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
         (log tmp%12#0)
         let test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0: bool = 1u
@@ -28,6 +30,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%14#0: bool = (! tmp%13#0)
         (assert tmp%14#0) // OnCompletion is not NoOp
         let tmp%15#0: uint64 = (txn ApplicationID)
+        let tmp%16#0: bool = (!= tmp%15#0 0u)
         (assert tmp%15#0) // can only call when not creating
         let tmp%17#0: bytes = (txna ApplicationArgs 1)
         let tmp%18#0: bytes = ((extract 2 0) tmp%17#0)
@@ -39,7 +42,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%20#0: bytes = (txna ApplicationArgs 2)
         let tmp%21#0: bytes = ((extract 2 0) tmp%20#0)
         let to_encode%1#0: uint64 = test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg(tmp%18#0, gtxn_idx%1#0, tmp%21#0)
-        let val_as_bytes%1#0: bytes = (itob to_encode%1#0)
+        let val_as_bytes%1#0: bytes[8] = (itob to_encode%1#0)
         let tmp%22#0: bytes = (concat 0x151f7c75 val_as_bytes%1#0)
         (log tmp%22#0)
         let test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#1: bool = 1u
@@ -49,6 +52,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%24#0: bool = (! tmp%23#0)
         (assert tmp%24#0) // OnCompletion is not NoOp
         let tmp%25#0: uint64 = (txn ApplicationID)
+        let tmp%26#0: bool = (!= tmp%25#0 0u)
         (assert tmp%25#0) // can only call when not creating
         let tmp%27#0: bytes = (txna ApplicationArgs 1)
         let tmp%28#0: bytes = ((extract 2 0) tmp%27#0)
@@ -89,6 +93,7 @@ subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn(
         let tmp%3#0: bool = (== tmp%2#0 acfg)
         (assert tmp%3#0) // expected asset config
         let tmp%4#0: uint64 = ((gtxns CreatedAssetID) acfg#0)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
         (assert tmp%4#0) // expected asset id
         return tmp%4#0
 
@@ -99,6 +104,7 @@ subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg
         let tmp%1#0: bool = (== b#0 0x62)
         (assert tmp%1#0) // b is not b
         let tmp%2#0: uint64 = ((gtxns CreatedAssetID) acfg#0)
+        let tmp%3#0: bool = (!= tmp%2#0 0u)
         (assert tmp%2#0) // expected asset id
         return tmp%2#0
 
@@ -109,6 +115,7 @@ subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg
         let tmp%1#0: bool = (== b#0 0x62)
         (assert tmp%1#0) // b is not b
         let tmp%2#0: uint64 = ((gtxns CreatedAssetID) acfg#0)
+        let tmp%3#0: bool = (!= tmp%2#0 0u)
         (assert tmp%2#0) // expected asset id
         return 
 

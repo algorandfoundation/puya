@@ -18,7 +18,7 @@ subroutine test_cases.compile.factory.HelloFactory.__puya_arc4_router__() -> boo
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
-        let tmp%7#0: bytes = test_cases.compile.factory.HelloFactory.test_logicsig()
+        let tmp%7#0: bytes[32] = test_cases.compile.factory.HelloFactory.test_logicsig()
         let tmp%8#0: bytes = (concat 0x151f7c75 tmp%7#0)
         (log tmp%8#0)
         return 1u
@@ -150,9 +150,10 @@ subroutine test_cases.compile.factory.HelloFactory.__puya_arc4_router__() -> boo
     block@21: // after_if_else_L25
         return 0u
 
-subroutine test_cases.compile.factory.HelloFactory.test_logicsig() -> bytes:
+subroutine test_cases.compile.factory.HelloFactory.test_logicsig() -> bytes[32]:
     block@0: // L26
-        return compiled_logicsig('test_cases.compile.apps.always_approve_sig')
+        let reinterpret_bytes[32]%0#0: bytes[32] = compiled_logicsig('test_cases.compile.apps.always_approve_sig')
+        return reinterpret_bytes[32]%0#0
 
 subroutine test_cases.compile.factory.HelloFactory.test_compile_contract() -> void:
     block@0: // L30
@@ -163,8 +164,8 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract() -> vo
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes = method "create(string)void"
-        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = 0x000568656c6c6f
+        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "create(string)void"
+        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x000568656c6c6f
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = compiled.approval_program.0#0
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = compiled.approval_program.1#0
@@ -238,8 +239,8 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract() -> vo
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes = method "greet(string)string"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = 0x0005776f726c64
+        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "greet(string)string"
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x0005776f726c64
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -300,16 +301,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract() -> vo
         itxn_submit
         let txn#0: itxn_group_idx = itxn_group_idx(0)
         let txn._is_last#0: bool = 1u
-        let txn.Sender#0: bytes = itxn[txn#0].Sender
+        let txn.Sender#0: bytes[32] = itxn[txn#0].Sender
         let txn.Fee#0: uint64 = itxn[txn#0].Fee
         let txn.FirstValid#0: uint64 = itxn[txn#0].FirstValid
         let txn.FirstValidTime#0: uint64 = itxn[txn#0].FirstValidTime
         let txn.LastValid#0: uint64 = itxn[txn#0].LastValid
         let txn.Note#0: bytes = itxn[txn#0].Note
         let txn.Lease#0: bytes = itxn[txn#0].Lease
-        let txn.Receiver#0: bytes = itxn[txn#0].Receiver
+        let txn.Receiver#0: bytes[32] = itxn[txn#0].Receiver
         let txn.Amount#0: uint64 = itxn[txn#0].Amount
-        let txn.CloseRemainderTo#0: bytes = itxn[txn#0].CloseRemainderTo
+        let txn.CloseRemainderTo#0: bytes[32] = itxn[txn#0].CloseRemainderTo
         let txn.VotePK#0: bytes = itxn[txn#0].VotePK
         let txn.SelectionPK#0: bytes = itxn[txn#0].SelectionPK
         let txn.VoteFirst#0: uint64 = itxn[txn#0].VoteFirst
@@ -319,9 +320,9 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract() -> vo
         let txn.TypeEnum#0: uint64 = itxn[txn#0].TypeEnum
         let txn.XferAsset#0: uint64 = itxn[txn#0].XferAsset
         let txn.AssetAmount#0: uint64 = itxn[txn#0].AssetAmount
-        let txn.AssetSender#0: bytes = itxn[txn#0].AssetSender
-        let txn.AssetReceiver#0: bytes = itxn[txn#0].AssetReceiver
-        let txn.AssetCloseTo#0: bytes = itxn[txn#0].AssetCloseTo
+        let txn.AssetSender#0: bytes[32] = itxn[txn#0].AssetSender
+        let txn.AssetReceiver#0: bytes[32] = itxn[txn#0].AssetReceiver
+        let txn.AssetCloseTo#0: bytes[32] = itxn[txn#0].AssetCloseTo
         let txn.GroupIndex#0: uint64 = itxn[txn#0].GroupIndex
         let txn.TxID#0: bytes = itxn[txn#0].TxID
         let txn.ApplicationID#0: uint64 = itxn[txn#0].ApplicationID
@@ -330,7 +331,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract() -> vo
         let txn.NumAccounts#0: uint64 = itxn[txn#0].NumAccounts
         let txn.ApprovalProgram#0: bytes = itxn[txn#0].ApprovalProgram
         let txn.ClearStateProgram#0: bytes = itxn[txn#0].ClearStateProgram
-        let txn.RekeyTo#0: bytes = itxn[txn#0].RekeyTo
+        let txn.RekeyTo#0: bytes[32] = itxn[txn#0].RekeyTo
         let txn.ConfigAsset#0: uint64 = itxn[txn#0].ConfigAsset
         let txn.ConfigAssetTotal#0: uint64 = itxn[txn#0].ConfigAssetTotal
         let txn.ConfigAssetDecimals#0: uint64 = itxn[txn#0].ConfigAssetDecimals
@@ -339,12 +340,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract() -> vo
         let txn.ConfigAssetName#0: bytes = itxn[txn#0].ConfigAssetName
         let txn.ConfigAssetURL#0: bytes = itxn[txn#0].ConfigAssetURL
         let txn.ConfigAssetMetadataHash#0: bytes = itxn[txn#0].ConfigAssetMetadataHash
-        let txn.ConfigAssetManager#0: bytes = itxn[txn#0].ConfigAssetManager
-        let txn.ConfigAssetReserve#0: bytes = itxn[txn#0].ConfigAssetReserve
-        let txn.ConfigAssetFreeze#0: bytes = itxn[txn#0].ConfigAssetFreeze
-        let txn.ConfigAssetClawback#0: bytes = itxn[txn#0].ConfigAssetClawback
+        let txn.ConfigAssetManager#0: bytes[32] = itxn[txn#0].ConfigAssetManager
+        let txn.ConfigAssetReserve#0: bytes[32] = itxn[txn#0].ConfigAssetReserve
+        let txn.ConfigAssetFreeze#0: bytes[32] = itxn[txn#0].ConfigAssetFreeze
+        let txn.ConfigAssetClawback#0: bytes[32] = itxn[txn#0].ConfigAssetClawback
         let txn.FreezeAsset#0: uint64 = itxn[txn#0].FreezeAsset
-        let txn.FreezeAssetAccount#0: bytes = itxn[txn#0].FreezeAssetAccount
+        let txn.FreezeAssetAccount#0: bytes[32] = itxn[txn#0].FreezeAssetAccount
         let txn.FreezeAssetFrozen#0: bool = itxn[txn#0].FreezeAssetFrozen
         let txn.NumAssets#0: uint64 = itxn[txn#0].NumAssets
         let txn.NumApplications#0: uint64 = itxn[txn#0].NumApplications
@@ -374,7 +375,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract() -> vo
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
         let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
-        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes = method "delete()void"
+        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "delete()void"
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%2%%param_OnCompletion_idx_0#0: uint64 = DeleteApplication
         let inner_txn_params%2%%OnCompletion_length#0: uint64 = 1u
@@ -446,7 +447,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() 
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes = method "create()void"
+        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "create()void"
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = compiled.approval_program.0#0
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = compiled.approval_program.1#0
@@ -525,8 +526,8 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() 
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes = method "greet(string)string"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = 0x0005776f726c64
+        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "greet(string)string"
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x0005776f726c64
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -587,16 +588,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() 
         itxn_submit
         let txn#0: itxn_group_idx = itxn_group_idx(0)
         let txn._is_last#0: bool = 1u
-        let txn.Sender#0: bytes = itxn[txn#0].Sender
+        let txn.Sender#0: bytes[32] = itxn[txn#0].Sender
         let txn.Fee#0: uint64 = itxn[txn#0].Fee
         let txn.FirstValid#0: uint64 = itxn[txn#0].FirstValid
         let txn.FirstValidTime#0: uint64 = itxn[txn#0].FirstValidTime
         let txn.LastValid#0: uint64 = itxn[txn#0].LastValid
         let txn.Note#0: bytes = itxn[txn#0].Note
         let txn.Lease#0: bytes = itxn[txn#0].Lease
-        let txn.Receiver#0: bytes = itxn[txn#0].Receiver
+        let txn.Receiver#0: bytes[32] = itxn[txn#0].Receiver
         let txn.Amount#0: uint64 = itxn[txn#0].Amount
-        let txn.CloseRemainderTo#0: bytes = itxn[txn#0].CloseRemainderTo
+        let txn.CloseRemainderTo#0: bytes[32] = itxn[txn#0].CloseRemainderTo
         let txn.VotePK#0: bytes = itxn[txn#0].VotePK
         let txn.SelectionPK#0: bytes = itxn[txn#0].SelectionPK
         let txn.VoteFirst#0: uint64 = itxn[txn#0].VoteFirst
@@ -606,9 +607,9 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() 
         let txn.TypeEnum#0: uint64 = itxn[txn#0].TypeEnum
         let txn.XferAsset#0: uint64 = itxn[txn#0].XferAsset
         let txn.AssetAmount#0: uint64 = itxn[txn#0].AssetAmount
-        let txn.AssetSender#0: bytes = itxn[txn#0].AssetSender
-        let txn.AssetReceiver#0: bytes = itxn[txn#0].AssetReceiver
-        let txn.AssetCloseTo#0: bytes = itxn[txn#0].AssetCloseTo
+        let txn.AssetSender#0: bytes[32] = itxn[txn#0].AssetSender
+        let txn.AssetReceiver#0: bytes[32] = itxn[txn#0].AssetReceiver
+        let txn.AssetCloseTo#0: bytes[32] = itxn[txn#0].AssetCloseTo
         let txn.GroupIndex#0: uint64 = itxn[txn#0].GroupIndex
         let txn.TxID#0: bytes = itxn[txn#0].TxID
         let txn.ApplicationID#0: uint64 = itxn[txn#0].ApplicationID
@@ -617,7 +618,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() 
         let txn.NumAccounts#0: uint64 = itxn[txn#0].NumAccounts
         let txn.ApprovalProgram#0: bytes = itxn[txn#0].ApprovalProgram
         let txn.ClearStateProgram#0: bytes = itxn[txn#0].ClearStateProgram
-        let txn.RekeyTo#0: bytes = itxn[txn#0].RekeyTo
+        let txn.RekeyTo#0: bytes[32] = itxn[txn#0].RekeyTo
         let txn.ConfigAsset#0: uint64 = itxn[txn#0].ConfigAsset
         let txn.ConfigAssetTotal#0: uint64 = itxn[txn#0].ConfigAssetTotal
         let txn.ConfigAssetDecimals#0: uint64 = itxn[txn#0].ConfigAssetDecimals
@@ -626,12 +627,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() 
         let txn.ConfigAssetName#0: bytes = itxn[txn#0].ConfigAssetName
         let txn.ConfigAssetURL#0: bytes = itxn[txn#0].ConfigAssetURL
         let txn.ConfigAssetMetadataHash#0: bytes = itxn[txn#0].ConfigAssetMetadataHash
-        let txn.ConfigAssetManager#0: bytes = itxn[txn#0].ConfigAssetManager
-        let txn.ConfigAssetReserve#0: bytes = itxn[txn#0].ConfigAssetReserve
-        let txn.ConfigAssetFreeze#0: bytes = itxn[txn#0].ConfigAssetFreeze
-        let txn.ConfigAssetClawback#0: bytes = itxn[txn#0].ConfigAssetClawback
+        let txn.ConfigAssetManager#0: bytes[32] = itxn[txn#0].ConfigAssetManager
+        let txn.ConfigAssetReserve#0: bytes[32] = itxn[txn#0].ConfigAssetReserve
+        let txn.ConfigAssetFreeze#0: bytes[32] = itxn[txn#0].ConfigAssetFreeze
+        let txn.ConfigAssetClawback#0: bytes[32] = itxn[txn#0].ConfigAssetClawback
         let txn.FreezeAsset#0: uint64 = itxn[txn#0].FreezeAsset
-        let txn.FreezeAssetAccount#0: bytes = itxn[txn#0].FreezeAssetAccount
+        let txn.FreezeAssetAccount#0: bytes[32] = itxn[txn#0].FreezeAssetAccount
         let txn.FreezeAssetFrozen#0: bool = itxn[txn#0].FreezeAssetFrozen
         let txn.NumAssets#0: uint64 = itxn[txn#0].NumAssets
         let txn.NumApplications#0: uint64 = itxn[txn#0].NumApplications
@@ -661,7 +662,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() 
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
         let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
-        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes = method "delete()void"
+        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "delete()void"
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%2%%param_OnCompletion_idx_0#0: uint64 = DeleteApplication
         let inner_txn_params%2%%OnCompletion_length#0: uint64 = 1u
@@ -732,7 +733,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx() 
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes = method "create()void"
+        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "create()void"
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = compiled.approval_program.0#0
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = compiled.approval_program.1#0
@@ -805,8 +806,8 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx() 
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes = method "greet(string)string"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = 0x0005776f726c64
+        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "greet(string)string"
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x0005776f726c64
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -867,16 +868,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx() 
         itxn_submit
         let txn#0: itxn_group_idx = itxn_group_idx(0)
         let txn._is_last#0: bool = 1u
-        let txn.Sender#0: bytes = itxn[txn#0].Sender
+        let txn.Sender#0: bytes[32] = itxn[txn#0].Sender
         let txn.Fee#0: uint64 = itxn[txn#0].Fee
         let txn.FirstValid#0: uint64 = itxn[txn#0].FirstValid
         let txn.FirstValidTime#0: uint64 = itxn[txn#0].FirstValidTime
         let txn.LastValid#0: uint64 = itxn[txn#0].LastValid
         let txn.Note#0: bytes = itxn[txn#0].Note
         let txn.Lease#0: bytes = itxn[txn#0].Lease
-        let txn.Receiver#0: bytes = itxn[txn#0].Receiver
+        let txn.Receiver#0: bytes[32] = itxn[txn#0].Receiver
         let txn.Amount#0: uint64 = itxn[txn#0].Amount
-        let txn.CloseRemainderTo#0: bytes = itxn[txn#0].CloseRemainderTo
+        let txn.CloseRemainderTo#0: bytes[32] = itxn[txn#0].CloseRemainderTo
         let txn.VotePK#0: bytes = itxn[txn#0].VotePK
         let txn.SelectionPK#0: bytes = itxn[txn#0].SelectionPK
         let txn.VoteFirst#0: uint64 = itxn[txn#0].VoteFirst
@@ -886,9 +887,9 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx() 
         let txn.TypeEnum#0: uint64 = itxn[txn#0].TypeEnum
         let txn.XferAsset#0: uint64 = itxn[txn#0].XferAsset
         let txn.AssetAmount#0: uint64 = itxn[txn#0].AssetAmount
-        let txn.AssetSender#0: bytes = itxn[txn#0].AssetSender
-        let txn.AssetReceiver#0: bytes = itxn[txn#0].AssetReceiver
-        let txn.AssetCloseTo#0: bytes = itxn[txn#0].AssetCloseTo
+        let txn.AssetSender#0: bytes[32] = itxn[txn#0].AssetSender
+        let txn.AssetReceiver#0: bytes[32] = itxn[txn#0].AssetReceiver
+        let txn.AssetCloseTo#0: bytes[32] = itxn[txn#0].AssetCloseTo
         let txn.GroupIndex#0: uint64 = itxn[txn#0].GroupIndex
         let txn.TxID#0: bytes = itxn[txn#0].TxID
         let txn.ApplicationID#0: uint64 = itxn[txn#0].ApplicationID
@@ -897,7 +898,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx() 
         let txn.NumAccounts#0: uint64 = itxn[txn#0].NumAccounts
         let txn.ApprovalProgram#0: bytes = itxn[txn#0].ApprovalProgram
         let txn.ClearStateProgram#0: bytes = itxn[txn#0].ClearStateProgram
-        let txn.RekeyTo#0: bytes = itxn[txn#0].RekeyTo
+        let txn.RekeyTo#0: bytes[32] = itxn[txn#0].RekeyTo
         let txn.ConfigAsset#0: uint64 = itxn[txn#0].ConfigAsset
         let txn.ConfigAssetTotal#0: uint64 = itxn[txn#0].ConfigAssetTotal
         let txn.ConfigAssetDecimals#0: uint64 = itxn[txn#0].ConfigAssetDecimals
@@ -906,12 +907,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx() 
         let txn.ConfigAssetName#0: bytes = itxn[txn#0].ConfigAssetName
         let txn.ConfigAssetURL#0: bytes = itxn[txn#0].ConfigAssetURL
         let txn.ConfigAssetMetadataHash#0: bytes = itxn[txn#0].ConfigAssetMetadataHash
-        let txn.ConfigAssetManager#0: bytes = itxn[txn#0].ConfigAssetManager
-        let txn.ConfigAssetReserve#0: bytes = itxn[txn#0].ConfigAssetReserve
-        let txn.ConfigAssetFreeze#0: bytes = itxn[txn#0].ConfigAssetFreeze
-        let txn.ConfigAssetClawback#0: bytes = itxn[txn#0].ConfigAssetClawback
+        let txn.ConfigAssetManager#0: bytes[32] = itxn[txn#0].ConfigAssetManager
+        let txn.ConfigAssetReserve#0: bytes[32] = itxn[txn#0].ConfigAssetReserve
+        let txn.ConfigAssetFreeze#0: bytes[32] = itxn[txn#0].ConfigAssetFreeze
+        let txn.ConfigAssetClawback#0: bytes[32] = itxn[txn#0].ConfigAssetClawback
         let txn.FreezeAsset#0: uint64 = itxn[txn#0].FreezeAsset
-        let txn.FreezeAssetAccount#0: bytes = itxn[txn#0].FreezeAssetAccount
+        let txn.FreezeAssetAccount#0: bytes[32] = itxn[txn#0].FreezeAssetAccount
         let txn.FreezeAssetFrozen#0: bool = itxn[txn#0].FreezeAssetFrozen
         let txn.NumAssets#0: uint64 = itxn[txn#0].NumAssets
         let txn.NumApplications#0: uint64 = itxn[txn#0].NumApplications
@@ -941,7 +942,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx() 
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
         let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
-        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes = method "delete()void"
+        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "delete()void"
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%2%%param_OnCompletion_idx_0#0: uint64 = DeleteApplication
         let inner_txn_params%2%%OnCompletion_length#0: uint64 = 1u
@@ -1085,7 +1086,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large()
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes = method "get_big_bytes_length()uint64"
+        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "get_big_bytes_length()uint64"
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -1145,16 +1146,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large()
         itxn_submit
         let txn#0: itxn_group_idx = itxn_group_idx(0)
         let txn._is_last#0: bool = 1u
-        let txn.Sender#0: bytes = itxn[txn#0].Sender
+        let txn.Sender#0: bytes[32] = itxn[txn#0].Sender
         let txn.Fee#0: uint64 = itxn[txn#0].Fee
         let txn.FirstValid#0: uint64 = itxn[txn#0].FirstValid
         let txn.FirstValidTime#0: uint64 = itxn[txn#0].FirstValidTime
         let txn.LastValid#0: uint64 = itxn[txn#0].LastValid
         let txn.Note#0: bytes = itxn[txn#0].Note
         let txn.Lease#0: bytes = itxn[txn#0].Lease
-        let txn.Receiver#0: bytes = itxn[txn#0].Receiver
+        let txn.Receiver#0: bytes[32] = itxn[txn#0].Receiver
         let txn.Amount#0: uint64 = itxn[txn#0].Amount
-        let txn.CloseRemainderTo#0: bytes = itxn[txn#0].CloseRemainderTo
+        let txn.CloseRemainderTo#0: bytes[32] = itxn[txn#0].CloseRemainderTo
         let txn.VotePK#0: bytes = itxn[txn#0].VotePK
         let txn.SelectionPK#0: bytes = itxn[txn#0].SelectionPK
         let txn.VoteFirst#0: uint64 = itxn[txn#0].VoteFirst
@@ -1164,9 +1165,9 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large()
         let txn.TypeEnum#0: uint64 = itxn[txn#0].TypeEnum
         let txn.XferAsset#0: uint64 = itxn[txn#0].XferAsset
         let txn.AssetAmount#0: uint64 = itxn[txn#0].AssetAmount
-        let txn.AssetSender#0: bytes = itxn[txn#0].AssetSender
-        let txn.AssetReceiver#0: bytes = itxn[txn#0].AssetReceiver
-        let txn.AssetCloseTo#0: bytes = itxn[txn#0].AssetCloseTo
+        let txn.AssetSender#0: bytes[32] = itxn[txn#0].AssetSender
+        let txn.AssetReceiver#0: bytes[32] = itxn[txn#0].AssetReceiver
+        let txn.AssetCloseTo#0: bytes[32] = itxn[txn#0].AssetCloseTo
         let txn.GroupIndex#0: uint64 = itxn[txn#0].GroupIndex
         let txn.TxID#0: bytes = itxn[txn#0].TxID
         let txn.ApplicationID#0: uint64 = itxn[txn#0].ApplicationID
@@ -1175,7 +1176,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large()
         let txn.NumAccounts#0: uint64 = itxn[txn#0].NumAccounts
         let txn.ApprovalProgram#0: bytes = itxn[txn#0].ApprovalProgram
         let txn.ClearStateProgram#0: bytes = itxn[txn#0].ClearStateProgram
-        let txn.RekeyTo#0: bytes = itxn[txn#0].RekeyTo
+        let txn.RekeyTo#0: bytes[32] = itxn[txn#0].RekeyTo
         let txn.ConfigAsset#0: uint64 = itxn[txn#0].ConfigAsset
         let txn.ConfigAssetTotal#0: uint64 = itxn[txn#0].ConfigAssetTotal
         let txn.ConfigAssetDecimals#0: uint64 = itxn[txn#0].ConfigAssetDecimals
@@ -1184,12 +1185,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large()
         let txn.ConfigAssetName#0: bytes = itxn[txn#0].ConfigAssetName
         let txn.ConfigAssetURL#0: bytes = itxn[txn#0].ConfigAssetURL
         let txn.ConfigAssetMetadataHash#0: bytes = itxn[txn#0].ConfigAssetMetadataHash
-        let txn.ConfigAssetManager#0: bytes = itxn[txn#0].ConfigAssetManager
-        let txn.ConfigAssetReserve#0: bytes = itxn[txn#0].ConfigAssetReserve
-        let txn.ConfigAssetFreeze#0: bytes = itxn[txn#0].ConfigAssetFreeze
-        let txn.ConfigAssetClawback#0: bytes = itxn[txn#0].ConfigAssetClawback
+        let txn.ConfigAssetManager#0: bytes[32] = itxn[txn#0].ConfigAssetManager
+        let txn.ConfigAssetReserve#0: bytes[32] = itxn[txn#0].ConfigAssetReserve
+        let txn.ConfigAssetFreeze#0: bytes[32] = itxn[txn#0].ConfigAssetFreeze
+        let txn.ConfigAssetClawback#0: bytes[32] = itxn[txn#0].ConfigAssetClawback
         let txn.FreezeAsset#0: uint64 = itxn[txn#0].FreezeAsset
-        let txn.FreezeAssetAccount#0: bytes = itxn[txn#0].FreezeAssetAccount
+        let txn.FreezeAssetAccount#0: bytes[32] = itxn[txn#0].FreezeAssetAccount
         let txn.FreezeAssetFrozen#0: bool = itxn[txn#0].FreezeAssetFrozen
         let txn.NumAssets#0: uint64 = itxn[txn#0].NumAssets
         let txn.NumApplications#0: uint64 = itxn[txn#0].NumApplications
@@ -1206,11 +1207,11 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large()
         let txn.StateProofPK#0: bytes = itxn[txn#0].StateProofPK
         let txn.NumApprovalProgramPages#0: uint64 = itxn[txn#0].NumApprovalProgramPages
         let txn.NumClearStateProgramPages#0: uint64 = itxn[txn#0].NumClearStateProgramPages
-        let tmp%0#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let tmp%0#0: bytes[8] = ((extract 4 0) txn.LastLog#0)
         let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // ARC4 prefix is valid
-        let result#0: bytes = tmp%0#0
+        let result#0: bytes[8] = tmp%0#0
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
         let inner_txn_params%2%%param_Fee_idx_0#0: uint64 = 0u
@@ -1219,7 +1220,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large()
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
         let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
-        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes = method "delete()void"
+        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "delete()void"
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%2%%param_OnCompletion_idx_0#0: uint64 = DeleteApplication
         let inner_txn_params%2%%OnCompletion_length#0: uint64 = 1u
@@ -1291,8 +1292,8 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create() -> void:
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes = method "create(string)void"
-        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = 0x000568656c6c6f
+        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "create(string)void"
+        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x000568656c6c6f
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = compiled_contract('test_cases.compile.apps.Hello', field=ApprovalProgramPages, program_page=0)
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = compiled_contract('test_cases.compile.apps.Hello', field=ApprovalProgramPages, program_page=1)
@@ -1374,8 +1375,8 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create() -> void:
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes = method "greet(string)string"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = 0x0005776f726c64
+        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "greet(string)string"
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x0005776f726c64
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -1443,16 +1444,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create() -> void:
         let result#0: bytes = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
-        let _txn.Sender#0: bytes = itxn[_txn#0].Sender
+        let _txn.Sender#0: bytes[32] = itxn[_txn#0].Sender
         let _txn.Fee#0: uint64 = itxn[_txn#0].Fee
         let _txn.FirstValid#0: uint64 = itxn[_txn#0].FirstValid
         let _txn.FirstValidTime#0: uint64 = itxn[_txn#0].FirstValidTime
         let _txn.LastValid#0: uint64 = itxn[_txn#0].LastValid
         let _txn.Note#0: bytes = itxn[_txn#0].Note
         let _txn.Lease#0: bytes = itxn[_txn#0].Lease
-        let _txn.Receiver#0: bytes = itxn[_txn#0].Receiver
+        let _txn.Receiver#0: bytes[32] = itxn[_txn#0].Receiver
         let _txn.Amount#0: uint64 = itxn[_txn#0].Amount
-        let _txn.CloseRemainderTo#0: bytes = itxn[_txn#0].CloseRemainderTo
+        let _txn.CloseRemainderTo#0: bytes[32] = itxn[_txn#0].CloseRemainderTo
         let _txn.VotePK#0: bytes = itxn[_txn#0].VotePK
         let _txn.SelectionPK#0: bytes = itxn[_txn#0].SelectionPK
         let _txn.VoteFirst#0: uint64 = itxn[_txn#0].VoteFirst
@@ -1462,9 +1463,9 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create() -> void:
         let _txn.TypeEnum#0: uint64 = itxn[_txn#0].TypeEnum
         let _txn.XferAsset#0: uint64 = itxn[_txn#0].XferAsset
         let _txn.AssetAmount#0: uint64 = itxn[_txn#0].AssetAmount
-        let _txn.AssetSender#0: bytes = itxn[_txn#0].AssetSender
-        let _txn.AssetReceiver#0: bytes = itxn[_txn#0].AssetReceiver
-        let _txn.AssetCloseTo#0: bytes = itxn[_txn#0].AssetCloseTo
+        let _txn.AssetSender#0: bytes[32] = itxn[_txn#0].AssetSender
+        let _txn.AssetReceiver#0: bytes[32] = itxn[_txn#0].AssetReceiver
+        let _txn.AssetCloseTo#0: bytes[32] = itxn[_txn#0].AssetCloseTo
         let _txn.GroupIndex#0: uint64 = itxn[_txn#0].GroupIndex
         let _txn.TxID#0: bytes = itxn[_txn#0].TxID
         let _txn.ApplicationID#0: uint64 = itxn[_txn#0].ApplicationID
@@ -1473,7 +1474,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create() -> void:
         let _txn.NumAccounts#0: uint64 = itxn[_txn#0].NumAccounts
         let _txn.ApprovalProgram#0: bytes = itxn[_txn#0].ApprovalProgram
         let _txn.ClearStateProgram#0: bytes = itxn[_txn#0].ClearStateProgram
-        let _txn.RekeyTo#0: bytes = itxn[_txn#0].RekeyTo
+        let _txn.RekeyTo#0: bytes[32] = itxn[_txn#0].RekeyTo
         let _txn.ConfigAsset#0: uint64 = itxn[_txn#0].ConfigAsset
         let _txn.ConfigAssetTotal#0: uint64 = itxn[_txn#0].ConfigAssetTotal
         let _txn.ConfigAssetDecimals#0: uint64 = itxn[_txn#0].ConfigAssetDecimals
@@ -1482,12 +1483,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create() -> void:
         let _txn.ConfigAssetName#0: bytes = itxn[_txn#0].ConfigAssetName
         let _txn.ConfigAssetURL#0: bytes = itxn[_txn#0].ConfigAssetURL
         let _txn.ConfigAssetMetadataHash#0: bytes = itxn[_txn#0].ConfigAssetMetadataHash
-        let _txn.ConfigAssetManager#0: bytes = itxn[_txn#0].ConfigAssetManager
-        let _txn.ConfigAssetReserve#0: bytes = itxn[_txn#0].ConfigAssetReserve
-        let _txn.ConfigAssetFreeze#0: bytes = itxn[_txn#0].ConfigAssetFreeze
-        let _txn.ConfigAssetClawback#0: bytes = itxn[_txn#0].ConfigAssetClawback
+        let _txn.ConfigAssetManager#0: bytes[32] = itxn[_txn#0].ConfigAssetManager
+        let _txn.ConfigAssetReserve#0: bytes[32] = itxn[_txn#0].ConfigAssetReserve
+        let _txn.ConfigAssetFreeze#0: bytes[32] = itxn[_txn#0].ConfigAssetFreeze
+        let _txn.ConfigAssetClawback#0: bytes[32] = itxn[_txn#0].ConfigAssetClawback
         let _txn.FreezeAsset#0: uint64 = itxn[_txn#0].FreezeAsset
-        let _txn.FreezeAssetAccount#0: bytes = itxn[_txn#0].FreezeAssetAccount
+        let _txn.FreezeAssetAccount#0: bytes[32] = itxn[_txn#0].FreezeAssetAccount
         let _txn.FreezeAssetFrozen#0: bool = itxn[_txn#0].FreezeAssetFrozen
         let _txn.NumAssets#0: uint64 = itxn[_txn#0].NumAssets
         let _txn.NumApplications#0: uint64 = itxn[_txn#0].NumApplications
@@ -1510,7 +1511,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create() -> void:
         let inner_txn_params%2%%Fee_length#0: uint64 = 1u
         let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes = method "delete()void"
+        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "delete()void"
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
         let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
@@ -1583,7 +1584,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl() -> vo
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes = method "create()void"
+        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "create()void"
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = compiled.approval_program.0#0
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = compiled.approval_program.1#0
@@ -1664,8 +1665,8 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl() -> vo
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes = method "greet(string)string"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = 0x0005776f726c64
+        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "greet(string)string"
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x0005776f726c64
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -1733,16 +1734,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl() -> vo
         let result#0: bytes = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
-        let _txn.Sender#0: bytes = itxn[_txn#0].Sender
+        let _txn.Sender#0: bytes[32] = itxn[_txn#0].Sender
         let _txn.Fee#0: uint64 = itxn[_txn#0].Fee
         let _txn.FirstValid#0: uint64 = itxn[_txn#0].FirstValid
         let _txn.FirstValidTime#0: uint64 = itxn[_txn#0].FirstValidTime
         let _txn.LastValid#0: uint64 = itxn[_txn#0].LastValid
         let _txn.Note#0: bytes = itxn[_txn#0].Note
         let _txn.Lease#0: bytes = itxn[_txn#0].Lease
-        let _txn.Receiver#0: bytes = itxn[_txn#0].Receiver
+        let _txn.Receiver#0: bytes[32] = itxn[_txn#0].Receiver
         let _txn.Amount#0: uint64 = itxn[_txn#0].Amount
-        let _txn.CloseRemainderTo#0: bytes = itxn[_txn#0].CloseRemainderTo
+        let _txn.CloseRemainderTo#0: bytes[32] = itxn[_txn#0].CloseRemainderTo
         let _txn.VotePK#0: bytes = itxn[_txn#0].VotePK
         let _txn.SelectionPK#0: bytes = itxn[_txn#0].SelectionPK
         let _txn.VoteFirst#0: uint64 = itxn[_txn#0].VoteFirst
@@ -1752,9 +1753,9 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl() -> vo
         let _txn.TypeEnum#0: uint64 = itxn[_txn#0].TypeEnum
         let _txn.XferAsset#0: uint64 = itxn[_txn#0].XferAsset
         let _txn.AssetAmount#0: uint64 = itxn[_txn#0].AssetAmount
-        let _txn.AssetSender#0: bytes = itxn[_txn#0].AssetSender
-        let _txn.AssetReceiver#0: bytes = itxn[_txn#0].AssetReceiver
-        let _txn.AssetCloseTo#0: bytes = itxn[_txn#0].AssetCloseTo
+        let _txn.AssetSender#0: bytes[32] = itxn[_txn#0].AssetSender
+        let _txn.AssetReceiver#0: bytes[32] = itxn[_txn#0].AssetReceiver
+        let _txn.AssetCloseTo#0: bytes[32] = itxn[_txn#0].AssetCloseTo
         let _txn.GroupIndex#0: uint64 = itxn[_txn#0].GroupIndex
         let _txn.TxID#0: bytes = itxn[_txn#0].TxID
         let _txn.ApplicationID#0: uint64 = itxn[_txn#0].ApplicationID
@@ -1763,7 +1764,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl() -> vo
         let _txn.NumAccounts#0: uint64 = itxn[_txn#0].NumAccounts
         let _txn.ApprovalProgram#0: bytes = itxn[_txn#0].ApprovalProgram
         let _txn.ClearStateProgram#0: bytes = itxn[_txn#0].ClearStateProgram
-        let _txn.RekeyTo#0: bytes = itxn[_txn#0].RekeyTo
+        let _txn.RekeyTo#0: bytes[32] = itxn[_txn#0].RekeyTo
         let _txn.ConfigAsset#0: uint64 = itxn[_txn#0].ConfigAsset
         let _txn.ConfigAssetTotal#0: uint64 = itxn[_txn#0].ConfigAssetTotal
         let _txn.ConfigAssetDecimals#0: uint64 = itxn[_txn#0].ConfigAssetDecimals
@@ -1772,12 +1773,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl() -> vo
         let _txn.ConfigAssetName#0: bytes = itxn[_txn#0].ConfigAssetName
         let _txn.ConfigAssetURL#0: bytes = itxn[_txn#0].ConfigAssetURL
         let _txn.ConfigAssetMetadataHash#0: bytes = itxn[_txn#0].ConfigAssetMetadataHash
-        let _txn.ConfigAssetManager#0: bytes = itxn[_txn#0].ConfigAssetManager
-        let _txn.ConfigAssetReserve#0: bytes = itxn[_txn#0].ConfigAssetReserve
-        let _txn.ConfigAssetFreeze#0: bytes = itxn[_txn#0].ConfigAssetFreeze
-        let _txn.ConfigAssetClawback#0: bytes = itxn[_txn#0].ConfigAssetClawback
+        let _txn.ConfigAssetManager#0: bytes[32] = itxn[_txn#0].ConfigAssetManager
+        let _txn.ConfigAssetReserve#0: bytes[32] = itxn[_txn#0].ConfigAssetReserve
+        let _txn.ConfigAssetFreeze#0: bytes[32] = itxn[_txn#0].ConfigAssetFreeze
+        let _txn.ConfigAssetClawback#0: bytes[32] = itxn[_txn#0].ConfigAssetClawback
         let _txn.FreezeAsset#0: uint64 = itxn[_txn#0].FreezeAsset
-        let _txn.FreezeAssetAccount#0: bytes = itxn[_txn#0].FreezeAssetAccount
+        let _txn.FreezeAssetAccount#0: bytes[32] = itxn[_txn#0].FreezeAssetAccount
         let _txn.FreezeAssetFrozen#0: bool = itxn[_txn#0].FreezeAssetFrozen
         let _txn.NumAssets#0: uint64 = itxn[_txn#0].NumAssets
         let _txn.NumApplications#0: uint64 = itxn[_txn#0].NumApplications
@@ -1800,7 +1801,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl() -> vo
         let inner_txn_params%2%%Fee_length#0: uint64 = 1u
         let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes = method "delete()void"
+        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "delete()void"
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
         let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
@@ -1873,7 +1874,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx() -> vo
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes = method "create()void"
+        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "create()void"
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = compiled.approval_program.0#0
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = compiled.approval_program.1#0
@@ -1954,8 +1955,8 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx() -> vo
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes = method "greet(string)string"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = 0x0005776f726c64
+        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "greet(string)string"
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x0005776f726c64
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -2023,16 +2024,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx() -> vo
         let result#0: bytes = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
-        let _txn.Sender#0: bytes = itxn[_txn#0].Sender
+        let _txn.Sender#0: bytes[32] = itxn[_txn#0].Sender
         let _txn.Fee#0: uint64 = itxn[_txn#0].Fee
         let _txn.FirstValid#0: uint64 = itxn[_txn#0].FirstValid
         let _txn.FirstValidTime#0: uint64 = itxn[_txn#0].FirstValidTime
         let _txn.LastValid#0: uint64 = itxn[_txn#0].LastValid
         let _txn.Note#0: bytes = itxn[_txn#0].Note
         let _txn.Lease#0: bytes = itxn[_txn#0].Lease
-        let _txn.Receiver#0: bytes = itxn[_txn#0].Receiver
+        let _txn.Receiver#0: bytes[32] = itxn[_txn#0].Receiver
         let _txn.Amount#0: uint64 = itxn[_txn#0].Amount
-        let _txn.CloseRemainderTo#0: bytes = itxn[_txn#0].CloseRemainderTo
+        let _txn.CloseRemainderTo#0: bytes[32] = itxn[_txn#0].CloseRemainderTo
         let _txn.VotePK#0: bytes = itxn[_txn#0].VotePK
         let _txn.SelectionPK#0: bytes = itxn[_txn#0].SelectionPK
         let _txn.VoteFirst#0: uint64 = itxn[_txn#0].VoteFirst
@@ -2042,9 +2043,9 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx() -> vo
         let _txn.TypeEnum#0: uint64 = itxn[_txn#0].TypeEnum
         let _txn.XferAsset#0: uint64 = itxn[_txn#0].XferAsset
         let _txn.AssetAmount#0: uint64 = itxn[_txn#0].AssetAmount
-        let _txn.AssetSender#0: bytes = itxn[_txn#0].AssetSender
-        let _txn.AssetReceiver#0: bytes = itxn[_txn#0].AssetReceiver
-        let _txn.AssetCloseTo#0: bytes = itxn[_txn#0].AssetCloseTo
+        let _txn.AssetSender#0: bytes[32] = itxn[_txn#0].AssetSender
+        let _txn.AssetReceiver#0: bytes[32] = itxn[_txn#0].AssetReceiver
+        let _txn.AssetCloseTo#0: bytes[32] = itxn[_txn#0].AssetCloseTo
         let _txn.GroupIndex#0: uint64 = itxn[_txn#0].GroupIndex
         let _txn.TxID#0: bytes = itxn[_txn#0].TxID
         let _txn.ApplicationID#0: uint64 = itxn[_txn#0].ApplicationID
@@ -2053,7 +2054,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx() -> vo
         let _txn.NumAccounts#0: uint64 = itxn[_txn#0].NumAccounts
         let _txn.ApprovalProgram#0: bytes = itxn[_txn#0].ApprovalProgram
         let _txn.ClearStateProgram#0: bytes = itxn[_txn#0].ClearStateProgram
-        let _txn.RekeyTo#0: bytes = itxn[_txn#0].RekeyTo
+        let _txn.RekeyTo#0: bytes[32] = itxn[_txn#0].RekeyTo
         let _txn.ConfigAsset#0: uint64 = itxn[_txn#0].ConfigAsset
         let _txn.ConfigAssetTotal#0: uint64 = itxn[_txn#0].ConfigAssetTotal
         let _txn.ConfigAssetDecimals#0: uint64 = itxn[_txn#0].ConfigAssetDecimals
@@ -2062,12 +2063,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx() -> vo
         let _txn.ConfigAssetName#0: bytes = itxn[_txn#0].ConfigAssetName
         let _txn.ConfigAssetURL#0: bytes = itxn[_txn#0].ConfigAssetURL
         let _txn.ConfigAssetMetadataHash#0: bytes = itxn[_txn#0].ConfigAssetMetadataHash
-        let _txn.ConfigAssetManager#0: bytes = itxn[_txn#0].ConfigAssetManager
-        let _txn.ConfigAssetReserve#0: bytes = itxn[_txn#0].ConfigAssetReserve
-        let _txn.ConfigAssetFreeze#0: bytes = itxn[_txn#0].ConfigAssetFreeze
-        let _txn.ConfigAssetClawback#0: bytes = itxn[_txn#0].ConfigAssetClawback
+        let _txn.ConfigAssetManager#0: bytes[32] = itxn[_txn#0].ConfigAssetManager
+        let _txn.ConfigAssetReserve#0: bytes[32] = itxn[_txn#0].ConfigAssetReserve
+        let _txn.ConfigAssetFreeze#0: bytes[32] = itxn[_txn#0].ConfigAssetFreeze
+        let _txn.ConfigAssetClawback#0: bytes[32] = itxn[_txn#0].ConfigAssetClawback
         let _txn.FreezeAsset#0: uint64 = itxn[_txn#0].FreezeAsset
-        let _txn.FreezeAssetAccount#0: bytes = itxn[_txn#0].FreezeAssetAccount
+        let _txn.FreezeAssetAccount#0: bytes[32] = itxn[_txn#0].FreezeAssetAccount
         let _txn.FreezeAssetFrozen#0: bool = itxn[_txn#0].FreezeAssetFrozen
         let _txn.NumAssets#0: uint64 = itxn[_txn#0].NumAssets
         let _txn.NumApplications#0: uint64 = itxn[_txn#0].NumApplications
@@ -2090,7 +2091,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx() -> vo
         let inner_txn_params%2%%Fee_length#0: uint64 = 1u
         let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes = method "delete()void"
+        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "delete()void"
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
         let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
@@ -2241,7 +2242,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large() -> v
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes = method "get_big_bytes_length()uint64"
+        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "get_big_bytes_length()uint64"
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -2300,7 +2301,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large() -> v
     block@2: // next_txn_L227
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let tmp%0#0: bytes[8] = ((extract 4 0) awst_tmp%0#0)
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // ARC4 prefix is valid
@@ -2308,16 +2309,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large() -> v
         let result#0: uint64 = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
-        let _txn.Sender#0: bytes = itxn[_txn#0].Sender
+        let _txn.Sender#0: bytes[32] = itxn[_txn#0].Sender
         let _txn.Fee#0: uint64 = itxn[_txn#0].Fee
         let _txn.FirstValid#0: uint64 = itxn[_txn#0].FirstValid
         let _txn.FirstValidTime#0: uint64 = itxn[_txn#0].FirstValidTime
         let _txn.LastValid#0: uint64 = itxn[_txn#0].LastValid
         let _txn.Note#0: bytes = itxn[_txn#0].Note
         let _txn.Lease#0: bytes = itxn[_txn#0].Lease
-        let _txn.Receiver#0: bytes = itxn[_txn#0].Receiver
+        let _txn.Receiver#0: bytes[32] = itxn[_txn#0].Receiver
         let _txn.Amount#0: uint64 = itxn[_txn#0].Amount
-        let _txn.CloseRemainderTo#0: bytes = itxn[_txn#0].CloseRemainderTo
+        let _txn.CloseRemainderTo#0: bytes[32] = itxn[_txn#0].CloseRemainderTo
         let _txn.VotePK#0: bytes = itxn[_txn#0].VotePK
         let _txn.SelectionPK#0: bytes = itxn[_txn#0].SelectionPK
         let _txn.VoteFirst#0: uint64 = itxn[_txn#0].VoteFirst
@@ -2327,9 +2328,9 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large() -> v
         let _txn.TypeEnum#0: uint64 = itxn[_txn#0].TypeEnum
         let _txn.XferAsset#0: uint64 = itxn[_txn#0].XferAsset
         let _txn.AssetAmount#0: uint64 = itxn[_txn#0].AssetAmount
-        let _txn.AssetSender#0: bytes = itxn[_txn#0].AssetSender
-        let _txn.AssetReceiver#0: bytes = itxn[_txn#0].AssetReceiver
-        let _txn.AssetCloseTo#0: bytes = itxn[_txn#0].AssetCloseTo
+        let _txn.AssetSender#0: bytes[32] = itxn[_txn#0].AssetSender
+        let _txn.AssetReceiver#0: bytes[32] = itxn[_txn#0].AssetReceiver
+        let _txn.AssetCloseTo#0: bytes[32] = itxn[_txn#0].AssetCloseTo
         let _txn.GroupIndex#0: uint64 = itxn[_txn#0].GroupIndex
         let _txn.TxID#0: bytes = itxn[_txn#0].TxID
         let _txn.ApplicationID#0: uint64 = itxn[_txn#0].ApplicationID
@@ -2338,7 +2339,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large() -> v
         let _txn.NumAccounts#0: uint64 = itxn[_txn#0].NumAccounts
         let _txn.ApprovalProgram#0: bytes = itxn[_txn#0].ApprovalProgram
         let _txn.ClearStateProgram#0: bytes = itxn[_txn#0].ClearStateProgram
-        let _txn.RekeyTo#0: bytes = itxn[_txn#0].RekeyTo
+        let _txn.RekeyTo#0: bytes[32] = itxn[_txn#0].RekeyTo
         let _txn.ConfigAsset#0: uint64 = itxn[_txn#0].ConfigAsset
         let _txn.ConfigAssetTotal#0: uint64 = itxn[_txn#0].ConfigAssetTotal
         let _txn.ConfigAssetDecimals#0: uint64 = itxn[_txn#0].ConfigAssetDecimals
@@ -2347,12 +2348,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large() -> v
         let _txn.ConfigAssetName#0: bytes = itxn[_txn#0].ConfigAssetName
         let _txn.ConfigAssetURL#0: bytes = itxn[_txn#0].ConfigAssetURL
         let _txn.ConfigAssetMetadataHash#0: bytes = itxn[_txn#0].ConfigAssetMetadataHash
-        let _txn.ConfigAssetManager#0: bytes = itxn[_txn#0].ConfigAssetManager
-        let _txn.ConfigAssetReserve#0: bytes = itxn[_txn#0].ConfigAssetReserve
-        let _txn.ConfigAssetFreeze#0: bytes = itxn[_txn#0].ConfigAssetFreeze
-        let _txn.ConfigAssetClawback#0: bytes = itxn[_txn#0].ConfigAssetClawback
+        let _txn.ConfigAssetManager#0: bytes[32] = itxn[_txn#0].ConfigAssetManager
+        let _txn.ConfigAssetReserve#0: bytes[32] = itxn[_txn#0].ConfigAssetReserve
+        let _txn.ConfigAssetFreeze#0: bytes[32] = itxn[_txn#0].ConfigAssetFreeze
+        let _txn.ConfigAssetClawback#0: bytes[32] = itxn[_txn#0].ConfigAssetClawback
         let _txn.FreezeAsset#0: uint64 = itxn[_txn#0].FreezeAsset
-        let _txn.FreezeAssetAccount#0: bytes = itxn[_txn#0].FreezeAssetAccount
+        let _txn.FreezeAssetAccount#0: bytes[32] = itxn[_txn#0].FreezeAssetAccount
         let _txn.FreezeAssetFrozen#0: bool = itxn[_txn#0].FreezeAssetFrozen
         let _txn.NumAssets#0: uint64 = itxn[_txn#0].NumAssets
         let _txn.NumApplications#0: uint64 = itxn[_txn#0].NumApplications
@@ -2377,7 +2378,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large() -> v
         let inner_txn_params%2%%Fee_length#0: uint64 = 1u
         let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes = method "delete()void"
+        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "delete()void"
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
@@ -2450,10 +2451,10 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
         let length%0#0: uint64 = (len "hey")
-        let as_bytes%0#0: bytes = (itob length%0#0)
+        let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 "hey")
-        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes = method "create(string)void"
+        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "create(string)void"
         let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%0#0
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = compiled.approval_program.0#1
@@ -2552,8 +2553,8 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes = method "greet(string)string"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = 0x00057468657265
+        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "greet(string)string"
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x00057468657265
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -2621,16 +2622,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         let result#0: bytes = tmp%7#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
-        let _txn.Sender#0: bytes = itxn[_txn#0].Sender
+        let _txn.Sender#0: bytes[32] = itxn[_txn#0].Sender
         let _txn.Fee#0: uint64 = itxn[_txn#0].Fee
         let _txn.FirstValid#0: uint64 = itxn[_txn#0].FirstValid
         let _txn.FirstValidTime#0: uint64 = itxn[_txn#0].FirstValidTime
         let _txn.LastValid#0: uint64 = itxn[_txn#0].LastValid
         let _txn.Note#0: bytes = itxn[_txn#0].Note
         let _txn.Lease#0: bytes = itxn[_txn#0].Lease
-        let _txn.Receiver#0: bytes = itxn[_txn#0].Receiver
+        let _txn.Receiver#0: bytes[32] = itxn[_txn#0].Receiver
         let _txn.Amount#0: uint64 = itxn[_txn#0].Amount
-        let _txn.CloseRemainderTo#0: bytes = itxn[_txn#0].CloseRemainderTo
+        let _txn.CloseRemainderTo#0: bytes[32] = itxn[_txn#0].CloseRemainderTo
         let _txn.VotePK#0: bytes = itxn[_txn#0].VotePK
         let _txn.SelectionPK#0: bytes = itxn[_txn#0].SelectionPK
         let _txn.VoteFirst#0: uint64 = itxn[_txn#0].VoteFirst
@@ -2640,9 +2641,9 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         let _txn.TypeEnum#0: uint64 = itxn[_txn#0].TypeEnum
         let _txn.XferAsset#0: uint64 = itxn[_txn#0].XferAsset
         let _txn.AssetAmount#0: uint64 = itxn[_txn#0].AssetAmount
-        let _txn.AssetSender#0: bytes = itxn[_txn#0].AssetSender
-        let _txn.AssetReceiver#0: bytes = itxn[_txn#0].AssetReceiver
-        let _txn.AssetCloseTo#0: bytes = itxn[_txn#0].AssetCloseTo
+        let _txn.AssetSender#0: bytes[32] = itxn[_txn#0].AssetSender
+        let _txn.AssetReceiver#0: bytes[32] = itxn[_txn#0].AssetReceiver
+        let _txn.AssetCloseTo#0: bytes[32] = itxn[_txn#0].AssetCloseTo
         let _txn.GroupIndex#0: uint64 = itxn[_txn#0].GroupIndex
         let _txn.TxID#0: bytes = itxn[_txn#0].TxID
         let _txn.ApplicationID#0: uint64 = itxn[_txn#0].ApplicationID
@@ -2651,7 +2652,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         let _txn.NumAccounts#0: uint64 = itxn[_txn#0].NumAccounts
         let _txn.ApprovalProgram#0: bytes = itxn[_txn#0].ApprovalProgram
         let _txn.ClearStateProgram#0: bytes = itxn[_txn#0].ClearStateProgram
-        let _txn.RekeyTo#0: bytes = itxn[_txn#0].RekeyTo
+        let _txn.RekeyTo#0: bytes[32] = itxn[_txn#0].RekeyTo
         let _txn.ConfigAsset#0: uint64 = itxn[_txn#0].ConfigAsset
         let _txn.ConfigAssetTotal#0: uint64 = itxn[_txn#0].ConfigAssetTotal
         let _txn.ConfigAssetDecimals#0: uint64 = itxn[_txn#0].ConfigAssetDecimals
@@ -2660,12 +2661,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         let _txn.ConfigAssetName#0: bytes = itxn[_txn#0].ConfigAssetName
         let _txn.ConfigAssetURL#0: bytes = itxn[_txn#0].ConfigAssetURL
         let _txn.ConfigAssetMetadataHash#0: bytes = itxn[_txn#0].ConfigAssetMetadataHash
-        let _txn.ConfigAssetManager#0: bytes = itxn[_txn#0].ConfigAssetManager
-        let _txn.ConfigAssetReserve#0: bytes = itxn[_txn#0].ConfigAssetReserve
-        let _txn.ConfigAssetFreeze#0: bytes = itxn[_txn#0].ConfigAssetFreeze
-        let _txn.ConfigAssetClawback#0: bytes = itxn[_txn#0].ConfigAssetClawback
+        let _txn.ConfigAssetManager#0: bytes[32] = itxn[_txn#0].ConfigAssetManager
+        let _txn.ConfigAssetReserve#0: bytes[32] = itxn[_txn#0].ConfigAssetReserve
+        let _txn.ConfigAssetFreeze#0: bytes[32] = itxn[_txn#0].ConfigAssetFreeze
+        let _txn.ConfigAssetClawback#0: bytes[32] = itxn[_txn#0].ConfigAssetClawback
         let _txn.FreezeAsset#0: uint64 = itxn[_txn#0].FreezeAsset
-        let _txn.FreezeAssetAccount#0: bytes = itxn[_txn#0].FreezeAssetAccount
+        let _txn.FreezeAssetAccount#0: bytes[32] = itxn[_txn#0].FreezeAssetAccount
         let _txn.FreezeAssetFrozen#0: bool = itxn[_txn#0].FreezeAssetFrozen
         let _txn.NumAssets#0: uint64 = itxn[_txn#0].NumAssets
         let _txn.NumApplications#0: uint64 = itxn[_txn#0].NumApplications
@@ -2690,7 +2691,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         let inner_txn_params%2%%Fee_length#0: uint64 = 1u
         let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes = method "delete()void"
+        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "delete()void"
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
@@ -2760,7 +2761,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes = method "create()void"
+        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "create()void"
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = compiled_contract('test_cases.compile.apps.HelloTmpl', field=ApprovalProgramPages, program_page=0, GREETING="hi")
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = compiled_contract('test_cases.compile.apps.HelloTmpl', field=ApprovalProgramPages, program_page=1, GREETING="hi")
@@ -2841,8 +2842,8 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes = method "greet(string)string"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = 0x00057468657265
+        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "greet(string)string"
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x00057468657265
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -2910,16 +2911,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         let result#0: bytes = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
-        let _txn.Sender#0: bytes = itxn[_txn#0].Sender
+        let _txn.Sender#0: bytes[32] = itxn[_txn#0].Sender
         let _txn.Fee#0: uint64 = itxn[_txn#0].Fee
         let _txn.FirstValid#0: uint64 = itxn[_txn#0].FirstValid
         let _txn.FirstValidTime#0: uint64 = itxn[_txn#0].FirstValidTime
         let _txn.LastValid#0: uint64 = itxn[_txn#0].LastValid
         let _txn.Note#0: bytes = itxn[_txn#0].Note
         let _txn.Lease#0: bytes = itxn[_txn#0].Lease
-        let _txn.Receiver#0: bytes = itxn[_txn#0].Receiver
+        let _txn.Receiver#0: bytes[32] = itxn[_txn#0].Receiver
         let _txn.Amount#0: uint64 = itxn[_txn#0].Amount
-        let _txn.CloseRemainderTo#0: bytes = itxn[_txn#0].CloseRemainderTo
+        let _txn.CloseRemainderTo#0: bytes[32] = itxn[_txn#0].CloseRemainderTo
         let _txn.VotePK#0: bytes = itxn[_txn#0].VotePK
         let _txn.SelectionPK#0: bytes = itxn[_txn#0].SelectionPK
         let _txn.VoteFirst#0: uint64 = itxn[_txn#0].VoteFirst
@@ -2929,9 +2930,9 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         let _txn.TypeEnum#0: uint64 = itxn[_txn#0].TypeEnum
         let _txn.XferAsset#0: uint64 = itxn[_txn#0].XferAsset
         let _txn.AssetAmount#0: uint64 = itxn[_txn#0].AssetAmount
-        let _txn.AssetSender#0: bytes = itxn[_txn#0].AssetSender
-        let _txn.AssetReceiver#0: bytes = itxn[_txn#0].AssetReceiver
-        let _txn.AssetCloseTo#0: bytes = itxn[_txn#0].AssetCloseTo
+        let _txn.AssetSender#0: bytes[32] = itxn[_txn#0].AssetSender
+        let _txn.AssetReceiver#0: bytes[32] = itxn[_txn#0].AssetReceiver
+        let _txn.AssetCloseTo#0: bytes[32] = itxn[_txn#0].AssetCloseTo
         let _txn.GroupIndex#0: uint64 = itxn[_txn#0].GroupIndex
         let _txn.TxID#0: bytes = itxn[_txn#0].TxID
         let _txn.ApplicationID#0: uint64 = itxn[_txn#0].ApplicationID
@@ -2940,7 +2941,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         let _txn.NumAccounts#0: uint64 = itxn[_txn#0].NumAccounts
         let _txn.ApprovalProgram#0: bytes = itxn[_txn#0].ApprovalProgram
         let _txn.ClearStateProgram#0: bytes = itxn[_txn#0].ClearStateProgram
-        let _txn.RekeyTo#0: bytes = itxn[_txn#0].RekeyTo
+        let _txn.RekeyTo#0: bytes[32] = itxn[_txn#0].RekeyTo
         let _txn.ConfigAsset#0: uint64 = itxn[_txn#0].ConfigAsset
         let _txn.ConfigAssetTotal#0: uint64 = itxn[_txn#0].ConfigAssetTotal
         let _txn.ConfigAssetDecimals#0: uint64 = itxn[_txn#0].ConfigAssetDecimals
@@ -2949,12 +2950,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         let _txn.ConfigAssetName#0: bytes = itxn[_txn#0].ConfigAssetName
         let _txn.ConfigAssetURL#0: bytes = itxn[_txn#0].ConfigAssetURL
         let _txn.ConfigAssetMetadataHash#0: bytes = itxn[_txn#0].ConfigAssetMetadataHash
-        let _txn.ConfigAssetManager#0: bytes = itxn[_txn#0].ConfigAssetManager
-        let _txn.ConfigAssetReserve#0: bytes = itxn[_txn#0].ConfigAssetReserve
-        let _txn.ConfigAssetFreeze#0: bytes = itxn[_txn#0].ConfigAssetFreeze
-        let _txn.ConfigAssetClawback#0: bytes = itxn[_txn#0].ConfigAssetClawback
+        let _txn.ConfigAssetManager#0: bytes[32] = itxn[_txn#0].ConfigAssetManager
+        let _txn.ConfigAssetReserve#0: bytes[32] = itxn[_txn#0].ConfigAssetReserve
+        let _txn.ConfigAssetFreeze#0: bytes[32] = itxn[_txn#0].ConfigAssetFreeze
+        let _txn.ConfigAssetClawback#0: bytes[32] = itxn[_txn#0].ConfigAssetClawback
         let _txn.FreezeAsset#0: uint64 = itxn[_txn#0].FreezeAsset
-        let _txn.FreezeAssetAccount#0: bytes = itxn[_txn#0].FreezeAssetAccount
+        let _txn.FreezeAssetAccount#0: bytes[32] = itxn[_txn#0].FreezeAssetAccount
         let _txn.FreezeAssetFrozen#0: bool = itxn[_txn#0].FreezeAssetFrozen
         let _txn.NumAssets#0: uint64 = itxn[_txn#0].NumAssets
         let _txn.NumApplications#0: uint64 = itxn[_txn#0].NumApplications
@@ -3051,8 +3052,8 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         let inner_txn_params%3%%Fee_length#0: uint64 = 1u
         let inner_txn_params%3%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%3%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%3%%param_ApplicationArgs_idx_0#0: bytes = method "greet(string)string"
-        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: bytes = 0x00057468657265
+        let inner_txn_params%3%%param_ApplicationArgs_idx_0#0: bytes[4] = method "greet(string)string"
+        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x00057468657265
         let inner_txn_params%3%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%3%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%3%%ApplicationID_length#0: uint64 = 1u
@@ -3120,16 +3121,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         let result#1: bytes = tmp%8#0
         let _txn#1: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#1: bool = 1u
-        let _txn.Sender#1: bytes = itxn[_txn#1].Sender
+        let _txn.Sender#1: bytes[32] = itxn[_txn#1].Sender
         let _txn.Fee#1: uint64 = itxn[_txn#1].Fee
         let _txn.FirstValid#1: uint64 = itxn[_txn#1].FirstValid
         let _txn.FirstValidTime#1: uint64 = itxn[_txn#1].FirstValidTime
         let _txn.LastValid#1: uint64 = itxn[_txn#1].LastValid
         let _txn.Note#1: bytes = itxn[_txn#1].Note
         let _txn.Lease#1: bytes = itxn[_txn#1].Lease
-        let _txn.Receiver#1: bytes = itxn[_txn#1].Receiver
+        let _txn.Receiver#1: bytes[32] = itxn[_txn#1].Receiver
         let _txn.Amount#1: uint64 = itxn[_txn#1].Amount
-        let _txn.CloseRemainderTo#1: bytes = itxn[_txn#1].CloseRemainderTo
+        let _txn.CloseRemainderTo#1: bytes[32] = itxn[_txn#1].CloseRemainderTo
         let _txn.VotePK#1: bytes = itxn[_txn#1].VotePK
         let _txn.SelectionPK#1: bytes = itxn[_txn#1].SelectionPK
         let _txn.VoteFirst#1: uint64 = itxn[_txn#1].VoteFirst
@@ -3139,9 +3140,9 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         let _txn.TypeEnum#1: uint64 = itxn[_txn#1].TypeEnum
         let _txn.XferAsset#1: uint64 = itxn[_txn#1].XferAsset
         let _txn.AssetAmount#1: uint64 = itxn[_txn#1].AssetAmount
-        let _txn.AssetSender#1: bytes = itxn[_txn#1].AssetSender
-        let _txn.AssetReceiver#1: bytes = itxn[_txn#1].AssetReceiver
-        let _txn.AssetCloseTo#1: bytes = itxn[_txn#1].AssetCloseTo
+        let _txn.AssetSender#1: bytes[32] = itxn[_txn#1].AssetSender
+        let _txn.AssetReceiver#1: bytes[32] = itxn[_txn#1].AssetReceiver
+        let _txn.AssetCloseTo#1: bytes[32] = itxn[_txn#1].AssetCloseTo
         let _txn.GroupIndex#1: uint64 = itxn[_txn#1].GroupIndex
         let _txn.TxID#1: bytes = itxn[_txn#1].TxID
         let _txn.ApplicationID#1: uint64 = itxn[_txn#1].ApplicationID
@@ -3150,7 +3151,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         let _txn.NumAccounts#1: uint64 = itxn[_txn#1].NumAccounts
         let _txn.ApprovalProgram#1: bytes = itxn[_txn#1].ApprovalProgram
         let _txn.ClearStateProgram#1: bytes = itxn[_txn#1].ClearStateProgram
-        let _txn.RekeyTo#1: bytes = itxn[_txn#1].RekeyTo
+        let _txn.RekeyTo#1: bytes[32] = itxn[_txn#1].RekeyTo
         let _txn.ConfigAsset#1: uint64 = itxn[_txn#1].ConfigAsset
         let _txn.ConfigAssetTotal#1: uint64 = itxn[_txn#1].ConfigAssetTotal
         let _txn.ConfigAssetDecimals#1: uint64 = itxn[_txn#1].ConfigAssetDecimals
@@ -3159,12 +3160,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         let _txn.ConfigAssetName#1: bytes = itxn[_txn#1].ConfigAssetName
         let _txn.ConfigAssetURL#1: bytes = itxn[_txn#1].ConfigAssetURL
         let _txn.ConfigAssetMetadataHash#1: bytes = itxn[_txn#1].ConfigAssetMetadataHash
-        let _txn.ConfigAssetManager#1: bytes = itxn[_txn#1].ConfigAssetManager
-        let _txn.ConfigAssetReserve#1: bytes = itxn[_txn#1].ConfigAssetReserve
-        let _txn.ConfigAssetFreeze#1: bytes = itxn[_txn#1].ConfigAssetFreeze
-        let _txn.ConfigAssetClawback#1: bytes = itxn[_txn#1].ConfigAssetClawback
+        let _txn.ConfigAssetManager#1: bytes[32] = itxn[_txn#1].ConfigAssetManager
+        let _txn.ConfigAssetReserve#1: bytes[32] = itxn[_txn#1].ConfigAssetReserve
+        let _txn.ConfigAssetFreeze#1: bytes[32] = itxn[_txn#1].ConfigAssetFreeze
+        let _txn.ConfigAssetClawback#1: bytes[32] = itxn[_txn#1].ConfigAssetClawback
         let _txn.FreezeAsset#1: uint64 = itxn[_txn#1].FreezeAsset
-        let _txn.FreezeAssetAccount#1: bytes = itxn[_txn#1].FreezeAssetAccount
+        let _txn.FreezeAssetAccount#1: bytes[32] = itxn[_txn#1].FreezeAssetAccount
         let _txn.FreezeAssetFrozen#1: bool = itxn[_txn#1].FreezeAssetFrozen
         let _txn.NumAssets#1: uint64 = itxn[_txn#1].NumAssets
         let _txn.NumApplications#1: uint64 = itxn[_txn#1].NumApplications
@@ -3189,7 +3190,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         let inner_txn_params%4%%Fee_length#0: uint64 = 1u
         let inner_txn_params%4%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%4%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%4%%param_ApplicationArgs_idx_0#0: bytes = method "delete()void"
+        let inner_txn_params%4%%param_ApplicationArgs_idx_0#0: bytes[4] = method "delete()void"
         let inner_txn_params%4%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%4%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%4%%ApplicationID_length#0: uint64 = 1u
@@ -3259,7 +3260,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants() -> voi
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes = method "create()uint64"
+        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "create()uint64"
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = compiled_contract('test_cases.compile.apps.HelloOtherConstants', field=ApprovalProgramPages, program_page=0, NUM=5b, GREETING="hello", ACCOUNT=addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ, METHOD=method "something()void")
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = compiled_contract('test_cases.compile.apps.HelloOtherConstants', field=ApprovalProgramPages, program_page=1, NUM=5b, GREETING="hello", ACCOUNT=addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ, METHOD=method "something()void")
@@ -3340,8 +3341,8 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants() -> voi
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes = method "greet(string)byte[]"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = 0x00064a6f686e6e79
+        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "greet(string)byte[]"
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes[8] = 0x00064a6f686e6e79
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -3409,16 +3410,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants() -> voi
         let result#0: bytes = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
-        let _txn.Sender#0: bytes = itxn[_txn#0].Sender
+        let _txn.Sender#0: bytes[32] = itxn[_txn#0].Sender
         let _txn.Fee#0: uint64 = itxn[_txn#0].Fee
         let _txn.FirstValid#0: uint64 = itxn[_txn#0].FirstValid
         let _txn.FirstValidTime#0: uint64 = itxn[_txn#0].FirstValidTime
         let _txn.LastValid#0: uint64 = itxn[_txn#0].LastValid
         let _txn.Note#0: bytes = itxn[_txn#0].Note
         let _txn.Lease#0: bytes = itxn[_txn#0].Lease
-        let _txn.Receiver#0: bytes = itxn[_txn#0].Receiver
+        let _txn.Receiver#0: bytes[32] = itxn[_txn#0].Receiver
         let _txn.Amount#0: uint64 = itxn[_txn#0].Amount
-        let _txn.CloseRemainderTo#0: bytes = itxn[_txn#0].CloseRemainderTo
+        let _txn.CloseRemainderTo#0: bytes[32] = itxn[_txn#0].CloseRemainderTo
         let _txn.VotePK#0: bytes = itxn[_txn#0].VotePK
         let _txn.SelectionPK#0: bytes = itxn[_txn#0].SelectionPK
         let _txn.VoteFirst#0: uint64 = itxn[_txn#0].VoteFirst
@@ -3428,9 +3429,9 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants() -> voi
         let _txn.TypeEnum#0: uint64 = itxn[_txn#0].TypeEnum
         let _txn.XferAsset#0: uint64 = itxn[_txn#0].XferAsset
         let _txn.AssetAmount#0: uint64 = itxn[_txn#0].AssetAmount
-        let _txn.AssetSender#0: bytes = itxn[_txn#0].AssetSender
-        let _txn.AssetReceiver#0: bytes = itxn[_txn#0].AssetReceiver
-        let _txn.AssetCloseTo#0: bytes = itxn[_txn#0].AssetCloseTo
+        let _txn.AssetSender#0: bytes[32] = itxn[_txn#0].AssetSender
+        let _txn.AssetReceiver#0: bytes[32] = itxn[_txn#0].AssetReceiver
+        let _txn.AssetCloseTo#0: bytes[32] = itxn[_txn#0].AssetCloseTo
         let _txn.GroupIndex#0: uint64 = itxn[_txn#0].GroupIndex
         let _txn.TxID#0: bytes = itxn[_txn#0].TxID
         let _txn.ApplicationID#0: uint64 = itxn[_txn#0].ApplicationID
@@ -3439,7 +3440,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants() -> voi
         let _txn.NumAccounts#0: uint64 = itxn[_txn#0].NumAccounts
         let _txn.ApprovalProgram#0: bytes = itxn[_txn#0].ApprovalProgram
         let _txn.ClearStateProgram#0: bytes = itxn[_txn#0].ClearStateProgram
-        let _txn.RekeyTo#0: bytes = itxn[_txn#0].RekeyTo
+        let _txn.RekeyTo#0: bytes[32] = itxn[_txn#0].RekeyTo
         let _txn.ConfigAsset#0: uint64 = itxn[_txn#0].ConfigAsset
         let _txn.ConfigAssetTotal#0: uint64 = itxn[_txn#0].ConfigAssetTotal
         let _txn.ConfigAssetDecimals#0: uint64 = itxn[_txn#0].ConfigAssetDecimals
@@ -3448,12 +3449,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants() -> voi
         let _txn.ConfigAssetName#0: bytes = itxn[_txn#0].ConfigAssetName
         let _txn.ConfigAssetURL#0: bytes = itxn[_txn#0].ConfigAssetURL
         let _txn.ConfigAssetMetadataHash#0: bytes = itxn[_txn#0].ConfigAssetMetadataHash
-        let _txn.ConfigAssetManager#0: bytes = itxn[_txn#0].ConfigAssetManager
-        let _txn.ConfigAssetReserve#0: bytes = itxn[_txn#0].ConfigAssetReserve
-        let _txn.ConfigAssetFreeze#0: bytes = itxn[_txn#0].ConfigAssetFreeze
-        let _txn.ConfigAssetClawback#0: bytes = itxn[_txn#0].ConfigAssetClawback
+        let _txn.ConfigAssetManager#0: bytes[32] = itxn[_txn#0].ConfigAssetManager
+        let _txn.ConfigAssetReserve#0: bytes[32] = itxn[_txn#0].ConfigAssetReserve
+        let _txn.ConfigAssetFreeze#0: bytes[32] = itxn[_txn#0].ConfigAssetFreeze
+        let _txn.ConfigAssetClawback#0: bytes[32] = itxn[_txn#0].ConfigAssetClawback
         let _txn.FreezeAsset#0: uint64 = itxn[_txn#0].FreezeAsset
-        let _txn.FreezeAssetAccount#0: bytes = itxn[_txn#0].FreezeAssetAccount
+        let _txn.FreezeAssetAccount#0: bytes[32] = itxn[_txn#0].FreezeAssetAccount
         let _txn.FreezeAssetFrozen#0: bool = itxn[_txn#0].FreezeAssetFrozen
         let _txn.NumAssets#0: uint64 = itxn[_txn#0].NumAssets
         let _txn.NumApplications#0: uint64 = itxn[_txn#0].NumApplications
@@ -3470,7 +3471,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants() -> voi
         let _txn.StateProofPK#0: bytes = itxn[_txn#0].StateProofPK
         let _txn.NumApprovalProgramPages#0: uint64 = itxn[_txn#0].NumApprovalProgramPages
         let _txn.NumClearStateProgramPages#0: uint64 = itxn[_txn#0].NumClearStateProgramPages
-        let tmp%4#0: bytes = (global ZeroAddress)
+        let tmp%4#0: bytes[32] = (global ZeroAddress)
         let tmp%5#0: bytes = (concat 0x68656c6c6f204a6f686e6e7935 tmp%4#0)
         let tmp%6#0: bytes = (concat tmp%5#0 method "something()void")
         let tmp%7#0: bool = (== result#0 tmp%6#0)
@@ -3481,7 +3482,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants() -> voi
         let inner_txn_params%2%%Fee_length#0: uint64 = 1u
         let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes = method "delete()void"
+        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "delete()void"
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
@@ -3553,10 +3554,10 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params()
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
         let length%0#0: uint64 = (len "hey")
-        let as_bytes%0#0: bytes = (itob length%0#0)
+        let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 "hey")
-        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes = method "create(string)void"
+        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "create(string)void"
         let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%0#0
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = compiled.approval_program.0#0
@@ -3639,8 +3640,8 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params()
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes = method "greet(string)string"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = 0x00057468657265
+        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "greet(string)string"
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x00057468657265
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -3708,16 +3709,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params()
         let result#0: bytes = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
-        let _txn.Sender#0: bytes = itxn[_txn#0].Sender
+        let _txn.Sender#0: bytes[32] = itxn[_txn#0].Sender
         let _txn.Fee#0: uint64 = itxn[_txn#0].Fee
         let _txn.FirstValid#0: uint64 = itxn[_txn#0].FirstValid
         let _txn.FirstValidTime#0: uint64 = itxn[_txn#0].FirstValidTime
         let _txn.LastValid#0: uint64 = itxn[_txn#0].LastValid
         let _txn.Note#0: bytes = itxn[_txn#0].Note
         let _txn.Lease#0: bytes = itxn[_txn#0].Lease
-        let _txn.Receiver#0: bytes = itxn[_txn#0].Receiver
+        let _txn.Receiver#0: bytes[32] = itxn[_txn#0].Receiver
         let _txn.Amount#0: uint64 = itxn[_txn#0].Amount
-        let _txn.CloseRemainderTo#0: bytes = itxn[_txn#0].CloseRemainderTo
+        let _txn.CloseRemainderTo#0: bytes[32] = itxn[_txn#0].CloseRemainderTo
         let _txn.VotePK#0: bytes = itxn[_txn#0].VotePK
         let _txn.SelectionPK#0: bytes = itxn[_txn#0].SelectionPK
         let _txn.VoteFirst#0: uint64 = itxn[_txn#0].VoteFirst
@@ -3727,9 +3728,9 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params()
         let _txn.TypeEnum#0: uint64 = itxn[_txn#0].TypeEnum
         let _txn.XferAsset#0: uint64 = itxn[_txn#0].XferAsset
         let _txn.AssetAmount#0: uint64 = itxn[_txn#0].AssetAmount
-        let _txn.AssetSender#0: bytes = itxn[_txn#0].AssetSender
-        let _txn.AssetReceiver#0: bytes = itxn[_txn#0].AssetReceiver
-        let _txn.AssetCloseTo#0: bytes = itxn[_txn#0].AssetCloseTo
+        let _txn.AssetSender#0: bytes[32] = itxn[_txn#0].AssetSender
+        let _txn.AssetReceiver#0: bytes[32] = itxn[_txn#0].AssetReceiver
+        let _txn.AssetCloseTo#0: bytes[32] = itxn[_txn#0].AssetCloseTo
         let _txn.GroupIndex#0: uint64 = itxn[_txn#0].GroupIndex
         let _txn.TxID#0: bytes = itxn[_txn#0].TxID
         let _txn.ApplicationID#0: uint64 = itxn[_txn#0].ApplicationID
@@ -3738,7 +3739,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params()
         let _txn.NumAccounts#0: uint64 = itxn[_txn#0].NumAccounts
         let _txn.ApprovalProgram#0: bytes = itxn[_txn#0].ApprovalProgram
         let _txn.ClearStateProgram#0: bytes = itxn[_txn#0].ClearStateProgram
-        let _txn.RekeyTo#0: bytes = itxn[_txn#0].RekeyTo
+        let _txn.RekeyTo#0: bytes[32] = itxn[_txn#0].RekeyTo
         let _txn.ConfigAsset#0: uint64 = itxn[_txn#0].ConfigAsset
         let _txn.ConfigAssetTotal#0: uint64 = itxn[_txn#0].ConfigAssetTotal
         let _txn.ConfigAssetDecimals#0: uint64 = itxn[_txn#0].ConfigAssetDecimals
@@ -3747,12 +3748,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params()
         let _txn.ConfigAssetName#0: bytes = itxn[_txn#0].ConfigAssetName
         let _txn.ConfigAssetURL#0: bytes = itxn[_txn#0].ConfigAssetURL
         let _txn.ConfigAssetMetadataHash#0: bytes = itxn[_txn#0].ConfigAssetMetadataHash
-        let _txn.ConfigAssetManager#0: bytes = itxn[_txn#0].ConfigAssetManager
-        let _txn.ConfigAssetReserve#0: bytes = itxn[_txn#0].ConfigAssetReserve
-        let _txn.ConfigAssetFreeze#0: bytes = itxn[_txn#0].ConfigAssetFreeze
-        let _txn.ConfigAssetClawback#0: bytes = itxn[_txn#0].ConfigAssetClawback
+        let _txn.ConfigAssetManager#0: bytes[32] = itxn[_txn#0].ConfigAssetManager
+        let _txn.ConfigAssetReserve#0: bytes[32] = itxn[_txn#0].ConfigAssetReserve
+        let _txn.ConfigAssetFreeze#0: bytes[32] = itxn[_txn#0].ConfigAssetFreeze
+        let _txn.ConfigAssetClawback#0: bytes[32] = itxn[_txn#0].ConfigAssetClawback
         let _txn.FreezeAsset#0: uint64 = itxn[_txn#0].FreezeAsset
-        let _txn.FreezeAssetAccount#0: bytes = itxn[_txn#0].FreezeAssetAccount
+        let _txn.FreezeAssetAccount#0: bytes[32] = itxn[_txn#0].FreezeAssetAccount
         let _txn.FreezeAssetFrozen#0: bool = itxn[_txn#0].FreezeAssetFrozen
         let _txn.NumAssets#0: uint64 = itxn[_txn#0].NumAssets
         let _txn.NumApplications#0: uint64 = itxn[_txn#0].NumApplications
@@ -3777,7 +3778,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params()
         let inner_txn_params%2%%Fee_length#0: uint64 = 1u
         let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes = method "delete()void"
+        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "delete()void"
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 1u
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u

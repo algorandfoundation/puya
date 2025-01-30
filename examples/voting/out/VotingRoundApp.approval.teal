@@ -339,14 +339,12 @@ create_for_header@2:
     bz create_after_for@5
     frame_dig -3
     extract 2 0
+    // voting/voting.py:224
+    // total_options += item.native
     frame_dig 2
     dup
     cover 2
-    intc_1 // 1
-    extract3 // on error: Index access is out of bounds
-    // voting/voting.py:224
-    // total_options += item.native
-    btoi
+    getbyte
     frame_dig 1
     +
     frame_bury 1
@@ -473,7 +471,7 @@ close:
     // def close(self) -> None:
     proto 0 0
     intc_0 // 0
-    dup
+    dupn 2
     pushbytes ""
     dupn 2
     // voting/voting.py:112
@@ -660,84 +658,87 @@ close:
 close_for_header@1:
     // voting/voting.py:132
     // for question_index, question_options in uenumerate(self.option_counts):
+    frame_dig 10
     frame_dig 9
-    frame_dig 8
     <
     bz close_after_for@14
-    frame_dig 7
+    frame_dig 8
     extract 2 0
-    frame_dig 9
+    dup
+    frame_bury 0
+    frame_dig 10
     dup
     cover 2
     intc_1 // 1
     extract3 // on error: Index access is out of bounds
+    frame_bury 2
+    frame_dig 6
     frame_bury 1
-    frame_dig 5
-    frame_bury 0
     // voting/voting.py:133
     // if question_index > 0:
     bz close_after_if_else@4
     // voting/voting.py:134
     // note += ","
-    frame_dig 5
+    frame_dig 6
     pushbytes ","
     concat
-    frame_bury 0
+    frame_bury 1
 
 close_after_if_else@4:
-    frame_dig 0
+    frame_dig 1
     dup
-    frame_bury 5
+    frame_bury 6
     // voting/voting.py:135
     // if question_options > 0:
-    frame_dig 1
+    frame_dig 2
     pushbytes 0x00
     b>
-    frame_dig 6
-    frame_bury 2
+    frame_dig 7
+    frame_bury 3
     swap
-    frame_bury 0
+    frame_bury 1
     bz close_after_if_else@12
     // voting/voting.py:136
     // note += "["
-    frame_dig 5
+    frame_dig 6
     pushbytes "["
     concat
-    frame_bury 5
+    frame_bury 6
     // voting/voting.py:137
     // for option_index in urange(question_options.native):
-    frame_dig 1
-    btoi
-    frame_bury 4
+    frame_dig 0
+    frame_dig 10
+    getbyte
+    frame_bury 5
     intc_0 // 0
-    frame_bury 3
+    frame_bury 4
 
 close_for_header@6:
     // voting/voting.py:137
     // for option_index in urange(question_options.native):
-    frame_dig 3
     frame_dig 4
+    frame_dig 5
     <
     bz close_after_for@11
-    frame_dig 5
-    frame_bury 0
+    frame_dig 6
+    frame_bury 1
     // voting/voting.py:138
     // if option_index > 0:
-    frame_dig 3
+    frame_dig 4
     bz close_after_if_else@9
     // voting/voting.py:139
     // note += ","
-    frame_dig 5
+    frame_dig 6
     pushbytes ","
     concat
-    frame_bury 0
+    frame_bury 1
 
 close_after_if_else@9:
-    frame_dig 0
+    frame_dig 1
     // voting/voting.py:241
     // return op.btoi(self.tally_box.extract(index, VOTE_COUNT_BYTES))
     bytec 4 // "V"
-    frame_dig 6
+    frame_dig 7
     dup
     cover 3
     intc_3 // 8
@@ -747,45 +748,45 @@ close_after_if_else@9:
     // note += itoa(votes_for_option)
     callsub itoa
     concat
-    frame_bury 5
+    frame_bury 6
     // voting/voting.py:142
     // current_index += 1
     intc_1 // 1
     +
-    frame_bury 6
+    frame_bury 7
     // voting/voting.py:137
     // for option_index in urange(question_options.native):
-    frame_dig 3
+    frame_dig 4
     intc_1 // 1
     +
-    frame_bury 3
+    frame_bury 4
     b close_for_header@6
 
 close_after_for@11:
     // voting/voting.py:143
     // note += "]"
-    frame_dig 5
+    frame_dig 6
     pushbytes "]"
     concat
-    frame_dig 6
-    frame_bury 2
-    frame_bury 0
+    frame_dig 7
+    frame_bury 3
+    frame_bury 1
 
 close_after_if_else@12:
-    frame_dig 2
+    frame_dig 3
+    frame_bury 7
+    frame_dig 1
     frame_bury 6
-    frame_dig 0
-    frame_bury 5
-    frame_dig 9
+    frame_dig 10
     intc_1 // 1
     +
-    frame_bury 9
+    frame_bury 10
     b close_for_header@1
 
 close_after_for@14:
     // voting/voting.py:144
     // note += "]}}"
-    frame_dig 5
+    frame_dig 6
     pushbytes "]}}"
     concat
     // voting/voting.py:146-156
@@ -1051,9 +1052,7 @@ vote_for_header@1:
     frame_dig 2
     dup
     cover 2
-    intc_1 // 1
-    extract3 // on error: Index access is out of bounds
-    btoi
+    getbyte
     // voting/voting.py:198
     // options_count = self.option_counts[question_index].native
     intc_0 // 0
@@ -1062,9 +1061,7 @@ vote_for_header@1:
     assert // check self.option_counts exists
     extract 2 0
     dig 2
-    intc_1 // 1
-    extract3 // on error: Index access is out of bounds
-    btoi
+    getbyte
     // voting/voting.py:199
     // assert answer_option_index < options_count, "Answer option index invalid"
     dup2

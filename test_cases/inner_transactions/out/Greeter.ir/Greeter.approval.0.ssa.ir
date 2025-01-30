@@ -25,7 +25,7 @@ subroutine test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__() -> b
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
         let to_encode%0#0: uint64 = test_cases.inner_transactions.c2c.Greeter.bootstrap()
-        let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
+        let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
         let tmp%7#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
         (log tmp%7#0)
         return 1u
@@ -153,7 +153,7 @@ subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) 
         (assert maybe_exists%0#0) // check self.hello_app exists
         let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = maybe_value%0#0
         let inner_txn_params%0%%ApplicationID_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes = method "hello(string)string"
+        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "hello(string)string"
         let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = name#0
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%0%%Sender_length#0: uint64 = 0u
@@ -213,16 +213,16 @@ subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) 
         itxn_submit
         let hello_call#0: itxn_group_idx = itxn_group_idx(0)
         let hello_call._is_last#0: bool = 1u
-        let hello_call.Sender#0: bytes = itxn[hello_call#0].Sender
+        let hello_call.Sender#0: bytes[32] = itxn[hello_call#0].Sender
         let hello_call.Fee#0: uint64 = itxn[hello_call#0].Fee
         let hello_call.FirstValid#0: uint64 = itxn[hello_call#0].FirstValid
         let hello_call.FirstValidTime#0: uint64 = itxn[hello_call#0].FirstValidTime
         let hello_call.LastValid#0: uint64 = itxn[hello_call#0].LastValid
         let hello_call.Note#0: bytes = itxn[hello_call#0].Note
         let hello_call.Lease#0: bytes = itxn[hello_call#0].Lease
-        let hello_call.Receiver#0: bytes = itxn[hello_call#0].Receiver
+        let hello_call.Receiver#0: bytes[32] = itxn[hello_call#0].Receiver
         let hello_call.Amount#0: uint64 = itxn[hello_call#0].Amount
-        let hello_call.CloseRemainderTo#0: bytes = itxn[hello_call#0].CloseRemainderTo
+        let hello_call.CloseRemainderTo#0: bytes[32] = itxn[hello_call#0].CloseRemainderTo
         let hello_call.VotePK#0: bytes = itxn[hello_call#0].VotePK
         let hello_call.SelectionPK#0: bytes = itxn[hello_call#0].SelectionPK
         let hello_call.VoteFirst#0: uint64 = itxn[hello_call#0].VoteFirst
@@ -232,9 +232,9 @@ subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) 
         let hello_call.TypeEnum#0: uint64 = itxn[hello_call#0].TypeEnum
         let hello_call.XferAsset#0: uint64 = itxn[hello_call#0].XferAsset
         let hello_call.AssetAmount#0: uint64 = itxn[hello_call#0].AssetAmount
-        let hello_call.AssetSender#0: bytes = itxn[hello_call#0].AssetSender
-        let hello_call.AssetReceiver#0: bytes = itxn[hello_call#0].AssetReceiver
-        let hello_call.AssetCloseTo#0: bytes = itxn[hello_call#0].AssetCloseTo
+        let hello_call.AssetSender#0: bytes[32] = itxn[hello_call#0].AssetSender
+        let hello_call.AssetReceiver#0: bytes[32] = itxn[hello_call#0].AssetReceiver
+        let hello_call.AssetCloseTo#0: bytes[32] = itxn[hello_call#0].AssetCloseTo
         let hello_call.GroupIndex#0: uint64 = itxn[hello_call#0].GroupIndex
         let hello_call.TxID#0: bytes = itxn[hello_call#0].TxID
         let hello_call.ApplicationID#0: uint64 = itxn[hello_call#0].ApplicationID
@@ -243,7 +243,7 @@ subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) 
         let hello_call.NumAccounts#0: uint64 = itxn[hello_call#0].NumAccounts
         let hello_call.ApprovalProgram#0: bytes = itxn[hello_call#0].ApprovalProgram
         let hello_call.ClearStateProgram#0: bytes = itxn[hello_call#0].ClearStateProgram
-        let hello_call.RekeyTo#0: bytes = itxn[hello_call#0].RekeyTo
+        let hello_call.RekeyTo#0: bytes[32] = itxn[hello_call#0].RekeyTo
         let hello_call.ConfigAsset#0: uint64 = itxn[hello_call#0].ConfigAsset
         let hello_call.ConfigAssetTotal#0: uint64 = itxn[hello_call#0].ConfigAssetTotal
         let hello_call.ConfigAssetDecimals#0: uint64 = itxn[hello_call#0].ConfigAssetDecimals
@@ -252,12 +252,12 @@ subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) 
         let hello_call.ConfigAssetName#0: bytes = itxn[hello_call#0].ConfigAssetName
         let hello_call.ConfigAssetURL#0: bytes = itxn[hello_call#0].ConfigAssetURL
         let hello_call.ConfigAssetMetadataHash#0: bytes = itxn[hello_call#0].ConfigAssetMetadataHash
-        let hello_call.ConfigAssetManager#0: bytes = itxn[hello_call#0].ConfigAssetManager
-        let hello_call.ConfigAssetReserve#0: bytes = itxn[hello_call#0].ConfigAssetReserve
-        let hello_call.ConfigAssetFreeze#0: bytes = itxn[hello_call#0].ConfigAssetFreeze
-        let hello_call.ConfigAssetClawback#0: bytes = itxn[hello_call#0].ConfigAssetClawback
+        let hello_call.ConfigAssetManager#0: bytes[32] = itxn[hello_call#0].ConfigAssetManager
+        let hello_call.ConfigAssetReserve#0: bytes[32] = itxn[hello_call#0].ConfigAssetReserve
+        let hello_call.ConfigAssetFreeze#0: bytes[32] = itxn[hello_call#0].ConfigAssetFreeze
+        let hello_call.ConfigAssetClawback#0: bytes[32] = itxn[hello_call#0].ConfigAssetClawback
         let hello_call.FreezeAsset#0: uint64 = itxn[hello_call#0].FreezeAsset
-        let hello_call.FreezeAssetAccount#0: bytes = itxn[hello_call#0].FreezeAssetAccount
+        let hello_call.FreezeAssetAccount#0: bytes[32] = itxn[hello_call#0].FreezeAssetAccount
         let hello_call.FreezeAssetFrozen#0: bool = itxn[hello_call#0].FreezeAssetFrozen
         let hello_call.NumAssets#0: uint64 = itxn[hello_call#0].NumAssets
         let hello_call.NumApplications#0: uint64 = itxn[hello_call#0].NumApplications

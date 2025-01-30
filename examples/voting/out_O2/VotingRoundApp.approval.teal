@@ -6,7 +6,7 @@ main:
     intcblock 0 1 10 8
     bytecblock "is_bootstrapped" "voter_count" "option_counts" "V" "vote_id" "close_time" "metadata_ipfs_cid" "quorum" "nft_image_url" "total_options" "snapshot_public_key" "start_time" "end_time" 0x068101 0x30313233343536373839
     intc_0 // 0
-    dupn 5
+    dupn 6
     pushbytes ""
     dupn 10
     txn ApplicationID
@@ -48,7 +48,7 @@ main_vote_route@21:
     txna ApplicationArgs 2
     dup
     cover 2
-    bury 20
+    bury 21
     pushint 7700 // 7700
     intc_0 // 0
     callsub ensure_budget
@@ -104,24 +104,20 @@ main_for_header@22:
     dig 4
     <
     bz main_after_for@24
-    dig 16
+    dig 17
     dup
     extract 2 0
     dig 6
     dup
     cover 2
-    intc_1 // 1
-    extract3 // on error: Index access is out of bounds
-    btoi
+    getbyte
     intc_0 // 0
     bytec_2 // "option_counts"
     app_global_get_ex
     assert // check self.option_counts exists
     extract 2 0
     dig 2
-    intc_1 // 1
-    extract3 // on error: Index access is out of bounds
-    btoi
+    getbyte
     dup2
     <
     assert // Answer option index invalid
@@ -281,6 +277,8 @@ main_for_header@8:
     bz main_after_for@19
     dig 15
     extract 2 0
+    dup
+    bury 18
     dig 5
     dup
     cover 2
@@ -311,8 +309,9 @@ main_after_if_else@11:
     pushbytes "["
     concat
     bury 15
-    dig 11
-    btoi
+    dig 16
+    dig 5
+    getbyte
     bury 2
     intc_0 // 0
     bury 6
@@ -541,9 +540,7 @@ main_for_header@30:
     dig 7
     dup
     cover 2
-    intc_1 // 1
-    extract3 // on error: Index access is out of bounds
-    btoi
+    getbyte
     dig 2
     +
     bury 2

@@ -17,7 +17,7 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         let l_head_and_tail%0#0: bytes = ((extract 2 0) maybe_value%0#1)
         let concat_result%0#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%0#0, l_head_and_tail%0#0, 1u, 0x00020000000000000001000a000362617a)
         (app_global_put "glob" concat_result%0#0)
-        let tmp%0#3: bytes = (txn Sender)
+        let tmp%0#3: bytes[32] = (txn Sender)
         let (maybe_value%1#1: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%0#3 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
         let l_count%1#0: uint64 = (extract_uint16 maybe_value%1#1 0u)
@@ -31,7 +31,7 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         let concat_result%2#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%2#0, l_head_and_tail%2#0, 1u, 0x00020000000000000001000a000362617a)
         (box_del "box")
         (box_put "box" concat_result%2#0)
-        let tmp%1#1: bytes = (txn Sender)
+        let tmp%1#1: bytes[32] = (txn Sender)
         let tmp%2#0: bytes = (concat "map" tmp%1#1)
         let (maybe_value%3#1: bytes, maybe_exists%3#0: bool) = (box_get tmp%2#0)
         (assert maybe_exists%3#0) // check self.map entry exists
@@ -58,13 +58,13 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         let end_of_array%0#0: uint64 = (len array_head_and_tail%0#0)
         let next_item_offset%0#0: uint64 = (extract_uint16 array_head_and_tail%0#0 2u)
         let end_offset%0#0: uint64 = (select end_of_array%0#0 next_item_offset%0#0 has_next%0#0)
-        let tmp%0#3: bytes = (substring3 array_head_and_tail%0#0 item_offset%0#0 end_offset%0#0)
-        let item_offset%1#0: uint64 = (extract_uint16 tmp%0#3 8u)
-        let data_up_to_item%0#0: bytes = (extract3 tmp%0#3 0u item_offset%1#0)
+        let tmp%0#5: bytes = (substring3 array_head_and_tail%0#0 item_offset%0#0 end_offset%0#0)
+        let item_offset%1#0: uint64 = (extract_uint16 tmp%0#5 8u)
+        let data_up_to_item%0#0: bytes = (extract3 tmp%0#5 0u item_offset%1#0)
         let updated_data%0#0: bytes = (concat data_up_to_item%0#0 0x00086d6f646966696564)
         let updated_value%0#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%0#1, updated_data%0#0, 0u)
         (app_global_put "glob" updated_value%0#0)
-        let tmp%1#1: bytes = (txn Sender)
+        let tmp%1#1: bytes[32] = (txn Sender)
         let (maybe_value%1#1: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%1#1 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
         let array_head_and_tail%1#0: bytes = ((extract 2 0) maybe_value%1#1)
@@ -96,7 +96,7 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         let updated_value%2#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%2#1, updated_data%2#0, 0u)
         (box_del "box")
         (box_put "box" updated_value%2#0)
-        let tmp%4#2: bytes = (txn Sender)
+        let tmp%4#2: bytes[32] = (txn Sender)
         let tmp%5#2: bytes = (concat "map" tmp%4#2)
         let (maybe_value%3#1: bytes, maybe_exists%3#0: bool) = (box_get tmp%5#2)
         (assert maybe_exists%3#0) // check self.map entry exists
@@ -125,12 +125,12 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         (assert tmp%13#0) // can only call when not creating
         let (a1#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "glob")
         (assert maybe_exists%0#0) // check self.glob exists
-        let tmp%0#3: bytes = (txn Sender)
+        let tmp%0#3: bytes[32] = (txn Sender)
         let (a2#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%0#3 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
         let (a3#0: bytes, maybe_exists%2#0: bool) = (box_get "box")
         (assert maybe_exists%2#0) // check self.box exists
-        let tmp%1#1: bytes = (txn Sender)
+        let tmp%1#1: bytes[32] = (txn Sender)
         let tmp%2#0: bytes = (concat "map" tmp%1#1)
         let (a4#0: bytes, maybe_exists%3#0: bool) = (box_get tmp%2#0)
         (assert maybe_exists%3#0) // check self.map entry exists
@@ -154,9 +154,9 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         (app_global_put "glob" 0x0000)
         (box_del "box")
         (box_put "box" 0x0000)
-        let tmp%0#3: bytes = (txn Sender)
+        let tmp%0#3: bytes[32] = (txn Sender)
         (app_local_put tmp%0#3 "loc" 0x0000)
-        let tmp%1#1: bytes = (txn Sender)
+        let tmp%1#1: bytes[32] = (txn Sender)
         let tmp%2#0: bytes = (concat "map" tmp%1#1)
         (box_del tmp%2#0)
         (box_put tmp%2#0 0x0000)
