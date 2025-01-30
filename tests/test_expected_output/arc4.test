@@ -65,8 +65,8 @@ def wrong_arg_type3() -> None:
 
 @subroutine
 def wrong_arg_type4() -> None:
-    arc4.emit("Event(string,uint8)", Event(arc4.String("a"), arc4.UInt8(1))) ## E: expected type algopy.arc4.String, got type test_emit_errors.Event \
-                                                                             ## E: expected 2 ABI arguments, got 1
+    arc4.emit("Event(string,uint8)", Event(arc4.String("a"), arc4.UInt8(1))) ## E: expected 2 ABI arguments, got 1 \
+                                                                             ## E: expected type algopy.arc4.String, got type test_emit_errors.Event
 
 @subroutine
 def wrong_arg_type5() -> None:
@@ -655,3 +655,14 @@ def c() -> None:
 @subroutine
 def d() -> None:
     assert not arc4.DynamicArray[int]() ## E: Python literals of type int cannot be used as runtime values
+
+## case: abimethod_reference_type_in_tuple
+from algopy import *
+
+class ARC4Reference(arc4.ARC4Contract):
+    @arc4.abimethod()
+    def test(self,
+        arg: tuple[Account, Asset], ## E: account is not supported in an ARC4 tuple
+        arg2: tuple[Account, Application],
+    ) -> None:
+        pass

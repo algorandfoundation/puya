@@ -642,7 +642,7 @@ class TupleExpression(Expression):
     def from_items(cls, items: Sequence[Expression], location: SourceLocation) -> typing.Self:
         return cls(
             items=items,
-            wtype=wtypes.WTuple((i.wtype for i in items), location),
+            wtype=wtypes.WTuple(types=(i.wtype for i in items), source_location=location),
             source_location=location,
         )
 
@@ -734,7 +734,7 @@ class SubmitInnerTransaction(Expression):
         try:
             (single_txn,) = txn_types
         except ValueError:
-            return wtypes.WTuple(txn_types, self.source_location)
+            return wtypes.WTuple(types=txn_types, source_location=self.source_location)
         else:
             return single_txn
 
@@ -1473,8 +1473,8 @@ class StateGetEx(Expression):
     @wtype.default
     def _wtype_factory(self) -> wtypes.WTuple:
         return wtypes.WTuple(
-            (self.field.wtype, wtypes.bool_wtype),
-            self.source_location,
+            types=(self.field.wtype, wtypes.bool_wtype),
+            source_location=self.source_location,
         )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:

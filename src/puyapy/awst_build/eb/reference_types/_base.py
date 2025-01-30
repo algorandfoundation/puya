@@ -59,7 +59,9 @@ class ReferenceValueExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.
                 op_code=self.field_op_code,
                 immediates=[immediate],
                 stack_args=[self.resolve()],
-                wtype=wtypes.WTuple((typ.wtype, wtypes.bool_wtype), location),
+                wtype=wtypes.WTuple(
+                    types=(typ.wtype, wtypes.bool_wtype), source_location=location
+                ),
                 source_location=location,
             )
             checked_maybe = CheckedMaybe(acct_params_get, comment=self.field_bool_comment)

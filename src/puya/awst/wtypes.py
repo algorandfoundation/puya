@@ -24,6 +24,7 @@ class WType:
     """ephemeral types are not suitable for naive storage / persistence,
      even if their underlying type is a simple stack value"""
     immutable: bool
+    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
 
     def __str__(self) -> str:
         return self.name
@@ -165,7 +166,6 @@ class WStructType(WType):
     frozen: bool
     immutable: bool = attrs.field(init=False)
     scalar_type: None = attrs.field(default=None, init=False)
-    source_location: SourceLocation | None = attrs.field(eq=False)
     desc: str | None = None
 
     @immutable.default
@@ -187,7 +187,6 @@ class WArray(WType):
     element_type: WType = attrs.field()
     name: str = attrs.field(init=False)
     scalar_type: None = attrs.field(default=None, init=False)
-    source_location: SourceLocation | None = attrs.field(eq=False)
     immutable: bool = attrs.field(default=False, init=False)
 
     @element_type.validator
@@ -204,7 +203,6 @@ class WArray(WType):
 @attrs.frozen(eq=False)
 class WTuple(WType):
     types: tuple[WType, ...] = attrs.field(converter=tuple[WType, ...])
-    source_location: SourceLocation | None = attrs.field(default=None)
     scalar_type: None = attrs.field(default=None, init=False)
     immutable: bool = attrs.field(default=True, init=False)
     name: str = attrs.field(kw_only=True)
@@ -286,7 +284,6 @@ class ARC4UIntN(ARC4Type):
     n: int = attrs.field()
     arc4_name: str = attrs.field(eq=False)
     name: str = attrs.field(init=False)
-    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
 
     @n.validator
     def _n_validator(self, _attribute: object, n: int) -> None:
@@ -315,7 +312,6 @@ class ARC4UFixedNxM(ARC4Type):
     immutable: bool = attrs.field(default=True, init=False)
     arc4_name: str = attrs.field(init=False, eq=False)
     name: str = attrs.field(init=False)
-    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
     native_type: None = attrs.field(default=None, init=False)
 
     @arc4_name.default
@@ -339,20 +335,30 @@ class ARC4UFixedNxM(ARC4Type):
             raise CodeError("Precision must be between 1 and 160 inclusive", self.source_location)
 
 
-def _required_arc4_wtypes(wtypes: Iterable[WType]) -> tuple[ARC4Type, ...]:
-    result = []
-    for wtype in wtypes:
-        if not isinstance(wtype, ARC4Type):
-            raise CodeError(f"expected ARC4 type: {wtype}")
-        result.append(wtype)
-    return tuple(result)
+def _tuple_requires_arc4_types(wtypes: Iterable[WType], node: WType) -> tuple[ARC4Type, ...]:
+    return tuple(
+        _narrow_arc4_wtype(wtype, "tuple", wtype.source_location or node.source_location)
+        for wtype in wtypes
+    )
+
+
+def _array_requires_arc4_type(wtype: WType, node: WType) -> ARC4Type:
+    return _narrow_arc4_wtype(wtype, "array", wtype.source_location or node.source_location)
+
+
+def _narrow_arc4_wtype(wtype: WType, context: str, loc: SourceLocation | None) -> ARC4Type:
+    if isinstance(wtype, ARC4Type):
+        return wtype
+    raise CodeError(f"{wtype} is not supported in an ARC4 {context}", loc)
 
 
 @typing.final
 @attrs.frozen(kw_only=True)
 class ARC4Tuple(ARC4Type):
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
-    types: tuple[ARC4Type, ...] = attrs.field(converter=_required_arc4_wtypes)
+    types: tuple[ARC4Type, ...] = attrs.field(
+        converter=attrs.Converter(_tuple_requires_arc4_types, takes_self=True)  # type: ignore[misc, call-overload]
+    )
     name: str = attrs.field(init=False)
     arc4_name: str = attrs.field(init=False, eq=False)
     immutable: bool = attrs.field(init=False)
@@ -372,7 +378,7 @@ class ARC4Tuple(ARC4Type):
 
     @native_type.default
     def _native_type(self) -> WTuple:
-        return WTuple(self.types, self.source_location)
+        return WTuple(types=self.types, source_location=self.source_location)
 
     def can_encode_type(self, wtype: WType) -> bool:
         return super().can_encode_type(wtype) or _is_arc4_encodeable_tuple(wtype, self.types)
@@ -391,15 +397,11 @@ def _is_arc4_encodeable_tuple(
     )
 
 
-def _expect_arc4_type(wtype: WType) -> ARC4Type:
-    if not isinstance(wtype, ARC4Type):
-        raise CodeError(f"expected ARC4 type: {wtype}")
-    return wtype
-
-
 @attrs.frozen(kw_only=True)
 class ARC4Array(ARC4Type):
-    element_type: ARC4Type = attrs.field(converter=_expect_arc4_type)
+    element_type: ARC4Type = attrs.field(
+        converter=attrs.Converter(_array_requires_arc4_type, takes_self=True)  # type: ignore[misc, call-overload]
+    )
     native_type: WType | None = None
     immutable: bool = False
 
@@ -409,7 +411,6 @@ class ARC4Array(ARC4Type):
 class ARC4DynamicArray(ARC4Array):
     name: str = attrs.field(init=False)
     arc4_name: str = attrs.field(eq=False)
-    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
 
     @name.default
     def _name(self) -> str:
@@ -426,7 +427,6 @@ class ARC4StaticArray(ARC4Array):
     array_size: int = attrs.field(validator=attrs.validators.ge(0))
     name: str = attrs.field(init=False)
     arc4_name: str = attrs.field(eq=False)
-    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
 
     @name.default
     def _name(self) -> str:
@@ -459,7 +459,6 @@ class ARC4Struct(ARC4Type):
     fields: immutabledict[str, ARC4Type] = attrs.field(converter=_require_arc4_fields)
     frozen: bool
     immutable: bool = attrs.field(init=False)
-    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
     arc4_name: str = attrs.field(init=False, eq=False)
     native_type: None = attrs.field(default=None, init=False)
     desc: str | None = None

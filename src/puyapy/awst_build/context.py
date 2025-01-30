@@ -160,7 +160,11 @@ def type_to_pytype(
     in_type_args: bool = False,
     in_func_sig: bool = False,
 ) -> pytypes.PyType:
-    loc = source_location
+    loc = (
+        source_location
+        if mypy_type.line is None or mypy_type.line < 1
+        else source_location_from_mypy(source_location.file, mypy_type)
+    )
     proper_type_or_alias: mypy.types.ProperType | mypy.types.TypeAliasType
     if isinstance(mypy_type, mypy.types.TypeAliasType):
         proper_type_or_alias = mypy_type
