@@ -27,7 +27,7 @@ TMP_VAR_INDICATOR = "%"
 class IRBuildContext(CompileContext):
     awst: awst_nodes.AWST
     subroutines: dict[awst_nodes.Function, Subroutine]
-    embedded_funcs_lookup: Mapping[str, Subroutine] = attrs.field(default=dict)
+    embedded_funcs_lookup: Mapping[str, Subroutine]
     root: awst_nodes.Contract | awst_nodes.LogicSignature | None = None
     routers: dict[ContractReference, Subroutine] = attrs.field(factory=dict)
 
