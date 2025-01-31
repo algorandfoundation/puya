@@ -37,8 +37,6 @@ while condition:
     # block of code to execute if condition is True
 ```
 
-Note: we don't currently have support for while-else statements.
-
 [See full example](https://github.com/algorandfoundation/puya/blob/main/test_cases/unssa/contract.py#L32-L83).
 
 ## For Loops
@@ -63,8 +61,6 @@ for index, item in uenumerate(reversed(urange(4))):
 
 assert test_array.bytes == Bytes.from_hex("03020100")
 ```
-
-Note: we don't currently have support for for-else statements.
 
 [See full](https://github.com/algorandfoundation/puya/blob/main/test_cases/reversed_iteration/contract.py) [examples](https://github.com/algorandfoundation/puya/blob/main/test_cases/nested_loops/contract.py).
 
