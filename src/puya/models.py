@@ -121,6 +121,19 @@ class ARC4BareMethodConfig:
 
 
 @attrs.frozen(kw_only=True)
+class ABIMethodArgConstantDefault:
+    data: bytes
+
+
+@attrs.frozen(kw_only=True)
+class ABIMethodArgMemberDefault:
+    name: str
+
+
+ABIMethodArgDefault = ABIMethodArgMemberDefault | ABIMethodArgConstantDefault
+
+
+@attrs.frozen(kw_only=True)
 class ARC4ABIMethodConfig:
     source_location: SourceLocation
     allowed_completion_types: Sequence[OnCompletionAction] = attrs.field(
@@ -131,7 +144,7 @@ class ARC4ABIMethodConfig:
     create: ARC4CreateOption = ARC4CreateOption.disallow
     name: str
     readonly: bool = False
-    default_args: immutabledict[str, str] = immutabledict()
+    default_args: immutabledict[str, ABIMethodArgDefault] = immutabledict()
     """Mapping is from parameter -> source"""
 
 

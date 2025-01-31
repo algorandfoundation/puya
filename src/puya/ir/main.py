@@ -1,15 +1,17 @@
 import contextlib
 import itertools
 import typing
-from collections import Counter, defaultdict
-from collections.abc import Collection, Iterable, Iterator, Mapping, Sequence
+from collections import defaultdict
+from collections.abc import Collection, Iterable, Iterator, Mapping
 from copy import deepcopy
 from pathlib import Path
 
-import attrs
 from immutabledict import immutabledict
 
-from puya import algo_constants, log
+from puya import (
+    log,
+    models as puya_models,
+)
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -21,43 +23,19 @@ from puya.awst.serialize import awst_from_json
 from puya.context import ArtifactCompileContext, CompileContext
 from puya.errors import InternalError
 from puya.ir import arc4_router
-from puya.ir.arc4_router import extract_arc4_methods, maybe_avm_to_arc4_equivalent_type
+from puya.ir._contract_metadata import build_contract_metadata
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
 from puya.ir.destructure.main import destructure_ssa
-from puya.ir.models import (
-    Contract,
-    LogicSignature,
-    ModuleArtifact,
-    Parameter,
-    Program,
-    Subroutine,
-)
+from puya.ir.models import Contract, LogicSignature, ModuleArtifact, Parameter, Program, Subroutine
 from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
 from puya.ir.optimize.main import optimize_program_ir
 from puya.ir.to_text_visitor import render_program
 from puya.ir.types_ import wtype_to_ir_type, wtype_to_ir_types
 from puya.ir.utils import format_tuple_index
 from puya.ir.validation.main import validate_module_artifact
-from puya.models import (
-    ARC4ABIMethod,
-    ARC4Method,
-    ARC4MethodConfig,
-    ARC4Struct,
-    ARC4StructField,
-    ContractMetaData,
-    ContractProgramReference,
-    ContractReference,
-    ContractState,
-    LogicSignatureMetaData,
-    LogicSigProgramReference,
-    LogicSigReference,
-    ProgramKind,
-    ProgramReference,
-    StateTotals,
-)
 from puya.parse import SourceLocation
-from puya.utils import StableSet, attrs_extend, coalesce, set_remove, unique
+from puya.utils import StableSet, attrs_extend, coalesce, set_remove
 
 logger = log.get_logger(__name__)
 
@@ -206,7 +184,9 @@ def optimize_and_destructure_ir(
 
 
 def _optimize_and_destructure_program_ir(
-    context: ArtifactCompileContext, ref: ContractReference | LogicSigReference, program: Program
+    context: ArtifactCompileContext,
+    ref: puya_models.ContractReference | puya_models.LogicSigReference,
+    program: Program,
 ) -> Program:
     if context.options.output_ssa_ir:
         render_program(context, program, qualifier="ssa")
@@ -247,7 +227,7 @@ def _build_embedded_ir(ctx: CompileContext) -> Mapping[str, Subroutine]:
 
 
 def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
-    folded, arc4_method_data = _fold_state_and_special_methods(contract)
+    metadata, arc4_method_data = build_contract_metadata(ctx, contract)
     arc4_router_func = arc4_router.create_abi_router(contract, arc4_method_data)
     ctx.subroutines[arc4_router_func] = ctx.routers[contract.id] = _make_subroutine(
         arc4_router_func, allow_implicits=False
@@ -261,25 +241,7 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
     clear_subs_srefs = SubroutineCollector.collect(
         ctx, start=contract.clear_program, callees=callees, arc4_router_func=arc4_router_func
     )
-    function_emits = EventCollector.collect(ctx, unique((*approval_subs_srefs, *clear_subs_srefs)))
 
-    # collect emitted events by method, and include any referenced structs
-    structs = list(folded.structs)
-    arc4_methods = []
-    for method, arc4_method in arc4_method_data.items():
-        if isinstance(arc4_method, ARC4ABIMethod):
-            method_structs = function_emits[method]
-            # extend structs with any arc4 struct types that are part of an event
-            structs.extend(
-                t
-                for method_struct in method_structs
-                for t in method_struct.fields.values()
-                if isinstance(t, wtypes.ARC4Struct)
-            )
-            arc4_method = attrs.evolve(
-                arc4_method, events=list(map(_wtype_to_struct, method_structs))
-            )
-        arc4_methods.append(arc4_method)
     # construct unique Subroutine objects for each function
     # that was referenced through either entry point
     for func in itertools.chain(approval_subs_srefs, clear_subs_srefs):
@@ -302,10 +264,10 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
             *(ctx.subroutines[ref] for ref in approval_subs_srefs),
             *ctx.embedded_funcs_lookup.values(),
         ),
-        ref=ContractProgramReference(
+        ref=puya_models.ContractProgramReference(
             reference=contract.id,
             program_name=contract.approval_program.short_name,
-            kind=ProgramKind.approval,
+            kind=puya_models.ProgramKind.approval,
         ),
         avm_version=avm_version,
     )
@@ -316,10 +278,10 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
             *(ctx.subroutines[ref] for ref in clear_subs_srefs),
             *ctx.embedded_funcs_lookup.values(),
         ),
-        ref=ContractProgramReference(
+        ref=puya_models.ContractProgramReference(
             reference=contract.id,
             program_name=contract.clear_program.short_name,
-            kind=ProgramKind.clear_state,
+            kind=puya_models.ProgramKind.clear_state,
         ),
         avm_version=avm_version,
     )
@@ -327,20 +289,7 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
         source_location=contract.source_location,
         approval_program=approval_ir,
         clear_program=clear_state_ir,
-        metadata=ContractMetaData(
-            description=contract.description,
-            name=contract.name,
-            ref=contract.id,
-            arc4_methods=arc4_methods,
-            global_state=immutabledict(folded.global_state),
-            local_state=immutabledict(folded.local_state),
-            boxes=immutabledict(folded.boxes),
-            state_totals=folded.build_state_totals(location=contract.source_location),
-            structs=immutabledict(_wtypes_to_structs(structs)),
-            template_variable_types=immutabledict(
-                TemplateVariableTypeCollector.collect(ctx.subroutines)
-            ),
-        ),
+        metadata=metadata,
     )
     return result
 
@@ -372,13 +321,13 @@ def _build_logic_sig_ir(
             *(ctx.subroutines[ref] for ref in program_sub_refs),
             *ctx.embedded_funcs_lookup.values(),
         ),
-        ref=LogicSigProgramReference(reference=logic_sig.id),
+        ref=puya_models.LogicSigProgramReference(reference=logic_sig.id),
         avm_version=coalesce(logic_sig.avm_version, ctx.options.target_avm_version),
     )
     result = LogicSignature(
         source_location=logic_sig.source_location,
         program=sig_ir,
-        metadata=LogicSignatureMetaData(
+        metadata=puya_models.LogicSignatureMetaData(
             ref=logic_sig.id,
             description=logic_sig.docstring,
             name=logic_sig.short_name,
@@ -458,7 +407,7 @@ def _make_program(
     main: awst_nodes.Function,
     references: Iterable[Subroutine],
     *,
-    ref: ProgramReference,
+    ref: puya_models.ProgramReference,
     avm_version: int,
 ) -> Program:
     if main.args:
@@ -484,207 +433,6 @@ def _make_program(
     )
     remove_unused_subroutines(program)
     return program
-
-
-@attrs.define(kw_only=True)
-class FoldedContract:
-    global_state: dict[str, ContractState] = attrs.field(factory=dict)
-    local_state: dict[str, ContractState] = attrs.field(factory=dict)
-    boxes: dict[str, ContractState] = attrs.field(factory=dict)
-    arc4_methods: list[ARC4Method] = attrs.field(factory=list)
-    structs: list[wtypes.ARC4Struct | wtypes.WTuple] = attrs.field(factory=list)
-    declared_totals: awst_nodes.StateTotals | None
-
-    def build_state_totals(self, *, location: SourceLocation) -> StateTotals:
-        global_by_type = Counter(s.storage_type for s in self.global_state.values())
-        local_by_type = Counter(s.storage_type for s in self.local_state.values())
-        merged = StateTotals(
-            global_uints=global_by_type[AVMType.uint64],
-            global_bytes=global_by_type[AVMType.bytes],
-            local_uints=local_by_type[AVMType.uint64],
-            local_bytes=local_by_type[AVMType.bytes],
-        )
-        if self.declared_totals is not None:
-            insufficient_fields = []
-            declared_dict = attrs.asdict(self.declared_totals, filter=attrs.filters.include(int))
-            for field, declared in declared_dict.items():
-                calculated = getattr(merged, field)
-                if declared < calculated:
-                    insufficient_fields.append(f"{field}: {declared=}, {calculated=}")
-                merged = attrs.evolve(merged, **{field: declared})
-            if insufficient_fields:
-                logger.warning(
-                    f"State totals declared on the class are less than totals calculated from"
-                    f" explicitly declared properties: {', '.join(sorted(insufficient_fields))}.",
-                    location=location,
-                )
-        global_total = merged.global_uints + merged.global_bytes
-        local_total = merged.local_uints + merged.local_bytes
-        if global_total > algo_constants.MAX_GLOBAL_STATE_KEYS:
-            logger.warning(
-                f"Total global state key count of {global_total}"
-                f" exceeds consensus parameter value {algo_constants.MAX_GLOBAL_STATE_KEYS}",
-                location=location,
-            )
-        if local_total > algo_constants.MAX_LOCAL_STATE_KEYS:
-            logger.warning(
-                f"Total local state key count of {local_total}"
-                f" exceeds consensus parameter value {algo_constants.MAX_LOCAL_STATE_KEYS}",
-                location=location,
-            )
-        return merged
-
-
-def _gather_arc4_methods(
-    contract: awst_nodes.Contract,
-) -> dict[awst_nodes.ContractMethod, ARC4MethodConfig]:
-    maybe_arc4_method_refs = dict[str, tuple[awst_nodes.ContractMethod, ARC4MethodConfig] | None]()
-    for cref in (contract.id, *contract.method_resolution_order):
-        for cm in contract.methods:
-            if cm.cref == cref:
-                if cm.arc4_method_config:
-                    maybe_arc4_method_refs.setdefault(cm.member_name, (cm, cm.arc4_method_config))
-                else:
-                    maybe_arc4_method_refs.setdefault(cm.member_name, None)
-    arc4_method_refs = dict(filter(None, maybe_arc4_method_refs.values()))
-    return arc4_method_refs
-
-
-def _fold_state_and_special_methods(
-    contract: awst_nodes.Contract,
-) -> tuple[FoldedContract, dict[awst_nodes.ContractMethod, ARC4Method]]:
-    result = FoldedContract(
-        declared_totals=contract.state_totals,
-    )
-    struct_types = list[wtypes.ARC4Struct | wtypes.WTuple]()
-    for state in contract.app_state:
-        key_type = None
-        if state.key_wtype is not None:
-            key_type = wtypes.persistable_stack_type(state.key_wtype, state.source_location)
-            if _is_arc4_struct(state.key_wtype):
-                struct_types.append(state.key_wtype)
-        if _is_arc4_struct(state.storage_wtype):
-            struct_types.append(state.storage_wtype)
-        translated = _get_contract_state(state)
-        match state.kind:
-            case awst_nodes.AppStorageKind.app_global:
-                if key_type is not None:
-                    raise InternalError(
-                        f"maps of {state.kind} are not supported yet", state.source_location
-                    )
-                result.global_state[state.member_name] = translated
-            case awst_nodes.AppStorageKind.account_local:
-                if key_type is not None:
-                    raise InternalError(
-                        f"maps of {state.kind} are not supported yet", state.source_location
-                    )
-                result.local_state[state.member_name] = translated
-            case awst_nodes.AppStorageKind.box:
-                result.boxes[state.member_name] = translated
-            case _:
-                typing.assert_never(state.kind)
-    arc4_method_refs = _gather_arc4_methods(contract)
-    for arc4_method in arc4_method_refs:
-        for wtype in (arc4_method.return_type, *(arg.wtype for arg in arc4_method.args)):
-            if _is_arc4_struct(wtype):
-                struct_types.append(wtype)
-    if arc4_method_refs:
-        methods = extract_arc4_methods(
-            arc4_method_refs,
-            local_state=result.local_state,
-            global_state=result.global_state,
-        )
-        result.arc4_methods = list(methods.values())
-    else:
-        methods = {}
-    result.structs = struct_types
-    return result, methods
-
-
-def _is_arc4_struct(wtype: wtypes.WType) -> typing.TypeGuard[wtypes.ARC4Struct | wtypes.WTuple]:
-    return isinstance(wtype, wtypes.ARC4Struct | wtypes.WTuple) and bool(wtype.fields)
-
-
-def _wtypes_to_structs(
-    structs: Sequence[wtypes.ARC4Struct | wtypes.WTuple],
-) -> dict[str, ARC4Struct]:
-    """
-    Produce a unique mapping of struct names to ARC4Struct definitions.
-    Will recursively include any structs referenced in fields
-    """
-    structs = list(structs)
-    struct_results = dict[str, ARC4Struct]()
-    while structs:
-        struct = structs.pop()
-        if struct.name in struct_results:
-            continue
-        structs.extend(
-            wtype
-            for wtype in struct.fields.values()
-            if isinstance(wtype, wtypes.ARC4Struct) and wtype.name not in struct_results
-        )
-        struct_results[struct.name] = _wtype_to_struct(struct)
-    return dict(sorted(struct_results.items(), key=lambda item: item[0]))
-
-
-def _wtype_to_struct(struct: wtypes.ARC4Struct | wtypes.WTuple) -> ARC4Struct:
-    fields = []
-    for field_name, field_wtype in struct.fields.items():
-        if not isinstance(field_wtype, wtypes.ARC4Type):
-            maybe_arc4_field_wtype = maybe_avm_to_arc4_equivalent_type(field_wtype)
-            if maybe_arc4_field_wtype is None:
-                raise InternalError("expected ARC4 type")
-            field_wtype = maybe_arc4_field_wtype
-        fields.append(
-            ARC4StructField(
-                name=field_name,
-                type=field_wtype.arc4_name,
-                struct=field_wtype.name if _is_arc4_struct(field_wtype) else None,
-            )
-        )
-    return ARC4Struct(
-        fullname=struct.name,
-        desc=struct.desc,
-        fields=fields,
-    )
-
-
-def _get_contract_state(state: awst_nodes.AppStorageDefinition) -> ContractState:
-    storage_type = wtypes.persistable_stack_type(state.storage_wtype, state.source_location)
-    if state.key_wtype is not None:
-        arc56_key_type = _get_arc56_type(state.key_wtype, state.source_location)
-        is_map = True
-    else:
-        arc56_key_type = (
-            "AVMString" if state.key.encoding == awst_nodes.BytesEncoding.utf8 else "AVMBytes"
-        )
-        is_map = False
-    arc56_value_type = _get_arc56_type(state.storage_wtype, state.source_location)
-    return ContractState(
-        name=state.member_name,
-        source_location=state.source_location,
-        key_or_prefix=state.key.value,
-        arc56_key_type=arc56_key_type,
-        arc56_value_type=arc56_value_type,
-        storage_type=storage_type,
-        description=state.description,
-        is_map=is_map,
-    )
-
-
-def _get_arc56_type(wtype: wtypes.WType, loc: SourceLocation) -> str:
-    if isinstance(wtype, wtypes.ARC4Struct):
-        return wtype.name
-    if isinstance(wtype, wtypes.ARC4Type):
-        return wtype.arc4_name
-    if wtype == wtypes.string_wtype:
-        return "AVMString"
-    storage_type = wtypes.persistable_stack_type(wtype, loc)
-    match storage_type:
-        case AVMType.uint64:
-            return "AVMUint64"
-        case AVMType.bytes:
-            return "AVMBytes"
 
 
 class SubroutineCollector(FunctionTraverser):
@@ -743,79 +491,3 @@ class SubroutineCollector(FunctionTraverser):
             yield
         finally:
             self._func_stack.pop()
-
-
-@attrs.frozen
-class EventCollector(FunctionTraverser):
-    context: IRBuildContext
-    emits: dict[awst_nodes.Function, StableSet[wtypes.ARC4Struct]] = attrs.field(factory=dict)
-    _func_stack: list[awst_nodes.Function] = attrs.field(factory=list)
-
-    @classmethod
-    def collect(
-        cls, context: IRBuildContext, all_funcs: Iterable[awst_nodes.Function]
-    ) -> Mapping[awst_nodes.Function, StableSet[wtypes.ARC4Struct]]:
-        collector = cls(context)
-        for func in all_funcs:
-            collector.process_func(func)
-        return collector.emits
-
-    def process_func(self, func: awst_nodes.Function) -> None:
-        if func in self.emits:
-            return
-        self.emits[func] = StableSet[wtypes.ARC4Struct]()
-        with self._enter_func(func):
-            func.body.accept(self)
-
-    @contextlib.contextmanager
-    def _enter_func(self, func: awst_nodes.Function) -> Iterator[None]:
-        self._func_stack.append(func)
-        try:
-            yield
-        finally:
-            self._func_stack.pop()
-
-    @property
-    def current_func(self) -> awst_nodes.Function:
-        return self._func_stack[-1]
-
-    def visit_emit(self, emit: awst_nodes.Emit) -> None:
-        assert isinstance(emit.value.wtype, wtypes.ARC4Struct)
-        self.emits[self.current_func].add(emit.value.wtype)
-
-    def visit_subroutine_call_expression(self, expr: awst_nodes.SubroutineCallExpression) -> None:
-        target = self.context.resolve_function_reference(
-            expr.target,
-            expr.source_location,
-            caller=self.current_func,
-        )
-        self.process_func(target)
-        self.emits[self.current_func] |= self.emits[target]
-
-
-class TemplateVariableTypeCollector(FunctionTraverser):
-    def __init__(self) -> None:
-        self.vars = dict[str, awst_nodes.TemplateVar]()
-
-    @classmethod
-    def collect(cls, functions: Iterable[awst_nodes.Function]) -> dict[str, str]:
-        collector = cls()
-        for function in functions:
-            function.body.accept(collector)
-        return {
-            name: _get_arc56_type(var.wtype, var.source_location)
-            for name, var in collector.vars.items()
-        }
-
-    def visit_template_var(self, var: awst_nodes.TemplateVar) -> None:
-        try:
-            existing = self.vars[var.name]
-        except KeyError:
-            self.vars[var.name] = var
-        else:
-            if existing.wtype != var.wtype:
-                logger.error(
-                    "inconsistent types specified for template var",
-                    location=var.source_location,
-                )
-                logger.info("other template var", location=existing.source_location)

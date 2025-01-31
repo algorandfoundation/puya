@@ -14,6 +14,9 @@ from puya import (
 )
 from puya.errors import InternalError
 from puya.models import (
+    ABIMethodArgConstantDefault,
+    ABIMethodArgDefault,
+    ABIMethodArgMemberDefault,
     ARC4ABIMethod,
     ARC4BareMethod,
     ARC4CreateOption,
@@ -74,7 +77,7 @@ def create_arc56_json(
                         desc=a.desc,
                         struct=aliases.resolve(a.struct),
                         defaultValue=_encode_default_arg(
-                            metadata, m.config.default_args.get(a.name)
+                            metadata, a.type_, m.config.default_args.get(a.name)
                         ),
                     )
                     for a in m.args
@@ -265,36 +268,45 @@ def _method_actions(method: ARC4BareMethod | ARC4ABIMethod) -> models.MethodActi
 
 
 def _encode_default_arg(
-    metadata: ContractMetaData, source: str | None
+    metadata: ContractMetaData, type_string: str, source: ABIMethodArgDefault | None
 ) -> models.MethodArgDefaultValue | None:
-    if source is None:
-        return None
-    if (state := metadata.global_state.get(source)) and not state.is_map:
-        return models.MethodArgDefaultValue(
-            data=_encode_bytes(state.key_or_prefix),
-            type=state.arc56_key_type,
-            source=models.DefaultValueSource.global_,
-        )
-    if (state := metadata.local_state.get(source)) and not state.is_map:
-        return models.MethodArgDefaultValue(
-            data=_encode_bytes(state.key_or_prefix),
-            type=state.arc56_key_type,
-            source=models.DefaultValueSource.local_,
-        )
-    if (state := metadata.boxes.get(source)) and not state.is_map:
-        return models.MethodArgDefaultValue(
-            data=_encode_bytes(state.key_or_prefix),
-            type=state.arc56_key_type,
-            source=models.DefaultValueSource.box,
-        )
-    for method in metadata.arc4_methods:
-        if isinstance(method, ARC4ABIMethod) and method.name == source:
+    match source:
+        case None:
+            return None
+        case ABIMethodArgConstantDefault(data=data):
             return models.MethodArgDefaultValue(
-                data=method.signature,
-                source=models.DefaultValueSource.method,
+                data=_encode_bytes(data),
+                type=type_string,
+                source=models.DefaultValueSource.literal,
             )
-    # TODO: constants
-    raise InternalError(f"Cannot find {source=!r} on {metadata.ref}")
+        case ABIMethodArgMemberDefault(name=name):
+            if (state := metadata.global_state.get(name)) and not state.is_map:
+                return models.MethodArgDefaultValue(
+                    data=_encode_bytes(state.key_or_prefix),
+                    type=state.arc56_key_type,
+                    source=models.DefaultValueSource.global_,
+                )
+            if (state := metadata.local_state.get(name)) and not state.is_map:
+                return models.MethodArgDefaultValue(
+                    data=_encode_bytes(state.key_or_prefix),
+                    type=state.arc56_key_type,
+                    source=models.DefaultValueSource.local_,
+                )
+            if (state := metadata.boxes.get(name)) and not state.is_map:
+                return models.MethodArgDefaultValue(
+                    data=_encode_bytes(state.key_or_prefix),
+                    type=state.arc56_key_type,
+                    source=models.DefaultValueSource.box,
+                )
+            for method in metadata.arc4_methods:
+                if isinstance(method, ARC4ABIMethod) and method.name == name:
+                    return models.MethodArgDefaultValue(
+                        data=method.signature,
+                        source=models.DefaultValueSource.method,
+                    )
+            raise InternalError(f"Cannot find {source=!r} on {metadata.ref}")
+        case unexpected:
+            typing.assert_never(unexpected)
 
 
 def _combine_actions(actions: Sequence[models.MethodActions]) -> models.MethodActions:
