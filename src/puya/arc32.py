@@ -6,6 +6,8 @@ from collections.abc import Collection, Mapping, Sequence
 from puya import log
 from puya.errors import InternalError
 from puya.models import (
+    ABIMethodArgConstantDefault,
+    ABIMethodArgDefault,
     ARC4ABIMethod,
     ARC4BareMethod,
     ARC4CreateOption,
@@ -92,26 +94,27 @@ def _get_signature(method: ARC4ABIMethod) -> str:
 
 
 def _encode_default_arg(
-    metadata: ContractMetaData, source: str, loc: SourceLocation | None
+    metadata: ContractMetaData, source: ABIMethodArgDefault, loc: SourceLocation | None
 ) -> JSONDict:
-    if state := metadata.global_state.get(source):
+    if isinstance(source, ABIMethodArgConstantDefault):
+        return {"source": "constant", "data": source.data.decode("utf-8")}
+    if state := metadata.global_state.get(source.name):
         return {
             "source": "global-state",
             # TODO: handle non utf-8 bytes
             "data": state.key_or_prefix.decode("utf-8"),
         }
-    if state := metadata.local_state.get(source):
+    if state := metadata.local_state.get(source.name):
         return {
             "source": "local-state",
             "data": state.key_or_prefix.decode("utf-8"),
         }
     for method in metadata.arc4_methods:
-        if isinstance(method, ARC4ABIMethod) and method.name == source:
+        if isinstance(method, ARC4ABIMethod) and method.name == source.name:
             return {
                 "source": "abi-method",
                 "data": _encode_abi_method(method),
             }
-    # TODO: constants
     raise InternalError(f"Cannot find source '{source}' on {metadata.ref}", loc)
 
 
