@@ -14,8 +14,8 @@ class _OpLifetime:
     block: models.MemoryBasicBlock
     used: StableSet[str] = attrs.field(on_setattr=attrs.setters.frozen)
     defined: StableSet[str] = attrs.field(on_setattr=attrs.setters.frozen)
-    successors: "list[_OpLifetime]" = attrs.field(default=list)
-    predecessors: "list[_OpLifetime]" = attrs.field(factory=list)
+    successors: list[typing.Self] = attrs.field(factory=list)
+    predecessors: list[typing.Self] = attrs.field(factory=list)
 
     live_in: StableSet[str] = attrs.field(factory=StableSet)
     live_out: StableSet[str] = attrs.field(factory=StableSet)
