@@ -49,7 +49,11 @@ def abimethod(
                  "disallow" requires it must be non-zero, and "allow" disables the validation.
     :arg allow_actions: A sequence of allowed On-Completion Actions to validate against.
     :arg readonly: If True, then this method can be used via dry-run / simulate.
-    :arg default_args: Default argument sources for clients to use.
+    :arg default_args: Default argument sources for clients to use. For dynamic defaults, this can
+                       be the name of, or reference to a method member, or the name of a storage
+                       member. For static defaults, this can be any expression which evaluates to
+                       a compile time constant of the exact same type as the parameter.
+
     """
 
 _TARC4Contract = typing.TypeVar("_TARC4Contract", bound=ARC4Contract)
