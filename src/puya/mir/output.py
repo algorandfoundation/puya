@@ -15,11 +15,9 @@ logger = log.get_logger(__name__)
 def output_memory_ir(
     ctx: ArtifactCompileContext, program: models.Program, *, qualifier: str
 ) -> None:
-    out_dir = ctx.out_dir
-    if out_dir is None:
+    output_path = ctx.build_output_path(program.kind, qualifier, "mir")
+    if output_path is None:
         return
-    out_dir.mkdir(exist_ok=True)
-    output_path = ctx.sequential_path(program.kind, qualifier, "mir")
     writer = AlignedWriter()
     writer.add_header("// Op")
     writer.add_header("Stack (out)", 4)

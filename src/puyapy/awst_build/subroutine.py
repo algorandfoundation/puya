@@ -1,3 +1,4 @@
+import abc
 import typing
 from collections.abc import Callable, Sequence
 
@@ -5,6 +6,7 @@ import attrs
 import mypy.nodes
 import mypy.patterns
 import mypy.types
+import mypy.visitor
 
 from puya import log
 from puya.awst.nodes import (
@@ -44,7 +46,7 @@ from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puya.program_refs import ContractReference, LogicSigReference
 from puyapy.awst_build import constants, pytypes
-from puyapy.awst_build.base_mypy_visitor import BaseMyPyVisitor
+from puyapy.awst_build.base_mypy_visitor import BaseMyPyExpressionVisitor, BaseMyPyStatementVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._literals import LiteralBuilderImpl
@@ -94,7 +96,464 @@ class ContractMethodInfo:
     arc4_method_config: ARC4MethodConfig | None
 
 
-class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | None, NodeBuilder]):
+class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
+    @abc.abstractmethod
+    def resolve_local_type(
+        self, var_name: str, expr_loc: SourceLocation
+    ) -> pytypes.PyType | None: ...
+
+    @abc.abstractmethod
+    def builder_for_self(self, expr_loc: SourceLocation) -> NodeBuilder: ...
+
+    # Expressions
+    def _visit_ref_expr(self, expr: mypy.nodes.MemberExpr | mypy.nodes.NameExpr) -> NodeBuilder:
+        expr_loc = self._location(expr)
+        # Do a straight forward lookup at the RefExpr level handle the cases of:
+        #  - type aliases
+        #  - simple (non-generic) types
+        #  - generic type that has not been parameterised
+        #    (e.g. when calling a constructor which can infer the type from its arguments)
+        # For parameterised generics, these are resolved at the IndexExpr level, without
+        # descending into IndexExpr.base.
+        # By doing a simple lookup instead of resolving the PyType of expr,
+        # we can side step complex constructs in the stubs that we don't support in user code,
+        # such as overloads.
+        if py_typ := self.context.lookup_pytype(expr.fullname):
+            if isinstance(py_typ, pytypes.ContractType):
+                if fragment := self.context.contract_fragments.get(py_typ.name):
+                    return ContractTypeExpressionBuilder(py_typ, fragment, expr_loc)
+            elif pytypes.ARC4ClientBaseType < py_typ:  # provides type info only
+                if fragment := self.context.contract_fragments.get(ContractReference(py_typ.name)):
+                    return ARC4ClientTypeBuilder(py_typ, expr_loc, fragment)
+            elif py_typ == pytypes.LogicSigType:
+                ref = LogicSigReference(get_unaliased_fullname(expr))
+                return LogicSigExpressionBuilder(ref, expr_loc)
+            else:
+                return builder_for_type(py_typ, expr_loc)
+
+        if expr.name == "__all__":
+            # special case here, we allow __all__ at the module level for it's "public vs private"
+            # control implications w.r.t linting etc, but we do so by ignoring it.
+            # so this is here just in case someone tries to reference __all__ inside a function,
+            # to give a more useful error message.
+            raise CodeError("__all__ cannot be referenced inside functions", expr_loc)
+
+        fullname = get_unaliased_fullname(expr)
+        if fullname.startswith("builtins."):
+            return self._visit_ref_expr_of_builtins(fullname, expr_loc)
+        if func_builder := try_get_builder_for_func(fullname, expr_loc):
+            return func_builder
+        match expr:
+            case mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True)):
+                return self.builder_for_self(expr_loc)
+            case mypy.nodes.RefExpr(
+                node=mypy.nodes.Decorator() as dec
+            ) if constants.SUBROUTINE_HINT in get_decorators_by_fullname(self.context, dec):
+                self._precondition(
+                    expr.fullname != expr.name,
+                    "unqualified name found in call to function",
+                    expr_loc,
+                )
+                mypy_func_type = require_callable_type(dec, expr_loc)
+                func_type = self.context.type_to_pytype(mypy_func_type, source_location=expr_loc)
+                if not isinstance(func_type, pytypes.FuncType):
+                    raise CodeError("decorated function has non-function type", expr_loc)
+                return SubroutineInvokerExpressionBuilder(
+                    target=SubroutineID(expr.fullname),
+                    func_type=func_type,
+                    location=expr_loc,
+                )
+            case mypy.nodes.RefExpr(node=mypy.nodes.FuncDef()):
+                raise CodeError(
+                    f"Cannot invoke {fullname} as it is not "
+                    f"decorated with {constants.SUBROUTINE_HINT_ALIAS}",
+                    expr_loc,
+                )
+            # TODO: is this enough to filter to only global variable references?
+            #       it seems like it should be...
+            case mypy.nodes.RefExpr(kind=mypy.nodes.GDEF, node=mypy.nodes.Var()):
+                self._precondition(
+                    not (
+                        expr.is_new_def
+                        or expr.is_inferred_def
+                        or expr.is_alias_rvalue
+                        or (isinstance(expr, mypy.nodes.NameExpr) and expr.is_special_form)
+                    ),
+                    "global variable reference with unexpected flags",
+                    expr_loc,
+                )
+                try:
+                    constant_value = self.context.constants[expr.fullname]
+                except KeyError as ex:
+                    raise CodeError(
+                        "Unable to resolve global constant reference", expr_loc
+                    ) from ex
+                else:
+                    return LiteralBuilderImpl(source_location=expr_loc, value=constant_value)
+            case (
+                mypy.nodes.NameExpr(
+                    kind=mypy.nodes.LDEF, node=mypy.nodes.Var(), name=var_name
+                ) as name_expr
+            ):
+                self._precondition(
+                    not name_expr.is_special_form,
+                    "special form lvalues should only appear"
+                    " as a singular lvalue in an assignment statement",
+                    expr_loc,
+                )
+                local_type = self.resolve_local_type(var_name, expr_loc)
+                if local_type is None:
+                    raise CodeError(
+                        "local variable type is unknown - possible use before definition?",
+                        expr_loc,
+                    )
+                var_expr = VarExpression(
+                    name=var_name,
+                    wtype=local_type.checked_wtype(expr_loc),
+                    source_location=expr_loc,
+                )
+                return builder_for_instance(local_type, var_expr)
+        scope = {
+            mypy.nodes.LDEF: "local",
+            mypy.nodes.MDEF: "member",
+            mypy.nodes.GDEF: "global",
+            None: "unknown",
+        }.get(expr.kind)
+        # this can happen in otherwise well-formed code that is just missing a reference
+        raise CodeError(
+            f"Unable to resolve reference to {expr.fullname or expr.name!r}, {scope=}",
+            expr_loc,
+        )
+
+    @staticmethod
+    def _visit_ref_expr_of_builtins(fullname: str, location: SourceLocation) -> NodeBuilder:
+        assert fullname.startswith("builtins.")
+        rest_of_name = fullname.removeprefix("builtins.")
+        match rest_of_name:
+            case "True":
+                return LiteralBuilderImpl(source_location=location, value=True)
+            case "False":
+                return LiteralBuilderImpl(source_location=location, value=False)
+            case "None":
+                raise CodeError("None is not supported as a value, only a return type", location)
+            case "len":
+                raise CodeError(
+                    "len() is not supported -"
+                    " types with a length will have a .length property instead",
+                    location,
+                )
+            case "range":
+                raise CodeError("range() is not supported - use algopy.urange() instead", location)
+            case "enumerate":
+                raise CodeError(
+                    "enumerate() is not supported - use algopy.uenumerate() instead", location
+                )
+            case _:
+                raise CodeError(f"Unsupported builtin: {rest_of_name}", location)
+
+    @typing.override
+    def visit_name_expr(self, expr: mypy.nodes.NameExpr) -> NodeBuilder:
+        return self._visit_ref_expr(expr)
+
+    @typing.override
+    def visit_member_expr(self, expr: mypy.nodes.MemberExpr) -> NodeBuilder:
+        expr_loc = self._location(expr)
+        if isinstance(expr.expr, mypy.nodes.RefExpr) and isinstance(
+            expr.expr.node, mypy.nodes.MypyFile
+        ):
+            # special case for module attribute access
+            return self._visit_ref_expr(expr)
+
+        base = expr.expr.accept(self)
+        return base.member_access(expr.name, expr_loc)
+
+    @typing.override
+    def visit_call_expr(self, call: mypy.nodes.CallExpr) -> NodeBuilder:
+        if call.analyzed is not None:
+            return self._visit_special_call_expr(call, analyzed=call.analyzed)
+
+        callee = call.callee.accept(self)
+        if not isinstance(callee, CallableBuilder):
+            raise CodeError("not a callable expression", self._location(call.callee))
+
+        args = [arg.accept(self) for arg in call.args]
+        return callee.call(
+            args=args,
+            arg_kinds=call.arg_kinds,
+            arg_names=call.arg_names,
+            location=self._location(call),
+        )
+
+    def _visit_special_call_expr(
+        self, call: mypy.nodes.CallExpr, *, analyzed: mypy.nodes.Expression
+    ) -> NodeBuilder:
+        match analyzed:
+            case mypy.nodes.CastExpr(expr=inner_expr):
+                self.context.warning(
+                    "use of typing.cast, output may be invalid or insecure TEAL", call
+                )
+            case mypy.nodes.AssertTypeExpr(expr=inner_expr):
+                # just FYI... in case the user thinks this has a runtime effect
+                # (it doesn't, not even in Python)
+                self.context.warning(
+                    "use of typing.assert_type has no effect on compilation", call
+                )
+            case mypy.nodes.RevealExpr(expr=mypy.nodes.Expression() as inner_expr):
+                pass
+            case _:
+                raise CodeError(
+                    f"Unsupported special function call"
+                    f" of analyzed type {type(analyzed).__name__}",
+                    self._location(call),
+                )
+
+        return inner_expr.accept(self)
+
+    @typing.override
+    def visit_unary_expr(self, node: mypy.nodes.UnaryExpr) -> NodeBuilder:
+        expr_loc = self._location(node)
+        builder_or_literal = node.expr.accept(self)
+        match node.op:
+            case "not":
+                return builder_or_literal.bool_eval(expr_loc, negate=True)
+            case op_str if op_str in BuilderUnaryOp:
+                builder_op = BuilderUnaryOp(op_str)
+                return require_instance_builder(builder_or_literal).unary_op(builder_op, expr_loc)
+            case _:
+                # guard against future python unary operators
+                raise InternalError(f"Unable to interpret unary operator '{node.op}'", expr_loc)
+
+    @typing.override
+    def visit_op_expr(self, node: mypy.nodes.OpExpr) -> NodeBuilder:
+        node_loc = self._location(node)
+        lhs = require_instance_builder(node.left.accept(self))
+        rhs = require_instance_builder(node.right.accept(self))
+
+        # mypy combines ast.BoolOp and ast.BinOp, but they're kinda different...
+        if node.op in BinaryBooleanOperator:
+            bool_op = BinaryBooleanOperator(node.op)
+            return lhs.bool_binary_op(rhs, bool_op, node_loc)
+
+        try:
+            op = BuilderBinaryOp(node.op)
+        except ValueError as ex:
+            raise InternalError(f"Unknown binary operator: {node.op}") from ex
+
+        result: NodeBuilder = NotImplemented
+        if isinstance(lhs, NodeBuilder):
+            result = lhs.binary_op(other=rhs, op=op, location=node_loc, reverse=False)
+        if result is NotImplemented and isinstance(rhs, NodeBuilder):
+            result = rhs.binary_op(other=lhs, op=op, location=node_loc, reverse=True)
+        if result is NotImplemented:
+            raise CodeError(f"unsupported operation {op.value} between types", node_loc)
+        return result
+
+    @typing.override
+    def visit_index_expr(self, expr: mypy.nodes.IndexExpr) -> NodeBuilder:
+        expr_location = self._location(expr)
+        if isinstance(expr.method_type, mypy.types.CallableType):
+            result_pytyp = self.context.type_to_pytype(
+                expr.method_type.ret_type, source_location=expr_location
+            )
+            if isinstance(result_pytyp, pytypes.PseudoGenericFunctionType):
+                return builder_for_type(result_pytyp, expr_location)
+        match expr.analyzed:
+            case None:
+                pass
+            case mypy.nodes.TypeAliasExpr():
+                raise CodeError("type aliases are not supported inside subroutines", expr_location)
+            case mypy.nodes.TypeApplication(types=type_args):
+                # TODO: resolve expr to generic type builder instead
+                assert isinstance(
+                    expr.base, mypy.nodes.RefExpr
+                ), "expect base of type application to be RefExpr"
+                pytyp = self.context.lookup_pytype(expr.base.fullname)
+                if pytyp is None:
+                    raise CodeError("unknown base type", expr_location)
+                param_typ = pytyp.parameterise(
+                    [
+                        self.context.type_to_pytype(
+                            t, in_type_args=True, source_location=expr_location
+                        )
+                        for t in type_args
+                    ],
+                    expr_location,
+                )
+                return builder_for_type(param_typ, expr_location)
+            case _:
+                typing.assert_never(expr.analyzed)
+
+        base_builder = require_instance_builder(expr.base.accept(self))
+        match expr.index:
+            # special case handling of SliceExpr, so we don't need to handle slice Literal's
+            # or some such everywhere
+            # TODO: SliceBuilder?
+            case mypy.nodes.SliceExpr(begin_index=begin, end_index=end, stride=stride):
+                return base_builder.slice_index(
+                    begin_index=(require_instance_builder(begin.accept(self)) if begin else None),
+                    end_index=(require_instance_builder(end.accept(self)) if end else None),
+                    stride=(require_instance_builder(stride.accept(self)) if stride else None),
+                    location=expr_location,
+                )
+
+        index_builder = require_instance_builder(expr.index.accept(self))
+        return base_builder.index(index=index_builder, location=expr_location)
+
+    @typing.override
+    def visit_conditional_expr(self, expr: mypy.nodes.ConditionalExpr) -> NodeBuilder:
+        expr_loc = self._location(expr)
+        condition = expr.cond.accept(self).bool_eval(self._location(expr.cond))
+        true_b = require_instance_builder(expr.if_expr.accept(self))
+        false_b = require_instance_builder(expr.else_expr.accept(self))
+        if true_b.pytype <= false_b.pytype:
+            expr_pytype = true_b.pytype
+        elif false_b.pytype < true_b.pytype:
+            expr_pytype = false_b.pytype
+        else:
+            raise CodeError(
+                "incompatible result types for 'true' and 'false' expressions", expr_loc
+            )
+
+        if (
+            isinstance(expr_pytype, pytypes.LiteralOnlyType)
+            and isinstance(true_b, LiteralBuilder)
+            and isinstance(false_b, LiteralBuilder)
+        ):
+            return ConditionalLiteralBuilder(
+                true_literal=true_b,
+                false_literal=false_b,
+                condition=condition,
+                location=expr_loc,
+            )
+        else:
+            cond_expr = ConditionalExpression(
+                condition=condition.resolve(),
+                true_expr=true_b.resolve(),
+                false_expr=false_b.resolve(),
+                source_location=expr_loc,
+            )
+            return builder_for_instance(expr_pytype, cond_expr)
+
+    @typing.override
+    def visit_comparison_expr(self, expr: mypy.nodes.ComparisonExpr) -> NodeBuilder:
+        from puyapy.awst_build.eb.bool import BoolExpressionBuilder
+
+        expr_loc = self._location(expr)
+        self._precondition(
+            len(expr.operands) == (len(expr.operators) + 1),
+            "operands don't match with operators",
+            expr_loc,
+        )
+        # we can decompose this into a series of AND operations, but potentially need to generate
+        # assignment expressions for everything except first and last operands, e.g.:
+        #   a < b < c
+        # becomes:
+        #   (a < (tmp := b)) AND (tmp < c)
+        # TODO: what about comparing different types that can never be equal? according to Python
+        #       type signatures that should be possible, and we can always know it's value at
+        #       compile time, but it would always result in a constant ...
+
+        operands = [require_instance_builder(o.accept(self)) for o in expr.operands]
+        operands[1:-1] = [operand.single_eval() for operand in list(operands)[1:-1]]
+
+        comparisons = [
+            self._build_compare(operator=operator, lhs=lhs, rhs=rhs).resolve()
+            for operator, lhs, rhs in zip(expr.operators, operands, operands[1:], strict=False)
+        ]
+
+        result = prev = comparisons[0]
+        for curr in comparisons[1:]:
+            result = BooleanBinaryOperation(
+                left=result,
+                op=BinaryBooleanOperator.and_,
+                right=curr,
+                source_location=prev.source_location.try_merge(curr.source_location),
+            )
+            prev = curr
+        return BoolExpressionBuilder(result)
+
+    @staticmethod
+    def _build_compare(
+        operator: str, lhs: InstanceBuilder, rhs: InstanceBuilder
+    ) -> InstanceBuilder:
+        cmp_loc = lhs.source_location.try_merge(rhs.source_location)
+        match operator:
+            case "not in":
+                return rhs.contains(lhs, cmp_loc).bool_eval(cmp_loc, negate=True)
+            case "in":
+                return rhs.contains(lhs, cmp_loc)
+
+        result: InstanceBuilder = NotImplemented
+        op = BuilderComparisonOp(operator)
+        if isinstance(lhs, NodeBuilder):
+            result = lhs.compare(other=rhs, op=op, location=cmp_loc)
+        if result is NotImplemented and isinstance(rhs, NodeBuilder):
+            result = rhs.compare(other=lhs, op=op.reversed(), location=cmp_loc)
+        if result is NotImplemented:
+            raise CodeError(f"unsupported comparison {operator!r} between types", cmp_loc)
+        return result
+
+    @typing.override
+    def visit_int_expr(self, expr: mypy.nodes.IntExpr) -> LiteralBuilder:
+        return LiteralBuilderImpl(value=expr.value, source_location=self._location(expr))
+
+    @typing.override
+    def visit_str_expr(self, expr: mypy.nodes.StrExpr) -> LiteralBuilder:
+        return LiteralBuilderImpl(value=expr.value, source_location=self._location(expr))
+
+    @typing.override
+    def visit_bytes_expr(self, expr: mypy.nodes.BytesExpr) -> LiteralBuilder:
+        bytes_const = extract_bytes_literal_from_mypy(expr)
+        return LiteralBuilderImpl(value=bytes_const, source_location=self._location(expr))
+
+    @typing.override
+    def visit_tuple_expr(self, mypy_expr: mypy.nodes.TupleExpr) -> NodeBuilder:
+        from puyapy.awst_build.eb.tuple import TupleLiteralBuilder
+
+        location = self._location(mypy_expr)
+        item_builders = [
+            require_instance_builder(mypy_item.accept(self)) for mypy_item in mypy_expr.items
+        ]
+        return TupleLiteralBuilder(item_builders, location)
+
+    @typing.override
+    def visit_dict_expr(self, expr: mypy.nodes.DictExpr) -> NodeBuilder:
+        location = self._location(expr)
+        mappings = dict[str, InstanceBuilder]()
+        for mypy_name, mypy_value in expr.items:
+            if mypy_name is None:
+                logger.error("None is not usable as a value", location=location)
+                continue
+            key_node = mypy_name.accept(self)
+            value_node = mypy_value.accept(self)
+            key = expect.simple_string_literal(key_node, default=expect.default_none)
+            value = require_instance_builder(value_node)
+            if key is not None:
+                mappings[key] = value
+        return DictLiteralBuilder(mappings, location)
+
+    # unsupported expressions
+
+    def visit_list_comprehension(self, expr: mypy.nodes.ListComprehension) -> NodeBuilder:
+        raise CodeError("List comprehensions are not supported", self._location(expr))
+
+    def visit_slice_expr(self, expr: mypy.nodes.SliceExpr) -> NodeBuilder:
+        raise CodeError("Slices are not supported outside of indexing", self._location(expr))
+
+    def visit_lambda_expr(self, expr: mypy.nodes.LambdaExpr) -> NodeBuilder:
+        raise CodeError("lambda functions are not supported", self._location(expr))
+
+    def visit_ellipsis(self, expr: mypy.nodes.EllipsisExpr) -> NodeBuilder:
+        raise CodeError("ellipsis expressions are not supported", self._location(expr))
+
+    def visit_list_expr(self, expr: mypy.nodes.ListExpr) -> NodeBuilder:
+        raise CodeError("Python lists are not supported", self._location(expr))
+
+
+class FunctionASTConverter(
+    BaseMyPyStatementVisitor[Statement | Sequence[Statement] | None],
+    ExpressionASTConverter,
+):
     def __init__(
         self,
         context: ASTConversionModuleContext,
@@ -105,7 +564,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         inline: bool | None,
     ):
         super().__init__(context=context)
-        func_loc = self._location(func_def)  # TODO: why not source_location ??
+        func_loc = context.node_location(func_def)  # TODO: why not source_location ??
         self.contract_method_info = contract_method_info
         self.func_def = func_def
         self._precondition(
@@ -127,9 +586,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         )
         self._break_label_stack = list[Label | None]()
         # convert the return type
-        self._return_type = self.context.type_to_pytype(
-            type_info.ret_type, source_location=func_loc
-        )
+        self._return_type = context.type_to_pytype(type_info.ret_type, source_location=func_loc)
         return_wtype = self._return_type.checked_wtype(func_loc)
         # check & convert the arguments
         mypy_args = func_def.arguments
@@ -155,14 +612,14 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         self._symtable = dict[str, pytypes.PyType]()
         args = list[SubroutineArgument]()
         for arg, arg_type in zip(mypy_args, mypy_arg_types, strict=True):
-            arg_loc = self._location(arg)
+            arg_loc = context.node_location(arg)
             if arg.kind.is_star():
                 raise CodeError("variadic functions are not supported", arg_loc)
             if arg.initializer is not None:
-                self._error(
+                context.error(
                     "default function argument values are not supported yet", arg.initializer
                 )
-            pytyp = self.context.type_to_pytype(arg_type, source_location=arg_loc)
+            pytyp = context.type_to_pytype(arg_type, source_location=arg_loc)
             wtype = pytyp.checked_wtype(arg_loc)
             arg_name = arg.variable.name
             args.append(SubroutineArgument(name=arg_name, wtype=wtype, source_location=arg_loc))
@@ -172,7 +629,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         # build result
         self.result: Subroutine | ContractMethod
         documentation = parse_docstring(func_def.docstring)
-        if self.contract_method_info is None:
+        if contract_method_info is None:
             self.result = Subroutine(
                 id=func_def.fullname,
                 name=func_def.name,
@@ -185,14 +642,14 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             )
         else:
             self.result = ContractMethod(
-                cref=self.contract_method_info.fragment.id,
+                cref=contract_method_info.fragment.id,
                 member_name=func_def.name,
                 source_location=source_location,
                 args=args,
                 return_type=return_wtype,
                 body=translated_body,
                 documentation=documentation,
-                arc4_method_config=self.contract_method_info.arc4_method_config,
+                arc4_method_config=contract_method_info.arc4_method_config,
                 inline=inline,
             )
 
@@ -236,6 +693,95 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             inline=inline,
             source_location=source_location,
         ).result
+
+    @typing.override
+    def builder_for_self(self, expr_loc: SourceLocation) -> NodeBuilder:
+        if self.contract_method_info is None:
+            raise InternalError("variable is inferred as self outside of contract scope", expr_loc)
+        return ContractSelfExpressionBuilder(
+            fragment=self.contract_method_info.fragment,
+            pytype=self.contract_method_info.contract_type,
+            location=expr_loc,
+        )
+
+    @typing.override
+    def resolve_local_type(self, var_name: str, expr_loc: SourceLocation) -> pytypes.PyType | None:
+        return self._symtable.get(var_name)
+
+    # expressions
+
+    @typing.override
+    def visit_assignment_expr(self, expr: mypy.nodes.AssignmentExpr) -> NodeBuilder:
+        expr_loc = self._location(expr)
+        self._precondition(
+            not isinstance(expr, mypy.nodes.TupleExpr | mypy.nodes.ListExpr),
+            "Python doesn't support tuple unpacking in assignment expressions",
+            expr_loc,
+        )
+        # TODO: test if self. assignment?
+        source = require_instance_builder(expr.value.accept(self))
+        if not self._assign_type(expr.target, source.pytype):
+            # typing error, just return the source to continue with
+            return source
+        value = source.resolve()
+        target = self.resolve_lvalue(expr.target)
+        result = AssignmentExpression(source_location=expr_loc, value=value, target=target)
+        result_typ = source.pytype
+        return builder_for_instance(result_typ, result)
+
+    @typing.override
+    def visit_super_expr(self, super_expr: mypy.nodes.SuperExpr) -> NodeBuilder:
+        super_loc = self._location(super_expr)
+        if self.contract_method_info is None:
+            raise CodeError("super() expression should not occur outside of class", super_loc)
+        if super_expr.call.args:
+            raise CodeError(
+                "only the zero-arguments version of super() is supported",
+                self._location(super_expr.call),
+            )
+        if (
+            super_expr.name.startswith("__")
+            and super_expr.name.endswith("__")
+            and super_expr.name != "__init__"
+        ):
+            raise CodeError("the only dunder method supported for calling is init", super_loc)
+        for base in self.contract_method_info.fragment.mro:
+            try:
+                base_sym_typ = base.symbols[super_expr.name]
+            except KeyError:
+                pass
+            else:
+                if not isinstance(base_sym_typ, pytypes.FuncType):
+                    raise CodeError("super() is only supported for calling functions", super_loc)
+                func_type = base_sym_typ
+                base_method = base.resolve_method(super_expr.name, include_inherited=False)
+                # the check for class abstractness is because in theory the next method in the MRO
+                # when compiling a derived class could still be non-trivial
+                if (
+                    base_method is not None
+                    and base_method.is_trivial
+                    and not self.contract_method_info.is_abstract
+                ):
+                    raise CodeError("call to trivial method via super()", super_loc)
+                break
+        else:
+            if super_expr.name == "__init__":
+                # support fall through to object __init__, it's the only method from
+                # non-member bases that is callable, and it's a no-op, but it can be useful
+                # in the case of multiple inheritance
+                return NoneTypeBuilder(super_loc)
+            raise CodeError(
+                f"unable to locate method {super_expr.name}"
+                f" in bases of {self.contract_method_info.fragment.id}",
+                super_loc,
+            )
+
+        super_target = InstanceSuperMethodTarget(member_name=super_expr.name)
+        return SubroutineInvokerExpressionBuilder(
+            target=super_target, func_type=func_type, location=super_loc
+        )
+
+    # statements
 
     def visit_block(self, block: mypy.nodes.Block) -> Block:
         translated_body = []
@@ -724,520 +1270,17 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         )
 
     # Unsupported statements
-
+    @typing.override
     def visit_function(self, fdef: mypy.nodes.FuncDef, _: mypy.nodes.Decorator | None) -> None:
         self._error("nested functions are not supported", fdef)
 
+    @typing.override
     def visit_class_def(self, cdef: mypy.nodes.ClassDef) -> None:
         self._error("classes nested inside functions are not supported", cdef)
 
-    # Expressions
-    def _visit_ref_expr(self, expr: mypy.nodes.MemberExpr | mypy.nodes.NameExpr) -> NodeBuilder:
-        expr_loc = self._location(expr)
-        # Do a straight forward lookup at the RefExpr level handle the cases of:
-        #  - type aliases
-        #  - simple (non-generic) types
-        #  - generic type that has not been parameterised
-        #    (e.g. when calling a constructor which can infer the type from its arguments)
-        # For parameterised generics, these are resolved at the IndexExpr level, without
-        # descending into IndexExpr.base.
-        # By doing a simple lookup instead of resolving the PyType of expr,
-        # we can side step complex constructs in the stubs that we don't support in user code,
-        # such as overloads.
-        if py_typ := self.context.lookup_pytype(expr.fullname):
-            if isinstance(py_typ, pytypes.ContractType):
-                if fragment := self.context.contract_fragments.get(py_typ.name):
-                    return ContractTypeExpressionBuilder(py_typ, fragment, expr_loc)
-            elif pytypes.ARC4ClientBaseType < py_typ:  # provides type info only
-                if fragment := self.context.contract_fragments.get(ContractReference(py_typ.name)):
-                    return ARC4ClientTypeBuilder(py_typ, expr_loc, fragment)
-            elif py_typ == pytypes.LogicSigType:
-                ref = LogicSigReference(get_unaliased_fullname(expr))
-                return LogicSigExpressionBuilder(ref, expr_loc)
-            else:
-                return builder_for_type(py_typ, expr_loc)
-
-        if expr.name == "__all__":
-            # special case here, we allow __all__ at the module level for it's "public vs private"
-            # control implications w.r.t linting etc, but we do so by ignoring it.
-            # so this is here just in case someone tries to reference __all__ inside a function,
-            # to give a more useful error message.
-            raise CodeError("__all__ cannot be referenced inside functions", expr_loc)
-
-        fullname = get_unaliased_fullname(expr)
-        if fullname.startswith("builtins."):
-            return self._visit_ref_expr_of_builtins(fullname, expr_loc)
-        if func_builder := try_get_builder_for_func(fullname, expr_loc):
-            return func_builder
-        match expr:
-            case mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True)):
-                if self.contract_method_info is None:
-                    raise InternalError(
-                        "variable is inferred as self outside of contract scope", expr_loc
-                    )
-                return ContractSelfExpressionBuilder(
-                    fragment=self.contract_method_info.fragment,
-                    pytype=self.contract_method_info.contract_type,
-                    location=expr_loc,
-                )
-            case mypy.nodes.RefExpr(
-                node=mypy.nodes.Decorator() as dec
-            ) if constants.SUBROUTINE_HINT in get_decorators_by_fullname(self.context, dec):
-                self._precondition(
-                    expr.fullname != expr.name,
-                    "unqualified name found in call to function",
-                    expr_loc,
-                )
-                mypy_func_type = require_callable_type(dec, expr_loc)
-                func_type = self.context.type_to_pytype(mypy_func_type, source_location=expr_loc)
-                if not isinstance(func_type, pytypes.FuncType):
-                    raise CodeError("decorated function has non-function type", expr_loc)
-                return SubroutineInvokerExpressionBuilder(
-                    target=SubroutineID(expr.fullname),
-                    func_type=func_type,
-                    location=expr_loc,
-                )
-            case mypy.nodes.RefExpr(node=mypy.nodes.FuncDef()):
-                raise CodeError(
-                    f"Cannot invoke {fullname} as it is not "
-                    f"decorated with {constants.SUBROUTINE_HINT_ALIAS}",
-                    expr_loc,
-                )
-            # TODO: is this enough to filter to only global variable references?
-            #       it seems like it should be...
-            case mypy.nodes.RefExpr(kind=mypy.nodes.GDEF, node=mypy.nodes.Var()):
-                self._precondition(
-                    not (
-                        expr.is_new_def
-                        or expr.is_inferred_def
-                        or expr.is_alias_rvalue
-                        or (isinstance(expr, mypy.nodes.NameExpr) and expr.is_special_form)
-                    ),
-                    "global variable reference with unexpected flags",
-                    expr_loc,
-                )
-                try:
-                    constant_value = self.context.constants[expr.fullname]
-                except KeyError as ex:
-                    raise CodeError(
-                        "Unable to resolve global constant reference", expr_loc
-                    ) from ex
-                else:
-                    return LiteralBuilderImpl(source_location=expr_loc, value=constant_value)
-            case (
-                mypy.nodes.NameExpr(
-                    kind=mypy.nodes.LDEF, node=mypy.nodes.Var(), name=var_name
-                ) as name_expr
-            ):
-                self._precondition(
-                    not name_expr.is_special_form,
-                    "special form lvalues should only appear"
-                    " as a singular lvalue in an assignment statement",
-                    expr_loc,
-                )
-                local_type = self._symtable.get(var_name)
-                if local_type is None:
-                    raise CodeError(
-                        "local variable type is unknown - possible use before definition?",
-                        expr_loc,
-                    )
-                var_expr = VarExpression(
-                    name=var_name,
-                    wtype=local_type.checked_wtype(expr_loc),
-                    source_location=expr_loc,
-                )
-                return builder_for_instance(local_type, var_expr)
-        scope = {
-            mypy.nodes.LDEF: "local",
-            mypy.nodes.MDEF: "member",
-            mypy.nodes.GDEF: "global",
-            None: "unknown",
-        }.get(expr.kind)
-        # this can happen in otherwise well-formed code that is just missing a reference
-        raise CodeError(
-            f"Unable to resolve reference to {expr.fullname or expr.name!r}, {scope=}",
-            expr_loc,
-        )
-
-    @staticmethod
-    def _visit_ref_expr_of_builtins(fullname: str, location: SourceLocation) -> NodeBuilder:
-        assert fullname.startswith("builtins.")
-        rest_of_name = fullname.removeprefix("builtins.")
-        match rest_of_name:
-            case "True":
-                return LiteralBuilderImpl(source_location=location, value=True)
-            case "False":
-                return LiteralBuilderImpl(source_location=location, value=False)
-            case "None":
-                raise CodeError("None is not supported as a value, only a return type", location)
-            case "len":
-                raise CodeError(
-                    "len() is not supported -"
-                    " types with a length will have a .length property instead",
-                    location,
-                )
-            case "range":
-                raise CodeError("range() is not supported - use algopy.urange() instead", location)
-            case "enumerate":
-                raise CodeError(
-                    "enumerate() is not supported - use algopy.uenumerate() instead", location
-                )
-            case _:
-                raise CodeError(f"Unsupported builtin: {rest_of_name}", location)
-
-    def visit_name_expr(self, expr: mypy.nodes.NameExpr) -> NodeBuilder:
-        return self._visit_ref_expr(expr)
-
-    def visit_member_expr(self, expr: mypy.nodes.MemberExpr) -> NodeBuilder:
-        expr_loc = self._location(expr)
-        if isinstance(expr.expr, mypy.nodes.RefExpr) and isinstance(
-            expr.expr.node, mypy.nodes.MypyFile
-        ):
-            # special case for module attribute access
-            return self._visit_ref_expr(expr)
-
-        base = expr.expr.accept(self)
-        return base.member_access(expr.name, expr_loc)
-
-    def visit_call_expr(self, call: mypy.nodes.CallExpr) -> NodeBuilder:
-        if call.analyzed is not None:
-            return self._visit_special_call_expr(call, analyzed=call.analyzed)
-
-        callee = call.callee.accept(self)
-        if not isinstance(callee, CallableBuilder):
-            raise CodeError("not a callable expression", self._location(call.callee))
-
-        args = [arg.accept(self) for arg in call.args]
-        return callee.call(
-            args=args,
-            arg_kinds=call.arg_kinds,
-            arg_names=call.arg_names,
-            location=self._location(call),
-        )
-
-    def _visit_special_call_expr(
-        self, call: mypy.nodes.CallExpr, *, analyzed: mypy.nodes.Expression
-    ) -> NodeBuilder:
-        match analyzed:
-            case mypy.nodes.CastExpr(expr=inner_expr):
-                self.context.warning(
-                    "use of typing.cast, output may be invalid or insecure TEAL", call
-                )
-            case mypy.nodes.AssertTypeExpr(expr=inner_expr):
-                # just FYI... in case the user thinks this has a runtime effect
-                # (it doesn't, not even in Python)
-                self.context.warning(
-                    "use of typing.assert_type has no effect on compilation", call
-                )
-            case mypy.nodes.RevealExpr(expr=mypy.nodes.Expression() as inner_expr):
-                pass
-            case _:
-                raise CodeError(
-                    f"Unsupported special function call"
-                    f" of analyzed type {type(analyzed).__name__}",
-                    self._location(call),
-                )
-
-        return inner_expr.accept(self)
-
-    def visit_unary_expr(self, node: mypy.nodes.UnaryExpr) -> NodeBuilder:
-        expr_loc = self._location(node)
-        builder_or_literal = node.expr.accept(self)
-        match node.op:
-            case "not":
-                return builder_or_literal.bool_eval(expr_loc, negate=True)
-            case op_str if op_str in BuilderUnaryOp:
-                builder_op = BuilderUnaryOp(op_str)
-                return require_instance_builder(builder_or_literal).unary_op(builder_op, expr_loc)
-            case _:
-                # guard against future python unary operators
-                raise InternalError(f"Unable to interpret unary operator '{node.op}'", expr_loc)
-
-    def visit_op_expr(self, node: mypy.nodes.OpExpr) -> NodeBuilder:
-        node_loc = self._location(node)
-        lhs = require_instance_builder(node.left.accept(self))
-        rhs = require_instance_builder(node.right.accept(self))
-
-        # mypy combines ast.BoolOp and ast.BinOp, but they're kinda different...
-        if node.op in BinaryBooleanOperator:
-            bool_op = BinaryBooleanOperator(node.op)
-            return lhs.bool_binary_op(rhs, bool_op, node_loc)
-
-        try:
-            op = BuilderBinaryOp(node.op)
-        except ValueError as ex:
-            raise InternalError(f"Unknown binary operator: {node.op}") from ex
-
-        result: NodeBuilder = NotImplemented
-        if isinstance(lhs, NodeBuilder):
-            result = lhs.binary_op(other=rhs, op=op, location=node_loc, reverse=False)
-        if result is NotImplemented and isinstance(rhs, NodeBuilder):
-            result = rhs.binary_op(other=lhs, op=op, location=node_loc, reverse=True)
-        if result is NotImplemented:
-            raise CodeError(f"unsupported operation {op.value} between types", node_loc)
-        return result
-
-    def visit_index_expr(self, expr: mypy.nodes.IndexExpr) -> NodeBuilder:
-        expr_location = self._location(expr)
-        if isinstance(expr.method_type, mypy.types.CallableType):
-            result_pytyp = self.context.type_to_pytype(
-                expr.method_type.ret_type, source_location=expr_location
-            )
-            if isinstance(result_pytyp, pytypes.PseudoGenericFunctionType):
-                return builder_for_type(result_pytyp, expr_location)
-        match expr.analyzed:
-            case None:
-                pass
-            case mypy.nodes.TypeAliasExpr():
-                raise CodeError("type aliases are not supported inside subroutines", expr_location)
-            case mypy.nodes.TypeApplication(types=type_args):
-                # TODO: resolve expr to generic type builder instead
-                assert isinstance(
-                    expr.base, mypy.nodes.RefExpr
-                ), "expect base of type application to be RefExpr"
-                pytyp = self.context.lookup_pytype(expr.base.fullname)
-                if pytyp is None:
-                    raise CodeError("unknown base type", expr_location)
-                param_typ = pytyp.parameterise(
-                    [
-                        self.context.type_to_pytype(
-                            t, in_type_args=True, source_location=expr_location
-                        )
-                        for t in type_args
-                    ],
-                    expr_location,
-                )
-                return builder_for_type(param_typ, expr_location)
-            case _:
-                typing.assert_never(expr.analyzed)
-
-        base_builder = require_instance_builder(expr.base.accept(self))
-        match expr.index:
-            # special case handling of SliceExpr, so we don't need to handle slice Literal's
-            # or some such everywhere
-            # TODO: SliceBuilder?
-            case mypy.nodes.SliceExpr(begin_index=begin, end_index=end, stride=stride):
-                return base_builder.slice_index(
-                    begin_index=(require_instance_builder(begin.accept(self)) if begin else None),
-                    end_index=(require_instance_builder(end.accept(self)) if end else None),
-                    stride=(require_instance_builder(stride.accept(self)) if stride else None),
-                    location=expr_location,
-                )
-
-        index_builder = require_instance_builder(expr.index.accept(self))
-        return base_builder.index(index=index_builder, location=expr_location)
-
-    def visit_conditional_expr(self, expr: mypy.nodes.ConditionalExpr) -> NodeBuilder:
-        expr_loc = self._location(expr)
-        condition = expr.cond.accept(self).bool_eval(self._location(expr.cond))
-        true_b = require_instance_builder(expr.if_expr.accept(self))
-        false_b = require_instance_builder(expr.else_expr.accept(self))
-        if true_b.pytype <= false_b.pytype:
-            expr_pytype = true_b.pytype
-        elif false_b.pytype < true_b.pytype:
-            expr_pytype = false_b.pytype
-        else:
-            raise CodeError(
-                "incompatible result types for 'true' and 'false' expressions", expr_loc
-            )
-
-        if (
-            isinstance(expr_pytype, pytypes.LiteralOnlyType)
-            and isinstance(true_b, LiteralBuilder)
-            and isinstance(false_b, LiteralBuilder)
-        ):
-            return ConditionalLiteralBuilder(
-                true_literal=true_b,
-                false_literal=false_b,
-                condition=condition,
-                location=expr_loc,
-            )
-        else:
-            cond_expr = ConditionalExpression(
-                condition=condition.resolve(),
-                true_expr=true_b.resolve(),
-                false_expr=false_b.resolve(),
-                source_location=expr_loc,
-            )
-            return builder_for_instance(expr_pytype, cond_expr)
-
-    def visit_comparison_expr(self, expr: mypy.nodes.ComparisonExpr) -> NodeBuilder:
-        from puyapy.awst_build.eb.bool import BoolExpressionBuilder
-
-        expr_loc = self._location(expr)
-        self._precondition(
-            len(expr.operands) == (len(expr.operators) + 1),
-            "operands don't match with operators",
-            expr_loc,
-        )
-        # we can decompose this into a series of AND operations, but potentially need to generate
-        # assignment expressions for everything except first and last operands, e.g.:
-        #   a < b < c
-        # becomes:
-        #   (a < (tmp := b)) AND (tmp < c)
-        # TODO: what about comparing different types that can never be equal? according to Python
-        #       type signatures that should be possible, and we can always know it's value at
-        #       compile time, but it would always result in a constant ...
-
-        operands = [require_instance_builder(o.accept(self)) for o in expr.operands]
-        operands[1:-1] = [operand.single_eval() for operand in list(operands)[1:-1]]
-
-        comparisons = [
-            self._build_compare(operator=operator, lhs=lhs, rhs=rhs).resolve()
-            for operator, lhs, rhs in zip(expr.operators, operands, operands[1:], strict=False)
-        ]
-
-        result = prev = comparisons[0]
-        for curr in comparisons[1:]:
-            result = BooleanBinaryOperation(
-                left=result,
-                op=BinaryBooleanOperator.and_,
-                right=curr,
-                source_location=prev.source_location.try_merge(curr.source_location),
-            )
-            prev = curr
-        return BoolExpressionBuilder(result)
-
-    @staticmethod
-    def _build_compare(
-        operator: str, lhs: InstanceBuilder, rhs: InstanceBuilder
-    ) -> InstanceBuilder:
-        cmp_loc = lhs.source_location.try_merge(rhs.source_location)
-        match operator:
-            case "not in":
-                return rhs.contains(lhs, cmp_loc).bool_eval(cmp_loc, negate=True)
-            case "in":
-                return rhs.contains(lhs, cmp_loc)
-
-        result: InstanceBuilder = NotImplemented
-        op = BuilderComparisonOp(operator)
-        if isinstance(lhs, NodeBuilder):
-            result = lhs.compare(other=rhs, op=op, location=cmp_loc)
-        if result is NotImplemented and isinstance(rhs, NodeBuilder):
-            result = rhs.compare(other=lhs, op=op.reversed(), location=cmp_loc)
-        if result is NotImplemented:
-            raise CodeError(f"unsupported comparison {operator!r} between types", cmp_loc)
-        return result
-
-    def visit_int_expr(self, expr: mypy.nodes.IntExpr) -> LiteralBuilder:
-        return LiteralBuilderImpl(value=expr.value, source_location=self._location(expr))
-
-    def visit_str_expr(self, expr: mypy.nodes.StrExpr) -> LiteralBuilder:
-        return LiteralBuilderImpl(value=expr.value, source_location=self._location(expr))
-
-    def visit_bytes_expr(self, expr: mypy.nodes.BytesExpr) -> LiteralBuilder:
-        bytes_const = extract_bytes_literal_from_mypy(expr)
-        return LiteralBuilderImpl(value=bytes_const, source_location=self._location(expr))
-
-    def visit_tuple_expr(self, mypy_expr: mypy.nodes.TupleExpr) -> NodeBuilder:
-        from puyapy.awst_build.eb.tuple import TupleLiteralBuilder
-
-        location = self._location(mypy_expr)
-        item_builders = [
-            require_instance_builder(mypy_item.accept(self)) for mypy_item in mypy_expr.items
-        ]
-        return TupleLiteralBuilder(item_builders, location)
-
-    def visit_dict_expr(self, expr: mypy.nodes.DictExpr) -> NodeBuilder:
-        location = self._location(expr)
-        mappings = dict[str, InstanceBuilder]()
-        for mypy_name, mypy_value in expr.items:
-            if mypy_name is None:
-                logger.error("None is not usable as a value", location=location)
-                continue
-            key_node = mypy_name.accept(self)
-            value_node = mypy_value.accept(self)
-            key = expect.simple_string_literal(key_node, default=expect.default_none)
-            value = require_instance_builder(value_node)
-            if key is not None:
-                mappings[key] = value
-        return DictLiteralBuilder(mappings, location)
-
-    def visit_assignment_expr(self, expr: mypy.nodes.AssignmentExpr) -> NodeBuilder:
-        expr_loc = self._location(expr)
-        self._precondition(
-            not isinstance(expr, mypy.nodes.TupleExpr | mypy.nodes.ListExpr),
-            "Python doesn't support tuple unpacking in assignment expressions",
-            expr_loc,
-        )
-        # TODO: test if self. assignment?
-        source = require_instance_builder(expr.value.accept(self))
-        if not self._assign_type(expr.target, source.pytype):
-            # typing error, just return the source to continue with
-            return source
-        value = source.resolve()
-        target = self.resolve_lvalue(expr.target)
-        result = AssignmentExpression(source_location=expr_loc, value=value, target=target)
-        result_typ = source.pytype
-        return builder_for_instance(result_typ, result)
-
-    def visit_super_expr(self, super_expr: mypy.nodes.SuperExpr) -> NodeBuilder:
-        super_loc = self._location(super_expr)
-        if self.contract_method_info is None:
-            raise CodeError("super() expression should not occur outside of class", super_loc)
-        if super_expr.call.args:
-            raise CodeError(
-                "only the zero-arguments version of super() is supported",
-                self._location(super_expr.call),
-            )
-        if (
-            super_expr.name.startswith("__")
-            and super_expr.name.endswith("__")
-            and super_expr.name != "__init__"
-        ):
-            raise CodeError("the only dunder method supported for calling is init", super_loc)
-        for base in self.contract_method_info.fragment.mro:
-            try:
-                base_sym_typ = base.symbols[super_expr.name]
-            except KeyError:
-                pass
-            else:
-                if not isinstance(base_sym_typ, pytypes.FuncType):
-                    raise CodeError("super() is only supported for calling functions", super_loc)
-                func_type = base_sym_typ
-                base_method = base.resolve_method(super_expr.name, include_inherited=False)
-                # the check for class abstractness is because in theory the next method in the MRO
-                # when compiling a derived class could still be non-trivial
-                if (
-                    base_method is not None
-                    and base_method.is_trivial
-                    and not self.contract_method_info.is_abstract
-                ):
-                    raise CodeError("call to trivial method via super()", super_loc)
-                break
-        else:
-            if super_expr.name == "__init__":
-                # support fall through to object __init__, it's the only method from
-                # non-member bases that is callable, and it's a no-op, but it can be useful
-                # in the case of multiple inheritance
-                return NoneTypeBuilder(super_loc)
-            raise CodeError(
-                f"unable to locate method {super_expr.name}"
-                f" in bases of {self.contract_method_info.fragment.id}",
-                super_loc,
-            )
-
-        super_target = InstanceSuperMethodTarget(member_name=super_expr.name)
-        return SubroutineInvokerExpressionBuilder(
-            target=super_target, func_type=func_type, location=super_loc
-        )
-
-    # unsupported expressions
-
-    def visit_list_comprehension(self, expr: mypy.nodes.ListComprehension) -> NodeBuilder:
-        raise CodeError("List comprehensions are not supported", self._location(expr))
-
-    def visit_slice_expr(self, expr: mypy.nodes.SliceExpr) -> NodeBuilder:
-        raise CodeError("Slices are not supported outside of indexing", self._location(expr))
-
-    def visit_lambda_expr(self, expr: mypy.nodes.LambdaExpr) -> NodeBuilder:
-        raise CodeError("lambda functions are not supported", self._location(expr))
-
-    def visit_ellipsis(self, expr: mypy.nodes.EllipsisExpr) -> NodeBuilder:
-        raise CodeError("ellipsis expressions are not supported", self._location(expr))
-
-    def visit_list_expr(self, expr: mypy.nodes.ListExpr) -> NodeBuilder:
-        raise CodeError("Python lists are not supported", self._location(expr))
+    @typing.override
+    def visit_type_alias_stmt(self, o: mypy.nodes.TypeAliasStmt) -> None:
+        self._error("type alias statements are not supported", o)
 
 
 def is_self_member(

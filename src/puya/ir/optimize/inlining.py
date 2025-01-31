@@ -2,13 +2,12 @@ import copy
 import itertools
 import typing
 from collections import defaultdict
-from collections.abc import Iterable, Iterator, Mapping, Sequence
+from collections.abc import Collection, Iterable, Iterator, Mapping, Sequence
 
 import attrs
 import networkx as nx  # type: ignore[import-untyped]
 
 from puya import log
-from puya.artifact_metadata import ContractMetaData
 from puya.ir import models
 from puya.ir.context import TMP_VAR_INDICATOR
 from puya.ir.optimize._call_graph import CallGraph
@@ -16,14 +15,15 @@ from puya.ir.optimize._context import IROptimizationPassContext
 from puya.ir.optimize.intrinsic_simplification import COMPILE_TIME_CONSTANT_OPS
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
-from puya.program_refs import ProgramKind
 from puya.utils import lazy_setdefault
 
 logger = log.get_logger(__name__)
 
 
 def analyse_subroutines_for_inlining(
-    context: IROptimizationPassContext, program: models.Program
+    context: IROptimizationPassContext,
+    program: models.Program,
+    routable_method_ids: Collection[str] | None,
 ) -> None:
     call_graph = CallGraph(program)
     for sub in program.subroutines:
@@ -63,10 +63,9 @@ def analyse_subroutines_for_inlining(
     # for optimization levels below 2, skip auto-inlining routable methods into the approval
     # program. mostly this can be beneficial in terms of #ops, but not always.
     # also, it impacts the debugging experience
-    skip_routable_ids = set[str]()
-    if context.options.optimization_level < 2 and program.kind is ProgramKind.approval:
-        assert isinstance(context.metadata, ContractMetaData)
-        skip_routable_ids = {a4m.id for a4m in context.metadata.arc4_methods}
+    skip_routable_ids = frozenset[str]()
+    if context.options.optimization_level < 2:
+        skip_routable_ids = frozenset(routable_method_ids or ())
 
     for sub in program.subroutines:
         if sub.inline is None:

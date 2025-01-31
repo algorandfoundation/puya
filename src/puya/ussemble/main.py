@@ -4,6 +4,7 @@ from collections.abc import Mapping
 from puya.avm import AVMType
 from puya.compilation_artifacts import TemplateValue
 from puya.context import CompileContext
+from puya.program_refs import ContractReference, LogicSigReference
 from puya.teal import models as teal
 from puya.ussemble import models
 from puya.ussemble.assemble import assemble_bytecode_and_debug_info
@@ -13,6 +14,7 @@ from puya.utils import attrs_extend
 
 def assemble_program(
     ctx: CompileContext,
+    ref: ContractReference | LogicSigReference,
     program: teal.TealProgram,
     *,
     template_constants: Mapping[str, TemplateValue] | None = None,
@@ -22,7 +24,7 @@ def assemble_program(
     assemble_ctx = attrs_extend(
         AssembleContext,
         ctx,
-        program_ref=program.ref,
+        artifact_ref=ref,
         is_reference=is_reference,
         template_variable_types=referenced_template_vars,
         template_constants=template_constants,

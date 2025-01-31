@@ -3,6 +3,7 @@ from algopy import (
     Box,
     BoxMap,
     BoxRef,
+    Bytes,
     GlobalState,
     LocalState,
     String,
@@ -115,6 +116,20 @@ class Contract(ARC4Contract):
             TemplateVar[String]("AVM_STRING"),
             TemplateVar[arc4.UInt8]("ARC4_UINT8"),
         )
+
+    @arc4.abimethod(
+        default_args={
+            "a": arc4.UInt64(123),
+            "c": Bytes(b"123"),
+            "b": UInt64(234),
+            "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
+        }
+    )
+    def with_constant_defaults(self, a: arc4.UInt64, b: UInt64, c: Bytes, d: EventOnly) -> None:
+        assert a
+        assert b
+        assert c
+        assert d.x or d.y
 
 
 @subroutine

@@ -1,14 +1,12 @@
-import itertools
 import typing
-from collections import defaultdict
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 import attrs
 from immutabledict import immutabledict
 
 from puya import log
-from puya.artifact_metadata import ContractMetaData, LogicSignatureMetaData, StateTotals
+from puya.artifact_metadata import StateTotals
 from puya.compilation_artifacts import TemplateValue
 from puya.options import PuyaOptions
 from puya.parse import SourceLocation
@@ -49,8 +47,8 @@ def try_get_source(
     return src_content
 
 
-class ProgramBytecodeProtocol(typing.Protocol):
-    def __call__(
+class CompiledProgramProvider(typing.Protocol):
+    def build_program_bytecode(
         self,
         ref: ContractReference | LogicSigReference,
         kind: ProgramKind,
@@ -58,23 +56,53 @@ class ProgramBytecodeProtocol(typing.Protocol):
         template_constants: immutabledict[str, TemplateValue],
     ) -> bytes: ...
 
+    def get_state_totals(self, ref: ContractReference) -> StateTotals: ...
+
+
+class OutputPathProvider(typing.Protocol):
+    def __call__(self, *, kind: str, qualifier: str, suffix: str) -> Path: ...
+
 
 @attrs.define(kw_only=True)
 class ArtifactCompileContext(CompileContext):
-    metadata: ContractMetaData | LogicSignatureMetaData
-    out_dir: Path | None
-    get_program_bytecode: ProgramBytecodeProtocol
-    state_totals: Mapping[ContractReference, StateTotals]
-    # note: do not add init=False, so that sequences are shared when context is evolved/extended
-    _output_seq: defaultdict[str, Iterator[int]] = attrs.field(
-        factory=lambda: defaultdict(itertools.count)
+    _compiled_program_provider: CompiledProgramProvider = attrs.field(
+        on_setattr=attrs.setters.frozen
     )
+    _output_path_provider: OutputPathProvider | None = attrs.field(on_setattr=attrs.setters.frozen)
 
-    def sequential_path(self, kind: str, qualifier: str, suffix: str) -> Path:
-        assert self.out_dir is not None
-        if qualifier:
-            qualifier = f".{qualifier}"
-        qualifier = f"{next(self._output_seq[kind])}{qualifier}"
-        if kind is not ProgramKind.logic_signature:
-            qualifier = f"{kind}.{qualifier}"
-        return self.out_dir / f"{self.metadata.name}.{qualifier}.{suffix}"
+    def build_output_path(self, kind: str, qualifier: str, suffix: str) -> Path | None:
+        if self._output_path_provider is None:
+            return None
+        return self._output_path_provider(kind=kind, qualifier=qualifier, suffix=suffix)
+
+    @typing.overload
+    def build_program_bytecode(
+        self,
+        ref: ContractReference,
+        kind: typing.Literal[ProgramKind.approval, ProgramKind.clear_state],
+        *,
+        template_constants: immutabledict[str, TemplateValue],
+    ) -> bytes: ...
+
+    @typing.overload
+    def build_program_bytecode(
+        self,
+        ref: LogicSigReference,
+        kind: typing.Literal[ProgramKind.logic_signature],
+        *,
+        template_constants: immutabledict[str, TemplateValue],
+    ) -> bytes: ...
+
+    def build_program_bytecode(
+        self,
+        ref: ContractReference | LogicSigReference,
+        kind: ProgramKind,
+        *,
+        template_constants: immutabledict[str, TemplateValue],
+    ) -> bytes:
+        return self._compiled_program_provider.build_program_bytecode(
+            ref, kind, template_constants=template_constants
+        )
+
+    def get_state_totals(self, ref: ContractReference) -> StateTotals:
+        return self._compiled_program_provider.get_state_totals(ref)

@@ -14,7 +14,10 @@ from puya.program_refs import LogicSigReference
 from puya.utils import coalesce
 from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.arc4_client import ARC4ClientASTVisitor
-from puyapy.awst_build.base_mypy_visitor import BaseMyPyVisitor
+from puyapy.awst_build.base_mypy_visitor import (
+    BaseMyPyExpressionVisitor,
+    BaseMyPyStatementVisitor,
+)
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.contract import ContractASTConverter
 from puyapy.awst_build.exceptions import UnsupportedASTError
@@ -48,7 +51,9 @@ _BUILTIN_INHERITABLE: typing.Final = frozenset(
 )
 
 
-class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
+class ModuleASTConverter(
+    BaseMyPyStatementVisitor[StatementResult], BaseMyPyExpressionVisitor[ConstantValue]
+):
     """This does basic validation, and traversal of valid module scope elements, collecting
     and folding constants."""
 

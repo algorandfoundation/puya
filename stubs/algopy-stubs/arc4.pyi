@@ -40,7 +40,7 @@ def abimethod(
         ]
     ] = ("NoOp",),
     readonly: bool = False,
-    default_args: Mapping[str, str | _ReadOnlyNoArgsMethod] = ...,
+    default_args: Mapping[str, str | _ReadOnlyNoArgsMethod | object] = ...,
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
     """Decorator that indicates a method is an ARC4 ABI method.
 

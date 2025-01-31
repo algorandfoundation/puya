@@ -9,7 +9,7 @@ from puya.compilation_artifacts import CompiledContract, CompiledLogicSig, Compi
 from puya.context import CompileContext
 from puya.mir.models import Signature
 from puya.options import PuyaOptions
-from puya.program_refs import LogicSigProgramReference, LogicSigReference
+from puya.program_refs import LogicSigReference
 from puya.teal import models as teal
 from puya.ussemble.main import assemble_program
 from puyapy.options import PuyaPyOptions
@@ -120,8 +120,8 @@ def test_assemble_last_op_jump() -> None:
             compilation_set={},
             sources_by_path={},
         ),
+        LogicSigReference(),
         program=teal.TealProgram(
-            ref=LogicSigProgramReference(LogicSigReference()),
             avm_version=10,
             main=teal.TealSubroutine(
                 is_main=True,

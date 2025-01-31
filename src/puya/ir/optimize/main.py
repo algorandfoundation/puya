@@ -1,4 +1,4 @@
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Collection, Iterable
 
 import attrs
 
@@ -106,15 +106,23 @@ def _split_parallel_copies(_ctx: ArtifactCompileContext, sub: models.Subroutine)
     return any_modified
 
 
-def optimize_program_ir(compile_context: ArtifactCompileContext, program: models.Program) -> None:
-    context = attrs_extend(IROptimizationContext, compile_context)
+def optimize_program_ir(
+    compile_context: ArtifactCompileContext,
+    program: models.Program,
+    *,
+    routable_method_ids: Collection[str] | None,
+    expand_all_bytes: bool = False,
+) -> None:
+    context = attrs_extend(
+        IROptimizationContext, compile_context, expand_all_bytes=expand_all_bytes
+    )
     level = context.options.optimization_level
     pipeline = get_subroutine_optimizations(level)
     for pass_num in range(1, MAX_PASSES + 1):
         program_modified = False
         pass_context = attrs_extend(IROptimizationPassContext, context, pass_number=pass_num)
         logger.debug(f"Begin optimization pass {pass_num}/{MAX_PASSES}")
-        analyse_subroutines_for_inlining(pass_context, program)
+        analyse_subroutines_for_inlining(pass_context, program, routable_method_ids)
         for subroutine in program.all_subroutines:
             logger.debug(f"Optimizing subroutine {subroutine.id}")
             for optimizer in pipeline:

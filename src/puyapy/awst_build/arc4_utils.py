@@ -12,11 +12,13 @@ from puya import log
 from puya.avm import OnCompletionAction, TransactionType
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    ABIMethodArgConstantDefault,
     ABIMethodArgDefault,
     ABIMethodArgMemberDefault,
     ARC4ABIMethodConfig,
     ARC4BareMethodConfig,
     ARC4CreateOption,
+    Expression,
 )
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
@@ -184,12 +186,15 @@ def get_arc4_abimethod_data(
                         f"{parameter!r} is not a parameter of {func_def.fullname}",
                         dec_loc,
                     )
-                elif not isinstance(value, str):
-                    context.error(f"invalid default_args value: {value!r}", dec_loc)
                 else:
                     # if it's in method_arg_names, it's a str
                     assert isinstance(parameter, str)
-                    default_args[parameter] = ABIMethodArgMemberDefault(name=value)
+                    if isinstance(value, str):
+                        default_args[parameter] = ABIMethodArgMemberDefault(name=value)
+                    elif isinstance(value, Expression):
+                        default_args[parameter] = ABIMethodArgConstantDefault(value=value)
+                    else:
+                        context.error(f"invalid default_args value: {value!r}", dec_loc)
         case invalid_default_args_option:
             context.error(f"invalid default_args option: {invalid_default_args_option}", dec_loc)
 
@@ -222,6 +227,36 @@ class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
 
     def _not_supported(self, o: mypy.nodes.Context) -> typing.Never:
         raise CodeError("Unsupported expression in ARC4 decorator", self.context.node_location(o))
+
+    def visit_call_expr(self, o: mypy.nodes.CallExpr) -> Expression:
+        from puyapy.awst_build.eb.interface import NodeBuilder
+        from puyapy.awst_build.subroutine import ExpressionASTConverter, require_instance_builder
+
+        class _ConstantExpressionASTConverter(ExpressionASTConverter):
+            @typing.override
+            def resolve_local_type(
+                self, var_name: str, expr_loc: SourceLocation
+            ) -> pytypes.PyType | None:
+                raise CodeError("local variables not supported in decorators", expr_loc)
+
+            @typing.override
+            def builder_for_self(self, expr_loc: SourceLocation) -> NodeBuilder:
+                raise InternalError("self variable outside of method", expr_loc)
+
+            @typing.override
+            def visit_super_expr(self, o: mypy.nodes.SuperExpr) -> typing.Never:
+                raise CodeError("super expressions not supported in decorators", self._location(o))
+
+            @typing.override
+            def visit_assignment_expr(self, o: mypy.nodes.AssignmentExpr) -> typing.Never:
+                raise CodeError(
+                    "assignment expressions not supported in decorators", self._location(o)
+                )
+
+        converter = _ConstantExpressionASTConverter(self.context)
+        node_builder = o.accept(converter)
+        instance_builder = require_instance_builder(node_builder)
+        return instance_builder.resolve()
 
     @typing.override
     def visit_int_expr(self, o: mypy.nodes.IntExpr) -> int:

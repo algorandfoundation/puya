@@ -4,21 +4,22 @@ import math
 import operator
 import typing
 from collections import defaultdict, deque
-from collections.abc import Callable, Generator, Iterable, Mapping, Sequence, Set
+from collections.abc import Callable, Container, Generator, Iterable, Mapping, Sequence, Set
 from itertools import zip_longest
 
 import attrs
 
 from puya import algo_constants, log
 from puya.avm import AVMType
-from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
 from puya.ir.models import Intrinsic, UInt64Constant
+from puya.ir.optimize._context import IROptimizationContext
 from puya.ir.optimize.dead_code_elimination import SIDE_EFFECT_FREE_AVM_OPS
 from puya.ir.register_read_collector import RegisterReadCollector
 from puya.ir.types_ import AVMBytesEncoding, IRType
 from puya.ir.visitor_mutator import IRMutator
+from puya.parse import SourceLocation
 from puya.utils import biguint_bytes_eval, method_selector_hash, set_add
 
 logger = log.get_logger(__name__)
@@ -134,8 +135,11 @@ _CONSTANT_EVALUABLE: typing.Final[frozenset[str]] = COMPILE_TIME_CONSTANT_OPS - 
 }
 
 
-def intrinsic_simplifier(_context: CompileContext, subroutine: models.Subroutine) -> bool:
-    work_list = _AssignmentWorkQueue()
+def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subroutine) -> bool:
+    if context.expand_all_bytes:
+        work_list = _AssignmentWorkQueue(COMPILE_TIME_CONSTANT_OPS)
+    else:
+        work_list = _AssignmentWorkQueue(_CONSTANT_EVALUABLE)
     ssa_reads = _SSAReadTracker()
 
     register_assignments = dict[models.Register, models.Assignment]()
@@ -169,7 +173,7 @@ def intrinsic_simplifier(_context: CompileContext, subroutine: models.Subroutine
                             case models.Assignment(
                                 targets=[target_read_target],
                                 source=models.Intrinsic(op=(AVMOp.bzero | AVMOp.itob)),
-                            ):
+                            ) if not context.expand_all_bytes:
                                 for indirect_target_read in ssa_reads.get(target_read_target):
                                     if isinstance(indirect_target_read, models.Assignment):
                                         work_list.enqueue(indirect_target_read)
@@ -210,14 +214,15 @@ def intrinsic_simplifier(_context: CompileContext, subroutine: models.Subroutine
 
 
 class _AssignmentWorkQueue:
-    def __init__(self) -> None:
+    def __init__(self, constant_evaluable: Container[str]) -> None:
+        self._constant_evaluable = constant_evaluable
         self._dq = deque[tuple[models.Assignment, models.Intrinsic]]()
         self._set = set[Sequence[models.Register]]()
 
     def enqueue(self, op: models.Assignment) -> bool:
         if (
             isinstance(op.source, models.Intrinsic)
-            and op.source.op.code in _CONSTANT_EVALUABLE
+            and op.source.op.code in self._constant_evaluable
             and set_add(self._set, op.targets)
         ):
             self._dq.append((op, op.source))
@@ -756,19 +761,9 @@ def _get_byte_constant(
         byte_arg_defn = register_assignments[byte_arg]  # type: ignore[index]
         match byte_arg_defn.source:
             case models.Intrinsic(op=AVMOp.itob, args=[models.UInt64Constant(value=itob_arg)]):
-                return models.BytesConstant(
-                    source_location=byte_arg_defn.source_location,
-                    value=itob_arg.to_bytes(8, byteorder="big", signed=False),
-                    encoding=AVMBytesEncoding.base16,
-                )
-            case models.Intrinsic(
-                op=AVMOp.bzero, args=[models.UInt64Constant(value=bzero_arg)]
-            ) if bzero_arg <= 64:
-                return models.BytesConstant(
-                    source_location=byte_arg_defn.source_location,
-                    value=b"\x00" * bzero_arg,
-                    encoding=AVMBytesEncoding.base16,
-                )
+                return _eval_itob(itob_arg, byte_arg_defn.source_location)
+            case models.Intrinsic(op=AVMOp.bzero, args=[models.UInt64Constant(value=bzero_arg)]):
+                return _eval_bzero(bzero_arg, byte_arg_defn.source_location)
             case models.Intrinsic(op=AVMOp.global_, immediates=["ZeroAddress"]):
                 return models.BytesConstant(
                     value=_decode_address(algo_constants.ZERO_ADDRESS),
@@ -799,6 +794,24 @@ def _get_byte_constant(
     return None
 
 
+def _eval_itob(arg: int, loc: SourceLocation | None) -> models.BytesConstant:
+    return models.BytesConstant(
+        value=arg.to_bytes(8, byteorder="big", signed=False),
+        encoding=AVMBytesEncoding.base16,
+        source_location=loc,
+    )
+
+
+def _eval_bzero(arg: int, loc: SourceLocation | None) -> models.BytesConstant | None:
+    if arg <= 64:
+        return models.BytesConstant(
+            value=b"\x00" * arg,
+            encoding=AVMBytesEncoding.base16,
+            source_location=loc,
+        )
+    return None
+
+
 def _try_simplify_uint64_unary_op(
     intrinsic: models.Intrinsic, arg: models.Value
 ) -> models.Value | None:
@@ -816,6 +829,10 @@ def _try_simplify_uint64_unary_op(
             return models.UInt64Constant(value=value, source_location=op_loc)
         elif intrinsic.op is AVMOp.bitlen:
             return UInt64Constant(value=x.bit_length(), source_location=op_loc)
+        elif intrinsic.op is AVMOp.itob:
+            return _eval_itob(x, op_loc)
+        elif intrinsic.op is AVMOp.bzero:
+            return _eval_bzero(x, op_loc)
         else:
             logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {x}")
     return None

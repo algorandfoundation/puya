@@ -53,7 +53,7 @@ class CompiledReferenceReplacer(IRMutator):
         if not _is_constant(const.template_variables):
             return const
         template_constants = _get_template_constants(const.template_variables)
-        program_bytecode = self.context.get_program_bytecode(
+        program_bytecode = self.context.build_program_bytecode(
             const.artifact, ProgramKind.logic_signature, template_constants=template_constants
         )
         address_public_key = sha512_256_hash(HASH_PREFIX_PROGRAM + program_bytecode)
@@ -73,7 +73,7 @@ class CompiledReferenceReplacer(IRMutator):
             TxnField.LocalNumUint,
             TxnField.LocalNumByteSlice,
         ):
-            state_total = self.context.state_totals[const.artifact]
+            state_total = self.context.get_state_totals(const.artifact)
             match field:
                 case TxnField.GlobalNumUint:
                     total = state_total.global_uints
@@ -100,7 +100,7 @@ class CompiledReferenceReplacer(IRMutator):
                 page = const.program_page
                 if page is None:
                     raise InternalError("expected non-none value for page", const.source_location)
-                program_bytecode = self.context.get_program_bytecode(
+                program_bytecode = self.context.build_program_bytecode(
                     const.artifact,
                     (
                         ProgramKind.approval
@@ -118,10 +118,10 @@ class CompiledReferenceReplacer(IRMutator):
                     source_location=const.source_location,
                 )
             case TxnField.ExtraProgramPages:
-                approval_bytecode = self.context.get_program_bytecode(
+                approval_bytecode = self.context.build_program_bytecode(
                     const.artifact, ProgramKind.approval, template_constants=template_constants
                 )
-                clear_bytecode = self.context.get_program_bytecode(
+                clear_bytecode = self.context.build_program_bytecode(
                     const.artifact, ProgramKind.clear_state, template_constants=template_constants
                 )
                 return ir.UInt64Constant(

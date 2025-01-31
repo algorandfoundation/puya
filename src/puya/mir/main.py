@@ -11,7 +11,7 @@ def program_ir_to_mir(context: ArtifactCompileContext, program_ir: ir.Program) -
     ctx = attrs_extend(ProgramMIRContext, context, program=program_ir)
 
     result = models.Program(
-        ref=program_ir.ref,
+        kind=program_ir.kind,
         main=_lower_subroutine_to_mir(ctx, program_ir.main, is_main=True),
         subroutines=[
             _lower_subroutine_to_mir(ctx, ir_sub, is_main=False)

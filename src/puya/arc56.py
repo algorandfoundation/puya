@@ -18,15 +18,16 @@ from puya.artifact_metadata import (
     ARC4Struct,
     ContractMetaData,
     ContractState,
+    MethodArgDefault,
+    MethodArgDefaultConstant,
+    MethodArgDefaultFromMethod,
+    MethodArgDefaultFromState,
 )
 from puya.awst.nodes import (
-    ABIMethodArgConstantDefault,
-    ABIMethodArgDefault,
-    ABIMethodArgMemberDefault,
+    AppStorageKind,
     ARC4CreateOption,
 )
 from puya.compilation_artifacts import CompiledProgram, DebugInfo
-from puya.errors import InternalError
 from puya.utils import unique
 
 # TODO: use puya once the backend is shipped as separate package
@@ -69,7 +70,7 @@ def create_arc56_json(
         },
         methods=[
             models.Method(
-                name=m.config.name,
+                name=m.name,
                 desc=m.desc,
                 args=[
                     models.MethodArg(
@@ -77,9 +78,7 @@ def create_arc56_json(
                         name=a.name,
                         desc=a.desc,
                         struct=aliases.resolve(a.struct),
-                        defaultValue=_encode_default_arg(
-                            metadata, a.type_, m.config.default_args.get(a.name)
-                        ),
+                        defaultValue=_encode_default_arg(a.client_default),
                     )
                     for a in m.args
                 ],
@@ -89,7 +88,7 @@ def create_arc56_json(
                     struct=aliases.resolve(m.returns.struct),
                 ),
                 actions=_method_actions(m),
-                readonly=m.config.readonly,
+                readonly=m.readonly,
                 events=[_struct_to_event(aliases, struct) for struct in m.events],
                 # left for users to fill in for now
                 recommendations=models.MethodRecommendations(
@@ -253,59 +252,48 @@ def _storage_maps(
 
 
 def _method_actions(method: ARC4BareMethod | ARC4ABIMethod) -> models.MethodActions:
-    config = method.config
     return models.MethodActions(
         create=[
             oca.name
-            for oca in config.allowed_completion_types
-            if config.create != ARC4CreateOption.disallow and allowed_create_oca(oca.name)
+            for oca in method.allowed_completion_types
+            if method.create != ARC4CreateOption.disallow and allowed_create_oca(oca.name)
         ],
         call=[
             oca.name
-            for oca in config.allowed_completion_types
-            if config.create != ARC4CreateOption.require and allowed_call_oca(oca.name)
+            for oca in method.allowed_completion_types
+            if method.create != ARC4CreateOption.require and allowed_call_oca(oca.name)
         ],
     )
 
 
-def _encode_default_arg(
-    metadata: ContractMetaData, type_string: str, source: ABIMethodArgDefault | None
-) -> models.MethodArgDefaultValue | None:
-    match source:
+def _encode_default_arg(default: MethodArgDefault | None) -> models.MethodArgDefaultValue | None:
+    match default:
         case None:
             return None
-        case ABIMethodArgConstantDefault(data=data):
+        case MethodArgDefaultConstant(data=data, type_=type_string):
             return models.MethodArgDefaultValue(
                 data=_encode_bytes(data),
                 type=type_string,
                 source=models.DefaultValueSource.literal,
             )
-        case ABIMethodArgMemberDefault(name=name):
-            if (state := metadata.global_state.get(name)) and not state.is_map:
-                return models.MethodArgDefaultValue(
-                    data=_encode_bytes(state.key_or_prefix),
-                    type=state.arc56_key_type,
-                    source=models.DefaultValueSource.global_,
-                )
-            if (state := metadata.local_state.get(name)) and not state.is_map:
-                return models.MethodArgDefaultValue(
-                    data=_encode_bytes(state.key_or_prefix),
-                    type=state.arc56_key_type,
-                    source=models.DefaultValueSource.local_,
-                )
-            if (state := metadata.boxes.get(name)) and not state.is_map:
-                return models.MethodArgDefaultValue(
-                    data=_encode_bytes(state.key_or_prefix),
-                    type=state.arc56_key_type,
-                    source=models.DefaultValueSource.box,
-                )
-            for method in metadata.arc4_methods:
-                if isinstance(method, ARC4ABIMethod) and method.name == name:
-                    return models.MethodArgDefaultValue(
-                        data=method.signature,
-                        source=models.DefaultValueSource.method,
-                    )
-            raise InternalError(f"Cannot find {source=!r} on {metadata.ref}")
+        case MethodArgDefaultFromState(key=key, kind=kind, key_type=key_type):
+            match kind:
+                case AppStorageKind.account_local:
+                    source = models.DefaultValueSource.local_
+                case AppStorageKind.app_global:
+                    source = models.DefaultValueSource.global_
+                case AppStorageKind.box:
+                    source = models.DefaultValueSource.box
+                case unexpected:
+                    typing.assert_never(unexpected)
+            return models.MethodArgDefaultValue(
+                data=_encode_bytes(key), type=key_type, source=source
+            )
+        case MethodArgDefaultFromMethod(signature=signature):
+            return models.MethodArgDefaultValue(
+                data=signature,
+                source=models.DefaultValueSource.method,
+            )
         case unexpected:
             typing.assert_never(unexpected)
 

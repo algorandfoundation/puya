@@ -10,7 +10,7 @@ import attrs
 from puya.avm import AVMType
 from puya.errors import InternalError
 from puya.ir.utils import format_bytes, format_error_comment
-from puya.program_refs import ProgramKind, ProgramReference
+from puya.program_refs import ProgramKind
 
 if t.TYPE_CHECKING:
     from collections.abc import Iterator, Mapping, Sequence
@@ -698,14 +698,10 @@ class MemorySubroutine:
 
 @attrs.define
 class Program:
-    ref: ProgramReference
+    kind: ProgramKind
     main: MemorySubroutine
     subroutines: list[MemorySubroutine]
     avm_version: int
-
-    @property
-    def kind(self) -> ProgramKind:
-        return self.ref.kind
 
     @property
     def all_subroutines(self) -> Iterator[MemorySubroutine]:

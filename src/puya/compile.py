@@ -1,7 +1,8 @@
-import functools
+import itertools
 import shutil
 import typing
-from collections.abc import Mapping, Sequence
+from collections import defaultdict
+from collections.abc import Iterator, Mapping, Sequence
 from pathlib import Path
 
 import attrs
@@ -11,7 +12,7 @@ from immutabledict import immutabledict
 from puya import log
 from puya.arc32 import create_arc32_json
 from puya.arc56 import create_arc56_json
-from puya.artifact_metadata import ContractMetaData, LogicSignatureMetaData
+from puya.artifact_metadata import ContractMetaData, LogicSignatureMetaData, StateTotals
 from puya.artifact_sorter import Artifact, ArtifactCompilationSorter
 from puya.awst.nodes import AWST
 from puya.awst.validation.main import validate_awst
@@ -23,7 +24,12 @@ from puya.compilation_artifacts import (
     DebugInfo,
     TemplateValue,
 )
-from puya.context import ArtifactCompileContext, CompileContext
+from puya.context import (
+    ArtifactCompileContext,
+    CompileContext,
+    CompiledProgramProvider,
+    OutputPathProvider,
+)
 from puya.errors import CodeError, InternalError
 from puya.ir.main import awst_to_ir, optimize_and_destructure_ir
 from puya.ir.models import (
@@ -35,12 +41,7 @@ from puya.log import LoggingContext
 from puya.mir.main import program_ir_to_mir
 from puya.options import PuyaOptions
 from puya.parse import SourceLocation
-from puya.program_refs import (
-    ContractReference,
-    LogicSigProgramReference,
-    LogicSigReference,
-    ProgramKind,
-)
+from puya.program_refs import ContractReference, LogicSigReference, ProgramKind
 from puya.teal.main import mir_to_teal
 from puya.teal.models import TealProgram, TealSubroutine
 from puya.teal.output import emit_teal
@@ -79,43 +80,20 @@ def awst_to_teal(
 def _ir_to_teal(
     log_ctx: LoggingContext, context: CompileContext, all_ir: Sequence[ModuleArtifact]
 ) -> list[CompilationArtifact]:
-    compiled_artifacts = dict[
-        ContractReference | LogicSigReference, _CompiledContract | _CompiledLogicSig
-    ]()
-
-    @functools.cache
-    def get_program_bytecode(
-        ref: ContractReference | LogicSigReference,
-        kind: ProgramKind,
-        template_constants: immutabledict[str, TemplateValue],
-    ) -> bytes:
-        try:
-            comp_ref = compiled_artifacts[ref]
-        except KeyError:
-            raise CodeError(f"invalid reference: {ref}") from None
-        match kind, comp_ref:
-            case ProgramKind.logic_signature, _CompiledLogicSig(program=program):
-                pass
-            case ProgramKind.approval, _CompiledContract(approval_program=program):
-                pass
-            case ProgramKind.clear_state, _CompiledContract(clear_program=program):
-                pass
-            case _:
-                raise InternalError(f"invalid kind: {kind}, {type(comp_ref)}")
-        assembled = assemble_program(
-            context, program.teal, template_constants=template_constants, is_reference=True
-        )
-        return assembled.bytecode
-
-    state_totals = {
-        ir.metadata.ref: ir.metadata.state_totals for ir in all_ir if isinstance(ir, ContractIR)
-    }
+    compiled_program_provider = _CompiledProgramProviderImpl(
+        compile_context=context,
+        state_totals={
+            ir.metadata.ref: ir.metadata.state_totals
+            for ir in all_ir
+            if isinstance(ir, ContractIR)
+        },
+    )
 
     # used to check for conflicts that would occur on output
     artifacts_by_output_base = dict[Path, Artifact]()
     result = list[CompilationArtifact]()
     for artifact in ArtifactCompilationSorter.sort(all_ir):
-        out_dir = None
+        output_path_provider = None
         if out_dir_setting := context.compilation_set.get(artifact.id):
             name = artifact.ir.metadata.name
             maybe_out_dir = out_dir_setting / f"{name}.ir"
@@ -128,14 +106,15 @@ def _ir_to_teal(
             else:
                 out_dir = maybe_out_dir
                 shutil.rmtree(out_dir, ignore_errors=True)
+                output_path_provider = _SequentialOutputPathProvider(
+                    metadata=artifact.ir.metadata, out_dir=out_dir
+                )
 
         artifact_context = attrs_extend(
             ArtifactCompileContext,
             context,
-            get_program_bytecode=get_program_bytecode,
-            state_totals=state_totals,
-            out_dir=out_dir,
-            metadata=artifact.ir.metadata,
+            output_path_provider=output_path_provider,
+            compiled_program_provider=compiled_program_provider,
         )
 
         num_errors_before_optimization = log_ctx.num_errors
@@ -144,34 +123,99 @@ def _ir_to_teal(
         # further errors, add dummy artifacts and continue so other artifacts can still be lowered
         # and report any errors they encounter
         errors_in_optimization = log_ctx.num_errors > num_errors_before_optimization
-
-        compiled: _CompiledContract | _CompiledLogicSig
-        match artifact_ir:
-            case ContractIR() as contract:
-                if not errors_in_optimization:
-                    compiled = _contract_ir_to_teal(artifact_context, contract)
-                else:
-                    compiled = _CompiledContract(
-                        approval_program=_dummy_program(),
-                        clear_program=_dummy_program(),
-                        metadata=contract.metadata,
-                        source_location=None,
-                    )
-            case LogicSignature() as logic_sig:
-                if not errors_in_optimization:
-                    compiled = _logic_sig_to_teal(artifact_context, logic_sig)
-                else:
-                    compiled = _CompiledLogicSig(
-                        program=_dummy_program(),
-                        metadata=logic_sig.metadata,
-                        source_location=None,
-                    )
-            case unexpected:
-                typing.assert_never(unexpected)
-
-        compiled_artifacts[artifact.id] = compiled
-        result.append(compiled)
+        if errors_in_optimization:
+            pass
+        else:
+            compiled: _CompiledContract | _CompiledLogicSig
+            if isinstance(artifact_ir, ContractIR):
+                compiled = _contract_ir_to_teal(artifact_context, artifact_ir)
+            else:
+                compiled = _logic_sig_to_teal(artifact_context, artifact_ir)
+            result.append(compiled)
+            compiled_program_provider.add_compiled_result(artifact, compiled)
     return result
+
+
+@attrs.define
+class _CompiledProgramProviderImpl(CompiledProgramProvider):
+    compile_context: CompileContext
+    state_totals: Mapping[ContractReference, StateTotals]
+    _compiled_artifacts: dict[
+        ContractReference | LogicSigReference, "_CompiledContract | _CompiledLogicSig"
+    ] = attrs.field(factory=dict, init=False)
+    _bytecode_cache: dict[
+        tuple[
+            ContractReference | LogicSigReference, ProgramKind, immutabledict[str, TemplateValue]
+        ],
+        bytes,
+    ] = attrs.field(factory=dict, init=False)
+
+    def add_compiled_result(
+        self, artifact: Artifact, result: "_CompiledContract | _CompiledLogicSig"
+    ) -> None:
+        self._compiled_artifacts[artifact.id] = result
+
+    @typing.override
+    def build_program_bytecode(
+        self,
+        ref: ContractReference | LogicSigReference,
+        kind: ProgramKind,
+        *,
+        template_constants: immutabledict[str, TemplateValue],
+    ) -> bytes:
+        cache_key = (ref, kind, template_constants)
+        try:
+            return self._bytecode_cache[cache_key]
+        except KeyError:
+            pass
+
+        try:
+            comp_ref = self._compiled_artifacts[ref]
+        except KeyError:
+            raise CodeError(f"invalid reference: {ref}") from None
+        match kind, comp_ref:
+            case ProgramKind.logic_signature, _CompiledLogicSig(program=program):
+                pass
+            case ProgramKind.approval, _CompiledContract(approval_program=program):
+                pass
+            case ProgramKind.clear_state, _CompiledContract(clear_program=program):
+                pass
+            case _:
+                raise InternalError(f"invalid kind: {kind}, {type(comp_ref)}")
+        assembled = assemble_program(
+            self.compile_context,
+            ref,
+            program.teal,
+            template_constants=template_constants,
+            is_reference=True,
+        )
+        result = assembled.bytecode
+        self._bytecode_cache[cache_key] = result
+        return result
+
+    @typing.override
+    def get_state_totals(self, ref: ContractReference) -> StateTotals:
+        return self.state_totals[ref]
+
+
+@attrs.frozen
+class _SequentialOutputPathProvider(OutputPathProvider):
+    _metadata: ContractMetaData | LogicSignatureMetaData
+    _out_dir: Path
+    _output_seq: defaultdict[str, Iterator[int]] = attrs.field(
+        factory=lambda: defaultdict(itertools.count), init=False
+    )
+
+    @typing.override
+    def __call__(self, *, kind: str, qualifier: str, suffix: str) -> Path:
+        out_dir = self._out_dir
+        out_dir.mkdir(exist_ok=True)
+        if qualifier:
+            qualifier = f".{qualifier}"
+        qualifier = f"{next(self._output_seq[kind])}{qualifier}"
+        if kind is not ProgramKind.logic_signature:
+            qualifier = f"{kind}.{qualifier}"
+        return out_dir / f"{self._metadata.name}.{qualifier}.{suffix}"
 
 
 @attrs.frozen
@@ -203,7 +247,6 @@ def _dummy_program() -> _CompiledProgram:
 
     return _CompiledProgram(
         teal=TealProgram(
-            ref=LogicSigProgramReference(LogicSigReference()),
             avm_version=0,
             main=TealSubroutine(
                 is_main=True,
@@ -227,11 +270,14 @@ def _contract_ir_to_teal(
 ) -> _CompiledContract:
     approval_mir = program_ir_to_mir(context, contract_ir.approval_program)
     clear_state_mir = program_ir_to_mir(context, contract_ir.clear_program)
-    approval = mir_to_teal(context, approval_mir)
-    clear_state = mir_to_teal(context, clear_state_mir)
+    approval_teal = mir_to_teal(context, approval_mir)
+    clear_state_teal = mir_to_teal(context, clear_state_mir)
+    ref = contract_ir.metadata.ref
+    approval_program = _compile_program(context, ref, approval_teal)
+    clear_program = _compile_program(context, ref, clear_state_teal)
     return _CompiledContract(
-        approval_program=_compile_program(context, approval),
-        clear_program=_compile_program(context, clear_state),
+        approval_program=approval_program,
+        clear_program=clear_program,
         metadata=contract_ir.metadata,
         source_location=contract_ir.source_location,
     )
@@ -241,19 +287,25 @@ def _logic_sig_to_teal(
     context: ArtifactCompileContext, logic_sig_ir: LogicSignature
 ) -> _CompiledLogicSig:
     program_mir = program_ir_to_mir(context, logic_sig_ir.program)
-    program = mir_to_teal(context, program_mir)
+    teal_program = mir_to_teal(context, program_mir)
+    program = _compile_program(context, logic_sig_ir.metadata.ref, teal_program)
     return _CompiledLogicSig(
-        program=_compile_program(context, program),
+        program=program,
         metadata=logic_sig_ir.metadata,
         source_location=logic_sig_ir.source_location,
     )
 
 
-def _compile_program(context: ArtifactCompileContext, program: TealProgram) -> _CompiledProgram:
-    assembled = assemble_program(context, program)
+def _compile_program(
+    context: ArtifactCompileContext,
+    ref: ContractReference | LogicSigReference,
+    program: TealProgram,
+) -> _CompiledProgram:
+    assembled = assemble_program(context, ref, program)
+    teal_src = emit_teal(context, program)
     return _CompiledProgram(
         teal=program,
-        teal_src=emit_teal(context, program),
+        teal_src=teal_src,
         bytecode=assembled.bytecode,
         debug_info=assembled.debug_info,
         template_variables=assembled.template_variables,

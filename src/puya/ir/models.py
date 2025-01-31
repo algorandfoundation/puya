@@ -20,7 +20,6 @@ from puya.program_refs import (
     ContractReference,
     LogicSigReference,
     ProgramKind,
-    ProgramReference,
 )
 from puya.utils import unique
 
@@ -878,7 +877,7 @@ def _get_used_registers(blocks: Sequence[BasicBlock]) -> Set[Register]:
 
 @attrs.define(kw_only=True, eq=False)
 class Program(Context):
-    """An individual compilation unit - ie either an Approval or a Clear State program"""
+    """An individual TEAL output unit - e.g. an approval program, clear program, lsig"""
 
     # note: main is represented as a subroutine for simplified handling,
     # but should be "inlined" as main contract body during codegen.
@@ -897,15 +896,11 @@ class Program(Context):
     # return
     #
     # ie, just omit the subroutine header, and replace any&all retsub ops with a return instead
-    ref: ProgramReference
+    kind: ProgramKind
     main: Subroutine
     subroutines: Sequence[Subroutine]
     avm_version: int
     source_location: SourceLocation | None = None
-
-    @property
-    def kind(self) -> ProgramKind:
-        return self.ref.kind
 
     def __attrs_post_init__(self) -> None:
         if self.source_location is None:

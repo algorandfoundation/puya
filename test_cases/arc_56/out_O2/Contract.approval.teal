@@ -4,16 +4,62 @@
 // test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0 10 TMPL_AVM_UINT64
-    bytecblock 0x151f7c75 TMPL_ARC4_UINT8 TMPL_STRUCT TMPL_AVM_STRING
+    bytecblock 0x0000000000000000 0x151f7c75 TMPL_ARC4_UINT8 TMPL_STRUCT TMPL_AVM_STRING
+    intc_1 // 0
     txn NumAppArgs
-    bz main_bare_routing@14
-    pushbytess 0x4c5c61ba 0x97e8e4a7 0x76c4de11 0xc1ca7709 0x6de762c2 0x59fc5282 0x9d9eecb0 // method "create()void", method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64", method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)", method "emits_error((uint64,string,(byte[],uint8)))void", method "emitter()void", method "conditional_emit(bool)void", method "template_value()((byte[],uint8),uint64,string,uint8)"
+    bz main_bare_routing@19
+    pushbytess 0x4c5c61ba 0x97e8e4a7 0x76c4de11 0xc1ca7709 0x6de762c2 0x59fc5282 0x9d9eecb0 0xa2c9885f // method "create()void", method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64", method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)", method "emits_error((uint64,string,(byte[],uint8)))void", method "emitter()void", method "conditional_emit(bool)void", method "template_value()((byte[],uint8),uint64,string,uint8)", method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64))void"
     txna ApplicationArgs 0
-    match main_create_route@5 main_struct_arg_route@6 main_struct_return_route@7 main_emits_error_route@8 main_emitter_route@9 main_conditional_emit_route@10 main_template_value_route@13
+    match main_create_route@5 main_struct_arg_route@6 main_struct_return_route@7 main_emits_error_route@8 main_emitter_route@9 main_conditional_emit_route@10 main_template_value_route@13 main_with_constant_defaults_route@14
 
-main_after_if_else@17:
+main_after_if_else@22:
     intc_1 // 0
     return
+
+main_with_constant_defaults_route@14:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    btoi
+    txna ApplicationArgs 3
+    extract 2 0
+    txna ApplicationArgs 4
+    dup
+    cover 4
+    bury 5
+    uncover 2
+    bytec_0 // 0x0000000000000000
+    !=
+    assert
+    swap
+    assert
+    len
+    assert
+    extract 0 8 // on error: Index access is out of bounds
+    bytec_0 // 0x0000000000000000
+    !=
+    bnz main_bool_true@16
+    dup
+    extract 8 8 // on error: Index access is out of bounds
+    bytec_0 // 0x0000000000000000
+    !=
+    bz main_bool_false@17
+
+main_bool_true@16:
+    intc_0 // 1
+
+main_bool_merge@18:
+    assert
+    intc_0 // 1
+    return
+
+main_bool_false@17:
+    intc_1 // 0
+    b main_bool_merge@18
 
 main_template_value_route@13:
     txn OnCompletion
@@ -21,9 +67,9 @@ main_template_value_route@13:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    bytec_1 // TMPL_ARC4_UINT8
-    bytec_2 // TMPL_STRUCT
-    bytec_3 // TMPL_AVM_STRING
+    bytec_2 // TMPL_ARC4_UINT8
+    bytec_3 // TMPL_STRUCT
+    bytec 4 // TMPL_AVM_STRING
     intc_3 // TMPL_AVM_UINT64
     itob
     dig 1
@@ -49,7 +95,7 @@ main_template_value_route@13:
     concat
     swap
     concat
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     swap
     concat
     log
@@ -113,7 +159,7 @@ main_struct_return_route@7:
     dig 1
     len
     substring3
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     swap
     concat
     log
@@ -153,12 +199,12 @@ main_create_route@5:
     intc_0 // 1
     return
 
-main_bare_routing@14:
+main_bare_routing@19:
     txn OnCompletion
-    switch main_after_if_else@12 main_after_if_else@12 main_after_if_else@17 main_after_if_else@17 main_after_if_else@17 main_transient@16
-    b main_after_if_else@17
+    switch main_after_if_else@12 main_after_if_else@12 main_after_if_else@22 main_after_if_else@22 main_after_if_else@22 main_transient@21
+    b main_after_if_else@22
 
-main_transient@16:
+main_transient@21:
     txn ApplicationID
     !
     assert // can only call when creating

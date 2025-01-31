@@ -7,12 +7,12 @@ import attrs
 from puya.avm import AVMType
 from puya.compilation_artifacts import TemplateValue
 from puya.context import CompileContext
-from puya.program_refs import ProgramReference
+from puya.program_refs import ContractReference, LogicSigReference
 
 
 @attrs.frozen(kw_only=True)
 class AssembleContext(CompileContext):
-    program_ref: ProgramReference
+    artifact_ref: ContractReference | LogicSigReference
     is_reference: bool
     template_variable_types: Mapping[str, typing.Literal[AVMType.uint64, AVMType.bytes]]
     """Template variables that are required and their types"""
