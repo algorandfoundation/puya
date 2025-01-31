@@ -3,7 +3,7 @@ from itertools import zip_longest
 
 import attrs
 
-from puya.avm_type import AVMType
+from puya.avm import AVMType
 from puya.errors import InternalError
 from puya.ir.types_ import AVMBytesEncoding
 from puya.mir import models as mir

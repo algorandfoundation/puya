@@ -10,6 +10,7 @@ from puya import log
 from puya.awst.nodes import (
     AppStateExpression,
     AppStorageDefinition,
+    ARC4MethodConfig,
     AssertExpression,
     AssignmentExpression,
     AssignmentStatement,
@@ -40,8 +41,8 @@ from puya.awst.nodes import (
     WhileLoop,
 )
 from puya.errors import CodeError, InternalError
-from puya.models import ARC4MethodConfig, ContractReference, LogicSigReference
 from puya.parse import SourceLocation
+from puya.program_refs import ContractReference, LogicSigReference
 from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext

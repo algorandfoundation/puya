@@ -2,7 +2,7 @@ from collections.abc import Mapping, Sequence
 
 import attrs
 
-from puya.models import DebugInfo
+from puya.compilation_artifacts import DebugInfo
 from puya.parse import SourceLocation
 from puya.ussemble.op_spec import OP_SPECS
 from puya.ussemble.op_spec_models import OpSpec

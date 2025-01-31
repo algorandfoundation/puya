@@ -9,19 +9,14 @@ import mypy.types
 import mypy.visitor
 
 from puya import log
+from puya.avm import OnCompletionAction
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.nodes import AppStorageDefinition, AppStorageKind, BytesEncoding, ContractMethod
 from puya.errors import CodeError, InternalError
-from puya.models import (
-    ARC4BareMethodConfig,
-    ARC4CreateOption,
-    ContractReference,
-    OnCompletionAction,
-)
 from puya.parse import SourceLocation
+from puya.program_refs import ContractReference
 from puya.utils import StableSet, set_add, unique
 from puyapy.awst_build import constants, intrinsic_factory, pytypes
 from puyapy.awst_build.arc4_utils import get_arc4_abimethod_data, get_arc4_baremethod_data
@@ -126,8 +121,8 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             default_create_name = "__algopy_default_create"
             while fragment.resolve_symbol(default_create_name):  # ensure uniqueness
                 default_create_name = f"_{default_create_name}"
-            default_create_config = ARC4BareMethodConfig(
-                create=ARC4CreateOption.require,
+            default_create_config = awst_nodes.ARC4BareMethodConfig(
+                create=awst_nodes.ARC4CreateOption.require,
                 source_location=_SYNTHETIC_LOCATION,
             )
             fragment.add_method(
@@ -538,7 +533,7 @@ class _ContractFragment(_UserContractBase):
 
 def _insert_init_call_on_create(
     current_contract: ContractReference, return_type: wtypes.WType
-) -> ContractMethod:
+) -> awst_nodes.ContractMethod:
     call_init = awst_nodes.Block(
         comment="call __init__",
         body=[
@@ -697,13 +692,13 @@ def _build_symbols_and_state(
                 wtypes.validate_persistable(pytyp.content_wtype, node_loc)
                 match pytyp.generic:
                     case pytypes.GenericLocalStateType:
-                        kind = AppStorageKind.account_local
+                        kind = awst_nodes.AppStorageKind.account_local
                     case pytypes.GenericGlobalStateType:
-                        kind = AppStorageKind.app_global
+                        kind = awst_nodes.AppStorageKind.app_global
                     case pytypes.GenericBoxType:
-                        kind = AppStorageKind.box
+                        kind = awst_nodes.AppStorageKind.box
                     case None if pytyp == pytypes.BoxRefType:
-                        kind = AppStorageKind.box
+                        kind = awst_nodes.AppStorageKind.box
                     case _:
                         raise InternalError(f"unhandled StorageProxyType: {pytyp}", node_loc)
             elif isinstance(pytyp, pytypes.StorageMapProxyType):
@@ -711,18 +706,18 @@ def _build_symbols_and_state(
                 wtypes.validate_persistable(pytyp.content_wtype, node_loc)
                 if pytyp.generic != pytypes.GenericBoxMapType:
                     raise InternalError(f"unhandled StorageMapProxyType: {pytyp}", node_loc)
-                kind = AppStorageKind.box
+                kind = awst_nodes.AppStorageKind.box
             else:  # global state, direct
                 wtype = pytyp.checked_wtype(node_loc)
                 wtypes.validate_persistable(wtype, node_loc)
                 key = awst_nodes.BytesConstant(
                     value=name.encode("utf8"),
-                    encoding=BytesEncoding.utf8,
+                    encoding=awst_nodes.BytesEncoding.utf8,
                     source_location=node_loc,
                     wtype=wtypes.state_key,
                 )
-                kind = AppStorageKind.app_global
-                definition = AppStorageDefinition(
+                kind = awst_nodes.AppStorageKind.app_global
+                definition = awst_nodes.AppStorageDefinition(
                     source_location=node_loc,
                     member_name=name,
                     kind=kind,

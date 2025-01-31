@@ -6,7 +6,7 @@ import attrs
 import puya.awst.visitors
 import puya.ir.builder.storage
 from puya import algo_constants, log, utils
-from puya.avm_type import AVMType
+from puya.avm import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,

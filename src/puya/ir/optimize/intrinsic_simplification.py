@@ -10,7 +10,7 @@ from itertools import zip_longest
 import attrs
 
 from puya import algo_constants, log
-from puya.avm_type import AVMType
+from puya.avm import AVMType
 from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp

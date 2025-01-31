@@ -2,7 +2,7 @@ import typing
 from collections.abc import Sequence
 
 from puya import log
-from puya.avm_type import AVMType
+from puya.avm import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,

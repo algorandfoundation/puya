@@ -12,20 +12,21 @@ from puya import (
     arc56_models as models,
     log,
 )
-from puya.errors import InternalError
-from puya.models import (
+from puya.artifact_metadata import (
+    ARC4ABIMethod,
+    ARC4BareMethod,
+    ARC4Struct,
+    ContractMetaData,
+    ContractState,
+)
+from puya.awst.nodes import (
     ABIMethodArgConstantDefault,
     ABIMethodArgDefault,
     ABIMethodArgMemberDefault,
-    ARC4ABIMethod,
-    ARC4BareMethod,
     ARC4CreateOption,
-    ARC4Struct,
-    CompiledProgram,
-    ContractMetaData,
-    ContractState,
-    DebugInfo,
 )
+from puya.compilation_artifacts import CompiledProgram, DebugInfo
+from puya.errors import InternalError
 from puya.utils import unique
 
 # TODO: use puya once the backend is shipped as separate package

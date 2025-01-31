@@ -8,17 +8,11 @@ import attrs
 from immutabledict import immutabledict
 
 from puya import log
-from puya.models import (
-    ContractMetaData,
-    ContractReference,
-    LogicSignatureMetaData,
-    LogicSigReference,
-    ProgramKind,
-    StateTotals,
-    TemplateValue,
-)
+from puya.artifact_metadata import ContractMetaData, LogicSignatureMetaData, StateTotals
+from puya.compilation_artifacts import TemplateValue
 from puya.options import PuyaOptions
 from puya.parse import SourceLocation
+from puya.program_refs import ContractReference, LogicSigReference, ProgramKind
 
 logger = log.get_logger(__name__)
 

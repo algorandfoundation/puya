@@ -8,11 +8,8 @@ from pathlib import Path
 
 from immutabledict import immutabledict
 
-from puya import (
-    log,
-    models as puya_models,
-)
-from puya.avm_type import AVMType
+from puya import artifact_metadata, log, program_refs
+from puya.avm import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -185,7 +182,7 @@ def optimize_and_destructure_ir(
 
 def _optimize_and_destructure_program_ir(
     context: ArtifactCompileContext,
-    ref: puya_models.ContractReference | puya_models.LogicSigReference,
+    ref: program_refs.ContractReference | program_refs.LogicSigReference,
     program: Program,
 ) -> Program:
     if context.options.output_ssa_ir:
@@ -264,10 +261,10 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
             *(ctx.subroutines[ref] for ref in approval_subs_srefs),
             *ctx.embedded_funcs_lookup.values(),
         ),
-        ref=puya_models.ContractProgramReference(
+        ref=program_refs.ContractProgramReference(
             reference=contract.id,
             program_name=contract.approval_program.short_name,
-            kind=puya_models.ProgramKind.approval,
+            kind=program_refs.ProgramKind.approval,
         ),
         avm_version=avm_version,
     )
@@ -278,10 +275,10 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
             *(ctx.subroutines[ref] for ref in clear_subs_srefs),
             *ctx.embedded_funcs_lookup.values(),
         ),
-        ref=puya_models.ContractProgramReference(
+        ref=program_refs.ContractProgramReference(
             reference=contract.id,
             program_name=contract.clear_program.short_name,
-            kind=puya_models.ProgramKind.clear_state,
+            kind=program_refs.ProgramKind.clear_state,
         ),
         avm_version=avm_version,
     )
@@ -321,13 +318,13 @@ def _build_logic_sig_ir(
             *(ctx.subroutines[ref] for ref in program_sub_refs),
             *ctx.embedded_funcs_lookup.values(),
         ),
-        ref=puya_models.LogicSigProgramReference(reference=logic_sig.id),
+        ref=program_refs.LogicSigProgramReference(reference=logic_sig.id),
         avm_version=coalesce(logic_sig.avm_version, ctx.options.target_avm_version),
     )
     result = LogicSignature(
         source_location=logic_sig.source_location,
         program=sig_ir,
-        metadata=puya_models.LogicSignatureMetaData(
+        metadata=artifact_metadata.LogicSignatureMetaData(
             ref=logic_sig.id,
             description=logic_sig.docstring,
             name=logic_sig.short_name,
@@ -407,7 +404,7 @@ def _make_program(
     main: awst_nodes.Function,
     references: Iterable[Subroutine],
     *,
-    ref: puya_models.ProgramReference,
+    ref: program_refs.ProgramReference,
     avm_version: int,
 ) -> Program:
     if main.args:

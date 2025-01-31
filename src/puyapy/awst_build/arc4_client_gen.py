@@ -7,10 +7,8 @@ from puya import (
     arc56_models as arc56,
     log,
 )
+from puya.avm import OnCompletionAction
 from puya.errors import CodeError
-from puya.models import (
-    OnCompletionAction,
-)
 from puya.utils import make_path_relative_to_cwd
 from puyapy.awst_build import constants
 from puyapy.awst_build.arc4_utils import arc4_to_pytype

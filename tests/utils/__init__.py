@@ -6,11 +6,12 @@ from pathlib import Path
 import attrs
 
 from puya.awst import nodes as awst_nodes
+from puya.compilation_artifacts import CompilationArtifact
 from puya.compile import awst_to_teal
 from puya.errors import CodeError
 from puya.log import Log, LogLevel, logging_context
-from puya.models import CompilationArtifact, ContractReference, LogicSigReference
 from puya.parse import SourceLocation
+from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import pushd
 from puyapy.awst_build.main import transform_ast
 from puyapy.compile import output_awst, parse_with_mypy, write_arc4_clients
@@ -93,7 +94,8 @@ def narrowed_compile_context(
     compilation_set: Collection[ContractReference | LogicSigReference],
     puyapy_options: PuyaPyOptions,
 ) -> tuple[
-    Mapping[Path, Sequence[str] | None], Mapping[ContractReference | LogicSigReference, Path]
+    Mapping[Path, Sequence[str] | None],
+    Mapping[ContractReference | LogicSigReference, Path],
 ]:
     narrowed_sources_by_path = {
         sm.path: sm.lines

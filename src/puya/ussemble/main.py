@@ -1,9 +1,9 @@
 import typing
 from collections.abc import Mapping
 
-from puya.avm_type import AVMType
+from puya.avm import AVMType
+from puya.compilation_artifacts import TemplateValue
 from puya.context import CompileContext
-from puya.models import TemplateValue
 from puya.teal import models as teal
 from puya.ussemble import models
 from puya.ussemble.assemble import assemble_bytecode_and_debug_info

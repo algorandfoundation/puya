@@ -13,7 +13,7 @@ from algosdk.atomic_transaction_composer import (
 from algosdk.transaction import AssetTransferTxn, LogicSigAccount, LogicSigTransaction, PaymentTxn
 from algosdk.v2client.algod import AlgodClient
 
-from puya.models import CompiledLogicSig
+from puya.compilation_artifacts import CompiledLogicSig
 from puyapy.options import PuyaPyOptions
 from tests import TEST_CASES_DIR
 from tests.utils import compile_src_from_options

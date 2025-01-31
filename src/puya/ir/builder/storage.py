@@ -1,6 +1,6 @@
 import typing
 
-from puya.avm_type import AVMType
+from puya.avm import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,

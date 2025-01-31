@@ -7,22 +7,21 @@ import attrs
 from immutabledict import immutabledict
 
 from puya import log
-from puya.avm_type import AVMType
+from puya.artifact_metadata import ContractMetaData, LogicSignatureMetaData
+from puya.avm import AVMType
 from puya.awst.txn_fields import TxnField
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.avm_ops_models import ImmediateKind, OpSignature, StackType, Variant
 from puya.ir.types_ import AVMBytesEncoding, IRType, stack_type_to_avm_type, stack_type_to_ir_type
 from puya.ir.visitor import IRVisitor
-from puya.models import (
-    ContractMetaData,
+from puya.parse import SourceLocation
+from puya.program_refs import (
     ContractReference,
-    LogicSignatureMetaData,
     LogicSigReference,
     ProgramKind,
     ProgramReference,
 )
-from puya.parse import SourceLocation
 from puya.utils import unique
 
 logger = log.get_logger(__name__)

@@ -5,16 +5,11 @@ import pytest
 from algokit_utils import Program
 from algosdk.v2client.algod import AlgodClient
 
+from puya.compilation_artifacts import CompiledContract, CompiledLogicSig, CompiledProgram
 from puya.context import CompileContext
 from puya.mir.models import Signature
-from puya.models import (
-    CompiledContract,
-    CompiledLogicSig,
-    CompiledProgram,
-    LogicSigProgramReference,
-    LogicSigReference,
-)
 from puya.options import PuyaOptions
+from puya.program_refs import LogicSigProgramReference, LogicSigReference
 from puya.teal import models as teal
 from puya.ussemble.main import assemble_program
 from puyapy.options import PuyaPyOptions

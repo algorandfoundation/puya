@@ -4,7 +4,7 @@ import typing
 
 import attrs
 
-from puya.avm_type import AVMType
+from puya.avm import AVMType
 from puya.awst import wtypes
 
 __all__ = [

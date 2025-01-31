@@ -7,12 +7,9 @@ from operator import itemgetter
 import attrs
 from immutabledict import immutabledict
 
-from puya import (
-    algo_constants,
-    log,
-    models as puya_models,
-)
-from puya.avm_type import AVMType
+import puya.artifact_metadata as models
+from puya import algo_constants, log
+from puya.avm import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -22,7 +19,6 @@ from puya.awst.function_traverser import FunctionTraverser
 from puya.errors import InternalError
 from puya.ir.arc4_router import AWSTContractMethodSignature
 from puya.ir.context import IRBuildContext
-from puya.models import ARC4ABIMethodConfig
 from puya.parse import SourceLocation
 from puya.utils import StableSet, set_add, unique
 
@@ -36,12 +32,12 @@ logger = log.get_logger(__name__)
 def build_contract_metadata(
     ctx: IRBuildContext, contract: awst_nodes.Contract
 ) -> tuple[
-    puya_models.ContractMetaData,
-    Mapping[AWSTContractMethodSignature, puya_models.ARC4MethodConfig],
+    models.ContractMetaData,
+    Mapping[AWSTContractMethodSignature, awst_nodes.ARC4MethodConfig],
 ]:
-    global_state = dict[str, puya_models.ContractState]()
-    local_state = dict[str, puya_models.ContractState]()
-    boxes = dict[str, puya_models.ContractState]()
+    global_state = dict[str, models.ContractState]()
+    local_state = dict[str, models.ContractState]()
+    boxes = dict[str, models.ContractState]()
     for state in contract.app_state:
         translated = _translate_state(state)
         match state.kind:
@@ -62,7 +58,7 @@ def build_contract_metadata(
     arc4_method_data, type_refs = _extract_arc4_methods_and_type_refs(ctx, contract)
     structs = _extract_structs(type_refs)
     template_var_types = _TemplateVariableTypeCollector.collect(ctx, contract, arc4_method_data)
-    metadata = puya_models.ContractMetaData(
+    metadata = models.ContractMetaData(
         description=contract.description,
         name=contract.name,
         ref=contract.id,
@@ -77,7 +73,9 @@ def build_contract_metadata(
     return metadata, {cm: md.config for cm, md in arc4_method_data.items()}
 
 
-def _translate_state(state: awst_nodes.AppStorageDefinition) -> puya_models.ContractState:
+def _translate_state(
+    state: awst_nodes.AppStorageDefinition,
+) -> models.ContractState:
     storage_type = wtypes.persistable_stack_type(state.storage_wtype, state.source_location)
     if state.key_wtype is not None:
         if state.kind is not awst_nodes.AppStorageKind.box:
@@ -92,7 +90,7 @@ def _translate_state(state: awst_nodes.AppStorageDefinition) -> puya_models.Cont
         )
         is_map = False
     arc56_value_type = _get_arc56_type(state.storage_wtype, state.source_location)
-    return puya_models.ContractState(
+    return models.ContractState(
         name=state.member_name,
         source_location=state.source_location,
         key_or_prefix=state.key.value,
@@ -107,13 +105,13 @@ def _translate_state(state: awst_nodes.AppStorageDefinition) -> puya_models.Cont
 def _build_state_totals(
     declared_totals: awst_nodes.StateTotals | None,
     *,
-    global_state: Mapping[str, puya_models.ContractState],
-    local_state: Mapping[str, puya_models.ContractState],
+    global_state: Mapping[str, models.ContractState],
+    local_state: Mapping[str, models.ContractState],
     location: SourceLocation,
-) -> puya_models.StateTotals:
+) -> models.StateTotals:
     global_by_type = Counter(s.storage_type for s in global_state.values())
     local_by_type = Counter(s.storage_type for s in local_state.values())
-    merged = puya_models.StateTotals(
+    merged = models.StateTotals(
         global_uints=global_by_type[AVMType.uint64],
         global_bytes=global_by_type[AVMType.bytes],
         local_uints=local_by_type[AVMType.uint64],
@@ -213,7 +211,7 @@ class _TemplateVariableTypeCollector(FunctionTraverser):
 
 def _extract_arc4_methods_and_type_refs(
     ctx: IRBuildContext, contract: awst_nodes.Contract
-) -> tuple[dict[awst_nodes.ContractMethod, puya_models.ARC4Method], list[wtypes.WType]]:
+) -> tuple[dict[awst_nodes.ContractMethod, models.ARC4Method], list[wtypes.WType]]:
     event_collector = _EventCollector(ctx)
     type_refs = [
         typ
@@ -221,14 +219,14 @@ def _extract_arc4_methods_and_type_refs(
         for typ in (state.key_wtype, state.storage_wtype)
         if typ is not None
     ]
-    methods = dict[awst_nodes.ContractMethod, puya_models.ARC4Method]()
+    methods = dict[awst_nodes.ContractMethod, models.ARC4Method]()
     for method_name in unique(m.member_name for m in contract.methods):
         m = contract.resolve_contract_method(method_name)
         match m.arc4_method_config:
             case None:
                 pass
-            case puya_models.ARC4BareMethodConfig() as bare_method_config:
-                methods[m] = puya_models.ARC4BareMethod(
+            case awst_nodes.ARC4BareMethodConfig() as bare_method_config:
+                methods[m] = models.ARC4BareMethod(
                     id=m.full_name, desc=m.documentation.description, config=bare_method_config
                 )
             case abi_method_config:
@@ -243,11 +241,13 @@ def _extract_arc4_methods_and_type_refs(
     return methods, type_refs
 
 
-def _extract_structs(typ_refs: Sequence[wtypes.WType]) -> dict[str, puya_models.ARC4Struct]:
+def _extract_structs(
+    typ_refs: Sequence[wtypes.WType],
+) -> dict[str, models.ARC4Struct]:
     # Produce a unique mapping of struct names to ARC4Struct definitions.
     # Will recursively include any structs referenced in fields
     struct_wtypes = list(filter(_is_arc4_struct, typ_refs))
-    struct_results = dict[str, puya_models.ARC4Struct]()
+    struct_results = dict[str, models.ARC4Struct]()
     while struct_wtypes:
         struct = struct_wtypes.pop()
         if struct.name in struct_results:
@@ -263,12 +263,12 @@ def _extract_structs(typ_refs: Sequence[wtypes.WType]) -> dict[str, puya_models.
 
 def _abi_method_metadata(
     m: awst_nodes.ContractMethod,
-    config: ARC4ABIMethodConfig,
-    events: Sequence[puya_models.ARC4Struct],
-) -> puya_models.ARC4ABIMethod:
+    config: awst_nodes.ARC4ABIMethodConfig,
+    events: Sequence[models.ARC4Struct],
+) -> models.ARC4ABIMethod:
     assert config is m.arc4_method_config
     args = [
-        puya_models.ARC4MethodArg(
+        models.ARC4MethodArg(
             name=a.name,
             type_=wtype_to_arc4(a.wtype),
             struct=_get_arc4_struct_name(a.wtype),
@@ -276,12 +276,12 @@ def _abi_method_metadata(
         )
         for a in m.args
     ]
-    returns = puya_models.ARC4Returns(
+    returns = models.ARC4Returns(
         desc=m.documentation.returns,
         type_=wtype_to_arc4(m.return_type),
         struct=_get_arc4_struct_name(m.return_type),
     )
-    return puya_models.ARC4ABIMethod(
+    return models.ARC4ABIMethod(
         id=m.full_name,
         name=m.member_name,
         desc=m.documentation.description,
@@ -302,7 +302,7 @@ def _get_arc4_struct_name(wtype: wtypes.WType) -> str | None:
     return wtype.name if _is_arc4_struct(wtype) else None
 
 
-def _wtype_to_struct(s: wtypes.ARC4Struct | wtypes.WTuple) -> puya_models.ARC4Struct:
+def _wtype_to_struct(s: wtypes.ARC4Struct | wtypes.WTuple) -> models.ARC4Struct:
     fields = []
     assert s.fields
     for field_name, field_wtype in s.fields.items():
@@ -312,13 +312,13 @@ def _wtype_to_struct(s: wtypes.ARC4Struct | wtypes.WTuple) -> puya_models.ARC4St
                 raise InternalError("expected ARC4 type")
             field_wtype = maybe_arc4_field_wtype
         fields.append(
-            puya_models.ARC4StructField(
+            models.ARC4StructField(
                 name=field_name,
                 type=field_wtype.arc4_name,
                 struct=_get_arc4_struct_name(field_wtype),
             )
         )
-    return puya_models.ARC4Struct(fullname=s.name, desc=s.desc, fields=fields)
+    return models.ARC4Struct(fullname=s.name, desc=s.desc, fields=fields)
 
 
 @attrs.frozen

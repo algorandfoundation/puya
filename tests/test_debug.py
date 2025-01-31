@@ -12,7 +12,7 @@ from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
 
 from puya.arc32 import create_arc32_json
-from puya.models import CompiledContract, DebugInfo
+from puya.compilation_artifacts import CompiledContract, DebugInfo
 from puyapy.options import PuyaPyOptions
 from tests import TEST_CASES_DIR
 from tests.utils import compile_src_from_options

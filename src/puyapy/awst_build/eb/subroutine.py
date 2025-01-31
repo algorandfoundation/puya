@@ -11,8 +11,8 @@ from puya.awst.nodes import (
     SubroutineTarget,
 )
 from puya.errors import CodeError, InternalError
-from puya.models import ContractReference
 from puya.parse import SourceLocation
+from puya.program_refs import ContractReference
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder

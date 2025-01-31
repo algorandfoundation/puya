@@ -2,20 +2,19 @@ import typing
 from collections.abc import Mapping
 
 from puya import log
-from puya.avm_type import AVMType
+from puya.avm import AVMType, OnCompletionAction
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
 from puya.awst.arc4_types import wtype_to_arc4
 from puya.awst.awst_traverser import AWSTTraverser
-from puya.models import (
+from puya.awst.nodes import (
     ABIMethodArgConstantDefault,
     ABIMethodArgMemberDefault,
     ARC4ABIMethodConfig,
     ARC4BareMethodConfig,
     ARC4CreateOption,
-    OnCompletionAction,
 )
 
 logger = log.get_logger(__name__)

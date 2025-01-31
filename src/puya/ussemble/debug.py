@@ -1,6 +1,6 @@
 from collections.abc import Mapping, Sequence
 
-from puya.models import DebugEvent, DebugInfo
+from puya.compilation_artifacts import DebugEvent, DebugInfo
 from puya.parse import SourceLocation
 from puya.ussemble import models
 from puya.ussemble.context import AssembleContext

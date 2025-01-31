@@ -14,12 +14,13 @@ from immutabledict import immutabledict
 from puya import log
 from puya.algo_constants import HASH_PREFIX_PROGRAM, MAX_BYTES_LENGTH
 from puya.awst.txn_fields import TxnField
+from puya.compilation_artifacts import TemplateValue
 from puya.context import ArtifactCompileContext
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.visitor_mutator import IRMutator
-from puya.models import ProgramKind, TemplateValue
+from puya.program_refs import ProgramKind
 from puya.utils import (
     Address,
     biguint_bytes_eval,
