@@ -87,6 +87,95 @@ contract CustomApproval
   }
 }
 
+contract CustomApproval2
+{
+  method_resolution_order: (
+    test_cases.abi_routing.custom_approval.CustomApproval,
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine test_cases.abi_routing.custom_approval.CustomApproval2.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.abi_routing.custom_approval.CustomApproval2.approval_program(): bool
+  {
+    return false
+  }
+  
+  baremethod test_cases.abi_routing.custom_approval.CustomApproval2.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine test_cases.abi_routing.custom_approval.CustomApproval.__init__(): void
+  {
+    void
+    assert(txn<ApplicationID>() == reinterpret_cast<application>(0u), comment="nonsense assert just to generate an init method")
+  }
+  
+  subroutine test_cases.abi_routing.custom_approval.CustomApproval.approval_program(): bool
+  {
+    if (txn<NumAppArgs>() == 2u and txna<ApplicationArgs, 1>() == itob(42u)) {
+      log('\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89')
+    }
+    result: bool = super::approval_program()
+    if (!(result)) {
+      log("this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here")
+    }
+    return result
+  }
+  
+  abimethod test_cases.abi_routing.custom_approval.CustomApproval.add_one(x: uint64): uint64
+  {
+    return x + 1u
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+}
+
+contract CustomApproval3
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine test_cases.abi_routing.custom_approval.CustomApproval3.approval_program(): bool
+  {
+    return false
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.abi_routing.custom_approval.CustomApproval3.unused(): void
+  {
+    return
+  }
+  
+  baremethod test_cases.abi_routing.custom_approval.CustomApproval3.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+}
+
 contract Reference
 {
   method_resolution_order: (

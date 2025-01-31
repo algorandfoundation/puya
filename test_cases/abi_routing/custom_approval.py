@@ -23,3 +23,19 @@ class CustomApproval(ARC4Contract):
     @arc4.abimethod
     def add_one(self, x: UInt64) -> UInt64:
         return x + 1
+
+
+class CustomApproval2(CustomApproval):
+    @typing.override
+    def approval_program(self) -> bool:
+        return False
+
+
+class CustomApproval3(ARC4Contract):
+    @arc4.abimethod
+    def unused(self) -> None:
+        return
+
+    @typing.override
+    def approval_program(self) -> bool:
+        return False

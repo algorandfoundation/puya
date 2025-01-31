@@ -140,19 +140,14 @@ def awst_to_ir(context: CompileContext, awst: awst_nodes.AWST) -> list[ModuleArt
     compilation_set = CompilationSetCollector.collect(context, awst)
     result = list[ModuleArtifact]()
     for node in compilation_set:
-        match node:
-            case awst_nodes.Contract() as contract_node:
-                ctx = build_context.for_root(contract_node)
-                with ctx.log_exceptions():
-                    contract_ir = _build_contract_ir(ctx, contract_node)
-                    result.append(contract_ir)
-            case awst_nodes.LogicSignature() as logic_signature:
-                ctx = build_context.for_root(logic_signature)
-                with ctx.log_exceptions():
-                    logic_sig_ir = _build_logic_sig_ir(ctx, logic_signature)
-                    result.append(logic_sig_ir)
-            case unexpected:
-                typing.assert_never(unexpected)
+        ctx = build_context.for_root(node)
+        with ctx.log_exceptions():
+            ir: ModuleArtifact
+            if isinstance(node, awst_nodes.Contract):
+                ir = _build_contract_ir(ctx, node)
+            else:
+                ir = _build_logic_sig_ir(ctx, node)
+            result.append(ir)
     return result
 
 
@@ -230,7 +225,7 @@ def _build_embedded_ir(ctx: CompileContext) -> Mapping[str, Subroutine]:
 def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
     metadata, arc4_method_data = build_contract_metadata(ctx, contract)
     arc4_router_func = arc4_router.create_abi_router(contract, arc4_method_data)
-    ctx.subroutines[arc4_router_func] = ctx.routers[contract.id] = make_subroutine(
+    ctx.routers[contract.id] = arc4_router_ir = make_subroutine(
         arc4_router_func, allow_implicits=False
     )
 
@@ -247,11 +242,19 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
     # that was referenced through either entry point
     for func in itertools.chain(approval_subs_srefs, clear_subs_srefs):
         if func not in ctx.subroutines:
-            allow_implicits = _should_include_implicit_returns(
-                func, callees=callees[func], arc4_router_func=arc4_router_func
-            )
-            # make the emtpy subroutine, because functions reference other functions
-            ctx.subroutines[func] = make_subroutine(func, allow_implicits=allow_implicits)
+            # insert the generated router function only if it's referenced,
+            # this is to prevent compilation errors if it's not and there are arc4 methods
+            # that aren't used otherwise
+            if func is arc4_router_func:
+                func_ir = arc4_router_ir
+            else:
+                allow_implicits = _should_include_implicit_returns(
+                    func, callees=callees[func], arc4_router_func=arc4_router_func
+                )
+                # make the emtpy subroutine, because functions reference other functions
+                func_ir = make_subroutine(func, allow_implicits=allow_implicits)
+            ctx.subroutines[func] = func_ir
+
     # now construct the subroutine IR
     for func, sub in ctx.subroutines.items():
         if not sub.body:  # in case something is pre-built (ie from embedded lib)
