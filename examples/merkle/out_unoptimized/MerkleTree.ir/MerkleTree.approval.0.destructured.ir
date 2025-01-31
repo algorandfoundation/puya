@@ -49,19 +49,6 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@9: // after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router___L1
         return tmp%0#0
 
-subroutine examples.merkle.contract.MerkleTree.create(root: bytes) -> void:
-    block@0: // L10
-        (app_global_put "root" root#0)
-        return 
-
-subroutine examples.merkle.contract.MerkleTree.verify(proof: bytes, leaf: bytes) -> bool:
-    block@0: // L14
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "root")
-        (assert maybe_exists%0#0) // check self.root exists
-        let (compute_root_hash%0#0: bytes, compute_root_hash%1#0: bytes) = examples.merkle.contract.compute_root_hash(proof#0, leaf#0)
-        let tmp%0#0: bool = (== maybe_value%0#0 compute_root_hash%0#0)
-        return tmp%0#0
-
 subroutine examples.merkle.contract.compute_root_hash(proof: bytes, leaf: bytes) -> <bytes, bytes>:
     block@0: // L19
         let computed#0: bytes = leaf#0
@@ -99,3 +86,16 @@ subroutine examples.merkle.contract.hash_pair(a: bytes, b: bytes) -> bytes:
     block@3: // ternary_merge_L29
         let tmp%1#0: bytes = (sha256 ternary_result%0#0)
         return tmp%1#0
+
+subroutine examples.merkle.contract.MerkleTree.create(root: bytes) -> void:
+    block@0: // L10
+        (app_global_put "root" root#0)
+        return 
+
+subroutine examples.merkle.contract.MerkleTree.verify(proof: bytes, leaf: bytes) -> bool:
+    block@0: // L14
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "root")
+        (assert maybe_exists%0#0) // check self.root exists
+        let (compute_root_hash%0#0: bytes, compute_root_hash%1#0: bytes) = examples.merkle.contract.compute_root_hash(proof#0, leaf#0)
+        let tmp%0#0: bool = (== maybe_value%0#0 compute_root_hash%0#0)
+        return tmp%0#0

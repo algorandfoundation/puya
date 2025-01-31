@@ -159,22 +159,6 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#0: bool = φ(test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#0 <- block@3, test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#1 <- block@4, test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#2 <- block@5, test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#3 <- block@6, test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#4 <- block@7, test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#5 <- block@8, test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#6 <- block@9, test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#7 <- block@10, test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#8 <- block@11, test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#9 <- block@12, test_cases.transaction.contract.TransactionContract.__puya_arc4_router__%0#10 <- block@16)
         return tmp%0#0
 
-subroutine test_cases.transaction.contract.TransactionContract.pay(txn: uint64) -> void:
-    block@0: // L31
-        test_cases.transaction.contract.TransactionContract._common_checks(txn#0)
-        let tmp%0#0: bytes = ((gtxns Receiver) txn#0)
-        let tmp%1#0: bytes = (global CurrentApplicationAddress)
-        let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
-        (assert tmp%2#0) // Payment should be for this app
-        let tmp%3#0: uint64 = ((gtxns Amount) txn#0)
-        let tmp%4#0: bool = (> tmp%3#0 1000u)
-        (assert tmp%4#0) // Payment should be for >1000 micro algos
-        let tmp%5#0: bytes = ((gtxns CloseRemainderTo) txn#0)
-        let tmp%6#0: bytes = (global ZeroAddress)
-        let tmp%7#0: bool = (== tmp%5#0 tmp%6#0)
-        (assert tmp%7#0) // close_remainder_to
-        return 
-
 subroutine test_cases.transaction.contract.TransactionContract._common_checks(txn: uint64) -> void:
     block@0: // L16
         let tmp%0#0: bytes = ((gtxns TxID) txn#0)
@@ -208,6 +192,22 @@ subroutine test_cases.transaction.contract.TransactionContract._common_checks(tx
         let tmp%25#0: bytes = (global ZeroAddress)
         let tmp%26#0: bool = (== tmp%24#0 tmp%25#0)
         (assert tmp%26#0) // rekey_to
+        return 
+
+subroutine test_cases.transaction.contract.TransactionContract.pay(txn: uint64) -> void:
+    block@0: // L31
+        test_cases.transaction.contract.TransactionContract._common_checks(txn#0)
+        let tmp%0#0: bytes = ((gtxns Receiver) txn#0)
+        let tmp%1#0: bytes = (global CurrentApplicationAddress)
+        let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
+        (assert tmp%2#0) // Payment should be for this app
+        let tmp%3#0: uint64 = ((gtxns Amount) txn#0)
+        let tmp%4#0: bool = (> tmp%3#0 1000u)
+        (assert tmp%4#0) // Payment should be for >1000 micro algos
+        let tmp%5#0: bytes = ((gtxns CloseRemainderTo) txn#0)
+        let tmp%6#0: bytes = (global ZeroAddress)
+        let tmp%7#0: bool = (== tmp%5#0 tmp%6#0)
+        (assert tmp%7#0) // close_remainder_to
         return 
 
 subroutine test_cases.transaction.contract.TransactionContract.key(txn: uint64) -> void:

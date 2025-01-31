@@ -9,40 +9,6 @@ main test_cases.abi_routing.custom_approval.CustomApproval.__algopy_entrypoint_w
         let tmp%1#0: bool = test_cases.abi_routing.custom_approval.CustomApproval.approval_program()
         return tmp%1#0
 
-subroutine test_cases.abi_routing.custom_approval.CustomApproval.__init__() -> void:
-    block@0: // L7
-        let tmp%0#0: uint64 = (txn ApplicationID)
-        let tmp%1#0: bool = (== tmp%0#0 0u)
-        (assert tmp%1#0) // nonsense assert just to generate an init method
-        return 
-
-subroutine test_cases.abi_routing.custom_approval.CustomApproval.approval_program() -> bool:
-    block@0: // L11
-        let tmp%0#0: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (== tmp%0#0 2u)
-        goto tmp%1#0 ? block@1 : block@3
-    block@1: // and_contd_L13
-        let tmp%2#0: bytes = (txna ApplicationArgs 1)
-        let tmp%3#0: bytes = (itob 42u)
-        let tmp%4#0: bool = (== tmp%2#0 tmp%3#0)
-        goto tmp%4#0 ? block@2 : block@3
-    block@2: // if_body_L14
-        (log "\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89")
-        goto block@3
-    block@3: // after_if_else_L13
-        let result#0: bool = algopy.arc4.ARC4Contract.approval_program()
-        goto result#0 ? block@5 : block@4
-    block@4: // if_body_L17
-        (log "this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here")
-        goto block@5
-    block@5: // after_if_else_L16
-        return result#0
-
-subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
-    block@0: // L1
-        let tmp%0#0: bool = test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__()
-        return tmp%0#0
-
 subroutine test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__() -> bool:
     block@0: // L6
         let tmp%0#0: uint64 = (txn NumAppArgs)
@@ -85,6 +51,35 @@ subroutine test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_rou
     block@9: // after_if_else_L6
         return 0u
 
+subroutine test_cases.abi_routing.custom_approval.CustomApproval.__init__() -> void:
+    block@0: // L7
+        let tmp%0#0: uint64 = (txn ApplicationID)
+        let tmp%1#0: bool = (== tmp%0#0 0u)
+        (assert tmp%1#0) // nonsense assert just to generate an init method
+        return 
+
+subroutine test_cases.abi_routing.custom_approval.CustomApproval.approval_program() -> bool:
+    block@0: // L11
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (== tmp%0#0 2u)
+        goto tmp%1#0 ? block@1 : block@3
+    block@1: // and_contd_L13
+        let tmp%2#0: bytes = (txna ApplicationArgs 1)
+        let tmp%3#0: bytes = (itob 42u)
+        let tmp%4#0: bool = (== tmp%2#0 tmp%3#0)
+        goto tmp%4#0 ? block@2 : block@3
+    block@2: // if_body_L14
+        (log "\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89")
+        goto block@3
+    block@3: // after_if_else_L13
+        let result#0: bool = algopy.arc4.ARC4Contract.approval_program()
+        goto result#0 ? block@5 : block@4
+    block@4: // if_body_L17
+        (log "this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here")
+        goto block@5
+    block@5: // after_if_else_L16
+        return result#0
+
 subroutine test_cases.abi_routing.custom_approval.CustomApproval.add_one(x: uint64) -> uint64:
     block@0: // L23
         let tmp%0#0: uint64 = (+ x#0 1u)
@@ -93,3 +88,8 @@ subroutine test_cases.abi_routing.custom_approval.CustomApproval.add_one(x: uint
 subroutine test_cases.abi_routing.custom_approval.CustomApproval.__algopy_default_create() -> void:
     block@0: // L1
         return 
+
+subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+    block@0: // L1
+        let tmp%0#0: bool = test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__()
+        return tmp%0#0

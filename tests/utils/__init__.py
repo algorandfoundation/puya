@@ -100,7 +100,7 @@ def narrowed_compile_context(
     narrowed_sources_by_path = {
         sm.path: sm.lines
         for sm in parse_result.ordered_modules.values()
-        if sm.path.resolve().is_relative_to(src_path.resolve())
+        if sm.path.resolve().is_relative_to(src_path)
         and sm.discovery_mechanism != SourceDiscoveryMechanism.dependency
     }
     awst_lookup = {n.id: n for n in awst}
@@ -114,7 +114,6 @@ def narrowed_compile_context(
 
 def _filter_logs(logs: list[Log], root_dir: Path, src_path: Path) -> list[Log]:
     root_dir = root_dir.resolve()
-    src_path = src_path.resolve()
     relative_src_root = src_path.relative_to(root_dir)
     result = []
     for log in logs:
@@ -154,6 +153,7 @@ def compile_src_from_options(options: PuyaPyOptions) -> CompilationResult:
         options = attrs.evolve(options, out_dir=Path("out_tests"))
     (src_path,) = options.paths
     root_dir = _get_root_dir(src_path)
+    src_path = src_path.resolve()
     parse_result, awst, compilation_set, awst_logs = get_awst_cache(root_dir)
     awst_logs = _filter_logs(awst_logs, root_dir, src_path)
 
@@ -165,16 +165,16 @@ def compile_src_from_options(options: PuyaPyOptions) -> CompilationResult:
         narrow_sources_by_path, narrow_compilation_set = narrowed_compile_context(
             parse_result, src_path, awst, compilation_set, options
         )
+        # this should be correct and exhaustive but relies on independence of examples
+        narrowed_awst = [n for n in awst if n.source_location.file in narrow_sources_by_path]
 
         with pushd(root_dir):
             if options.output_awst and options.out_dir:
-                # this should be correct and exhaustive but relies on independence of examples
-                nodes = [n for n in awst if n.source_location.file in narrow_sources_by_path]
-                output_awst(nodes, options.out_dir)
+                output_awst(narrowed_awst, options.out_dir)
 
             try:
                 teal = awst_to_teal(
-                    log_ctx, options, narrow_compilation_set, narrow_sources_by_path, awst
+                    log_ctx, options, narrow_compilation_set, narrow_sources_by_path, narrowed_awst
                 )
             except SystemExit as ex:
                 raise CodeError(_get_log_errors(log_ctx.logs)) from ex
@@ -187,7 +187,7 @@ def compile_src_from_options(options: PuyaPyOptions) -> CompilationResult:
                 )
 
         return CompilationResult(
-            module_awst=awst,
+            module_awst=narrowed_awst,
             logs=awst_logs + log_ctx.logs,
             teal=filtered_teal,
             root_dir=root_dir,

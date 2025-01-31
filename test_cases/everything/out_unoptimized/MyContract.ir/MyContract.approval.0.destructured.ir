@@ -9,8 +9,107 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         let tmp%1#0: bool = algopy.arc4.ARC4Contract.approval_program()
         return tmp%1#0
 
+subroutine test_cases.everything.my_base.multiplicative_identity() -> uint64:
+    block@0: // L18
+        return 1u
+
+subroutine test_cases.everything.contract.get_banned() -> bytes:
+    block@0: // L23
+        return addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
+
+subroutine test_cases.everything.contract.positive_one() -> uint64:
+    block@0: // L86
+        return 1u
+
 subroutine test_cases.everything.contract.Everything.__init__() -> void:
     block@0: // L38
+        return 
+
+subroutine test_cases.everything.contract.Everything.create() -> void:
+    block@0: // L41
+        test_cases.everything.contract.Everything._check_ban_list()
+        test_cases.everything.my_base.MyBase.remember_creator()
+        (app_global_put "counter" 0u)
+        return 
+
+subroutine test_cases.everything.contract.Everything.register(name: bytes) -> void:
+    block@0: // L47
+        test_cases.everything.contract.Everything._check_ban_list()
+        let tmp%0#0: uint64 = (txn OnCompletion)
+        let tmp%1#0: bool = (== tmp%0#0 OptIn)
+        goto tmp%1#0 ? block@1 : block@4
+    block@1: // if_body_L51
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex 0u 0u "name")
+        let sender_name_existed#0: bool = maybe_exists%0#0
+        goto sender_name_existed#0 ? block@3 : block@2
+    block@2: // if_body_L53
+        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "counter")
+        (assert maybe_exists%1#0) // check self.counter exists
+        let tmp%2#0: uint64 = test_cases.everything.my_base.multiplicative_identity()
+        let new_state_value%0#0: uint64 = (+ maybe_value%1#0 tmp%2#0)
+        (app_global_put "counter" new_state_value%0#0)
+        goto block@3
+    block@3: // after_if_else_L52
+        goto block@4
+    block@4: // after_if_else_L50
+        (app_local_put 0u "name" name#0)
+        return 
+
+subroutine test_cases.everything.contract.Everything.say_hello() -> bytes:
+    block@0: // L56
+        test_cases.everything.contract.Everything._check_ban_list()
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex 0u 0u "name")
+        let name#0: bytes = maybe_value%0#0
+        let exists#0: bool = maybe_exists%0#0
+        goto exists#0 ? block@2 : block@1
+    block@1: // if_body_L61
+        return 0x000f486f77647920737472616e67657221
+    block@2: // after_if_else_L60
+        let expr_value_trimmed%0#0: bytes = ((extract 2 0) 0x000748656c6c6f2c20)
+        let expr_value_trimmed%1#0: bytes = ((extract 2 0) name#0)
+        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 expr_value_trimmed%1#0)
+        let len_%0#0: uint64 = (len concatenated%0#0)
+        let as_bytes%0#0: bytes = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
+        let expr_value_trimmed%2#0: bytes = ((extract 2 0) concat_result%0#0)
+        let expr_value_trimmed%3#0: bytes = ((extract 2 0) 0x000121)
+        let concatenated%1#0: bytes = (concat expr_value_trimmed%2#0 expr_value_trimmed%3#0)
+        let len_%1#0: uint64 = (len concatenated%1#0)
+        let as_bytes%1#0: bytes = (itob len_%1#0)
+        let len_16_bit%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let concat_result%1#0: bytes = (concat len_16_bit%1#0 concatenated%1#0)
+        return concat_result%1#0
+
+subroutine test_cases.everything.contract.Everything.calculate(a: bytes, b: bytes) -> bytes:
+    block@0: // L64
+        let c#0: bytes = test_cases.everything.my_base.MyMiddleBase.calculate(a#0, b#0)
+        let tmp%0#0: uint64 = (btoi c#0)
+        let tmp%1#0: uint64 = (btoi b#0)
+        let to_encode%0#0: uint64 = (* tmp%0#0 tmp%1#0)
+        let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
+        return val_as_bytes%0#0
+
+subroutine test_cases.everything.contract.Everything.close_out() -> void:
+    block@0: // L69
+        test_cases.everything.contract.Everything._remove_sender()
+        return 
+
+subroutine test_cases.everything.contract.Everything._check_ban_list() -> void:
+    block@0: // L77
+        let tmp%0#0: bytes = (txn Sender)
+        let tmp%1#0: bytes = test_cases.everything.contract.get_banned()
+        let tmp%2#0: bool = (!= tmp%0#0 tmp%1#0)
+        (assert tmp%2#0) // You are banned, goodbye
+        return 
+
+subroutine test_cases.everything.contract.Everything._remove_sender() -> void:
+    block@0: // L81
+        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
+        (assert maybe_exists%0#0) // check self.counter exists
+        let tmp%0#0: uint64 = test_cases.everything.contract.positive_one()
+        let new_state_value%0#0: uint64 = (- maybe_value%0#0 tmp%0#0)
+        (app_global_put "counter" new_state_value%0#0)
         return 
 
 subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
@@ -99,93 +198,6 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@12: // after_inlined_test_cases.everything.contract.Everything.__puya_arc4_router___L1
         return tmp%0#0
 
-subroutine test_cases.everything.contract.Everything.create() -> void:
-    block@0: // L41
-        test_cases.everything.contract.Everything._check_ban_list()
-        test_cases.everything.my_base.MyBase.remember_creator()
-        (app_global_put "counter" 0u)
-        return 
-
-subroutine test_cases.everything.contract.Everything._check_ban_list() -> void:
-    block@0: // L77
-        let tmp%0#0: bytes = (txn Sender)
-        let tmp%1#0: bytes = test_cases.everything.contract.get_banned()
-        let tmp%2#0: bool = (!= tmp%0#0 tmp%1#0)
-        (assert tmp%2#0) // You are banned, goodbye
-        return 
-
-subroutine test_cases.everything.contract.get_banned() -> bytes:
-    block@0: // L23
-        return addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
-
-subroutine test_cases.everything.my_base.MyBase.remember_creator() -> void:
-    block@0: // L7
-        let new_state_value%0#0: bytes = (txn Sender)
-        (app_global_put "creator" new_state_value%0#0)
-        return 
-
-subroutine test_cases.everything.contract.Everything.register(name: bytes) -> void:
-    block@0: // L47
-        test_cases.everything.contract.Everything._check_ban_list()
-        let tmp%0#0: uint64 = (txn OnCompletion)
-        let tmp%1#0: bool = (== tmp%0#0 OptIn)
-        goto tmp%1#0 ? block@1 : block@4
-    block@1: // if_body_L51
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex 0u 0u "name")
-        let sender_name_existed#0: bool = maybe_exists%0#0
-        goto sender_name_existed#0 ? block@3 : block@2
-    block@2: // if_body_L53
-        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "counter")
-        (assert maybe_exists%1#0) // check self.counter exists
-        let tmp%2#0: uint64 = test_cases.everything.my_base.multiplicative_identity()
-        let new_state_value%0#0: uint64 = (+ maybe_value%1#0 tmp%2#0)
-        (app_global_put "counter" new_state_value%0#0)
-        goto block@3
-    block@3: // after_if_else_L52
-        goto block@4
-    block@4: // after_if_else_L50
-        (app_local_put 0u "name" name#0)
-        return 
-
-subroutine test_cases.everything.my_base.multiplicative_identity() -> uint64:
-    block@0: // L18
-        return 1u
-
-subroutine test_cases.everything.contract.Everything.say_hello() -> bytes:
-    block@0: // L56
-        test_cases.everything.contract.Everything._check_ban_list()
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex 0u 0u "name")
-        let name#0: bytes = maybe_value%0#0
-        let exists#0: bool = maybe_exists%0#0
-        goto exists#0 ? block@2 : block@1
-    block@1: // if_body_L61
-        return 0x000f486f77647920737472616e67657221
-    block@2: // after_if_else_L60
-        let expr_value_trimmed%0#0: bytes = ((extract 2 0) 0x000748656c6c6f2c20)
-        let expr_value_trimmed%1#0: bytes = ((extract 2 0) name#0)
-        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 expr_value_trimmed%1#0)
-        let len_%0#0: uint64 = (len concatenated%0#0)
-        let as_bytes%0#0: bytes = (itob len_%0#0)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
-        let expr_value_trimmed%2#0: bytes = ((extract 2 0) concat_result%0#0)
-        let expr_value_trimmed%3#0: bytes = ((extract 2 0) 0x000121)
-        let concatenated%1#0: bytes = (concat expr_value_trimmed%2#0 expr_value_trimmed%3#0)
-        let len_%1#0: uint64 = (len concatenated%1#0)
-        let as_bytes%1#0: bytes = (itob len_%1#0)
-        let len_16_bit%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let concat_result%1#0: bytes = (concat len_16_bit%1#0 concatenated%1#0)
-        return concat_result%1#0
-
-subroutine test_cases.everything.contract.Everything.calculate(a: bytes, b: bytes) -> bytes:
-    block@0: // L64
-        let c#0: bytes = test_cases.everything.my_base.MyMiddleBase.calculate(a#0, b#0)
-        let tmp%0#0: uint64 = (btoi c#0)
-        let tmp%1#0: uint64 = (btoi b#0)
-        let to_encode%0#0: uint64 = (* tmp%0#0 tmp%1#0)
-        let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
-        return val_as_bytes%0#0
-
 subroutine test_cases.everything.my_base.MyMiddleBase.calculate(a: bytes, b: bytes) -> bytes:
     block@0: // L13
         let tmp%0#0: uint64 = (btoi a#0)
@@ -194,20 +206,8 @@ subroutine test_cases.everything.my_base.MyMiddleBase.calculate(a: bytes, b: byt
         let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
         return val_as_bytes%0#0
 
-subroutine test_cases.everything.contract.Everything.close_out() -> void:
-    block@0: // L69
-        test_cases.everything.contract.Everything._remove_sender()
+subroutine test_cases.everything.my_base.MyBase.remember_creator() -> void:
+    block@0: // L7
+        let new_state_value%0#0: bytes = (txn Sender)
+        (app_global_put "creator" new_state_value%0#0)
         return 
-
-subroutine test_cases.everything.contract.Everything._remove_sender() -> void:
-    block@0: // L81
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
-        (assert maybe_exists%0#0) // check self.counter exists
-        let tmp%0#0: uint64 = test_cases.everything.contract.positive_one()
-        let new_state_value%0#0: uint64 = (- maybe_value%0#0 tmp%0#0)
-        (app_global_put "counter" new_state_value%0#0)
-        return 
-
-subroutine test_cases.everything.contract.positive_one() -> uint64:
-    block@0: // L86
-        return 1u

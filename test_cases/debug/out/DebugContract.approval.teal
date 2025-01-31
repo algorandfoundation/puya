@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 10 0 TMPL_A_MULT
-    bytecblock " " 0x30313233343536373839
+    bytecblock 0x30313233343536373839 " "
     // debug/contract.py:4
     // class DebugContract(arc4.ARC4Contract):
     txn NumAppArgs
@@ -56,6 +56,112 @@ main_bare_routing@6:
     assert // can only call when creating
     intc_0 // 1
     return
+
+
+// test_cases.debug.contract.some_func(a: uint64, b: uint64) -> uint64:
+some_func:
+    // debug/contract.py:41-42
+    // @subroutine
+    // def some_func(a: UInt64, b: UInt64) -> UInt64:
+    proto 2 1
+    // debug/contract.py:43
+    // a += b
+    frame_dig -2
+    frame_dig -1
+    +
+    frame_bury -2
+    // debug/contract.py:44
+    // b *= a
+    frame_dig -1
+    frame_dig -2
+    *
+    frame_bury -1
+    // debug/contract.py:45
+    // a += b
+    frame_dig -2
+    frame_dig -1
+    +
+    dup
+    frame_bury -2
+    // debug/contract.py:46
+    // a *= 2
+    pushint 2 // 2
+    *
+    dup
+    frame_bury -2
+    // debug/contract.py:47
+    // x = a + b
+    frame_dig -1
+    +
+    // debug/contract.py:48
+    // y = a * b
+    frame_dig -2
+    frame_dig -1
+    *
+    // debug/contract.py:49
+    // return x if x < y else y
+    dup2
+    <
+    swap
+    cover 2
+    select
+    retsub
+
+
+// test_cases.debug.contract.itoa(i: uint64) -> bytes:
+itoa:
+    // debug/contract.py:52-53
+    // @subroutine
+    // def itoa(i: UInt64) -> Bytes:
+    proto 1 1
+    // debug/contract.py:56
+    // if i < radix:
+    frame_dig -1
+    // debug/contract.py:55
+    // radix = digits.length
+    intc_1 // 10
+    // debug/contract.py:56
+    // if i < radix:
+    <
+    bz itoa_after_if_else@2
+    // debug/contract.py:54
+    // digits = Bytes(b"0123456789")
+    bytec_0 // 0x30313233343536373839
+    // debug/contract.py:57
+    // return digits[i]
+    frame_dig -1
+    intc_0 // 1
+    extract3
+    retsub
+
+itoa_after_if_else@2:
+    // debug/contract.py:58
+    // return itoa(i // radix) + digits[i % radix]
+    frame_dig -1
+    // debug/contract.py:55
+    // radix = digits.length
+    intc_1 // 10
+    // debug/contract.py:58
+    // return itoa(i // radix) + digits[i % radix]
+    /
+    callsub itoa
+    frame_dig -1
+    // debug/contract.py:55
+    // radix = digits.length
+    intc_1 // 10
+    // debug/contract.py:58
+    // return itoa(i // radix) + digits[i % radix]
+    %
+    // debug/contract.py:54
+    // digits = Bytes(b"0123456789")
+    bytec_0 // 0x30313233343536373839
+    // debug/contract.py:58
+    // return itoa(i // radix) + digits[i % radix]
+    swap
+    intc_0 // 1
+    extract3
+    concat
+    retsub
 
 
 // test_cases.debug.contract.DebugContract.test(x: uint64, y: uint64, z: uint64) -> uint64:
@@ -196,11 +302,11 @@ test_after_if_else@20:
     callsub itoa
     // debug/contract.py:36
     // log(aye, bee, cea, sep=" ")
-    bytec_0 // " "
+    bytec_1 // " "
     concat
     frame_dig 0
     concat
-    bytec_0 // " "
+    bytec_1 // " "
     concat
     frame_dig 1
     concat
@@ -272,109 +378,3 @@ test_after_if_else@8:
     frame_dig 3
     frame_bury 5
     b test_after_if_else@11
-
-
-// test_cases.debug.contract.some_func(a: uint64, b: uint64) -> uint64:
-some_func:
-    // debug/contract.py:41-42
-    // @subroutine
-    // def some_func(a: UInt64, b: UInt64) -> UInt64:
-    proto 2 1
-    // debug/contract.py:43
-    // a += b
-    frame_dig -2
-    frame_dig -1
-    +
-    frame_bury -2
-    // debug/contract.py:44
-    // b *= a
-    frame_dig -1
-    frame_dig -2
-    *
-    frame_bury -1
-    // debug/contract.py:45
-    // a += b
-    frame_dig -2
-    frame_dig -1
-    +
-    dup
-    frame_bury -2
-    // debug/contract.py:46
-    // a *= 2
-    pushint 2 // 2
-    *
-    dup
-    frame_bury -2
-    // debug/contract.py:47
-    // x = a + b
-    frame_dig -1
-    +
-    // debug/contract.py:48
-    // y = a * b
-    frame_dig -2
-    frame_dig -1
-    *
-    // debug/contract.py:49
-    // return x if x < y else y
-    dup2
-    <
-    swap
-    cover 2
-    select
-    retsub
-
-
-// test_cases.debug.contract.itoa(i: uint64) -> bytes:
-itoa:
-    // debug/contract.py:52-53
-    // @subroutine
-    // def itoa(i: UInt64) -> Bytes:
-    proto 1 1
-    // debug/contract.py:56
-    // if i < radix:
-    frame_dig -1
-    // debug/contract.py:55
-    // radix = digits.length
-    intc_1 // 10
-    // debug/contract.py:56
-    // if i < radix:
-    <
-    bz itoa_after_if_else@2
-    // debug/contract.py:54
-    // digits = Bytes(b"0123456789")
-    bytec_1 // 0x30313233343536373839
-    // debug/contract.py:57
-    // return digits[i]
-    frame_dig -1
-    intc_0 // 1
-    extract3
-    retsub
-
-itoa_after_if_else@2:
-    // debug/contract.py:58
-    // return itoa(i // radix) + digits[i % radix]
-    frame_dig -1
-    // debug/contract.py:55
-    // radix = digits.length
-    intc_1 // 10
-    // debug/contract.py:58
-    // return itoa(i // radix) + digits[i % radix]
-    /
-    callsub itoa
-    frame_dig -1
-    // debug/contract.py:55
-    // radix = digits.length
-    intc_1 // 10
-    // debug/contract.py:58
-    // return itoa(i // radix) + digits[i % radix]
-    %
-    // debug/contract.py:54
-    // digits = Bytes(b"0123456789")
-    bytec_1 // 0x30313233343536373839
-    // debug/contract.py:58
-    // return itoa(i // radix) + digits[i % radix]
-    swap
-    intc_0 // 1
-    extract3
-    concat
-    retsub

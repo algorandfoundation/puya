@@ -24,150 +24,6 @@ __init__:
     retsub
 
 
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
-approval_program:
-    proto 0 1
-
-approval_program_block@1:
-    // tictactoe/tictactoe.py:15
-    // class TicTacToeContract(arc4.ARC4Contract):
-    txn NumAppArgs
-    intc_1 // 0
-    !=
-    bz approval_program_bare_routing@9
-
-approval_program_abi_routing@2:
-    // tictactoe/tictactoe.py:15
-    // class TicTacToeContract(arc4.ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0x96a97181 // method "new_game((uint64,uint64))void"
-    pushbytes 0x17a079b3 // method "join_game((uint64,uint64))void"
-    pushbytes 0xbb9f1147 // method "whose_turn()uint8"
-    pushbytes 0x9eebf58e // method "play((uint64,uint64))void"
-    uncover 4
-    match approval_program_new_game_route@3 approval_program_join_game_route@4 approval_program_whose_turn_route@5 approval_program_play_route@6
-
-approval_program_switch_case_default@7:
-
-approval_program_switch_case_next@8:
-
-approval_program_after_if_else@10:
-    // tictactoe/tictactoe.py:15
-    // class TicTacToeContract(arc4.ARC4Contract):
-    intc_1 // 0
-
-approval_program_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@11:
-    retsub
-
-approval_program_play_route@6:
-    // tictactoe/tictactoe.py:47
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    assert // can only call when not creating
-    // tictactoe/tictactoe.py:15
-    // class TicTacToeContract(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    dup
-    intc_1 // 0
-    pushint 8 // 8
-    extract3 // on error: Index access is out of bounds
-    btoi
-    swap
-    pushint 8 // 8
-    dup
-    extract3 // on error: Index access is out of bounds
-    btoi
-    // tictactoe/tictactoe.py:47
-    // @arc4.abimethod
-    callsub play
-    intc_0 // 1
-    b approval_program_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@11
-
-approval_program_whose_turn_route@5:
-    // tictactoe/tictactoe.py:43
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    assert // can only call when not creating
-    callsub whose_turn
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    b approval_program_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@11
-
-approval_program_join_game_route@4:
-    // tictactoe/tictactoe.py:37
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    assert // can only call when not creating
-    // tictactoe/tictactoe.py:15
-    // class TicTacToeContract(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    dup
-    intc_1 // 0
-    pushint 8 // 8
-    extract3 // on error: Index access is out of bounds
-    btoi
-    swap
-    pushint 8 // 8
-    dup
-    extract3 // on error: Index access is out of bounds
-    btoi
-    // tictactoe/tictactoe.py:37
-    // @arc4.abimethod
-    callsub join_game
-    intc_0 // 1
-    b approval_program_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@11
-
-approval_program_new_game_route@3:
-    // tictactoe/tictactoe.py:20
-    // @arc4.abimethod(create="allow")
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    // tictactoe/tictactoe.py:15
-    // class TicTacToeContract(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    dup
-    intc_1 // 0
-    pushint 8 // 8
-    extract3 // on error: Index access is out of bounds
-    btoi
-    swap
-    pushint 8 // 8
-    dup
-    extract3 // on error: Index access is out of bounds
-    btoi
-    // tictactoe/tictactoe.py:20
-    // @arc4.abimethod(create="allow")
-    callsub new_game
-    intc_0 // 1
-    b approval_program_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@11
-
-approval_program_bare_routing@9:
-    b approval_program_after_if_else@10
-
-
 // examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint64, move.1: uint64) -> void:
 new_game:
     // tictactoe/tictactoe.py:20-21
@@ -330,6 +186,106 @@ join_game:
     frame_dig -1
     callsub make_move
     retsub
+
+
+// examples.tictactoe.tictactoe.TicTacToeContract.whose_turn() -> bytes:
+whose_turn:
+    // tictactoe/tictactoe.py:43-44
+    // @arc4.abimethod
+    // def whose_turn(self) -> arc4.UInt8:
+    proto 0 1
+    // tictactoe/tictactoe.py:45
+    // return arc4.UInt8(HOST) if self.turns % 2 else arc4.UInt8(CHALLENGER)
+    intc_1 // 0
+    bytec_1 // "turns"
+    app_global_get_ex
+    assert // check self.turns exists
+    intc_3 // 2
+    %
+    intc_1 // 0
+    !=
+    bytec 5 // 0x02
+    bytec 4 // 0x01
+    uncover 2
+    select
+    retsub
+
+
+// examples.tictactoe.tictactoe.TicTacToeContract.play(move.0: uint64, move.1: uint64) -> void:
+play:
+    // tictactoe/tictactoe.py:47-48
+    // @arc4.abimethod
+    // def play(self, move: Move) -> None:
+    proto 2 0
+    // tictactoe/tictactoe.py:49
+    // assert not self.winner, "Game is already finished"
+    intc_1 // 0
+    bytec_3 // "winner"
+    app_global_get_ex
+    bury 1
+    !
+    assert // Game is already finished
+    // tictactoe/tictactoe.py:50
+    // if self.turns % 2:
+    intc_1 // 0
+    bytec_1 // "turns"
+    app_global_get_ex
+    assert // check self.turns exists
+    intc_3 // 2
+    %
+    intc_1 // 0
+    !=
+    bz play_else_body@2
+
+play_if_body@1:
+    // tictactoe/tictactoe.py:51
+    // assert Txn.sender == self.host, "It is the host's turn"
+    txn Sender
+    intc_1 // 0
+    bytec 6 // "host"
+    app_global_get_ex
+    assert // check self.host exists
+    ==
+    assert // It is the host's turn
+    // tictactoe/tictactoe.py:52
+    // player = arc4.UInt8(HOST)
+    bytec 4 // 0x01
+
+play_after_if_else@3:
+    // tictactoe/tictactoe.py:58
+    // self.make_move(player, move)
+    frame_dig -2
+    frame_dig -1
+    callsub make_move
+    retsub
+
+play_else_body@2:
+    // tictactoe/tictactoe.py:54
+    // assert Txn.sender == self.challenger.get(
+    txn Sender
+    // tictactoe/tictactoe.py:55
+    // default=Account()
+    global ZeroAddress
+    // tictactoe/tictactoe.py:54
+    // assert Txn.sender == self.challenger.get(
+    intc_1 // 0
+    bytec_2 // "challenger"
+    // tictactoe/tictactoe.py:54-56
+    // assert Txn.sender == self.challenger.get(
+    //     default=Account()
+    // ), "It is the challenger's turn"
+    app_global_get_ex
+    swap
+    uncover 2
+    swap
+    uncover 2
+    select
+    ==
+    assert // It is the challenger's turn
+    // tictactoe/tictactoe.py:57
+    // player = arc4.UInt8(CHALLENGER)
+    bytec 5 // 0x02
+    b play_after_if_else@3
 
 
 // examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: bytes, move.0: uint64, move.1: uint64) -> void:
@@ -718,101 +674,145 @@ did_win_after_if_else@14:
     retsub
 
 
-// examples.tictactoe.tictactoe.TicTacToeContract.whose_turn() -> bytes:
-whose_turn:
-    // tictactoe/tictactoe.py:43-44
-    // @arc4.abimethod
-    // def whose_turn(self) -> arc4.UInt8:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+approval_program:
     proto 0 1
-    // tictactoe/tictactoe.py:45
-    // return arc4.UInt8(HOST) if self.turns % 2 else arc4.UInt8(CHALLENGER)
-    intc_1 // 0
-    bytec_1 // "turns"
-    app_global_get_ex
-    assert // check self.turns exists
-    intc_3 // 2
-    %
+
+approval_program_block@1:
+    // tictactoe/tictactoe.py:15
+    // class TicTacToeContract(arc4.ARC4Contract):
+    txn NumAppArgs
     intc_1 // 0
     !=
-    bytec 5 // 0x02
-    bytec 4 // 0x01
-    uncover 2
-    select
+    bz approval_program_bare_routing@9
+
+approval_program_abi_routing@2:
+    // tictactoe/tictactoe.py:15
+    // class TicTacToeContract(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x96a97181 // method "new_game((uint64,uint64))void"
+    pushbytes 0x17a079b3 // method "join_game((uint64,uint64))void"
+    pushbytes 0xbb9f1147 // method "whose_turn()uint8"
+    pushbytes 0x9eebf58e // method "play((uint64,uint64))void"
+    uncover 4
+    match approval_program_new_game_route@3 approval_program_join_game_route@4 approval_program_whose_turn_route@5 approval_program_play_route@6
+
+approval_program_switch_case_default@7:
+
+approval_program_switch_case_next@8:
+
+approval_program_after_if_else@10:
+    // tictactoe/tictactoe.py:15
+    // class TicTacToeContract(arc4.ARC4Contract):
+    intc_1 // 0
+
+approval_program_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@11:
     retsub
 
-
-// examples.tictactoe.tictactoe.TicTacToeContract.play(move.0: uint64, move.1: uint64) -> void:
-play:
-    // tictactoe/tictactoe.py:47-48
+approval_program_play_route@6:
+    // tictactoe/tictactoe.py:47
     // @arc4.abimethod
-    // def play(self, move: Move) -> None:
-    proto 2 0
-    // tictactoe/tictactoe.py:49
-    // assert not self.winner, "Game is already finished"
-    intc_1 // 0
-    bytec_3 // "winner"
-    app_global_get_ex
-    bury 1
-    !
-    assert // Game is already finished
-    // tictactoe/tictactoe.py:50
-    // if self.turns % 2:
-    intc_1 // 0
-    bytec_1 // "turns"
-    app_global_get_ex
-    assert // check self.turns exists
-    intc_3 // 2
-    %
+    txn OnCompletion
+    intc_1 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
     intc_1 // 0
     !=
-    bz play_else_body@2
-
-play_if_body@1:
-    // tictactoe/tictactoe.py:51
-    // assert Txn.sender == self.host, "It is the host's turn"
-    txn Sender
+    assert // can only call when not creating
+    // tictactoe/tictactoe.py:15
+    // class TicTacToeContract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    dup
     intc_1 // 0
-    bytec 6 // "host"
-    app_global_get_ex
-    assert // check self.host exists
+    pushint 8 // 8
+    extract3 // on error: Index access is out of bounds
+    btoi
+    swap
+    pushint 8 // 8
+    dup
+    extract3 // on error: Index access is out of bounds
+    btoi
+    // tictactoe/tictactoe.py:47
+    // @arc4.abimethod
+    callsub play
+    intc_0 // 1
+    b approval_program_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@11
+
+approval_program_whose_turn_route@5:
+    // tictactoe/tictactoe.py:43
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_1 // NoOp
     ==
-    assert // It is the host's turn
-    // tictactoe/tictactoe.py:52
-    // player = arc4.UInt8(HOST)
-    bytec 4 // 0x01
-
-play_after_if_else@3:
-    // tictactoe/tictactoe.py:58
-    // self.make_move(player, move)
-    frame_dig -2
-    frame_dig -1
-    callsub make_move
-    retsub
-
-play_else_body@2:
-    // tictactoe/tictactoe.py:54
-    // assert Txn.sender == self.challenger.get(
-    txn Sender
-    // tictactoe/tictactoe.py:55
-    // default=Account()
-    global ZeroAddress
-    // tictactoe/tictactoe.py:54
-    // assert Txn.sender == self.challenger.get(
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
     intc_1 // 0
-    bytec_2 // "challenger"
-    // tictactoe/tictactoe.py:54-56
-    // assert Txn.sender == self.challenger.get(
-    //     default=Account()
-    // ), "It is the challenger's turn"
-    app_global_get_ex
+    !=
+    assert // can only call when not creating
+    callsub whose_turn
+    pushbytes 0x151f7c75
     swap
-    uncover 2
-    swap
-    uncover 2
-    select
+    concat
+    log
+    intc_0 // 1
+    b approval_program_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@11
+
+approval_program_join_game_route@4:
+    // tictactoe/tictactoe.py:37
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_1 // NoOp
     ==
-    assert // It is the challenger's turn
-    // tictactoe/tictactoe.py:57
-    // player = arc4.UInt8(CHALLENGER)
-    bytec 5 // 0x02
-    b play_after_if_else@3
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_1 // 0
+    !=
+    assert // can only call when not creating
+    // tictactoe/tictactoe.py:15
+    // class TicTacToeContract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    pushint 8 // 8
+    extract3 // on error: Index access is out of bounds
+    btoi
+    swap
+    pushint 8 // 8
+    dup
+    extract3 // on error: Index access is out of bounds
+    btoi
+    // tictactoe/tictactoe.py:37
+    // @arc4.abimethod
+    callsub join_game
+    intc_0 // 1
+    b approval_program_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@11
+
+approval_program_new_game_route@3:
+    // tictactoe/tictactoe.py:20
+    // @arc4.abimethod(create="allow")
+    txn OnCompletion
+    intc_1 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    // tictactoe/tictactoe.py:15
+    // class TicTacToeContract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    pushint 8 // 8
+    extract3 // on error: Index access is out of bounds
+    btoi
+    swap
+    pushint 8 // 8
+    dup
+    extract3 // on error: Index access is out of bounds
+    btoi
+    // tictactoe/tictactoe.py:20
+    // @arc4.abimethod(create="allow")
+    callsub new_game
+    intc_0 // 1
+    b approval_program_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@11
+
+approval_program_bare_routing@9:
+    b approval_program_after_if_else@10

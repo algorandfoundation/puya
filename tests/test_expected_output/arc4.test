@@ -463,7 +463,7 @@ class MyContract(Contract): ## W: Class abi_decorator_not_arc4_contract.MyContra
 from algopy import *
 
 class MyContract(ARC4Contract): ## E: Non-abstract ARC4 contract has no methods that can be called to create the contract, but does have a NoOp bare method, so one couldn't be inserted. In order to allow creating the contract add either an @abimethod or @baremethod decorated method with create="require" or create="allow"
-    @arc4.abimethod(name=1) # type: ignore[misc,call-overload] ## E: invalid name option: 1
+    @arc4.abimethod(name=1) # type: ignore[misc,call-overload] ## E: unexpected argument type
     def a(self) -> None:
         pass
 
@@ -655,3 +655,48 @@ def c() -> None:
 @subroutine
 def d() -> None:
     assert not arc4.DynamicArray[int]() ## E: Python literals of type int cannot be used as runtime values
+
+
+## case: bad_default_args1
+from algopy import *
+
+class DefaultArgsContract1(ARC4Contract):
+    @arc4.abimethod(default_args={ ## E: 'a' is not a parameter of bad_default_args1.DefaultArgsContract1.name_mismatch
+        "a": UInt64(1),
+    })
+    def name_mismatch(self, x: UInt64) -> None:
+        assert x
+
+## case: bad_default_args2
+from algopy import *
+
+class DefaultArgsContract2(ARC4Contract):
+    @arc4.abimethod(default_args={
+        "x": arc4.UInt64(1), ## E: mismatch between parameter type and default value type
+    })
+    def type_mismatch(self, x: UInt64) -> None:
+        assert x
+
+## case: bad_default_args3
+from algopy import *
+
+class DefaultArgsContract3(ARC4Contract):
+    @arc4.abimethod(default_args={
+        "x": TemplateVar[UInt64]("NO"), ## E: could not determine constant value
+    })
+    def use_template_var(self, x: UInt64) -> None:
+        assert x
+
+## case: bad_default_args4
+from algopy import *
+
+@subroutine
+def constant_method() -> UInt64:
+    return UInt64(42)
+
+class DefaultArgsContract4(ARC4Contract):
+    @arc4.abimethod(default_args={
+        "x":  UInt64(-1), ## E: invalid algopy.UInt64 value
+    })
+    def parse_failure(self, x: UInt64) -> None:
+        assert x

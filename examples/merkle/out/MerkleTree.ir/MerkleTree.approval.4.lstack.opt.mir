@@ -4,7 +4,6 @@ main:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
     txn NumAppArgs                                                                         tmp%0#1
-    l-load tmp%0#1 0                                                                       tmp%0#1
     bz main_after_if_else@8 ; b main_abi_routing@2
 
 main_abi_routing@2:
@@ -20,25 +19,18 @@ main_create_route@3:
     // merkle/contract.py:10
     // @arc4.abimethod(create="require")
     txn OnCompletion                                                                       tmp%3#0
-    l-load tmp%3#0 0                                                                       tmp%3#0
     !                                                                                      tmp%4#0
-    l-load tmp%4#0 0                                                                       tmp%4#0
     assert // OnCompletion is not NoOp
     txn ApplicationID                                                                      tmp%5#0
-    l-load tmp%5#0 0                                                                       tmp%5#0
     !                                                                                      tmp%6#0
-    l-load tmp%6#0 0                                                                       tmp%6#0
     assert // can only call when creating
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
     txna ApplicationArgs 1                                                                 tmp%7#0
     // merkle/contract.py:10
     // @arc4.abimethod(create="require")
-    l-load tmp%7#0 0                                                                       tmp%7#0
     callsub create
-    int 1                                                                                  1
-    l-store examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0 0                 examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
-    l-load examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0 0                  examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
+    int 1                                                                                  examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
     v-store tmp%0#0
     b main_after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router__@9
 
@@ -46,12 +38,9 @@ main_verify_route@4:
     // merkle/contract.py:14
     // @arc4.abimethod
     txn OnCompletion                                                                       tmp%8#0
-    l-load tmp%8#0 0                                                                       tmp%8#0
     !                                                                                      tmp%9#0
-    l-load tmp%9#0 0                                                                       tmp%9#0
     assert // OnCompletion is not NoOp
     txn ApplicationID                                                                      tmp%10#0
-    l-load tmp%10#0 0                                                                      tmp%10#0
     assert // can only call when not creating
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
@@ -69,20 +58,15 @@ main_verify_route@4:
     byte 0x151f7c75                                                                        encoded_bool%0#0,0x151f7c75
     l-load encoded_bool%0#0 1                                                              0x151f7c75,encoded_bool%0#0
     concat                                                                                 tmp%14#0
-    l-load tmp%14#0 0                                                                      tmp%14#0
     log
-    int 1                                                                                  1
-    l-store examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0 0                 examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
-    l-load examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0 0                  examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
+    int 1                                                                                  examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
     v-store tmp%0#0
     b main_after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router__@9
 
 main_after_if_else@8:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    int 0                                                                                  0
-    l-store examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0 0                 examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
-    l-load examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0 0                  examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
+    int 0                                                                                  examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
     v-store tmp%0#0
     b main_after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router__@9
 
@@ -130,8 +114,7 @@ verify_for_header@2:                                                            
     v-load idx#0                                                                           (𝕡) proof#0,leaf#0 | idx#0
     v-load tmp%0#1                                                                         (𝕡) proof#0,leaf#0 | idx#0,tmp%0#1
     <                                                                                      (𝕡) proof#0,leaf#0 | continue_looping%0#0
-    l-load continue_looping%0#0 0                                                          (𝕡) proof#0,leaf#0 | continue_looping%0#0
-    bz verify_after_for@5 ; b verify_for_body@3                                            (𝕡) proof#0,leaf#0 |
+    bz verify_after_for@7 ; b verify_for_body@3                                            (𝕡) proof#0,leaf#0 |
 
 verify_for_body@3:                                                                         (𝕡) proof#0,leaf#0 |
     // merkle/contract.py:23
@@ -152,28 +135,27 @@ verify_for_body@3:                                                              
     v-load computed#1                                                                      (𝕡) proof#0,leaf#0 | b#0,computed#1
     l-load b#0 1                                                                           (𝕡) proof#0,leaf#0 | computed#1,b#0
     b<                                                                                     (𝕡) proof#0,leaf#0 | tmp%0#0
-    l-load tmp%0#0 0                                                                       (𝕡) proof#0,leaf#0 | tmp%0#0
-    bz verify_ternary_false@8 ; b verify_ternary_true@7                                    (𝕡) proof#0,leaf#0 |
+    bz verify_ternary_false@5 ; b verify_ternary_true@4                                    (𝕡) proof#0,leaf#0 |
 
-verify_ternary_true@7:                                                                     (𝕡) proof#0,leaf#0 |
+verify_ternary_true@4:                                                                     (𝕡) proof#0,leaf#0 |
     // merkle/contract.py:29
     // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
     v-load computed#1                                                                      (𝕡) proof#0,leaf#0 | computed#1
     v-load b#0                                                                             (𝕡) proof#0,leaf#0 | computed#1,b#0
     concat                                                                                 (𝕡) proof#0,leaf#0 | ternary_result%0#0
     v-store ternary_result%0#0                                                             (𝕡) proof#0,leaf#0 |
-    b verify_ternary_merge@9                                                               (𝕡) proof#0,leaf#0 |
+    b verify_ternary_merge@6                                                               (𝕡) proof#0,leaf#0 |
 
-verify_ternary_false@8:                                                                    (𝕡) proof#0,leaf#0 |
+verify_ternary_false@5:                                                                    (𝕡) proof#0,leaf#0 |
     // merkle/contract.py:29
     // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
     v-load b#0                                                                             (𝕡) proof#0,leaf#0 | b#0
     v-load computed#1                                                                      (𝕡) proof#0,leaf#0 | b#0,computed#1
     concat                                                                                 (𝕡) proof#0,leaf#0 | ternary_result%0#0
     v-store ternary_result%0#0                                                             (𝕡) proof#0,leaf#0 |
-    b verify_ternary_merge@9                                                               (𝕡) proof#0,leaf#0 |
+    b verify_ternary_merge@6                                                               (𝕡) proof#0,leaf#0 |
 
-verify_ternary_merge@9:                                                                    (𝕡) proof#0,leaf#0 |
+verify_ternary_merge@6:                                                                    (𝕡) proof#0,leaf#0 |
     // merkle/contract.py:29
     // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
     v-load ternary_result%0#0                                                              (𝕡) proof#0,leaf#0 | ternary_result%0#0
@@ -187,13 +169,12 @@ verify_ternary_merge@9:                                                         
     v-store idx#0                                                                          (𝕡) proof#0,leaf#0 |
     b verify_for_header@2                                                                  (𝕡) proof#0,leaf#0 |
 
-verify_after_for@5:                                                                        (𝕡) proof#0,leaf#0 |
+verify_after_for@7:                                                                        (𝕡) proof#0,leaf#0 |
     // merkle/contract.py:16
     // return self.root == compute_root_hash(proof, leaf.bytes)
     v-load maybe_value%0#0                                                                 (𝕡) proof#0,leaf#0 | maybe_value%0#0
     v-load computed#1                                                                      (𝕡) proof#0,leaf#0 | maybe_value%0#0,computed#1
     ==                                                                                     (𝕡) proof#0,leaf#0 | tmp%0#0
-    l-load tmp%0#0 0                                                                       (𝕡) proof#0,leaf#0 | tmp%0#0
     retsub                                                                                 tmp%0#0
 
 

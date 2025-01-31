@@ -87,15 +87,23 @@ def _get_signature(method: md.ARC4ABIMethod) -> str:
     return f"{method.name}({','.join(m.type_ for m in method.args)}){method.returns.type_}"
 
 
-def _encode_default_arg(
-    default: md.MethodArgDefault | None, loc: SourceLocation | None
-) -> JSONDict | None:
-    match default:
+def _encode_default_arg(arg: md.ARC4MethodArg, loc: SourceLocation | None) -> JSONDict | None:
+    match arg.client_default:
         case None:
             return None
-        case md.MethodArgDefaultConstant():
-            logger.warning("constant defaults are not supported with ARC-32", location=loc)
-            return None
+        case md.MethodArgDefaultConstant(data=constant_data, type_=constant_arc4_type):
+            if constant_arc4_type == "string":
+                string = constant_data[2:].decode("utf8")
+                return {"source": "constant", "data": string}
+            elif constant_arc4_type.startswith("uint"):
+                number = int.from_bytes(constant_data, signed=False)
+                return {"source": "constant", "data": number}
+            else:
+                logger.warning(
+                    f"parameter {arg.name!r} has unsupported default constant type for ARC-32",
+                    location=loc,
+                )
+                return None
         case md.MethodArgDefaultFromMethod(
             name=method_name, return_type=return_type, readonly=readonly
         ):
@@ -135,7 +143,7 @@ def _encode_arc32_method_hint(metadata: md.ContractMetaData, method: md.ARC4ABIM
     default_arguments = {
         arg.name: default
         for arg in method.args
-        if (default := _encode_default_arg(arg.client_default, method.config_location)) is not None
+        if (default := _encode_default_arg(arg, method.config_location)) is not None
     }
     return {
         # deprecated by ARC-22

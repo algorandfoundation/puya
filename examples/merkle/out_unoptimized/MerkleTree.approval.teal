@@ -88,40 +88,6 @@ main_bare_routing@7:
     b main_after_if_else@8
 
 
-// examples.merkle.contract.MerkleTree.create(root: bytes) -> void:
-create:
-    // merkle/contract.py:10-11
-    // @arc4.abimethod(create="require")
-    // def create(self, root: Bytes32) -> None:
-    proto 1 0
-    // merkle/contract.py:12
-    // self.root = root.bytes
-    bytec_0 // "root"
-    frame_dig -1
-    app_global_put
-    retsub
-
-
-// examples.merkle.contract.MerkleTree.verify(proof: bytes, leaf: bytes) -> uint64:
-verify:
-    // merkle/contract.py:14-15
-    // @arc4.abimethod
-    // def verify(self, proof: Proof, leaf: Bytes32) -> bool:
-    proto 2 1
-    // merkle/contract.py:16
-    // return self.root == compute_root_hash(proof, leaf.bytes)
-    intc_0 // 0
-    bytec_0 // "root"
-    app_global_get_ex
-    assert // check self.root exists
-    frame_dig -2
-    frame_dig -1
-    callsub compute_root_hash
-    pop
-    ==
-    retsub
-
-
 // examples.merkle.contract.compute_root_hash(proof: bytes, leaf: bytes) -> bytes, bytes:
 compute_root_hash:
     // merkle/contract.py:19-20
@@ -215,3 +181,37 @@ hash_pair_ternary_false@2:
     frame_dig -2
     concat
     b hash_pair_ternary_merge@3
+
+
+// examples.merkle.contract.MerkleTree.create(root: bytes) -> void:
+create:
+    // merkle/contract.py:10-11
+    // @arc4.abimethod(create="require")
+    // def create(self, root: Bytes32) -> None:
+    proto 1 0
+    // merkle/contract.py:12
+    // self.root = root.bytes
+    bytec_0 // "root"
+    frame_dig -1
+    app_global_put
+    retsub
+
+
+// examples.merkle.contract.MerkleTree.verify(proof: bytes, leaf: bytes) -> uint64:
+verify:
+    // merkle/contract.py:14-15
+    // @arc4.abimethod
+    // def verify(self, proof: Proof, leaf: Bytes32) -> bool:
+    proto 2 1
+    // merkle/contract.py:16
+    // return self.root == compute_root_hash(proof, leaf.bytes)
+    intc_0 // 0
+    bytec_0 // "root"
+    app_global_get_ex
+    assert // check self.root exists
+    frame_dig -2
+    frame_dig -1
+    callsub compute_root_hash
+    pop
+    ==
+    retsub

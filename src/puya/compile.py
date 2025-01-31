@@ -2,7 +2,7 @@ import itertools
 import shutil
 import typing
 from collections import defaultdict
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence, Set
 from pathlib import Path
 
 import attrs
@@ -31,12 +31,12 @@ from puya.context import (
     OutputPathProvider,
 )
 from puya.errors import CodeError, InternalError
-from puya.ir.main import awst_to_ir, optimize_and_destructure_ir
-from puya.ir.models import (
-    Contract as ContractIR,
-    LogicSignature,
-    ModuleArtifact,
-)
+from puya.ir import models as ir_models
+from puya.ir.destructure.main import destructure_ssa
+from puya.ir.main import awst_to_ir
+from puya.ir.optimize.main import optimize_program_ir
+from puya.ir.to_text_visitor import render_program
+from puya.ir.validation.main import validate_module_artifact
 from puya.log import LoggingContext
 from puya.mir.main import program_ir_to_mir
 from puya.options import PuyaOptions
@@ -68,9 +68,9 @@ def awst_to_teal(
         sources_by_path=sources_by_path,
     )
     log_ctx.exit_if_errors()
-    ir = awst_to_ir(context, awst)
+    ir = list(awst_to_ir(context, awst))
     log_ctx.exit_if_errors()
-    teal = _ir_to_teal(log_ctx, context, ir)
+    teal = list(_ir_to_teal(log_ctx, context, ir))
     log_ctx.exit_if_errors()
     if write:
         _write_artifacts(context, teal)
@@ -78,20 +78,19 @@ def awst_to_teal(
 
 
 def _ir_to_teal(
-    log_ctx: LoggingContext, context: CompileContext, all_ir: Sequence[ModuleArtifact]
-) -> list[CompilationArtifact]:
+    log_ctx: LoggingContext, context: CompileContext, all_ir: Sequence[ir_models.ModuleArtifact]
+) -> Iterator[CompilationArtifact]:
     compiled_program_provider = _CompiledProgramProviderImpl(
         compile_context=context,
         state_totals={
             ir.metadata.ref: ir.metadata.state_totals
             for ir in all_ir
-            if isinstance(ir, ContractIR)
+            if isinstance(ir, ir_models.Contract)
         },
     )
 
     # used to check for conflicts that would occur on output
     artifacts_by_output_base = dict[Path, Artifact]()
-    result = list[CompilationArtifact]()
     for artifact in ArtifactCompilationSorter.sort(all_ir):
         output_path_provider = None
         if out_dir_setting := context.compilation_set.get(artifact.id):
@@ -118,22 +117,19 @@ def _ir_to_teal(
         )
 
         num_errors_before_optimization = log_ctx.num_errors
-        artifact_ir = optimize_and_destructure_ir(artifact_context, artifact.ir)
+        artifact_ir = _optimize_and_destructure_ir(artifact_context, artifact.ir)
         # IR validation that occurs at the end of optimize_and_destructure_ir may have revealed
         # further errors, add dummy artifacts and continue so other artifacts can still be lowered
         # and report any errors they encounter
         errors_in_optimization = log_ctx.num_errors > num_errors_before_optimization
-        if errors_in_optimization:
-            pass
-        else:
+        if not errors_in_optimization:
             compiled: _CompiledContract | _CompiledLogicSig
-            if isinstance(artifact_ir, ContractIR):
+            if isinstance(artifact_ir, ir_models.Contract):
                 compiled = _contract_ir_to_teal(artifact_context, artifact_ir)
             else:
                 compiled = _logic_sig_to_teal(artifact_context, artifact_ir)
-            result.append(compiled)
+            yield compiled
             compiled_program_provider.add_compiled_result(artifact, compiled)
-    return result
 
 
 @attrs.define
@@ -218,6 +214,41 @@ class _SequentialOutputPathProvider(OutputPathProvider):
         return out_dir / f"{self._metadata.name}.{qualifier}.{suffix}"
 
 
+def _optimize_and_destructure_ir(
+    context: ArtifactCompileContext, artifact_ir: ir_models.ModuleArtifact
+) -> ir_models.ModuleArtifact:
+    if isinstance(artifact_ir, ir_models.LogicSignature):
+        routable_method_ids = None
+    else:
+        routable_method_ids = {a4m.id for a4m in artifact_ir.metadata.arc4_methods}
+    for program in artifact_ir.all_programs():
+        _optimize_and_destructure_program_ir(
+            context, artifact_ir.metadata.ref, program, routable_method_ids=routable_method_ids
+        )
+    # validation is run as the last step, in case we've accidentally inserted something,
+    # and in particular post subroutine removal, because some things that are "linked"
+    # are not necessarily used from the current artifact
+    validate_module_artifact(context, artifact_ir)
+    return artifact_ir
+
+
+def _optimize_and_destructure_program_ir(
+    context: ArtifactCompileContext,
+    ref: ContractReference | LogicSigReference,
+    program: ir_models.Program,
+    routable_method_ids: Set[str] | None = None,
+) -> None:
+    if context.options.output_ssa_ir:
+        render_program(context, program, qualifier="ssa")
+    logger.info(
+        f"optimizing {program.kind} program of {ref} at level {context.options.optimization_level}"
+    )
+    optimize_program_ir(context, program, routable_method_ids=routable_method_ids)
+    destructure_ssa(context, program)
+    if context.options.output_destructured_ir:
+        render_program(context, program, qualifier="destructured")
+
+
 @attrs.frozen
 class _CompiledProgram(CompiledProgram):
     teal: TealProgram
@@ -266,7 +297,7 @@ def _dummy_program() -> _CompiledProgram:
 
 
 def _contract_ir_to_teal(
-    context: ArtifactCompileContext, contract_ir: ContractIR
+    context: ArtifactCompileContext, contract_ir: ir_models.Contract
 ) -> _CompiledContract:
     approval_mir = program_ir_to_mir(context, contract_ir.approval_program)
     clear_state_mir = program_ir_to_mir(context, contract_ir.clear_program)
@@ -284,7 +315,7 @@ def _contract_ir_to_teal(
 
 
 def _logic_sig_to_teal(
-    context: ArtifactCompileContext, logic_sig_ir: LogicSignature
+    context: ArtifactCompileContext, logic_sig_ir: ir_models.LogicSignature
 ) -> _CompiledLogicSig:
     program_mir = program_ir_to_mir(context, logic_sig_ir.program)
     teal_program = mir_to_teal(context, program_mir)

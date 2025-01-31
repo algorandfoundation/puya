@@ -19,7 +19,7 @@ from puya.parse import SourceLocation
 from puya.program_refs import ContractReference
 from puya.utils import StableSet, set_add, unique
 from puyapy.awst_build import constants, intrinsic_factory, pytypes
-from puyapy.awst_build.arc4_utils import get_arc4_abimethod_data, get_arc4_baremethod_data
+from puyapy.awst_build.arc4_decorators import get_arc4_abimethod_data, get_arc4_baremethod_data
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter

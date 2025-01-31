@@ -164,22 +164,6 @@ subroutine test_cases.transaction.contract.TransactionContract.create() -> void:
     block@0: // L12
         return 
 
-subroutine test_cases.transaction.contract.TransactionContract.pay(txn: uint64) -> void:
-    block@0: // L31
-        test_cases.transaction.contract.TransactionContract._common_checks(txn#0)
-        let tmp%0#0: bytes = ((gtxns Receiver) txn#0)
-        let tmp%1#0: bytes = (global CurrentApplicationAddress)
-        let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
-        (assert tmp%2#0) // Payment should be for this app
-        let tmp%3#0: uint64 = ((gtxns Amount) txn#0)
-        let tmp%4#0: bool = (> tmp%3#0 1000u)
-        (assert tmp%4#0) // Payment should be for >1000 micro algos
-        let tmp%5#0: bytes = ((gtxns CloseRemainderTo) txn#0)
-        let tmp%6#0: bytes = (global ZeroAddress)
-        let tmp%7#0: bool = (== tmp%5#0 tmp%6#0)
-        (assert tmp%7#0) // close_remainder_to
-        return 
-
 subroutine test_cases.transaction.contract.TransactionContract._common_checks(txn: uint64) -> void:
     block@0: // L16
         let tmp%0#0: bytes = ((gtxns TxID) txn#0)
@@ -213,6 +197,22 @@ subroutine test_cases.transaction.contract.TransactionContract._common_checks(tx
         let tmp%25#0: bytes = (global ZeroAddress)
         let tmp%26#0: bool = (== tmp%24#0 tmp%25#0)
         (assert tmp%26#0) // rekey_to
+        return 
+
+subroutine test_cases.transaction.contract.TransactionContract.pay(txn: uint64) -> void:
+    block@0: // L31
+        test_cases.transaction.contract.TransactionContract._common_checks(txn#0)
+        let tmp%0#0: bytes = ((gtxns Receiver) txn#0)
+        let tmp%1#0: bytes = (global CurrentApplicationAddress)
+        let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
+        (assert tmp%2#0) // Payment should be for this app
+        let tmp%3#0: uint64 = ((gtxns Amount) txn#0)
+        let tmp%4#0: bool = (> tmp%3#0 1000u)
+        (assert tmp%4#0) // Payment should be for >1000 micro algos
+        let tmp%5#0: bytes = ((gtxns CloseRemainderTo) txn#0)
+        let tmp%6#0: bytes = (global ZeroAddress)
+        let tmp%7#0: bool = (== tmp%5#0 tmp%6#0)
+        (assert tmp%7#0) // close_remainder_to
         return 
 
 subroutine test_cases.transaction.contract.TransactionContract.key(txn: uint64) -> void:

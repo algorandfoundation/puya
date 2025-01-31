@@ -9,20 +9,6 @@ main test_cases.state_proxies.contract.StateProxyContract.__algopy_entrypoint_wi
         let tmp%1#0: bool = algopy.arc4.ARC4Contract.approval_program()
         return tmp%1#0
 
-subroutine test_cases.state_proxies.contract.StateProxyContract.__init__() -> void:
-    block@0: // L13
-        (app_global_put 0x6732 0u)
-        let tmp%0#0: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#0 0u)
-        let funky_town#0: bytes = (select "town" "funky" tmp%1#0)
-        (app_global_put funky_town#0 123u)
-        return 
-
-subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
-    block@0: // L1
-        let tmp%0#0: bool = test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__()
-        return tmp%0#0
-
 subroutine test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__() -> bool:
     block@0: // L12
         let tmp%0#0: uint64 = (txn NumAppArgs)
@@ -49,6 +35,15 @@ subroutine test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_rout
     block@6: // after_if_else_L12
         return 0u
 
+subroutine test_cases.state_proxies.contract.StateProxyContract.__init__() -> void:
+    block@0: // L13
+        (app_global_put 0x6732 0u)
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#0 0u)
+        let funky_town#0: bytes = (select "town" "funky" tmp%1#0)
+        (app_global_put funky_town#0 123u)
+        return 
+
 subroutine test_cases.state_proxies.contract.StateProxyContract.create() -> void:
     block@0: // L25
         (app_global_put "g1" 1u)
@@ -57,3 +52,8 @@ subroutine test_cases.state_proxies.contract.StateProxyContract.create() -> void
         let tmp%1#0: bytes = (txn Sender)
         (app_local_put tmp%1#0 0x6c32 3u)
         return 
+
+subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+    block@0: // L1
+        let tmp%0#0: bool = test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__()
+        return tmp%0#0

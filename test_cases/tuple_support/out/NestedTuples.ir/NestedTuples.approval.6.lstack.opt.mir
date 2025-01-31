@@ -330,255 +330,6 @@ main_after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_ar
     return
 
 
-// test_cases.tuple_support.nested_tuples.NestedTuples.run_tests() -> uint64:
-run_tests:
-    // tuple_support/nested_tuples.py:38
-    // test_intrinsics(UInt64(1), UInt64(2))
-    int 1                                                                                       1
-    int 2                                                                                       1,2
-    // tuple_support/nested_tuples.py:98
-    // nt = (UInt64(1), op.addw(num1, num2), UInt64(42))
-    addw                                                                                        nt.1.0#0,nt.1.1#0
-    // tuple_support/nested_tuples.py:101
-    // assert nt[1] == (0, num1 + num2)  # type: ignore[comparison-overlap]
-    l-load nt.1.0#0 1                                                                           nt.1.1#0,nt.1.0#0
-    !                                                                                           nt.1.1#0,tmp%4#1
-    l-load nt.1.1#0 1                                                                           tmp%4#1,nt.1.1#0
-    int 3                                                                                       tmp%4#1,nt.1.1#0,3
-    ==                                                                                          tmp%4#1,tmp%6#1
-    l-load-copy tmp%4#1 1                                                                       tmp%4#1,tmp%6#1,tmp%4#1 (copy)
-    l-load-copy tmp%6#1 1                                                                       tmp%4#1,tmp%6#1,tmp%4#1 (copy),tmp%6#1 (copy)
-    &&                                                                                          tmp%4#1,tmp%6#1,tmp%7#1
-    assert                                                                                      tmp%4#1,tmp%6#1
-    // tuple_support/nested_tuples.py:102
-    // assert nt[1][:1] == (0,)  # type: ignore[comparison-overlap]
-    l-load tmp%4#1 1                                                                            tmp%6#1,tmp%4#1
-    assert                                                                                      tmp%6#1
-    // tuple_support/nested_tuples.py:103
-    // assert nt[1][1:] == (num1 + num2,)
-    l-load tmp%6#1 0                                                                            tmp%6#1
-    assert
-    // tuple_support/nested_tuples.py:40
-    // test_nested_singles(UInt64(1), reassign=True)
-    int 1                                                                                       1
-    int 1                                                                                       1,1
-    callsub test_nested_singles
-    // tuple_support/nested_tuples.py:41
-    // test_nested_singles(UInt64(1), reassign=False)
-    int 1                                                                                       1
-    int 0                                                                                       1,0
-    callsub test_nested_singles
-    // tuple_support/nested_tuples.py:179
-    // total = UInt64(0)
-    int 0                                                                                       0
-    v-store total#0
-    int 0                                                                                       0
-    v-store loop_counter%0#0
-    // tuple_support/nested_tuples.py:177
-    // x = UInt64(1)
-    int 1                                                                                       1
-    // tuple_support/nested_tuples.py:181
-    // for t in ((x, y), (y, x), (x, x), (y, y)):
-    v-store t.0#0
-    // tuple_support/nested_tuples.py:178
-    // y = UInt64(2)
-    int 2                                                                                       2
-    // tuple_support/nested_tuples.py:181
-    // for t in ((x, y), (y, x), (x, x), (y, y)):
-    v-store t.1#0
-    b run_tests_for_body@12
-
-run_tests_for_body@12:
-    // tuple_support/nested_tuples.py:183
-    // total += a + b
-    v-load t.0#0                                                                                t.0#0
-    v-load t.1#0                                                                                t.0#0,t.1#0
-    +                                                                                           tmp%0#4
-    v-load total#0                                                                              tmp%0#4,total#0
-    l-load tmp%0#4 1                                                                            total#0,tmp%0#4
-    +                                                                                           total#0
-    v-store total#0
-    // tuple_support/nested_tuples.py:181
-    // for t in ((x, y), (y, x), (x, x), (y, y)):
-    v-load loop_counter%0#0                                                                     loop_counter%0#0
-    switch run_tests_for_header_1@14 run_tests_for_header_2@15 run_tests_for_header_3@16 ; b run_tests_after_for@17 
-
-run_tests_for_header_1@14:
-    int 1                                                                                       1
-    v-store loop_counter%0#0
-    // tuple_support/nested_tuples.py:178
-    // y = UInt64(2)
-    int 2                                                                                       2
-    // tuple_support/nested_tuples.py:181
-    // for t in ((x, y), (y, x), (x, x), (y, y)):
-    v-store t.0#0
-    // tuple_support/nested_tuples.py:177
-    // x = UInt64(1)
-    int 1                                                                                       1
-    // tuple_support/nested_tuples.py:181
-    // for t in ((x, y), (y, x), (x, x), (y, y)):
-    v-store t.1#0
-    b run_tests_for_body@12
-
-run_tests_for_header_2@15:
-    int 2                                                                                       2
-    v-store loop_counter%0#0
-    // tuple_support/nested_tuples.py:177
-    // x = UInt64(1)
-    int 1                                                                                       1
-    // tuple_support/nested_tuples.py:181
-    // for t in ((x, y), (y, x), (x, x), (y, y)):
-    v-store t.0#0
-    // tuple_support/nested_tuples.py:177
-    // x = UInt64(1)
-    int 1                                                                                       1
-    // tuple_support/nested_tuples.py:181
-    // for t in ((x, y), (y, x), (x, x), (y, y)):
-    v-store t.1#0
-    b run_tests_for_body@12
-
-run_tests_for_header_3@16:
-    int 3                                                                                       3
-    v-store loop_counter%0#0
-    // tuple_support/nested_tuples.py:178
-    // y = UInt64(2)
-    int 2                                                                                       2
-    // tuple_support/nested_tuples.py:181
-    // for t in ((x, y), (y, x), (x, x), (y, y)):
-    v-store t.0#0
-    // tuple_support/nested_tuples.py:178
-    // y = UInt64(2)
-    int 2                                                                                       2
-    // tuple_support/nested_tuples.py:181
-    // for t in ((x, y), (y, x), (x, x), (y, y)):
-    v-store t.1#0
-    b run_tests_for_body@12
-
-run_tests_after_for@17:
-    int 0                                                                                       0
-    v-store loop_counter%1#0
-    // tuple_support/nested_tuples.py:177
-    // x = UInt64(1)
-    int 1                                                                                       1
-    // tuple_support/nested_tuples.py:185
-    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
-    v-store a#5
-    // tuple_support/nested_tuples.py:178
-    // y = UInt64(2)
-    int 2                                                                                       2
-    // tuple_support/nested_tuples.py:185
-    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
-    v-store b#4
-    b run_tests_for_body@18
-
-run_tests_for_body@18:
-    // tuple_support/nested_tuples.py:186
-    // total += a + b
-    v-load a#5                                                                                  a#5
-    v-load b#4                                                                                  a#5,b#4
-    +                                                                                           tmp%1#4
-    v-load total#0                                                                              tmp%1#4,total#0
-    l-load tmp%1#4 1                                                                            total#0,tmp%1#4
-    +                                                                                           total#0
-    v-store total#0
-    // tuple_support/nested_tuples.py:185
-    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
-    v-load loop_counter%1#0                                                                     loop_counter%1#0
-    switch run_tests_for_header_1@20 run_tests_for_header_2@21 run_tests_for_header_3@22 ; b run_tests_after_for@23 
-
-run_tests_for_header_1@20:
-    int 1                                                                                       1
-    v-store loop_counter%1#0
-    // tuple_support/nested_tuples.py:178
-    // y = UInt64(2)
-    int 2                                                                                       2
-    // tuple_support/nested_tuples.py:185
-    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
-    v-store a#5
-    // tuple_support/nested_tuples.py:177
-    // x = UInt64(1)
-    int 1                                                                                       1
-    // tuple_support/nested_tuples.py:185
-    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
-    v-store b#4
-    b run_tests_for_body@18
-
-run_tests_for_header_2@21:
-    int 2                                                                                       2
-    v-store loop_counter%1#0
-    // tuple_support/nested_tuples.py:177
-    // x = UInt64(1)
-    int 1                                                                                       1
-    // tuple_support/nested_tuples.py:185
-    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
-    v-store a#5
-    // tuple_support/nested_tuples.py:177
-    // x = UInt64(1)
-    int 1                                                                                       1
-    // tuple_support/nested_tuples.py:185
-    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
-    v-store b#4
-    b run_tests_for_body@18
-
-run_tests_for_header_3@22:
-    int 3                                                                                       3
-    v-store loop_counter%1#0
-    // tuple_support/nested_tuples.py:178
-    // y = UInt64(2)
-    int 2                                                                                       2
-    // tuple_support/nested_tuples.py:185
-    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
-    v-store a#5
-    // tuple_support/nested_tuples.py:178
-    // y = UInt64(2)
-    int 2                                                                                       2
-    // tuple_support/nested_tuples.py:185
-    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
-    v-store b#4
-    b run_tests_for_body@18
-
-run_tests_after_for@23:
-    // tuple_support/nested_tuples.py:188
-    // assert total // 8 == 3
-    v-load total#0                                                                              total#0
-    int 8                                                                                       total#0,8
-    /                                                                                           tmp%2#3
-    int 3                                                                                       tmp%2#3,3
-    ==                                                                                          tmp%3#3
-    assert
-    // tuple_support/nested_tuples.py:75
-    // self.build_nested_call_count = UInt64(0)
-    byte "build_nested_call_count"                                                              "build_nested_call_count"
-    int 0                                                                                       "build_nested_call_count",0
-    app_global_put
-    // tuple_support/nested_tuples.py:70
-    // self.build_nested_call_count += 1
-    int 0                                                                                       0
-    byte "build_nested_call_count"                                                              0,"build_nested_call_count"
-    app_global_get_ex                                                                           maybe_value%0#0,maybe_exists%0#0
-    assert // check self.build_nested_call_count exists                                         maybe_value%0#0
-    l-load maybe_value%0#0 0                                                                    maybe_value%0#0
-    int 1                                                                                       maybe_value%0#0,1
-    +                                                                                           new_state_value%0#0
-    byte "build_nested_call_count"                                                              new_state_value%0#0,"build_nested_call_count"
-    l-load new_state_value%0#0 1                                                                "build_nested_call_count",new_state_value%0#0
-    app_global_put
-    // tuple_support/nested_tuples.py:78
-    // assert self.build_nested_call_count == 1
-    int 0                                                                                       0
-    byte "build_nested_call_count"                                                              0,"build_nested_call_count"
-    app_global_get_ex                                                                           maybe_value%0#0,maybe_exists%0#0
-    assert // check self.build_nested_call_count exists                                         maybe_value%0#0
-    l-load maybe_value%0#0 0                                                                    maybe_value%0#0
-    int 1                                                                                       maybe_value%0#0,1
-    ==                                                                                          tmp%6#1
-    assert
-    // tuple_support/nested_tuples.py:49
-    // return True
-    int 1                                                                                       1
-    retsub                                                                                      1
-
-
 // test_cases.tuple_support.nested_tuples.test_nested_singles(one: uint64, reassign: uint64) -> void:
 test_nested_singles:                                                                            (𝕡) one#0,reassign#0 |
     // tuple_support/nested_tuples.py:134
@@ -689,5 +440,254 @@ test_nested_singles_after_if_else@2:                                            
     ==                                                                                          (𝕡) one#0,reassign#0 | tmp%14#0
     assert                                                                                      (𝕡) one#0,reassign#0 |
     retsub
+
+
+// test_cases.tuple_support.nested_tuples.NestedTuples.run_tests() -> uint64:
+run_tests:
+    // tuple_support/nested_tuples.py:38
+    // test_intrinsics(UInt64(1), UInt64(2))
+    int 1                                                                                       1
+    int 2                                                                                       1,2
+    // tuple_support/nested_tuples.py:98
+    // nt = (UInt64(1), op.addw(num1, num2), UInt64(42))
+    addw                                                                                        nt.1.0#0,nt.1.1#0
+    // tuple_support/nested_tuples.py:101
+    // assert nt[1] == (0, num1 + num2)  # type: ignore[comparison-overlap]
+    l-load nt.1.0#0 1                                                                           nt.1.1#0,nt.1.0#0
+    !                                                                                           nt.1.1#0,tmp%4#1
+    l-load nt.1.1#0 1                                                                           tmp%4#1,nt.1.1#0
+    int 3                                                                                       tmp%4#1,nt.1.1#0,3
+    ==                                                                                          tmp%4#1,tmp%6#1
+    l-load-copy tmp%4#1 1                                                                       tmp%4#1,tmp%6#1,tmp%4#1 (copy)
+    l-load-copy tmp%6#1 1                                                                       tmp%4#1,tmp%6#1,tmp%4#1 (copy),tmp%6#1 (copy)
+    &&                                                                                          tmp%4#1,tmp%6#1,tmp%7#1
+    assert                                                                                      tmp%4#1,tmp%6#1
+    // tuple_support/nested_tuples.py:102
+    // assert nt[1][:1] == (0,)  # type: ignore[comparison-overlap]
+    l-load tmp%4#1 1                                                                            tmp%6#1,tmp%4#1
+    assert                                                                                      tmp%6#1
+    // tuple_support/nested_tuples.py:103
+    // assert nt[1][1:] == (num1 + num2,)
+    l-load tmp%6#1 0                                                                            tmp%6#1
+    assert
+    // tuple_support/nested_tuples.py:40
+    // test_nested_singles(UInt64(1), reassign=True)
+    int 1                                                                                       1
+    int 1                                                                                       1,1
+    callsub test_nested_singles
+    // tuple_support/nested_tuples.py:41
+    // test_nested_singles(UInt64(1), reassign=False)
+    int 1                                                                                       1
+    int 0                                                                                       1,0
+    callsub test_nested_singles
+    // tuple_support/nested_tuples.py:179
+    // total = UInt64(0)
+    int 0                                                                                       0
+    v-store total#0
+    int 0                                                                                       0
+    v-store loop_counter%0#0
+    // tuple_support/nested_tuples.py:177
+    // x = UInt64(1)
+    int 1                                                                                       1
+    // tuple_support/nested_tuples.py:181
+    // for t in ((x, y), (y, x), (x, x), (y, y)):
+    v-store t.0#0
+    // tuple_support/nested_tuples.py:178
+    // y = UInt64(2)
+    int 2                                                                                       2
+    // tuple_support/nested_tuples.py:181
+    // for t in ((x, y), (y, x), (x, x), (y, y)):
+    v-store t.1#0
+    b run_tests_for_body@12
+
+run_tests_for_body@12:
+    // tuple_support/nested_tuples.py:183
+    // total += a + b
+    v-load t.0#0                                                                                t.0#0
+    v-load t.1#0                                                                                t.0#0,t.1#0
+    +                                                                                           tmp%0#1
+    v-load total#0                                                                              tmp%0#1,total#0
+    l-load tmp%0#1 1                                                                            total#0,tmp%0#1
+    +                                                                                           total#0
+    v-store total#0
+    // tuple_support/nested_tuples.py:181
+    // for t in ((x, y), (y, x), (x, x), (y, y)):
+    v-load loop_counter%0#0                                                                     loop_counter%0#0
+    switch run_tests_for_header_1@13 run_tests_for_header_2@14 run_tests_for_header_3@15 ; b run_tests_after_for@16 
+
+run_tests_for_header_1@13:
+    int 1                                                                                       1
+    v-store loop_counter%0#0
+    // tuple_support/nested_tuples.py:178
+    // y = UInt64(2)
+    int 2                                                                                       2
+    // tuple_support/nested_tuples.py:181
+    // for t in ((x, y), (y, x), (x, x), (y, y)):
+    v-store t.0#0
+    // tuple_support/nested_tuples.py:177
+    // x = UInt64(1)
+    int 1                                                                                       1
+    // tuple_support/nested_tuples.py:181
+    // for t in ((x, y), (y, x), (x, x), (y, y)):
+    v-store t.1#0
+    b run_tests_for_body@12
+
+run_tests_for_header_2@14:
+    int 2                                                                                       2
+    v-store loop_counter%0#0
+    // tuple_support/nested_tuples.py:177
+    // x = UInt64(1)
+    int 1                                                                                       1
+    // tuple_support/nested_tuples.py:181
+    // for t in ((x, y), (y, x), (x, x), (y, y)):
+    v-store t.0#0
+    // tuple_support/nested_tuples.py:177
+    // x = UInt64(1)
+    int 1                                                                                       1
+    // tuple_support/nested_tuples.py:181
+    // for t in ((x, y), (y, x), (x, x), (y, y)):
+    v-store t.1#0
+    b run_tests_for_body@12
+
+run_tests_for_header_3@15:
+    int 3                                                                                       3
+    v-store loop_counter%0#0
+    // tuple_support/nested_tuples.py:178
+    // y = UInt64(2)
+    int 2                                                                                       2
+    // tuple_support/nested_tuples.py:181
+    // for t in ((x, y), (y, x), (x, x), (y, y)):
+    v-store t.0#0
+    // tuple_support/nested_tuples.py:178
+    // y = UInt64(2)
+    int 2                                                                                       2
+    // tuple_support/nested_tuples.py:181
+    // for t in ((x, y), (y, x), (x, x), (y, y)):
+    v-store t.1#0
+    b run_tests_for_body@12
+
+run_tests_after_for@16:
+    int 0                                                                                       0
+    v-store loop_counter%1#0
+    // tuple_support/nested_tuples.py:177
+    // x = UInt64(1)
+    int 1                                                                                       1
+    // tuple_support/nested_tuples.py:185
+    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
+    v-store a#2
+    // tuple_support/nested_tuples.py:178
+    // y = UInt64(2)
+    int 2                                                                                       2
+    // tuple_support/nested_tuples.py:185
+    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
+    v-store b#2
+    b run_tests_for_body@17
+
+run_tests_for_body@17:
+    // tuple_support/nested_tuples.py:186
+    // total += a + b
+    v-load a#2                                                                                  a#2
+    v-load b#2                                                                                  a#2,b#2
+    +                                                                                           tmp%1#1
+    v-load total#0                                                                              tmp%1#1,total#0
+    l-load tmp%1#1 1                                                                            total#0,tmp%1#1
+    +                                                                                           total#0
+    v-store total#0
+    // tuple_support/nested_tuples.py:185
+    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
+    v-load loop_counter%1#0                                                                     loop_counter%1#0
+    switch run_tests_for_header_1@18 run_tests_for_header_2@19 run_tests_for_header_3@20 ; b run_tests_after_for@21 
+
+run_tests_for_header_1@18:
+    int 1                                                                                       1
+    v-store loop_counter%1#0
+    // tuple_support/nested_tuples.py:178
+    // y = UInt64(2)
+    int 2                                                                                       2
+    // tuple_support/nested_tuples.py:185
+    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
+    v-store a#2
+    // tuple_support/nested_tuples.py:177
+    // x = UInt64(1)
+    int 1                                                                                       1
+    // tuple_support/nested_tuples.py:185
+    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
+    v-store b#2
+    b run_tests_for_body@17
+
+run_tests_for_header_2@19:
+    int 2                                                                                       2
+    v-store loop_counter%1#0
+    // tuple_support/nested_tuples.py:177
+    // x = UInt64(1)
+    int 1                                                                                       1
+    // tuple_support/nested_tuples.py:185
+    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
+    v-store a#2
+    // tuple_support/nested_tuples.py:177
+    // x = UInt64(1)
+    int 1                                                                                       1
+    // tuple_support/nested_tuples.py:185
+    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
+    v-store b#2
+    b run_tests_for_body@17
+
+run_tests_for_header_3@20:
+    int 3                                                                                       3
+    v-store loop_counter%1#0
+    // tuple_support/nested_tuples.py:178
+    // y = UInt64(2)
+    int 2                                                                                       2
+    // tuple_support/nested_tuples.py:185
+    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
+    v-store a#2
+    // tuple_support/nested_tuples.py:178
+    // y = UInt64(2)
+    int 2                                                                                       2
+    // tuple_support/nested_tuples.py:185
+    // for a, b in ((x, y), (y, x), (x, x), (y, y)):
+    v-store b#2
+    b run_tests_for_body@17
+
+run_tests_after_for@21:
+    // tuple_support/nested_tuples.py:188
+    // assert total // 8 == 3
+    v-load total#0                                                                              total#0
+    int 8                                                                                       total#0,8
+    /                                                                                           tmp%2#1
+    int 3                                                                                       tmp%2#1,3
+    ==                                                                                          tmp%3#1
+    assert
+    // tuple_support/nested_tuples.py:75
+    // self.build_nested_call_count = UInt64(0)
+    byte "build_nested_call_count"                                                              "build_nested_call_count"
+    int 0                                                                                       "build_nested_call_count",0
+    app_global_put
+    // tuple_support/nested_tuples.py:70
+    // self.build_nested_call_count += 1
+    int 0                                                                                       0
+    byte "build_nested_call_count"                                                              0,"build_nested_call_count"
+    app_global_get_ex                                                                           maybe_value%0#0,maybe_exists%0#0
+    assert // check self.build_nested_call_count exists                                         maybe_value%0#0
+    l-load maybe_value%0#0 0                                                                    maybe_value%0#0
+    int 1                                                                                       maybe_value%0#0,1
+    +                                                                                           new_state_value%0#0
+    byte "build_nested_call_count"                                                              new_state_value%0#0,"build_nested_call_count"
+    l-load new_state_value%0#0 1                                                                "build_nested_call_count",new_state_value%0#0
+    app_global_put
+    // tuple_support/nested_tuples.py:78
+    // assert self.build_nested_call_count == 1
+    int 0                                                                                       0
+    byte "build_nested_call_count"                                                              0,"build_nested_call_count"
+    app_global_get_ex                                                                           maybe_value%0#0,maybe_exists%0#0
+    assert // check self.build_nested_call_count exists                                         maybe_value%0#0
+    l-load maybe_value%0#0 0                                                                    maybe_value%0#0
+    int 1                                                                                       maybe_value%0#0,1
+    ==                                                                                          tmp%6#1
+    assert
+    // tuple_support/nested_tuples.py:49
+    // return True
+    int 1                                                                                       1
+    retsub                                                                                      1
 
 

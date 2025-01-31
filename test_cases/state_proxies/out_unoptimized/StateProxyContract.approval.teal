@@ -55,6 +55,32 @@ __init__:
     retsub
 
 
+// test_cases.state_proxies.contract.StateProxyContract.create() -> void:
+create:
+    // state_proxies/contract.py:25-26
+    // @arc4.abimethod(allow_actions=["OptIn"], create="require")
+    // def create(self) -> None:
+    proto 0 0
+    // state_proxies/contract.py:27
+    // self.global1.value = UInt64(1)
+    pushbytes "g1"
+    intc_1 // 1
+    app_global_put
+    // state_proxies/contract.py:28
+    // self.local1[Txn.sender] = UInt64(2)
+    txn Sender
+    pushbytes "l1"
+    pushint 2 // 2
+    app_local_put
+    // state_proxies/contract.py:29
+    // self.local2[Txn.sender] = UInt64(3)
+    txn Sender
+    pushbytes 0x6c32
+    pushint 3 // 3
+    app_local_put
+    retsub
+
+
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
     proto 0 1
@@ -104,29 +130,3 @@ approval_program_create_route@3:
 
 approval_program_bare_routing@6:
     b approval_program_after_if_else@7
-
-
-// test_cases.state_proxies.contract.StateProxyContract.create() -> void:
-create:
-    // state_proxies/contract.py:25-26
-    // @arc4.abimethod(allow_actions=["OptIn"], create="require")
-    // def create(self) -> None:
-    proto 0 0
-    // state_proxies/contract.py:27
-    // self.global1.value = UInt64(1)
-    pushbytes "g1"
-    intc_1 // 1
-    app_global_put
-    // state_proxies/contract.py:28
-    // self.local1[Txn.sender] = UInt64(2)
-    txn Sender
-    pushbytes "l1"
-    pushint 2 // 2
-    app_local_put
-    // state_proxies/contract.py:29
-    // self.local2[Txn.sender] = UInt64(3)
-    txn Sender
-    pushbytes 0x6c32
-    pushint 3 // 3
-    app_local_put
-    retsub

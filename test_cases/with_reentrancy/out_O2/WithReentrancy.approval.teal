@@ -16,6 +16,35 @@ main:
     return
 
 
+// test_cases.with_reentrancy.contract.itoa(i: uint64) -> bytes:
+itoa:
+    proto 1 1
+    frame_dig -1
+    intc_2 // 10
+    <
+    bz itoa_after_if_else@2
+    bytec_0 // 0x30313233343536373839
+    frame_dig -1
+    intc_1 // 1
+    extract3
+    retsub
+
+itoa_after_if_else@2:
+    frame_dig -1
+    intc_2 // 10
+    /
+    callsub itoa
+    frame_dig -1
+    intc_2 // 10
+    %
+    bytec_0 // 0x30313233343536373839
+    swap
+    intc_1 // 1
+    extract3
+    concat
+    retsub
+
+
 // test_cases.with_reentrancy.contract.fibonacci(n: uint64) -> uint64:
 fibonacci:
     proto 1 1
@@ -102,32 +131,3 @@ silly_else_body@3:
     callsub silly
     frame_bury 0
     b silly_after_if_else@4
-
-
-// test_cases.with_reentrancy.contract.itoa(i: uint64) -> bytes:
-itoa:
-    proto 1 1
-    frame_dig -1
-    intc_2 // 10
-    <
-    bz itoa_after_if_else@2
-    bytec_0 // 0x30313233343536373839
-    frame_dig -1
-    intc_1 // 1
-    extract3
-    retsub
-
-itoa_after_if_else@2:
-    frame_dig -1
-    intc_2 // 10
-    /
-    callsub itoa
-    frame_dig -1
-    intc_2 // 10
-    %
-    bytec_0 // 0x30313233343536373839
-    swap
-    intc_1 // 1
-    extract3
-    concat
-    retsub

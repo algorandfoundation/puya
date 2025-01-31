@@ -29,6 +29,43 @@ __init__:
     retsub
 
 
+// test_cases.compile.apps.HelloBase.delete() -> void:
+delete:
+    // compile/apps.py:24-25
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    // def delete(self) -> None:
+    proto 0 0
+    retsub
+
+
+// test_cases.compile.apps.HelloBase.update() -> void:
+update:
+    // compile/apps.py:28-29
+    // @arc4.baremethod(allow_actions=["UpdateApplication"])
+    // def update(self) -> None:
+    proto 0 0
+    retsub
+
+
+// test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
+greet:
+    // compile/apps.py:32-33
+    // @arc4.abimethod()
+    // def greet(self, name: String) -> String:
+    proto 1 1
+    // compile/apps.py:34
+    // return self.greeting + " " + name
+    intc_0 // 0
+    bytec_0 // "greeting"
+    app_global_get_ex
+    assert // check self.greeting exists
+    pushbytes " "
+    concat
+    frame_dig -1
+    concat
+    retsub
+
+
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
     proto 0 1
@@ -54,12 +91,12 @@ approval_program_switch_case_default@5:
 
 approval_program_switch_case_next@6:
 
-approval_program_after_if_else@12:
+approval_program_after_if_else@14:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
     intc_0 // 0
 
-approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@13:
+approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@15:
     retsub
 
 approval_program_greet_route@4:
@@ -91,7 +128,7 @@ approval_program_greet_route@4:
     concat
     log
     intc_1 // 1
-    b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@13
+    b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@15
 
 approval_program_delete_route@3:
     // compile/apps.py:24
@@ -106,7 +143,7 @@ approval_program_delete_route@3:
     assert // can only call when not creating
     callsub delete
     intc_1 // 1
-    b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@13
+    b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@15
 
 approval_program_bare_routing@7:
     // compile/apps.py:20
@@ -117,10 +154,10 @@ approval_program_bare_routing@7:
     uncover 2
     match approval_program_update@8 approval_program___algopy_default_create@9
 
-approval_program_switch_case_default@10:
+approval_program_switch_case_default@12:
 
-approval_program_switch_case_next@11:
-    b approval_program_after_if_else@12
+approval_program_switch_case_next@13:
+    b approval_program_after_if_else@14
 
 approval_program___algopy_default_create@9:
     txn ApplicationID
@@ -128,11 +165,11 @@ approval_program___algopy_default_create@9:
     ==
     assert // can only call when creating
 
-approval_program_block@14:
+approval_program_block@10:
 
-approval_program_after_inlined_test_cases.compile.apps.HelloBase.__algopy_default_create@15:
+approval_program_after_inlined_test_cases.compile.apps.HelloBase.__algopy_default_create@11:
     intc_1 // 1
-    b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@13
+    b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@15
 
 approval_program_update@8:
     // compile/apps.py:28
@@ -143,41 +180,4 @@ approval_program_update@8:
     assert // can only call when not creating
     callsub update
     intc_1 // 1
-    b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@13
-
-
-// test_cases.compile.apps.HelloBase.delete() -> void:
-delete:
-    // compile/apps.py:24-25
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    // def delete(self) -> None:
-    proto 0 0
-    retsub
-
-
-// test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
-greet:
-    // compile/apps.py:32-33
-    // @arc4.abimethod()
-    // def greet(self, name: String) -> String:
-    proto 1 1
-    // compile/apps.py:34
-    // return self.greeting + " " + name
-    intc_0 // 0
-    bytec_0 // "greeting"
-    app_global_get_ex
-    assert // check self.greeting exists
-    pushbytes " "
-    concat
-    frame_dig -1
-    concat
-    retsub
-
-
-// test_cases.compile.apps.HelloBase.update() -> void:
-update:
-    // compile/apps.py:28-29
-    // @arc4.baremethod(allow_actions=["UpdateApplication"])
-    // def update(self) -> None:
-    proto 0 0
-    retsub
+    b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@15

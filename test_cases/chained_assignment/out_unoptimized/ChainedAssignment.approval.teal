@@ -14,6 +14,28 @@ main_after_if_else@2:
     return
 
 
+// test_cases.chained_assignment.contract.join_log_and_return(left: bytes, right: bytes) -> bytes:
+join_log_and_return:
+    // chained_assignment/contract.py:27-28
+    // @subroutine
+    // def join_log_and_return(*, left: Bytes, right: Bytes) -> Bytes:
+    proto 2 1
+    // chained_assignment/contract.py:29
+    // result = left + b" " + right
+    frame_dig -2
+    pushbytes 0x20
+    concat
+    frame_dig -1
+    concat
+    // chained_assignment/contract.py:30
+    // log(result)
+    dup
+    log
+    // chained_assignment/contract.py:31
+    // return result
+    retsub
+
+
 // test_cases.chained_assignment.contract.ChainedAssignment.__init__() -> void:
 __init__:
     // chained_assignment/contract.py:17
@@ -22,6 +44,17 @@ __init__:
     // chained_assignment/contract.py:18
     // super().__init__()
     callsub test_cases.chained_assignment.contract.BaseContract.__init__
+    retsub
+
+
+// test_cases.chained_assignment.contract.ChainedAssignment.approval_program() -> uint64:
+approval_program:
+    // chained_assignment/contract.py:20
+    // def approval_program(self) -> bool:
+    proto 0 1
+    // chained_assignment/contract.py:21
+    // return True
+    pushint 1 // 1
     retsub
 
 
@@ -62,37 +95,4 @@ test_cases.chained_assignment.contract.BaseContract.__init__:
     // )
     swap
     app_global_put
-    retsub
-
-
-// test_cases.chained_assignment.contract.join_log_and_return(left: bytes, right: bytes) -> bytes:
-join_log_and_return:
-    // chained_assignment/contract.py:27-28
-    // @subroutine
-    // def join_log_and_return(*, left: Bytes, right: Bytes) -> Bytes:
-    proto 2 1
-    // chained_assignment/contract.py:29
-    // result = left + b" " + right
-    frame_dig -2
-    pushbytes 0x20
-    concat
-    frame_dig -1
-    concat
-    // chained_assignment/contract.py:30
-    // log(result)
-    dup
-    log
-    // chained_assignment/contract.py:31
-    // return result
-    retsub
-
-
-// test_cases.chained_assignment.contract.ChainedAssignment.approval_program() -> uint64:
-approval_program:
-    // chained_assignment/contract.py:20
-    // def approval_program(self) -> bool:
-    proto 0 1
-    // chained_assignment/contract.py:21
-    // return True
-    pushint 1 // 1
     retsub

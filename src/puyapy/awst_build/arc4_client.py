@@ -11,7 +11,7 @@ from puya.errors import InternalError
 from puya.parse import SourceLocation
 from puya.program_refs import ContractReference
 from puyapy.awst_build import constants, pytypes
-from puyapy.awst_build.arc4_utils import get_arc4_abimethod_data
+from puyapy.awst_build.arc4_decorators import get_arc4_abimethod_data
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.utils import get_decorators_by_fullname

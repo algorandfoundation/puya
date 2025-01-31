@@ -265,44 +265,6 @@ main_create_route@3:
     return
 
 
-// test_cases.transaction.contract.TransactionContract.pay(txn: uint64) -> void:
-pay:
-    // transaction/contract.py:31-32
-    // @arc4.abimethod
-    // def pay(self, txn: gtxn.PaymentTransaction) -> None:
-    proto 1 0
-    // transaction/contract.py:33
-    // self._common_checks(txn)
-    frame_dig -1
-    callsub _common_checks
-    // transaction/contract.py:35
-    // txn.receiver == op.Global.current_application_address
-    frame_dig -1
-    gtxns Receiver
-    global CurrentApplicationAddress
-    ==
-    // transaction/contract.py:34-36
-    // assert (
-    //     txn.receiver == op.Global.current_application_address
-    // ), "Payment should be for this app"
-    assert // Payment should be for this app
-    // transaction/contract.py:37
-    // assert txn.amount > 1000, "Payment should be for >1000 micro algos"
-    frame_dig -1
-    gtxns Amount
-    pushint 1000 // 1000
-    >
-    assert // Payment should be for >1000 micro algos
-    // transaction/contract.py:38
-    // assert txn.close_remainder_to == op.Global.zero_address, "close_remainder_to"
-    frame_dig -1
-    gtxns CloseRemainderTo
-    global ZeroAddress
-    ==
-    assert // close_remainder_to
-    retsub
-
-
 // test_cases.transaction.contract.TransactionContract._common_checks(txn: uint64) -> void:
 _common_checks:
     // transaction/contract.py:16-17
@@ -375,6 +337,44 @@ _common_checks:
     global ZeroAddress
     ==
     assert // rekey_to
+    retsub
+
+
+// test_cases.transaction.contract.TransactionContract.pay(txn: uint64) -> void:
+pay:
+    // transaction/contract.py:31-32
+    // @arc4.abimethod
+    // def pay(self, txn: gtxn.PaymentTransaction) -> None:
+    proto 1 0
+    // transaction/contract.py:33
+    // self._common_checks(txn)
+    frame_dig -1
+    callsub _common_checks
+    // transaction/contract.py:35
+    // txn.receiver == op.Global.current_application_address
+    frame_dig -1
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    // transaction/contract.py:34-36
+    // assert (
+    //     txn.receiver == op.Global.current_application_address
+    // ), "Payment should be for this app"
+    assert // Payment should be for this app
+    // transaction/contract.py:37
+    // assert txn.amount > 1000, "Payment should be for >1000 micro algos"
+    frame_dig -1
+    gtxns Amount
+    pushint 1000 // 1000
+    >
+    assert // Payment should be for >1000 micro algos
+    // transaction/contract.py:38
+    // assert txn.close_remainder_to == op.Global.zero_address, "close_remainder_to"
+    frame_dig -1
+    gtxns CloseRemainderTo
+    global ZeroAddress
+    ==
+    assert // close_remainder_to
     retsub
 
 

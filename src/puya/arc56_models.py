@@ -138,7 +138,7 @@ class MethodArgDefaultValue:
     Not relevant if source is method
     """
     data: str
-    """Base64 encoded bytes or uint64"""
+    """Base64 encoded bytes, base64 ARC4 encoded uint64, or UTF-8 method selector"""
 
 
 @attrs.frozen(kw_only=True)

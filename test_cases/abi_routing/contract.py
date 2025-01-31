@@ -137,6 +137,8 @@ class Reference(ARC4Contract):
             "bytes_from_storage": "some_bytes",
             "int_from_storage": "an_int",
             "int_from_function": "get_a_int",
+            "int_from_const": arc4.UInt32(123),
+            "str_from_const": arc4.String("abc"),
         }
     )
     def method_with_default_args(
@@ -150,6 +152,8 @@ class Reference(ARC4Contract):
         bytes_from_storage: Bytes3,
         int_from_storage: arc4.UInt64,
         int_from_function: arc4.UInt64,
+        int_from_const: arc4.UInt32,
+        str_from_const: arc4.String,
     ) -> None:
         assert asset_from_storage == Asset(123), "wrong asset from storage"
         assert asset_from_function == Asset(456), "wrong asset from function"
@@ -162,6 +166,8 @@ class Reference(ARC4Contract):
         assert bytes_from_storage[2] == arc4.Byte(9), "wrong 2nd byte from storage"
         assert int_from_storage.native == 2, "wrong int from storage"
         assert int_from_function.native == 3, "wrong int from function"
+        assert int_from_const == 123
+        assert str_from_const == "abc"
 
     @arc4.abimethod
     def method_with_15_args(

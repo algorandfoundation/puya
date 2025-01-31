@@ -393,48 +393,6 @@ main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_ar
     return
 
 
-// test_cases.transaction.contract.TransactionContract.pay(txn: uint64) -> void:
-pay:                                                                                            (𝕡) txn#0 |
-    // transaction/contract.py:33
-    // self._common_checks(txn)
-    p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-    callsub _common_checks                                                                      (𝕡) txn#0 |
-    // transaction/contract.py:35
-    // txn.receiver == op.Global.current_application_address
-    p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-    gtxns Receiver                                                                              (𝕡) txn#0 | tmp%0#0
-    global CurrentApplicationAddress                                                            (𝕡) txn#0 | tmp%0#0,tmp%1#0
-    l-load tmp%0#0 1                                                                            (𝕡) txn#0 | tmp%1#0,tmp%0#0
-    l-load tmp%1#0 1                                                                            (𝕡) txn#0 | tmp%0#0,tmp%1#0
-    ==                                                                                          (𝕡) txn#0 | tmp%2#0
-    // transaction/contract.py:34-36
-    // assert (
-    //     txn.receiver == op.Global.current_application_address
-    // ), "Payment should be for this app"
-    l-load tmp%2#0 0                                                                            (𝕡) txn#0 | tmp%2#0
-    assert // Payment should be for this app                                                    (𝕡) txn#0 |
-    // transaction/contract.py:37
-    // assert txn.amount > 1000, "Payment should be for >1000 micro algos"
-    p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-    gtxns Amount                                                                                (𝕡) txn#0 | tmp%3#0
-    l-load tmp%3#0 0                                                                            (𝕡) txn#0 | tmp%3#0
-    int 1000                                                                                    (𝕡) txn#0 | tmp%3#0,1000
-    >                                                                                           (𝕡) txn#0 | tmp%4#0
-    l-load tmp%4#0 0                                                                            (𝕡) txn#0 | tmp%4#0
-    assert // Payment should be for >1000 micro algos                                           (𝕡) txn#0 |
-    // transaction/contract.py:38
-    // assert txn.close_remainder_to == op.Global.zero_address, "close_remainder_to"
-    p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-    gtxns CloseRemainderTo                                                                      (𝕡) txn#0 | tmp%5#0
-    global ZeroAddress                                                                          (𝕡) txn#0 | tmp%5#0,tmp%6#0
-    l-load tmp%5#0 1                                                                            (𝕡) txn#0 | tmp%6#0,tmp%5#0
-    l-load tmp%6#0 1                                                                            (𝕡) txn#0 | tmp%5#0,tmp%6#0
-    ==                                                                                          (𝕡) txn#0 | tmp%7#0
-    l-load tmp%7#0 0                                                                            (𝕡) txn#0 | tmp%7#0
-    assert // close_remainder_to                                                                (𝕡) txn#0 |
-    retsub
-
-
 // test_cases.transaction.contract.TransactionContract._common_checks(txn: uint64) -> void:
 _common_checks:                                                                                 (𝕡) txn#0 |
     // transaction/contract.py:18
@@ -522,6 +480,48 @@ _common_checks:                                                                 
     ==                                                                                          (𝕡) txn#0 | tmp%26#0
     l-load tmp%26#0 0                                                                           (𝕡) txn#0 | tmp%26#0
     assert // rekey_to                                                                          (𝕡) txn#0 |
+    retsub
+
+
+// test_cases.transaction.contract.TransactionContract.pay(txn: uint64) -> void:
+pay:                                                                                            (𝕡) txn#0 |
+    // transaction/contract.py:33
+    // self._common_checks(txn)
+    p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
+    callsub _common_checks                                                                      (𝕡) txn#0 |
+    // transaction/contract.py:35
+    // txn.receiver == op.Global.current_application_address
+    p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
+    gtxns Receiver                                                                              (𝕡) txn#0 | tmp%0#0
+    global CurrentApplicationAddress                                                            (𝕡) txn#0 | tmp%0#0,tmp%1#0
+    l-load tmp%0#0 1                                                                            (𝕡) txn#0 | tmp%1#0,tmp%0#0
+    l-load tmp%1#0 1                                                                            (𝕡) txn#0 | tmp%0#0,tmp%1#0
+    ==                                                                                          (𝕡) txn#0 | tmp%2#0
+    // transaction/contract.py:34-36
+    // assert (
+    //     txn.receiver == op.Global.current_application_address
+    // ), "Payment should be for this app"
+    l-load tmp%2#0 0                                                                            (𝕡) txn#0 | tmp%2#0
+    assert // Payment should be for this app                                                    (𝕡) txn#0 |
+    // transaction/contract.py:37
+    // assert txn.amount > 1000, "Payment should be for >1000 micro algos"
+    p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
+    gtxns Amount                                                                                (𝕡) txn#0 | tmp%3#0
+    l-load tmp%3#0 0                                                                            (𝕡) txn#0 | tmp%3#0
+    int 1000                                                                                    (𝕡) txn#0 | tmp%3#0,1000
+    >                                                                                           (𝕡) txn#0 | tmp%4#0
+    l-load tmp%4#0 0                                                                            (𝕡) txn#0 | tmp%4#0
+    assert // Payment should be for >1000 micro algos                                           (𝕡) txn#0 |
+    // transaction/contract.py:38
+    // assert txn.close_remainder_to == op.Global.zero_address, "close_remainder_to"
+    p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
+    gtxns CloseRemainderTo                                                                      (𝕡) txn#0 | tmp%5#0
+    global ZeroAddress                                                                          (𝕡) txn#0 | tmp%5#0,tmp%6#0
+    l-load tmp%5#0 1                                                                            (𝕡) txn#0 | tmp%6#0,tmp%5#0
+    l-load tmp%6#0 1                                                                            (𝕡) txn#0 | tmp%5#0,tmp%6#0
+    ==                                                                                          (𝕡) txn#0 | tmp%7#0
+    l-load tmp%7#0 0                                                                            (𝕡) txn#0 | tmp%7#0
+    assert // close_remainder_to                                                                (𝕡) txn#0 |
     retsub
 
 

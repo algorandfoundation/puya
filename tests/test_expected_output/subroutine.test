@@ -237,8 +237,8 @@ from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> None:
-    assert True, "this is ok"
-    assert 1 < 3, "this is also ok"
+    assert True, "this is ok" ## W: assertion is always true, ignoring
+    assert 1 < 3, "this is also ok" ## W: assertion is always true, ignoring
     a = UInt64(1)
     b = UInt64(2)
     assert a == b, "it's fine"
@@ -270,8 +270,8 @@ def test() -> UInt64:
 from algopy import UInt64, subroutine
 
 @subroutine
-def test() -> UInt64: # type: ignore[return] # TODO: this should fail during puya compilation
-    if False:
+def test() -> UInt64: # type: ignore[return]
+    if False: ## E: not all paths return a value
         return UInt64(1)
     else:
         pass

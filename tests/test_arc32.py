@@ -8,10 +8,7 @@ import algosdk
 import pytest
 from algokit_utils import LogicError
 from algosdk import abi, constants, transaction
-from algosdk.atomic_transaction_composer import (
-    AtomicTransactionComposer,
-    TransactionWithSigner,
-)
+from algosdk.atomic_transaction_composer import AtomicTransactionComposer, TransactionWithSigner
 from algosdk.transaction import OnComplete
 from algosdk.v2client.algod import AlgodClient
 from nacl.signing import SigningKey
@@ -27,7 +24,13 @@ from tests.utils.merkle_tree import MerkleTree, sha_256_raw
 pytestmark = pytest.mark.localnet
 
 
-def compile_arc32(src_path: Path, *, optimization_level: int = 1, debug_level: int = 2) -> str:
+def compile_arc32(
+    src_path: Path,
+    *,
+    optimization_level: int = 1,
+    debug_level: int = 2,
+    file_name: str | None = None,
+) -> str:
     result = compile_src_from_options(
         PuyaPyOptions(
             paths=(src_path,),
@@ -35,7 +38,20 @@ def compile_arc32(src_path: Path, *, optimization_level: int = 1, debug_level: i
             debug_level=debug_level,
         )
     )
-    (contract,) = result.teal
+    if file_name is None:
+        (contract,) = result.teal
+    else:
+        (contract,) = (
+            t
+            for t in result.teal
+            if isinstance(t, CompiledContract)
+            if (
+                t.source_location
+                and t.source_location.file
+                and t.source_location.file.name == file_name
+            )
+        )
+
     assert isinstance(contract, CompiledContract), "Compilation artifact must be a contract"
     return create_arc32_json(
         contract.approval_program.teal_src, contract.clear_program.teal_src, contract.metadata
@@ -1516,9 +1532,9 @@ def test_box_map(box_client: algokit_utils.ApplicationClient) -> None:
 
 
 def test_compile(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
-    example = TEST_CASES_DIR / "compile" / "factory.py"
-
-    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(TEST_CASES_DIR / "compile", file_name="factory.py")
+    )
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
 
     app_client.create()

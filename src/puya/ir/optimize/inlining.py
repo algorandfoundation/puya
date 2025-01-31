@@ -11,7 +11,7 @@ from puya import log
 from puya.ir import models
 from puya.ir.context import TMP_VAR_INDICATOR
 from puya.ir.optimize._call_graph import CallGraph
-from puya.ir.optimize._context import IROptimizationPassContext
+from puya.ir.optimize.context import IROptimizationContext
 from puya.ir.optimize.intrinsic_simplification import COMPILE_TIME_CONSTANT_OPS
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
@@ -21,10 +21,13 @@ logger = log.get_logger(__name__)
 
 
 def analyse_subroutines_for_inlining(
-    context: IROptimizationPassContext,
+    context: IROptimizationContext,
     program: models.Program,
     routable_method_ids: Collection[str] | None,
 ) -> None:
+    context.inlineable_calls.clear()
+    context.constant_with_constant_args.clear()
+
     call_graph = CallGraph(program)
     for sub in program.subroutines:
         if sub.inline is False:
@@ -109,7 +112,7 @@ def _is_trivial(sub: models.Subroutine) -> bool:
 
 
 def perform_subroutine_inlining(
-    context: IROptimizationPassContext, subroutine: models.Subroutine
+    context: IROptimizationContext, subroutine: models.Subroutine
 ) -> bool:
     inline_calls_to = {
         to_id for from_id, to_id in context.inlineable_calls if from_id == subroutine.id

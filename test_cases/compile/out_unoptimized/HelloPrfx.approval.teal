@@ -29,6 +29,52 @@ __init__:
     retsub
 
 
+// test_cases.compile.apps.HelloPrfx.create() -> void:
+create:
+    // compile/apps.py:71-72
+    // @arc4.abimethod(create="require")
+    // def create(self) -> None:
+    proto 0 0
+    retsub
+
+
+// test_cases.compile.apps.HelloBase.delete() -> void:
+delete:
+    // compile/apps.py:24-25
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    // def delete(self) -> None:
+    proto 0 0
+    retsub
+
+
+// test_cases.compile.apps.HelloBase.update() -> void:
+update:
+    // compile/apps.py:28-29
+    // @arc4.baremethod(allow_actions=["UpdateApplication"])
+    // def update(self) -> None:
+    proto 0 0
+    retsub
+
+
+// test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
+greet:
+    // compile/apps.py:32-33
+    // @arc4.abimethod()
+    // def greet(self, name: String) -> String:
+    proto 1 1
+    // compile/apps.py:34
+    // return self.greeting + " " + name
+    intc_0 // 0
+    bytec_0 // "greeting"
+    app_global_get_ex
+    assert // check self.greeting exists
+    pushbytes " "
+    concat
+    frame_dig -1
+    concat
+    retsub
+
+
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
     proto 0 1
@@ -147,49 +193,3 @@ approval_program_update@9:
     callsub update
     intc_1 // 1
     b approval_program_after_inlined_test_cases.compile.apps.HelloPrfx.__puya_arc4_router__@13
-
-
-// test_cases.compile.apps.HelloPrfx.create() -> void:
-create:
-    // compile/apps.py:71-72
-    // @arc4.abimethod(create="require")
-    // def create(self) -> None:
-    proto 0 0
-    retsub
-
-
-// test_cases.compile.apps.HelloBase.delete() -> void:
-delete:
-    // compile/apps.py:24-25
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    // def delete(self) -> None:
-    proto 0 0
-    retsub
-
-
-// test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
-greet:
-    // compile/apps.py:32-33
-    // @arc4.abimethod()
-    // def greet(self, name: String) -> String:
-    proto 1 1
-    // compile/apps.py:34
-    // return self.greeting + " " + name
-    intc_0 // 0
-    bytec_0 // "greeting"
-    app_global_get_ex
-    assert // check self.greeting exists
-    pushbytes " "
-    concat
-    frame_dig -1
-    concat
-    retsub
-
-
-// test_cases.compile.apps.HelloBase.update() -> void:
-update:
-    // compile/apps.py:28-29
-    // @arc4.baremethod(allow_actions=["UpdateApplication"])
-    // def update(self) -> None:
-    proto 0 0
-    retsub

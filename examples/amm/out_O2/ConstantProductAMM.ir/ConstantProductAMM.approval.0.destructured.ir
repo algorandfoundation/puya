@@ -387,15 +387,6 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
     block@17: // after_inlined_examples.amm.contract.ConstantProductAMM.__puya_arc4_router___L1
         return tmp%0#0
 
-subroutine examples.amm.contract.ConstantProductAMM._check_is_governor() -> void:
-    block@0: // L262
-        let tmp%0#0: bytes = (txn Sender)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "governor")
-        (assert maybe_exists%0#0) // check self.governor exists
-        let tmp%1#0: bool = (== tmp%0#0 maybe_value%0#0)
-        (assert tmp%1#0) // Only the account set in global_state.governor may call this method
-        return 
-
 subroutine examples.amm.contract.do_asset_transfer(receiver: bytes, asset: uint64, amount: uint64) -> void:
     block@0: // L356
         itxn_begin
@@ -405,6 +396,24 @@ subroutine examples.amm.contract.do_asset_transfer(receiver: bytes, asset: uint6
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         itxn_submit
+        return 
+
+subroutine examples.amm.contract.ConstantProductAMM._update_ratio() -> void:
+    block@0: // L255
+        let a_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
+        let b_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
+        let tmp%0#0: uint64 = (* a_balance#0 1000u)
+        let new_state_value%0#0: uint64 = (/ tmp%0#0 b_balance#0)
+        (app_global_put "ratio" new_state_value%0#0)
+        return 
+
+subroutine examples.amm.contract.ConstantProductAMM._check_is_governor() -> void:
+    block@0: // L262
+        let tmp%0#0: bytes = (txn Sender)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "governor")
+        (assert maybe_exists%0#0) // check self.governor exists
+        let tmp%1#0: bool = (== tmp%0#0 maybe_value%0#0)
+        (assert tmp%1#0) // Only the account set in global_state.governor may call this method
         return 
 
 subroutine examples.amm.contract.ConstantProductAMM._current_pool_balance() -> uint64:
@@ -433,12 +442,3 @@ subroutine examples.amm.contract.ConstantProductAMM._current_b_balance() -> uint
         let (value%0#0: uint64, check%0#0: bool) = ((asset_holding_get AssetBalance) tmp%0#0 maybe_value%0#0)
         (assert check%0#0) // account opted into asset
         return value%0#0
-
-subroutine examples.amm.contract.ConstantProductAMM._update_ratio() -> void:
-    block@0: // L255
-        let a_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
-        let b_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
-        let tmp%0#0: uint64 = (* a_balance#0 1000u)
-        let new_state_value%0#0: uint64 = (/ tmp%0#0 b_balance#0)
-        (app_global_put "ratio" new_state_value%0#0)
-        return 

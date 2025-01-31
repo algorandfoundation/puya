@@ -4,7 +4,7 @@
 // test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 2 8
-    bytecblock "box" "glob" "loc" 0x00020000000000000001000a000362617a "map" 0x00086d6f646966696564 0x0000
+    bytecblock "box" "glob" "loc" 0x0000 "map" 0x00020000000000000001000a000362617a 0x00086d6f646966696564
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     txn NumAppArgs
@@ -81,345 +81,6 @@ main___algopy_default_create@10:
     assert // can only call when creating
     intc_1 // 1
     return
-
-
-// test_cases.state_mutations.contract.Contract.append() -> void:
-append:
-    // state_mutations/contract.py:36-37
-    // @arc4.abimethod
-    // def append(self) -> None:
-    proto 0 0
-    // state_mutations/contract.py:39
-    // self.glob.value.append(struct.copy())
-    intc_0 // 0
-    bytec_1 // "glob"
-    app_global_get_ex
-    assert // check self.glob exists
-    dup
-    intc_0 // 0
-    extract_uint16
-    swap
-    extract 2 0
-    intc_1 // 1
-    bytec_3 // 0x00020000000000000001000a000362617a
-    callsub dynamic_array_concat_dynamic_element
-    bytec_1 // "glob"
-    swap
-    app_global_put
-    // state_mutations/contract.py:40
-    // self.loc[Txn.sender].append(struct.copy())
-    txn Sender
-    dup
-    intc_0 // 0
-    bytec_2 // "loc"
-    app_local_get_ex
-    assert // check self.loc exists for account
-    dup
-    intc_0 // 0
-    extract_uint16
-    swap
-    extract 2 0
-    intc_1 // 1
-    bytec_3 // 0x00020000000000000001000a000362617a
-    callsub dynamic_array_concat_dynamic_element
-    bytec_2 // "loc"
-    swap
-    app_local_put
-    // state_mutations/contract.py:41
-    // self.box.value.append(struct.copy())
-    bytec_0 // "box"
-    box_get
-    assert // check self.box exists
-    dup
-    intc_0 // 0
-    extract_uint16
-    swap
-    extract 2 0
-    intc_1 // 1
-    bytec_3 // 0x00020000000000000001000a000362617a
-    callsub dynamic_array_concat_dynamic_element
-    bytec_0 // "box"
-    box_del
-    pop
-    bytec_0 // "box"
-    swap
-    box_put
-    // state_mutations/contract.py:42
-    // self.map[Txn.sender].append(struct.copy())
-    bytec 4 // "map"
-    txn Sender
-    concat
-    dup
-    box_get
-    assert // check self.map entry exists
-    dup
-    intc_0 // 0
-    extract_uint16
-    swap
-    extract 2 0
-    intc_1 // 1
-    bytec_3 // 0x00020000000000000001000a000362617a
-    callsub dynamic_array_concat_dynamic_element
-    dig 1
-    box_del
-    pop
-    box_put
-    retsub
-
-
-// test_cases.state_mutations.contract.Contract.modify() -> void:
-modify:
-    // state_mutations/contract.py:44-45
-    // @arc4.abimethod
-    // def modify(self) -> None:
-    proto 0 0
-    // state_mutations/contract.py:46
-    // self.glob.value[0].baz = arc4.String("modified")
-    intc_0 // 0
-    bytec_1 // "glob"
-    app_global_get_ex
-    assert // check self.glob exists
-    dup
-    extract 2 0
-    dup
-    intc_0 // 0
-    extract_uint16
-    dig 2
-    intc_0 // 0
-    extract_uint16
-    intc_1 // 1
-    - // on error: Index access is out of bounds
-    dig 2
-    len
-    dig 3
-    intc_2 // 2
-    extract_uint16
-    uncover 2
-    select
-    substring3
-    dup
-    intc_3 // 8
-    extract_uint16
-    intc_0 // 0
-    swap
-    extract3
-    bytec 5 // 0x00086d6f646966696564
-    concat
-    intc_0 // 0
-    callsub dynamic_array_replace_dynamic_element
-    bytec_1 // "glob"
-    swap
-    app_global_put
-    // state_mutations/contract.py:47
-    // self.loc[Txn.sender][0].baz = arc4.String("modified")
-    txn Sender
-    dup
-    intc_0 // 0
-    bytec_2 // "loc"
-    app_local_get_ex
-    assert // check self.loc exists for account
-    dup
-    extract 2 0
-    dup
-    intc_0 // 0
-    extract_uint16
-    dig 2
-    intc_0 // 0
-    extract_uint16
-    intc_1 // 1
-    - // on error: Index access is out of bounds
-    dig 2
-    len
-    dig 3
-    intc_2 // 2
-    extract_uint16
-    uncover 2
-    select
-    substring3
-    dup
-    intc_3 // 8
-    extract_uint16
-    intc_0 // 0
-    swap
-    extract3
-    bytec 5 // 0x00086d6f646966696564
-    concat
-    intc_0 // 0
-    callsub dynamic_array_replace_dynamic_element
-    bytec_2 // "loc"
-    swap
-    app_local_put
-    // state_mutations/contract.py:48
-    // self.box.value[0].baz = arc4.String("modified")
-    bytec_0 // "box"
-    box_get
-    assert // check self.box exists
-    dup
-    extract 2 0
-    dup
-    intc_0 // 0
-    extract_uint16
-    dig 2
-    intc_0 // 0
-    extract_uint16
-    intc_1 // 1
-    - // on error: Index access is out of bounds
-    dig 2
-    len
-    dig 3
-    intc_2 // 2
-    extract_uint16
-    uncover 2
-    select
-    substring3
-    dup
-    intc_3 // 8
-    extract_uint16
-    intc_0 // 0
-    swap
-    extract3
-    bytec 5 // 0x00086d6f646966696564
-    concat
-    intc_0 // 0
-    callsub dynamic_array_replace_dynamic_element
-    bytec_0 // "box"
-    box_del
-    pop
-    bytec_0 // "box"
-    swap
-    box_put
-    // state_mutations/contract.py:49
-    // self.map[Txn.sender][0].baz = arc4.String("modified")
-    bytec 4 // "map"
-    txn Sender
-    concat
-    dup
-    box_get
-    assert // check self.map entry exists
-    dup
-    extract 2 0
-    dup
-    intc_0 // 0
-    extract_uint16
-    dig 2
-    intc_0 // 0
-    extract_uint16
-    intc_1 // 1
-    - // on error: Index access is out of bounds
-    dig 2
-    len
-    dig 3
-    intc_2 // 2
-    extract_uint16
-    uncover 2
-    select
-    substring3
-    dup
-    intc_3 // 8
-    extract_uint16
-    intc_0 // 0
-    swap
-    extract3
-    bytec 5 // 0x00086d6f646966696564
-    concat
-    intc_0 // 0
-    callsub dynamic_array_replace_dynamic_element
-    dig 1
-    box_del
-    pop
-    box_put
-    retsub
-
-
-// test_cases.state_mutations.contract.Contract.get() -> bytes:
-get:
-    // state_mutations/contract.py:51-52
-    // @arc4.abimethod
-    // def get(self) -> MyArray:
-    proto 0 1
-    // state_mutations/contract.py:53
-    // a1 = self.glob.value.copy()
-    intc_0 // 0
-    bytec_1 // "glob"
-    app_global_get_ex
-    assert // check self.glob exists
-    // state_mutations/contract.py:54
-    // a2 = self.loc[Txn.sender].copy()
-    txn Sender
-    intc_0 // 0
-    bytec_2 // "loc"
-    app_local_get_ex
-    assert // check self.loc exists for account
-    // state_mutations/contract.py:55
-    // a3 = self.box.value.copy()
-    bytec_0 // "box"
-    box_get
-    assert // check self.box exists
-    // state_mutations/contract.py:56
-    // a4 = self.map[Txn.sender].copy()
-    bytec 4 // "map"
-    txn Sender
-    concat
-    box_get
-    assert // check self.map entry exists
-    // state_mutations/contract.py:58
-    // assert a1 == a2, "expected local == global"
-    dig 3
-    uncover 3
-    ==
-    assert // expected local == global
-    // state_mutations/contract.py:59
-    // assert a1 == a3, "expected box == global"
-    dig 2
-    uncover 2
-    ==
-    assert // expected box == global
-    // state_mutations/contract.py:60
-    // assert a1 == a4, "expected map == global"
-    dig 1
-    ==
-    assert // expected map == global
-    // state_mutations/contract.py:61
-    // return a1
-    retsub
-
-
-// test_cases.state_mutations.contract.Contract.opt_in() -> void:
-opt_in:
-    // state_mutations/contract.py:29-30
-    // @arc4.baremethod(allow_actions=["OptIn"])
-    // def opt_in(self) -> None:
-    proto 0 0
-    // state_mutations/contract.py:31
-    // self.glob.value = MyArray()
-    bytec_1 // "glob"
-    bytec 6 // 0x0000
-    app_global_put
-    // state_mutations/contract.py:32
-    // self.box.value = MyArray()
-    bytec_0 // "box"
-    box_del
-    pop
-    bytec_0 // "box"
-    bytec 6 // 0x0000
-    box_put
-    // state_mutations/contract.py:33
-    // self.loc[Txn.sender] = MyArray()
-    txn Sender
-    bytec_2 // "loc"
-    bytec 6 // 0x0000
-    app_local_put
-    // state_mutations/contract.py:34
-    // self.map[Txn.sender] = MyArray()
-    bytec 4 // "map"
-    txn Sender
-    concat
-    dup
-    box_del
-    pop
-    bytec 6 // 0x0000
-    box_put
-    retsub
 
 
 // _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
@@ -601,4 +262,343 @@ dynamic_array_replace_dynamic_element_after_for@5:
     frame_dig 4
     concat
     frame_bury 0
+    retsub
+
+
+// test_cases.state_mutations.contract.Contract.opt_in() -> void:
+opt_in:
+    // state_mutations/contract.py:29-30
+    // @arc4.baremethod(allow_actions=["OptIn"])
+    // def opt_in(self) -> None:
+    proto 0 0
+    // state_mutations/contract.py:31
+    // self.glob.value = MyArray()
+    bytec_1 // "glob"
+    bytec_3 // 0x0000
+    app_global_put
+    // state_mutations/contract.py:32
+    // self.box.value = MyArray()
+    bytec_0 // "box"
+    box_del
+    pop
+    bytec_0 // "box"
+    bytec_3 // 0x0000
+    box_put
+    // state_mutations/contract.py:33
+    // self.loc[Txn.sender] = MyArray()
+    txn Sender
+    bytec_2 // "loc"
+    bytec_3 // 0x0000
+    app_local_put
+    // state_mutations/contract.py:34
+    // self.map[Txn.sender] = MyArray()
+    bytec 4 // "map"
+    txn Sender
+    concat
+    dup
+    box_del
+    pop
+    bytec_3 // 0x0000
+    box_put
+    retsub
+
+
+// test_cases.state_mutations.contract.Contract.append() -> void:
+append:
+    // state_mutations/contract.py:36-37
+    // @arc4.abimethod
+    // def append(self) -> None:
+    proto 0 0
+    // state_mutations/contract.py:39
+    // self.glob.value.append(struct.copy())
+    intc_0 // 0
+    bytec_1 // "glob"
+    app_global_get_ex
+    assert // check self.glob exists
+    dup
+    intc_0 // 0
+    extract_uint16
+    swap
+    extract 2 0
+    intc_1 // 1
+    bytec 5 // 0x00020000000000000001000a000362617a
+    callsub dynamic_array_concat_dynamic_element
+    bytec_1 // "glob"
+    swap
+    app_global_put
+    // state_mutations/contract.py:40
+    // self.loc[Txn.sender].append(struct.copy())
+    txn Sender
+    dup
+    intc_0 // 0
+    bytec_2 // "loc"
+    app_local_get_ex
+    assert // check self.loc exists for account
+    dup
+    intc_0 // 0
+    extract_uint16
+    swap
+    extract 2 0
+    intc_1 // 1
+    bytec 5 // 0x00020000000000000001000a000362617a
+    callsub dynamic_array_concat_dynamic_element
+    bytec_2 // "loc"
+    swap
+    app_local_put
+    // state_mutations/contract.py:41
+    // self.box.value.append(struct.copy())
+    bytec_0 // "box"
+    box_get
+    assert // check self.box exists
+    dup
+    intc_0 // 0
+    extract_uint16
+    swap
+    extract 2 0
+    intc_1 // 1
+    bytec 5 // 0x00020000000000000001000a000362617a
+    callsub dynamic_array_concat_dynamic_element
+    bytec_0 // "box"
+    box_del
+    pop
+    bytec_0 // "box"
+    swap
+    box_put
+    // state_mutations/contract.py:42
+    // self.map[Txn.sender].append(struct.copy())
+    bytec 4 // "map"
+    txn Sender
+    concat
+    dup
+    box_get
+    assert // check self.map entry exists
+    dup
+    intc_0 // 0
+    extract_uint16
+    swap
+    extract 2 0
+    intc_1 // 1
+    bytec 5 // 0x00020000000000000001000a000362617a
+    callsub dynamic_array_concat_dynamic_element
+    dig 1
+    box_del
+    pop
+    box_put
+    retsub
+
+
+// test_cases.state_mutations.contract.Contract.modify() -> void:
+modify:
+    // state_mutations/contract.py:44-45
+    // @arc4.abimethod
+    // def modify(self) -> None:
+    proto 0 0
+    // state_mutations/contract.py:46
+    // self.glob.value[0].baz = arc4.String("modified")
+    intc_0 // 0
+    bytec_1 // "glob"
+    app_global_get_ex
+    assert // check self.glob exists
+    dup
+    extract 2 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 2
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    - // on error: Index access is out of bounds
+    dig 2
+    len
+    dig 3
+    intc_2 // 2
+    extract_uint16
+    uncover 2
+    select
+    substring3
+    dup
+    intc_3 // 8
+    extract_uint16
+    intc_0 // 0
+    swap
+    extract3
+    bytec 6 // 0x00086d6f646966696564
+    concat
+    intc_0 // 0
+    callsub dynamic_array_replace_dynamic_element
+    bytec_1 // "glob"
+    swap
+    app_global_put
+    // state_mutations/contract.py:47
+    // self.loc[Txn.sender][0].baz = arc4.String("modified")
+    txn Sender
+    dup
+    intc_0 // 0
+    bytec_2 // "loc"
+    app_local_get_ex
+    assert // check self.loc exists for account
+    dup
+    extract 2 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 2
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    - // on error: Index access is out of bounds
+    dig 2
+    len
+    dig 3
+    intc_2 // 2
+    extract_uint16
+    uncover 2
+    select
+    substring3
+    dup
+    intc_3 // 8
+    extract_uint16
+    intc_0 // 0
+    swap
+    extract3
+    bytec 6 // 0x00086d6f646966696564
+    concat
+    intc_0 // 0
+    callsub dynamic_array_replace_dynamic_element
+    bytec_2 // "loc"
+    swap
+    app_local_put
+    // state_mutations/contract.py:48
+    // self.box.value[0].baz = arc4.String("modified")
+    bytec_0 // "box"
+    box_get
+    assert // check self.box exists
+    dup
+    extract 2 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 2
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    - // on error: Index access is out of bounds
+    dig 2
+    len
+    dig 3
+    intc_2 // 2
+    extract_uint16
+    uncover 2
+    select
+    substring3
+    dup
+    intc_3 // 8
+    extract_uint16
+    intc_0 // 0
+    swap
+    extract3
+    bytec 6 // 0x00086d6f646966696564
+    concat
+    intc_0 // 0
+    callsub dynamic_array_replace_dynamic_element
+    bytec_0 // "box"
+    box_del
+    pop
+    bytec_0 // "box"
+    swap
+    box_put
+    // state_mutations/contract.py:49
+    // self.map[Txn.sender][0].baz = arc4.String("modified")
+    bytec 4 // "map"
+    txn Sender
+    concat
+    dup
+    box_get
+    assert // check self.map entry exists
+    dup
+    extract 2 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 2
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    - // on error: Index access is out of bounds
+    dig 2
+    len
+    dig 3
+    intc_2 // 2
+    extract_uint16
+    uncover 2
+    select
+    substring3
+    dup
+    intc_3 // 8
+    extract_uint16
+    intc_0 // 0
+    swap
+    extract3
+    bytec 6 // 0x00086d6f646966696564
+    concat
+    intc_0 // 0
+    callsub dynamic_array_replace_dynamic_element
+    dig 1
+    box_del
+    pop
+    box_put
+    retsub
+
+
+// test_cases.state_mutations.contract.Contract.get() -> bytes:
+get:
+    // state_mutations/contract.py:51-52
+    // @arc4.abimethod
+    // def get(self) -> MyArray:
+    proto 0 1
+    // state_mutations/contract.py:53
+    // a1 = self.glob.value.copy()
+    intc_0 // 0
+    bytec_1 // "glob"
+    app_global_get_ex
+    assert // check self.glob exists
+    // state_mutations/contract.py:54
+    // a2 = self.loc[Txn.sender].copy()
+    txn Sender
+    intc_0 // 0
+    bytec_2 // "loc"
+    app_local_get_ex
+    assert // check self.loc exists for account
+    // state_mutations/contract.py:55
+    // a3 = self.box.value.copy()
+    bytec_0 // "box"
+    box_get
+    assert // check self.box exists
+    // state_mutations/contract.py:56
+    // a4 = self.map[Txn.sender].copy()
+    bytec 4 // "map"
+    txn Sender
+    concat
+    box_get
+    assert // check self.map entry exists
+    // state_mutations/contract.py:58
+    // assert a1 == a2, "expected local == global"
+    dig 3
+    uncover 3
+    ==
+    assert // expected local == global
+    // state_mutations/contract.py:59
+    // assert a1 == a3, "expected box == global"
+    dig 2
+    uncover 2
+    ==
+    assert // expected box == global
+    // state_mutations/contract.py:60
+    // assert a1 == a4, "expected map == global"
+    dig 1
+    ==
+    assert // expected map == global
+    // state_mutations/contract.py:61
+    // return a1
     retsub
