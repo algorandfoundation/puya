@@ -316,6 +316,52 @@ test_swap_loop_after_while@6:
     retsub
 
 
+// test_cases.unssa.contract.test_tuple_swap(a: uint64, b: uint64, i: uint64) -> uint64, uint64:
+test_tuple_swap:
+    // unssa/contract.py:70-71
+    // @subroutine
+    // def test_tuple_swap(a: UInt64, b: UInt64, i: UInt64) -> tuple[UInt64, UInt64]:
+    proto 3 2
+    // unssa/contract.py:72
+    // for _item in urange(i):
+    intc_0 // 1
+    assert // Step cannot be zero
+    intc_1 // 0
+
+test_tuple_swap_for_header@1:
+    // unssa/contract.py:72
+    // for _item in urange(i):
+    frame_dig 0
+    frame_dig -1
+    <
+    bz test_tuple_swap_after_for@4
+
+test_tuple_swap_for_body@2:
+    // unssa/contract.py:73
+    // (a, b) = (b, a)
+    frame_dig -2
+    frame_dig -3
+    frame_bury -2
+
+test_tuple_swap_for_footer@3:
+    // unssa/contract.py:72
+    // for _item in urange(i):
+    frame_dig 0
+    intc_0 // 1
+    +
+    frame_bury 0
+    frame_bury -3
+    b test_tuple_swap_for_header@1
+
+test_tuple_swap_after_for@4:
+    // unssa/contract.py:74
+    // return a, b
+    frame_dig -3
+    frame_dig -2
+    uncover 2
+    retsub
+
+
 // test_cases.unssa.contract.test_param_update_with_reentrant_entry_block(x: uint64) -> uint64:
 test_param_update_with_reentrant_entry_block:
     // unssa/contract.py:77-78
@@ -444,6 +490,19 @@ one:
     retsub
 
 
+// test_cases.unssa.contract.swap_args(a: uint64, b: uint64) -> uint64, uint64:
+swap_args:
+    // unssa/contract.py:107-108
+    // @subroutine
+    // def swap_args(a: UInt64, b: UInt64) -> tuple[UInt64, UInt64]:
+    proto 2 2
+    // unssa/contract.py:109
+    // return b, a
+    frame_dig -1
+    frame_dig -2
+    retsub
+
+
 // test_cases.unssa.contract.test_swap_args() -> void:
 test_swap_args:
     // unssa/contract.py:112-113
@@ -474,63 +533,4 @@ test_swap_args:
     pushint 124 // 124
     ==
     assert // b = 124
-    retsub
-
-
-// test_cases.unssa.contract.swap_args(a: uint64, b: uint64) -> uint64, uint64:
-swap_args:
-    // unssa/contract.py:107-108
-    // @subroutine
-    // def swap_args(a: UInt64, b: UInt64) -> tuple[UInt64, UInt64]:
-    proto 2 2
-    // unssa/contract.py:109
-    // return b, a
-    frame_dig -1
-    frame_dig -2
-    retsub
-
-
-// test_cases.unssa.contract.test_tuple_swap(a: uint64, b: uint64, i: uint64) -> uint64, uint64:
-test_tuple_swap:
-    // unssa/contract.py:70-71
-    // @subroutine
-    // def test_tuple_swap(a: UInt64, b: UInt64, i: UInt64) -> tuple[UInt64, UInt64]:
-    proto 3 2
-    // unssa/contract.py:72
-    // for _item in urange(i):
-    intc_0 // 1
-    assert // Step cannot be zero
-    intc_1 // 0
-
-test_tuple_swap_for_header@1:
-    // unssa/contract.py:72
-    // for _item in urange(i):
-    frame_dig 0
-    frame_dig -1
-    <
-    bz test_tuple_swap_after_for@4
-
-test_tuple_swap_for_body@2:
-    // unssa/contract.py:73
-    // (a, b) = (b, a)
-    frame_dig -2
-    frame_dig -3
-    frame_bury -2
-
-test_tuple_swap_for_footer@3:
-    // unssa/contract.py:72
-    // for _item in urange(i):
-    frame_dig 0
-    intc_0 // 1
-    +
-    frame_bury 0
-    frame_bury -3
-    b test_tuple_swap_for_header@1
-
-test_tuple_swap_after_for@4:
-    // unssa/contract.py:74
-    // return a, b
-    frame_dig -3
-    frame_dig -2
-    uncover 2
     retsub

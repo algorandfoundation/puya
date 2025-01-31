@@ -16,6 +16,55 @@ main_after_if_else@2:
     return
 
 
+// examples.local_state.local_state_contract.get_local_state_length(state: bytes, account: bytes) -> uint64:
+get_local_state_length:
+    // local_state/local_state_contract.py:84-85
+    // @subroutine
+    // def get_local_state_length(state: LocalState[Bytes], account: Account) -> UInt64:
+    proto 2 1
+    // local_state/local_state_contract.py:86
+    // return state[account].length
+    frame_dig -1
+    intc_0 // 0
+    frame_dig -2
+    app_local_get_ex
+    assert // check LocalState exists for account
+    len
+    retsub
+
+
+// examples.local_state.local_state_contract.local_bytes_exists(account: bytes, key: bytes) -> uint64:
+local_bytes_exists:
+    // local_state/local_state_contract.py:89-90
+    // @subroutine
+    // def local_bytes_exists(account: Account, key: Bytes) -> bool:
+    proto 2 1
+    // local_state/local_state_contract.py:91
+    // return account in LocalState(Bytes, key=key)
+    frame_dig -2
+    intc_0 // 0
+    frame_dig -1
+    app_local_get_ex
+    bury 1
+    retsub
+
+
+// examples.local_state.local_state_contract.read_local_bytes(account: bytes, key: bytes) -> bytes:
+read_local_bytes:
+    // local_state/local_state_contract.py:94-95
+    // @subroutine
+    // def read_local_bytes(account: Account, key: String) -> Bytes:
+    proto 2 1
+    // local_state/local_state_contract.py:96
+    // return LocalState(Bytes, key=key)[account]
+    frame_dig -2
+    intc_0 // 0
+    frame_dig -1
+    app_local_get_ex
+    assert // check LocalState exists for account
+    retsub
+
+
 // examples.local_state.local_state_contract.LocalStateContract.__init__() -> void:
 __init__:
     // local_state/local_state_contract.py:16
@@ -272,52 +321,24 @@ get_guaranteed_data:
     retsub
 
 
-// examples.local_state.local_state_contract.get_local_state_length(state: bytes, account: bytes) -> uint64:
-get_local_state_length:
-    // local_state/local_state_contract.py:84-85
+// examples.local_state.local_state_contract.LocalStateContract.get_data_with_default(for_account: bytes, default: bytes) -> bytes:
+get_data_with_default:
+    // local_state/local_state_contract.py:64-65
     // @subroutine
-    // def get_local_state_length(state: LocalState[Bytes], account: Account) -> UInt64:
+    // def get_data_with_default(self, for_account: Account, default: Bytes) -> Bytes:
     proto 2 1
-    // local_state/local_state_contract.py:86
-    // return state[account].length
-    frame_dig -1
-    intc_0 // 0
-    frame_dig -2
-    app_local_get_ex
-    assert // check LocalState exists for account
-    len
-    retsub
-
-
-// examples.local_state.local_state_contract.local_bytes_exists(account: bytes, key: bytes) -> uint64:
-local_bytes_exists:
-    // local_state/local_state_contract.py:89-90
-    // @subroutine
-    // def local_bytes_exists(account: Account, key: Bytes) -> bool:
-    proto 2 1
-    // local_state/local_state_contract.py:91
-    // return account in LocalState(Bytes, key=key)
+    // local_state/local_state_contract.py:66-67
+    // # offset contract use arguments without kwarg
+    // return self.local.get(account=for_account, default=default)
     frame_dig -2
     intc_0 // 0
-    frame_dig -1
+    bytec_0 // "local"
     app_local_get_ex
-    bury 1
-    retsub
-
-
-// examples.local_state.local_state_contract.read_local_bytes(account: bytes, key: bytes) -> bytes:
-read_local_bytes:
-    // local_state/local_state_contract.py:94-95
-    // @subroutine
-    // def read_local_bytes(account: Account, key: String) -> Bytes:
-    proto 2 1
-    // local_state/local_state_contract.py:96
-    // return LocalState(Bytes, key=key)[account]
-    frame_dig -2
-    intc_0 // 0
+    swap
     frame_dig -1
-    app_local_get_ex
-    assert // check LocalState exists for account
+    swap
+    uncover 2
+    select
     retsub
 
 
@@ -341,20 +362,6 @@ get_data_or_assert:
     retsub
 
 
-// examples.local_state.local_state_contract.LocalStateContract.delete_data(for_account: bytes) -> void:
-delete_data:
-    // local_state/local_state_contract.py:79-80
-    // @subroutine
-    // def delete_data(self, for_account: Account) -> None:
-    proto 1 0
-    // local_state/local_state_contract.py:81
-    // del self.local[for_account]
-    frame_dig -1
-    bytec_0 // "local"
-    app_local_del
-    retsub
-
-
 // examples.local_state.local_state_contract.LocalStateContract.set_data(for_account: bytes, value: bytes) -> void:
 set_data:
     // local_state/local_state_contract.py:75-76
@@ -370,22 +377,15 @@ set_data:
     retsub
 
 
-// examples.local_state.local_state_contract.LocalStateContract.get_data_with_default(for_account: bytes, default: bytes) -> bytes:
-get_data_with_default:
-    // local_state/local_state_contract.py:64-65
+// examples.local_state.local_state_contract.LocalStateContract.delete_data(for_account: bytes) -> void:
+delete_data:
+    // local_state/local_state_contract.py:79-80
     // @subroutine
-    // def get_data_with_default(self, for_account: Account, default: Bytes) -> Bytes:
-    proto 2 1
-    // local_state/local_state_contract.py:66-67
-    // # offset contract use arguments without kwarg
-    // return self.local.get(account=for_account, default=default)
-    frame_dig -2
-    intc_0 // 0
-    bytec_0 // "local"
-    app_local_get_ex
-    swap
+    // def delete_data(self, for_account: Account) -> None:
+    proto 1 0
+    // local_state/local_state_contract.py:81
+    // del self.local[for_account]
     frame_dig -1
-    swap
-    uncover 2
-    select
+    bytec_0 // "local"
+    app_local_del
     retsub

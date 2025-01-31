@@ -181,6 +181,108 @@ main_after_inlined_examples.voting.voting.VotingRoundApp.__puya_arc4_router__@11
     return
 
 
+// _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
+ensure_budget:                                                                                (𝕡) required_budget#0,fee_source#0 |
+    p-load required_budget#0                                                                  (𝕡) required_budget#0,fee_source#0 | required_budget#0 (copy)
+    int 10                                                                                    (𝕡) required_budget#0,fee_source#0 | required_budget#0 (copy),10
+    +                                                                                         (𝕡) required_budget#0,fee_source#0 | required_budget_with_buffer#0
+    v-store required_budget_with_buffer#0                                                     (𝕡) required_budget#0,fee_source#0 |
+    b ensure_budget_while_top@1                                                               (𝕡) required_budget#0,fee_source#0 |
+
+ensure_budget_while_top@1:                                                                    (𝕡) required_budget#0,fee_source#0 |
+    global OpcodeBudget                                                                       (𝕡) required_budget#0,fee_source#0 | tmp%0#0
+    v-load required_budget_with_buffer#0                                                      (𝕡) required_budget#0,fee_source#0 | tmp%0#0,required_budget_with_buffer#0
+    l-load tmp%0#0 1                                                                          (𝕡) required_budget#0,fee_source#0 | required_budget_with_buffer#0,tmp%0#0
+    >                                                                                         (𝕡) required_budget#0,fee_source#0 | tmp%1#0
+    bz ensure_budget_after_while@7 ; b ensure_budget_while_body@2                             (𝕡) required_budget#0,fee_source#0 |
+
+ensure_budget_while_body@2:                                                                   (𝕡) required_budget#0,fee_source#0 |
+    itxn_begin                                                                                (𝕡) required_budget#0,fee_source#0 |
+    int appl                                                                                  (𝕡) required_budget#0,fee_source#0 | appl
+    itxn_field TypeEnum                                                                       (𝕡) required_budget#0,fee_source#0 |
+    int DeleteApplication                                                                     (𝕡) required_budget#0,fee_source#0 | DeleteApplication
+    itxn_field OnCompletion                                                                   (𝕡) required_budget#0,fee_source#0 |
+    byte 0x068101                                                                             (𝕡) required_budget#0,fee_source#0 | 0x068101
+    itxn_field ApprovalProgram                                                                (𝕡) required_budget#0,fee_source#0 |
+    byte 0x068101                                                                             (𝕡) required_budget#0,fee_source#0 | 0x068101
+    itxn_field ClearStateProgram                                                              (𝕡) required_budget#0,fee_source#0 |
+    p-load fee_source#0                                                                       (𝕡) required_budget#0,fee_source#0 | fee_source#0 (copy)
+    switch ensure_budget_switch_case_0@3 ensure_budget_switch_case_1@4 ; b ensure_budget_switch_case_next@6 (𝕡) required_budget#0,fee_source#0 | 
+
+ensure_budget_switch_case_0@3:                                                                (𝕡) required_budget#0,fee_source#0 |
+    int 0                                                                                     (𝕡) required_budget#0,fee_source#0 | 0
+    itxn_field Fee                                                                            (𝕡) required_budget#0,fee_source#0 |
+    b ensure_budget_switch_case_next@6                                                        (𝕡) required_budget#0,fee_source#0 |
+
+ensure_budget_switch_case_1@4:                                                                (𝕡) required_budget#0,fee_source#0 |
+    global MinTxnFee                                                                          (𝕡) required_budget#0,fee_source#0 | tmp%2#0
+    itxn_field Fee                                                                            (𝕡) required_budget#0,fee_source#0 |
+    b ensure_budget_switch_case_next@6                                                        (𝕡) required_budget#0,fee_source#0 |
+
+ensure_budget_switch_case_next@6:                                                             (𝕡) required_budget#0,fee_source#0 |
+    itxn_submit                                                                               (𝕡) required_budget#0,fee_source#0 |
+    b ensure_budget_while_top@1                                                               (𝕡) required_budget#0,fee_source#0 |
+
+ensure_budget_after_while@7:                                                                  (𝕡) required_budget#0,fee_source#0 |
+    retsub
+
+
+// examples.voting.voting.itoa(i: uint64) -> bytes:
+itoa:                                                                                         (𝕡) i#0 |
+    // voting/voting.py:253
+    // if i < radix:
+    p-load i#0                                                                                (𝕡) i#0 | i#0 (copy)
+    // voting/voting.py:252
+    // radix = digits.length
+    int 10                                                                                    (𝕡) i#0 | i#0 (copy),10
+    // voting/voting.py:253
+    // if i < radix:
+    <                                                                                         (𝕡) i#0 | tmp%0#0
+    bz itoa_after_if_else@2 ; b itoa_if_body@1                                                (𝕡) i#0 |
+
+itoa_if_body@1:                                                                               (𝕡) i#0 |
+    // voting/voting.py:251
+    // digits = Bytes(b"0123456789")
+    byte 0x30313233343536373839                                                               (𝕡) i#0 | 0x30313233343536373839
+    // voting/voting.py:254
+    // return String.from_bytes(digits[i])
+    p-load i#0                                                                                (𝕡) i#0 | 0x30313233343536373839,i#0 (copy)
+    int 1                                                                                     (𝕡) i#0 | 0x30313233343536373839,i#0 (copy),1
+    extract3                                                                                  (𝕡) i#0 | tmp%1#0
+    retsub                                                                                    tmp%1#0
+
+itoa_after_if_else@2:                                                                         (𝕡) i#0 |
+    // voting/voting.py:255
+    // return itoa(i // radix) + String.from_bytes(digits[i % radix])
+    p-load i#0                                                                                (𝕡) i#0 | i#0 (copy)
+    // voting/voting.py:252
+    // radix = digits.length
+    int 10                                                                                    (𝕡) i#0 | i#0 (copy),10
+    // voting/voting.py:255
+    // return itoa(i // radix) + String.from_bytes(digits[i % radix])
+    /                                                                                         (𝕡) i#0 | tmp%2#0
+    callsub itoa                                                                              (𝕡) i#0 | tmp%3#0
+    p-load i#0                                                                                (𝕡) i#0 | tmp%3#0,i#0 (copy)
+    // voting/voting.py:252
+    // radix = digits.length
+    int 10                                                                                    (𝕡) i#0 | tmp%3#0,i#0 (copy),10
+    // voting/voting.py:255
+    // return itoa(i // radix) + String.from_bytes(digits[i % radix])
+    %                                                                                         (𝕡) i#0 | tmp%3#0,tmp%4#0
+    // voting/voting.py:251
+    // digits = Bytes(b"0123456789")
+    byte 0x30313233343536373839                                                               (𝕡) i#0 | tmp%3#0,tmp%4#0,0x30313233343536373839
+    // voting/voting.py:255
+    // return itoa(i // radix) + String.from_bytes(digits[i % radix])
+    l-load tmp%4#0 1                                                                          (𝕡) i#0 | tmp%3#0,0x30313233343536373839,tmp%4#0
+    int 1                                                                                     (𝕡) i#0 | tmp%3#0,0x30313233343536373839,tmp%4#0,1
+    extract3                                                                                  (𝕡) i#0 | tmp%3#0,tmp%5#0
+    l-load tmp%3#0 1                                                                          (𝕡) i#0 | tmp%5#0,tmp%3#0
+    l-load tmp%5#0 1                                                                          (𝕡) i#0 | tmp%3#0,tmp%5#0
+    concat                                                                                    (𝕡) i#0 | tmp%6#0
+    retsub                                                                                    tmp%6#0
+
+
 // examples.voting.voting.VotingRoundApp.create(vote_id: bytes, snapshot_public_key: bytes, metadata_ipfs_cid: bytes, start_time: uint64, end_time: uint64, option_counts: bytes, quorum: uint64, nft_image_url: bytes) -> void:
 create:                                                                                       (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
     // voting/voting.py:70
@@ -885,62 +987,6 @@ close_after_for@14:
     retsub
 
 
-// examples.voting.voting.itoa(i: uint64) -> bytes:
-itoa:                                                                                         (𝕡) i#0 |
-    // voting/voting.py:253
-    // if i < radix:
-    p-load i#0                                                                                (𝕡) i#0 | i#0 (copy)
-    // voting/voting.py:252
-    // radix = digits.length
-    int 10                                                                                    (𝕡) i#0 | i#0 (copy),10
-    // voting/voting.py:253
-    // if i < radix:
-    <                                                                                         (𝕡) i#0 | tmp%0#0
-    bz itoa_after_if_else@2 ; b itoa_if_body@1                                                (𝕡) i#0 |
-
-itoa_if_body@1:                                                                               (𝕡) i#0 |
-    // voting/voting.py:251
-    // digits = Bytes(b"0123456789")
-    byte 0x30313233343536373839                                                               (𝕡) i#0 | 0x30313233343536373839
-    // voting/voting.py:254
-    // return String.from_bytes(digits[i])
-    p-load i#0                                                                                (𝕡) i#0 | 0x30313233343536373839,i#0 (copy)
-    int 1                                                                                     (𝕡) i#0 | 0x30313233343536373839,i#0 (copy),1
-    extract3                                                                                  (𝕡) i#0 | tmp%1#0
-    retsub                                                                                    tmp%1#0
-
-itoa_after_if_else@2:                                                                         (𝕡) i#0 |
-    // voting/voting.py:255
-    // return itoa(i // radix) + String.from_bytes(digits[i % radix])
-    p-load i#0                                                                                (𝕡) i#0 | i#0 (copy)
-    // voting/voting.py:252
-    // radix = digits.length
-    int 10                                                                                    (𝕡) i#0 | i#0 (copy),10
-    // voting/voting.py:255
-    // return itoa(i // radix) + String.from_bytes(digits[i % radix])
-    /                                                                                         (𝕡) i#0 | tmp%2#0
-    callsub itoa                                                                              (𝕡) i#0 | tmp%3#0
-    p-load i#0                                                                                (𝕡) i#0 | tmp%3#0,i#0 (copy)
-    // voting/voting.py:252
-    // radix = digits.length
-    int 10                                                                                    (𝕡) i#0 | tmp%3#0,i#0 (copy),10
-    // voting/voting.py:255
-    // return itoa(i // radix) + String.from_bytes(digits[i % radix])
-    %                                                                                         (𝕡) i#0 | tmp%3#0,tmp%4#0
-    // voting/voting.py:251
-    // digits = Bytes(b"0123456789")
-    byte 0x30313233343536373839                                                               (𝕡) i#0 | tmp%3#0,tmp%4#0,0x30313233343536373839
-    // voting/voting.py:255
-    // return itoa(i // radix) + String.from_bytes(digits[i % radix])
-    l-load tmp%4#0 1                                                                          (𝕡) i#0 | tmp%3#0,0x30313233343536373839,tmp%4#0
-    int 1                                                                                     (𝕡) i#0 | tmp%3#0,0x30313233343536373839,tmp%4#0,1
-    extract3                                                                                  (𝕡) i#0 | tmp%3#0,tmp%5#0
-    l-load tmp%3#0 1                                                                          (𝕡) i#0 | tmp%5#0,tmp%3#0
-    l-load tmp%5#0 1                                                                          (𝕡) i#0 | tmp%3#0,tmp%5#0
-    concat                                                                                    (𝕡) i#0 | tmp%6#0
-    retsub                                                                                    tmp%6#0
-
-
 // examples.voting.voting.VotingRoundApp.get_preconditions(signature: bytes) -> bytes:
 get_preconditions:                                                                            (𝕡) signature#0 |
     // voting/voting.py:163
@@ -981,109 +1027,6 @@ get_preconditions:                                                              
     l-load val_as_bytes%3#0 1                                                                 (𝕡) signature#0 | encoded_tuple_buffer%3#0,val_as_bytes%3#0
     concat                                                                                    (𝕡) signature#0 | encoded_tuple_buffer%4#0
     retsub                                                                                    encoded_tuple_buffer%4#0
-
-
-// examples.voting.voting.VotingRoundApp.voting_open() -> uint64:
-voting_open:
-    // voting/voting.py:208
-    // self.is_bootstrapped
-    int 0                                                                                     0
-    byte "is_bootstrapped"                                                                    0,"is_bootstrapped"
-    app_global_get_ex                                                                         maybe_value%0#0,maybe_exists%0#0
-    assert // check self.is_bootstrapped exists                                               maybe_value%0#0
-    // voting/voting.py:208-210
-    // self.is_bootstrapped
-    // and not self.close_time
-    // and self.start_time <= Global.latest_timestamp <= self.end_time
-    l-load maybe_value%0#0 0                                                                  maybe_value%0#0
-    bz voting_open_bool_false@5 ; b voting_open_and_contd@1
-
-voting_open_and_contd@1:
-    // voting/voting.py:209
-    // and not self.close_time
-    int 0                                                                                     0
-    byte "close_time"                                                                         0,"close_time"
-    app_global_get_ex                                                                         maybe_value%1#0,maybe_exists%1#0
-    l-store maybe_exists%1#0 1                                                                maybe_exists%1#0,maybe_value%1#0
-    pop 1                                                                                     maybe_exists%1#0
-    l-load maybe_exists%1#0 0                                                                 maybe_exists%1#0
-    bz voting_open_and_contd@2 ; b voting_open_bool_false@5
-
-voting_open_and_contd@2:
-    // voting/voting.py:210
-    // and self.start_time <= Global.latest_timestamp <= self.end_time
-    int 0                                                                                     0
-    byte "start_time"                                                                         0,"start_time"
-    app_global_get_ex                                                                         maybe_value%2#0,maybe_exists%2#0
-    assert // check self.start_time exists                                                    maybe_value%2#0
-    global LatestTimestamp                                                                    maybe_value%2#0,awst_tmp%0#0
-    l-store-copy awst_tmp%0#0 0                                                               maybe_value%2#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
-    v-store awst_tmp%0#0                                                                      maybe_value%2#0,awst_tmp%0#0
-    l-load maybe_value%2#0 1                                                                  awst_tmp%0#0,maybe_value%2#0
-    l-load awst_tmp%0#0 1                                                                     maybe_value%2#0,awst_tmp%0#0
-    <=                                                                                        tmp%0#0
-    bz voting_open_bool_false@5 ; b voting_open_and_contd@3
-
-voting_open_and_contd@3:
-    // voting/voting.py:210
-    // and self.start_time <= Global.latest_timestamp <= self.end_time
-    int 0                                                                                     0
-    byte "end_time"                                                                           0,"end_time"
-    app_global_get_ex                                                                         maybe_value%3#0,maybe_exists%3#0
-    assert // check self.end_time exists                                                      maybe_value%3#0
-    v-load awst_tmp%0#0                                                                       maybe_value%3#0,awst_tmp%0#0
-    l-load maybe_value%3#0 1                                                                  awst_tmp%0#0,maybe_value%3#0
-    <=                                                                                        tmp%1#0
-    bz voting_open_bool_false@5 ; b voting_open_bool_true@4
-
-voting_open_bool_true@4:
-    int 1                                                                                     1
-    x-store and_result%0#0                                                                    (𝕏) and_result%0#0 |
-    b voting_open_bool_merge@6                                                                (𝕏) and_result%0#0 |
-
-voting_open_bool_false@5:
-    int 0                                                                                     0
-    x-store and_result%0#0                                                                    (𝕏) and_result%0#0 |
-    b voting_open_bool_merge@6                                                                (𝕏) and_result%0#0 |
-
-voting_open_bool_merge@6:                                                                     (𝕏) and_result%0#0 |
-    // voting/voting.py:207-211
-    // return (
-    //     self.is_bootstrapped
-    //     and not self.close_time
-    //     and self.start_time <= Global.latest_timestamp <= self.end_time
-    // )
-    x-load and_result%0#0                                                                     and_result%0#0
-    retsub                                                                                    and_result%0#0
-
-
-// examples.voting.voting.VotingRoundApp.allowed_to_vote(signature: bytes) -> uint64:
-allowed_to_vote:                                                                              (𝕡) signature#0 |
-    // voting/voting.py:232
-    // ensure_budget(2000)
-    int 2000                                                                                  (𝕡) signature#0 | 2000
-    int 0                                                                                     (𝕡) signature#0 | 2000,0
-    callsub ensure_budget                                                                     (𝕡) signature#0 |
-    // voting/voting.py:234
-    // Txn.sender.bytes,
-    txn Sender                                                                                (𝕡) signature#0 | tmp%0#0
-    // voting/voting.py:236
-    // self.snapshot_public_key,
-    int 0                                                                                     (𝕡) signature#0 | tmp%0#0,0
-    byte "snapshot_public_key"                                                                (𝕡) signature#0 | tmp%0#0,0,"snapshot_public_key"
-    app_global_get_ex                                                                         (𝕡) signature#0 | tmp%0#0,maybe_value%0#0,maybe_exists%0#0
-    assert // check self.snapshot_public_key exists                                           (𝕡) signature#0 | tmp%0#0,maybe_value%0#0
-    // voting/voting.py:233-237
-    // return op.ed25519verify_bare(
-    //     Txn.sender.bytes,
-    //     signature,
-    //     self.snapshot_public_key,
-    // )
-    l-load tmp%0#0 1                                                                          (𝕡) signature#0 | maybe_value%0#0,tmp%0#0
-    p-load signature#0                                                                        (𝕡) signature#0 | maybe_value%0#0,tmp%0#0,signature#0 (copy)
-    l-load maybe_value%0#0 2                                                                  (𝕡) signature#0 | tmp%0#0,signature#0 (copy),maybe_value%0#0
-    ed25519verify_bare                                                                        (𝕡) signature#0 | tmp%1#0
-    retsub                                                                                    tmp%1#0
 
 
 // examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, signature: bytes, answer_ids: bytes) -> void:
@@ -1281,49 +1224,106 @@ vote_after_for@4:                                                               
     retsub
 
 
-// _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
-ensure_budget:                                                                                (𝕡) required_budget#0,fee_source#0 |
-    p-load required_budget#0                                                                  (𝕡) required_budget#0,fee_source#0 | required_budget#0 (copy)
-    int 10                                                                                    (𝕡) required_budget#0,fee_source#0 | required_budget#0 (copy),10
-    +                                                                                         (𝕡) required_budget#0,fee_source#0 | required_budget_with_buffer#0
-    v-store required_budget_with_buffer#0                                                     (𝕡) required_budget#0,fee_source#0 |
-    b ensure_budget_while_top@1                                                               (𝕡) required_budget#0,fee_source#0 |
+// examples.voting.voting.VotingRoundApp.voting_open() -> uint64:
+voting_open:
+    // voting/voting.py:208
+    // self.is_bootstrapped
+    int 0                                                                                     0
+    byte "is_bootstrapped"                                                                    0,"is_bootstrapped"
+    app_global_get_ex                                                                         maybe_value%0#0,maybe_exists%0#0
+    assert // check self.is_bootstrapped exists                                               maybe_value%0#0
+    // voting/voting.py:208-210
+    // self.is_bootstrapped
+    // and not self.close_time
+    // and self.start_time <= Global.latest_timestamp <= self.end_time
+    l-load maybe_value%0#0 0                                                                  maybe_value%0#0
+    bz voting_open_bool_false@5 ; b voting_open_and_contd@1
 
-ensure_budget_while_top@1:                                                                    (𝕡) required_budget#0,fee_source#0 |
-    global OpcodeBudget                                                                       (𝕡) required_budget#0,fee_source#0 | tmp%0#0
-    v-load required_budget_with_buffer#0                                                      (𝕡) required_budget#0,fee_source#0 | tmp%0#0,required_budget_with_buffer#0
-    l-load tmp%0#0 1                                                                          (𝕡) required_budget#0,fee_source#0 | required_budget_with_buffer#0,tmp%0#0
-    >                                                                                         (𝕡) required_budget#0,fee_source#0 | tmp%1#0
-    bz ensure_budget_after_while@7 ; b ensure_budget_while_body@2                             (𝕡) required_budget#0,fee_source#0 |
+voting_open_and_contd@1:
+    // voting/voting.py:209
+    // and not self.close_time
+    int 0                                                                                     0
+    byte "close_time"                                                                         0,"close_time"
+    app_global_get_ex                                                                         maybe_value%1#0,maybe_exists%1#0
+    l-store maybe_exists%1#0 1                                                                maybe_exists%1#0,maybe_value%1#0
+    pop 1                                                                                     maybe_exists%1#0
+    l-load maybe_exists%1#0 0                                                                 maybe_exists%1#0
+    bz voting_open_and_contd@2 ; b voting_open_bool_false@5
 
-ensure_budget_while_body@2:                                                                   (𝕡) required_budget#0,fee_source#0 |
-    itxn_begin                                                                                (𝕡) required_budget#0,fee_source#0 |
-    int appl                                                                                  (𝕡) required_budget#0,fee_source#0 | appl
-    itxn_field TypeEnum                                                                       (𝕡) required_budget#0,fee_source#0 |
-    int DeleteApplication                                                                     (𝕡) required_budget#0,fee_source#0 | DeleteApplication
-    itxn_field OnCompletion                                                                   (𝕡) required_budget#0,fee_source#0 |
-    byte 0x068101                                                                             (𝕡) required_budget#0,fee_source#0 | 0x068101
-    itxn_field ApprovalProgram                                                                (𝕡) required_budget#0,fee_source#0 |
-    byte 0x068101                                                                             (𝕡) required_budget#0,fee_source#0 | 0x068101
-    itxn_field ClearStateProgram                                                              (𝕡) required_budget#0,fee_source#0 |
-    p-load fee_source#0                                                                       (𝕡) required_budget#0,fee_source#0 | fee_source#0 (copy)
-    switch ensure_budget_switch_case_0@3 ensure_budget_switch_case_1@4 ; b ensure_budget_switch_case_next@6 (𝕡) required_budget#0,fee_source#0 | 
+voting_open_and_contd@2:
+    // voting/voting.py:210
+    // and self.start_time <= Global.latest_timestamp <= self.end_time
+    int 0                                                                                     0
+    byte "start_time"                                                                         0,"start_time"
+    app_global_get_ex                                                                         maybe_value%2#0,maybe_exists%2#0
+    assert // check self.start_time exists                                                    maybe_value%2#0
+    global LatestTimestamp                                                                    maybe_value%2#0,awst_tmp%0#0
+    l-store-copy awst_tmp%0#0 0                                                               maybe_value%2#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
+    v-store awst_tmp%0#0                                                                      maybe_value%2#0,awst_tmp%0#0
+    l-load maybe_value%2#0 1                                                                  awst_tmp%0#0,maybe_value%2#0
+    l-load awst_tmp%0#0 1                                                                     maybe_value%2#0,awst_tmp%0#0
+    <=                                                                                        tmp%0#0
+    bz voting_open_bool_false@5 ; b voting_open_and_contd@3
 
-ensure_budget_switch_case_0@3:                                                                (𝕡) required_budget#0,fee_source#0 |
-    int 0                                                                                     (𝕡) required_budget#0,fee_source#0 | 0
-    itxn_field Fee                                                                            (𝕡) required_budget#0,fee_source#0 |
-    b ensure_budget_switch_case_next@6                                                        (𝕡) required_budget#0,fee_source#0 |
+voting_open_and_contd@3:
+    // voting/voting.py:210
+    // and self.start_time <= Global.latest_timestamp <= self.end_time
+    int 0                                                                                     0
+    byte "end_time"                                                                           0,"end_time"
+    app_global_get_ex                                                                         maybe_value%3#0,maybe_exists%3#0
+    assert // check self.end_time exists                                                      maybe_value%3#0
+    v-load awst_tmp%0#0                                                                       maybe_value%3#0,awst_tmp%0#0
+    l-load maybe_value%3#0 1                                                                  awst_tmp%0#0,maybe_value%3#0
+    <=                                                                                        tmp%1#0
+    bz voting_open_bool_false@5 ; b voting_open_bool_true@4
 
-ensure_budget_switch_case_1@4:                                                                (𝕡) required_budget#0,fee_source#0 |
-    global MinTxnFee                                                                          (𝕡) required_budget#0,fee_source#0 | tmp%2#0
-    itxn_field Fee                                                                            (𝕡) required_budget#0,fee_source#0 |
-    b ensure_budget_switch_case_next@6                                                        (𝕡) required_budget#0,fee_source#0 |
+voting_open_bool_true@4:
+    int 1                                                                                     1
+    x-store and_result%0#0                                                                    (𝕏) and_result%0#0 |
+    b voting_open_bool_merge@6                                                                (𝕏) and_result%0#0 |
 
-ensure_budget_switch_case_next@6:                                                             (𝕡) required_budget#0,fee_source#0 |
-    itxn_submit                                                                               (𝕡) required_budget#0,fee_source#0 |
-    b ensure_budget_while_top@1                                                               (𝕡) required_budget#0,fee_source#0 |
+voting_open_bool_false@5:
+    int 0                                                                                     0
+    x-store and_result%0#0                                                                    (𝕏) and_result%0#0 |
+    b voting_open_bool_merge@6                                                                (𝕏) and_result%0#0 |
 
-ensure_budget_after_while@7:                                                                  (𝕡) required_budget#0,fee_source#0 |
-    retsub
+voting_open_bool_merge@6:                                                                     (𝕏) and_result%0#0 |
+    // voting/voting.py:207-211
+    // return (
+    //     self.is_bootstrapped
+    //     and not self.close_time
+    //     and self.start_time <= Global.latest_timestamp <= self.end_time
+    // )
+    x-load and_result%0#0                                                                     and_result%0#0
+    retsub                                                                                    and_result%0#0
+
+
+// examples.voting.voting.VotingRoundApp.allowed_to_vote(signature: bytes) -> uint64:
+allowed_to_vote:                                                                              (𝕡) signature#0 |
+    // voting/voting.py:232
+    // ensure_budget(2000)
+    int 2000                                                                                  (𝕡) signature#0 | 2000
+    int 0                                                                                     (𝕡) signature#0 | 2000,0
+    callsub ensure_budget                                                                     (𝕡) signature#0 |
+    // voting/voting.py:234
+    // Txn.sender.bytes,
+    txn Sender                                                                                (𝕡) signature#0 | tmp%0#0
+    // voting/voting.py:236
+    // self.snapshot_public_key,
+    int 0                                                                                     (𝕡) signature#0 | tmp%0#0,0
+    byte "snapshot_public_key"                                                                (𝕡) signature#0 | tmp%0#0,0,"snapshot_public_key"
+    app_global_get_ex                                                                         (𝕡) signature#0 | tmp%0#0,maybe_value%0#0,maybe_exists%0#0
+    assert // check self.snapshot_public_key exists                                           (𝕡) signature#0 | tmp%0#0,maybe_value%0#0
+    // voting/voting.py:233-237
+    // return op.ed25519verify_bare(
+    //     Txn.sender.bytes,
+    //     signature,
+    //     self.snapshot_public_key,
+    // )
+    l-load tmp%0#0 1                                                                          (𝕡) signature#0 | maybe_value%0#0,tmp%0#0
+    p-load signature#0                                                                        (𝕡) signature#0 | maybe_value%0#0,tmp%0#0,signature#0 (copy)
+    l-load maybe_value%0#0 2                                                                  (𝕡) signature#0 | tmp%0#0,signature#0 (copy),maybe_value%0#0
+    ed25519verify_bare                                                                        (𝕡) signature#0 | tmp%1#0
+    retsub                                                                                    tmp%1#0
 
 

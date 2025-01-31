@@ -33,24 +33,24 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto block@11
     block@11: // for_header_L22
         let continue_looping%0#0: bool = (< idx#0 tmp%0#1)
-        goto continue_looping%0#0 ? block@12 : block@13
+        goto continue_looping%0#0 ? block@12 : block@16
     block@12: // for_body_L23
         let array_head_and_tail%0#0: bytes = ((extract 2 0) proof#0)
         let item_offset%0#0: uint64 = (* idx#0 32u)
         let b#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 32u) // on error: Index access is out of bounds
         let tmp%0#0: bool = (b< computed#1 b#0)
-        goto tmp%0#0 ? block@15 : block@16
-    block@15: // ternary_true_L29
+        goto tmp%0#0 ? block@13 : block@14
+    block@13: // ternary_true_L29
         let ternary_result%0#0: bytes = (concat computed#1 b#0)
-        goto block@17
-    block@16: // ternary_false_L29
+        goto block@15
+    block@14: // ternary_false_L29
         let ternary_result%0#0: bytes = (concat b#0 computed#1)
-        goto block@17
-    block@17: // ternary_merge_L29
+        goto block@15
+    block@15: // ternary_merge_L29
         let computed#1: bytes = (sha256 ternary_result%0#0)
         let idx#0: uint64 = (+ idx#0 1u)
         goto block@11
-    block@13: // after_for_L22
+    block@16: // after_for_L22
         let tmp%0#0: bool = (== maybe_value%0#0 computed#1)
         let encoded_bool%0#0: bytes = (setbit 0x00 0u tmp%0#0)
         let tmp%14#0: bytes = (concat 0x151f7c75 encoded_bool%0#0)

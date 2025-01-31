@@ -9,14 +9,28 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%1#0: bool = algopy.arc4.ARC4Contract.approval_program()
         return tmp%1#0
 
-subroutine examples.box_storage.contract.BoxContract.__init__() -> void:
-    block@0: // L9
-        return 
-
-subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
-    block@0: // L1
-        let tmp%0#0: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__()
+subroutine examples.box_storage.contract.get_box_value_plus_1(box: bytes) -> uint64:
+    block@0: // L179
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box#0)
+        let maybe_value_converted%0#0: uint64 = (btoi maybe_value%0#0)
+        (assert maybe_exists%0#0) // check Box exists
+        let tmp%0#0: uint64 = (+ maybe_value_converted%0#0 1u)
         return tmp%0#0
+
+subroutine examples.box_storage.contract.get_box_ref_length(ref: bytes) -> uint64:
+    block@0: // L184
+        let (value%0#0: uint64, check%0#0: bool) = (box_len ref#0)
+        (assert check%0#0) // check BoxRef exists
+        return value%0#0
+
+subroutine examples.box_storage.contract.get_box_map_value_from_key_plus_1(box_map: bytes, key: uint64) -> bytes:
+    block@0: // L189
+        let tmp%0#0: uint64 = (+ key#0 1u)
+        let tmp%1#0: bytes = (itob tmp%0#0)
+        let tmp%2#0: bytes = (concat box_map#0 tmp%1#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get tmp%2#0)
+        (assert maybe_exists%0#0) // check BoxMap entry exists
+        return maybe_value%0#0
 
 subroutine examples.box_storage.contract.BoxContract.__puya_arc4_router__() -> bool:
     block@0: // L8
@@ -220,6 +234,10 @@ subroutine examples.box_storage.contract.BoxContract.__puya_arc4_router__() -> b
     block@21: // after_if_else_L8
         return 0u
 
+subroutine examples.box_storage.contract.BoxContract.__init__() -> void:
+    block@0: // L9
+        return 
+
 subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: bytes, c: bytes) -> void:
     block@0: // L17
         let new_box_value%0#0: bytes = (itob a#0)
@@ -412,14 +430,6 @@ subroutine examples.box_storage.contract.BoxContract.read_boxes() -> <uint64, by
         (assert maybe_exists%1#0) // check self.box_c exists
         return tmp%1#0 tmp%2#0 maybe_value%1#0
 
-subroutine examples.box_storage.contract.get_box_value_plus_1(box: bytes) -> uint64:
-    block@0: // L179
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box#0)
-        let maybe_value_converted%0#0: uint64 = (btoi maybe_value%0#0)
-        (assert maybe_exists%0#0) // check Box exists
-        let tmp%0#0: uint64 = (+ maybe_value_converted%0#0 1u)
-        return tmp%0#0
-
 subroutine examples.box_storage.contract.BoxContract.boxes_exist() -> <bool, bool, bool>:
     block@0: // L70
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (box_len "box_a")
@@ -565,12 +575,6 @@ subroutine examples.box_storage.contract.BoxContract.test_box_ref() -> void:
         (box_del "box_ref")
         return 
 
-subroutine examples.box_storage.contract.get_box_ref_length(ref: bytes) -> uint64:
-    block@0: // L184
-        let (value%0#0: uint64, check%0#0: bool) = (box_len ref#0)
-        (assert check%0#0) // check BoxRef exists
-        return value%0#0
-
 subroutine examples.box_storage.contract.BoxContract.box_map_test() -> void:
     block@0: // L141
         let key_0#0: uint64 = 0u
@@ -626,15 +630,6 @@ subroutine examples.box_storage.contract.BoxContract.box_map_test() -> void:
         (box_del tmp%25#0)
         return 
 
-subroutine examples.box_storage.contract.get_box_map_value_from_key_plus_1(box_map: bytes, key: uint64) -> bytes:
-    block@0: // L189
-        let tmp%0#0: uint64 = (+ key#0 1u)
-        let tmp%1#0: bytes = (itob tmp%0#0)
-        let tmp%2#0: bytes = (concat box_map#0 tmp%1#0)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get tmp%2#0)
-        (assert maybe_exists%0#0) // check BoxMap entry exists
-        return maybe_value%0#0
-
 subroutine examples.box_storage.contract.BoxContract.box_map_set(key: uint64, value: bytes) -> void:
     block@0: // L162
         let tmp%0#0: bytes = (itob key#0)
@@ -668,3 +663,8 @@ subroutine examples.box_storage.contract.BoxContract.box_map_exists(key: uint64)
 subroutine examples.box_storage.contract.BoxContract.__algopy_default_create() -> void:
     block@0: // L1
         return 
+
+subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+    block@0: // L1
+        let tmp%0#0: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__()
+        return tmp%0#0

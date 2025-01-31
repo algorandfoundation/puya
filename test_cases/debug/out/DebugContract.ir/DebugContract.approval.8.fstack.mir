@@ -71,6 +71,110 @@ main_after_inlined_test_cases.debug.contract.DebugContract.__puya_arc4_router__@
     return
 
 
+// test_cases.debug.contract.some_func(a: uint64, b: uint64) -> uint64:
+some_func:                                                                          (𝕡) a#0,b#0 |
+    // debug/contract.py:43
+    // a += b
+    p-load a#0                                                                      (𝕡) a#0,b#0 | a#0 (copy)
+    p-load b#0                                                                      (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+    +                                                                               (𝕡) a#0,b#0 | a#0
+    p-store a#0                                                                     (𝕡) a#0,b#0 |
+    // debug/contract.py:44
+    // b *= a
+    p-load b#0                                                                      (𝕡) a#0,b#0 | b#0 (copy)
+    p-load a#0                                                                      (𝕡) a#0,b#0 | b#0 (copy),a#0 (copy)
+    *                                                                               (𝕡) a#0,b#0 | b#0
+    p-store b#0                                                                     (𝕡) a#0,b#0 |
+    // debug/contract.py:45
+    // a += b
+    p-load a#0                                                                      (𝕡) a#0,b#0 | a#0 (copy)
+    p-load b#0                                                                      (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+    +                                                                               (𝕡) a#0,b#0 | a#0
+    p-store a#0                                                                     (𝕡) a#0,b#0 |
+    // debug/contract.py:46
+    // a *= 2
+    p-load a#0                                                                      (𝕡) a#0,b#0 | a#0 (copy)
+    int 2                                                                           (𝕡) a#0,b#0 | a#0 (copy),2
+    *                                                                               (𝕡) a#0,b#0 | a#0
+    p-store a#0                                                                     (𝕡) a#0,b#0 |
+    // debug/contract.py:47
+    // x = a + b
+    p-load a#0                                                                      (𝕡) a#0,b#0 | a#0 (copy)
+    p-load b#0                                                                      (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+    +                                                                               (𝕡) a#0,b#0 | x#0
+    // debug/contract.py:48
+    // y = a * b
+    p-load a#0                                                                      (𝕡) a#0,b#0 | x#0,a#0 (copy)
+    p-load b#0                                                                      (𝕡) a#0,b#0 | x#0,a#0 (copy),b#0 (copy)
+    *                                                                               (𝕡) a#0,b#0 | x#0,y#0
+    // debug/contract.py:49
+    // return x if x < y else y
+    l-load-copy x#0 1                                                               (𝕡) a#0,b#0 | x#0,y#0,x#0 (copy)
+    l-load-copy y#0 1                                                               (𝕡) a#0,b#0 | x#0,y#0,x#0 (copy),y#0 (copy)
+    <                                                                               (𝕡) a#0,b#0 | x#0,y#0,tmp%0#0
+    l-load y#0 1                                                                    (𝕡) a#0,b#0 | x#0,tmp%0#0,y#0
+    l-load x#0 2                                                                    (𝕡) a#0,b#0 | tmp%0#0,y#0,x#0
+    l-load tmp%0#0 2                                                                (𝕡) a#0,b#0 | y#0,x#0,tmp%0#0
+    select                                                                          (𝕡) a#0,b#0 | tmp%1#0
+    retsub                                                                          tmp%1#0
+
+
+// test_cases.debug.contract.itoa(i: uint64) -> bytes:
+itoa:                                                                               (𝕡) i#0 |
+    // debug/contract.py:56
+    // if i < radix:
+    p-load i#0                                                                      (𝕡) i#0 | i#0 (copy)
+    // debug/contract.py:55
+    // radix = digits.length
+    int 10                                                                          (𝕡) i#0 | i#0 (copy),10
+    // debug/contract.py:56
+    // if i < radix:
+    <                                                                               (𝕡) i#0 | tmp%0#0
+    bz itoa_after_if_else@2 ; b itoa_if_body@1                                      (𝕡) i#0 |
+
+itoa_if_body@1:                                                                     (𝕡) i#0 |
+    // debug/contract.py:54
+    // digits = Bytes(b"0123456789")
+    byte 0x30313233343536373839                                                     (𝕡) i#0 | 0x30313233343536373839
+    // debug/contract.py:57
+    // return digits[i]
+    p-load i#0                                                                      (𝕡) i#0 | 0x30313233343536373839,i#0 (copy)
+    int 1                                                                           (𝕡) i#0 | 0x30313233343536373839,i#0 (copy),1
+    extract3                                                                        (𝕡) i#0 | tmp%1#0
+    retsub                                                                          tmp%1#0
+
+itoa_after_if_else@2:                                                               (𝕡) i#0 |
+    // debug/contract.py:58
+    // return itoa(i // radix) + digits[i % radix]
+    p-load i#0                                                                      (𝕡) i#0 | i#0 (copy)
+    // debug/contract.py:55
+    // radix = digits.length
+    int 10                                                                          (𝕡) i#0 | i#0 (copy),10
+    // debug/contract.py:58
+    // return itoa(i // radix) + digits[i % radix]
+    /                                                                               (𝕡) i#0 | tmp%2#0
+    callsub itoa                                                                    (𝕡) i#0 | tmp%3#0
+    p-load i#0                                                                      (𝕡) i#0 | tmp%3#0,i#0 (copy)
+    // debug/contract.py:55
+    // radix = digits.length
+    int 10                                                                          (𝕡) i#0 | tmp%3#0,i#0 (copy),10
+    // debug/contract.py:58
+    // return itoa(i // radix) + digits[i % radix]
+    %                                                                               (𝕡) i#0 | tmp%3#0,tmp%4#0
+    // debug/contract.py:54
+    // digits = Bytes(b"0123456789")
+    byte 0x30313233343536373839                                                     (𝕡) i#0 | tmp%3#0,tmp%4#0,0x30313233343536373839
+    // debug/contract.py:58
+    // return itoa(i // radix) + digits[i % radix]
+    l-load tmp%4#0 1                                                                (𝕡) i#0 | tmp%3#0,0x30313233343536373839,tmp%4#0
+    int 1                                                                           (𝕡) i#0 | tmp%3#0,0x30313233343536373839,tmp%4#0,1
+    extract3                                                                        (𝕡) i#0 | tmp%3#0,tmp%5#0
+    l-load tmp%3#0 1                                                                (𝕡) i#0 | tmp%5#0,tmp%3#0
+    l-load tmp%5#0 1                                                                (𝕡) i#0 | tmp%3#0,tmp%5#0
+    concat                                                                          (𝕡) i#0 | tmp%6#0
+    retsub                                                                          tmp%6#0
+
+
 // test_cases.debug.contract.DebugContract.test(x: uint64, y: uint64, z: uint64) -> uint64:
 test:                                                                               (𝕡) x#0,y#0,z#0 |
     allocate 4 to stack                                                             (𝕡) x#0,y#0,z#0 | (𝕗) bee#0,cea#0,a#30,b#10 |
@@ -315,109 +419,5 @@ test_after_if_else@20:                                                          
     // return a
     l-load a#0 0                                                                    (𝕡) x#0,y#0,z#0 | (𝕗) bee#0,cea#0,a#30,b#10,a#0,b#0,c#0 | a#0
     retsub                                                                          a#0
-
-
-// test_cases.debug.contract.some_func(a: uint64, b: uint64) -> uint64:
-some_func:                                                                          (𝕡) a#0,b#0 |
-    // debug/contract.py:43
-    // a += b
-    p-load a#0                                                                      (𝕡) a#0,b#0 | a#0 (copy)
-    p-load b#0                                                                      (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-    +                                                                               (𝕡) a#0,b#0 | a#0
-    p-store a#0                                                                     (𝕡) a#0,b#0 |
-    // debug/contract.py:44
-    // b *= a
-    p-load b#0                                                                      (𝕡) a#0,b#0 | b#0 (copy)
-    p-load a#0                                                                      (𝕡) a#0,b#0 | b#0 (copy),a#0 (copy)
-    *                                                                               (𝕡) a#0,b#0 | b#0
-    p-store b#0                                                                     (𝕡) a#0,b#0 |
-    // debug/contract.py:45
-    // a += b
-    p-load a#0                                                                      (𝕡) a#0,b#0 | a#0 (copy)
-    p-load b#0                                                                      (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-    +                                                                               (𝕡) a#0,b#0 | a#0
-    p-store a#0                                                                     (𝕡) a#0,b#0 |
-    // debug/contract.py:46
-    // a *= 2
-    p-load a#0                                                                      (𝕡) a#0,b#0 | a#0 (copy)
-    int 2                                                                           (𝕡) a#0,b#0 | a#0 (copy),2
-    *                                                                               (𝕡) a#0,b#0 | a#0
-    p-store a#0                                                                     (𝕡) a#0,b#0 |
-    // debug/contract.py:47
-    // x = a + b
-    p-load a#0                                                                      (𝕡) a#0,b#0 | a#0 (copy)
-    p-load b#0                                                                      (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-    +                                                                               (𝕡) a#0,b#0 | x#0
-    // debug/contract.py:48
-    // y = a * b
-    p-load a#0                                                                      (𝕡) a#0,b#0 | x#0,a#0 (copy)
-    p-load b#0                                                                      (𝕡) a#0,b#0 | x#0,a#0 (copy),b#0 (copy)
-    *                                                                               (𝕡) a#0,b#0 | x#0,y#0
-    // debug/contract.py:49
-    // return x if x < y else y
-    l-load-copy x#0 1                                                               (𝕡) a#0,b#0 | x#0,y#0,x#0 (copy)
-    l-load-copy y#0 1                                                               (𝕡) a#0,b#0 | x#0,y#0,x#0 (copy),y#0 (copy)
-    <                                                                               (𝕡) a#0,b#0 | x#0,y#0,tmp%0#0
-    l-load y#0 1                                                                    (𝕡) a#0,b#0 | x#0,tmp%0#0,y#0
-    l-load x#0 2                                                                    (𝕡) a#0,b#0 | tmp%0#0,y#0,x#0
-    l-load tmp%0#0 2                                                                (𝕡) a#0,b#0 | y#0,x#0,tmp%0#0
-    select                                                                          (𝕡) a#0,b#0 | tmp%1#0
-    retsub                                                                          tmp%1#0
-
-
-// test_cases.debug.contract.itoa(i: uint64) -> bytes:
-itoa:                                                                               (𝕡) i#0 |
-    // debug/contract.py:56
-    // if i < radix:
-    p-load i#0                                                                      (𝕡) i#0 | i#0 (copy)
-    // debug/contract.py:55
-    // radix = digits.length
-    int 10                                                                          (𝕡) i#0 | i#0 (copy),10
-    // debug/contract.py:56
-    // if i < radix:
-    <                                                                               (𝕡) i#0 | tmp%0#0
-    bz itoa_after_if_else@2 ; b itoa_if_body@1                                      (𝕡) i#0 |
-
-itoa_if_body@1:                                                                     (𝕡) i#0 |
-    // debug/contract.py:54
-    // digits = Bytes(b"0123456789")
-    byte 0x30313233343536373839                                                     (𝕡) i#0 | 0x30313233343536373839
-    // debug/contract.py:57
-    // return digits[i]
-    p-load i#0                                                                      (𝕡) i#0 | 0x30313233343536373839,i#0 (copy)
-    int 1                                                                           (𝕡) i#0 | 0x30313233343536373839,i#0 (copy),1
-    extract3                                                                        (𝕡) i#0 | tmp%1#0
-    retsub                                                                          tmp%1#0
-
-itoa_after_if_else@2:                                                               (𝕡) i#0 |
-    // debug/contract.py:58
-    // return itoa(i // radix) + digits[i % radix]
-    p-load i#0                                                                      (𝕡) i#0 | i#0 (copy)
-    // debug/contract.py:55
-    // radix = digits.length
-    int 10                                                                          (𝕡) i#0 | i#0 (copy),10
-    // debug/contract.py:58
-    // return itoa(i // radix) + digits[i % radix]
-    /                                                                               (𝕡) i#0 | tmp%2#0
-    callsub itoa                                                                    (𝕡) i#0 | tmp%3#0
-    p-load i#0                                                                      (𝕡) i#0 | tmp%3#0,i#0 (copy)
-    // debug/contract.py:55
-    // radix = digits.length
-    int 10                                                                          (𝕡) i#0 | tmp%3#0,i#0 (copy),10
-    // debug/contract.py:58
-    // return itoa(i // radix) + digits[i % radix]
-    %                                                                               (𝕡) i#0 | tmp%3#0,tmp%4#0
-    // debug/contract.py:54
-    // digits = Bytes(b"0123456789")
-    byte 0x30313233343536373839                                                     (𝕡) i#0 | tmp%3#0,tmp%4#0,0x30313233343536373839
-    // debug/contract.py:58
-    // return itoa(i // radix) + digits[i % radix]
-    l-load tmp%4#0 1                                                                (𝕡) i#0 | tmp%3#0,0x30313233343536373839,tmp%4#0
-    int 1                                                                           (𝕡) i#0 | tmp%3#0,0x30313233343536373839,tmp%4#0,1
-    extract3                                                                        (𝕡) i#0 | tmp%3#0,tmp%5#0
-    l-load tmp%3#0 1                                                                (𝕡) i#0 | tmp%5#0,tmp%3#0
-    l-load tmp%5#0 1                                                                (𝕡) i#0 | tmp%3#0,tmp%5#0
-    concat                                                                          (𝕡) i#0 | tmp%6#0
-    retsub                                                                          tmp%6#0
 
 

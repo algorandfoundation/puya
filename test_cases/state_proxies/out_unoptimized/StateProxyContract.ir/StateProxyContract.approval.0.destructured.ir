@@ -18,6 +18,15 @@ subroutine test_cases.state_proxies.contract.StateProxyContract.__init__() -> vo
         (app_global_put funky_town#0 123u)
         return 
 
+subroutine test_cases.state_proxies.contract.StateProxyContract.create() -> void:
+    block@0: // L25
+        (app_global_put "g1" 1u)
+        let tmp%0#0: bytes = (txn Sender)
+        (app_local_put tmp%0#0 "l1" 2u)
+        let tmp%1#0: bytes = (txn Sender)
+        (app_local_put tmp%1#0 0x6c32 3u)
+        return 
+
 subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@0: // L1
         goto block@1
@@ -51,12 +60,3 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         goto block@8
     block@8: // after_inlined_test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router___L1
         return tmp%0#0
-
-subroutine test_cases.state_proxies.contract.StateProxyContract.create() -> void:
-    block@0: // L25
-        (app_global_put "g1" 1u)
-        let tmp%0#0: bytes = (txn Sender)
-        (app_local_put tmp%0#0 "l1" 2u)
-        let tmp%1#0: bytes = (txn Sender)
-        (app_local_put tmp%1#0 0x6c32 3u)
-        return 

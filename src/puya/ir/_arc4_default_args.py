@@ -14,15 +14,15 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.arc4_types import maybe_avm_to_arc4_equivalent_type, wtype_to_arc4
-from puya.context import ArtifactCompileContext, CompiledProgramProvider
+from puya.context import CompiledProgramProvider
 from puya.errors import CodeError
 from puya.ir._utils import make_subroutine
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
-from puya.ir.optimize.main import optimize_program_ir
+from puya.ir.optimize.context import IROptimizationContext
+from puya.ir.optimize.main import get_subroutine_optimizations
+from puya.options import PuyaOptions
 from puya.parse import SourceLocation
-from puya.program_refs import ProgramKind
-from puya.utils import attrs_extend
 
 logger = log.get_logger(__name__)
 
@@ -35,7 +35,9 @@ def convert_default_args(
 ) -> Mapping[awst_nodes.SubroutineArgument, models.MethodArgDefault | None]:
     state_by_name = {s.member_name: s for s in contract.app_state}
     return {
-        a: _convert_default_arg(ctx, contract, state_by_name, a, config.default_args.get(a.name))
+        a: _convert_default_arg(
+            ctx, contract, state_by_name, a, config.default_args.get(a.name), method_id=m.full_name
+        )
         for a in m.args
     }
 
@@ -44,24 +46,26 @@ def _convert_default_arg(
     ctx: IRBuildContext,
     contract: awst_nodes.Contract,
     state_by_name: Mapping[str, awst_nodes.AppStorageDefinition],
-    arg: awst_nodes.SubroutineArgument,
+    param: awst_nodes.SubroutineArgument,
     default: awst_nodes.ABIMethodArgDefault | None,
+    *,
+    method_id: str,
 ) -> models.MethodArgDefault | None:
     match default:
         case None:
             return None
         case awst_nodes.ABIMethodArgMemberDefault(name=member_name):
             result_or_error = _convert_member_arg_default(
-                contract, state_by_name, arg, member_name
+                contract, state_by_name, param, member_name
             )
             match result_or_error:
                 case str(error_message):
-                    logger.error(error_message, location=arg.source_location)
+                    logger.error(error_message, location=param.source_location)
                     return None
                 case result:
                     return result
         case awst_nodes.ABIMethodArgConstantDefault(value=expr):
-            return _compile_arc4_default_constant(ctx, expr)
+            return _compile_arc4_default_constant(ctx, method_id, param, expr)
 
 
 def _convert_member_arg_default(
@@ -135,29 +139,32 @@ def _convert_member_arg_default(
 
 
 def _compile_arc4_default_constant(
-    ctx: IRBuildContext, expr: awst_nodes.Expression
+    ctx: IRBuildContext,
+    method_id: str,
+    param: awst_nodes.SubroutineArgument,
+    expr: awst_nodes.Expression,
 ) -> models.MethodArgDefaultConstant | None:
-    match expr.wtype:
-        case wtypes.ARC4Type() as arc4_type:
-            pass
-        case other:
-            converted = maybe_avm_to_arc4_equivalent_type(other)
-            if converted is None:
-                logger.error(
-                    "unsupported type for argument default", location=expr.source_location
-                )
-                return None
-            arc4_type = converted
-            expr = awst_nodes.ARC4Encode(
-                value=expr,
-                wtype=converted,
-                source_location=expr.source_location,
-            )
-    # TODO: compare type with parameter type
+    location = expr.source_location
+    logger.debug("Building IR for ARC4 method argument default constant", location=location)
 
+    if param.wtype != expr.wtype:
+        logger.error("mismatch between parameter type and default value type", location=location)
+        return None
+
+    if isinstance(expr.wtype, wtypes.ARC4Type):
+        arc4_type_name = expr.wtype.arc4_name
+    else:
+        arc4_type = maybe_avm_to_arc4_equivalent_type(expr.wtype)
+        if arc4_type is None:
+            logger.error("unsupported type for argument default", location=location)
+            return None
+        expr = awst_nodes.ARC4Encode(value=expr, wtype=arc4_type, source_location=location)
+        arc4_type_name = arc4_type.arc4_name
+
+    fake_name = f"#default:{param.name}"
     awst_subroutine = awst_nodes.Subroutine(
-        id="",
-        name="",
+        id=method_id + fake_name,
+        name=fake_name,
         source_location=expr.source_location,
         args=[],
         return_type=expr.wtype,
@@ -171,24 +178,50 @@ def _compile_arc4_default_constant(
     ir_subroutine = make_subroutine(awst_subroutine, allow_implicits=False)
     FunctionIRBuilder.build_body(ctx, awst_subroutine, ir_subroutine)
 
-    program = ir.Program(
-        kind=ProgramKind.logic_signature,
-        main=ir_subroutine,
-        subroutines=[],
-        avm_version=ctx.options.target_avm_version,
-    )
+    bytes_result = _try_extract_byte_constant(ir_subroutine)
+    if bytes_result is None:
+        _optimize_subroutine(ctx, ir_subroutine, location)
+        bytes_result = _try_extract_byte_constant(ir_subroutine)
+    if bytes_result is None:
+        logger.error("could not determine constant value", location=location)
+        return None
+    return models.MethodArgDefaultConstant(data=bytes_result, type_=arc4_type_name)
 
-    artifact_context = attrs_extend(
-        ArtifactCompileContext,
-        ctx,
-        compiled_program_provider=_NoCompiledProgramProvider(expr.source_location),
+
+def _optimize_subroutine(
+    ctx: IRBuildContext, subroutine: ir.Subroutine, location: SourceLocation
+) -> None:
+    optimization_level = max(2, ctx.options.optimization_level)
+    logger.debug(
+        f"Running optimizer at level {optimization_level}"
+        f" to encode compile time constant to bytes",
+        location=location,
+    )
+    options = PuyaOptions(
+        optimization_level=optimization_level,
+        target_avm_version=ctx.options.target_avm_version,
+    )
+    dummy_program_provider = _NoCompiledProgramProvider(location)
+    pass_context = IROptimizationContext(
+        compilation_set=ctx.compilation_set,
+        sources_by_path=ctx.sources_by_path,
+        options=options,
+        compiled_program_provider=dummy_program_provider,
         output_path_provider=None,
-        options=attrs.evolve(ctx.options, optimization_level=2, output_optimization_ir=False),
+        expand_all_bytes=True,
     )
+    pipeline = get_subroutine_optimizations(optimization_level=optimization_level)
+    while True:
+        modified = False
+        for optimizer in pipeline:
+            if optimizer.optimize(pass_context, subroutine):
+                modified = True
+        if not modified:
+            return
 
-    optimize_program_ir(artifact_context, program, expand_all_bytes=True, routable_method_ids=None)
 
-    match ir_subroutine.body:
+def _try_extract_byte_constant(subroutine: ir.Subroutine) -> bytes | None:
+    match subroutine.body:
         case [
             ir.BasicBlock(
                 phis=[],
@@ -196,9 +229,7 @@ def _compile_arc4_default_constant(
                 terminator=ir.SubroutineReturn(result=[ir.BytesConstant(value=result)]),
             )
         ]:
-            return models.MethodArgDefaultConstant(data=result, type_=arc4_type.name)
-
-    logger.error("unsupported method default constant", location=expr.source_location)
+            return result
     return None
 
 

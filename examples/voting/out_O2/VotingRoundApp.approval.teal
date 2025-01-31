@@ -4,7 +4,7 @@
 // examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 10 8
-    bytecblock "is_bootstrapped" "voter_count" "option_counts" "V" "vote_id" "close_time" "metadata_ipfs_cid" "quorum" "nft_image_url" "total_options" "snapshot_public_key" "start_time" "end_time" 0x30313233343536373839 0x068101
+    bytecblock "is_bootstrapped" "voter_count" "option_counts" "V" "vote_id" "close_time" "metadata_ipfs_cid" "quorum" "nft_image_url" "total_options" "snapshot_public_key" "start_time" "end_time" 0x068101 0x30313233343536373839
     intc_0 // 0
     dupn 5
     pushbytes ""
@@ -567,6 +567,48 @@ main_after_for@32:
     return
 
 
+// _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
+ensure_budget:
+    proto 2 0
+    frame_dig -2
+    intc_2 // 10
+    +
+
+ensure_budget_while_top@1:
+    frame_dig 0
+    global OpcodeBudget
+    >
+    bz ensure_budget_after_while@7
+    itxn_begin
+    pushint 6 // appl
+    itxn_field TypeEnum
+    pushint 5 // DeleteApplication
+    itxn_field OnCompletion
+    bytec 13 // 0x068101
+    itxn_field ApprovalProgram
+    bytec 13 // 0x068101
+    itxn_field ClearStateProgram
+    frame_dig -1
+    switch ensure_budget_switch_case_0@3 ensure_budget_switch_case_1@4
+
+ensure_budget_switch_case_next@6:
+    itxn_submit
+    b ensure_budget_while_top@1
+
+ensure_budget_switch_case_1@4:
+    global MinTxnFee
+    itxn_field Fee
+    b ensure_budget_switch_case_next@6
+
+ensure_budget_switch_case_0@3:
+    intc_0 // 0
+    itxn_field Fee
+    b ensure_budget_switch_case_next@6
+
+ensure_budget_after_while@7:
+    retsub
+
+
 // examples.voting.voting.itoa(i: uint64) -> bytes:
 itoa:
     proto 1 1
@@ -574,7 +616,7 @@ itoa:
     intc_2 // 10
     <
     bz itoa_after_if_else@2
-    bytec 13 // 0x30313233343536373839
+    bytec 14 // 0x30313233343536373839
     frame_dig -1
     intc_1 // 1
     extract3
@@ -588,7 +630,7 @@ itoa_after_if_else@2:
     frame_dig -1
     intc_2 // 10
     %
-    bytec 13 // 0x30313233343536373839
+    bytec 14 // 0x30313233343536373839
     swap
     intc_1 // 1
     extract3
@@ -651,46 +693,4 @@ allowed_to_vote:
     frame_dig -1
     swap
     ed25519verify_bare
-    retsub
-
-
-// _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
-ensure_budget:
-    proto 2 0
-    frame_dig -2
-    intc_2 // 10
-    +
-
-ensure_budget_while_top@1:
-    frame_dig 0
-    global OpcodeBudget
-    >
-    bz ensure_budget_after_while@7
-    itxn_begin
-    pushint 6 // appl
-    itxn_field TypeEnum
-    pushint 5 // DeleteApplication
-    itxn_field OnCompletion
-    bytec 14 // 0x068101
-    itxn_field ApprovalProgram
-    bytec 14 // 0x068101
-    itxn_field ClearStateProgram
-    frame_dig -1
-    switch ensure_budget_switch_case_0@3 ensure_budget_switch_case_1@4
-
-ensure_budget_switch_case_next@6:
-    itxn_submit
-    b ensure_budget_while_top@1
-
-ensure_budget_switch_case_1@4:
-    global MinTxnFee
-    itxn_field Fee
-    b ensure_budget_switch_case_next@6
-
-ensure_budget_switch_case_0@3:
-    intc_0 // 0
-    itxn_field Fee
-    b ensure_budget_switch_case_next@6
-
-ensure_budget_after_while@7:
     retsub

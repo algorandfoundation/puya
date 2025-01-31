@@ -1,3 +1,13 @@
+subroutine constant_method(): uint64
+{
+  return 42u
+}
+
+subroutine echo_number(x: uint64): uint64
+{
+  return x
+}
+
 contract Contract
 {
   method_resolution_order: (
@@ -88,12 +98,17 @@ contract Contract
     return (TemplateVar[test_cases.arc_56.contract.SharedStruct](TMPL_STRUCT), TemplateVar[uint64](TMPL_AVM_UINT64), TemplateVar[string](TMPL_AVM_STRING), TemplateVar[arc4.uint8](TMPL_ARC4_UINT8))
   }
   
-  abimethod test_cases.arc_56.contract.Contract.with_constant_defaults(a: arc4.uint64, b: uint64, c: bytes, d: test_cases.arc_56.contract.EventOnly): void
+  abimethod test_cases.arc_56.contract.Contract.with_constant_defaults(a: arc4.uint64, b: uint64, c: bytes, d: test_cases.arc_56.contract.EventOnly, e: tuple<uint64,string>, f: arc4.static_array<arc4.dynamic_array<arc4.uint8>, 2>, g: arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>, h: uint64, i: uint64): void
   {
     assert(a != hex<"0000000000000000">)
     assert(b != 0u)
     assert(len(c) != 0u)
     assert(d.x != hex<"0000000000000000"> or d.y != hex<"0000000000000000">)
+    assert(e[0] != 0u or len(e[1]) != 0u)
+    assert(f[0u] == 'hi')
+    assert(extract_uint16(g, 0u) == 2u)
+    assert(h == 42u)
+    assert(i == 1234u)
   }
   
   subroutine algopy.arc4.ARC4Contract.approval_program(): bool

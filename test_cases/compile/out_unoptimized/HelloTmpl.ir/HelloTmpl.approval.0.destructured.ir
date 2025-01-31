@@ -14,6 +14,26 @@ subroutine test_cases.compile.apps.HelloTmpl.__init__() -> void:
         (app_global_put "greeting" TemplateVar[bytes](TMPL_GREETING))
         return 
 
+subroutine test_cases.compile.apps.HelloTmpl.create() -> void:
+    block@0: // L62
+        return 
+
+subroutine test_cases.compile.apps.HelloBase.delete() -> void:
+    block@0: // L24
+        return 
+
+subroutine test_cases.compile.apps.HelloBase.update() -> void:
+    block@0: // L28
+        return 
+
+subroutine test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
+    block@0: // L32
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "greeting")
+        (assert maybe_exists%0#0) // check self.greeting exists
+        let tmp%0#0: bytes = (concat maybe_value%0#0 " ")
+        let tmp%1#0: bytes = (concat tmp%0#0 name#0)
+        return tmp%1#0
+
 subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@0: // L1
         goto block@1
@@ -90,23 +110,3 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         goto block@13
     block@13: // after_inlined_test_cases.compile.apps.HelloTmpl.__puya_arc4_router___L1
         return tmp%0#0
-
-subroutine test_cases.compile.apps.HelloTmpl.create() -> void:
-    block@0: // L62
-        return 
-
-subroutine test_cases.compile.apps.HelloBase.delete() -> void:
-    block@0: // L24
-        return 
-
-subroutine test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
-    block@0: // L32
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "greeting")
-        (assert maybe_exists%0#0) // check self.greeting exists
-        let tmp%0#0: bytes = (concat maybe_value%0#0 " ")
-        let tmp%1#0: bytes = (concat tmp%0#0 name#0)
-        return tmp%1#0
-
-subroutine test_cases.compile.apps.HelloBase.update() -> void:
-    block@0: // L28
-        return 

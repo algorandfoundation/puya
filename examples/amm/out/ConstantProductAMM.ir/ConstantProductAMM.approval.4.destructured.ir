@@ -144,19 +144,21 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
     block@13: // after_inlined_examples.amm.contract.ConstantProductAMM.__puya_arc4_router___L1
         return tmp%0#0
 
+subroutine examples.amm.contract.do_asset_transfer(receiver: bytes, asset: uint64, amount: uint64) -> void:
+    block@0: // L356
+        itxn_begin
+        ((itxn_field AssetReceiver) receiver#0)
+        ((itxn_field AssetAmount) amount#0)
+        ((itxn_field XferAsset) asset#0)
+        ((itxn_field TypeEnum) axfer)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        return 
+
 subroutine examples.amm.contract.ConstantProductAMM.set_governor(new_governor: bytes) -> void:
     block@0: // L43
         examples.amm.contract.ConstantProductAMM._check_is_governor()
         (app_global_put "governor" new_governor#0)
-        return 
-
-subroutine examples.amm.contract.ConstantProductAMM._check_is_governor() -> void:
-    block@0: // L262
-        let tmp%0#0: bytes = (txn Sender)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "governor")
-        (assert maybe_exists%0#0) // check self.governor exists
-        let tmp%1#0: bool = (== tmp%0#0 maybe_value%0#0)
-        (assert tmp%1#0) // Only the account set in global_state.governor may call this method
         return 
 
 subroutine examples.amm.contract.ConstantProductAMM.bootstrap(seed: uint64, a_asset: uint64, b_asset: uint64) -> uint64:
@@ -216,17 +218,6 @@ subroutine examples.amm.contract.ConstantProductAMM.bootstrap(seed: uint64, a_as
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "pool_token")
         (assert maybe_exists%3#0) // check self.pool_token exists
         return maybe_value%3#0
-
-subroutine examples.amm.contract.do_asset_transfer(receiver: bytes, asset: uint64, amount: uint64) -> void:
-    block@0: // L356
-        itxn_begin
-        ((itxn_field AssetReceiver) receiver#0)
-        ((itxn_field AssetAmount) amount#0)
-        ((itxn_field XferAsset) asset#0)
-        ((itxn_field TypeEnum) axfer)
-        ((itxn_field Fee) 0u)
-        itxn_submit
-        return 
 
 subroutine examples.amm.contract.ConstantProductAMM.mint(a_xfer: uint64, b_xfer: uint64, pool_asset: uint64, a_asset: uint64, b_asset: uint64) -> void:
     block@0: // L81
@@ -326,42 +317,6 @@ subroutine examples.amm.contract.ConstantProductAMM.mint(a_xfer: uint64, b_xfer:
         (assert maybe_exists%5#0) // check self.pool_token exists
         examples.amm.contract.do_asset_transfer(tmp%29#0, maybe_value%5#0, to_mint#0)
         examples.amm.contract.ConstantProductAMM._update_ratio()
-        return 
-
-subroutine examples.amm.contract.ConstantProductAMM._current_pool_balance() -> uint64:
-    block@0: // L291
-        let tmp%0#0: bytes = (global CurrentApplicationAddress)
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "pool_token")
-        (assert maybe_exists%0#0) // check self.pool_token exists
-        let (value%0#0: uint64, check%0#0: bool) = ((asset_holding_get AssetBalance) tmp%0#0 maybe_value%0#0)
-        (assert check%0#0) // account opted into asset
-        return value%0#0
-
-subroutine examples.amm.contract.ConstantProductAMM._current_a_balance() -> uint64:
-    block@0: // L295
-        let tmp%0#0: bytes = (global CurrentApplicationAddress)
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "asset_a")
-        (assert maybe_exists%0#0) // check self.asset_a exists
-        let (value%0#0: uint64, check%0#0: bool) = ((asset_holding_get AssetBalance) tmp%0#0 maybe_value%0#0)
-        (assert check%0#0) // account opted into asset
-        return value%0#0
-
-subroutine examples.amm.contract.ConstantProductAMM._current_b_balance() -> uint64:
-    block@0: // L299
-        let tmp%0#0: bytes = (global CurrentApplicationAddress)
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "asset_b")
-        (assert maybe_exists%0#0) // check self.asset_b exists
-        let (value%0#0: uint64, check%0#0: bool) = ((asset_holding_get AssetBalance) tmp%0#0 maybe_value%0#0)
-        (assert check%0#0) // account opted into asset
-        return value%0#0
-
-subroutine examples.amm.contract.ConstantProductAMM._update_ratio() -> void:
-    block@0: // L255
-        let a_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
-        let b_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
-        let tmp%0#0: uint64 = (* a_balance#0 1000u)
-        let new_state_value%0#0: uint64 = (/ tmp%0#0 b_balance#0)
-        (app_global_put "ratio" new_state_value%0#0)
         return 
 
 subroutine examples.amm.contract.ConstantProductAMM.burn(pool_xfer: uint64, pool_asset: uint64, a_asset: uint64, b_asset: uint64) -> void:
@@ -467,3 +422,48 @@ subroutine examples.amm.contract.ConstantProductAMM.swap(swap_xfer: uint64, a_as
         examples.amm.contract.do_asset_transfer(tmp%10#0, out_asset#0, to_swap#0)
         examples.amm.contract.ConstantProductAMM._update_ratio()
         return 
+
+subroutine examples.amm.contract.ConstantProductAMM._update_ratio() -> void:
+    block@0: // L255
+        let a_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
+        let b_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
+        let tmp%0#0: uint64 = (* a_balance#0 1000u)
+        let new_state_value%0#0: uint64 = (/ tmp%0#0 b_balance#0)
+        (app_global_put "ratio" new_state_value%0#0)
+        return 
+
+subroutine examples.amm.contract.ConstantProductAMM._check_is_governor() -> void:
+    block@0: // L262
+        let tmp%0#0: bytes = (txn Sender)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "governor")
+        (assert maybe_exists%0#0) // check self.governor exists
+        let tmp%1#0: bool = (== tmp%0#0 maybe_value%0#0)
+        (assert tmp%1#0) // Only the account set in global_state.governor may call this method
+        return 
+
+subroutine examples.amm.contract.ConstantProductAMM._current_pool_balance() -> uint64:
+    block@0: // L291
+        let tmp%0#0: bytes = (global CurrentApplicationAddress)
+        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "pool_token")
+        (assert maybe_exists%0#0) // check self.pool_token exists
+        let (value%0#0: uint64, check%0#0: bool) = ((asset_holding_get AssetBalance) tmp%0#0 maybe_value%0#0)
+        (assert check%0#0) // account opted into asset
+        return value%0#0
+
+subroutine examples.amm.contract.ConstantProductAMM._current_a_balance() -> uint64:
+    block@0: // L295
+        let tmp%0#0: bytes = (global CurrentApplicationAddress)
+        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "asset_a")
+        (assert maybe_exists%0#0) // check self.asset_a exists
+        let (value%0#0: uint64, check%0#0: bool) = ((asset_holding_get AssetBalance) tmp%0#0 maybe_value%0#0)
+        (assert check%0#0) // account opted into asset
+        return value%0#0
+
+subroutine examples.amm.contract.ConstantProductAMM._current_b_balance() -> uint64:
+    block@0: // L299
+        let tmp%0#0: bytes = (global CurrentApplicationAddress)
+        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "asset_b")
+        (assert maybe_exists%0#0) // check self.asset_b exists
+        let (value%0#0: uint64, check%0#0: bool) = ((asset_holding_get AssetBalance) tmp%0#0 maybe_value%0#0)
+        (assert check%0#0) // account opted into asset
+        return value%0#0

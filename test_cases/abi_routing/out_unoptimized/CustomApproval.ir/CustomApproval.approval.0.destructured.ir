@@ -38,6 +38,11 @@ subroutine test_cases.abi_routing.custom_approval.CustomApproval.approval_progra
     block@5: // after_if_else_L16
         return result#0
 
+subroutine test_cases.abi_routing.custom_approval.CustomApproval.add_one(x: uint64) -> uint64:
+    block@0: // L23
+        let tmp%0#0: uint64 = (+ x#0 1u)
+        return tmp%0#0
+
 subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@0: // L1
         goto block@1
@@ -63,37 +68,32 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         (log tmp%9#0)
         let test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__%0#0
-        goto block@11
+        goto block@13
     block@4: // switch_case_default_L6
         goto block@5
     block@5: // switch_case_next_L6
-        goto block@10
+        goto block@12
     block@6: // bare_routing_L6
         let tmp%10#0: uint64 = (txn OnCompletion)
-        switch tmp%10#0 {0u => block@7, * => block@8}
+        switch tmp%10#0 {0u => block@7, * => block@10}
     block@7: // __algopy_default_create_L1
         let tmp%11#0: uint64 = (txn ApplicationID)
         let tmp%12#0: bool = (== tmp%11#0 0u)
         (assert tmp%12#0) // can only call when creating
-        goto block@12
-    block@12: // L1
-        goto block@13
-    block@13: // after_inlined_test_cases.abi_routing.custom_approval.CustomApproval.__algopy_default_create_L1
+        goto block@8
+    block@8: // L1
+        goto block@9
+    block@9: // after_inlined_test_cases.abi_routing.custom_approval.CustomApproval.__algopy_default_create_L1
         let test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__%0#0
+        goto block@13
+    block@10: // switch_case_default_L6
         goto block@11
-    block@8: // switch_case_default_L6
-        goto block@9
-    block@9: // switch_case_next_L6
-        goto block@10
-    block@10: // after_if_else_L6
+    block@11: // switch_case_next_L6
+        goto block@12
+    block@12: // after_if_else_L6
         let test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__%0#0: bool = 0u
         let tmp%0#0: bool = test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__%0#0
-        goto block@11
-    block@11: // after_inlined_test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router___L1
-        return tmp%0#0
-
-subroutine test_cases.abi_routing.custom_approval.CustomApproval.add_one(x: uint64) -> uint64:
-    block@0: // L23
-        let tmp%0#0: uint64 = (+ x#0 1u)
+        goto block@13
+    block@13: // after_inlined_test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router___L1
         return tmp%0#0

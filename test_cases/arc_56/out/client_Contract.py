@@ -75,4 +75,9 @@ class Contract(algopy.arc4.ARC4Client, typing.Protocol):
         b: algopy.arc4.UIntN[typing.Literal[64]],
         c: algopy.arc4.DynamicBytes,
         d: EventOnly,
+        e: algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.String],
+        f: algopy.arc4.StaticArray[algopy.arc4.String, typing.Literal[2]],
+        g: algopy.arc4.DynamicArray[algopy.arc4.String],
+        h: algopy.arc4.UIntN[typing.Literal[64]],
+        i: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...

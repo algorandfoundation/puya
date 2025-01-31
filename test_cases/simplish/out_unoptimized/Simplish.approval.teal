@@ -3,7 +3,7 @@
 
 // test_cases.simplish.contract.Simplish.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 1 2 5 314159 100000
+    intcblock 0 1 2 314159 100000
     bytecblock "counter" 0x30313233343536373839
     txn ApplicationID
     bnz main_after_if_else@2
@@ -16,16 +16,102 @@ main_after_if_else@2:
     return
 
 
-// test_cases.simplish.base_class.CallCounter.__init__() -> void:
-__init__:
-    // simplish/base_class.py:7
-    // def __init__(self) -> None:
-    proto 0 0
-    // simplish/base_class.py:8
-    // self.counter = UInt64(0)
-    bytec_0 // "counter"
-    intc_0 // 0
-    app_global_put
+// test_cases.simplish.contract.circle_circumference(radius: uint64) -> uint64:
+circle_circumference:
+    // simplish/contract.py:103-104
+    // @subroutine
+    // def circle_circumference(radius: UInt64) -> UInt64:
+    proto 1 1
+    // simplish/contract.py:105-106
+    // # PI * 2r
+    // two_pi = UInt64(2) * SCALED_PI
+    intc_2 // 2
+    intc_3 // 314159
+    *
+    // simplish/contract.py:107
+    // return radius * two_pi // SCALE
+    frame_dig -1
+    *
+    intc 4 // 100000
+    /
+    retsub
+
+
+// test_cases.simplish.contract.circle_area(radius: uint64) -> uint64:
+circle_area:
+    // simplish/contract.py:110-111
+    // @subroutine
+    // def circle_area(radius: UInt64) -> UInt64:
+    proto 1 1
+    // simplish/contract.py:112-113
+    // # PI * r ^ 2
+    // result = radius**2 * SCALED_PI // SCALE
+    frame_dig -1
+    intc_2 // 2
+    exp
+    intc_3 // 314159
+    *
+    intc 4 // 100000
+    /
+    // simplish/contract.py:114
+    // return result
+    retsub
+
+
+// test_cases.simplish.contract.itoa(i: uint64) -> bytes:
+itoa:
+    // simplish/contract.py:117-118
+    // @subroutine
+    // def itoa(i: UInt64) -> Bytes:
+    proto 1 1
+    // simplish/contract.py:120
+    // digits = Bytes(b"0123456789")
+    bytec_1 // 0x30313233343536373839
+    // simplish/contract.py:121
+    // radix = digits.length
+    len
+    dup
+    // simplish/contract.py:122
+    // if i < radix:
+    frame_dig -1
+    >
+    bz itoa_after_if_else@2
+
+itoa_if_body@1:
+    // simplish/contract.py:120
+    // digits = Bytes(b"0123456789")
+    bytec_1 // 0x30313233343536373839
+    // simplish/contract.py:123
+    // return digits[i]
+    frame_dig -1
+    intc_1 // 1
+    extract3
+    swap
+    retsub
+
+itoa_after_if_else@2:
+    // simplish/contract.py:124
+    // return itoa(i // radix) + digits[i % radix]
+    frame_dig -1
+    frame_dig 0
+    dup
+    cover 2
+    /
+    callsub itoa
+    swap
+    frame_dig -1
+    swap
+    %
+    // simplish/contract.py:120
+    // digits = Bytes(b"0123456789")
+    bytec_1 // 0x30313233343536373839
+    // simplish/contract.py:124
+    // return itoa(i // radix) + digits[i % radix]
+    swap
+    intc_1 // 1
+    extract3
+    concat
+    swap
     retsub
 
 
@@ -82,7 +168,7 @@ approval_program_or_contd@3:
     frame_dig 4
     // simplish/contract.py:37
     // OnCompleteAction.DeleteApplication,
-    intc_3 // DeleteApplication
+    pushint 5 // DeleteApplication
     // simplish/contract.py:35-38
     // if oca in (
     //     OnCompleteAction.UpdateApplication,
@@ -95,7 +181,7 @@ approval_program_if_body@4:
     // simplish/contract.py:39
     // if oca == OnCompleteAction.DeleteApplication:
     frame_dig 4
-    intc_3 // DeleteApplication
+    pushint 5 // DeleteApplication
     ==
     bz approval_program_after_if_else@6
 
@@ -261,78 +347,6 @@ approval_program_else_body@20:
     b approval_program_after_if_else@21
 
 
-// test_cases.simplish.contract.itoa(i: uint64) -> bytes:
-itoa:
-    // simplish/contract.py:117-118
-    // @subroutine
-    // def itoa(i: UInt64) -> Bytes:
-    proto 1 1
-    // simplish/contract.py:120
-    // digits = Bytes(b"0123456789")
-    bytec_1 // 0x30313233343536373839
-    // simplish/contract.py:121
-    // radix = digits.length
-    len
-    dup
-    // simplish/contract.py:122
-    // if i < radix:
-    frame_dig -1
-    >
-    bz itoa_after_if_else@2
-
-itoa_if_body@1:
-    // simplish/contract.py:120
-    // digits = Bytes(b"0123456789")
-    bytec_1 // 0x30313233343536373839
-    // simplish/contract.py:123
-    // return digits[i]
-    frame_dig -1
-    intc_1 // 1
-    extract3
-    swap
-    retsub
-
-itoa_after_if_else@2:
-    // simplish/contract.py:124
-    // return itoa(i // radix) + digits[i % radix]
-    frame_dig -1
-    frame_dig 0
-    dup
-    cover 2
-    /
-    callsub itoa
-    swap
-    frame_dig -1
-    swap
-    %
-    // simplish/contract.py:120
-    // digits = Bytes(b"0123456789")
-    bytec_1 // 0x30313233343536373839
-    // simplish/contract.py:124
-    // return itoa(i // radix) + digits[i % radix]
-    swap
-    intc_1 // 1
-    extract3
-    concat
-    swap
-    retsub
-
-
-// test_cases.simplish.base_class.CallCounter.set_sender_nickname(nickname: bytes) -> void:
-set_sender_nickname:
-    // simplish/base_class.py:15-16
-    // @subroutine
-    // def set_sender_nickname(self, nickname: Bytes) -> None:
-    proto 1 0
-    // simplish/base_class.py:17
-    // self.name[0] = nickname
-    intc_0 // 0
-    pushbytes "name"
-    frame_dig -1
-    app_local_put
-    retsub
-
-
 // test_cases.simplish.contract.Simplish.call(method_name: bytes, num_app_args: uint64) -> bytes, uint64:
 call:
     // simplish/contract.py:70-71
@@ -495,48 +509,6 @@ call_else_body@6:
     b call_after_if_else@7
 
 
-// test_cases.simplish.contract.circle_area(radius: uint64) -> uint64:
-circle_area:
-    // simplish/contract.py:110-111
-    // @subroutine
-    // def circle_area(radius: UInt64) -> UInt64:
-    proto 1 1
-    // simplish/contract.py:112-113
-    // # PI * r ^ 2
-    // result = radius**2 * SCALED_PI // SCALE
-    frame_dig -1
-    intc_2 // 2
-    exp
-    intc 4 // 314159
-    *
-    intc 5 // 100000
-    /
-    // simplish/contract.py:114
-    // return result
-    retsub
-
-
-// test_cases.simplish.contract.circle_circumference(radius: uint64) -> uint64:
-circle_circumference:
-    // simplish/contract.py:103-104
-    // @subroutine
-    // def circle_circumference(radius: UInt64) -> UInt64:
-    proto 1 1
-    // simplish/contract.py:105-106
-    // # PI * 2r
-    // two_pi = UInt64(2) * SCALED_PI
-    intc_2 // 2
-    intc 4 // 314159
-    *
-    // simplish/contract.py:107
-    // return radius * two_pi // SCALE
-    frame_dig -1
-    *
-    intc 5 // 100000
-    /
-    retsub
-
-
 // test_cases.simplish.contract.Simplish.increment_counter() -> void:
 increment_counter:
     // simplish/contract.py:97-98
@@ -550,6 +522,19 @@ increment_counter:
     // simplish/contract.py:100
     // super().increment_counter()
     callsub test_cases.simplish.base_class.CallCounter.increment_counter
+    retsub
+
+
+// test_cases.simplish.base_class.CallCounter.__init__() -> void:
+__init__:
+    // simplish/base_class.py:7
+    // def __init__(self) -> None:
+    proto 0 0
+    // simplish/base_class.py:8
+    // self.counter = UInt64(0)
+    bytec_0 // "counter"
+    intc_0 // 0
+    app_global_put
     retsub
 
 
@@ -570,4 +555,19 @@ test_cases.simplish.base_class.CallCounter.increment_counter:
     bytec_0 // "counter"
     swap
     app_global_put
+    retsub
+
+
+// test_cases.simplish.base_class.CallCounter.set_sender_nickname(nickname: bytes) -> void:
+set_sender_nickname:
+    // simplish/base_class.py:15-16
+    // @subroutine
+    // def set_sender_nickname(self, nickname: Bytes) -> None:
+    proto 1 0
+    // simplish/base_class.py:17
+    // self.name[0] = nickname
+    intc_0 // 0
+    pushbytes "name"
+    frame_dig -1
+    app_local_put
     retsub

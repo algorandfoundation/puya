@@ -334,6 +334,34 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
     block@26: // after_inlined_examples.voting.voting.VotingRoundApp.__puya_arc4_router___L1
         return tmp%0#0
 
+subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
+    block@0: // L12
+        let required_budget_with_buffer#0: uint64 = (+ required_budget#0 10u)
+        goto block@1
+    block@1: // while_top_L20
+        let tmp%0#0: uint64 = (global OpcodeBudget)
+        let tmp%1#0: bool = (> required_budget_with_buffer#0 tmp%0#0)
+        goto tmp%1#0 ? block@2 : block@7
+    block@2: // while_body_L21
+        itxn_begin
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field OnCompletion) DeleteApplication)
+        ((itxn_field ApprovalProgram) 0x068101)
+        ((itxn_field ClearStateProgram) 0x068101)
+        goto_nth [block@3, block@4][fee_source#0] else goto block@6
+    block@3: // switch_case_0_L28
+        ((itxn_field Fee) 0u)
+        goto block@6
+    block@4: // switch_case_1_L30
+        let tmp%2#0: uint64 = (global MinTxnFee)
+        ((itxn_field Fee) tmp%2#0)
+        goto block@6
+    block@6: // switch_case_next_L26
+        itxn_submit
+        goto block@1
+    block@7: // after_while_L20
+        return 
+
 subroutine examples.voting.voting.itoa(i: uint64) -> bytes:
     block@0: // L249
         let tmp%0#0: bool = (< i#0 10u)
@@ -385,31 +413,3 @@ subroutine examples.voting.voting.VotingRoundApp.allowed_to_vote(signature: byte
         (assert maybe_exists%0#0) // check self.snapshot_public_key exists
         let tmp%1#0: bool = (ed25519verify_bare tmp%0#0 signature#0 maybe_value%0#0)
         return tmp%1#0
-
-subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
-    block@0: // L12
-        let required_budget_with_buffer#0: uint64 = (+ required_budget#0 10u)
-        goto block@1
-    block@1: // while_top_L20
-        let tmp%0#0: uint64 = (global OpcodeBudget)
-        let tmp%1#0: bool = (> required_budget_with_buffer#0 tmp%0#0)
-        goto tmp%1#0 ? block@2 : block@7
-    block@2: // while_body_L21
-        itxn_begin
-        ((itxn_field TypeEnum) appl)
-        ((itxn_field OnCompletion) DeleteApplication)
-        ((itxn_field ApprovalProgram) 0x068101)
-        ((itxn_field ClearStateProgram) 0x068101)
-        goto_nth [block@3, block@4][fee_source#0] else goto block@6
-    block@3: // switch_case_0_L28
-        ((itxn_field Fee) 0u)
-        goto block@6
-    block@4: // switch_case_1_L30
-        let tmp%2#0: uint64 = (global MinTxnFee)
-        ((itxn_field Fee) tmp%2#0)
-        goto block@6
-    block@6: // switch_case_next_L26
-        itxn_submit
-        goto block@1
-    block@7: // after_while_L20
-        return 

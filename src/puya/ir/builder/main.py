@@ -125,14 +125,7 @@ class FunctionIRBuilder(
             final_block = block_builder.active_block
             if not final_block.terminated:
                 if function.return_type != wtypes.void_wtype:
-                    raise CodeError(
-                        "expected a return statement",
-                        (
-                            function.body.body[-1].source_location
-                            if function.body.body
-                            else function.source_location
-                        ),
-                    )
+                    raise CodeError("not all paths return a value", function.body.source_location)
                 block_builder.terminate(
                     SubroutineReturn(
                         result=[

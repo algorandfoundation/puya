@@ -9,6 +9,24 @@ main examples.local_state.local_state_contract.LocalStateContract.__algopy_entry
         let tmp%1#0: bool = examples.local_state.local_state_contract.LocalStateContract.approval_program()
         return tmp%1#0
 
+subroutine examples.local_state.local_state_contract.get_local_state_length(state: bytes, account: bytes) -> uint64:
+    block@0: // L84
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u state#0)
+        (assert maybe_exists%0#0) // check LocalState exists for account
+        let tmp%0#0: uint64 = (len maybe_value%0#0)
+        return tmp%0#0
+
+subroutine examples.local_state.local_state_contract.local_bytes_exists(account: bytes, key: bytes) -> bool:
+    block@0: // L89
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u key#0)
+        return maybe_exists%0#0
+
+subroutine examples.local_state.local_state_contract.read_local_bytes(account: bytes, key: bytes) -> bytes:
+    block@0: // L94
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u key#0)
+        (assert maybe_exists%0#0) // check LocalState exists for account
+        return maybe_value%0#0
+
 subroutine examples.local_state.local_state_contract.LocalStateContract.__init__() -> void:
     block@0: // L16
         return 
@@ -118,23 +136,11 @@ subroutine examples.local_state.local_state_contract.LocalStateContract.get_guar
         (assert tmp%5#0)
         return result#0
 
-subroutine examples.local_state.local_state_contract.get_local_state_length(state: bytes, account: bytes) -> uint64:
-    block@0: // L84
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u state#0)
-        (assert maybe_exists%0#0) // check LocalState exists for account
-        let tmp%0#0: uint64 = (len maybe_value%0#0)
+subroutine examples.local_state.local_state_contract.LocalStateContract.get_data_with_default(for_account: bytes, default: bytes) -> bytes:
+    block@0: // L64
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex for_account#0 0u "local")
+        let tmp%0#0: bytes = (select default#0 maybe_value%0#0 maybe_exists%0#0)
         return tmp%0#0
-
-subroutine examples.local_state.local_state_contract.local_bytes_exists(account: bytes, key: bytes) -> bool:
-    block@0: // L89
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u key#0)
-        return maybe_exists%0#0
-
-subroutine examples.local_state.local_state_contract.read_local_bytes(account: bytes, key: bytes) -> bytes:
-    block@0: // L94
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u key#0)
-        (assert maybe_exists%0#0) // check LocalState exists for account
-        return maybe_value%0#0
 
 subroutine examples.local_state.local_state_contract.LocalStateContract.get_data_or_assert(for_account: bytes) -> bytes:
     block@0: // L69
@@ -144,18 +150,12 @@ subroutine examples.local_state.local_state_contract.LocalStateContract.get_data
         (assert exists#0) // no data for account
         return result#0
 
-subroutine examples.local_state.local_state_contract.LocalStateContract.delete_data(for_account: bytes) -> void:
-    block@0: // L79
-        (app_local_del for_account#0 "local")
-        return 
-
 subroutine examples.local_state.local_state_contract.LocalStateContract.set_data(for_account: bytes, value: bytes) -> void:
     block@0: // L75
         (app_local_put for_account#0 "local" value#0)
         return 
 
-subroutine examples.local_state.local_state_contract.LocalStateContract.get_data_with_default(for_account: bytes, default: bytes) -> bytes:
-    block@0: // L64
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex for_account#0 0u "local")
-        let tmp%0#0: bytes = (select default#0 maybe_value%0#0 maybe_exists%0#0)
-        return tmp%0#0
+subroutine examples.local_state.local_state_contract.LocalStateContract.delete_data(for_account: bytes) -> void:
+    block@0: // L79
+        (app_local_del for_account#0 "local")
+        return 

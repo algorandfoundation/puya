@@ -18,7 +18,6 @@ from puya.awst.arc4_types import maybe_avm_to_arc4_equivalent_type, wtype_to_arc
 from puya.awst.function_traverser import FunctionTraverser
 from puya.errors import InternalError
 from puya.ir._arc4_default_args import convert_default_args
-from puya.ir.arc4_router import AWSTContractMethodSignature
 from puya.ir.context import IRBuildContext
 from puya.parse import SourceLocation
 from puya.utils import StableSet, set_add, unique
@@ -34,7 +33,7 @@ def build_contract_metadata(
     ctx: IRBuildContext, contract: awst_nodes.Contract
 ) -> tuple[
     models.ContractMetaData,
-    Mapping[models.ARC4Method, AWSTContractMethodSignature],
+    dict[awst_nodes.ContractMethod, models.ARC4Method],
 ]:
     global_state = dict[str, models.ContractState]()
     local_state = dict[str, models.ContractState]()
@@ -71,14 +70,7 @@ def build_contract_metadata(
         structs=immutabledict(structs),
         template_variable_types=immutabledict(template_var_types),
     )
-    return metadata, {
-        md: AWSTContractMethodSignature(
-            target=awst_nodes.ContractMethodTarget(cref=cm.cref, member_name=cm.member_name),
-            return_type=cm.return_type,
-            parameter_types=[a.wtype for a in cm.args],
-        )
-        for cm, md in arc4_method_data.items()
-    }
+    return metadata, arc4_method_data
 
 
 def _translate_state(

@@ -66,22 +66,13 @@ subroutine examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__(
     block@11: // after_if_else_L10
         return 0u
 
-subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: bytes) -> void:
-    block@0: // L30
-        let tmp%0#0: bytes = (extract3 user#0 2u 8u) // on error: Index access is out of bounds
-        let tmp%1#0: bool = examples.struct_in_box.contract.ExampleContract.box_exists(tmp%0#0)
-        let tmp%2#0: bool = (! tmp%1#0)
-        (assert tmp%2#0) // User with id must not exist
-        let write_to_box%0#0: bytes = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
-        let user#1: bytes = write_to_box%0#0
-        return 
-
-subroutine examples.struct_in_box.contract.ExampleContract.box_exists(user_id: bytes) -> bool:
-    block@0: // L25
+subroutine examples.struct_in_box.contract.ExampleContract.read_from_box(user_id: bytes) -> bytes:
+    block@0: // L11
         let (tuple_assignment%0#0: bytes, tuple_assignment%1#0: bool) = (box_get user_id#0)
-        let _data#0: bytes = tuple_assignment%0#0
+        let box_data#0: bytes = tuple_assignment%0#0
         let exists#0: bool = tuple_assignment%1#0
-        return exists#0
+        (assert exists#0) // User with that id does not exist
+        return box_data#0
 
 subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: bytes) -> bytes:
     block@0: // L17
@@ -91,6 +82,23 @@ subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: by
         (box_del box_key#0)
         (box_put box_key#0 user#0)
         return user%out#0
+
+subroutine examples.struct_in_box.contract.ExampleContract.box_exists(user_id: bytes) -> bool:
+    block@0: // L25
+        let (tuple_assignment%0#0: bytes, tuple_assignment%1#0: bool) = (box_get user_id#0)
+        let _data#0: bytes = tuple_assignment%0#0
+        let exists#0: bool = tuple_assignment%1#0
+        return exists#0
+
+subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: bytes) -> void:
+    block@0: // L30
+        let tmp%0#0: bytes = (extract3 user#0 2u 8u) // on error: Index access is out of bounds
+        let tmp%1#0: bool = examples.struct_in_box.contract.ExampleContract.box_exists(tmp%0#0)
+        let tmp%2#0: bool = (! tmp%1#0)
+        (assert tmp%2#0) // User with id must not exist
+        let write_to_box%0#0: bytes = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
+        let user#1: bytes = write_to_box%0#0
+        return 
 
 subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(user_id: bytes, asset: uint64) -> void:
     block@0: // L35
@@ -102,14 +110,6 @@ subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(
         let write_to_box%0#0: bytes = examples.struct_in_box.contract.ExampleContract.write_to_box(user#1)
         let user#2: bytes = write_to_box%0#0
         return 
-
-subroutine examples.struct_in_box.contract.ExampleContract.read_from_box(user_id: bytes) -> bytes:
-    block@0: // L11
-        let (tuple_assignment%0#0: bytes, tuple_assignment%1#0: bool) = (box_get user_id#0)
-        let box_data#0: bytes = tuple_assignment%0#0
-        let exists#0: bool = tuple_assignment%1#0
-        (assert exists#0) // User with that id does not exist
-        return box_data#0
 
 subroutine examples.struct_in_box.contract.ExampleContract.get_user(user_id: bytes) -> bytes:
     block@0: // L41

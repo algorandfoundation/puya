@@ -14,7 +14,7 @@ from puya.avm import AVMType
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
 from puya.ir.models import Intrinsic, UInt64Constant
-from puya.ir.optimize._context import IROptimizationContext
+from puya.ir.optimize.context import IROptimizationContext
 from puya.ir.optimize.dead_code_elimination import SIDE_EFFECT_FREE_AVM_OPS
 from puya.ir.register_read_collector import RegisterReadCollector
 from puya.ir.types_ import AVMBytesEncoding, IRType

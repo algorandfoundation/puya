@@ -1,3 +1,5 @@
+import typing
+
 from algopy import (
     ARC4Contract,
     Box,
@@ -37,6 +39,16 @@ class TopLevelStruct(arc4.Struct):
 class StateStruct(arc4.Struct):
     a: arc4.UInt64
     b: arc4.String
+
+
+@subroutine
+def constant_method() -> UInt64:
+    return UInt64(42)
+
+
+@subroutine
+def echo_number(x: UInt64) -> UInt64:
+    return x
 
 
 class Contract(ARC4Contract):
@@ -123,13 +135,34 @@ class Contract(ARC4Contract):
             "c": Bytes(b"123"),
             "b": UInt64(234),
             "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
+            "e": (UInt64(42), String("on the edge")),
+            "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
+            "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
+            "h": constant_method(),
+            "i": echo_number(UInt64(1234)),
         }
     )
-    def with_constant_defaults(self, a: arc4.UInt64, b: UInt64, c: Bytes, d: EventOnly) -> None:
+    def with_constant_defaults(
+        self,
+        a: arc4.UInt64,
+        b: UInt64,
+        c: Bytes,
+        d: EventOnly,
+        e: tuple[UInt64, String],
+        f: arc4.StaticArray[arc4.String, typing.Literal[2]],
+        g: arc4.DynamicArray[arc4.String],
+        h: UInt64,
+        i: UInt64,
+    ) -> None:
         assert a
         assert b
         assert c
         assert d.x or d.y
+        assert e[0] or e[1]
+        assert f[0] == "hi"
+        assert g.length == 2
+        assert h == 42
+        assert i == 1234
 
 
 @subroutine

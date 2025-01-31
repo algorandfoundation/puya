@@ -44,6 +44,76 @@ __init__:
     retsub
 
 
+// test_cases.compile.apps.HelloOtherConstants.create() -> uint64:
+create:
+    // compile/apps.py:83-84
+    // @arc4.abimethod(create="require")
+    // def create(self) -> UInt64:
+    proto 0 1
+    // compile/apps.py:85
+    // return UInt64(1)
+    intc_1 // 1
+    retsub
+
+
+// test_cases.compile.apps.HelloOtherConstants.delete() -> void:
+delete:
+    // compile/apps.py:87-88
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    // def delete(self) -> None:
+    proto 0 0
+    retsub
+
+
+// test_cases.compile.apps.HelloOtherConstants.greet(name: bytes) -> bytes:
+greet:
+    // compile/apps.py:91-92
+    // @arc4.abimethod()
+    // def greet(self, name: String) -> Bytes:
+    proto 1 1
+    // compile/apps.py:93
+    // num_alpha = (self.num + 48).bytes[-1]
+    intc_0 // 0
+    bytec_1 // "num"
+    app_global_get_ex
+    assert // check self.num exists
+    pushbytes 0x30
+    b+
+    dup
+    len
+    intc_1 // 1
+    -
+    intc_1 // 1
+    extract3
+    // compile/apps.py:95
+    // self.greeting.bytes + b" " + name.bytes + num_alpha + self.address.bytes + self.method
+    intc_0 // 0
+    bytec_0 // "greeting"
+    app_global_get_ex
+    assert // check self.greeting exists
+    pushbytes 0x20
+    concat
+    frame_dig -1
+    concat
+    swap
+    concat
+    intc_0 // 0
+    bytec_2 // "address"
+    app_global_get_ex
+    assert // check self.address exists
+    concat
+    intc_0 // 0
+    bytec_3 // "method"
+    app_global_get_ex
+    assert // check self.method exists
+    concat
+    // compile/apps.py:94-96
+    // return (
+    //     self.greeting.bytes + b" " + name.bytes + num_alpha + self.address.bytes + self.method
+    // )
+    retsub
+
+
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
     proto 0 1
@@ -146,73 +216,3 @@ approval_program_create_route@3:
 
 approval_program_bare_routing@8:
     b approval_program_after_if_else@9
-
-
-// test_cases.compile.apps.HelloOtherConstants.create() -> uint64:
-create:
-    // compile/apps.py:83-84
-    // @arc4.abimethod(create="require")
-    // def create(self) -> UInt64:
-    proto 0 1
-    // compile/apps.py:85
-    // return UInt64(1)
-    intc_1 // 1
-    retsub
-
-
-// test_cases.compile.apps.HelloOtherConstants.delete() -> void:
-delete:
-    // compile/apps.py:87-88
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    // def delete(self) -> None:
-    proto 0 0
-    retsub
-
-
-// test_cases.compile.apps.HelloOtherConstants.greet(name: bytes) -> bytes:
-greet:
-    // compile/apps.py:91-92
-    // @arc4.abimethod()
-    // def greet(self, name: String) -> Bytes:
-    proto 1 1
-    // compile/apps.py:93
-    // num_alpha = (self.num + 48).bytes[-1]
-    intc_0 // 0
-    bytec_1 // "num"
-    app_global_get_ex
-    assert // check self.num exists
-    pushbytes 0x30
-    b+
-    dup
-    len
-    intc_1 // 1
-    -
-    intc_1 // 1
-    extract3
-    // compile/apps.py:95
-    // self.greeting.bytes + b" " + name.bytes + num_alpha + self.address.bytes + self.method
-    intc_0 // 0
-    bytec_0 // "greeting"
-    app_global_get_ex
-    assert // check self.greeting exists
-    pushbytes 0x20
-    concat
-    frame_dig -1
-    concat
-    swap
-    concat
-    intc_0 // 0
-    bytec_2 // "address"
-    app_global_get_ex
-    assert // check self.address exists
-    concat
-    intc_0 // 0
-    bytec_3 // "method"
-    app_global_get_ex
-    assert // check self.method exists
-    concat
-    // compile/apps.py:94-96
-    // return (
-    //     self.greeting.bytes + b" " + name.bytes + num_alpha + self.address.bytes + self.method
-    // )
-    retsub

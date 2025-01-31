@@ -9,14 +9,18 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         let tmp%1#0: bool = algopy.arc4.ARC4Contract.approval_program()
         return tmp%1#0
 
-subroutine test_cases.everything.contract.Everything.__init__() -> void:
-    block@0: // L38
-        return 
+subroutine test_cases.everything.my_base.multiplicative_identity() -> uint64:
+    block@0: // L18
+        return 1u
 
-subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
-    block@0: // L1
-        let tmp%0#0: bool = test_cases.everything.contract.Everything.__puya_arc4_router__()
-        return tmp%0#0
+subroutine test_cases.everything.contract.get_banned() -> bytes:
+    block@0: // L23
+        let addr#0: bytes = addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
+        return addr#0
+
+subroutine test_cases.everything.contract.positive_one() -> uint64:
+    block@0: // L86
+        return 1u
 
 subroutine test_cases.everything.contract.Everything.__puya_arc4_router__() -> bool:
     block@0: // L37
@@ -88,30 +92,15 @@ subroutine test_cases.everything.contract.Everything.__puya_arc4_router__() -> b
     block@10: // after_if_else_L37
         return 0u
 
+subroutine test_cases.everything.contract.Everything.__init__() -> void:
+    block@0: // L38
+        return 
+
 subroutine test_cases.everything.contract.Everything.create() -> void:
     block@0: // L41
         test_cases.everything.contract.Everything._check_ban_list()
         test_cases.everything.my_base.MyBase.remember_creator()
         (app_global_put "counter" 0u)
-        return 
-
-subroutine test_cases.everything.contract.Everything._check_ban_list() -> void:
-    block@0: // L77
-        let tmp%0#0: bytes = (txn Sender)
-        let tmp%1#0: bytes = test_cases.everything.contract.get_banned()
-        let tmp%2#0: bool = (!= tmp%0#0 tmp%1#0)
-        (assert tmp%2#0) // You are banned, goodbye
-        return 
-
-subroutine test_cases.everything.contract.get_banned() -> bytes:
-    block@0: // L23
-        let addr#0: bytes = addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
-        return addr#0
-
-subroutine test_cases.everything.my_base.MyBase.remember_creator() -> void:
-    block@0: // L7
-        let new_state_value%0#0: bytes = (txn Sender)
-        (app_global_put "creator" new_state_value%0#0)
         return 
 
 subroutine test_cases.everything.contract.Everything.register(name: bytes) -> void:
@@ -137,10 +126,6 @@ subroutine test_cases.everything.contract.Everything.register(name: bytes) -> vo
     block@4: // after_if_else_L50
         (app_local_put 0u "name" name#0)
         return 
-
-subroutine test_cases.everything.my_base.multiplicative_identity() -> uint64:
-    block@0: // L18
-        return 1u
 
 subroutine test_cases.everything.contract.Everything.say_hello() -> bytes:
     block@0: // L56
@@ -177,17 +162,17 @@ subroutine test_cases.everything.contract.Everything.calculate(a: bytes, b: byte
         let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
         return val_as_bytes%0#0
 
-subroutine test_cases.everything.my_base.MyMiddleBase.calculate(a: bytes, b: bytes) -> bytes:
-    block@0: // L13
-        let tmp%0#0: uint64 = (btoi a#0)
-        let tmp%1#0: uint64 = (btoi b#0)
-        let to_encode%0#0: uint64 = (+ tmp%0#0 tmp%1#0)
-        let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
-        return val_as_bytes%0#0
-
 subroutine test_cases.everything.contract.Everything.close_out() -> void:
     block@0: // L69
         test_cases.everything.contract.Everything._remove_sender()
+        return 
+
+subroutine test_cases.everything.contract.Everything._check_ban_list() -> void:
+    block@0: // L77
+        let tmp%0#0: bytes = (txn Sender)
+        let tmp%1#0: bytes = test_cases.everything.contract.get_banned()
+        let tmp%2#0: bool = (!= tmp%0#0 tmp%1#0)
+        (assert tmp%2#0) // You are banned, goodbye
         return 
 
 subroutine test_cases.everything.contract.Everything._remove_sender() -> void:
@@ -199,6 +184,21 @@ subroutine test_cases.everything.contract.Everything._remove_sender() -> void:
         (app_global_put "counter" new_state_value%0#0)
         return 
 
-subroutine test_cases.everything.contract.positive_one() -> uint64:
-    block@0: // L86
-        return 1u
+subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+    block@0: // L1
+        let tmp%0#0: bool = test_cases.everything.contract.Everything.__puya_arc4_router__()
+        return tmp%0#0
+
+subroutine test_cases.everything.my_base.MyMiddleBase.calculate(a: bytes, b: bytes) -> bytes:
+    block@0: // L13
+        let tmp%0#0: uint64 = (btoi a#0)
+        let tmp%1#0: uint64 = (btoi b#0)
+        let to_encode%0#0: uint64 = (+ tmp%0#0 tmp%1#0)
+        let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
+        return val_as_bytes%0#0
+
+subroutine test_cases.everything.my_base.MyBase.remember_creator() -> void:
+    block@0: // L7
+        let new_state_value%0#0: bytes = (txn Sender)
+        (app_global_put "creator" new_state_value%0#0)
+        return 

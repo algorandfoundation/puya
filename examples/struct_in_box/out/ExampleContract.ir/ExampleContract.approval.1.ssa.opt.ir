@@ -57,6 +57,19 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#0: bool = φ(examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0 <- block@3, examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#1 <- block@4, examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#2 <- block@5, examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#3 <- block@9, examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#4 <- block@12)
         return tmp%0#0
 
+subroutine examples.struct_in_box.contract.ExampleContract.read_from_box(user_id: bytes) -> bytes:
+    block@0: // L11
+        let (box_data#0: bytes, exists#0: bool) = (box_get user_id#0)
+        (assert exists#0) // User with that id does not exist
+        return box_data#0
+
+subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: bytes) -> bytes:
+    block@0: // L17
+        let box_key#0: bytes = ((extract 2 8) user#0) // on error: Index access is out of bounds
+        (box_del box_key#0)
+        (box_put box_key#0 user#0)
+        return user#0
+
 subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: bytes) -> void:
     block@0: // L30
         let user_id#0: bytes = ((extract 2 8) user#0) // on error: Index access is out of bounds
@@ -66,13 +79,6 @@ subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: bytes)
         let user#1: bytes = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
         return 
 
-subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: bytes) -> bytes:
-    block@0: // L17
-        let box_key#0: bytes = ((extract 2 8) user#0) // on error: Index access is out of bounds
-        (box_del box_key#0)
-        (box_put box_key#0 user#0)
-        return user#0
-
 subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(user_id: bytes, asset: uint64) -> void:
     block@0: // L35
         let user#0: bytes = examples.struct_in_box.contract.ExampleContract.read_from_box(user_id#0)
@@ -80,12 +86,6 @@ subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(
         let user#1: bytes = ((replace2 10) user#0 val_as_bytes%0#0)
         let user#2: bytes = examples.struct_in_box.contract.ExampleContract.write_to_box(user#1)
         return 
-
-subroutine examples.struct_in_box.contract.ExampleContract.read_from_box(user_id: bytes) -> bytes:
-    block@0: // L11
-        let (box_data#0: bytes, exists#0: bool) = (box_get user_id#0)
-        (assert exists#0) // User with that id does not exist
-        return box_data#0
 
 subroutine examples.struct_in_box.contract.ExampleContract.get_user(user_id: bytes) -> bytes:
     block@0: // L41

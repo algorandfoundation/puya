@@ -309,6 +309,113 @@ join_game:                                                                      
     retsub
 
 
+// examples.tictactoe.tictactoe.TicTacToeContract.whose_turn() -> bytes:
+whose_turn:
+    // tictactoe/tictactoe.py:45
+    // return arc4.UInt8(HOST) if self.turns % 2 else arc4.UInt8(CHALLENGER)
+    int 0                                                                                  0
+    byte "turns"                                                                           0,"turns"
+    app_global_get_ex                                                                      maybe_value%0#0,maybe_exists%0#0
+    l-load maybe_exists%0#0 0                                                              maybe_value%0#0,maybe_exists%0#0
+    assert // check self.turns exists                                                      maybe_value%0#0
+    l-load maybe_value%0#0 0                                                               maybe_value%0#0
+    int 2                                                                                  maybe_value%0#0,2
+    %                                                                                      tmp%0#0
+    byte 0x02                                                                              tmp%0#0,0x02
+    byte 0x01                                                                              tmp%0#0,0x02,0x01
+    l-load tmp%0#0 2                                                                       0x02,0x01,tmp%0#0
+    select                                                                                 tmp%2#0
+    l-load tmp%2#0 0                                                                       tmp%2#0
+    retsub                                                                                 tmp%2#0
+
+
+// examples.tictactoe.tictactoe.TicTacToeContract.play(move.0: uint64, move.1: uint64) -> void:
+play:                                                                                      (𝕡) move.0#0,move.1#0 |
+    // tictactoe/tictactoe.py:49
+    // assert not self.winner, "Game is already finished"
+    int 0                                                                                  (𝕡) move.0#0,move.1#0 | 0
+    byte "winner"                                                                          (𝕡) move.0#0,move.1#0 | 0,"winner"
+    app_global_get_ex                                                                      (𝕡) move.0#0,move.1#0 | maybe_value%0#0,maybe_exists%0#0
+    l-store maybe_exists%0#0 1                                                             (𝕡) move.0#0,move.1#0 | maybe_exists%0#0,maybe_value%0#0
+    v-store maybe_value%0#0                                                                (𝕡) move.0#0,move.1#0 | maybe_exists%0#0
+    l-load maybe_exists%0#0 0                                                              (𝕡) move.0#0,move.1#0 | maybe_exists%0#0
+    !                                                                                      (𝕡) move.0#0,move.1#0 | tmp%0#0
+    l-load tmp%0#0 0                                                                       (𝕡) move.0#0,move.1#0 | tmp%0#0
+    assert // Game is already finished                                                     (𝕡) move.0#0,move.1#0 |
+    // tictactoe/tictactoe.py:50
+    // if self.turns % 2:
+    int 0                                                                                  (𝕡) move.0#0,move.1#0 | 0
+    byte "turns"                                                                           (𝕡) move.0#0,move.1#0 | 0,"turns"
+    app_global_get_ex                                                                      (𝕡) move.0#0,move.1#0 | maybe_value%1#0,maybe_exists%1#0
+    l-load maybe_exists%1#0 0                                                              (𝕡) move.0#0,move.1#0 | maybe_value%1#0,maybe_exists%1#0
+    assert // check self.turns exists                                                      (𝕡) move.0#0,move.1#0 | maybe_value%1#0
+    l-load maybe_value%1#0 0                                                               (𝕡) move.0#0,move.1#0 | maybe_value%1#0
+    int 2                                                                                  (𝕡) move.0#0,move.1#0 | maybe_value%1#0,2
+    %                                                                                      (𝕡) move.0#0,move.1#0 | tmp%1#0
+    l-load tmp%1#0 0                                                                       (𝕡) move.0#0,move.1#0 | tmp%1#0
+    bz play_else_body@2 ; b play_if_body@1                                                 (𝕡) move.0#0,move.1#0 |
+
+play_if_body@1:                                                                            (𝕡) move.0#0,move.1#0 |
+    // tictactoe/tictactoe.py:51
+    // assert Txn.sender == self.host, "It is the host's turn"
+    txn Sender                                                                             (𝕡) move.0#0,move.1#0 | tmp%3#0
+    int 0                                                                                  (𝕡) move.0#0,move.1#0 | tmp%3#0,0
+    byte "host"                                                                            (𝕡) move.0#0,move.1#0 | tmp%3#0,0,"host"
+    app_global_get_ex                                                                      (𝕡) move.0#0,move.1#0 | tmp%3#0,maybe_value%2#0,maybe_exists%2#0
+    l-load maybe_exists%2#0 0                                                              (𝕡) move.0#0,move.1#0 | tmp%3#0,maybe_value%2#0,maybe_exists%2#0
+    assert // check self.host exists                                                       (𝕡) move.0#0,move.1#0 | tmp%3#0,maybe_value%2#0
+    l-load tmp%3#0 1                                                                       (𝕡) move.0#0,move.1#0 | maybe_value%2#0,tmp%3#0
+    l-load maybe_value%2#0 1                                                               (𝕡) move.0#0,move.1#0 | tmp%3#0,maybe_value%2#0
+    ==                                                                                     (𝕡) move.0#0,move.1#0 | tmp%4#0
+    l-load tmp%4#0 0                                                                       (𝕡) move.0#0,move.1#0 | tmp%4#0
+    assert // It is the host's turn                                                        (𝕡) move.0#0,move.1#0 |
+    // tictactoe/tictactoe.py:52
+    // player = arc4.UInt8(HOST)
+    byte 0x01                                                                              (𝕡) move.0#0,move.1#0 | 0x01
+    v-store player#0                                                                       (𝕡) move.0#0,move.1#0 |
+    b play_after_if_else@3                                                                 (𝕡) move.0#0,move.1#0 |
+
+play_else_body@2:                                                                          (𝕡) move.0#0,move.1#0 |
+    // tictactoe/tictactoe.py:54
+    // assert Txn.sender == self.challenger.get(
+    txn Sender                                                                             (𝕡) move.0#0,move.1#0 | tmp%5#0
+    // tictactoe/tictactoe.py:55
+    // default=Account()
+    global ZeroAddress                                                                     (𝕡) move.0#0,move.1#0 | tmp%5#0,tmp%6#0
+    // tictactoe/tictactoe.py:54
+    // assert Txn.sender == self.challenger.get(
+    int 0                                                                                  (𝕡) move.0#0,move.1#0 | tmp%5#0,tmp%6#0,0
+    byte "challenger"                                                                      (𝕡) move.0#0,move.1#0 | tmp%5#0,tmp%6#0,0,"challenger"
+    // tictactoe/tictactoe.py:54-56
+    // assert Txn.sender == self.challenger.get(
+    //     default=Account()
+    // ), "It is the challenger's turn"
+    app_global_get_ex                                                                      (𝕡) move.0#0,move.1#0 | tmp%5#0,tmp%6#0,maybe_value%3#0,maybe_exists%3#0
+    l-load tmp%6#0 2                                                                       (𝕡) move.0#0,move.1#0 | tmp%5#0,maybe_value%3#0,maybe_exists%3#0,tmp%6#0
+    l-load maybe_value%3#0 2                                                               (𝕡) move.0#0,move.1#0 | tmp%5#0,maybe_exists%3#0,tmp%6#0,maybe_value%3#0
+    l-load maybe_exists%3#0 2                                                              (𝕡) move.0#0,move.1#0 | tmp%5#0,tmp%6#0,maybe_value%3#0,maybe_exists%3#0
+    select                                                                                 (𝕡) move.0#0,move.1#0 | tmp%5#0,tmp%7#0
+    l-load tmp%5#0 1                                                                       (𝕡) move.0#0,move.1#0 | tmp%7#0,tmp%5#0
+    l-load tmp%7#0 1                                                                       (𝕡) move.0#0,move.1#0 | tmp%5#0,tmp%7#0
+    ==                                                                                     (𝕡) move.0#0,move.1#0 | tmp%8#0
+    l-load tmp%8#0 0                                                                       (𝕡) move.0#0,move.1#0 | tmp%8#0
+    assert // It is the challenger's turn                                                  (𝕡) move.0#0,move.1#0 |
+    // tictactoe/tictactoe.py:57
+    // player = arc4.UInt8(CHALLENGER)
+    byte 0x02                                                                              (𝕡) move.0#0,move.1#0 | 0x02
+    v-store player#0                                                                       (𝕡) move.0#0,move.1#0 |
+    b play_after_if_else@3                                                                 (𝕡) move.0#0,move.1#0 |
+
+play_after_if_else@3:                                                                      (𝕡) move.0#0,move.1#0 |
+    // tictactoe/tictactoe.py:58
+    // self.make_move(player, move)
+    v-load player#0                                                                        (𝕡) move.0#0,move.1#0 | player#0
+    p-load move.0#0                                                                        (𝕡) move.0#0,move.1#0 | player#0,move.0#0 (copy)
+    p-load move.1#0                                                                        (𝕡) move.0#0,move.1#0 | player#0,move.0#0 (copy),move.1#0 (copy)
+    callsub make_move                                                                      (𝕡) move.0#0,move.1#0 |
+    retsub
+
+
 // examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: bytes, move.0: uint64, move.1: uint64) -> void:
 make_move:                                                                                 (𝕡) player#0,move.0#0,move.1#0 |
     // tictactoe/tictactoe.py:63
@@ -645,113 +752,6 @@ make_move_if_body@7:                                                            
     b make_move_after_if_else@9                                                            (𝕡) player#0,move.0#0,move.1#0 |
 
 make_move_after_if_else@9:                                                                 (𝕡) player#0,move.0#0,move.1#0 |
-    retsub
-
-
-// examples.tictactoe.tictactoe.TicTacToeContract.whose_turn() -> bytes:
-whose_turn:
-    // tictactoe/tictactoe.py:45
-    // return arc4.UInt8(HOST) if self.turns % 2 else arc4.UInt8(CHALLENGER)
-    int 0                                                                                  0
-    byte "turns"                                                                           0,"turns"
-    app_global_get_ex                                                                      maybe_value%0#0,maybe_exists%0#0
-    l-load maybe_exists%0#0 0                                                              maybe_value%0#0,maybe_exists%0#0
-    assert // check self.turns exists                                                      maybe_value%0#0
-    l-load maybe_value%0#0 0                                                               maybe_value%0#0
-    int 2                                                                                  maybe_value%0#0,2
-    %                                                                                      tmp%0#0
-    byte 0x02                                                                              tmp%0#0,0x02
-    byte 0x01                                                                              tmp%0#0,0x02,0x01
-    l-load tmp%0#0 2                                                                       0x02,0x01,tmp%0#0
-    select                                                                                 tmp%2#0
-    l-load tmp%2#0 0                                                                       tmp%2#0
-    retsub                                                                                 tmp%2#0
-
-
-// examples.tictactoe.tictactoe.TicTacToeContract.play(move.0: uint64, move.1: uint64) -> void:
-play:                                                                                      (𝕡) move.0#0,move.1#0 |
-    // tictactoe/tictactoe.py:49
-    // assert not self.winner, "Game is already finished"
-    int 0                                                                                  (𝕡) move.0#0,move.1#0 | 0
-    byte "winner"                                                                          (𝕡) move.0#0,move.1#0 | 0,"winner"
-    app_global_get_ex                                                                      (𝕡) move.0#0,move.1#0 | maybe_value%0#0,maybe_exists%0#0
-    l-store maybe_exists%0#0 1                                                             (𝕡) move.0#0,move.1#0 | maybe_exists%0#0,maybe_value%0#0
-    v-store maybe_value%0#0                                                                (𝕡) move.0#0,move.1#0 | maybe_exists%0#0
-    l-load maybe_exists%0#0 0                                                              (𝕡) move.0#0,move.1#0 | maybe_exists%0#0
-    !                                                                                      (𝕡) move.0#0,move.1#0 | tmp%0#0
-    l-load tmp%0#0 0                                                                       (𝕡) move.0#0,move.1#0 | tmp%0#0
-    assert // Game is already finished                                                     (𝕡) move.0#0,move.1#0 |
-    // tictactoe/tictactoe.py:50
-    // if self.turns % 2:
-    int 0                                                                                  (𝕡) move.0#0,move.1#0 | 0
-    byte "turns"                                                                           (𝕡) move.0#0,move.1#0 | 0,"turns"
-    app_global_get_ex                                                                      (𝕡) move.0#0,move.1#0 | maybe_value%1#0,maybe_exists%1#0
-    l-load maybe_exists%1#0 0                                                              (𝕡) move.0#0,move.1#0 | maybe_value%1#0,maybe_exists%1#0
-    assert // check self.turns exists                                                      (𝕡) move.0#0,move.1#0 | maybe_value%1#0
-    l-load maybe_value%1#0 0                                                               (𝕡) move.0#0,move.1#0 | maybe_value%1#0
-    int 2                                                                                  (𝕡) move.0#0,move.1#0 | maybe_value%1#0,2
-    %                                                                                      (𝕡) move.0#0,move.1#0 | tmp%1#0
-    l-load tmp%1#0 0                                                                       (𝕡) move.0#0,move.1#0 | tmp%1#0
-    bz play_else_body@2 ; b play_if_body@1                                                 (𝕡) move.0#0,move.1#0 |
-
-play_if_body@1:                                                                            (𝕡) move.0#0,move.1#0 |
-    // tictactoe/tictactoe.py:51
-    // assert Txn.sender == self.host, "It is the host's turn"
-    txn Sender                                                                             (𝕡) move.0#0,move.1#0 | tmp%3#0
-    int 0                                                                                  (𝕡) move.0#0,move.1#0 | tmp%3#0,0
-    byte "host"                                                                            (𝕡) move.0#0,move.1#0 | tmp%3#0,0,"host"
-    app_global_get_ex                                                                      (𝕡) move.0#0,move.1#0 | tmp%3#0,maybe_value%2#0,maybe_exists%2#0
-    l-load maybe_exists%2#0 0                                                              (𝕡) move.0#0,move.1#0 | tmp%3#0,maybe_value%2#0,maybe_exists%2#0
-    assert // check self.host exists                                                       (𝕡) move.0#0,move.1#0 | tmp%3#0,maybe_value%2#0
-    l-load tmp%3#0 1                                                                       (𝕡) move.0#0,move.1#0 | maybe_value%2#0,tmp%3#0
-    l-load maybe_value%2#0 1                                                               (𝕡) move.0#0,move.1#0 | tmp%3#0,maybe_value%2#0
-    ==                                                                                     (𝕡) move.0#0,move.1#0 | tmp%4#0
-    l-load tmp%4#0 0                                                                       (𝕡) move.0#0,move.1#0 | tmp%4#0
-    assert // It is the host's turn                                                        (𝕡) move.0#0,move.1#0 |
-    // tictactoe/tictactoe.py:52
-    // player = arc4.UInt8(HOST)
-    byte 0x01                                                                              (𝕡) move.0#0,move.1#0 | 0x01
-    v-store player#0                                                                       (𝕡) move.0#0,move.1#0 |
-    b play_after_if_else@3                                                                 (𝕡) move.0#0,move.1#0 |
-
-play_else_body@2:                                                                          (𝕡) move.0#0,move.1#0 |
-    // tictactoe/tictactoe.py:54
-    // assert Txn.sender == self.challenger.get(
-    txn Sender                                                                             (𝕡) move.0#0,move.1#0 | tmp%5#0
-    // tictactoe/tictactoe.py:55
-    // default=Account()
-    global ZeroAddress                                                                     (𝕡) move.0#0,move.1#0 | tmp%5#0,tmp%6#0
-    // tictactoe/tictactoe.py:54
-    // assert Txn.sender == self.challenger.get(
-    int 0                                                                                  (𝕡) move.0#0,move.1#0 | tmp%5#0,tmp%6#0,0
-    byte "challenger"                                                                      (𝕡) move.0#0,move.1#0 | tmp%5#0,tmp%6#0,0,"challenger"
-    // tictactoe/tictactoe.py:54-56
-    // assert Txn.sender == self.challenger.get(
-    //     default=Account()
-    // ), "It is the challenger's turn"
-    app_global_get_ex                                                                      (𝕡) move.0#0,move.1#0 | tmp%5#0,tmp%6#0,maybe_value%3#0,maybe_exists%3#0
-    l-load tmp%6#0 2                                                                       (𝕡) move.0#0,move.1#0 | tmp%5#0,maybe_value%3#0,maybe_exists%3#0,tmp%6#0
-    l-load maybe_value%3#0 2                                                               (𝕡) move.0#0,move.1#0 | tmp%5#0,maybe_exists%3#0,tmp%6#0,maybe_value%3#0
-    l-load maybe_exists%3#0 2                                                              (𝕡) move.0#0,move.1#0 | tmp%5#0,tmp%6#0,maybe_value%3#0,maybe_exists%3#0
-    select                                                                                 (𝕡) move.0#0,move.1#0 | tmp%5#0,tmp%7#0
-    l-load tmp%5#0 1                                                                       (𝕡) move.0#0,move.1#0 | tmp%7#0,tmp%5#0
-    l-load tmp%7#0 1                                                                       (𝕡) move.0#0,move.1#0 | tmp%5#0,tmp%7#0
-    ==                                                                                     (𝕡) move.0#0,move.1#0 | tmp%8#0
-    l-load tmp%8#0 0                                                                       (𝕡) move.0#0,move.1#0 | tmp%8#0
-    assert // It is the challenger's turn                                                  (𝕡) move.0#0,move.1#0 |
-    // tictactoe/tictactoe.py:57
-    // player = arc4.UInt8(CHALLENGER)
-    byte 0x02                                                                              (𝕡) move.0#0,move.1#0 | 0x02
-    v-store player#0                                                                       (𝕡) move.0#0,move.1#0 |
-    b play_after_if_else@3                                                                 (𝕡) move.0#0,move.1#0 |
-
-play_after_if_else@3:                                                                      (𝕡) move.0#0,move.1#0 |
-    // tictactoe/tictactoe.py:58
-    // self.make_move(player, move)
-    v-load player#0                                                                        (𝕡) move.0#0,move.1#0 | player#0
-    p-load move.0#0                                                                        (𝕡) move.0#0,move.1#0 | player#0,move.0#0 (copy)
-    p-load move.1#0                                                                        (𝕡) move.0#0,move.1#0 | player#0,move.0#0 (copy),move.1#0 (copy)
-    callsub make_move                                                                      (𝕡) move.0#0,move.1#0 |
     retsub
 
 

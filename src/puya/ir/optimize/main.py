@@ -5,11 +5,11 @@ import attrs
 from puya import log
 from puya.context import ArtifactCompileContext
 from puya.ir import models
-from puya.ir.optimize._context import IROptimizationContext, IROptimizationPassContext
 from puya.ir.optimize.assignments import copy_propagation
 from puya.ir.optimize.collapse_blocks import remove_empty_blocks, remove_linear_jump
 from puya.ir.optimize.compiled_reference import replace_compiled_references
 from puya.ir.optimize.constant_propagation import constant_replacer
+from puya.ir.optimize.context import IROptimizationContext
 from puya.ir.optimize.control_op_simplification import simplify_control_ops
 from puya.ir.optimize.dead_code_elimination import (
     remove_unreachable_blocks,
@@ -25,7 +25,7 @@ from puya.ir.to_text_visitor import render_program
 from puya.utils import attrs_extend
 
 MAX_PASSES = 100
-SubroutineOptimizerCallable = Callable[[IROptimizationPassContext, models.Subroutine], bool]
+SubroutineOptimizerCallable = Callable[[IROptimizationContext, models.Subroutine], bool]
 logger = log.get_logger(__name__)
 
 
@@ -44,7 +44,7 @@ class SubroutineOptimization:
         func_desc = func_name.replace("_", " ").title().strip()
         return SubroutineOptimization(id=func_name, desc=func_desc, optimize=func, loop=loop)
 
-    def optimize(self, context: IROptimizationPassContext, ir: models.Subroutine) -> bool:
+    def optimize(self, context: IROptimizationContext, ir: models.Subroutine) -> bool:
         did_modify = self._optimize(context, ir)
         if did_modify:
             while self.loop and self._optimize(context, ir):
@@ -107,27 +107,22 @@ def _split_parallel_copies(_ctx: ArtifactCompileContext, sub: models.Subroutine)
 
 
 def optimize_program_ir(
-    compile_context: ArtifactCompileContext,
+    context: ArtifactCompileContext,
     program: models.Program,
     *,
     routable_method_ids: Collection[str] | None,
-    expand_all_bytes: bool = False,
 ) -> None:
-    context = attrs_extend(
-        IROptimizationContext, compile_context, expand_all_bytes=expand_all_bytes
-    )
-    level = context.options.optimization_level
-    pipeline = get_subroutine_optimizations(level)
+    pipeline = get_subroutine_optimizations(context.options.optimization_level)
+    opt_context = attrs_extend(IROptimizationContext, context, expand_all_bytes=False)
     for pass_num in range(1, MAX_PASSES + 1):
         program_modified = False
-        pass_context = attrs_extend(IROptimizationPassContext, context, pass_number=pass_num)
         logger.debug(f"Begin optimization pass {pass_num}/{MAX_PASSES}")
-        analyse_subroutines_for_inlining(pass_context, program, routable_method_ids)
+        analyse_subroutines_for_inlining(opt_context, program, routable_method_ids)
         for subroutine in program.all_subroutines:
             logger.debug(f"Optimizing subroutine {subroutine.id}")
             for optimizer in pipeline:
                 logger.debug(f"Optimizer: {optimizer.desc}")
-                if optimizer.optimize(pass_context, subroutine):
+                if optimizer.optimize(opt_context, subroutine):
                     program_modified = True
             subroutine.validate_with_ssa()
         if remove_unused_subroutines(program):

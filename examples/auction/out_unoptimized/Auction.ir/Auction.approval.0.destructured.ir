@@ -19,131 +19,6 @@ subroutine examples.auction.contract.Auction.__init__() -> void:
         (app_global_put "previous_bidder" new_state_value%0#0)
         return 
 
-subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
-    block@0: // L1
-        goto block@1
-    block@1: // L16
-        let tmp%0#1: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@11
-    block@2: // abi_routing_L16
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "opt_into_asset(asset)void" => block@3, method "start_auction(uint64,uint64,axfer)void" => block@4, method "opt_in()void" => block@5, method "bid(pay)void" => block@6, method "claim_bids()void" => block@7, method "claim_asset(asset)void" => block@8, * => block@9}
-    block@3: // opt_into_asset_route_L25
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when not creating
-        let tmp%7#0: bytes = (txna ApplicationArgs 1)
-        let tmp%8#0: uint64 = (btoi tmp%7#0)
-        let tmp%9#0: uint64 = ((txnas Assets) tmp%8#0)
-        examples.auction.contract.Auction.opt_into_asset(tmp%9#0)
-        let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
-        goto block@16
-    block@4: // start_auction_route_L40
-        let tmp%10#0: uint64 = (txn OnCompletion)
-        let tmp%11#0: bool = (== tmp%10#0 NoOp)
-        (assert tmp%11#0) // OnCompletion is not NoOp
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        let tmp%13#0: bool = (!= tmp%12#0 0u)
-        (assert tmp%13#0) // can only call when not creating
-        let tmp%14#0: bytes = (txna ApplicationArgs 1)
-        let tmp%15#0: uint64 = (btoi tmp%14#0)
-        let tmp%16#0: bytes = (txna ApplicationArgs 2)
-        let tmp%17#0: uint64 = (btoi tmp%16#0)
-        let tmp%18#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%0#0: uint64 = (- tmp%18#0 1u)
-        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
-        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 axfer)
-        (assert gtxn_type_matches%0#0) // transaction type is axfer
-        examples.auction.contract.Auction.start_auction(tmp%15#0, tmp%17#0, gtxn_idx%0#0)
-        let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
-        goto block@16
-    block@5: // opt_in_route_L62
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (== tmp%19#0 NoOp)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        let tmp%22#0: bool = (!= tmp%21#0 0u)
-        (assert tmp%22#0) // can only call when not creating
-        examples.auction.contract.Auction.opt_in()
-        let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
-        goto block@16
-    block@6: // bid_route_L66
-        let tmp%23#0: uint64 = (txn OnCompletion)
-        let tmp%24#0: bool = (== tmp%23#0 NoOp)
-        (assert tmp%24#0) // OnCompletion is not NoOp
-        let tmp%25#0: uint64 = (txn ApplicationID)
-        let tmp%26#0: bool = (!= tmp%25#0 0u)
-        (assert tmp%26#0) // can only call when not creating
-        let tmp%27#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%1#0: uint64 = (- tmp%27#0 1u)
-        let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%1#0)
-        let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 pay)
-        (assert gtxn_type_matches%1#0) // transaction type is pay
-        examples.auction.contract.Auction.bid(gtxn_idx%1#0)
-        let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
-        goto block@16
-    block@7: // claim_bids_route_L82
-        let tmp%28#0: uint64 = (txn OnCompletion)
-        let tmp%29#0: bool = (== tmp%28#0 NoOp)
-        (assert tmp%29#0) // OnCompletion is not NoOp
-        let tmp%30#0: uint64 = (txn ApplicationID)
-        let tmp%31#0: bool = (!= tmp%30#0 0u)
-        (assert tmp%31#0) // can only call when not creating
-        examples.auction.contract.Auction.claim_bids()
-        let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
-        goto block@16
-    block@8: // claim_asset_route_L97
-        let tmp%32#0: uint64 = (txn OnCompletion)
-        let tmp%33#0: bool = (== tmp%32#0 NoOp)
-        (assert tmp%33#0) // OnCompletion is not NoOp
-        let tmp%34#0: uint64 = (txn ApplicationID)
-        let tmp%35#0: bool = (!= tmp%34#0 0u)
-        (assert tmp%35#0) // can only call when not creating
-        let tmp%36#0: bytes = (txna ApplicationArgs 1)
-        let tmp%37#0: uint64 = (btoi tmp%36#0)
-        let tmp%38#0: uint64 = ((txnas Assets) tmp%37#0)
-        examples.auction.contract.Auction.claim_asset(tmp%38#0)
-        let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
-        goto block@16
-    block@9: // switch_case_default_L16
-        goto block@10
-    block@10: // switch_case_next_L16
-        goto block@15
-    block@11: // bare_routing_L16
-        let tmp%39#0: uint64 = (txn OnCompletion)
-        switch tmp%39#0 {0u => block@12, * => block@13}
-    block@12: // __algopy_default_create_L1
-        let tmp%40#0: uint64 = (txn ApplicationID)
-        let tmp%41#0: bool = (== tmp%40#0 0u)
-        (assert tmp%41#0) // can only call when creating
-        goto block@17
-    block@17: // L1
-        goto block@18
-    block@18: // after_inlined_examples.auction.contract.Auction.__algopy_default_create_L1
-        let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
-        goto block@16
-    block@13: // switch_case_default_L16
-        goto block@14
-    block@14: // switch_case_next_L16
-        goto block@15
-    block@15: // after_if_else_L16
-        let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
-        goto block@16
-    block@16: // after_inlined_examples.auction.contract.Auction.__puya_arc4_router___L1
-        return tmp%0#0
-
 subroutine examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> void:
     block@0: // L25
         let tmp%0#0: bytes = (txn Sender)
@@ -282,3 +157,128 @@ subroutine examples.auction.contract.Auction.claim_asset(asset: uint64) -> void:
     block@1: // next_txn_L101
         itxn_submit
         return 
+
+subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+    block@0: // L1
+        goto block@1
+    block@1: // L16
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#1 0u)
+        goto tmp%1#0 ? block@2 : block@11
+    block@2: // abi_routing_L16
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "opt_into_asset(asset)void" => block@3, method "start_auction(uint64,uint64,axfer)void" => block@4, method "opt_in()void" => block@5, method "bid(pay)void" => block@6, method "claim_bids()void" => block@7, method "claim_asset(asset)void" => block@8, * => block@9}
+    block@3: // opt_into_asset_route_L25
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (== tmp%3#0 NoOp)
+        (assert tmp%4#0) // OnCompletion is not NoOp
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%6#0: bool = (!= tmp%5#0 0u)
+        (assert tmp%6#0) // can only call when not creating
+        let tmp%7#0: bytes = (txna ApplicationArgs 1)
+        let tmp%8#0: uint64 = (btoi tmp%7#0)
+        let tmp%9#0: uint64 = ((txnas Assets) tmp%8#0)
+        examples.auction.contract.Auction.opt_into_asset(tmp%9#0)
+        let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
+        goto block@18
+    block@4: // start_auction_route_L40
+        let tmp%10#0: uint64 = (txn OnCompletion)
+        let tmp%11#0: bool = (== tmp%10#0 NoOp)
+        (assert tmp%11#0) // OnCompletion is not NoOp
+        let tmp%12#0: uint64 = (txn ApplicationID)
+        let tmp%13#0: bool = (!= tmp%12#0 0u)
+        (assert tmp%13#0) // can only call when not creating
+        let tmp%14#0: bytes = (txna ApplicationArgs 1)
+        let tmp%15#0: uint64 = (btoi tmp%14#0)
+        let tmp%16#0: bytes = (txna ApplicationArgs 2)
+        let tmp%17#0: uint64 = (btoi tmp%16#0)
+        let tmp%18#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%18#0 1u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
+        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 axfer)
+        (assert gtxn_type_matches%0#0) // transaction type is axfer
+        examples.auction.contract.Auction.start_auction(tmp%15#0, tmp%17#0, gtxn_idx%0#0)
+        let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
+        goto block@18
+    block@5: // opt_in_route_L62
+        let tmp%19#0: uint64 = (txn OnCompletion)
+        let tmp%20#0: bool = (== tmp%19#0 NoOp)
+        (assert tmp%20#0) // OnCompletion is not NoOp
+        let tmp%21#0: uint64 = (txn ApplicationID)
+        let tmp%22#0: bool = (!= tmp%21#0 0u)
+        (assert tmp%22#0) // can only call when not creating
+        examples.auction.contract.Auction.opt_in()
+        let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
+        goto block@18
+    block@6: // bid_route_L66
+        let tmp%23#0: uint64 = (txn OnCompletion)
+        let tmp%24#0: bool = (== tmp%23#0 NoOp)
+        (assert tmp%24#0) // OnCompletion is not NoOp
+        let tmp%25#0: uint64 = (txn ApplicationID)
+        let tmp%26#0: bool = (!= tmp%25#0 0u)
+        (assert tmp%26#0) // can only call when not creating
+        let tmp%27#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%1#0: uint64 = (- tmp%27#0 1u)
+        let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%1#0)
+        let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 pay)
+        (assert gtxn_type_matches%1#0) // transaction type is pay
+        examples.auction.contract.Auction.bid(gtxn_idx%1#0)
+        let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
+        goto block@18
+    block@7: // claim_bids_route_L82
+        let tmp%28#0: uint64 = (txn OnCompletion)
+        let tmp%29#0: bool = (== tmp%28#0 NoOp)
+        (assert tmp%29#0) // OnCompletion is not NoOp
+        let tmp%30#0: uint64 = (txn ApplicationID)
+        let tmp%31#0: bool = (!= tmp%30#0 0u)
+        (assert tmp%31#0) // can only call when not creating
+        examples.auction.contract.Auction.claim_bids()
+        let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
+        goto block@18
+    block@8: // claim_asset_route_L97
+        let tmp%32#0: uint64 = (txn OnCompletion)
+        let tmp%33#0: bool = (== tmp%32#0 NoOp)
+        (assert tmp%33#0) // OnCompletion is not NoOp
+        let tmp%34#0: uint64 = (txn ApplicationID)
+        let tmp%35#0: bool = (!= tmp%34#0 0u)
+        (assert tmp%35#0) // can only call when not creating
+        let tmp%36#0: bytes = (txna ApplicationArgs 1)
+        let tmp%37#0: uint64 = (btoi tmp%36#0)
+        let tmp%38#0: uint64 = ((txnas Assets) tmp%37#0)
+        examples.auction.contract.Auction.claim_asset(tmp%38#0)
+        let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
+        goto block@18
+    block@9: // switch_case_default_L16
+        goto block@10
+    block@10: // switch_case_next_L16
+        goto block@17
+    block@11: // bare_routing_L16
+        let tmp%39#0: uint64 = (txn OnCompletion)
+        switch tmp%39#0 {0u => block@12, * => block@15}
+    block@12: // __algopy_default_create_L1
+        let tmp%40#0: uint64 = (txn ApplicationID)
+        let tmp%41#0: bool = (== tmp%40#0 0u)
+        (assert tmp%41#0) // can only call when creating
+        goto block@13
+    block@13: // L1
+        goto block@14
+    block@14: // after_inlined_examples.auction.contract.Auction.__algopy_default_create_L1
+        let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
+        goto block@18
+    block@15: // switch_case_default_L16
+        goto block@16
+    block@16: // switch_case_next_L16
+        goto block@17
+    block@17: // after_if_else_L16
+        let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 0u
+        let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
+        goto block@18
+    block@18: // after_inlined_examples.auction.contract.Auction.__puya_arc4_router___L1
+        return tmp%0#0

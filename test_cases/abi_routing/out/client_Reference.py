@@ -79,6 +79,8 @@ class Reference(algopy.arc4.ARC4Client, typing.Protocol):
         bytes_from_storage: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[3]],
         int_from_storage: algopy.arc4.UIntN[typing.Literal[64]],
         int_from_function: algopy.arc4.UIntN[typing.Literal[64]],
+        int_from_const: algopy.arc4.UIntN[typing.Literal[32]],
+        str_from_const: algopy.arc4.String,
     ) -> None: ...
 
     @algopy.arc4.abimethod
