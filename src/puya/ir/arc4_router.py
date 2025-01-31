@@ -1,16 +1,20 @@
 import typing
 from collections.abc import Iterable, Mapping, Sequence
 
-from puya import log
+import attrs
+
+from puya import (
+    artifact_metadata as md,
+    log,
+)
 from puya.avm import OnCompletionAction
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.arc4_types import maybe_avm_to_arc4_equivalent_type, wtype_to_arc4
+from puya.awst.arc4_types import maybe_avm_to_arc4_equivalent_type
 from puya.errors import CodeError
 from puya.parse import SourceLocation
-from puya.program_refs import ContractReference
 from puya.utils import set_add
 
 __all__ = [
@@ -29,17 +33,11 @@ ALL_VALID_APPROVAL_ON_COMPLETION_ACTIONS = {
 }
 
 
-class AWSTContractMethodSignature(typing.Protocol):
-    @property
-    def args(self) -> Sequence[awst_nodes.SubroutineArgument]: ...
-    @property
-    def return_type(self) -> wtypes.WType: ...
-    @property
-    def cref(self) -> ContractReference: ...
-    @property
-    def member_name(self) -> str: ...
-    @property
-    def source_location(self) -> SourceLocation: ...
+@attrs.frozen(kw_only=True)
+class AWSTContractMethodSignature:
+    target: awst_nodes.ContractMethodTarget
+    parameter_types: Sequence[wtypes.WType]
+    return_type: wtypes.WType
 
 
 def _btoi(
@@ -80,12 +78,12 @@ def create_block(
 
 
 def call(
-    location: SourceLocation, method: AWSTContractMethodSignature, *args: awst_nodes.Expression
+    location: SourceLocation, sig: AWSTContractMethodSignature, *args: awst_nodes.Expression
 ) -> awst_nodes.SubroutineCallExpression:
     return awst_nodes.SubroutineCallExpression(
-        target=awst_nodes.ContractMethodTarget(cref=method.cref, member_name=method.member_name),
+        target=sig.target,
         args=[awst_nodes.CallArg(name=None, value=arg) for arg in args],
-        wtype=method.return_type,
+        wtype=sig.return_type,
         source_location=location,
     )
 
@@ -146,19 +144,19 @@ def on_completion(location: SourceLocation) -> awst_nodes.Expression:
 
 def route_bare_methods(
     location: SourceLocation,
-    bare_methods: dict[AWSTContractMethodSignature, awst_nodes.ARC4BareMethodConfig],
+    bare_methods: Mapping[md.ARC4BareMethod, AWSTContractMethodSignature],
 ) -> awst_nodes.Block | None:
     bare_blocks = dict[OnCompletionAction, awst_nodes.Block]()
-    for bare_method, config in bare_methods.items():
-        bare_location = bare_method.source_location
+    for method, sig in bare_methods.items():
+        bare_location = method.config_location
         bare_block = create_block(
             bare_location,
-            bare_method.member_name,
-            *assert_create_state(config, config.source_location or bare_location),
-            awst_nodes.ExpressionStatement(expr=call(bare_location, bare_method)),
+            sig.target.member_name,
+            *assert_create_state(method),
+            awst_nodes.ExpressionStatement(expr=call(bare_location, sig)),
             approve(bare_location),
         )
-        for oca in config.allowed_completion_types:
+        for oca in method.allowed_completion_types:
             if bare_blocks.setdefault(oca, bare_block) is not bare_block:
                 logger.error(
                     f"cannot have multiple bare methods handling the same "
@@ -202,11 +200,9 @@ def log_arc4_result(
     return awst_nodes.ExpressionStatement(log_op)
 
 
-def assert_create_state(
-    config: awst_nodes.ARC4MethodConfig, location: SourceLocation
-) -> Sequence[awst_nodes.Statement]:
-    app_id = _txn("ApplicationID", wtypes.uint64_wtype, location)
-    match config.create:
+def assert_create_state(method: md.ARC4Method) -> Sequence[awst_nodes.Statement]:
+    app_id = _txn("ApplicationID", wtypes.uint64_wtype, method.config_location)
+    match method.create:
         case awst_nodes.ARC4CreateOption.allow:
             # if create is allowed but not required, we don't need to check anything
             return ()
@@ -221,7 +217,9 @@ def assert_create_state(
     return [
         awst_nodes.ExpressionStatement(
             awst_nodes.AssertExpression(
-                condition=condition, error_message=error_message, source_location=location
+                condition=condition,
+                error_message=error_message,
+                source_location=method.config_location,
             )
         )
     ]
@@ -400,26 +398,23 @@ def _map_abi_args(
 
 def route_abi_methods(
     location: SourceLocation,
-    methods: dict[AWSTContractMethodSignature, awst_nodes.ARC4ABIMethodConfig],
+    methods: Mapping[md.ARC4ABIMethod, AWSTContractMethodSignature],
 ) -> awst_nodes.Block:
     method_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
     seen_signatures = set[str]()
-    for method, config in methods.items():
-        abi_loc = config.source_location or location
-        abi_args = list(_map_abi_args([a.wtype for a in method.args], location))
-        method_result = call(abi_loc, method, *abi_args)
-        match method.return_type:
+    for method, sig in methods.items():
+        abi_loc = method.config_location
+        abi_args = list(_map_abi_args(sig.parameter_types, location))
+        method_result = call(abi_loc, sig, *abi_args)
+        match sig.return_type:
             case wtypes.void_wtype:
                 call_and_maybe_log = awst_nodes.ExpressionStatement(method_result)
             case wtypes.ARC4Type():
                 call_and_maybe_log = log_arc4_result(abi_loc, method_result)
             case _:
-                converted_return_type = maybe_avm_to_arc4_equivalent_type(method.return_type)
+                converted_return_type = maybe_avm_to_arc4_equivalent_type(sig.return_type)
                 if converted_return_type is None:
-                    raise CodeError(
-                        f"{method.return_type} is not a valid ABI return type",
-                        method.source_location,
-                    )
+                    raise CodeError(f"{sig.return_type} is not a valid ABI return type", abi_loc)
                 arc4_encoded = awst_nodes.ARC4Encode(
                     value=method_result,
                     wtype=converted_return_type,
@@ -427,7 +422,7 @@ def route_abi_methods(
                 )
                 call_and_maybe_log = log_arc4_result(abi_loc, arc4_encoded)
 
-        arc4_signature = _get_abi_signature(method, config)
+        arc4_signature = method.signature
         if not set_add(seen_signatures, arc4_signature):
             raise CodeError(
                 f"Cannot have duplicate ARC4 method signatures: {arc4_signature}", abi_loc
@@ -436,9 +431,9 @@ def route_abi_methods(
             awst_nodes.MethodConstant(source_location=location, value=arc4_signature)
         ] = create_block(
             abi_loc,
-            f"{config.name}_route",
-            *check_allowed_oca(config.allowed_completion_types, abi_loc),
-            *assert_create_state(config, config.source_location or abi_loc),
+            f"{method.name}_route",
+            *check_allowed_oca(method.allowed_completion_types, abi_loc),
+            *assert_create_state(method),
             call_and_maybe_log,
             approve(abi_loc),
         )
@@ -466,16 +461,16 @@ def _maybe_switch(
 
 def create_abi_router(
     contract: awst_nodes.Contract,
-    arc4_methods_with_configs: Mapping[AWSTContractMethodSignature, awst_nodes.ARC4MethodConfig],
+    arc4_methods_with_signatures: Mapping[md.ARC4Method, AWSTContractMethodSignature],
 ) -> awst_nodes.ContractMethod:
     router_location = contract.source_location
     abi_methods = {}
     bare_methods = {}
-    for m, arc4_config in arc4_methods_with_configs.items():
-        if isinstance(arc4_config, awst_nodes.ARC4BareMethodConfig):
-            bare_methods[m] = arc4_config
+    for method, sig in arc4_methods_with_signatures.items():
+        if isinstance(method, md.ARC4BareMethod):
+            bare_methods[method] = sig
         else:
-            abi_methods[m] = arc4_config
+            abi_methods[method] = sig
 
     abi_routing = route_abi_methods(router_location, abi_methods)
     bare_routing = route_bare_methods(router_location, bare_methods)
@@ -501,14 +496,6 @@ def create_abi_router(
         inline=True,
     )
     return approval_program
-
-
-def _get_abi_signature(
-    subroutine: AWSTContractMethodSignature, config: awst_nodes.ARC4ABIMethodConfig
-) -> str:
-    arg_types = [wtype_to_arc4(a.wtype, a.source_location) for a in subroutine.args]
-    return_type = wtype_to_arc4(subroutine.return_type, subroutine.source_location)
-    return f"{config.name}({','.join(arg_types)}){return_type}"
 
 
 def _reference_type_array(wtype: wtypes.WType) -> str | None:

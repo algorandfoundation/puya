@@ -5,7 +5,7 @@ from puya.context import ArtifactCompileContext
 
 @attrs.define
 class IROptimizationContext(ArtifactCompileContext):
-    pass
+    expand_all_bytes: bool
 
 
 @attrs.define(kw_only=True)

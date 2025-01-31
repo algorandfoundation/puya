@@ -207,10 +207,9 @@ def _render_body(emitter: TextEmitter, blocks: Sequence[models.BasicBlock]) -> N
 def render_program(
     context: ArtifactCompileContext, program: models.Program, *, qualifier: str
 ) -> None:
-    out_dir = context.out_dir
-    if out_dir is None:
+    path = context.build_output_path(program.kind, qualifier, "ir")
+    if path is None:
         return
-    out_dir.mkdir(exist_ok=True)
     emitter = TextEmitter()
     emitter.append(f"main {program.main.id}:")
     with emitter.indent():
@@ -228,6 +227,5 @@ def render_program(
         emitter.append(f"subroutine {sub.id}({args}) -> {returns}:")
         with emitter.indent():
             _render_body(emitter, sub.body)
-    path = context.sequential_path(program.kind, qualifier, "ir")
     path.write_text("\n".join(emitter.lines), encoding="utf-8")
     logger.debug(f"Output IR to {make_path_relative_to_cwd(path)}")

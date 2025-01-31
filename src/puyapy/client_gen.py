@@ -181,6 +181,7 @@ def _parse_signature(method: dict[str, typing.Any]) -> _MethodSignature:
                 type_=arg["type"],
                 desc=arg.get("desc"),
                 struct=arg.get("struct"),
+                client_default=None,  # not supported on chain
             )
             for arg in method["args"]
         ),

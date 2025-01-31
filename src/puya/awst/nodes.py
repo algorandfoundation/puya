@@ -1815,7 +1815,7 @@ class Contract(RootNode):
         return visitor.visit_contract(self)
 
     @typing.overload
-    def resolve_contract_method(self, name: str) -> ContractMethod: ...
+    def resolve_contract_method(self, name: str) -> ContractMethod | None: ...
 
     @typing.overload
     def resolve_contract_method(
@@ -1825,7 +1825,7 @@ class Contract(RootNode):
         *,
         start: ContractReference,
         skip: bool = False,
-    ) -> ContractMethod: ...
+    ) -> ContractMethod | None: ...
 
     def resolve_contract_method(
         self,
@@ -1872,7 +1872,7 @@ class ARC4BareMethodConfig:
 
 @attrs.frozen(kw_only=True)
 class ABIMethodArgConstantDefault:
-    data: bytes
+    value: Expression
 
 
 @attrs.frozen(kw_only=True)

@@ -17,6 +17,7 @@ from puya.awst import (
 from puya.awst.arc4_types import maybe_avm_to_arc4_equivalent_type, wtype_to_arc4
 from puya.awst.function_traverser import FunctionTraverser
 from puya.errors import InternalError
+from puya.ir._arc4_default_args import convert_default_args
 from puya.ir.arc4_router import AWSTContractMethodSignature
 from puya.ir.context import IRBuildContext
 from puya.parse import SourceLocation
@@ -33,7 +34,7 @@ def build_contract_metadata(
     ctx: IRBuildContext, contract: awst_nodes.Contract
 ) -> tuple[
     models.ContractMetaData,
-    Mapping[AWSTContractMethodSignature, awst_nodes.ARC4MethodConfig],
+    Mapping[models.ARC4Method, AWSTContractMethodSignature],
 ]:
     global_state = dict[str, models.ContractState]()
     local_state = dict[str, models.ContractState]()
@@ -70,7 +71,14 @@ def build_contract_metadata(
         structs=immutabledict(structs),
         template_variable_types=immutabledict(template_var_types),
     )
-    return metadata, {cm: md.config for cm, md in arc4_method_data.items()}
+    return metadata, {
+        md: AWSTContractMethodSignature(
+            target=awst_nodes.ContractMethodTarget(cref=cm.cref, member_name=cm.member_name),
+            return_type=cm.return_type,
+            parameter_types=[a.wtype for a in cm.args],
+        )
+        for cm, md in arc4_method_data.items()
+    }
 
 
 def _translate_state(
@@ -222,6 +230,7 @@ def _extract_arc4_methods_and_type_refs(
     methods = dict[awst_nodes.ContractMethod, models.ARC4Method]()
     for method_name in unique(m.member_name for m in contract.methods):
         m = contract.resolve_contract_method(method_name)
+        assert m is not None  # shouldn't logically be possible
         match m.arc4_method_config:
             case None:
                 pass
@@ -232,7 +241,7 @@ def _extract_arc4_methods_and_type_refs(
             case abi_method_config:
                 event_wtypes = event_collector.process_func(m)
                 events = list(map(_wtype_to_struct, event_wtypes))
-                methods[m] = _abi_method_metadata(m, abi_method_config, events)
+                methods[m] = _abi_method_metadata(ctx, contract, m, abi_method_config, events)
                 if m.return_type is not None:
                     type_refs.append(m.return_type)
                 type_refs.extend(arg.wtype for arg in m.args)
@@ -262,17 +271,21 @@ def _extract_structs(
 
 
 def _abi_method_metadata(
+    ctx: IRBuildContext,
+    contract: awst_nodes.Contract,
     m: awst_nodes.ContractMethod,
     config: awst_nodes.ARC4ABIMethodConfig,
     events: Sequence[models.ARC4Struct],
 ) -> models.ARC4ABIMethod:
     assert config is m.arc4_method_config
+    default_args = convert_default_args(ctx, contract, m, config)
     args = [
         models.ARC4MethodArg(
             name=a.name,
             type_=wtype_to_arc4(a.wtype),
             struct=_get_arc4_struct_name(a.wtype),
             desc=m.documentation.args.get(a.name),
+            client_default=default_args[a],
         )
         for a in m.args
     ]
@@ -283,7 +296,6 @@ def _abi_method_metadata(
     )
     return models.ARC4ABIMethod(
         id=m.full_name,
-        name=m.member_name,
         desc=m.documentation.description,
         args=args,
         returns=returns,

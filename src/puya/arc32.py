@@ -3,23 +3,15 @@ import json
 import typing
 from collections.abc import Collection, Mapping, Sequence
 
-from puya import log
-from puya.artifact_metadata import (
-    ARC4ABIMethod,
-    ARC4BareMethod,
-    ARC4Struct,
-    ContractMetaData,
-    ContractState,
-    StateTotals,
+from puya import (
+    artifact_metadata as md,
+    log,
 )
 from puya.avm import OnCompletionAction
 from puya.awst.nodes import (
-    ABIMethodArgConstantDefault,
-    ABIMethodArgDefault,
+    AppStorageKind,
     ARC4CreateOption,
-    ARC4MethodConfig,
 )
-from puya.errors import InternalError
 from puya.parse import SourceLocation
 
 OCA_ARC32_MAPPING = {
@@ -41,7 +33,7 @@ def _encode_source(teal_text: str) -> str:
     return base64.b64encode(teal_text.encode()).decode("utf-8")
 
 
-def _encode_schema_declaration(state: ContractState) -> JSONDict:
+def _encode_schema_declaration(state: md.ContractState) -> JSONDict:
     return {
         "type": state.storage_type.name,
         "key": state.key_or_prefix.decode("utf-8"),  # TODO: support not utf8 keys?
@@ -49,7 +41,7 @@ def _encode_schema_declaration(state: ContractState) -> JSONDict:
     }
 
 
-def _encode_state_declaration(state: StateTotals) -> JSONDict:
+def _encode_state_declaration(state: md.StateTotals) -> JSONDict:
     return {
         "global": {
             "num_byte_slices": state.global_bytes,
@@ -62,7 +54,7 @@ def _encode_state_declaration(state: StateTotals) -> JSONDict:
     }
 
 
-def _encode_schema(state: Collection[ContractState]) -> JSONDict:
+def _encode_schema(state: Collection[md.ContractState]) -> JSONDict:
     return {
         "declared": {
             s.name: _encode_schema_declaration(s) for s in sorted(state, key=lambda s: s.name)
@@ -71,8 +63,8 @@ def _encode_schema(state: Collection[ContractState]) -> JSONDict:
     }
 
 
-def _encode_call_config(config: ARC4MethodConfig) -> JSONDict:
-    match config.create:
+def _encode_call_config(method: md.ARC4Method) -> JSONDict:
+    match method.create:
         case ARC4CreateOption.require:
             call_config = "CREATE"
         case ARC4CreateOption.allow:
@@ -81,66 +73,80 @@ def _encode_call_config(config: ARC4MethodConfig) -> JSONDict:
             call_config = "CALL"
         case never:
             typing.assert_never(never)
-    return {OCA_ARC32_MAPPING[oca]: call_config for oca in config.allowed_completion_types}
+    return {OCA_ARC32_MAPPING[oca]: call_config for oca in method.allowed_completion_types}
 
 
-def _encode_bare_method_configs(methods: list[ARC4BareMethod]) -> JSONDict:
+def _encode_bare_method_configs(methods: Sequence[md.ARC4BareMethod]) -> JSONDict:
     result: dict[str, JSONValue] = {}
     for method in methods:
-        result.update(**_encode_call_config(method.config))
+        result.update(**_encode_call_config(method))
     return result
 
 
-def _get_signature(method: ARC4ABIMethod) -> str:
-    return f"{method.config.name}({','.join(m.type_ for m in method.args)}){method.returns.type_}"
+def _get_signature(method: md.ARC4ABIMethod) -> str:
+    return f"{method.name}({','.join(m.type_ for m in method.args)}){method.returns.type_}"
 
 
 def _encode_default_arg(
-    metadata: ContractMetaData, source: ABIMethodArgDefault, loc: SourceLocation | None
-) -> JSONDict:
-    if isinstance(source, ABIMethodArgConstantDefault):
-        return {"source": "constant", "data": source.data.decode("utf-8")}
-    if state := metadata.global_state.get(source.name):
-        return {
-            "source": "global-state",
-            # TODO: handle non utf-8 bytes
-            "data": state.key_or_prefix.decode("utf-8"),
-        }
-    if state := metadata.local_state.get(source.name):
-        return {
-            "source": "local-state",
-            "data": state.key_or_prefix.decode("utf-8"),
-        }
-    for method in metadata.arc4_methods:
-        if isinstance(method, ARC4ABIMethod) and method.name == source.name:
+    default: md.MethodArgDefault | None, loc: SourceLocation | None
+) -> JSONDict | None:
+    match default:
+        case None:
+            return None
+        case md.MethodArgDefaultConstant():
+            logger.warning("constant defaults are not supported with ARC-32", location=loc)
+            return None
+        case md.MethodArgDefaultFromMethod(
+            name=method_name, return_type=return_type, readonly=readonly
+        ):
             return {
                 "source": "abi-method",
-                "data": _encode_abi_method(method),
+                "data": {
+                    "name": method_name,
+                    "args": [],
+                    "readonly": readonly,  # ARC-22
+                    "returns": {"type": return_type},
+                },
             }
-    raise InternalError(f"Cannot find source '{source}' on {metadata.ref}", loc)
+        case md.MethodArgDefaultFromState(kind=kind, key=key):
+            match kind:
+                case AppStorageKind.app_global:
+                    source_name = "global-state"
+                case AppStorageKind.account_local:
+                    source_name = "local-state"
+                case AppStorageKind.box:
+                    logger.error(
+                        "default argument from box storage are not supported by ARC-32",
+                        location=loc,
+                    )
+                case unexpected:
+                    typing.assert_never(unexpected)
+            return {
+                "source": source_name,
+                # TODO: handle non utf-8 bytes
+                "data": key.decode("utf-8"),
+            }
 
 
-def _encode_arc32_method_hint(metadata: ContractMetaData, method: ARC4ABIMethod) -> JSONDict:
+def _encode_arc32_method_hint(metadata: md.ContractMetaData, method: md.ARC4ABIMethod) -> JSONDict:
     structs = {a.name: metadata.structs[a.struct] for a in method.args if a.struct}
     if method.returns.struct:
         structs["output"] = metadata.structs[method.returns.struct]
+    default_arguments = {
+        arg.name: default
+        for arg in method.args
+        if (default := _encode_default_arg(arg.client_default, method.config_location)) is not None
+    }
     return {
         # deprecated by ARC-22
-        "read_only": True if method.config.readonly else None,
-        "default_arguments": (
-            {
-                parameter: _encode_default_arg(metadata, source, method.config.source_location)
-                for parameter, source in method.config.default_args.items()
-            }
-            if method.config.default_args
-            else None
-        ),
-        "call_config": _encode_call_config(method.config),
+        "read_only": True if method.readonly else None,
+        "default_arguments": default_arguments or None,
+        "call_config": _encode_call_config(method),
         "structs": _encode_arc32_method_structs(structs),
     }
 
 
-def _encode_arc32_method_structs(structs: Mapping[str, ARC4Struct]) -> JSONDict | None:
+def _encode_arc32_method_structs(structs: Mapping[str, md.ARC4Struct]) -> JSONDict | None:
     if len(structs):
         return {
             struct_purpose: {
@@ -152,15 +158,17 @@ def _encode_arc32_method_structs(structs: Mapping[str, ARC4Struct]) -> JSONDict 
     return None
 
 
-def _encode_arc32_hints(metadata: ContractMetaData, methods: list[ARC4ABIMethod]) -> JSONDict:
+def _encode_arc32_hints(
+    metadata: md.ContractMetaData, methods: list[md.ARC4ABIMethod]
+) -> JSONDict:
     return {
         _get_signature(method): _encode_arc32_method_hint(metadata, method) for method in methods
     }
 
 
-def _encode_abi_method(method: ARC4ABIMethod) -> JSONDict:
+def _encode_abi_method(method: md.ARC4ABIMethod) -> JSONDict:
     return {
-        "name": method.config.name,
+        "name": method.name,
         "args": [
             {
                 "type": arg.type_,
@@ -169,7 +177,7 @@ def _encode_abi_method(method: ARC4ABIMethod) -> JSONDict:
             }
             for arg in method.args
         ],
-        "readonly": method.config.readonly,  # ARC-22
+        "readonly": method.readonly,  # ARC-22
         "returns": {
             "type": method.returns.type_,
             "desc": method.returns.desc,
@@ -179,7 +187,7 @@ def _encode_abi_method(method: ARC4ABIMethod) -> JSONDict:
 
 
 def _encode_arc4_contract(
-    name: str, desc: str | None, methods: Sequence[ARC4ABIMethod]
+    name: str, desc: str | None, methods: Sequence[md.ARC4ABIMethod]
 ) -> JSONDict:
     return {
         "name": name,
@@ -198,10 +206,10 @@ def _filter_none(value: JSONDict) -> JSONValue:
 
 
 def create_arc32_json(
-    approval_program: str, clear_program: str, metadata: ContractMetaData
+    approval_program: str, clear_program: str, metadata: md.ContractMetaData
 ) -> str:
-    bare_methods = [m for m in metadata.arc4_methods if isinstance(m, ARC4BareMethod)]
-    abi_methods = [m for m in metadata.arc4_methods if isinstance(m, ARC4ABIMethod)]
+    bare_methods = [m for m in metadata.arc4_methods if isinstance(m, md.ARC4BareMethod)]
+    abi_methods = [m for m in metadata.arc4_methods if isinstance(m, md.ARC4ABIMethod)]
     app_spec = {
         "hints": _encode_arc32_hints(metadata, abi_methods),
         "source": {

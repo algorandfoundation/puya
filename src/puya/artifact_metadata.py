@@ -5,6 +5,7 @@ from collections.abc import Sequence
 import attrs
 from immutabledict import immutabledict
 
+from puya import avm
 from puya.avm import AVMType
 from puya.awst import nodes as awst_nodes
 from puya.parse import SourceLocation
@@ -31,12 +32,42 @@ class ARC4Struct:
         return re.split(r"\W", self.fullname)[-1]
 
 
+@attrs.frozen(kw_only=True)
+class MethodArgDefaultConstant:
+    data: bytes
+    type_: str
+
+
+@attrs.frozen(kw_only=True)
+class MethodArgDefaultFromState:
+    kind: awst_nodes.AppStorageKind
+    key: bytes
+    key_type: str
+
+
+@attrs.frozen(kw_only=True)
+class MethodArgDefaultFromMethod:
+    name: str
+    return_type: str
+    readonly: bool
+
+    @property
+    def signature(self) -> str:
+        return f"{self.name}(){self.return_type}"
+
+
+MethodArgDefault = (
+    MethodArgDefaultConstant | MethodArgDefaultFromState | MethodArgDefaultFromMethod
+)
+
+
 @attrs.frozen
 class ARC4MethodArg:
     name: str
     type_: str
     struct: str | None
     desc: str | None = attrs.field(hash=False)
+    client_default: MethodArgDefault | None
 
 
 @attrs.frozen
@@ -46,26 +77,60 @@ class ARC4Returns:
     desc: str | None = attrs.field(hash=False)
 
 
-@attrs.frozen
+@attrs.frozen(kw_only=True)
 class ARC4ABIMethod:
     id: str
-    name: str
     desc: str | None = attrs.field(hash=False)
     args: Sequence[ARC4MethodArg] = attrs.field(converter=tuple[ARC4MethodArg, ...])
     returns: ARC4Returns
-    events: Sequence[ARC4Struct]
-    config: awst_nodes.ARC4ABIMethodConfig
+    events: Sequence[ARC4Struct] = attrs.field(converter=tuple[ARC4Struct, ...])
+    _config: awst_nodes.ARC4ABIMethodConfig
+
+    @property
+    def name(self) -> str:
+        return self._config.name
+
+    @property
+    def allowed_completion_types(self) -> Sequence[avm.OnCompletionAction]:
+        return self._config.allowed_completion_types
+
+    @property
+    def create(self) -> awst_nodes.ARC4CreateOption:
+        return self._config.create
+
+    @property
+    def readonly(self) -> bool:
+        return self._config.readonly
+
+    @property
+    def config_location(self) -> SourceLocation:
+        return self._config.source_location
 
     @property
     def signature(self) -> str:
         return f"{self.name}({','.join(a.type_ for a in self.args)}){self.returns.type_}"
 
 
-@attrs.frozen
+@attrs.frozen(kw_only=True)
 class ARC4BareMethod:
     id: str
     desc: str | None = attrs.field(hash=False)
-    config: awst_nodes.ARC4BareMethodConfig
+    _config: awst_nodes.ARC4BareMethodConfig
+
+    @property
+    def allowed_completion_types(self) -> Sequence[avm.OnCompletionAction]:
+        return self._config.allowed_completion_types
+
+    @property
+    def create(self) -> awst_nodes.ARC4CreateOption:
+        return self._config.create
+
+    @property
+    def config_location(self) -> SourceLocation:
+        return self._config.source_location
+
+
+ARC4Method = ARC4BareMethod | ARC4ABIMethod
 
 
 @attrs.define(eq=False)
@@ -95,9 +160,6 @@ class StateTotals:
     local_uints: int
     global_bytes: int
     local_bytes: int
-
-
-ARC4Method = ARC4BareMethod | ARC4ABIMethod
 
 
 @attrs.frozen(kw_only=True)

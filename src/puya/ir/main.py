@@ -9,10 +9,10 @@ from pathlib import Path
 from immutabledict import immutabledict
 
 from puya import artifact_metadata, log, program_refs
+from puya.artifact_metadata import ContractMetaData, LogicSignatureMetaData
 from puya.avm import AVMType
 from puya.awst import (
     nodes as awst_nodes,
-    wtypes,
 )
 from puya.awst.awst_traverser import AWSTTraverser
 from puya.awst.function_traverser import FunctionTraverser
@@ -21,17 +21,17 @@ from puya.context import ArtifactCompileContext, CompileContext
 from puya.errors import InternalError
 from puya.ir import arc4_router
 from puya.ir._contract_metadata import build_contract_metadata
+from puya.ir._utils import make_subroutine
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
 from puya.ir.destructure.main import destructure_ssa
-from puya.ir.models import Contract, LogicSignature, ModuleArtifact, Parameter, Program, Subroutine
+from puya.ir.models import Contract, LogicSignature, ModuleArtifact, Program, Subroutine
 from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
 from puya.ir.optimize.main import optimize_program_ir
 from puya.ir.to_text_visitor import render_program
-from puya.ir.types_ import wtype_to_ir_type, wtype_to_ir_types
-from puya.ir.utils import format_tuple_index
+from puya.ir.types_ import wtype_to_ir_type
 from puya.ir.validation.main import validate_module_artifact
-from puya.parse import SourceLocation
+from puya.program_refs import ProgramKind
 from puya.utils import StableSet, attrs_extend, coalesce, set_remove
 
 logger = log.get_logger(__name__)
@@ -162,14 +162,14 @@ def optimize_and_destructure_ir(
     match artifact_ir:
         case Contract() as contract_ir:
             contract_ir.approval_program = _optimize_and_destructure_program_ir(
-                context, contract_ir.metadata.ref, contract_ir.approval_program
+                context, contract_ir.metadata, contract_ir.approval_program
             )
             contract_ir.clear_program = _optimize_and_destructure_program_ir(
-                context, contract_ir.metadata.ref, contract_ir.clear_program
+                context, contract_ir.metadata, contract_ir.clear_program
             )
         case LogicSignature() as lsig_ir:
             lsig_ir.program = _optimize_and_destructure_program_ir(
-                context, lsig_ir.metadata.ref, lsig_ir.program
+                context, lsig_ir.metadata, lsig_ir.program
             )
         case unexpected:
             typing.assert_never(unexpected)
@@ -182,16 +182,20 @@ def optimize_and_destructure_ir(
 
 def _optimize_and_destructure_program_ir(
     context: ArtifactCompileContext,
-    ref: program_refs.ContractReference | program_refs.LogicSigReference,
+    metadata: ContractMetaData | LogicSignatureMetaData,
     program: Program,
 ) -> Program:
+    ref = metadata.ref
     if context.options.output_ssa_ir:
         render_program(context, program, qualifier="ssa")
     logger.info(
         f"optimizing {program.kind} program of {ref} at level {context.options.optimization_level}"
     )
+    routable_method_ids = None
+    if isinstance(metadata, ContractMetaData) and program.kind is ProgramKind.approval:
+        routable_method_ids = {a4m.id for a4m in metadata.arc4_methods}
     program = deepcopy(program)
-    optimize_program_ir(context, program)
+    optimize_program_ir(context, program, routable_method_ids=routable_method_ids)
     destructure_ssa(context, program)
     if context.options.output_destructured_ir:
         render_program(context, program, qualifier="destructured")
@@ -213,7 +217,7 @@ def _build_embedded_ir(ctx: CompileContext) -> Mapping[str, Subroutine]:
         awst=embedded_funcs,
     )
     for func in embedded_funcs:
-        sub = _make_subroutine(func, allow_implicits=False)
+        sub = make_subroutine(func, allow_implicits=False)
         embedded_ctx.subroutines[func] = sub
         embedded_funcs_lookup[func.id] = sub
 
@@ -226,7 +230,7 @@ def _build_embedded_ir(ctx: CompileContext) -> Mapping[str, Subroutine]:
 def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
     metadata, arc4_method_data = build_contract_metadata(ctx, contract)
     arc4_router_func = arc4_router.create_abi_router(contract, arc4_method_data)
-    ctx.subroutines[arc4_router_func] = ctx.routers[contract.id] = _make_subroutine(
+    ctx.subroutines[arc4_router_func] = ctx.routers[contract.id] = make_subroutine(
         arc4_router_func, allow_implicits=False
     )
 
@@ -247,7 +251,7 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
                 func, callees=callees[func], arc4_router_func=arc4_router_func
             )
             # make the emtpy subroutine, because functions reference other functions
-            ctx.subroutines[func] = _make_subroutine(func, allow_implicits=allow_implicits)
+            ctx.subroutines[func] = make_subroutine(func, allow_implicits=allow_implicits)
     # now construct the subroutine IR
     for func, sub in ctx.subroutines.items():
         if not sub.body:  # in case something is pre-built (ie from embedded lib)
@@ -305,7 +309,7 @@ def _build_logic_sig_ir(
     for func in program_sub_refs:
         if func not in ctx.subroutines:
             # make the emtpy subroutine, because functions reference other functions
-            ctx.subroutines[func] = _make_subroutine(func, allow_implicits=True)
+            ctx.subroutines[func] = make_subroutine(func, allow_implicits=True)
     # now construct the subroutine IR
     for func, sub in ctx.subroutines.items():
         if not sub.body:  # in case something is pre-built (ie from embedded lib)
@@ -333,28 +337,6 @@ def _build_logic_sig_ir(
     return result
 
 
-def _expand_tuple_parameters(
-    name: str, typ: wtypes.WType, *, allow_implicits: bool, source_location: SourceLocation | None
-) -> Iterator[Parameter]:
-    if isinstance(typ, wtypes.WTuple):
-        for item_idx, item_type in enumerate(typ.types):
-            item_name = format_tuple_index(typ, name, item_idx)
-            yield from _expand_tuple_parameters(
-                item_name,
-                item_type,
-                allow_implicits=allow_implicits,
-                source_location=source_location,
-            )
-    else:
-        yield Parameter(
-            name=name,
-            ir_type=wtype_to_ir_type(typ),
-            version=0,
-            implicit_return=allow_implicits and not typ.immutable,
-            source_location=source_location,
-        )
-
-
 def _should_include_implicit_returns(
     func: awst_nodes.Function,
     callees: set[awst_nodes.Function],
@@ -373,30 +355,6 @@ def _should_include_implicit_returns(
     if isinstance(func, awst_nodes.ContractMethod) and func.arc4_method_config:
         return bool(callees - {arc4_router_func})
     return True
-
-
-def _make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Subroutine:
-    """Pre-construct subroutine with an empty body"""
-    parameters = [
-        param
-        for arg in func.args
-        for param in _expand_tuple_parameters(
-            arg.name,
-            arg.wtype,
-            allow_implicits=allow_implicits,
-            source_location=arg.source_location,
-        )
-    ]
-    returns = wtype_to_ir_types(func.return_type)
-    return Subroutine(
-        id=func.full_name,
-        short_name=func.short_name,
-        parameters=parameters,
-        returns=returns,
-        body=[],
-        inline=func.inline,
-        source_location=func.source_location,
-    )
 
 
 def _make_program(
@@ -423,7 +381,7 @@ def _make_program(
     )
     FunctionIRBuilder.build_body(ctx, function=main, subroutine=main_sub)
     program = Program(
-        ref=ref,
+        kind=ref.kind,
         main=main_sub,
         subroutines=tuple(references),
         avm_version=avm_version,

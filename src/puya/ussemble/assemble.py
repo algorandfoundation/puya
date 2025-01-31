@@ -212,7 +212,7 @@ def _resolve_template_vars[T: (int, bytes)](
             except KeyError:
                 # if bytecode isn't required for this program, then a dummy value is sufficient
                 bytecode_required = ctx.options.output_bytecode and (
-                    ctx.program_ref.reference in ctx.compilation_set
+                    ctx.artifact_ref in ctx.compilation_set
                 )
                 if ctx.is_reference or bytecode_required:
                     logger.error(  # noqa: TRY400

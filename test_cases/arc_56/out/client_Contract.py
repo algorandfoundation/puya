@@ -14,6 +14,10 @@ class TopLevelStruct(algopy.arc4.Struct):
     b: algopy.arc4.String
     shared: SharedStruct
 
+class EventOnly(algopy.arc4.Struct):
+    x: algopy.arc4.UIntN[typing.Literal[64]]
+    y: algopy.arc4.UIntN[typing.Literal[64]]
+
 class Contract(algopy.arc4.ARC4Client, typing.Protocol):
     """
     Contract docstring
@@ -63,3 +67,12 @@ class Contract(algopy.arc4.ARC4Client, typing.Protocol):
     def template_value(
         self,
     ) -> algopy.arc4.Tuple[algopy.arc4.Tuple[algopy.arc4.DynamicBytes, algopy.arc4.UIntN[typing.Literal[8]]], algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.String, algopy.arc4.UIntN[typing.Literal[8]]]: ...
+
+    @algopy.arc4.abimethod
+    def with_constant_defaults(
+        self,
+        a: algopy.arc4.UIntN[typing.Literal[64]],
+        b: algopy.arc4.UIntN[typing.Literal[64]],
+        c: algopy.arc4.DynamicBytes,
+        d: EventOnly,
+    ) -> None: ...

@@ -12,7 +12,6 @@ def mir_to_teal(context: CompileContext, program_mir: mir.Program) -> teal_model
     main = TealBuilder.build_subroutine(program_mir.main)
     subroutines = [TealBuilder.build_subroutine(mir_sub) for mir_sub in program_mir.subroutines]
     teal = teal_models.TealProgram(
-        ref=program_mir.ref,
         avm_version=program_mir.avm_version,
         main=main,
         subroutines=subroutines,
