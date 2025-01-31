@@ -4,7 +4,7 @@ from itertools import zip_longest
 import attrs
 
 from puya import log
-from puya.avm_type import AVMType
+from puya.avm import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,

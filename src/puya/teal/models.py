@@ -4,12 +4,13 @@ from collections.abc import Iterable, Mapping, Sequence
 
 import attrs
 
+from puya.avm import OnCompletionAction, TransactionType
 from puya.errors import InternalError
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.utils import format_bytes, format_error_comment
 from puya.mir import models as mir
-from puya.models import OnCompletionAction, ProgramReference, TransactionType
 from puya.parse import SourceLocation
+from puya.program_refs import ProgramReference
 from puya.utils import valid_bytes, valid_int64
 
 MAX_NUMBER_CONSTANTS = 256

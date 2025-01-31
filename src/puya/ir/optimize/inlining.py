@@ -8,6 +8,7 @@ import attrs
 import networkx as nx  # type: ignore[import-untyped]
 
 from puya import log
+from puya.artifact_metadata import ContractMetaData
 from puya.ir import models
 from puya.ir.context import TMP_VAR_INDICATOR
 from puya.ir.optimize._call_graph import CallGraph
@@ -15,7 +16,7 @@ from puya.ir.optimize._context import IROptimizationPassContext
 from puya.ir.optimize.intrinsic_simplification import COMPILE_TIME_CONSTANT_OPS
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
-from puya.models import ContractMetaData, ProgramKind
+from puya.program_refs import ProgramKind
 from puya.utils import lazy_setdefault
 
 logger = log.get_logger(__name__)

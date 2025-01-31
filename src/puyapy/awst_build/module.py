@@ -8,9 +8,9 @@ import mypy.visitor
 
 from puya import log
 from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
-from puya.awst.nodes import AWST, ConstantValue, LogicSignature, RootNode, StateTotals
+from puya.awst.nodes import AWST, LogicSignature, RootNode, StateTotals
 from puya.errors import CodeError, InternalError
-from puya.models import LogicSigReference
+from puya.program_refs import LogicSigReference
 from puya.utils import coalesce
 from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.arc4_client import ARC4ClientASTVisitor
@@ -27,7 +27,7 @@ from puyapy.awst_build.utils import (
     get_subroutine_decorator_inline_arg,
     get_unaliased_fullname,
 )
-from puyapy.models import ContractClassOptions
+from puyapy.models import ConstantValue, ContractClassOptions
 
 logger = log.get_logger(__name__)
 

@@ -7,10 +7,10 @@ from functools import cached_property
 
 import attrs
 
-from puya.avm_type import AVMType
+from puya.avm import AVMType
 from puya.errors import InternalError
 from puya.ir.utils import format_bytes, format_error_comment
-from puya.models import ProgramKind, ProgramReference
+from puya.program_refs import ProgramKind, ProgramReference
 
 if t.TYPE_CHECKING:
     from collections.abc import Iterator, Mapping, Sequence

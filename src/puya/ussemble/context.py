@@ -4,9 +4,10 @@ from functools import cached_property
 
 import attrs
 
-from puya.arc56_models import AVMType
+from puya.avm import AVMType
+from puya.compilation_artifacts import TemplateValue
 from puya.context import CompileContext
-from puya.models import ProgramReference, TemplateValue
+from puya.program_refs import ProgramReference
 
 
 @attrs.frozen(kw_only=True)

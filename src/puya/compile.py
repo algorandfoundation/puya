@@ -11,9 +11,18 @@ from immutabledict import immutabledict
 from puya import log
 from puya.arc32 import create_arc32_json
 from puya.arc56 import create_arc56_json
+from puya.artifact_metadata import ContractMetaData, LogicSignatureMetaData
 from puya.artifact_sorter import Artifact, ArtifactCompilationSorter
 from puya.awst.nodes import AWST
 from puya.awst.validation.main import validate_awst
+from puya.compilation_artifacts import (
+    CompilationArtifact,
+    CompiledContract,
+    CompiledLogicSig,
+    CompiledProgram,
+    DebugInfo,
+    TemplateValue,
+)
 from puya.context import ArtifactCompileContext, CompileContext
 from puya.errors import CodeError, InternalError
 from puya.ir.main import awst_to_ir, optimize_and_destructure_ir
@@ -24,22 +33,14 @@ from puya.ir.models import (
 )
 from puya.log import LoggingContext
 from puya.mir.main import program_ir_to_mir
-from puya.models import (
-    CompilationArtifact,
-    CompiledContract,
-    CompiledLogicSig,
-    CompiledProgram,
-    ContractMetaData,
+from puya.options import PuyaOptions
+from puya.parse import SourceLocation
+from puya.program_refs import (
     ContractReference,
-    DebugInfo,
-    LogicSignatureMetaData,
     LogicSigProgramReference,
     LogicSigReference,
     ProgramKind,
-    TemplateValue,
 )
-from puya.options import PuyaOptions
-from puya.parse import SourceLocation
 from puya.teal.main import mir_to_teal
 from puya.teal.models import TealProgram, TealSubroutine
 from puya.teal.output import emit_teal

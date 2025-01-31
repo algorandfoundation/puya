@@ -4,7 +4,7 @@ from collections.abc import Sequence
 import attrs
 
 from puya import log
-from puya.avm_type import AVMType
+from puya.avm import AVMType
 from puya.errors import InternalError
 from puya.mir import models as mir
 from puya.mir.context import SubroutineCodeGenContext

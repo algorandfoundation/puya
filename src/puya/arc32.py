@@ -4,20 +4,22 @@ import typing
 from collections.abc import Collection, Mapping, Sequence
 
 from puya import log
-from puya.errors import InternalError
-from puya.models import (
-    ABIMethodArgConstantDefault,
-    ABIMethodArgDefault,
+from puya.artifact_metadata import (
     ARC4ABIMethod,
     ARC4BareMethod,
-    ARC4CreateOption,
-    ARC4MethodConfig,
     ARC4Struct,
     ContractMetaData,
     ContractState,
-    OnCompletionAction,
     StateTotals,
 )
+from puya.avm import OnCompletionAction
+from puya.awst.nodes import (
+    ABIMethodArgConstantDefault,
+    ABIMethodArgDefault,
+    ARC4CreateOption,
+    ARC4MethodConfig,
+)
+from puya.errors import InternalError
 from puya.parse import SourceLocation
 
 OCA_ARC32_MAPPING = {

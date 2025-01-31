@@ -5,10 +5,13 @@ import attrs
 import mypy.nodes
 
 from puya import log
+from puya.avm import OnCompletionAction, TransactionType
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    ARC4CreateOption,
     ARC4Decode,
     ARC4Encode,
+    ARC4MethodConfig,
     BytesConstant,
     BytesEncoding,
     CompiledContract,
@@ -23,14 +26,8 @@ from puya.awst.nodes import (
 )
 from puya.awst.txn_fields import TxnField
 from puya.errors import CodeError
-from puya.models import (
-    ARC4CreateOption,
-    ARC4MethodConfig,
-    ContractReference,
-    OnCompletionAction,
-    TransactionType,
-)
 from puya.parse import SourceLocation, sequential_source_locations_merge
+from puya.program_refs import ContractReference
 from puya.utils import StableSet
 from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.eb import _expect as expect

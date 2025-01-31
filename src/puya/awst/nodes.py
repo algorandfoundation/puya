@@ -10,7 +10,7 @@ import attrs
 from immutabledict import immutabledict
 
 from puya.algo_constants import SUPPORTED_AVM_VERSIONS
-from puya.avm_type import AVMType
+from puya.avm import AVMType, OnCompletionAction
 from puya.awst import wtypes
 from puya.awst.txn_fields import TxnField
 from puya.awst.visitors import (
@@ -21,18 +21,11 @@ from puya.awst.visitors import (
 )
 from puya.awst.wtypes import WType
 from puya.errors import CodeError, InternalError
-from puya.models import ARC4MethodConfig, ContractReference, LogicSigReference
 from puya.parse import SourceLocation
+from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import unique
 
 T = typing.TypeVar("T")
-
-ConstantValue: typing.TypeAlias = int | str | bytes | bool
-
-
-@attrs.frozen
-class SubroutineID:
-    target: str
 
 
 @attrs.frozen
@@ -1072,6 +1065,11 @@ class BytesComparisonExpression(Expression):
         return visitor.visit_bytes_comparison_expression(self)
 
 
+@attrs.frozen
+class SubroutineID:
+    target: str
+
+
 @attrs.frozen(kw_only=True)
 class InstanceMethodTarget:
     member_name: str
@@ -1088,15 +1086,15 @@ class ContractMethodTarget:
     member_name: str
 
 
+SubroutineTarget = (
+    SubroutineID | InstanceMethodTarget | InstanceSuperMethodTarget | ContractMethodTarget
+)
+
+
 @attrs.frozen
 class CallArg:
     name: str | None  # if None, then passed positionally
     value: Expression
-
-
-SubroutineTarget = (
-    SubroutineID | InstanceMethodTarget | InstanceSuperMethodTarget | ContractMethodTarget
-)
 
 
 @attrs.frozen
@@ -1593,7 +1591,7 @@ class ContractMemberNode(Node, ABC):
 class ContractMethod(Function, ContractMemberNode):
     cref: ContractReference
     member_name: str
-    arc4_method_config: ARC4MethodConfig | None
+    arc4_method_config: "ARC4MethodConfig | None"
 
     @property
     def short_name(self) -> str:
@@ -1853,3 +1851,51 @@ class Contract(RootNode):
                 if method.member_name == name and method.cref == cref:
                     return method
         return None
+
+
+class ARC4CreateOption(enum.Enum):
+    allow = enum.auto()
+    require = enum.auto()
+    disallow = enum.auto()
+
+
+@attrs.frozen(kw_only=True)
+class ARC4BareMethodConfig:
+    source_location: SourceLocation
+    allowed_completion_types: Sequence[OnCompletionAction] = attrs.field(
+        default=(OnCompletionAction.NoOp,),
+        converter=tuple[OnCompletionAction, ...],
+        validator=attrs.validators.min_len(1),
+    )
+    create: ARC4CreateOption = ARC4CreateOption.disallow
+
+
+@attrs.frozen(kw_only=True)
+class ABIMethodArgConstantDefault:
+    data: bytes
+
+
+@attrs.frozen(kw_only=True)
+class ABIMethodArgMemberDefault:
+    name: str
+
+
+ABIMethodArgDefault = ABIMethodArgMemberDefault | ABIMethodArgConstantDefault
+
+
+@attrs.frozen(kw_only=True)
+class ARC4ABIMethodConfig:
+    source_location: SourceLocation
+    allowed_completion_types: Sequence[OnCompletionAction] = attrs.field(
+        default=(OnCompletionAction.NoOp,),
+        converter=tuple[OnCompletionAction],
+        validator=attrs.validators.min_len(1),
+    )
+    create: ARC4CreateOption = ARC4CreateOption.disallow
+    name: str
+    readonly: bool = False
+    default_args: immutabledict[str, ABIMethodArgDefault] = immutabledict()
+    """Mapping is from parameter -> source"""
+
+
+ARC4MethodConfig = ARC4BareMethodConfig | ARC4ABIMethodConfig

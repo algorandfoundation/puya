@@ -6,7 +6,6 @@ from puya.awst.nodes import (
     BoolConstant,
     BytesConstant,
     BytesEncoding,
-    ConstantValue,
     Expression,
     Lvalue,
     Statement,
@@ -23,6 +22,7 @@ from puyapy.awst_build.eb.interface import (
     TypeBuilder,
 )
 from puyapy.awst_build.utils import fold_binary_expr, fold_unary_expr
+from puyapy.models import ConstantValue
 
 logger = log.get_logger(__name__)
 

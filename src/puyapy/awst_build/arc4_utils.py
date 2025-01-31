@@ -9,17 +9,16 @@ import mypy.visitor
 from immutabledict import immutabledict
 
 from puya import log
+from puya.avm import OnCompletionAction, TransactionType
 from puya.awst import wtypes
-from puya.errors import CodeError, InternalError
-from puya.models import (
+from puya.awst.nodes import (
     ABIMethodArgDefault,
     ABIMethodArgMemberDefault,
     ARC4ABIMethodConfig,
     ARC4BareMethodConfig,
     ARC4CreateOption,
-    OnCompletionAction,
-    TransactionType,
 )
+from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import ASTConversionModuleContext

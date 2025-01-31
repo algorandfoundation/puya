@@ -3,7 +3,6 @@ import typing
 from collections.abc import Iterable, Iterator, Mapping
 
 from puya.awst import nodes, wtypes
-from puya.awst.nodes import AppStorageKind
 from puya.awst.visitors import (
     ContractMemberVisitor,
     ExpressionVisitor,
@@ -11,7 +10,6 @@ from puya.awst.visitors import (
     StatementVisitor,
 )
 from puya.errors import InternalError
-from puya.models import ARC4ABIMethodConfig, ARC4BareMethodConfig
 
 
 class ToCodeVisitor(
@@ -197,13 +195,13 @@ class ToCodeVisitor(
             ")",
         ]
         if c.app_state:
-            state_by_kind = dict[AppStorageKind, list[nodes.AppStorageDefinition]]()
+            state_by_kind = dict[nodes.AppStorageKind, list[nodes.AppStorageDefinition]]()
             for state in c.app_state:
                 state_by_kind.setdefault(state.kind, []).append(state)
             for kind_name, kind in (
-                ("globals", AppStorageKind.app_global),
-                ("locals", AppStorageKind.account_local),
-                ("boxes", AppStorageKind.box),
+                ("globals", nodes.AppStorageKind.app_global),
+                ("locals", nodes.AppStorageKind.account_local),
+                ("boxes", nodes.AppStorageKind.box),
             ):
                 state_of_kind = state_by_kind.pop(kind, [])
                 if state_of_kind:
@@ -269,9 +267,9 @@ class ToCodeVisitor(
         match statement.arc4_method_config:
             case None:
                 deco = "subroutine"
-            case ARC4BareMethodConfig():
+            case nodes.ARC4BareMethodConfig():
                 deco = "baremethod"
-            case ARC4ABIMethodConfig(name=config_name):
+            case nodes.ARC4ABIMethodConfig(name=config_name):
                 if statement.member_name != config_name:
                     deco = f"abimethod[name_override={config_name}]"
                 else:

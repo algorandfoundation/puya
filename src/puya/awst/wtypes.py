@@ -6,9 +6,8 @@ import attrs
 from immutabledict import immutabledict
 
 from puya import log
-from puya.avm_type import AVMType
+from puya.avm import AVMType, TransactionType
 from puya.errors import CodeError, InternalError
-from puya.models import TransactionType
 from puya.parse import SourceLocation
 from puya.utils import unique
 

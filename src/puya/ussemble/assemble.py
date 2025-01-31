@@ -4,8 +4,8 @@ from collections import defaultdict
 from collections.abc import Callable, Iterable, Mapping, Sequence
 
 from puya import log
+from puya.compilation_artifacts import DebugEvent
 from puya.errors import InternalError
-from puya.models import DebugEvent
 from puya.parse import SourceLocation
 from puya.teal import models as teal
 from puya.ussemble import models

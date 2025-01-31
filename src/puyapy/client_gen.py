@@ -13,11 +13,8 @@ from puya import (
 )
 from puya.arc32 import OCA_ARC32_MAPPING
 from puya.arc56 import allowed_call_oca, allowed_create_oca
+from puya.artifact_metadata import ARC4MethodArg, ARC4Returns
 from puya.errors import PuyaError
-from puya.models import (
-    ARC4MethodArg,
-    ARC4Returns,
-)
 from puyapy.awst_build.arc4_client_gen import write_arc4_client
 
 logger = log.get_logger(__name__)

@@ -17,7 +17,7 @@ from algosdk.v2client.algod import AlgodClient
 from nacl.signing import SigningKey
 
 from puya.arc32 import create_arc32_json
-from puya.models import CompiledContract
+from puya.compilation_artifacts import CompiledContract
 from puyapy.options import PuyaPyOptions
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 from tests.test_execution import decode_logs

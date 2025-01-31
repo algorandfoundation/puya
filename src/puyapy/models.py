@@ -7,16 +7,19 @@ from functools import cached_property
 import attrs
 
 from puya import log
-from puya.awst.nodes import AppStorageDefinition, AppStorageKind, ContractMethod, StateTotals
-from puya.errors import CodeError
-from puya.models import (
+from puya.avm import OnCompletionAction
+from puya.awst.nodes import (
+    AppStorageDefinition,
+    AppStorageKind,
     ARC4ABIMethodConfig,
     ARC4BareMethodConfig,
     ARC4CreateOption,
-    ContractReference,
-    OnCompletionAction,
+    ContractMethod,
+    StateTotals,
 )
+from puya.errors import CodeError
 from puya.parse import SourceLocation
+from puya.program_refs import ContractReference
 from puyapy.awst_build import pytypes
 
 logger = log.get_logger(__name__)
@@ -170,3 +173,6 @@ class ContractFragmentBase(abc.ABC):
                 )
                 if bare_matches and oca_matches and can_create_matches:
                     yield md
+
+
+ConstantValue: typing.TypeAlias = int | str | bytes | bool

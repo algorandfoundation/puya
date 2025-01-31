@@ -16,13 +16,15 @@ import mypy.options
 import mypy.util
 from packaging import version
 
-from puya import log, models
+from puya import log
 from puya.arc56 import create_arc56_json
 from puya.awst.nodes import AWST
 from puya.awst.serialize import awst_to_json
 from puya.awst.to_code_visitor import ToCodeVisitor
+from puya.compilation_artifacts import CompilationArtifact, CompiledContract
 from puya.compile import awst_to_teal
 from puya.errors import log_exceptions
+from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import make_path_relative_to_cwd
 from puyapy.awst_build.arc4_client_gen import write_arc4_client
 from puyapy.awst_build.main import transform_ast
@@ -86,11 +88,11 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
 
 def write_arc4_clients(
     template_prefix: str,
-    compilation_set: Mapping[models.ContractReference | models.LogicSigReference, Path],
-    artifacts: Sequence[models.CompilationArtifact],
+    compilation_set: Mapping[ContractReference | LogicSigReference, Path],
+    artifacts: Sequence[CompilationArtifact],
 ) -> None:
     for artifact in artifacts:
-        if isinstance(artifact, models.CompiledContract) and artifact.metadata.is_arc4:
+        if isinstance(artifact, CompiledContract) and artifact.metadata.is_arc4:
             contract_out_dir = compilation_set.get(artifact.id)
             if contract_out_dir:
                 app_spec_json = create_arc56_json(

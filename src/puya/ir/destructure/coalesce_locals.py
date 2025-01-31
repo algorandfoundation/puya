@@ -6,7 +6,7 @@ from collections.abc import Iterable
 import attrs
 
 from puya import log
-from puya.avm_type import AVMType
+from puya.avm import AVMType
 from puya.ir import models
 from puya.ir.types_ import IRType
 from puya.ir.visitor_mem_replacer import MemoryReplacer

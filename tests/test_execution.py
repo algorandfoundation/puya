@@ -34,8 +34,9 @@ from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
 from nacl.signing import SigningKey
 
-from puya.avm_type import AVMType
-from puya.models import CompiledContract, ContractState
+from puya.artifact_metadata import ContractState
+from puya.avm import AVMType
+from puya.compilation_artifacts import CompiledContract
 from puyapy.options import PuyaPyOptions
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 from tests.utils import compile_src_from_options

@@ -12,7 +12,6 @@ import typing_extensions
 from puya import log
 from puya.awst.nodes import (
     BinaryBooleanOperator,
-    ConstantValue,
     Expression,
     Lvalue,
     Statement,
@@ -21,6 +20,7 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puya.utils import invert_ordered_binary_op
 from puyapy.awst_build import pytypes
+from puyapy.models import ConstantValue
 
 logger = log.get_logger(__name__)
 

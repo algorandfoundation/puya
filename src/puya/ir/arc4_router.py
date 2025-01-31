@@ -2,21 +2,15 @@ import typing
 from collections.abc import Iterable, Mapping, Sequence
 
 from puya import log
+from puya.avm import OnCompletionAction
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
 from puya.awst.arc4_types import maybe_avm_to_arc4_equivalent_type, wtype_to_arc4
 from puya.errors import CodeError
-from puya.models import (
-    ARC4ABIMethodConfig,
-    ARC4BareMethodConfig,
-    ARC4CreateOption,
-    ARC4MethodConfig,
-    ContractReference,
-    OnCompletionAction,
-)
 from puya.parse import SourceLocation
+from puya.program_refs import ContractReference
 from puya.utils import set_add
 
 __all__ = [
@@ -152,7 +146,7 @@ def on_completion(location: SourceLocation) -> awst_nodes.Expression:
 
 def route_bare_methods(
     location: SourceLocation,
-    bare_methods: dict[AWSTContractMethodSignature, ARC4BareMethodConfig],
+    bare_methods: dict[AWSTContractMethodSignature, awst_nodes.ARC4BareMethodConfig],
 ) -> awst_nodes.Block | None:
     bare_blocks = dict[OnCompletionAction, awst_nodes.Block]()
     for bare_method, config in bare_methods.items():
@@ -209,17 +203,17 @@ def log_arc4_result(
 
 
 def assert_create_state(
-    config: ARC4MethodConfig, location: SourceLocation
+    config: awst_nodes.ARC4MethodConfig, location: SourceLocation
 ) -> Sequence[awst_nodes.Statement]:
     app_id = _txn("ApplicationID", wtypes.uint64_wtype, location)
     match config.create:
-        case ARC4CreateOption.allow:
+        case awst_nodes.ARC4CreateOption.allow:
             # if create is allowed but not required, we don't need to check anything
             return ()
-        case ARC4CreateOption.disallow:
+        case awst_nodes.ARC4CreateOption.disallow:
             condition = _non_zero(app_id)
             error_message = "can only call when not creating"
-        case ARC4CreateOption.require:
+        case awst_nodes.ARC4CreateOption.require:
             condition = _is_zero(app_id)
             error_message = "can only call when creating"
         case invalid:
@@ -406,7 +400,7 @@ def _map_abi_args(
 
 def route_abi_methods(
     location: SourceLocation,
-    methods: dict[AWSTContractMethodSignature, ARC4ABIMethodConfig],
+    methods: dict[AWSTContractMethodSignature, awst_nodes.ARC4ABIMethodConfig],
 ) -> awst_nodes.Block:
     method_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
     seen_signatures = set[str]()
@@ -472,13 +466,13 @@ def _maybe_switch(
 
 def create_abi_router(
     contract: awst_nodes.Contract,
-    arc4_methods_with_configs: Mapping[AWSTContractMethodSignature, ARC4MethodConfig],
+    arc4_methods_with_configs: Mapping[AWSTContractMethodSignature, awst_nodes.ARC4MethodConfig],
 ) -> awst_nodes.ContractMethod:
     router_location = contract.source_location
     abi_methods = {}
     bare_methods = {}
     for m, arc4_config in arc4_methods_with_configs.items():
-        if isinstance(arc4_config, ARC4BareMethodConfig):
+        if isinstance(arc4_config, awst_nodes.ARC4BareMethodConfig):
             bare_methods[m] = arc4_config
         else:
             abi_methods[m] = arc4_config
@@ -510,7 +504,7 @@ def create_abi_router(
 
 
 def _get_abi_signature(
-    subroutine: AWSTContractMethodSignature, config: ARC4ABIMethodConfig
+    subroutine: AWSTContractMethodSignature, config: awst_nodes.ARC4ABIMethodConfig
 ) -> str:
     arg_types = [wtype_to_arc4(a.wtype, a.source_location) for a in subroutine.args]
     return_type = wtype_to_arc4(subroutine.return_type, subroutine.source_location)

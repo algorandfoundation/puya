@@ -8,13 +8,13 @@ from functools import cached_property
 import attrs
 
 import puya.awst.nodes as awst_nodes
-import puya.models
 from puya.context import CompileContext
 from puya.errors import CodeError, log_exceptions
 from puya.ir.builder.blocks import BlocksBuilder
 from puya.ir.models import Subroutine
 from puya.ir.ssa import BraunSSA
 from puya.parse import SourceLocation
+from puya.program_refs import ContractReference
 from puya.utils import attrs_extend
 
 if typing.TYPE_CHECKING:
@@ -29,7 +29,7 @@ class IRBuildContext(CompileContext):
     subroutines: dict[awst_nodes.Function, Subroutine]
     embedded_funcs_lookup: Mapping[str, Subroutine] = attrs.field(default=dict)
     root: awst_nodes.Contract | awst_nodes.LogicSignature | None = None
-    routers: dict[puya.models.ContractReference, Subroutine] = attrs.field(factory=dict)
+    routers: dict[ContractReference, Subroutine] = attrs.field(factory=dict)
 
     @cached_property
     def _awst_lookup(self) -> Mapping[str, awst_nodes.RootNode]:

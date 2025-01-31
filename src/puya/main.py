@@ -10,8 +10,8 @@ from puya.awst import (
 )
 from puya.compile import awst_to_teal
 from puya.errors import log_exceptions
-from puya.models import ContractReference, LogicSigReference
 from puya.options import PuyaOptions
+from puya.program_refs import ContractReference, LogicSigReference
 
 logger = log.get_logger(__name__)
 

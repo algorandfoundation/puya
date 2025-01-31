@@ -8,8 +8,8 @@ from puya import log
 from puya.errors import CodeError
 from puya.ir.models import CompiledContractReference, CompiledLogicSigReference, ModuleArtifact
 from puya.ir.visitor import IRTraverser
-from puya.models import ContractReference, LogicSigReference
 from puya.parse import SourceLocation
+from puya.program_refs import ContractReference, LogicSigReference
 
 logger = log.get_logger(__name__)
 
