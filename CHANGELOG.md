@@ -1,9 +1,11 @@
 # CHANGELOG
+## v4.3.0 (2025-01-31)
+
+### Documentation
+
+* Fix incorrect example and add additional text explaining the difference between global state approaches ([`e38df61`](https://github.com/algorandfoundation/puya/commit/e38df617e5f9b1f36ba1beed0e8b46de4ff2fc01))
+
 ## v4.2.1 (2025-01-27)
-
-### Fix
-
-* Don&#39;t inline TEAL blocks with a single predecessor when their label is referenced multiple times. This issue could occur when there is a default fall through block in a switch or match scenario, which is also targeted by said op, and would cause a compilation failure. ([`d193042`](https://github.com/algorandfoundation/puya/commit/d193042b58e9f377804abb7a4d94ef2bc84ac3fd))
 
 ### Documentation
 
@@ -11,43 +13,13 @@
 
 ## v4.2.0 (2025-01-20)
 
-### Feature
-
-* support _replace method on ARC4Struct ([`3b1268d`](https://github.com/algorandfoundation/puya/commit/3b1268da00bd20bd507cb392e2aac37675a0e478))
-
-* update ops with AVM 11 changes ([`6814370`](https://github.com/algorandfoundation/puya/commit/68143702a37dc90d4e95fc97ae5ba90a8c98e306))
-
-### Fix
-
-* prevent compilation failure when there are multiple functions inlined into another function and at least one of them unconditionally exits the program ([`9e78626`](https://github.com/algorandfoundation/puya/commit/9e786260ce0f0d3b3206f61cf7518b43b8572b8c))
-
-* `algopy.LocalState.get` now works with `account` keyword argument ([`0722493`](https://github.com/algorandfoundation/puya/commit/07224938c750aa2ad2fe26032d9081739dc05939))
-
 ### Documentation
 
 * add documentation on how to update langspec.json to support new AVM versions ([`a06b254`](https://github.com/algorandfoundation/puya/commit/a06b25425b6c583a04f2735400cdd7febd25f5a6))
 
 ## v4.1.1 (2025-01-13)
 
-### Fix
-
-* accept address or index param for VoterParamsGet methods (#369) ([`8cb9ffc`](https://github.com/algorandfoundation/puya/commit/8cb9ffc38e34563f2335b12e767d6794478fe7f8))
-
 ## v4.1.0 (2025-01-11)
-
-### Feature
-
-* optimizer enhancements ([`4bc09cb`](https://github.com/algorandfoundation/puya/commit/4bc09cbe5a589ea4ae255aa59adab8c45775d495))
-
-### Fix
-
-* ensure chained linear jumps are inlined as part of post-SSA optimization ([`9a3ff3a`](https://github.com/algorandfoundation/puya/commit/9a3ff3a9909cc2d410283baba688a4fea572bcd9))
-
-* don&#39;t attempt to assemble contracts that aren&#39;t explicitly selected for compilation and may not have template variables defined ([`e933640`](https://github.com/algorandfoundation/puya/commit/e9336402eb4e19d637a54dd230c1316df664f930))
-
-* correctly handle name collisions with structs in ARC-56 ([`5a4f134`](https://github.com/algorandfoundation/puya/commit/5a4f13487dfa1f95b893430c91e385951f2a4e40))
-
-* Identify WTuples by name when treating them as structs in an ABI method ([`1db0efc`](https://github.com/algorandfoundation/puya/commit/1db0efc3d0d7871e86bcac01ee0ab872e2250424))
 
 ### Documentation
 
@@ -57,181 +29,38 @@
 
   * docs: apply suggestions from code review
 
-  Co-authored-by: Rob Moore (MakerX) &lt;rob.moore@makerx.com.au&gt;
+  Co-authored-by: Rob Moore (MakerX) <rob.moore@makerx.com.au>
 
 * add initial array adr (#362) ([`1f278f4`](https://github.com/algorandfoundation/puya/commit/1f278f4b2e4867e1b986a9b4ca1818c8c1ea9870))
 
-  * docs: add initial array adr * docs: add feedback suggestion
+  * docs: add initial array adr
+  * docs: add feedback suggestion
 
 ## v4.0.0 (2024-11-14)
 
-### Breaking
-
-* raise an error when attempting to iterate a tuple of mutable values ([`43a364e`](https://github.com/algorandfoundation/puya/commit/43a364e0131e580565cbdfa3d8f44e9b78621252))
-
-  BREAKING CHANGE: iterating a tuple of mutable types will now raise an error as they cannot be copied
-
-* passing a mutable value more than once to a subroutine will now raise an error as allowing it would break semantic compatability ([`dac51be`](https://github.com/algorandfoundation/puya/commit/dac51be3c5cc3487ac303e9160fd9d8bd7b17788))
-
-  BREAKING CHANGE: passing a mutable value more than once to a subroutine causes an error
-
-* raise an error when attempting to modify immutable arrays such as `algopy.arc4.Address` ([`9450c7a`](https://github.com/algorandfoundation/puya/commit/9450c7a615712010067f494cc57d0ceb48f021f4))
-
-  BREAKING CHANGE: modifying an `algopy.arc4.Address` will now raise an error
-
-### Feature
-
-* use extract3 instead of substring3 for bytes indexing ([`4954155`](https://github.com/algorandfoundation/puya/commit/4954155cc668f9a59d0a04c56fcb1af509978115))
-
-* remove ops with no side effects when result is not used ([`ea34059`](https://github.com/algorandfoundation/puya/commit/ea3405928c5097934ecea0100c41c878ee51a258))
-
-* ARC-56 application specifications can now be output using the `--output-arc56` option ([`2d3eb49`](https://github.com/algorandfoundation/puya/commit/2d3eb49c11d2db8a2ed6de04c16be33facbcdfb2))
-
-* add `.copy()` to arc4.Tuple ([`fe7a0ea`](https://github.com/algorandfoundation/puya/commit/fe7a0ead47a44ea4c77538ccc45d3823eb6d41de))
-
-* add support for AVM version 11 ([`0c31697`](https://github.com/algorandfoundation/puya/commit/0c31697053554d4fc64e9e49ad86eba6057fa67a))
-
-* allow variable rebinding of mutable parameter values ([`253168a`](https://github.com/algorandfoundation/puya/commit/253168a63b92a39a4a2b596d7760175875b39a1d))
-
-### Fix
-
-* ensure expressions are only evaluated once ([`359956c`](https://github.com/algorandfoundation/puya/commit/359956c9e216222388aa10a001dbbd92305bcb35))
-
-* prevent errors trying to optimize dig 0 ([`bf52c36`](https://github.com/algorandfoundation/puya/commit/bf52c363039d43ad3c4a361f7e288ea7a330c10c))
-
-* improve error message when a self parameter is missing from a method declaration ([`8153cfb`](https://github.com/algorandfoundation/puya/commit/8153cfbdb30aace1c34bd2e64b0418f1b4678a96))
-
-* use read location for variable source locations, rather than where the variable was last defined ([`27e2659`](https://github.com/algorandfoundation/puya/commit/27e26597fd4c577cd69e7af2d9795860c06e36f2))
-
-* correctly determine if an `algopy.arc4.Struct` sub-class is immutable or not based on `frozen` class parameter and immutability of fields ([`0491d0b`](https://github.com/algorandfoundation/puya/commit/0491d0bc9f2be7bf8f2ba5cf54cfc600abe698e6))
-
 ## v3.6.0 (2024-11-04)
-
-### Fix
-
-* ensure paths are normalised in Puya source maps ([`29224ef`](https://github.com/algorandfoundation/puya/commit/29224ef7c689d9b7cc837c27367af0bfd1e447c0))
 
 ## v3.5.0 (2024-10-30)
 
-### Feature
-
-* add `_replace` implementation for named tuples, make `algopy.CompiledContract` and `algopy.CompiledLogicSig` named tuples ([`93a47f2`](https://github.com/algorandfoundation/puya/commit/93a47f25d3904275b7bfba6fd25595a6c8b88b95))
-
-* reduce stack manipulations ops when subroutine/op results are directly assigned ([`fbe6ebb`](https://github.com/algorandfoundation/puya/commit/fbe6ebbd1744a3eb07653f8cc1ccd28fad6b3006))
-
-* add CLI option `--output_source_map` to produce debug information that can be used with the next release of AVM debugger ([`3009822`](https://github.com/algorandfoundation/puya/commit/300982218ce67c204cc6c719c96fe2609c69eb7a))
-
-* add optimization to include constant blocks in TEAL output ([`671677b`](https://github.com/algorandfoundation/puya/commit/671677b4a5c0656a247feb7fa4baa4c05c528d5e))
-
-### Fix
-
-* check target type for ARC4Decode ([`9704011`](https://github.com/algorandfoundation/puya/commit/9704011e6a28f0edab113cb3b3b0e8e3153bd9a7))
-
-* deprecate `--match-algod-bytecode` option as there is now no difference between algod and puya bytecode output ([`de0fd58`](https://github.com/algorandfoundation/puya/commit/de0fd58cf7107303ef512b3a67ee8bd24fce9fe6))
-
 ## v3.4.1 (2024-10-24)
 
-### Fix
-
-* allow named tuples to be unpacked ([`320efd2`](https://github.com/algorandfoundation/puya/commit/320efd283292abab1d234610101715f808954730))
-
-* itxn arguments are now inferred correctly when using only a method name in `algopy.arc4.abi_call` ([`04fe6d7`](https://github.com/algorandfoundation/puya/commit/04fe6d798e58939fd07028f07d15b2e25b9427e4))
-
 ## v3.4.0 (2024-10-23)
-
-### Feature
-
-* Named tuple support in contract to contract calls ([`c742281`](https://github.com/algorandfoundation/puya/commit/c7422817d45187db960a1cb2a09d618c668429ee))
-
-* Named tuples ([`e0abe5c`](https://github.com/algorandfoundation/puya/commit/e0abe5c572d5dbd0049ea34ed77000333b1e6d57))
-
-### Fix
-
-* Round trip serialization of names property on WTuple ([`dd7b679`](https://github.com/algorandfoundation/puya/commit/dd7b679389b77db4b7d1e73335ed23c6672d64ca))
 
 ## v3.3.0 (2024-10-16)
 
 ## v3.2.3 (2024-10-15)
 
-### Fix
-
-* native tuples now supported as arguments and return value when using `algopy.arc4.abi_call`, `algopy.arc4.arc4_create` or `algopy.arc4.arc4_update` (#324) ([`6dfd68b`](https://github.com/algorandfoundation/puya/commit/6dfd68b6d44ce5f39c5d96b1b383e95241c7559b))
-
 ## v3.2.2 (2024-10-08)
-
-### Fix
-
-* assigning transaction result from algopy.arc4.abi_call containing other transactions no longer causes an error ([`125e85e`](https://github.com/algorandfoundation/puya/commit/125e85ecda39f36a07beb7db20af17b751291566))
-
-* fixed incorrect typing of `algopy.arc4.abi_call` parameters `global_num_uint`, `global_num_bytes`, `local_num_uint`, `local_num_bytes` and `extra_program_pages` ([`e464ca2`](https://github.com/algorandfoundation/puya/commit/e464ca291c94e573099dfa00a8cc75726e401641))
 
 ## v3.2.1 (2024-10-04)
 
-### Fix
-
-* fixed error when assigning result of an abi_call with inner transactions that return an ABI value ([`e3ef7dd`](https://github.com/algorandfoundation/puya/commit/e3ef7ddaea0ff050aa316b385047a89435e046a6))
-
 ## v3.2.0 (2024-09-24)
-
-### Feature
-
-* expand handling of literal expressions to allow combining them with binary boolean operators, and improve error messaging when handling of type unions in nested bool contexts ([`b4e0c30`](https://github.com/algorandfoundation/puya/commit/b4e0c306e59dab70664f0c2509bc5eb9458b2821))
-
-### Fix
-
-* prevent error that occurs when removing a series of redundant Load and Store ops ([`17778b8`](https://github.com/algorandfoundation/puya/commit/17778b859d4e0b0f3dbc329afbd64f8908470d5d))
-
-* fix compilation error when a nested tuple is passed as a named argument ([`d849496`](https://github.com/algorandfoundation/puya/commit/d849496dfe5b4b14ee1cc38cfdce8cfb8066c70d))
 
 ## v3.1.0 (2024-09-13)
 
-### Feature
-
-* `algopy.arc4.abi_call`, `algopy.arc4.arc4_create` and `algopy.arc4.arc4_update` now all support txn arguments ([`8133e1d`](https://github.com/algorandfoundation/puya/commit/8133e1db63e6c63990d28f79dc1b6a7b2a422a2e))
-
-* add CLI option to serialize AWST to JSON ([`66bf127`](https://github.com/algorandfoundation/puya/commit/66bf1274b88e5856e4163df8f276f64fff390da5))
-
-* optimize `int 0; return` -&gt; `err` ([`3605cf4`](https://github.com/algorandfoundation/puya/commit/3605cf4aeaeaa3218fb523e6669dcd5254275fc5))
-
-* allow user to implement approval_program in ARC4Contract subclasses ([`004450b`](https://github.com/algorandfoundation/puya/commit/004450b909a5c007ec6f20600fd874b1ed5c59d1))
-
-### Fix
-
-* handle zero values for TemplateVar ([`6087dc2`](https://github.com/algorandfoundation/puya/commit/6087dc21451e5266f7df8b9851dd80a5d12be7d8))
-
-  boolean values are now also allowed as `True` or `False`
-
-  also incorrect values will no longer result in a critical error, but a CLI usage error instead
-
-* when accessing a member of `self`, use the source location of the access ([`2f827ab`](https://github.com/algorandfoundation/puya/commit/2f827aba3cc471f588609156f551130b47f9c5b8))
-
-* when there is exactly 15 arguments to an ABI function, the final argument should not be expected to be automatically tuple-packed ([`04e15df`](https://github.com/algorandfoundation/puya/commit/04e15df084ee99c001fd7df28697f4e569606161))
-
-* calling `algopy.arc4.arc4_create` or `algopy.arc4.arc4_update` with a ARC4Contract type now works for abimethods that have a return type ([`99d6a24`](https://github.com/algorandfoundation/puya/commit/99d6a241e83d46d45780093346e1295d94161f51))
-
-* fix `super()` usage in multiple inheritance scenarios ([`21929cc`](https://github.com/algorandfoundation/puya/commit/21929cc64e0eaf735189158d454904de387a3d8a))
-
-* allow `super().__init__()` calls that resolve to `object.__init__()` as no-ops, this is valid and can be useful in multiple inheritance scenarios ([`267f423`](https://github.com/algorandfoundation/puya/commit/267f4235c0bb1a0b5a40347ddd9a26e2d6cd6532))
-
-* abstract methods can still have implementations, which can be called via super ([`9615467`](https://github.com/algorandfoundation/puya/commit/96154675231c8303941c357f3c6fcab1c21c3413))
-
-* evaluate class bodies at module evaluation time, so that any referenced constants in e.g. decorators receive the correct value if it&#39;s later updated ([`9aea78c`](https://github.com/algorandfoundation/puya/commit/9aea78c638b01863a4ed8004187108d3e315ec1b))
-
-* resolve all base scratch slot reservations, not just direct bases ([`f9521b5`](https://github.com/algorandfoundation/puya/commit/f9521b5cc81c4800a198d6428cc078c26ced8d8b))
-
 ## v3.0.3 (2024-08-28)
 
-### Fix
-
-* do not remove swap ops before `itxn_field` if it&#39;s immediates point to the same field ([`0e88cdb`](https://github.com/algorandfoundation/puya/commit/0e88cdbaf5372e14b8de04aa28f244379d367528))
-
 ## v3.0.2 (2024-08-23)
-
-### Fix
-
-* handle utf-8 alias&#39;s when checking for encoding, addresses #300 ([`90bf86f`](https://github.com/algorandfoundation/puya/commit/90bf86fed54bfb1ab658020b31e8adad52a30412))
-
-* remove `slice` from `__getitem__` in `algopy.arc4.DynamicArray` and `algopy.arc4.StaticArray` ([`c0049f1`](https://github.com/algorandfoundation/puya/commit/c0049f16a40e208f178586450eed2a4bf7648e97))
 
 ### Documentation
 
@@ -239,47 +68,9 @@
 
 ## v3.0.1 (2024-08-20)
 
-### Fix
-
-* handle `in`/`not in` tests correctly for differing types that can still be considered equal ([`234c376`](https://github.com/algorandfoundation/puya/commit/234c376aaad6ae5eab897a934fd8609075222757))
-
-* do not error when using `algopy.arc4.abi_call` with a method selector string containing no arguments ([`74577c4`](https://github.com/algorandfoundation/puya/commit/74577c4aa3261567f514decf75f53abe5d44c421))
-
 ## v3.0.0 (2024-08-16)
 
-### Breaking
-
-* use correct return type for `algopy.op.gaid` ([`a5c57ef`](https://github.com/algorandfoundation/puya/commit/a5c57efae3f07df7c59b050edce9318818078896))
-
-  BREAKING CHANGE: `algop.op.gaid` return type has changed from `algopy.Application` to `algopy.UInt64` as the return value could be the id of either an application or an asset. Any existing usages of `algopy.op.gaid` will need to pass the result to either `algopy.Application` or `algopy.Asset` as appropriate
-
-### Feature
-
-* include `num_log`, `log`, `create_app` and `created_asset` properties for group transactions ([`5359c4d`](https://github.com/algorandfoundation/puya/commit/5359c4d9ea377e34add5c15d064d79cbf838eaaa))
-
-* as part of optimization, remove no-op subroutines ([`5663a55`](https://github.com/algorandfoundation/puya/commit/5663a55bebf7152f525bf12c639fe280fe0574fd))
-
 ## v2.3.0 (2024-08-12)
-
-### Feature
-
-* improved optimization when uint64 comparisons involve a boolean value ([`a68ca06`](https://github.com/algorandfoundation/puya/commit/a68ca06bdcfca5c5df115f6af54e47f4ecc00413))
-
-* more aggressive optimization of `select` op involving constants or references to constants ([`8d59e2d`](https://github.com/algorandfoundation/puya/commit/8d59e2dd86bb03eaed806a48f07c04939e507660))
-
-* optimise away `select` op when both values are the same ([`f8eb257`](https://github.com/algorandfoundation/puya/commit/f8eb257ea903b9c7d51dee1384006e68897aaead))
-
-* optimise code size by converting conditional (ie ternary) expressions into `select` op when both values are simple variables / constants ([`b748976`](https://github.com/algorandfoundation/puya/commit/b74897677523a71cfb67c5393ecafd7c404af2c9))
-
-* more aggressive optimization of the boolean condition argument to `setbit` ([`e9828b3`](https://github.com/algorandfoundation/puya/commit/e9828b3b74571b01cb7315f80c84dae4ae6b223c))
-
-* support nested tuples ([`fe270dc`](https://github.com/algorandfoundation/puya/commit/fe270dcf8ebe26bdece34e1e0066c0eee8de0789))
-
-### Fix
-
-* correctly type the result of BigUInt bin ops at IR layer ([`d8d92bd`](https://github.com/algorandfoundation/puya/commit/d8d92bd1864d4ad810a3c8534f6ee0f0a45c9a09))
-
-* ensure non-zero UInt64 values that are explicitly converted to bool are handled correctly (issue #194) ([`13929de`](https://github.com/algorandfoundation/puya/commit/13929de2050acb6063697bc1c1e084ef7fed916a))
 
 ### Documentation
 
@@ -287,37 +78,7 @@
 
 ## v2.2.0 (2024-07-30)
 
-### Feature
-
-* remove requirement that the target variable of a for-loop with enumeration be a tuple unpacking ([`5b994e3`](https://github.com/algorandfoundation/puya/commit/5b994e35d322c664a85079cdc4a0ffe876a50dca))
-
-* support for-else and while-else ([`0959e2d`](https://github.com/algorandfoundation/puya/commit/0959e2d3652b729f5c7cca2bd15fe99a02be5219))
-
-* include ARC-22 readonly flag in ARC-32 output ([`6d325b9`](https://github.com/algorandfoundation/puya/commit/6d325b989a3f9814eaf3325a3685ee95bb1722e8))
-
-* add support for compiling programs to AVM bytecode, and referencing those programs within other contracts. ([`7d7a4fd`](https://github.com/algorandfoundation/puya/commit/7d7a4fd7e6465ff26c10909147034720eb1c5145))
-
-### Fix
-
-* ensure conversion of UInt64 enum types to arc4 UIntN is handled correctly. ([`70b49dc`](https://github.com/algorandfoundation/puya/commit/70b49dc848fd7dc67569f81ddf443e8eb3d865f6))
-
-* change total_num_byte_slice return type to UInt64 ([`96b5165`](https://github.com/algorandfoundation/puya/commit/96b5165f916d64b9edee121d2c40b340eb488c5c))
-
-* fix bug with iteration of single item tuples ([`983f171`](https://github.com/algorandfoundation/puya/commit/983f171f6a4566332740a000b8209e7fe3217bb1))
-
-* fix a regression where `algopy.op` functions that accepted multiple literal types would fail to compile with all except one type ([`2cbf5df`](https://github.com/algorandfoundation/puya/commit/2cbf5df647842969fce27199153ae0bac2ad1523))
-
-* use UInt64 enum types as return types where appropriate in low-level ops stubs ([`008c96a`](https://github.com/algorandfoundation/puya/commit/008c96a3222e37e2cd702ec844e7ebc38aff9d8f))
-
-* prevent internal errors when for-loop bodies always exit (#269) ([`1b24cd7`](https://github.com/algorandfoundation/puya/commit/1b24cd72af71f2826b3385c8a274d1a656895f57))
-
 ## v2.1.2 (2024-07-10)
-
-### Fix
-
-* corrected parsing of ARC4 ufixed types when provided via string literals in `algopy.arc4.abi_call` and `algopy.arc4.emit` ([`43ffe8e`](https://github.com/algorandfoundation/puya/commit/43ffe8e57fa2365dd5d56d24fb7bf09227759478))
-
-* in the case of overlapping values in a Switch (ie Python match-case), mark subsequent cases as unreachable to prevent a critical error from occurring (&#34;Attempted to add a (non-entry) block with no predecessors&#34;) ([`f21efc1`](https://github.com/algorandfoundation/puya/commit/f21efc1e0e4ef396e2b02e0ace1821ce9abc40ea))
 
 ### Documentation
 
@@ -329,101 +90,9 @@
 
 ## v2.1.1 (2024-07-01)
 
-### Fix
-
-* prevent assertion error when using dynamic key with storage proxy and assinging to self member ([`351b51e`](https://github.com/algorandfoundation/puya/commit/351b51e46ac30de5a01ff43b5b70d18818d2c478))
-
-* add dynamic key types to stubs for LocalState and GlobalState ([`0aade7a`](https://github.com/algorandfoundation/puya/commit/0aade7ae1a724bc89a02c96f6bcafe8eb08fe605))
-
-  also add this use cases to tests
-
 ## v2.1.0 (2024-06-25)
 
-### Feature
-
-* support comparisons between `arc4.Bool` and `bool` ([`1787f06`](https://github.com/algorandfoundation/puya/commit/1787f06619ef459dfd78e063be3270c0972fc54d))
-
-* support a wider range of types for inner transaction application args ([`28b5197`](https://github.com/algorandfoundation/puya/commit/28b5197081a9eda4586658c918b410409d07c859))
-
-* support string literals in String.join argument ([`0818d7d`](https://github.com/algorandfoundation/puya/commit/0818d7d9c28b72d170c42f13714875312ed16faa))
-
-* support constructing tuples via tuple(&lt;expr&gt;) where expr is a fixed size sequence ([`529f12a`](https://github.com/algorandfoundation/puya/commit/529f12a3465d2013f44a75ce83b29571fa68de07))
-
-* support tuple equality comparisons with literal elements, support tuple repetition &amp; concatenation, and support indexing/slicing literals that support it ([`0c8a745`](https://github.com/algorandfoundation/puya/commit/0c8a745311be5fb779edcba2929f3e9911f265ad))
-
-* allow conditional expressions involving literals when either interacting with an algopy type or being passed to an algopy function, where possible ([`a047d92`](https://github.com/algorandfoundation/puya/commit/a047d929998ab27a53351fbc0dcd610e9fef81a7))
-
-  examples that are now possible: - `x = UInt64(12 if condition else 34)` - `x += 45 if condition else 67` - `op.addw(2**64-1 if condition else 0, x)`
-
-* Box storage api ([`c41ce5e`](https://github.com/algorandfoundation/puya/commit/c41ce5e0b2c051412c8020687e7f3448aa44f439))
-
-* handle cover/uncover rotation simplification edge case ([`9ed7a60`](https://github.com/algorandfoundation/puya/commit/9ed7a609caa719b5d37de81d70f6f9f261940234))
-
-### Fix
-
-* bool evaluations that evaluate to constants are now treated as errors as they were either hiding a semantic compatability issue or were a sign of a mistake in the code. ([`247d62d`](https://github.com/algorandfoundation/puya/commit/247d62d24543d232e2649c48a96d979e426b9ae3))
-
-* handle single item tuples correctly ([`2026815`](https://github.com/algorandfoundation/puya/commit/202681511512bb7c7e6f41190c6bb4d810c02ab6))
-
-* add missing * to stubs, that EB was expecting ([`4842719`](https://github.com/algorandfoundation/puya/commit/48427190defdac743f16938a2a798d8a35bdd677))
-
-* ensure tuple expressions are evaluated when converting to a bool ([`9d556e6`](https://github.com/algorandfoundation/puya/commit/9d556e6f2623d6caee6f51f3a04d4f6517bc18c7))
-
-* do not require ARC4 types to .copy() when being as arguments to an inner transaction ([`601a385`](https://github.com/algorandfoundation/puya/commit/601a3850d041139dbef3ba0e634d55f0127c9ba9))
-
-* fix argument packing condition when using abi_call ([`070d224`](https://github.com/algorandfoundation/puya/commit/070d2242694a287d4897a145438f5296530108df))
-
-* fix UInt64 handling of construction from bool ([`07cd6d9`](https://github.com/algorandfoundation/puya/commit/07cd6d9163859a88b2fb810387c86c5089e51de4))
-
-* fix semantic issues with tuple comparisons of different length / types ([`840118a`](https://github.com/algorandfoundation/puya/commit/840118a6062262c7175f68ccc81f8eba0a80ca4c))
-
-* fix semantic compatibility issue with comparisons involving tuple literals ([`180d363`](https://github.com/algorandfoundation/puya/commit/180d363fab87253c15ed9f50fb83ddff74384c24))
-
-* support negative indexes on indexable types ([`9213996`](https://github.com/algorandfoundation/puya/commit/92139960da2da49e10d77572127d32072a0e7d9c))
-
-* fix bug in &#34;untyped&#34; itxn creation not being declared as allowing BytesBacked ([`f5aeada`](https://github.com/algorandfoundation/puya/commit/f5aeadad78afb6c306f476a253a31703e3da6309))
-
-* fix encoding of bytes constants and allow String as sep value ([`6e82f80`](https://github.com/algorandfoundation/puya/commit/6e82f807312e7ba31dd2d51b2a0b9cb707b56f72))
-
-* handle __eq__ for ufixed ([`83b346b`](https://github.com/algorandfoundation/puya/commit/83b346bb8c794c4f19f48f61c460b37561c2798f))
-
-* handle bool values (as subtype of int) when comparing against arc4 uintn ([`74e065d`](https://github.com/algorandfoundation/puya/commit/74e065de7c99802a7d3f9877b4ea71925828a5da))
-
-  fix: allow arc4.String comparison with String without going through constructor
-
-  refactoring convert_arc4_literal (wip)
-
-* fix bug with inner-transaction-containing tuple detection ([`6ca2c45`](https://github.com/algorandfoundation/puya/commit/6ca2c454de3b056465cdb17b36c379d0d553b775))
-
-* resolve issue when using native types with arguments and return values in abi_call ([`604dddc`](https://github.com/algorandfoundation/puya/commit/604dddcccc18a9cabdf1a75d4b7b51330be30304))
-
-* allow usage of module constants in ARC4 method decorators ([`d09f381`](https://github.com/algorandfoundation/puya/commit/d09f38122c95955d82ea5505bab5a84f8455543d))
-
-* fix bug with resolving super/direct base method invocation ([`a0618cb`](https://github.com/algorandfoundation/puya/commit/a0618cb5d79125f9fdcd308c7c29418afdc3da84))
-
-* improve error messages when typing.Any type is encountered ([`c2cfaf5`](https://github.com/algorandfoundation/puya/commit/c2cfaf531b40d0a1fea5f8c3ada0476ec8efbf79))
-
-* prevent critical error message when missing self param in declaration ([`7ff2e17`](https://github.com/algorandfoundation/puya/commit/7ff2e175576a15014e0beee1c4c5dc31ab3c62e0))
-
-* correct return type of String.join ([`3df0b8b`](https://github.com/algorandfoundation/puya/commit/3df0b8bf8ea62ec2acf1976f9bfe166486270862))
-
-* fix resolution of base class references across modules ([`cf7c67f`](https://github.com/algorandfoundation/puya/commit/cf7c67fe32fd2241641fb9e231002038c31ecab5))
-
-* resolve potential semantic incompatibility with super() usage and differing kinds of attributes (methods vs data) ([`f1f2bdd`](https://github.com/algorandfoundation/puya/commit/f1f2bdde3bac1d90b029e1c18cb9fe2563c8ec57))
-
-  add bad super() usage test
-
-* ARC4 Bool decode now resolves to IRType.bool ([`9b4e82d`](https://github.com/algorandfoundation/puya/commit/9b4e82d4d204005716b9956f8d2b0433345c5ede))
-
 ## v2.0.2 (2024-06-10)
-
-### Fix
-
-* resolve issues with reading and writing ARC4 types ([`23f9bd2`](https://github.com/algorandfoundation/puya/commit/23f9bd2dd0589b3ce4caa2763f8808cf71936e04))
-
-  Reading and writing dynamic ARC4 types in an array Modifying ARC4 tuple items (https://github.com/algorandfoundation/puya/issues/152) Require ARC4 struct initialisation to have unaliased values to maintain reference semantics
-
-* fix inner transaction validation to handle some cases that were accidentally missed (#233) ([`cd42f02`](https://github.com/algorandfoundation/puya/commit/cd42f020f97695549add0f92cf541fca25fc8b77))
 
 ### Documentation
 
@@ -431,31 +100,9 @@
 
 ## v2.0.1 (2024-05-21)
 
-### Fix
-
-* fix incorrectly mapped transaction arguments `global_num_uint` and `local_num_uint` in `algopy.arc4.abi_call` #232 ([`0c35caa`](https://github.com/algorandfoundation/puya/commit/0c35caa54407e43635fc8408479adff1d5d4a8cc))
-
-* resolve issue when using native types with arguments and return values in abi_call ([`38a199a`](https://github.com/algorandfoundation/puya/commit/38a199ade05dac091eee3ac254c3364f88cf4a00))
-
-* correct default value for fee in abi_call ([`ac46f49`](https://github.com/algorandfoundation/puya/commit/ac46f490356157e1bf1ba893af4a1882eba58a38))
-
-* fix IR return types of `b+` and `b*` ops ([`0de49c1`](https://github.com/algorandfoundation/puya/commit/0de49c1a847a54e1f58b3eef201b257fd19a24d2))
-
-* correct return type of String.join expression ([`873460d`](https://github.com/algorandfoundation/puya/commit/873460db1bdd6047dbe0c1ecd12dbfe2163adc99))
-
-* corrected itxn field type definitions for `VotePK`, `SelectionPK` and `FreezeAssetFrozen` ([`5f59f15`](https://github.com/algorandfoundation/puya/commit/5f59f157b1a0a864575335525f5ef96759ace622))
-
-* correctly handle `BigUInt` in ARC4 methods ([`354a4a2`](https://github.com/algorandfoundation/puya/commit/354a4a273bd22d12119da85327f5466e595d6f47))
-
-* handle resolve reinterpret cast at the IR level with a temporary assignment if required (#219) ([`4b1bff3`](https://github.com/algorandfoundation/puya/commit/4b1bff3795b89bc3175532299590d7935acb6a75))
-
-* do not match `dup2` op when performing constant stack shuffling ([`815e253`](https://github.com/algorandfoundation/puya/commit/815e253bb8f4a6e7195a6a8e8551b245eac3c8ab))
-
-* remove type bound on `TemplateVar` allowing it to be used with all types. ([`4226e0f`](https://github.com/algorandfoundation/puya/commit/4226e0f939571df4faf1a883b4d8b32bac884509))
-
 ### Documentation
 
-* improve some stub type signatures &amp; copy in transaction field notes from Algorand docs (#215) ([`4f01df5`](https://github.com/algorandfoundation/puya/commit/4f01df52eec1bbbfac9ea25d53a569c1e70a2800))
+* improve some stub type signatures & copy in transaction field notes from Algorand docs (#215) ([`4f01df5`](https://github.com/algorandfoundation/puya/commit/4f01df52eec1bbbfac9ea25d53a569c1e70a2800))
 
 
 ## v2.0.0 (2024-04-26)
