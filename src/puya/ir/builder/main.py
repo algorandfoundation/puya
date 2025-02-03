@@ -1214,11 +1214,11 @@ class FunctionIRBuilder(
             assert isinstance(array_slot_type, SlotType)
             array_type = array_slot_type.contents
             assert isinstance(array_type, ArrayType)
-            to_extend = arrays.serialize_array_items(self.context, expr.other, array_type)
+            # to_extend = arrays.serialize_array_items(self.context, expr.other, array_type)
             array_contents = mem.read_slot(self.context, array_slot, expr.source_location)
-            array_contents = arrays.extend_array(
-                self.context, array_contents, to_extend, expr.source_location
-            )
+            # array_contents = arrays.concat_arrays(
+            #     self.context, array_contents, to_extend, expr.source_location
+            # )
             mem.write_slot(self.context, array_slot, array_contents, expr.source_location)
             return None
         else:

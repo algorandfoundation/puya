@@ -116,8 +116,13 @@ class ToTextVisitor(IRVisitor[str]):
         )
 
     @typing.override
-    def visit_array_extend(self, append: models.ArrayExtend) -> str:
-        return f"{append.array.accept(self)}.extend({append.values.accept(self)})"
+    def visit_array_concat(self, concat: models.ArrayConcat) -> str:
+        return f"{concat.array.accept(self)}.concat({concat.other.accept(self)})"
+
+    @typing.override
+    def visit_array_extend(self, extend: models.ArrayExtend) -> str:
+        values = ", ".join(val.accept(self) for val in extend.values)
+        return f"{extend.array.accept(self)}.extend({values})"
 
     @typing.override
     def visit_array_pop(self, pop: models.ArrayPop) -> str:

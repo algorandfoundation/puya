@@ -82,8 +82,9 @@ class IRVisitor[T](ABC):
     def visit_array_write_index(self, write: puya.ir.models.ArrayWriteIndex) -> T: ...
 
     @abstractmethod
-    def visit_array_extend(self, append: puya.ir.models.ArrayExtend) -> T: ...
-
+    def visit_array_extend(self, extend: puya.ir.models.ArrayExtend) -> T: ...
+    @abstractmethod
+    def visit_array_concat(self, concat: puya.ir.models.ArrayConcat) -> T: ...
     @abstractmethod
     def visit_array_pop(self, pop: puya.ir.models.ArrayPop) -> T: ...
 
@@ -193,9 +194,14 @@ class IRTraverser(IRVisitor[None]):
         write.index.accept(self)
         write.value.accept(self)
 
-    def visit_array_extend(self, append: puya.ir.models.ArrayExtend) -> None:
-        append.array.accept(self)
-        append.values.accept(self)
+    def visit_array_concat(self, concat: puya.ir.models.ArrayConcat) -> None:
+        concat.array.accept(self)
+        concat.other.accept(self)
+
+    def visit_array_extend(self, extend: puya.ir.models.ArrayExtend) -> None:
+        extend.array.accept(self)
+        for value in extend.values:
+            value.accept(self)
 
     def visit_array_pop(self, pop: puya.ir.models.ArrayPop) -> None:
         pop.array.accept(self)
@@ -313,7 +319,10 @@ class NoOpIRVisitor[T](IRVisitor[T | None]):
     def visit_array_write_index(self, write: puya.ir.models.ArrayWriteIndex) -> T | None:
         return None
 
-    def visit_array_extend(self, append: puya.ir.models.ArrayExtend) -> T | None:
+    def visit_array_concat(self, concat: puya.ir.models.ArrayConcat) -> T | None:
+        return None
+
+    def visit_array_extend(self, extend: puya.ir.models.ArrayExtend) -> T | None:
         return None
 
     def visit_array_pop(self, write: puya.ir.models.ArrayPop) -> T | None:

@@ -67,21 +67,21 @@ def serialize_array_items(
             )
 
 
-def extend_array(
-    context: IRFunctionBuildContext,
-    array: ir.Value,
-    values: ir.Value,
-    loc: SourceLocation,
-) -> ir.Value:
-    (result,) = context.visitor.materialise_value_provider(
-        ir.ArrayExtend(
-            array=array,
-            values=values,
-            source_location=loc,
-        ),
-        "extended",
-    )
-    return result
+# def concat_arrays(
+#     context: IRFunctionBuildContext,
+#     array: ir.Value,
+#     other: ir.Value,
+#     loc: SourceLocation,
+# ) -> ir.Value:
+#     (result,) = context.visitor.materialise_value_provider(
+#         ir.ArrayConcat(
+#             array=array,
+#             other=other,
+#             source_location=loc,
+#         ),
+#         "extended",
+#     )
+#     return result
 
 
 def build_for_in_array(

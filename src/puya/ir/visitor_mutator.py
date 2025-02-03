@@ -111,12 +111,19 @@ class IRMutator(IRVisitor[t.Any]):
         write.value = write.value.accept(self)
         return write
 
-    def visit_array_extend(
-        self, append: models.ArrayExtend
+    def visit_array_concat(
+        self, concat: models.ArrayConcat
     ) -> models.ArrayExtend | models.ValueProvider:
-        append.array = append.array.accept(self)
-        append.values = append.values.accept(self)
-        return append
+        concat.array = concat.array.accept(self)
+        concat.other = concat.other.accept(self)
+        return concat
+
+    def visit_array_extend(
+        self, extend: models.ArrayExtend
+    ) -> models.ArrayExtend | models.ValueProvider:
+        extend.array = extend.array.accept(self)
+        extend.values = [value.accept(self) for value in extend.values]
+        return extend
 
     def visit_array_pop(self, pop: models.ArrayPop) -> models.ArrayPop | models.ValueProvider:
         pop.array = pop.array.accept(self)

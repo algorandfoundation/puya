@@ -195,8 +195,11 @@ class MemoryIRBuilder(IRVisitor[None]):
     def visit_array_write_index(self, write: ir.ArrayWriteIndex) -> None:
         _unexpected_node(write)
 
-    def visit_array_extend(self, append: ir.ArrayExtend) -> None:
-        _unexpected_node(append)
+    def visit_array_concat(self, concat: ir.ArrayConcat) -> None:
+        _unexpected_node(concat)
+
+    def visit_array_extend(self, extend: ir.ArrayExtend) -> None:
+        _unexpected_node(extend)
 
     def visit_array_length(self, length: ir.ArrayLength) -> None:
         _unexpected_node(length)

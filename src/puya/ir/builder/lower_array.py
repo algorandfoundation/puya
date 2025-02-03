@@ -93,16 +93,20 @@ class ArrayNodeReplacer(IRMutator, IRRegisterContext):
         return ir.ValueTuple(values=(array_contents, *item), source_location=pop.source_location)
 
     @typing.override
-    def visit_array_extend(self, append: ir.ArrayExtend) -> ir.Register:
+    def visit_array_concat(self, append: ir.ArrayConcat) -> ir.Register:
         self.modified = True
         factory = OpFactory(self, append.source_location)
         array_contents = factory.concat(
             append.array,
-            append.values,
+            append.other,
             "array_contents",
             error_message="max array length exceeded",
         )
         return array_contents
+
+    @typing.override
+    def visit_array_extend(self, extend: ir.ArrayExtend) -> ir.ArrayExtend | ir.ValueProvider:
+        self.modified = True
 
     @typing.override
     def visit_array_length(self, length: ir.ArrayLength) -> ir.Register:
