@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 8 0 5 512
-    bytecblock 0x 0x000000000000000100000000000000020000000000000003 0x0000000000000000 0x0000000000000004
+    bytecblock 0x 0x0000000000000000 0x0000000000000004 0x000000000000000100000000000000020000000000000003
     intc_2 // 0
     dupn 5
     bytec_0 // ""
@@ -301,21 +301,21 @@ main_after_for@46:
     extract 2 0
     dup
     extract 0 8 // on error: Index access is out of bounds
-    bytec_2 // 0x0000000000000000
+    bytec_1 // 0x0000000000000000
     b==
     assert
     dup
     extract 32 8 // on error: Index access is out of bounds
-    bytec_3 // 0x0000000000000004
+    bytec_2 // 0x0000000000000004
     b==
     assert
     dup
     extract 40 8 // on error: Index access is out of bounds
-    bytec_2 // 0x0000000000000000
+    bytec_1 // 0x0000000000000000
     b==
     assert
     extract 72 8 // on error: Index access is out of bounds
-    bytec_3 // 0x0000000000000004
+    bytec_2 // 0x0000000000000004
     b==
     assert
     intc_0 // 1
@@ -600,9 +600,17 @@ main_test_array_multiple_append_route@5:
     dup
     intc_0 // 1
     callsub add_x
-    dup
+    intc_0 // 1
+    itob
+    dig 1
     loads
-    bytec_1 // 0x000000000000000100000000000000020000000000000003
+    swap
+    concat // on error: max array length exceeded
+    pushint 2 // 2
+    itob
+    concat // on error: max array length exceeded
+    pushint 3 // 3
+    itob
     concat // on error: max array length exceeded
     swap
     dig 1
@@ -629,11 +637,11 @@ main_test_array_extend_route@4:
     dup
     intc_0 // 1
     callsub add_x
-    bytec_1 // 0x000000000000000100000000000000020000000000000003
+    bytec_3 // 0x000000000000000100000000000000020000000000000003
     pop
     dup
     loads
-    bytec_1 // 0x000000000000000100000000000000020000000000000003
+    bytec_3 // 0x000000000000000100000000000000020000000000000003
     concat // on error: max array length exceeded
     swap
     dig 1
@@ -783,8 +791,6 @@ main_after_for@74:
     assert
     pushint 44 // 44
     itob
-    dig 1
-    swap
     concat // on error: max array length exceeded
     dup
     len
@@ -798,11 +804,17 @@ main_after_for@74:
     -
     intc_1 // 8
     *
+    dig 1
+    swap
     extract_uint64
     pushint 44 // 44
     ==
     assert
-    pushbytes 0x000000000000002c00000000000000630000000000000064
+    pushint 99 // 99
+    itob
+    concat // on error: max array length exceeded
+    pushint 100 // 100
+    itob
     concat // on error: max array length exceeded
     dup
     intc_2 // 0

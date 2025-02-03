@@ -605,8 +605,6 @@ test_array_after_for@4:
     // arr.append(UInt64(44))
     pushint 44 // 44
     itob
-    dig 1
-    swap
     concat // on error: max array length exceeded
     // array/uint64.py:32
     // assert arr.length == 15
@@ -624,15 +622,21 @@ test_array_after_for@4:
     -
     intc_1 // 8
     *
+    dig 1
+    swap
     extract_uint64
     pushint 44 // 44
     ==
     assert
-    // array/uint64.py:31
-    // arr.append(UInt64(44))
-    pushbytes 0x000000000000002c00000000000000630000000000000064
+    // array/uint64.py:222
+    // arr.append(UInt64(99))
+    pushint 99 // 99
+    itob
+    concat // on error: max array length exceeded
     // array/uint64.py:223
     // arr2.append(UInt64(100))
+    pushint 100 // 100
+    itob
     concat // on error: max array length exceeded
     // array/uint64.py:35
     // return_ref(arr, arr)[0] += 2
@@ -703,9 +707,7 @@ test_array_extend:
     dup
     intc_0 // 1
     callsub add_x
-    // array/uint64.py:46-48
-    // arr2.append(UInt64(1))
-    // arr2.append(UInt64(2))
+    // array/uint64.py:48
     // arr2.append(UInt64(3))
     bytec_1 // 0x000000000000000100000000000000020000000000000003
     pop
@@ -713,9 +715,7 @@ test_array_extend:
     // arr.extend(arr2)
     dup
     loads
-    // array/uint64.py:46-48
-    // arr2.append(UInt64(1))
-    // arr2.append(UInt64(2))
+    // array/uint64.py:48
     // arr2.append(UInt64(3))
     bytec_1 // 0x000000000000000100000000000000020000000000000003
     // array/uint64.py:50
@@ -750,15 +750,21 @@ test_array_multiple_append:
     callsub add_x
     // array/uint64.py:57
     // arr.append(UInt64(1))
-    dup
+    intc_0 // 1
+    itob
+    dig 1
     loads
-    // array/uint64.py:57-59
-    // arr.append(UInt64(1))
+    swap
+    concat // on error: max array length exceeded
+    // array/uint64.py:58
     // arr.append(UInt64(2))
-    // arr.append(UInt64(3))
-    bytec_1 // 0x000000000000000100000000000000020000000000000003
+    pushint 2 // 2
+    itob
+    concat // on error: max array length exceeded
     // array/uint64.py:59
     // arr.append(UInt64(3))
+    pushint 3 // 3
+    itob
     concat // on error: max array length exceeded
     swap
     dig 1

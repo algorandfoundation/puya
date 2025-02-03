@@ -92,35 +92,9 @@ subroutine test_cases.array.fixed_size.FixedSizeContract.test_array(x1: bytes[8]
         let (tmp%0#0: uint64, tmp%1#0: uint64, tmp%2#0: bytes[32], tmp%3#0: bytes[16]) = test_cases.array.fixed_size.FixedSizeContract.xtra()
         let (tmp%4#0: uint64, tmp%5#0: uint64, tmp%6#0: bytes[32], tmp%7#0: bytes[16]) = test_cases.array.fixed_size.FixedSizeContract.xtra()
         let (tmp%8#0: uint64, tmp%9#0: uint64, tmp%10#0: bytes[32], tmp%11#0: bytes[16]) = test_cases.array.fixed_size.FixedSizeContract.xtra()
-        let encoded%0#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = 0x0000000000000000
-        let sub_item%0#0: bytes[8] = (itob 0u)
-        let encoded%1#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = 0x00000000000000000000000000000000
-        let sub_item%1#0: bytes[8] = (itob tmp%0#0)
-        let encoded%2#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = (concat 0x00000000000000000000000000000000 sub_item%1#0)
-        let sub_item%2#0: bytes[8] = (itob tmp%1#0)
-        let encoded%3#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = (concat encoded%2#0 sub_item%2#0)
-        let encoded%4#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = (concat encoded%3#0 tmp%2#0)
-        let encoded%5#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = (concat encoded%4#0 tmp%3#0)
-        let sub_item%3#0: bytes[8] = (itob y1#0)
-        let encoded%7#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = (concat x1#0 sub_item%3#0)
-        let sub_item%4#0: bytes[8] = (itob tmp%4#0)
-        let encoded%8#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = (concat encoded%7#0 sub_item%4#0)
-        let sub_item%5#0: bytes[8] = (itob tmp%5#0)
-        let encoded%9#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = (concat encoded%8#0 sub_item%5#0)
-        let encoded%10#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = (concat encoded%9#0 tmp%6#0)
-        let encoded%11#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = (concat encoded%10#0 tmp%7#0)
-        let data%1#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = (concat encoded%5#0 encoded%11#0)
-        let sub_item%6#0: bytes[8] = (itob y2#0)
-        let encoded%13#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = (concat x2#0 sub_item%6#0)
-        let sub_item%7#0: bytes[8] = (itob tmp%8#0)
-        let encoded%14#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = (concat encoded%13#0 sub_item%7#0)
-        let sub_item%8#0: bytes[8] = (itob tmp%9#0)
-        let encoded%15#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = (concat encoded%14#0 sub_item%8#0)
-        let encoded%16#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = (concat encoded%15#0 tmp%10#0)
-        let encoded%17#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = (concat encoded%16#0 tmp%11#0)
-        let data%2#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = (concat data%1#0 encoded%17#0)
+        let encoded%0#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = encode<(bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))>(0x0000000000000000, 0u, tmp%0#0, tmp%1#0, tmp%2#0, tmp%3#0, x1#0, y1#0, tmp%4#0, tmp%5#0, tmp%6#0, tmp%7#0, x2#0, y2#0, tmp%8#0, tmp%9#0, tmp%10#0, tmp%11#0)
         let path#0: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[]* = new()
-        write(path#0, data%2#0)
+        write(path#0, encoded%0#0)
         let i#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L36
@@ -199,9 +173,10 @@ subroutine test_cases.array.fixed_size.FixedSizeContract.test_array(x1: bytes[8]
 
 subroutine test_cases.array.fixed_size.FixedSizeContract.test_bool_array(length: uint64) -> uint64:
     block@0: // L43
+        let encoded%0#0: bool[] = encode<bool>()
         let arr#0: bool[]* = new()
-        write(arr#0, 0x)
-        let slot_contents%0#0: bool[] = 0x
+        write(arr#0, encoded%0#0)
+        let slot_contents%0#0: bool[] = encoded%0#0
         let tmp%0#0: uint64 = slot_contents%0#0.length
         let tmp%1#0: bool = (! tmp%0#0)
         (assert tmp%1#0)
@@ -215,12 +190,9 @@ subroutine test_cases.array.fixed_size.FixedSizeContract.test_bool_array(length:
     block@2: // for_body_L49
         let tmp%3#0: uint64 = (% i#1 2u)
         let tmp%4#0: bool = (! tmp%3#0)
-        let sub_item%0#0: bytes[8] = (itob tmp%4#0)
-        let sub_item_truncated%0#0: bytes = ((extract 7 1) sub_item%0#0)
-        let encoded%0#0: bool[] = sub_item_truncated%0#0
-        let data%0#0: bool[] = sub_item_truncated%0#0
+        let encoded%1#0: bool[] = encode<bool>(tmp%4#0)
         let slot_contents%1#0: bool[] = read(arr#0)
-        let extended%0#0: bool[] = slot_contents%1#0.extend(sub_item_truncated%0#0)
+        let extended%0#0: bool[] = slot_contents%1#0.concat(encoded%1#0)
         write(arr#0, extended%0#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
@@ -255,9 +227,10 @@ subroutine test_cases.array.fixed_size.FixedSizeContract.test_bool_array(length:
 
 subroutine test_cases.array.fixed_size.FixedSizeContract.test_arc4_conversion(length: uint64) -> bytes:
     block@0: // L57
+        let encoded%0#0: bytes[8][] = encode<bytes[8]>()
         let arr#0: bytes[8][]* = new()
-        write(arr#0, 0x)
-        let slot_contents%0#0: bytes[8][] = 0x
+        write(arr#0, encoded%0#0)
+        let slot_contents%0#0: bytes[8][] = encoded%0#0
         let tmp%0#0: uint64 = slot_contents%0#0.length
         let tmp%1#0: bool = (! tmp%0#0)
         (assert tmp%1#0)
@@ -270,10 +243,9 @@ subroutine test_cases.array.fixed_size.FixedSizeContract.test_arc4_conversion(le
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L63
         let val_as_bytes%0#0: bytes[8] = (itob i#1)
-        let encoded%0#0: bytes[8][] = val_as_bytes%0#0
-        let data%0#0: bytes[8][] = val_as_bytes%0#0
+        let encoded%1#0: bytes[8][] = encode<bytes[8]>(val_as_bytes%0#0)
         let slot_contents%1#0: bytes[8][] = read(arr#0)
-        let extended%0#0: bytes[8][] = slot_contents%1#0.extend(val_as_bytes%0#0)
+        let extended%0#0: bytes[8][] = slot_contents%1#0.concat(encoded%1#0)
         write(arr#0, extended%0#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
@@ -318,10 +290,11 @@ subroutine test_cases.array.fixed_size.FixedSizeContract.test_arc4_conversion(le
 
 subroutine test_cases.array.fixed_size.FixedSizeContract.sum_array(arc4_arr: bytes) -> uint64:
     block@0: // L75
+        let encoded%0#0: bytes[8][] = encode<bytes[8]>()
         let arr#0: bytes[8][]* = new()
         let expr_value_trimmed%0#0: bytes[8][] = ((extract 2 0) arc4_arr#0)
-        let slot_contents%0#0: bytes[8][] = 0x
-        let extended%0#0: bytes[8][] = slot_contents%0#0.extend(expr_value_trimmed%0#0)
+        let slot_contents%0#0: bytes[8][] = encoded%0#0
+        let extended%0#0: bytes[8][] = slot_contents%0#0.concat(expr_value_trimmed%0#0)
         write(arr#0, extended%0#0)
         let total#0: uint64 = 0u
         let slot_contents%1#0: bytes[8][] = extended%0#0
