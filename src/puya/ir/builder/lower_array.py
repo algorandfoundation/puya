@@ -11,7 +11,7 @@ from puya.errors import CodeError
 from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import OpFactory, assign_intrinsic_op
-from puya.ir.context import IRRegisterContext
+from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import ArrayType, EncodedTupleType, IRType
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator

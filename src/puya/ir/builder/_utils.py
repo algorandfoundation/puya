@@ -3,24 +3,20 @@ from collections.abc import Sequence
 
 import attrs
 
-from puya.awst import (
-    nodes as awst_nodes,
-)
+from puya.awst import nodes as awst_nodes
 from puya.errors import InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.context import IRFunctionBuildContext, IRRegisterContext
 from puya.ir.models import (
     TMP_VAR_INDICATOR,
     BytesConstant,
-    ConditionalBranch,
     Intrinsic,
-    InvokeSubroutine,
     Register,
     UInt64Constant,
     Value,
     ValueProvider,
 )
-from puya.ir.types_ import AVMBytesEncoding, IRType, PrimitiveIRType
+from puya.ir.register_context import IRRegisterContext
+from puya.ir.types_ import AVMBytesEncoding, IRType
 from puya.parse import SourceLocation
 
 
@@ -77,38 +73,6 @@ def assign_targets(
     context.add_assignment(targets, source, assignment_location)
 
 
-def update_implicit_out_var(context: IRFunctionBuildContext, var: str, ir_type: IRType) -> None:
-    # emit conditional assignment equivalent to
-    # if var%is_original:
-    #   var%out = var
-    loc = SourceLocation(file=None, line=1)
-
-    if_body = context.block_builder.mkblock(loc, "if_body")
-    next_block = context.block_builder.mkblock(loc, "after_if_else")
-    condition_value = context.ssa.read_variable(
-        get_implicit_return_is_original(var),
-        PrimitiveIRType.bool,
-        context.block_builder.active_block,
-    )
-    context.block_builder.terminate(
-        ConditionalBranch(
-            condition=condition_value,
-            non_zero=if_body,
-            zero=next_block,
-            source_location=loc,
-        )
-    )
-    context.block_builder.activate_block(if_body)
-    assign(
-        context,
-        context.ssa.read_variable(var, ir_type, if_body),
-        name=get_implicit_return_out(var),
-        assignment_location=loc,
-    )
-    context.block_builder.goto(next_block)
-    context.block_builder.try_activate_block(next_block)
-
-
 def get_implicit_return_is_original(var_name: str) -> str:
     return f"{var_name}{TMP_VAR_INDICATOR}is_original"
 
@@ -142,7 +106,7 @@ def assign_intrinsic_op(
     intrinsic = Intrinsic(
         op=op,
         immediates=immediates or [],
-        args=[_convert_constants(a, source_location) for a in args],
+        args=[convert_constants(a, source_location) for a in args],
         types=(
             [return_type]
             if return_type is not None
@@ -164,7 +128,7 @@ def assign_intrinsic_op(
     return target_reg
 
 
-def _convert_constants(arg: int | bytes | Value, source_location: SourceLocation | None) -> Value:
+def convert_constants(arg: int | bytes | Value, source_location: SourceLocation | None) -> Value:
     match arg:
         case int(val):
             return UInt64Constant(value=val, source_location=source_location)
@@ -174,21 +138,6 @@ def _convert_constants(arg: int | bytes | Value, source_location: SourceLocation
             )
         case _:
             return arg
-
-
-def invoke_puya_lib_subroutine(
-    context: IRFunctionBuildContext,
-    *,
-    full_name: str,
-    args: Sequence[Value | int | bytes],
-    source_location: SourceLocation,
-) -> InvokeSubroutine:
-    sub = context.embedded_funcs_lookup[full_name]
-    return InvokeSubroutine(
-        target=sub,
-        args=[_convert_constants(arg, source_location) for arg in args],
-        source_location=source_location,
-    )
 
 
 def assert_value(

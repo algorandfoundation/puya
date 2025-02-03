@@ -21,42 +21,6 @@ class ArrayIterator:
     get_value_at_index: Callable[[ir.Value], ir.ValueProvider]
 
 
-def array_length(
-    _context: IRFunctionBuildContext,
-    array: ir.Value,
-    loc: SourceLocation,
-) -> ir.ArrayLength:
-    return ir.ArrayLength(array=array, source_location=loc)
-
-
-def read_array_index(
-    _context: IRFunctionBuildContext,
-    array: ir.Value,
-    index: ir.Value,
-    loc: SourceLocation,
-) -> ir.ArrayReadIndex:
-    return ir.ArrayReadIndex(
-        array=array,
-        index=index,
-        source_location=loc,
-    )
-
-
-def assign_array_index(
-    _context: IRFunctionBuildContext,
-    array: ir.Value,
-    index: ir.Value,
-    value: ir.Value | ir.ValueTuple,
-    loc: SourceLocation,
-) -> ir.ArrayWriteIndex:
-    return ir.ArrayWriteIndex(
-        array=array,
-        index=index,
-        value=value,
-        source_location=loc,
-    )
-
-
 def serialize_array_items(
     context: IRFunctionBuildContext, items: awst.Expression, array_type: ArrayType
 ) -> ir.Value:

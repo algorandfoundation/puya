@@ -129,7 +129,7 @@ def _build_arg_lookup(
             else:
                 item_names = build_tuple_item_names(
                     base_name=expr_arg.name,
-                    typ=expr_arg.value.wtype,
+                    wtype=expr_arg.value.wtype,
                     source_location=call_location,
                 )
                 for tup_value, (tup_item_name, _) in zip(values, item_names, strict=True):

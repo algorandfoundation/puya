@@ -20,7 +20,7 @@ from puya.ir.builder._utils import (
     assign_intrinsic_op,
     assign_targets,
     assign_temp,
-    invoke_puya_lib_subroutine,
+    convert_constants,
     mktemp,
 )
 from puya.ir.builder.arrays import ArrayIterator
@@ -29,6 +29,7 @@ from puya.ir.builder.mem import read_slot
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     Intrinsic,
+    InvokeSubroutine,
     Register,
     UInt64Constant,
     Value,
@@ -1407,3 +1408,18 @@ def _get_arc4_array_tail(
     factory = OpFactory(context, source_location)
     start_of_tail = factory.mul(array_length, 2, "start_of_tail")
     return factory.extract_to_end(array_head_and_tail, start_of_tail, "data")
+
+
+def invoke_puya_lib_subroutine(
+    context: IRFunctionBuildContext,
+    *,
+    full_name: str,
+    args: Sequence[Value | int | bytes],
+    source_location: SourceLocation,
+) -> InvokeSubroutine:
+    sub = context.embedded_funcs_lookup[full_name]
+    return InvokeSubroutine(
+        target=sub,
+        args=[convert_constants(arg, source_location) for arg in args],
+        source_location=source_location,
+    )

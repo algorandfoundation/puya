@@ -31,10 +31,7 @@ from puya.ir.builder._utils import (
     mktemp,
 )
 from puya.ir.builder.arc4 import ARC4_FALSE, ARC4_TRUE
-from puya.ir.builder.assignment import (
-    handle_assignment,
-    handle_assignment_expr,
-)
+from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
 from puya.ir.builder.bytes import (
     visit_bytes_intersection_slice_expression,
     visit_bytes_slice_expression,
@@ -48,6 +45,8 @@ from puya.ir.builder.itxn import InnerTransactionBuilder
 from puya.ir.context import IRBuildContext
 from puya.ir.models import (
     AddressConstant,
+    ArrayLength,
+    ArrayReadIndex,
     BigUIntConstant,
     BytesConstant,
     CompiledContractReference,
@@ -790,7 +789,11 @@ class FunctionIRBuilder(
             array_slot = self.visit_and_materialise_single(expr.base)
             array = mem.read_slot(self.context, array_slot, expr.base.source_location)
             index = self.visit_and_materialise_single(expr.index)
-            return arrays.read_array_index(self.context, array, index, expr.source_location)
+            return ArrayReadIndex(
+                array=array,
+                index=index,
+                source_location=expr.source_location,
+            )
         elif isinstance(expr.base.wtype, wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray):
             return arc4.arc4_array_index(
                 self.context,
@@ -1225,7 +1228,7 @@ class FunctionIRBuilder(
         if isinstance(expr.array.wtype, wtypes.WArray):
             array_slot = self.context.visitor.visit_and_materialise_single(expr.array)
             array = mem.read_slot(self.context, array_slot, expr.array.source_location)
-            return arrays.array_length(self.context, array, expr.source_location)
+            return ArrayLength(array=array, source_location=expr.source_location)
         elif isinstance(expr.array.wtype, wtypes.ARC4Array):
             array = self.context.visitor.visit_and_materialise_single(expr.array)
             return arc4.get_arc4_array_length(
