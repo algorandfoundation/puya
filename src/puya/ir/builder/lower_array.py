@@ -7,7 +7,7 @@ import attrs
 
 from puya import log
 from puya.avm import AVMType
-from puya.errors import CodeError
+from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import OpFactory, assign_intrinsic_op
@@ -15,7 +15,7 @@ from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import ArrayType, EncodedTupleType, IRType
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
-from puya.parse import SourceLocation
+from puya.parse import SourceLocation, sequential_source_locations_merge
 
 logger = log.get_logger(__name__)
 
@@ -71,7 +71,7 @@ class ArrayNodeReplacer(IRMutator, IRRegisterContext):
 
         factory = OpFactory(self, write.source_location)
         bytes_index = factory.mul(write.index, element_size, "bytes_index")
-        item_bytes = encode_array_item(self, write.value, element_type, write.source_location)
+        item_bytes = _encode_array_item(self, write.value, element_type, write.source_location)
         return factory.replace(write.array, bytes_index, item_bytes, "updated_array")
 
     @typing.override
@@ -107,6 +107,13 @@ class ArrayNodeReplacer(IRMutator, IRRegisterContext):
     @typing.override
     def visit_array_extend(self, extend: ir.ArrayExtend) -> ir.ArrayExtend | ir.ValueProvider:
         self.modified = True
+        # TODO: remove this?
+        raise NotImplementedError
+
+    @typing.override
+    def visit_array_encode(self, encode: ir.ArrayEncode) -> ir.ArrayEncode | ir.ValueProvider:
+        self.modified = True
+        return _encode_array_items(self, encode)
 
     @typing.override
     def visit_array_length(self, length: ir.ArrayLength) -> ir.Register:
@@ -140,7 +147,7 @@ class ArrayNodeReplacer(IRMutator, IRRegisterContext):
         element_size = _get_element_size(element_type, loc)
         bytes_index = factory.mul(index, element_size, "bytes_index")
         item_bytes = factory.extract3(array, bytes_index, element_size, "value")
-        return decode_array_item(self, item_bytes, element_type, loc)
+        return _decode_array_item(self, item_bytes, element_type, loc)
 
     # region IRRegisterContext
 
@@ -193,7 +200,35 @@ def _get_element_size(element_type: IRType, loc: SourceLocation | None) -> int:
     return element_type.size
 
 
-def encode_array_item(
+def _encode_array_items(context: IRRegisterContext, encode: ir.ArrayEncode) -> ir.Value:
+    factory = OpFactory(context, source_location=encode.source_location)
+    values = encode.values
+    array_type = encode.array_type
+    data = factory.constant(b"", ir_type=array_type)
+    element_type = array_type.element
+    expanded_element_types = EncodedTupleType.expand_types(element_type)
+    num_reg_per_element = len(expanded_element_types)
+    while len(values) >= num_reg_per_element:
+        item_values = values[:num_reg_per_element]
+        values = values[num_reg_per_element:]
+        item: ir.Value | ir.ValueTuple
+        try:
+            (item,) = item_values
+        except ValueError:
+            item = ir.ValueTuple(
+                values=item_values,
+                source_location=sequential_source_locations_merge(
+                    [i.source_location for i in item_values]
+                ),
+            )
+        item_bytes = _encode_array_item(context, item, element_type, item.source_location)
+        data = factory.concat(data, item_bytes, "data", ir_type=array_type)
+    if values:
+        raise InternalError("unexpected number of elements", encode.source_location)
+    return data
+
+
+def _encode_array_item(
     context: IRRegisterContext,
     item: ir.Value | ir.ValueTuple,
     element_type: IRType,
@@ -216,7 +251,7 @@ def encode_array_item(
     return encoded
 
 
-def decode_array_item(
+def _decode_array_item(
     context: IRRegisterContext,
     item_bytes: ir.Value,
     element_type: IRType,

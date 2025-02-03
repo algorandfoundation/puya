@@ -201,6 +201,9 @@ class MemoryIRBuilder(IRVisitor[None]):
     def visit_array_extend(self, extend: ir.ArrayExtend) -> None:
         _unexpected_node(extend)
 
+    def visit_array_encode(self, encode: ir.ArrayEncode) -> None:
+        _unexpected_node(encode)
+
     def visit_array_length(self, length: ir.ArrayLength) -> None:
         _unexpected_node(length)
 

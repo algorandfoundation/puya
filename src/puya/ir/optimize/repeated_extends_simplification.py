@@ -6,6 +6,7 @@ logger = log.get_logger(__name__)
 
 
 def repeated_extends_simplification(_: CompileContext, subroutine: models.Subroutine) -> bool:
+    # TODO: remove this?
     modified = False
     # gather all extends
     extends = dict[models.Value, models.ArrayExtend]()

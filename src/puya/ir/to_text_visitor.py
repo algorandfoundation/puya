@@ -125,6 +125,11 @@ class ToTextVisitor(IRVisitor[str]):
         return f"{extend.array.accept(self)}.extend({values})"
 
     @typing.override
+    def visit_array_encode(self, encode: models.ArrayEncode) -> str:
+        values = ", ".join(val.accept(self) for val in encode.values)
+        return f"encode<{encode.array_type.element}>({values})"
+
+    @typing.override
     def visit_array_pop(self, pop: models.ArrayPop) -> str:
         return f"{pop.array.accept(self)}.pop()"
 

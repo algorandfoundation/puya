@@ -861,7 +861,7 @@ class FunctionIRBuilder(
                 assert isinstance(array_slot_type, SlotType)
                 array_type = array_slot_type.contents
                 assert isinstance(array_type, ArrayType)
-                array_contents = arrays.serialize_array_items(
+                array_contents = arrays.get_array_encoded_items(
                     self.context,
                     awst_nodes.TupleExpression.from_items(expr.values, expr.source_location),
                     array_type=array_type,
@@ -1209,16 +1209,22 @@ class FunctionIRBuilder(
                 source_location=expr.source_location,
             )
         elif isinstance(expr.base.wtype, wtypes.WArray):
+            # note: the order things are evaluated is important to be semantically correct
+            # 1. base expr
+            # 2. other expr
+            # 3. read slot to get data
+            # 4. concat
+            # 5. write slot
             array_slot = self.context.visitor.visit_and_materialise_single(expr.base)
             array_slot_type = array_slot.ir_type
             assert isinstance(array_slot_type, SlotType)
             array_type = array_slot_type.contents
             assert isinstance(array_type, ArrayType)
-            # to_extend = arrays.serialize_array_items(self.context, expr.other, array_type)
+            values = arrays.get_array_encoded_items(self.context, expr.other, array_type)
             array_contents = mem.read_slot(self.context, array_slot, expr.source_location)
-            # array_contents = arrays.concat_arrays(
-            #     self.context, array_contents, to_extend, expr.source_location
-            # )
+            array_contents = arrays.concat_arrays(
+                self.context, array_contents, values, expr.source_location
+            )
             mem.write_slot(self.context, array_slot, array_contents, expr.source_location)
             return None
         else:

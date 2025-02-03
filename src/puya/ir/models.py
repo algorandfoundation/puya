@@ -525,8 +525,10 @@ class ArrayExtend(Op, ValueProvider):
 
 @attrs.define(eq=False)
 class ArrayConcat(Op, ValueProvider):
+    """Concats two array values"""
+
     array: Value = attrs.field(validator=is_array_type)
-    other: Value = attrs.field()
+    other: Value = attrs.field(validator=is_array_type)
 
     def _frozen_data(self) -> object:
         return self.array, self.other
@@ -541,6 +543,24 @@ class ArrayConcat(Op, ValueProvider):
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_array_concat(self)
+
+
+@attrs.define(eq=False)
+class ArrayEncode(Op, ValueProvider):
+    """Encodes a sequence of values into array_type"""
+
+    values: Sequence[Value]
+    array_type: ArrayType
+
+    def _frozen_data(self) -> object:
+        return self.values, self.array_type
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (self.array_type,)
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_array_encode(self)
 
 
 @attrs.define(eq=False)

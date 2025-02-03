@@ -11,7 +11,7 @@ from puya.ir import models as ir
 from puya.ir.builder._utils import OpFactory, assign_targets
 from puya.ir.builder.mem import read_slot
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.types_ import ArrayType, EncodedTupleType
+from puya.ir.types_ import ArrayType
 from puya.parse import SourceLocation, sequential_source_locations_merge
 
 
@@ -21,67 +21,49 @@ class ArrayIterator:
     get_value_at_index: Callable[[ir.Value], ir.ValueProvider]
 
 
-def serialize_array_items(
+def get_array_encoded_items(
     context: IRFunctionBuildContext, items: awst.Expression, array_type: ArrayType
 ) -> ir.Value:
     factory = OpFactory(context, items.source_location)
     match items.wtype:
         case wtypes.ARC4StaticArray():
-            return context.visitor.visit_and_materialise_single(items)
+            value = context.visitor.visit_and_materialise_single(items)
+            # TODO: reinterpret to array_type
+            return value
         case wtypes.ARC4DynamicArray():
             expr_value = context.visitor.visit_and_materialise_single(items)
             return factory.extract_to_end(expr_value, 2, "expr_value_trimmed", ir_type=array_type)
-        case wtypes.WArray():
+        case wtypes.WArray():  # TODO: update this for immutable array
             slot = context.visitor.visit_and_materialise_single(items)
             return read_slot(context, slot, items.source_location)
         case wtypes.WTuple():
-            # TODO: where should this live?
-            from puya.ir.builder.lower_array import encode_array_item
-
-            values = context.visitor.visit_and_materialise(items)
-            data = factory.constant(b"", ir_type=array_type)
-            element_type = array_type.element
-            expanded_element_types = EncodedTupleType.expand_types(element_type)
-            num_reg_per_element = len(expanded_element_types)
-            while len(values) >= num_reg_per_element:
-                item_values = values[:num_reg_per_element]
-                values = values[num_reg_per_element:]
-                item: ir.Value | ir.ValueTuple
-                try:
-                    (item,) = item_values
-                except ValueError:
-                    item = ir.ValueTuple(
-                        values=item_values,
-                        source_location=sequential_source_locations_merge(
-                            [i.source_location for i in item_values]
-                        ),
-                    )
-                item_bytes = encode_array_item(context, item, element_type, item.source_location)
-                data = factory.concat(data, item_bytes, "data", ir_type=array_type)
-            if values:
-                raise InternalError("unexpected number of elements", items.source_location)
-            return data
+            array_encode = ir.ArrayEncode(
+                values=context.visitor.visit_and_materialise(items),
+                array_type=array_type,
+                source_location=items.source_location,
+            )
+            return factory.assign(array_encode, "encoded")
         case _:
             raise InternalError(
                 f"Unexpected operand type for concatenation {items.wtype}", items.source_location
             )
 
 
-# def concat_arrays(
-#     context: IRFunctionBuildContext,
-#     array: ir.Value,
-#     other: ir.Value,
-#     loc: SourceLocation,
-# ) -> ir.Value:
-#     (result,) = context.visitor.materialise_value_provider(
-#         ir.ArrayConcat(
-#             array=array,
-#             other=other,
-#             source_location=loc,
-#         ),
-#         "extended",
-#     )
-#     return result
+def concat_arrays(
+    context: IRFunctionBuildContext,
+    array: ir.Value,
+    other: ir.Value,
+    loc: SourceLocation,
+) -> ir.Value:
+    (result,) = context.visitor.materialise_value_provider(
+        ir.ArrayConcat(
+            array=array,
+            other=other,
+            source_location=loc,
+        ),
+        "extended",
+    )
+    return result
 
 
 def build_for_in_array(

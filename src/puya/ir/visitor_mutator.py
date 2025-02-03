@@ -125,6 +125,12 @@ class IRMutator(IRVisitor[t.Any]):
         extend.values = [value.accept(self) for value in extend.values]
         return extend
 
+    def visit_array_encode(
+        self, encode: models.ArrayEncode
+    ) -> models.ArrayEncode | models.ValueProvider:
+        encode.values = [value.accept(self) for value in encode.values]
+        return encode
+
     def visit_array_pop(self, pop: models.ArrayPop) -> models.ArrayPop | models.ValueProvider:
         pop.array = pop.array.accept(self)
         return pop
