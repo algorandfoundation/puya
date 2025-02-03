@@ -113,17 +113,10 @@ class IRMutator(IRVisitor[t.Any]):
 
     def visit_array_concat(
         self, concat: models.ArrayConcat
-    ) -> models.ArrayExtend | models.ValueProvider:
+    ) -> models.ArrayConcat | models.ValueProvider:
         concat.array = concat.array.accept(self)
         concat.other = concat.other.accept(self)
         return concat
-
-    def visit_array_extend(
-        self, extend: models.ArrayExtend
-    ) -> models.ArrayExtend | models.ValueProvider:
-        extend.array = extend.array.accept(self)
-        extend.values = [value.accept(self) for value in extend.values]
-        return extend
 
     def visit_array_encode(
         self, encode: models.ArrayEncode

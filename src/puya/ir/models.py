@@ -503,27 +503,6 @@ class ArrayWriteIndex(Op, ValueProvider):
 
 
 @attrs.define(eq=False)
-class ArrayExtend(Op, ValueProvider):
-    array: Value = attrs.field(validator=is_array_type)
-    values: Sequence[Value] = attrs.field()
-
-    def _frozen_data(self) -> object:
-        return self.array, *self.values
-
-    @values.validator
-    def _values_validator(self, _attr: object, values: Sequence[Value]) -> None:
-        at = _array_type(self.array)
-        assert all(val.ir_type == at.element for val in values)
-
-    @property
-    def types(self) -> Sequence[IRType]:
-        return (_array_type(self.array),)
-
-    def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_array_extend(self)
-
-
-@attrs.define(eq=False)
 class ArrayConcat(Op, ValueProvider):
     """Concats two array values"""
 

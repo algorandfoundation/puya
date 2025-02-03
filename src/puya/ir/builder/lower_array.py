@@ -105,12 +105,6 @@ class ArrayNodeReplacer(IRMutator, IRRegisterContext):
         return array_contents
 
     @typing.override
-    def visit_array_extend(self, extend: ir.ArrayExtend) -> ir.ArrayExtend | ir.ValueProvider:
-        self.modified = True
-        # TODO: remove this?
-        raise NotImplementedError
-
-    @typing.override
     def visit_array_encode(self, encode: ir.ArrayEncode) -> ir.ArrayEncode | ir.ValueProvider:
         self.modified = True
         return _encode_array_items(self, encode)
