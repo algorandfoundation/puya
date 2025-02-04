@@ -60,9 +60,8 @@ subroutine test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_arr
         goto assign_local#0 ? block@1 : block@10
     block@1: // if_body_L18
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) a#0)
-        let encoded%0#0: bytes[1][] = 0x01
-        let data%0#0: bytes[1][] = 0x01
-        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 0x01)
+        let encoded%0#0: bytes[1][] = encode<bytes[1]>(0x01)
+        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 encoded%0#0)
         let len_%0#0: uint64 = (len concatenated%0#0)
         let as_bytes%0#0: bytes[8] = (itob len_%0#0)
         let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
@@ -74,13 +73,12 @@ subroutine test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_arr
         goto block@5
     block@5: // after_if_else_L1
         let expr_value_trimmed%1#0: bytes = 0x010203
-        let encoded%1#0: bytes[1][] = 0x04
-        let data%1#0: bytes[1][] = 0x04
-        let concatenated%1#0: bytes = 0x01020304
-        let len_%1#0: uint64 = 4u
-        let as_bytes%1#0: bytes[8] = (itob 4u)
-        let len_16_bit%1#0: bytes = 0x0004
-        let a#4: bytes = 0x000401020304
+        let encoded%1#0: bytes[1][] = encode<bytes[1]>(0x04)
+        let concatenated%1#0: bytes = (concat 0x010203 encoded%1#0)
+        let len_%1#0: uint64 = (len concatenated%1#0)
+        let as_bytes%1#0: bytes[8] = (itob len_%1#0)
+        let len_16_bit%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let a#4: bytes = (concat len_16_bit%1#0 concatenated%1#0)
         goto block@7
     block@7: // after_if_else_L1
         let result%3#0: bytes = 0x01
@@ -93,9 +91,8 @@ subroutine test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_arr
         goto block@13
     block@10: // else_body_L23
         let expr_value_trimmed%2#0: bytes = ((extract 2 0) a#0)
-        let encoded%2#0: bytes[1][] = 0x2a
-        let data%2#0: bytes[1][] = 0x2a
-        let concatenated%2#0: bytes = (concat expr_value_trimmed%2#0 0x2a)
+        let encoded%2#0: bytes[1][] = encode<bytes[1]>(0x2a)
+        let concatenated%2#0: bytes = (concat expr_value_trimmed%2#0 encoded%2#0)
         let len_%2#0: uint64 = (len concatenated%2#0)
         let as_bytes%2#0: bytes[8] = (itob len_%2#0)
         let len_16_bit%2#0: bytes = ((extract 6 2) as_bytes%2#0)
@@ -106,9 +103,8 @@ subroutine test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_arr
         let a%is_original#4: bool = φ(a%is_original#3 <- block@9, a%is_original#0 <- block@10)
         let a%out#8: bytes = φ(a#1 <- block@9, a#6 <- block@10)
         let expr_value_trimmed%3#0: bytes = ((extract 2 0) a#7)
-        let encoded%3#0: bytes[1][] = 0x04
-        let data%3#0: bytes[1][] = 0x04
-        let concatenated%3#0: bytes = (concat expr_value_trimmed%3#0 0x04)
+        let encoded%3#0: bytes[1][] = encode<bytes[1]>(0x04)
+        let concatenated%3#0: bytes = (concat expr_value_trimmed%3#0 encoded%3#0)
         let len_%3#0: uint64 = (len concatenated%3#0)
         let as_bytes%3#0: bytes[8] = (itob len_%3#0)
         let len_16_bit%3#0: bytes = ((extract 6 2) as_bytes%3#0)

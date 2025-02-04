@@ -75,17 +75,17 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let item_end_offset%0#0: uint64 = 4u
         let tmp%3#0: bytes = 0x0000
         let expr_value_trimmed%0#0: bytes = 0x
-        let encoded%0#0: bytes[1][] = 0x2a
-        let data%0#0: bytes[1][] = 0x2a
-        let concatenated%0#0: bytes = 0x2a
-        let len_%0#0: uint64 = 1u
-        let as_bytes%2#0: bytes[8] = (itob 1u)
-        let len_16_bit%0#0: bytes = 0x0001
-        let concat_result%0#0: bytes = 0x00012a
+        let encoded%0#0: bytes[1][] = encode<bytes[1]>(0x2a)
+        let concatenated%0#0: bytes = encoded%0#0
+        let len_%0#0: uint64 = (len encoded%0#0)
+        let as_bytes%2#0: bytes[8] = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%2#0)
+        let concat_result%0#0: bytes = (concat len_16_bit%0#0 encoded%0#0)
         let item_offset%0#0: uint64 = 2u
         let data_up_to_item%0#0: bytes = 0x0002
-        let copy#1: bytes = 0x000200012a
-        let tmp%4#0: bool = 1u
+        let copy#1: bytes = (concat 0x0002 concat_result%0#0)
+        let tmp%4#0: bool = (!= 0x00020000 copy#1)
+        (assert tmp%4#0) // expected copy is different
         let encoded_tuple_buffer%18#0: bytes = 0x000000000000000c
         let immutable#0: bytes[16] = 0x000000000000000c0000000000000022
         let tmp%5#0: bool = 1u

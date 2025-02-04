@@ -38,15 +38,15 @@ main test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program:
         let dynamic_arr#0: bytes = 0x0000
         let tmp%32#0: bool = 1u
         let expr_value_trimmed%0#0: bytes = 0x
-        let encoded%0#0: bytes[8][] = 0x0000000000000000
-        let data%0#0: bytes[8][] = 0x0000000000000000
-        let concatenated%0#0: bytes = 0x0000000000000000
-        let byte_len%0#0: uint64 = 8u
-        let len_%0#0: uint64 = 1u
-        let as_bytes%0#0: bytes[8] = (itob 1u)
-        let len_16_bit%0#0: bytes = 0x0001
-        let dynamic_arr#1: bytes = 0x00010000000000000000
-        let tmp%33#0: bool = 1u
+        let encoded%0#0: bytes[8][] = encode<bytes[8]>(0x0000000000000000)
+        let concatenated%0#0: bytes = encoded%0#0
+        let byte_len%0#0: uint64 = (len encoded%0#0)
+        let len_%0#0: uint64 = (/ byte_len%0#0 8u)
+        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let dynamic_arr#1: bytes = (concat len_16_bit%0#0 encoded%0#0)
+        let tmp%33#0: bool = (!= dynamic_arr#1 0x0000)
+        (assert tmp%33#0)
         let encoded_bool%2#0: bytes[1] = 0x00
         let tmp%34#0: bool = 1u
         return 1u
