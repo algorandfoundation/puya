@@ -14,7 +14,7 @@ from puya.awst.arc4_types import wtype_to_arc4_wtype
 from puya.awst.nodes import BigUIntBinaryOperator, TupleExpression, UInt64BinaryOperator
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst.txn_fields import TxnField
-from puya.awst.wtypes import ARC4DynamicArray, WInnerTransaction, WInnerTransactionFields
+from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, arrays, flow_control, mem, storage
@@ -736,7 +736,6 @@ class FunctionIRBuilder(
                 )
             array = self.context.visitor.visit_and_materialise_single(expr.base)
             arc4_wtype = wtype_to_arc4_wtype(expr.base.wtype, expr.source_location)
-            assert isinstance(arc4_wtype, wtypes.ARC4DynamicArray)
             _, data = arc4.invoke_arc4_array_pop(
                 self.context, arc4_wtype, array, expr.source_location
             )
@@ -811,7 +810,6 @@ class FunctionIRBuilder(
             )
         elif isinstance(expr.base.wtype, wtypes.WArray) and expr.base.wtype.immutable:
             arc4_wtype = wtype_to_arc4_wtype(expr.base.wtype, expr.source_location)
-            assert isinstance(arc4_wtype, wtypes.ARC4Array)
             encoded_read_vp = arc4.arc4_array_index(
                 self.context,
                 array_wtype=arc4_wtype,
@@ -893,7 +891,6 @@ class FunctionIRBuilder(
                 )
             case wtypes.WArray(immutable=True) as arr:
                 arc4_wtype = wtype_to_arc4_wtype(arr, expr.source_location)
-                assert isinstance(arc4_wtype, wtypes.ARC4DynamicArray)
                 if expr.values:
                     return arc4.convert_and_concat_values(
                         self.context,
@@ -1242,7 +1239,6 @@ class FunctionIRBuilder(
     def visit_array_replace(self, expr: awst_nodes.ArrayReplace) -> TExpression:
         if isinstance(expr.base.wtype, wtypes.WArray) and expr.base.wtype.immutable:
             arc4_wtype = wtype_to_arc4_wtype(expr.base.wtype, expr.source_location)
-            assert isinstance(arc4_wtype, ARC4DynamicArray)
             value = self.context.visitor.visit_expr(expr.value)
             arc4_value = arc4.encode_value_provider(
                 self.context,
@@ -1333,7 +1329,6 @@ class FunctionIRBuilder(
             case wtypes.WArray(immutable=True):
                 array = self.context.visitor.visit_and_materialise_single(expr.array)
                 arc4_wtype = wtype_to_arc4_wtype(expr.array.wtype, expr.source_location)
-                assert isinstance(arc4_wtype, wtypes.ARC4Array)
                 return arc4.get_arc4_array_length(
                     self.context,
                     arc4_wtype,

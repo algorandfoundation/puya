@@ -1,3 +1,5 @@
+import typing
+
 from immutabledict import immutabledict
 
 from puya.awst import wtypes
@@ -70,6 +72,22 @@ def maybe_wtype_to_arc4_wtype(wtype: wtypes.WType) -> wtypes.ARC4Type | None:
                 return wtypes.ARC4Tuple(types=arc4_item_types, source_location=None)
         case _:
             return None
+
+
+@typing.overload
+def wtype_to_arc4_wtype(
+    wtype: wtypes.WArray, loc: SourceLocation | None
+) -> wtypes.ARC4DynamicArray: ...
+
+
+@typing.overload
+def wtype_to_arc4_wtype(
+    wtype: wtypes.WTuple, loc: SourceLocation | None
+) -> wtypes.ARC4Tuple | wtypes.ARC4Struct: ...
+
+
+@typing.overload
+def wtype_to_arc4_wtype(wtype: wtypes.WType, loc: SourceLocation | None) -> wtypes.ARC4Type: ...
 
 
 def wtype_to_arc4_wtype(wtype: wtypes.WType, loc: SourceLocation | None) -> wtypes.ARC4Type:
