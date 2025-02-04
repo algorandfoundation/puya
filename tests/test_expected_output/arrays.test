@@ -1,0 +1,67 @@
+# ruff: noqa
+# fmt: off
+# type: ignore
+## case: test_array_element_support
+import typing
+from algopy import *
+
+MutableFixed = arc4.StaticArray[arc4.Byte, typing.Literal[8]]
+MutableDynamic = arc4.DynamicArray[arc4.UInt64]
+
+class ArrayContract(arc4.ARC4Contract):
+
+    @arc4.abimethod
+    def array_fixed(self) -> None:
+        arr = Array[UInt64]()
+
+    @arc4.abimethod
+    def array_dynamic(self) -> None:
+        arr = Array[Bytes]()
+
+    @arc4.abimethod
+    def array_nested(self) -> None:
+        arr = Array[Array[Bytes]]() ## E: arrays must have immutable elements
+
+    @arc4.abimethod
+    def array_mutable_fixed(self) -> None:
+        arr = Array[MutableFixed]() ## E: arrays must have immutable elements
+
+    @arc4.abimethod
+    def array_mutable_dynamic(self) -> None:
+        arr = Array[MutableDynamic]() ## E: arrays must have immutable elements
+
+    @arc4.abimethod
+    def array_arc4_bool(self) -> None:
+        arr = Array[arc4.Bool]() ## E: arrays of arc4 bools are not supported, use an array of native bools instead
+
+    @arc4.abimethod
+    def array_bool(self) -> None:
+        arr = Array[bool]()
+
+    @arc4.abimethod
+    def imm_array_fixed(self) -> None:
+        arr = ImmutableArray[UInt64]()
+
+    @arc4.abimethod
+    def imm_array_dynamic(self) -> None:
+        arr = ImmutableArray[Bytes]()
+
+    @arc4.abimethod
+    def imm_array_nested(self) -> None:
+        arr = ImmutableArray[ImmutableArray[Bytes]]()
+
+    @arc4.abimethod
+    def imm_array_mutable_fixed(self) -> None:
+        arr = ImmutableArray[MutableFixed]() ## E: arrays must have immutable elements
+
+    @arc4.abimethod
+    def imm_array_mutable_dynamic(self) -> None:
+        arr = ImmutableArray[MutableDynamic]() ## E: arrays must have immutable elements
+
+    @arc4.abimethod
+    def imm_array_arc4_bool(self) -> None:
+        arr = ImmutableArray[arc4.Bool]() ## E: arrays of arc4 bools are not supported, use an array of native bools instead
+
+    @arc4.abimethod
+    def imm_array_bool(self) -> None:
+        arr = ImmutableArray[bool]()
