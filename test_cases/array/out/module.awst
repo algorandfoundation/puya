@@ -407,6 +407,22 @@ contract ImmutableArrayContract
     GlobalState['f']: array<test_cases.array.immutable.MyDynamicSizedTuple> = arr
   }
   
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_nested_array(arr_to_add: uint64, arr: array<array<uint64>>): array<uint64>
+  {
+    for i in range(0u, arr_to_add, 1u) {
+      extra_arr: array<uint64> = new array<uint64>()
+      for j in range(0u, i, 1u) {
+        extra_arr: array<uint64> = extra_arr + (j)
+      }
+      arr: array<array<uint64>> = arr + (extra_arr)
+    }
+    totals: array<uint64> = new array<uint64>()
+    for inner_arr in arr {
+      totals: array<uint64> = totals + (test_cases.array.immutable.sum_arr(inner_arr))
+    }
+    return totals
+  }
+  
   abimethod test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples(): void
   {
     arr2: array<test_cases.array.immutable.TwoBoolTuple> = new array<test_cases.array.immutable.TwoBoolTuple>()
@@ -528,6 +544,15 @@ subroutine pop_x(arr: array<uint64>, x: uint64): array<uint64>
     arr: array<uint64> = arr[:-1]
   }
   return arr
+}
+
+subroutine sum_arr(arr: array<uint64>): uint64
+{
+  total: uint64 = 0u
+  for i in arr {
+    total += i
+  }
+  return total
 }
 
 contract FixedSizeContract

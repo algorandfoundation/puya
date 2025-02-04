@@ -39,6 +39,13 @@ class ImmutableArrayContract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
+    def test_nested_array(
+        self,
+        arr_to_add: algopy.arc4.UIntN[typing.Literal[64]],
+        arr: algopy.arc4.DynamicArray[algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[64]]]],
+    ) -> algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[64]]]: ...
+
+    @algopy.arc4.abimethod
     def test_bit_packed_tuples(
         self,
     ) -> None: ...

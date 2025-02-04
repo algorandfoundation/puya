@@ -202,6 +202,24 @@ class ImmutableArrayContract(arc4.ARC4Contract):
         self.f = arr
 
     @arc4.abimethod()
+    def test_nested_array(
+        self, arr_to_add: UInt64, arr: ImmutableArray[ImmutableArray[UInt64]]
+    ) -> ImmutableArray[UInt64]:
+        # add n new arrays
+        for i in urange(arr_to_add):
+            extra_arr = ImmutableArray[UInt64]()
+            for j in urange(i):
+                extra_arr = extra_arr.append(j)
+            arr = arr.append(extra_arr)
+
+        # sum inner arrays and return an array containing sums
+        totals = ImmutableArray[UInt64]()
+        for inner_arr in arr:
+            totals = totals.append(sum_arr(inner_arr))
+
+        return totals
+
+    @arc4.abimethod()
     def test_bit_packed_tuples(self) -> None:
         arr2 = ImmutableArray[TwoBoolTuple]()
         arr7 = ImmutableArray[SevenBoolTuple]()
@@ -344,3 +362,11 @@ def pop_x(arr: ImmutableArray[UInt64], x: UInt64) -> ImmutableArray[UInt64]:
     for _i in urange(x):
         arr = arr.pop()
     return arr
+
+
+@subroutine
+def sum_arr(arr: ImmutableArray[UInt64]) -> UInt64:
+    total = UInt64()
+    for i in arr:
+        total += i
+    return total
