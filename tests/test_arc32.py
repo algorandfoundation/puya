@@ -1991,13 +1991,6 @@ def simulate_call(
         ),
     )
 
-    import json
-
-    simulate_json = json.dumps(simulate_response.simulate_response, indent=2)
-    trace_dir = TEST_CASES_DIR / "array" / "debug_traces"
-    trace_dir.mkdir(exist_ok=True)
-    (trace_dir / method).with_suffix(".trace.avm.json").write_text(simulate_json)
-
     if simulate_response.failure_message:
         logic_error_data = algokit_utils.logic_error.parse_logic_error(
             simulate_response.failure_message
