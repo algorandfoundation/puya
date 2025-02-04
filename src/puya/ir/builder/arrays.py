@@ -1,4 +1,3 @@
-import enum
 from collections.abc import Callable
 
 import attrs
@@ -9,7 +8,7 @@ from puya.awst import (
 )
 from puya.errors import InternalError
 from puya.ir import models as ir
-from puya.ir.builder._utils import OpFactory, assign_targets
+from puya.ir.builder._utils import OpFactory, assign_targets, mktemp
 from puya.ir.builder.mem import read_slot
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.types_ import ArrayType
@@ -58,27 +57,6 @@ def assign_array_index(
     )
 
 
-# TODO: Maybe do something like this?
-class EncodingType(enum.StrEnum):
-    arc4 = enum.auto()
-    puya = enum.auto()
-    """
-    Variant of ARC4 encoding
-    Used for fixed size elements, same as ARC4 but omits u16 length header, as it can be derived
-    from len(array.bytes) / size(element)
-    """
-
-
-def get_encoding_type(wtype: wtypes.WType) -> EncodingType:
-    match wtype:
-        case wtypes.ARC4Array() | wtypes.WArray(immutable=True):
-            return EncodingType.arc4
-        case wtypes.WArray(immutable=False):
-            return EncodingType.puya
-        case _:
-            raise InternalError("unexpected array type")
-
-
 def get_array_encoded_items(
     context: IRFunctionBuildContext, items: awst.Expression, array_type: ArrayType
 ) -> ir.Value:
@@ -86,12 +64,25 @@ def get_array_encoded_items(
     match items.wtype:
         case wtypes.ARC4StaticArray():
             value = context.visitor.visit_and_materialise_single(items)
-            # TODO: reinterpret to array_type
+            if value.ir_type != array_type:
+                target = mktemp(
+                    context,
+                    array_type,
+                    description=f"reinterpret_{array_type.name}",
+                    source_location=value.source_location,
+                )
+                assign_targets(
+                    context,
+                    source=value,
+                    targets=[target],
+                    assignment_location=value.source_location,
+                )
+                value = target
             return value
         case wtypes.ARC4DynamicArray() | wtypes.WArray(immutable=True):
             expr_value = context.visitor.visit_and_materialise_single(items)
             return factory.extract_to_end(expr_value, 2, "expr_value_trimmed", ir_type=array_type)
-        case wtypes.WArray(immutable=False):  # TODO: update this for immutable array
+        case wtypes.WArray(immutable=False):
             slot = context.visitor.visit_and_materialise_single(items)
             return read_slot(context, slot, items.source_location)
         case wtypes.WTuple():

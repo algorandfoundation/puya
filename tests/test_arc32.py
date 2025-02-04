@@ -1908,9 +1908,11 @@ def test_immutable_bool_array(immutable_array_app: ApplicationClient, length: in
     expected = _EXPECTED_LENGTH_20[:length]
     assert _get_global_state(response, b"g") == _get_arc4_bytes("bool[]", expected)
 
+
 def test_immutable_returns(immutable_array_app: ApplicationClient) -> None:
     response = simulate_call(immutable_array_app, "test_bool_return")
     assert response.abi_results[0].return_value == [True, False, True, False, True]
+
 
 def simulate_call(
     app_client: algokit_utils.ApplicationClient,

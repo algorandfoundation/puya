@@ -223,7 +223,7 @@ def _encode_arc4_tuple_items(
     return arc4_items
 
 
-def encode_arc4_array(
+def encode_arc4_values_as_array(
     context: IRFunctionBuildContext,
     wtype: wtypes.WType,
     values: Sequence[awst_nodes.Expression],
@@ -462,13 +462,16 @@ def handle_arc4_assign(
             return result
 
 
-def concat_values(
+def convert_and_concat_values(
     context: IRFunctionBuildContext,
     array_wtype: wtypes.WType,
-    left_expr: awst_nodes.Expression,
-    right_expr: awst_nodes.Expression,
+    array_expr: awst_nodes.Expression,
+    iter_expr: awst_nodes.Expression,
     source_location: SourceLocation,
 ) -> Value:
+    """Takes an arc4 array_expr and concats it with an iterable like expression
+    if the iterable type contains non ARC4 values, they will be encoded to the element type
+    of the array"""
     factory = OpFactory(context, source_location)
     # check left is a valid ARC4 array to concat with
     if not isinstance(array_wtype, wtypes.ARC4DynamicArray):
@@ -476,7 +479,7 @@ def concat_values(
     left_element_type = array_wtype.element_type
 
     # check right is a valid type to concat
-    right_wtype = right_expr.wtype
+    right_wtype = iter_expr.wtype
     if isinstance(right_wtype, wtypes.ARC4Array | wtypes.WArray):
         right_element_type = right_wtype.element_type
     elif (
@@ -488,6 +491,7 @@ def concat_values(
     else:
         right_element_type = None
 
+    # gets the ARC-4 equivalent element type of the elements on the right
     right_element_arc4_type = (
         wtype_to_arc4_wtype(right_element_type, source_location) if right_element_type else None
     )
@@ -500,9 +504,9 @@ def concat_values(
     assert right_element_type is not None
 
     if left_element_type == wtypes.arc4_bool_wtype:
-        left = context.visitor.visit_and_materialise_single(left_expr)
+        left = context.visitor.visit_and_materialise_single(array_expr)
         (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
-            context, right_expr, source_location
+            context, iter_expr, source_location
         )
         if isinstance(right_wtype, wtypes.WTuple):
             # each bit is in its own byte
@@ -531,15 +535,15 @@ def concat_values(
         element_size = get_arc4_static_bit_size(left_element_type)
         return _concat_dynamic_array_fixed_size(
             context,
-            left=left_expr,
-            right=right_expr,
+            left=array_expr,
+            right=iter_expr,
             source_location=source_location,
             byte_size=element_size // 8,
         )
     if _is_byte_length_header(left_element_type):
-        left = context.visitor.visit_and_materialise_single(left_expr)
+        left = context.visitor.visit_and_materialise_single(array_expr)
         (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
-            context, right_expr, source_location
+            context, iter_expr, source_location
         )
         return factory.assign(
             invoke_puya_lib_subroutine(
@@ -552,25 +556,25 @@ def concat_values(
         )
     if is_arc4_dynamic_size(left_element_type):
         assert isinstance(array_wtype, wtypes.ARC4DynamicArray)
-        left = context.visitor.visit_and_materialise_single(left_expr)
+        left = context.visitor.visit_and_materialise_single(array_expr)
         if isinstance(right_wtype, wtypes.WTuple):
             r_count_vp: ValueProvider = UInt64Constant(
                 value=len(right_wtype.types), source_location=source_location
             )
-            right_values = context.visitor.visit_and_materialise(right_expr)
+            right_values = context.visitor.visit_and_materialise(iter_expr)
             if left_element_type != right_element_type:
                 right_values = _encode_n_items_as_arc4_items(
                     context,
                     right_values,
                     right_element_type,
                     right_element_arc4_type,
-                    right_expr.source_location,
+                    iter_expr.source_location,
                 )
             r_head_and_tail_vp: ValueProvider = _arc4_items_as_arc4_tuple(
                 context, left_element_type, right_values, source_location
             )
         elif isinstance(right_wtype, wtypes.ARC4Array):
-            right = context.visitor.visit_and_materialise_single(right_expr)
+            right = context.visitor.visit_and_materialise_single(iter_expr)
             r_count_vp = get_arc4_array_length(context, right_wtype, right, source_location)
             r_head_and_tail_vp = _get_arc4_array_head_and_tail(
                 context, right_wtype, right, source_location

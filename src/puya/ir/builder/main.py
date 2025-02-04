@@ -11,7 +11,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.arc4_types import wtype_to_arc4_wtype
-from puya.awst.nodes import BigUIntBinaryOperator, UInt64BinaryOperator, TupleExpression
+from puya.awst.nodes import BigUIntBinaryOperator, TupleExpression, UInt64BinaryOperator
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst.txn_fields import TxnField
 from puya.awst.wtypes import ARC4DynamicArray, WInnerTransaction, WInnerTransactionFields
@@ -888,22 +888,26 @@ class FunctionIRBuilder(
     def visit_new_array(self, expr: awst_nodes.NewArray) -> TExpression:
         match expr.wtype:
             case wtypes.ARC4Array():
-                return arc4.encode_arc4_array(
+                return arc4.encode_arc4_values_as_array(
                     self.context, expr.wtype, expr.values, expr.source_location
                 )
             case wtypes.WArray(immutable=True) as arr:
                 arc4_wtype = wtype_to_arc4_wtype(arr, expr.source_location)
                 assert isinstance(arc4_wtype, wtypes.ARC4DynamicArray)
                 if expr.values:
-                    return arc4.concat_values(
+                    return arc4.convert_and_concat_values(
                         self.context,
                         array_wtype=arc4_wtype,
-                        left_expr=awst_nodes.NewArray(values=(), wtype=arc4_wtype, source_location=expr.source_location,),
-                        right_expr=TupleExpression.from_items(expr.values, expr.source_location),
+                        array_expr=awst_nodes.NewArray(
+                            values=(),
+                            wtype=arc4_wtype,
+                            source_location=expr.source_location,
+                        ),
+                        iter_expr=TupleExpression.from_items(expr.values, expr.source_location),
                         source_location=expr.source_location,
                     )
                 else:
-                    return arc4.encode_arc4_array(
+                    return arc4.encode_arc4_values_as_array(
                         self.context, arc4_wtype, (), expr.source_location
                     )
             case wtypes.WArray() as arr:
@@ -1176,7 +1180,7 @@ class FunctionIRBuilder(
         self, statement: awst_nodes.BytesAugmentedAssignment
     ) -> TStatement:
         if statement.target.wtype == wtypes.arc4_string_alias:
-            value: ValueProvider = arc4.concat_values(
+            value: ValueProvider = arc4.convert_and_concat_values(
                 self.context,
                 statement.target.wtype,
                 statement.target,
@@ -1263,20 +1267,20 @@ class FunctionIRBuilder(
     def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> TExpression:
         match expr.wtype:
             case wtypes.ARC4Array():
-                return arc4.concat_values(
+                return arc4.convert_and_concat_values(
                     self.context,
                     array_wtype=expr.left.wtype,
-                    left_expr=expr.left,
-                    right_expr=expr.right,
+                    array_expr=expr.left,
+                    iter_expr=expr.right,
                     source_location=expr.source_location,
                 )
             case wtypes.WArray(immutable=True):
                 arc4_wtype = wtype_to_arc4_wtype(expr.wtype, expr.source_location)
-                return arc4.concat_values(
+                return arc4.convert_and_concat_values(
                     self.context,
                     array_wtype=arc4_wtype,
-                    left_expr=expr.left,
-                    right_expr=expr.right,
+                    array_expr=expr.left,
+                    iter_expr=expr.right,
                     source_location=expr.source_location,
                 )
             case _:
@@ -1284,11 +1288,11 @@ class FunctionIRBuilder(
 
     def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> TExpression:
         if isinstance(expr.base.wtype, wtypes.ARC4Array):
-            concat_result = arc4.concat_values(
+            concat_result = arc4.convert_and_concat_values(
                 self.context,
                 array_wtype=expr.base.wtype,
-                left_expr=expr.base,
-                right_expr=expr.other,
+                array_expr=expr.base,
+                iter_expr=expr.other,
                 source_location=expr.source_location,
             )
             return arc4.handle_arc4_assign(
