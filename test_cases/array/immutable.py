@@ -1,6 +1,17 @@
 import typing
 
-from algopy import Bytes, ImmutableArray, String, Txn, UInt64, arc4, op, subroutine, urange
+from algopy import (
+    Bytes,
+    ImmutableArray,
+    String,
+    Txn,
+    UInt64,
+    arc4,
+    op,
+    subroutine,
+    uenumerate,
+    urange,
+)
 
 
 class MyTuple(typing.NamedTuple):
@@ -256,30 +267,59 @@ class ImmutableArrayContract(arc4.ARC4Contract):
         self.bool9 = arr9
 
     @arc4.abimethod()
-    def test_args(
+    def sum_uints_and_lengths_and_trues(
         self,
         arr1: ImmutableArray[UInt64],
         arr2: ImmutableArray[bool],
         arr3: ImmutableArray[MyTuple],
         arr4: ImmutableArray[MyDynamicSizedTuple],
-    ) -> None:
-        pass
+    ) -> tuple[UInt64, UInt64, UInt64, UInt64]:
+        sum1 = sum2 = sum3 = sum4 = UInt64()
+        for i in arr1:
+            sum1 += i
+        for b in arr2:
+            if b:
+                sum2 += 1
+        for tup in arr3:
+            sum3 += tup.foo
+            if tup.bar:
+                sum3 += 1
+            if tup.baz:
+                sum3 += 1
+        for idx, dyn_tup in uenumerate(arr4):
+            sum4 += dyn_tup.foo
+            sum4 += dyn_tup.bar.bytes.length
+            assert dyn_tup.bar.bytes.length == idx, "expected string length to match index"
+
+        return sum1, sum2, sum3, sum4
 
     @arc4.abimethod()
-    def test_uint64_return(self) -> ImmutableArray[UInt64]:
-        return ImmutableArray(UInt64(1), UInt64(2), UInt64(3))
+    def test_uint64_return(self, append: UInt64) -> ImmutableArray[UInt64]:
+        arr = ImmutableArray(UInt64(1), UInt64(2), UInt64(3))
+        for i in urange(append):
+            arr = arr.append(i)
+        return arr
 
     @arc4.abimethod()
-    def test_bool_return(self) -> ImmutableArray[bool]:
-        return ImmutableArray(True, False, True, False, True)
+    def test_bool_return(self, append: UInt64) -> ImmutableArray[bool]:
+        arr = ImmutableArray(True, False, True, False, True)
+        for i in urange(append):
+            arr = arr.append(i % 2 == 0)
+        return arr
 
     @arc4.abimethod()
-    def test_tuple_return(self) -> ImmutableArray[MyTuple]:
-        return ImmutableArray(MyTuple(UInt64(), True, False))
+    def test_tuple_return(self, append: UInt64) -> ImmutableArray[MyTuple]:
+        arr = ImmutableArray(MyTuple(UInt64(), True, False))
+        for i in urange(append):
+            arr = arr.append(MyTuple(foo=i, bar=i % 2 == 0, baz=i % 3 == 0))
+        return arr
 
     @arc4.abimethod()
-    def test_dynamic_tuple_return(self) -> ImmutableArray[MyDynamicSizedTuple]:
-        return ImmutableArray(MyDynamicSizedTuple(UInt64(), String("Hello")))
+    def test_dynamic_tuple_return(self, append: UInt64) -> ImmutableArray[MyDynamicSizedTuple]:
+        arr = ImmutableArray(MyDynamicSizedTuple(UInt64(), String("Hello")))
+        for i in urange(append):
+            arr = arr.append(MyDynamicSizedTuple(i, times(i)))
+        return arr
 
     # TODO: nested arrays
 

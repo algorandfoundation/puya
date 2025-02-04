@@ -1909,9 +1909,41 @@ def test_immutable_bool_array(immutable_array_app: ApplicationClient, length: in
     assert _get_global_state(response, b"g") == _get_arc4_bytes("bool[]", expected)
 
 
-def test_immutable_returns(immutable_array_app: ApplicationClient) -> None:
-    response = simulate_call(immutable_array_app, "test_bool_return")
-    assert response.abi_results[0].return_value == [True, False, True, False, True]
+def test_immutable_routing(immutable_array_app: ApplicationClient) -> None:
+    response = simulate_call(
+        immutable_array_app,
+        "sum_uints_and_lengths_and_trues",
+        arr1=list(range(5)),
+        arr2=[i % 2 == 0 for i in range(6)],
+        arr3=[(i, i % 2 == 0, i % 3 == 0) for i in range(7)],
+        arr4=[(i, " " * i) for i in range(8)],
+    )
+    assert response.abi_results[0].return_value == [10, 3, 21 + 4 + 3, 28 * 2]
+
+    append = 4
+    response = simulate_call(immutable_array_app, "test_uint64_return", append=append)
+    assert response.abi_results[0].return_value == [1, 2, 3, *range(append)]
+
+    append = 5
+    response = simulate_call(immutable_array_app, "test_bool_return", append=append)
+    assert response.abi_results[0].return_value == [
+        *[True, False, True, False, True],
+        *(i % 2 == 0 for i in range(append)),
+    ]
+
+    append = 6
+    response = simulate_call(immutable_array_app, "test_tuple_return", append=append)
+    assert response.abi_results[0].return_value == [
+        [0, True, False],
+        *([i, i % 2 == 0, i % 3 == 0] for i in range(append)),
+    ]
+
+    append = 3
+    response = simulate_call(immutable_array_app, "test_dynamic_tuple_return", append=append)
+    assert response.abi_results[0].return_value == [
+        [0, "Hello"],
+        *([i, " " * i] for i in range(append)),
+    ]
 
 
 def simulate_call(
