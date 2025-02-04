@@ -199,9 +199,8 @@ subroutine test_cases.array.fixed_size.FixedSizeContract.test_bool_array(length:
     block@2: // for_body_L50
         let tmp%3#0: uint64 = (% i#0 2u)
         let tmp%4#0: bool = (== tmp%3#0 0u)
-        let array%sub_item%0#1: bytes[8] = (itob tmp%4#0)
-        let array%sub_item_truncated%0#1: bytes = (extract3 array%sub_item%0#1 7u 1u)
-        let array%encoded%0#1: bool[] = (concat 0x array%sub_item_truncated%0#1)
+        let array%encoded_bit%0#1: bytes = (select 0x00 0x80 tmp%4#0)
+        let array%encoded%0#1: bool[] = (concat 0x array%encoded_bit%0#1)
         let array%data%0#1: bool[] = (concat 0x array%encoded%0#1)
         let encoded%1#0: bool[] = array%data%0#1
         let slot_contents%1#0: bool[] = read(arr#0)
@@ -233,9 +232,9 @@ subroutine test_cases.array.fixed_size.FixedSizeContract.test_bool_array(length:
         let slot_contents%4#0: bool[] = read(arr#0)
         let array%bytes_index%0#1: uint64 = (* item_index_internal%0#0 1u)
         let array%value%0#1: bytes = (extract3 slot_contents%4#0 array%bytes_index%0#1 1u)
-        let array%sub_item%1#1: bytes = (extract3 array%value%0#1 0u 1u)
-        let array%sub_item%2#1: uint64 = (btoi array%sub_item%1#1)
-        let val#0: bool = array%sub_item%2#1
+        let array%sub_item%0#1: bytes = (extract3 array%value%0#1 0u 1u)
+        let array%sub_item%1#1: uint64 = (btoi array%sub_item%0#1)
+        let val#0: bool = array%sub_item%1#1
         let count#9: uint64 = count#0
         goto val#0 ? block@7 : block@8
     block@7: // if_body_L55

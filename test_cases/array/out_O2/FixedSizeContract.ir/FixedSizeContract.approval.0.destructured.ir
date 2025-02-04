@@ -154,10 +154,9 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
     block@11: // for_body_L50
         let tmp%3#0: uint64 = (% i#0 2u)
         let tmp%4#0: bool = (! tmp%3#0)
-        let array%sub_item%54#1: bytes[8] = (itob tmp%4#0)
-        let array%sub_item_truncated%0#1: bytes = ((extract 7 1) array%sub_item%54#1)
+        let array%encoded_bit%0#1: bytes = (select 0x00 0x80 tmp%4#0)
         let slot_contents%1#2: bool[] = read(local.1)
-        let array%array_contents%0#1: bytes = (concat slot_contents%1#2 array%sub_item_truncated%0#1) // on error: max array length exceeded
+        let array%array_contents%0#1: bytes = (concat slot_contents%1#2 array%encoded_bit%0#1) // on error: max array length exceeded
         write(local.1, array%array_contents%0#1)
         let i#0: uint64 = (+ i#0 1u)
         goto block@10

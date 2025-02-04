@@ -1,38 +1,38 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@12
+        goto tmp%0#1 ? block@2 : block@17
     block@2: // abi_routing_L61
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_uint64_array()void" => block@3, method "test_bool_array(uint64)void" => block@4, method "test_fixed_size_tuple_array()void" => block@5, method "test_fixed_size_named_tuple_array()void" => block@6, method "test_dynamic_sized_tuple_array()void" => block@7, method "test_dynamic_sized_named_tuple_array()void" => block@8, method "test_bit_packed_tuples()void" => block@9, * => block@16}
+        switch tmp%2#0 {method "test_uint64_array()void" => block@3, method "test_bool_array(uint64)void" => block@4, method "test_fixed_size_tuple_array()void" => block@5, method "test_fixed_size_named_tuple_array()void" => block@6, method "test_dynamic_sized_tuple_array()void" => block@7, method "test_dynamic_sized_named_tuple_array()void" => block@8, method "test_bit_packed_tuples()void" => block@9, method "test_args(uint64[],bool[],(uint64,bool,bool)[],(uint64,string)[])void" => block@10, method "test_uint64_return()uint64[]" => block@11, method "test_bool_return()bool[]" => block@12, method "test_tuple_return()(uint64,bool,bool)[]" => block@13, method "test_dynamic_tuple_return()(uint64,string)[]" => block@14, * => block@21}
     block@3: // test_uint64_array_route_L62
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (! tmp%3#0)
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
-        let arr#21: uint64[] = test_cases.array.immutable.add_x(0x0001000000000000002a, 5u)
-        let tmp%8#3: uint64 = (extract_uint16 arr#21 0u)
+        let arr#22: uint64[] = test_cases.array.immutable.add_x(0x0001000000000000002a, 5u)
+        let tmp%8#3: uint64 = (extract_uint16 arr#22 0u)
         let tmp%9#1: bool = (== tmp%8#3 6u)
         (assert tmp%9#1)
         let tmp%11#5: uint64 = (- tmp%8#3 1u)
-        let array_head_and_tail%1#0: bytes = ((extract 2 0) arr#21)
+        let array_head_and_tail%1#0: bytes = ((extract 2 0) arr#22)
         let item_offset%1#0: uint64 = (* tmp%11#5 8u)
         let tmp%12#0: uint64 = (extract_uint64 array_head_and_tail%1#0 item_offset%1#0)
         let tmp%13#0: bool = (== tmp%12#0 4u)
         (assert tmp%13#0)
-        let sub_item%1#0: bytes[8] = (itob 43u)
-        let concatenated%1#0: bytes = (concat array_head_and_tail%1#0 sub_item%1#0)
+        let array%sub_item%1#1: bytes[8] = (itob 43u)
+        let concatenated%1#0: bytes = (concat array_head_and_tail%1#0 array%sub_item%1#1)
         let byte_len%1#0: uint64 = (len concatenated%1#0)
         let len_%1#0: uint64 = (/ byte_len%1#0 8u)
-        let as_bytes%1#0: bytes[8] = (itob len_%1#0)
-        let len_16_bit%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let arr#21: uint64[] = (concat len_16_bit%1#0 concatenated%1#0)
-        let tmp%14#0: uint64 = (extract_uint16 arr#21 0u)
+        let as_bytes%1#1: bytes[8] = (itob len_%1#0)
+        let len_16_bit%1#0: bytes = ((extract 6 2) as_bytes%1#1)
+        let arr#22: uint64[] = (concat len_16_bit%1#0 concatenated%1#0)
+        let tmp%14#0: uint64 = (extract_uint16 arr#22 0u)
         let tmp%15#1: bool = (== tmp%14#0 7u)
         (assert tmp%15#1)
         let tmp%17#4: uint64 = (- tmp%14#0 1u)
-        let array_head_and_tail%2#0: bytes = ((extract 2 0) arr#21)
+        let array_head_and_tail%2#0: bytes = ((extract 2 0) arr#22)
         let item_offset%2#0: uint64 = (* tmp%17#4 8u)
         let tmp%18#0: uint64 = (extract_uint64 array_head_and_tail%2#0 item_offset%2#0)
         let tmp%19#1: bool = (== tmp%18#0 43u)
@@ -41,65 +41,65 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%21#0: bool = (== tmp%20#0 42u)
         (assert tmp%21#0)
         let _i#0: uint64 = 0u
-        goto block@72
-    block@72: // for_header_L278
+        goto block@82
+    block@82: // for_header_L304
         let continue_looping%0#0: bool = (< _i#0 3u)
-        goto continue_looping%0#0 ? block@73 : block@74
-    block@73: // for_body_L279
-        let (popped%0#0: bytes, arr#21: uint64[]) = _puya_lib.arc4.dynamic_array_pop_fixed_size(arr#21, 8u)
+        goto continue_looping%0#0 ? block@83 : block@84
+    block@83: // for_body_L305
+        let (popped%0#0: bytes, arr#22: uint64[]) = _puya_lib.arc4.dynamic_array_pop_fixed_size(arr#22, 8u)
         let _i#0: uint64 = (+ _i#0 1u)
-        goto block@72
-    block@74: // after_for_L278
-        let tmp%22#0: uint64 = (extract_uint16 arr#21 0u)
+        goto block@82
+    block@84: // after_for_L304
+        let tmp%22#0: uint64 = (extract_uint16 arr#22 0u)
         let tmp%23#1: bool = (== tmp%22#0 4u)
         (assert tmp%23#1)
         let tmp%25#2: uint64 = (- tmp%22#0 1u)
-        let array_head_and_tail%4#0: bytes = ((extract 2 0) arr#21)
+        let array_head_and_tail%4#0: bytes = ((extract 2 0) arr#22)
         let item_offset%4#0: uint64 = (* tmp%25#2 8u)
         let tmp%26#0: uint64 = (extract_uint64 array_head_and_tail%4#0 item_offset%4#0)
         let tmp%27#1: bool = (== tmp%26#0 2u)
         (assert tmp%27#1)
-        let arr#21: uint64[] = test_cases.array.immutable.add_x(arr#21, 10u)
-        let tmp%28#0: uint64 = (extract_uint16 arr#21 0u)
+        let arr#22: uint64[] = test_cases.array.immutable.add_x(arr#22, 10u)
+        let tmp%28#0: uint64 = (extract_uint16 arr#22 0u)
         let tmp%29#0: bool = (== tmp%28#0 14u)
         (assert tmp%29#0)
         let tmp%31#1: uint64 = (- tmp%28#0 1u)
-        let array_head_and_tail%5#0: bytes = ((extract 2 0) arr#21)
+        let array_head_and_tail%5#0: bytes = ((extract 2 0) arr#22)
         let item_offset%5#0: uint64 = (* tmp%31#1 8u)
         let tmp%32#0: uint64 = (extract_uint64 array_head_and_tail%5#0 item_offset%5#0)
-        let tmp%33#1: bool = (== tmp%32#0 9u)
-        (assert tmp%33#1)
-        let sub_item%2#1: bytes[8] = (itob 44u)
-        let concatenated%2#0: bytes = (concat array_head_and_tail%5#0 sub_item%2#1)
+        let tmp%33#0: bool = (== tmp%32#0 9u)
+        (assert tmp%33#0)
+        let array%sub_item%2#1: bytes[8] = (itob 44u)
+        let concatenated%2#0: bytes = (concat array_head_and_tail%5#0 array%sub_item%2#1)
         let byte_len%2#0: uint64 = (len concatenated%2#0)
         let len_%2#0: uint64 = (/ byte_len%2#0 8u)
-        let as_bytes%2#0: bytes[8] = (itob len_%2#0)
-        let len_16_bit%2#0: bytes = ((extract 6 2) as_bytes%2#0)
-        let arr#21: uint64[] = (concat len_16_bit%2#0 concatenated%2#0)
-        let tmp%34#1: uint64 = (extract_uint16 arr#21 0u)
-        let tmp%35#0: bool = (== tmp%34#1 15u)
-        (assert tmp%35#0)
-        let tmp%37#0: uint64 = (- tmp%34#1 1u)
-        let array_head_and_tail%6#0: bytes = ((extract 2 0) arr#21)
-        let item_offset%6#0: uint64 = (* tmp%37#0 8u)
-        let tmp%38#1: uint64 = (extract_uint64 array_head_and_tail%6#0 item_offset%6#0)
-        let tmp%39#1: bool = (== tmp%38#1 44u)
-        (assert tmp%39#1)
-        let val_as_bytes%0#0: bytes[8] = (itob 23u)
-        let index_is_in_bounds%0#1: bool = (< 2u tmp%34#1)
+        let as_bytes%2#1: bytes[8] = (itob len_%2#0)
+        let len_16_bit%2#0: bytes = ((extract 6 2) as_bytes%2#1)
+        let arr#22: uint64[] = (concat len_16_bit%2#0 concatenated%2#0)
+        let tmp%34#0: uint64 = (extract_uint16 arr#22 0u)
+        let tmp%35#1: bool = (== tmp%34#0 15u)
+        (assert tmp%35#1)
+        let tmp%37#1: uint64 = (- tmp%34#0 1u)
+        let array_head_and_tail%6#0: bytes = ((extract 2 0) arr#22)
+        let item_offset%6#0: uint64 = (* tmp%37#1 8u)
+        let tmp%38#2: uint64 = (extract_uint64 array_head_and_tail%6#0 item_offset%6#0)
+        let tmp%39#2: bool = (== tmp%38#2 44u)
+        (assert tmp%39#2)
+        let val_as_bytes%0#1: bytes[8] = (itob 23u)
+        let index_is_in_bounds%0#1: bool = (< 2u tmp%34#0)
         (assert index_is_in_bounds%0#1) // Index access is out of bounds
-        let arr#21: uint64[] = ((replace2 18) arr#21 val_as_bytes%0#0)
-        let tmp%40#1: uint64 = (extract_uint16 arr#21 0u)
-        let tmp%41#1: bool = (== tmp%40#1 15u)
-        (assert tmp%41#1)
-        let array_head_and_tail%7#0: bytes = ((extract 2 0) arr#21)
-        let tmp%42#1: uint64 = (extract_uint64 array_head_and_tail%7#0 16u)
-        let tmp%43#1: bool = (== tmp%42#1 23u)
-        (assert tmp%43#1)
-        (app_global_put "a" arr#21)
+        let arr#22: uint64[] = ((replace2 18) arr#22 val_as_bytes%0#1)
+        let tmp%40#0: uint64 = (extract_uint16 arr#22 0u)
+        let tmp%41#0: bool = (== tmp%40#0 15u)
+        (assert tmp%41#0)
+        let array_head_and_tail%7#0: bytes = ((extract 2 0) arr#22)
+        let tmp%42#0: uint64 = (extract_uint64 array_head_and_tail%7#0 16u)
+        let tmp%43#2: bool = (== tmp%42#0 23u)
+        (assert tmp%43#2)
+        (app_global_put "a" arr#22)
         let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@17
+        goto block@22
     block@4: // test_bool_array_route_L98
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
@@ -110,107 +110,74 @@ main algopy.arc4.ARC4Contract.approval_program:
         let length#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
         let arr#17: bool[] = 0x0000
         let i#0: uint64 = 0u
-        goto block@52
-    block@52: // for_header_L103
+        goto block@67
+    block@67: // for_header_L103
         let continue_looping%0#0: bool = (< i#0 length#0)
-        goto continue_looping%0#0 ? block@53 : block@59
-    block@53: // for_body_L104
+        goto continue_looping%0#0 ? block@68 : block@69
+    block@68: // for_body_L104
         let tmp%2#2: uint64 = (txn NumAppArgs)
         let to_encode%0#0: bool = (== i#0 tmp%2#2)
-        let new_items_bytes#0: bytes = (setbit 0x00 0u to_encode%0#0)
-        let array_length#0: uint64 = (extract_uint16 arr#17 0u)
-        let new_array_length#0: uint64 = (+ array_length#0 1u)
-        let tmp%0#8: bytes = (itob new_array_length#0)
-        let new_array_length_b#0: bytes = ((extract 6 0) tmp%0#8)
-        let result#0: bytes = ((replace2 0) arr#17 new_array_length_b#0)
-        let tmp%1#8: uint64 = (+ array_length#0 7u)
-        let current_bytes#0: uint64 = (/ tmp%1#8 8u)
-        let tmp%2#2: uint64 = (+ new_array_length#0 7u)
-        let required_bytes#0: uint64 = (/ tmp%2#2 8u)
-        let tmp%3#4: bool = (< current_bytes#0 required_bytes#0)
-        let result#11: bytes = result#0
-        goto tmp%3#4 ? block@54 : block@55
-    block@54: // if_body_L147
-        let tmp%4#2: uint64 = (- required_bytes#0 current_bytes#0)
-        let tmp%5#8: bytes = (bzero tmp%4#2)
-        let result#0: bytes = (concat result#0 tmp%5#8)
-        let result#11: bytes = result#0
-        goto block@55
-    block@55: // after_if_else_L146
-        let result#0: bytes = result#11
-        let write_offset#0: uint64 = (+ array_length#0 16u)
-        let i#2: uint64 = 0u
-        goto block@56
-    block@56: // for_header_L150
-        let continue_looping%0#0: bool = (< i#2 1u)
-        goto continue_looping%0#0 ? block@57 : block@58
-    block@57: // for_body_L151
-        let tmp%6#5: uint64 = (getbit new_items_bytes#0 i#2)
-        let result#0: bytes = (setbit result#0 write_offset#0 tmp%6#5)
-        let write_offset#0: uint64 = (+ write_offset#0 1u)
-        let i#2: uint64 = (+ i#2 8u)
-        goto block@56
-    block@58: // after_for_L150
+        let encoded_bool%0#1: bytes[1] = (setbit 0x00 0u to_encode%0#0)
+        let arr#17: bool[] = _puya_lib.arc4.dynamic_array_concat_bits(arr#17, encoded_bool%0#1, 1u, 8u)
         let i#0: uint64 = (+ i#0 1u)
-        let arr#17: bool[] = result#0
-        goto block@52
-    block@59: // after_for_L103
+        goto block@67
+    block@69: // after_for_L103
         let array_length#0: uint64 = (extract_uint16 arr#17 0u)
         let tmp%4#0: bool = (== array_length#0 length#0)
         (assert tmp%4#0)
-        goto length#0 ? block@60 : block@61
-    block@60: // if_body_L109
+        goto length#0 ? block@70 : block@71
+    block@70: // if_body_L109
         let array_head_and_tail%0#0: bytes = ((extract 2 0) arr#17)
         (assert array_length#0) // Index access is out of bounds
         let is_true%0#0: uint64 = (getbit array_head_and_tail%0#0 0u)
-        let encoded_bool%1#0: bytes[1] = (setbit 0x00 0u is_true%0#0)
-        let tmp%6#2: bool = (getbit encoded_bool%1#0 0u)
+        let encoded_bool%1#1: bytes[1] = (setbit 0x00 0u is_true%0#0)
+        let tmp%6#2: bool = (getbit encoded_bool%1#1 0u)
         let tmp%7#2: bool = (! tmp%6#2)
         (assert tmp%7#2) // expected element 0 to be False
-        goto block@61
-    block@61: // after_if_else_L108
+        goto block@71
+    block@71: // after_if_else_L108
         let tmp%8#0: bool = (> length#0 1u)
-        goto tmp%8#0 ? block@62 : block@63
-    block@62: // if_body_L111
+        goto tmp%8#0 ? block@72 : block@73
+    block@72: // if_body_L111
         let array_head_and_tail%1#0: bytes = ((extract 2 0) arr#17)
         let index_is_in_bounds%1#0: bool = (< 1u array_length#0)
         (assert index_is_in_bounds%1#0) // Index access is out of bounds
         let is_true%1#0: uint64 = (getbit array_head_and_tail%1#0 1u)
-        let encoded_bool%2#0: bytes[1] = (setbit 0x00 0u is_true%1#0)
-        let tmp%9#1: bool = (getbit encoded_bool%2#0 0u)
+        let encoded_bool%2#1: bytes[1] = (setbit 0x00 0u is_true%1#0)
+        let tmp%9#1: bool = (getbit encoded_bool%2#1 0u)
         let tmp%10#4: bool = (! tmp%9#1)
         (assert tmp%10#4) // expected element 1 to be False
-        goto block@63
-    block@63: // after_if_else_L110
+        goto block@73
+    block@73: // after_if_else_L110
         let tmp%11#1: bool = (> length#0 2u)
-        goto tmp%11#1 ? block@64 : block@65
-    block@64: // if_body_L113
+        goto tmp%11#1 ? block@74 : block@75
+    block@74: // if_body_L113
         let array_head_and_tail%2#0: bytes = ((extract 2 0) arr#17)
         let index_is_in_bounds%2#0: bool = (< 2u array_length#0)
         (assert index_is_in_bounds%2#0) // Index access is out of bounds
         let is_true%2#0: uint64 = (getbit array_head_and_tail%2#0 2u)
-        let encoded_bool%3#0: bytes[1] = (setbit 0x00 0u is_true%2#0)
-        let tmp%12#1: bool = (getbit encoded_bool%3#0 0u)
+        let encoded_bool%3#1: bytes[1] = (setbit 0x00 0u is_true%2#0)
+        let tmp%12#1: bool = (getbit encoded_bool%3#1 0u)
         (assert tmp%12#1) // expected element 2 to be True
-        goto block@65
-    block@65: // after_if_else_L112
+        goto block@75
+    block@75: // after_if_else_L112
         let tmp%13#0: bool = (> length#0 3u)
-        goto tmp%13#0 ? block@66 : block@67
-    block@66: // if_body_L115
+        goto tmp%13#0 ? block@76 : block@77
+    block@76: // if_body_L115
         let tmp%14#0: uint64 = (- length#0 1u)
         let array_head_and_tail%3#0: bytes = ((extract 2 0) arr#17)
         let index_is_in_bounds%3#0: bool = (< tmp%14#0 array_length#0)
         (assert index_is_in_bounds%3#0) // Index access is out of bounds
         let is_true%3#0: uint64 = (getbit array_head_and_tail%3#0 tmp%14#0)
-        let encoded_bool%4#0: bytes[1] = (setbit 0x00 0u is_true%3#0)
-        let tmp%15#1: bool = (getbit encoded_bool%4#0 0u)
+        let encoded_bool%4#1: bytes[1] = (setbit 0x00 0u is_true%3#0)
+        let tmp%15#1: bool = (getbit encoded_bool%4#1 0u)
         let tmp%16#1: bool = (! tmp%15#1)
         (assert tmp%16#1) // expected last element to be False
-        goto block@67
-    block@67: // after_if_else_L114
+        goto block@77
+    block@77: // after_if_else_L114
         (app_global_put "g" arr#17)
-        goto length#0 ? block@68 : block@69
-    block@68: // if_body_L119
+        goto length#0 ? block@78 : block@79
+    block@78: // if_body_L119
         let length_minus_1#0: uint64 = (- array_length#0 1u)
         let tmp%0#8: bytes = (itob length_minus_1#0)
         let tmp%1#7: bytes = ((extract 6 0) tmp%0#8)
@@ -225,11 +192,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%19#3: uint64 = (- length#0 1u)
         let tmp%20#1: bool = (== tmp%18#0 tmp%19#3)
         (assert tmp%20#1)
-        goto block@69
-    block@69: // after_if_else_L118
+        goto block@79
+    block@79: // after_if_else_L118
         let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@17
+        goto block@22
     block@5: // test_fixed_size_tuple_array_route_L122
         let tmp%12#0: uint64 = (txn OnCompletion)
         let tmp%13#0: bool = (! tmp%12#0)
@@ -238,26 +205,26 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%14#0) // can only call when not creating
         let arr#13: (uint64,uint64)[] = 0x0000
         let i#0: uint64 = 0u
-        goto block@47
-    block@47: // for_header_L127
+        goto block@62
+    block@62: // for_header_L127
         let continue_looping%0#0: bool = (< i#0 5u)
-        goto continue_looping%0#0 ? block@48 : block@49
-    block@48: // for_body_L128
-        let expr_value_trimmed%0#0: bytes = ((extract 2 0) arr#13)
+        goto continue_looping%0#0 ? block@63 : block@64
+    block@63: // for_body_L128
+        let expr_value_trimmed%0#2: bytes = ((extract 2 0) arr#13)
         let i#2: uint64 = (+ i#0 1u)
         let tmp%3#0: uint64 = (+ i#0 2u)
-        let sub_item%0#1: bytes[8] = (itob i#2)
-        let sub_item%1#0: bytes[8] = (itob tmp%3#0)
-        let encoded%1#1: (uint64,uint64)[] = (concat sub_item%0#1 sub_item%1#0)
-        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 encoded%1#1)
-        let byte_len%0#0: uint64 = (len concatenated%0#0)
-        let len_%0#0: uint64 = (/ byte_len%0#0 16u)
-        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let arr#13: (uint64,uint64)[] = (concat len_16_bit%0#0 concatenated%0#0)
+        let array%sub_item%3#1: bytes[8] = (itob i#2)
+        let array%sub_item%4#1: bytes[8] = (itob tmp%3#0)
+        let array%encoded%4#1: (uint64,uint64)[] = (concat array%sub_item%3#1 array%sub_item%4#1)
+        let concatenated%0#2: bytes = (concat expr_value_trimmed%0#2 array%encoded%4#1)
+        let byte_len%0#2: uint64 = (len concatenated%0#2)
+        let len_%0#2: uint64 = (/ byte_len%0#2 16u)
+        let as_bytes%0#3: bytes[8] = (itob len_%0#2)
+        let len_16_bit%0#2: bytes = ((extract 6 2) as_bytes%0#3)
+        let arr#13: (uint64,uint64)[] = (concat len_16_bit%0#2 concatenated%0#2)
         let i#0: uint64 = i#2
-        goto block@47
-    block@49: // after_for_L127
+        goto block@62
+    block@64: // after_for_L127
         let tmp%4#2: uint64 = (extract_uint16 arr#13 0u)
         let tmp%5#2: bool = (== tmp%4#2 5u)
         (assert tmp%5#2)
@@ -300,7 +267,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (app_global_put "c" arr#13)
         let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@17
+        goto block@22
     block@6: // test_fixed_size_named_tuple_array_route_L140
         let tmp%16#0: uint64 = (txn OnCompletion)
         let tmp%17#0: bool = (! tmp%16#0)
@@ -309,30 +276,30 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%18#0) // can only call when not creating
         let arr#10: (uint64,bool,bool)[] = 0x0000
         let i#0: uint64 = 0u
-        goto block@42
-    block@42: // for_header_L145
+        goto block@57
+    block@57: // for_header_L145
         let continue_looping%0#0: bool = (< i#0 5u)
-        goto continue_looping%0#0 ? block@43 : block@44
-    block@43: // for_body_L146
-        let expr_value_trimmed%0#0: bytes = ((extract 2 0) arr#10)
+        goto continue_looping%0#0 ? block@58 : block@59
+    block@58: // for_body_L146
+        let expr_value_trimmed%0#2: bytes = ((extract 2 0) arr#10)
         let tmp%2#2: uint64 = (% i#0 2u)
         let tmp%3#4: bool = (! tmp%2#2)
         let tmp%4#2: uint64 = (* i#0 3u)
         let tmp%5#0: uint64 = (% tmp%4#2 2u)
         let tmp%6#2: bool = (! tmp%5#0)
-        let sub_item%0#1: bytes[8] = (itob i#0)
-        let encoded_bit%0#0: bytes = (select 0x00 0x80 tmp%3#4)
-        let encoded%1#0: (uint64,bool,bool)[] = (concat sub_item%0#1 encoded_bit%0#0)
-        let sub_item%1#1: (uint64,bool,bool)[] = (setbit encoded%1#0 65u tmp%6#2)
-        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 sub_item%1#1)
-        let byte_len%0#0: uint64 = (len concatenated%0#0)
-        let len_%0#0: uint64 = (/ byte_len%0#0 9u)
-        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let arr#10: (uint64,bool,bool)[] = (concat len_16_bit%0#0 concatenated%0#0)
+        let array%sub_item%5#1: bytes[8] = (itob i#0)
+        let array%encoded_bit%0#1: bytes = (select 0x00 0x80 tmp%3#4)
+        let array%encoded%6#1: (uint64,bool,bool)[] = (concat array%sub_item%5#1 array%encoded_bit%0#1)
+        let array%sub_item%6#1: (uint64,bool,bool)[] = (setbit array%encoded%6#1 65u tmp%6#2)
+        let concatenated%0#2: bytes = (concat expr_value_trimmed%0#2 array%sub_item%6#1)
+        let byte_len%0#2: uint64 = (len concatenated%0#2)
+        let len_%0#2: uint64 = (/ byte_len%0#2 9u)
+        let as_bytes%0#3: bytes[8] = (itob len_%0#2)
+        let len_16_bit%0#2: bytes = ((extract 6 2) as_bytes%0#3)
+        let arr#10: (uint64,bool,bool)[] = (concat len_16_bit%0#2 concatenated%0#2)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@42
-    block@44: // after_for_L145
+        goto block@57
+    block@59: // after_for_L145
         let tmp%7#0: uint64 = (extract_uint16 arr#10 0u)
         let tmp%8#0: bool = (== tmp%7#0 5u)
         (assert tmp%8#0)
@@ -340,11 +307,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let arc4_item%0#0: bytes = ((extract 0 9) array_head_and_tail%0#0) // on error: Index access is out of bounds
         let foo#0: uint64 = (extract_uint64 array_head_and_tail%0#0 0u)
         let is_true%0#0: uint64 = (getbit arc4_item%0#0 64u)
-        let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u is_true%0#0)
-        let bar#0: bool = (getbit encoded_bool%0#0 0u)
+        let encoded_bool%0#1: bytes[1] = (setbit 0x00 0u is_true%0#0)
+        let bar#0: bool = (getbit encoded_bool%0#1 0u)
         let is_true%1#0: uint64 = (getbit arc4_item%0#0 65u)
-        let encoded_bool%1#0: bytes[1] = (setbit 0x00 0u is_true%1#0)
-        let baz#0: bool = (getbit encoded_bool%1#0 0u)
+        let encoded_bool%1#1: bytes[1] = (setbit 0x00 0u is_true%1#0)
+        let baz#0: bool = (getbit encoded_bool%1#1 0u)
         let tmp%9#1: bool = (! foo#0)
         (assert tmp%9#1)
         (assert bar#0)
@@ -352,7 +319,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (app_global_put "d" arr#10)
         let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@17
+        goto block@22
     block@7: // test_dynamic_sized_tuple_array_route_L155
         let tmp%20#0: uint64 = (txn OnCompletion)
         let tmp%21#0: bool = (! tmp%20#0)
@@ -361,36 +328,36 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%22#0) // can only call when not creating
         let arr#0: (uint64,bytes)[] = 0x0000
         let i#0: uint64 = 0u
-        goto block@34
-    block@34: // for_header_L160
+        goto block@49
+    block@49: // for_header_L160
         let continue_looping%0#0: bool = (< i#0 5u)
-        goto continue_looping%0#0 ? block@35 : block@36
-    block@35: // for_body_L161
+        goto continue_looping%0#0 ? block@50 : block@51
+    block@50: // for_body_L161
         let i#2: uint64 = (+ i#0 1u)
         let tmp%3#2: bytes = (bzero i#0)
-        let val_as_bytes%0#0: bytes[8] = (itob i#2)
-        let length%0#0: uint64 = (len tmp%3#2)
-        let as_bytes%0#0: bytes[8] = (itob length%0#0)
-        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 tmp%3#2)
-        let encoded_tuple_buffer%2#0: bytes = (concat val_as_bytes%0#0 0x000a)
-        let encoded_tuple_buffer%3#0: bytes = (concat encoded_tuple_buffer%2#0 encoded_value%0#0)
-        let result%1#0: bytes = (concat 0x0002 encoded_tuple_buffer%3#0)
-        let l_count%0#0: uint64 = (extract_uint16 arr#0 0u)
-        let l_head_and_tail%0#0: bytes = ((extract 2 0) arr#0)
-        let arr#0: (uint64,bytes)[] = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%0#0, l_head_and_tail%0#0, 1u, result%1#0)
+        let val_as_bytes%0#1: bytes[8] = (itob i#2)
+        let length%0#1: uint64 = (len tmp%3#2)
+        let as_bytes%0#3: bytes[8] = (itob length%0#1)
+        let length_uint16%0#1: bytes = ((extract 6 2) as_bytes%0#3)
+        let encoded_value%0#1: bytes = (concat length_uint16%0#1 tmp%3#2)
+        let encoded_tuple_buffer%2#1: bytes = (concat val_as_bytes%0#1 0x000a)
+        let encoded_tuple_buffer%3#1: bytes = (concat encoded_tuple_buffer%2#1 encoded_value%0#1)
+        let result%1#1: bytes = (concat 0x0002 encoded_tuple_buffer%3#1)
+        let l_count%0#1: uint64 = (extract_uint16 arr#0 0u)
+        let l_head_and_tail%0#1: bytes = ((extract 2 0) arr#0)
+        let arr#0: (uint64,bytes)[] = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%0#1, l_head_and_tail%0#1, 1u, result%1#1)
         let i#0: uint64 = i#2
-        goto block@34
-    block@36: // after_for_L160
+        goto block@49
+    block@51: // after_for_L160
         let tmp%4#2: uint64 = (extract_uint16 arr#0 0u)
         let tmp%5#2: bool = (== tmp%4#2 5u)
         (assert tmp%5#2)
         let i#0: uint64 = 0u
-        goto block@37
-    block@37: // for_header_L164
+        goto block@52
+    block@52: // for_header_L164
         let continue_looping%1#0: bool = (< i#0 5u)
-        goto continue_looping%1#0 ? block@38 : block@39
-    block@38: // for_body_L165
+        goto continue_looping%1#0 ? block@53 : block@54
+    block@53: // for_body_L165
         let array_head_and_tail%0#0: bytes = ((extract 2 0) arr#0)
         let item_offset_offset%0#0: uint64 = (* i#0 2u)
         let item_offset%0#0: uint64 = (extract_uint16 array_head_and_tail%0#0 item_offset_offset%0#0)
@@ -412,8 +379,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%9#1: bool = (== tmp%8#3 i#0)
         (assert tmp%9#1) // expected 2nd element to be correct
         let i#0: uint64 = i#2
-        goto block@37
-    block@39: // after_for_L164
+        goto block@52
+    block@54: // after_for_L164
         let (popped%0#0: bytes, arr#0: (uint64,bytes)[]) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(arr#0)
         let tmp%10#1: uint64 = (extract_uint16 arr#0 0u)
         let tmp%11#1: bool = (== tmp%10#1 4u)
@@ -456,7 +423,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (app_global_put "e" arr#0)
         let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@17
+        goto block@22
     block@8: // test_dynamic_sized_named_tuple_array_route_L174
         let tmp%24#0: uint64 = (txn OnCompletion)
         let tmp%25#0: bool = (! tmp%24#0)
@@ -465,36 +432,36 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%26#0) // can only call when not creating
         let arr#0: (uint64,bytes)[] = 0x0000
         let i#0: uint64 = 0u
-        goto block@26
-    block@26: // for_header_L179
+        goto block@41
+    block@41: // for_header_L179
         let continue_looping%0#0: bool = (< i#0 5u)
-        goto continue_looping%0#0 ? block@27 : block@28
-    block@27: // for_body_L180
+        goto continue_looping%0#0 ? block@42 : block@43
+    block@42: // for_body_L180
         let i#2: uint64 = (+ i#0 1u)
         let tmp%3#2: bytes = test_cases.array.immutable.times(i#0)
-        let val_as_bytes%0#0: bytes[8] = (itob i#2)
-        let length%0#0: uint64 = (len tmp%3#2)
-        let as_bytes%0#0: bytes[8] = (itob length%0#0)
-        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 tmp%3#2)
-        let encoded_tuple_buffer%2#0: bytes = (concat val_as_bytes%0#0 0x000a)
-        let encoded_tuple_buffer%3#0: bytes = (concat encoded_tuple_buffer%2#0 encoded_value%0#0)
-        let result%1#0: bytes = (concat 0x0002 encoded_tuple_buffer%3#0)
-        let l_count%0#0: uint64 = (extract_uint16 arr#0 0u)
-        let l_head_and_tail%0#0: bytes = ((extract 2 0) arr#0)
-        let arr#0: (uint64,bytes)[] = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%0#0, l_head_and_tail%0#0, 1u, result%1#0)
+        let val_as_bytes%0#1: bytes[8] = (itob i#2)
+        let length%0#1: uint64 = (len tmp%3#2)
+        let as_bytes%0#3: bytes[8] = (itob length%0#1)
+        let length_uint16%0#1: bytes = ((extract 6 2) as_bytes%0#3)
+        let encoded_value%0#1: bytes = (concat length_uint16%0#1 tmp%3#2)
+        let encoded_tuple_buffer%2#1: bytes = (concat val_as_bytes%0#1 0x000a)
+        let encoded_tuple_buffer%3#1: bytes = (concat encoded_tuple_buffer%2#1 encoded_value%0#1)
+        let result%1#1: bytes = (concat 0x0002 encoded_tuple_buffer%3#1)
+        let l_count%0#1: uint64 = (extract_uint16 arr#0 0u)
+        let l_head_and_tail%0#1: bytes = ((extract 2 0) arr#0)
+        let arr#0: (uint64,bytes)[] = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%0#1, l_head_and_tail%0#1, 1u, result%1#1)
         let i#0: uint64 = i#2
-        goto block@26
-    block@28: // after_for_L179
+        goto block@41
+    block@43: // after_for_L179
         let tmp%4#2: uint64 = (extract_uint16 arr#0 0u)
         let tmp%5#2: bool = (== tmp%4#2 5u)
         (assert tmp%5#2)
         let i#0: uint64 = 0u
-        goto block@29
-    block@29: // for_header_L183
+        goto block@44
+    block@44: // for_header_L183
         let continue_looping%1#0: bool = (< i#0 5u)
-        goto continue_looping%1#0 ? block@30 : block@31
-    block@30: // for_body_L184
+        goto continue_looping%1#0 ? block@45 : block@46
+    block@45: // for_body_L184
         let array_head_and_tail%0#0: bytes = ((extract 2 0) arr#0)
         let item_offset_offset%0#0: uint64 = (* i#0 2u)
         let item_offset%0#0: uint64 = (extract_uint16 array_head_and_tail%0#0 item_offset_offset%0#0)
@@ -516,8 +483,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%9#1: bool = (== item1%1%0#0 tmp%8#2)
         (assert tmp%9#1) // expected 2nd element to be correct
         let i#0: uint64 = i#2
-        goto block@29
-    block@31: // after_for_L183
+        goto block@44
+    block@46: // after_for_L183
         let (popped%0#0: bytes, arr#0: (uint64,bytes)[]) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(arr#0)
         let tmp%10#1: uint64 = (extract_uint16 arr#0 0u)
         let tmp%11#1: bool = (== tmp%10#1 4u)
@@ -558,33 +525,33 @@ main algopy.arc4.ARC4Contract.approval_program:
         (app_global_put "f" arr#0)
         let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@17
+        goto block@22
     block@9: // test_bit_packed_tuples_route_L193
         let tmp%28#0: uint64 = (txn OnCompletion)
         let tmp%29#0: bool = (! tmp%28#0)
         (assert tmp%29#0) // OnCompletion is not NoOp
         let tmp%30#0: uint64 = (txn ApplicationID)
         (assert tmp%30#0) // can only call when not creating
-        let arr2#0: (bool,bool)[] = 0x0000
+        let arr2#1: (bool,bool)[] = 0x0000
         let arr7#0: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = 0x0000
         let arr8#0: (uint64,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[] = 0x0000
         let arr9#0: (uint64,bool,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[] = 0x0000
         let i#0: uint64 = 0u
-        goto block@21
-    block@21: // for_header_L204
+        goto block@36
+    block@36: // for_header_L204
         let continue_looping%0#0: bool = (< i#0 5u)
-        goto continue_looping%0#0 ? block@22 : block@23
-    block@22: // for_body_L205
-        let expr_value_trimmed%0#0: bytes = ((extract 2 0) arr2#0)
+        goto continue_looping%0#0 ? block@37 : block@38
+    block@37: // for_body_L205
+        let expr_value_trimmed%0#2: bytes = ((extract 2 0) arr2#1)
         let tmp%8#0: bool = (! i#0)
         let tmp%9#1: bool = (== i#0 1u)
-        let encoded_bit%0#0: bytes = (select 0x00 0x80 tmp%8#0)
-        let sub_item%0#0: (bool,bool)[] = (setbit encoded_bit%0#0 1u tmp%9#1)
-        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 sub_item%0#0)
-        let len_%0#0: uint64 = (len concatenated%0#0)
-        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let arr2#0: (bool,bool)[] = (concat len_16_bit%0#0 concatenated%0#0)
+        let array%encoded_bit%1#1: bytes = (select 0x00 0x80 tmp%8#0)
+        let array%sub_item%7#1: (bool,bool)[] = (setbit array%encoded_bit%1#1 1u tmp%9#1)
+        let concatenated%0#2: bytes = (concat expr_value_trimmed%0#2 array%sub_item%7#1)
+        let len_%0#2: uint64 = (len concatenated%0#2)
+        let as_bytes%0#3: bytes[8] = (itob len_%0#2)
+        let len_16_bit%0#2: bytes = ((extract 6 2) as_bytes%0#3)
+        let arr2#1: (bool,bool)[] = (concat len_16_bit%0#2 concatenated%0#2)
         let expr_value_trimmed%1#0: bytes = ((extract 2 0) arr7#0)
         let tmp%12#1: bool = (== i#0 2u)
         let tmp%13#0: bool = (== i#0 3u)
@@ -592,80 +559,133 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%15#1: bool = (== i#0 5u)
         let tmp%16#1: bool = (== i#0 6u)
         let i#2: uint64 = (+ i#0 1u)
-        let sub_item%1#0: bytes[8] = (itob i#0)
-        let encoded%2#0: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (concat sub_item%1#0 encoded_bit%0#0)
-        let sub_item%2#0: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (setbit encoded%2#0 65u tmp%9#1)
-        let sub_item%3#0: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (setbit sub_item%2#0 66u tmp%12#1)
-        let sub_item%4#0: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (setbit sub_item%3#0 67u tmp%13#0)
-        let sub_item%5#0: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (setbit sub_item%4#0 68u tmp%14#1)
-        let sub_item%6#0: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (setbit sub_item%5#0 69u tmp%15#1)
-        let sub_item%7#0: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (setbit sub_item%6#0 70u tmp%16#1)
-        let sub_item%8#0: bytes[8] = (itob i#2)
-        let encoded%3#0: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (concat sub_item%7#0 sub_item%8#0)
-        let concatenated%1#0: bytes = (concat expr_value_trimmed%1#0 encoded%3#0)
-        let byte_len%0#0: uint64 = (len concatenated%1#0)
-        let len_%1#0: uint64 = (/ byte_len%0#0 17u)
-        let as_bytes%1#0: bytes[8] = (itob len_%1#0)
-        let len_16_bit%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let array%sub_item%8#1: bytes[8] = (itob i#0)
+        let array%encoded%9#1: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (concat array%sub_item%8#1 array%encoded_bit%1#1)
+        let array%sub_item%9#1: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (setbit array%encoded%9#1 65u tmp%9#1)
+        let array%sub_item%10#1: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (setbit array%sub_item%9#1 66u tmp%12#1)
+        let array%sub_item%11#1: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (setbit array%sub_item%10#1 67u tmp%13#0)
+        let array%sub_item%12#1: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (setbit array%sub_item%11#1 68u tmp%14#1)
+        let array%sub_item%13#1: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (setbit array%sub_item%12#1 69u tmp%15#1)
+        let array%sub_item%14#1: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (setbit array%sub_item%13#1 70u tmp%16#1)
+        let array%sub_item%15#1: bytes[8] = (itob i#2)
+        let array%encoded%10#1: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (concat array%sub_item%14#1 array%sub_item%15#1)
+        let concatenated%1#0: bytes = (concat expr_value_trimmed%1#0 array%encoded%10#1)
+        let byte_len%0#2: uint64 = (len concatenated%1#0)
+        let len_%1#0: uint64 = (/ byte_len%0#2 17u)
+        let as_bytes%1#1: bytes[8] = (itob len_%1#0)
+        let len_16_bit%1#0: bytes = ((extract 6 2) as_bytes%1#1)
         let arr7#0: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (concat len_16_bit%1#0 concatenated%1#0)
         let expr_value_trimmed%2#0: bytes = ((extract 2 0) arr8#0)
         let tmp%25#0: bool = (== i#0 7u)
-        let sub_item%16#0: (uint64,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (setbit sub_item%7#0 71u tmp%25#0)
-        let encoded%6#0: (uint64,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (concat sub_item%16#0 sub_item%8#0)
-        let concatenated%2#0: bytes = (concat expr_value_trimmed%2#0 encoded%6#0)
+        let array%sub_item%23#1: (uint64,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (setbit array%sub_item%14#1 71u tmp%25#0)
+        let array%encoded%13#1: (uint64,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (concat array%sub_item%23#1 array%sub_item%15#1)
+        let concatenated%2#0: bytes = (concat expr_value_trimmed%2#0 array%encoded%13#1)
         let byte_len%1#0: uint64 = (len concatenated%2#0)
         let len_%2#0: uint64 = (/ byte_len%1#0 17u)
-        let as_bytes%2#0: bytes[8] = (itob len_%2#0)
-        let len_16_bit%2#0: bytes = ((extract 6 2) as_bytes%2#0)
+        let as_bytes%2#1: bytes[8] = (itob len_%2#0)
+        let len_16_bit%2#0: bytes = ((extract 6 2) as_bytes%2#1)
         let arr8#0: (uint64,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (concat len_16_bit%2#0 concatenated%2#0)
         let expr_value_trimmed%3#0: bytes = ((extract 2 0) arr9#0)
-        let tmp%35#0: bool = (== i#0 8u)
-        let sub_item%26#0: bytes = (setbit 0x00 0u tmp%35#0)
-        let encoded%9#0: (uint64,bool,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (concat sub_item%16#0 sub_item%26#0)
-        let encoded%10#0: (uint64,bool,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (concat encoded%9#0 sub_item%8#0)
-        let concatenated%3#0: bytes = (concat expr_value_trimmed%3#0 encoded%10#0)
+        let tmp%35#1: bool = (== i#0 8u)
+        let array%sub_item%33#1: bytes = (setbit 0x00 0u tmp%35#1)
+        let array%encoded%16#1: (uint64,bool,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (concat array%sub_item%23#1 array%sub_item%33#1)
+        let array%encoded%17#1: (uint64,bool,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (concat array%encoded%16#1 array%sub_item%15#1)
+        let concatenated%3#0: bytes = (concat expr_value_trimmed%3#0 array%encoded%17#1)
         let byte_len%2#0: uint64 = (len concatenated%3#0)
         let len_%3#0: uint64 = (/ byte_len%2#0 18u)
         let as_bytes%3#0: bytes[8] = (itob len_%3#0)
         let len_16_bit%3#0: bytes = ((extract 6 2) as_bytes%3#0)
         let arr9#0: (uint64,bool,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[] = (concat len_16_bit%3#0 concatenated%3#0)
         let i#0: uint64 = i#2
-        goto block@21
-    block@23: // after_for_L204
-        let tmp%37#0: uint64 = (extract_uint16 arr2#0 0u)
-        let tmp%38#0: bool = (== tmp%37#0 5u)
-        (assert tmp%38#0)
-        let tmp%39#0: uint64 = (extract_uint16 arr7#0 0u)
-        let tmp%40#0: bool = (== tmp%39#0 5u)
-        (assert tmp%40#0)
-        let tmp%41#0: uint64 = (extract_uint16 arr8#0 0u)
-        let tmp%42#0: bool = (== tmp%41#0 5u)
-        (assert tmp%42#0)
-        let tmp%43#0: uint64 = (extract_uint16 arr9#0 0u)
-        let tmp%44#0: bool = (== tmp%43#0 5u)
-        (assert tmp%44#0)
-        (app_global_put "bool2" arr2#0)
+        goto block@36
+    block@38: // after_for_L204
+        let tmp%37#1: uint64 = (extract_uint16 arr2#1 0u)
+        let tmp%38#1: bool = (== tmp%37#1 5u)
+        (assert tmp%38#1)
+        let tmp%39#1: uint64 = (extract_uint16 arr7#0 0u)
+        let tmp%40#1: bool = (== tmp%39#1 5u)
+        (assert tmp%40#1)
+        let tmp%41#1: uint64 = (extract_uint16 arr8#0 0u)
+        let tmp%42#1: bool = (== tmp%41#1 5u)
+        (assert tmp%42#1)
+        let tmp%43#1: uint64 = (extract_uint16 arr9#0 0u)
+        let tmp%44#1: bool = (== tmp%43#1 5u)
+        (assert tmp%44#1)
+        (app_global_put "bool2" arr2#1)
         (app_global_put "bool7" arr7#0)
         (app_global_put "bool8" arr8#0)
         (app_global_put "bool9" arr9#0)
         let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@17
-    block@12: // bare_routing_L61
+        goto block@22
+    block@10: // test_args_route_L258
         let tmp%32#0: uint64 = (txn OnCompletion)
-        goto tmp%32#0 ? block@16 : block@13
-    block@13: // __algopy_default_create_L1
-        let tmp%33#0: uint64 = (txn ApplicationID)
-        let tmp%34#0: bool = (! tmp%33#0)
-        (assert tmp%34#0) // can only call when creating
+        let tmp%33#0: bool = (! tmp%32#0)
+        (assert tmp%33#0) // OnCompletion is not NoOp
+        let tmp%34#0: uint64 = (txn ApplicationID)
+        (assert tmp%34#0) // can only call when not creating
         let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@17
-    block@16: // after_if_else_L61
+        goto block@22
+    block@11: // test_uint64_return_route_L268
+        let tmp%40#0: uint64 = (txn OnCompletion)
+        let tmp%41#0: bool = (! tmp%40#0)
+        (assert tmp%41#0) // OnCompletion is not NoOp
+        let tmp%42#0: uint64 = (txn ApplicationID)
+        (assert tmp%42#0) // can only call when not creating
+        (log 0x151f7c750003000000000000000100000000000000020000000000000003)
+        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
+        goto block@22
+    block@12: // test_bool_return_route_L272
+        let tmp%46#0: uint64 = (txn OnCompletion)
+        let tmp%47#0: bool = (! tmp%46#0)
+        (assert tmp%47#0) // OnCompletion is not NoOp
+        let tmp%48#0: uint64 = (txn ApplicationID)
+        (assert tmp%48#0) // can only call when not creating
+        let concat_result%0#0: bytes = _puya_lib.arc4.dynamic_array_concat_bits(0x0000, 0x8000800080, 5u, 8u)
+        let tmp%51#0: bytes = (concat 0x151f7c75 concat_result%0#0)
+        (log tmp%51#0)
+        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
+        goto block@22
+    block@13: // test_tuple_return_route_L276
+        let tmp%52#0: uint64 = (txn OnCompletion)
+        let tmp%53#0: bool = (! tmp%52#0)
+        (assert tmp%53#0) // OnCompletion is not NoOp
+        let tmp%54#0: uint64 = (txn ApplicationID)
+        (assert tmp%54#0) // can only call when not creating
+        (log 0x151f7c750001000000000000000080)
+        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
+        goto block@22
+    block@14: // test_dynamic_tuple_return_route_L280
+        let tmp%58#0: uint64 = (txn OnCompletion)
+        let tmp%59#0: bool = (! tmp%58#0)
+        (assert tmp%59#0) // OnCompletion is not NoOp
+        let tmp%60#0: uint64 = (txn ApplicationID)
+        (assert tmp%60#0) // can only call when not creating
+        let concat_result%0#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(0u, 0x, 1u, 0x00020000000000000000000a000548656c6c6f)
+        let tmp%63#0: bytes = (concat 0x151f7c75 concat_result%0#0)
+        (log tmp%63#0)
+        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
+        goto block@22
+    block@17: // bare_routing_L61
+        let tmp%64#0: uint64 = (txn OnCompletion)
+        goto tmp%64#0 ? block@21 : block@18
+    block@18: // __algopy_default_create_L1
+        let tmp%65#0: uint64 = (txn ApplicationID)
+        let tmp%66#0: bool = (! tmp%65#0)
+        (assert tmp%66#0) // can only call when creating
+        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
+        goto block@22
+    block@21: // after_if_else_L61
         let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 0u
         let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@17
-    block@17: // after_inlined_test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router___L1
+        goto block@22
+    block@22: // after_inlined_test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router___L1
         return tmp%0#0
 
 subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> <bytes, bytes>:
@@ -713,17 +733,55 @@ subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element(array: bytes) -> <by
         let updated#0: bytes = (concat tmp%6#0 tmp%8#0)
         return popped#0 updated#0
 
+subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:
+    block@0: // L124
+        let array_length#0: uint64 = (extract_uint16 array#0 0u)
+        let new_array_length#0: uint64 = (+ array_length#0 new_items_count#0)
+        let tmp%0#0: bytes = (itob new_array_length#0)
+        let new_array_length_b#0: bytes = ((extract 6 0) tmp%0#0)
+        let result#0: bytes = ((replace2 0) array#0 new_array_length_b#0)
+        let tmp%1#0: uint64 = (+ array_length#0 7u)
+        let current_bytes#0: uint64 = (/ tmp%1#0 8u)
+        let tmp%2#0: uint64 = (+ new_array_length#0 7u)
+        let required_bytes#0: uint64 = (/ tmp%2#0 8u)
+        let tmp%3#0: bool = (< current_bytes#0 required_bytes#0)
+        let result#7: bytes = result#0
+        goto tmp%3#0 ? block@1 : block@2
+    block@1: // if_body_L148
+        let tmp%4#0: uint64 = (- required_bytes#0 current_bytes#0)
+        let tmp%5#0: bytes = (bzero tmp%4#0)
+        let result#0: bytes = (concat result#0 tmp%5#0)
+        let result#7: bytes = result#0
+        goto block@2
+    block@2: // after_if_else_L147
+        let result#0: bytes = result#7
+        let read_offset#0: uint64 = 0u
+        let write_offset#0: uint64 = (+ array_length#0 16u)
+        let write_end#0: uint64 = (+ write_offset#0 new_items_count#0)
+        goto block@3
+    block@3: // while_top_L153
+        let tmp%6#0: bool = (< write_offset#0 write_end#0)
+        goto tmp%6#0 ? block@4 : block@5
+    block@4: // while_body_L154
+        let tmp%7#0: uint64 = (getbit new_items_bytes#0 read_offset#0)
+        let result#0: bytes = (setbit result#0 write_offset#0 tmp%7#0)
+        let write_offset#0: uint64 = (+ write_offset#0 1u)
+        let read_offset#0: uint64 = (+ read_offset#0 read_step#0)
+        goto block@3
+    block@5: // after_while_L153
+        return result#0
+
 subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
-    block@0: // L189
+    block@0: // L193
         let new_head#0: bytes = 0x
         let item_offset_adjustment#0: uint64 = (* new_items_count#0 2u)
         let tmp%0#0: uint64 = (* array_items_count#0 2u)
         let head_offset#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L199
+    block@1: // for_header_L203
         let continue_looping%0#0: bool = (< head_offset#0 tmp%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L200
+    block@2: // for_body_L204
         let item_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#0)
         let tmp%1#0: uint64 = (+ item_offset_adjustment#0 item_offset#0)
         let tmp%2#0: bytes = (itob tmp%1#0)
@@ -731,14 +789,14 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         let new_head#0: bytes = (concat new_head#0 tmp%3#0)
         let head_offset#0: uint64 = (+ head_offset#0 2u)
         goto block@1
-    block@4: // after_for_L199
+    block@4: // after_for_L203
         let item_offset_adjustment#2: uint64 = (len array_head_and_tail#0)
         let head_offset#0: uint64 = 0u
         goto block@5
-    block@5: // for_header_L204
+    block@5: // for_header_L208
         let continue_looping%1#0: bool = (< head_offset#0 item_offset_adjustment#0)
         goto continue_looping%1#0 ? block@6 : block@8
-    block@6: // for_body_L205
+    block@6: // for_body_L209
         let item_offset#0: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#0)
         let tmp%5#0: uint64 = (+ item_offset_adjustment#2 item_offset#0)
         let tmp%6#0: bytes = (itob tmp%5#0)
@@ -746,7 +804,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         let new_head#0: bytes = (concat new_head#0 tmp%7#0)
         let head_offset#0: uint64 = (+ head_offset#0 2u)
         goto block@5
-    block@8: // after_for_L204
+    block@8: // after_for_L208
         let tmp%8#0: uint64 = (+ array_items_count#0 new_items_count#0)
         let tmp%9#0: bytes = (itob tmp%8#0)
         let tmp%10#0: bytes = ((extract 6 2) tmp%9#0)
@@ -759,31 +817,31 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         return tmp%19#0
 
 subroutine test_cases.array.immutable.times(n: uint64) -> bytes:
-    block@0: // L261
+    block@0: // L287
         let result#0: bytes = ""
         let _i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L264
+    block@1: // for_header_L290
         let continue_looping%0#0: bool = (< _i#0 n#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L265
+    block@2: // for_body_L291
         let result#0: bytes = (concat result#0 " ")
         let _i#0: uint64 = (+ _i#0 1u)
         goto block@1
-    block@4: // after_for_L264
+    block@4: // after_for_L290
         return result#0
 
 subroutine test_cases.array.immutable.add_x(arr: uint64[], x: uint64) -> uint64[]:
-    block@0: // L269
+    block@0: // L295
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L271
+    block@1: // for_header_L297
         let continue_looping%0#0: bool = (< i#0 x#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L272
+    block@2: // for_body_L298
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) arr#0)
-        let sub_item%0#0: bytes[8] = (itob i#0)
-        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 sub_item%0#0)
+        let array%sub_item%0#1: bytes[8] = (itob i#0)
+        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 array%sub_item%0#1)
         let byte_len%0#0: uint64 = (len concatenated%0#0)
         let len_%0#0: uint64 = (/ byte_len%0#0 8u)
         let as_bytes%0#0: bytes[8] = (itob len_%0#0)
@@ -791,5 +849,5 @@ subroutine test_cases.array.immutable.add_x(arr: uint64[], x: uint64) -> uint64[
         let arr#0: uint64[] = (concat len_16_bit%0#0 concatenated%0#0)
         let i#0: uint64 = (+ i#0 1u)
         goto block@1
-    block@4: // after_for_L271
+    block@4: // after_for_L297
         return arr#0

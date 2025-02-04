@@ -4,19 +4,88 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 2 8
-    bytecblock 0x00 0x 0x0000 0x80 0x000a 0x0002
+    bytecblock 0x00 0x 0x0000 0x151f7c75 0x000a 0x0002
     // array/immutable.py:61
     // class ImmutableArrayContract(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@12
-    pushbytess 0x44d42f99 0x743d70ed 0x1c7e0494 0xa2d5860b 0xe05fc564 0x1e092b83 0x6cb7c991 // method "test_uint64_array()void", method "test_bool_array(uint64)void", method "test_fixed_size_tuple_array()void", method "test_fixed_size_named_tuple_array()void", method "test_dynamic_sized_tuple_array()void", method "test_dynamic_sized_named_tuple_array()void", method "test_bit_packed_tuples()void"
+    bz main_bare_routing@17
+    pushbytess 0x44d42f99 0x743d70ed 0x1c7e0494 0xa2d5860b 0xe05fc564 0x1e092b83 0x6cb7c991 0x2608af8b 0x98f7dac6 0x54a93077 0xcf4dde74 0xa32a85fa // method "test_uint64_array()void", method "test_bool_array(uint64)void", method "test_fixed_size_tuple_array()void", method "test_fixed_size_named_tuple_array()void", method "test_dynamic_sized_tuple_array()void", method "test_dynamic_sized_named_tuple_array()void", method "test_bit_packed_tuples()void", method "test_args(uint64[],bool[],(uint64,bool,bool)[],(uint64,string)[])void", method "test_uint64_return()uint64[]", method "test_bool_return()bool[]", method "test_tuple_return()(uint64,bool,bool)[]", method "test_dynamic_tuple_return()(uint64,string)[]"
     txna ApplicationArgs 0
-    match main_test_uint64_array_route@3 main_test_bool_array_route@4 main_test_fixed_size_tuple_array_route@5 main_test_fixed_size_named_tuple_array_route@6 main_test_dynamic_sized_tuple_array_route@7 main_test_dynamic_sized_named_tuple_array_route@8 main_test_bit_packed_tuples_route@9
+    match main_test_uint64_array_route@3 main_test_bool_array_route@4 main_test_fixed_size_tuple_array_route@5 main_test_fixed_size_named_tuple_array_route@6 main_test_dynamic_sized_tuple_array_route@7 main_test_dynamic_sized_named_tuple_array_route@8 main_test_bit_packed_tuples_route@9 main_test_args_route@10 main_test_uint64_return_route@11 main_test_bool_return_route@12 main_test_tuple_return_route@13 main_test_dynamic_tuple_return_route@14
 
-main_after_if_else@16:
+main_after_if_else@21:
     // array/immutable.py:61
     // class ImmutableArrayContract(arc4.ARC4Contract):
     intc_0 // 0
+    return
+
+main_test_dynamic_tuple_return_route@14:
+    // array/immutable.py:280
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub test_dynamic_tuple_return
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_test_tuple_return_route@13:
+    // array/immutable.py:276
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytes 0x151f7c750001000000000000000080
+    log
+    intc_1 // 1
+    return
+
+main_test_bool_return_route@12:
+    // array/immutable.py:272
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub test_bool_return
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_test_uint64_return_route@11:
+    // array/immutable.py:268
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytes 0x151f7c750003000000000000000100000000000000020000000000000003
+    log
+    intc_1 // 1
+    return
+
+main_test_args_route@10:
+    // array/immutable.py:258
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    intc_1 // 1
     return
 
 main_test_bit_packed_tuples_route@9:
@@ -109,11 +178,11 @@ main_test_uint64_array_route@3:
     intc_1 // 1
     return
 
-main_bare_routing@12:
+main_bare_routing@17:
     // array/immutable.py:61
     // class ImmutableArrayContract(arc4.ARC4Contract):
     txn OnCompletion
-    bnz main_after_if_else@16
+    bnz main_after_if_else@21
     txn ApplicationID
     !
     assert // can only call when creating
@@ -220,6 +289,95 @@ dynamic_array_pop_dynamic_element_after_for@4:
     retsub
 
 
+// _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:
+dynamic_array_concat_bits:
+    proto 4 1
+    bytec_1 // ""
+    dupn 2
+    frame_dig -4
+    intc_0 // 0
+    extract_uint16
+    dupn 2
+    frame_dig -2
+    +
+    dup
+    itob
+    extract 6 0
+    frame_dig -4
+    swap
+    replace2 0
+    dup
+    uncover 2
+    uncover 3
+    pushint 7 // 7
+    +
+    intc_3 // 8
+    /
+    dup
+    cover 3
+    swap
+    pushint 7 // 7
+    +
+    intc_3 // 8
+    /
+    dup
+    cover 3
+    <
+    bz dynamic_array_concat_bits_after_if_else@2
+    frame_dig 6
+    frame_dig 5
+    -
+    bzero
+    frame_dig 4
+    swap
+    concat
+    frame_bury 7
+
+dynamic_array_concat_bits_after_if_else@2:
+    frame_dig 7
+    frame_bury 4
+    intc_0 // 0
+    frame_bury 0
+    frame_dig 3
+    pushint 16 // 16
+    +
+    dup
+    frame_bury 2
+    frame_dig -2
+    +
+    frame_bury 1
+
+dynamic_array_concat_bits_while_top@3:
+    frame_dig 2
+    frame_dig 1
+    <
+    bz dynamic_array_concat_bits_after_while@5
+    frame_dig -3
+    frame_dig 0
+    dup
+    cover 2
+    getbit
+    frame_dig 4
+    frame_dig 2
+    dup
+    cover 3
+    uncover 2
+    setbit
+    frame_bury 4
+    intc_1 // 1
+    +
+    frame_bury 2
+    frame_dig -1
+    +
+    frame_bury 0
+    b dynamic_array_concat_bits_while_top@3
+
+dynamic_array_concat_bits_after_while@5:
+    frame_dig 4
+    frame_bury 0
+    retsub
+
+
 // _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
 dynamic_array_concat_dynamic_element:
     proto 4 1
@@ -312,31 +470,31 @@ dynamic_array_concat_dynamic_element_after_for@8:
 
 // test_cases.array.immutable.times(n: uint64) -> bytes:
 times:
-    // array/immutable.py:261-262
+    // array/immutable.py:287-288
     // @subroutine
     // def times(n: UInt64) -> String:
     proto 1 1
-    // array/immutable.py:263
+    // array/immutable.py:289
     // result = String()
     bytec_1 // ""
-    // array/immutable.py:264
+    // array/immutable.py:290
     // for _i in urange(n):
     intc_0 // 0
 
 times_for_header@1:
-    // array/immutable.py:264
+    // array/immutable.py:290
     // for _i in urange(n):
     frame_dig 1
     frame_dig -1
     <
     bz times_after_for@4
-    // array/immutable.py:265
+    // array/immutable.py:291
     // result += String(" ")
     frame_dig 0
     pushbytes " "
     concat
     frame_bury 0
-    // array/immutable.py:264
+    // array/immutable.py:290
     // for _i in urange(n):
     frame_dig 1
     intc_1 // 1
@@ -345,29 +503,29 @@ times_for_header@1:
     b times_for_header@1
 
 times_after_for@4:
-    // array/immutable.py:266
+    // array/immutable.py:292
     // return result
     retsub
 
 
 // test_cases.array.immutable.add_x(arr: bytes, x: uint64) -> bytes:
 add_x:
-    // array/immutable.py:269-270
+    // array/immutable.py:295-296
     // @subroutine
     // def add_x(arr: ImmutableArray[UInt64], x: UInt64) -> ImmutableArray[UInt64]:
     proto 2 1
-    // array/immutable.py:271
+    // array/immutable.py:297
     // for i in urange(x):
     intc_0 // 0
 
 add_x_for_header@1:
-    // array/immutable.py:271
+    // array/immutable.py:297
     // for i in urange(x):
     frame_dig 0
     frame_dig -1
     <
     bz add_x_after_for@4
-    // array/immutable.py:272
+    // array/immutable.py:298
     // arr = arr.append(i)
     frame_dig -2
     extract 2 0
@@ -385,7 +543,7 @@ add_x_for_header@1:
     swap
     concat
     frame_bury -2
-    // array/immutable.py:271
+    // array/immutable.py:297
     // for i in urange(x):
     intc_1 // 1
     +
@@ -393,7 +551,7 @@ add_x_for_header@1:
     b add_x_for_header@1
 
 add_x_after_for@4:
-    // array/immutable.py:273
+    // array/immutable.py:299
     // return arr
     frame_dig -2
     swap
@@ -481,29 +639,29 @@ test_uint64_array:
     pushint 42 // 42
     ==
     assert
-    // array/immutable.py:278
+    // array/immutable.py:304
     // for _i in urange(x):
     intc_0 // 0
 
 test_uint64_array_for_header@2:
-    // array/immutable.py:278
+    // array/immutable.py:304
     // for _i in urange(x):
     frame_dig 1
     // array/immutable.py:80
     // arr = pop_x(arr, UInt64(3))
     pushint 3 // 3
-    // array/immutable.py:278
+    // array/immutable.py:304
     // for _i in urange(x):
     <
     bz test_uint64_array_after_for@4
-    // array/immutable.py:279
+    // array/immutable.py:305
     // arr = arr.pop()
     frame_dig 0
     intc_3 // 8
     callsub dynamic_array_pop_fixed_size
     frame_bury 0
     pop
-    // array/immutable.py:278
+    // array/immutable.py:304
     // for _i in urange(x):
     frame_dig 1
     intc_1 // 1
@@ -639,10 +797,7 @@ test_bool_array:
     // @arc4.abimethod()
     // def test_bool_array(self, length: UInt64) -> None:
     proto 1 0
-    intc_0 // 0
-    dupn 2
     bytec_1 // ""
-    dupn 4
     // array/immutable.py:100
     // arr = ImmutableArray[bool]()
     bytec_2 // 0x0000
@@ -653,123 +808,42 @@ test_bool_array:
 test_bool_array_for_header@1:
     // array/immutable.py:103
     // for i in urange(length):
-    frame_dig 9
+    frame_dig 2
     frame_dig -1
     <
     bz test_bool_array_after_for@4
     // array/immutable.py:104
     // arr = arr.append(i == Txn.num_app_args)
-    frame_dig 9
     txn NumAppArgs
+    frame_dig 2
+    dup
+    uncover 2
     ==
     bytec_0 // 0x00
     intc_0 // 0
     uncover 2
     setbit
-    frame_bury 0
-    frame_dig 8
-    dup
-    intc_0 // 0
-    extract_uint16
-    dup
-    frame_bury 3
-    dup
-    // array/immutable.py:104
-    // arr = arr.append(i == Txn.num_app_args)
-    intc_1 // 1
-    +
-    dup
-    itob
-    extract 6 0
-    uncover 3
-    swap
-    replace2 0
-    dup
-    cover 3
-    frame_bury 1
-    swap
-    pushint 7 // 7
-    +
-    intc_3 // 8
-    /
-    dup
-    frame_bury 4
-    swap
-    pushint 7 // 7
-    +
-    intc_3 // 8
-    /
-    dup
-    frame_bury 6
-    <
-    swap
-    frame_bury 2
-    bz test_bool_array_after_if_else@19
-    frame_dig 6
-    frame_dig 4
-    -
-    bzero
     frame_dig 1
     swap
-    concat
-    frame_bury 2
-
-test_bool_array_after_if_else@19:
-    frame_dig 2
-    frame_bury 1
-    frame_dig 3
-    pushint 16 // 16
-    +
-    frame_bury 7
-    intc_0 // 0
-    frame_bury 5
-
-test_bool_array_for_header@20:
-    frame_dig 5
-    // array/immutable.py:104
-    // arr = arr.append(i == Txn.num_app_args)
     intc_1 // 1
-    <
-    bz test_bool_array_after_for@22
-    frame_dig 0
-    frame_dig 5
-    dup
-    cover 2
-    getbit
-    frame_dig 1
-    frame_dig 7
-    dup
-    cover 3
-    uncover 2
-    setbit
-    frame_bury 1
-    intc_1 // 1
-    +
-    frame_bury 7
     intc_3 // 8
-    +
-    frame_bury 5
-    b test_bool_array_for_header@20
-
-test_bool_array_after_for@22:
+    callsub dynamic_array_concat_bits
+    frame_bury 1
     // array/immutable.py:103
     // for i in urange(length):
-    frame_dig 9
     intc_1 // 1
     +
-    frame_bury 9
-    frame_dig 1
-    frame_bury 8
+    frame_bury 2
     b test_bool_array_for_header@1
 
 test_bool_array_after_for@4:
     // array/immutable.py:106
     // assert arr.length == length
-    frame_dig 8
+    frame_dig 1
     intc_0 // 0
     extract_uint16
     dup
-    frame_bury 3
+    frame_bury 0
     frame_dig -1
     ==
     assert
@@ -779,9 +853,9 @@ test_bool_array_after_for@4:
     bz test_bool_array_after_if_else@6
     // array/immutable.py:109
     // assert not arr[0], "expected element 0 to be False"
-    frame_dig 8
+    frame_dig 1
     extract 2 0
-    frame_dig 3
+    frame_dig 0
     assert // Index access is out of bounds
     intc_0 // 0
     getbit
@@ -803,10 +877,10 @@ test_bool_array_after_if_else@6:
     bz test_bool_array_after_if_else@8
     // array/immutable.py:111
     // assert not arr[1], "expected element 1 to be False"
-    frame_dig 8
+    frame_dig 1
     extract 2 0
     intc_1 // 1
-    frame_dig 3
+    frame_dig 0
     <
     assert // Index access is out of bounds
     intc_1 // 1
@@ -829,10 +903,10 @@ test_bool_array_after_if_else@8:
     bz test_bool_array_after_if_else@10
     // array/immutable.py:113
     // assert arr[2], "expected element 2 to be True"
-    frame_dig 8
+    frame_dig 1
     extract 2 0
     intc_2 // 2
-    frame_dig 3
+    frame_dig 0
     <
     assert // Index access is out of bounds
     intc_2 // 2
@@ -857,10 +931,10 @@ test_bool_array_after_if_else@10:
     frame_dig -1
     intc_1 // 1
     -
-    frame_dig 8
+    frame_dig 1
     extract 2 0
     dig 1
-    frame_dig 3
+    frame_dig 0
     <
     assert // Index access is out of bounds
     swap
@@ -878,19 +952,19 @@ test_bool_array_after_if_else@12:
     // array/immutable.py:117
     // self.g = arr
     pushbytes "g"
-    frame_dig 8
+    frame_dig 1
     app_global_put
     // array/immutable.py:118
     // if length:
     frame_dig -1
     bz test_bool_array_after_if_else@14
-    frame_dig 3
+    frame_dig 0
     intc_1 // 1
     -
     dup
     itob
     extract 6 0
-    frame_dig 8
+    frame_dig 1
     swap
     replace2 0
     dig 1
@@ -1126,7 +1200,7 @@ test_fixed_size_named_tuple_array_for_header@1:
     dig 2
     itob
     bytec_0 // 0x00
-    bytec_3 // 0x80
+    pushbytes 0x80
     uncover 4
     select
     concat
@@ -1745,7 +1819,7 @@ test_bit_packed_tuples_for_header@1:
     intc_1 // 1
     ==
     bytec_0 // 0x00
-    bytec_3 // 0x80
+    pushbytes 0x80
     uncover 3
     select
     dup
@@ -1808,9 +1882,8 @@ test_bit_packed_tuples_for_header@1:
     dig 8
     intc_1 // 1
     +
-    // array/immutable.py:208-209
+    // array/immutable.py:208
     // foo=i,
-    // bar=i + 1,
     dig 9
     itob
     uncover 8
@@ -1885,9 +1958,8 @@ test_bit_packed_tuples_for_header@1:
     dig 4
     pushint 7 // 7
     ==
-    // array/immutable.py:221-222
+    // array/immutable.py:221
     // foo=i,
-    // bar=i + 1,
     uncover 3
     pushint 71 // 71
     uncover 2
@@ -1945,9 +2017,8 @@ test_bit_packed_tuples_for_header@1:
     uncover 4
     intc_3 // 8
     ==
-    // array/immutable.py:235-236
+    // array/immutable.py:235
     // foo=i,
-    // bar=i + 1,
     bytec_0 // 0x00
     intc_0 // 0
     uncover 2
@@ -2043,4 +2114,28 @@ test_bit_packed_tuples_after_for@4:
     pushbytes "bool9"
     swap
     app_global_put
+    retsub
+
+
+// test_cases.array.immutable.ImmutableArrayContract.test_bool_return() -> bytes:
+test_bool_return:
+    // array/immutable.py:274
+    // return ImmutableArray(True, False, True, False, True)
+    bytec_2 // 0x0000
+    pushbytes 0x8000800080
+    pushint 5 // 5
+    intc_3 // 8
+    callsub dynamic_array_concat_bits
+    retsub
+
+
+// test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_return() -> bytes:
+test_dynamic_tuple_return:
+    // array/immutable.py:282
+    // return ImmutableArray(MyDynamicSizedTuple(UInt64(), String("Hello")))
+    intc_0 // 0
+    bytec_1 // 0x
+    intc_1 // 1
+    pushbytes 0x00020000000000000000000a000548656c6c6f
+    callsub dynamic_array_concat_dynamic_element
     retsub

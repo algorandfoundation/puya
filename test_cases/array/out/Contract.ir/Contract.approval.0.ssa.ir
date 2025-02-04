@@ -767,8 +767,8 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
     block@18: // for_body_L141
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) arc4_arr#1)
         let val_as_bytes%0#0: bytes[8] = (itob i#1)
-        let data%0#0: bytes = (concat 0x val_as_bytes%0#0)
-        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 data%0#0)
+        let encoded%3#0: bytes[8][] = encode<bytes[8]>(val_as_bytes%0#0)
+        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 encoded%3#0)
         let byte_len%0#0: uint64 = (len concatenated%0#0)
         let len_%0#0: uint64 = (/ byte_len%0#0 8u)
         let as_bytes%0#0: bytes[8] = (itob len_%0#0)
@@ -776,9 +776,9 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
         let arc4_arr#2: bytes = concat_result%0#0
         let val_as_bytes%1#0: bytes[8] = (itob i#1)
-        let encoded%3#0: bytes[8][] = encode<bytes[8]>(val_as_bytes%1#0)
+        let encoded%4#0: bytes[8][] = encode<bytes[8]>(val_as_bytes%1#0)
         let slot_contents%8#0: bytes[8][] = read(native_arr#0)
-        let extended%1#0: bytes[8][] = slot_contents%8#0.concat(encoded%3#0)
+        let extended%1#0: bytes[8][] = slot_contents%8#0.concat(encoded%4#0)
         write(native_arr#0, extended%1#0)
         goto block@19
     block@19: // for_footer_L140

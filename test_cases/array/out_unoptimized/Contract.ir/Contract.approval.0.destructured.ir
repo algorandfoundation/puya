@@ -1056,8 +1056,10 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
     block@18: // for_body_L141
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) arc4_arr#0)
         let val_as_bytes%0#0: bytes[8] = (itob i#0)
-        let data%0#0: bytes = (concat 0x val_as_bytes%0#0)
-        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 data%0#0)
+        let array%encoded%1#1: bytes[8][] = (concat 0x val_as_bytes%0#0)
+        let array%data%1#1: bytes[8][] = (concat 0x array%encoded%1#1)
+        let encoded%3#0: bytes[8][] = array%data%1#1
+        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 encoded%3#0)
         let byte_len%0#0: uint64 = (len concatenated%0#0)
         let len_%0#0: uint64 = (/ byte_len%0#0 8u)
         let as_bytes%0#0: bytes[8] = (itob len_%0#0)
@@ -1065,11 +1067,11 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
         let arc4_arr#0: bytes = concat_result%0#0
         let val_as_bytes%1#0: bytes[8] = (itob i#0)
-        let array%encoded%1#1: bytes[8][] = (concat 0x val_as_bytes%1#0)
-        let array%data%1#1: bytes[8][] = (concat 0x array%encoded%1#1)
-        let encoded%3#0: bytes[8][] = array%data%1#1
+        let array%encoded%2#1: bytes[8][] = (concat 0x val_as_bytes%1#0)
+        let array%data%2#1: bytes[8][] = (concat 0x array%encoded%2#1)
+        let encoded%4#0: bytes[8][] = array%data%2#1
         let slot_contents%8#0: bytes[8][] = read(native_arr#0)
-        let array%array_contents%1#1: bytes = (concat slot_contents%8#0 encoded%3#0) // on error: max array length exceeded
+        let array%array_contents%1#1: bytes = (concat slot_contents%8#0 encoded%4#0) // on error: max array length exceeded
         let extended%1#0: bytes[8][] = array%array_contents%1#1
         write(native_arr#0, extended%1#0)
         goto block@19
