@@ -886,7 +886,7 @@ class FunctionIRBuilder(
     def visit_new_array(self, expr: awst_nodes.NewArray) -> TExpression:
         match expr.wtype:
             case wtypes.ARC4Array():
-                return arc4.encode_arc4_values_as_array(
+                return arc4.encode_arc4_exprs_as_array(
                     self.context, expr.wtype, expr.values, expr.source_location
                 )
             case wtypes.WArray(immutable=True) as arr:
@@ -904,8 +904,8 @@ class FunctionIRBuilder(
                         source_location=expr.source_location,
                     )
                 else:
-                    return arc4.encode_arc4_values_as_array(
-                        self.context, arc4_wtype, (), expr.source_location
+                    return arc4.encode_arc4_exprs_as_array(
+                        self.context, arc4_wtype, expr.values, expr.source_location
                     )
             case wtypes.WArray() as arr:
                 loc = expr.source_location

@@ -1946,6 +1946,25 @@ def test_immutable_routing(immutable_array_app: ApplicationClient) -> None:
     ]
 
 
+def test_nested_immutable(immutable_array_app: ApplicationClient) -> None:
+    response = simulate_call(
+        immutable_array_app,
+        "test_nested_array",
+        arr_to_add=5,
+        arr=[[i * j for i in range(5)] for j in range(3)],
+    )
+    assert response.abi_results[0].return_value == [
+        0,
+        10,
+        20,
+        0,
+        0,
+        1,
+        3,
+        6,
+    ]
+
+
 def simulate_call(
     app_client: algokit_utils.ApplicationClient,
     method: str,

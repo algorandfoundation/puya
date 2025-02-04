@@ -129,7 +129,12 @@ def encode_value_provider(
     arc4_wtype: wtypes.ARC4Type,
     loc: SourceLocation,
 ) -> ValueProvider:
-    if value_wtype == arc4_wtype:
+    # return values that are already ARC4 encoded
+    if value_wtype == arc4_wtype or (
+        isinstance(value_wtype, wtypes.WArray)
+        and value_wtype.immutable
+        and wtype_to_arc4_wtype(value_wtype, loc) == arc4_wtype
+    ):
         return value_provider
     match arc4_wtype:
         case wtypes.arc4_bool_wtype:
@@ -223,7 +228,7 @@ def _encode_arc4_tuple_items(
     return arc4_items
 
 
-def encode_arc4_values_as_array(
+def encode_arc4_exprs_as_array(
     context: IRFunctionBuildContext,
     wtype: wtypes.WType,
     values: Sequence[awst_nodes.Expression],
@@ -231,12 +236,20 @@ def encode_arc4_values_as_array(
 ) -> ValueProvider:
     if not isinstance(wtype, wtypes.ARC4Array):
         raise InternalError("Expected ARC4 Array expression", loc)
-    len_prefix = (
-        len(values).to_bytes(2, "big") if isinstance(wtype, wtypes.ARC4DynamicArray) else b""
-    )
-
-    factory = OpFactory(context, loc)
     elements = [context.visitor.visit_and_materialise_single(value) for value in values]
+    return _encode_arc4_values_as_array(context, wtype, elements, loc)
+
+
+def _encode_arc4_values_as_array(
+    context: IRFunctionBuildContext,
+    wtype: wtypes.ARC4Array,
+    elements: Sequence[Value],
+    loc: SourceLocation,
+) -> ValueProvider:
+    factory = OpFactory(context, loc)
+    len_prefix = (
+        len(elements).to_bytes(2, "big") if isinstance(wtype, wtypes.ARC4DynamicArray) else b""
+    )
     element_type = wtype.element_type
 
     if element_type == wtypes.arc4_bool_wtype:
