@@ -5,6 +5,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.arc4_types import wtype_to_arc4_wtype
 from puya.awst.nodes import Expression
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
@@ -202,7 +203,43 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_index=reverse_index,
                 reverse_items=reverse_items,
             )
-        case awst_nodes.Expression(wtype=wtypes.WArray()):
+        case awst_nodes.Expression(wtype=wtypes.WArray(immutable=True) as array_wtype):
+            arc4_array_wtype = wtype_to_arc4_wtype(array_wtype, statement.source_location)
+            arc4_element_type = arc4_array_wtype.element_type
+            element_type = array_wtype.element_type
+            iterator = arc4.build_for_in_array(
+                context,
+                arc4_array_wtype,
+                sequence,
+                statement.source_location,
+            )
+
+            def read_and_decode(index: Value) -> ValueProvider:
+                encoded_value = assign_temp(
+                    context,
+                    iterator.get_value_at_index(index),
+                    temp_description="value_at_index",
+                    source_location=statement.source_location,
+                )
+                return arc4.decode_arc4_value(
+                    context,
+                    encoded_value,
+                    arc4_element_type,
+                    element_type,
+                    statement.source_location,
+                )
+
+            _iterate_indexable(
+                context,
+                loop_body=statement.loop_body,
+                indexable_size=iterator.array_length,
+                get_value_at_index=read_and_decode,
+                assigner=assign_user_loop_vars,
+                statement_loc=statement.source_location,
+                reverse_index=reverse_index,
+                reverse_items=reverse_items,
+            )
+        case awst_nodes.Expression(wtype=wtypes.WArray(immutable=False)):
             iterator = arrays.build_for_in_array(
                 context,
                 sequence,
