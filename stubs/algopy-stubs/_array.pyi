@@ -6,8 +6,20 @@ import algopy
 _T = typing.TypeVar("_T")
 
 class ImmutableArray(Reversible[_T]):
-    """An immutable array of the specified type, mutations are done by returning a copy
-    of the array with the modifications"""
+    """
+    An immutable array that supports fixed and dynamically sized immutable elements.
+    Modifications are done by returning a new copy of the array with the modifications applied.
+
+    Example:
+    ```python
+    arr = ImmutableArray[UInt64]()
+
+    arr = arr.append(UInt64(42))
+    element = arr[0]
+    assert element == 42
+    arr = arr.pop()
+    ```
+    """
 
     def __init__(self, *items: _T):
         """Initializes a new array with items provided"""
@@ -41,7 +53,15 @@ class ImmutableArray(Reversible[_T]):
         """Returns `True` if not an empty array"""
 
 class Array(Reversible[_T]):
-    """An array of the specified type"""
+    """
+    A mutable array that supports fixed sized immutable elements. All references to this array
+    will see any updates made to it.
+
+    These arrays may use scratch slots if required. If a contract also needs to use scratch slots
+    for other purposes then they should be reserved using the `scratch_slots` parameter
+    in [`algopy.Contract`](#algopy.Contract),
+    [`algopy.arc4.ARC4Contract`](#algopy.arc4.ARC4Contract) or [`algopy.logicsig`](#algopy.logicsig)
+    """
 
     def __init__(self, *items: _T):
         """Initializes a new array with items provided"""
