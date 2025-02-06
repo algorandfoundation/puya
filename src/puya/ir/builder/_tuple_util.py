@@ -49,7 +49,9 @@ def build_tuple_registers(
 
 
 def build_tuple_item_names(
-    base_name: str, wtype: wtypes.WType, source_location: SourceLocation | None
+    base_name: str,
+    wtype: wtypes.WType,
+    source_location: SourceLocation | None,
 ) -> list[tuple[str, IRType]]:
     if not isinstance(wtype, wtypes.WTuple):
         return [(base_name, wtype_to_ir_type(wtype, source_location))]
