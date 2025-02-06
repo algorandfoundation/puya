@@ -123,7 +123,7 @@ def dynamic_array_pop_dynamic_element(array: Bytes) -> tuple[Bytes, Bytes]:
 
 @subroutine
 def dynamic_array_concat_bits(
-    *, array: Bytes, new_items_bytes: Bytes, new_items_count: UInt64, is_packed: bool
+    *, array: Bytes, new_items_bytes: Bytes, new_items_count: UInt64, read_step: UInt64
 ) -> Bytes:
     """
     Concat data to an arc4 dynamic array of arc4 encoded boolean values
@@ -133,7 +133,8 @@ def dynamic_array_concat_bits(
                         or
                      a sparse array of concatenated arc4 booleans
     new_items_count: The count of new items being added
-    is_packed: True if new_items_bytes represents a packed array, else False
+    read_step: How many bits to advance when reading new items,
+               1 for packed bools or 8 for concatenated bools
 
     returns: The updated bytes for the source array
     """
@@ -146,10 +147,13 @@ def dynamic_array_concat_bits(
     if current_bytes < required_bytes:
         result += bzero(required_bytes - current_bytes)
 
+    read_offset = UInt64(0)
     write_offset = array_length + 8 * UINT16_SIZE
-    for i in urange(0, new_items_count, UInt64(1) if is_packed else UInt64(8)):
-        result = setbit_bytes(result, write_offset, getbit(new_items_bytes, i))
+    write_end = write_offset + new_items_count
+    while write_offset < write_end:
+        result = setbit_bytes(result, write_offset, getbit(new_items_bytes, read_offset))
         write_offset += 1
+        read_offset += read_step
 
     return result
 

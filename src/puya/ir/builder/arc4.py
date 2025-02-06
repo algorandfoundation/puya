@@ -490,15 +490,25 @@ def concat_values(
         (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
             context, right_expr, source_location
         )
-        is_packed = UInt64Constant(
-            value=1 if isinstance(right_wtype, wtypes.ARC4Array) else 0,
-            source_location=source_location,
-        )
+        if isinstance(right_wtype, wtypes.WTuple):
+            # each bit is in its own byte
+            read_step = 8
+        else:
+            # bits are already packed
+            read_step = 1
         return factory.assign(
             invoke_puya_lib_subroutine(
                 context,
                 full_name="_puya_lib.arc4.dynamic_array_concat_bits",
-                args=[left, r_data, r_length, is_packed],
+                args=[
+                    left,
+                    r_data,
+                    r_length,
+                    UInt64Constant(
+                        value=read_step,
+                        source_location=source_location,
+                    ),
+                ],
                 source_location=source_location,
             ),
             "concat_result",
