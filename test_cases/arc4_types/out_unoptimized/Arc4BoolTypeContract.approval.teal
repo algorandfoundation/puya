@@ -3,7 +3,7 @@
 
 // test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program() -> uint64:
 main:
-    intcblock 0 1 2 12
+    intcblock 0 1 7 8
     bytecblock 0x00 0x
     // arc4_types/bool.py:13
     // self.test_stuff(ARC4Bool(True), ARC4Bool(False))
@@ -148,7 +148,7 @@ main:
     intc_0 // 0
     getbit
     swap
-    intc_2 // 2
+    pushint 2 // 2
     uncover 2
     setbit
     swap
@@ -183,7 +183,7 @@ main:
     intc_0 // 0
     getbit
     swap
-    pushint 7 // 7
+    intc_2 // 7
     uncover 2
     setbit
     uncover 2
@@ -235,11 +235,11 @@ main:
     assert // Single boolean can be unpacked
     // arc4_types/bool.py:36
     // assert static_boolean_array[-1] == ARC4Bool(True), "Single boolean can be unpacked"
-    intc_3 // 12
+    pushint 12 // 12
     intc_1 // 1
     -
     dup
-    intc_3 // 12
+    pushint 12 // 12
     <
     assert // Index access is out of bounds
     getbit
@@ -286,7 +286,7 @@ main:
     intc_0 // 0
     getbit
     swap
-    intc_2 // 2
+    pushint 2 // 2
     uncover 2
     setbit
     pushbytes 0x0003
@@ -298,6 +298,54 @@ main:
     ==
     assert
     // arc4_types/bool.py:44
+    // dynamic_boolean_array = get_arr()
+    callsub get_arr
+    // arc4_types/bool.py:46
+    // (ARC4Bool(True), ARC4Bool(False), ARC4Bool(True), ARC4Bool(False), ARC4Bool(True))
+    bytec_0 // 0x00
+    intc_0 // 0
+    intc_1 // 1
+    setbit
+    bytec_0 // 0x00
+    intc_0 // 0
+    dup
+    setbit
+    bytec_0 // 0x00
+    intc_0 // 0
+    intc_1 // 1
+    setbit
+    bytec_0 // 0x00
+    intc_0 // 0
+    dup
+    setbit
+    bytec_0 // 0x00
+    intc_0 // 0
+    intc_1 // 1
+    setbit
+    // arc4_types/bool.py:45-47
+    // dynamic_boolean_array.extend(
+    //     (ARC4Bool(True), ARC4Bool(False), ARC4Bool(True), ARC4Bool(False), ARC4Bool(True))
+    // )
+    bytec_1 // 0x
+    uncover 5
+    concat
+    uncover 4
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    pushint 5 // 5
+    intc_3 // 8
+    callsub dynamic_array_concat_bits
+    // arc4_types/bool.py:48
+    // assert dynamic_boolean_array.bytes == Bytes.from_hex("0005A8")
+    pushbytes 0x0005a8
+    ==
+    assert
+    // arc4_types/bool.py:50
     // assert ARC4Bool(True) == True  # noqa: E712
     bytec_0 // 0x00
     intc_0 // 0
@@ -308,7 +356,7 @@ main:
     intc_1 // 1
     ==
     assert
-    // arc4_types/bool.py:45
+    // arc4_types/bool.py:51
     // assert ARC4Bool(False) != True  # noqa: E712
     bytec_0 // 0x00
     intc_0 // 0
@@ -319,7 +367,7 @@ main:
     intc_1 // 1
     !=
     assert
-    // arc4_types/bool.py:46
+    // arc4_types/bool.py:52
     // assert False == ARC4Bool(False)  # noqa: E712, SIM300
     bytec_0 // 0x00
     intc_0 // 0
@@ -330,7 +378,7 @@ main:
     intc_0 // 0
     ==
     assert
-    // arc4_types/bool.py:47
+    // arc4_types/bool.py:53
     // assert False != ARC4Bool(True)  # noqa: E712, SIM300
     bytec_0 // 0x00
     intc_0 // 0
@@ -341,32 +389,140 @@ main:
     intc_0 // 0
     !=
     assert
-    // arc4_types/bool.py:49
+    // arc4_types/bool.py:55
     // return True
     intc_1 // 1
     return
 
 
+// _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:
+dynamic_array_concat_bits:
+    proto 4 1
+    bytec_1 // ""
+    dupn 2
+    frame_dig -4
+    intc_0 // 0
+    extract_uint16
+    dupn 2
+    frame_dig -2
+    +
+    dup
+    itob
+    extract 6 0
+    frame_dig -4
+    swap
+    replace2 0
+    dup
+    cover 3
+    cover 3
+    swap
+    intc_2 // 7
+    +
+    intc_3 // 8
+    /
+    dup
+    cover 3
+    swap
+    intc_2 // 7
+    +
+    intc_3 // 8
+    /
+    dup
+    cover 3
+    <
+    bz dynamic_array_concat_bits_after_if_else@2
+
+dynamic_array_concat_bits_if_body@1:
+    frame_dig 6
+    frame_dig 5
+    -
+    bzero
+    frame_dig 4
+    swap
+    concat
+    frame_bury 7
+
+dynamic_array_concat_bits_after_if_else@2:
+    frame_dig 7
+    frame_bury 4
+    intc_0 // 0
+    frame_bury 0
+    frame_dig 3
+    pushint 16 // 16
+    +
+    dup
+    frame_bury 2
+    frame_dig -2
+    +
+    frame_bury 1
+
+dynamic_array_concat_bits_while_top@3:
+    frame_dig 2
+    frame_dig 1
+    <
+    bz dynamic_array_concat_bits_after_while@5
+
+dynamic_array_concat_bits_while_body@4:
+    frame_dig -3
+    frame_dig 0
+    dup
+    cover 2
+    getbit
+    frame_dig 4
+    frame_dig 2
+    dup
+    cover 3
+    uncover 2
+    setbit
+    frame_bury 4
+    intc_1 // 1
+    +
+    frame_bury 2
+    frame_dig -1
+    +
+    frame_bury 0
+    b dynamic_array_concat_bits_while_top@3
+
+dynamic_array_concat_bits_after_while@5:
+    frame_dig 4
+    frame_bury 0
+    retsub
+
+
+// test_cases.arc4_types.bool.get_arr() -> bytes:
+get_arr:
+    // arc4_types/bool.py:72-73
+    // @subroutine(inline=False)
+    // def get_arr() -> DynamicArray[ARC4Bool]:
+    proto 0 1
+    // arc4_types/bool.py:74
+    // return DynamicArray[ARC4Bool]()
+    pushbytes 0x0000
+    bytec_1 // 0x
+    concat
+    retsub
+
+
 // test_cases.arc4_types.bool.Arc4BoolTypeContract.test_stuff(true: bytes, false: bytes) -> uint64:
 test_stuff:
-    // arc4_types/bool.py:54-55
+    // arc4_types/bool.py:60-61
     // @subroutine
     // def test_stuff(self, true: ARC4Bool, false: ARC4Bool) -> bool:
     proto 2 1
-    // arc4_types/bool.py:56
+    // arc4_types/bool.py:62
     // assert true.native
     frame_dig -2
     intc_0 // 0
     getbit
     assert
-    // arc4_types/bool.py:58
+    // arc4_types/bool.py:64
     // assert not false.native
     frame_dig -1
     intc_0 // 0
     getbit
     !
     assert
-    // arc4_types/bool.py:60
+    // arc4_types/bool.py:66
     // assert true == ARC4Bool(true.native)
     frame_dig -2
     intc_0 // 0
@@ -378,7 +534,7 @@ test_stuff:
     frame_dig -2
     ==
     assert
-    // arc4_types/bool.py:61
+    // arc4_types/bool.py:67
     // assert false == ARC4Bool(false.native)
     frame_dig -1
     intc_0 // 0
@@ -390,7 +546,7 @@ test_stuff:
     frame_dig -1
     ==
     assert
-    // arc4_types/bool.py:63
+    // arc4_types/bool.py:69
     // return true.native
     frame_dig -2
     intc_0 // 0

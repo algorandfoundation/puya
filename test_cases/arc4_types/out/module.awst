@@ -661,6 +661,9 @@ contract Arc4BoolTypeContract
     assert(static_boolean_array[12u - 1u] == arc4_encode(true, arc4.bool), comment="Single boolean can be unpacked")
     dynamic_boolean_array: arc4.dynamic_array<arc4.bool> = new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool))
     assert(reinterpret_cast<bytes>(dynamic_boolean_array) == hex<"0003A0">)
+    dynamic_boolean_array: arc4.dynamic_array<arc4.bool> = test_cases.arc4_types.bool.get_arr()
+    dynamic_boolean_array.extend((arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool)))
+    assert(reinterpret_cast<bytes>(dynamic_boolean_array) == hex<"0005A8">)
     assert(arc4_decode(arc4_encode(true, arc4.bool), bool) == true)
     assert(arc4_decode(arc4_encode(false, arc4.bool), bool) != true)
     assert(arc4_decode(arc4_encode(false, arc4.bool), bool) == false)
@@ -681,6 +684,11 @@ contract Arc4BoolTypeContract
     assert(false == arc4_encode(arc4_decode(false, bool), arc4.bool))
     return arc4_decode(true, bool)
   }
+}
+
+subroutine get_arr(): arc4.dynamic_array<arc4.bool>
+{
+  return new arc4.dynamic_array<arc4.bool>()
 }
 
 contract Arc4ArraysContract

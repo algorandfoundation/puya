@@ -3,6 +3,9 @@
 
 // test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program() -> uint64:
 main:
+    intcblock 0 8 5 7
+    pushbytes ""
+    dupn 2
     // arc4_types/bool.py:15
     // False if Txn.num_app_args else True  # noqa: SIM211
     txn NumAppArgs
@@ -12,13 +15,131 @@ main:
     //     False if Txn.num_app_args else True  # noqa: SIM211
     // ).native, "conditional expr"
     pushbytes 0x00
-    pushint 0 // 0
+    intc_0 // 0
     uncover 2
     setbit
-    pushint 0 // 0
+    intc_0 // 0
     getbit
     assert // conditional expr
-    // arc4_types/bool.py:49
+    // arc4_types/bool.py:44
+    // dynamic_boolean_array = get_arr()
+    callsub get_arr
+    dup
+    intc_0 // 0
+    extract_uint16
+    dup
+    cover 2
+    dup
+    // arc4_types/bool.py:45-47
+    // dynamic_boolean_array.extend(
+    //     (ARC4Bool(True), ARC4Bool(False), ARC4Bool(True), ARC4Bool(False), ARC4Bool(True))
+    // )
+    intc_2 // 5
+    +
+    dup
+    itob
+    extract 6 0
+    uncover 3
+    swap
+    replace2 0
+    dup
+    uncover 2
+    uncover 3
+    intc_3 // 7
+    +
+    intc_1 // 8
+    /
+    dup
+    cover 3
+    swap
+    intc_3 // 7
+    +
+    intc_1 // 8
+    /
+    dup
+    cover 3
+    <
+    bz main_after_if_else@5
+    dig 1
+    dig 3
+    -
+    bzero
+    dig 4
+    swap
+    concat
+    bury 1
+
+main_after_if_else@5:
+    dup
+    bury 4
+    intc_0 // 0
+    bury 8
+    dig 4
+    pushint 16 // 16
+    +
+    dup
+    bury 7
+    // arc4_types/bool.py:45-47
+    // dynamic_boolean_array.extend(
+    //     (ARC4Bool(True), ARC4Bool(False), ARC4Bool(True), ARC4Bool(False), ARC4Bool(True))
+    // )
+    intc_2 // 5
+    +
+    bury 7
+
+main_while_top@6:
+    dig 5
+    dig 7
+    <
+    bz main_after_while@8
+    // arc4_types/bool.py:45-47
+    // dynamic_boolean_array.extend(
+    //     (ARC4Bool(True), ARC4Bool(False), ARC4Bool(True), ARC4Bool(False), ARC4Bool(True))
+    // )
+    pushbytes 0x8000800080
+    dig 8
+    dup
+    cover 2
+    getbit
+    dig 5
+    dig 8
+    dup
+    cover 3
+    uncover 2
+    setbit
+    bury 6
+    pushint 1 // 1
+    +
+    bury 7
+    // arc4_types/bool.py:45-47
+    // dynamic_boolean_array.extend(
+    //     (ARC4Bool(True), ARC4Bool(False), ARC4Bool(True), ARC4Bool(False), ARC4Bool(True))
+    // )
+    intc_1 // 8
+    +
+    bury 8
+    b main_while_top@6
+
+main_after_while@8:
+    // arc4_types/bool.py:48
+    // assert dynamic_boolean_array.bytes == Bytes.from_hex("0005A8")
+    dig 3
+    pushbytes 0x0005a8
+    ==
+    assert
+    // arc4_types/bool.py:55
     // return True
     pushint 1 // 1
     return
+
+
+// test_cases.arc4_types.bool.get_arr() -> bytes:
+get_arr:
+    // arc4_types/bool.py:72-73
+    // @subroutine(inline=False)
+    // def get_arr() -> DynamicArray[ARC4Bool]:
+    proto 0 1
+    // arc4_types/bool.py:74
+    // return DynamicArray[ARC4Bool]()
+    pushbytes 0x0000
+    retsub
