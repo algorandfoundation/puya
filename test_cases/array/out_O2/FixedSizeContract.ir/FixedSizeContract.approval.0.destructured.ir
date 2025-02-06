@@ -65,12 +65,13 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
         let i#8: uint64 = (+ i#0 1u)
         let tmp%19#1: bool = (== array%sub_item%15#1 i#8)
         (assert tmp%19#1)
-        let reinterpret_biguint%0#0: biguint = ((extract 64 8) array%value%0#1)
+        let array%sub_item%26#1: bytes = ((extract 64 16) array%value%0#1)
+        let reinterpret_biguint%0#0: biguint = ((extract 0 8) array%sub_item%26#1) // on error: Index access is out of bounds
         let tmp%26#1: uint64 = (+ i#0 2u)
         let tmp%27#1: biguint = (itob tmp%26#1)
         let tmp%28#1: bool = (b== reinterpret_biguint%0#0 tmp%27#1)
         (assert tmp%28#1)
-        let reinterpret_biguint%1#0: biguint = ((extract 72 8) array%value%0#1)
+        let reinterpret_biguint%1#0: biguint = ((extract 8 8) array%sub_item%26#1) // on error: Index access is out of bounds
         let tmp%37#0: uint64 = (* i#8 i#8)
         let tmp%38#0: biguint = (itob tmp%37#0)
         let tmp%39#0: bool = (b== reinterpret_biguint%1#0 tmp%38#0)
@@ -86,8 +87,9 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
         let concat_result%0#1: bytes = (concat len_16_bit%0#0 slot_contents%3#2)
         (box_del "a")
         (box_put "a" concat_result%0#1)
-        let last_point.x#0: bytes[8] = ((extract 0 8) slot_contents%3#2)
-        let last_point.y#0: uint64 = (extract_uint64 slot_contents%3#2 8u)
+        let array%value%3#1: bytes = ((extract 0 80) slot_contents%3#2)
+        let last_point.x#0: bytes[8] = ((extract 0 8) array%value%3#1)
+        let last_point.y#0: uint64 = (extract_uint64 array%value%3#1 8u)
         let length#0: uint64 = 0u
         let point_idx#0: uint64 = 1u
         goto block@36
@@ -98,18 +100,18 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
         let slot_contents%2#3: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = read(local.0)
         let array%bytes_index%4#1: uint64 = (* point_idx#0 80u)
         let array%value%4#1: bytes = (extract3 slot_contents%2#3 array%bytes_index%4#1 80u)
-        let point.x#0: bytes[8] = (extract3 slot_contents%2#3 array%bytes_index%4#1 8u)
+        let point.x#0: bytes[8] = ((extract 0 8) array%value%4#1)
         let point.y#0: uint64 = (extract_uint64 array%value%4#1 8u)
         let tmp%1#4: bool = (b< point.x#0 last_point.x#0)
         goto tmp%1#4 ? block@38 : block@39
     block@38: // if_body_L105
-        let tmp%2#1: uint64 = (extract_uint64 slot_contents%3#2 0u)
-        let tmp%3#0: uint64 = (extract_uint64 slot_contents%2#3 array%bytes_index%4#1)
+        let tmp%2#1: uint64 = (extract_uint64 array%value%3#1 0u)
+        let tmp%3#0: uint64 = (extract_uint64 array%value%4#1 0u)
         let dx#0: uint64 = (- tmp%2#1 tmp%3#0)
         goto block@40
     block@39: // else_body_L107
-        let tmp%4#3: uint64 = (extract_uint64 slot_contents%2#3 array%bytes_index%4#1)
-        let tmp%5#0: uint64 = (extract_uint64 slot_contents%3#2 0u)
+        let tmp%4#3: uint64 = (extract_uint64 array%value%4#1 0u)
+        let tmp%5#0: uint64 = (extract_uint64 array%value%3#1 0u)
         let dx#0: uint64 = (- tmp%4#3 tmp%5#0)
         goto block@40
     block@40: // after_if_else_L104
@@ -174,7 +176,8 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
         goto continue_looping%1#0 ? block@14 : block@17
     block@14: // for_body_L54
         let slot_contents%4#1: bool[] = read(local.1)
-        let val#1: bool = (getbyte slot_contents%4#1 item_index_internal%0#0)
+        let array%value%5#1: bytes = (extract3 slot_contents%4#1 item_index_internal%0#0 1u)
+        let val#1: bool = (getbyte array%value%5#1 0u)
         let count#13: uint64 = count#0
         goto val#1 ? block@15 : block@16
     block@15: // if_body_L55
@@ -229,7 +232,8 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
     block@23: // for_body_L68
         let slot_contents%4#0: bytes[8][] = read(local.2)
         let array%bytes_index%6#1: uint64 = (* item_index_internal%0#0 8u)
-        let val#0: bytes[8] = (extract3 slot_contents%4#0 array%bytes_index%6#1 8u)
+        let array%value%6#1: bytes = (extract3 slot_contents%4#0 array%bytes_index%6#1 8u)
+        let val#0: bytes[8] = ((extract 0 8) array%value%6#1)
         let tmp%5#1: bool = (!= val#0 0x0000000000000000)
         let count#13: uint64 = count#0
         goto tmp%5#1 ? block@24 : block@25
@@ -273,7 +277,8 @@ main test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init
     block@29: // for_body_L83
         let slot_contents%2#0: bytes[8][] = read(local.3)
         let array%bytes_index%7#1: uint64 = (* item_index_internal%0#0 8u)
-        let tmp%0#2: uint64 = (extract_uint64 slot_contents%2#0 array%bytes_index%7#1)
+        let array%value%7#1: bytes = (extract3 slot_contents%2#0 array%bytes_index%7#1 8u)
+        let tmp%0#2: uint64 = (extract_uint64 array%value%7#1 0u)
         let total#0: uint64 = (+ total#0 tmp%0#2)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@28

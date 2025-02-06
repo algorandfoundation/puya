@@ -138,12 +138,12 @@ subroutine test_cases.array.fixed_size.FixedSizeContract.test_array(x1: bytes[8]
         let tmp%19#0: bool = (== array%sub_item%15#1 i#2)
         (assert tmp%19#0)
         let array%sub_item%26#1: bytes = ((extract 64 16) array%value%0#1)
-        let reinterpret_biguint%0#0: biguint = ((extract 64 8) array%value%0#1)
+        let reinterpret_biguint%0#0: biguint = ((extract 0 8) array%sub_item%26#1) // on error: Index access is out of bounds
         let tmp%26#0: uint64 = (+ i#1 2u)
         let tmp%27#0: biguint = (itob tmp%26#0)
         let tmp%28#0: bool = (b== reinterpret_biguint%0#0 tmp%27#0)
         (assert tmp%28#0)
-        let reinterpret_biguint%1#0: biguint = ((extract 72 8) array%value%0#1)
+        let reinterpret_biguint%1#0: biguint = ((extract 8 8) array%sub_item%26#1) // on error: Index access is out of bounds
         let tmp%37#0: uint64 = (* i#2 i#2)
         let tmp%38#0: biguint = (itob tmp%37#0)
         let tmp%39#0: bool = (b== reinterpret_biguint%1#0 tmp%38#0)
@@ -160,11 +160,11 @@ subroutine test_cases.array.fixed_size.FixedSizeContract.test_array(x1: bytes[8]
         (box_put "a" concat_result%0#0)
         let array%bytes_index%3#1: uint64 = 0u
         let array%value%3#1: bytes = ((extract 0 80) slot_contents%3#0)
-        let last_point.x#0: bytes[8] = ((extract 0 8) slot_contents%3#0)
-        let array%sub_item%37#1: bytes = ((extract 8 8) slot_contents%3#0)
-        let last_point.y#0: uint64 = (extract_uint64 slot_contents%3#0 8u)
-        let array%sub_item%39#1: bytes = ((extract 16 8) slot_contents%3#0)
-        let array%sub_item%41#1: bytes = ((extract 24 8) slot_contents%3#0)
+        let last_point.x#0: bytes[8] = ((extract 0 8) array%value%3#1)
+        let array%sub_item%37#1: bytes = ((extract 8 8) array%value%3#1)
+        let last_point.y#0: uint64 = (extract_uint64 array%value%3#1 8u)
+        let array%sub_item%39#1: bytes = ((extract 16 8) array%value%3#1)
+        let array%sub_item%41#1: bytes = ((extract 24 8) array%value%3#1)
         let length#0: uint64 = 0u
         let point_idx#0: uint64 = 1u
         goto block@6
@@ -177,7 +177,7 @@ subroutine test_cases.array.fixed_size.FixedSizeContract.test_array(x1: bytes[8]
         let slot_contents%2#1: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = read(path#0)
         let array%bytes_index%4#1: uint64 = (* point_idx#1 80u)
         let array%value%4#1: bytes = (extract3 slot_contents%2#1 array%bytes_index%4#1 80u)
-        let point.x#0: bytes[8] = (extract3 slot_contents%2#1 array%bytes_index%4#1 8u)
+        let point.x#0: bytes[8] = ((extract 0 8) array%value%4#1)
         let array%sub_item%46#1: bytes = ((extract 8 8) array%value%4#1)
         let point.y#0: uint64 = (extract_uint64 array%value%4#1 8u)
         let array%sub_item%48#1: bytes = ((extract 16 8) array%value%4#1)
@@ -185,13 +185,13 @@ subroutine test_cases.array.fixed_size.FixedSizeContract.test_array(x1: bytes[8]
         let tmp%1#1: bool = (b< point.x#0 last_point.x#0)
         goto tmp%1#1 ? block@8 : block@9
     block@8: // if_body_L105
-        let tmp%2#1: uint64 = (extract_uint64 slot_contents%3#0 0u)
-        let tmp%3#1: uint64 = (extract_uint64 slot_contents%2#1 array%bytes_index%4#1)
+        let tmp%2#1: uint64 = (extract_uint64 array%value%3#1 0u)
+        let tmp%3#1: uint64 = (extract_uint64 array%value%4#1 0u)
         let dx#0: uint64 = (- tmp%2#1 tmp%3#1)
         goto block@10
     block@9: // else_body_L107
-        let tmp%4#1: uint64 = (extract_uint64 slot_contents%2#1 array%bytes_index%4#1)
-        let tmp%5#1: uint64 = (extract_uint64 slot_contents%3#0 0u)
+        let tmp%4#1: uint64 = (extract_uint64 array%value%4#1 0u)
+        let tmp%5#1: uint64 = (extract_uint64 array%value%3#1 0u)
         let dx#1: uint64 = (- tmp%4#1 tmp%5#1)
         goto block@10
     block@10: // after_if_else_L104
@@ -256,7 +256,8 @@ subroutine test_cases.array.fixed_size.FixedSizeContract.test_bool_array(length:
     block@6: // for_body_L54
         let slot_contents%4#0: bool[] = read(arr#0)
         let array%value%0#1: bytes = (extract3 slot_contents%4#0 item_index_internal%0#1 1u)
-        let val#0: bool = (getbyte slot_contents%4#0 item_index_internal%0#1)
+        let array%sub_item%0#1: bytes = ((extract 0 1) array%value%0#1)
+        let val#0: bool = (getbyte array%value%0#1 0u)
         goto val#0 ? block@7 : block@8
     block@7: // if_body_L55
         let count#2: uint64 = (+ count#1 1u)
@@ -306,7 +307,8 @@ subroutine test_cases.array.fixed_size.FixedSizeContract.test_arc4_conversion(le
     block@6: // for_body_L68
         let slot_contents%4#0: bytes[8][] = read(arr#0)
         let array%bytes_index%0#1: uint64 = (* item_index_internal%0#1 8u)
-        let val#0: bytes[8] = (extract3 slot_contents%4#0 array%bytes_index%0#1 8u)
+        let array%value%0#1: bytes = (extract3 slot_contents%4#0 array%bytes_index%0#1 8u)
+        let val#0: bytes[8] = ((extract 0 8) array%value%0#1)
         let tmp%5#0: bool = (!= val#0 0x0000000000000000)
         goto tmp%5#0 ? block@7 : block@8
     block@7: // if_body_L69
@@ -329,6 +331,7 @@ subroutine test_cases.array.fixed_size.FixedSizeContract.sum_array(arc4_arr: byt
     block@0: // L76
         let arr#0: bytes[8][]* = new()
         let expr_value_trimmed%0#0: bytes[8][] = ((extract 2 0) arc4_arr#0)
+        let array%array_contents%0#1: bytes = expr_value_trimmed%0#0
         write(arr#0, expr_value_trimmed%0#0)
         let total#0: uint64 = 0u
         let array%bytes_len%0#1: uint64 = (len expr_value_trimmed%0#0)
@@ -343,8 +346,9 @@ subroutine test_cases.array.fixed_size.FixedSizeContract.sum_array(arc4_arr: byt
     block@2: // for_body_L83
         let slot_contents%2#0: bytes[8][] = read(arr#0)
         let array%bytes_index%0#1: uint64 = (* item_index_internal%0#1 8u)
-        let item#0: bytes[8] = (extract3 slot_contents%2#0 array%bytes_index%0#1 8u)
-        let tmp%0#0: uint64 = (extract_uint64 slot_contents%2#0 array%bytes_index%0#1)
+        let array%value%0#1: bytes = (extract3 slot_contents%2#0 array%bytes_index%0#1 8u)
+        let item#0: bytes[8] = ((extract 0 8) array%value%0#1)
+        let tmp%0#0: uint64 = (extract_uint64 array%value%0#1 0u)
         let total#2: uint64 = (+ total#1 tmp%0#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1

@@ -479,16 +479,14 @@ make_move_bool_merge@4:                                                         
     assert // check self.game exists                                                       (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,g#0
     // tictactoe/tictactoe.py:76
     // if g[row][0] == g[row][1] == g[row][2]:
-    l-load-copy g#0 0                                                                      (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,g#0,g#0 (copy)
-    l-load-copy item_offset%0#0 2                                                          (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,g#0,g#0 (copy),item_offset%0#0 (copy)
-    int 3                                                                                  (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,g#0,g#0 (copy),item_offset%0#0 (copy),3
-    extract3 // on error: Index access is out of bounds                                    (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,g#0,tmp%0#1
-    l-store-copy tmp%0#1 2                                                                 (𝕡) player#0,move.0#0,move.1#0 | tmp%0#1,item_offset%0#0,g#0,tmp%0#1 (copy)
-    v-store tmp%0#1                                                                        (𝕡) player#0,move.0#0,move.1#0 | tmp%0#1,item_offset%0#0,g#0
-    l-load g#0 0                                                                           (𝕡) player#0,move.0#0,move.1#0 | tmp%0#1,item_offset%0#0,g#0
-    l-load item_offset%0#0 1                                                               (𝕡) player#0,move.0#0,move.1#0 | tmp%0#1,g#0,item_offset%0#0
-    int 1                                                                                  (𝕡) player#0,move.0#0,move.1#0 | tmp%0#1,g#0,item_offset%0#0,1
-    extract3                                                                               (𝕡) player#0,move.0#0,move.1#0 | tmp%0#1,reinterpret_biguint%0#0
+    l-load g#0 0                                                                           (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,g#0
+    l-load item_offset%0#0 1                                                               (𝕡) player#0,move.0#0,move.1#0 | g#0,item_offset%0#0
+    int 3                                                                                  (𝕡) player#0,move.0#0,move.1#0 | g#0,item_offset%0#0,3
+    extract3 // on error: Index access is out of bounds                                    (𝕡) player#0,move.0#0,move.1#0 | tmp%0#1
+    l-store-copy tmp%0#1 0                                                                 (𝕡) player#0,move.0#0,move.1#0 | tmp%0#1,tmp%0#1 (copy)
+    v-store tmp%0#1                                                                        (𝕡) player#0,move.0#0,move.1#0 | tmp%0#1
+    l-load-copy tmp%0#1 0                                                                  (𝕡) player#0,move.0#0,move.1#0 | tmp%0#1,tmp%0#1 (copy)
+    extract 0 1 // on error: Index access is out of bounds                                 (𝕡) player#0,move.0#0,move.1#0 | tmp%0#1,reinterpret_biguint%0#0
     l-load tmp%0#1 1                                                                       (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%0#0,tmp%0#1
     extract 1 1 // on error: Index access is out of bounds                                 (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%0#0,awst_tmp%0#0
     l-store-copy awst_tmp%0#0 0                                                            (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%0#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
@@ -522,11 +520,18 @@ make_move_after_if_else@13:                                                     
     // if g[0][column] == g[1][column] == g[2][column]:
     v-load g#0                                                                             (𝕡) player#0,move.0#0,move.1#0 | g#0
     l-store-copy g#0 0                                                                     (𝕡) player#0,move.0#0,move.1#0 | g#0,g#0 (copy)
-    p-load move.0#0                                                                        (𝕡) player#0,move.0#0,move.1#0 | g#0,g#0 (copy),move.0#0 (copy)
-    int 1                                                                                  (𝕡) player#0,move.0#0,move.1#0 | g#0,g#0 (copy),move.0#0 (copy),1
-    extract3                                                                               (𝕡) player#0,move.0#0,move.1#0 | g#0,reinterpret_biguint%4#0
+    extract 0 3 // on error: Index access is out of bounds                                 (𝕡) player#0,move.0#0,move.1#0 | g#0,tmp%5#1
+    l-store-copy tmp%5#1 0                                                                 (𝕡) player#0,move.0#0,move.1#0 | g#0,tmp%5#1,tmp%5#1 (copy)
+    v-store tmp%5#1                                                                        (𝕡) player#0,move.0#0,move.1#0 | g#0,tmp%5#1
+    l-load tmp%5#1 0                                                                       (𝕡) player#0,move.0#0,move.1#0 | g#0,tmp%5#1
+    p-load move.0#0                                                                        (𝕡) player#0,move.0#0,move.1#0 | g#0,tmp%5#1,move.0#0 (copy)
+    int 1                                                                                  (𝕡) player#0,move.0#0,move.1#0 | g#0,tmp%5#1,move.0#0 (copy),1
+    extract3 // on error: Index access is out of bounds                                    (𝕡) player#0,move.0#0,move.1#0 | g#0,reinterpret_biguint%4#0
     l-load g#0 1                                                                           (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%4#0,g#0
     extract 3 3 // on error: Index access is out of bounds                                 (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%4#0,tmp%6#1
+    l-store-copy tmp%6#1 0                                                                 (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%4#0,tmp%6#1,tmp%6#1 (copy)
+    v-store tmp%6#1                                                                        (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%4#0,tmp%6#1
+    l-load tmp%6#1 0                                                                       (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%4#0,tmp%6#1
     p-load move.0#0                                                                        (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%4#0,tmp%6#1,move.0#0 (copy)
     int 1                                                                                  (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%4#0,tmp%6#1,move.0#0 (copy),1
     extract3 // on error: Index access is out of bounds                                    (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%4#0,awst_tmp%1#0
@@ -562,8 +567,8 @@ make_move_if_body@15:                                                           
 make_move_after_if_else@16:                                                                (𝕡) player#0,move.0#0,move.1#0 |
     // tictactoe/tictactoe.py:83
     // if player == g[1][1]:
-    v-load g#0                                                                             (𝕡) player#0,move.0#0,move.1#0 | g#0
-    extract 4 1                                                                            (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%9#0
+    v-load tmp%6#1                                                                         (𝕡) player#0,move.0#0,move.1#0 | tmp%6#1
+    extract 1 1 // on error: Index access is out of bounds                                 (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%9#0
     p-load player#0                                                                        (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%9#0,player#0 (copy)
     l-load reinterpret_biguint%9#0 1                                                       (𝕡) player#0,move.0#0,move.1#0 | player#0 (copy),reinterpret_biguint%9#0
     b==                                                                                    (𝕡) player#0,move.0#0,move.1#0 | tmp%11#0
@@ -572,8 +577,8 @@ make_move_after_if_else@16:                                                     
 make_move_if_body@17:                                                                      (𝕡) player#0,move.0#0,move.1#0 |
     // tictactoe/tictactoe.py:84
     // if g[0][0] == player == g[2][2]:
-    v-load g#0                                                                             (𝕡) player#0,move.0#0,move.1#0 | g#0
-    extract 0 1                                                                            (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%10#0
+    v-load tmp%5#1                                                                         (𝕡) player#0,move.0#0,move.1#0 | tmp%5#1
+    extract 0 1 // on error: Index access is out of bounds                                 (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%10#0
     p-load player#0                                                                        (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%10#0,player#0 (copy)
     b==                                                                                    (𝕡) player#0,move.0#0,move.1#0 | tmp%13#0
     bz make_move_after_if_else@20 ; b make_move_and_contd@18                               (𝕡) player#0,move.0#0,move.1#0 |
@@ -582,7 +587,8 @@ make_move_and_contd@18:                                                         
     // tictactoe/tictactoe.py:84
     // if g[0][0] == player == g[2][2]:
     v-load g#0                                                                             (𝕡) player#0,move.0#0,move.1#0 | g#0
-    extract 8 1                                                                            (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%13#0
+    extract 6 3 // on error: Index access is out of bounds                                 (𝕡) player#0,move.0#0,move.1#0 | tmp%14#0
+    extract 2 1 // on error: Index access is out of bounds                                 (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%13#0
     p-load player#0                                                                        (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%13#0,player#0 (copy)
     l-load reinterpret_biguint%13#0 1                                                      (𝕡) player#0,move.0#0,move.1#0 | player#0 (copy),reinterpret_biguint%13#0
     b==                                                                                    (𝕡) player#0,move.0#0,move.1#0 | tmp%15#0
@@ -600,8 +606,8 @@ make_move_if_body@19:                                                           
 make_move_after_if_else@20:                                                                (𝕡) player#0,move.0#0,move.1#0 |
     // tictactoe/tictactoe.py:86
     // if g[0][2] == player == g[2][0]:
-    v-load g#0                                                                             (𝕡) player#0,move.0#0,move.1#0 | g#0
-    extract 2 1                                                                            (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%14#0
+    v-load tmp%5#1                                                                         (𝕡) player#0,move.0#0,move.1#0 | tmp%5#1
+    extract 2 1 // on error: Index access is out of bounds                                 (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%14#0
     p-load player#0                                                                        (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%14#0,player#0 (copy)
     b==                                                                                    (𝕡) player#0,move.0#0,move.1#0 | tmp%17#0
     bz make_move_after_if_else@24 ; b make_move_and_contd@21                               (𝕡) player#0,move.0#0,move.1#0 |
@@ -610,7 +616,8 @@ make_move_and_contd@21:                                                         
     // tictactoe/tictactoe.py:86
     // if g[0][2] == player == g[2][0]:
     v-load g#0                                                                             (𝕡) player#0,move.0#0,move.1#0 | g#0
-    extract 6 1                                                                            (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%17#0
+    extract 6 3 // on error: Index access is out of bounds                                 (𝕡) player#0,move.0#0,move.1#0 | tmp%18#0
+    extract 0 1 // on error: Index access is out of bounds                                 (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%17#0
     p-load player#0                                                                        (𝕡) player#0,move.0#0,move.1#0 | reinterpret_biguint%17#0,player#0 (copy)
     l-load reinterpret_biguint%17#0 1                                                      (𝕡) player#0,move.0#0,move.1#0 | player#0 (copy),reinterpret_biguint%17#0
     b==                                                                                    (𝕡) player#0,move.0#0,move.1#0 | tmp%19#0

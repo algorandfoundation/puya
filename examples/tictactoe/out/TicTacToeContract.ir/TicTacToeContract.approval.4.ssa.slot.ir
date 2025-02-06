@@ -192,7 +192,7 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: byte
         let (g#0: bytes[9], maybe_exists%0#1: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%0#1) // check self.game exists
         let tmp%0#1: bytes = (extract3 g#0 item_offset%0#0 3u) // on error: Index access is out of bounds
-        let reinterpret_biguint%0#1: biguint = (extract3 g#0 item_offset%0#0 1u)
+        let reinterpret_biguint%0#1: biguint = ((extract 0 1) tmp%0#1) // on error: Index access is out of bounds
         let awst_tmp%0#0: bytes = ((extract 1 1) tmp%0#1) // on error: Index access is out of bounds
         let tmp%2#1: bool = (b== reinterpret_biguint%0#1 awst_tmp%0#0)
         goto tmp%2#1 ? block@11 : block@13
@@ -204,7 +204,8 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: byte
         let examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#0: bool = 1u
         goto block@25
     block@13: // after_if_else_L76
-        let reinterpret_biguint%4#0: biguint = (extract3 g#0 move.0#0 1u)
+        let tmp%5#1: bytes = ((extract 0 3) g#0) // on error: Index access is out of bounds
+        let reinterpret_biguint%4#0: biguint = (extract3 tmp%5#1 move.0#0 1u) // on error: Index access is out of bounds
         let tmp%6#1: bytes = ((extract 3 3) g#0) // on error: Index access is out of bounds
         let awst_tmp%1#0: bytes = (extract3 tmp%6#1 move.0#0 1u) // on error: Index access is out of bounds
         let tmp%7#0: bool = (b== reinterpret_biguint%4#0 awst_tmp%1#0)
@@ -218,26 +219,28 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: byte
         let examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#1: bool = 1u
         goto block@25
     block@16: // after_if_else_L79
-        let reinterpret_biguint%9#0: biguint = ((extract 4 1) g#0)
+        let reinterpret_biguint%9#0: biguint = ((extract 1 1) tmp%6#1) // on error: Index access is out of bounds
         let tmp%11#0: bool = (b== player#0 reinterpret_biguint%9#0)
         goto tmp%11#0 ? block@17 : block@24
     block@17: // if_body_L84
-        let reinterpret_biguint%10#0: biguint = ((extract 0 1) g#0)
+        let reinterpret_biguint%10#0: biguint = ((extract 0 1) tmp%5#1) // on error: Index access is out of bounds
         let tmp%13#0: bool = (b== reinterpret_biguint%10#0 player#0)
         goto tmp%13#0 ? block@18 : block@20
     block@18: // and_contd_L84
-        let reinterpret_biguint%13#0: biguint = ((extract 8 1) g#0)
+        let tmp%14#0: bytes = ((extract 6 3) g#0) // on error: Index access is out of bounds
+        let reinterpret_biguint%13#0: biguint = ((extract 2 1) tmp%14#0) // on error: Index access is out of bounds
         let tmp%15#0: bool = (b== player#0 reinterpret_biguint%13#0)
         goto tmp%15#0 ? block@19 : block@20
     block@19: // if_body_L85
         let examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#2: bool = 1u
         goto block@25
     block@20: // after_if_else_L84
-        let reinterpret_biguint%14#0: biguint = ((extract 2 1) g#0)
+        let reinterpret_biguint%14#0: biguint = ((extract 2 1) tmp%5#1) // on error: Index access is out of bounds
         let tmp%17#0: bool = (b== reinterpret_biguint%14#0 player#0)
         goto tmp%17#0 ? block@21 : block@24
     block@21: // and_contd_L86
-        let reinterpret_biguint%17#0: biguint = ((extract 6 1) g#0)
+        let tmp%18#0: bytes = ((extract 6 3) g#0) // on error: Index access is out of bounds
+        let reinterpret_biguint%17#0: biguint = ((extract 0 1) tmp%18#0) // on error: Index access is out of bounds
         let tmp%19#0: bool = (b== player#0 reinterpret_biguint%17#0)
         goto tmp%19#0 ? block@22 : block@24
     block@22: // if_body_L87

@@ -949,23 +949,23 @@ test_uint64_array:
     l-load tmp%14#0 0                                                                         arr#2,tmp%14#0
     int 1                                                                                     arr#2,tmp%14#0,1
     -                                                                                         arr#2,tmp%17#0
-    l-load arr#2 1                                                                            tmp%17#0,arr#2
-    extract 2 0                                                                               tmp%17#0,array_head_and_tail%2#0
-    l-load tmp%17#0 1                                                                         array_head_and_tail%2#0,tmp%17#0
-    int 8                                                                                     array_head_and_tail%2#0,tmp%17#0,8
-    *                                                                                         array_head_and_tail%2#0,item_offset%2#0
-    l-load-copy array_head_and_tail%2#0 1                                                     array_head_and_tail%2#0,item_offset%2#0,array_head_and_tail%2#0 (copy)
-    l-load item_offset%2#0 1                                                                  array_head_and_tail%2#0,array_head_and_tail%2#0 (copy),item_offset%2#0
-    extract_uint64                                                                            array_head_and_tail%2#0,tmp%18#0
-    l-load tmp%18#0 0                                                                         array_head_and_tail%2#0,tmp%18#0
-    int 43                                                                                    array_head_and_tail%2#0,tmp%18#0,43
-    ==                                                                                        array_head_and_tail%2#0,tmp%19#0
-    l-load tmp%19#0 0                                                                         array_head_and_tail%2#0,tmp%19#0
-    assert                                                                                    array_head_and_tail%2#0
+    l-load-copy arr#2 1                                                                       arr#2,tmp%17#0,arr#2 (copy)
+    extract 2 0                                                                               arr#2,tmp%17#0,array_head_and_tail%2#0
+    l-load tmp%17#0 1                                                                         arr#2,array_head_and_tail%2#0,tmp%17#0
+    int 8                                                                                     arr#2,array_head_and_tail%2#0,tmp%17#0,8
+    *                                                                                         arr#2,array_head_and_tail%2#0,item_offset%2#0
+    l-load array_head_and_tail%2#0 1                                                          arr#2,item_offset%2#0,array_head_and_tail%2#0
+    l-load item_offset%2#0 1                                                                  arr#2,array_head_and_tail%2#0,item_offset%2#0
+    extract_uint64                                                                            arr#2,tmp%18#0
+    l-load tmp%18#0 0                                                                         arr#2,tmp%18#0
+    int 43                                                                                    arr#2,tmp%18#0,43
+    ==                                                                                        arr#2,tmp%19#0
+    l-load tmp%19#0 0                                                                         arr#2,tmp%19#0
+    assert                                                                                    arr#2
     // array/immutable.py:90
     // assert arr[0] == 42
-    l-load array_head_and_tail%2#0 0                                                          array_head_and_tail%2#0
-    int 0                                                                                     array_head_and_tail%2#0,0
+    l-load arr#2 0                                                                            arr#2
+    int 2                                                                                     arr#2,2
     extract_uint64                                                                            tmp%20#0
     l-load tmp%20#0 0                                                                         tmp%20#0
     int 42                                                                                    tmp%20#0,42
@@ -1142,9 +1142,7 @@ test_uint64_array_after_for@4:
     // array/immutable.py:106
     // assert arr[2] == 23
     l-load-copy arr#2 0                                                                       arr#2,arr#2 (copy)
-    extract 2 0                                                                               arr#2,array_head_and_tail%7#0
-    l-load array_head_and_tail%7#0 0                                                          arr#2,array_head_and_tail%7#0
-    int 16                                                                                    arr#2,array_head_and_tail%7#0,16
+    int 18                                                                                    arr#2,arr#2 (copy),18
     extract_uint64                                                                            arr#2,tmp%42#0
     l-load tmp%42#0 0                                                                         arr#2,tmp%42#0
     int 23                                                                                    arr#2,tmp%42#0,23
@@ -1490,11 +1488,13 @@ test_fixed_size_tuple_array_after_for@4:
     // assert arr[0] == (UInt64(1), UInt64(2))
     l-load-copy arr#0 1                                                                       arr#0,tmp%4#0,arr#0 (copy)
     extract 2 0                                                                               arr#0,tmp%4#0,array_head_and_tail%0#0
-    l-load-copy array_head_and_tail%0#0 0                                                     arr#0,tmp%4#0,array_head_and_tail%0#0,array_head_and_tail%0#0 (copy)
-    int 0                                                                                     arr#0,tmp%4#0,array_head_and_tail%0#0,array_head_and_tail%0#0 (copy),0
-    extract_uint64                                                                            arr#0,tmp%4#0,array_head_and_tail%0#0,item0%0%0#0
-    l-load-copy array_head_and_tail%0#0 1                                                     arr#0,tmp%4#0,array_head_and_tail%0#0,item0%0%0#0,array_head_and_tail%0#0 (copy)
-    int 8                                                                                     arr#0,tmp%4#0,array_head_and_tail%0#0,item0%0%0#0,array_head_and_tail%0#0 (copy),8
+    l-load-copy arr#0 2                                                                       arr#0,tmp%4#0,array_head_and_tail%0#0,arr#0 (copy)
+    extract 2 16                                                                              arr#0,tmp%4#0,array_head_and_tail%0#0,arc4_item%0#0
+    l-load-copy arc4_item%0#0 0                                                               arr#0,tmp%4#0,array_head_and_tail%0#0,arc4_item%0#0,arc4_item%0#0 (copy)
+    int 0                                                                                     arr#0,tmp%4#0,array_head_and_tail%0#0,arc4_item%0#0,arc4_item%0#0 (copy),0
+    extract_uint64                                                                            arr#0,tmp%4#0,array_head_and_tail%0#0,arc4_item%0#0,item0%0%0#0
+    l-load arc4_item%0#0 1                                                                    arr#0,tmp%4#0,array_head_and_tail%0#0,item0%0%0#0,arc4_item%0#0
+    int 8                                                                                     arr#0,tmp%4#0,array_head_and_tail%0#0,item0%0%0#0,arc4_item%0#0,8
     extract_uint64                                                                            arr#0,tmp%4#0,array_head_and_tail%0#0,item0%0%0#0,item1%0%0#0
     l-load item0%0%0#0 1                                                                      arr#0,tmp%4#0,array_head_and_tail%0#0,item1%0%0#0,item0%0%0#0
     int 1                                                                                     arr#0,tmp%4#0,array_head_and_tail%0#0,item1%0%0#0,item0%0%0#0,1
@@ -1515,12 +1515,12 @@ test_fixed_size_tuple_array_after_for@4:
     l-load tmp%10#0 0                                                                         arr#0,array_head_and_tail%0#0,tmp%10#0
     int 16                                                                                    arr#0,array_head_and_tail%0#0,tmp%10#0,16
     *                                                                                         arr#0,array_head_and_tail%0#0,item_offset%1#0
-    l-load-copy array_head_and_tail%0#0 1                                                     arr#0,array_head_and_tail%0#0,item_offset%1#0,array_head_and_tail%0#0 (copy)
-    l-load-copy item_offset%1#0 1                                                             arr#0,array_head_and_tail%0#0,item_offset%1#0,array_head_and_tail%0#0 (copy),item_offset%1#0 (copy)
-    int 16                                                                                    arr#0,array_head_and_tail%0#0,item_offset%1#0,array_head_and_tail%0#0 (copy),item_offset%1#0 (copy),16
-    extract3 // on error: Index access is out of bounds                                       arr#0,array_head_and_tail%0#0,item_offset%1#0,arc4_item%1#0
-    l-load array_head_and_tail%0#0 2                                                          arr#0,item_offset%1#0,arc4_item%1#0,array_head_and_tail%0#0
-    l-load item_offset%1#0 2                                                                  arr#0,arc4_item%1#0,array_head_and_tail%0#0,item_offset%1#0
+    l-load array_head_and_tail%0#0 1                                                          arr#0,item_offset%1#0,array_head_and_tail%0#0
+    l-load item_offset%1#0 1                                                                  arr#0,array_head_and_tail%0#0,item_offset%1#0
+    int 16                                                                                    arr#0,array_head_and_tail%0#0,item_offset%1#0,16
+    extract3 // on error: Index access is out of bounds                                       arr#0,arc4_item%1#0
+    l-load-copy arc4_item%1#0 0                                                               arr#0,arc4_item%1#0,arc4_item%1#0 (copy)
+    int 0                                                                                     arr#0,arc4_item%1#0,arc4_item%1#0 (copy),0
     extract_uint64                                                                            arr#0,arc4_item%1#0,item0%1%0#0
     l-load arc4_item%1#0 1                                                                    arr#0,item0%1%0#0,arc4_item%1#0
     int 8                                                                                     arr#0,item0%1%0#0,arc4_item%1#0,8
@@ -1557,11 +1557,13 @@ test_fixed_size_tuple_array_after_for@4:
     // assert arr[0] == (UInt64(1), UInt64(2))
     l-load-copy arr#0 1                                                                       arr#0,tmp%14#0,arr#0 (copy)
     extract 2 0                                                                               arr#0,tmp%14#0,array_head_and_tail%2#0
-    l-load-copy array_head_and_tail%2#0 0                                                     arr#0,tmp%14#0,array_head_and_tail%2#0,array_head_and_tail%2#0 (copy)
-    int 0                                                                                     arr#0,tmp%14#0,array_head_and_tail%2#0,array_head_and_tail%2#0 (copy),0
-    extract_uint64                                                                            arr#0,tmp%14#0,array_head_and_tail%2#0,item0%2%0#0
-    l-load-copy array_head_and_tail%2#0 1                                                     arr#0,tmp%14#0,array_head_and_tail%2#0,item0%2%0#0,array_head_and_tail%2#0 (copy)
-    int 8                                                                                     arr#0,tmp%14#0,array_head_and_tail%2#0,item0%2%0#0,array_head_and_tail%2#0 (copy),8
+    l-load-copy arr#0 2                                                                       arr#0,tmp%14#0,array_head_and_tail%2#0,arr#0 (copy)
+    extract 2 16                                                                              arr#0,tmp%14#0,array_head_and_tail%2#0,arc4_item%2#0
+    l-load-copy arc4_item%2#0 0                                                               arr#0,tmp%14#0,array_head_and_tail%2#0,arc4_item%2#0,arc4_item%2#0 (copy)
+    int 0                                                                                     arr#0,tmp%14#0,array_head_and_tail%2#0,arc4_item%2#0,arc4_item%2#0 (copy),0
+    extract_uint64                                                                            arr#0,tmp%14#0,array_head_and_tail%2#0,arc4_item%2#0,item0%2%0#0
+    l-load arc4_item%2#0 1                                                                    arr#0,tmp%14#0,array_head_and_tail%2#0,item0%2%0#0,arc4_item%2#0
+    int 8                                                                                     arr#0,tmp%14#0,array_head_and_tail%2#0,item0%2%0#0,arc4_item%2#0,8
     extract_uint64                                                                            arr#0,tmp%14#0,array_head_and_tail%2#0,item0%2%0#0,item1%2%0#0
     l-load item0%2%0#0 1                                                                      arr#0,tmp%14#0,array_head_and_tail%2#0,item1%2%0#0,item0%2%0#0
     int 1                                                                                     arr#0,tmp%14#0,array_head_and_tail%2#0,item1%2%0#0,item0%2%0#0,1
@@ -1582,12 +1584,12 @@ test_fixed_size_tuple_array_after_for@4:
     l-load tmp%20#0 0                                                                         arr#0,array_head_and_tail%2#0,tmp%20#0
     int 16                                                                                    arr#0,array_head_and_tail%2#0,tmp%20#0,16
     *                                                                                         arr#0,array_head_and_tail%2#0,item_offset%3#0
-    l-load-copy array_head_and_tail%2#0 1                                                     arr#0,array_head_and_tail%2#0,item_offset%3#0,array_head_and_tail%2#0 (copy)
-    l-load-copy item_offset%3#0 1                                                             arr#0,array_head_and_tail%2#0,item_offset%3#0,array_head_and_tail%2#0 (copy),item_offset%3#0 (copy)
-    int 16                                                                                    arr#0,array_head_and_tail%2#0,item_offset%3#0,array_head_and_tail%2#0 (copy),item_offset%3#0 (copy),16
-    extract3 // on error: Index access is out of bounds                                       arr#0,array_head_and_tail%2#0,item_offset%3#0,arc4_item%3#0
-    l-load array_head_and_tail%2#0 2                                                          arr#0,item_offset%3#0,arc4_item%3#0,array_head_and_tail%2#0
-    l-load item_offset%3#0 2                                                                  arr#0,arc4_item%3#0,array_head_and_tail%2#0,item_offset%3#0
+    l-load array_head_and_tail%2#0 1                                                          arr#0,item_offset%3#0,array_head_and_tail%2#0
+    l-load item_offset%3#0 1                                                                  arr#0,array_head_and_tail%2#0,item_offset%3#0
+    int 16                                                                                    arr#0,array_head_and_tail%2#0,item_offset%3#0,16
+    extract3 // on error: Index access is out of bounds                                       arr#0,arc4_item%3#0
+    l-load-copy arc4_item%3#0 0                                                               arr#0,arc4_item%3#0,arc4_item%3#0 (copy)
+    int 0                                                                                     arr#0,arc4_item%3#0,arc4_item%3#0 (copy),0
     extract_uint64                                                                            arr#0,arc4_item%3#0,item0%3%0#0
     l-load arc4_item%3#0 1                                                                    arr#0,item0%3%0#0,arc4_item%3#0
     int 8                                                                                     arr#0,item0%3%0#0,arc4_item%3#0,8
@@ -1703,11 +1705,9 @@ test_fixed_size_named_tuple_array_after_for@4:
     // array/immutable.py:161
     // foo, bar, baz = arr[0]
     l-load-copy arr#0 0                                                                       arr#0,arr#0 (copy)
-    extract 2 0                                                                               arr#0,array_head_and_tail%0#0
-    l-load-copy array_head_and_tail%0#0 0                                                     arr#0,array_head_and_tail%0#0,array_head_and_tail%0#0 (copy)
-    extract 0 9 // on error: Index access is out of bounds                                    arr#0,array_head_and_tail%0#0,arc4_item%0#0
-    l-load array_head_and_tail%0#0 1                                                          arr#0,arc4_item%0#0,array_head_and_tail%0#0
-    int 0                                                                                     arr#0,arc4_item%0#0,array_head_and_tail%0#0,0
+    extract 2 9                                                                               arr#0,arc4_item%0#0
+    l-load-copy arc4_item%0#0 0                                                               arr#0,arc4_item%0#0,arc4_item%0#0 (copy)
+    int 0                                                                                     arr#0,arc4_item%0#0,arc4_item%0#0 (copy),0
     extract_uint64                                                                            arr#0,arc4_item%0#0,foo#0
     l-load-copy arc4_item%0#0 1                                                               arr#0,arc4_item%0#0,foo#0,arc4_item%0#0 (copy)
     int 64                                                                                    arr#0,arc4_item%0#0,foo#0,arc4_item%0#0 (copy),64
@@ -3081,12 +3081,12 @@ sum_uints_and_lengths_and_trues_for_body@12:                                    
     v-load item_index_internal%2#0                                                            (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | array_head_and_tail%2#0,item_index_internal%2#0
     int 9                                                                                     (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | array_head_and_tail%2#0,item_index_internal%2#0,9
     *                                                                                         (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | array_head_and_tail%2#0,item_offset%1#0
-    l-load-copy array_head_and_tail%2#0 1                                                     (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | array_head_and_tail%2#0,item_offset%1#0,array_head_and_tail%2#0 (copy)
-    l-load-copy item_offset%1#0 1                                                             (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | array_head_and_tail%2#0,item_offset%1#0,array_head_and_tail%2#0 (copy),item_offset%1#0 (copy)
-    int 9                                                                                     (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | array_head_and_tail%2#0,item_offset%1#0,array_head_and_tail%2#0 (copy),item_offset%1#0 (copy),9
-    extract3 // on error: Index access is out of bounds                                       (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | array_head_and_tail%2#0,item_offset%1#0,value_at_index%2#0
-    l-load array_head_and_tail%2#0 2                                                          (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | item_offset%1#0,value_at_index%2#0,array_head_and_tail%2#0
-    l-load item_offset%1#0 2                                                                  (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | value_at_index%2#0,array_head_and_tail%2#0,item_offset%1#0
+    l-load array_head_and_tail%2#0 1                                                          (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | item_offset%1#0,array_head_and_tail%2#0
+    l-load item_offset%1#0 1                                                                  (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | array_head_and_tail%2#0,item_offset%1#0
+    int 9                                                                                     (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | array_head_and_tail%2#0,item_offset%1#0,9
+    extract3 // on error: Index access is out of bounds                                       (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | value_at_index%2#0
+    l-load-copy value_at_index%2#0 0                                                          (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | value_at_index%2#0,value_at_index%2#0 (copy)
+    int 0                                                                                     (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | value_at_index%2#0,value_at_index%2#0 (copy),0
     extract_uint64                                                                            (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | value_at_index%2#0,tup.foo#0
     l-load-copy value_at_index%2#0 1                                                          (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | value_at_index%2#0,tup.foo#0,value_at_index%2#0 (copy)
     int 64                                                                                    (𝕡) arr1#0,arr2#0,arr3#0,arr4#0 | value_at_index%2#0,tup.foo#0,value_at_index%2#0 (copy),64

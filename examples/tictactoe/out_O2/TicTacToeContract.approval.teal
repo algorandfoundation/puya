@@ -225,7 +225,7 @@ main_bool_false@12:
 make_move:
     proto 3 0
     intc_0 // 0
-    dupn 3
+    dupn 5
     frame_dig -2
     intc_2 // 3
     <
@@ -264,7 +264,7 @@ make_move_bool_merge@4:
     dig 2
     intc_2 // 3
     extract3 // on error: Index access is out of bounds
-    frame_dig 4
+    frame_dig 6
     assert // Index access is out of bounds
     frame_dig -2
     frame_dig -3
@@ -296,16 +296,13 @@ make_move_bool_merge@4:
     cover 2
     frame_bury 2
     assert // check self.game exists
-    dup
-    dig 2
+    swap
     intc_2 // 3
     extract3 // on error: Index access is out of bounds
     dup
-    cover 3
     frame_bury 3
-    swap
-    intc_1 // 1
-    extract3
+    dup
+    extract 0 1 // on error: Index access is out of bounds
     swap
     extract 1 1 // on error: Index access is out of bounds
     dup
@@ -346,11 +343,16 @@ make_move_else_body@6:
 make_move_after_if_else@13:
     frame_dig 2
     dup
+    extract 0 3 // on error: Index access is out of bounds
+    dup
+    frame_bury 4
     frame_dig -2
     intc_1 // 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     swap
     extract 3 3 // on error: Index access is out of bounds
+    dup
+    frame_bury 5
     frame_dig -2
     intc_1 // 1
     extract3 // on error: Index access is out of bounds
@@ -368,30 +370,32 @@ make_move_after_if_else@13:
     bnz make_move_if_body@12
 
 make_move_after_if_else@16:
-    frame_dig 2
-    extract 4 1
+    frame_dig 5
+    extract 1 1 // on error: Index access is out of bounds
     frame_dig -3
     b==
     bz make_move_after_if_else@24
-    frame_dig 2
-    extract 0 1
+    frame_dig 4
+    extract 0 1 // on error: Index access is out of bounds
     frame_dig -3
     b==
     bz make_move_after_if_else@20
     frame_dig 2
-    extract 8 1
+    extract 6 3 // on error: Index access is out of bounds
+    extract 2 1 // on error: Index access is out of bounds
     frame_dig -3
     b==
     bnz make_move_if_body@12
 
 make_move_after_if_else@20:
-    frame_dig 2
-    extract 2 1
+    frame_dig 4
+    extract 2 1 // on error: Index access is out of bounds
     frame_dig -3
     b==
     bz make_move_after_if_else@24
     frame_dig 2
-    extract 6 1
+    extract 6 3 // on error: Index access is out of bounds
+    extract 0 1 // on error: Index access is out of bounds
     frame_dig -3
     b==
     bnz make_move_if_body@12

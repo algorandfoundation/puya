@@ -82,11 +82,10 @@ subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) 
         ((itxn_field Fee) 0u)
         itxn_submit
         let hello_call.LastLog#0: bytes = (itxn LastLog)
-        let greeting#0: bytes = ((extract 4 0) hello_call.LastLog#0)
         let tmp%1#0: bytes = ((extract 0 4) hello_call.LastLog#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // ARC4 prefix is valid
-        let tmp%4#0: bytes = ((extract 2 0) greeting#0)
+        let tmp%4#0: bytes = ((extract 6 0) hello_call.LastLog#0)
         let tmp%5#0: bytes = (concat "HelloWorld returned: " tmp%4#0)
         (log tmp%5#0)
         return 

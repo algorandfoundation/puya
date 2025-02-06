@@ -341,22 +341,24 @@ test_array_for_body@2:                                                          
     assert                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,array%value%0#1,i#2
     // array/fixed_size.py:38
     // assert path[i].other.d.foo == i + 2
-    l-load-copy array%value%0#1 1                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,array%value%0#1,i#2,array%value%0#1 (copy)
-    extract 64 8                                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,array%value%0#1,i#2,reinterpret_biguint%0#0
-    l-load i#0 3                                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%0#1,i#2,reinterpret_biguint%0#0,i#0
-    int 2                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%0#1,i#2,reinterpret_biguint%0#0,i#0,2
-    +                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%0#1,i#2,reinterpret_biguint%0#0,tmp%26#0
-    l-load tmp%26#0 0                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%0#1,i#2,reinterpret_biguint%0#0,tmp%26#0
-    itob                                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%0#1,i#2,reinterpret_biguint%0#0,tmp%27#0
-    l-load reinterpret_biguint%0#0 1                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%0#1,i#2,tmp%27#0,reinterpret_biguint%0#0
-    l-load tmp%27#0 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%0#1,i#2,reinterpret_biguint%0#0,tmp%27#0
-    b==                                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%0#1,i#2,tmp%28#0
-    l-load tmp%28#0 0                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%0#1,i#2,tmp%28#0
-    assert                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%0#1,i#2
+    l-load array%value%0#1 1                                                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,i#2,array%value%0#1
+    extract 64 16                                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,i#2,array%sub_item%26#1
+    l-load-copy array%sub_item%26#1 0                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,i#2,array%sub_item%26#1,array%sub_item%26#1 (copy)
+    extract 0 8 // on error: Index access is out of bounds                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,i#2,array%sub_item%26#1,reinterpret_biguint%0#0
+    l-load i#0 3                                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%sub_item%26#1,reinterpret_biguint%0#0,i#0
+    int 2                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%sub_item%26#1,reinterpret_biguint%0#0,i#0,2
+    +                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%sub_item%26#1,reinterpret_biguint%0#0,tmp%26#0
+    l-load tmp%26#0 0                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%sub_item%26#1,reinterpret_biguint%0#0,tmp%26#0
+    itob                                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%sub_item%26#1,reinterpret_biguint%0#0,tmp%27#0
+    l-load reinterpret_biguint%0#0 1                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%sub_item%26#1,tmp%27#0,reinterpret_biguint%0#0
+    l-load tmp%27#0 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%sub_item%26#1,reinterpret_biguint%0#0,tmp%27#0
+    b==                                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%sub_item%26#1,tmp%28#0
+    l-load tmp%28#0 0                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%sub_item%26#1,tmp%28#0
+    assert                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%sub_item%26#1
     // array/fixed_size.py:39
     // assert path[i].other.d.bar == (i + 1) * (i + 1)
-    l-load array%value%0#1 1                                                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%value%0#1
-    extract 72 8                                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,reinterpret_biguint%1#0
+    l-load array%sub_item%26#1 0                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%sub_item%26#1
+    extract 8 8 // on error: Index access is out of bounds                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,reinterpret_biguint%1#0
     l-load-copy i#2 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,reinterpret_biguint%1#0,i#2 (copy)
     l-load-copy i#2 2                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,reinterpret_biguint%1#0,i#2 (copy),i#2 (copy)
     *                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,reinterpret_biguint%1#0,tmp%37#0
@@ -375,8 +377,7 @@ test_array_after_for@4:                                                         
     v-load slot%0                                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | slot%0
     // array/fixed_size.py:41
     // Box(ImmutableArray[Point], key="a").value = path.freeze()
-    l-store-copy slot_contents%3#0 0                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,slot_contents%3#0 (copy)
-    v-store slot_contents%3#0                                                                 (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0
+    l-store slot_contents%3#0 0                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0
     l-load-copy slot_contents%3#0 0                                                           (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,slot_contents%3#0 (copy)
     len                                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,byte_len%0#0
     l-load byte_len%0#0 0                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,byte_len%0#0
@@ -399,11 +400,15 @@ test_array_after_for@4:                                                         
     box_put                                                                                   (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0
     // array/fixed_size.py:100
     // last_point = path[0]
-    l-load-copy slot_contents%3#0 0                                                           (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,slot_contents%3#0 (copy)
-    extract 0 8                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,last_point.x#0
-    v-store last_point.x#0                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0
     l-load slot_contents%3#0 0                                                                (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0
-    int 8                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,8
+    extract 0 80                                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%3#1
+    l-store-copy array%value%3#1 0                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%3#1,array%value%3#1 (copy)
+    v-store array%value%3#1                                                                   (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%3#1
+    l-load-copy array%value%3#1 0                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%3#1,array%value%3#1 (copy)
+    extract 0 8                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%3#1,last_point.x#0
+    v-store last_point.x#0                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%3#1
+    l-load array%value%3#1 0                                                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%3#1
+    int 8                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%3#1,8
     extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | last_point.y#0
     v-store last_point.y#0                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 |
     // array/fixed_size.py:101
@@ -429,21 +434,18 @@ test_array_for_body@7:                                                          
     v-load slot%0                                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | slot%0
     // array/fixed_size.py:103
     // point = path[point_idx]
-    l-store-copy slot_contents%2#1 0                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%2#1,slot_contents%2#1 (copy)
-    v-store slot_contents%2#1                                                                 (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%2#1
+    l-store slot_contents%2#1 0                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%2#1
     v-load point_idx#0                                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%2#1,point_idx#0
     int 80                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%2#1,point_idx#0,80
     *                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%2#1,array%bytes_index%4#1
-    l-store-copy array%bytes_index%4#1 0                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%2#1,array%bytes_index%4#1,array%bytes_index%4#1 (copy)
-    v-store array%bytes_index%4#1                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%2#1,array%bytes_index%4#1
-    l-load-copy slot_contents%2#1 1                                                           (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%2#1,array%bytes_index%4#1,slot_contents%2#1 (copy)
-    l-load-copy array%bytes_index%4#1 1                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%2#1,array%bytes_index%4#1,slot_contents%2#1 (copy),array%bytes_index%4#1 (copy)
-    int 80                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%2#1,array%bytes_index%4#1,slot_contents%2#1 (copy),array%bytes_index%4#1 (copy),80
-    extract3                                                                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%2#1,array%bytes_index%4#1,array%value%4#1
-    l-load slot_contents%2#1 2                                                                (𝕡) x1#0,y1#0,x2#0,y2#0 | array%bytes_index%4#1,array%value%4#1,slot_contents%2#1
-    l-load array%bytes_index%4#1 2                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%4#1,slot_contents%2#1,array%bytes_index%4#1
-    int 8                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%4#1,slot_contents%2#1,array%bytes_index%4#1,8
-    extract3                                                                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%4#1,point.x#0
+    l-load slot_contents%2#1 1                                                                (𝕡) x1#0,y1#0,x2#0,y2#0 | array%bytes_index%4#1,slot_contents%2#1
+    l-load array%bytes_index%4#1 1                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%2#1,array%bytes_index%4#1
+    int 80                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%2#1,array%bytes_index%4#1,80
+    extract3                                                                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%4#1
+    l-store-copy array%value%4#1 0                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%4#1,array%value%4#1 (copy)
+    v-store array%value%4#1                                                                   (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%4#1
+    l-load-copy array%value%4#1 0                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%4#1,array%value%4#1 (copy)
+    extract 0 8                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%4#1,point.x#0
     l-load array%value%4#1 1                                                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | point.x#0,array%value%4#1
     int 8                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | point.x#0,array%value%4#1,8
     extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | point.x#0,point.y#0
@@ -459,11 +461,19 @@ test_array_for_body@7:                                                          
 test_array_if_body@8:                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 |
     // array/fixed_size.py:105
     // dx = last_point.x.native - point.x.native
-    v-load slot_contents%3#0                                                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0
-    int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,0
+    v-load array%value%3#1                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%3#1
+    // array/fixed_size.py:100
+    // last_point = path[0]
+    int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%3#1,0
+    // array/fixed_size.py:105
+    // dx = last_point.x.native - point.x.native
     extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%2#1
-    v-load slot_contents%2#1                                                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%2#1,slot_contents%2#1
-    v-load array%bytes_index%4#1                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%2#1,slot_contents%2#1,array%bytes_index%4#1
+    v-load array%value%4#1                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%2#1,array%value%4#1
+    // array/fixed_size.py:103
+    // point = path[point_idx]
+    int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%2#1,array%value%4#1,0
+    // array/fixed_size.py:105
+    // dx = last_point.x.native - point.x.native
     extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%2#1,tmp%3#1
     l-load tmp%2#1 1                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%3#1,tmp%2#1
     l-load tmp%3#1 1                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%2#1,tmp%3#1
@@ -474,11 +484,19 @@ test_array_if_body@8:                                                           
 test_array_else_body@9:                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 |
     // array/fixed_size.py:107
     // dx = point.x.native - last_point.x.native
-    v-load slot_contents%2#1                                                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%2#1
-    v-load array%bytes_index%4#1                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%2#1,array%bytes_index%4#1
+    v-load array%value%4#1                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%4#1
+    // array/fixed_size.py:103
+    // point = path[point_idx]
+    int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | array%value%4#1,0
+    // array/fixed_size.py:107
+    // dx = point.x.native - last_point.x.native
     extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%4#0
-    v-load slot_contents%3#0                                                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%4#0,slot_contents%3#0
-    int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%4#0,slot_contents%3#0,0
+    v-load array%value%3#1                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%4#0,array%value%3#1
+    // array/fixed_size.py:100
+    // last_point = path[0]
+    int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%4#0,array%value%3#1,0
+    // array/fixed_size.py:107
+    // dx = point.x.native - last_point.x.native
     extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%4#0,tmp%5#0
     l-load tmp%4#0 1                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%5#0,tmp%4#0
     l-load tmp%5#0 1                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%4#0,tmp%5#0
@@ -642,6 +660,10 @@ test_bool_array_for_body@6:                                                     
     l-store slot_contents%4#0 0                                                               (𝕡) length#0 | slot_contents%4#0
     l-load slot_contents%4#0 0                                                                (𝕡) length#0 | slot_contents%4#0
     v-load item_index_internal%0#0                                                            (𝕡) length#0 | slot_contents%4#0,item_index_internal%0#0
+    int 1                                                                                     (𝕡) length#0 | slot_contents%4#0,item_index_internal%0#0,1
+    extract3                                                                                  (𝕡) length#0 | array%value%0#1
+    l-load array%value%0#1 0                                                                  (𝕡) length#0 | array%value%0#1
+    int 0                                                                                     (𝕡) length#0 | array%value%0#1,0
     getbyte                                                                                   (𝕡) length#0 | val#0
     v-load count#0                                                                            (𝕡) length#0 | val#0,count#9
     v-store count#9                                                                           (𝕡) length#0 | val#0
@@ -767,7 +789,9 @@ test_arc4_conversion_for_body@6:                                                
     l-load slot_contents%4#0 1                                                                (𝕡) length#0 | array%bytes_index%0#1,slot_contents%4#0
     l-load array%bytes_index%0#1 1                                                            (𝕡) length#0 | slot_contents%4#0,array%bytes_index%0#1
     int 8                                                                                     (𝕡) length#0 | slot_contents%4#0,array%bytes_index%0#1,8
-    extract3                                                                                  (𝕡) length#0 | val#0
+    extract3                                                                                  (𝕡) length#0 | array%value%0#1
+    l-load array%value%0#1 0                                                                  (𝕡) length#0 | array%value%0#1
+    extract 0 8                                                                               (𝕡) length#0 | val#0
     // array/fixed_size.py:68
     // if val:
     l-load val#0 0                                                                            (𝕡) length#0 | val#0
@@ -862,10 +886,18 @@ sum_array_for_body@2:                                                           
     l-store-copy item_index_internal%0#0 1                                                    (𝕡) arc4_arr#0 | item_index_internal%0#0,slot_contents%2#0,item_index_internal%0#0 (copy)
     int 8                                                                                     (𝕡) arc4_arr#0 | item_index_internal%0#0,slot_contents%2#0,item_index_internal%0#0 (copy),8
     *                                                                                         (𝕡) arc4_arr#0 | item_index_internal%0#0,slot_contents%2#0,array%bytes_index%0#1
-    // array/fixed_size.py:83
-    // total += item.native
     l-load slot_contents%2#0 1                                                                (𝕡) arc4_arr#0 | item_index_internal%0#0,array%bytes_index%0#1,slot_contents%2#0
     l-load array%bytes_index%0#1 1                                                            (𝕡) arc4_arr#0 | item_index_internal%0#0,slot_contents%2#0,array%bytes_index%0#1
+    int 8                                                                                     (𝕡) arc4_arr#0 | item_index_internal%0#0,slot_contents%2#0,array%bytes_index%0#1,8
+    extract3                                                                                  (𝕡) arc4_arr#0 | item_index_internal%0#0,array%value%0#1
+    // array/fixed_size.py:83
+    // total += item.native
+    l-load array%value%0#1 0                                                                  (𝕡) arc4_arr#0 | item_index_internal%0#0,array%value%0#1
+    // array/fixed_size.py:82
+    // for item in arr:
+    int 0                                                                                     (𝕡) arc4_arr#0 | item_index_internal%0#0,array%value%0#1,0
+    // array/fixed_size.py:83
+    // total += item.native
     extract_uint64                                                                            (𝕡) arc4_arr#0 | item_index_internal%0#0,tmp%0#0
     v-load total#0                                                                            (𝕡) arc4_arr#0 | item_index_internal%0#0,tmp%0#0,total#0
     l-load tmp%0#0 1                                                                          (𝕡) arc4_arr#0 | item_index_internal%0#0,total#0,tmp%0#0
