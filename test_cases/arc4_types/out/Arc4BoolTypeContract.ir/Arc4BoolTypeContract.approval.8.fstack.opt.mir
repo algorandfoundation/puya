@@ -1,24 +1,151 @@
-// Op                                                          Stack (out)
+// Op                                                                                         Stack (out)
 // test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program() -> uint64:
 main:
+    allocate 3 to stack                                                                       (𝕗) read_offset#0,write_end#0,write_offset#0 |
     // arc4_types/bool.py:15
     // False if Txn.num_app_args else True  # noqa: SIM211
-    txn NumAppArgs                                             tmp%0#0
-    !                                                          to_encode%0#0
+    txn NumAppArgs                                                                            (𝕗) read_offset#0,write_end#0,write_offset#0 | tmp%0#0
+    !                                                                                         (𝕗) read_offset#0,write_end#0,write_offset#0 | to_encode%0#0
     // arc4_types/bool.py:14-16
     // assert ARC4Bool(
     //     False if Txn.num_app_args else True  # noqa: SIM211
     // ).native, "conditional expr"
-    byte 0x00                                                  to_encode%0#0,0x00
-    int 0                                                      to_encode%0#0,0x00,0
-    l-load to_encode%0#0 2                                     0x00,0,to_encode%0#0
-    setbit                                                     encoded_bool%2#0
-    int 0                                                      encoded_bool%2#0,0
-    getbit                                                     tmp%2#0
-    assert // conditional expr
-    // arc4_types/bool.py:49
+    byte 0x00                                                                                 (𝕗) read_offset#0,write_end#0,write_offset#0 | to_encode%0#0,0x00
+    int 0                                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0 | to_encode%0#0,0x00,0
+    l-load to_encode%0#0 2                                                                    (𝕗) read_offset#0,write_end#0,write_offset#0 | 0x00,0,to_encode%0#0
+    setbit                                                                                    (𝕗) read_offset#0,write_end#0,write_offset#0 | encoded_bool%2#0
+    int 0                                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0 | encoded_bool%2#0,0
+    getbit                                                                                    (𝕗) read_offset#0,write_end#0,write_offset#0 | tmp%2#0
+    assert // conditional expr                                                                (𝕗) read_offset#0,write_end#0,write_offset#0 |
+    // arc4_types/bool.py:44
+    // dynamic_boolean_array = get_arr()
+    callsub get_arr                                                                           (𝕗) read_offset#0,write_end#0,write_offset#0 | dynamic_boolean_array#1
+    l-load-copy dynamic_boolean_array#1 0                                                     (𝕗) read_offset#0,write_end#0,write_offset#0 | dynamic_boolean_array#1,dynamic_boolean_array#1 (copy)
+    int 0                                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0 | dynamic_boolean_array#1,dynamic_boolean_array#1 (copy),0
+    extract_uint16                                                                            (𝕗) read_offset#0,write_end#0,write_offset#0 | dynamic_boolean_array#1,array_length#0
+    l-store-copy array_length#0 0                                                             (𝕗) read_offset#0,write_end#0,write_offset#0 | dynamic_boolean_array#1,array_length#0,array_length#0
+    f-store array_length#0                                                                    (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | dynamic_boolean_array#1,array_length#0
+    l-load-copy array_length#0 0                                                              (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | dynamic_boolean_array#1,array_length#0,array_length#0 (copy)
+    // arc4_types/bool.py:45-47
+    // dynamic_boolean_array.extend(
+    //     (ARC4Bool(True), ARC4Bool(False), ARC4Bool(True), ARC4Bool(False), ARC4Bool(True))
+    // )
+    int 5                                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | dynamic_boolean_array#1,array_length#0,array_length#0 (copy),5
+    +                                                                                         (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | dynamic_boolean_array#1,array_length#0,new_array_length#0
+    l-load-copy new_array_length#0 0                                                          (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | dynamic_boolean_array#1,array_length#0,new_array_length#0,new_array_length#0 (copy)
+    itob                                                                                      (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | dynamic_boolean_array#1,array_length#0,new_array_length#0,tmp%0#2
+    extract 6 0                                                                               (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | dynamic_boolean_array#1,array_length#0,new_array_length#0,new_array_length_b#0
+    l-load dynamic_boolean_array#1 3                                                          (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | array_length#0,new_array_length#0,new_array_length_b#0,dynamic_boolean_array#1
+    l-load new_array_length_b#0 1                                                             (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | array_length#0,new_array_length#0,dynamic_boolean_array#1,new_array_length_b#0
+    replace2 0                                                                                (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | array_length#0,new_array_length#0,result#0
+    l-store-copy result#0 2                                                                   (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | result#0,array_length#0,new_array_length#0,result#0
+    f-store result#0                                                                          (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0 | result#0,array_length#0,new_array_length#0
+    l-load array_length#0 1                                                                   (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0 | result#0,new_array_length#0,array_length#0
+    int 7                                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0 | result#0,new_array_length#0,array_length#0,7
+    +                                                                                         (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0 | result#0,new_array_length#0,tmp%1#2
+    int 8                                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0 | result#0,new_array_length#0,tmp%1#2,8
+    /                                                                                         (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0 | result#0,new_array_length#0,current_bytes#0
+    l-store-copy current_bytes#0 0                                                            (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0 | result#0,new_array_length#0,current_bytes#0,current_bytes#0
+    f-store current_bytes#0                                                                   (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0 | result#0,new_array_length#0,current_bytes#0
+    l-load new_array_length#0 1                                                               (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0 | result#0,current_bytes#0,new_array_length#0
+    int 7                                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0 | result#0,current_bytes#0,new_array_length#0,7
+    +                                                                                         (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0 | result#0,current_bytes#0,tmp%2#2
+    int 8                                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0 | result#0,current_bytes#0,tmp%2#2,8
+    /                                                                                         (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0 | result#0,current_bytes#0,required_bytes#0
+    l-store-copy required_bytes#0 0                                                           (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0 | result#0,current_bytes#0,required_bytes#0,required_bytes#0
+    f-store required_bytes#0                                                                  (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0 | result#0,current_bytes#0,required_bytes#0
+    l-load current_bytes#0 1                                                                  (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0 | result#0,required_bytes#0,current_bytes#0
+    l-load required_bytes#0 1                                                                 (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0 | result#0,current_bytes#0,required_bytes#0
+    <                                                                                         (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0 | result#0,tmp%3#2
+    l-load result#0 1                                                                         (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0 | tmp%3#2,result#7
+    f-store result#7                                                                          (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | tmp%3#2
+    l-load tmp%3#2 0                                                                          (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | tmp%3#2
+    bz main_after_if_else@5 ; b main_if_body@4                                                (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+
+main_if_body@4:                                                                               (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+    f-load required_bytes#0                                                                   (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | required_bytes#0
+    f-load current_bytes#0                                                                    (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | required_bytes#0,current_bytes#0
+    -                                                                                         (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | tmp%4#2
+    bzero                                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | tmp%5#2
+    f-load result#0                                                                           (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | tmp%5#2,result#0
+    l-load tmp%5#2 1                                                                          (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | result#0,tmp%5#2
+    concat                                                                                    (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | result#7
+    f-store result#7                                                                          (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+    b main_after_if_else@5                                                                    (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+
+main_after_if_else@5:                                                                         (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+    f-load result#7                                                                           (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | result#0
+    f-store result#0                                                                          (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+    int 0                                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0
+    f-store read_offset#0                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+    f-load array_length#0                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | array_length#0
+    int 16                                                                                    (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | array_length#0,16
+    +                                                                                         (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | write_offset#0
+    l-store-copy write_offset#0 0                                                             (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | write_offset#0,write_offset#0
+    f-store write_offset#0                                                                    (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | write_offset#0
+    l-load write_offset#0 0                                                                   (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | write_offset#0
+    // arc4_types/bool.py:45-47
+    // dynamic_boolean_array.extend(
+    //     (ARC4Bool(True), ARC4Bool(False), ARC4Bool(True), ARC4Bool(False), ARC4Bool(True))
+    // )
+    int 5                                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | write_offset#0,5
+    +                                                                                         (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | write_end#0
+    f-store write_end#0                                                                       (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+    b main_while_top@6                                                                        (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+
+main_while_top@6:                                                                             (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+    f-load write_offset#0                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | write_offset#0
+    f-load write_end#0                                                                        (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | write_offset#0,write_end#0
+    <                                                                                         (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | tmp%6#1
+    bz main_after_while@8 ; b main_while_body@7                                               (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+
+main_while_body@7:                                                                            (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+    // arc4_types/bool.py:45-47
+    // dynamic_boolean_array.extend(
+    //     (ARC4Bool(True), ARC4Bool(False), ARC4Bool(True), ARC4Bool(False), ARC4Bool(True))
+    // )
+    byte 0x8000800080                                                                         (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | 0x8000800080
+    f-load read_offset#0                                                                      (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | 0x8000800080,read_offset#0
+    l-store-copy read_offset#0 1                                                              (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,0x8000800080,read_offset#0 (copy)
+    getbit                                                                                    (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,tmp%7#1
+    f-load result#0                                                                           (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,tmp%7#1,result#0
+    f-load write_offset#0                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,tmp%7#1,result#0,write_offset#0
+    l-store-copy write_offset#0 2                                                             (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,write_offset#0,tmp%7#1,result#0,write_offset#0 (copy)
+    l-load tmp%7#1 2                                                                          (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,write_offset#0,result#0,write_offset#0 (copy),tmp%7#1
+    setbit                                                                                    (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,write_offset#0,result#0
+    f-store result#0                                                                          (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,write_offset#0
+    l-load write_offset#0 0                                                                   (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,write_offset#0
+    int 1                                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,write_offset#0,1
+    +                                                                                         (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,write_offset#0
+    f-store write_offset#0                                                                    (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0
+    l-load read_offset#0 0                                                                    (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0
+    // arc4_types/bool.py:45-47
+    // dynamic_boolean_array.extend(
+    //     (ARC4Bool(True), ARC4Bool(False), ARC4Bool(True), ARC4Bool(False), ARC4Bool(True))
+    // )
+    int 8                                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,8
+    +                                                                                         (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0
+    f-store read_offset#0                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+    b main_while_top@6                                                                        (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+
+main_after_while@8:                                                                           (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+    // arc4_types/bool.py:48
+    // assert dynamic_boolean_array.bytes == Bytes.from_hex("0005A8")
+    f-load result#0                                                                           (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | result#0
+    byte 0x0005a8                                                                             (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | result#0,0x0005a8
+    ==                                                                                        (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | tmp%8#0
+    assert                                                                                    (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+    // arc4_types/bool.py:55
     // return True
-    int 1                                                      1
-    return
+    int 1                                                                                     (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | 1
+    return                                                                                    (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+
+
+// test_cases.arc4_types.bool.get_arr() -> bytes:
+get_arr:
+    // arc4_types/bool.py:74
+    // return DynamicArray[ARC4Bool]()
+    byte 0x0000                                                                               0x0000
+    retsub                                                                                    0x0000
 
 

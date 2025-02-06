@@ -7,7 +7,7 @@ main:
     bytecblock 0x00 0x80 0x00020004000b000548656c6c6f0005576f726c64 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172 0x000548656c6c6f
     pushbytess 0x000280 0x8000 // 0x000280, 0x8000
     intc_1 // 2
-    intc_0 // 0
+    intc_3 // 8
     callsub dynamic_array_concat_bits
     dup
     pushbytes 0x0004a0
@@ -27,7 +27,7 @@ main:
     assert
     bytec_1 // 0x80
     intc_2 // 1
-    intc_0 // 0
+    intc_3 // 8
     callsub dynamic_array_concat_bits
     dup
     pushbytes 0x0009aa80
@@ -258,7 +258,7 @@ dynamic_array_pop_byte_length_head:
     retsub
 
 
-// _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, is_packed: uint64) -> bytes:
+// _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:
 dynamic_array_concat_bits:
     proto 4 1
     pushbytes ""
@@ -305,25 +305,22 @@ dynamic_array_concat_bits:
 dynamic_array_concat_bits_after_if_else@2:
     frame_dig 7
     frame_bury 4
+    intc_0 // 0
+    frame_bury 0
     frame_dig 3
     pushint 16 // 16
     +
-    frame_bury 2
-    intc_3 // 8
-    intc_2 // 1
-    frame_dig -1
-    select
     dup
-    frame_bury 1
-    assert // Step cannot be zero
-    intc_0 // 0
-    frame_bury 0
-
-dynamic_array_concat_bits_for_header@3:
-    frame_dig 0
+    frame_bury 2
     frame_dig -2
+    +
+    frame_bury 1
+
+dynamic_array_concat_bits_while_top@3:
+    frame_dig 2
+    frame_dig 1
     <
-    bz dynamic_array_concat_bits_after_for@6
+    bz dynamic_array_concat_bits_after_while@5
     frame_dig -3
     frame_dig 0
     dup
@@ -339,12 +336,12 @@ dynamic_array_concat_bits_for_header@3:
     intc_2 // 1
     +
     frame_bury 2
-    frame_dig 1
+    frame_dig -1
     +
     frame_bury 0
-    b dynamic_array_concat_bits_for_header@3
+    b dynamic_array_concat_bits_while_top@3
 
-dynamic_array_concat_bits_after_for@6:
+dynamic_array_concat_bits_after_while@5:
     frame_dig 4
     frame_bury 0
     retsub
