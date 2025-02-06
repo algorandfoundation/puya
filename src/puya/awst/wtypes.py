@@ -204,7 +204,7 @@ class WArray(WType):
                 "arrays of arc4 bools are not supported, use an array of native bools instead",
                 location=self.source_location,
             )
-        if not element_type.immutable:
+        elif not element_type.immutable:
             logger.error("arrays must have immutable elements", location=self.source_location)
 
     @name.default
