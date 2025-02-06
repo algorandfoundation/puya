@@ -967,7 +967,7 @@ class AssignmentStatement(Statement):
     Multi-assignment statements like `a = b = 1` should be split in the AST pass.
 
     Will validate that target and value are of the same type, and that said type is usable
-    as an l-value.
+    as an l-value. Value is evaluated before the target
     """
 
     target: Lvalue
@@ -992,7 +992,7 @@ class AssignmentExpression(Expression):
     This both assigns value to target and returns the value as the result of the expression.
 
     Will validate that target and value are of the same type, and that said type is usable
-    as an l-value.
+    as an l-value. Value is evaluated before the target
     """
 
     target: Lvalue = attrs.field()

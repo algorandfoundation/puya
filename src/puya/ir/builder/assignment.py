@@ -33,6 +33,7 @@ def handle_assignment_expr(
     value: awst_nodes.Expression,
     assignment_location: SourceLocation,
 ) -> Sequence[ir.Value]:
+    # as per AWST node Value is evaluated before the target
     expr_values = context.visitor.visit_expr(value)
     return handle_assignment(
         context,
@@ -182,7 +183,7 @@ def handle_assignment(
             )
             return [mat_value]
         case awst_nodes.IndexExpression() as ix_expr:
-            if isinstance(ix_expr.base.wtype, wtypes.WArray):
+            if isinstance(ix_expr.base.wtype, wtypes.WArray) and not ix_expr.base.wtype.immutable:
                 array_slot = context.visitor.visit_and_materialise_single(
                     ix_expr.base, "array_slot"
                 )
