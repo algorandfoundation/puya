@@ -800,11 +800,8 @@ class FunctionIRBuilder(
                     source_location=expr.source_location,
                 )
         elif isinstance(expr.base.wtype, wtypes.WArray) and not expr.base.wtype.immutable:
-            array_slot = self.visit_and_materialise_single(expr.base)
-            array = mem.read_slot(self.context, array_slot, expr.base.source_location)
-            index = self.visit_and_materialise_single(expr.index)
             return ArrayReadIndex(
-                array=array,
+                array=mem.read_slot(self.context, base, expr.base.source_location),
                 index=index,
                 source_location=expr.source_location,
             )
