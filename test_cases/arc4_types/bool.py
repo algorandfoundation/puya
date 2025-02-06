@@ -41,6 +41,12 @@ class Arc4BoolTypeContract(Contract):
 
         assert dynamic_boolean_array.bytes == Bytes.from_hex("0003A0")
 
+        dynamic_boolean_array = get_arr()
+        dynamic_boolean_array.extend(
+            (ARC4Bool(True), ARC4Bool(False), ARC4Bool(True), ARC4Bool(False), ARC4Bool(True))
+        )
+        assert dynamic_boolean_array.bytes == Bytes.from_hex("0005A8")
+
         assert ARC4Bool(True) == True  # noqa: E712
         assert ARC4Bool(False) != True  # noqa: E712
         assert False == ARC4Bool(False)  # noqa: E712, SIM300
@@ -61,3 +67,8 @@ class Arc4BoolTypeContract(Contract):
         assert false == ARC4Bool(false.native)
 
         return true.native
+
+
+@subroutine(inline=False)
+def get_arr() -> DynamicArray[ARC4Bool]:
+    return DynamicArray[ARC4Bool]()
