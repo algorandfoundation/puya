@@ -6,10 +6,7 @@ import attrs
 from puya.avm import AVMType
 from puya.errors import InternalError
 from puya.ir.types_ import AVMBytesEncoding
-from puya.mir import (
-    models,
-    models as mir,
-)
+from puya.mir import models as mir
 from puya.mir.stack import Stack
 from puya.mir.visitor import MIRVisitor
 from puya.teal import models as teal
@@ -495,7 +492,7 @@ class _NeedsProto(Stack):
                 return True
         return False
 
-    def visit_retsub(self, retsub: models.RetSub) -> None:
+    def visit_retsub(self, retsub: mir.RetSub) -> None:
         # if the stack height does not match the number of return values then
         # the proto op is required for the sub
         if self.fxl_height != retsub.returns:
