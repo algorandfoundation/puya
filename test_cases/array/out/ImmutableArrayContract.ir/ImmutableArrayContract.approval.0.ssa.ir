@@ -170,36 +170,36 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         return tmp%19#0
 
 subroutine test_cases.array.immutable.times(n: uint64) -> bytes:
-    block@0: // L345
+    block@0: // L354
         let result#0: bytes = ""
         (assert 1u) // Step cannot be zero
         let _i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L348
+    block@1: // for_header_L357
         let _i#1: uint64 = φ(_i#0 <- block@0, _i#2 <- block@3)
         let result#1: bytes = φ(result#0 <- block@0, result#2 <- block@3)
         let continue_looping%0#0: bool = (< _i#1 n#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L349
+    block@2: // for_body_L358
         let result#2: bytes = (concat result#1 " ")
         goto block@3
-    block@3: // for_footer_L348
+    block@3: // for_footer_L357
         let _i#2: uint64 = (+ _i#1 1u)
         goto block@1
-    block@4: // after_for_L348
+    block@4: // after_for_L357
         return result#1
 
 subroutine test_cases.array.immutable.add_x(arr: uint64[], x: uint64) -> uint64[]:
-    block@0: // L353
+    block@0: // L362
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L355
+    block@1: // for_header_L364
         let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
         let arr#1: uint64[] = φ(arr#0 <- block@0, arr#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 x#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L356
+    block@2: // for_body_L365
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) arr#1)
         let encoded%0#0: uint64[] = encode<uint64>(i#1)
         let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 encoded%0#0)
@@ -210,66 +210,66 @@ subroutine test_cases.array.immutable.add_x(arr: uint64[], x: uint64) -> uint64[
         let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
         let arr#2: uint64[] = concat_result%0#0
         goto block@3
-    block@3: // for_footer_L355
+    block@3: // for_footer_L364
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@4: // after_for_L355
+    block@4: // after_for_L364
         return arr#1
 
 subroutine test_cases.array.immutable.pop_x(arr: uint64[], x: uint64) -> uint64[]:
-    block@0: // L360
+    block@0: // L369
         (assert 1u) // Step cannot be zero
         let _i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L362
+    block@1: // for_header_L371
         let _i#1: uint64 = φ(_i#0 <- block@0, _i#2 <- block@3)
         let arr#1: uint64[] = φ(arr#0 <- block@0, arr#2 <- block@3)
         let continue_looping%0#0: bool = (< _i#1 x#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L363
+    block@2: // for_body_L372
         let (popped%0#0: bytes, data%0#0: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(arr#1, 8u)
         let arr#2: uint64[] = data%0#0
         goto block@3
-    block@3: // for_footer_L362
+    block@3: // for_footer_L371
         let _i#2: uint64 = (+ _i#1 1u)
         goto block@1
-    block@4: // after_for_L362
+    block@4: // after_for_L371
         return arr#1
 
 subroutine test_cases.array.immutable.sum_arr(arr: uint64[]) -> uint64:
-    block@0: // L367
+    block@0: // L376
         let total#0: uint64 = 0u
         let array_length%0#0: uint64 = (extract_uint16 arr#0 0u)
         let item_index_internal%0#0: uint64 = 0u
         let reverse_index_internal%0#0: uint64 = array_length%0#0
         goto block@1
-    block@1: // for_header_L370
+    block@1: // for_header_L379
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@3)
         let total#1: uint64 = φ(total#0 <- block@0, total#2 <- block@3)
         let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L371
+    block@2: // for_body_L380
         let array_head_and_tail%0#0: bytes = ((extract 2 0) arr#0)
         let item_offset%0#0: uint64 = (* item_index_internal%0#1 8u)
         let value_at_index%0#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 8u) // on error: Index access is out of bounds
         let i#0: uint64 = (btoi value_at_index%0#0)
         let total#2: uint64 = (+ total#1 i#0)
         goto block@3
-    block@3: // for_footer_L370
+    block@3: // for_footer_L379
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
-    block@4: // after_for_L370
+    block@4: // after_for_L379
         return total#1
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__() -> bool:
-    block@0: // L72
+    block@0: // L73
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@17
-    block@1: // abi_routing_L72
+        goto tmp%1#0 ? block@1 : block@18
+    block@1: // abi_routing_L73
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_uint64_array()void" => block@2, method "test_bool_array(uint64)void" => block@3, method "test_fixed_size_tuple_array()void" => block@4, method "test_fixed_size_named_tuple_array()void" => block@5, method "test_dynamic_sized_tuple_array()void" => block@6, method "test_dynamic_sized_named_tuple_array()void" => block@7, method "test_nested_array(uint64,uint64[][])uint64[]" => block@8, method "test_bit_packed_tuples()void" => block@9, method "sum_uints_and_lengths_and_trues(uint64[],bool[],(uint64,bool,bool)[],(uint64,string)[])(uint64,uint64,uint64,uint64)" => block@10, method "test_uint64_return(uint64)uint64[]" => block@11, method "test_bool_return(uint64)bool[]" => block@12, method "test_tuple_return(uint64)(uint64,bool,bool)[]" => block@13, method "test_dynamic_tuple_return(uint64)(uint64,string)[]" => block@14, * => block@15}
-    block@2: // test_uint64_array_route_L73
+        switch tmp%2#0 {method "test_uint64_array()void" => block@2, method "test_bool_array(uint64)void" => block@3, method "test_fixed_size_tuple_array()void" => block@4, method "test_fixed_size_named_tuple_array()void" => block@5, method "test_dynamic_sized_tuple_array()void" => block@6, method "test_dynamic_sized_named_tuple_array()void" => block@7, method "test_nested_array(uint64,uint64[][])uint64[]" => block@8, method "test_bit_packed_tuples()void" => block@9, method "sum_uints_and_lengths_and_trues(uint64[],bool[],(uint64,bool,bool)[],(uint64,string)[])(uint64,uint64,uint64,uint64)" => block@10, method "test_uint64_return(uint64)uint64[]" => block@11, method "test_bool_return(uint64)bool[]" => block@12, method "test_tuple_return(uint64)(uint64,bool,bool)[]" => block@13, method "test_dynamic_tuple_return(uint64)(uint64,string)[]" => block@14, method "test_convert_to_array_and_back((uint64,bool,bool)[],uint64)(uint64,bool,bool)[]" => block@15, * => block@16}
+    block@2: // test_uint64_array_route_L74
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
         (assert tmp%4#0) // OnCompletion is not NoOp
@@ -278,7 +278,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         (assert tmp%6#0) // can only call when not creating
         test_cases.array.immutable.ImmutableArrayContract.test_uint64_array()
         return 1u
-    block@3: // test_bool_array_route_L109
+    block@3: // test_bool_array_route_L110
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (== tmp%7#0 NoOp)
         (assert tmp%8#0) // OnCompletion is not NoOp
@@ -289,7 +289,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%11#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
         test_cases.array.immutable.ImmutableArrayContract.test_bool_array(tmp%11#0)
         return 1u
-    block@4: // test_fixed_size_tuple_array_route_L133
+    block@4: // test_fixed_size_tuple_array_route_L134
         let tmp%12#0: uint64 = (txn OnCompletion)
         let tmp%13#0: bool = (== tmp%12#0 NoOp)
         (assert tmp%13#0) // OnCompletion is not NoOp
@@ -298,7 +298,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         (assert tmp%15#0) // can only call when not creating
         test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tuple_array()
         return 1u
-    block@5: // test_fixed_size_named_tuple_array_route_L151
+    block@5: // test_fixed_size_named_tuple_array_route_L152
         let tmp%16#0: uint64 = (txn OnCompletion)
         let tmp%17#0: bool = (== tmp%16#0 NoOp)
         (assert tmp%17#0) // OnCompletion is not NoOp
@@ -307,7 +307,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         (assert tmp%19#0) // can only call when not creating
         test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_named_tuple_array()
         return 1u
-    block@6: // test_dynamic_sized_tuple_array_route_L166
+    block@6: // test_dynamic_sized_tuple_array_route_L167
         let tmp%20#0: uint64 = (txn OnCompletion)
         let tmp%21#0: bool = (== tmp%20#0 NoOp)
         (assert tmp%21#0) // OnCompletion is not NoOp
@@ -316,7 +316,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         (assert tmp%23#0) // can only call when not creating
         test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array()
         return 1u
-    block@7: // test_dynamic_sized_named_tuple_array_route_L185
+    block@7: // test_dynamic_sized_named_tuple_array_route_L186
         let tmp%24#0: uint64 = (txn OnCompletion)
         let tmp%25#0: bool = (== tmp%24#0 NoOp)
         (assert tmp%25#0) // OnCompletion is not NoOp
@@ -325,7 +325,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         (assert tmp%27#0) // can only call when not creating
         test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array()
         return 1u
-    block@8: // test_nested_array_route_L204
+    block@8: // test_nested_array_route_L205
         let tmp%28#0: uint64 = (txn OnCompletion)
         let tmp%29#0: bool = (== tmp%28#0 NoOp)
         (assert tmp%29#0) // OnCompletion is not NoOp
@@ -339,7 +339,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%35#0: bytes = (concat 0x151f7c75 tmp%34#0)
         (log tmp%35#0)
         return 1u
-    block@9: // test_bit_packed_tuples_route_L222
+    block@9: // test_bit_packed_tuples_route_L223
         let tmp%36#0: uint64 = (txn OnCompletion)
         let tmp%37#0: bool = (== tmp%36#0 NoOp)
         (assert tmp%37#0) // OnCompletion is not NoOp
@@ -348,7 +348,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         (assert tmp%39#0) // can only call when not creating
         test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples()
         return 1u
-    block@10: // sum_uints_and_lengths_and_trues_route_L287
+    block@10: // sum_uints_and_lengths_and_trues_route_L288
         let tmp%40#0: uint64 = (txn OnCompletion)
         let tmp%41#0: bool = (== tmp%40#0 NoOp)
         (assert tmp%41#0) // OnCompletion is not NoOp
@@ -373,7 +373,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%48#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%4#0)
         (log tmp%48#0)
         return 1u
-    block@11: // test_uint64_return_route_L314
+    block@11: // test_uint64_return_route_L315
         let tmp%49#0: uint64 = (txn OnCompletion)
         let tmp%50#0: bool = (== tmp%49#0 NoOp)
         (assert tmp%50#0) // OnCompletion is not NoOp
@@ -386,7 +386,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%55#0: bytes = (concat 0x151f7c75 tmp%54#0)
         (log tmp%55#0)
         return 1u
-    block@12: // test_bool_return_route_L321
+    block@12: // test_bool_return_route_L322
         let tmp%56#0: uint64 = (txn OnCompletion)
         let tmp%57#0: bool = (== tmp%56#0 NoOp)
         (assert tmp%57#0) // OnCompletion is not NoOp
@@ -399,7 +399,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%62#0: bytes = (concat 0x151f7c75 tmp%61#0)
         (log tmp%62#0)
         return 1u
-    block@13: // test_tuple_return_route_L328
+    block@13: // test_tuple_return_route_L329
         let tmp%63#0: uint64 = (txn OnCompletion)
         let tmp%64#0: bool = (== tmp%63#0 NoOp)
         (assert tmp%64#0) // OnCompletion is not NoOp
@@ -412,7 +412,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%69#0: bytes = (concat 0x151f7c75 tmp%68#0)
         (log tmp%69#0)
         return 1u
-    block@14: // test_dynamic_tuple_return_route_L335
+    block@14: // test_dynamic_tuple_return_route_L336
         let tmp%70#0: uint64 = (txn OnCompletion)
         let tmp%71#0: bool = (== tmp%70#0 NoOp)
         (assert tmp%71#0) // OnCompletion is not NoOp
@@ -425,28 +425,42 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%76#0: bytes = (concat 0x151f7c75 tmp%75#0)
         (log tmp%76#0)
         return 1u
-    block@15: // switch_case_default_L72
-        goto block@16
-    block@16: // switch_case_next_L72
-        goto block@21
-    block@17: // bare_routing_L72
+    block@15: // test_convert_to_array_and_back_route_L343
         let tmp%77#0: uint64 = (txn OnCompletion)
-        switch tmp%77#0 {0u => block@18, * => block@19}
-    block@18: // __algopy_default_create_L1
-        let tmp%78#0: uint64 = (txn ApplicationID)
-        let tmp%79#0: bool = (== tmp%78#0 0u)
-        (assert tmp%79#0) // can only call when creating
+        let tmp%78#0: bool = (== tmp%77#0 NoOp)
+        (assert tmp%78#0) // OnCompletion is not NoOp
+        let tmp%79#0: uint64 = (txn ApplicationID)
+        let tmp%80#0: bool = (!= tmp%79#0 0u)
+        (assert tmp%80#0) // can only call when not creating
+        let tmp%81#0: bytes = (txna ApplicationArgs 1)
+        let reinterpret_bytes[8]%6#0: bytes[8] = (txna ApplicationArgs 2)
+        let tmp%82#0: uint64 = (btoi reinterpret_bytes[8]%6#0)
+        let tmp%83#0: (uint64,bool,bool)[] = test_cases.array.immutable.ImmutableArrayContract.test_convert_to_array_and_back(tmp%81#0, tmp%82#0)
+        let tmp%84#0: bytes = (concat 0x151f7c75 tmp%83#0)
+        (log tmp%84#0)
+        return 1u
+    block@16: // switch_case_default_L73
+        goto block@17
+    block@17: // switch_case_next_L73
+        goto block@22
+    block@18: // bare_routing_L73
+        let tmp%85#0: uint64 = (txn OnCompletion)
+        switch tmp%85#0 {0u => block@19, * => block@20}
+    block@19: // __algopy_default_create_L1
+        let tmp%86#0: uint64 = (txn ApplicationID)
+        let tmp%87#0: bool = (== tmp%86#0 0u)
+        (assert tmp%87#0) // can only call when creating
         test_cases.array.immutable.ImmutableArrayContract.__algopy_default_create()
         return 1u
-    block@19: // switch_case_default_L72
-        goto block@20
-    block@20: // switch_case_next_L72
+    block@20: // switch_case_default_L73
         goto block@21
-    block@21: // after_if_else_L72
+    block@21: // switch_case_next_L73
+        goto block@22
+    block@22: // after_if_else_L73
         return 0u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array() -> void:
-    block@0: // L73
+    block@0: // L74
         let array_data%0#0: bytes = (concat 0x0000 0x)
         let arr#0: uint64[] = array_data%0#0
         let tmp%0#0: uint64 = (extract_uint16 arr#0 0u)
@@ -574,7 +588,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array()
         return 
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(length: uint64) -> void:
-    block@0: // L109
+    block@0: // L110
         let array_data%0#0: bytes = (concat 0x0000 0x)
         let arr#0: bool[] = array_data%0#0
         let tmp%0#0: uint64 = (extract_uint16 arr#0 0u)
@@ -583,12 +597,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L114
+    block@1: // for_header_L115
         let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
         let arr#1: bool[] = φ(arr#0 <- block@0, arr#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 length#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L115
+    block@2: // for_body_L116
         let tmp%2#0: uint64 = (txn NumAppArgs)
         let to_encode%0#0: bool = (== i#1 tmp%2#0)
         let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u to_encode%0#0)
@@ -597,16 +611,16 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         let concat_result%0#0: bytes = _puya_lib.arc4.dynamic_array_concat_bits(arr#1, data%0#0, 1u, 8u)
         let arr#2: bool[] = concat_result%0#0
         goto block@3
-    block@3: // for_footer_L114
+    block@3: // for_footer_L115
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@4: // after_for_L114
+    block@4: // after_for_L115
         let tmp%3#0: uint64 = (extract_uint16 arr#1 0u)
         let tmp%4#0: bool = (== tmp%3#0 length#0)
         (assert tmp%4#0)
         let tmp%5#0: bool = (> length#0 0u)
         goto tmp%5#0 ? block@5 : block@6
-    block@5: // if_body_L120
+    block@5: // if_body_L121
         let array_head_and_tail%0#0: bytes = ((extract 2 0) arr#1)
         let array_length%0#0: uint64 = (extract_uint16 arr#1 0u)
         let index_is_in_bounds%0#0: bool = (< 0u array_length%0#0)
@@ -618,10 +632,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         let tmp%7#0: bool = (! tmp%6#0)
         (assert tmp%7#0) // expected element 0 to be False
         goto block@6
-    block@6: // after_if_else_L119
+    block@6: // after_if_else_L120
         let tmp%8#0: bool = (> length#0 1u)
         goto tmp%8#0 ? block@7 : block@8
-    block@7: // if_body_L122
+    block@7: // if_body_L123
         let array_head_and_tail%1#0: bytes = ((extract 2 0) arr#1)
         let array_length%1#0: uint64 = (extract_uint16 arr#1 0u)
         let index_is_in_bounds%1#0: bool = (< 1u array_length%1#0)
@@ -633,10 +647,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         let tmp%10#0: bool = (! tmp%9#0)
         (assert tmp%10#0) // expected element 1 to be False
         goto block@8
-    block@8: // after_if_else_L121
+    block@8: // after_if_else_L122
         let tmp%11#0: bool = (> length#0 2u)
         goto tmp%11#0 ? block@9 : block@10
-    block@9: // if_body_L124
+    block@9: // if_body_L125
         let array_head_and_tail%2#0: bytes = ((extract 2 0) arr#1)
         let array_length%2#0: uint64 = (extract_uint16 arr#1 0u)
         let index_is_in_bounds%2#0: bool = (< 2u array_length%2#0)
@@ -647,10 +661,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         let tmp%12#0: bool = (getbit arc4_item%2#0 0u)
         (assert tmp%12#0) // expected element 2 to be True
         goto block@10
-    block@10: // after_if_else_L123
+    block@10: // after_if_else_L124
         let tmp%13#0: bool = (> length#0 3u)
         goto tmp%13#0 ? block@11 : block@12
-    block@11: // if_body_L126
+    block@11: // if_body_L127
         let tmp%14#0: uint64 = (- length#0 1u)
         let array_head_and_tail%3#0: bytes = ((extract 2 0) arr#1)
         let array_length%3#0: uint64 = (extract_uint16 arr#1 0u)
@@ -663,11 +677,11 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         let tmp%16#0: bool = (! tmp%15#0)
         (assert tmp%16#0) // expected last element to be False
         goto block@12
-    block@12: // after_if_else_L125
+    block@12: // after_if_else_L126
         (app_global_put "g" arr#1)
         let tmp%17#0: bool = (!= length#0 0u)
         goto tmp%17#0 ? block@13 : block@14
-    block@13: // if_body_L130
+    block@13: // if_body_L131
         let (popped%0#0: bytes, data%1#0: bytes) = _puya_lib.arc4.dynamic_array_pop_bit(arr#1)
         let arr#7: bool[] = data%1#0
         let tmp%18#0: uint64 = (extract_uint16 arr#7 0u)
@@ -675,11 +689,11 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         let tmp%20#0: bool = (== tmp%18#0 tmp%19#0)
         (assert tmp%20#0)
         goto block@14
-    block@14: // after_if_else_L129
+    block@14: // after_if_else_L130
         return 
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tuple_array() -> void:
-    block@0: // L133
+    block@0: // L134
         let array_data%0#0: bytes = (concat 0x0000 0x)
         let arr#0: (uint64,uint64)[] = array_data%0#0
         let tmp%0#0: uint64 = (extract_uint16 arr#0 0u)
@@ -688,12 +702,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tup
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L138
+    block@1: // for_header_L139
         let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
         let arr#1: (uint64,uint64)[] = φ(arr#0 <- block@0, arr#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 5u)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L139
+    block@2: // for_body_L140
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) arr#1)
         let tmp%2#0: uint64 = (+ i#1 1u)
         let tmp%3#0: uint64 = (+ i#1 2u)
@@ -706,10 +720,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tup
         let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
         let arr#2: (uint64,uint64)[] = concat_result%0#0
         goto block@3
-    block@3: // for_footer_L138
+    block@3: // for_footer_L139
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@4: // after_for_L138
+    block@4: // after_for_L139
         let tmp%4#0: uint64 = (extract_uint16 arr#1 0u)
         let tmp%5#0: bool = (== tmp%4#0 5u)
         (assert tmp%5#0)
@@ -770,7 +784,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tup
         return 
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_named_tuple_array() -> void:
-    block@0: // L151
+    block@0: // L152
         let array_data%0#0: bytes = (concat 0x0000 0x)
         let arr#0: (uint64,bool,bool)[] = array_data%0#0
         let tmp%0#0: uint64 = (extract_uint16 arr#0 0u)
@@ -779,12 +793,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_nam
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L156
+    block@1: // for_header_L157
         let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
         let arr#1: (uint64,bool,bool)[] = φ(arr#0 <- block@0, arr#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 5u)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L157
+    block@2: // for_body_L158
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) arr#1)
         let tmp%2#0: uint64 = (% i#1 2u)
         let tmp%3#0: bool = (== tmp%2#0 0u)
@@ -800,10 +814,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_nam
         let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
         let arr#2: (uint64,bool,bool)[] = concat_result%0#0
         goto block@3
-    block@3: // for_footer_L156
+    block@3: // for_footer_L157
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@4: // after_for_L156
+    block@4: // after_for_L157
         let tmp%7#0: uint64 = (extract_uint16 arr#1 0u)
         let tmp%8#0: bool = (== tmp%7#0 5u)
         (assert tmp%8#0)
@@ -831,7 +845,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_nam
         return 
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array() -> void:
-    block@0: // L166
+    block@0: // L167
         let array_data%0#0: bytes = (concat 0x0000 0x)
         let arr#0: (uint64,bytes)[] = array_data%0#0
         let tmp%0#0: uint64 = (extract_uint16 arr#0 0u)
@@ -840,12 +854,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L171
+    block@1: // for_header_L172
         let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
         let arr#1: (uint64,bytes)[] = φ(arr#0 <- block@0, arr#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 5u)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L172
+    block@2: // for_body_L173
         let tmp%2#0: uint64 = (+ i#1 1u)
         let tmp%3#0: bytes = (bzero i#1)
         let val_as_bytes%0#0: bytes[8] = (itob tmp%2#0)
@@ -876,21 +890,21 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let concat_result%0#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%0#0, l_head_and_tail%0#0, r_count%0#0, r_head_and_tail%0#0)
         let arr#2: (uint64,bytes)[] = concat_result%0#0
         goto block@3
-    block@3: // for_footer_L171
+    block@3: // for_footer_L172
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@4: // after_for_L171
+    block@4: // after_for_L172
         let tmp%4#0: uint64 = (extract_uint16 arr#1 0u)
         let tmp%5#0: bool = (== tmp%4#0 5u)
         (assert tmp%5#0)
         (assert 1u) // Step cannot be zero
         let i#3: uint64 = 0u
         goto block@5
-    block@5: // for_header_L175
+    block@5: // for_header_L176
         let i#4: uint64 = φ(i#3 <- block@4, i#5 <- block@7)
         let continue_looping%1#0: bool = (< i#4 5u)
         goto continue_looping%1#0 ? block@6 : block@8
-    block@6: // for_body_L176
+    block@6: // for_body_L177
         let array_head_and_tail%0#0: bytes = ((extract 2 0) arr#1)
         let item_offset_offset%0#0: uint64 = (* i#4 2u)
         let item_offset%0#0: uint64 = (extract_uint16 array_head_and_tail%0#0 item_offset_offset%0#0)
@@ -932,10 +946,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let tmp%9#0: bool = (== tmp%8#0 i#4)
         (assert tmp%9#0) // expected 2nd element to be correct
         goto block@7
-    block@7: // for_footer_L175
+    block@7: // for_footer_L176
         let i#5: uint64 = (+ i#4 1u)
         goto block@5
-    block@8: // after_for_L175
+    block@8: // after_for_L176
         let (popped%0#0: bytes, data%0#0: bytes) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(arr#1)
         let arr#4: (uint64,bytes)[] = data%0#0
         let tmp%10#0: uint64 = (extract_uint16 arr#4 0u)
@@ -991,7 +1005,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         return 
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array() -> void:
-    block@0: // L185
+    block@0: // L186
         let array_data%0#0: bytes = (concat 0x0000 0x)
         let arr#0: (uint64,bytes)[] = array_data%0#0
         let tmp%0#0: uint64 = (extract_uint16 arr#0 0u)
@@ -1000,12 +1014,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L190
+    block@1: // for_header_L191
         let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
         let arr#1: (uint64,bytes)[] = φ(arr#0 <- block@0, arr#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 5u)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L191
+    block@2: // for_body_L192
         let tmp%2#0: uint64 = (+ i#1 1u)
         let tmp%3#0: bytes = test_cases.array.immutable.times(i#1)
         let val_as_bytes%0#0: bytes[8] = (itob tmp%2#0)
@@ -1036,21 +1050,21 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let concat_result%0#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%0#0, l_head_and_tail%0#0, r_count%0#0, r_head_and_tail%0#0)
         let arr#2: (uint64,bytes)[] = concat_result%0#0
         goto block@3
-    block@3: // for_footer_L190
+    block@3: // for_footer_L191
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@4: // after_for_L190
+    block@4: // after_for_L191
         let tmp%4#0: uint64 = (extract_uint16 arr#1 0u)
         let tmp%5#0: bool = (== tmp%4#0 5u)
         (assert tmp%5#0)
         (assert 1u) // Step cannot be zero
         let i#3: uint64 = 0u
         goto block@5
-    block@5: // for_header_L194
+    block@5: // for_header_L195
         let i#4: uint64 = φ(i#3 <- block@4, i#5 <- block@7)
         let continue_looping%1#0: bool = (< i#4 5u)
         goto continue_looping%1#0 ? block@6 : block@8
-    block@6: // for_body_L195
+    block@6: // for_body_L196
         let array_head_and_tail%0#0: bytes = ((extract 2 0) arr#1)
         let item_offset_offset%0#0: uint64 = (* i#4 2u)
         let item_offset%0#0: uint64 = (extract_uint16 array_head_and_tail%0#0 item_offset_offset%0#0)
@@ -1092,10 +1106,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let tmp%9#0: bool = (== item1%1%0#0 tmp%8#0)
         (assert tmp%9#0) // expected 2nd element to be correct
         goto block@7
-    block@7: // for_footer_L194
+    block@7: // for_footer_L195
         let i#5: uint64 = (+ i#4 1u)
         goto block@5
-    block@8: // after_for_L194
+    block@8: // after_for_L195
         let (popped%0#0: bytes, data%0#0: bytes) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(arr#1)
         let arr#4: (uint64,bytes)[] = data%0#0
         let tmp%10#0: uint64 = (extract_uint16 arr#4 0u)
@@ -1149,27 +1163,27 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         return 
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_nested_array(arr_to_add: uint64, arr: uint64[][]) -> uint64[]:
-    block@0: // L204
+    block@0: // L205
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L209
+    block@1: // for_header_L210
         let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@7)
         let arr#2: uint64[][] = φ(arr#0 <- block@0, arr#3 <- block@7)
         let continue_looping%0#0: bool = (< i#1 arr_to_add#0)
         goto continue_looping%0#0 ? block@2 : block@8
-    block@2: // for_body_L210
+    block@2: // for_body_L211
         let array_data%0#0: bytes = (concat 0x0000 0x)
         let extra_arr#0: uint64[] = array_data%0#0
         (assert 1u) // Step cannot be zero
         let j#0: uint64 = 0u
         goto block@3
-    block@3: // for_header_L211
+    block@3: // for_header_L212
         let j#1: uint64 = φ(j#0 <- block@2, j#2 <- block@5)
         let extra_arr#1: uint64[] = φ(extra_arr#0 <- block@2, extra_arr#2 <- block@5)
         let continue_looping%1#0: bool = (< j#1 i#1)
         goto continue_looping%1#0 ? block@4 : block@6
-    block@4: // for_body_L212
+    block@4: // for_body_L213
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) extra_arr#1)
         let encoded%0#0: uint64[] = encode<uint64>(j#1)
         let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 encoded%0#0)
@@ -1180,10 +1194,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_nested_array(a
         let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
         let extra_arr#2: uint64[] = concat_result%0#0
         goto block@5
-    block@5: // for_footer_L211
+    block@5: // for_footer_L212
         let j#2: uint64 = (+ j#1 1u)
         goto block@3
-    block@6: // after_for_L211
+    block@6: // after_for_L212
         let as_bytes%1#0: bytes[8] = (itob 2u)
         let next_item_head%0#0: bytes = ((extract 6 2) as_bytes%1#0)
         let result%0#0: bytes = (concat 0x next_item_head%0#0)
@@ -1197,22 +1211,22 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_nested_array(a
         let concat_result%1#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%0#0, l_head_and_tail%0#0, r_count%0#0, r_head_and_tail%0#0)
         let arr#3: uint64[][] = concat_result%1#0
         goto block@7
-    block@7: // for_footer_L209
+    block@7: // for_footer_L210
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@8: // after_for_L209
+    block@8: // after_for_L210
         let array_data%1#0: bytes = (concat 0x0000 0x)
         let totals#0: uint64[] = array_data%1#0
         let array_length%0#0: uint64 = (extract_uint16 arr#2 0u)
         let item_index_internal%0#0: uint64 = 0u
         let reverse_index_internal%0#0: uint64 = array_length%0#0
         goto block@9
-    block@9: // for_header_L217
+    block@9: // for_header_L218
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@8, item_index_internal%0#2 <- block@11)
         let totals#1: uint64[] = φ(totals#0 <- block@8, totals#2 <- block@11)
         let continue_looping%2#0: bool = (< item_index_internal%0#1 array_length%0#0)
         goto continue_looping%2#0 ? block@10 : block@12
-    block@10: // for_body_L218
+    block@10: // for_body_L219
         let array_head_and_tail%0#0: bytes = ((extract 2 0) arr#2)
         let item_offset_offset%0#0: uint64 = (* item_index_internal%0#1 2u)
         let item_offset%0#0: uint64 = (extract_uint16 array_head_and_tail%0#0 item_offset_offset%0#0)
@@ -1232,14 +1246,14 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_nested_array(a
         let concat_result%2#0: bytes = (concat len_16_bit%1#0 concatenated%1#0)
         let totals#2: uint64[] = concat_result%2#0
         goto block@11
-    block@11: // for_footer_L217
+    block@11: // for_footer_L218
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@9
-    block@12: // after_for_L217
+    block@12: // after_for_L218
         return totals#1
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples() -> void:
-    block@0: // L222
+    block@0: // L223
         let array_data%0#0: bytes = (concat 0x0000 0x)
         let arr2#0: (bool,bool)[] = array_data%0#0
         let array_data%1#0: bytes = (concat 0x0000 0x)
@@ -1263,7 +1277,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tup
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L233
+    block@1: // for_header_L234
         let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
         let arr2#1: (bool,bool)[] = φ(arr2#0 <- block@0, arr2#2 <- block@3)
         let arr7#1: (uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[] = φ(arr7#0 <- block@0, arr7#2 <- block@3)
@@ -1271,7 +1285,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tup
         let arr9#1: (uint64,bool,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[] = φ(arr9#0 <- block@0, arr9#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 5u)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L234
+    block@2: // for_body_L235
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) arr2#1)
         let tmp%8#0: bool = (== i#1 0u)
         let tmp%9#0: bool = (== i#1 1u)
@@ -1337,10 +1351,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tup
         let concat_result%3#0: bytes = (concat len_16_bit%3#0 concatenated%3#0)
         let arr9#2: (uint64,bool,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[] = concat_result%3#0
         goto block@3
-    block@3: // for_footer_L233
+    block@3: // for_footer_L234
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@4: // after_for_L233
+    block@4: // after_for_L234
         let tmp%37#0: uint64 = (extract_uint16 arr2#1 0u)
         let tmp%38#0: bool = (== tmp%37#0 5u)
         (assert tmp%38#0)
@@ -1360,7 +1374,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tup
         return 
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_trues(arr1: uint64[], arr2: bool[], arr3: (uint64,bool,bool)[], arr4: (uint64,bytes)[]) -> <uint64, uint64, uint64, uint64>:
-    block@0: // L287
+    block@0: // L288
         let sum4#0: uint64 = 0u
         let sum3#0: uint64 = 0u
         let sum2#0: uint64 = 0u
@@ -1369,58 +1383,58 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         let item_index_internal%0#0: uint64 = 0u
         let reverse_index_internal%0#0: uint64 = array_length%0#0
         goto block@1
-    block@1: // for_header_L296
+    block@1: // for_header_L297
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@3)
         let sum1#1: uint64 = φ(sum1#0 <- block@0, sum1#2 <- block@3)
         let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L297
+    block@2: // for_body_L298
         let array_head_and_tail%0#0: bytes = ((extract 2 0) arr1#0)
         let item_offset%0#0: uint64 = (* item_index_internal%0#1 8u)
         let value_at_index%0#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 8u) // on error: Index access is out of bounds
         let i#0: uint64 = (btoi value_at_index%0#0)
         let sum1#2: uint64 = (+ sum1#1 i#0)
         goto block@3
-    block@3: // for_footer_L296
+    block@3: // for_footer_L297
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
-    block@4: // after_for_L296
+    block@4: // after_for_L297
         let array_length%1#0: uint64 = (extract_uint16 arr2#0 0u)
         let item_index_internal%1#0: uint64 = 0u
         let reverse_index_internal%1#0: uint64 = array_length%1#0
         goto block@5
-    block@5: // for_header_L298
+    block@5: // for_header_L299
         let item_index_internal%1#1: uint64 = φ(item_index_internal%1#0 <- block@4, item_index_internal%1#2 <- block@9)
         let sum2#1: uint64 = φ(sum2#0 <- block@4, sum2#4 <- block@9)
         let continue_looping%1#0: bool = (< item_index_internal%1#1 array_length%1#0)
         goto continue_looping%1#0 ? block@6 : block@10
-    block@6: // for_body_L299
+    block@6: // for_body_L300
         let array_head_and_tail%1#0: bytes = ((extract 2 0) arr2#0)
         let is_true%0#0: uint64 = (getbit array_head_and_tail%1#0 item_index_internal%1#1)
         let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u is_true%0#0)
         let value_at_index%1#0: bytes[1] = encoded_bool%0#0
         let b#0: bool = (getbit value_at_index%1#0 0u)
         goto b#0 ? block@7 : block@8
-    block@7: // if_body_L300
+    block@7: // if_body_L301
         let sum2#2: uint64 = (+ sum2#1 1u)
         goto block@8
-    block@8: // after_if_else_L299
+    block@8: // after_if_else_L300
         let sum2#4: uint64 = φ(sum2#1 <- block@6, sum2#2 <- block@7)
         goto block@9
-    block@9: // for_footer_L298
+    block@9: // for_footer_L299
         let item_index_internal%1#2: uint64 = (+ item_index_internal%1#1 1u)
         goto block@5
-    block@10: // after_for_L298
+    block@10: // after_for_L299
         let array_length%2#0: uint64 = (extract_uint16 arr3#0 0u)
         let item_index_internal%2#0: uint64 = 0u
         let reverse_index_internal%2#0: uint64 = array_length%2#0
         goto block@11
-    block@11: // for_header_L301
+    block@11: // for_header_L302
         let item_index_internal%2#1: uint64 = φ(item_index_internal%2#0 <- block@10, item_index_internal%2#2 <- block@17)
         let sum3#1: uint64 = φ(sum3#0 <- block@10, sum3#9 <- block@17)
         let continue_looping%2#0: bool = (< item_index_internal%2#1 array_length%2#0)
         goto continue_looping%2#0 ? block@12 : block@18
-    block@12: // for_body_L302
+    block@12: // for_body_L303
         let array_head_and_tail%2#0: bytes = ((extract 2 0) arr3#0)
         let item_offset%1#0: uint64 = (* item_index_internal%2#1 9u)
         let value_at_index%2#0: bytes = (extract3 array_head_and_tail%2#0 item_offset%1#0 9u) // on error: Index access is out of bounds
@@ -1437,32 +1451,32 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         let (tup.foo#0: uint64, tup.bar#0: bool, tup.baz#0: bool) = (item0%0%0#0, item1%0%0#0, item2%0%0#0)
         let sum3#2: uint64 = (+ sum3#1 tup.foo#0)
         goto tup.bar#0 ? block@13 : block@14
-    block@13: // if_body_L304
+    block@13: // if_body_L305
         let sum3#3: uint64 = (+ sum3#2 1u)
         goto block@14
-    block@14: // after_if_else_L303
+    block@14: // after_if_else_L304
         let sum3#4: uint64 = φ(sum3#2 <- block@12, sum3#3 <- block@13)
         goto tup.baz#0 ? block@15 : block@16
-    block@15: // if_body_L306
+    block@15: // if_body_L307
         let sum3#5: uint64 = (+ sum3#4 1u)
         goto block@16
-    block@16: // after_if_else_L305
+    block@16: // after_if_else_L306
         let sum3#9: uint64 = φ(sum3#4 <- block@14, sum3#5 <- block@15)
         goto block@17
-    block@17: // for_footer_L301
+    block@17: // for_footer_L302
         let item_index_internal%2#2: uint64 = (+ item_index_internal%2#1 1u)
         goto block@11
-    block@18: // after_for_L301
+    block@18: // after_for_L302
         let array_length%3#0: uint64 = (extract_uint16 arr4#0 0u)
         let item_index_internal%3#0: uint64 = 0u
         let reverse_index_internal%3#0: uint64 = array_length%3#0
         goto block@19
-    block@19: // for_header_L307
+    block@19: // for_header_L308
         let item_index_internal%3#1: uint64 = φ(item_index_internal%3#0 <- block@18, item_index_internal%3#2 <- block@21)
         let sum4#1: uint64 = φ(sum4#0 <- block@18, sum4#3 <- block@21)
         let continue_looping%3#0: bool = (< item_index_internal%3#1 array_length%3#0)
         goto continue_looping%3#0 ? block@20 : block@22
-    block@20: // for_body_L308
+    block@20: // for_body_L309
         let array_head_and_tail%3#0: bytes = ((extract 2 0) arr4#0)
         let item_offset_offset%0#0: uint64 = (* item_index_internal%3#1 2u)
         let item_offset%2#0: uint64 = (extract_uint16 array_head_and_tail%3#0 item_offset_offset%0#0)
@@ -1489,14 +1503,14 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         let tmp%2#0: bool = (== tmp%1#0 idx#0)
         (assert tmp%2#0) // expected string length to match index
         goto block@21
-    block@21: // for_footer_L307
+    block@21: // for_footer_L308
         let item_index_internal%3#2: uint64 = (+ item_index_internal%3#1 1u)
         goto block@19
-    block@22: // after_for_L307
+    block@22: // after_for_L308
         return sum1#1 sum2#1 sum3#1 sum4#1
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_return(append: uint64) -> uint64[]:
-    block@0: // L314
+    block@0: // L315
         let array_data%0#0: bytes = (concat 0x0000 0x)
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) array_data%0#0)
         let encoded%0#0: uint64[] = encode<uint64>(1u, 2u, 3u)
@@ -1510,12 +1524,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_return(
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L317
+    block@1: // for_header_L318
         let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
         let arr#1: uint64[] = φ(arr#0 <- block@0, arr#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 append#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L318
+    block@2: // for_body_L319
         let expr_value_trimmed%1#0: bytes = ((extract 2 0) arr#1)
         let encoded%1#0: uint64[] = encode<uint64>(i#1)
         let concatenated%1#0: bytes = (concat expr_value_trimmed%1#0 encoded%1#0)
@@ -1526,14 +1540,14 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_return(
         let concat_result%1#0: bytes = (concat len_16_bit%1#0 concatenated%1#0)
         let arr#2: uint64[] = concat_result%1#0
         goto block@3
-    block@3: // for_footer_L317
+    block@3: // for_footer_L318
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@4: // after_for_L317
+    block@4: // after_for_L318
         return arr#1
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_return(append: uint64) -> bool[]:
-    block@0: // L321
+    block@0: // L322
         let array_data%0#0: bytes = (concat 0x0000 0x)
         let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u 1u)
         let encoded_item%0#0: bytes[1] = encoded_bool%0#0
@@ -1555,12 +1569,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_return(ap
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L324
+    block@1: // for_header_L325
         let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
         let arr#1: bool[] = φ(arr#0 <- block@0, arr#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 append#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L325
+    block@2: // for_body_L326
         let tmp%0#0: uint64 = (% i#1 2u)
         let to_encode%0#0: bool = (== tmp%0#0 0u)
         let encoded_bool%5#0: bytes[1] = (setbit 0x00 0u to_encode%0#0)
@@ -1569,14 +1583,14 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_return(ap
         let concat_result%1#0: bytes = _puya_lib.arc4.dynamic_array_concat_bits(arr#1, data%5#0, 1u, 8u)
         let arr#2: bool[] = concat_result%1#0
         goto block@3
-    block@3: // for_footer_L324
+    block@3: // for_footer_L325
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@4: // after_for_L324
+    block@4: // after_for_L325
         return arr#1
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_tuple_return(append: uint64) -> (uint64,bool,bool)[]:
-    block@0: // L328
+    block@0: // L329
         let array_data%0#0: bytes = (concat 0x0000 0x)
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) array_data%0#0)
         let encoded%0#0: (uint64,bool,bool)[] = encode<(uint64,bool,bool)>(0u, 1u, 0u)
@@ -1590,12 +1604,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_tuple_return(a
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L331
+    block@1: // for_header_L332
         let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
         let arr#1: (uint64,bool,bool)[] = φ(arr#0 <- block@0, arr#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 append#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L332
+    block@2: // for_body_L333
         let expr_value_trimmed%1#0: bytes = ((extract 2 0) arr#1)
         let tmp%0#0: uint64 = (% i#1 2u)
         let tmp%1#0: bool = (== tmp%0#0 0u)
@@ -1610,14 +1624,14 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_tuple_return(a
         let concat_result%1#0: bytes = (concat len_16_bit%1#0 concatenated%1#0)
         let arr#2: (uint64,bool,bool)[] = concat_result%1#0
         goto block@3
-    block@3: // for_footer_L331
+    block@3: // for_footer_L332
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@4: // after_for_L331
+    block@4: // after_for_L332
         return arr#1
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_return(append: uint64) -> (uint64,bytes)[]:
-    block@0: // L335
+    block@0: // L336
         let array_data%0#0: bytes = (concat 0x0000 0x)
         let val_as_bytes%0#0: bytes[8] = (itob 0u)
         let length%0#0: uint64 = (len "Hello")
@@ -1649,12 +1663,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L338
+    block@1: // for_header_L339
         let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
         let arr#1: (uint64,bytes)[] = φ(arr#0 <- block@0, arr#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 append#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L339
+    block@2: // for_body_L340
         let tmp%0#0: bytes = test_cases.array.immutable.times(i#1)
         let val_as_bytes%1#0: bytes[8] = (itob i#1)
         let length%1#0: uint64 = (len tmp%0#0)
@@ -1684,11 +1698,53 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_
         let concat_result%1#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%1#0, l_head_and_tail%1#0, r_count%1#0, r_head_and_tail%1#0)
         let arr#2: (uint64,bytes)[] = concat_result%1#0
         goto block@3
-    block@3: // for_footer_L338
+    block@3: // for_footer_L339
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@4: // after_for_L338
+    block@4: // after_for_L339
         return arr#1
+
+subroutine test_cases.array.immutable.ImmutableArrayContract.test_convert_to_array_and_back(arr: (uint64,bool,bool)[], append: uint64) -> (uint64,bool,bool)[]:
+    block@0: // L343
+        let encoded%0#0: (uint64,bool,bool)[] = encode<(uint64,bool,bool)>()
+        let slot%0#0: (uint64,bool,bool)[]* = new()
+        write(slot%0#0, encoded%0#0)
+        let mutable#0: (uint64,bool,bool)[]* = slot%0#0
+        let expr_value_trimmed%0#0: (uint64,bool,bool)[] = ((extract 2 0) arr#0)
+        let slot_contents%0#0: (uint64,bool,bool)[] = read(mutable#0)
+        let extended%0#0: (uint64,bool,bool)[] = slot_contents%0#0.concat(expr_value_trimmed%0#0)
+        write(mutable#0, extended%0#0)
+        (assert 1u) // Step cannot be zero
+        let i#0: uint64 = 0u
+        goto block@1
+    block@1: // for_header_L349
+        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
+        let continue_looping%0#0: bool = (< i#1 append#0)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L350
+        let tmp%0#0: uint64 = (% i#1 2u)
+        let tmp%1#0: bool = (== tmp%0#0 0u)
+        let tmp%2#0: uint64 = (% i#1 3u)
+        let tmp%3#0: bool = (== tmp%2#0 0u)
+        let encoded%1#0: (uint64,bool,bool)[] = encode<(uint64,bool,bool)>(i#1, tmp%1#0, tmp%3#0)
+        let slot_contents%1#0: (uint64,bool,bool)[] = read(mutable#0)
+        let extended%1#0: (uint64,bool,bool)[] = slot_contents%1#0.concat(encoded%1#0)
+        write(mutable#0, extended%1#0)
+        goto block@3
+    block@3: // for_footer_L349
+        let i#2: uint64 = (+ i#1 1u)
+        goto block@1
+    block@4: // after_for_L349
+        let array_data%0#0: bytes = (concat 0x0000 0x)
+        let expr_value_trimmed%1#0: bytes = ((extract 2 0) array_data%0#0)
+        let slot_contents%2#0: (uint64,bool,bool)[] = read(mutable#0)
+        let concatenated%0#0: bytes = (concat expr_value_trimmed%1#0 slot_contents%2#0)
+        let byte_len%0#0: uint64 = (len concatenated%0#0)
+        let len_%0#0: uint64 = (/ byte_len%0#0 9u)
+        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
+        return concat_result%0#0
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.__algopy_default_create() -> void:
     block@0: // L1

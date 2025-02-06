@@ -1898,6 +1898,13 @@ def test_immutable_array(immutable_array_app: ApplicationClient) -> None:
         ],
     )
 
+    append = 5
+    arr = [[i, i % 2 == 0, i % 3 == 0] for i in range(append)]
+    response = simulate_call(
+        immutable_array_app, "test_convert_to_array_and_back", arr=arr, append=append
+    )
+    assert response.abi_results[0].return_value == [*arr, *arr]
+
 
 _EXPECTED_LENGTH_20 = [False, False, True, *(False,) * 17]
 

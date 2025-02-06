@@ -1,6 +1,7 @@
 import typing
 
 from algopy import (
+    Array,
     Bytes,
     ImmutableArray,
     String,
@@ -339,7 +340,15 @@ class ImmutableArrayContract(arc4.ARC4Contract):
             arr = arr.append(MyDynamicSizedTuple(i, times(i)))
         return arr
 
-    # TODO: nested arrays
+    @arc4.abimethod()
+    def test_convert_to_array_and_back(
+        self, arr: ImmutableArray[MyTuple], append: UInt64
+    ) -> ImmutableArray[MyTuple]:
+        mutable = Array[MyTuple]()
+        mutable.extend(arr)
+        for i in urange(append):
+            mutable.append(MyTuple(foo=i, bar=i % 2 == 0, baz=i % 3 == 0))
+        return mutable.freeze()
 
 
 @subroutine

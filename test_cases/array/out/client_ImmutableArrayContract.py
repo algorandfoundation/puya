@@ -82,3 +82,10 @@ class ImmutableArrayContract(algopy.arc4.ARC4Client, typing.Protocol):
         self,
         append: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> algopy.arc4.DynamicArray[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.String]]: ...
+
+    @algopy.arc4.abimethod
+    def test_convert_to_array_and_back(
+        self,
+        arr: algopy.arc4.DynamicArray[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.Bool, algopy.arc4.Bool]],
+        append: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> algopy.arc4.DynamicArray[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.Bool, algopy.arc4.Bool]]: ...

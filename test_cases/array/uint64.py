@@ -97,15 +97,21 @@ class Contract(arc4.ARC4Contract):
     @arc4.abimethod()
     def test_array_evaluation_order(self) -> None:
         arr = Array[UInt64]()
-        arr.append(UInt64(1))
-        append_5_and_return(arr).extend(append_5_and_return(arr))
+        arr.append(UInt64(3))
+        append_length_and_return(arr).extend(append_length_and_return(arr))
         assert arr.length == 6
-        assert arr[0] == 1
-        assert arr[1] == 5
-        assert arr[2] == 5
-        assert arr[3] == 1
-        assert arr[4] == 5
-        assert arr[5] == 5
+        assert arr[0] == 3
+        assert arr[1] == 1
+        assert arr[2] == 2
+        assert arr[3] == 3
+        assert arr[4] == 1
+        assert arr[5] == 2
+
+        arr[append_length_and_return(arr)[0]] = append_length_and_return(arr)[-1]
+        assert arr.length == 8
+        assert arr[6] == 6
+        assert arr[7] == 7
+        assert arr[3] == 6
 
     @arc4.abimethod()
     def test_allocations(self, num: UInt64) -> None:
@@ -237,8 +243,8 @@ def pop_x(arr: Array[UInt64], x: UInt64) -> None:
 
 
 @subroutine
-def append_5_and_return(arr: Array[UInt64]) -> Array[UInt64]:
-    arr.append(UInt64(5))
+def append_length_and_return(arr: Array[UInt64]) -> Array[UInt64]:
+    arr.append(arr.length)
     return arr
 
 

@@ -104,15 +104,20 @@ contract Contract
   abimethod test_cases.array.uint64.Contract.test_array_evaluation_order(): void
   {
     arr: array<uint64> = new array<uint64>()
-    arr.extend((1u))
-    test_cases.array.uint64.append_5_and_return(arr).extend(test_cases.array.uint64.append_5_and_return(arr))
+    arr.extend((3u))
+    test_cases.array.uint64.append_length_and_return(arr).extend(test_cases.array.uint64.append_length_and_return(arr))
     assert(arr.length == 6u)
-    assert(arr[0u] == 1u)
-    assert(arr[1u] == 5u)
-    assert(arr[2u] == 5u)
-    assert(arr[3u] == 1u)
-    assert(arr[4u] == 5u)
-    assert(arr[5u] == 5u)
+    assert(arr[0u] == 3u)
+    assert(arr[1u] == 1u)
+    assert(arr[2u] == 2u)
+    assert(arr[3u] == 3u)
+    assert(arr[4u] == 1u)
+    assert(arr[5u] == 2u)
+    arr[test_cases.array.uint64.append_length_and_return(arr)[0u]]: uint64 = test_cases.array.uint64.append_length_and_return(arr)[test_cases.array.uint64.append_length_and_return(arr).length - 1u]
+    assert(arr.length == 8u)
+    assert(arr[6u] == 6u)
+    assert(arr[7u] == 7u)
+    assert(arr[3u] == 6u)
   }
   
   abimethod test_cases.array.uint64.Contract.test_allocations(num: uint64): void
@@ -187,7 +192,7 @@ subroutine quicksort_window(arr: array<uint64>, window_left: uint64, window_righ
     }
     while (pivot < arr[right]) {
       if (right == 0u) {
-        goto after_loop_L180
+        goto after_loop_L186
       }
       right -= 1u
     }
@@ -210,7 +215,7 @@ subroutine quicksort_window(arr: array<uint64>, window_left: uint64, window_righ
       }
       break
     }
-    after_loop_L180:
+    after_loop_L186:
     break
   }
   if (window_left < right) {
@@ -242,9 +247,9 @@ subroutine pop_x(arr: array<uint64>, x: uint64): void
   }
 }
 
-subroutine append_5_and_return(arr: array<uint64>): array<uint64>
+subroutine append_length_and_return(arr: array<uint64>): array<uint64>
 {
-  arr.extend((5u))
+  arr.extend((arr.length))
   return arr
 }
 
@@ -514,6 +519,16 @@ contract ImmutableArrayContract
       arr: array<test_cases.array.immutable.MyDynamicSizedTuple> = arr + ((i, test_cases.array.immutable.times(i)))
     }
     return arr
+  }
+  
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_convert_to_array_and_back(arr: array<test_cases.array.immutable.MyTuple>, append: uint64): array<test_cases.array.immutable.MyTuple>
+  {
+    mutable: array<test_cases.array.immutable.MyTuple> = new array<test_cases.array.immutable.MyTuple>()
+    mutable.extend(arr)
+    for i in range(0u, append, 1u) {
+      mutable.extend(((i, i % 2u == 0u, i % 3u == 0u)))
+    }
+    return new array<test_cases.array.immutable.MyTuple>() + mutable
   }
   
   baremethod test_cases.array.immutable.ImmutableArrayContract.__algopy_default_create(): void

@@ -67,7 +67,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         test_cases.array.uint64.Contract.test_array_evaluation_order()
         let test_cases.array.uint64.Contract.__puya_arc4_router__%0#6: bool = 1u
         goto block@20
-    block@10: // test_allocations_route_L110
+    block@10: // test_allocations_route_L116
         let tmp%31#0: uint64 = (txn OnCompletion)
         let tmp%32#0: bool = (! tmp%31#0)
         (assert tmp%32#0) // OnCompletion is not NoOp
@@ -78,7 +78,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         test_cases.array.uint64.Contract.test_allocations(tmp%35#0)
         let test_cases.array.uint64.Contract.__puya_arc4_router__%0#7: bool = 1u
         goto block@20
-    block@11: // test_iteration_route_L116
+    block@11: // test_iteration_route_L122
         let tmp%36#0: uint64 = (txn OnCompletion)
         let tmp%37#0: bool = (! tmp%36#0)
         (assert tmp%37#0) // OnCompletion is not NoOp
@@ -87,7 +87,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         test_cases.array.uint64.Contract.test_iteration()
         let test_cases.array.uint64.Contract.__puya_arc4_router__%0#8: bool = 1u
         goto block@20
-    block@12: // test_quicksort_route_L150
+    block@12: // test_quicksort_route_L156
         let tmp%40#0: uint64 = (txn OnCompletion)
         let tmp%41#0: bool = (! tmp%40#0)
         (assert tmp%41#0) // OnCompletion is not NoOp
@@ -113,42 +113,42 @@ main algopy.arc4.ARC4Contract.approval_program:
         return tmp%0#0
 
 subroutine test_cases.array.uint64.quicksort_window(arr: uint64[]*, window_left: uint64, window_right: uint64) -> void:
-    block@0: // L168
+    block@0: // L174
         let tmp%0#0: uint64 = (+ window_left#0 window_right#0)
         let tmp%1#0: uint64 = (/ tmp%0#0 2u)
         let slot_contents%0#0: uint64[] = read(arr#0)
         let pivot#0: uint64 = slot_contents%0#0[tmp%1#0]
         goto block@1
-    block@1: // while_top_L175
+    block@1: // while_top_L181
         let left#3: uint64 = φ(window_left#0 <- block@0, left#5 <- block@14)
         let right#4: uint64 = φ(window_right#0 <- block@0, right#5 <- block@14)
         goto block@3
-    block@3: // while_top_L177
+    block@3: // while_top_L183
         let left#1: uint64 = φ(left#3 <- block@1, left#2 <- block@4)
         let slot_contents%1#0: uint64[] = read(arr#0)
         let tmp%2#0: uint64 = slot_contents%1#0[left#1]
         let tmp%3#0: bool = (< tmp%2#0 pivot#0)
         goto tmp%3#0 ? block@4 : block@5
-    block@4: // while_body_L178
+    block@4: // while_body_L184
         let left#2: uint64 = (+ left#1 1u)
         goto block@3
-    block@5: // after_while_L177
+    block@5: // after_while_L183
         goto block@6
-    block@6: // while_top_L180
+    block@6: // while_top_L186
         let right#1: uint64 = φ(right#4 <- block@5, right#2 <- block@9)
         let slot_contents%2#0: uint64[] = read(arr#0)
         let tmp%4#0: uint64 = slot_contents%2#0[right#1]
         let tmp%5#0: bool = (< pivot#0 tmp%4#0)
         goto tmp%5#0 ? block@7 : block@10
-    block@7: // while_body_L182
+    block@7: // while_body_L188
         goto right#1 ? block@9 : block@21
-    block@9: // after_if_else_L182
+    block@9: // after_if_else_L188
         let right#2: uint64 = (- right#1 1u)
         goto block@6
-    block@10: // after_while_L180
+    block@10: // after_while_L186
         let tmp%7#0: bool = (< left#1 right#1)
         goto tmp%7#0 ? block@11 : block@16
-    block@11: // if_body_L188
+    block@11: // if_body_L194
         let slot_contents%3#0: uint64[] = read(arr#0)
         let tmp%8#0: uint64 = slot_contents%3#0[right#1]
         let tmp%9#0: uint64 = slot_contents%3#0[left#1]
@@ -157,69 +157,70 @@ subroutine test_cases.array.uint64.quicksort_window(arr: uint64[]*, window_left:
         write(arr#0, updated_array%1#0)
         let left#5: uint64 = (+ left#1 1u)
         goto right#1 ? block@13 : block@12
-    block@12: // if_body_L192
+    block@12: // if_body_L198
         goto block@22
-    block@13: // after_if_else_L191
+    block@13: // after_if_else_L197
         let right#5: uint64 = (- right#1 1u)
         let tmp%11#0: bool = (<= left#5 right#5)
         goto tmp%11#0 ? block@14 : block@15
-    block@14: // if_body_L196
+    block@14: // if_body_L202
         goto block@1
-    block@15: // after_if_else_L195
+    block@15: // after_if_else_L201
         goto block@22
-    block@16: // after_if_else_L187
+    block@16: // after_if_else_L193
         let tmp%12#0: bool = (== left#1 right#1)
         goto tmp%12#0 ? block@17 : block@21
-    block@17: // if_body_L202
+    block@17: // if_body_L208
         let left#6: uint64 = (+ left#1 1u)
         goto right#1 ? block@18 : block@19
-    block@18: // if_body_L205
+    block@18: // if_body_L211
         let right#6: uint64 = (- right#1 1u)
         goto block@19
-    block@19: // after_if_else_L204
+    block@19: // after_if_else_L210
         let right#8: uint64 = φ(right#1 <- block@17, right#6 <- block@18)
         goto block@22
-    block@21: // L180
+    block@21: // L186
         goto block@22
-    block@22: // after_while_L175
+    block@22: // after_while_L181
         let right#7: uint64 = φ(right#1 <- block@12, right#5 <- block@15, right#8 <- block@19, right#1 <- block@21)
         let left#8: uint64 = φ(left#5 <- block@12, left#5 <- block@15, left#6 <- block@19, left#1 <- block@21)
         let tmp%14#0: bool = (< window_left#0 right#7)
         goto tmp%14#0 ? block@23 : block@24
-    block@23: // if_body_L214
+    block@23: // if_body_L220
         test_cases.array.uint64.quicksort_window(arr#0, window_left#0, right#7)
         goto block@24
-    block@24: // after_if_else_L213
+    block@24: // after_if_else_L219
         let tmp%15#0: bool = (< left#8 window_right#0)
         goto tmp%15#0 ? block@25 : block@26
-    block@25: // if_body_L217
+    block@25: // if_body_L223
         test_cases.array.uint64.quicksort_window(arr#0, left#8, window_right#0)
         goto block@26
-    block@26: // after_if_else_L216
+    block@26: // after_if_else_L222
         return 
 
 subroutine test_cases.array.uint64.add_x(arr: uint64[]*, x: uint64) -> void:
-    block@0: // L227
+    block@0: // L233
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L229
+    block@1: // for_header_L235
         let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@2)
         let continue_looping%0#0: bool = (< i#1 x#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L230
+    block@2: // for_body_L236
         let encoded%0#0: uint64[] = encode<uint64>(i#1)
         let slot_contents%0#0: uint64[] = read(arr#0)
         let extended%0#0: uint64[] = slot_contents%0#0.concat(encoded%0#0)
         write(arr#0, extended%0#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@4: // after_for_L229
+    block@4: // after_for_L235
         return 
 
-subroutine test_cases.array.uint64.append_5_and_return(arr: uint64[]*) -> uint64[]*:
-    block@0: // L239
-        let encoded%0#0: uint64[] = encode<uint64>(5u)
+subroutine test_cases.array.uint64.append_length_and_return(arr: uint64[]*) -> uint64[]*:
+    block@0: // L245
         let slot_contents%0#0: uint64[] = read(arr#0)
+        let tmp%0#0: uint64 = slot_contents%0#0.length
+        let encoded%0#0: uint64[] = encode<uint64>(tmp%0#0)
         let extended%0#0: uint64[] = slot_contents%0#0.concat(encoded%0#0)
         write(arr#0, extended%0#0)
         return arr#0
@@ -268,17 +269,17 @@ subroutine test_cases.array.uint64.Contract.test_array() -> void:
         (assert tmp%21#0)
         let _i#0: uint64 = 0u
         goto block@2
-    block@2: // for_header_L235
+    block@2: // for_header_L241
         let _i#1: uint64 = φ(_i#0 <- block@0, _i#2 <- block@3)
         let continue_looping%0#0: bool = (< _i#1 3u)
         goto continue_looping%0#0 ? block@3 : block@4
-    block@3: // for_body_L236
+    block@3: // for_body_L242
         let slot_contents%0#1: uint64[] = read(arr#0)
         let (new_contents%0#0: uint64[], popped_item.0%0#0: uint64) = slot_contents%0#1.pop()
         write(arr#0, new_contents%0#0)
         let _i#2: uint64 = (+ _i#1 1u)
         goto block@2
-    block@4: // after_for_L235
+    block@4: // after_for_L241
         let slot_contents%13#0: uint64[] = read(arr#0)
         let tmp%22#0: uint64 = slot_contents%13#0.length
         let tmp%23#0: bool = (== tmp%22#0 4u)
@@ -476,11 +477,11 @@ subroutine test_cases.array.uint64.Contract.test_array_evaluation_order() -> voi
     block@0: // L97
         let encoded%0#0: uint64[] = encode<uint64>()
         let arr#0: uint64[]* = new()
-        let encoded%1#0: uint64[] = encode<uint64>(1u)
+        let encoded%1#0: uint64[] = encode<uint64>(3u)
         let extended%0#0: uint64[] = encoded%0#0.concat(encoded%1#0)
         write(arr#0, extended%0#0)
-        let tmp%0#0: uint64[]* = test_cases.array.uint64.append_5_and_return(arr#0)
-        let tmp%1#0: uint64[]* = test_cases.array.uint64.append_5_and_return(arr#0)
+        let tmp%0#0: uint64[]* = test_cases.array.uint64.append_length_and_return(arr#0)
+        let tmp%1#0: uint64[]* = test_cases.array.uint64.append_length_and_return(arr#0)
         let slot_contents%1#0: uint64[] = read(tmp%1#0)
         let slot_contents%2#0: uint64[] = read(tmp%0#0)
         let extended%1#0: uint64[] = slot_contents%2#0.concat(slot_contents%1#0)
@@ -490,62 +491,85 @@ subroutine test_cases.array.uint64.Contract.test_array_evaluation_order() -> voi
         let tmp%3#0: bool = (== tmp%2#0 6u)
         (assert tmp%3#0)
         let tmp%4#0: uint64 = slot_contents%3#0[0u]
-        let tmp%5#0: bool = (== tmp%4#0 1u)
+        let tmp%5#0: bool = (== tmp%4#0 3u)
         (assert tmp%5#0)
         let tmp%6#0: uint64 = slot_contents%3#0[1u]
-        let tmp%7#0: bool = (== tmp%6#0 5u)
+        let tmp%7#0: bool = (== tmp%6#0 1u)
         (assert tmp%7#0)
         let tmp%8#0: uint64 = slot_contents%3#0[2u]
-        let tmp%9#0: bool = (== tmp%8#0 5u)
+        let tmp%9#0: bool = (== tmp%8#0 2u)
         (assert tmp%9#0)
         let tmp%10#0: uint64 = slot_contents%3#0[3u]
-        let tmp%11#0: bool = (== tmp%10#0 1u)
+        let tmp%11#0: bool = (== tmp%10#0 3u)
         (assert tmp%11#0)
         let tmp%12#0: uint64 = slot_contents%3#0[4u]
-        let tmp%13#0: bool = (== tmp%12#0 5u)
+        let tmp%13#0: bool = (== tmp%12#0 1u)
         (assert tmp%13#0)
         let tmp%14#0: uint64 = slot_contents%3#0[5u]
-        let tmp%15#0: bool = (== tmp%14#0 5u)
+        let tmp%15#0: bool = (== tmp%14#0 2u)
         (assert tmp%15#0)
+        let tmp%16#0: uint64[]* = test_cases.array.uint64.append_length_and_return(arr#0)
+        let slot_contents%10#0: uint64[] = read(tmp%16#0)
+        let tmp%17#0: uint64 = slot_contents%10#0.length
+        let tmp%18#0: uint64 = (- tmp%17#0 1u)
+        let tmp%19#0: uint64[]* = test_cases.array.uint64.append_length_and_return(arr#0)
+        let slot_contents%12#0: uint64[] = read(tmp%19#0)
+        let index%0#0: uint64 = slot_contents%12#0[0u]
+        let slot_contents%13#0: uint64[] = read(arr#0)
+        let new_box_value%0#0: uint64 = slot_contents%10#0[tmp%18#0]
+        let updated_array%0#0: uint64[] = slot_contents%13#0[index%0#0] = new_box_value%0#0
+        write(arr#0, updated_array%0#0)
+        let tmp%20#0: uint64 = updated_array%0#0.length
+        let tmp%21#0: bool = (== tmp%20#0 8u)
+        (assert tmp%21#0)
+        let tmp%22#0: uint64 = updated_array%0#0[6u]
+        let tmp%23#0: bool = (== tmp%22#0 6u)
+        (assert tmp%23#0)
+        let tmp%24#0: uint64 = updated_array%0#0[7u]
+        let tmp%25#0: bool = (== tmp%24#0 7u)
+        (assert tmp%25#0)
+        let tmp%26#0: uint64 = updated_array%0#0[3u]
+        let tmp%27#0: bool = (== tmp%26#0 6u)
+        (assert tmp%27#0)
         return 
 
 subroutine test_cases.array.uint64.Contract.test_allocations(num: uint64) -> void:
-    block@0: // L110
+    block@0: // L116
         let _i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L112
+    block@1: // for_header_L118
         let _i#1: uint64 = φ(_i#0 <- block@0, _i#2 <- block@2)
         let continue_looping%0#0: bool = (< _i#1 num#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L113
+    block@2: // for_body_L119
         let encoded%0#0: uint64[] = encode<uint64>()
         let alloc_test#0: uint64[]* = new()
         write(alloc_test#0, encoded%0#0)
         test_cases.array.uint64.add_x(alloc_test#0, 1u)
         let _i#2: uint64 = (+ _i#1 1u)
         goto block@1
-    block@4: // after_for_L112
+    block@4: // after_for_L118
         return 
 
 subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
-    block@0: // L116
+    block@0: // L122
         let encoded%0#0: uint64[] = encode<uint64>()
         let arr#0: uint64[]* = new()
         write(arr#0, encoded%0#0)
         let val#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L119
+    block@1: // for_header_L125
         let val#1: uint64 = φ(val#0 <- block@0, val#2 <- block@2)
         let continue_looping%0#0: bool = (< val#1 5u)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L120
+    block@2: // for_body_L126
         let encoded%1#0: uint64[] = encode<uint64>(val#1)
         let slot_contents%0#0: uint64[] = read(arr#0)
         let extended%0#0: uint64[] = slot_contents%0#0.concat(encoded%1#0)
         write(arr#0, extended%0#0)
         let val#2: uint64 = (+ val#1 1u)
         goto block@1
-    block@4: // after_for_L119
+    block@4: // after_for_L125
         let slot_contents%1#0: uint64[] = read(arr#0)
         let tmp%0#0: uint64 = slot_contents%1#0.length
         let tmp%1#0: bool = (== tmp%0#0 5u)
@@ -554,62 +578,62 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let array_length%0#0: uint64 = slot_contents%1#0.length
         let item_index_internal%0#0: uint64 = 0u
         goto block@5
-    block@5: // for_header_L125
+    block@5: // for_header_L131
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@4, item_index_internal%0#2 <- block@6)
         let last#1: uint64 = φ(last#0 <- block@4, value#0 <- block@6)
         let continue_looping%1#0: bool = (< item_index_internal%0#1 array_length%0#0)
         goto continue_looping%1#0 ? block@6 : block@8
-    block@6: // for_body_L126
+    block@6: // for_body_L132
         let slot_contents%3#0: uint64[] = read(arr#0)
         let value#0: uint64 = slot_contents%3#0[item_index_internal%0#1]
         let tmp%2#0: bool = (>= value#0 last#1)
         (assert tmp%2#0) // array is not sorted
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@5
-    block@8: // after_for_L125
+    block@8: // after_for_L131
         let slot_contents%4#0: uint64[] = read(arr#0)
         let array_length%1#0: uint64 = slot_contents%4#0.length
         let item_index_internal%1#0: uint64 = 0u
         goto block@9
-    block@9: // for_header_L130
+    block@9: // for_header_L136
         let idx#0: uint64 = φ(item_index_internal%1#0 <- block@8, item_index_internal%1#2 <- block@10)
         let continue_looping%2#0: bool = (< idx#0 array_length%1#0)
         goto continue_looping%2#0 ? block@10 : block@12
-    block@10: // for_body_L131
+    block@10: // for_body_L137
         let slot_contents%5#0: uint64[] = read(arr#0)
         let value#1: uint64 = slot_contents%5#0[idx#0]
         let tmp%3#0: bool = (== value#1 idx#0)
         (assert tmp%3#0) // incorrect array value
         let item_index_internal%1#2: uint64 = (+ idx#0 1u)
         goto block@9
-    block@12: // after_for_L130
+    block@12: // after_for_L136
         let slot_contents%6#0: uint64[] = read(arr#0)
         let array_length%2#0: uint64 = slot_contents%6#0.length
         goto block@13
-    block@13: // for_header_L134
+    block@13: // for_header_L140
         let reverse_index_internal%2#1: uint64 = φ(array_length%2#0 <- block@12, reverse_index_internal%2#2 <- block@14)
         let last#3: uint64 = φ(last#1 <- block@12, value#2 <- block@14)
         goto reverse_index_internal%2#1 ? block@14 : block@16
-    block@14: // for_body_L135
+    block@14: // for_body_L141
         let reverse_index_internal%2#2: uint64 = (- reverse_index_internal%2#1 1u)
         let slot_contents%7#0: uint64[] = read(arr#0)
         let value#2: uint64 = slot_contents%7#0[reverse_index_internal%2#2]
         let tmp%4#0: bool = (<= value#2 last#3)
         (assert tmp%4#0) // array is not sorted
         goto block@13
-    block@16: // after_for_L134
+    block@16: // after_for_L140
         let arc4_arr#0: bytes = 0x0000
         let encoded%2#0: bytes[8][] = encode<bytes[8]>()
         let native_arr#0: bytes[8][]* = new()
         write(native_arr#0, encoded%2#0)
         let i#0: uint64 = 0u
         goto block@17
-    block@17: // for_header_L140
+    block@17: // for_header_L146
         let i#1: uint64 = φ(i#0 <- block@16, i#2 <- block@18)
         let arc4_arr#1: bytes = φ(arc4_arr#0 <- block@16, arc4_arr#2 <- block@18)
         let continue_looping%4#0: bool = (< i#1 5u)
         goto continue_looping%4#0 ? block@18 : block@20
-    block@18: // for_body_L141
+    block@18: // for_body_L147
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) arc4_arr#1)
         let val_as_bytes%0#0: bytes[8] = (itob i#1)
         let encoded%3#0: bytes[8][] = encode<bytes[8]>(val_as_bytes%0#0)
@@ -625,7 +649,7 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         write(native_arr#0, extended%1#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@17
-    block@20: // after_for_L140
+    block@20: // after_for_L146
         let expr_value_trimmed%1#0: bytes = ((extract 2 0) arc4_arr#1)
         let slot_contents%9#0: bytes[8][] = read(native_arr#0)
         let concatenated%1#0: bytes = (concat expr_value_trimmed%1#0 slot_contents%9#0)
@@ -653,7 +677,7 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         return 
 
 subroutine test_cases.array.uint64.Contract.test_quicksort() -> void:
-    block@0: // L150
+    block@0: // L156
         let encoded%0#0: uint64[] = encode<uint64>()
         let rnd#0: uint64[]* = new()
         write(rnd#0, encoded%0#0)
@@ -661,11 +685,11 @@ subroutine test_cases.array.uint64.Contract.test_quicksort() -> void:
         let bytes_length%0#0: uint64 = (len tmp%0#0)
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L154
+    block@1: // for_header_L160
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@2)
         let continue_looping%0#0: bool = (< item_index_internal%0#1 bytes_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L155
+    block@2: // for_body_L161
         let tmp%1#0: uint64 = (getbyte tmp%0#0 item_index_internal%0#1)
         let encoded%1#0: uint64[] = encode<uint64>(tmp%1#0)
         let slot_contents%0#0: uint64[] = read(rnd#0)
@@ -673,7 +697,7 @@ subroutine test_cases.array.uint64.Contract.test_quicksort() -> void:
         write(rnd#0, extended%0#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
-    block@4: // after_for_L154
+    block@4: // after_for_L160
         let slot_contents%1#0: uint64[] = read(rnd#0)
         let tmp%2#0: uint64 = slot_contents%1#0.length
         let tmp%3#0: bool = (== tmp%2#0 32u)
@@ -686,17 +710,17 @@ subroutine test_cases.array.uint64.Contract.test_quicksort() -> void:
         let array_length%0#0: uint64 = slot_contents%3#0.length
         let item_index_internal%1#0: uint64 = 0u
         goto block@5
-    block@5: // for_header_L163
+    block@5: // for_header_L169
         let item_index_internal%1#1: uint64 = φ(item_index_internal%1#0 <- block@4, item_index_internal%1#2 <- block@6)
         let last#1: uint64 = φ(last#0 <- block@4, value#0 <- block@6)
         let continue_looping%1#0: bool = (< item_index_internal%1#1 array_length%0#0)
         goto continue_looping%1#0 ? block@6 : block@8
-    block@6: // for_body_L164
+    block@6: // for_body_L170
         let slot_contents%4#0: uint64[] = read(rnd#0)
         let value#0: uint64 = slot_contents%4#0[item_index_internal%1#1]
         let tmp%6#0: bool = (>= value#0 last#1)
         (assert tmp%6#0) // array is not sorted
         let item_index_internal%1#2: uint64 = (+ item_index_internal%1#1 1u)
         goto block@5
-    block@8: // after_for_L163
+    block@8: // after_for_L169
         return 
