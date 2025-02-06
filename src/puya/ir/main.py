@@ -4,7 +4,6 @@ import functools
 import typing
 from collections import defaultdict
 from collections.abc import Callable, Collection, Iterator, Set
-from copy import deepcopy
 from pathlib import Path
 
 from immutabledict import immutabledict
@@ -179,37 +178,24 @@ class _CompilationSetCollector(AWSTTraverser):
 
 def get_transform_pipeline(
     artifact_ir: ModuleArtifact,
-) -> list[Callable[[ArtifactCompileContext, Program], Program]]:
+) -> list[Callable[[ArtifactCompileContext, Program], None]]:
     ref = artifact_ir.metadata.ref
     return [
-        # copy program so subroutines shared between programs are independent since some transforms
-        # are different based on the program
-        lambda _, p: deepcopy(p),
         functools.partial(_optimize_program_ir, artifact_ir=artifact_ir, qualifier="ssa.opt"),
         functools.partial(_lower_array_ir, ref=ref),
         functools.partial(
             _optimize_program_ir, artifact_ir=artifact_ir, qualifier="ssa.array.opt"
         ),
         functools.partial(slot_elimination, ref=ref),
-        _destructure_ssa,
+        destructure_ssa,
     ]
 
 
-def _destructure_ssa(context: ArtifactCompileContext, program: Program) -> Program:
-    destructure_ssa(context, program)
-    return program
-
-
 def transform_ir(context: ArtifactCompileContext, artifact_ir: ModuleArtifact) -> ModuleArtifact:
-    for transform in get_transform_pipeline(artifact_ir):
-        match artifact_ir:
-            case Contract() as contract_ir:
-                contract_ir.approval_program = transform(context, contract_ir.approval_program)
-                contract_ir.clear_program = transform(context, contract_ir.clear_program)
-            case LogicSignature() as lsig_ir:
-                lsig_ir.program = transform(context, lsig_ir.program)
-            case unexpected:
-                typing.assert_never(unexpected)
+    pipeline = get_transform_pipeline(artifact_ir)
+    for transform in pipeline:
+        for program in artifact_ir.all_programs():
+            transform(context, program)
     # validation is run as the last step, in case we've accidentally inserted something,
     # and in particular post subroutine removal, because some things that are "linked"
     # are not necessarily used from the current artifact
@@ -244,7 +230,7 @@ def _optimize_program_ir(
     *,
     artifact_ir: ModuleArtifact,
     qualifier: str,
-) -> Program:
+) -> None:
     if isinstance(artifact_ir, LogicSignature):
         routable_method_ids = None
     else:
@@ -257,7 +243,6 @@ def _optimize_program_ir(
     optimize_program_ir(
         context, program, routable_method_ids=routable_method_ids, qualifier=qualifier
     )
-    return program
 
 
 def _lower_array_ir(
@@ -265,14 +250,13 @@ def _lower_array_ir(
     program: Program,
     *,
     ref: ContractReference | LogicSigReference,
-) -> Program:
+) -> None:
     logger.debug(f"lowering array IR nodes in {program.kind} program of {ref}")
     for sub in program.all_subroutines:
         lower_array_nodes(sub)
         sub.validate_with_ssa()
     if context.options.output_ssa_ir:
         render_program(context, program, qualifier="ssa.array")
-    return program
 
 
 def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:

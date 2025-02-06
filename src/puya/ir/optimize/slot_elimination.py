@@ -21,7 +21,7 @@ def slot_elimination(
     program: models.Program,
     *,
     ref: ContractReference | LogicSigReference,
-) -> models.Program:
+) -> None:
     logger.debug(f"removing local static slots in {program.kind} program of {ref}")
     # these properties need to be considered across the entire program
     dynamic_slots = 0
@@ -69,7 +69,6 @@ def slot_elimination(
 
     if ctx.options.output_ssa_ir:
         render_program(ctx, program, qualifier="ssa.slot")
-    return program
 
 
 @attrs.define
