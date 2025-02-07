@@ -70,6 +70,7 @@ class ImmutableArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
         assert typ.generic == pytypes.GenericImmutableArrayType
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.WArray)
+        assert wtype.immutable
         self._wtype = wtype
         super().__init__(typ, location)
 
@@ -83,10 +84,8 @@ class ImmutableArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
     ) -> InstanceBuilder:
         typ = self.produces()
         values = tuple(expect.argument_of_type_else_dummy(a, typ.items).resolve() for a in args)
-        wtype = typ.wtype
-        assert isinstance(wtype, wtypes.WArray)
         return ImmutableArrayExpressionBuilder(
-            NewArray(values=values, wtype=wtype, source_location=location), self._pytype
+            NewArray(values=values, wtype=self._wtype, source_location=location), self._pytype
         )
 
 
