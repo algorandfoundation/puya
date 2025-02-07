@@ -10,12 +10,12 @@ Algorand Python 1.0, other than statically sized native Python tuples. However, 
 is not an efficient encoding for mutations, additionally they were restricted in that they could
 only contain other ARC-4 types.
 
-As of Algorand Python 2.7, two new array types were introduced `algopy.Array`, a mutable array type
-that supports statically sized native and ARC-4 elements and `algopy.ImmutableArray` that has
+As of Algorand Python 2.7, two new array types were introduced [`algopy.Array`](#algopy.Array), a mutable array type
+that supports statically sized native and ARC-4 elements and [`algopy.ImmutableArray`](#algopy.ImmutableArray) that has
 an immutable API and supports dynamically sized native and ARC-4 elements.
 
 ## Mutability vs Immutability
-A value with an immutable type cannot be modified. Some examples are `UInt64`, `Bytes`, `tuple` and `typing.NamedTuple`.
+A value with an immutable type cannot be modified. Some examples are [`UInt64`](#algopy.UInt64), [`Bytes`](#algopy.Bytes), `tuple` and `typing.NamedTuple`.
 
 Aggregate immutable types such as `tuple` or `ImmutableArray` provide a way to produce modified values, 
 this is done by returning a copy of the original value with the specified changes applied 
@@ -88,14 +88,14 @@ This is a regular python tuple
 ### `arc4.Tuple`
 * Can only contain other ARC-4 types
 * Can be immutable if all members are also immutable
-* Requires `.copy()` when mutable and creating additional references
+* Requires [`.copy()`](#algopy.arc4.Tuple.copy) when mutable and creating additional references
 * Encoded as a single ARC-4 value on the stack
 
 ### `arc4.Struct`
 * Can only contain other ARC-4 types
 * Members are described by a field name and type
-* Can be immutable if using the `frozen` flag and all members are also immutable
-* Requires `.copy()` when mutable and creating additional references
+* Can be immutable if using the `frozen` class option and all members are also immutable
+* Requires [`.copy()`](#algopy.arc4.Struct.copy) when mutable and creating additional references
 * Encoded as a single ARC-4 value on the stack
 
 ## Algorand Python array types
@@ -107,7 +107,20 @@ This is a regular python tuple
   program so for this reason this type is limited to immutable elements only
 * May use scratch slots to store the data
 * Cannot be put in storage or used in ABI method signatures
-* An immutable copy can be made for storage or returning from a contract 
+* An immutable copy can be made for storage or returning from a contract by using the [`freeze`](#algopy.Array.freeze) method e.g.
+```python
+import algopy
+
+class SomeContract(algopy.arc4.ARC4Contract):
+    @algopy.arc4.abimethod()
+    def get_array(self) -> algopy.ImmutableArray[algopy.UInt64]:
+        arr = algopy.Array[algopy.UInt64]()
+        # modify arr as required
+        ...
+    
+        # return immutable copy
+        return arr.freeze()
+```
 
 ### `algopy.ImmutableArray`
 * Immutable
@@ -115,18 +128,31 @@ This is a regular python tuple
 * Supports all immutable types
 * Most efficient with static sized immutable types
 * Can be put in storage or used in ABI method signatures
+* Can be used to extend an `algopy.Array` to do modifications e.g.
+```python
+import algopy
+
+class SomeContract(algopy.arc4.ARC4Contract):
+
+    @algopy.arc4.abimethod()
+    def modify_array(self, imm_array: algopy.ImmutableArray[algopy.UInt64]) -> None:
+        mutable_arr = algopy.Array[algopy.UInt64]()
+        mutable_arr.extend(imm_array)
+        ...
+```
+
 
 ### `algopy.arc4.DynamicArray` / `algopy.arc4.StaticArray`
 * Supports only ARC-4 elements
 * Elements often require conversion to native types
 * Efficient for reading
-* Requires `.copy()` if making additional references to the array 
+* Requires [`.copy()`](#algopy.arc4.DynamicArray) if making additional references to the array 
 
 ## Recommendations
 * Prefer immutable structures such as `tuple` or `typing.NamedTuple` for aggregate types as these support all types and do not require `.copy()`
 * If a function needs just a few values on a tuple it is more efficient to just pass those members rather than the whole tuple
 * Prefer static sized types rather than dynamically sized types in arrays as they are more efficient in terms of op budgets
 * Use `algopy.Array` when doing many mutations e.g. appending in a loop
-* `algopy.Array` can be converted to `algopy.ImmutableArray` for storage
+* Use [`algopy.Array.freeze`](#algopy.Array.freeze) to convert an array to `algopy.ImmutableArray` for storage
 * `algopy.ImmutableArray` can be used in storage and ABI methods, and will be viewed externally (i.e. in ARC-56 definitions) as the equivalent ARC-4 encoded type
 * `algopy.ImmutableArray` can be converted to `algopy.Array` by extending a new `algopy.Array` with an `algopy.ImmutableArray`
