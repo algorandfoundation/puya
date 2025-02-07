@@ -5,9 +5,9 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.arc4_types import wtype_to_arc4_wtype
 from puya.awst.nodes import Expression
 from puya.errors import CodeError, InternalError
+from puya.ir.arc4_types import effective_array_encoding
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, arrays
 from puya.ir.builder._tuple_util import build_tuple_registers, get_tuple_item_values
@@ -139,7 +139,9 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_items=reverse_items,
                 reverse_index=reverse_index,
             )
-        case awst_nodes.Expression(wtype=wtypes.WTuple(types=item_types)) as tuple_expression:
+            return
+    match sequence.wtype:
+        case wtypes.WTuple(types=item_types):
             if not item_types:
                 logger.debug("Skipping ForInStatement which iterates an empty sequence.")
             else:
@@ -147,12 +149,12 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                     context,
                     loop_body=statement.loop_body,
                     assigner=assign_user_loop_vars,
-                    tuple_expr=tuple_expression,
+                    tuple_expr=sequence,
                     statement_loc=statement.source_location,
                     reverse_index=reverse_index,
                     reverse_items=reverse_items,
                 )
-        case awst_nodes.Expression(wtype=wtypes.bytes_wtype):
+        case wtypes.bytes_wtype:
             bytes_value = context.visitor.visit_and_materialise_single(sequence)
             byte_length = assign_temp(
                 context,
@@ -186,7 +188,7 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_index=reverse_index,
                 reverse_items=reverse_items,
             )
-        case awst_nodes.Expression(wtype=wtypes.ARC4Array() as arc4_array_wtype):
+        case wtypes.ARC4Array() as arc4_array_wtype:
             iterator = arc4.build_for_in_array(
                 context,
                 arc4_array_wtype,
@@ -203,13 +205,14 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_index=reverse_index,
                 reverse_items=reverse_items,
             )
-        case awst_nodes.Expression(wtype=wtypes.WArray(immutable=True) as array_wtype):
-            arc4_array_wtype = wtype_to_arc4_wtype(array_wtype, statement.source_location)
-            arc4_element_type = arc4_array_wtype.element_type
+        case wtypes.WArray() as array_wtype if (
+            arc4_encoding_wtype := effective_array_encoding(array_wtype)
+        ):
+            arc4_element_type = arc4_encoding_wtype.element_type
             element_type = array_wtype.element_type
             iterator = arc4.build_for_in_array(
                 context,
-                arc4_array_wtype,
+                arc4_encoding_wtype,
                 sequence,
                 statement.source_location,
             )
@@ -239,7 +242,7 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_index=reverse_index,
                 reverse_items=reverse_items,
             )
-        case awst_nodes.Expression(wtype=wtypes.WArray(immutable=False)):
+        case wtypes.WArray(immutable=False):
             iterator = arrays.build_for_in_array(
                 context,
                 sequence,

@@ -14,13 +14,10 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.arc4_types import (
-    wtype_to_arc4,
-    wtype_to_arc4_wtype,
-)
 from puya.awst.function_traverser import FunctionTraverser
 from puya.errors import InternalError
 from puya.ir._arc4_default_args import convert_default_args
+from puya.ir.arc4_types import wtype_to_arc4, wtype_to_arc4_wtype
 from puya.ir.context import IRBuildContext
 from puya.parse import SourceLocation
 from puya.utils import StableSet, set_add, unique

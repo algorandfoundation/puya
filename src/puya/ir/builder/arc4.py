@@ -6,7 +6,6 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.arc4_types import wtype_to_arc4_wtype
 from puya.errors import CodeError, InternalError
 from puya.ir.arc4 import (
     get_arc4_static_bit_size,
@@ -14,6 +13,7 @@ from puya.ir.arc4 import (
     is_arc4_dynamic_size,
     is_arc4_static_size,
 )
+from puya.ir.arc4_types import effective_array_encoding, wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import (
     OpFactory,
@@ -24,7 +24,11 @@ from puya.ir.builder._utils import (
     convert_constants,
     mktemp,
 )
-from puya.ir.builder.arrays import ArrayIterator, array_length, get_array_encoded_items
+from puya.ir.builder.arrays import (
+    ArrayIterator,
+    get_array_encoded_items,
+    get_array_length as get_native_array_length,
+)
 from puya.ir.builder.assignment import handle_assignment
 from puya.ir.builder.mem import read_slot
 from puya.ir.context import IRFunctionBuildContext
@@ -47,11 +51,6 @@ from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.utils import bits_to_bytes
 
 logger = log.get_logger(__name__)
-
-
-def decode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Decode) -> ValueProvider:
-    value = context.visitor.visit_and_materialise_single(expr.value)
-    return decode_arc4_value(context, value, expr.value.wtype, expr.wtype, expr.source_location)
 
 
 def decode_arc4_value(
@@ -115,13 +114,6 @@ def encode_arc4_struct(
     return _visit_arc4_tuple_encode(context, elements, wtype.types, expr.source_location)
 
 
-def encode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Encode) -> ValueProvider:
-    value = context.visitor.visit_expr(expr.value)
-    return encode_value_provider(
-        context, value, expr.value.wtype, expr.wtype, expr.source_location
-    )
-
-
 def encode_value_provider(
     context: IRFunctionBuildContext,
     value_provider: ValueProvider,
@@ -129,48 +121,50 @@ def encode_value_provider(
     arc4_wtype: wtypes.ARC4Type,
     loc: SourceLocation,
 ) -> ValueProvider:
-    # return values that are already ARC4 encoded
-    if value_wtype == arc4_wtype or (
-        isinstance(value_wtype, wtypes.WArray)
-        and value_wtype.immutable
-        and wtype_to_arc4_wtype(value_wtype, loc) == arc4_wtype
-    ):
-        return value_provider
-    match arc4_wtype:
-        case wtypes.arc4_bool_wtype:
+    match arc4_wtype, value_wtype:
+        case (
+            wtypes.arc4_bool_wtype,
+            wtypes.bool_wtype,
+        ):
             (value,) = context.visitor.materialise_value_provider(
                 value_provider, description="to_encode"
             )
             return _encode_arc4_bool(context, value, loc)
-        case wtypes.ARC4UIntN(n=bits):
+        case (
+            wtypes.ARC4UIntN(n=bits),
+            (wtypes.bool_wtype | wtypes.uint64_wtype | wtypes.biguint_wtype),
+        ):
             (value,) = context.visitor.materialise_value_provider(
                 value_provider, description="to_encode"
             )
             num_bytes = bits // 8
             return _itob_fixed(context, value, num_bytes, loc)
-        case wtypes.ARC4Tuple(types=arc4_item_types):
-            assert isinstance(
-                value_wtype, wtypes.WTuple
-            ), f"expected WTuple argument, got {value_wtype.name}"
+        case (
+            wtypes.ARC4Tuple(types=arc4_item_types),
+            wtypes.WTuple(types=item_types),
+        ):
             elements = context.visitor.materialise_value_provider(
                 value_provider, description="elements_to_encode"
             )
             arc4_items = _encode_arc4_tuple_items(
-                context, elements, value_wtype.types, arc4_item_types, loc
+                context, elements, item_types, arc4_item_types, loc
             )
             return _visit_arc4_tuple_encode(context, arc4_items, arc4_item_types, loc)
-        case wtypes.ARC4Struct(types=arc4_item_types):
-            assert isinstance(
-                value_wtype, wtypes.WTuple
-            ), f"expected WTuple argument, got {value_wtype.name}"
+        case (
+            wtypes.ARC4Struct(types=arc4_item_types),
+            wtypes.WTuple(types=item_types),
+        ):
             elements = context.visitor.materialise_value_provider(
                 value_provider, description="elements_to_encode"
             )
             arc4_items = _encode_arc4_tuple_items(
-                context, elements, value_wtype.types, arc4_item_types, loc
+                context, elements, item_types, arc4_item_types, loc
             )
             return _visit_arc4_tuple_encode(context, arc4_items, arc4_item_types, loc)
-        case wtypes.ARC4DynamicArray(element_type=wtypes.ARC4UIntN(n=8)):
+        case (
+            wtypes.ARC4DynamicArray(element_type=wtypes.ARC4UIntN(n=8)),
+            (wtypes.bytes_wtype | wtypes.string_wtype),
+        ):
             (value,) = context.visitor.materialise_value_provider(
                 value_provider, description="to_encode"
             )
@@ -178,15 +172,15 @@ def encode_value_provider(
             length = factory.len(value, "length")
             length_uint16 = factory.as_u16_bytes(length, "length_uint16")
             return factory.concat(length_uint16, value, "encoded_value")
-        case wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray():
-            raise InternalError(
-                "NewArray should be used instead of ARC4Encode for arrays",
-                loc,
-            )
+        case (
+            wtypes.ARC4Array(),
+            wtypes.WArray(),
+        ) if effective_array_encoding(value_wtype) == arc4_wtype:
+            # already ARC4 encoded
+            return value_provider
         case _:
             raise InternalError(
-                f"Unsupported wtype for ARC4Encode: {value_wtype}",
-                location=loc,
+                f"unsupported ARC4 translation from {value_wtype} to {arc4_wtype}", loc
             )
 
 
@@ -284,7 +278,7 @@ def arc4_array_index(
     assert_bounds: bool = True,
 ) -> ValueProvider:
     factory = OpFactory(context, source_location)
-    array_length_vp = get_arc4_array_length(context, array_wtype, array, source_location)
+    array_length_vp = get_arc4_array_length(array_wtype, array, source_location)
     array_head_and_tail_vp = _get_arc4_array_head_and_tail(
         context, array_wtype, array, source_location
     )
@@ -361,7 +355,7 @@ def build_for_in_array(
             "Attempted iteration of an ARC4 array of mutable objects", source_location
         )
     array = context.visitor.visit_and_materialise_single(array_expr)
-    length_vp = get_arc4_array_length(context, array_wtype, array, source_location)
+    length_vp = get_arc4_array_length(array_wtype, array, source_location)
     array_length = assign_temp(
         context,
         length_vp,
@@ -475,7 +469,7 @@ def handle_arc4_assign(
 
 def convert_and_concat_values(
     context: IRFunctionBuildContext,
-    array_wtype: wtypes.WType,
+    array_wtype: wtypes.ARC4Array,
     array_expr: awst_nodes.Expression,
     iter_expr: awst_nodes.Expression,
     source_location: SourceLocation,
@@ -566,7 +560,6 @@ def convert_and_concat_values(
             "concat_result",
         )
     if is_arc4_dynamic_size(left_element_type):
-        assert isinstance(array_wtype, wtypes.ARC4DynamicArray)
         left = context.visitor.visit_and_materialise_single(array_expr)
         if isinstance(right_wtype, wtypes.WTuple):
             r_count_vp: ValueProvider = UInt64Constant(
@@ -586,14 +579,14 @@ def convert_and_concat_values(
             )
         elif isinstance(right_wtype, wtypes.ARC4Array):
             right = context.visitor.visit_and_materialise_single(iter_expr)
-            r_count_vp = get_arc4_array_length(context, right_wtype, right, source_location)
+            r_count_vp = get_arc4_array_length(right_wtype, right, source_location)
             r_head_and_tail_vp = _get_arc4_array_head_and_tail(
                 context, right_wtype, right, source_location
             )
         else:
             raise InternalError("Expected array", source_location)
         args = factory.assign_multiple(
-            l_count=get_arc4_array_length(context, array_wtype, left, source_location),
+            l_count=get_arc4_array_length(array_wtype, left, source_location),
             l_head_and_tail=_get_arc4_array_head_and_tail(
                 context, array_wtype, left, source_location
             ),
@@ -660,7 +653,7 @@ def pop_arc4_array(
     source_location = expr.source_location
 
     base = context.visitor.visit_and_materialise_single(expr.base)
-    popped, data = invoke_arc4_array_pop(context, array_wtype, base, source_location)
+    popped, data = invoke_arc4_array_pop(context, array_wtype.element_type, base, source_location)
     handle_arc4_assign(
         context,
         target=expr.base,
@@ -674,19 +667,19 @@ def pop_arc4_array(
 
 def invoke_arc4_array_pop(
     context: IRFunctionBuildContext,
-    array_wtype: wtypes.ARC4DynamicArray,
+    element_wtype: wtypes.ARC4Type,
     base: Value,
     source_location: SourceLocation,
 ) -> tuple[Value, Value]:
     args: list[Value | int | bytes] = [base]
-    if array_wtype.element_type == wtypes.arc4_bool_wtype:
+    if element_wtype == wtypes.arc4_bool_wtype:
         method_name = "dynamic_array_pop_bit"
-    elif _is_byte_length_header(array_wtype.element_type):  # TODO: multi_byte_length prefix?
+    elif _is_byte_length_header(element_wtype):  # TODO: multi_byte_length prefix?
         method_name = "dynamic_array_pop_byte_length_head"
-    elif is_arc4_dynamic_size(array_wtype.element_type):
+    elif is_arc4_dynamic_size(element_wtype):
         method_name = "dynamic_array_pop_dynamic_element"
     else:
-        fixed_size = get_arc4_static_bit_size(array_wtype.element_type)
+        fixed_size = get_arc4_static_bit_size(element_wtype)
         method_name = "dynamic_array_pop_fixed_size"
         args.append(fixed_size // 8)
 
@@ -1121,20 +1114,23 @@ def _get_arc4_array_tail_data_and_item_count(
     context: IRFunctionBuildContext, expr: awst_nodes.Expression, source_location: SourceLocation
 ) -> tuple[Value, Value]:
     """
-    For ARC4 containers (dynamic array, static array) will return the tail data and item count
+    For ARC4 containers (dynamic array, static array) will return the tail data and item count.
     For native tuples will return the tuple items packed into the equivalent static array
-    of tail data and item count
+    of tail data and item count.
     """
+
     factory = OpFactory(context, source_location)
     match expr:
-        case awst_nodes.Expression(
-            wtype=wtypes.ARC4DynamicArray()
-            | wtypes.ARC4StaticArray()
-            | wtypes.WArray() as arr_wtype
-        ):
+        case awst_nodes.Expression(wtype=(wtypes.ARC4Array() | wtypes.WArray()) as arr_wtype):
             array = context.visitor.visit_and_materialise_single(expr)
+            if isinstance(arr_wtype, wtypes.WArray):
+                array_length_vp = get_native_array_length(
+                    context, arr_wtype, array, source_location
+                )
+            else:
+                array_length_vp = get_arc4_array_length(arr_wtype, array, source_location)
             array_length = factory.assign(
-                get_arc4_array_length(context, arr_wtype, array, source_location),
+                array_length_vp,
                 "array_length",
             )
             array_head_and_tail = factory.assign(
@@ -1253,10 +1249,11 @@ def arc4_replace_array_item(
     *,
     base_expr: awst_nodes.Expression,
     index_value_expr: awst_nodes.Expression,
-    wtype: wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray,
+    wtype: wtypes.ARC4Array,
     value: ValueProvider,
     source_location: SourceLocation,
 ) -> Value:
+    assert type(wtype) in (wtypes.ARC4StaticArray, wtypes.ARC4DynamicArray)
     base = context.visitor.visit_and_materialise_single(base_expr)
 
     value = assign_temp(
@@ -1277,19 +1274,19 @@ def arc4_replace_array_item(
         )
 
     if _is_byte_length_header(wtype.element_type):
-        if isinstance(wtype, wtypes.ARC4DynamicArray):
-            return updated_result("dynamic_array_replace_byte_length_head", [base, value, index])
-        else:
+        if isinstance(wtype, wtypes.ARC4StaticArray):
             return updated_result(
                 "static_array_replace_byte_length_head", [base, value, index, wtype.array_size]
             )
-    elif is_arc4_dynamic_size(wtype.element_type):
-        if isinstance(wtype, wtypes.ARC4DynamicArray):
-            return updated_result("dynamic_array_replace_dynamic_element", [base, value, index])
         else:
+            return updated_result("dynamic_array_replace_byte_length_head", [base, value, index])
+    elif is_arc4_dynamic_size(wtype.element_type):
+        if isinstance(wtype, wtypes.ARC4StaticArray):
             return updated_result(
                 "static_array_replace_dynamic_element", [base, value, index, wtype.array_size]
             )
+        else:
+            return updated_result("dynamic_array_replace_dynamic_element", [base, value, index])
     array_length = (
         UInt64Constant(value=wtype.array_size, source_location=source_location)
         if isinstance(wtype, wtypes.ARC4StaticArray)
@@ -1464,18 +1461,14 @@ def _assert_index_in_bounds(
 
 
 def get_arc4_array_length(
-    context: IRFunctionBuildContext,
-    wtype: wtypes.ARC4Array | wtypes.WArray,
+    wtype: wtypes.ARC4Array,
     array: Value,
     source_location: SourceLocation,
 ) -> ValueProvider:
     match wtype:
         case wtypes.ARC4StaticArray(array_size=array_size):
             return UInt64Constant(value=array_size, source_location=source_location)
-        case wtypes.WArray(immutable=False):
-            array_contents = read_slot(context, array, array.source_location)
-            return array_length(context, array_contents, source_location)
-        case wtypes.ARC4DynamicArray() | wtypes.WArray(immutable=True):
+        case wtypes.ARC4DynamicArray():
             return Intrinsic(
                 op=AVMOp.extract_uint16,
                 args=[

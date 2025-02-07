@@ -1,7 +1,3 @@
-import typing
-
-from immutabledict import immutabledict
-
 from puya.awst import wtypes
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -49,24 +45,22 @@ def maybe_wtype_to_arc4_wtype(wtype: wtypes.WType) -> wtypes.ARC4Type | None:
             )
         case wtypes.string_wtype:
             return wtypes.arc4_string_alias
-        case wtypes.WArray(immutable=True) as arr:
-            element_type = maybe_wtype_to_arc4_wtype(arr.element_type)
-            if element_type is None:
+        case wtypes.WArray(immutable=True, element_type=element_type):
+            arc4_element_type = maybe_wtype_to_arc4_wtype(element_type)
+            if arc4_element_type is None:
                 return None
-            return wtypes.ARC4DynamicArray(element_type=element_type, immutable=arr.immutable)
-        case wtypes.WTuple(types=tuple_item_types) as wtuple:
+            return wtypes.ARC4DynamicArray(element_type=arc4_element_type, immutable=True)
+        case wtypes.WTuple() as wtuple:
             arc4_item_types = []
-            for t in tuple_item_types:
+            for t in wtuple.types:
                 arc4_type = maybe_wtype_to_arc4_wtype(t)
                 if arc4_type is None:
                     return None
                 arc4_item_types.append(arc4_type)
             if wtuple.fields:
+                arc4_fields = dict(zip(wtuple.fields, arc4_item_types, strict=True))
                 return wtypes.ARC4Struct(
-                    name=wtuple.name,
-                    desc=wtuple.desc,
-                    frozen=True,
-                    fields=immutabledict(zip(wtuple.fields, arc4_item_types, strict=True)),
+                    name=wtuple.name, desc=wtuple.desc, frozen=True, fields=arc4_fields
                 )
             else:
                 return wtypes.ARC4Tuple(types=arc4_item_types, source_location=None)
@@ -74,24 +68,21 @@ def maybe_wtype_to_arc4_wtype(wtype: wtypes.WType) -> wtypes.ARC4Type | None:
             return None
 
 
-@typing.overload
-def wtype_to_arc4_wtype(
-    wtype: wtypes.WArray, loc: SourceLocation | None
-) -> wtypes.ARC4DynamicArray: ...
-
-
-@typing.overload
-def wtype_to_arc4_wtype(
-    wtype: wtypes.WTuple, loc: SourceLocation | None
-) -> wtypes.ARC4Tuple | wtypes.ARC4Struct: ...
-
-
-@typing.overload
-def wtype_to_arc4_wtype(wtype: wtypes.WType, loc: SourceLocation | None) -> wtypes.ARC4Type: ...
-
-
 def wtype_to_arc4_wtype(wtype: wtypes.WType, loc: SourceLocation | None) -> wtypes.ARC4Type:
     arc4_wtype = maybe_wtype_to_arc4_wtype(wtype)
     if arc4_wtype is None:
         raise CodeError(f"unsupported type for ARC4 encoding {wtype}", loc)
     return arc4_wtype
+
+
+def effective_array_encoding(array_type: wtypes.WArray) -> wtypes.ARC4Array | None:
+    """If a native array is effectively ARC4-encoded, return that equivalent type here."""
+    if array_type.immutable:
+        arc4_element_type = maybe_wtype_to_arc4_wtype(array_type.element_type)
+        if arc4_element_type is None:
+            # we flat out don't support this (yet?), so always raise a CodeError
+            # this is an internal detail to the current IR implementation of this type,
+            # so this is the right spot to do this validation in currently
+            raise CodeError("unsupported array element type", array_type.source_location)
+        return wtypes.ARC4DynamicArray(element_type=arc4_element_type, immutable=True)
+    return None

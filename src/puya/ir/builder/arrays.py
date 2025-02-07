@@ -8,9 +8,11 @@ from puya.awst import (
 )
 from puya.errors import InternalError
 from puya.ir import models as ir
+from puya.ir.arc4_types import effective_array_encoding
 from puya.ir.builder._utils import OpFactory, assign_targets, mktemp
 from puya.ir.builder.mem import read_slot
 from puya.ir.context import IRFunctionBuildContext
+from puya.ir.models import Value, ValueProvider
 from puya.ir.types_ import ArrayType
 from puya.parse import SourceLocation, sequential_source_locations_merge
 
@@ -21,12 +23,20 @@ class ArrayIterator:
     get_value_at_index: Callable[[ir.Value], ir.ValueProvider]
 
 
-def array_length(
-    _context: IRFunctionBuildContext,
-    array: ir.Value,
-    loc: SourceLocation,
-) -> ir.ArrayLength:
-    return ir.ArrayLength(array=array, source_location=loc)
+def get_array_length(
+    context: IRFunctionBuildContext,
+    wtype: wtypes.WArray,
+    array: Value,
+    source_location: SourceLocation,
+) -> ValueProvider:
+    from puya.ir.builder.arc4 import get_arc4_array_length
+
+    if not wtype.immutable:
+        array_contents = read_slot(context, array, array.source_location)
+        return ir.ArrayLength(array=array_contents, source_location=source_location)
+    array_encoding = effective_array_encoding(wtype)
+    assert array_encoding is not None
+    return get_arc4_array_length(array_encoding, array, source_location)
 
 
 def read_array_index(

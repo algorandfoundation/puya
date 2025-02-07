@@ -12,8 +12,8 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.arc4_types import wtype_to_arc4_wtype
 from puya.errors import CodeError
+from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.parse import SourceLocation
 from puya.utils import set_add
 
