@@ -10,12 +10,12 @@ Algorand Python 1.0, other than statically sized native Python tuples. However, 
 is not an efficient encoding for mutations, additionally they were restricted in that they could
 only contain other ARC-4 types.
 
-As of Alogrand Python 2.7, two new array types were introduced `algopy.Array`, a mutable array type
+As of Algorand Python 2.7, two new array types were introduced `algopy.Array`, a mutable array type
 that supports statically sized native and ARC-4 elements and `algopy.ImmutableArray` that has
 an immutable API and supports dynamically sized native and ARC-4 elements.
 
 ## Mutability vs Immutability
-A value with an immutable type cannot be modified some examples are `UInt64`, `Bytes`, `tuple` and `typing.NamedTuple`.
+A value with an immutable type cannot be modified. Some examples are `UInt64`, `Bytes`, `tuple` and `typing.NamedTuple`.
 
 Aggregate immutable types such as `tuple` or `ImmutableArray` provide a way to produce modified values, 
 this is done by returning a copy of the original value with the specified changes applied 
@@ -67,7 +67,7 @@ e.g.
 `tuple[UInt64, UInt64]` is static size as it contains two static sized members.
 
 Any type where its size is not statically defined is dynamically sized e.g. `Bytes`,
-`String`, `tuple[UInt64, String]` and `Array[UInt64]` are all dynamically sized
+`String`, `tuple[UInt64, String]` and `Array[UInt64]` are all dynamically sized.
 
 ## Algorand Python composite types
 
