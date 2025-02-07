@@ -13,6 +13,13 @@ class Reference(algopy.arc4.ARC4Client, typing.Protocol):
         a: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> algopy.arc4.UIntN[typing.Literal[8]]: ...
 
+    @algopy.arc4.abimethod(allow_actions=['OptIn'])
+    def opt_in(
+        self,
+        uint: algopy.arc4.UIntN[typing.Literal[64]],
+        bites: algopy.arc4.DynamicBytes,
+    ) -> None: ...
+
     @algopy.arc4.abimethod(readonly=True, allow_actions=['NoOp', 'OptIn', 'CloseOut', 'UpdateApplication', 'DeleteApplication'], create='allow')
     def all_the_things(
         self,
@@ -81,6 +88,8 @@ class Reference(algopy.arc4.ARC4Client, typing.Protocol):
         int_from_function: algopy.arc4.UIntN[typing.Literal[64]],
         int_from_const: algopy.arc4.UIntN[typing.Literal[32]],
         str_from_const: algopy.arc4.String,
+        int_from_local: algopy.arc4.UIntN[typing.Literal[64]],
+        bytes_from_local: algopy.arc4.DynamicBytes,
     ) -> None: ...
 
     @algopy.arc4.abimethod
