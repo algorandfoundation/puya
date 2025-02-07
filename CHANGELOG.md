@@ -1,4 +1,10 @@
 # CHANGELOG
+## v4.3.3 (2025-02-07)
+
+### Fix
+
+* remove validation for ARC-32 and ARC-56 default args, and leave this to the app clients to resolve correctly ([`7fc803d`](https://github.com/algorandfoundation/puya/commit/7fc803d76e343db264018f3df6df357aa47a21a6))
+
 ## v4.3.2 (2025-02-07)
 
 ### Fix
