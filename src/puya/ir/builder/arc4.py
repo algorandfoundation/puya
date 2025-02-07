@@ -453,9 +453,7 @@ def handle_arc4_assign(
         # this function is sometimes invoked outside an assignment expr/stmt, which
         # is how a non l-value expression can be possible
         # TODO: refactor this so that this special case is handled where it originates
-        case awst_nodes.TupleItemExpression(
-            wtype=item_wtype,
-        ) if not item_wtype.immutable:
+        case awst_nodes.TupleItemExpression(wtype=wtypes.WType(immutable=False)):
             (result,) = handle_assignment(
                 context,
                 target,
