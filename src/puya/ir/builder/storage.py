@@ -73,7 +73,7 @@ def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) 
         true=maybe_value,
         false=default,
         temp_desc="state_get",
-        ir_type=wtype_to_ir_type(expr.wtype),
+        ir_type=wtype_to_ir_type(expr.wtype, expr.source_location),
     )
 
 
@@ -127,7 +127,7 @@ def _build_state_get_ex(
 ) -> tuple[Value, Value]:
     key = context.visitor.visit_and_materialise_single(expr.key)
     args: list[Value]
-    true_value_ir_type = get_ex_value_ir_type = wtype_to_ir_type(expr.wtype)
+    true_value_ir_type = get_ex_value_ir_type = wtype_to_ir_type(expr.wtype, expr.source_location)
     convert_op: AVMOp | None = None
     if isinstance(expr, awst_nodes.AppStateExpression):
         current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)

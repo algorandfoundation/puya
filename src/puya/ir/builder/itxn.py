@@ -236,7 +236,9 @@ class InnerTransactionBuilder:
             field_var_name = _get_txn_field_var_name(itxn.name, field.immediate)
             if self.ssa.has_version(field_var_name):
                 return self.ssa.read_variable(
-                    field_var_name, wtype_to_ir_type(field.wtype), self.block_builder.active_block
+                    field_var_name,
+                    wtype_to_ir_type(field.wtype, itxn_field.source_location),
+                    self.block_builder.active_block,
                 )
 
         match itxn:
@@ -264,7 +266,7 @@ class InnerTransactionBuilder:
                 else None
             ),
             field=field.immediate,
-            type=wtype_to_ir_type(field.wtype),
+            type=wtype_to_ir_type(field.wtype, itxn_field.source_location),
             source_location=src_loc,
         )
 
@@ -379,7 +381,7 @@ class InnerTransactionBuilder:
                     field=field.immediate,
                     group_index=target,
                     is_last_in_group=is_last_in_group,
-                    type=wtype_to_ir_type(field.wtype),
+                    type=wtype_to_ir_type(field.wtype, None),
                     array_index=None,
                     source_location=None,
                 ),
@@ -396,7 +398,7 @@ class InnerTransactionBuilder:
             assign(
                 context=self.context,
                 source=self.context.ssa.read_variable(
-                    src_field, wtype_to_ir_type(field.wtype), active_block
+                    src_field, wtype_to_ir_type(field.wtype, None), active_block
                 ),
                 name=dest_field,
                 register_location=None,
@@ -410,7 +412,7 @@ class InnerTransactionBuilder:
         idx_to: int,
     ) -> None:
         field = field_data.field
-        field_ir_type = wtype_to_ir_type(field.wtype)
+        field_ir_type = wtype_to_ir_type(field.wtype, None)
         for idx in range(idx_from, idx_to):
             field_value = self.ssa.read_variable(
                 field_data.get_value_register_name(idx),
@@ -526,7 +528,7 @@ class InnerTransactionBuilder:
                     context=self.context,
                     source=self.ssa.read_variable(
                         src_field_register,
-                        wtype_to_ir_type(field.wtype),
+                        wtype_to_ir_type(field.wtype, None),
                         self.block_builder.active_block,
                     ),
                     name=dest_field_register,

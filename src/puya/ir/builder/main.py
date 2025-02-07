@@ -527,7 +527,7 @@ class FunctionIRBuilder(
             else:
                 yield self.context.ssa.read_variable(
                     variable=item_name,
-                    ir_type=wtype_to_ir_type(wt),
+                    ir_type=wtype_to_ir_type(wt, wtype.source_location),
                     block=self.context.block_builder.active_block,
                 )
 
@@ -916,7 +916,7 @@ class FunctionIRBuilder(
                 )
         else:
             loc = expr.source_location
-            array_slot_type = wtype_to_ir_type(expr.wtype)
+            array_slot_type = wtype_to_ir_type(expr.wtype, expr.source_location)
             assert isinstance(array_slot_type, SlotType)
             array_type = array_slot_type.contents
             assert isinstance(array_type, ArrayType)
@@ -1118,7 +1118,7 @@ class FunctionIRBuilder(
     def visit_template_var(self, expr: awst_nodes.TemplateVar) -> TExpression:
         return TemplateVar(
             name=expr.name,
-            ir_type=wtype_to_ir_type(expr.wtype),
+            ir_type=wtype_to_ir_type(expr.wtype, expr.source_location),
             source_location=expr.source_location,
         )
 

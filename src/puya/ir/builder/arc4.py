@@ -1375,7 +1375,7 @@ def _concat_dynamic_array_fixed_size(
                 expr_value = context.visitor.visit_and_materialise_single(expr)
                 return factory.extract_to_end(expr_value, 2, "expr_value_trimmed")
             case wtypes.WTuple(types=types):
-                element_type = wtype_to_encoded_ir_type(types[0])
+                element_type = wtype_to_encoded_ir_type(types[0], expr.source_location)
                 return get_array_encoded_items(context, expr, ArrayType(element=element_type))
             case _:
                 raise InternalError(

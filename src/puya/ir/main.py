@@ -328,7 +328,7 @@ def _make_program(
     reserved_scratch_space: Set[int],
 ) -> Program:
     assert not main.args, "main method should not have args"
-    return_type = wtype_to_ir_type(main.return_type)
+    return_type = wtype_to_ir_type(main.return_type, None)
     assert return_type.avm_type == AVMType.uint64, "main method should return uint64 backed type"
     main_sub = Subroutine(
         id=main.full_name,
