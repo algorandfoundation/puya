@@ -1,4 +1,10 @@
 # CHANGELOG
+## v4.3.2 (2025-02-07)
+
+### Fix
+
+* fix encoding of an array of arc4 bools when extending from a tuple of elements ([`20ba953`](https://github.com/algorandfoundation/puya/commit/20ba95355692ea5ec72d1f59e1fb3edb61169681))
+
 ## v4.3.1 (2025-01-31)
 
 ### Fix
