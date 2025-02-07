@@ -493,6 +493,9 @@ def test_arc4_routing(
     create_response = app_client.create()
     assert create_response.confirmed_round
 
+    response = app_client.opt_in("opt_in", uint=42, bites=b"43")
+    assert response.confirmed_round
+
     app_client.call("method_with_default_args")
 
     hello_result = app_client.call("hello_with_algopy_string", name="Algopy")

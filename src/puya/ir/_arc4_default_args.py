@@ -8,7 +8,7 @@ from puya import (
     artifact_metadata as models,
     log,
 )
-from puya.avm import AVMType, OnCompletionAction
+from puya.avm import OnCompletionAction
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -86,23 +86,6 @@ def _convert_member_arg_default(
     if (state_source := state_by_name.get(member_name)) is not None:
         if state_source.key_wtype is not None:
             return "state member is a map"
-        storage_type = wtypes.persistable_stack_type(
-            state_source.storage_wtype, param.source_location
-        )
-        if (
-            storage_type is AVMType.uint64
-            # storage can provide an int to types <= uint64
-            # TODO: check what ATC does with ufixed, see if it can be added
-            and not (param_arc4_type == "byte" or param_arc4_type.startswith("uint"))
-        ) or (
-            storage_type is AVMType.bytes
-            # storage can provide fixed byte arrays
-            and not (
-                param_arc4_type == "address"
-                or (param_arc4_type.startswith("byte[") and param_arc4_type != "byte[]")
-            )
-        ):
-            return f"{member_name!r} cannot provide {param_arc4_type!r} type"
         return models.MethodArgDefaultFromState(
             kind=state_source.kind,
             key=state_source.key.value,

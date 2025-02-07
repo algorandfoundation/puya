@@ -6,9 +6,11 @@ from algopy import (
     ARC4Contract,
     Asset,
     Bytes,
+    LocalState,
     OnCompleteAction,
     String,
     TransactionType,
+    Txn,
     UInt64,
     arc4,
     gtxn,
@@ -26,6 +28,8 @@ class Reference(ARC4Contract):
         self.some_bytes = Bytes3(arc4.Byte(7), arc4.Byte(8), arc4.Byte(9))
         self.creator = op.Txn.sender
         self.app = Application(123)
+        self.local_bytes = LocalState(Bytes)
+        self.local_uint = LocalState(UInt64)
 
         assert arc4.arc4_signature("get(uint64,byte[])byte[]"), "has method selector"
 
@@ -33,6 +37,11 @@ class Reference(ARC4Contract):
     def noop_with_uint64(self, a: arc4.UInt64) -> arc4.UInt8:
         result = 1 + a.native
         return arc4.UInt8(result)
+
+    @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
+    def opt_in(self, uint: UInt64, bites: Bytes) -> None:
+        self.local_uint[Txn.sender] = uint
+        self.local_bytes[Txn.sender] = bites
 
     @arc4.abimethod(
         allow_actions=[
@@ -139,6 +148,8 @@ class Reference(ARC4Contract):
             "int_from_function": "get_a_int",
             "int_from_const": arc4.UInt32(123),
             "str_from_const": arc4.String("abc"),
+            "int_from_local": "local_uint",
+            "bytes_from_local": "local_bytes",
         }
     )
     def method_with_default_args(
@@ -154,6 +165,8 @@ class Reference(ARC4Contract):
         int_from_function: arc4.UInt64,
         int_from_const: arc4.UInt32,
         str_from_const: arc4.String,
+        int_from_local: UInt64,
+        bytes_from_local: Bytes,
     ) -> None:
         assert asset_from_storage == Asset(123), "wrong asset from storage"
         assert asset_from_function == Asset(456), "wrong asset from function"
@@ -168,6 +181,8 @@ class Reference(ARC4Contract):
         assert int_from_function.native == 3, "wrong int from function"
         assert int_from_const == 123
         assert str_from_const == "abc"
+        assert int_from_local == self.local_uint[Txn.sender]
+        assert bytes_from_local == self.local_bytes[Txn.sender]
 
     @arc4.abimethod
     def method_with_15_args(
