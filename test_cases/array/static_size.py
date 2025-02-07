@@ -21,7 +21,7 @@ class Point(typing.NamedTuple):
     other: Xtra
 
 
-class FixedSizeContract(arc4.ARC4Contract):
+class StaticSizeContract(arc4.ARC4Contract):
     def __init__(self) -> None:
         self.count = UInt64(0)
 

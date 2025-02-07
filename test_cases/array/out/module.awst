@@ -258,6 +258,130 @@ subroutine do_something_with_array(arr: array<uint64>): void
   arr.extend((1u))
 }
 
+contract StaticSizeContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  globals {
+    ['count']: uint64
+  }
+  
+  subroutine test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.array.static_size.StaticSizeContract.__init__(): void
+  {
+    GlobalState['count']: uint64 = 0u
+  }
+  
+  abimethod test_cases.array.static_size.StaticSizeContract.test_array(x1: arc4.uint64, y1: uint64, x2: arc4.uint64, y2: uint64): uint64
+  {
+    GlobalState['count']: uint64 = 0u
+    path: array<test_cases.array.static_size.Point> = new array<test_cases.array.static_size.Point>((0_arc4u64, 0u, this::xtra()), (x1, y1, this::xtra()), (x2, y2, this::xtra()))
+    for i in range(0u, 3u, 1u) {
+      assert(path[i].other.b == i + 1u)
+      assert(reinterpret_cast<biguint>(path[i].other.d.foo) == itob(i + 2u))
+      assert(reinterpret_cast<biguint>(path[i].other.d.bar) == itob(i + 1u * i + 1u))
+    }
+    Box['a']: array<test_cases.array.static_size.Point> = new array<test_cases.array.static_size.Point>() + path
+    return test_cases.array.static_size.path_length(path)
+  }
+  
+  abimethod test_cases.array.static_size.StaticSizeContract.test_bool_array(length: uint64): uint64
+  {
+    arr: array<bool> = new array<bool>()
+    assert(arr.length == 0u)
+    for i in range(1u, length + 1u, 1u) {
+      arr.extend((i % 2u == 0u))
+    }
+    assert(arr.length == length, comment="expected correct length")
+    count: uint64 = 0u
+    for val in arr {
+      if (val) {
+        count += 1u
+      }
+    }
+    return count
+  }
+  
+  abimethod test_cases.array.static_size.StaticSizeContract.test_arc4_conversion(length: uint64): arc4.dynamic_array<arc4.uint64>
+  {
+    arr: array<arc4.uint64> = new array<arc4.uint64>()
+    assert(arr.length == 0u)
+    for i in range(1u, length + 1u, 1u) {
+      arr.extend((arc4_encode(i, arc4.uint64)))
+    }
+    assert(arr.length == length, comment="expected correct length")
+    count: uint64 = 0u
+    for val in arr {
+      if (val != hex<"0000000000000000">) {
+        count += 1u
+      }
+    }
+    arc4_arr: arc4.dynamic_array<arc4.uint64> = new arc4.dynamic_array<arc4.uint64>()
+    arc4_arr.extend(arr)
+    return arc4_arr
+  }
+  
+  abimethod test_cases.array.static_size.StaticSizeContract.sum_array(arc4_arr: arc4.dynamic_array<arc4.uint64>): uint64
+  {
+    arr: array<arc4.uint64> = new array<arc4.uint64>()
+    arr.extend(arc4_arr)
+    total: uint64 = 0u
+    for item in arr {
+      total += arc4_decode(item, uint64)
+    }
+    return total
+  }
+  
+  subroutine test_cases.array.static_size.StaticSizeContract.xtra(): test_cases.array.static_size.Xtra
+  {
+    GlobalState['count'] += 1u
+    return (txn<NumAppArgs>(), GlobalState['count'], txn<Sender>(), new test_cases.array.static_size.More(foo=arc4_encode(GlobalState['count'] + 1u, arc4.uint64), bar=arc4_encode(GlobalState['count'] * GlobalState['count'], arc4.uint64)))
+  }
+  
+  baremethod test_cases.array.static_size.StaticSizeContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+}
+
+subroutine path_length(path: array<test_cases.array.static_size.Point>): uint64
+{
+  last_point: test_cases.array.static_size.Point = path[0u]
+  length: uint64 = 0u
+  for point_idx in range(1u, path.length, 1u) {
+    point: test_cases.array.static_size.Point = path[point_idx]
+    if (reinterpret_cast<biguint>(point.x) < reinterpret_cast<biguint>(last_point.x)) {
+      dx: uint64 = arc4_decode(last_point.x, uint64) - arc4_decode(point.x, uint64)
+    } else {
+      dx: uint64 = arc4_decode(point.x, uint64) - arc4_decode(last_point.x, uint64)
+    }
+    if (point.y < last_point.y) {
+      dy: uint64 = last_point.y - point.y
+    } else {
+      dy: uint64 = point.y - last_point.y
+    }
+    length += sqrt(dx * dx + dy * dy)
+  }
+  return length
+}
+
 contract ImmutableArrayContract
 {
   method_resolution_order: (
@@ -568,128 +692,4 @@ subroutine sum_arr(arr: array<uint64>): uint64
     total += i
   }
   return total
-}
-
-contract FixedSizeContract
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-  )
-  globals {
-    ['count']: uint64
-  }
-  
-  subroutine test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init(): bool
-  {
-    if (!(txn<ApplicationID>())) {
-      this::__init__()
-    }
-    return this::approval_program()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine test_cases.array.fixed_size.FixedSizeContract.__init__(): void
-  {
-    GlobalState['count']: uint64 = 0u
-  }
-  
-  abimethod test_cases.array.fixed_size.FixedSizeContract.test_array(x1: arc4.uint64, y1: uint64, x2: arc4.uint64, y2: uint64): uint64
-  {
-    GlobalState['count']: uint64 = 0u
-    path: array<test_cases.array.fixed_size.Point> = new array<test_cases.array.fixed_size.Point>((0_arc4u64, 0u, this::xtra()), (x1, y1, this::xtra()), (x2, y2, this::xtra()))
-    for i in range(0u, 3u, 1u) {
-      assert(path[i].other.b == i + 1u)
-      assert(reinterpret_cast<biguint>(path[i].other.d.foo) == itob(i + 2u))
-      assert(reinterpret_cast<biguint>(path[i].other.d.bar) == itob(i + 1u * i + 1u))
-    }
-    Box['a']: array<test_cases.array.fixed_size.Point> = new array<test_cases.array.fixed_size.Point>() + path
-    return test_cases.array.fixed_size.path_length(path)
-  }
-  
-  abimethod test_cases.array.fixed_size.FixedSizeContract.test_bool_array(length: uint64): uint64
-  {
-    arr: array<bool> = new array<bool>()
-    assert(arr.length == 0u)
-    for i in range(1u, length + 1u, 1u) {
-      arr.extend((i % 2u == 0u))
-    }
-    assert(arr.length == length, comment="expected correct length")
-    count: uint64 = 0u
-    for val in arr {
-      if (val) {
-        count += 1u
-      }
-    }
-    return count
-  }
-  
-  abimethod test_cases.array.fixed_size.FixedSizeContract.test_arc4_conversion(length: uint64): arc4.dynamic_array<arc4.uint64>
-  {
-    arr: array<arc4.uint64> = new array<arc4.uint64>()
-    assert(arr.length == 0u)
-    for i in range(1u, length + 1u, 1u) {
-      arr.extend((arc4_encode(i, arc4.uint64)))
-    }
-    assert(arr.length == length, comment="expected correct length")
-    count: uint64 = 0u
-    for val in arr {
-      if (val != hex<"0000000000000000">) {
-        count += 1u
-      }
-    }
-    arc4_arr: arc4.dynamic_array<arc4.uint64> = new arc4.dynamic_array<arc4.uint64>()
-    arc4_arr.extend(arr)
-    return arc4_arr
-  }
-  
-  abimethod test_cases.array.fixed_size.FixedSizeContract.sum_array(arc4_arr: arc4.dynamic_array<arc4.uint64>): uint64
-  {
-    arr: array<arc4.uint64> = new array<arc4.uint64>()
-    arr.extend(arc4_arr)
-    total: uint64 = 0u
-    for item in arr {
-      total += arc4_decode(item, uint64)
-    }
-    return total
-  }
-  
-  subroutine test_cases.array.fixed_size.FixedSizeContract.xtra(): test_cases.array.fixed_size.Xtra
-  {
-    GlobalState['count'] += 1u
-    return (txn<NumAppArgs>(), GlobalState['count'], txn<Sender>(), new test_cases.array.fixed_size.More(foo=arc4_encode(GlobalState['count'] + 1u, arc4.uint64), bar=arc4_encode(GlobalState['count'] * GlobalState['count'], arc4.uint64)))
-  }
-  
-  baremethod test_cases.array.fixed_size.FixedSizeContract.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-}
-
-subroutine path_length(path: array<test_cases.array.fixed_size.Point>): uint64
-{
-  last_point: test_cases.array.fixed_size.Point = path[0u]
-  length: uint64 = 0u
-  for point_idx in range(1u, path.length, 1u) {
-    point: test_cases.array.fixed_size.Point = path[point_idx]
-    if (reinterpret_cast<biguint>(point.x) < reinterpret_cast<biguint>(last_point.x)) {
-      dx: uint64 = arc4_decode(last_point.x, uint64) - arc4_decode(point.x, uint64)
-    } else {
-      dx: uint64 = arc4_decode(point.x, uint64) - arc4_decode(last_point.x, uint64)
-    }
-    if (point.y < last_point.y) {
-      dy: uint64 = last_point.y - point.y
-    } else {
-      dy: uint64 = point.y - last_point.y
-    }
-    length += sqrt(dx * dx + dy * dy)
-  }
-  return length
 }

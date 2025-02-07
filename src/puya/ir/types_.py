@@ -51,7 +51,7 @@ class IRType:
         if self == PrimitiveIRType.any:
             return True
         if (
-            isinstance(other, ArrayType | EncodedTupleType | FixedBytesType)
+            isinstance(other, ArrayType | EncodedTupleType | SizedBytesType)
             and self == PrimitiveIRType.bytes
         ):
             return True
@@ -273,8 +273,8 @@ class UnionType(IRType):
 
 
 @attrs.frozen(str=False, order=False)
-class FixedBytesType(IRType):
-    """A bytes type with a fixed length"""
+class SizedBytesType(IRType):
+    """A bytes type with a static length"""
 
     size: int
 
@@ -327,9 +327,9 @@ def wtype_to_ir_type(
         case wtypes.WArray(immutable=True):
             return PrimitiveIRType.bytes
         case wtypes.ARC4Type() as arc4_wtype if is_arc4_static_size(arc4_wtype):
-            return FixedBytesType(bits_to_bytes(get_arc4_static_bit_size(arc4_wtype)))
+            return SizedBytesType(bits_to_bytes(get_arc4_static_bit_size(arc4_wtype)))
         case wtypes.arc4_address_alias | wtypes.account_wtype:
-            return FixedBytesType(size=32)
+            return SizedBytesType(size=32)
         case wtypes.void_wtype:
             raise InternalError("can't translate void wtype to irtype", source_location)
         # case wtypes.state_key:

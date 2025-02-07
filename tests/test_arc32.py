@@ -1786,11 +1786,11 @@ def test_array_uint64(
     simulate_call(app_client, "test_quicksort")
 
 
-def test_array_fixed_size(
+def test_array_static_size(
     algod_client: AlgodClient,
     account: algokit_utils.Account,
 ) -> None:
-    example = TEST_CASES_DIR / "array" / "fixed_size.py"
+    example = TEST_CASES_DIR / "array" / "static_size.py"
 
     app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)

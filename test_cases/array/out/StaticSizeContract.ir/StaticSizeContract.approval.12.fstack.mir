@@ -1,11 +1,11 @@
 // Op                                                                                         Stack (out)
-// test_cases.array.fixed_size.FixedSizeContract.__algopy_entrypoint_with_init() -> uint64:
+// test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_init() -> uint64:
 main:
     txn ApplicationID                                                                         tmp%0#0
     bz main_call___init__@1 ; b main_after_if_else@2
 
 main_call___init__@1:
-    // array/fixed_size.py:26
+    // array/static_size.py:26
     // self.count = UInt64(0)
     byte "count"                                                                              "count"
     int 0                                                                                     "count",0
@@ -13,14 +13,14 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    // array/fixed_size.py:24
-    // class FixedSizeContract(arc4.ARC4Contract):
+    // array/static_size.py:24
+    // class StaticSizeContract(arc4.ARC4Contract):
     txn NumAppArgs                                                                            tmp%0#2
     bz main_bare_routing@9 ; b main_abi_routing@4
 
 main_abi_routing@4:
-    // array/fixed_size.py:24
-    // class FixedSizeContract(arc4.ARC4Contract):
+    // array/static_size.py:24
+    // class StaticSizeContract(arc4.ARC4Contract):
     txna ApplicationArgs 0                                                                    tmp%2#0
     method test_array(uint64,uint64,uint64,uint64)uint64                                      tmp%2#0,Method(test_array(uint64,uint64,uint64,uint64)uint64)
     method test_bool_array(uint64)uint64                                                      tmp%2#0,Method(test_array(uint64,uint64,uint64,uint64)uint64),Method(test_bool_array(uint64)uint64)
@@ -30,22 +30,22 @@ main_abi_routing@4:
     match main_test_array_route@5 main_test_bool_array_route@6 main_test_arc4_conversion_route@7 main_sum_array_route@8 ; b main_after_if_else@11 
 
 main_test_array_route@5:
-    // array/fixed_size.py:28
+    // array/static_size.py:28
     // @arc4.abimethod()
     txn OnCompletion                                                                          tmp%3#0
     !                                                                                         tmp%4#0
     assert // OnCompletion is not NoOp
     txn ApplicationID                                                                         tmp%5#0
     assert // can only call when not creating
-    // array/fixed_size.py:24
-    // class FixedSizeContract(arc4.ARC4Contract):
+    // array/static_size.py:24
+    // class StaticSizeContract(arc4.ARC4Contract):
     txna ApplicationArgs 1                                                                    reinterpret_bytes[8]%0#0
     txna ApplicationArgs 2                                                                    reinterpret_bytes[8]%0#0,reinterpret_bytes[8]%1#0
     btoi                                                                                      reinterpret_bytes[8]%0#0,tmp%7#0
     txna ApplicationArgs 3                                                                    reinterpret_bytes[8]%0#0,tmp%7#0,reinterpret_bytes[8]%2#0
     txna ApplicationArgs 4                                                                    reinterpret_bytes[8]%0#0,tmp%7#0,reinterpret_bytes[8]%2#0,reinterpret_bytes[8]%3#0
     btoi                                                                                      reinterpret_bytes[8]%0#0,tmp%7#0,reinterpret_bytes[8]%2#0,tmp%8#0
-    // array/fixed_size.py:28
+    // array/static_size.py:28
     // @arc4.abimethod()
     l-load reinterpret_bytes[8]%0#0 3                                                         tmp%7#0,reinterpret_bytes[8]%2#0,tmp%8#0,reinterpret_bytes[8]%0#0
     l-load tmp%7#0 3                                                                          reinterpret_bytes[8]%2#0,tmp%8#0,reinterpret_bytes[8]%0#0,tmp%7#0
@@ -59,21 +59,21 @@ main_test_array_route@5:
     log
     int 1                                                                                     tmp%0#0
     x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
-    b main_after_inlined_test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__@12 (𝕏) tmp%0#0 | 
+    b main_after_inlined_test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__@12 (𝕏) tmp%0#0 | 
 
 main_test_bool_array_route@6:
-    // array/fixed_size.py:44
+    // array/static_size.py:44
     // @arc4.abimethod()
     txn OnCompletion                                                                          tmp%10#0
     !                                                                                         tmp%11#0
     assert // OnCompletion is not NoOp
     txn ApplicationID                                                                         tmp%12#0
     assert // can only call when not creating
-    // array/fixed_size.py:24
-    // class FixedSizeContract(arc4.ARC4Contract):
+    // array/static_size.py:24
+    // class StaticSizeContract(arc4.ARC4Contract):
     txna ApplicationArgs 1                                                                    reinterpret_bytes[8]%4#0
     btoi                                                                                      tmp%14#0
-    // array/fixed_size.py:44
+    // array/static_size.py:44
     // @arc4.abimethod()
     callsub test_bool_array                                                                   to_encode%1#0
     itob                                                                                      val_as_bytes%1#0
@@ -83,21 +83,21 @@ main_test_bool_array_route@6:
     log
     int 1                                                                                     tmp%0#0
     x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
-    b main_after_inlined_test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__@12 (𝕏) tmp%0#0 | 
+    b main_after_inlined_test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__@12 (𝕏) tmp%0#0 | 
 
 main_test_arc4_conversion_route@7:
-    // array/fixed_size.py:58
+    // array/static_size.py:58
     // @arc4.abimethod()
     txn OnCompletion                                                                          tmp%16#0
     !                                                                                         tmp%17#0
     assert // OnCompletion is not NoOp
     txn ApplicationID                                                                         tmp%18#0
     assert // can only call when not creating
-    // array/fixed_size.py:24
-    // class FixedSizeContract(arc4.ARC4Contract):
+    // array/static_size.py:24
+    // class StaticSizeContract(arc4.ARC4Contract):
     txna ApplicationArgs 1                                                                    reinterpret_bytes[8]%5#0
     btoi                                                                                      tmp%20#0
-    // array/fixed_size.py:58
+    // array/static_size.py:58
     // @arc4.abimethod()
     callsub test_arc4_conversion                                                              tmp%21#0
     byte 0x151f7c75                                                                           tmp%21#0,0x151f7c75
@@ -106,20 +106,20 @@ main_test_arc4_conversion_route@7:
     log
     int 1                                                                                     tmp%0#0
     x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
-    b main_after_inlined_test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__@12 (𝕏) tmp%0#0 | 
+    b main_after_inlined_test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__@12 (𝕏) tmp%0#0 | 
 
 main_sum_array_route@8:
-    // array/fixed_size.py:76
+    // array/static_size.py:76
     // @arc4.abimethod()
     txn OnCompletion                                                                          tmp%23#0
     !                                                                                         tmp%24#0
     assert // OnCompletion is not NoOp
     txn ApplicationID                                                                         tmp%25#0
     assert // can only call when not creating
-    // array/fixed_size.py:24
-    // class FixedSizeContract(arc4.ARC4Contract):
+    // array/static_size.py:24
+    // class StaticSizeContract(arc4.ARC4Contract):
     txna ApplicationArgs 1                                                                    tmp%27#0
-    // array/fixed_size.py:76
+    // array/static_size.py:76
     // @arc4.abimethod()
     callsub sum_array                                                                         to_encode%2#0
     itob                                                                                      val_as_bytes%2#0
@@ -129,11 +129,11 @@ main_sum_array_route@8:
     log
     int 1                                                                                     tmp%0#0
     x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
-    b main_after_inlined_test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__@12 (𝕏) tmp%0#0 | 
+    b main_after_inlined_test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__@12 (𝕏) tmp%0#0 | 
 
 main_bare_routing@9:
-    // array/fixed_size.py:24
-    // class FixedSizeContract(arc4.ARC4Contract):
+    // array/static_size.py:24
+    // class StaticSizeContract(arc4.ARC4Contract):
     txn OnCompletion                                                                          tmp%29#0
     bz main___algopy_default_create@10 ; b main_after_if_else@11
 
@@ -143,38 +143,38 @@ main___algopy_default_create@10:
     assert // can only call when creating
     int 1                                                                                     tmp%0#0
     x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
-    b main_after_inlined_test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__@12 (𝕏) tmp%0#0 | 
+    b main_after_inlined_test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__@12 (𝕏) tmp%0#0 | 
 
 main_after_if_else@11:
-    // array/fixed_size.py:24
-    // class FixedSizeContract(arc4.ARC4Contract):
+    // array/static_size.py:24
+    // class StaticSizeContract(arc4.ARC4Contract):
     int 0                                                                                     tmp%0#0
     x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
-    b main_after_inlined_test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__@12 (𝕏) tmp%0#0 | 
+    b main_after_inlined_test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__@12 (𝕏) tmp%0#0 | 
 
-main_after_inlined_test_cases.array.fixed_size.FixedSizeContract.__puya_arc4_router__@12:     (𝕏) tmp%0#0 |
+main_after_inlined_test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__@12:   (𝕏) tmp%0#0 |
     x-load tmp%0#0                                                                            tmp%0#0
     return
 
 
-// test_cases.array.fixed_size.FixedSizeContract.test_array(x1: bytes, y1: uint64, x2: bytes, y2: uint64) -> uint64:
+// test_cases.array.static_size.StaticSizeContract.test_array(x1: bytes, y1: uint64, x2: bytes, y2: uint64) -> uint64:
 test_array:                                                                                   (𝕡) x1#0,y1#0,x2#0,y2#0 |
     allocate 8 to stack                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 |
-    // array/fixed_size.py:30
+    // array/static_size.py:30
     // self.count = UInt64(0)
     byte "count"                                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | "count"
     int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | "count",0
     app_global_put                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 |
-    // array/fixed_size.py:32
+    // array/static_size.py:32
     // Point(x=arc4.UInt64(), y=UInt64(), other=self.xtra()),
     callsub xtra                                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%0#0,tmp%1#0,tmp%2#0,tmp%3#0
-    // array/fixed_size.py:33
+    // array/static_size.py:33
     // Point(x=x1, y=y1, other=self.xtra()),
     callsub xtra                                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%0#0,tmp%1#0,tmp%2#0,tmp%3#0,tmp%4#0,tmp%5#0,tmp%6#0,tmp%7#0
-    // array/fixed_size.py:34
+    // array/static_size.py:34
     // Point(x=x2, y=y2, other=self.xtra()),
     callsub xtra                                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%0#0,tmp%1#0,tmp%2#0,tmp%3#0,tmp%4#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0
-    // array/fixed_size.py:32
+    // array/static_size.py:32
     // Point(x=arc4.UInt64(), y=UInt64(), other=self.xtra()),
     l-load tmp%0#0 11                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%1#0,tmp%2#0,tmp%3#0,tmp%4#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%0#0
     itob                                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%1#0,tmp%2#0,tmp%3#0,tmp%4#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,array%sub_item%1#1
@@ -190,7 +190,7 @@ test_array:                                                                     
     concat                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%3#0,tmp%4#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,array%encoded%4#1
     l-load tmp%3#0 9                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%4#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,array%encoded%4#1,tmp%3#0
     concat                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%4#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,array%encoded%5#1
-    // array/fixed_size.py:33
+    // array/static_size.py:33
     // Point(x=x1, y=y1, other=self.xtra()),
     p-load y1#0                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%4#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,array%encoded%5#1,y1#0 (copy)
     itob                                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%4#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,array%encoded%5#1,array%sub_item%3#1
@@ -211,7 +211,7 @@ test_array:                                                                     
     concat                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,array%encoded%5#1,array%encoded%10#1
     l-load tmp%7#0 6                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,array%encoded%5#1,array%encoded%10#1,tmp%7#0
     concat                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,array%encoded%5#1,array%encoded%11#1
-    // array/fixed_size.py:31-35
+    // array/static_size.py:31-35
     // path = Array(
     //     Point(x=arc4.UInt64(), y=UInt64(), other=self.xtra()),
     //     Point(x=x1, y=y1, other=self.xtra()),
@@ -220,7 +220,7 @@ test_array:                                                                     
     l-load array%encoded%5#1 1                                                                (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,array%encoded%11#1,array%encoded%5#1
     l-load array%encoded%11#1 1                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,array%encoded%5#1,array%encoded%11#1
     concat                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,array%data%1#1
-    // array/fixed_size.py:34
+    // array/static_size.py:34
     // Point(x=x2, y=y2, other=self.xtra()),
     p-load y2#0                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,array%data%1#1,y2#0 (copy)
     itob                                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,array%data%1#1,array%sub_item%6#1
@@ -241,7 +241,7 @@ test_array:                                                                     
     concat                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | tmp%11#0,array%data%1#1,array%encoded%16#1
     l-load tmp%11#0 2                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | array%data%1#1,array%encoded%16#1,tmp%11#0
     concat                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | array%data%1#1,array%encoded%17#1
-    // array/fixed_size.py:31-35
+    // array/static_size.py:31-35
     // path = Array(
     //     Point(x=arc4.UInt64(), y=UInt64(), other=self.xtra()),
     //     Point(x=x1, y=y1, other=self.xtra()),
@@ -249,16 +249,16 @@ test_array:                                                                     
     // )
     l-load array%data%1#1 1                                                                   (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | array%encoded%17#1,array%data%1#1
     l-load array%encoded%17#1 1                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | array%data%1#1,array%encoded%17#1
-    concat                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | slot%0
+    concat                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0 | array%data%2#1
     f-store slot%0                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0 |
-    // array/fixed_size.py:36
+    // array/static_size.py:36
     // for i in urange(3):
-    int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0 | i#0
+    int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0 | 0
     f-store i#0                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
     b test_array_for_header@1                                                                 (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
 
 test_array_for_header@1:                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
-    // array/fixed_size.py:36
+    // array/static_size.py:36
     // for i in urange(3):
     f-load i#0                                                                                (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#0
     int 3                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#0,3
@@ -267,7 +267,7 @@ test_array_for_header@1:                                                        
 
 test_array_for_body@2:                                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
     f-load slot%0                                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%0#0
-    // array/fixed_size.py:37
+    // array/static_size.py:37
     // assert path[i].other.b == i + 1
     f-load i#0                                                                                (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%0#0,i#0
     l-store-copy i#0 1                                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#0,slot_contents%0#0,i#0 (copy)
@@ -287,7 +287,7 @@ test_array_for_body@2:                                                          
     l-load-copy i#2 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#0,array%value%0#1,i#2,array%sub_item%15#1,i#2 (copy)
     ==                                                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#0,array%value%0#1,i#2,tmp%19#0
     assert                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#0,array%value%0#1,i#2
-    // array/fixed_size.py:38
+    // array/static_size.py:38
     // assert path[i].other.d.foo == i + 2
     l-load array%value%0#1 1                                                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#0,i#2,array%value%0#1
     extract 64 16                                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#0,i#2,array%sub_item%26#1
@@ -301,7 +301,7 @@ test_array_for_body@2:                                                          
     l-load tmp%27#0 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#2,array%sub_item%26#1,reinterpret_biguint%0#0,tmp%27#0
     b==                                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#2,array%sub_item%26#1,tmp%28#0
     assert                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#2,array%sub_item%26#1
-    // array/fixed_size.py:39
+    // array/static_size.py:39
     // assert path[i].other.d.bar == (i + 1) * (i + 1)
     l-load array%sub_item%26#1 0                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#2,array%sub_item%26#1
     extract 8 8 // on error: Index access is out of bounds                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#2,reinterpret_biguint%1#0
@@ -313,19 +313,19 @@ test_array_for_body@2:                                                          
     l-load tmp%38#0 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#2,reinterpret_biguint%1#0,tmp%38#0
     b==                                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#2,tmp%39#0
     assert                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#2
-    l-load i#2 0                                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#0
+    l-load i#2 0                                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | i#2
     f-store i#0                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
     b test_array_for_header@1                                                                 (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
 
 test_array_after_for@4:                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
     f-load slot%0                                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%3#0
-    // array/fixed_size.py:41
+    // array/static_size.py:41
     // Box(ImmutableArray[Point], key="a").value = path.freeze()
     l-load-copy slot_contents%3#0 0                                                           (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%3#0,slot_contents%3#0 (copy)
     len                                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%3#0,byte_len%0#0
     int 80                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%3#0,byte_len%0#0,80
     /                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%3#0,len_%0#0
-    l-store-copy len_%0#0 0                                                                   (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%3#0,len_%0#0,len_%0#0
+    l-store-copy len_%0#0 0                                                                   (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%3#0,len_%0#0,len_%0#0 (copy)
     f-store len_%0#0                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%3#0,len_%0#0
     l-load len_%0#0 0                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%3#0,len_%0#0
     itob                                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%3#0,as_bytes%0#0
@@ -338,11 +338,11 @@ test_array_after_for@4:                                                         
     byte "a"                                                                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%3#0,concat_result%0#0,"a"
     l-load concat_result%0#0 1                                                                (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%3#0,"a",concat_result%0#0
     box_put                                                                                   (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%3#0
-    // array/fixed_size.py:100
+    // array/static_size.py:100
     // last_point = path[0]
     l-load slot_contents%3#0 0                                                                (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%3#0
     extract 0 80                                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | array%value%3#1
-    l-store-copy array%value%3#1 0                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | array%value%3#1,array%value%3#1
+    l-store-copy array%value%3#1 0                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | array%value%3#1,array%value%3#1 (copy)
     f-store array%value%3#1                                                                   (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | array%value%3#1
     l-load-copy array%value%3#1 0                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | array%value%3#1,array%value%3#1 (copy)
     extract 0 8                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | array%value%3#1,last_point.x#0
@@ -351,18 +351,18 @@ test_array_after_for@4:                                                         
     int 8                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | array%value%3#1,8
     extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | last_point.y#0
     f-store last_point.y#0                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
-    // array/fixed_size.py:101
+    // array/static_size.py:101
     // length = UInt64()
-    int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | length#0
+    int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | 0
     f-store length#0                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
-    // array/fixed_size.py:102
+    // array/static_size.py:102
     // for point_idx in urange(1, path.length):
-    int 1                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | point_idx#0
+    int 1                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | 1
     f-store point_idx#0                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
     b test_array_for_header@6                                                                 (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
 
 test_array_for_header@6:                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
-    // array/fixed_size.py:102
+    // array/static_size.py:102
     // for point_idx in urange(1, path.length):
     f-load point_idx#0                                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | point_idx#0
     f-load len_%0#0                                                                           (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | point_idx#0,len_%0#0
@@ -371,7 +371,7 @@ test_array_for_header@6:                                                        
 
 test_array_for_body@7:                                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
     f-load slot%0                                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%2#1
-    // array/fixed_size.py:103
+    // array/static_size.py:103
     // point = path[point_idx]
     f-load point_idx#0                                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%2#1,point_idx#0
     int 80                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | slot_contents%2#1,point_idx#0,80
@@ -388,7 +388,7 @@ test_array_for_body@7:                                                          
     int 8                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | (𝕏) array%value%4#1 | point.x#0,array%value%4#1,8
     extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | (𝕏) array%value%4#1 | point.x#0,point.y#0
     f-store point.y#0                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | (𝕏) array%value%4#1 | point.x#0
-    // array/fixed_size.py:104
+    // array/static_size.py:104
     // if point.x < last_point.x:
     l-load point.x#0 0                                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | (𝕏) array%value%4#1 | point.x#0
     f-load last_point.x#0                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | (𝕏) array%value%4#1 | point.x#0,last_point.x#0
@@ -396,20 +396,20 @@ test_array_for_body@7:                                                          
     bz test_array_else_body@9 ; b test_array_if_body@8                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | (𝕏) array%value%4#1 |
 
 test_array_if_body@8:                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | (𝕏) array%value%4#1 |
-    // array/fixed_size.py:105
+    // array/static_size.py:105
     // dx = last_point.x.native - point.x.native
     f-load array%value%3#1                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | (𝕏) array%value%4#1 | array%value%3#1
-    // array/fixed_size.py:100
+    // array/static_size.py:100
     // last_point = path[0]
     int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | (𝕏) array%value%4#1 | array%value%3#1,0
-    // array/fixed_size.py:105
+    // array/static_size.py:105
     // dx = last_point.x.native - point.x.native
     extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | (𝕏) array%value%4#1 | tmp%2#1
     x-load array%value%4#1                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | tmp%2#1,array%value%4#1
-    // array/fixed_size.py:103
+    // array/static_size.py:103
     // point = path[point_idx]
     int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | tmp%2#1,array%value%4#1,0
-    // array/fixed_size.py:105
+    // array/static_size.py:105
     // dx = last_point.x.native - point.x.native
     extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | tmp%2#1,tmp%3#1
     l-load tmp%2#1 1                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | tmp%3#1,tmp%2#1
@@ -419,20 +419,20 @@ test_array_if_body@8:                                                           
     b test_array_after_if_else@10                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
 
 test_array_else_body@9:                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | (𝕏) array%value%4#1 |
-    // array/fixed_size.py:107
+    // array/static_size.py:107
     // dx = point.x.native - last_point.x.native
     x-load array%value%4#1                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | array%value%4#1
-    // array/fixed_size.py:103
+    // array/static_size.py:103
     // point = path[point_idx]
     int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | array%value%4#1,0
-    // array/fixed_size.py:107
+    // array/static_size.py:107
     // dx = point.x.native - last_point.x.native
     extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | tmp%4#0
     f-load array%value%3#1                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | tmp%4#0,array%value%3#1
-    // array/fixed_size.py:100
+    // array/static_size.py:100
     // last_point = path[0]
     int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | tmp%4#0,array%value%3#1,0
-    // array/fixed_size.py:107
+    // array/static_size.py:107
     // dx = point.x.native - last_point.x.native
     extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | tmp%4#0,tmp%5#0
     l-load tmp%4#0 1                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | tmp%5#0,tmp%4#0
@@ -442,7 +442,7 @@ test_array_else_body@9:                                                         
     b test_array_after_if_else@10                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
 
 test_array_after_if_else@10:                                                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
-    // array/fixed_size.py:108
+    // array/static_size.py:108
     // if point.y < last_point.y:
     f-load point.y#0                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | point.y#0
     f-load last_point.y#0                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | point.y#0,last_point.y#0
@@ -450,7 +450,7 @@ test_array_after_if_else@10:                                                    
     bz test_array_else_body@12 ; b test_array_if_body@11                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
 
 test_array_if_body@11:                                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
-    // array/fixed_size.py:109
+    // array/static_size.py:109
     // dy = last_point.y - point.y
     f-load last_point.y#0                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | last_point.y#0
     f-load point.y#0                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | last_point.y#0,point.y#0
@@ -459,7 +459,7 @@ test_array_if_body@11:                                                          
     b test_array_after_if_else@13                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | (𝕏) dy#0 |
 
 test_array_else_body@12:                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
-    // array/fixed_size.py:111
+    // array/static_size.py:111
     // dy = point.y - last_point.y
     f-load point.y#0                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | point.y#0
     f-load last_point.y#0                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | point.y#0,last_point.y#0
@@ -468,7 +468,7 @@ test_array_else_body@12:                                                        
     b test_array_after_if_else@13                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | (𝕏) dy#0 |
 
 test_array_after_if_else@13:                                                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | (𝕏) dy#0 |
-    // array/fixed_size.py:112
+    // array/static_size.py:112
     // length += op.sqrt(dx * dx + dy * dy)
     f-load dx#0                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | (𝕏) dy#0 | dx#0
     l-store-copy dx#0 0                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | (𝕏) dy#0 | dx#0,dx#0 (copy)
@@ -486,7 +486,7 @@ test_array_after_if_else@13:                                                    
     l-load tmp%10#1 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | length#0,tmp%10#1
     +                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | length#0
     f-store length#0                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
-    // array/fixed_size.py:102
+    // array/static_size.py:102
     // for point_idx in urange(1, path.length):
     f-load point_idx#0                                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | point_idx#0
     int 1                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | point_idx#0,1
@@ -495,31 +495,31 @@ test_array_after_if_else@13:                                                    
     b test_array_for_header@6                                                                 (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
 
 test_array_after_for@14:                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 |
-    // array/fixed_size.py:42
+    // array/static_size.py:42
     // return path_length(path)
     f-load length#0                                                                           (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕗) array%value%3#1,last_point.x#0,dx#0,last_point.y#0,len_%0#0,length#0,point.y#0,point_idx#0,slot%0,i#0 | length#0
     retsub                                                                                    length#0
 
 
-// test_cases.array.fixed_size.FixedSizeContract.test_bool_array(length: uint64) -> uint64:
+// test_cases.array.static_size.StaticSizeContract.test_bool_array(length: uint64) -> uint64:
 test_bool_array:                                                                              (𝕡) length#0 |
     allocate 4 to stack                                                                       (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0 |
-    // array/fixed_size.py:46
+    // array/static_size.py:46
     // arr = Array[bool]()
-    byte 0x                                                                                   (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0 | slot%0
+    byte 0x                                                                                   (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0 | 0x
     f-store slot%0                                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0 |
-    // array/fixed_size.py:49
+    // array/static_size.py:49
     // for i in urange(1, length + 1):
     p-load length#0                                                                           (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0 | length#0 (copy)
     int 1                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0 | length#0 (copy),1
     +                                                                                         (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0 | tmp%2#0
     f-store tmp%2#0                                                                           (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0 |
-    int 1                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0 | i#0
+    int 1                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0 | 1
     f-store i#0                                                                               (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
     b test_bool_array_for_header@1                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
 
 test_bool_array_for_header@1:                                                                 (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
-    // array/fixed_size.py:49
+    // array/static_size.py:49
     // for i in urange(1, length + 1):
     f-load i#0                                                                                (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0
     f-load tmp%2#0                                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0,tmp%2#0
@@ -527,7 +527,7 @@ test_bool_array_for_header@1:                                                   
     bz test_bool_array_after_for@4 ; b test_bool_array_for_body@2                             (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
 
 test_bool_array_for_body@2:                                                                   (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
-    // array/fixed_size.py:50
+    // array/static_size.py:50
     // arr.append(i % 2 == 0)
     f-load i#0                                                                                (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0
     l-store-copy i#0 0                                                                        (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0,i#0 (copy)
@@ -540,9 +540,9 @@ test_bool_array_for_body@2:                                                     
     select                                                                                    (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0,array%encoded_bit%0#1
     f-load slot%0                                                                             (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0,array%encoded_bit%0#1,slot_contents%1#0
     l-load array%encoded_bit%0#1 1                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0,slot_contents%1#0,array%encoded_bit%0#1
-    concat // on error: max array length exceeded                                             (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0,slot%0
+    concat // on error: max array length exceeded                                             (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0,array%array_contents%0#1
     f-store slot%0                                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0
-    // array/fixed_size.py:49
+    // array/static_size.py:49
     // for i in urange(1, length + 1):
     l-load i#0 0                                                                              (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0
     int 1                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0,1
@@ -552,27 +552,27 @@ test_bool_array_for_body@2:                                                     
 
 test_bool_array_after_for@4:                                                                  (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
     f-load slot%0                                                                             (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | slot_contents%2#0
-    // array/fixed_size.py:51
+    // array/static_size.py:51
     // assert arr.length == length, "expected correct length"
     len                                                                                       (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | array%bytes_len%1#1
     int 1                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | array%bytes_len%1#1,1
     /                                                                                         (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | array%array_len%1#1
-    l-store-copy array%array_len%1#1 0                                                        (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | array%array_len%1#1,array%array_len%1#1
+    l-store-copy array%array_len%1#1 0                                                        (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | array%array_len%1#1,array%array_len%1#1 (copy)
     f-store array%array_len%1#1                                                               (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | array%array_len%1#1
     l-load array%array_len%1#1 0                                                              (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | array%array_len%1#1
     p-load length#0                                                                           (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | array%array_len%1#1,length#0 (copy)
     ==                                                                                        (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | tmp%6#0
     assert // expected correct length                                                         (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
-    // array/fixed_size.py:52
+    // array/static_size.py:52
     // count = UInt64(0)
-    int 0                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | count#0
+    int 0                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | 0
     f-store count#0                                                                           (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
-    int 0                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | item_index_internal%0#0
+    int 0                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | 0
     f-store item_index_internal%0#0                                                           (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
     b test_bool_array_for_header@5                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
 
 test_bool_array_for_header@5:                                                                 (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
-    // array/fixed_size.py:53
+    // array/static_size.py:53
     // for val in arr:
     f-load item_index_internal%0#0                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | item_index_internal%0#0
     f-load array%array_len%1#1                                                                (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | item_index_internal%0#0,array%array_len%1#1
@@ -581,7 +581,7 @@ test_bool_array_for_header@5:                                                   
 
 test_bool_array_for_body@6:                                                                   (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
     f-load slot%0                                                                             (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | slot_contents%4#0
-    // array/fixed_size.py:53
+    // array/static_size.py:53
     // for val in arr:
     f-load item_index_internal%0#0                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | slot_contents%4#0,item_index_internal%0#0
     int 1                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | slot_contents%4#0,item_index_internal%0#0,1
@@ -590,17 +590,17 @@ test_bool_array_for_body@6:                                                     
     getbyte                                                                                   (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | val#0
     f-load count#0                                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | val#0,count#9
     f-store count#9                                                                           (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | val#0
-    // array/fixed_size.py:54
+    // array/static_size.py:54
     // if val:
     l-load val#0 0                                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | val#0
     bz test_bool_array_after_if_else@8 ; b test_bool_array_if_body@7                          (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
 
 test_bool_array_if_body@7:                                                                    (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
-    // array/fixed_size.py:55
+    // array/static_size.py:55
     // count += 1
     f-load count#0                                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | count#0
     int 1                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | count#0,1
-    +                                                                                         (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | count#9
+    +                                                                                         (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | count#0
     f-store count#9                                                                           (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
     b test_bool_array_after_if_else@8                                                         (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
 
@@ -614,31 +614,31 @@ test_bool_array_after_if_else@8:                                                
     b test_bool_array_for_header@5                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
 
 test_bool_array_after_for@10:                                                                 (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
-    // array/fixed_size.py:56
+    // array/static_size.py:56
     // return count
     f-load count#0                                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | count#0
     retsub                                                                                    count#0
 
 
-// test_cases.array.fixed_size.FixedSizeContract.test_arc4_conversion(length: uint64) -> bytes:
+// test_cases.array.static_size.StaticSizeContract.test_arc4_conversion(length: uint64) -> bytes:
 test_arc4_conversion:                                                                         (𝕡) length#0 |
     allocate 4 to stack                                                                       (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0 |
-    // array/fixed_size.py:60
+    // array/static_size.py:60
     // arr = Array[arc4.UInt64]()
-    byte 0x                                                                                   (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0 | slot%0
+    byte 0x                                                                                   (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0 | 0x
     f-store slot%0                                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0 |
-    // array/fixed_size.py:63
+    // array/static_size.py:63
     // for i in urange(1, length + 1):
     p-load length#0                                                                           (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0 | length#0 (copy)
     int 1                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0 | length#0 (copy),1
     +                                                                                         (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0 | tmp%2#0
     f-store tmp%2#0                                                                           (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0 |
-    int 1                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0 | i#0
+    int 1                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0 | 1
     f-store i#0                                                                               (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
     b test_arc4_conversion_for_header@1                                                       (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
 
 test_arc4_conversion_for_header@1:                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
-    // array/fixed_size.py:63
+    // array/static_size.py:63
     // for i in urange(1, length + 1):
     f-load i#0                                                                                (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0
     f-load tmp%2#0                                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0,tmp%2#0
@@ -646,16 +646,16 @@ test_arc4_conversion_for_header@1:                                              
     bz test_arc4_conversion_after_for@4 ; b test_arc4_conversion_for_body@2                   (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
 
 test_arc4_conversion_for_body@2:                                                              (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
-    // array/fixed_size.py:64
+    // array/static_size.py:64
     // arr.append(arc4.UInt64(i))
     f-load i#0                                                                                (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0
     l-store-copy i#0 0                                                                        (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0,i#0 (copy)
     itob                                                                                      (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0,val_as_bytes%0#0
     f-load slot%0                                                                             (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0,val_as_bytes%0#0,slot_contents%1#0
     l-load val_as_bytes%0#0 1                                                                 (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0,slot_contents%1#0,val_as_bytes%0#0
-    concat // on error: max array length exceeded                                             (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0,slot%0
+    concat // on error: max array length exceeded                                             (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0,array%array_contents%0#1
     f-store slot%0                                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0
-    // array/fixed_size.py:63
+    // array/static_size.py:63
     // for i in urange(1, length + 1):
     l-load i#0 0                                                                              (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0
     int 1                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | i#0,1
@@ -665,27 +665,27 @@ test_arc4_conversion_for_body@2:                                                
 
 test_arc4_conversion_after_for@4:                                                             (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
     f-load slot%0                                                                             (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | slot_contents%2#0
-    // array/fixed_size.py:65
+    // array/static_size.py:65
     // assert arr.length == length, "expected correct length"
     len                                                                                       (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | array%bytes_len%1#1
     int 8                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | array%bytes_len%1#1,8
     /                                                                                         (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | array%array_len%1#1
-    l-store-copy array%array_len%1#1 0                                                        (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | array%array_len%1#1,array%array_len%1#1
+    l-store-copy array%array_len%1#1 0                                                        (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | array%array_len%1#1,array%array_len%1#1 (copy)
     f-store array%array_len%1#1                                                               (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | array%array_len%1#1
     l-load array%array_len%1#1 0                                                              (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | array%array_len%1#1
     p-load length#0                                                                           (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | array%array_len%1#1,length#0 (copy)
     ==                                                                                        (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | tmp%4#0
     assert // expected correct length                                                         (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
-    // array/fixed_size.py:66
+    // array/static_size.py:66
     // count = UInt64(0)
-    int 0                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | count#0
+    int 0                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | 0
     f-store count#0                                                                           (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
-    int 0                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | item_index_internal%0#0
+    int 0                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | 0
     f-store item_index_internal%0#0                                                           (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
     b test_arc4_conversion_for_header@5                                                       (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
 
 test_arc4_conversion_for_header@5:                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
-    // array/fixed_size.py:67
+    // array/static_size.py:67
     // for val in arr:
     f-load item_index_internal%0#0                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | item_index_internal%0#0
     f-load array%array_len%1#1                                                                (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | item_index_internal%0#0,array%array_len%1#1
@@ -694,7 +694,7 @@ test_arc4_conversion_for_header@5:                                              
 
 test_arc4_conversion_for_body@6:                                                              (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
     f-load slot%0                                                                             (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | slot_contents%4#0
-    // array/fixed_size.py:67
+    // array/static_size.py:67
     // for val in arr:
     f-load item_index_internal%0#0                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | slot_contents%4#0,item_index_internal%0#0
     int 8                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | slot_contents%4#0,item_index_internal%0#0,8
@@ -704,7 +704,7 @@ test_arc4_conversion_for_body@6:                                                
     int 8                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | slot_contents%4#0,array%bytes_index%0#1,8
     extract3                                                                                  (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | array%value%0#1
     extract 0 8                                                                               (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | val#0
-    // array/fixed_size.py:68
+    // array/static_size.py:68
     // if val:
     byte 0x0000000000000000                                                                   (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | val#0,0x0000000000000000
     !=                                                                                        (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | tmp%5#0
@@ -714,11 +714,11 @@ test_arc4_conversion_for_body@6:                                                
     bz test_arc4_conversion_after_if_else@8 ; b test_arc4_conversion_if_body@7                (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
 
 test_arc4_conversion_if_body@7:                                                               (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
-    // array/fixed_size.py:69
+    // array/static_size.py:69
     // count += 1
     f-load count#0                                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | count#0
     int 1                                                                                     (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | count#0,1
-    +                                                                                         (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | count#9
+    +                                                                                         (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | count#0
     f-store count#9                                                                           (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
     b test_arc4_conversion_after_if_else@8                                                    (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
 
@@ -733,7 +733,7 @@ test_arc4_conversion_after_if_else@8:                                           
 
 test_arc4_conversion_after_for@10:                                                            (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 |
     f-load slot%0                                                                             (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | slot_contents%5#0
-    // array/fixed_size.py:72
+    // array/static_size.py:72
     // arc4_arr.extend(arr)
     l-load-copy slot_contents%5#0 0                                                           (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | slot_contents%5#0,slot_contents%5#0 (copy)
     len                                                                                       (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | slot_contents%5#0,byte_len%0#0
@@ -743,36 +743,36 @@ test_arc4_conversion_after_for@10:                                              
     extract 6 2                                                                               (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | slot_contents%5#0,len_16_bit%0#0
     l-load slot_contents%5#0 1                                                                (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | len_16_bit%0#0,slot_contents%5#0
     concat                                                                                    (𝕡) length#0 | (𝕗) array%array_len%1#1,count#0,count#9,item_index_internal%0#0,slot%0,tmp%2#0,i#0 | arc4_arr#1
-    // array/fixed_size.py:74
+    // array/static_size.py:74
     // return arc4_arr
     retsub                                                                                    arc4_arr#1
 
 
-// test_cases.array.fixed_size.FixedSizeContract.sum_array(arc4_arr: bytes) -> uint64:
+// test_cases.array.static_size.StaticSizeContract.sum_array(arc4_arr: bytes) -> uint64:
 sum_array:                                                                                    (𝕡) arc4_arr#0 |
-    // array/fixed_size.py:79
+    // array/static_size.py:79
     // arr.extend(arc4_arr)
     p-load arc4_arr#0                                                                         (𝕡) arc4_arr#0 | arc4_arr#0 (copy)
     extract 2 0                                                                               (𝕡) arc4_arr#0 | expr_value_trimmed%0#0
-    l-load-copy expr_value_trimmed%0#0 0                                                      (𝕡) arc4_arr#0 | expr_value_trimmed%0#0,slot%0
+    l-load-copy expr_value_trimmed%0#0 0                                                      (𝕡) arc4_arr#0 | expr_value_trimmed%0#0,expr_value_trimmed%0#0 (copy)
     f-store slot%0                                                                            (𝕡) arc4_arr#0 | (𝕗) slot%0 | expr_value_trimmed%0#0
-    // array/fixed_size.py:81
+    // array/static_size.py:81
     // total = UInt64(0)
-    int 0                                                                                     (𝕡) arc4_arr#0 | (𝕗) slot%0 | expr_value_trimmed%0#0,total#0
+    int 0                                                                                     (𝕡) arc4_arr#0 | (𝕗) slot%0 | expr_value_trimmed%0#0,0
     f-store total#0                                                                           (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0 | expr_value_trimmed%0#0
-    // array/fixed_size.py:82
+    // array/static_size.py:82
     // for item in arr:
     l-load expr_value_trimmed%0#0 0                                                           (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0 | expr_value_trimmed%0#0
     len                                                                                       (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0 | array%bytes_len%0#1
     int 8                                                                                     (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0 | array%bytes_len%0#1,8
     /                                                                                         (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0 | array%array_len%0#1
     f-store array%array_len%0#1                                                               (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1 |
-    int 0                                                                                     (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1 | item_index_internal%0#0
+    int 0                                                                                     (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1 | 0
     f-store item_index_internal%0#0                                                           (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1,item_index_internal%0#0 |
     b sum_array_for_header@1                                                                  (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1,item_index_internal%0#0 |
 
 sum_array_for_header@1:                                                                       (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1,item_index_internal%0#0 |
-    // array/fixed_size.py:82
+    // array/static_size.py:82
     // for item in arr:
     f-load item_index_internal%0#0                                                            (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1,item_index_internal%0#0 | item_index_internal%0#0
     f-load array%array_len%0#1                                                                (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1,item_index_internal%0#0 | item_index_internal%0#0,array%array_len%0#1
@@ -781,7 +781,7 @@ sum_array_for_header@1:                                                         
 
 sum_array_for_body@2:                                                                         (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1,item_index_internal%0#0 |
     f-load slot%0                                                                             (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1,item_index_internal%0#0 | slot_contents%2#0
-    // array/fixed_size.py:82
+    // array/static_size.py:82
     // for item in arr:
     f-load item_index_internal%0#0                                                            (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1,item_index_internal%0#0 | slot_contents%2#0,item_index_internal%0#0
     l-store-copy item_index_internal%0#0 1                                                    (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1,item_index_internal%0#0 | item_index_internal%0#0,slot_contents%2#0,item_index_internal%0#0 (copy)
@@ -792,7 +792,7 @@ sum_array_for_body@2:                                                           
     int 8                                                                                     (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1,item_index_internal%0#0 | item_index_internal%0#0,slot_contents%2#0,array%bytes_index%0#1,8
     extract3                                                                                  (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1,item_index_internal%0#0 | item_index_internal%0#0,array%value%0#1
     int 0                                                                                     (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1,item_index_internal%0#0 | item_index_internal%0#0,array%value%0#1,0
-    // array/fixed_size.py:83
+    // array/static_size.py:83
     // total += item.native
     extract_uint64                                                                            (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1,item_index_internal%0#0 | item_index_internal%0#0,tmp%0#0
     f-load total#0                                                                            (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1,item_index_internal%0#0 | item_index_internal%0#0,tmp%0#0,total#0
@@ -806,15 +806,15 @@ sum_array_for_body@2:                                                           
     b sum_array_for_header@1                                                                  (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1,item_index_internal%0#0 |
 
 sum_array_after_for@4:                                                                        (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1,item_index_internal%0#0 |
-    // array/fixed_size.py:85
+    // array/static_size.py:85
     // return total
     f-load total#0                                                                            (𝕡) arc4_arr#0 | (𝕗) slot%0,total#0,array%array_len%0#1,item_index_internal%0#0 | total#0
     retsub                                                                                    total#0
 
 
-// test_cases.array.fixed_size.FixedSizeContract.xtra() -> uint64, uint64, bytes, bytes:
+// test_cases.array.static_size.StaticSizeContract.xtra() -> uint64, uint64, bytes, bytes:
 xtra:
-    // array/fixed_size.py:89
+    // array/static_size.py:89
     // self.count += 1
     int 0                                                                                     0
     byte "count"                                                                              0,"count"
@@ -826,19 +826,19 @@ xtra:
     byte "count"                                                                              new_state_value%0#0,"count"
     l-load new_state_value%0#0 1                                                              "count",new_state_value%0#0
     app_global_put
-    // array/fixed_size.py:91
+    // array/static_size.py:91
     // a=Txn.num_app_args,
     txn NumAppArgs                                                                            tmp%0#0
-    // array/fixed_size.py:92
+    // array/static_size.py:92
     // b=self.count,
     int 0                                                                                     tmp%0#0,0
     byte "count"                                                                              tmp%0#0,0,"count"
     app_global_get_ex                                                                         tmp%0#0,maybe_value%1#0,maybe_exists%1#0
     assert // check self.count exists                                                         tmp%0#0,maybe_value%1#0
-    // array/fixed_size.py:93
+    // array/static_size.py:93
     // c=Txn.sender,
     txn Sender                                                                                tmp%0#0,maybe_value%1#0,tmp%1#0
-    // array/fixed_size.py:94
+    // array/static_size.py:94
     // d=More(foo=arc4.UInt64(self.count + 1), bar=arc4.UInt64(self.count * self.count)),
     int 0                                                                                     tmp%0#0,maybe_value%1#0,tmp%1#0,0
     byte "count"                                                                              tmp%0#0,maybe_value%1#0,tmp%1#0,0,"count"
@@ -863,7 +863,7 @@ xtra:
     l-load val_as_bytes%0#0 1                                                                 tmp%0#0,maybe_value%1#0,tmp%1#0,val_as_bytes%1#0,val_as_bytes%0#0
     l-load val_as_bytes%1#0 1                                                                 tmp%0#0,maybe_value%1#0,tmp%1#0,val_as_bytes%0#0,val_as_bytes%1#0
     concat                                                                                    tmp%0#0,maybe_value%1#0,tmp%1#0,encoded_tuple_buffer%2#0
-    // array/fixed_size.py:90-95
+    // array/static_size.py:90-95
     // return Xtra(
     //     a=Txn.num_app_args,
     //     b=self.count,

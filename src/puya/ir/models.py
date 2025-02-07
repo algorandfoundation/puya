@@ -18,9 +18,9 @@ from puya.ir.types_ import (
     ArrayType,
     AVMBytesEncoding,
     EncodedTupleType,
-    FixedBytesType,
     IRType,
     PrimitiveIRType,
+    SizedBytesType,
     SlotType,
     UnionType,
 )
@@ -343,13 +343,13 @@ class BytesConstant(Constant):
 
     @ir_type.default
     def _ir_type(self) -> IRType:
-        return FixedBytesType(size=len(self.value))
+        return SizedBytesType(size=len(self.value))
 
     @ir_type.validator
     def _validate_ir_type(self, _attribute: object, ir_type: IRType) -> None:
         if ir_type.maybe_avm_type is not AVMType.bytes:
             raise InternalError(f"invalid type for BytesConstant: {ir_type}", self.source_location)
-        if isinstance(ir_type, FixedBytesType) and ir_type.size != len(self.value):
+        if isinstance(ir_type, SizedBytesType) and ir_type.size != len(self.value):
             raise InternalError(
                 f"incorrect sized type for BytesConstant: {ir_type} + {self.value=}",
                 self.source_location,
@@ -394,7 +394,7 @@ class CompiledLogicSigReference(Value):
 class AddressConstant(Constant):
     """Constant for address literals"""
 
-    ir_type: IRType = attrs.field(default=FixedBytesType(32), init=False)
+    ir_type: IRType = attrs.field(default=SizedBytesType(32), init=False)
     value: str = attrs.field()
 
     def accept(self, visitor: IRVisitor[T]) -> T:
@@ -405,7 +405,7 @@ class AddressConstant(Constant):
 class MethodConstant(Constant):
     """Constant for method literals"""
 
-    ir_type: IRType = attrs.field(default=FixedBytesType(4), init=False)
+    ir_type: IRType = attrs.field(default=SizedBytesType(4), init=False)
     value: str
 
     def accept(self, visitor: IRVisitor[T]) -> T:

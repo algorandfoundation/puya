@@ -6,7 +6,7 @@ import typing
 import algopy
 
 
-class FixedSizeContract(algopy.arc4.ARC4Client, typing.Protocol):
+class StaticSizeContract(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def test_array(
         self,
