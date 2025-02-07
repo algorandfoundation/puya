@@ -175,7 +175,7 @@ def encode_value_provider(
         case (
             wtypes.ARC4Array(),
             wtypes.WArray(),
-        ) if effective_array_encoding(value_wtype) == arc4_wtype:
+        ) if effective_array_encoding(value_wtype, loc) == arc4_wtype:
             # already ARC4 encoded
             return value_provider
         case _:

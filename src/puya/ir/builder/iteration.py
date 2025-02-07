@@ -206,7 +206,7 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_items=reverse_items,
             )
         case wtypes.WArray() as array_wtype if (
-            arc4_encoding_wtype := effective_array_encoding(array_wtype)
+            arc4_encoding_wtype := effective_array_encoding(array_wtype, sequence.source_location)
         ):
             arc4_element_type = arc4_encoding_wtype.element_type
             element_type = array_wtype.element_type

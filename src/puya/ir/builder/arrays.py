@@ -34,7 +34,7 @@ def get_array_length(
     if not wtype.immutable:
         array_contents = read_slot(context, array, array.source_location)
         return ir.ArrayLength(array=array_contents, source_location=source_location)
-    array_encoding = effective_array_encoding(wtype)
+    array_encoding = effective_array_encoding(wtype, source_location)
     assert array_encoding is not None
     return get_arc4_array_length(array_encoding, array, source_location)
 

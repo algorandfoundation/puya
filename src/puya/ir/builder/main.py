@@ -735,7 +735,7 @@ class FunctionIRBuilder(
         elif sliceable_type == wtypes.bytes_wtype:
             return visit_bytes_intersection_slice_expression(self.context, expr)
         elif isinstance(sliceable_type, wtypes.WArray) and (
-            arc4_array_type := effective_array_encoding(sliceable_type)
+            arc4_array_type := effective_array_encoding(sliceable_type, expr.base.source_location)
         ):
             if expr.begin_index is not None or expr.end_index != -1:
                 raise InternalError(
@@ -811,7 +811,7 @@ class FunctionIRBuilder(
             slot = mem.read_slot(self.context, base, expr.base.source_location)
             return ArrayReadIndex(array=slot, index=index, source_location=expr.source_location)
         elif isinstance(indexable_wtype, wtypes.WArray) and (
-            arc4_array_type := effective_array_encoding(indexable_wtype)
+            arc4_array_type := effective_array_encoding(indexable_wtype, expr.base.source_location)
         ):
             encoded_read_vp = arc4.arc4_array_index(
                 self.context,
@@ -893,7 +893,7 @@ class FunctionIRBuilder(
                 self.context, expr.wtype, expr.values, expr.source_location
             )
         # handle native arrays
-        encoded_type = effective_array_encoding(expr.wtype)
+        encoded_type = effective_array_encoding(expr.wtype, expr.source_location)
         if encoded_type is not None:
             # immutable arrays are effectively ARC-4 encoded, values might need converting
             if not expr.values:
@@ -1242,7 +1242,7 @@ class FunctionIRBuilder(
             raise InternalError(f"Unsupported target for array pop: {expr.base.wtype}", loc)
 
     def visit_array_replace(self, expr: awst_nodes.ArrayReplace) -> TExpression:
-        arc4_wtype = effective_array_encoding(expr.wtype)
+        arc4_wtype = effective_array_encoding(expr.wtype, expr.source_location)
         assert arc4_wtype is not None, f"unexpected type for ArrayReplace {expr.wtype}"
         value = self.context.visitor.visit_expr(expr.value)
         arc4_value = arc4.encode_value_provider(
@@ -1271,7 +1271,9 @@ class FunctionIRBuilder(
                     iter_expr=expr.right,
                     source_location=expr.source_location,
                 )
-            case wtypes.WArray() if (arc4_array_wtype := effective_array_encoding(expr.wtype)):
+            case wtypes.WArray() if (
+                arc4_array_wtype := effective_array_encoding(expr.wtype, expr.source_location)
+            ):
                 return arc4.convert_and_concat_values(
                     self.context,
                     array_wtype=arc4_array_wtype,

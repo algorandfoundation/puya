@@ -75,7 +75,9 @@ def wtype_to_arc4_wtype(wtype: wtypes.WType, loc: SourceLocation | None) -> wtyp
     return arc4_wtype
 
 
-def effective_array_encoding(array_type: wtypes.WArray) -> wtypes.ARC4Array | None:
+def effective_array_encoding(
+    array_type: wtypes.WArray, loc: SourceLocation | None
+) -> wtypes.ARC4Array | None:
     """If a native array is effectively ARC4-encoded, return that equivalent type here."""
     if array_type.immutable:
         arc4_element_type = maybe_wtype_to_arc4_wtype(array_type.element_type)
@@ -83,6 +85,6 @@ def effective_array_encoding(array_type: wtypes.WArray) -> wtypes.ARC4Array | No
             # we flat out don't support this (yet?), so always raise a CodeError
             # this is an internal detail to the current IR implementation of this type,
             # so this is the right spot to do this validation in currently
-            raise CodeError("unsupported array element type", array_type.source_location)
+            raise CodeError("unsupported array element type", loc)
         return wtypes.ARC4DynamicArray(element_type=arc4_element_type, immutable=True)
     return None
