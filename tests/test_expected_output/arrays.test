@@ -65,3 +65,109 @@ class ArrayContract(arc4.ARC4Contract):
     @arc4.abimethod
     def imm_array_bool(self) -> None:
         arr = ImmutableArray[bool]()
+
+    @arc4.abimethod ## E: expected ARC4 type: group_transaction
+    def imm_txn_arg(self, arr: ImmutableArray[gtxn.Transaction]) -> None:
+        pass
+
+    @arc4.abimethod ## E: invalid type for an ARC4 method: algopy.itxn.Payment
+    def imm_itxn_arg(self, arr: ImmutableArray[itxn.Payment]) -> None:
+        pass
+
+    @arc4.abimethod ## E: invalid type for an ARC4 method: algopy.itxn.PaymentInnerTransaction
+    def imm_itxn2_arg(self, arr: ImmutableArray[itxn.PaymentInnerTransaction]) -> None:
+        pass
+
+    @arc4.abimethod ## E: invalid type for an ARC4 method: algopy.Array[algopy.gtxn.Transaction]
+    def arr_txn_arg(self, arr: Array[gtxn.Transaction]) -> None:
+        pass
+
+    @arc4.abimethod ## E: invalid type for an ARC4 method: algopy.Array[algopy.itxn.Payment]
+    def arr_itxn_arg(self, arr: Array[itxn.Payment]) -> None:
+        pass
+
+    @arc4.abimethod ## E: invalid type for an ARC4 method: algopy.Array[algopy.itxn.PaymentInnerTransaction]
+    def arr_itxn2_arg(self, arr: Array[itxn.PaymentInnerTransaction]) -> None:
+        pass
+
+    @arc4.abimethod ## E: invalid type for an ARC4 method: algopy.Array[algopy.Asset]
+    def arr_asset_arg(self, arr: Array[Asset]) -> None:
+        pass
+
+    @arc4.abimethod ## E: invalid type for an ARC4 method: algopy.Array[algopy.Account]
+    def arr_account_arg(self, arr: Array[Account]) -> None:
+        pass
+
+## case: test_imm_array_txn
+from algopy import *
+
+class MyContract(arc4.ARC4Contract):
+
+    @arc4.abimethod
+    def imm_txn_expr(self, txn: gtxn.Transaction) -> None:
+        arr = ImmutableArray[gtxn.Transaction]() ## E: unsupported array element type
+        arr = arr.append(txn)
+
+## case: test_asset_ref
+from algopy import *
+
+class MyContract(arc4.ARC4Contract):
+
+    @arc4.abimethod ## E: expected ARC4 type: asset
+    def imm_asset_arg(self, arr: ImmutableArray[Asset]) -> None:
+        pass
+
+## case: test_account_ref
+from algopy import *
+
+class MyContract(arc4.ARC4Contract):
+
+    @arc4.abimethod ## E: expected ARC4 type: account
+    def imm_account_arg(self, arr: ImmutableArray[Account]) -> None:
+        pass
+
+## case: test_imm_array_itxn
+from algopy import *
+
+class MyContract(arc4.ARC4Contract):
+    @arc4.abimethod
+    def imm_itxn_expr(self) -> None:
+        arr = ImmutableArray[itxn.Payment]() ## E: unsupported array element type
+
+## case: test_imm_array_itxn_result
+from algopy import *
+
+class MyContract(arc4.ARC4Contract):
+    @arc4.abimethod
+    def imm_itxn2_expr(self) -> None:
+        arr = ImmutableArray[itxn.PaymentInnerTransaction]() ## E: unsupported array element type
+
+
+## case: test_array_txn
+from algopy import *
+
+class MyContract(arc4.ARC4Contract):
+
+    @arc4.abimethod
+    def imm_txn_expr(self, txn: gtxn.Transaction) -> None:
+        arr = Array[gtxn.Transaction]() ## E: unsupported array element type
+        arr.append(txn)
+        imm_arr = arr.freeze()
+
+## case: test_array_itxn
+from algopy import *
+
+class MyContract(arc4.ARC4Contract):
+    @arc4.abimethod
+    def imm_itxn_expr(self) -> None:
+        arr = Array[itxn.Payment]() ## E: unsupported array element type
+        pay = itxn.Payment(receiver=Txn.sender)
+        arr.append(pay)
+
+## case: test_array_itxn_result
+from algopy import *
+
+class MyContract(arc4.ARC4Contract):
+    @arc4.abimethod
+    def imm_itxn2_expr(self) -> None:
+        arr = Array[itxn.PaymentInnerTransaction]() ## E: unsupported array element type

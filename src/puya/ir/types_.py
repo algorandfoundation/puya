@@ -320,8 +320,20 @@ def wtype_to_ir_type(
             return PrimitiveIRType.itxn_group_idx
         case wtypes.WInnerTransactionFields():
             return PrimitiveIRType.itxn_field_set
+        # note: these exclusions are to maintain parity with what is supported
+        #       between Array and ImmutableArray
+        #       ideally WGroupTransaction would work with either, but not be persistable
+        #       inner transaction types are unlikely to be supported with current AVM restrictions
+        case wtypes.WArray(
+            element_type=wtypes.WGroupTransaction()
+            | wtypes.WInnerTransaction()
+            | wtypes.WInnerTransactionFields()
+        ):
+            raise CodeError("unsupported array element type", source_location)
         case wtypes.WArray(element_type=element_wtype, immutable=immutable):
-            element_ir_type = wtype_to_encoded_ir_type(element_wtype, source_location)
+            element_ir_type = wtype_to_encoded_ir_type(
+                element_wtype, require_static_size=not immutable, loc=source_location
+            )
             array_type = ArrayType(element=element_ir_type)
             return array_type if immutable else SlotType(array_type)
         case wtypes.WArray(immutable=True):
@@ -351,12 +363,22 @@ def wtype_to_ir_type(
 
 def wtype_to_encoded_ir_type(
     wtype: wtypes.WType,
-    source_location: SourceLocation | None = None,
+    *,
+    require_static_size: bool,
+    loc: SourceLocation | None,
 ) -> IRType:
     if isinstance(wtype, wtypes.WTuple):
-        return EncodedTupleType(elements=[wtype_to_encoded_ir_type(e) for e in wtype.types])
+        return EncodedTupleType(
+            elements=[
+                wtype_to_encoded_ir_type(e, require_static_size=require_static_size, loc=loc)
+                for e in wtype.types
+            ]
+        )
     else:
-        return wtype_to_ir_type(wtype, source_location)
+        ir_type = wtype_to_ir_type(wtype, loc)
+        if ir_type.size is None and require_static_size:
+            raise CodeError("unsupported array element type", loc)
+        return ir_type
 
 
 def get_wtype_arity(wtype: wtypes.WType) -> int:
