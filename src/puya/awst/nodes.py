@@ -485,13 +485,17 @@ class ArrayPop(Expression):
 class ArrayReplace(Expression):
     """Replaces the item at index with value and returns the updated array"""
 
-    base: Expression
+    base: Expression = attrs.field()
     index: Expression
     value: Expression
-    wtype: wtypes.WType = attrs.field()
+    wtype: wtypes.WArray = attrs.field(init=False)
 
     @wtype.default
-    def _wtype(self) -> wtypes.WType:
+    def _wtype(self) -> wtypes.WArray:
+        if not (isinstance(self.base.wtype, wtypes.WArray) and self.base.wtype.immutable):
+            raise InternalError(
+                f"Unsupported base for ArrayReplace: {self.base.wtype}", self.source_location
+            )
         return self.base.wtype
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
