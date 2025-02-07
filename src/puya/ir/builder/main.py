@@ -160,7 +160,7 @@ class FunctionIRBuilder(
                     source_location=expr.source_location,
                     context=self.context,
                 )
-            case wtypes.WArray():
+            case wtypes.WArray(immutable=False):
                 loc = expr.source_location
                 original_slot = self.visit_and_materialise_single(expr.value)
                 new_slot = puya.ir.builder.mem.new_slot(self.context, original_slot.ir_type, loc)
