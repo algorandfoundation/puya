@@ -224,12 +224,10 @@ def _encode_arc4_tuple_items(
 
 def encode_arc4_exprs_as_array(
     context: IRFunctionBuildContext,
-    wtype: wtypes.WType,
+    wtype: wtypes.ARC4Array,
     values: Sequence[awst_nodes.Expression],
     loc: SourceLocation,
 ) -> ValueProvider:
-    if not isinstance(wtype, wtypes.ARC4Array):
-        raise InternalError("Expected ARC4 Array expression", loc)
     elements = [context.visitor.visit_and_materialise_single(value) for value in values]
     return _encode_arc4_values_as_array(context, wtype, elements, loc)
 
