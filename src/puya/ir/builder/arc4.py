@@ -239,12 +239,14 @@ def _encode_arc4_values_as_array(
     loc: SourceLocation,
 ) -> ValueProvider:
     factory = OpFactory(context, loc)
-    len_prefix = (
-        len(elements).to_bytes(2, "big") if isinstance(wtype, wtypes.ARC4DynamicArray) else b""
-    )
+    if isinstance(wtype, wtypes.ARC4DynamicArray):
+        len_prefix = len(elements).to_bytes(2, "big")
+    else:
+        len_prefix = b""
     element_type = wtype.element_type
-
-    if element_type == wtypes.arc4_bool_wtype:
+    if element_type != wtypes.arc4_bool_wtype:
+        array_head_and_tail = _arc4_items_as_arc4_tuple(context, element_type, elements, loc)
+    else:
         array_head_and_tail = factory.constant(b"")
         for index, el in enumerate(elements):
             if index % 8 == 0:
@@ -260,8 +262,6 @@ def _encode_arc4_values_as_array(
                     bit=is_true,
                     temp_desc="array_head_and_tail",
                 )
-    else:
-        array_head_and_tail = _arc4_items_as_arc4_tuple(context, element_type, elements, loc)
 
     return factory.concat(len_prefix, array_head_and_tail, "array_data")
 
