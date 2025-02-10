@@ -153,23 +153,6 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
             case _:
                 return super().member_access(name, location)
 
-    # TODO: decide if we implement + and +=
-    # @typing.override
-    # def augmented_assignment(
-    #     self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
-    # ) -> Statement:
-    #     if op != BuilderBinaryOp.add:
-    #         logger.error(f"unsupported operator for type: {op.value!r}", location=location)
-    #         return dummy_statement(location)
-    #     rhs = _match_array_concat_arg(rhs, self.pytype)
-    #     extend = ArrayExtend(
-    #         base=self.resolve(),
-    #         other=rhs.resolve(),
-    #         wtype=wtypes.void_wtype,
-    #         source_location=location,
-    #     )
-    #     return ExpressionStatement(expr=extend)
-
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return self.length(location).bool_eval(location, negate=negate)
