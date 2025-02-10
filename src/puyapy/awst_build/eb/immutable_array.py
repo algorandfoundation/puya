@@ -152,6 +152,30 @@ class ImmutableArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayTyp
                 return super().member_access(name, location)
 
     @typing.override
+    def binary_op(
+        self,
+        other: InstanceBuilder,
+        op: BuilderBinaryOp,
+        location: SourceLocation,
+        *,
+        reverse: bool,
+    ) -> InstanceBuilder:
+        # only __add__ is implemented, not __radd__
+        if op != BuilderBinaryOp.add or reverse:
+            return NotImplemented
+
+        other = _match_array_concat_arg(other, self.pytype)
+        return ImmutableArrayExpressionBuilder(
+            ArrayConcat(
+                left=self.resolve(),
+                right=other.resolve(),
+                wtype=self.pytype.wtype,
+                source_location=location,
+            ),
+            self.pytype,
+        )
+
+    @typing.override
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:

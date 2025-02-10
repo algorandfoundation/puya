@@ -483,28 +483,35 @@ def convert_and_concat_values(
 
     # check right is a valid type to concat
     right_wtype = iter_expr.wtype
-    if isinstance(right_wtype, wtypes.ARC4Array | wtypes.WArray):
-        right_element_type = right_wtype.element_type
-    elif (
-        isinstance(right_wtype, wtypes.WTuple)
-        and right_wtype.types
-        and all(t == right_wtype.types[0] for t in right_wtype.types)
-    ):
-        right_element_type = right_wtype.types[0]
+    right_element_type: wtypes.WType
+    if isinstance(right_wtype, wtypes.ARC4Array):
+        right_element_type = right_element_arc4_type = right_wtype.element_type
+    elif isinstance(right_wtype, wtypes.ARC4Tuple):
+        right_element_arc4_type, *other_arc4 = set(right_wtype.types)
+        if other_arc4:
+            raise CodeError(
+                "only homogenous tuples can be concatenated", iter_expr.source_location
+            )
+        right_element_type = right_element_arc4_type
     else:
-        right_element_type = None
-
-    # gets the ARC-4 equivalent element type of the elements on the right
-    right_element_arc4_type = (
-        wtype_to_arc4_wtype(right_element_type, source_location) if right_element_type else None
-    )
-    if left_element_type != right_element_arc4_type:
-        raise CodeError(
-            f"Unexpected operand types or order for concatenation:"
-            f" {array_wtype} and {right_wtype}",
-            source_location,
-        )
-    assert right_element_type is not None
+        if isinstance(right_wtype, wtypes.WArray):
+            right_element_type = right_wtype.element_type
+        elif isinstance(right_wtype, wtypes.WTuple):
+            right_element_type, *other = set(right_wtype.types)
+            if other:
+                raise CodeError(
+                    "only homogenous tuples can be concatenated", iter_expr.source_location
+                )
+        else:
+            raise CodeError("unsupported sequence type", iter_expr.source_location)
+        # gets the ARC-4 equivalent element type of the elements on the right
+        right_element_arc4_type = wtype_to_arc4_wtype(right_element_type, source_location)
+        if left_element_type != right_element_arc4_type:
+            raise CodeError(
+                f"Unexpected operand types or order for concatenation:"
+                f" {array_wtype} and {right_wtype}",
+                source_location,
+            )
 
     if left_element_type == wtypes.arc4_bool_wtype:
         left = context.visitor.visit_and_materialise_single(array_expr)
@@ -1372,7 +1379,7 @@ def _concat_dynamic_array_fixed_size(
             case wtypes.ARC4DynamicArray() | wtypes.WArray(immutable=True):
                 expr_value = context.visitor.visit_and_materialise_single(expr)
                 return factory.extract_to_end(expr_value, 2, "expr_value_trimmed")
-            case wtypes.WTuple(types=types):
+            case wtypes.WTuple(types=types) | wtypes.ARC4Tuple(types=types):
                 element_type = wtype_to_encoded_ir_type(
                     types[0], require_static_size=True, loc=expr.source_location
                 )

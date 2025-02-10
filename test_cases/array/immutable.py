@@ -350,6 +350,22 @@ class ImmutableArrayContract(arc4.ARC4Contract):
             mutable.append(MyTuple(foo=i, bar=i % 2 == 0, baz=i % 3 == 0))
         return mutable.freeze()
 
+    @arc4.abimethod()
+    def test_concat_with_arc4_tuple(
+        self, arg: arc4.Tuple[arc4.UInt64, arc4.UInt64]
+    ) -> ImmutableArray[arc4.UInt64]:
+        prefix = ImmutableArray(arc4.UInt64(1), arc4.UInt64(2))
+        result = prefix + arg
+        return result
+
+    @arc4.abimethod()
+    def test_concat_with_native_tuple(
+        self, arg: tuple[arc4.UInt64, arc4.UInt64]
+    ) -> ImmutableArray[arc4.UInt64]:
+        prefix = ImmutableArray(arc4.UInt64(1), arc4.UInt64(2))
+        result = prefix + arg
+        return result
+
 
 @subroutine
 def times(n: UInt64) -> String:

@@ -95,7 +95,7 @@ def get_array_encoded_items(
         case wtypes.WArray(immutable=False):
             slot = context.visitor.visit_and_materialise_single(items)
             return read_slot(context, slot, items.source_location)
-        case wtypes.WTuple():
+        case wtypes.WTuple() | wtypes.ARC4Tuple():
             array_encode = ir.ArrayEncode(
                 values=context.visitor.visit_and_materialise(items),
                 array_type=array_type,
