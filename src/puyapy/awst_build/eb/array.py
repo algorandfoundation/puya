@@ -12,10 +12,8 @@ from puya.awst.nodes import (
     ArrayLength,
     ArrayPop,
     Expression,
-    ExpressionStatement,
     IndexExpression,
     NewArray,
-    Statement,
     TupleExpression,
 )
 from puya.errors import CodeError
@@ -28,7 +26,6 @@ from puyapy.awst_build.eb._base import (
     InstanceExpressionBuilder,
 )
 from puyapy.awst_build.eb._utils import (
-    dummy_statement,
     dummy_value,
     resolve_negative_literal_index,
 )
@@ -37,7 +34,6 @@ from puyapy.awst_build.eb._utils import (
 from puyapy.awst_build.eb.arc4._base import CopyBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
-    BuilderBinaryOp,
     InstanceBuilder,
     NodeBuilder,
     TypeBuilder,
@@ -157,21 +153,22 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
             case _:
                 return super().member_access(name, location)
 
-    @typing.override
-    def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
-    ) -> Statement:
-        if op != BuilderBinaryOp.add:
-            logger.error(f"unsupported operator for type: {op.value!r}", location=location)
-            return dummy_statement(location)
-        rhs = _match_array_concat_arg(rhs, self.pytype)
-        extend = ArrayExtend(
-            base=self.resolve(),
-            other=rhs.resolve(),
-            wtype=wtypes.void_wtype,
-            source_location=location,
-        )
-        return ExpressionStatement(expr=extend)
+    # TODO: decide if we implement + and +=
+    # @typing.override
+    # def augmented_assignment(
+    #     self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
+    # ) -> Statement:
+    #     if op != BuilderBinaryOp.add:
+    #         logger.error(f"unsupported operator for type: {op.value!r}", location=location)
+    #         return dummy_statement(location)
+    #     rhs = _match_array_concat_arg(rhs, self.pytype)
+    #     extend = ArrayExtend(
+    #         base=self.resolve(),
+    #         other=rhs.resolve(),
+    #         wtype=wtypes.void_wtype,
+    #         source_location=location,
+    #     )
+    #     return ExpressionStatement(expr=extend)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
