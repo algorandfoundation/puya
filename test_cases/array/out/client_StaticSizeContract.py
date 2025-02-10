@@ -17,6 +17,18 @@ class StaticSizeContract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
     @algopy.arc4.abimethod
+    def test_extend_from_tuple(
+        self,
+        some_more: algopy.arc4.Tuple[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]]], algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]]]],
+    ) -> algopy.arc4.DynamicArray[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]]]]: ...
+
+    @algopy.arc4.abimethod
+    def test_extend_from_arc4_tuple(
+        self,
+        some_more: algopy.arc4.Tuple[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]]], algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]]]],
+    ) -> algopy.arc4.DynamicArray[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]]]]: ...
+
+    @algopy.arc4.abimethod
     def test_bool_array(
         self,
         length: algopy.arc4.UIntN[typing.Literal[64]],

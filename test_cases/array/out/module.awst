@@ -298,6 +298,20 @@ contract StaticSizeContract
     return test_cases.array.static_size.path_length(path)
   }
   
+  abimethod test_cases.array.static_size.StaticSizeContract.test_extend_from_tuple(some_more: tuple<test_cases.array.static_size.More,test_cases.array.static_size.More>): array<test_cases.array.static_size.More>
+  {
+    arr: array<test_cases.array.static_size.More> = new array<test_cases.array.static_size.More>()
+    arr.extend(some_more)
+    return new array<test_cases.array.static_size.More>() + arr
+  }
+  
+  abimethod test_cases.array.static_size.StaticSizeContract.test_extend_from_arc4_tuple(some_more: arc4.tuple<test_cases.array.static_size.More,test_cases.array.static_size.More>): array<test_cases.array.static_size.More>
+  {
+    arr: array<test_cases.array.static_size.More> = new array<test_cases.array.static_size.More>()
+    arr.extend(some_more)
+    return new array<test_cases.array.static_size.More>() + arr
+  }
+  
   abimethod test_cases.array.static_size.StaticSizeContract.test_bool_array(length: uint64): uint64
   {
     arr: array<bool> = new array<bool>()
@@ -348,7 +362,12 @@ contract StaticSizeContract
   subroutine test_cases.array.static_size.StaticSizeContract.xtra(): test_cases.array.static_size.Xtra
   {
     GlobalState['count'] += 1u
-    return (txn<NumAppArgs>(), GlobalState['count'], txn<Sender>(), new test_cases.array.static_size.More(foo=arc4_encode(GlobalState['count'] + 1u, arc4.uint64), bar=arc4_encode(GlobalState['count'] * GlobalState['count'], arc4.uint64)))
+    return (txn<NumAppArgs>(), GlobalState['count'], txn<Sender>(), this::more())
+  }
+  
+  subroutine test_cases.array.static_size.StaticSizeContract.more(): test_cases.array.static_size.More
+  {
+    return new test_cases.array.static_size.More(foo=arc4_encode(GlobalState['count'] + 1u, arc4.uint64), bar=arc4_encode(GlobalState['count'] * GlobalState['count'], arc4.uint64))
   }
   
   baremethod test_cases.array.static_size.StaticSizeContract.__algopy_default_create(): void

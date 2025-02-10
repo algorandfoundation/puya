@@ -42,6 +42,20 @@ class StaticSizeContract(arc4.ARC4Contract):
         return path_length(path)
 
     @arc4.abimethod()
+    def test_extend_from_tuple(self, some_more: tuple[More, More]) -> ImmutableArray[More]:
+        arr = Array[More]()
+        arr.extend(some_more)
+        return arr.freeze()
+
+    @arc4.abimethod()
+    def test_extend_from_arc4_tuple(
+        self, some_more: arc4.Tuple[More, More]
+    ) -> ImmutableArray[More]:
+        arr = Array[More]()
+        arr.extend(some_more)
+        return arr.freeze()
+
+    @arc4.abimethod()
     def test_bool_array(self, length: UInt64) -> UInt64:
         arr = Array[bool]()
         assert arr.length == 0
@@ -91,8 +105,12 @@ class StaticSizeContract(arc4.ARC4Contract):
             a=Txn.num_app_args,
             b=self.count,
             c=Txn.sender,
-            d=More(foo=arc4.UInt64(self.count + 1), bar=arc4.UInt64(self.count * self.count)),
+            d=self.more(),
         )
+
+    @subroutine(inline=False)
+    def more(self) -> More:
+        return More(foo=arc4.UInt64(self.count + 1), bar=arc4.UInt64(self.count * self.count))
 
 
 @subroutine

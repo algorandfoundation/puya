@@ -1834,6 +1834,12 @@ def test_array_static_size(
     response = simulate_call(app_client, "test_bool_array", length=5)
     assert response.abi_results[0].return_value == 2
 
+    response = simulate_call(app_client, "test_extend_from_tuple", some_more=[[1, 2], [3, 4]])
+    assert response.abi_results[0].return_value == [[1, 2], [3, 4]]
+
+    response = simulate_call(app_client, "test_extend_from_arc4_tuple", some_more=[[1, 2], [3, 4]])
+    assert response.abi_results[0].return_value == [[1, 2], [3, 4]]
+
 
 @pytest.fixture(scope="session")
 def immutable_array_app(

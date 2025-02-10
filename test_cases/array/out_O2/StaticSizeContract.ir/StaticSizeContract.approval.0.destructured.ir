@@ -7,10 +7,10 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         goto block@2
     block@2: // after_if_else_L1
         let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@31
+        goto tmp%0#2 ? block@4 : block@33
     block@4: // abi_routing_L24
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_array(uint64,uint64,uint64,uint64)uint64" => block@5, method "test_bool_array(uint64)uint64" => block@9, method "test_arc4_conversion(uint64)uint64[]" => block@18, method "sum_array(uint64[])uint64" => block@27, * => block@33}
+        switch tmp%2#0 {method "test_array(uint64,uint64,uint64,uint64)uint64" => block@5, method "test_extend_from_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]" => block@9, method "test_extend_from_arc4_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]" => block@10, method "test_bool_array(uint64)uint64" => block@11, method "test_arc4_conversion(uint64)uint64[]" => block@20, method "sum_array(uint64[])uint64" => block@29, * => block@35}
     block@5: // test_array_route_L28
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (! tmp%3#0)
@@ -58,9 +58,9 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let continue_looping%0#0: bool = (< i#0 3u)
         goto continue_looping%0#0 ? block@7 : block@8
     block@7: // for_body_L37
-        let slot_contents%0#3: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = read(local.0)
+        let slot_contents%0#5: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = read(local.0)
         let array%bytes_index%0#1: uint64 = (* i#0 80u)
-        let array%value%0#1: bytes = (extract3 slot_contents%0#3 array%bytes_index%0#1 80u)
+        let array%value%0#1: bytes = (extract3 slot_contents%0#5 array%bytes_index%0#1 80u)
         let array%sub_item%15#1: uint64 = (extract_uint64 array%value%0#1 24u)
         let i#8: uint64 = (+ i#0 1u)
         let tmp%19#1: bool = (== array%sub_item%15#1 i#8)
@@ -73,9 +73,9 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         (assert tmp%28#1)
         let reinterpret_biguint%1#0: biguint = ((extract 8 8) array%sub_item%26#1) // on error: Index access is out of bounds
         let tmp%37#0: uint64 = (* i#8 i#8)
-        let tmp%38#0: biguint = (itob tmp%37#0)
-        let tmp%39#0: bool = (b== reinterpret_biguint%1#0 tmp%38#0)
-        (assert tmp%39#0)
+        let tmp%38#1: biguint = (itob tmp%37#0)
+        let tmp%39#1: bool = (b== reinterpret_biguint%1#0 tmp%38#1)
+        (assert tmp%39#1)
         let i#0: uint64 = i#8
         goto block@6
     block@8: // after_for_L36
@@ -92,222 +92,261 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let last_point.y#0: uint64 = (extract_uint64 array%value%3#1 8u)
         let length#0: uint64 = 0u
         let point_idx#0: uint64 = 1u
-        goto block@36
-    block@36: // for_header_L102
+        goto block@38
+    block@38: // for_header_L121
         let continue_looping%0#0: bool = (< point_idx#0 len_%0#0)
-        goto continue_looping%0#0 ? block@37 : block@44
-    block@37: // for_body_L103
+        goto continue_looping%0#0 ? block@39 : block@46
+    block@39: // for_body_L122
         let slot_contents%2#3: (bytes[8],uint64,(uint64,uint64,bytes[32],bytes[16]))[] = read(local.0)
         let array%bytes_index%4#1: uint64 = (* point_idx#0 80u)
         let array%value%4#1: bytes = (extract3 slot_contents%2#3 array%bytes_index%4#1 80u)
         let point.x#0: bytes[8] = ((extract 0 8) array%value%4#1)
         let point.y#0: uint64 = (extract_uint64 array%value%4#1 8u)
         let tmp%1#4: bool = (b< point.x#0 last_point.x#0)
-        goto tmp%1#4 ? block@38 : block@39
-    block@38: // if_body_L105
+        goto tmp%1#4 ? block@40 : block@41
+    block@40: // if_body_L124
         let tmp%2#1: uint64 = (extract_uint64 array%value%3#1 0u)
         let tmp%3#0: uint64 = (extract_uint64 array%value%4#1 0u)
         let dx#0: uint64 = (- tmp%2#1 tmp%3#0)
-        goto block@40
-    block@39: // else_body_L107
+        goto block@42
+    block@41: // else_body_L126
         let tmp%4#3: uint64 = (extract_uint64 array%value%4#1 0u)
         let tmp%5#0: uint64 = (extract_uint64 array%value%3#1 0u)
         let dx#0: uint64 = (- tmp%4#3 tmp%5#0)
-        goto block@40
-    block@40: // after_if_else_L104
+        goto block@42
+    block@42: // after_if_else_L123
         let tmp%6#1: bool = (< point.y#0 last_point.y#0)
-        goto tmp%6#1 ? block@41 : block@42
-    block@41: // if_body_L109
+        goto tmp%6#1 ? block@43 : block@44
+    block@43: // if_body_L128
         let dy#0: uint64 = (- last_point.y#0 point.y#0)
-        goto block@43
-    block@42: // else_body_L111
+        goto block@45
+    block@44: // else_body_L130
         let dy#0: uint64 = (- point.y#0 last_point.y#0)
-        goto block@43
-    block@43: // after_if_else_L108
+        goto block@45
+    block@45: // after_if_else_L127
         let tmp%7#2: uint64 = (* dx#0 dx#0)
         let tmp%8#1: uint64 = (* dy#0 dy#0)
         let tmp%9#1: uint64 = (+ tmp%7#2 tmp%8#1)
         let tmp%10#0: uint64 = (sqrt tmp%9#1)
         let length#0: uint64 = (+ length#0 tmp%10#0)
         let point_idx#0: uint64 = (+ point_idx#0 1u)
-        goto block@36
-    block@44: // after_for_L102
+        goto block@38
+    block@46: // after_for_L121
         let val_as_bytes%0#0: bytes[8] = (itob length#0)
         let tmp%9#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
         (log tmp%9#0)
         let test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0
-        goto block@34
-    block@9: // test_bool_array_route_L44
+        goto block@36
+    block@9: // test_extend_from_tuple_route_L45
         let tmp%10#0: uint64 = (txn OnCompletion)
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // OnCompletion is not NoOp
         let tmp%12#0: uint64 = (txn ApplicationID)
         (assert tmp%12#0) // can only call when not creating
+        let reinterpret_bytes[32]%0#0: bytes[32] = (txna ApplicationArgs 1)
+        let some_more.0#0: bytes[16] = ((extract 0 16) reinterpret_bytes[32]%0#0) // on error: Index access is out of bounds
+        let some_more.1#0: bytes[16] = ((extract 16 16) reinterpret_bytes[32]%0#0) // on error: Index access is out of bounds
+        let array%data%4#1: bytes[16][] = (concat some_more.0#0 some_more.1#0)
+        write(local.1, array%data%4#1)
+        let byte_len%0#0: uint64 = (len array%data%4#1)
+        let len_%0#0: uint64 = (/ byte_len%0#0 16u)
+        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let concat_result%0#1: bytes = (concat len_16_bit%0#0 array%data%4#1)
+        let tmp%15#0: bytes = (concat 0x151f7c75 concat_result%0#1)
+        (log tmp%15#0)
+        let test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0
+        goto block@36
+    block@10: // test_extend_from_arc4_tuple_route_L51
+        let tmp%16#0: uint64 = (txn OnCompletion)
+        let tmp%17#0: bool = (! tmp%16#0)
+        (assert tmp%17#0) // OnCompletion is not NoOp
+        let tmp%18#0: uint64 = (txn ApplicationID)
+        (assert tmp%18#0) // can only call when not creating
+        let some_more#0: bytes[32] = (txna ApplicationArgs 1)
+        write(local.2, some_more#0)
+        let byte_len%0#0: uint64 = (len some_more#0)
+        let len_%0#0: uint64 = (/ byte_len%0#0 16u)
+        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let concat_result%0#1: bytes = (concat len_16_bit%0#0 some_more#0)
+        let tmp%21#0: bytes = (concat 0x151f7c75 concat_result%0#1)
+        (log tmp%21#0)
+        let test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0
+        goto block@36
+    block@11: // test_bool_array_route_L59
+        let tmp%22#0: uint64 = (txn OnCompletion)
+        let tmp%23#0: bool = (! tmp%22#0)
+        (assert tmp%23#0) // OnCompletion is not NoOp
+        let tmp%24#0: uint64 = (txn ApplicationID)
+        (assert tmp%24#0) // can only call when not creating
         let reinterpret_bytes[8]%4#0: bytes[8] = (txna ApplicationArgs 1)
         let length#0: uint64 = (btoi reinterpret_bytes[8]%4#0)
-        write(local.1, 0x)
+        write(local.3, 0x)
         let tmp%2#1: uint64 = (+ length#0 1u)
         let i#0: uint64 = 1u
-        goto block@10
-    block@10: // for_header_L49
+        goto block@12
+    block@12: // for_header_L64
         let continue_looping%0#0: bool = (< i#0 tmp%2#1)
-        goto continue_looping%0#0 ? block@11 : block@12
-    block@11: // for_body_L50
+        goto continue_looping%0#0 ? block@13 : block@14
+    block@13: // for_body_L65
         let tmp%3#0: uint64 = (% i#0 2u)
         let tmp%4#0: bool = (! tmp%3#0)
         let array%encoded_bit%0#1: bytes = (select 0x00 0x80 tmp%4#0)
-        let slot_contents%1#2: bool[] = read(local.1)
-        let array%array_contents%0#1: bytes = (concat slot_contents%1#2 array%encoded_bit%0#1) // on error: max array length exceeded
-        write(local.1, array%array_contents%0#1)
+        let slot_contents%1#2: bool[] = read(local.3)
+        let array%array_contents%2#1: bytes = (concat slot_contents%1#2 array%encoded_bit%0#1) // on error: max array length exceeded
+        write(local.3, array%array_contents%2#1)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@10
-    block@12: // after_for_L49
-        let slot_contents%2#2: bool[] = read(local.1)
+        goto block@12
+    block@14: // after_for_L64
+        let slot_contents%2#2: bool[] = read(local.3)
         let array%bytes_len%2#1: uint64 = (len slot_contents%2#2)
         let array%array_len%2#1: uint64 = (/ array%bytes_len%2#1 1u)
         let tmp%6#1: bool = (== array%array_len%2#1 length#0)
         (assert tmp%6#1) // expected correct length
         let count#0: uint64 = 0u
         let item_index_internal%0#0: uint64 = 0u
-        goto block@13
-    block@13: // for_header_L53
+        goto block@15
+    block@15: // for_header_L68
         let continue_looping%1#0: bool = (< item_index_internal%0#0 array%array_len%2#1)
-        goto continue_looping%1#0 ? block@14 : block@17
-    block@14: // for_body_L54
-        let slot_contents%4#1: bool[] = read(local.1)
+        goto continue_looping%1#0 ? block@16 : block@19
+    block@16: // for_body_L69
+        let slot_contents%4#1: bool[] = read(local.3)
         let array%value%5#1: bytes = (extract3 slot_contents%4#1 item_index_internal%0#0 1u)
         let val#1: bool = (getbyte array%value%5#1 0u)
         let count#13: uint64 = count#0
-        goto val#1 ? block@15 : block@16
-    block@15: // if_body_L55
+        goto val#1 ? block@17 : block@18
+    block@17: // if_body_L70
         let count#0: uint64 = (+ count#0 1u)
         let count#13: uint64 = count#0
-        goto block@16
-    block@16: // after_if_else_L54
+        goto block@18
+    block@18: // after_if_else_L69
         let count#0: uint64 = count#13
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@13
-    block@17: // after_for_L53
+        goto block@15
+    block@19: // after_for_L68
         let val_as_bytes%1#0: bytes[8] = (itob count#0)
-        let tmp%15#0: bytes = (concat 0x151f7c75 val_as_bytes%1#0)
-        (log tmp%15#0)
+        let tmp%27#0: bytes = (concat 0x151f7c75 val_as_bytes%1#0)
+        (log tmp%27#0)
         let test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0
-        goto block@34
-    block@18: // test_arc4_conversion_route_L58
-        let tmp%16#0: uint64 = (txn OnCompletion)
-        let tmp%17#0: bool = (! tmp%16#0)
-        (assert tmp%17#0) // OnCompletion is not NoOp
-        let tmp%18#0: uint64 = (txn ApplicationID)
-        (assert tmp%18#0) // can only call when not creating
+        goto block@36
+    block@20: // test_arc4_conversion_route_L73
+        let tmp%28#0: uint64 = (txn OnCompletion)
+        let tmp%29#0: bool = (! tmp%28#0)
+        (assert tmp%29#0) // OnCompletion is not NoOp
+        let tmp%30#0: uint64 = (txn ApplicationID)
+        (assert tmp%30#0) // can only call when not creating
         let reinterpret_bytes[8]%5#0: bytes[8] = (txna ApplicationArgs 1)
         let length#0: uint64 = (btoi reinterpret_bytes[8]%5#0)
-        write(local.2, 0x)
+        write(local.4, 0x)
         let tmp%2#1: uint64 = (+ length#0 1u)
         let i#0: uint64 = 1u
-        goto block@19
-    block@19: // for_header_L63
+        goto block@21
+    block@21: // for_header_L78
         let continue_looping%0#0: bool = (< i#0 tmp%2#1)
-        goto continue_looping%0#0 ? block@20 : block@21
-    block@20: // for_body_L64
+        goto continue_looping%0#0 ? block@22 : block@23
+    block@22: // for_body_L79
         let val_as_bytes%0#0: bytes[8] = (itob i#0)
-        let slot_contents%1#1: bytes[8][] = read(local.2)
-        let array%array_contents%1#1: bytes = (concat slot_contents%1#1 val_as_bytes%0#0) // on error: max array length exceeded
-        write(local.2, array%array_contents%1#1)
+        let slot_contents%1#1: bytes[8][] = read(local.4)
+        let array%array_contents%3#1: bytes = (concat slot_contents%1#1 val_as_bytes%0#0) // on error: max array length exceeded
+        write(local.4, array%array_contents%3#1)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@19
-    block@21: // after_for_L63
-        let slot_contents%2#0: bytes[8][] = read(local.2)
+        goto block@21
+    block@23: // after_for_L78
+        let slot_contents%2#0: bytes[8][] = read(local.4)
         let array%bytes_len%5#1: uint64 = (len slot_contents%2#0)
         let array%array_len%5#1: uint64 = (/ array%bytes_len%5#1 8u)
         let tmp%4#0: bool = (== array%array_len%5#1 length#0)
         (assert tmp%4#0) // expected correct length
         let count#0: uint64 = 0u
         let item_index_internal%0#0: uint64 = 0u
-        goto block@22
-    block@22: // for_header_L67
+        goto block@24
+    block@24: // for_header_L82
         let continue_looping%1#0: bool = (< item_index_internal%0#0 array%array_len%5#1)
-        goto continue_looping%1#0 ? block@23 : block@26
-    block@23: // for_body_L68
-        let slot_contents%4#0: bytes[8][] = read(local.2)
+        goto continue_looping%1#0 ? block@25 : block@28
+    block@25: // for_body_L83
+        let slot_contents%4#0: bytes[8][] = read(local.4)
         let array%bytes_index%6#1: uint64 = (* item_index_internal%0#0 8u)
         let array%value%6#1: bytes = (extract3 slot_contents%4#0 array%bytes_index%6#1 8u)
         let val#0: bytes[8] = ((extract 0 8) array%value%6#1)
         let tmp%5#1: bool = (!= val#0 0x0000000000000000)
         let count#13: uint64 = count#0
-        goto tmp%5#1 ? block@24 : block@25
-    block@24: // if_body_L69
+        goto tmp%5#1 ? block@26 : block@27
+    block@26: // if_body_L84
         let count#0: uint64 = (+ count#0 1u)
         let count#13: uint64 = count#0
-        goto block@25
-    block@25: // after_if_else_L68
+        goto block@27
+    block@27: // after_if_else_L83
         let count#0: uint64 = count#13
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@22
-    block@26: // after_for_L67
-        let slot_contents%5#0: bytes[8][] = read(local.2)
+        goto block@24
+    block@28: // after_for_L82
+        let slot_contents%5#0: bytes[8][] = read(local.4)
         let byte_len%0#0: uint64 = (len slot_contents%5#0)
         let len_%0#0: uint64 = (/ byte_len%0#0 8u)
         let as_bytes%0#0: bytes[8] = (itob len_%0#0)
         let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let arc4_arr#0: bytes = (concat len_16_bit%0#0 slot_contents%5#0)
-        let tmp%22#0: bytes = (concat 0x151f7c75 arc4_arr#0)
-        (log tmp%22#0)
+        let tmp%34#0: bytes = (concat 0x151f7c75 arc4_arr#0)
+        (log tmp%34#0)
         let test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0
-        goto block@34
-    block@27: // sum_array_route_L76
-        let tmp%23#0: uint64 = (txn OnCompletion)
-        let tmp%24#0: bool = (! tmp%23#0)
-        (assert tmp%24#0) // OnCompletion is not NoOp
-        let tmp%25#0: uint64 = (txn ApplicationID)
-        (assert tmp%25#0) // can only call when not creating
+        goto block@36
+    block@29: // sum_array_route_L91
+        let tmp%35#0: uint64 = (txn OnCompletion)
+        let tmp%36#0: bool = (! tmp%35#0)
+        (assert tmp%36#0) // OnCompletion is not NoOp
+        let tmp%37#0: uint64 = (txn ApplicationID)
+        (assert tmp%37#0) // can only call when not creating
         let arc4_arr#0: bytes = (txna ApplicationArgs 1)
         let expr_value_trimmed%0#0: bytes[8][] = ((extract 2 0) arc4_arr#0)
-        write(local.3, expr_value_trimmed%0#0)
+        write(local.5, expr_value_trimmed%0#0)
         let total#0: uint64 = 0u
         let array%bytes_len%7#1: uint64 = (len expr_value_trimmed%0#0)
         let array%array_len%7#1: uint64 = (/ array%bytes_len%7#1 8u)
         let item_index_internal%0#0: uint64 = 0u
-        goto block@28
-    block@28: // for_header_L82
+        goto block@30
+    block@30: // for_header_L97
         let continue_looping%0#0: bool = (< item_index_internal%0#0 array%array_len%7#1)
-        goto continue_looping%0#0 ? block@29 : block@30
-    block@29: // for_body_L83
-        let slot_contents%2#0: bytes[8][] = read(local.3)
+        goto continue_looping%0#0 ? block@31 : block@32
+    block@31: // for_body_L98
+        let slot_contents%2#0: bytes[8][] = read(local.5)
         let array%bytes_index%7#1: uint64 = (* item_index_internal%0#0 8u)
         let array%value%7#1: bytes = (extract3 slot_contents%2#0 array%bytes_index%7#1 8u)
         let tmp%0#2: uint64 = (extract_uint64 array%value%7#1 0u)
         let total#0: uint64 = (+ total#0 tmp%0#2)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@28
-    block@30: // after_for_L82
+        goto block@30
+    block@32: // after_for_L97
         let val_as_bytes%2#0: bytes[8] = (itob total#0)
-        let tmp%28#0: bytes = (concat 0x151f7c75 val_as_bytes%2#0)
-        (log tmp%28#0)
+        let tmp%40#0: bytes = (concat 0x151f7c75 val_as_bytes%2#0)
+        (log tmp%40#0)
         let test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0
-        goto block@34
-    block@31: // bare_routing_L24
-        let tmp%29#0: uint64 = (txn OnCompletion)
-        goto tmp%29#0 ? block@33 : block@32
-    block@32: // __algopy_default_create_L1
-        let tmp%30#0: uint64 = (txn ApplicationID)
-        let tmp%31#0: bool = (! tmp%30#0)
-        (assert tmp%31#0) // can only call when creating
+        goto block@36
+    block@33: // bare_routing_L24
+        let tmp%41#0: uint64 = (txn OnCompletion)
+        goto tmp%41#0 ? block@35 : block@34
+    block@34: // __algopy_default_create_L1
+        let tmp%42#0: uint64 = (txn ApplicationID)
+        let tmp%43#0: bool = (! tmp%42#0)
+        (assert tmp%43#0) // can only call when creating
         let test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0
-        goto block@34
-    block@33: // after_if_else_L24
+        goto block@36
+    block@35: // after_if_else_L24
         let test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0: bool = 0u
         let tmp%0#0: bool = test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0
-        goto block@34
-    block@34: // after_inlined_test_cases.array.static_size.StaticSizeContract.__puya_arc4_router___L1
+        goto block@36
+    block@36: // after_inlined_test_cases.array.static_size.StaticSizeContract.__puya_arc4_router___L1
         return tmp%0#0
 
 subroutine test_cases.array.static_size.StaticSizeContract.xtra() -> <uint64, uint64, bytes[32], bytes[16]>:
-    block@0: // L87
+    block@0: // L102
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "count")
         (assert maybe_exists%0#0) // check self.count exists
         let new_state_value%0#0: uint64 = (+ maybe_value%0#0 1u)
@@ -316,15 +355,20 @@ subroutine test_cases.array.static_size.StaticSizeContract.xtra() -> <uint64, ui
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "count")
         (assert maybe_exists%1#0) // check self.count exists
         let tmp%1#0: bytes[32] = (txn Sender)
+        let tmp%2#0: bytes[16] = test_cases.array.static_size.StaticSizeContract.more()
+        return tmp%0#0 maybe_value%1#0 tmp%1#0 tmp%2#0
+
+subroutine test_cases.array.static_size.StaticSizeContract.more() -> bytes[16]:
+    block@0: // L112
+        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "count")
+        (assert maybe_exists%0#0) // check self.count exists
+        let to_encode%0#0: uint64 = (+ maybe_value%0#0 1u)
+        let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
+        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "count")
+        (assert maybe_exists%1#0) // check self.count exists
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "count")
         (assert maybe_exists%2#0) // check self.count exists
-        let to_encode%0#0: uint64 = (+ maybe_value%2#0 1u)
-        let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
-        let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "count")
-        (assert maybe_exists%3#0) // check self.count exists
-        let (maybe_value%4#0: uint64, maybe_exists%4#0: bool) = (app_global_get_ex 0u "count")
-        (assert maybe_exists%4#0) // check self.count exists
-        let to_encode%1#0: uint64 = (* maybe_value%3#0 maybe_value%4#0)
+        let to_encode%1#0: uint64 = (* maybe_value%1#0 maybe_value%2#0)
         let val_as_bytes%1#0: bytes[8] = (itob to_encode%1#0)
         let encoded_tuple_buffer%2#0: bytes = (concat val_as_bytes%0#0 val_as_bytes%1#0)
-        return tmp%0#0 maybe_value%1#0 tmp%1#0 encoded_tuple_buffer%2#0
+        return encoded_tuple_buffer%2#0
