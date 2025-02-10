@@ -1915,7 +1915,18 @@ def test_immutable_array(immutable_array_app: ApplicationClient) -> None:
         response = simulate_call(
             immutable_array_app, f"test_concat_with_{tuple_type}_tuple", arg=(3, 4)
         )
-        assert response.abi_results[0].return_value == [1, 2, 3, 4]
+        abi_result = response.abi_results[0]
+        assert not abi_result.decode_error
+        assert abi_result.return_value == [1, 2, 3, 4]
+    for tuple_type in ("native", "arc4"):
+        response = simulate_call(
+            immutable_array_app, f"test_dynamic_concat_with_{tuple_type}_tuple", arg=("c", "d")
+        )
+        abi_result = response.abi_results[0]
+        assert (
+            not abi_result.decode_error
+        ), f"{abi_result.method.get_signature()}: {abi_result.decode_error}"
+        assert abi_result.return_value == ["a", "b", "c", "d"]
 
 
 _EXPECTED_LENGTH_20 = [False, False, True, *(False,) * 17]

@@ -366,6 +366,22 @@ class ImmutableArrayContract(arc4.ARC4Contract):
         result = prefix + arg
         return result
 
+    @arc4.abimethod()
+    def test_dynamic_concat_with_arc4_tuple(
+        self, arg: arc4.Tuple[arc4.String, arc4.String]
+    ) -> ImmutableArray[arc4.String]:
+        prefix = ImmutableArray(arc4.String("a"), arc4.String("b"))
+        result = prefix + arg
+        return result
+
+    @arc4.abimethod()
+    def test_dynamic_concat_with_native_tuple(
+        self, arg: tuple[arc4.String, arc4.String]
+    ) -> ImmutableArray[arc4.String]:
+        prefix = ImmutableArray(arc4.String("a"), arc4.String("b"))
+        result = prefix + arg
+        return result
+
 
 @subroutine
 def times(n: UInt64) -> String:
