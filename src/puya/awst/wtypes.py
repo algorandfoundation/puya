@@ -191,6 +191,7 @@ class WArray(WType):
 
     @scalar_type.default
     def _scalar_type(self) -> typing.Literal[AVMType.bytes, None]:
+        # this is for serialization purposes, currently only immutable can be serialized
         return AVMType.bytes if self.immutable else None
 
     @element_type.validator
@@ -431,12 +432,13 @@ class ARC4DynamicArray(ARC4Array):
     def _arc4_name(self) -> str:
         return f"{self.element_type.arc4_name}[]"
 
-    def can_encode_type(self, wtype: WType) -> bool:
-        return super().can_encode_type(wtype) or (
-            isinstance(wtype, WArray)
-            and wtype.immutable
-            and self.element_type.can_encode_type(wtype.element_type)
-        )
+    # def can_encode_type(self, wtype: WType) -> bool:
+    #     return super().can_encode_type(wtype) or (
+    #         False
+    #         # isinstance(wtype, WArray)
+    #         # and wtype.immutable
+    #         # and self.element_type.can_encode_type(wtype.element_type)
+    #     )
 
 
 @typing.final

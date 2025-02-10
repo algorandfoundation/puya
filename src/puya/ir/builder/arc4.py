@@ -94,9 +94,9 @@ def decode_arc4_value(
             return _visit_arc4_tuple_decode(
                 context, arc4_tuple, value, target_wtype=native_tuple, source_location=loc
             )
-        case wtypes.ARC4DynamicArray(element_type=arc4_element), wtypes.WArray(
-            element_type=native_element, immutable=True
-        ) if arc4_element.can_encode_type(native_element):
+        case wtypes.ARC4DynamicArray(), wtypes.WArray() if (
+            effective_array_encoding(target_wtype, loc) == arc4_wtype
+        ):
             return value
     raise InternalError(
         f"unsupported ARC4Decode operation from {arc4_wtype} to {target_wtype}", loc

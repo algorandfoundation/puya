@@ -533,7 +533,7 @@ class ARC4Decode(Expression):
         assert isinstance(value.wtype, wtypes.ARC4Type)  # validated by `value`
         if not value.wtype.can_encode_type(self.wtype):
             raise InternalError(
-                f"ARC4Decode from {value.wtype} should have non ARC4 target type {self.wtype}",
+                f"ARC4Decode: {value.wtype} cannot be decoded to {self.wtype}",
                 self.source_location,
             )
 
