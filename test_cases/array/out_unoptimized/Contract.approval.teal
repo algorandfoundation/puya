@@ -662,12 +662,12 @@ add_x_after_for@4:
     retsub
 
 
-// test_cases.array.uint64.pop_x(arr: uint64, x: uint64) -> void:
+// test_cases.array.uint64.pop_x(arr: uint64, x: uint64, expected: uint64) -> void:
 pop_x:
     // array/uint64.py:239-240
     // @subroutine
-    // def pop_x(arr: Array[UInt64], x: UInt64) -> None:
-    proto 2 0
+    // def pop_x(arr: Array[UInt64], x: UInt64, expected: UInt64) -> None:
+    proto 3 0
     // array/uint64.py:241
     // for _i in urange(x):
     intc_2 // 1
@@ -678,26 +678,47 @@ pop_x_for_header@1:
     // array/uint64.py:241
     // for _i in urange(x):
     frame_dig 0
-    frame_dig -1
+    frame_dig -2
     <
     bz pop_x_after_for@4
 
 pop_x_for_body@2:
     // array/uint64.py:242
-    // arr.pop()
-    frame_dig -2
+    // popped = arr.pop()
+    frame_dig -3
     loads
     dup
     len
     intc_0 // 8
     -
-    swap
+    dig 1
     intc_1 // 0
-    uncover 2
+    dig 2
     extract3
-    frame_dig -2
+    cover 2
+    intc_0 // 8
+    *
+    intc_0 // 8
+    extract3
+    intc_1 // 0
+    intc_0 // 8
+    extract3
+    btoi
+    swap
+    frame_dig -3
     swap
     stores
+    // array/uint64.py:243
+    // assert popped == expected
+    frame_dig -1
+    ==
+    assert
+    // array/uint64.py:244
+    // expected -= 1
+    frame_dig -1
+    intc_2 // 1
+    -
+    frame_bury -1
 
 pop_x_for_footer@3:
     // array/uint64.py:241
@@ -714,11 +735,11 @@ pop_x_after_for@4:
 
 // test_cases.array.uint64.append_length_and_return(arr: uint64) -> uint64:
 append_length_and_return:
-    // array/uint64.py:245-246
+    // array/uint64.py:247-248
     // @subroutine
     // def append_length_and_return(arr: Array[UInt64]) -> Array[UInt64]:
     proto 1 1
-    // array/uint64.py:247
+    // array/uint64.py:249
     // arr.append(arr.length)
     frame_dig -1
     loads
@@ -739,7 +760,7 @@ append_length_and_return:
     frame_dig -1
     swap
     stores
-    // array/uint64.py:248
+    // array/uint64.py:250
     // return arr
     frame_dig -1
     retsub
@@ -852,6 +873,45 @@ test_array:
     ==
     assert
     // array/uint64.py:18
+    // pop_x(arr, x=UInt64(3), expected=UInt64(4))
+    dup
+    pushint 3 // 3
+    pushint 4 // 4
+    callsub pop_x
+    // array/uint64.py:19
+    // assert arr.length == 3
+    dup
+    loads
+    len
+    intc_0 // 8
+    /
+    pushint 3 // 3
+    ==
+    assert
+    // array/uint64.py:20
+    // assert arr[-1] == 1
+    dup
+    loads
+    len
+    intc_0 // 8
+    /
+    intc_2 // 1
+    -
+    dig 1
+    loads
+    swap
+    intc_0 // 8
+    *
+    intc_0 // 8
+    extract3
+    intc_1 // 0
+    intc_0 // 8
+    extract3
+    btoi
+    intc_2 // 1
+    ==
+    assert
+    // array/uint64.py:22
     // arr.append(UInt64(43))
     pushint 43 // 43
     itob
@@ -868,17 +928,17 @@ test_array:
     dig 1
     swap
     stores
-    // array/uint64.py:19
-    // assert arr.length == 7
+    // array/uint64.py:23
+    // assert arr.length == 4
     dup
     loads
     len
     intc_0 // 8
     /
-    pushint 7 // 7
+    pushint 4 // 4
     ==
     assert
-    // array/uint64.py:20
+    // array/uint64.py:24
     // assert arr[-1] == 43
     dup
     loads
@@ -901,7 +961,7 @@ test_array:
     pushint 43 // 43
     ==
     assert
-    // array/uint64.py:21
+    // array/uint64.py:25
     // assert arr[0] == 42
     dup
     loads
@@ -915,44 +975,6 @@ test_array:
     extract3
     btoi
     pushint 42 // 42
-    ==
-    assert
-    // array/uint64.py:23
-    // pop_x(arr, UInt64(3))
-    dup
-    pushint 3 // 3
-    callsub pop_x
-    // array/uint64.py:24
-    // assert arr.length == 4
-    dup
-    loads
-    len
-    intc_0 // 8
-    /
-    pushint 4 // 4
-    ==
-    assert
-    // array/uint64.py:25
-    // assert arr[-1] == 2
-    dup
-    loads
-    len
-    intc_0 // 8
-    /
-    intc_2 // 1
-    -
-    dig 1
-    loads
-    swap
-    intc_0 // 8
-    *
-    intc_0 // 8
-    extract3
-    intc_1 // 0
-    intc_0 // 8
-    extract3
-    btoi
-    pushint 2 // 2
     ==
     assert
     // array/uint64.py:27

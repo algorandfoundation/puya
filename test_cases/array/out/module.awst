@@ -24,13 +24,13 @@ contract Contract
     test_cases.array.uint64.add_x(arr, 5u)
     assert(arr.length == 6u)
     assert(arr[arr.length - 1u] == 4u)
+    test_cases.array.uint64.pop_x(arr, x=3u, expected=4u)
+    assert(arr.length == 3u)
+    assert(arr[arr.length - 1u] == 1u)
     arr.extend((43u))
-    assert(arr.length == 7u)
+    assert(arr.length == 4u)
     assert(arr[arr.length - 1u] == 43u)
     assert(arr[0u] == 42u)
-    test_cases.array.uint64.pop_x(arr, 3u)
-    assert(arr.length == 4u)
-    assert(arr[arr.length - 1u] == 2u)
     test_cases.array.uint64.add_x(arr, 10u)
     assert(arr.length == 14u)
     assert(arr[arr.length - 1u] == 9u)
@@ -240,10 +240,12 @@ subroutine add_x(arr: array<uint64>, x: uint64): void
   }
 }
 
-subroutine pop_x(arr: array<uint64>, x: uint64): void
+subroutine pop_x(arr: array<uint64>, x: uint64, expected: uint64): void
 {
   for _i in range(0u, x, 1u) {
-    arr.pop()
+    popped: uint64 = arr.pop()
+    assert(popped == expected)
+    expected -= 1u
   }
 }
 

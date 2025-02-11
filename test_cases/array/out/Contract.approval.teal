@@ -423,11 +423,11 @@ add_x_after_for@4:
 
 // test_cases.array.uint64.append_length_and_return(arr: uint64) -> uint64:
 append_length_and_return:
-    // array/uint64.py:245-246
+    // array/uint64.py:247-248
     // @subroutine
     // def append_length_and_return(arr: Array[UInt64]) -> Array[UInt64]:
     proto 1 1
-    // array/uint64.py:247
+    // array/uint64.py:249
     // arr.append(arr.length)
     frame_dig -1
     loads
@@ -440,7 +440,7 @@ append_length_and_return:
     frame_dig -1
     swap
     stores
-    // array/uint64.py:248
+    // array/uint64.py:250
     // return arr
     frame_dig -1
     retsub
@@ -470,7 +470,6 @@ test_array:
     callsub add_x
     // array/uint64.py:15
     // assert arr.length == 6
-    dup
     loads
     dup
     len
@@ -486,8 +485,6 @@ test_array:
     -
     intc_0 // 8
     *
-    dig 1
-    swap
     intc_0 // 8
     extract3
     intc_1 // 0
@@ -496,24 +493,114 @@ test_array:
     ==
     assert
     // array/uint64.py:18
-    // arr.append(UInt64(43))
-    pushint 43 // 43
-    itob
-    concat // on error: max array length exceeded
-    swap
+    // pop_x(arr, x=UInt64(3), expected=UInt64(4))
+    pushint 4 // 4
+    // array/uint64.py:241
+    // for _i in urange(x):
+    intc_1 // 0
+
+test_array_for_header@2:
+    // array/uint64.py:241
+    // for _i in urange(x):
+    frame_dig 2
+    // array/uint64.py:18
+    // pop_x(arr, x=UInt64(3), expected=UInt64(4))
+    pushint 3 // 3
+    // array/uint64.py:241
+    // for _i in urange(x):
+    <
+    bz test_array_after_for@4
+    // array/uint64.py:242
+    // popped = arr.pop()
+    frame_dig 0
+    dup
+    loads
+    dup
+    len
+    intc_0 // 8
+    -
     dig 1
+    intc_1 // 0
+    dig 2
+    extract3
+    swap
+    intc_0 // 8
+    *
+    uncover 2
+    swap
+    intc_0 // 8
+    extract3
+    intc_1 // 0
+    extract_uint64
+    cover 2
     stores
+    // array/uint64.py:243
+    // assert popped == expected
+    frame_dig 1
+    dup
+    cover 2
+    ==
+    assert
+    // array/uint64.py:244
+    // expected -= 1
+    intc_2 // 1
+    -
+    frame_bury 1
+    // array/uint64.py:241
+    // for _i in urange(x):
+    frame_dig 2
+    intc_2 // 1
+    +
+    frame_bury 2
+    b test_array_for_header@2
+
+test_array_after_for@4:
     // array/uint64.py:19
-    // assert arr.length == 7
+    // assert arr.length == 3
+    frame_dig 0
+    dup
+    loads
     dup
     len
     intc_0 // 8
     /
     dup
-    pushint 7 // 7
+    pushint 3 // 3
     ==
     assert
     // array/uint64.py:20
+    // assert arr[-1] == 1
+    intc_2 // 1
+    -
+    intc_0 // 8
+    *
+    dig 1
+    swap
+    intc_0 // 8
+    extract3
+    intc_1 // 0
+    extract_uint64
+    intc_2 // 1
+    ==
+    assert
+    // array/uint64.py:22
+    // arr.append(UInt64(43))
+    pushint 43 // 43
+    itob
+    concat // on error: max array length exceeded
+    dup2
+    stores
+    // array/uint64.py:23
+    // assert arr.length == 4
+    dup
+    len
+    intc_0 // 8
+    /
+    dup
+    pushint 4 // 4
+    ==
+    assert
+    // array/uint64.py:24
     // assert arr[-1] == 43
     intc_2 // 1
     -
@@ -528,75 +615,12 @@ test_array:
     pushint 43 // 43
     ==
     assert
-    // array/uint64.py:21
+    // array/uint64.py:25
     // assert arr[0] == 42
     extract 0 8
     intc_1 // 0
     extract_uint64
     pushint 42 // 42
-    ==
-    assert
-    // array/uint64.py:241
-    // for _i in urange(x):
-    intc_1 // 0
-
-test_array_for_header@2:
-    // array/uint64.py:241
-    // for _i in urange(x):
-    frame_dig 1
-    // array/uint64.py:23
-    // pop_x(arr, UInt64(3))
-    pushint 3 // 3
-    // array/uint64.py:241
-    // for _i in urange(x):
-    <
-    bz test_array_after_for@4
-    // array/uint64.py:242
-    // arr.pop()
-    frame_dig 0
-    dup
-    loads
-    dup
-    len
-    intc_0 // 8
-    -
-    intc_1 // 0
-    swap
-    extract3
-    stores
-    // array/uint64.py:241
-    // for _i in urange(x):
-    frame_dig 1
-    intc_2 // 1
-    +
-    frame_bury 1
-    b test_array_for_header@2
-
-test_array_after_for@4:
-    // array/uint64.py:24
-    // assert arr.length == 4
-    frame_dig 0
-    dup
-    loads
-    dup
-    len
-    intc_0 // 8
-    /
-    dup
-    pushint 4 // 4
-    ==
-    assert
-    // array/uint64.py:25
-    // assert arr[-1] == 2
-    intc_2 // 1
-    -
-    intc_0 // 8
-    *
-    intc_0 // 8
-    extract3
-    intc_1 // 0
-    extract_uint64
-    pushint 2 // 2
     ==
     assert
     // array/uint64.py:27

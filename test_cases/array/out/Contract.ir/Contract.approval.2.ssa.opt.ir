@@ -217,7 +217,7 @@ subroutine test_cases.array.uint64.add_x(arr: uint64[]*, x: uint64) -> void:
         return 
 
 subroutine test_cases.array.uint64.append_length_and_return(arr: uint64[]*) -> uint64[]*:
-    block@0: // L245
+    block@0: // L247
         let slot_contents%0#0: uint64[] = read(arr#0)
         let tmp%0#0: uint64 = slot_contents%0#0.length
         let encoded%0#0: uint64[] = encode<uint64>(tmp%0#0)
@@ -253,41 +253,46 @@ subroutine test_cases.array.uint64.Contract.test_array() -> void:
         let tmp%12#0: uint64 = slot_contents%5#0[tmp%11#0]
         let tmp%13#0: bool = (== tmp%12#0 4u)
         (assert tmp%13#0)
-        let encoded%2#0: uint64[] = encode<uint64>(43u)
-        let extended%1#0: uint64[] = slot_contents%5#0.concat(encoded%2#0)
-        write(arr#0, extended%1#0)
-        let tmp%14#0: uint64 = extended%1#0.length
-        let tmp%15#0: bool = (== tmp%14#0 7u)
-        (assert tmp%15#0)
-        let tmp%16#0: uint64 = extended%1#0.length
-        let tmp%17#0: uint64 = (- tmp%16#0 1u)
-        let tmp%18#0: uint64 = extended%1#0[tmp%17#0]
-        let tmp%19#0: bool = (== tmp%18#0 43u)
-        (assert tmp%19#0)
-        let tmp%20#0: uint64 = extended%1#0[0u]
-        let tmp%21#0: bool = (== tmp%20#0 42u)
-        (assert tmp%21#0)
+        let expected#0: uint64 = 4u
         let _i#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L241
         let _i#1: uint64 = φ(_i#0 <- block@0, _i#2 <- block@3)
+        let expected#1: uint64 = φ(expected#0 <- block@0, expected#2 <- block@3)
         let continue_looping%0#0: bool = (< _i#1 3u)
         goto continue_looping%0#0 ? block@3 : block@4
     block@3: // for_body_L242
         let slot_contents%0#1: uint64[] = read(arr#0)
-        let (new_contents%0#0: uint64[], popped_item.0%0#0: uint64) = slot_contents%0#1.pop()
+        let (new_contents%0#0: uint64[], popped#0: uint64) = slot_contents%0#1.pop()
         write(arr#0, new_contents%0#0)
+        let tmp%0#1: bool = (== popped#0 expected#1)
+        (assert tmp%0#1)
+        let expected#2: uint64 = (- expected#1 1u)
         let _i#2: uint64 = (+ _i#1 1u)
         goto block@2
     block@4: // after_for_L241
-        let slot_contents%13#0: uint64[] = read(arr#0)
-        let tmp%22#0: uint64 = slot_contents%13#0.length
-        let tmp%23#0: bool = (== tmp%22#0 4u)
-        (assert tmp%23#0)
-        let tmp%24#0: uint64 = slot_contents%13#0.length
-        let tmp%25#0: uint64 = (- tmp%24#0 1u)
-        let tmp%26#0: uint64 = slot_contents%13#0[tmp%25#0]
-        let tmp%27#0: bool = (== tmp%26#0 2u)
+        let slot_contents%8#0: uint64[] = read(arr#0)
+        let tmp%14#0: uint64 = slot_contents%8#0.length
+        let tmp%15#0: bool = (== tmp%14#0 3u)
+        (assert tmp%15#0)
+        let tmp%16#0: uint64 = slot_contents%8#0.length
+        let tmp%17#0: uint64 = (- tmp%16#0 1u)
+        let tmp%18#0: uint64 = slot_contents%8#0[tmp%17#0]
+        let tmp%19#0: bool = (== tmp%18#0 1u)
+        (assert tmp%19#0)
+        let encoded%2#0: uint64[] = encode<uint64>(43u)
+        let extended%1#0: uint64[] = slot_contents%8#0.concat(encoded%2#0)
+        write(arr#0, extended%1#0)
+        let tmp%20#0: uint64 = extended%1#0.length
+        let tmp%21#0: bool = (== tmp%20#0 4u)
+        (assert tmp%21#0)
+        let tmp%22#0: uint64 = extended%1#0.length
+        let tmp%23#0: uint64 = (- tmp%22#0 1u)
+        let tmp%24#0: uint64 = extended%1#0[tmp%23#0]
+        let tmp%25#0: bool = (== tmp%24#0 43u)
+        (assert tmp%25#0)
+        let tmp%26#0: uint64 = extended%1#0[0u]
+        let tmp%27#0: bool = (== tmp%26#0 42u)
         (assert tmp%27#0)
         test_cases.array.uint64.add_x(arr#0, 10u)
         let slot_contents%16#0: uint64[] = read(arr#0)
