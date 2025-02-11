@@ -196,7 +196,7 @@ def _get_element_type(value: ir.Value) -> IRType:
 
 def _get_element_size(element_type: IRType, loc: SourceLocation | None) -> int:
     if element_type.size is None:
-        raise CodeError("only immutable fixed sized elements supported", loc)
+        raise CodeError("only immutable, static sized elements supported", loc)
     return element_type.size
 
 
