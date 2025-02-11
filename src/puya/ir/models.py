@@ -579,14 +579,6 @@ class ArrayLength(Op, ValueProvider):
         return visitor.visit_array_length(self)
 
 
-@enum.unique
-class SlotScope(enum.StrEnum):
-    local = enum.auto()
-    """Slot is only accessed within local function"""
-    program = enum.auto()
-    """Slot is used across program"""
-
-
 @attrs.define(eq=False)
 class NewSlot(Op, ValueProvider):
     ir_type: SlotType = attrs.field(converter=narrow_to_slot_type)
