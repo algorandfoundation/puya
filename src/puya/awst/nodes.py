@@ -832,10 +832,8 @@ class IndexExpression(Expression):
     base: Expression = attrs.field(
         validator=expression_has_wtype(
             wtypes.bytes_wtype,
-            wtypes.ARC4StaticArray,
-            wtypes.ARC4DynamicArray,
-            wtypes.StackArray,
-            wtypes.ReferenceArray,
+            wtypes.ARC4Array,
+            wtypes.NativeArray,
             # NOTE: tuples (native or arc4) use TupleItemExpression instead
         )
     )
@@ -988,7 +986,7 @@ class NewArray(Expression):
 @attrs.frozen
 class ArrayLength(Expression):
     array: Expression = attrs.field(
-        validator=expression_has_wtype(wtypes.StackArray, wtypes.ReferenceArray, wtypes.ARC4Array)
+        validator=expression_has_wtype(wtypes.NativeArray, wtypes.ARC4Array)
     )
     wtype: wtypes.WType = attrs.field(default=wtypes.uint64_wtype, init=False)
 
