@@ -1158,7 +1158,8 @@ def _get_arc4_array_tail_data_and_item_count(
 
     factory = OpFactory(context, source_location)
 
-    if isinstance(expr.wtype, wtypes.WTuple):
+    wtype = expr.wtype
+    if isinstance(wtype, wtypes.WTuple):
         native_values = context.visitor.visit_and_materialise(expr)
         if native_element_type is None:
             encoded_values = native_values
@@ -1173,26 +1174,24 @@ def _get_arc4_array_tail_data_and_item_count(
         data = factory.constant(b"")
         for val in encoded_values:
             data = factory.concat(data, val, "data")
-        item_count: Value = UInt64Constant(
-            value=len(expr.wtype.types), source_location=source_location
-        )
+        item_count: Value = UInt64Constant(value=len(wtype.types), source_location=source_location)
         return data, item_count
 
     stack_value = context.visitor.visit_and_materialise_single(expr)
-    if isinstance(expr.wtype, wtypes.ARC4Tuple):
+    if isinstance(wtype, wtypes.ARC4Tuple):
         head_and_tail = stack_value
-        item_count = UInt64Constant(value=len(expr.wtype.types), source_location=source_location)
-    elif isinstance(expr.wtype, wtypes.ARC4Array | wtypes.StackArray):
-        item_count_vp = _get_any_array_length(context, expr.wtype, stack_value, source_location)
+        item_count = UInt64Constant(value=len(wtype.types), source_location=source_location)
+    elif isinstance(wtype, wtypes.ARC4Array | wtypes.StackArray):
+        item_count_vp = _get_any_array_length(context, wtype, stack_value, source_location)
         item_count = factory.assign(item_count_vp, "array_length")
         head_and_tail_vp = _get_arc4_array_head_and_tail(
-            context, expr.wtype, stack_value, source_location
+            context, wtype, stack_value, source_location
         )
         head_and_tail = factory.assign(head_and_tail_vp, "array_head_and_tail")
-    elif isinstance(expr.wtype, wtypes.ReferenceArray):
+    elif isinstance(wtype, wtypes.ReferenceArray):
         raise InternalError("reference array of dynamic sized elements", source_location)
     else:
-        raise InternalError(f"Unsupported array type: {expr.wtype}")
+        raise InternalError(f"Unsupported array type: {wtype}")
 
     tail_data = _get_arc4_array_tail(
         context,
