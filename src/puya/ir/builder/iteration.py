@@ -5,7 +5,6 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.nodes import Expression
 from puya.errors import CodeError, InternalError
 from puya.ir.arc4_types import effective_array_encoding
 from puya.ir.avm_ops import AVMOp
@@ -123,24 +122,17 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
         has_enumerate=has_enumerate,
     )
 
-    match sequence:
-        case awst_nodes.Range(
-            start=range_start, stop=range_stop, step=range_step, source_location=range_loc
-        ):
+    match sequence.wtype:
+        case wtypes.uint64_range_wtype if isinstance(sequence, awst_nodes.Range):
             _iterate_urange(
                 context,
                 loop_body=statement.loop_body,
                 assigner=assign_user_loop_vars,
                 statement_loc=statement.source_location,
-                range_start=range_start,
-                range_stop=range_stop,
-                range_step=range_step,
-                range_loc=range_loc,
+                urange=sequence,
                 reverse_items=reverse_items,
                 reverse_index=reverse_index,
             )
-            return
-    match sequence.wtype:
         case wtypes.WTuple(types=item_types):
             if not item_types:
                 logger.debug("Skipping ForInStatement which iterates an empty sequence.")
@@ -266,16 +258,13 @@ def _iterate_urange(
     loop_body: awst_nodes.Block,
     assigner: LoopAssigner,
     statement_loc: SourceLocation,
-    range_start: Expression,
-    range_stop: Expression,
-    range_step: Expression,
-    range_loc: SourceLocation,
+    urange: awst_nodes.Range,
     reverse_items: bool,
     reverse_index: bool,
 ) -> None:
-    step = context.visitor.visit_and_materialise_single(range_step)
-    stop = context.visitor.visit_and_materialise_single(range_stop)
-    start = context.visitor.visit_and_materialise_single(range_start)
+    step = context.visitor.visit_and_materialise_single(urange.step)
+    stop = context.visitor.visit_and_materialise_single(urange.stop)
+    start = context.visitor.visit_and_materialise_single(urange.start)
     assert_value(context, step, source_location=statement_loc, comment="Step cannot be zero")
 
     if reverse_items or reverse_index:
@@ -287,7 +276,7 @@ def _iterate_urange(
             start=start,
             stop=stop,
             step=step,
-            range_loc=range_loc,
+            range_loc=urange.source_location,
             reverse_items=reverse_items,
             reverse_index=reverse_index,
         )
@@ -300,7 +289,7 @@ def _iterate_urange(
             start=start,
             stop=stop,
             step=step,
-            range_loc=range_loc,
+            range_loc=urange.source_location,
         )
 
 
