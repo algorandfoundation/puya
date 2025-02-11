@@ -304,7 +304,11 @@ contract StaticSizeContract
   {
     arr: ref_array<test_cases.array.static_size.More> = new ref_array<test_cases.array.static_size.More>()
     arr.extend(some_more)
-    return new stack_array<test_cases.array.static_size.More>() + arr
+    last: test_cases.array.static_size.More = arr[arr.length - 1u]
+    assert(last == some_more[1])
+    result: stack_array<test_cases.array.static_size.More> = new stack_array<test_cases.array.static_size.More>() + arr
+    assert(result[result.length - 1u] == last)
+    return result
   }
   
   abimethod test_cases.array.static_size.StaticSizeContract.test_extend_from_arc4_tuple(some_more: arc4.tuple<test_cases.array.static_size.More,test_cases.array.static_size.More>): stack_array<test_cases.array.static_size.More>
@@ -702,6 +706,11 @@ contract ImmutableArrayContract
     prefix: stack_array<arc4.dynamic_array<arc4.uint8>> = new stack_array<arc4.dynamic_array<arc4.uint8>>('a', 'b')
     result: stack_array<arc4.dynamic_array<arc4.uint8>> = prefix + arg
     return result
+  }
+  
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_concat_immutable_dynamic(imm1: stack_array<test_cases.array.immutable.MyDynamicSizedTuple>, imm2: stack_array<test_cases.array.immutable.MyDynamicSizedTuple>): stack_array<test_cases.array.immutable.MyDynamicSizedTuple>
+  {
+    return imm1 + imm2
   }
   
   baremethod test_cases.array.immutable.ImmutableArrayContract.__algopy_default_create(): void

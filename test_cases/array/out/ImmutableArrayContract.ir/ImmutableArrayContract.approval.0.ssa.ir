@@ -222,36 +222,36 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         return array_head_and_tail#1
 
 subroutine test_cases.array.immutable.times(n: uint64) -> bytes:
-    block@0: // L386
+    block@0: // L392
         let result#0: bytes = ""
         (assert 1u) // Step cannot be zero
         let _i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L389
+    block@1: // for_header_L395
         let _i#1: uint64 = φ(_i#0 <- block@0, _i#2 <- block@3)
         let result#1: bytes = φ(result#0 <- block@0, result#2 <- block@3)
         let continue_looping%0#0: bool = (< _i#1 n#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L390
+    block@2: // for_body_L396
         let result#2: bytes = (concat result#1 " ")
         goto block@3
-    block@3: // for_footer_L389
+    block@3: // for_footer_L395
         let _i#2: uint64 = (+ _i#1 1u)
         goto block@1
-    block@4: // after_for_L389
+    block@4: // after_for_L395
         return result#1
 
 subroutine test_cases.array.immutable.add_x(arr: uint64[], x: uint64) -> uint64[]:
-    block@0: // L394
+    block@0: // L400
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L396
+    block@1: // for_header_L402
         let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
         let arr#1: uint64[] = φ(arr#0 <- block@0, arr#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 x#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L397
+    block@2: // for_body_L403
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) arr#1)
         let encoded%0#0: uint64[] = encode<uint64>(i#1)
         let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 encoded%0#0)
@@ -262,65 +262,65 @@ subroutine test_cases.array.immutable.add_x(arr: uint64[], x: uint64) -> uint64[
         let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
         let arr#2: uint64[] = concat_result%0#0
         goto block@3
-    block@3: // for_footer_L396
+    block@3: // for_footer_L402
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@4: // after_for_L396
+    block@4: // after_for_L402
         return arr#1
 
 subroutine test_cases.array.immutable.pop_x(arr: uint64[], x: uint64) -> uint64[]:
-    block@0: // L401
+    block@0: // L407
         (assert 1u) // Step cannot be zero
         let _i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L403
+    block@1: // for_header_L409
         let _i#1: uint64 = φ(_i#0 <- block@0, _i#2 <- block@3)
         let arr#1: uint64[] = φ(arr#0 <- block@0, arr#2 <- block@3)
         let continue_looping%0#0: bool = (< _i#1 x#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L404
+    block@2: // for_body_L410
         let (popped%0#0: bytes, data%0#0: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(arr#1, 8u)
         let arr#2: uint64[] = data%0#0
         goto block@3
-    block@3: // for_footer_L403
+    block@3: // for_footer_L409
         let _i#2: uint64 = (+ _i#1 1u)
         goto block@1
-    block@4: // after_for_L403
+    block@4: // after_for_L409
         return arr#1
 
 subroutine test_cases.array.immutable.sum_arr(arr: uint64[]) -> uint64:
-    block@0: // L408
+    block@0: // L414
         let total#0: uint64 = 0u
         let array_length%0#0: uint64 = (extract_uint16 arr#0 0u)
         let item_index_internal%0#0: uint64 = 0u
         let reverse_index_internal%0#0: uint64 = array_length%0#0
         goto block@1
-    block@1: // for_header_L411
+    block@1: // for_header_L417
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@3)
         let total#1: uint64 = φ(total#0 <- block@0, total#2 <- block@3)
         let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L412
+    block@2: // for_body_L418
         let array_head_and_tail%0#0: bytes = ((extract 2 0) arr#0)
         let item_offset%0#0: uint64 = (* item_index_internal%0#1 8u)
         let value_at_index%0#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 8u) // on error: Index access is out of bounds
         let i#0: uint64 = (btoi value_at_index%0#0)
         let total#2: uint64 = (+ total#1 i#0)
         goto block@3
-    block@3: // for_footer_L411
+    block@3: // for_footer_L417
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
-    block@4: // after_for_L411
+    block@4: // after_for_L417
         return total#1
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__() -> bool:
     block@0: // L73
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@22
+        goto tmp%1#0 ? block@1 : block@23
     block@1: // abi_routing_L73
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_uint64_array()void" => block@2, method "test_bool_array(uint64)void" => block@3, method "test_fixed_size_tuple_array()void" => block@4, method "test_fixed_size_named_tuple_array()void" => block@5, method "test_dynamic_sized_tuple_array()void" => block@6, method "test_dynamic_sized_named_tuple_array()void" => block@7, method "test_nested_array(uint64,uint64[][])uint64[]" => block@8, method "test_bit_packed_tuples()void" => block@9, method "sum_uints_and_lengths_and_trues(uint64[],bool[],(uint64,bool,bool)[],(uint64,string)[])(uint64,uint64,uint64,uint64)" => block@10, method "test_uint64_return(uint64)uint64[]" => block@11, method "test_bool_return(uint64)bool[]" => block@12, method "test_tuple_return(uint64)(uint64,bool,bool)[]" => block@13, method "test_dynamic_tuple_return(uint64)(uint64,string)[]" => block@14, method "test_convert_to_array_and_back((uint64,bool,bool)[],uint64)(uint64,bool,bool)[]" => block@15, method "test_concat_with_arc4_tuple((uint64,uint64))uint64[]" => block@16, method "test_concat_with_native_tuple((uint64,uint64))uint64[]" => block@17, method "test_dynamic_concat_with_arc4_tuple((string,string))string[]" => block@18, method "test_dynamic_concat_with_native_tuple((string,string))string[]" => block@19, * => block@20}
+        switch tmp%2#0 {method "test_uint64_array()void" => block@2, method "test_bool_array(uint64)void" => block@3, method "test_fixed_size_tuple_array()void" => block@4, method "test_fixed_size_named_tuple_array()void" => block@5, method "test_dynamic_sized_tuple_array()void" => block@6, method "test_dynamic_sized_named_tuple_array()void" => block@7, method "test_nested_array(uint64,uint64[][])uint64[]" => block@8, method "test_bit_packed_tuples()void" => block@9, method "sum_uints_and_lengths_and_trues(uint64[],bool[],(uint64,bool,bool)[],(uint64,string)[])(uint64,uint64,uint64,uint64)" => block@10, method "test_uint64_return(uint64)uint64[]" => block@11, method "test_bool_return(uint64)bool[]" => block@12, method "test_tuple_return(uint64)(uint64,bool,bool)[]" => block@13, method "test_dynamic_tuple_return(uint64)(uint64,string)[]" => block@14, method "test_convert_to_array_and_back((uint64,bool,bool)[],uint64)(uint64,bool,bool)[]" => block@15, method "test_concat_with_arc4_tuple((uint64,uint64))uint64[]" => block@16, method "test_concat_with_native_tuple((uint64,uint64))uint64[]" => block@17, method "test_dynamic_concat_with_arc4_tuple((string,string))string[]" => block@18, method "test_dynamic_concat_with_native_tuple((string,string))string[]" => block@19, method "test_concat_immutable_dynamic((uint64,string)[],(uint64,string)[])(uint64,string)[]" => block@20, * => block@21}
     block@2: // test_uint64_array_route_L74
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
@@ -547,24 +547,37 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%104#0: bytes = (concat 0x151f7c75 tmp%103#0)
         (log tmp%104#0)
         return 1u
-    block@20: // switch_case_default_L73
-        goto block@21
-    block@21: // switch_case_next_L73
-        goto block@26
-    block@22: // bare_routing_L73
+    block@20: // test_concat_immutable_dynamic_route_L385
         let tmp%105#0: uint64 = (txn OnCompletion)
-        switch tmp%105#0 {0u => block@23, * => block@24}
-    block@23: // __algopy_default_create_L1
-        let tmp%106#0: uint64 = (txn ApplicationID)
-        let tmp%107#0: bool = (== tmp%106#0 0u)
-        (assert tmp%107#0) // can only call when creating
+        let tmp%106#0: bool = (== tmp%105#0 NoOp)
+        (assert tmp%106#0) // OnCompletion is not NoOp
+        let tmp%107#0: uint64 = (txn ApplicationID)
+        let tmp%108#0: bool = (!= tmp%107#0 0u)
+        (assert tmp%108#0) // can only call when not creating
+        let reinterpret_(uint64,bytes)[]%1#0: (uint64,bytes)[] = (txna ApplicationArgs 1)
+        let reinterpret_(uint64,bytes)[]%2#0: (uint64,bytes)[] = (txna ApplicationArgs 2)
+        let tmp%109#0: (uint64,bytes)[] = test_cases.array.immutable.ImmutableArrayContract.test_concat_immutable_dynamic(reinterpret_(uint64,bytes)[]%1#0, reinterpret_(uint64,bytes)[]%2#0)
+        let tmp%110#0: bytes = (concat 0x151f7c75 tmp%109#0)
+        (log tmp%110#0)
+        return 1u
+    block@21: // switch_case_default_L73
+        goto block@22
+    block@22: // switch_case_next_L73
+        goto block@27
+    block@23: // bare_routing_L73
+        let tmp%111#0: uint64 = (txn OnCompletion)
+        switch tmp%111#0 {0u => block@24, * => block@25}
+    block@24: // __algopy_default_create_L1
+        let tmp%112#0: uint64 = (txn ApplicationID)
+        let tmp%113#0: bool = (== tmp%112#0 0u)
+        (assert tmp%113#0) // can only call when creating
         test_cases.array.immutable.ImmutableArrayContract.__algopy_default_create()
         return 1u
-    block@24: // switch_case_default_L73
-        goto block@25
-    block@25: // switch_case_next_L73
+    block@25: // switch_case_default_L73
         goto block@26
-    block@26: // after_if_else_L73
+    block@26: // switch_case_next_L73
+        goto block@27
+    block@27: // after_if_else_L73
         return 0u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array() -> void:
@@ -1926,6 +1939,15 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat
         let concat_result%1#0: bytes = _puya_lib.arc4.dynamic_array_concat_byte_length_head(prefix#0, data%3#0, 2u)
         let result#0: bytes[] = concat_result%1#0
         return result#0
+
+subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_immutable_dynamic(imm1: (uint64,bytes)[], imm2: (uint64,bytes)[]) -> (uint64,bytes)[]:
+    block@0: // L385
+        let l_count%0#0: uint64 = (extract_uint16 imm1#0 0u)
+        let l_head_and_tail%0#0: bytes = ((extract 2 0) imm1#0)
+        let r_count%0#0: uint64 = (extract_uint16 imm2#0 0u)
+        let r_head_and_tail%0#0: bytes = ((extract 2 0) imm2#0)
+        let concat_result%0#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%0#0, l_head_and_tail%0#0, r_count%0#0, r_head_and_tail%0#0)
+        return concat_result%0#0
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.__algopy_default_create() -> void:
     block@0: // L1

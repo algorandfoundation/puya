@@ -113,3 +113,10 @@ class ImmutableArrayContract(algopy.arc4.ARC4Client, typing.Protocol):
         self,
         arg: algopy.arc4.Tuple[algopy.arc4.String, algopy.arc4.String],
     ) -> algopy.arc4.DynamicArray[algopy.arc4.String]: ...
+
+    @algopy.arc4.abimethod
+    def test_concat_immutable_dynamic(
+        self,
+        imm1: algopy.arc4.DynamicArray[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.String]],
+        imm2: algopy.arc4.DynamicArray[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.String]],
+    ) -> algopy.arc4.DynamicArray[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.String]]: ...
