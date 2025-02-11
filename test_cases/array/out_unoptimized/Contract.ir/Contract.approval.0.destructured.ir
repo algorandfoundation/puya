@@ -341,10 +341,11 @@ subroutine test_cases.array.uint64.pop_x(arr: uint64[]*, x: uint64, expected: ui
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L242
         let slot_contents%0#0: uint64[] = read(arr#0)
-        let array%array_length%0#1: uint64 = (len slot_contents%0#0)
-        let array%new_length%0#1: uint64 = (- array%array_length%0#1 8u)
-        let array%array_contents%0#1: bytes = (extract3 slot_contents%0#0 0u array%new_length%0#1)
-        let array%bytes_index%0#1: uint64 = (* array%new_length%0#1 8u)
+        let array%array_bytes_length%0#1: uint64 = (len slot_contents%0#0)
+        let array%array_bytes_new_length%0#1: uint64 = (- array%array_bytes_length%0#1 8u)
+        let array%array_new_length%0#1: uint64 = (/ array%array_bytes_new_length%0#1 8u)
+        let array%array_contents%0#1: bytes = (extract3 slot_contents%0#0 0u array%array_bytes_new_length%0#1)
+        let array%bytes_index%0#1: uint64 = (* array%array_new_length%0#1 8u)
         let array%value%0#1: bytes = (extract3 slot_contents%0#0 array%bytes_index%0#1 8u)
         let array%sub_item%0#1: bytes = (extract3 array%value%0#1 0u 8u)
         let array%sub_item%1#1: uint64 = (btoi array%sub_item%0#1)

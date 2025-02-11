@@ -35,10 +35,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto continue_looping%0#0 ? block@73 : block@74
     block@73: // for_body_L242
         let slot_contents%0#0: uint64[] = read(arr#1)
-        let array%array_length%0#1: uint64 = (len slot_contents%0#0)
-        let array%new_length%0#1: uint64 = (- array%array_length%0#1 8u)
-        let array%array_contents%1#1: bytes = (extract3 slot_contents%0#0 0u array%new_length%0#1)
-        let array%bytes_index%2#1: uint64 = (* array%new_length%0#1 8u)
+        let array%array_bytes_length%0#1: uint64 = (len slot_contents%0#0)
+        let array%array_bytes_new_length%0#1: uint64 = (- array%array_bytes_length%0#1 8u)
+        let array%array_new_length%0#1: uint64 = (/ array%array_bytes_new_length%0#1 8u)
+        let array%array_contents%1#1: bytes = (extract3 slot_contents%0#0 0u array%array_bytes_new_length%0#1)
+        let array%bytes_index%2#1: uint64 = (* array%array_new_length%0#1 8u)
         let array%value%2#1: bytes = (extract3 slot_contents%0#0 array%bytes_index%2#1 8u)
         let popped#0: uint64 = (extract_uint64 array%value%2#1 0u)
         write(arr#1, array%array_contents%1#1)
