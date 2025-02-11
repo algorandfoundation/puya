@@ -84,7 +84,8 @@ def get_subroutine_optimizations(optimization_level: int) -> Iterable[Subroutine
 
 
 def _split_parallel_copies(_ctx: ArtifactCompileContext, sub: models.Subroutine) -> bool:
-    # not an optimisation, but simplifies other optimisation code
+    # not an optimisation, but allows optimisations to assume there are no ValueTuples,
+    # which makes finding copy assignments straight forward
     any_modified = False
     for block in sub.body:
         ops = list[models.Op]()

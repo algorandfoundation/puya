@@ -1,7 +1,5 @@
 import itertools
 
-import attrs
-
 from puya import log
 from puya.context import ArtifactCompileContext
 from puya.ir import models
@@ -71,17 +69,15 @@ def slot_elimination(
         render_program(ctx, program, qualifier="ssa.slot")
 
 
-@attrs.define
 class SlotGatherer(IRTraverser):
-    intrinsic_slots: set[int] = attrs.field(factory=set, init=False)
-    new_slot_registers: dict[models.Register, tuple[models.Assignment, models.NewSlot]] = (
-        attrs.field(factory=dict, init=False)
-    )
-    """Registers containing any assigned new_slot"""
-    dynamic_registers: set[models.Register] = attrs.field(factory=set, init=False)
-    """Any registers that are dynamic"""
-    non_local_registers: set[models.Register] = attrs.field(factory=set, init=False)
-    """Any registers that are not local (passed to other subroutines)"""
+    def __init__(self) -> None:
+        self.intrinsic_slots = set[int]()
+        # Registers containing any assigned new_slot:
+        self.new_slot_registers = dict[models.Register, tuple[models.Assignment, models.NewSlot]]()
+        # Any registers that are dynamic:
+        self.dynamic_registers = set[models.Register]()
+        # Any registers that are not local (passed to other subroutines):
+        self.non_local_registers = set[models.Register]()
 
     def visit_assignment(self, ass: models.Assignment) -> None:
         super().visit_assignment(ass)
@@ -91,7 +87,7 @@ class SlotGatherer(IRTraverser):
             self.new_slot_registers[slot_register] = ass, ass.source
         # excluded copied slots
         # if copy propagation has been done it will potentially allow more slots to be removed
-        if isinstance(ass.source, models.Register):
+        elif isinstance(ass.source, models.Register):
             self.dynamic_registers.add(ass.source)
 
     def visit_phi_argument(self, arg: models.PhiArgument) -> None:
