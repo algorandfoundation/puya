@@ -734,14 +734,13 @@ class FunctionIRBuilder(
             return self._visit_tuple_slice(expr, sliceable_type)
         elif sliceable_type == wtypes.bytes_wtype:
             return visit_bytes_intersection_slice_expression(self.context, expr)
-        elif isinstance(sliceable_type, wtypes.StackArray) and (
-            arc4_array_type := effective_array_encoding(sliceable_type, expr.base.source_location)
-        ):
+        elif isinstance(sliceable_type, wtypes.StackArray):
             if expr.begin_index is not None or expr.end_index != -1:
                 raise InternalError(
                     f"IntersectionSlice for {expr.wtype.name} currently only supports [:-1]",
                     expr.source_location,
                 )
+            arc4_array_type = effective_array_encoding(sliceable_type, expr.base.source_location)
             array = self.context.visitor.visit_and_materialise_single(expr.base)
             _, data = arc4.invoke_arc4_array_pop(
                 self.context, arc4_array_type.element_type, array, expr.source_location
@@ -810,9 +809,8 @@ class FunctionIRBuilder(
         elif isinstance(indexable_wtype, wtypes.ReferenceArray):
             slot = mem.read_slot(self.context, base, expr.base.source_location)
             return ArrayReadIndex(array=slot, index=index, source_location=expr.source_location)
-        elif isinstance(indexable_wtype, wtypes.StackArray) and (
-            arc4_array_type := effective_array_encoding(indexable_wtype, expr.base.source_location)
-        ):
+        elif isinstance(indexable_wtype, wtypes.StackArray):
+            arc4_array_type = effective_array_encoding(indexable_wtype, expr.base.source_location)
             encoded_read_vp = arc4.arc4_array_index(
                 self.context,
                 array_wtype=arc4_array_type,
@@ -1242,7 +1240,6 @@ class FunctionIRBuilder(
 
     def visit_array_replace(self, expr: awst_nodes.ArrayReplace) -> TExpression:
         arc4_wtype = effective_array_encoding(expr.wtype, expr.source_location)
-        assert arc4_wtype is not None, f"unexpected type for ArrayReplace {expr.wtype}"
         value = self.context.visitor.visit_expr(expr.value)
         arc4_value = arc4.encode_value_provider(
             self.context,
