@@ -27,7 +27,7 @@ class ProgramMIRContext(ArtifactCompileContext):
                 name = subroutine.id
             names[name] = subroutine
 
-        return {v: k for k, v in names.items() if isinstance(v, ir.Subroutine)}
+        return {v: k for k, v in names.items()}
 
     def for_subroutine(self, subroutine: models.MemorySubroutine) -> "SubroutineCodeGenContext":
         return attrs_extend(SubroutineCodeGenContext, self, subroutine=subroutine)

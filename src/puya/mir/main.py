@@ -66,7 +66,7 @@ def _build_slot_allocation_ops(context: ProgramMIRContext) -> tuple[list[models.
     # remaining available slots are indicated with their bit set to 1
     init = functools.reduce(operator.or_, (1 << (a - 1) for a in available_slots), 0)
     allocation_value = init.to_bytes(bits_to_bytes(MAX_SCRATCH_SLOT_NUMBER + 1))
-    return [
+    ops = [
         models.Byte(
             # note: would need to pad this if we allowed "freeing" slots
             value=allocation_value,
@@ -80,7 +80,8 @@ def _build_slot_allocation_ops(context: ProgramMIRContext) -> tuple[list[models.
             produces=(),
             source_location=None,
         ),
-    ], allocation_slot
+    ]
+    return ops, allocation_slot
 
 
 def _lower_subroutine_to_mir(
