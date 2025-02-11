@@ -65,7 +65,7 @@ def decode_arc4_value(
     loc: SourceLocation,
 ) -> ValueProvider:
     if arc4_wtype == target_wtype:
-        return value  # TODO: add test cases, can occur at least in indexing
+        return value
     match arc4_wtype, target_wtype:
         case wtypes.ARC4UIntN(), wtypes.biguint_wtype:
             return value
