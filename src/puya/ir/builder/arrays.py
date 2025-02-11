@@ -35,36 +35,7 @@ def get_array_length(
         array_contents = read_slot(context, array, array.source_location)
         return ir.ArrayLength(array=array_contents, source_location=source_location)
     array_encoding = effective_array_encoding(wtype, source_location)
-    assert array_encoding is not None
     return get_arc4_array_length(array_encoding, array, source_location)
-
-
-def read_array_index(
-    _context: IRFunctionBuildContext,
-    array: ir.Value,
-    index: ir.Value,
-    loc: SourceLocation,
-) -> ir.ArrayReadIndex:
-    return ir.ArrayReadIndex(
-        array=array,
-        index=index,
-        source_location=loc,
-    )
-
-
-def assign_array_index(
-    _context: IRFunctionBuildContext,
-    array: ir.Value,
-    index: ir.Value,
-    value: ir.Value | ir.ValueTuple,
-    loc: SourceLocation,
-) -> ir.ArrayWriteIndex:
-    return ir.ArrayWriteIndex(
-        array=array,
-        index=index,
-        value=value,
-        source_location=loc,
-    )
 
 
 def get_array_encoded_items(
