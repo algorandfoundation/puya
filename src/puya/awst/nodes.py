@@ -446,7 +446,9 @@ class Copy(Expression):
     Create a new copy of 'value'
     """
 
-    value: Expression
+    value: Expression = attrs.field(
+        validator=expression_has_wtype(wtypes.ARC4Type, wtypes.ReferenceArray)
+    )
     wtype: WType = attrs.field(init=False)
 
     @wtype.default
