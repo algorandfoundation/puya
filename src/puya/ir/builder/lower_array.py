@@ -82,15 +82,20 @@ class ArrayNodeReplacer(IRMutator, IRRegisterContext):
         element_size = _get_element_size(element_type, pop.source_location)
 
         factory = OpFactory(self, pop.source_location)
-        array_length = factory.len(pop.array, "array_length")
-        new_length = factory.sub(array_length, element_size, "new_length")
+        array_bytes_length = factory.len(pop.array, "array_bytes_length")
+        array_bytes_new_length = factory.sub(
+            array_bytes_length, element_size, "array_bytes_new_length"
+        )
+        array_new_length = factory.div_floor(
+            array_bytes_new_length, element_size, "array_new_length"
+        )
         array_contents = factory.extract3(
             pop.array,
             0,
-            new_length,
+            array_bytes_new_length,
             "array_contents",
         )
-        item = self._read_item(pop.array, new_length, element_type, pop.source_location)
+        item = self._read_item(pop.array, array_new_length, element_type, pop.source_location)
         return ir.ValueTuple(values=(array_contents, *item), source_location=pop.source_location)
 
     @typing.override
