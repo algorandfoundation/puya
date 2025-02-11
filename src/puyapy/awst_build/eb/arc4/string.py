@@ -137,12 +137,7 @@ class ARC4StringExpressionBuilder(
             (lhs, rhs) = (rhs, lhs)
 
         return ARC4StringExpressionBuilder(
-            ArrayConcat(
-                left=lhs,
-                right=rhs,
-                wtype=wtypes.arc4_string_alias,
-                source_location=location,
-            )
+            ArrayConcat(left=lhs, right=rhs, source_location=location)
         )
 
     @typing.override

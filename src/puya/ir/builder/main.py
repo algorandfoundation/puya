@@ -159,7 +159,7 @@ class FunctionIRBuilder(
                     source_location=expr.source_location,
                     context=self.context,
                 )
-            case wtypes.WArray(immutable=False):
+            case wtypes.ReferenceArray():
                 loc = expr.source_location
                 original_slot = self.visit_and_materialise_single(expr.value)
                 new_slot = puya.ir.builder.mem.new_slot(self.context, original_slot.ir_type, loc)
@@ -734,7 +734,7 @@ class FunctionIRBuilder(
             return self._visit_tuple_slice(expr, sliceable_type)
         elif sliceable_type == wtypes.bytes_wtype:
             return visit_bytes_intersection_slice_expression(self.context, expr)
-        elif isinstance(sliceable_type, wtypes.WArray) and (
+        elif isinstance(sliceable_type, wtypes.StackArray) and (
             arc4_array_type := effective_array_encoding(sliceable_type, expr.base.source_location)
         ):
             if expr.begin_index is not None or expr.end_index != -1:
@@ -807,10 +807,10 @@ class FunctionIRBuilder(
                     ],
                     source_location=expr.source_location,
                 )
-        elif isinstance(indexable_wtype, wtypes.WArray) and not indexable_wtype.immutable:
+        elif isinstance(indexable_wtype, wtypes.ReferenceArray):
             slot = mem.read_slot(self.context, base, expr.base.source_location)
             return ArrayReadIndex(array=slot, index=index, source_location=expr.source_location)
-        elif isinstance(indexable_wtype, wtypes.WArray) and (
+        elif isinstance(indexable_wtype, wtypes.StackArray) and (
             arc4_array_type := effective_array_encoding(indexable_wtype, expr.base.source_location)
         ):
             encoded_read_vp = arc4.arc4_array_index(
@@ -893,27 +893,26 @@ class FunctionIRBuilder(
                 self.context, expr.wtype, expr.values, expr.source_location
             )
         # handle native arrays
-        encoded_type = effective_array_encoding(expr.wtype, expr.source_location)
-        if encoded_type is not None:
-            # immutable arrays are effectively ARC-4 encoded, values might need converting
+        if isinstance(expr.wtype, wtypes.StackArray):
+            encoded_type = effective_array_encoding(expr.wtype, expr.source_location)
+            # stack arrays are effectively ARC-4 encoded, values might need converting
             if not expr.values:
                 return arc4.encode_arc4_exprs_as_array(
                     self.context, encoded_type, expr.values, expr.source_location
                 )
-            else:
-                empty_array_expr = awst_nodes.NewArray(
-                    values=(),
-                    wtype=encoded_type,
-                    source_location=expr.source_location,
-                )
-                items_tuple = TupleExpression.from_items(expr.values, expr.source_location)
-                return arc4.convert_and_concat_values(
-                    self.context,
-                    array_wtype=encoded_type,
-                    array_expr=empty_array_expr,
-                    iter_expr=items_tuple,
-                    source_location=expr.source_location,
-                )
+            empty_array_expr = awst_nodes.NewArray(
+                values=(),
+                wtype=encoded_type,
+                source_location=expr.source_location,
+            )
+            items_tuple = TupleExpression.from_items(expr.values, expr.source_location)
+            return arc4.convert_and_concat_values(
+                self.context,
+                array_wtype=encoded_type,
+                array_expr=empty_array_expr,
+                iter_expr=items_tuple,
+                source_location=expr.source_location,
+            )
         else:
             loc = expr.source_location
             array_slot_type = wtype_to_ir_type(expr.wtype, expr.source_location)
@@ -1226,7 +1225,7 @@ class FunctionIRBuilder(
         loc = expr.source_location
         if isinstance(expr.base.wtype, wtypes.ARC4DynamicArray):
             return arc4.pop_arc4_array(self.context, expr, expr.base.wtype)
-        elif isinstance(expr.base.wtype, wtypes.WArray) and not expr.base.wtype.immutable:
+        elif isinstance(expr.base.wtype, wtypes.ReferenceArray):
             slot = self.context.visitor.visit_and_materialise_single(expr.base)
             contents = mem.read_slot(self.context, slot, expr.base.source_location)
             contents, popped_item = arrays.pop_array(self.context, contents, expr.source_location)
@@ -1262,30 +1261,23 @@ class FunctionIRBuilder(
         )
 
     def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> TExpression:
+        assert expr.left.wtype == expr.wtype, "AWST validation requires result type == left type"
         match expr.wtype:
-            case wtypes.ARC4Array():
-                return arc4.convert_and_concat_values(
-                    self.context,
-                    array_wtype=expr.wtype,
-                    array_expr=expr.left,
-                    iter_expr=expr.right,
-                    source_location=expr.source_location,
-                )
-            case wtypes.WArray() if (
-                arc4_array_wtype := effective_array_encoding(expr.wtype, expr.source_location)
-            ):
-                return arc4.convert_and_concat_values(
-                    self.context,
-                    array_wtype=arc4_array_wtype,
-                    array_expr=expr.left,
-                    iter_expr=expr.right,
-                    source_location=expr.source_location,
-                )
-            case _:
-                raise InternalError("unsupported array type for ArrayConcat", expr.source_location)
+            case wtypes.ARC4DynamicArray() as arc4_array_wtype:
+                pass
+            case wtypes.StackArray():
+                arc4_array_wtype = effective_array_encoding(expr.wtype, expr.source_location)
+
+        return arc4.convert_and_concat_values(
+            self.context,
+            array_wtype=arc4_array_wtype,
+            array_expr=expr.left,
+            iter_expr=expr.right,
+            source_location=expr.source_location,
+        )
 
     def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> TExpression:
-        if isinstance(expr.base.wtype, wtypes.ARC4Array):
+        if isinstance(expr.base.wtype, wtypes.ARC4DynamicArray):
             concat_result = arc4.convert_and_concat_values(
                 self.context,
                 array_wtype=expr.base.wtype,
@@ -1300,7 +1292,7 @@ class FunctionIRBuilder(
                 is_nested_update=True,
                 source_location=expr.source_location,
             )
-        elif isinstance(expr.base.wtype, wtypes.WArray) and not expr.base.wtype.immutable:
+        elif isinstance(expr.base.wtype, wtypes.ReferenceArray):
             # note: the order things are evaluated is important to be semantically correct
             # 1. base expr
             # 2. other expr
@@ -1328,7 +1320,7 @@ class FunctionIRBuilder(
         match array_wtype:
             case wtypes.ARC4Array():
                 return arc4.get_arc4_array_length(array_wtype, array_or_slot, expr.source_location)
-            case wtypes.WArray():
+            case wtypes.StackArray() | wtypes.ReferenceArray():
                 return arrays.get_array_length(
                     self.context, array_wtype, array_or_slot, expr.source_location
                 )

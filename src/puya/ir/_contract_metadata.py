@@ -363,7 +363,7 @@ class _EventCollector(FunctionTraverser):
 
 
 def _get_arc56_type(wtype: wtypes.WType, loc: SourceLocation) -> str:
-    if isinstance(wtype, wtypes.WArray) and wtype.immutable:
+    if isinstance(wtype, wtypes.StackArray):
         wtype = wtype_to_arc4_wtype(wtype, loc)
     if isinstance(wtype, wtypes.ARC4Struct):
         return wtype.name

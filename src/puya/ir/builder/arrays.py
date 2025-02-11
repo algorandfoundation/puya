@@ -25,13 +25,13 @@ class ArrayIterator:
 
 def get_array_length(
     context: IRFunctionBuildContext,
-    wtype: wtypes.WArray,
+    wtype: wtypes.StackArray | wtypes.ReferenceArray,
     array: Value,
     source_location: SourceLocation,
 ) -> ValueProvider:
     from puya.ir.builder.arc4 import get_arc4_array_length
 
-    if not wtype.immutable:
+    if isinstance(wtype, wtypes.ReferenceArray):
         array_contents = read_slot(context, array, array.source_location)
         return ir.ArrayLength(array=array_contents, source_location=source_location)
     array_encoding = effective_array_encoding(wtype, source_location)
@@ -89,10 +89,10 @@ def get_array_encoded_items(
                 )
                 value = target
             return value
-        case wtypes.ARC4DynamicArray() | wtypes.WArray(immutable=True):
+        case wtypes.ARC4DynamicArray() | wtypes.StackArray():
             expr_value = context.visitor.visit_and_materialise_single(items)
             return factory.extract_to_end(expr_value, 2, "expr_value_trimmed", ir_type=array_type)
-        case wtypes.WArray(immutable=False):
+        case wtypes.ReferenceArray():
             slot = context.visitor.visit_and_materialise_single(items)
             return read_slot(context, slot, items.source_location)
         case wtypes.WTuple() | wtypes.ARC4Tuple():

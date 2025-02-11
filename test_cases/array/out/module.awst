@@ -16,7 +16,7 @@ contract Contract
   
   abimethod test_cases.array.uint64.Contract.test_array(): void
   {
-    arr: array<uint64> = new array<uint64>()
+    arr: ref_array<uint64> = new ref_array<uint64>()
     assert(arr.length == 0u)
     arr.extend((42u))
     assert(arr.length == 1u)
@@ -46,9 +46,9 @@ contract Contract
   
   abimethod test_cases.array.uint64.Contract.test_array_extend(): void
   {
-    arr: array<uint64> = new array<uint64>()
+    arr: ref_array<uint64> = new ref_array<uint64>()
     test_cases.array.uint64.add_x(arr, 1u)
-    arr2: array<uint64> = new array<uint64>()
+    arr2: ref_array<uint64> = new ref_array<uint64>()
     arr2.extend((1u))
     arr2.extend((2u))
     arr2.extend((3u))
@@ -58,7 +58,7 @@ contract Contract
   
   abimethod test_cases.array.uint64.Contract.test_array_multiple_append(): void
   {
-    arr: array<uint64> = new array<uint64>()
+    arr: ref_array<uint64> = new ref_array<uint64>()
     test_cases.array.uint64.add_x(arr, 1u)
     arr.extend((1u))
     arr.extend((2u))
@@ -72,7 +72,7 @@ contract Contract
   
   abimethod test_cases.array.uint64.Contract.test_array_too_long(): void
   {
-    array: array<uint64> = new array<uint64>()
+    array: ref_array<uint64> = new ref_array<uint64>()
     for i in range(0u, 512u, 1u) {
       array.extend((i))
     }
@@ -82,11 +82,11 @@ contract Contract
   
   abimethod test_cases.array.uint64.Contract.test_array_copy_and_extend(): void
   {
-    array: array<uint64> = new array<uint64>()
+    array: ref_array<uint64> = new ref_array<uint64>()
     for i in range(0u, 5u, 1u) {
       array.extend((i))
     }
-    array2: array<uint64> = array.copy()
+    array2: ref_array<uint64> = array.copy()
     array.extend((5u))
     assert(array.length == 6u)
     assert(array[array.length - 1u] == 5u, comment="expected 5")
@@ -103,7 +103,7 @@ contract Contract
   
   abimethod test_cases.array.uint64.Contract.test_array_evaluation_order(): void
   {
-    arr: array<uint64> = new array<uint64>()
+    arr: ref_array<uint64> = new ref_array<uint64>()
     arr.extend((3u))
     test_cases.array.uint64.append_length_and_return(arr).extend(test_cases.array.uint64.append_length_and_return(arr))
     assert(arr.length == 6u)
@@ -123,14 +123,14 @@ contract Contract
   abimethod test_cases.array.uint64.Contract.test_allocations(num: uint64): void
   {
     for _i in range(0u, num, 1u) {
-      alloc_test: array<uint64> = new array<uint64>()
+      alloc_test: ref_array<uint64> = new ref_array<uint64>()
       test_cases.array.uint64.add_x(alloc_test, 1u)
     }
   }
   
   abimethod test_cases.array.uint64.Contract.test_iteration(): void
   {
-    arr: array<uint64> = new array<uint64>()
+    arr: ref_array<uint64> = new ref_array<uint64>()
     for val in range(0u, 5u, 1u) {
       arr.extend((val))
     }
@@ -148,7 +148,7 @@ contract Contract
       last: uint64 = value
     }
     arc4_arr: arc4.dynamic_array<arc4.uint64> = new arc4.dynamic_array<arc4.uint64>()
-    native_arr: array<arc4.uint64> = new array<arc4.uint64>()
+    native_arr: ref_array<arc4.uint64> = new ref_array<arc4.uint64>()
     for i in range(0u, 5u, 1u) {
       arc4_arr.extend((arc4_encode(i, arc4.uint64)))
       native_arr.extend((arc4_encode(i, arc4.uint64)))
@@ -163,7 +163,7 @@ contract Contract
   
   abimethod test_cases.array.uint64.Contract.test_quicksort(): void
   {
-    rnd: array<uint64> = new array<uint64>()
+    rnd: ref_array<uint64> = new ref_array<uint64>()
     for b in reinterpret_cast<bytes>(txn<Sender>()) {
       rnd.extend((btoi(b)))
     }
@@ -181,7 +181,7 @@ contract Contract
   }
 }
 
-subroutine quicksort_window(arr: array<uint64>, window_left: uint64, window_right: uint64): void
+subroutine quicksort_window(arr: ref_array<uint64>, window_left: uint64, window_right: uint64): void
 {
   left: uint64 = window_left
   right: uint64 = window_right
@@ -226,21 +226,21 @@ subroutine quicksort_window(arr: array<uint64>, window_left: uint64, window_righ
   }
 }
 
-subroutine return_ref(arr: array<uint64>, arr2: array<uint64>): array<uint64>
+subroutine return_ref(arr: ref_array<uint64>, arr2: ref_array<uint64>): ref_array<uint64>
 {
   arr.extend((99u))
   arr2.extend((100u))
   return arr
 }
 
-subroutine add_x(arr: array<uint64>, x: uint64): void
+subroutine add_x(arr: ref_array<uint64>, x: uint64): void
 {
   for i in range(0u, x, 1u) {
     arr.extend((i))
   }
 }
 
-subroutine pop_x(arr: array<uint64>, x: uint64, expected: uint64): void
+subroutine pop_x(arr: ref_array<uint64>, x: uint64, expected: uint64): void
 {
   for _i in range(0u, x, 1u) {
     popped: uint64 = arr.pop()
@@ -249,13 +249,13 @@ subroutine pop_x(arr: array<uint64>, x: uint64, expected: uint64): void
   }
 }
 
-subroutine append_length_and_return(arr: array<uint64>): array<uint64>
+subroutine append_length_and_return(arr: ref_array<uint64>): ref_array<uint64>
 {
   arr.extend((arr.length))
   return arr
 }
 
-subroutine do_something_with_array(arr: array<uint64>): void
+subroutine do_something_with_array(arr: ref_array<uint64>): void
 {
   arr.extend((1u))
 }
@@ -290,33 +290,33 @@ contract StaticSizeContract
   abimethod test_cases.array.static_size.StaticSizeContract.test_array(x1: arc4.uint64, y1: uint64, x2: arc4.uint64, y2: uint64): uint64
   {
     GlobalState['count']: uint64 = 0u
-    path: array<test_cases.array.static_size.Point> = new array<test_cases.array.static_size.Point>((0_arc4u64, 0u, this::xtra()), (x1, y1, this::xtra()), (x2, y2, this::xtra()))
+    path: ref_array<test_cases.array.static_size.Point> = new ref_array<test_cases.array.static_size.Point>((0_arc4u64, 0u, this::xtra()), (x1, y1, this::xtra()), (x2, y2, this::xtra()))
     for i in range(0u, 3u, 1u) {
       assert(path[i].other.b == i + 1u)
       assert(reinterpret_cast<biguint>(path[i].other.d.foo) == itob(i + 2u))
       assert(reinterpret_cast<biguint>(path[i].other.d.bar) == itob(i + 1u * i + 1u))
     }
-    Box['a']: array<test_cases.array.static_size.Point> = new array<test_cases.array.static_size.Point>() + path
+    Box['a']: stack_array<test_cases.array.static_size.Point> = new stack_array<test_cases.array.static_size.Point>() + path
     return test_cases.array.static_size.path_length(path)
   }
   
-  abimethod test_cases.array.static_size.StaticSizeContract.test_extend_from_tuple(some_more: tuple<test_cases.array.static_size.More,test_cases.array.static_size.More>): array<test_cases.array.static_size.More>
+  abimethod test_cases.array.static_size.StaticSizeContract.test_extend_from_tuple(some_more: tuple<test_cases.array.static_size.More,test_cases.array.static_size.More>): stack_array<test_cases.array.static_size.More>
   {
-    arr: array<test_cases.array.static_size.More> = new array<test_cases.array.static_size.More>()
+    arr: ref_array<test_cases.array.static_size.More> = new ref_array<test_cases.array.static_size.More>()
     arr.extend(some_more)
-    return new array<test_cases.array.static_size.More>() + arr
+    return new stack_array<test_cases.array.static_size.More>() + arr
   }
   
-  abimethod test_cases.array.static_size.StaticSizeContract.test_extend_from_arc4_tuple(some_more: arc4.tuple<test_cases.array.static_size.More,test_cases.array.static_size.More>): array<test_cases.array.static_size.More>
+  abimethod test_cases.array.static_size.StaticSizeContract.test_extend_from_arc4_tuple(some_more: arc4.tuple<test_cases.array.static_size.More,test_cases.array.static_size.More>): stack_array<test_cases.array.static_size.More>
   {
-    arr: array<test_cases.array.static_size.More> = new array<test_cases.array.static_size.More>()
+    arr: ref_array<test_cases.array.static_size.More> = new ref_array<test_cases.array.static_size.More>()
     arr.extend(some_more)
-    return new array<test_cases.array.static_size.More>() + arr
+    return new stack_array<test_cases.array.static_size.More>() + arr
   }
   
   abimethod test_cases.array.static_size.StaticSizeContract.test_bool_array(length: uint64): uint64
   {
-    arr: array<bool> = new array<bool>()
+    arr: ref_array<bool> = new ref_array<bool>()
     assert(arr.length == 0u)
     for i in range(1u, length + 1u, 1u) {
       arr.extend((i % 2u == 0u))
@@ -333,7 +333,7 @@ contract StaticSizeContract
   
   abimethod test_cases.array.static_size.StaticSizeContract.test_arc4_conversion(length: uint64): arc4.dynamic_array<arc4.uint64>
   {
-    arr: array<arc4.uint64> = new array<arc4.uint64>()
+    arr: ref_array<arc4.uint64> = new ref_array<arc4.uint64>()
     assert(arr.length == 0u)
     for i in range(1u, length + 1u, 1u) {
       arr.extend((arc4_encode(i, arc4.uint64)))
@@ -352,7 +352,7 @@ contract StaticSizeContract
   
   abimethod test_cases.array.static_size.StaticSizeContract.sum_array(arc4_arr: arc4.dynamic_array<arc4.uint64>): uint64
   {
-    arr: array<arc4.uint64> = new array<arc4.uint64>()
+    arr: ref_array<arc4.uint64> = new ref_array<arc4.uint64>()
     arr.extend(arc4_arr)
     total: uint64 = 0u
     for item in arr {
@@ -382,7 +382,7 @@ contract StaticSizeContract
   }
 }
 
-subroutine path_length(path: array<test_cases.array.static_size.Point>): uint64
+subroutine path_length(path: ref_array<test_cases.array.static_size.Point>): uint64
 {
   last_point: test_cases.array.static_size.Point = path[0u]
   length: uint64 = 0u
@@ -409,16 +409,16 @@ contract ImmutableArrayContract
     algopy.arc4.ARC4Contract,
   )
   globals {
-    ['a']: array<uint64>
-    ['g']: array<bool>
-    ['c']: array<tuple<uint64,uint64>>
-    ['d']: array<test_cases.array.immutable.MyTuple>
-    ['e']: array<tuple<uint64,bytes>>
-    ['f']: array<test_cases.array.immutable.MyDynamicSizedTuple>
-    ['bool2']: array<test_cases.array.immutable.TwoBoolTuple>
-    ['bool7']: array<test_cases.array.immutable.SevenBoolTuple>
-    ['bool8']: array<test_cases.array.immutable.EightBoolTuple>
-    ['bool9']: array<test_cases.array.immutable.NineBoolTuple>
+    ['a']: stack_array<uint64>
+    ['g']: stack_array<bool>
+    ['c']: stack_array<tuple<uint64,uint64>>
+    ['d']: stack_array<test_cases.array.immutable.MyTuple>
+    ['e']: stack_array<tuple<uint64,bytes>>
+    ['f']: stack_array<test_cases.array.immutable.MyDynamicSizedTuple>
+    ['bool2']: stack_array<test_cases.array.immutable.TwoBoolTuple>
+    ['bool7']: stack_array<test_cases.array.immutable.SevenBoolTuple>
+    ['bool8']: stack_array<test_cases.array.immutable.EightBoolTuple>
+    ['bool9']: stack_array<test_cases.array.immutable.NineBoolTuple>
   }
   
   subroutine algopy.arc4.ARC4Contract.approval_program(): bool
@@ -433,39 +433,39 @@ contract ImmutableArrayContract
   
   abimethod test_cases.array.immutable.ImmutableArrayContract.test_uint64_array(): void
   {
-    arr: array<uint64> = new array<uint64>()
+    arr: stack_array<uint64> = new stack_array<uint64>()
     assert(arr.length == 0u)
-    arr: array<uint64> = arr + (42u)
+    arr: stack_array<uint64> = arr + (42u)
     assert(arr.length == 1u)
     assert(arr[arr.length - 1u] == 42u)
-    arr: array<uint64> = test_cases.array.immutable.add_x(arr, 5u)
+    arr: stack_array<uint64> = test_cases.array.immutable.add_x(arr, 5u)
     assert(arr.length == 6u)
     assert(arr[arr.length - 1u] == 4u)
-    arr: array<uint64> = arr + (43u)
+    arr: stack_array<uint64> = arr + (43u)
     assert(arr.length == 7u)
     assert(arr[arr.length - 1u] == 43u)
     assert(arr[0u] == 42u)
-    arr: array<uint64> = test_cases.array.immutable.pop_x(arr, 3u)
+    arr: stack_array<uint64> = test_cases.array.immutable.pop_x(arr, 3u)
     assert(arr.length == 4u)
     assert(arr[arr.length - 1u] == 2u)
-    arr: array<uint64> = test_cases.array.immutable.add_x(arr, 10u)
+    arr: stack_array<uint64> = test_cases.array.immutable.add_x(arr, 10u)
     assert(arr.length == 14u)
     assert(arr[arr.length - 1u] == 9u)
-    arr: array<uint64> = arr + (44u)
+    arr: stack_array<uint64> = arr + (44u)
     assert(arr.length == 15u)
     assert(arr[arr.length - 1u] == 44u)
-    arr: array<uint64> = arr.replace(2u, 23u)
+    arr: stack_array<uint64> = arr.replace(2u, 23u)
     assert(arr.length == 15u)
     assert(arr[2u] == 23u)
-    GlobalState['a']: array<uint64> = arr
+    GlobalState['a']: stack_array<uint64> = arr
   }
   
   abimethod test_cases.array.immutable.ImmutableArrayContract.test_bool_array(length: uint64): void
   {
-    arr: array<bool> = new array<bool>()
+    arr: stack_array<bool> = new stack_array<bool>()
     assert(arr.length == 0u)
     for i in range(0u, length, 1u) {
-      arr: array<bool> = arr + (i == txn<NumAppArgs>())
+      arr: stack_array<bool> = arr + (i == txn<NumAppArgs>())
     }
     assert(arr.length == length)
     if (length > 0u) {
@@ -480,126 +480,126 @@ contract ImmutableArrayContract
     if (length > 3u) {
       assert(!(arr[length - 1u]), comment="expected last element to be False")
     }
-    GlobalState['g']: array<bool> = arr
+    GlobalState['g']: stack_array<bool> = arr
     if (length != 0u) {
-      arr: array<bool> = arr[:-1]
+      arr: stack_array<bool> = arr[:-1]
       assert(arr.length == length - 1u)
     }
   }
   
   abimethod test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tuple_array(): void
   {
-    arr: array<tuple<uint64,uint64>> = new array<tuple<uint64,uint64>>()
+    arr: stack_array<tuple<uint64,uint64>> = new stack_array<tuple<uint64,uint64>>()
     assert(arr.length == 0u)
     for i in range(0u, 5u, 1u) {
-      arr: array<tuple<uint64,uint64>> = arr + ((i + 1u, i + 2u))
+      arr: stack_array<tuple<uint64,uint64>> = arr + ((i + 1u, i + 2u))
     }
     assert(arr.length == 5u)
     assert(&&(SINGLE_EVAL(id=0, source=arr[0u])[0] == 1u, SINGLE_EVAL(id=0)[1] == 2u))
     assert(&&(SINGLE_EVAL(id=1, source=arr[arr.length - 1u])[0] == 5u, SINGLE_EVAL(id=1)[1] == 6u))
-    arr: array<tuple<uint64,uint64>> = arr[:-1]
+    arr: stack_array<tuple<uint64,uint64>> = arr[:-1]
     assert(arr.length == 4u)
     assert(&&(SINGLE_EVAL(id=2, source=arr[0u])[0] == 1u, SINGLE_EVAL(id=2)[1] == 2u))
     assert(&&(SINGLE_EVAL(id=3, source=arr[arr.length - 1u])[0] == 4u, SINGLE_EVAL(id=3)[1] == 5u))
-    GlobalState['c']: array<tuple<uint64,uint64>> = arr
+    GlobalState['c']: stack_array<tuple<uint64,uint64>> = arr
   }
   
   abimethod test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_named_tuple_array(): void
   {
-    arr: array<test_cases.array.immutable.MyTuple> = new array<test_cases.array.immutable.MyTuple>()
+    arr: stack_array<test_cases.array.immutable.MyTuple> = new stack_array<test_cases.array.immutable.MyTuple>()
     assert(arr.length == 0u)
     for i in range(0u, 5u, 1u) {
-      arr: array<test_cases.array.immutable.MyTuple> = arr + ((i, i % 2u == 0u, i * 3u % 2u == 0u))
+      arr: stack_array<test_cases.array.immutable.MyTuple> = arr + ((i, i % 2u == 0u, i * 3u % 2u == 0u))
     }
     assert(arr.length == 5u)
     (foo, bar, baz): tuple<uint64,bool,bool> = arr[0u]
     assert(foo == 0u)
     assert(bar)
     assert(baz)
-    GlobalState['d']: array<test_cases.array.immutable.MyTuple> = arr
+    GlobalState['d']: stack_array<test_cases.array.immutable.MyTuple> = arr
   }
   
   abimethod test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array(): void
   {
-    arr: array<tuple<uint64,bytes>> = new array<tuple<uint64,bytes>>()
+    arr: stack_array<tuple<uint64,bytes>> = new stack_array<tuple<uint64,bytes>>()
     assert(arr.length == 0u)
     for i in range(0u, 5u, 1u) {
-      arr: array<tuple<uint64,bytes>> = arr + ((i + 1u, bzero(i)))
+      arr: stack_array<tuple<uint64,bytes>> = arr + ((i + 1u, bzero(i)))
     }
     assert(arr.length == 5u)
     for i in range(0u, 5u, 1u) {
       assert(arr[i][0] == i + 1u, comment="expected 1st element to be correct")
       assert(len(arr[i][1]) == i, comment="expected 2nd element to be correct")
     }
-    arr: array<tuple<uint64,bytes>> = arr[:-1]
+    arr: stack_array<tuple<uint64,bytes>> = arr[:-1]
     assert(arr.length == 4u)
     assert(&&(SINGLE_EVAL(id=4, source=arr[0u])[0] == 1u, SINGLE_EVAL(id=4)[1] == bzero(0u)), comment="expected 1, 0")
     assert(&&(SINGLE_EVAL(id=5, source=arr[arr.length - 1u])[0] == 4u, SINGLE_EVAL(id=5)[1] == bzero(3u)), comment="expected 4, 3")
-    GlobalState['e']: array<tuple<uint64,bytes>> = arr
+    GlobalState['e']: stack_array<tuple<uint64,bytes>> = arr
   }
   
   abimethod test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array(): void
   {
-    arr: array<test_cases.array.immutable.MyDynamicSizedTuple> = new array<test_cases.array.immutable.MyDynamicSizedTuple>()
+    arr: stack_array<test_cases.array.immutable.MyDynamicSizedTuple> = new stack_array<test_cases.array.immutable.MyDynamicSizedTuple>()
     assert(arr.length == 0u)
     for i in range(0u, 5u, 1u) {
-      arr: array<test_cases.array.immutable.MyDynamicSizedTuple> = arr + ((i + 1u, test_cases.array.immutable.times(i)))
+      arr: stack_array<test_cases.array.immutable.MyDynamicSizedTuple> = arr + ((i + 1u, test_cases.array.immutable.times(i)))
     }
     assert(arr.length == 5u)
     for i in range(0u, 5u, 1u) {
       assert(arr[i][0] == i + 1u, comment="expected 1st element to be correct")
       assert(arr[i][1] == test_cases.array.immutable.times(i), comment="expected 2nd element to be correct")
     }
-    arr: array<test_cases.array.immutable.MyDynamicSizedTuple> = arr[:-1]
+    arr: stack_array<test_cases.array.immutable.MyDynamicSizedTuple> = arr[:-1]
     assert(arr.length == 4u)
     assert(&&(SINGLE_EVAL(id=6, source=arr[0u])[0] == SINGLE_EVAL(id=7, source=(1u, ''))[0], SINGLE_EVAL(id=6)[1] == SINGLE_EVAL(id=7)[1]), comment="expected 1, 0")
     assert(&&(SINGLE_EVAL(id=8, source=arr[arr.length - 1u])[0] == SINGLE_EVAL(id=9, source=(4u, '   '))[0], SINGLE_EVAL(id=8)[1] == SINGLE_EVAL(id=9)[1]), comment="expected 4, 3")
-    GlobalState['f']: array<test_cases.array.immutable.MyDynamicSizedTuple> = arr
+    GlobalState['f']: stack_array<test_cases.array.immutable.MyDynamicSizedTuple> = arr
   }
   
-  abimethod test_cases.array.immutable.ImmutableArrayContract.test_nested_array(arr_to_add: uint64, arr: array<array<uint64>>): array<uint64>
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_nested_array(arr_to_add: uint64, arr: stack_array<stack_array<uint64>>): stack_array<uint64>
   {
     for i in range(0u, arr_to_add, 1u) {
-      extra_arr: array<uint64> = new array<uint64>()
+      extra_arr: stack_array<uint64> = new stack_array<uint64>()
       for j in range(0u, i, 1u) {
-        extra_arr: array<uint64> = extra_arr + (j)
+        extra_arr: stack_array<uint64> = extra_arr + (j)
       }
-      arr: array<array<uint64>> = arr + (extra_arr)
+      arr: stack_array<stack_array<uint64>> = arr + (extra_arr)
     }
-    totals: array<uint64> = new array<uint64>()
+    totals: stack_array<uint64> = new stack_array<uint64>()
     for inner_arr in arr {
-      totals: array<uint64> = totals + (test_cases.array.immutable.sum_arr(inner_arr))
+      totals: stack_array<uint64> = totals + (test_cases.array.immutable.sum_arr(inner_arr))
     }
     return totals
   }
   
   abimethod test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples(): void
   {
-    arr2: array<test_cases.array.immutable.TwoBoolTuple> = new array<test_cases.array.immutable.TwoBoolTuple>()
-    arr7: array<test_cases.array.immutable.SevenBoolTuple> = new array<test_cases.array.immutable.SevenBoolTuple>()
-    arr8: array<test_cases.array.immutable.EightBoolTuple> = new array<test_cases.array.immutable.EightBoolTuple>()
-    arr9: array<test_cases.array.immutable.NineBoolTuple> = new array<test_cases.array.immutable.NineBoolTuple>()
+    arr2: stack_array<test_cases.array.immutable.TwoBoolTuple> = new stack_array<test_cases.array.immutable.TwoBoolTuple>()
+    arr7: stack_array<test_cases.array.immutable.SevenBoolTuple> = new stack_array<test_cases.array.immutable.SevenBoolTuple>()
+    arr8: stack_array<test_cases.array.immutable.EightBoolTuple> = new stack_array<test_cases.array.immutable.EightBoolTuple>()
+    arr9: stack_array<test_cases.array.immutable.NineBoolTuple> = new stack_array<test_cases.array.immutable.NineBoolTuple>()
     assert(arr2.length == 0u)
     assert(arr7.length == 0u)
     assert(arr8.length == 0u)
     assert(arr9.length == 0u)
     for i in range(0u, 5u, 1u) {
-      arr2: array<test_cases.array.immutable.TwoBoolTuple> = arr2 + ((i == 0u, i == 1u))
-      arr7: array<test_cases.array.immutable.SevenBoolTuple> = arr7 + ((i, i == 0u, i == 1u, i == 2u, i == 3u, i == 4u, i == 5u, i == 6u, i + 1u))
-      arr8: array<test_cases.array.immutable.EightBoolTuple> = arr8 + ((i, i == 0u, i == 1u, i == 2u, i == 3u, i == 4u, i == 5u, i == 6u, i == 7u, i + 1u))
-      arr9: array<test_cases.array.immutable.NineBoolTuple> = arr9 + ((i, i == 0u, i == 1u, i == 2u, i == 3u, i == 4u, i == 5u, i == 6u, i == 7u, i == 8u, i + 1u))
+      arr2: stack_array<test_cases.array.immutable.TwoBoolTuple> = arr2 + ((i == 0u, i == 1u))
+      arr7: stack_array<test_cases.array.immutable.SevenBoolTuple> = arr7 + ((i, i == 0u, i == 1u, i == 2u, i == 3u, i == 4u, i == 5u, i == 6u, i + 1u))
+      arr8: stack_array<test_cases.array.immutable.EightBoolTuple> = arr8 + ((i, i == 0u, i == 1u, i == 2u, i == 3u, i == 4u, i == 5u, i == 6u, i == 7u, i + 1u))
+      arr9: stack_array<test_cases.array.immutable.NineBoolTuple> = arr9 + ((i, i == 0u, i == 1u, i == 2u, i == 3u, i == 4u, i == 5u, i == 6u, i == 7u, i == 8u, i + 1u))
     }
     assert(arr2.length == 5u)
     assert(arr7.length == 5u)
     assert(arr8.length == 5u)
     assert(arr9.length == 5u)
-    GlobalState['bool2']: array<test_cases.array.immutable.TwoBoolTuple> = arr2
-    GlobalState['bool7']: array<test_cases.array.immutable.SevenBoolTuple> = arr7
-    GlobalState['bool8']: array<test_cases.array.immutable.EightBoolTuple> = arr8
-    GlobalState['bool9']: array<test_cases.array.immutable.NineBoolTuple> = arr9
+    GlobalState['bool2']: stack_array<test_cases.array.immutable.TwoBoolTuple> = arr2
+    GlobalState['bool7']: stack_array<test_cases.array.immutable.SevenBoolTuple> = arr7
+    GlobalState['bool8']: stack_array<test_cases.array.immutable.EightBoolTuple> = arr8
+    GlobalState['bool9']: stack_array<test_cases.array.immutable.NineBoolTuple> = arr9
   }
   
-  abimethod test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_trues(arr1: array<uint64>, arr2: array<bool>, arr3: array<test_cases.array.immutable.MyTuple>, arr4: array<test_cases.array.immutable.MyDynamicSizedTuple>): tuple<uint64,uint64,uint64,uint64>
+  abimethod test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_trues(arr1: stack_array<uint64>, arr2: stack_array<bool>, arr3: stack_array<test_cases.array.immutable.MyTuple>, arr4: stack_array<test_cases.array.immutable.MyDynamicSizedTuple>): tuple<uint64,uint64,uint64,uint64>
   {
     sum4: uint64 = 0u
     sum3: uint64 = 0u
@@ -630,77 +630,77 @@ contract ImmutableArrayContract
     return (sum1, sum2, sum3, sum4)
   }
   
-  abimethod test_cases.array.immutable.ImmutableArrayContract.test_uint64_return(append: uint64): array<uint64>
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_uint64_return(append: uint64): stack_array<uint64>
   {
-    arr: array<uint64> = new array<uint64>(1u, 2u, 3u)
+    arr: stack_array<uint64> = new stack_array<uint64>(1u, 2u, 3u)
     for i in range(0u, append, 1u) {
-      arr: array<uint64> = arr + (i)
+      arr: stack_array<uint64> = arr + (i)
     }
     return arr
   }
   
-  abimethod test_cases.array.immutable.ImmutableArrayContract.test_bool_return(append: uint64): array<bool>
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_bool_return(append: uint64): stack_array<bool>
   {
-    arr: array<bool> = new array<bool>(true, false, true, false, true)
+    arr: stack_array<bool> = new stack_array<bool>(true, false, true, false, true)
     for i in range(0u, append, 1u) {
-      arr: array<bool> = arr + (i % 2u == 0u)
+      arr: stack_array<bool> = arr + (i % 2u == 0u)
     }
     return arr
   }
   
-  abimethod test_cases.array.immutable.ImmutableArrayContract.test_tuple_return(append: uint64): array<test_cases.array.immutable.MyTuple>
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_tuple_return(append: uint64): stack_array<test_cases.array.immutable.MyTuple>
   {
-    arr: array<test_cases.array.immutable.MyTuple> = new array<test_cases.array.immutable.MyTuple>((0u, true, false))
+    arr: stack_array<test_cases.array.immutable.MyTuple> = new stack_array<test_cases.array.immutable.MyTuple>((0u, true, false))
     for i in range(0u, append, 1u) {
-      arr: array<test_cases.array.immutable.MyTuple> = arr + ((i, i % 2u == 0u, i % 3u == 0u))
+      arr: stack_array<test_cases.array.immutable.MyTuple> = arr + ((i, i % 2u == 0u, i % 3u == 0u))
     }
     return arr
   }
   
-  abimethod test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_return(append: uint64): array<test_cases.array.immutable.MyDynamicSizedTuple>
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_return(append: uint64): stack_array<test_cases.array.immutable.MyDynamicSizedTuple>
   {
-    arr: array<test_cases.array.immutable.MyDynamicSizedTuple> = new array<test_cases.array.immutable.MyDynamicSizedTuple>((0u, 'Hello'))
+    arr: stack_array<test_cases.array.immutable.MyDynamicSizedTuple> = new stack_array<test_cases.array.immutable.MyDynamicSizedTuple>((0u, 'Hello'))
     for i in range(0u, append, 1u) {
-      arr: array<test_cases.array.immutable.MyDynamicSizedTuple> = arr + ((i, test_cases.array.immutable.times(i)))
+      arr: stack_array<test_cases.array.immutable.MyDynamicSizedTuple> = arr + ((i, test_cases.array.immutable.times(i)))
     }
     return arr
   }
   
-  abimethod test_cases.array.immutable.ImmutableArrayContract.test_convert_to_array_and_back(arr: array<test_cases.array.immutable.MyTuple>, append: uint64): array<test_cases.array.immutable.MyTuple>
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_convert_to_array_and_back(arr: stack_array<test_cases.array.immutable.MyTuple>, append: uint64): stack_array<test_cases.array.immutable.MyTuple>
   {
-    mutable: array<test_cases.array.immutable.MyTuple> = new array<test_cases.array.immutable.MyTuple>()
+    mutable: ref_array<test_cases.array.immutable.MyTuple> = new ref_array<test_cases.array.immutable.MyTuple>()
     mutable.extend(arr)
     for i in range(0u, append, 1u) {
       mutable.extend(((i, i % 2u == 0u, i % 3u == 0u)))
     }
-    return new array<test_cases.array.immutable.MyTuple>() + mutable
+    return new stack_array<test_cases.array.immutable.MyTuple>() + mutable
   }
   
-  abimethod test_cases.array.immutable.ImmutableArrayContract.test_concat_with_arc4_tuple(arg: arc4.tuple<arc4.uint64,arc4.uint64>): array<arc4.uint64>
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_concat_with_arc4_tuple(arg: arc4.tuple<arc4.uint64,arc4.uint64>): stack_array<arc4.uint64>
   {
-    prefix: array<arc4.uint64> = new array<arc4.uint64>(1_arc4u64, 2_arc4u64)
-    result: array<arc4.uint64> = prefix + arg
+    prefix: stack_array<arc4.uint64> = new stack_array<arc4.uint64>(1_arc4u64, 2_arc4u64)
+    result: stack_array<arc4.uint64> = prefix + arg
     return result
   }
   
-  abimethod test_cases.array.immutable.ImmutableArrayContract.test_concat_with_native_tuple(arg: tuple<arc4.uint64,arc4.uint64>): array<arc4.uint64>
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_concat_with_native_tuple(arg: tuple<arc4.uint64,arc4.uint64>): stack_array<arc4.uint64>
   {
-    prefix: array<arc4.uint64> = new array<arc4.uint64>(1_arc4u64, 2_arc4u64)
-    result: array<arc4.uint64> = prefix + arg
+    prefix: stack_array<arc4.uint64> = new stack_array<arc4.uint64>(1_arc4u64, 2_arc4u64)
+    result: stack_array<arc4.uint64> = prefix + arg
     return result
   }
   
-  abimethod test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_arc4_tuple(arg: arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>): array<arc4.dynamic_array<arc4.uint8>>
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_arc4_tuple(arg: arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>): stack_array<arc4.dynamic_array<arc4.uint8>>
   {
-    prefix: array<arc4.dynamic_array<arc4.uint8>> = new array<arc4.dynamic_array<arc4.uint8>>('a', 'b')
-    result: array<arc4.dynamic_array<arc4.uint8>> = prefix + arg
+    prefix: stack_array<arc4.dynamic_array<arc4.uint8>> = new stack_array<arc4.dynamic_array<arc4.uint8>>('a', 'b')
+    result: stack_array<arc4.dynamic_array<arc4.uint8>> = prefix + arg
     return result
   }
   
-  abimethod test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_native_tuple(arg: tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>): array<arc4.dynamic_array<arc4.uint8>>
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_native_tuple(arg: tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>): stack_array<arc4.dynamic_array<arc4.uint8>>
   {
-    prefix: array<arc4.dynamic_array<arc4.uint8>> = new array<arc4.dynamic_array<arc4.uint8>>('a', 'b')
-    result: array<arc4.dynamic_array<arc4.uint8>> = prefix + arg
+    prefix: stack_array<arc4.dynamic_array<arc4.uint8>> = new stack_array<arc4.dynamic_array<arc4.uint8>>('a', 'b')
+    result: stack_array<arc4.dynamic_array<arc4.uint8>> = prefix + arg
     return result
   }
   
@@ -718,23 +718,23 @@ subroutine times(n: uint64): string
   return result
 }
 
-subroutine add_x(arr: array<uint64>, x: uint64): array<uint64>
+subroutine add_x(arr: stack_array<uint64>, x: uint64): stack_array<uint64>
 {
   for i in range(0u, x, 1u) {
-    arr: array<uint64> = arr + (i)
+    arr: stack_array<uint64> = arr + (i)
   }
   return arr
 }
 
-subroutine pop_x(arr: array<uint64>, x: uint64): array<uint64>
+subroutine pop_x(arr: stack_array<uint64>, x: uint64): stack_array<uint64>
 {
   for _i in range(0u, x, 1u) {
-    arr: array<uint64> = arr[:-1]
+    arr: stack_array<uint64> = arr[:-1]
   }
   return arr
 }
 
-subroutine sum_arr(arr: array<uint64>): uint64
+subroutine sum_arr(arr: stack_array<uint64>): uint64
 {
   total: uint64 = 0u
   for i in arr {

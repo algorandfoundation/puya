@@ -45,7 +45,7 @@ def maybe_wtype_to_arc4_wtype(wtype: wtypes.WType) -> wtypes.ARC4Type | None:
             )
         case wtypes.string_wtype:
             return wtypes.arc4_string_alias
-        case wtypes.WArray(immutable=True, element_type=element_type):
+        case wtypes.StackArray(element_type=element_type):
             arc4_element_type = maybe_wtype_to_arc4_wtype(element_type)
             if arc4_element_type is None:
                 return None
@@ -76,15 +76,13 @@ def wtype_to_arc4_wtype(wtype: wtypes.WType, loc: SourceLocation | None) -> wtyp
 
 
 def effective_array_encoding(
-    array_type: wtypes.WArray, loc: SourceLocation | None
-) -> wtypes.ARC4Array | None:
-    """If a native array is effectively ARC4-encoded, return that equivalent type here."""
-    if array_type.immutable:
-        arc4_element_type = maybe_wtype_to_arc4_wtype(array_type.element_type)
-        if arc4_element_type is None:
-            # we flat out don't support this (yet?), so always raise a CodeError
-            # this is an internal detail to the current IR implementation of this type,
-            # so this is the right spot to do this validation in currently
-            raise CodeError("unsupported array element type", loc)
-        return wtypes.ARC4DynamicArray(element_type=arc4_element_type, immutable=True)
-    return None
+    array_type: wtypes.StackArray, loc: SourceLocation | None
+) -> wtypes.ARC4DynamicArray:
+    """If a native stack array is effectively ARC4-encoded, return that equivalent type here."""
+    arc4_element_type = maybe_wtype_to_arc4_wtype(array_type.element_type)
+    if arc4_element_type is None:
+        # we flat out don't support this (yet?), so always raise a CodeError
+        # this is an internal detail to the current IR implementation of this type,
+        # so this is the right spot to do this validation in currently
+        raise CodeError("unsupported array element type", loc)
+    return wtypes.ARC4DynamicArray(element_type=arc4_element_type, immutable=True)

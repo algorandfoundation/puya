@@ -147,7 +147,6 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
             ArrayConcat(
                 left=self.resolve(),
                 right=other.resolve(),
-                wtype=self.pytype.wtype,
                 source_location=location,
             ),
             self.pytype,

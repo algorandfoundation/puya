@@ -100,7 +100,7 @@ def decode_arc4_value(
             return _visit_arc4_tuple_decode(
                 context, arc4_tuple, value, target_wtype=native_tuple, source_location=loc
             )
-        case wtypes.ARC4DynamicArray(), wtypes.WArray() if (
+        case wtypes.ARC4DynamicArray(), wtypes.StackArray() if (
             effective_array_encoding(target_wtype, loc) == arc4_wtype
         ):
             return value
@@ -180,7 +180,7 @@ def encode_value_provider(
             return factory.concat(length_uint16, value, "encoded_value")
         case (
             wtypes.ARC4Array(),
-            wtypes.WArray(),
+            wtypes.StackArray(),
         ) if effective_array_encoding(value_wtype, loc) == arc4_wtype:
             # already ARC4 encoded
             return value_provider
@@ -534,7 +534,7 @@ def convert_and_concat_values(
             r_head_and_tail_vp = _get_arc4_array_head_and_tail(
                 context, right_wtype, right, source_location
             )
-        elif isinstance(right_wtype, wtypes.WArray):
+        elif isinstance(right_wtype, wtypes.StackArray | wtypes.ReferenceArray):
             raise NotImplementedError
         elif isinstance(right_wtype, wtypes.WTuple):
             r_count_vp = UInt64Constant(
@@ -595,7 +595,7 @@ def _get_arc4_element_type(
         if other_arc4:
             raise CodeError("only homogenous tuples can be concatenated", loc)
     else:
-        if isinstance(right_wtype, wtypes.WArray):
+        if isinstance(right_wtype, wtypes.StackArray | wtypes.ReferenceArray):
             right_native_type = right_wtype.element_type
         elif isinstance(right_wtype, wtypes.WTuple):
             right_native_type, *other = set(right_wtype.types)
@@ -1120,14 +1120,14 @@ def _read_static_item_from_arc4_container(
 
 def _get_any_array_length(
     context: IRFunctionBuildContext,
-    arr_wtype: wtypes.ARC4Array | wtypes.WArray,
+    arr_wtype: wtypes.ARC4Array | wtypes.StackArray | wtypes.ReferenceArray,
     array: Value,
     source_location: SourceLocation,
 ) -> ValueProvider:
-    if isinstance(arr_wtype, wtypes.WArray):
-        return get_native_array_length(context, arr_wtype, array, source_location)
-    else:
+    if isinstance(arr_wtype, wtypes.ARC4Array):
         return get_arc4_array_length(arr_wtype, array, source_location)
+    else:
+        return get_native_array_length(context, arr_wtype, array, source_location)
 
 
 def _get_arc4_array_tail_data_and_item_count(
@@ -1141,7 +1141,7 @@ def _get_arc4_array_tail_data_and_item_count(
 
     factory = OpFactory(context, source_location)
     match expr:
-        case awst_nodes.Expression(wtype=(wtypes.ARC4Array() | wtypes.WArray()) as arr_wtype):
+        case awst_nodes.Expression(wtype=(wtypes.ARC4Array() | wtypes.StackArray()) as arr_wtype):
             array = context.visitor.visit_and_materialise_single(expr)
             array_length_vp = _get_any_array_length(context, arr_wtype, array, source_location)
             array_length = factory.assign(array_length_vp, "array_length")
@@ -1411,12 +1411,12 @@ def _concat_dynamic_array_fixed_size(
 
     def array_data(expr: awst_nodes.Expression) -> Value:
         match expr.wtype:
-            case wtypes.WArray(immutable=False):
+            case wtypes.ReferenceArray():
                 slot = context.visitor.visit_and_materialise_single(expr)
                 return read_slot(context, slot, slot.source_location)
             case wtypes.ARC4StaticArray():
                 return context.visitor.visit_and_materialise_single(expr)
-            case wtypes.ARC4DynamicArray() | wtypes.WArray(immutable=True):
+            case wtypes.ARC4DynamicArray() | wtypes.StackArray():
                 expr_value = context.visitor.visit_and_materialise_single(expr)
                 return factory.extract_to_end(expr_value, 2, "expr_value_trimmed")
             case wtypes.WTuple(types=types) | wtypes.ARC4Tuple(types=types):
@@ -1530,16 +1530,16 @@ def get_arc4_array_length(
 
 def _get_arc4_array_head_and_tail(
     context: IRFunctionBuildContext,
-    wtype: wtypes.ARC4Array | wtypes.WArray,
+    wtype: wtypes.ARC4Array | wtypes.StackArray | wtypes.ReferenceArray,
     array: Value,
     source_location: SourceLocation,
 ) -> ValueProvider:
     match wtype:
         case wtypes.ARC4StaticArray():
             return array
-        case wtypes.WArray(immutable=False):
+        case wtypes.ReferenceArray():
             return read_slot(context, array, source_location)
-        case wtypes.ARC4DynamicArray() | wtypes.WArray(immutable=True):
+        case wtypes.ARC4DynamicArray() | wtypes.StackArray():
             return Intrinsic(
                 op=AVMOp.extract,
                 args=[array],

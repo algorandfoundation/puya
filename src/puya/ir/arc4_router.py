@@ -386,7 +386,7 @@ def _map_abi_args(
                 )
             else:
                 if (
-                    isinstance(arg, wtypes.WArray)
+                    isinstance(arg, wtypes.StackArray)
                     and effective_array_encoding(arg, abi_arg.source_location) == abi_arg.wtype
                 ):
                     abi_arg = awst_nodes.ReinterpretCast(
@@ -412,7 +412,11 @@ def route_abi_methods(
         match sig.return_type:
             case wtypes.void_wtype:
                 call_and_maybe_log = awst_nodes.ExpressionStatement(method_result)
-            case wtypes.ARC4Type() | wtypes.WArray(immutable=True):
+            case wtypes.ARC4Type():
+                call_and_maybe_log = log_arc4_result(abi_loc, method_result)
+            case wtypes.StackArray() if isinstance(
+                effective_array_encoding(sig.return_type, location), wtypes.ARC4Type
+            ):
                 call_and_maybe_log = log_arc4_result(abi_loc, method_result)
             case _:
                 converted_return_type = wtype_to_arc4_wtype(sig.return_type, abi_loc)

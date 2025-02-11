@@ -183,7 +183,7 @@ def handle_assignment(
             )
             return [mat_value]
         case awst_nodes.IndexExpression() as ix_expr:
-            if isinstance(ix_expr.base.wtype, wtypes.WArray) and not ix_expr.base.wtype.immutable:
+            if isinstance(ix_expr.base.wtype, wtypes.ReferenceArray):
                 array_slot = context.visitor.visit_and_materialise_single(
                     ix_expr.base, "array_slot"
                 )

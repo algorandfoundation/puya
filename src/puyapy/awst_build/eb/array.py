@@ -67,8 +67,7 @@ class ArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericArrayType
         wtype = typ.wtype
-        assert isinstance(wtype, wtypes.WArray)
-        assert not wtype.immutable
+        assert isinstance(wtype, wtypes.ReferenceArray)
         self._wtype = wtype
         super().__init__(typ, location)
 
@@ -236,13 +235,12 @@ class _Freeze(_ArrayFunc):
         expect.no_args(args, location)
         imm_type = pytypes.GenericImmutableArrayType.parameterise([self.typ.items], location)
         imm_wtype = imm_type.wtype
-        assert isinstance(imm_wtype, wtypes.WArray)
+        assert isinstance(imm_wtype, wtypes.StackArray)
         return builder_for_instance(
             imm_type,
             ArrayConcat(
                 left=NewArray(wtype=imm_wtype, values=[], source_location=location),
                 right=self.expr,
-                wtype=imm_wtype,
                 source_location=location,
             ),
         )

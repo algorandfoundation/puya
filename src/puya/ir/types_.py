@@ -321,23 +321,28 @@ def wtype_to_ir_type(
         case wtypes.WInnerTransactionFields():
             return PrimitiveIRType.itxn_field_set
         # note: these exclusions are to maintain parity with what is supported
-        #       between Array and ImmutableArray
+        #       between stack and reference arrays.
         #       ideally WGroupTransaction would work with either, but not be persistable
         #       inner transaction types are unlikely to be supported with current AVM restrictions
-        case wtypes.WArray(
-            element_type=wtypes.WGroupTransaction()
-            | wtypes.WInnerTransaction()
-            | wtypes.WInnerTransactionFields()
+        case (
+            wtypes.StackArray(element_type=element_type)
+            | wtypes.ReferenceArray(element_type=element_type)
+        ) if isinstance(
+            element_type,
+            wtypes.WGroupTransaction | wtypes.WInnerTransaction | wtypes.WInnerTransactionFields,
         ):
             raise CodeError("unsupported array element type", source_location)
-        case wtypes.WArray(element_type=element_wtype, immutable=immutable):
+        case wtypes.StackArray(element_type=element_wtype):
             element_ir_type = wtype_to_encoded_ir_type(
-                element_wtype, require_static_size=not immutable, loc=source_location
+                element_wtype, require_static_size=False, loc=source_location
+            )
+            return ArrayType(element=element_ir_type)
+        case wtypes.ReferenceArray(element_type=element_wtype):
+            element_ir_type = wtype_to_encoded_ir_type(
+                element_wtype, require_static_size=True, loc=source_location
             )
             array_type = ArrayType(element=element_ir_type)
-            return array_type if immutable else SlotType(array_type)
-        case wtypes.WArray(immutable=True):
-            return PrimitiveIRType.bytes
+            return SlotType(array_type)
         case wtypes.ARC4Type() as arc4_wtype if is_arc4_static_size(arc4_wtype):
             return SizedBytesType(bits_to_bytes(get_arc4_static_bit_size(arc4_wtype)))
         case wtypes.arc4_address_alias | wtypes.account_wtype:

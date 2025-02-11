@@ -205,9 +205,8 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_index=reverse_index,
                 reverse_items=reverse_items,
             )
-        case wtypes.WArray() as array_wtype if (
-            arc4_encoding_wtype := effective_array_encoding(array_wtype, sequence.source_location)
-        ):
+        case wtypes.StackArray() as array_wtype:
+            arc4_encoding_wtype = effective_array_encoding(array_wtype, sequence.source_location)
             arc4_element_type = arc4_encoding_wtype.element_type
             element_type = array_wtype.element_type
             iterator = arc4.build_for_in_array(
@@ -242,7 +241,7 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_index=reverse_index,
                 reverse_items=reverse_items,
             )
-        case wtypes.WArray(immutable=False):
+        case wtypes.ReferenceArray():
             iterator = arrays.build_for_in_array(
                 context,
                 sequence,

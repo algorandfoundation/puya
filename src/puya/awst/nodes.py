@@ -464,8 +464,19 @@ class ArrayConcat(Expression):
     an iterable type with the same element type
     """
 
-    left: Expression
+    left: Expression = attrs.field()
     right: Expression
+    # note: StaticArray not supported yet
+    wtype: wtypes.ARC4DynamicArray | wtypes.StackArray = attrs.field(init=False)
+
+    @wtype.default
+    def _wtype(self) -> wtypes.ARC4DynamicArray | wtypes.StackArray:
+        wtype = self.left.wtype
+        if not isinstance(wtype, wtypes.ARC4DynamicArray | wtypes.StackArray):
+            raise CodeError(
+                "unsupported type for concatenation left operand", self.source_location
+            )
+        return wtype
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_array_concat(self)
@@ -475,7 +486,9 @@ class ArrayConcat(Expression):
 class ArrayPop(Expression):
     """Removes the last item of an array and returns it"""
 
-    base: Expression
+    base: Expression = attrs.field(
+        validator=expression_has_wtype(wtypes.ARC4DynamicArray, wtypes.ReferenceArray)
+    )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_array_pop(self)
@@ -488,11 +501,11 @@ class ArrayReplace(Expression):
     base: Expression = attrs.field()
     index: Expression
     value: Expression
-    wtype: wtypes.WArray = attrs.field(init=False)
+    wtype: wtypes.StackArray = attrs.field(init=False)
 
     @wtype.default
-    def _wtype(self) -> wtypes.WArray:
-        if not (isinstance(self.base.wtype, wtypes.WArray) and self.base.wtype.immutable):
+    def _wtype(self) -> wtypes.StackArray:
+        if not isinstance(self.base.wtype, wtypes.StackArray):
             raise InternalError(
                 f"Unsupported base for ArrayReplace: {self.base.wtype}", self.source_location
             )
@@ -509,7 +522,9 @@ class ArrayExtend(Expression):
     the same element type
     """
 
-    base: Expression
+    base: Expression = attrs.field(
+        validator=expression_has_wtype(wtypes.ARC4DynamicArray, wtypes.ReferenceArray)
+    )
     other: Expression
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -782,7 +797,8 @@ class IndexExpression(Expression):
             wtypes.bytes_wtype,
             wtypes.ARC4StaticArray,
             wtypes.ARC4DynamicArray,
-            wtypes.WArray,
+            wtypes.StackArray,
+            wtypes.ReferenceArray,
             # NOTE: tuples (native or arc4) use TupleItemExpression instead
         )
     )
@@ -818,7 +834,7 @@ class IntersectionSliceExpression(Expression):
         validator=expression_has_wtype(
             wtypes.bytes_wtype,
             wtypes.WTuple,
-            wtypes.WArray,
+            wtypes.StackArray,
         )
     )
 
@@ -913,7 +929,12 @@ Lvalue = VarExpression | FieldExpression | IndexExpression | TupleExpression | S
 
 @attrs.frozen
 class NewArray(Expression):
-    wtype: wtypes.WArray | wtypes.ARC4Array
+    wtype: (
+        wtypes.ARC4DynamicArray
+        | wtypes.ARC4StaticArray
+        | wtypes.ReferenceArray
+        | wtypes.StackArray
+    )
     values: Sequence[Expression] = attrs.field(default=(), converter=tuple[Expression, ...])
 
     @values.validator
@@ -930,7 +951,7 @@ class NewArray(Expression):
 @attrs.frozen
 class ArrayLength(Expression):
     array: Expression = attrs.field(
-        validator=expression_has_wtype(wtypes.WArray, wtypes.ARC4Array)
+        validator=expression_has_wtype(wtypes.StackArray, wtypes.ReferenceArray, wtypes.ARC4Array)
     )
     wtype: wtypes.WType = attrs.field(default=wtypes.uint64_wtype, init=False)
 

@@ -69,8 +69,7 @@ class ImmutableArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericImmutableArrayType
         wtype = typ.wtype
-        assert isinstance(wtype, wtypes.WArray)
-        assert wtype.immutable
+        assert isinstance(wtype, wtypes.StackArray)
         self._wtype = wtype
         super().__init__(typ, location)
 
@@ -169,7 +168,6 @@ class ImmutableArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayTyp
             ArrayConcat(
                 left=self.resolve(),
                 right=other.resolve(),
-                wtype=self.pytype.wtype,
                 source_location=location,
             ),
             self.pytype,
@@ -189,7 +187,6 @@ class ImmutableArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayTyp
             value=ArrayConcat(
                 left=lhs,
                 right=rhs.resolve(),
-                wtype=self.pytype.wtype,
                 source_location=location,
             ),
             source_location=location,
@@ -223,7 +220,6 @@ class _Append(_ArrayFunc):
             ArrayConcat(
                 left=self.expr,
                 right=args_tuple,
-                wtype=self.typ.wtype,
                 source_location=location,
             ),
             self.typ,
