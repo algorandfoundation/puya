@@ -1,6 +1,7 @@
 import base64
 import math
 import random
+from collections.abc import Sequence
 from pathlib import Path
 
 import algokit_utils
@@ -36,12 +37,14 @@ def compile_arc32(
     optimization_level: int = 1,
     debug_level: int = 2,
     file_name: str | None = None,
+    disabled_optimizations: Sequence[str] = (),
 ) -> str:
     result = compile_src_from_options(
         PuyaPyOptions(
             paths=(src_path,),
             optimization_level=optimization_level,
             debug_level=debug_level,
+            disabled_optimizations=disabled_optimizations,
         )
     )
     if file_name is None:
@@ -1759,13 +1762,15 @@ def test_diamond_mro(
     assert method_logs == expected_method_log
 
 
+@pytest.mark.parametrize("optimization_level", [0, 1])
 def test_array_uint64(
     algod_client: AlgodClient,
+    optimization_level: int,
     account: algokit_utils.Account,
 ) -> None:
     example = TEST_CASES_DIR / "array" / "uint64.py"
 
-    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_spec = _get_app_spec(example, optimization_level)
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
     app_client.create()
 
@@ -1786,13 +1791,15 @@ def test_array_uint64(
     simulate_call(app_client, "test_quicksort")
 
 
+@pytest.mark.parametrize("optimization_level", [0, 1])
 def test_array_static_size(
     algod_client: AlgodClient,
+    optimization_level: int,
     account: algokit_utils.Account,
 ) -> None:
     example = TEST_CASES_DIR / "array" / "static_size.py"
 
-    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_spec = _get_app_spec(example, optimization_level)
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
     app_client.create()
     # ensure app meets minimum balance requirements
@@ -1841,21 +1848,11 @@ def test_array_static_size(
     assert response.abi_results[0].return_value == [[1, 2], [3, 4]]
 
 
-@pytest.fixture(scope="session")
-def immutable_array_app(
-    algod_client: AlgodClient,
-    account: algokit_utils.Account,
-) -> ApplicationClient:
-    example = TEST_CASES_DIR / "array" / "immutable.py"
-
-    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
-    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
-    app_client.create()
-
-    return app_client
-
-
-def test_immutable_array(immutable_array_app: ApplicationClient) -> None:
+@pytest.mark.parametrize("optimization_level", [0, 1])
+def test_immutable_array(
+    algod_client: AlgodClient, optimization_level: int, account: algokit_utils.Account
+) -> None:
+    immutable_array_app = _get_immutable_array_app(algod_client, optimization_level, account)
     response = simulate_call(immutable_array_app, "test_uint64_array")
     assert _get_global_state(response, b"a") == _get_arc4_bytes(
         "uint64[]", [42, 0, 23, 2, *range(10), 44]
@@ -1933,13 +1930,23 @@ _EXPECTED_LENGTH_20 = [False, False, True, *(False,) * 17]
 
 
 @pytest.mark.parametrize("length", [0, 1, 2, 3, 4, 7, 8, 9, 15, 16, 17])
-def test_immutable_bool_array(immutable_array_app: ApplicationClient, length: int) -> None:
+@pytest.mark.parametrize("optimization_level", [0, 1])
+def test_immutable_bool_array(
+    algod_client: AlgodClient, optimization_level: int, length: int, account: algokit_utils.Account
+) -> None:
+    immutable_array_app = _get_immutable_array_app(algod_client, optimization_level, account)
+
     response = simulate_call(immutable_array_app, "test_bool_array", length=length)
     expected = _EXPECTED_LENGTH_20[:length]
     assert _get_global_state(response, b"g") == _get_arc4_bytes("bool[]", expected)
 
 
-def test_immutable_routing(immutable_array_app: ApplicationClient) -> None:
+@pytest.mark.parametrize("optimization_level", [0, 1])
+def test_immutable_routing(
+    algod_client: AlgodClient, optimization_level: int, account: algokit_utils.Account
+) -> None:
+    immutable_array_app = _get_immutable_array_app(algod_client, optimization_level, account)
+
     response = simulate_call(
         immutable_array_app,
         "sum_uints_and_lengths_and_trues",
@@ -1976,7 +1983,12 @@ def test_immutable_routing(immutable_array_app: ApplicationClient) -> None:
     ]
 
 
-def test_nested_immutable(immutable_array_app: ApplicationClient) -> None:
+@pytest.mark.parametrize("optimization_level", [0, 1])
+def test_nested_immutable(
+    algod_client: AlgodClient, optimization_level: int, account: algokit_utils.Account
+) -> None:
+    immutable_array_app = _get_immutable_array_app(algod_client, optimization_level, account)
+
     response = simulate_call(
         immutable_array_app,
         "test_nested_array",
@@ -1993,6 +2005,32 @@ def test_nested_immutable(immutable_array_app: ApplicationClient) -> None:
         3,
         6,
     ]
+
+
+def _get_immutable_array_app(
+    algod_client: AlgodClient,
+    optimization_level: int,
+    account: algokit_utils.Account,
+) -> ApplicationClient:
+    example = TEST_CASES_DIR / "array" / "immutable.py"
+
+    app_spec = _get_app_spec(example, optimization_level)
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    return app_client
+
+
+def _get_app_spec(
+    app_spec_path: Path, optimization_level: int
+) -> algokit_utils.ApplicationSpecification:
+    return algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(
+            app_spec_path,
+            optimization_level=optimization_level,
+            disabled_optimizations=() if optimization_level else ("remove_unused_variables",),
+        )
+    )
 
 
 def simulate_call(
