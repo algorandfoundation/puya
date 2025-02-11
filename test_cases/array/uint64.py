@@ -15,14 +15,14 @@ class Contract(arc4.ARC4Contract):
         assert arr.length == 6
         assert arr[-1] == 4
 
+        pop_x(arr, x=UInt64(3), expected=UInt64(4))
+        assert arr.length == 3
+        assert arr[-1] == 1
+
         arr.append(UInt64(43))
-        assert arr.length == 7
+        assert arr.length == 4
         assert arr[-1] == 43
         assert arr[0] == 42
-
-        pop_x(arr, UInt64(3))
-        assert arr.length == 4
-        assert arr[-1] == 2
 
         add_x(arr, UInt64(10))
         assert arr.length == 14
@@ -237,9 +237,11 @@ def add_x(arr: Array[UInt64], x: UInt64) -> None:
 
 
 @subroutine
-def pop_x(arr: Array[UInt64], x: UInt64) -> None:
+def pop_x(arr: Array[UInt64], x: UInt64, expected: UInt64) -> None:
     for _i in urange(x):
-        arr.pop()
+        popped = arr.pop()
+        assert popped == expected
+        expected -= 1
 
 
 @subroutine
