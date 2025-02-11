@@ -45,7 +45,11 @@ class StaticSizeContract(arc4.ARC4Contract):
     def test_extend_from_tuple(self, some_more: tuple[More, More]) -> ImmutableArray[More]:
         arr = Array[More]()
         arr.extend(some_more)
-        return arr.freeze()
+        last = arr[-1]
+        assert last == some_more[1]
+        result = arr.freeze()
+        assert result[-1] == last
+        return result
 
     @arc4.abimethod()
     def test_extend_from_arc4_tuple(

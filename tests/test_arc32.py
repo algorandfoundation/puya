@@ -1928,10 +1928,15 @@ def test_immutable_array(
     response = simulate_call(
         immutable_array_app,
         "test_concat_immutable_dynamic",
-        arr1=[[1, "one"], [2, "foo"]],
-        arr2=[[3, "tree"], [4, "floor"]],
+        imm1=[[1, "one"], [2, "foo"]],
+        imm2=[[3, "tree"], [4, "floor"]],
     )
-    assert response.abi_results[0] == [[1, "one"], [2, "foo"], [3, "tree"], [4, "floor"]]
+    assert response.abi_results[0].return_value == [
+        [1, "one"],
+        [2, "foo"],
+        [3, "tree"],
+        [4, "floor"],
+    ]
 
 
 _EXPECTED_LENGTH_20 = [False, False, True, *(False,) * 17]
