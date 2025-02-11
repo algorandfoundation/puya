@@ -193,9 +193,7 @@ class _Pop(_ArrayFunc):
         location: SourceLocation,
     ) -> InstanceBuilder:
         expect.no_args(args, location)
-        result_expr = ArrayPop(
-            base=self.expr, wtype=self.typ.items_wtype, source_location=location
-        )
+        result_expr = ArrayPop(base=self.expr, source_location=location)
         return builder_for_instance(self.typ.items, result_expr)
 
 

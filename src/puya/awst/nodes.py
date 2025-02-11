@@ -464,8 +464,15 @@ class ArrayConcat(Expression):
     an iterable type with the same element type
     """
 
-    left: Expression = attrs.field()
-    right: Expression
+    left: Expression
+    right: Expression = attrs.field(
+        validator=expression_has_wtype(
+            wtypes.NativeArray,
+            wtypes.ARC4Array,
+            wtypes.WTuple,
+            wtypes.ARC4Tuple,
+        )
+    )
     # note: StaticArray not supported yet
     wtype: wtypes.ARC4DynamicArray | wtypes.StackArray = attrs.field(init=False)
 
@@ -489,6 +496,14 @@ class ArrayPop(Expression):
     base: Expression = attrs.field(
         validator=expression_has_wtype(wtypes.ARC4DynamicArray, wtypes.ReferenceArray)
     )
+    wtype: WType = attrs.field(init=False)
+
+    @wtype.default
+    def _wtype(self) -> WType:
+        if isinstance(self.base.wtype, wtypes.ARC4Array | wtypes.NativeArray):
+            return self.base.wtype.element_type
+        # default factories run before validation, so we need to return something here
+        return wtypes.void_wtype
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_array_pop(self)
