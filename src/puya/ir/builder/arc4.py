@@ -1158,33 +1158,41 @@ def _get_arc4_array_tail_data_and_item_count(
 
     factory = OpFactory(context, source_location)
 
-    if isinstance(expr, awst_nodes.TupleExpression):
-        if native_element_type is None:
-            values = context.visitor.visit_and_materialise(expr)
-        else:
-            values = [
-                factory.assign(
-                    encode_value_provider(
-                        context,
-                        context.visitor.visit_expr(item),
-                        native_element_type,
-                        arc4_element_type,
-                        item.source_location,
-                    ),
-                    "encoded_item",
-                )
-                for item in expr.items
-            ]
-        data = factory.constant(b"")
-        for val in values:
-            data = factory.concat(data, val, "data")
-        tuple_length = UInt64Constant(
-            value=len(values),
-            source_location=source_location,
-        )
-        return data, tuple_length
-
     match expr.wtype:
+        case wtypes.WTuple():
+            if native_element_type is None:
+                encoded_values = context.visitor.visit_and_materialise(expr)
+            elif isinstance(expr, awst_nodes.TupleExpression):
+                encoded_values = [
+                    factory.assign(
+                        encode_value_provider(
+                            context,
+                            context.visitor.visit_expr(item),
+                            native_element_type,
+                            arc4_element_type,
+                            item.source_location,
+                        ),
+                        "encoded_item",
+                    )
+                    for item in expr.items
+                ]
+            else:
+                values = context.visitor.visit_and_materialise(expr)
+                encoded_values = _encode_n_items_as_arc4_items(
+                    context,
+                    values,
+                    source_wtype=native_element_type,
+                    target_wtype=arc4_element_type,
+                    loc=source_location,
+                )
+            data = factory.constant(b"")
+            for val in encoded_values:
+                data = factory.concat(data, val, "data")
+            tuple_length = UInt64Constant(
+                value=len(expr.wtype.types),
+                source_location=source_location,
+            )
+            return data, tuple_length
         case wtypes.ARC4Array() | wtypes.StackArray() as arr_wtype:
             array = context.visitor.visit_and_materialise_single(expr)
             array_length_vp = _get_any_array_length(context, arr_wtype, array, source_location)
@@ -1215,26 +1223,6 @@ def _get_arc4_array_tail_data_and_item_count(
                 source_location=source_location,
             )
             return tail_data, tuple_length
-        case wtypes.WTuple():
-            values = context.visitor.visit_and_materialise(expr)
-            if native_element_type is None:
-                encoded_values = values
-            else:
-                encoded_values = _encode_n_items_as_arc4_items(
-                    context,
-                    values,
-                    source_wtype=native_element_type,
-                    target_wtype=arc4_element_type,
-                    loc=source_location,
-                )
-            data = factory.constant(b"")
-            for val in encoded_values:
-                data = factory.concat(data, val, "data")
-            tuple_length = UInt64Constant(
-                value=len(values),
-                source_location=source_location,
-            )
-            return data, tuple_length
         case wtypes.ReferenceArray():
             raise InternalError("reference array of dynamic sized elements", source_location)
         case _:
