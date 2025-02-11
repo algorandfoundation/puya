@@ -1925,6 +1925,14 @@ def test_immutable_array(
         ), f"{abi_result.method.get_signature()}: {abi_result.decode_error}"
         assert abi_result.return_value == ["a", "b", "c", "d"]
 
+    response = simulate_call(
+        immutable_array_app,
+        "test_concat_immutable_dynamic",
+        arr1=[[1, "one"], [2, "foo"]],
+        arr2=[[3, "tree"], [4, "floor"]],
+    )
+    assert response.abi_results[0] == [[1, "one"], [2, "foo"], [3, "tree"], [4, "floor"]]
+
 
 _EXPECTED_LENGTH_20 = [False, False, True, *(False,) * 17]
 
