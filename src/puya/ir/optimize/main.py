@@ -115,7 +115,11 @@ def optimize_program_ir(
     routable_method_ids: Collection[str] | None,
     qualifier: str,
 ) -> None:
-    pipeline = get_subroutine_optimizations(context.options.optimization_level)
+    pipeline = [
+        o
+        for o in get_subroutine_optimizations(context.options.optimization_level)
+        if o.id not in context.options.disabled_optimizations
+    ]
     opt_context = attrs_extend(IROptimizationContext, context, expand_all_bytes=False)
     for pass_num in range(1, MAX_PASSES + 1):
         program_modified = False

@@ -1,5 +1,5 @@
 import enum
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence, Set
 from functools import cached_property
 
 import attrs
@@ -32,6 +32,11 @@ class PuyaOptions:
     # TODO: the below is probably not scalable as a set of optimisation on/off flags,
     #       but it'll do for now
     locals_coalescing_strategy: LocalsCoalescingStrategy = LocalsCoalescingStrategy.root_operand
+    _disabled_optimizations: Sequence[str] = ()
+
+    @cached_property
+    def disabled_optimizations(self) -> Set[str]:
+        return set(self._disabled_optimizations)
 
     @cached_property
     def template_variables(self) -> Mapping[str, int | bytes]:
