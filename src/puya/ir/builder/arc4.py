@@ -1159,27 +1159,13 @@ def _get_arc4_array_tail_data_and_item_count(
     factory = OpFactory(context, source_location)
 
     if isinstance(expr.wtype, wtypes.WTuple):
+        native_values = context.visitor.visit_and_materialise(expr)
         if native_element_type is None:
-            encoded_values = context.visitor.visit_and_materialise(expr)
-        elif isinstance(expr, awst_nodes.TupleExpression):
-            encoded_values = [
-                factory.assign(
-                    encode_value_provider(
-                        context,
-                        context.visitor.visit_expr(item),
-                        native_element_type,
-                        arc4_element_type,
-                        item.source_location,
-                    ),
-                    "encoded_item",
-                )
-                for item in expr.items
-            ]
+            encoded_values = native_values
         else:
-            values = context.visitor.visit_and_materialise(expr)
             encoded_values = _encode_n_items_as_arc4_items(
                 context,
-                values,
+                native_values,
                 source_wtype=native_element_type,
                 target_wtype=arc4_element_type,
                 loc=source_location,
