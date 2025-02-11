@@ -162,9 +162,9 @@ class FunctionIRBuilder(
             case wtypes.ReferenceArray():
                 loc = expr.source_location
                 original_slot = self.visit_and_materialise_single(expr.value)
-                new_slot = puya.ir.builder.mem.new_slot(self.context, original_slot.ir_type, loc)
-                value = puya.ir.builder.mem.read_slot(self.context, original_slot, loc)
-                puya.ir.builder.mem.write_slot(self.context, new_slot, value, loc)
+                new_slot = mem.new_slot(self.context, original_slot.ir_type, loc)
+                value = mem.read_slot(self.context, original_slot, loc)
+                mem.write_slot(self.context, new_slot, value, loc)
                 return new_slot
 
         raise InternalError(
@@ -870,7 +870,7 @@ class FunctionIRBuilder(
         return storage.visit_app_account_state_expression(self.context, expr)
 
     def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> TExpression:
-        return puya.ir.builder.storage.visit_box_value(self.context, expr)
+        return storage.visit_box_value(self.context, expr)
 
     def visit_state_get_ex(self, expr: awst_nodes.StateGetEx) -> TExpression:
         return storage.visit_state_get_ex(self.context, expr)
