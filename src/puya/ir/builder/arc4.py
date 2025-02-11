@@ -528,45 +528,9 @@ def dynamic_array_concat_and_convert(
         invoke_name = "dynamic_array_concat_byte_length_head"
         invoke_args = [left, r_data, r_length]
     elif is_arc4_dynamic_size(element_type):
-        if isinstance(right_wtype, wtypes.ARC4Array | wtypes.StackArray):
-            right = context.visitor.visit_and_materialise_single(iter_expr)
-            if right_native_type is not None:
-                logger.debug(
-                    f"assuming {right_native_type} is already encoded as {element_type}",
-                    location=source_location,
-                )
-            r_count_vp = _get_any_array_length(context, right_wtype, right, source_location)
-            r_head_and_tail_vp = _get_arc4_array_head_and_tail(
-                context, right_wtype, right, source_location
-            )
-        elif isinstance(right_wtype, wtypes.WTuple):
-            r_count_vp = UInt64Constant(
-                value=len(right_wtype.types), source_location=source_location
-            )
-            right_values = context.visitor.visit_and_materialise(iter_expr)
-            if right_native_type is not None:
-                right_values = _encode_n_items_as_arc4_items(
-                    context,
-                    right_values,
-                    right_native_type,
-                    element_type,
-                    iter_expr.source_location,
-                )
-            r_head_and_tail_vp = _arc4_items_as_arc4_tuple(
-                context, element_type, right_values, source_location
-            )
-        elif isinstance(right_wtype, wtypes.ARC4Tuple):
-            assert right_native_type is None
-            r_count_vp = UInt64Constant(
-                value=len(right_wtype.types), source_location=source_location
-            )
-            r_head_and_tail_vp = context.visitor.visit_and_materialise_single(iter_expr)
-        elif isinstance(right_wtype, wtypes.ReferenceArray):
-            raise InternalError(
-                "shouldn't have reference array of dynamically-sized element type", source_location
-            )
-        else:
-            raise InternalError("Expected array", source_location)
+        r_count_vp, r_head_and_tail_vp = _extract_dynamic_element_count_head_and_tail(
+            context, element_type, iter_expr, right_native_type, right_wtype, source_location
+        )
         invoke_name = "dynamic_array_concat_dynamic_element"
         invoke_args = list(
             factory.assign_multiple(
@@ -587,6 +551,52 @@ def dynamic_array_concat_and_convert(
         source_location=source_location,
     )
     return factory.assign(invoke, "concat_result")
+
+
+def _extract_dynamic_element_count_head_and_tail(
+    context: IRFunctionBuildContext,
+    element_type: wtypes.ARC4Type,
+    iter_expr: awst_nodes.Expression,
+    right_native_type: wtypes.WType | None,
+    right_wtype: wtypes.WType,
+    source_location: SourceLocation,
+) -> tuple[ValueProvider, ValueProvider]:
+    if isinstance(right_wtype, wtypes.ARC4Array | wtypes.StackArray):
+        right = context.visitor.visit_and_materialise_single(iter_expr)
+        if right_native_type is not None:
+            logger.debug(
+                f"assuming {right_native_type} is already encoded as {element_type}",
+                location=source_location,
+            )
+        r_count_vp = _get_any_array_length(context, right_wtype, right, source_location)
+        r_head_and_tail_vp = _get_arc4_array_head_and_tail(
+            context, right_wtype, right, source_location
+        )
+    elif isinstance(right_wtype, wtypes.WTuple):
+        r_count_vp = UInt64Constant(value=len(right_wtype.types), source_location=source_location)
+        right_values = context.visitor.visit_and_materialise(iter_expr)
+        if right_native_type is not None:
+            right_values = _encode_n_items_as_arc4_items(
+                context,
+                right_values,
+                right_native_type,
+                element_type,
+                iter_expr.source_location,
+            )
+        r_head_and_tail_vp = _arc4_items_as_arc4_tuple(
+            context, element_type, right_values, source_location
+        )
+    elif isinstance(right_wtype, wtypes.ARC4Tuple):
+        assert right_native_type is None
+        r_count_vp = UInt64Constant(value=len(right_wtype.types), source_location=source_location)
+        r_head_and_tail_vp = context.visitor.visit_and_materialise_single(iter_expr)
+    elif isinstance(right_wtype, wtypes.ReferenceArray):
+        raise InternalError(
+            "shouldn't have reference array of dynamically-sized element type", source_location
+        )
+    else:
+        raise InternalError("Expected array", source_location)
+    return r_count_vp, r_head_and_tail_vp
 
 
 def _get_arc4_element_type(
