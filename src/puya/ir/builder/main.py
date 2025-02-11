@@ -1310,7 +1310,7 @@ class FunctionIRBuilder(
                 self.context, array_contents, values, expr.source_location
             )
             mem.write_slot(self.context, array_slot, array_contents, expr.source_location)
-            return None
+            return array_slot
         else:
             raise InternalError("unsupported array type for ArrayExtend", expr.source_location)
 

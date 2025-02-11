@@ -121,12 +121,7 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
             logger.error(f"unsupported operator for type: {op.value!r}", location=location)
             return dummy_statement(location)
         rhs = _match_array_concat_arg(rhs, self.pytype)
-        extend = ArrayExtend(
-            base=self.resolve(),
-            other=rhs.resolve(),
-            wtype=wtypes.void_wtype,
-            source_location=location,
-        )
+        extend = ArrayExtend(base=self.resolve(), other=rhs.resolve(), source_location=location)
         return ExpressionStatement(expr=extend)
 
     @typing.override
@@ -182,9 +177,7 @@ class _Append(_ArrayFunc):
         args_expr = arg.resolve()
         args_tuple = TupleExpression.from_items([args_expr], arg.source_location)
         return NoneExpressionBuilder(
-            ArrayExtend(
-                base=self.expr, other=args_tuple, wtype=wtypes.void_wtype, source_location=location
-            )
+            ArrayExtend(base=self.expr, other=args_tuple, source_location=location)
         )
 
 
@@ -217,12 +210,7 @@ class _Extend(_ArrayFunc):
         else:
             other = _match_array_concat_arg(arg, self.typ)
         return NoneExpressionBuilder(
-            ArrayExtend(
-                base=self.expr,
-                other=other.resolve(),
-                wtype=wtypes.void_wtype,
-                source_location=location,
-            )
+            ArrayExtend(base=self.expr, other=other.resolve(), source_location=location)
         )
 
 

@@ -464,7 +464,7 @@ class ArrayConcat(Expression):
     an iterable type with the same element type
     """
 
-    left: Expression
+    left: Expression  # note: validated through wtype default factory
     right: Expression = attrs.field(
         validator=expression_has_wtype(
             wtypes.NativeArray,
@@ -490,6 +490,39 @@ class ArrayConcat(Expression):
 
 
 @attrs.frozen
+class ArrayExtend(Expression):
+    """
+    Given 'base' that is logically an array - extend it with 'other' which is an iterable type with
+    the same element type
+    """
+
+    base: Expression = attrs.field(
+        validator=expression_has_wtype(wtypes.ARC4DynamicArray, wtypes.ReferenceArray)
+    )
+    other: Expression = attrs.field(
+        validator=expression_has_wtype(
+            wtypes.NativeArray,
+            wtypes.ARC4Array,
+            wtypes.WTuple,
+            wtypes.ARC4Tuple,
+        )
+    )
+    wtype: WType = attrs.field(default=wtypes.void_wtype)
+
+    @wtype.validator
+    def _wtype_validator(self, _attr: object, value: WType) -> None:
+        if value not in (wtypes.void_wtype, self.base.wtype):
+            raise InternalError(
+                "ArrayExtend should be constructed with either a void return type, "
+                "or the type of the array being extended",
+                self.source_location,
+            )
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_array_extend(self)
+
+
+@attrs.frozen
 class ArrayPop(Expression):
     """Removes the last item of an array and returns it"""
 
@@ -511,11 +544,11 @@ class ArrayPop(Expression):
 
 @attrs.frozen
 class ArrayReplace(Expression):
-    """Replaces the item at index with value and returns the updated array"""
+    """For a StackArray, replaces the item at index with value and returns the updated array"""
 
-    base: Expression = attrs.field()
-    index: Expression
-    value: Expression
+    base: Expression  # note: type validated by wtype factory
+    index: Expression = attrs.field(validator=wtype_is_uint64)
+    value: Expression = attrs.field()
     wtype: wtypes.StackArray = attrs.field(init=False)
 
     @wtype.default
@@ -526,24 +559,13 @@ class ArrayReplace(Expression):
             )
         return self.base.wtype
 
+    @value.validator
+    def _value_wtype_validator(self, _attr: object, value: Expression) -> None:
+        if value.wtype != self.wtype.element_type:
+            raise CodeError("value type should match array element type", value.source_location)
+
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_array_replace(self)
-
-
-@attrs.frozen
-class ArrayExtend(Expression):
-    """
-    Given 'base' that is logically an array - extend it with 'other' which is an iterable type with
-    the same element type
-    """
-
-    base: Expression = attrs.field(
-        validator=expression_has_wtype(wtypes.ARC4DynamicArray, wtypes.ReferenceArray)
-    )
-    other: Expression
-
-    def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_array_extend(self)
 
 
 @attrs.frozen
