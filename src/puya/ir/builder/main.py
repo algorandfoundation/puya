@@ -822,16 +822,13 @@ class FunctionIRBuilder(
             )
 
             encoded_read = factory.assign(encoded_read_vp, "arc4_item")
-            if arc4_array_type.element_type == indexable_wtype.element_type:
-                return encoded_read
-            else:
-                return arc4.decode_arc4_value(
-                    self.context,
-                    encoded_read,
-                    arc4_array_type.element_type,
-                    indexable_wtype.element_type,
-                    expr.source_location,
-                )
+            return arc4.decode_arc4_value(
+                self.context,
+                encoded_read,
+                arc4_array_type.element_type,
+                indexable_wtype.element_type,
+                expr.source_location,
+            )
         elif isinstance(indexable_wtype, wtypes.ARC4Array):
             return arc4.arc4_array_index(
                 self.context,
