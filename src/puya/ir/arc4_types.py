@@ -75,6 +75,10 @@ def wtype_to_arc4_wtype(wtype: wtypes.WType, loc: SourceLocation | None) -> wtyp
     return arc4_wtype
 
 
+# note that this function is typed only as StackArray -> ARC4DynamicArray, because that is
+# the only currently supported combo, so it's easier to type it as that rather than check/assert
+# etc in the callers.
+# but that should change, in theory it should be able to take NativeArray -> ARC4Array (or other??)
 def effective_array_encoding(
     array_type: wtypes.StackArray, loc: SourceLocation | None
 ) -> wtypes.ARC4DynamicArray:
