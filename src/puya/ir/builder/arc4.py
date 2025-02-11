@@ -13,11 +13,7 @@ from puya.ir.arc4 import (
     is_arc4_dynamic_size,
     is_arc4_static_size,
 )
-from puya.ir.arc4_types import (
-    effective_array_encoding,
-    maybe_wtype_to_arc4_wtype,
-    wtype_to_arc4_wtype,
-)
+from puya.ir.arc4_types import effective_array_encoding, maybe_wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import (
     OpFactory,
@@ -506,7 +502,7 @@ def dynamic_array_concat_and_convert(
     left = context.visitor.visit_and_materialise_single(array_expr)
     if element_type == wtypes.arc4_bool_wtype:
         (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
-            context, iter_expr, source_location
+            context, iter_expr, element_type, right_native_type, source_location
         )
         if isinstance(right_wtype, wtypes.WTuple):
             # each bit is in its own byte
@@ -523,7 +519,7 @@ def dynamic_array_concat_and_convert(
         ]
     elif _is_byte_length_header(element_type):
         (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
-            context, iter_expr, source_location
+            context, iter_expr, element_type, right_native_type, source_location
         )
         invoke_name = "dynamic_array_concat_byte_length_head"
         invoke_args = [left, r_data, r_length]
@@ -1148,7 +1144,11 @@ def _get_any_array_length(
 
 
 def _get_arc4_array_tail_data_and_item_count(
-    context: IRFunctionBuildContext, expr: awst_nodes.Expression, source_location: SourceLocation
+    context: IRFunctionBuildContext,
+    expr: awst_nodes.Expression,
+    arc4_element_type: wtypes.ARC4Type,
+    native_element_type: wtypes.WType | None,
+    source_location: SourceLocation,
 ) -> tuple[Value, Value]:
     """
     For ARC4 containers (dynamic array, static array) will return the tail data and item count.
@@ -1157,8 +1157,35 @@ def _get_arc4_array_tail_data_and_item_count(
     """
 
     factory = OpFactory(context, source_location)
-    match expr:
-        case awst_nodes.Expression(wtype=(wtypes.ARC4Array() | wtypes.StackArray()) as arr_wtype):
+
+    if isinstance(expr, awst_nodes.TupleExpression):
+        if native_element_type is None:
+            values = context.visitor.visit_and_materialise(expr)
+        else:
+            values = [
+                factory.assign(
+                    encode_value_provider(
+                        context,
+                        context.visitor.visit_expr(item),
+                        native_element_type,
+                        arc4_element_type,
+                        item.source_location,
+                    ),
+                    "encoded_item",
+                )
+                for item in expr.items
+            ]
+        data = factory.constant(b"")
+        for val in values:
+            data = factory.concat(data, val, "data")
+        tuple_length = UInt64Constant(
+            value=len(values),
+            source_location=source_location,
+        )
+        return data, tuple_length
+
+    match expr.wtype:
+        case wtypes.ARC4Array() | wtypes.StackArray() as arr_wtype:
             array = context.visitor.visit_and_materialise_single(expr)
             array_length_vp = _get_any_array_length(context, arr_wtype, array, source_location)
             array_length = factory.assign(array_length_vp, "array_length")
@@ -1166,7 +1193,6 @@ def _get_arc4_array_tail_data_and_item_count(
                 _get_arc4_array_head_and_tail(context, arr_wtype, array, source_location),
                 "array_head_and_tail",
             )
-            arc4_element_type = wtype_to_arc4_wtype(arr_wtype.element_type, source_location)
             array_tail = _get_arc4_array_tail(
                 context,
                 element_wtype=arc4_element_type,
@@ -1175,33 +1201,7 @@ def _get_arc4_array_tail_data_and_item_count(
                 source_location=source_location,
             )
             return array_tail, array_length
-        case awst_nodes.TupleExpression(items=tuple_items, wtype=wtypes.WTuple(types=item_types)):
-            if all(isinstance(t, wtypes.ARC4Type) for t in item_types):
-                values = context.visitor.visit_and_materialise(expr)
-            else:
-                values = [
-                    factory.assign(
-                        encode_value_provider(
-                            context,
-                            context.visitor.visit_expr(item),
-                            item.wtype,
-                            wtype_to_arc4_wtype(item.wtype, item.source_location),
-                            item.source_location,
-                        ),
-                        "encoded_item",
-                    )
-                    for item in tuple_items
-                ]
-            data = factory.constant(b"")
-            for val in values:
-                data = factory.concat(data, val, "data")
-            tuple_length = UInt64Constant(
-                value=len(values),
-                source_location=source_location,
-            )
-            return data, tuple_length
-        case awst_nodes.Expression(wtype=wtypes.ARC4Tuple(types=arc4_item_types)):
-            (arc4_element_type,) = set(arc4_item_types)
+        case wtypes.ARC4Tuple(types=arc4_item_types):
             data = context.visitor.visit_and_materialise_single(expr)
             tuple_length = UInt64Constant(
                 value=len(arc4_item_types),
@@ -1215,16 +1215,18 @@ def _get_arc4_array_tail_data_and_item_count(
                 source_location=source_location,
             )
             return tail_data, tuple_length
-        case awst_nodes.Expression(wtype=wtypes.WTuple(types=item_types)):
-            (native_element_type,) = set(item_types)
+        case wtypes.WTuple():
             values = context.visitor.visit_and_materialise(expr)
-            encoded_values = _encode_n_items_as_arc4_items(
-                context,
-                values,
-                source_wtype=native_element_type,
-                target_wtype=wtype_to_arc4_wtype(native_element_type, source_location),
-                loc=source_location,
-            )
+            if native_element_type is None:
+                encoded_values = values
+            else:
+                encoded_values = _encode_n_items_as_arc4_items(
+                    context,
+                    values,
+                    source_wtype=native_element_type,
+                    target_wtype=arc4_element_type,
+                    loc=source_location,
+                )
             data = factory.constant(b"")
             for val in encoded_values:
                 data = factory.concat(data, val, "data")
@@ -1233,6 +1235,8 @@ def _get_arc4_array_tail_data_and_item_count(
                 source_location=source_location,
             )
             return data, tuple_length
+        case wtypes.ReferenceArray():
+            raise InternalError("reference array of dynamic sized elements", source_location)
         case _:
             raise InternalError(f"Unsupported array type: {expr.wtype}")
 
