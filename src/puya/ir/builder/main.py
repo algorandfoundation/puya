@@ -906,7 +906,7 @@ class FunctionIRBuilder(
                 source_location=expr.source_location,
             )
             items_tuple = TupleExpression.from_items(expr.values, expr.source_location)
-            return arc4.convert_and_concat_values(
+            return arc4.dynamic_array_concat_and_convert(
                 self.context,
                 array_wtype=encoded_type,
                 array_expr=empty_array_expr,
@@ -1181,7 +1181,7 @@ class FunctionIRBuilder(
         self, statement: awst_nodes.BytesAugmentedAssignment
     ) -> TStatement:
         if statement.target.wtype == wtypes.arc4_string_alias:
-            value: ValueProvider = arc4.convert_and_concat_values(
+            value: ValueProvider = arc4.dynamic_array_concat_and_convert(
                 self.context,
                 wtypes.arc4_string_alias,
                 statement.target,
@@ -1268,7 +1268,7 @@ class FunctionIRBuilder(
             case wtypes.StackArray():
                 arc4_array_wtype = effective_array_encoding(expr.wtype, expr.source_location)
 
-        return arc4.convert_and_concat_values(
+        return arc4.dynamic_array_concat_and_convert(
             self.context,
             array_wtype=arc4_array_wtype,
             array_expr=expr.left,
@@ -1278,7 +1278,7 @@ class FunctionIRBuilder(
 
     def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> TExpression:
         if isinstance(expr.base.wtype, wtypes.ARC4DynamicArray):
-            concat_result = arc4.convert_and_concat_values(
+            concat_result = arc4.dynamic_array_concat_and_convert(
                 self.context,
                 array_wtype=expr.base.wtype,
                 array_expr=expr.base,

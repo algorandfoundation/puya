@@ -471,20 +471,20 @@ def handle_arc4_assign(
             return result
 
 
-def convert_and_concat_values(
+def dynamic_array_concat_and_convert(
     context: IRFunctionBuildContext,
     array_wtype: wtypes.ARC4DynamicArray,
     array_expr: awst_nodes.Expression,
     iter_expr: awst_nodes.Expression,
     source_location: SourceLocation,
 ) -> Value:
-    """Takes an arc4 array_expr and concats it with an iterable like expression
-    if the iterable type contains non ARC4 values, they will be encoded to the element type
-    of the array"""
+    """
+    Takes an expression which is effectively ARC-4 DynamicArray encoded,
+     and concats it with an iterable like expression.
+    If the iterable type contains non ARC4 values, they will be encoded to the element type
+    of the array
+    """
     factory = OpFactory(context, source_location)
-    # check left is a valid ARC4 array to concat with
-    if not isinstance(array_wtype, wtypes.ARC4DynamicArray):
-        raise InternalError("Expected left expression to be a dynamic ARC4 array", source_location)
 
     # check right is a valid type to concat
     right_wtype = iter_expr.wtype
@@ -528,14 +528,17 @@ def convert_and_concat_values(
         invoke_name = "dynamic_array_concat_byte_length_head"
         invoke_args = [left, r_data, r_length]
     elif is_arc4_dynamic_size(element_type):
-        if isinstance(right_wtype, wtypes.ARC4Array):
+        if isinstance(right_wtype, wtypes.ARC4Array | wtypes.StackArray):
             right = context.visitor.visit_and_materialise_single(iter_expr)
-            r_count_vp = get_arc4_array_length(right_wtype, right, source_location)
+            if right_native_type is not None:
+                logger.debug(
+                    f"assuming {right_native_type} is already encoded as {element_type}",
+                    location=source_location,
+                )
+            r_count_vp = _get_any_array_length(context, right_wtype, right, source_location)
             r_head_and_tail_vp = _get_arc4_array_head_and_tail(
                 context, right_wtype, right, source_location
             )
-        elif isinstance(right_wtype, wtypes.StackArray | wtypes.ReferenceArray):
-            raise NotImplementedError
         elif isinstance(right_wtype, wtypes.WTuple):
             r_count_vp = UInt64Constant(
                 value=len(right_wtype.types), source_location=source_location
@@ -558,6 +561,10 @@ def convert_and_concat_values(
                 value=len(right_wtype.types), source_location=source_location
             )
             r_head_and_tail_vp = context.visitor.visit_and_materialise_single(iter_expr)
+        elif isinstance(right_wtype, wtypes.ReferenceArray):
+            raise InternalError(
+                "shouldn't have reference array of dynamically-sized element type", source_location
+            )
         else:
             raise InternalError("Expected array", source_location)
         invoke_name = "dynamic_array_concat_dynamic_element"
