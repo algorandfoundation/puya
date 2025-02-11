@@ -1151,9 +1151,8 @@ def _get_arc4_array_tail_data_and_item_count(
     source_location: SourceLocation,
 ) -> tuple[Value, Value]:
     """
-    For ARC4 containers (dynamic array, static array) will return the tail data and item count.
-    For native tuples will return the tuple items packed into the equivalent static array
-    of tail data and item count.
+    For supported iterable types, will return the ARC4 tail data and item count,
+    doing any necessary ARC4 encoding.
     """
 
     factory = OpFactory(context, source_location)
@@ -1184,6 +1183,11 @@ def _get_arc4_array_tail_data_and_item_count(
     elif isinstance(wtype, wtypes.ARC4Array | wtypes.StackArray):
         item_count_vp = _get_any_array_length(context, wtype, stack_value, source_location)
         item_count = factory.assign(item_count_vp, "array_length")
+        if native_element_type is not None:
+            logger.debug(
+                f"assuming {native_element_type} is already encoded as {arc4_element_type}",
+                location=source_location,
+            )
         head_and_tail_vp = _get_arc4_array_head_and_tail(
             context, wtype, stack_value, source_location
         )
