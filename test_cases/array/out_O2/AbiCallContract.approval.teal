@@ -3,7 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 0 1 2 6
+    bytecblock 0x 0x0002
     txn NumAppArgs
     bz main_bare_routing@6
     pushbytes 0xe739158e // method "test_implicit_conversion_abi_call(uint64[],application)void"
@@ -25,11 +26,61 @@ main_test_implicit_conversion_abi_call_route@3:
     btoi
     txnas Applications
     itxn_begin
+    dup
     itxn_field ApplicationID
     pushbytes 0x75b694f3 // method "dont_call(uint64[])uint64"
     itxn_field ApplicationArgs
+    dig 1
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    bytec_1 // 0x0002
+    dig 2
+    concat
+    intc_0 // 0
+    bytec_0 // 0x
+    intc_1 // 1
+    uncover 3
+    callsub dynamic_array_concat_dynamic_element
+    itxn_begin
+    dig 1
+    itxn_field ApplicationID
+    pushbytes 0xe92b1d53 // method "dont_call(uint64[][])uint64"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    dig 1
+    intc_0 // 0
+    extract_uint16
+    itob
+    pushbytes 0x000a
+    swap
+    concat
+    uncover 2
+    concat
+    bytec_1 // 0x0002
+    swap
+    concat
+    intc_0 // 0
+    bytec_0 // 0x
+    intc_1 // 1
+    uncover 3
+    callsub dynamic_array_concat_dynamic_element
+    pop
+    itxn_begin
+    itxn_field ApplicationID
+    pushbytes 0x165312d8 // method "dont_call((uint64[],uint64)[])uint64"
+    itxn_field ApplicationArgs
+    pushbytes 0x0000
+    itxn_field ApplicationArgs
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -45,3 +96,93 @@ main_bare_routing@6:
     assert // can only call when creating
     intc_1 // 1
     return
+
+
+// _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
+dynamic_array_concat_dynamic_element:
+    proto 4 1
+    bytec_0 // ""
+    dup
+    frame_dig -2
+    intc_2 // 2
+    *
+    frame_dig -4
+    intc_2 // 2
+    *
+    intc_0 // 0
+
+dynamic_array_concat_dynamic_element_for_header@1:
+    frame_dig 4
+    frame_dig 3
+    <
+    bz dynamic_array_concat_dynamic_element_after_for@4
+    frame_dig -3
+    frame_dig 4
+    dup
+    cover 2
+    extract_uint16
+    frame_dig 2
+    +
+    itob
+    extract 6 2
+    frame_dig 1
+    swap
+    concat
+    frame_bury 1
+    intc_2 // 2
+    +
+    frame_bury 4
+    b dynamic_array_concat_dynamic_element_for_header@1
+
+dynamic_array_concat_dynamic_element_after_for@4:
+    frame_dig -3
+    len
+    frame_bury 0
+    intc_0 // 0
+    frame_bury 4
+
+dynamic_array_concat_dynamic_element_for_header@5:
+    frame_dig 4
+    frame_dig 2
+    <
+    bz dynamic_array_concat_dynamic_element_after_for@8
+    frame_dig -1
+    frame_dig 4
+    dup
+    cover 2
+    extract_uint16
+    frame_dig 0
+    +
+    itob
+    extract 6 2
+    frame_dig 1
+    swap
+    concat
+    frame_bury 1
+    intc_2 // 2
+    +
+    frame_bury 4
+    b dynamic_array_concat_dynamic_element_for_header@5
+
+dynamic_array_concat_dynamic_element_after_for@8:
+    frame_dig -4
+    frame_dig -2
+    +
+    itob
+    extract 6 2
+    frame_dig 1
+    concat
+    frame_dig -3
+    frame_dig 3
+    frame_dig 0
+    substring3
+    concat
+    frame_dig -1
+    len
+    frame_dig -1
+    frame_dig 2
+    uncover 2
+    substring3
+    concat
+    frame_bury 0
+    retsub

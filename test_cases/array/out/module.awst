@@ -17,6 +17,12 @@ contract AbiCallContract
   abimethod test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call(arr: stack_array<uint64>, app: application): void
   {
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("dont_call(uint64[])uint64"), arc4_encode(arr, arc4.dynamic_array<arc4.uint64>)), ApplicationID=app))
+    nested_arr: stack_array<stack_array<uint64>> = new stack_array<stack_array<uint64>>()
+    nested_arr: stack_array<stack_array<uint64>> = nested_arr + (arr)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("dont_call(uint64[][])uint64"), arc4_encode(nested_arr, arc4.dynamic_array<arc4.dynamic_array<arc4.uint64>>)), ApplicationID=app))
+    indirect_nested_arr: stack_array<test_cases.array.unused_opt_allowed.MyTuple> = new stack_array<test_cases.array.unused_opt_allowed.MyTuple>()
+    indirect_nested_arr + ((arr, arr.length))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("dont_call((uint64[],uint64)[])uint64"), arc4_encode(indirect_nested_arr, arc4.dynamic_array<arc4.tuple<arc4.dynamic_array<arc4.uint64>,arc4.uint64>>)), ApplicationID=app))
   }
   
   baremethod test_cases.array.unused_opt_allowed.AbiCallContract.__algopy_default_create(): void
