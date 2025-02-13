@@ -414,10 +414,6 @@ def route_abi_methods(
                 call_and_maybe_log = awst_nodes.ExpressionStatement(method_result)
             case wtypes.ARC4Type():
                 call_and_maybe_log = log_arc4_result(abi_loc, method_result)
-            case wtypes.StackArray() if isinstance(
-                effective_array_encoding(sig.return_type, location), wtypes.ARC4Type
-            ):
-                call_and_maybe_log = log_arc4_result(abi_loc, method_result)
             case _:
                 converted_return_type = wtype_to_arc4_wtype(sig.return_type, abi_loc)
                 arc4_encoded = awst_nodes.ARC4Encode(
