@@ -1,6 +1,7 @@
 import typing
 
 from algopy import (
+    Application,
     Array,
     Bytes,
     ImmutableArray,
@@ -202,7 +203,20 @@ class ImmutableArrayContract(arc4.ARC4Contract):
         assert arr[0] == MyDynamicSizedTuple(UInt64(1), String()), "expected 1, 0"
         assert arr[-1] == MyDynamicSizedTuple(UInt64(4), String("   ")), "expected 4, 3"
         self.f = arr
+
+    @arc4.abimethod()
+    def test_implicit_conversion_abi_call(
+        self, arr: ImmutableArray[UInt64], app: Application
+    ) -> None:
+        arc4.abi_call("dont_call(uint64[])uint64", arr, app_id=app)
+
+    @arc4.abimethod()
+    def test_implicit_conversion_log(self, arr: ImmutableArray[UInt64]) -> None:
         log(arr)
+
+    @arc4.abimethod()
+    def test_implicit_conversion_emit(self, arr: ImmutableArray[UInt64]) -> None:
+        arc4.emit("emit_test", arr)
 
     @arc4.abimethod()
     def test_nested_array(
