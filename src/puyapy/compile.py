@@ -45,7 +45,7 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
     with log.logging_context() as log_ctx, log_exceptions():
         logger.debug(puyapy_options)
         try:
-            parse_result = parse_with_mypy(puyapy_options.paths)
+            parse_result = parse_with_mypy(puyapy_options.paths, puyapy_options.sources)
             log_ctx.sources_by_path = parse_result.sources_by_path
             log_ctx.exit_if_errors()
             awst, compilation_targets = transform_ast(parse_result)
@@ -107,10 +107,11 @@ def write_arc4_clients(
                 write_arc4_client(contract, contract_out_dir)
 
 
-def parse_with_mypy(paths: Sequence[Path]) -> ParseResult:
+def parse_with_mypy(
+    paths: Sequence[Path], sources: Mapping[Path, str] | None = None
+) -> ParseResult:
     mypy_options = get_mypy_options()
-
-    _, ordered_modules = parse_and_typecheck(paths, mypy_options)
+    _, ordered_modules = parse_and_typecheck(paths, mypy_options, sources=sources)
     return ParseResult(
         mypy_options=mypy_options,
         ordered_modules=ordered_modules,
