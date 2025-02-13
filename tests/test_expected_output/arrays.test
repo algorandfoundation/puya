@@ -10,6 +10,18 @@ MutableDynamic = arc4.DynamicArray[arc4.UInt64]
 
 class ArrayContract(arc4.ARC4Contract):
 
+    def __init__(self) -> None:
+        self.wont_work = Array[UInt64]() ## E: type is not suitable for storage
+
+    @arc4.abimethod
+    def array_log(self) -> None:
+        log(Array[UInt64]()) ## E: cannot serialize algopy.Array[algopy.UInt64], try using .freeze() to get an immutable array
+
+
+    @arc4.abimethod
+    def array_emit(self) -> None:
+        arc4.emit("test", Array[UInt64]()) ## E: algopy.Array[algopy.UInt64] is not an ARC4 type and no implicit ARC4 conversion possible
+
     @arc4.abimethod
     def array_fixed(self) -> None:
         arr = Array[UInt64]()

@@ -129,7 +129,10 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
     @typing.override
     @typing.final
     def to_bytes(self, location: SourceLocation) -> Expression:
-        raise CodeError("cannot serialize array", location)
+        raise CodeError(
+            f"cannot serialize {self.pytype}," f" try using .freeze() to get an immutable array",
+            location,
+        )
 
     def length(self, location: SourceLocation) -> InstanceBuilder:
         return UInt64ExpressionBuilder(ArrayLength(array=self.resolve(), source_location=location))
