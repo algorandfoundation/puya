@@ -209,6 +209,9 @@ class ExpressionVisitor[T](ABC):
     def visit_new_array(self, expr: puya.awst.nodes.NewArray) -> T: ...
 
     @abstractmethod
+    def visit_array_length(self, expr: puya.awst.nodes.ArrayLength) -> T: ...
+
+    @abstractmethod
     def visit_new_struct(self, expr: puya.awst.nodes.NewStruct) -> T: ...
 
     @abstractmethod
@@ -249,6 +252,9 @@ class ExpressionVisitor[T](ABC):
 
     @abstractmethod
     def visit_array_pop(self, expr: puya.awst.nodes.ArrayPop) -> T: ...
+
+    @abstractmethod
+    def visit_array_replace(self, expr: puya.awst.nodes.ArrayReplace) -> T: ...
 
     @abstractmethod
     def visit_copy(self, expr: puya.awst.nodes.Copy) -> T: ...

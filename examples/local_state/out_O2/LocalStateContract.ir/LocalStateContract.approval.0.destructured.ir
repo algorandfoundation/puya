@@ -28,14 +28,14 @@ main examples.local_state.local_state_contract.LocalStateContract.__algopy_entry
         let tmp%8#0: bool = (== method#0 0x6765745f67756172616e746565645f64617461)
         goto tmp%8#0 ? block@12 : block@13
     block@12: // if_body_L31
-        let for_account#0: bytes = (txn Sender)
+        let for_account#0: bytes[32] = (txn Sender)
         let (result#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex for_account#0 0u "local")
         (assert maybe_exists%0#0) // check self.local exists for account
         let tmp%0#1: uint64 = (len result#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex for_account#0 0u "local")
         (assert maybe_exists%0#0) // check LocalState exists for account
-        let tmp%0#4: uint64 = (len maybe_value%0#0)
-        let tmp%2#1: bool = (== tmp%0#1 tmp%0#4)
+        let tmp%0#3: uint64 = (len maybe_value%0#0)
+        let tmp%2#1: bool = (== tmp%0#1 tmp%0#3)
         (assert tmp%2#1)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex for_account#0 0u 0x6c6f63616c)
         (assert maybe_exists%0#0)
@@ -49,7 +49,7 @@ main examples.local_state.local_state_contract.LocalStateContract.__algopy_entry
         let tmp%11#0: bool = (== method#0 0x6765745f646174615f6f725f617373657274)
         goto tmp%11#0 ? block@14 : block@15
     block@14: // if_body_L33
-        let for_account#0: bytes = (txn Sender)
+        let for_account#0: bytes[32] = (txn Sender)
         let (result#0: bytes, exists#0: bool) = (app_local_get_ex for_account#0 0u "local")
         (assert exists#0) // no data for account
         (log result#0)
@@ -58,7 +58,7 @@ main examples.local_state.local_state_contract.LocalStateContract.__algopy_entry
         let tmp%14#0: bool = (== method#0 0x64656c6574655f64617461)
         goto tmp%14#0 ? block@16 : block@7
     block@16: // if_body_L35
-        let for_account#0: bytes = (txn Sender)
+        let for_account#0: bytes[32] = (txn Sender)
         (app_local_del for_account#0 "local")
         (log "Deleted")
         goto block@4
@@ -70,7 +70,7 @@ main examples.local_state.local_state_contract.LocalStateContract.__algopy_entry
         let tmp%18#0: bool = (== method#0 0x7365745f64617461)
         goto tmp%18#0 ? block@23 : block@24
     block@23: // if_body_L42
-        let for_account#0: bytes = (txn Sender)
+        let for_account#0: bytes[32] = (txn Sender)
         let value#0: bytes = (txna ApplicationArgs 1)
         (app_local_put for_account#0 "local" value#0)
         goto block@4
@@ -78,11 +78,11 @@ main examples.local_state.local_state_contract.LocalStateContract.__algopy_entry
         let tmp%21#0: bool = (== method#0 0x6765745f646174615f776974685f64656661756c74)
         goto tmp%21#0 ? block@25 : block@7
     block@25: // if_body_L44
-        let for_account#0: bytes = (txn Sender)
+        let for_account#0: bytes[32] = (txn Sender)
         let default#0: bytes = (txna ApplicationArgs 1)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex for_account#0 0u "local")
-        let tmp%0#2: bytes = (select default#0 maybe_value%0#0 maybe_exists%0#0)
-        (log tmp%0#2)
+        let state_get%0#0: bytes = (select default#0 maybe_value%0#0 maybe_exists%0#0)
+        (log state_get%0#0)
         goto block@4
     block@30: // after_inlined_examples.local_state.local_state_contract.LocalStateContract.approval_program_L1
         return tmp%1#0

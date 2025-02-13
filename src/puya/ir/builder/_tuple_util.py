@@ -43,7 +43,7 @@ def build_tuple_registers(
     source_location: SourceLocation | None,
 ) -> list[Register]:
     return [
-        context.ssa.new_register(name, ir_type, source_location)
+        context.new_register(name, ir_type, source_location)
         for name, ir_type in build_tuple_item_names(base_name, wtype, source_location)
     ]
 

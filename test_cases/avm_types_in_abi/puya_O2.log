@@ -1,4 +1,4 @@
-debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=False, output_arc56=False, output_ssa_ir=False, output_optimization_ir=False, output_destructured_ir=True, output_memory_ir=False, output_bytecode=True, debug_level=0, optimization_level=2, target_avm_version=10, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, paths=['avm_types_in_abi'], output_awst=False, output_awst_json=False, output_client=False, log_level=<LogLevel.debug: 10>)
+debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=False, output_arc56=False, output_ssa_ir=False, output_optimization_ir=False, output_destructured_ir=True, output_memory_ir=False, output_bytecode=True, debug_level=0, optimization_level=2, target_avm_version=10, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, _disabled_optimizations=(), paths=['avm_types_in_abi'], output_awst=False, output_awst_json=False, output_client=False, log_level=<LogLevel.debug: 10>)
 info: Found python prefix: <git root>/.venv
 debug: Building IR for function _puya_lib.util.ensure_budget
 debug: Sealing block@0
@@ -453,7 +453,7 @@ debug: removing unused subroutine test_cases.avm_types_in_abi.contract.TestContr
 debug: removing unused subroutine test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4
 debug: removing unused subroutine algopy.arc4.ARC4Contract.approval_program
 debug: removing unused subroutine algopy.arc4.ARC4Contract.clear_state_program
-info: optimizing approval program of test_cases.avm_types_in_abi.contract.TestContract at level 2
+debug: optimizing approval program of test_cases.avm_types_in_abi.contract.TestContract at level 2
 debug: Begin optimization pass 1/100
 debug: marking single-use function test_cases.avm_types_in_abi.contract.TestContract.create for inlining
 debug: marking single-use function test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4 for inlining
@@ -465,30 +465,25 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: encoded_bool%0#0, item0%0#0
 debug: Copy propagation made 1 modifications
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable current_tail_offset%0#0
+debug: Removing unused variable encoded_tuple_buffer%0#0
+debug: Removing unused variable current_tail_offset%2#0
+debug: Removing unused variable current_tail_offset%3#0
+debug: Removing unused variable encoded_tuple_buffer%8#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== tmp%3#0 NoOp) to (! tmp%3#0)
 debug: Simplified (== tmp%5#0 0u) to (! tmp%5#0)
+debug: Simplified (btoi item1%0#0) to (extract_uint64 tmp%13#0 1u)
 debug: Simplified (concat 0x encoded_bool%1#0) to encoded_bool%1#0
 debug: Simplified ((extract 6 2) as_bytes%2#0) to 0x004d
-debug: Simplified (== tmp%18#0 NoOp) to (! tmp%18#0)
+debug: Simplified (== tmp%15#0 NoOp) to (! tmp%15#0)
 debug: Simplified (concat 0x elements_to_encode%5#0) to elements_to_encode%5#0
-debug: Simplified (extract3 tmp%16#0 1u 8u) // on error: Index access is out of bounds to ((extract 1 8) tmp%16#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 tmp%16#0 11u 64u) // on error: Index access is out of bounds to ((extract 11 64) tmp%16#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 tmp%22#0 0u 1u) // on error: Index access is out of bounds to ((extract 0 1) tmp%22#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 tmp%22#0 1u 32u) // on error: Index access is out of bounds to ((extract 1 32) tmp%22#0) // on error: Index access is out of bounds
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable tmp%1#0
-debug: Removing unused variable current_tail_offset%0#0
-debug: Removing unused variable encoded_tuple_buffer%0#0
-debug: Removing unused variable encoded_tuple_buffer%1#0
-debug: Removing unused variable as_bytes%2#0
-debug: Removing unused variable offset_as_uint16%0#0
-debug: Removing unused variable current_tail_offset%2#0
-debug: Removing unused variable tmp%21#0
-debug: Removing unused variable current_tail_offset%3#0
-debug: Removing unused variable encoded_tuple_buffer%8#0
-debug: Removing unused variable encoded_tuple_buffer%9#0
+debug: Simplified (extract3 tmp%13#0 1u 8u) // on error: Index access is out of bounds to ((extract 1 8) tmp%13#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 tmp%13#0 11u 64u) // on error: Index access is out of bounds to ((extract 11 64) tmp%13#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 reinterpret_bytes[33]%0#0 0u 1u) // on error: Index access is out of bounds to ((extract 0 1) reinterpret_bytes[33]%0#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 reinterpret_bytes[33]%0#0 1u 32u) // on error: Index access is out of bounds to ((extract 1 32) reinterpret_bytes[33]%0#0) // on error: Index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -503,9 +498,12 @@ debug: Removed empty block: block@5
 debug: Removed empty block: block@7
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let item_start_offset%1#0: uint64 = (extract_uint16 tmp%16#0 75u) with copy of existing registers (Register(source_location=avm_types_in_abi/contract.py:4, ir_type=uint64, name='item_end_offset%0', version=0),)
+debug: Replacing redundant declaration let item_start_offset%1#0: uint64 = (extract_uint16 tmp%13#0 75u) with copy of existing registers (Register(source_location=avm_types_in_abi/contract.py:4, ir_type=uint64, name='item_end_offset%0', version=0),)
 debug: Found equivalence set: item_end_offset%0#0, item_start_offset%1#0
+debug: Found equivalence set: encoded_bool%1#0, encoded_tuple_buffer%1#0
+debug: Found equivalence set: elements_to_encode%5#0, encoded_tuple_buffer%9#0
 debug: Copy propagation made 1 modifications
+debug: Optimizer: Redundant Slot Op Elimination
 debug: Optimizing subroutine test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__
 debug: Optimizer: Perform Subroutine Inlining
 avm_types_in_abi/contract.py:19:6 debug: inlining call to test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4 in test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__
@@ -514,11 +512,11 @@ debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: encoded_bool%0#0, item0%0#0
-debug: Found equivalence set: tmp%8#0, bool_param#0, result.0#0, elements_to_encode%0#0
-debug: Found equivalence set: tmp%10#0, uint64_param#0, result.1#0, elements_to_encode%1#0
-debug: Found equivalence set: tmp%12#0, bytes_param#0, result.2#0, elements_to_encode%2#0
-debug: Found equivalence set: tmp%13#0, biguint_param#0, result.3#0, elements_to_encode%3#0
-debug: Found equivalence set: tmp%15#0, string_param#0, result.4#0, elements_to_encode%4#0
+debug: Found equivalence set: tmp%7#0, bool_param#0, result.0#0, elements_to_encode%0#0
+debug: Found equivalence set: tmp%8#0, uint64_param#0, result.1#0, elements_to_encode%1#0
+debug: Found equivalence set: tmp%10#0, bytes_param#0, result.2#0, elements_to_encode%2#0
+debug: Found equivalence set: reinterpret_bytes[64]%0#0, biguint_param#0, result.3#0, elements_to_encode%3#0
+debug: Found equivalence set: tmp%12#0, string_param#0, result.4#0, elements_to_encode%4#0
 debug: Found equivalence set: item0%0%0#0, tuple_param.0#0
 debug: Found equivalence set: item1%0%0#0, tuple_param.1#0
 debug: Found equivalence set: item2%0%0#0, tuple_param.2#0
@@ -527,30 +525,25 @@ debug: Found equivalence set: item4%0%0#0, tuple_param.4#0
 debug: Found equivalence set: item0%1#0, args.0#0, elements_to_encode%5#0
 debug: Found equivalence set: item1%1#0, args.1#0, elements_to_encode%6#0
 debug: Copy propagation made 28 modifications
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable current_tail_offset%0#0
+debug: Removing unused variable encoded_tuple_buffer%0#0
+debug: Removing unused variable current_tail_offset%2#0
+debug: Removing unused variable current_tail_offset%3#0
+debug: Removing unused variable encoded_tuple_buffer%8#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== tmp%3#0 NoOp) to (! tmp%3#0)
 debug: Simplified (== tmp%5#0 0u) to (! tmp%5#0)
+debug: Simplified (btoi item1%0#0) to (extract_uint64 tmp%13#0 1u)
 debug: Simplified (concat 0x encoded_bool%1#0) to encoded_bool%1#0
 debug: Simplified ((extract 6 2) as_bytes%2#0) to 0x004d
-debug: Simplified (== tmp%18#0 NoOp) to (! tmp%18#0)
+debug: Simplified (== tmp%15#0 NoOp) to (! tmp%15#0)
 debug: Simplified (concat 0x args.0#0) to args.0#0
-debug: Simplified (extract3 tmp%16#0 1u 8u) // on error: Index access is out of bounds to ((extract 1 8) tmp%16#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 tmp%16#0 11u 64u) // on error: Index access is out of bounds to ((extract 11 64) tmp%16#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 tmp%22#0 0u 1u) // on error: Index access is out of bounds to ((extract 0 1) tmp%22#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 tmp%22#0 1u 32u) // on error: Index access is out of bounds to ((extract 1 32) tmp%22#0) // on error: Index access is out of bounds
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable tmp%1#0
-debug: Removing unused variable current_tail_offset%0#0
-debug: Removing unused variable encoded_tuple_buffer%0#0
-debug: Removing unused variable encoded_tuple_buffer%1#0
-debug: Removing unused variable as_bytes%2#0
-debug: Removing unused variable offset_as_uint16%0#0
-debug: Removing unused variable current_tail_offset%2#0
-debug: Removing unused variable tmp%21#0
-debug: Removing unused variable current_tail_offset%3#0
-debug: Removing unused variable encoded_tuple_buffer%8#0
-debug: Removing unused variable encoded_tuple_buffer%9#0
+debug: Simplified (extract3 tmp%13#0 1u 8u) // on error: Index access is out of bounds to ((extract 1 8) tmp%13#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 tmp%13#0 11u 64u) // on error: Index access is out of bounds to ((extract 11 64) tmp%13#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 reinterpret_bytes[33]%0#0 0u 1u) // on error: Index access is out of bounds to ((extract 0 1) reinterpret_bytes[33]%0#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 reinterpret_bytes[33]%0#0 1u 32u) // on error: Index access is out of bounds to ((extract 1 32) reinterpret_bytes[33]%0#0) // on error: Index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -568,9 +561,12 @@ debug: Removed empty block: block@4
 debug: Removed empty block: block@6
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let item_start_offset%1#0: uint64 = (extract_uint16 tmp%16#0 75u) with copy of existing registers (Register(source_location=avm_types_in_abi/contract.py:4, ir_type=uint64, name='item_end_offset%0', version=0),)
+debug: Replacing redundant declaration let item_start_offset%1#0: uint64 = (extract_uint16 tmp%13#0 75u) with copy of existing registers (Register(source_location=avm_types_in_abi/contract.py:4, ir_type=uint64, name='item_end_offset%0', version=0),)
 debug: Found equivalence set: item_end_offset%0#0, item_start_offset%1#0
+debug: Found equivalence set: encoded_bool%1#0, encoded_tuple_buffer%1#0
+debug: Found equivalence set: args.0#0, encoded_tuple_buffer%9#0
 debug: Copy propagation made 1 modifications
+debug: Optimizer: Redundant Slot Op Elimination
 debug: Optimizing subroutine test_cases.avm_types_in_abi.contract.TestContract.create
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -582,9 +578,9 @@ debug: Found equivalence set: bytes_param#0, result.2#0
 debug: Found equivalence set: biguint_param#0, result.3#0
 debug: Found equivalence set: string_param#0, result.4#0
 debug: Copy propagation made 10 modifications
-debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -592,14 +588,15 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Redundant Slot Op Elimination
 debug: Optimizing subroutine test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -607,7 +604,9 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Redundant Slot Op Elimination
 debug: removing unused subroutine test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__
+debug: Unused subroutines removed
 debug: Begin optimization pass 2/100
 debug: marking single-use function test_cases.avm_types_in_abi.contract.TestContract.create for inlining
 debug: marking single-use function test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4 for inlining
@@ -618,11 +617,11 @@ avm_types_in_abi/contract.py:5:6 debug: inlining call to test_cases.avm_types_in
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%8#0, bool_param#0, elements_to_encode%0#0
-debug: Found equivalence set: tmp%10#0, uint64_param#0, elements_to_encode%1#0
-debug: Found equivalence set: tmp%12#0, bytes_param#0, elements_to_encode%2#0
-debug: Found equivalence set: tmp%13#0, biguint_param#0, elements_to_encode%3#0
-debug: Found equivalence set: tmp%15#0, string_param#0, elements_to_encode%4#0
+debug: Found equivalence set: tmp%7#0, bool_param#0, elements_to_encode%0#0
+debug: Found equivalence set: tmp%8#0, uint64_param#0, elements_to_encode%1#0
+debug: Found equivalence set: tmp%10#0, bytes_param#0, elements_to_encode%2#0
+debug: Found equivalence set: reinterpret_bytes[64]%0#0, biguint_param#0, elements_to_encode%3#0
+debug: Found equivalence set: tmp%12#0, string_param#0, elements_to_encode%4#0
 debug: Found equivalence set: item0%0%0#0, tuple_param.0#0
 debug: Found equivalence set: item1%0%0#0, tuple_param.1#0
 debug: Found equivalence set: item2%0%0#0, tuple_param.2#0
@@ -631,10 +630,15 @@ debug: Found equivalence set: item4%0%0#0, tuple_param.4#0
 debug: Found equivalence set: item0%1#0, args.0#0, elements_to_encode%5#0
 debug: Found equivalence set: item1%1#0, args.1#0, elements_to_encode%6#0
 debug: Copy propagation made 22 modifications
-debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable tmp%1#0
+debug: Removing unused variable item1%0#0
+debug: Removing unused variable as_bytes%2#0
+debug: Removing unused variable offset_as_uint16%0#0
 debug: Removing unused variable data_length%1#0
+debug: Removing unused variable tmp%18#0
+debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -650,14 +654,15 @@ debug: Merged linear block@11 into block@4
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Redundant Slot Op Elimination
 debug: Optimizing subroutine test_cases.avm_types_in_abi.contract.TestContract.create
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -665,14 +670,15 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Redundant Slot Op Elimination
 debug: Optimizing subroutine test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -680,17 +686,19 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Redundant Slot Op Elimination
 debug: removing unused subroutine test_cases.avm_types_in_abi.contract.TestContract.create
 debug: removing unused subroutine test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4
+debug: Unused subroutines removed
 debug: Begin optimization pass 3/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -698,7 +706,73 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Redundant Slot Op Elimination
 debug: No optimizations performed in pass 3, ending loop
+debug: optimizing clear program of test_cases.avm_types_in_abi.contract.TestContract at level 2
+debug: Begin optimization pass 1/100
+debug: Optimizing subroutine algopy.arc4.ARC4Contract.clear_state_program
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Redundant Slot Op Elimination
+debug: No optimizations performed in pass 1, ending loop
+debug: lowering array IR nodes in approval program of test_cases.avm_types_in_abi.contract.TestContract
+debug: lowering array IR nodes in clear program of test_cases.avm_types_in_abi.contract.TestContract
+debug: optimizing approval program of test_cases.avm_types_in_abi.contract.TestContract at level 2
+debug: Begin optimization pass 1/100
+debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Redundant Slot Op Elimination
+debug: No optimizations performed in pass 1, ending loop
+debug: optimizing clear program of test_cases.avm_types_in_abi.contract.TestContract at level 2
+debug: Begin optimization pass 1/100
+debug: Optimizing subroutine algopy.arc4.ARC4Contract.clear_state_program
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Redundant Slot Op Elimination
+debug: No optimizations performed in pass 1, ending loop
+debug: removing local static slots in approval program of test_cases.avm_types_in_abi.contract.TestContract
+debug: auto reserving slots in algopy.arc4.ARC4Contract.approval_program, []
+debug: Slot allocation not required
+debug: removing local static slots in clear program of test_cases.avm_types_in_abi.contract.TestContract
+debug: auto reserving slots in algopy.arc4.ARC4Contract.clear_state_program, []
+debug: Slot allocation not required
 debug: Performing SSA IR destructuring for algopy.arc4.ARC4Contract.approval_program
 debug: Converting to CSSA
 debug: Removing Phi nodes
@@ -707,31 +781,13 @@ debug: Coalescing tmp%0#1 with [tmp%0#2]
 debug: Coalescing tmp%4#0 with [tmp%4#1]
 debug: Coalescing tmp%6#0 with [tmp%6#1]
 debug: Coalescing tmp%0#0 with [tmp%0#3, tmp%0#4]
-debug: Coalescing tmp%1#0 with [tmp%1#1]
+debug: Coalescing tmp%1#1 with [tmp%1#2]
 debug: Coalescing tmp%3#1 with [tmp%3#2]
 debug: Coalescing test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0 with [test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#1, test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#2]
 debug: Coalescing resulted in 20 replacement/s
 debug: Sequentializing parallel copies in algopy.arc4.ARC4Contract.approval_program
 debug: Performing post-SSA optimizations at level 2
 debug: Output IR to avm_types_in_abi/out_O2/TestContract.ir/TestContract.approval.0.destructured.ir
-info: optimizing clear program of test_cases.avm_types_in_abi.contract.TestContract at level 2
-debug: Begin optimization pass 1/100
-debug: Optimizing subroutine algopy.arc4.ARC4Contract.clear_state_program
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: No optimizations performed in pass 1, ending loop
 debug: Performing SSA IR destructuring for algopy.arc4.ARC4Contract.clear_state_program
 debug: Converting to CSSA
 debug: Removing Phi nodes
@@ -752,180 +808,178 @@ debug: Inserted main_create_route@3.ops[10]: 'l-store-copy tmp%5#0 0'
 debug: Replaced main_create_route@3.ops[12]: 'v-load tmp%5#0' with 'l-load tmp%5#0'
 debug: Inserted main_create_route@3.ops[14]: 'l-store-copy tmp%6#0 0'
 debug: Replaced main_create_route@3.ops[16]: 'v-load tmp%6#0' with 'l-load tmp%6#0'
-debug: Inserted main_create_route@3.ops[19]: 'l-store-copy tmp%7#0 0'
-debug: Replaced main_create_route@3.ops[21]: 'v-load tmp%7#0' with 'l-load tmp%7#0'
-debug: Inserted main_create_route@3.ops[26]: 'l-store-copy tmp%9#0 0'
-debug: Replaced main_create_route@3.ops[28]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
-debug: Inserted main_create_route@3.ops[32]: 'l-store-copy tmp%11#0 0'
-debug: Replaced main_create_route@3.ops[34]: 'v-load tmp%11#0' with 'l-load tmp%11#0'
-debug: Inserted main_create_route@3.ops[40]: 'l-store-copy tmp%14#0 0'
-debug: Replaced main_create_route@3.ops[42]: 'v-load tmp%14#0' with 'l-load tmp%14#0'
-debug: Inserted main_create_route@3.ops[46]: 'l-store-copy tmp%16#0 0'
-debug: Replaced main_create_route@3.ops[48]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
+debug: Inserted main_create_route@3.ops[19]: 'l-store-copy reinterpret_bytes[1]%0#0 0'
+debug: Replaced main_create_route@3.ops[21]: 'v-load reinterpret_bytes[1]%0#0' with 'l-load reinterpret_bytes[1]%0#0'
+debug: Inserted main_create_route@3.ops[26]: 'l-store-copy reinterpret_bytes[8]%0#0 0'
+debug: Replaced main_create_route@3.ops[28]: 'v-load reinterpret_bytes[8]%0#0' with 'l-load reinterpret_bytes[8]%0#0'
+debug: Inserted main_create_route@3.ops[32]: 'l-store-copy tmp%9#0 0'
+debug: Replaced main_create_route@3.ops[34]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
+debug: Inserted main_create_route@3.ops[40]: 'l-store-copy tmp%11#0 0'
+debug: Replaced main_create_route@3.ops[42]: 'v-load tmp%11#0' with 'l-load tmp%11#0'
+debug: Inserted main_create_route@3.ops[46]: 'l-store-copy tmp%13#0 0'
+debug: Replaced main_create_route@3.ops[48]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
 debug: Inserted main_create_route@3.ops[56]: 'l-store-copy encoded_bool%0#0 0'
 debug: Replaced main_create_route@3.ops[58]: 'v-load encoded_bool%0#0' with 'l-load encoded_bool%0#0'
-debug: Inserted main_create_route@3.ops[64]: 'l-store-copy item1%0#0 0'
-debug: Replaced main_create_route@3.ops[66]: 'v-load item1%0#0' with 'l-load item1%0#0'
-debug: Inserted main_create_route@3.ops[81]: 'l-store-copy item2%0#0 0'
-debug: Replaced main_create_route@3.ops[83]: 'v-load item2%0#0' with 'l-load item2%0#0'
-debug: Inserted main_create_route@3.ops[96]: 'l-store-copy item4%0#0 0'
-debug: Replaced main_create_route@3.ops[98]: 'v-load item4%0#0' with 'l-load item4%0#0'
-debug: Inserted main_create_route@3.ops[136]: 'l-store-copy tmp%8#1 0'
-debug: Replaced main_create_route@3.ops[138]: 'v-load tmp%8#1' with 'l-load tmp%8#1'
-debug: Inserted main_create_route@3.ops[150]: 'l-store-copy length%0#0 0'
-debug: Replaced main_create_route@3.ops[152]: 'v-load length%0#0' with 'l-load length%0#0'
-debug: Inserted main_create_route@3.ops[154]: 'l-store-copy as_bytes%0#0 0'
-debug: Replaced main_create_route@3.ops[156]: 'v-load as_bytes%0#0' with 'l-load as_bytes%0#0'
-debug: Inserted main_create_route@3.ops[158]: 'l-store-copy length_uint16%0#0 0'
-debug: Replaced main_create_route@3.ops[160]: 'v-load length_uint16%0#0' with 'l-load length_uint16%0#0'
-debug: Inserted main_create_route@3.ops[166]: 'l-store-copy len_%0#0 0'
-debug: Replaced main_create_route@3.ops[168]: 'v-load len_%0#0' with 'l-load len_%0#0'
-debug: Inserted main_create_route@3.ops[171]: 'l-store-copy no_overflow%0#0 0'
-debug: Replaced main_create_route@3.ops[173]: 'v-load no_overflow%0#0' with 'l-load no_overflow%0#0'
-debug: Inserted main_create_route@3.ops[184]: 'l-store-copy length%1#0 0'
-debug: Replaced main_create_route@3.ops[186]: 'v-load length%1#0' with 'l-load length%1#0'
-debug: Inserted main_create_route@3.ops[188]: 'l-store-copy as_bytes%1#0 0'
-debug: Replaced main_create_route@3.ops[190]: 'v-load as_bytes%1#0' with 'l-load as_bytes%1#0'
-debug: Inserted main_create_route@3.ops[192]: 'l-store-copy length_uint16%1#0 0'
-debug: Replaced main_create_route@3.ops[194]: 'v-load length_uint16%1#0' with 'l-load length_uint16%1#0'
-debug: Inserted main_create_route@3.ops[201]: 'l-store-copy encoded_tuple_buffer%2#0 0'
-debug: Replaced main_create_route@3.ops[203]: 'v-load encoded_tuple_buffer%2#0' with 'l-load encoded_tuple_buffer%2#0'
-debug: Inserted main_create_route@3.ops[220]: 'l-store-copy as_bytes%3#0 0'
-debug: Replaced main_create_route@3.ops[222]: 'v-load as_bytes%3#0' with 'l-load as_bytes%3#0'
-debug: Inserted main_create_route@3.ops[228]: 'l-store-copy encoded_tuple_buffer%5#0 0'
-debug: Replaced main_create_route@3.ops[230]: 'v-load encoded_tuple_buffer%5#0' with 'l-load encoded_tuple_buffer%5#0'
-debug: Inserted main_create_route@3.ops[233]: 'l-store-copy encoded_tuple_buffer%6#0 0'
-debug: Replaced main_create_route@3.ops[235]: 'v-load encoded_tuple_buffer%6#0' with 'l-load encoded_tuple_buffer%6#0'
-debug: Inserted main_create_route@3.ops[242]: 'l-store-copy tmp%17#0 0'
-debug: Replaced main_create_route@3.ops[244]: 'v-load tmp%17#0' with 'l-load tmp%17#0'
-debug: Inserted main_create_route@3.ops[247]: 'l-store-copy test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0 0'
-debug: Replaced main_create_route@3.ops[249]: 'v-load test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0' with 'l-load test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0'
-debug: Inserted main_create_route@3.ops[108]: 'l-store-copy tmp%1#0 0'
-debug: Replaced main_create_route@3.ops[111]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted main_create_route@3.ops[117]: 'l-store-copy tmp%3#1 0'
-debug: Replaced main_create_route@3.ops[120]: 'v-load tmp%3#1' with 'l-load tmp%3#1'
-debug: Inserted main_create_route@3.ops[126]: 'l-store-copy tmp%5#1 0'
-debug: Replaced main_create_route@3.ops[129]: 'v-load tmp%5#1' with 'l-load tmp%5#1'
-debug: Inserted main_create_route@3.ops[135]: 'l-store-copy tmp%7#1 0'
-debug: Replaced main_create_route@3.ops[138]: 'v-load tmp%7#1' with 'l-load tmp%7#1'
-debug: Inserted main_create_route@3.ops[181]: 'l-store-copy b_zeros%0#0 0'
-debug: Replaced main_create_route@3.ops[184]: 'v-load b_zeros%0#0' with 'l-load b_zeros%0#0'
-debug: Inserted main_create_route@3.ops[214]: 'l-store-copy data_length%0#0 0'
-debug: Replaced main_create_route@3.ops[217]: 'v-load data_length%0#0' with 'l-load data_length%0#0'
-debug: Inserted main_create_route@3.ops[230]: 'l-store-copy offset_as_uint16%1#0 0'
-debug: Replaced main_create_route@3.ops[233]: 'v-load offset_as_uint16%1#0' with 'l-load offset_as_uint16%1#0'
-debug: Inserted main_create_route@3.ops[245]: 'l-store-copy encoded_tuple_buffer%7#0 0'
-debug: Replaced main_create_route@3.ops[248]: 'v-load encoded_tuple_buffer%7#0' with 'l-load encoded_tuple_buffer%7#0'
+debug: Inserted main_create_route@3.ops[78]: 'l-store-copy item2%0#0 0'
+debug: Replaced main_create_route@3.ops[80]: 'v-load item2%0#0' with 'l-load item2%0#0'
+debug: Inserted main_create_route@3.ops[93]: 'l-store-copy item4%0#0 0'
+debug: Replaced main_create_route@3.ops[95]: 'v-load item4%0#0' with 'l-load item4%0#0'
+debug: Inserted main_create_route@3.ops[133]: 'l-store-copy tmp%8#1 0'
+debug: Replaced main_create_route@3.ops[135]: 'v-load tmp%8#1' with 'l-load tmp%8#1'
+debug: Inserted main_create_route@3.ops[147]: 'l-store-copy length%0#0 0'
+debug: Replaced main_create_route@3.ops[149]: 'v-load length%0#0' with 'l-load length%0#0'
+debug: Inserted main_create_route@3.ops[151]: 'l-store-copy as_bytes%0#0 0'
+debug: Replaced main_create_route@3.ops[153]: 'v-load as_bytes%0#0' with 'l-load as_bytes%0#0'
+debug: Inserted main_create_route@3.ops[155]: 'l-store-copy length_uint16%0#0 0'
+debug: Replaced main_create_route@3.ops[157]: 'v-load length_uint16%0#0' with 'l-load length_uint16%0#0'
+debug: Inserted main_create_route@3.ops[163]: 'l-store-copy len_%0#0 0'
+debug: Replaced main_create_route@3.ops[165]: 'v-load len_%0#0' with 'l-load len_%0#0'
+debug: Inserted main_create_route@3.ops[168]: 'l-store-copy no_overflow%0#0 0'
+debug: Replaced main_create_route@3.ops[170]: 'v-load no_overflow%0#0' with 'l-load no_overflow%0#0'
+debug: Inserted main_create_route@3.ops[181]: 'l-store-copy length%1#0 0'
+debug: Replaced main_create_route@3.ops[183]: 'v-load length%1#0' with 'l-load length%1#0'
+debug: Inserted main_create_route@3.ops[185]: 'l-store-copy as_bytes%1#0 0'
+debug: Replaced main_create_route@3.ops[187]: 'v-load as_bytes%1#0' with 'l-load as_bytes%1#0'
+debug: Inserted main_create_route@3.ops[189]: 'l-store-copy length_uint16%1#0 0'
+debug: Replaced main_create_route@3.ops[191]: 'v-load length_uint16%1#0' with 'l-load length_uint16%1#0'
+debug: Inserted main_create_route@3.ops[198]: 'l-store-copy encoded_tuple_buffer%2#0 0'
+debug: Replaced main_create_route@3.ops[200]: 'v-load encoded_tuple_buffer%2#0' with 'l-load encoded_tuple_buffer%2#0'
+debug: Inserted main_create_route@3.ops[217]: 'l-store-copy as_bytes%3#0 0'
+debug: Replaced main_create_route@3.ops[219]: 'v-load as_bytes%3#0' with 'l-load as_bytes%3#0'
+debug: Inserted main_create_route@3.ops[225]: 'l-store-copy encoded_tuple_buffer%5#0 0'
+debug: Replaced main_create_route@3.ops[227]: 'v-load encoded_tuple_buffer%5#0' with 'l-load encoded_tuple_buffer%5#0'
+debug: Inserted main_create_route@3.ops[230]: 'l-store-copy encoded_tuple_buffer%6#0 0'
+debug: Replaced main_create_route@3.ops[232]: 'v-load encoded_tuple_buffer%6#0' with 'l-load encoded_tuple_buffer%6#0'
+debug: Inserted main_create_route@3.ops[239]: 'l-store-copy tmp%14#0 0'
+debug: Replaced main_create_route@3.ops[241]: 'v-load tmp%14#0' with 'l-load tmp%14#0'
+debug: Inserted main_create_route@3.ops[244]: 'l-store-copy test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0 0'
+debug: Replaced main_create_route@3.ops[246]: 'v-load test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0' with 'l-load test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0'
+debug: Inserted main_create_route@3.ops[105]: 'l-store-copy tmp%1#1 0'
+debug: Replaced main_create_route@3.ops[108]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
+debug: Inserted main_create_route@3.ops[114]: 'l-store-copy tmp%3#1 0'
+debug: Replaced main_create_route@3.ops[117]: 'v-load tmp%3#1' with 'l-load tmp%3#1'
+debug: Inserted main_create_route@3.ops[123]: 'l-store-copy tmp%5#1 0'
+debug: Replaced main_create_route@3.ops[126]: 'v-load tmp%5#1' with 'l-load tmp%5#1'
+debug: Inserted main_create_route@3.ops[132]: 'l-store-copy tmp%7#1 0'
+debug: Replaced main_create_route@3.ops[135]: 'v-load tmp%7#1' with 'l-load tmp%7#1'
+debug: Inserted main_create_route@3.ops[178]: 'l-store-copy b_zeros%0#0 0'
+debug: Replaced main_create_route@3.ops[181]: 'v-load b_zeros%0#0' with 'l-load b_zeros%0#0'
+debug: Inserted main_create_route@3.ops[211]: 'l-store-copy data_length%0#0 0'
+debug: Replaced main_create_route@3.ops[214]: 'v-load data_length%0#0' with 'l-load data_length%0#0'
+debug: Inserted main_create_route@3.ops[227]: 'l-store-copy offset_as_uint16%1#0 0'
+debug: Replaced main_create_route@3.ops[230]: 'v-load offset_as_uint16%1#0' with 'l-load offset_as_uint16%1#0'
+debug: Inserted main_create_route@3.ops[242]: 'l-store-copy encoded_tuple_buffer%7#0 0'
+debug: Replaced main_create_route@3.ops[245]: 'v-load encoded_tuple_buffer%7#0' with 'l-load encoded_tuple_buffer%7#0'
 debug: Inserted main_create_route@3.ops[51]: 'l-store-copy is_true%0#0 0'
 debug: Replaced main_create_route@3.ops[55]: 'v-load is_true%0#0' with 'l-load is_true%0#0'
-debug: Inserted main_create_route@3.ops[77]: 'l-store-copy item_end_offset%0#0 0'
-debug: Replaced main_create_route@3.ops[81]: 'v-load item_end_offset%0#0' with 'l-load item_end_offset%0#0'
-debug: Inserted main_create_route@3.ops[89]: 'l-store-copy tmp%16#0 0'
-debug: Replaced main_create_route@3.ops[92]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
-debug: Inserted main_create_route@3.ops[93]: 'l-store-copy tmp%16#0 0'
-debug: Replaced main_create_route@3.ops[96]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
-debug: Inserted main_create_route@3.ops[95]: 'l-store-copy item_end_offset%1#0 1'
-debug: Replaced main_create_route@3.ops[99]: 'v-load item_end_offset%1#0' with 'l-load item_end_offset%1#0'
-debug: Inserted main_create_route@3.ops[71]: 'l-store-copy tmp%16#0 0'
-debug: Replaced main_create_route@3.ops[75]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
-debug: Inserted main_create_route@3.ops[76]: 'l-store-copy tmp%16#0 0'
-debug: Replaced main_create_route@3.ops[81]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
-debug: Inserted main_create_route@3.ops[111]: 'l-store-copy tmp%0#0 0'
-debug: Replaced main_create_route@3.ops[118]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
-debug: Inserted main_create_route@3.ops[121]: 'l-store-copy tmp%2#2 0'
-debug: Replaced main_create_route@3.ops[128]: 'v-load tmp%2#2' with 'l-load tmp%2#2'
-debug: Inserted main_create_route@3.ops[131]: 'l-store-copy tmp%4#0 0'
-debug: Replaced main_create_route@3.ops[138]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
-debug: Inserted main_create_route@3.ops[141]: 'l-store-copy tmp%6#0 0'
-debug: Replaced main_create_route@3.ops[148]: 'v-load tmp%6#0' with 'l-load tmp%6#0'
-debug: Inserted main_create_route@3.ops[230]: 'l-store-copy current_tail_offset%1#0 0'
-debug: Replaced main_create_route@3.ops[236]: 'v-load current_tail_offset%1#0' with 'l-load current_tail_offset%1#0'
-debug: Inserted main_create_route@3.ops[64]: 'l-store-copy tmp%16#0 0'
-debug: Replaced main_create_route@3.ops[71]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
-debug: Inserted main_create_route@3.ops[75]: 'l-store-copy item_start_offset%0#0 1'
-debug: Replaced main_create_route@3.ops[84]: 'v-load item_start_offset%0#0' with 'l-load item_start_offset%0#0'
-debug: Inserted main_create_route@3.ops[237]: 'l-store-copy encoded_tuple_buffer%4#0 1'
-debug: Replaced main_create_route@3.ops[247]: 'v-load encoded_tuple_buffer%4#0' with 'l-load encoded_tuple_buffer%4#0'
-debug: Inserted main_create_route@3.ops[84]: 'l-store-copy tmp%16#0 2'
-debug: Replaced main_create_route@3.ops[93]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
-debug: Inserted main_create_route@3.ops[225]: 'l-store-copy encoded_tuple_buffer%3#0 0'
-debug: Replaced main_create_route@3.ops[236]: 'v-load encoded_tuple_buffer%3#0' with 'l-load encoded_tuple_buffer%3#0'
-debug: Inserted main_create_route@3.ops[167]: 'l-store-copy bytes_param#0 0'
-debug: Replaced main_create_route@3.ops[180]: 'v-load bytes_param#0' with 'l-load bytes_param#0'
-debug: Inserted main_create_route@3.ops[203]: 'l-store-copy string_param#0 0'
-debug: Replaced main_create_route@3.ops[216]: 'v-load string_param#0' with 'l-load string_param#0'
-debug: Inserted main_create_route@3.ops[184]: 'l-store-copy biguint_param#0 0'
-debug: Replaced main_create_route@3.ops[199]: 'v-load biguint_param#0' with 'l-load biguint_param#0'
-debug: Inserted main_create_route@3.ops[49]: 'l-store-copy tmp%16#0 0'
-debug: Replaced main_create_route@3.ops[64]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
-debug: Inserted main_create_route@3.ops[88]: 'l-store-copy item_end_offset%0#0 3'
-debug: Replaced main_create_route@3.ops[105]: 'v-load item_end_offset%0#0' with 'l-load item_end_offset%0#0'
-debug: Inserted main_create_route@3.ops[233]: 'l-store-copy encoded_value%0#0 1'
-debug: Replaced main_create_route@3.ops[261]: 'v-load encoded_value%0#0' with 'l-load encoded_value%0#0'
-debug: Inserted main_create_route@3.ops[94]: 'l-store-copy tuple_param.2#0 2'
-debug: Replaced main_create_route@3.ops[130]: 'v-load tuple_param.2#0' with 'l-load tuple_param.2#0'
-debug: Inserted main_create_route@3.ops[113]: 'l-store-copy tuple_param.4#0 1'
-debug: Replaced main_create_route@3.ops[151]: 'v-load tuple_param.4#0' with 'l-load tuple_param.4#0'
-debug: Inserted main_create_route@3.ops[206]: 'l-store-copy arc4_item%0#0 0'
-debug: Replaced main_create_route@3.ops[246]: 'v-load arc4_item%0#0' with 'l-load arc4_item%0#0'
-debug: Inserted main_create_route@3.ops[99]: 'l-store-copy tuple_param.3#0 3'
-debug: Replaced main_create_route@3.ops[142]: 'v-load tuple_param.3#0' with 'l-load tuple_param.3#0'
-debug: Inserted main_create_route@3.ops[132]: 'l-store-copy bytes_param#0 4'
-debug: Replaced main_create_route@3.ops[172]: 'v-load bytes_param#0' with 'l-load bytes_param#0'
-debug: Inserted main_create_route@3.ops[226]: 'l-store-copy encoded_value%1#0 1'
-debug: Replaced main_create_route@3.ops[272]: 'v-load encoded_value%1#0' with 'l-load encoded_value%1#0'
-debug: Inserted main_create_route@3.ops[71]: 'l-store-copy tuple_param.1#0 1'
-debug: Replaced main_create_route@3.ops[123]: 'v-load tuple_param.1#0' with 'l-load tuple_param.1#0'
+debug: Inserted main_create_route@3.ops[74]: 'l-store-copy item_end_offset%0#0 0'
+debug: Replaced main_create_route@3.ops[78]: 'v-load item_end_offset%0#0' with 'l-load item_end_offset%0#0'
+debug: Inserted main_create_route@3.ops[86]: 'l-store-copy tmp%13#0 0'
+debug: Replaced main_create_route@3.ops[89]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
+debug: Inserted main_create_route@3.ops[90]: 'l-store-copy tmp%13#0 0'
+debug: Replaced main_create_route@3.ops[93]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
+debug: Inserted main_create_route@3.ops[92]: 'l-store-copy item_end_offset%1#0 1'
+debug: Replaced main_create_route@3.ops[96]: 'v-load item_end_offset%1#0' with 'l-load item_end_offset%1#0'
+debug: Inserted main_create_route@3.ops[64]: 'l-store-copy tmp%13#0 0'
+debug: Replaced main_create_route@3.ops[68]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
+debug: Inserted main_create_route@3.ops[69]: 'l-store-copy tmp%13#0 0'
+debug: Replaced main_create_route@3.ops[73]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
+debug: Inserted main_create_route@3.ops[74]: 'l-store-copy tmp%13#0 0'
+debug: Replaced main_create_route@3.ops[79]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
+debug: Inserted main_create_route@3.ops[109]: 'l-store-copy tmp%0#0 0'
+debug: Replaced main_create_route@3.ops[116]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted main_create_route@3.ops[119]: 'l-store-copy tmp%2#2 0'
+debug: Replaced main_create_route@3.ops[126]: 'v-load tmp%2#2' with 'l-load tmp%2#2'
+debug: Inserted main_create_route@3.ops[129]: 'l-store-copy tmp%4#0 0'
+debug: Replaced main_create_route@3.ops[136]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
+debug: Inserted main_create_route@3.ops[139]: 'l-store-copy tmp%6#0 0'
+debug: Replaced main_create_route@3.ops[146]: 'v-load tmp%6#0' with 'l-load tmp%6#0'
+debug: Inserted main_create_route@3.ops[228]: 'l-store-copy current_tail_offset%1#0 0'
+debug: Replaced main_create_route@3.ops[234]: 'v-load current_tail_offset%1#0' with 'l-load current_tail_offset%1#0'
+debug: Inserted main_create_route@3.ops[72]: 'l-store-copy item_start_offset%0#0 1'
+debug: Replaced main_create_route@3.ops[81]: 'v-load item_start_offset%0#0' with 'l-load item_start_offset%0#0'
+debug: Inserted main_create_route@3.ops[234]: 'l-store-copy encoded_tuple_buffer%4#0 1'
+debug: Replaced main_create_route@3.ops[244]: 'v-load encoded_tuple_buffer%4#0' with 'l-load encoded_tuple_buffer%4#0'
+debug: Inserted main_create_route@3.ops[81]: 'l-store-copy tmp%13#0 2'
+debug: Replaced main_create_route@3.ops[90]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
+debug: Inserted main_create_route@3.ops[222]: 'l-store-copy encoded_tuple_buffer%3#0 0'
+debug: Replaced main_create_route@3.ops[233]: 'v-load encoded_tuple_buffer%3#0' with 'l-load encoded_tuple_buffer%3#0'
+debug: Inserted main_create_route@3.ops[164]: 'l-store-copy bytes_param#0 0'
+debug: Replaced main_create_route@3.ops[177]: 'v-load bytes_param#0' with 'l-load bytes_param#0'
+debug: Inserted main_create_route@3.ops[200]: 'l-store-copy string_param#0 0'
+debug: Replaced main_create_route@3.ops[213]: 'v-load string_param#0' with 'l-load string_param#0'
+debug: Inserted main_create_route@3.ops[181]: 'l-store-copy biguint_param#0 0'
+debug: Replaced main_create_route@3.ops[196]: 'v-load biguint_param#0' with 'l-load biguint_param#0'
+debug: Inserted main_create_route@3.ops[49]: 'l-store-copy tmp%13#0 0'
+debug: Replaced main_create_route@3.ops[64]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
+debug: Inserted main_create_route@3.ops[85]: 'l-store-copy item_end_offset%0#0 3'
+debug: Replaced main_create_route@3.ops[102]: 'v-load item_end_offset%0#0' with 'l-load item_end_offset%0#0'
+debug: Inserted main_create_route@3.ops[230]: 'l-store-copy encoded_value%0#0 1'
+debug: Replaced main_create_route@3.ops[258]: 'v-load encoded_value%0#0' with 'l-load encoded_value%0#0'
+debug: Inserted main_create_route@3.ops[91]: 'l-store-copy tuple_param.2#0 2'
+debug: Replaced main_create_route@3.ops[127]: 'v-load tuple_param.2#0' with 'l-load tuple_param.2#0'
+debug: Inserted main_create_route@3.ops[110]: 'l-store-copy tuple_param.4#0 1'
+debug: Replaced main_create_route@3.ops[148]: 'v-load tuple_param.4#0' with 'l-load tuple_param.4#0'
+debug: Inserted main_create_route@3.ops[203]: 'l-store-copy arc4_item%0#0 0'
+debug: Replaced main_create_route@3.ops[243]: 'v-load arc4_item%0#0' with 'l-load arc4_item%0#0'
+debug: Inserted main_create_route@3.ops[96]: 'l-store-copy tuple_param.3#0 3'
+debug: Replaced main_create_route@3.ops[139]: 'v-load tuple_param.3#0' with 'l-load tuple_param.3#0'
+debug: Inserted main_create_route@3.ops[129]: 'l-store-copy bytes_param#0 4'
+debug: Replaced main_create_route@3.ops[169]: 'v-load bytes_param#0' with 'l-load bytes_param#0'
+debug: Inserted main_create_route@3.ops[223]: 'l-store-copy encoded_value%1#0 1'
+debug: Replaced main_create_route@3.ops[269]: 'v-load encoded_value%1#0' with 'l-load encoded_value%1#0'
 debug: Inserted main_create_route@3.ops[63]: 'l-store-copy tuple_param.0#0 1'
-debug: Replaced main_create_route@3.ops[119]: 'v-load tuple_param.0#0' with 'l-load tuple_param.0#0'
-debug: Inserted main_create_route@3.ops[190]: 'l-store-copy encoded_value%0#0 0'
-debug: Replaced main_create_route@3.ops[241]: 'v-load encoded_value%0#0' with 'l-load encoded_value%0#0'
-debug: Inserted main_create_route@3.ops[124]: 'l-store-copy uint64_param#0 5'
-debug: Replaced main_create_route@3.ops[172]: 'v-load uint64_param#0' with 'l-load uint64_param#0'
-debug: Inserted main_create_route@3.ops[146]: 'l-store-copy biguint_param#0 5'
-debug: Replaced main_create_route@3.ops[194]: 'v-load biguint_param#0' with 'l-load biguint_param#0'
-debug: Inserted main_create_route@3.ops[119]: 'l-store-copy bool_param#0 5'
-debug: Replaced main_create_route@3.ops[171]: 'v-load bool_param#0' with 'l-load bool_param#0'
-debug: Inserted main_create_route@3.ops[176]: 'l-store-copy val_as_bytes%0#0 2'
-debug: Replaced main_create_route@3.ops[236]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
-debug: Inserted main_create_route@3.ops[173]: 'l-store-copy encoded_bool%1#0 3'
-debug: Replaced main_create_route@3.ops[236]: 'v-load encoded_bool%1#0' with 'l-load encoded_bool%1#0'
-debug: Inserted main_create_route@3.ops[158]: 'l-store-copy string_param#0 6'
-debug: Replaced main_create_route@3.ops[219]: 'v-load string_param#0' with 'l-load string_param#0'
+debug: Replaced main_create_route@3.ops[115]: 'v-load tuple_param.0#0' with 'l-load tuple_param.0#0'
+debug: Inserted main_create_route@3.ops[69]: 'l-store-copy tuple_param.1#0 2'
+debug: Replaced main_create_route@3.ops[121]: 'v-load tuple_param.1#0' with 'l-load tuple_param.1#0'
+debug: Inserted main_create_route@3.ops[187]: 'l-store-copy encoded_value%0#0 0'
+debug: Replaced main_create_route@3.ops[238]: 'v-load encoded_value%0#0' with 'l-load encoded_value%0#0'
+debug: Inserted main_create_route@3.ops[121]: 'l-store-copy uint64_param#0 5'
+debug: Replaced main_create_route@3.ops[169]: 'v-load uint64_param#0' with 'l-load uint64_param#0'
+debug: Inserted main_create_route@3.ops[143]: 'l-store-copy biguint_param#0 5'
+debug: Replaced main_create_route@3.ops[191]: 'v-load biguint_param#0' with 'l-load biguint_param#0'
+debug: Inserted main_create_route@3.ops[116]: 'l-store-copy bool_param#0 5'
+debug: Replaced main_create_route@3.ops[168]: 'v-load bool_param#0' with 'l-load bool_param#0'
+debug: Inserted main_create_route@3.ops[173]: 'l-store-copy val_as_bytes%0#0 2'
+debug: Replaced main_create_route@3.ops[233]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
+debug: Inserted main_create_route@3.ops[170]: 'l-store-copy encoded_bool%1#0 3'
+debug: Replaced main_create_route@3.ops[233]: 'v-load encoded_bool%1#0' with 'l-load encoded_bool%1#0'
+debug: Inserted main_create_route@3.ops[155]: 'l-store-copy string_param#0 6'
+debug: Replaced main_create_route@3.ops[216]: 'v-load string_param#0' with 'l-load string_param#0'
 debug: Inserted main_create_route@3.ops[30]: 'l-store-copy uint64_param#0 0'
-debug: Replaced main_create_route@3.ops[125]: 'v-load uint64_param#0' with 'l-load uint64_param#0'
+debug: Replaced main_create_route@3.ops[122]: 'v-load uint64_param#0' with 'l-load uint64_param#0'
 debug: Inserted main_create_route@3.ops[24]: 'l-store-copy bool_param#0 0'
-debug: Replaced main_create_route@3.ops[120]: 'v-load bool_param#0' with 'l-load bool_param#0'
+debug: Replaced main_create_route@3.ops[117]: 'v-load bool_param#0' with 'l-load bool_param#0'
 debug: Inserted main_create_route@3.ops[38]: 'l-store-copy bytes_param#0 2'
-debug: Replaced main_create_route@3.ops[138]: 'v-load bytes_param#0' with 'l-load bytes_param#0'
+debug: Replaced main_create_route@3.ops[135]: 'v-load bytes_param#0' with 'l-load bytes_param#0'
 debug: Inserted main_create_route@3.ops[41]: 'l-store-copy biguint_param#0 3'
-debug: Replaced main_create_route@3.ops[150]: 'v-load biguint_param#0' with 'l-load biguint_param#0'
+debug: Replaced main_create_route@3.ops[147]: 'v-load biguint_param#0' with 'l-load biguint_param#0'
 debug: Inserted main_create_route@3.ops[48]: 'l-store-copy string_param#0 4'
-debug: Replaced main_create_route@3.ops[162]: 'v-load string_param#0' with 'l-load string_param#0'
-debug: Inserted main_tuple_of_arc4_route@4.ops[1]: 'l-store-copy tmp%18#0 0'
-debug: Replaced main_tuple_of_arc4_route@4.ops[3]: 'v-load tmp%18#0' with 'l-load tmp%18#0'
-debug: Inserted main_tuple_of_arc4_route@4.ops[5]: 'l-store-copy tmp%19#0 0'
-debug: Replaced main_tuple_of_arc4_route@4.ops[7]: 'v-load tmp%19#0' with 'l-load tmp%19#0'
-debug: Inserted main_tuple_of_arc4_route@4.ops[10]: 'l-store-copy tmp%20#0 0'
-debug: Replaced main_tuple_of_arc4_route@4.ops[12]: 'v-load tmp%20#0' with 'l-load tmp%20#0'
-debug: Inserted main_tuple_of_arc4_route@4.ops[15]: 'l-store-copy tmp%22#0 0'
-debug: Replaced main_tuple_of_arc4_route@4.ops[17]: 'v-load tmp%22#0' with 'l-load tmp%22#0'
+debug: Replaced main_create_route@3.ops[159]: 'v-load string_param#0' with 'l-load string_param#0'
+debug: Inserted main_tuple_of_arc4_route@4.ops[1]: 'l-store-copy tmp%15#0 0'
+debug: Replaced main_tuple_of_arc4_route@4.ops[3]: 'v-load tmp%15#0' with 'l-load tmp%15#0'
+debug: Inserted main_tuple_of_arc4_route@4.ops[5]: 'l-store-copy tmp%16#0 0'
+debug: Replaced main_tuple_of_arc4_route@4.ops[7]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
+debug: Inserted main_tuple_of_arc4_route@4.ops[10]: 'l-store-copy tmp%17#0 0'
+debug: Replaced main_tuple_of_arc4_route@4.ops[12]: 'v-load tmp%17#0' with 'l-load tmp%17#0'
+debug: Inserted main_tuple_of_arc4_route@4.ops[15]: 'l-store-copy reinterpret_bytes[33]%0#0 0'
+debug: Replaced main_tuple_of_arc4_route@4.ops[17]: 'v-load reinterpret_bytes[33]%0#0' with 'l-load reinterpret_bytes[33]%0#0'
 debug: Inserted main_tuple_of_arc4_route@4.ops[25]: 'l-store-copy tmp%0#1 0'
 debug: Replaced main_tuple_of_arc4_route@4.ops[27]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
-debug: Inserted main_tuple_of_arc4_route@4.ops[30]: 'l-store-copy tmp%1#0 0'
-debug: Replaced main_tuple_of_arc4_route@4.ops[32]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
+debug: Inserted main_tuple_of_arc4_route@4.ops[30]: 'l-store-copy tmp%1#1 0'
+debug: Replaced main_tuple_of_arc4_route@4.ops[32]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
 debug: Inserted main_tuple_of_arc4_route@4.ops[36]: 'l-store-copy tmp%2#1 0'
 debug: Replaced main_tuple_of_arc4_route@4.ops[38]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
 debug: Inserted main_tuple_of_arc4_route@4.ops[41]: 'l-store-copy tmp%3#1 0'
 debug: Replaced main_tuple_of_arc4_route@4.ops[43]: 'v-load tmp%3#1' with 'l-load tmp%3#1'
-debug: Inserted main_tuple_of_arc4_route@4.ops[52]: 'l-store-copy tmp%23#0 0'
-debug: Replaced main_tuple_of_arc4_route@4.ops[54]: 'v-load tmp%23#0' with 'l-load tmp%23#0'
+debug: Inserted main_tuple_of_arc4_route@4.ops[52]: 'l-store-copy tmp%19#0 0'
+debug: Replaced main_tuple_of_arc4_route@4.ops[54]: 'v-load tmp%19#0' with 'l-load tmp%19#0'
 debug: Inserted main_tuple_of_arc4_route@4.ops[57]: 'l-store-copy test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0 0'
 debug: Replaced main_tuple_of_arc4_route@4.ops[59]: 'v-load test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0' with 'l-load test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0'
 debug: Inserted main_tuple_of_arc4_route@4.ops[48]: 'l-store-copy encoded_tuple_buffer%10#0 0'
 debug: Replaced main_tuple_of_arc4_route@4.ops[51]: 'v-load encoded_tuple_buffer%10#0' with 'l-load encoded_tuple_buffer%10#0'
-debug: Inserted main_tuple_of_arc4_route@4.ops[18]: 'l-store-copy tmp%22#0 0'
-debug: Replaced main_tuple_of_arc4_route@4.ops[21]: 'v-load tmp%22#0' with 'l-load tmp%22#0'
+debug: Inserted main_tuple_of_arc4_route@4.ops[18]: 'l-store-copy reinterpret_bytes[33]%0#0 0'
+debug: Replaced main_tuple_of_arc4_route@4.ops[21]: 'v-load reinterpret_bytes[33]%0#0' with 'l-load reinterpret_bytes[33]%0#0'
 debug: Inserted main_tuple_of_arc4_route@4.ops[20]: 'l-store-copy args.0#0 1'
 debug: Replaced main_tuple_of_arc4_route@4.ops[25]: 'v-load args.0#0' with 'l-load args.0#0'
 debug: Inserted main_tuple_of_arc4_route@4.ops[24]: 'l-store-copy args.1#0 1'

@@ -9,14 +9,13 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     ArrayConcat,
     ArrayExtend,
+    ArrayLength,
     ArrayPop,
     Expression,
     ExpressionStatement,
-    IntrinsicCall,
     NewArray,
     Statement,
     TupleExpression,
-    UInt64Constant,
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -95,13 +94,12 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
 
     @typing.override
     def length(self, location: SourceLocation) -> InstanceBuilder:
-        length = IntrinsicCall(
-            op_code="extract_uint16",
-            stack_args=[self.resolve(), UInt64Constant(value=0, source_location=location)],
-            wtype=wtypes.uint64_wtype,
-            source_location=location,
+        return UInt64ExpressionBuilder(
+            ArrayLength(
+                array=self.resolve(),
+                source_location=location,
+            )
         )
-        return UInt64ExpressionBuilder(length)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
@@ -123,12 +121,7 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
             logger.error(f"unsupported operator for type: {op.value!r}", location=location)
             return dummy_statement(location)
         rhs = _match_array_concat_arg(rhs, self.pytype)
-        extend = ArrayExtend(
-            base=self.resolve(),
-            other=rhs.resolve(),
-            wtype=wtypes.void_wtype,
-            source_location=location,
-        )
+        extend = ArrayExtend(base=self.resolve(), other=rhs.resolve(), source_location=location)
         return ExpressionStatement(expr=extend)
 
     @typing.override
@@ -149,7 +142,6 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
             ArrayConcat(
                 left=self.resolve(),
                 right=other.resolve(),
-                wtype=self.pytype.wtype,
                 source_location=location,
             ),
             self.pytype,
@@ -185,9 +177,7 @@ class _Append(_ArrayFunc):
         args_expr = arg.resolve()
         args_tuple = TupleExpression.from_items([args_expr], arg.source_location)
         return NoneExpressionBuilder(
-            ArrayExtend(
-                base=self.expr, other=args_tuple, wtype=wtypes.void_wtype, source_location=location
-            )
+            ArrayExtend(base=self.expr, other=args_tuple, source_location=location)
         )
 
 
@@ -201,9 +191,7 @@ class _Pop(_ArrayFunc):
         location: SourceLocation,
     ) -> InstanceBuilder:
         expect.no_args(args, location)
-        result_expr = ArrayPop(
-            base=self.expr, wtype=self.typ.items_wtype, source_location=location
-        )
+        result_expr = ArrayPop(base=self.expr, source_location=location)
         return builder_for_instance(self.typ.items, result_expr)
 
 
@@ -222,12 +210,7 @@ class _Extend(_ArrayFunc):
         else:
             other = _match_array_concat_arg(arg, self.typ)
         return NoneExpressionBuilder(
-            ArrayExtend(
-                base=self.expr,
-                other=other.resolve(),
-                wtype=wtypes.void_wtype,
-                source_location=location,
-            )
+            ArrayExtend(base=self.expr, other=other.resolve(), source_location=location)
         )
 
 

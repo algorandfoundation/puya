@@ -5,12 +5,11 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.ir import intrinsic_factory
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._utils import assert_value, assign_targets, mktemp
+from puya.ir.builder._utils import OpFactory, assert_value, assign_targets, mktemp
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import Intrinsic, UInt64Constant, Value, ValueProvider, ValueTuple
-from puya.ir.types_ import IRType, wtype_to_ir_type
+from puya.ir.types_ import PrimitiveIRType, wtype_to_ir_type
 from puya.parse import SourceLocation
 
 
@@ -68,12 +67,13 @@ def visit_state_exists(
 def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) -> ValueProvider:
     default = context.visitor.visit_and_materialise_single(expr.default)
     maybe_value, exists = _build_state_get_ex(context, expr.field, expr.source_location)
+    intrinsic_factory = OpFactory(context, expr.source_location)
     return intrinsic_factory.select(
         condition=exists,
         true=maybe_value,
         false=default,
-        type_=wtype_to_ir_type(expr.wtype),
-        source_location=expr.source_location,
+        temp_desc="state_get",
+        ir_type=wtype_to_ir_type(expr.wtype, expr.source_location),
     )
 
 
@@ -127,7 +127,7 @@ def _build_state_get_ex(
 ) -> tuple[Value, Value]:
     key = context.visitor.visit_and_materialise_single(expr.key)
     args: list[Value]
-    true_value_ir_type = get_ex_value_ir_type = wtype_to_ir_type(expr.wtype)
+    true_value_ir_type = get_ex_value_ir_type = wtype_to_ir_type(expr.wtype, expr.source_location)
     convert_op: AVMOp | None = None
     if isinstance(expr, awst_nodes.AppStateExpression):
         current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
@@ -141,13 +141,13 @@ def _build_state_get_ex(
     else:
         args = [key]
         if for_existence_check:
-            get_ex_value_ir_type = IRType.uint64
+            get_ex_value_ir_type = PrimitiveIRType.uint64
             op = AVMOp.box_len
         else:
             op = AVMOp.box_get
             match wtypes.persistable_stack_type(expr.wtype, source_location):
                 case AVMType.uint64:
-                    get_ex_value_ir_type = IRType.bytes
+                    get_ex_value_ir_type = PrimitiveIRType.bytes
                     convert_op = AVMOp.btoi
                 case AVMType.bytes:
                     pass
@@ -156,7 +156,7 @@ def _build_state_get_ex(
     get_ex = Intrinsic(
         op=op,
         args=args,
-        types=[get_ex_value_ir_type, IRType.bool],
+        types=[get_ex_value_ir_type, PrimitiveIRType.bool],
         source_location=source_location,
     )
     value_tmp, did_exist_tmp = context.visitor.materialise_value_provider(

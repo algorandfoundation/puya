@@ -3,17 +3,16 @@ from collections.abc import Callable, Iterable
 
 from puya import log
 from puya.ir import models
-from puya.ir.context import TMP_VAR_INDICATOR
 
 logger = log.get_logger(__name__)
 
 
 def sequentialize_parallel_copies(sub: models.Subroutine) -> None:
     logger.debug(f"Sequentializing parallel copies in {sub.id}")
-    our_tmp_prefix = f"parcopy{TMP_VAR_INDICATOR}"
+    our_tmp_prefix = f"parcopy{models.TMP_VAR_INDICATOR}"
     max_tmp_id = max(
         (
-            int(r.name.split(TMP_VAR_INDICATOR)[1])
+            int(r.name.split(models.TMP_VAR_INDICATOR)[1])
             for r in sub.get_assigned_registers()
             if r.name.startswith(our_tmp_prefix)
         ),

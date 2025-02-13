@@ -446,7 +446,11 @@ class Copy(Expression):
     Create a new copy of 'value'
     """
 
-    value: Expression
+    value: Expression = attrs.field(
+        validator=expression_has_wtype(
+            wtypes.ARC4Type, wtypes.ReferenceArray, wtypes.WInnerTransactionFields
+        )
+    )
     wtype: WType = attrs.field(init=False)
 
     @wtype.default
@@ -464,19 +468,29 @@ class ArrayConcat(Expression):
     an iterable type with the same element type
     """
 
-    left: Expression
-    right: Expression
+    left: Expression  # note: validated through wtype default factory
+    right: Expression = attrs.field(
+        validator=expression_has_wtype(
+            wtypes.NativeArray,
+            wtypes.ARC4Array,
+            wtypes.WTuple,
+            wtypes.ARC4Tuple,
+        )
+    )
+    # note: StaticArray not supported yet
+    wtype: wtypes.ARC4DynamicArray | wtypes.StackArray = attrs.field(init=False)
+
+    @wtype.default
+    def _wtype(self) -> wtypes.ARC4DynamicArray | wtypes.StackArray:
+        wtype = self.left.wtype
+        if not isinstance(wtype, wtypes.ARC4DynamicArray | wtypes.StackArray):
+            raise CodeError(
+                "unsupported type for concatenation left operand", self.source_location
+            )
+        return wtype
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_array_concat(self)
-
-
-@attrs.frozen
-class ArrayPop(Expression):
-    base: Expression
-
-    def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_array_pop(self)
 
 
 @attrs.frozen
@@ -486,11 +500,76 @@ class ArrayExtend(Expression):
     the same element type
     """
 
-    base: Expression
-    other: Expression
+    base: Expression = attrs.field(
+        validator=expression_has_wtype(wtypes.ARC4DynamicArray, wtypes.ReferenceArray)
+    )
+    other: Expression = attrs.field(
+        validator=expression_has_wtype(
+            wtypes.NativeArray,
+            wtypes.ARC4Array,
+            wtypes.WTuple,
+            wtypes.ARC4Tuple,
+        )
+    )
+    wtype: WType = attrs.field(default=wtypes.void_wtype)
+
+    @wtype.validator
+    def _wtype_validator(self, _attr: object, value: WType) -> None:
+        if value not in (wtypes.void_wtype, self.base.wtype):
+            raise InternalError(
+                "ArrayExtend should be constructed with either a void return type, "
+                "or the type of the array being extended",
+                self.source_location,
+            )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_array_extend(self)
+
+
+@attrs.frozen
+class ArrayPop(Expression):
+    """Removes the last item of an array and returns it"""
+
+    base: Expression = attrs.field(
+        validator=expression_has_wtype(wtypes.ARC4DynamicArray, wtypes.ReferenceArray)
+    )
+    wtype: WType = attrs.field(init=False)
+
+    @wtype.default
+    def _wtype(self) -> WType:
+        if isinstance(self.base.wtype, wtypes.ARC4Array | wtypes.NativeArray):
+            return self.base.wtype.element_type
+        # default factories run before validation, so we need to return something here
+        return wtypes.void_wtype
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_array_pop(self)
+
+
+@attrs.frozen
+class ArrayReplace(Expression):
+    """For a StackArray, replaces the item at index with value and returns the updated array"""
+
+    base: Expression  # note: type validated by wtype factory
+    index: Expression = attrs.field(validator=wtype_is_uint64)
+    value: Expression = attrs.field()
+    wtype: wtypes.StackArray = attrs.field(init=False)
+
+    @wtype.default
+    def _wtype(self) -> wtypes.StackArray:
+        if not isinstance(self.base.wtype, wtypes.StackArray):
+            raise InternalError(
+                f"Unsupported base for ArrayReplace: {self.base.wtype}", self.source_location
+            )
+        return self.base.wtype
+
+    @value.validator
+    def _value_wtype_validator(self, _attr: object, value: Expression) -> None:
+        if value.wtype != self.wtype.element_type:
+            raise CodeError("value type should match array element type", value.source_location)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_array_replace(self)
 
 
 @attrs.frozen
@@ -510,7 +589,7 @@ class ARC4Decode(Expression):
         assert isinstance(value.wtype, wtypes.ARC4Type)  # validated by `value`
         if not value.wtype.can_encode_type(self.wtype):
             raise InternalError(
-                f"ARC4Decode from {value.wtype} should have non ARC4 target type {self.wtype}",
+                f"ARC4Decode: {value.wtype} cannot be decoded to {self.wtype}",
                 self.source_location,
             )
 
@@ -757,8 +836,8 @@ class IndexExpression(Expression):
     base: Expression = attrs.field(
         validator=expression_has_wtype(
             wtypes.bytes_wtype,
-            wtypes.ARC4StaticArray,
-            wtypes.ARC4DynamicArray,
+            wtypes.ARC4Array,
+            wtypes.NativeArray,
             # NOTE: tuples (native or arc4) use TupleItemExpression instead
         )
     )
@@ -794,6 +873,7 @@ class IntersectionSliceExpression(Expression):
         validator=expression_has_wtype(
             wtypes.bytes_wtype,
             wtypes.WTuple,
+            wtypes.StackArray,
         )
     )
 
@@ -888,7 +968,12 @@ Lvalue = VarExpression | FieldExpression | IndexExpression | TupleExpression | S
 
 @attrs.frozen
 class NewArray(Expression):
-    wtype: wtypes.WArray | wtypes.ARC4Array
+    wtype: (
+        wtypes.ARC4DynamicArray
+        | wtypes.ARC4StaticArray
+        | wtypes.ReferenceArray
+        | wtypes.StackArray
+    )
     values: Sequence[Expression] = attrs.field(default=(), converter=tuple[Expression, ...])
 
     @values.validator
@@ -900,6 +985,17 @@ class NewArray(Expression):
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_new_array(self)
+
+
+@attrs.frozen
+class ArrayLength(Expression):
+    array: Expression = attrs.field(
+        validator=expression_has_wtype(wtypes.NativeArray, wtypes.ARC4Array)
+    )
+    wtype: wtypes.WType = attrs.field(default=wtypes.uint64_wtype, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_array_length(self)
 
 
 @attrs.frozen
@@ -935,7 +1031,7 @@ class AssignmentStatement(Statement):
     Multi-assignment statements like `a = b = 1` should be split in the AST pass.
 
     Will validate that target and value are of the same type, and that said type is usable
-    as an l-value.
+    as an l-value. Value is evaluated before the target
     """
 
     target: Lvalue
@@ -960,7 +1056,7 @@ class AssignmentExpression(Expression):
     This both assigns value to target and returns the value as the result of the expression.
 
     Will validate that target and value are of the same type, and that said type is usable
-    as an l-value.
+    as an l-value. Value is evaluated before the target
     """
 
     target: Lvalue = attrs.field()
@@ -1641,6 +1737,8 @@ class LogicSignature(RootNode):
     short_name: str
     program: Subroutine = attrs.field()
     docstring: str | None
+    reserved_scratch_space: Set[int]
+    """Scratch slots that the logicsig is explicitly setting aside for direct/explicit usage."""
     avm_version: int | None = attrs.field(validator=_validate_avm_version)
 
     @program.validator

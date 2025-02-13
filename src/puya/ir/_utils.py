@@ -61,8 +61,10 @@ def _expand_tuple_parameters(
     else:
         yield Parameter(
             name=name,
-            ir_type=wtype_to_ir_type(typ),
+            ir_type=wtype_to_ir_type(typ, source_location),
             version=0,
-            implicit_return=allow_implicits and not typ.immutable,
+            implicit_return=(
+                allow_implicits and not (typ.immutable or isinstance(typ, wtypes.ReferenceArray))
+            ),
             source_location=source_location,
         )

@@ -8,8 +8,10 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import CodeError, InternalError
+from puya.ir import models as ir
+from puya.ir.arc4 import is_arc4_static_size
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4
+from puya.ir.builder import arc4, mem
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import (
     assign,
@@ -18,14 +20,7 @@ from puya.ir.builder._utils import (
     get_implicit_return_is_original,
 )
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.models import (
-    Intrinsic,
-    UInt64Constant,
-    Value,
-    ValueProvider,
-    ValueTuple,
-)
-from puya.ir.types_ import IRType, get_wtype_arity
+from puya.ir.types_ import PrimitiveIRType, get_wtype_arity
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
@@ -37,7 +32,8 @@ def handle_assignment_expr(
     target: awst_nodes.Lvalue,
     value: awst_nodes.Expression,
     assignment_location: SourceLocation,
-) -> Sequence[Value]:
+) -> Sequence[ir.Value]:
+    # as per AWST node Value is evaluated before the target
     expr_values = context.visitor.visit_expr(value)
     return handle_assignment(
         context,
@@ -51,11 +47,11 @@ def handle_assignment_expr(
 def handle_assignment(
     context: IRFunctionBuildContext,
     target: awst_nodes.Expression,
-    value: ValueProvider,
+    value: ir.ValueProvider,
     assignment_location: SourceLocation,
     *,
     is_nested_update: bool,
-) -> Sequence[Value]:
+) -> Sequence[ir.Value]:
     match target:
         # special case: a nested update can cause a tuple item to be re-assigned
         # TODO: refactor this so that this special case is handled where it originates
@@ -91,7 +87,7 @@ def handle_assignment(
             source = context.visitor.materialise_value_provider(
                 value, description="tuple_assignment"
             )
-            results = list[Value]()
+            results = list[ir.Value]()
             for item in tup_expr.items:
                 arity = get_wtype_arity(item.wtype)
                 values = source[:arity]
@@ -99,9 +95,11 @@ def handle_assignment(
                 if len(values) != arity:
                     raise CodeError("not enough values to unpack", assignment_location)
                 if arity == 1:
-                    nested_value: ValueProvider = values[0]
+                    nested_value: ir.ValueProvider = values[0]
                 else:
-                    nested_value = ValueTuple(values=values, source_location=value.source_location)
+                    nested_value = ir.ValueTuple(
+                        values=values, source_location=value.source_location
+                    )
                 results.extend(
                     handle_assignment(
                         context,
@@ -123,7 +121,7 @@ def handle_assignment(
                 value, description="new_state_value"
             )
             context.block_builder.add(
-                Intrinsic(
+                ir.Intrinsic(
                     op=AVMOp.app_global_put,
                     args=[key_value, mat_value],
                     source_location=assignment_location,
@@ -140,7 +138,7 @@ def handle_assignment(
                 value, description="new_state_value"
             )
             context.block_builder.add(
-                Intrinsic(
+                ir.Intrinsic(
                     op=AVMOp.app_local_put,
                     args=[account, key_value, mat_value],
                     source_location=assignment_location,
@@ -157,9 +155,9 @@ def handle_assignment(
             )
             if scalar_type == AVMType.bytes:
                 serialized_value = mat_value
-                if not (isinstance(wtype, wtypes.ARC4Type) and arc4.is_arc4_static_size(wtype)):
+                if not (isinstance(wtype, wtypes.ARC4Type) and is_arc4_static_size(wtype)):
                     context.block_builder.add(
-                        Intrinsic(
+                        ir.Intrinsic(
                             op=AVMOp.box_del, args=[key_value], source_location=assignment_location
                         )
                     )
@@ -167,7 +165,7 @@ def handle_assignment(
                 serialized_value = assign_temp(
                     context=context,
                     temp_description="new_box_value",
-                    source=Intrinsic(
+                    source=ir.Intrinsic(
                         op=AVMOp.itob,
                         args=[mat_value],
                         source_location=assignment_location,
@@ -177,7 +175,7 @@ def handle_assignment(
             else:
                 typing.assert_never(scalar_type)
             context.block_builder.add(
-                Intrinsic(
+                ir.Intrinsic(
                     op=AVMOp.box_put,
                     args=[key_value, serialized_value],
                     source_location=assignment_location,
@@ -185,9 +183,35 @@ def handle_assignment(
             )
             return [mat_value]
         case awst_nodes.IndexExpression() as ix_expr:
-            if isinstance(ix_expr.base.wtype, wtypes.WArray):
-                raise NotImplementedError
-            elif isinstance(ix_expr.base.wtype, wtypes.ARC4Type):  # noqa: RET506
+            if isinstance(ix_expr.base.wtype, wtypes.ReferenceArray):
+                array_slot = context.visitor.visit_and_materialise_single(
+                    ix_expr.base, "array_slot"
+                )
+                index = context.visitor.visit_and_materialise_single(ix_expr.index, "index")
+                array = mem.read_slot(context, array_slot, ix_expr.source_location)
+                values = context.visitor.materialise_value_provider(
+                    value, description="new_box_value"
+                )
+                element: ir.ValueTuple | ir.Value
+                try:
+                    (element,) = values
+                except ValueError:
+                    element = ir.ValueTuple(values=values, source_location=value.source_location)
+                updated_array_vp = ir.ArrayWriteIndex(
+                    array=array,
+                    index=index,
+                    value=element,
+                    source_location=ix_expr.source_location,
+                )
+                updated_array = assign_temp(
+                    context,
+                    updated_array_vp,
+                    temp_description="updated_array",
+                    source_location=value.source_location,
+                )
+                mem.write_slot(context, array_slot, updated_array, ix_expr.source_location)
+                return values
+            elif isinstance(ix_expr.base.wtype, wtypes.ARC4Type):
                 return (
                     arc4.handle_arc4_assign(
                         context,
@@ -233,11 +257,11 @@ def _handle_maybe_implicit_return_assignment(
     *,
     base_name: str,
     wtype: wtypes.WType,
-    value: ValueProvider,
+    value: ir.ValueProvider,
     var_loc: SourceLocation,
     assignment_loc: SourceLocation,
     is_nested_update: bool,
-) -> Sequence[Value]:
+) -> Sequence[ir.Value]:
     registers = build_tuple_registers(context, base_name, wtype, var_loc)
     for register in registers:
         is_implicit_return = register.name in (
@@ -248,7 +272,7 @@ def _handle_maybe_implicit_return_assignment(
         if is_implicit_return and not is_nested_update:
             assign(
                 context,
-                UInt64Constant(value=0, ir_type=IRType.bool, source_location=None),
+                ir.UInt64Constant(value=0, ir_type=PrimitiveIRType.bool, source_location=None),
                 name=get_implicit_return_is_original(register.name),
                 assignment_location=None,
             )

@@ -13,9 +13,9 @@ subroutine test_cases.everything.my_base.multiplicative_identity() -> uint64:
     block@0: // L18
         return 1u
 
-subroutine test_cases.everything.contract.get_banned() -> bytes:
+subroutine test_cases.everything.contract.get_banned() -> bytes[32]:
     block@0: // L23
-        let addr#0: bytes = addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
+        let addr#0: bytes[32] = addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
         return addr#0
 
 subroutine test_cases.everything.contract.positive_one() -> uint64:
@@ -68,19 +68,19 @@ subroutine test_cases.everything.contract.Everything.__puya_arc4_router__() -> b
         let tmp%21#0: uint64 = (txn ApplicationID)
         let tmp%22#0: bool = (!= tmp%21#0 0u)
         (assert tmp%22#0) // can only call when not creating
-        let tmp%23#0: bytes = (txna ApplicationArgs 1)
-        let tmp%24#0: bytes = (txna ApplicationArgs 2)
-        let tmp%25#0: bytes = test_cases.everything.contract.Everything.calculate(tmp%23#0, tmp%24#0)
-        let tmp%26#0: bytes = (concat 0x151f7c75 tmp%25#0)
-        (log tmp%26#0)
+        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 1)
+        let reinterpret_bytes[8]%1#0: bytes[8] = (txna ApplicationArgs 2)
+        let tmp%23#0: bytes[8] = test_cases.everything.contract.Everything.calculate(reinterpret_bytes[8]%0#0, reinterpret_bytes[8]%1#0)
+        let tmp%24#0: bytes = (concat 0x151f7c75 tmp%23#0)
+        (log tmp%24#0)
         return 1u
     block@6: // close_out_route_L69
-        let tmp%27#0: uint64 = (txn OnCompletion)
-        let tmp%28#0: bool = (== tmp%27#0 CloseOut)
-        (assert tmp%28#0) // OnCompletion is not CloseOut
-        let tmp%29#0: uint64 = (txn ApplicationID)
-        let tmp%30#0: bool = (!= tmp%29#0 0u)
-        (assert tmp%30#0) // can only call when not creating
+        let tmp%25#0: uint64 = (txn OnCompletion)
+        let tmp%26#0: bool = (== tmp%25#0 CloseOut)
+        (assert tmp%26#0) // OnCompletion is not CloseOut
+        let tmp%27#0: uint64 = (txn ApplicationID)
+        let tmp%28#0: bool = (!= tmp%27#0 0u)
+        (assert tmp%28#0) // can only call when not creating
         test_cases.everything.contract.Everything.close_out()
         return 1u
     block@7: // switch_case_default_L37
@@ -141,25 +141,25 @@ subroutine test_cases.everything.contract.Everything.say_hello() -> bytes:
         let expr_value_trimmed%1#0: bytes = ((extract 2 0) name#0)
         let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 expr_value_trimmed%1#0)
         let len_%0#0: uint64 = (len concatenated%0#0)
-        let as_bytes%0#0: bytes = (itob len_%0#0)
+        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
         let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
         let expr_value_trimmed%2#0: bytes = ((extract 2 0) concat_result%0#0)
         let expr_value_trimmed%3#0: bytes = ((extract 2 0) 0x000121)
         let concatenated%1#0: bytes = (concat expr_value_trimmed%2#0 expr_value_trimmed%3#0)
         let len_%1#0: uint64 = (len concatenated%1#0)
-        let as_bytes%1#0: bytes = (itob len_%1#0)
+        let as_bytes%1#0: bytes[8] = (itob len_%1#0)
         let len_16_bit%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let concat_result%1#0: bytes = (concat len_16_bit%1#0 concatenated%1#0)
         return concat_result%1#0
 
-subroutine test_cases.everything.contract.Everything.calculate(a: bytes, b: bytes) -> bytes:
+subroutine test_cases.everything.contract.Everything.calculate(a: bytes[8], b: bytes[8]) -> bytes[8]:
     block@0: // L64
-        let c#0: bytes = test_cases.everything.my_base.MyMiddleBase.calculate(a#0, b#0)
+        let c#0: bytes[8] = test_cases.everything.my_base.MyMiddleBase.calculate(a#0, b#0)
         let tmp%0#0: uint64 = (btoi c#0)
         let tmp%1#0: uint64 = (btoi b#0)
         let to_encode%0#0: uint64 = (* tmp%0#0 tmp%1#0)
-        let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
+        let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
         return val_as_bytes%0#0
 
 subroutine test_cases.everything.contract.Everything.close_out() -> void:
@@ -169,8 +169,8 @@ subroutine test_cases.everything.contract.Everything.close_out() -> void:
 
 subroutine test_cases.everything.contract.Everything._check_ban_list() -> void:
     block@0: // L77
-        let tmp%0#0: bytes = (txn Sender)
-        let tmp%1#0: bytes = test_cases.everything.contract.get_banned()
+        let tmp%0#0: bytes[32] = (txn Sender)
+        let tmp%1#0: bytes[32] = test_cases.everything.contract.get_banned()
         let tmp%2#0: bool = (!= tmp%0#0 tmp%1#0)
         (assert tmp%2#0) // You are banned, goodbye
         return 
@@ -189,16 +189,16 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%0#0: bool = test_cases.everything.contract.Everything.__puya_arc4_router__()
         return tmp%0#0
 
-subroutine test_cases.everything.my_base.MyMiddleBase.calculate(a: bytes, b: bytes) -> bytes:
+subroutine test_cases.everything.my_base.MyMiddleBase.calculate(a: bytes[8], b: bytes[8]) -> bytes[8]:
     block@0: // L13
         let tmp%0#0: uint64 = (btoi a#0)
         let tmp%1#0: uint64 = (btoi b#0)
         let to_encode%0#0: uint64 = (+ tmp%0#0 tmp%1#0)
-        let val_as_bytes%0#0: bytes = (itob to_encode%0#0)
+        let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
         return val_as_bytes%0#0
 
 subroutine test_cases.everything.my_base.MyBase.remember_creator() -> void:
     block@0: // L7
-        let new_state_value%0#0: bytes = (txn Sender)
+        let new_state_value%0#0: bytes[32] = (txn Sender)
         (app_global_put "creator" new_state_value%0#0)
         return 

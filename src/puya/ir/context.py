@@ -10,17 +10,30 @@ import attrs
 import puya.awst.nodes as awst_nodes
 from puya.context import CompileContext
 from puya.errors import CodeError, log_exceptions
+from puya.ir.builder._utils import (
+    assign,
+    get_implicit_return_is_original,
+    get_implicit_return_out,
+)
 from puya.ir.builder.blocks import BlocksBuilder
-from puya.ir.models import Subroutine
+from puya.ir.models import (
+    TMP_VAR_INDICATOR,
+    Assignment,
+    ConditionalBranch,
+    Op,
+    Register,
+    Subroutine,
+    ValueProvider,
+)
+from puya.ir.register_context import IRRegisterContext
 from puya.ir.ssa import BraunSSA
+from puya.ir.types_ import IRType, PrimitiveIRType
 from puya.parse import SourceLocation
 from puya.program_refs import ContractReference
 from puya.utils import attrs_extend
 
 if typing.TYPE_CHECKING:
     from puya.ir.builder.main import FunctionIRBuilder
-
-TMP_VAR_INDICATOR = "%"
 
 
 @attrs.frozen(kw_only=True)
@@ -102,7 +115,7 @@ class IRBuildContext(CompileContext):
 
 
 @attrs.frozen(kw_only=True)
-class IRFunctionBuildContext(IRBuildContext):
+class IRFunctionBuildContext(IRBuildContext, IRRegisterContext):
     """Context when building from an awst Function node"""
 
     function: awst_nodes.Function
@@ -125,6 +138,26 @@ class IRFunctionBuildContext(IRBuildContext):
         counter_value = next(self._tmp_counters[description])
         return f"{description}{TMP_VAR_INDICATOR}{counter_value}"
 
+    def new_register(
+        self, name: str, ir_type: IRType, location: SourceLocation | None
+    ) -> Register:
+        return self.ssa.new_register(name, ir_type, location)
+
+    def add_assignment(
+        self, targets: list[Register], source: ValueProvider, loc: SourceLocation | None
+    ) -> None:
+        for target in targets:
+            self.ssa.write_variable(target.name, self.block_builder.active_block, target)
+        self.add_op(Assignment(targets=targets, source=source, source_location=loc))
+        # also update any implicitly returned variables
+        implicit_params = {p.name for p in self.subroutine.parameters if p.implicit_return}
+        for target in targets:
+            if target.name in implicit_params:
+                self._update_implicit_out_var(target)
+
+    def add_op(self, op: Op) -> None:
+        self.block_builder.add(op)
+
     @property
     def default_fallback(self) -> SourceLocation | None:
         return self.function.source_location
@@ -140,3 +173,37 @@ class IRFunctionBuildContext(IRBuildContext):
             target=target, source_location=source_location, caller=caller or self.function
         )
         return self.subroutines[func]
+
+    def _update_implicit_out_var(self, reg: Register) -> None:
+        var = reg.name
+        # emit conditional assignment equivalent to
+        # if var%is_original:
+        #   var%out = var
+        loc = SourceLocation(file=None, line=1)
+
+        if_body = self.block_builder.mkblock(loc, "if_body")
+        next_block = self.block_builder.mkblock(loc, "after_if_else")
+
+        condition_value = self.ssa.read_variable(
+            get_implicit_return_is_original(var),
+            PrimitiveIRType.bool,
+            self.block_builder.active_block,
+        )
+        self.block_builder.terminate(
+            ConditionalBranch(
+                condition=condition_value,
+                non_zero=if_body,
+                zero=next_block,
+                source_location=loc,
+            )
+        )
+        self.block_builder.activate_block(if_body)
+
+        assign(
+            self,
+            self.ssa.read_variable(var, reg.ir_type, if_body),
+            name=get_implicit_return_out(var),
+            assignment_location=loc,
+        )
+        self.block_builder.goto(next_block)
+        self.block_builder.try_activate_block(next_block)

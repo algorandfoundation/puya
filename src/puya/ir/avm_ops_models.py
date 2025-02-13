@@ -3,22 +3,7 @@ from collections.abc import Sequence
 
 import attrs
 
-
-class StackType(enum.StrEnum):
-    uint64 = enum.auto()
-    bytes = "[]byte"
-    bool = enum.auto()
-    address = enum.auto()
-    address_or_index = enum.auto()
-    any = enum.auto()
-    bigint = enum.auto()
-    box_name = "boxName"
-    asset = enum.auto()
-    application = enum.auto()
-    state_key = "stateKey"
-
-    def __repr__(self) -> str:
-        return f"{type(self).__name__}.{self.name}"
+from puya.ir.types_ import IRType
 
 
 class RunMode(enum.StrEnum):
@@ -40,8 +25,8 @@ class ImmediateKind(enum.StrEnum):
 
 @attrs.frozen
 class OpSignature:
-    args: Sequence[StackType]
-    returns: Sequence[StackType]
+    args: Sequence[IRType]
+    returns: Sequence[IRType]
 
 
 @attrs.frozen

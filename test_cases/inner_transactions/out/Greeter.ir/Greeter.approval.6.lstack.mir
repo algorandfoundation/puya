@@ -1,0 +1,244 @@
+// Op                                                                                 Stack (out)
+// test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init() -> uint64:
+main:
+    txn ApplicationID                                                                 tmp%0#0
+    l-load tmp%0#0 0                                                                  tmp%0#0
+    bz main_call___init__@1 ; b main_after_if_else@2
+
+main_call___init__@1:
+    // inner_transactions/c2c.py:8
+    // self.hello_app = Application()
+    byte "hello_app"                                                                  "hello_app"
+    int 0                                                                             "hello_app",0
+    app_global_put
+    b main_after_if_else@2
+
+main_after_if_else@2:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    txn NumAppArgs                                                                    tmp%0#2
+    l-load tmp%0#2 0                                                                  tmp%0#2
+    bz main_bare_routing@7 ; b main_abi_routing@4
+
+main_abi_routing@4:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    txna ApplicationArgs 0                                                            tmp%2#0
+    method bootstrap()uint64                                                          tmp%2#0,Method(bootstrap()uint64)
+    method log_greetings(string)void                                                  tmp%2#0,Method(bootstrap()uint64),Method(log_greetings(string)void)
+    l-load tmp%2#0 2                                                                  Method(bootstrap()uint64),Method(log_greetings(string)void),tmp%2#0
+    match main_bootstrap_route@5 main_log_greetings_route@6 ; b main_after_if_else@9
+
+main_bootstrap_route@5:
+    // inner_transactions/c2c.py:10
+    // @arc4.abimethod()
+    txn OnCompletion                                                                  tmp%3#0
+    l-load tmp%3#0 0                                                                  tmp%3#0
+    !                                                                                 tmp%4#0
+    l-load tmp%4#0 0                                                                  tmp%4#0
+    assert // OnCompletion is not NoOp
+    txn ApplicationID                                                                 tmp%5#0
+    l-load tmp%5#0 0                                                                  tmp%5#0
+    assert // can only call when not creating
+    callsub bootstrap                                                                 to_encode%0#0
+    l-load to_encode%0#0 0                                                            to_encode%0#0
+    itob                                                                              val_as_bytes%0#0
+    byte 0x151f7c75                                                                   val_as_bytes%0#0,0x151f7c75
+    l-load val_as_bytes%0#0 1                                                         0x151f7c75,val_as_bytes%0#0
+    concat                                                                            tmp%7#0
+    l-load tmp%7#0 0                                                                  tmp%7#0
+    log
+    int 1                                                                             1
+    l-store test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0 0      test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0
+    l-load test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0 0       test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@10 
+
+main_log_greetings_route@6:
+    // inner_transactions/c2c.py:23
+    // @arc4.abimethod()
+    txn OnCompletion                                                                  tmp%8#0
+    l-load tmp%8#0 0                                                                  tmp%8#0
+    !                                                                                 tmp%9#0
+    l-load tmp%9#0 0                                                                  tmp%9#0
+    assert // OnCompletion is not NoOp
+    txn ApplicationID                                                                 tmp%10#0
+    l-load tmp%10#0 0                                                                 tmp%10#0
+    assert // can only call when not creating
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    txna ApplicationArgs 1                                                            tmp%12#0
+    // inner_transactions/c2c.py:23
+    // @arc4.abimethod()
+    l-load tmp%12#0 0                                                                 tmp%12#0
+    callsub log_greetings
+    int 1                                                                             1
+    l-store test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0 0      test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0
+    l-load test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0 0       test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@10 
+
+main_bare_routing@7:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    txn OnCompletion                                                                  tmp%13#0
+    l-load tmp%13#0 0                                                                 tmp%13#0
+    bz main___algopy_default_create@8 ; b main_after_if_else@9
+
+main___algopy_default_create@8:
+    txn ApplicationID                                                                 tmp%14#0
+    l-load tmp%14#0 0                                                                 tmp%14#0
+    !                                                                                 tmp%15#0
+    l-load tmp%15#0 0                                                                 tmp%15#0
+    assert // can only call when creating
+    int 1                                                                             1
+    l-store test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0 0      test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0
+    l-load test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0 0       test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@10 
+
+main_after_if_else@9:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    int 0                                                                             0
+    l-store test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0 0      test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0
+    l-load test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0 0       test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0
+    v-store tmp%0#0
+    b main_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@10 
+
+main_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@10:
+    v-load tmp%0#0                                                                    tmp%0#0
+    return
+
+
+// test_cases.inner_transactions.c2c.Greeter.bootstrap() -> uint64:
+bootstrap:
+    // inner_transactions/c2c.py:12
+    // assert not self.hello_app, "already bootstrapped"
+    int 0                                                                             0
+    byte "hello_app"                                                                  0,"hello_app"
+    app_global_get_ex                                                                 maybe_value%0#0,maybe_exists%0#0
+    l-load maybe_exists%0#0 0                                                         maybe_value%0#0,maybe_exists%0#0
+    assert // check self.hello_app exists                                             maybe_value%0#0
+    l-load maybe_value%0#0 0                                                          maybe_value%0#0
+    !                                                                                 tmp%0#0
+    l-load tmp%0#0 0                                                                  tmp%0#0
+    assert // already bootstrapped
+    // inner_transactions/c2c.py:14-18
+    // itxn.ApplicationCall(
+    //     approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
+    //     clear_state_program=HELLO_WORLD_CLEAR,
+    // )
+    // .submit()
+    itxn_begin
+    // inner_transactions/c2c.py:16
+    // clear_state_program=HELLO_WORLD_CLEAR,
+    byte 0x0a8101                                                                     0x0a8101
+    itxn_field ClearStateProgramPages
+    // inner_transactions/c2c.py:15
+    // approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
+    byte 0x0a200101311b410026800402bece11361a008e0100010031191444311844361a018800158004151f7c754c50b02243311914443118144422438a01018bff570200800748656c6c6f2c204c504915165706004c5089 0x0a200101311b410026800402bece11361a008e0100010031191444311844361a018800158004151f7c754c50b02243311914443118144422438a01018bff570200800748656c6c6f2c204c504915165706004c5089
+    itxn_field ApprovalProgramPages
+    // inner_transactions/c2c.py:14
+    // itxn.ApplicationCall(
+    int appl                                                                          appl
+    itxn_field TypeEnum
+    int 0                                                                             0
+    itxn_field Fee
+    // inner_transactions/c2c.py:14-18
+    // itxn.ApplicationCall(
+    //     approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
+    //     clear_state_program=HELLO_WORLD_CLEAR,
+    // )
+    // .submit()
+    itxn_submit
+    // inner_transactions/c2c.py:14-19
+    // itxn.ApplicationCall(
+    //     approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
+    //     clear_state_program=HELLO_WORLD_CLEAR,
+    // )
+    // .submit()
+    // .created_app
+    itxn CreatedApplicationID                                                         new_state_value%0#0
+    // inner_transactions/c2c.py:13
+    // self.hello_app = (
+    byte "hello_app"                                                                  new_state_value%0#0,"hello_app"
+    // inner_transactions/c2c.py:13-20
+    // self.hello_app = (
+    //     itxn.ApplicationCall(
+    //         approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
+    //         clear_state_program=HELLO_WORLD_CLEAR,
+    //     )
+    //     .submit()
+    //     .created_app
+    // )
+    l-load new_state_value%0#0 1                                                      "hello_app",new_state_value%0#0
+    app_global_put
+    // inner_transactions/c2c.py:21
+    // return self.hello_app.id
+    int 0                                                                             0
+    byte "hello_app"                                                                  0,"hello_app"
+    app_global_get_ex                                                                 maybe_value%1#0,maybe_exists%1#0
+    l-load maybe_exists%1#0 0                                                         maybe_value%1#0,maybe_exists%1#0
+    assert // check self.hello_app exists                                             maybe_value%1#0
+    l-load maybe_value%1#0 0                                                          maybe_value%1#0
+    retsub                                                                            maybe_value%1#0
+
+
+// test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) -> void:
+log_greetings:                                                                        (𝕡) name#0 |
+    // inner_transactions/c2c.py:25-28
+    // hello_call = itxn.ApplicationCall(
+    //     app_id=self.hello_app,
+    //     app_args=(arc4.arc4_signature("hello(string)string"), name),
+    // ).submit()
+    itxn_begin                                                                        (𝕡) name#0 |
+    // inner_transactions/c2c.py:26
+    // app_id=self.hello_app,
+    int 0                                                                             (𝕡) name#0 | 0
+    byte "hello_app"                                                                  (𝕡) name#0 | 0,"hello_app"
+    app_global_get_ex                                                                 (𝕡) name#0 | maybe_value%0#0,maybe_exists%0#0
+    l-load maybe_exists%0#0 0                                                         (𝕡) name#0 | maybe_value%0#0,maybe_exists%0#0
+    assert // check self.hello_app exists                                             (𝕡) name#0 | maybe_value%0#0
+    // inner_transactions/c2c.py:27
+    // app_args=(arc4.arc4_signature("hello(string)string"), name),
+    method hello(string)string                                                        (𝕡) name#0 | maybe_value%0#0,Method(hello(string)string)
+    itxn_field ApplicationArgs                                                        (𝕡) name#0 | maybe_value%0#0
+    p-load name#0                                                                     (𝕡) name#0 | maybe_value%0#0,name#0 (copy)
+    itxn_field ApplicationArgs                                                        (𝕡) name#0 | maybe_value%0#0
+    l-load maybe_value%0#0 0                                                          (𝕡) name#0 | maybe_value%0#0
+    itxn_field ApplicationID                                                          (𝕡) name#0 |
+    // inner_transactions/c2c.py:25
+    // hello_call = itxn.ApplicationCall(
+    int appl                                                                          (𝕡) name#0 | appl
+    itxn_field TypeEnum                                                               (𝕡) name#0 |
+    int 0                                                                             (𝕡) name#0 | 0
+    itxn_field Fee                                                                    (𝕡) name#0 |
+    // inner_transactions/c2c.py:25-28
+    // hello_call = itxn.ApplicationCall(
+    //     app_id=self.hello_app,
+    //     app_args=(arc4.arc4_signature("hello(string)string"), name),
+    // ).submit()
+    itxn_submit                                                                       (𝕡) name#0 |
+    itxn LastLog                                                                      (𝕡) name#0 | hello_call.LastLog#0
+    // inner_transactions/c2c.py:29
+    // greeting = arc4.String.from_log(hello_call.last_log)
+    l-load-copy hello_call.LastLog#0 0                                                (𝕡) name#0 | hello_call.LastLog#0,hello_call.LastLog#0 (copy)
+    extract 0 4                                                                       (𝕡) name#0 | hello_call.LastLog#0,tmp%1#0
+    l-load tmp%1#0 0                                                                  (𝕡) name#0 | hello_call.LastLog#0,tmp%1#0
+    byte 0x151f7c75                                                                   (𝕡) name#0 | hello_call.LastLog#0,tmp%1#0,0x151f7c75
+    ==                                                                                (𝕡) name#0 | hello_call.LastLog#0,tmp%2#0
+    l-load tmp%2#0 0                                                                  (𝕡) name#0 | hello_call.LastLog#0,tmp%2#0
+    assert // ARC4 prefix is valid                                                    (𝕡) name#0 | hello_call.LastLog#0
+    // inner_transactions/c2c.py:30
+    // log("HelloWorld returned: ", greeting.native)
+    l-load hello_call.LastLog#0 0                                                     (𝕡) name#0 | hello_call.LastLog#0
+    extract 6 0                                                                       (𝕡) name#0 | tmp%4#0
+    byte "HelloWorld returned: "                                                      (𝕡) name#0 | tmp%4#0,"HelloWorld returned: "
+    l-load tmp%4#0 1                                                                  (𝕡) name#0 | "HelloWorld returned: ",tmp%4#0
+    concat                                                                            (𝕡) name#0 | tmp%5#0
+    l-load tmp%5#0 0                                                                  (𝕡) name#0 | tmp%5#0
+    log                                                                               (𝕡) name#0 |
+    retsub
+
+

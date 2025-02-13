@@ -187,7 +187,7 @@ class Stack(MIRVisitor[None]):
     def visit_retsub(self, retsub: models.RetSub) -> None:
         assert len(self._l_stack) == retsub.returns, (
             f"Inconsistent l-stack height for retsub,"
-            f" expected {retsub.returns}, actual: {len(self._l_stack)}"
+            f" expected {retsub.returns}, actual: {self._l_stack}"
         )
 
         # retsub moves return values down below the frame to the stack height before the sub was

@@ -839,7 +839,7 @@ class VariadicTupleType(SequenceType):
 
 
 def _make_array_parameterise(
-    typ: type[wtypes.WArray | wtypes.ARC4DynamicArray],
+    typ: type[wtypes.StackArray | wtypes.ReferenceArray | wtypes.ARC4DynamicArray],
 ) -> _Parameterise[ArrayType]:
     def parameterise(
         self: _GenericType[ArrayType], args: _TypeArgs, source_location: SourceLocation | None
@@ -867,7 +867,12 @@ def _make_array_parameterise(
 
 GenericArrayType: typing.Final = _GenericType(
     name="algopy._array.Array",
-    parameterise=_make_array_parameterise(wtypes.WArray),
+    parameterise=_make_array_parameterise(wtypes.ReferenceArray),
+)
+
+GenericImmutableArrayType: typing.Final = _GenericType(
+    name="algopy._array.ImmutableArray",
+    parameterise=_make_array_parameterise(wtypes.StackArray),
 )
 
 GenericARC4DynamicArrayType: typing.Final = _GenericType(

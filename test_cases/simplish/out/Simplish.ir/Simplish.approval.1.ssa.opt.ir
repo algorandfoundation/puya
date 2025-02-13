@@ -14,7 +14,7 @@ main test_cases.simplish.contract.Simplish.__algopy_entrypoint_with_init:
         goto block@26
     block@5: // after_if_else_L31
         let oca#0: uint64 = (txn OnCompletion)
-        let sender#0: bytes = (txn Sender)
+        let sender#0: bytes[32] = (txn Sender)
         let tmp%2#0: bool = (== oca#0 UpdateApplication)
         goto tmp%2#0 ? block@7 : block@6
     block@6: // or_contd_L35
@@ -32,7 +32,7 @@ main test_cases.simplish.contract.Simplish.__algopy_entrypoint_with_init:
         (log tmp%7#0)
         goto block@9
     block@9: // after_if_else_L39
-        let tmp%8#0: bytes = (global CreatorAddress)
+        let tmp%8#0: bytes[32] = (global CreatorAddress)
         let tmp%9#0: bool = (== tmp%8#0 sender#0)
         goto block@26
     block@10: // after_if_else_L35
@@ -40,6 +40,7 @@ main test_cases.simplish.contract.Simplish.__algopy_entrypoint_with_init:
         goto tmp%10#0 ? block@11 : block@14
     block@11: // if_body_L44
         let tmp%11#0: uint64 = (txn NumAppArgs)
+        let tmp%12#0: bool = (> tmp%11#0 0u)
         goto tmp%11#0 ? block@12 : block@13
     block@12: // if_body_L45
         let tmp%13#0: bytes = (txna ApplicationArgs 0)
@@ -49,12 +50,14 @@ main test_cases.simplish.contract.Simplish.__algopy_entrypoint_with_init:
         let test_cases.simplish.contract.Simplish.approval_program%0#2: bool = 1u
         goto block@26
     block@14: // after_if_else_L43
+        let tmp%14#0: bool = (!= oca#0 NoOp)
         goto oca#0 ? block@15 : block@16
     block@15: // if_body_L48
         let test_cases.simplish.contract.Simplish.approval_program%0#3: bool = 0u
         goto block@26
     block@16: // after_if_else_L47
         let num_app_args#0: uint64 = (txn NumAppArgs)
+        let tmp%15#0: bool = (> num_app_args#0 0u)
         goto num_app_args#0 ? block@17 : block@18
     block@17: // if_body_L51
         let method_name#0: bytes = (txna ApplicationArgs 0)
@@ -98,6 +101,7 @@ main test_cases.simplish.contract.Simplish.__algopy_entrypoint_with_init:
 
 subroutine test_cases.simplish.contract.circle_circumference(radius: uint64) -> uint64:
     block@0: // L103
+        let two_pi#0: uint64 = 628318u
         let tmp%0#0: uint64 = (* radius#0 628318u)
         let tmp%1#0: uint64 = (/ tmp%0#0 100000u)
         return tmp%1#0
@@ -111,6 +115,7 @@ subroutine test_cases.simplish.contract.circle_area(radius: uint64) -> uint64:
 
 subroutine test_cases.simplish.contract.itoa(i: uint64) -> bytes:
     block@0: // L117
+        let radix#0: uint64 = 10u
         let tmp%0#0: bool = (< i#0 10u)
         goto tmp%0#0 ? block@1 : block@2
     block@1: // if_body_L123

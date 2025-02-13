@@ -917,15 +917,13 @@ test_15plus_args:
     itxn_submit
     itxn LastLog
     dup
-    extract 4 0
-    swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     // typed_abi_call/typed_c2c.py:98
     // assert result.native == Bytes.from_hex("0F101112DEADBEEF14")
-    extract 2 0
+    extract 6 0
     bytec 23 // 0x0f101112deadbeef14
     ==
     assert
@@ -1128,13 +1126,11 @@ test_native_string:
     itxn_submit
     itxn LastLog
     dup
-    extract 4 0
-    swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    extract 2 0
+    extract 6 0
     // typed_abi_call/typed_c2c.py:131
     // assert result1 == "echo: s"
     dup
@@ -1157,13 +1153,11 @@ test_native_string:
     itxn_submit
     itxn LastLog
     dup
-    extract 4 0
-    swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    extract 2 0
+    extract 6 0
     // typed_abi_call/typed_c2c.py:134
     // assert result2 == result1
     dig 1
@@ -1185,13 +1179,11 @@ test_native_string:
     itxn_submit
     itxn LastLog
     dup
-    extract 4 0
-    swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    extract 2 0
+    extract 6 0
     // typed_abi_call/typed_c2c.py:137
     // assert result3 == result1
     ==
@@ -1221,13 +1213,11 @@ test_native_bytes:
     itxn_submit
     itxn LastLog
     dup
-    extract 4 0
-    swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    extract 2 0
+    extract 6 0
     // typed_abi_call/typed_c2c.py:142
     // assert result1 == b"echo: b"
     dup
@@ -1250,13 +1240,11 @@ test_native_bytes:
     itxn_submit
     itxn LastLog
     dup
-    extract 4 0
-    swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    extract 2 0
+    extract 6 0
     // typed_abi_call/typed_c2c.py:145
     // assert result2 == result1
     dig 1
@@ -1286,13 +1274,11 @@ test_native_bytes:
     itxn_submit
     itxn LastLog
     dup
-    extract 4 0
-    swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    extract 2 0
+    extract 6 0
     // typed_abi_call/typed_c2c.py:150
     // assert result3 == result1
     ==
@@ -1543,7 +1529,7 @@ test_native_tuple:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    dig 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -1566,13 +1552,11 @@ test_native_tuple:
     uncover 3
     uncover 2
     substring3
-    dig 2
-    extract 4 8 // on error: Index access is out of bounds
     dig 3
-    extract 12 64 // on error: Index access is out of bounds
+    extract 16 64
     // typed_abi_call/typed_c2c.py:188
     // assert s.native == "echo: s1"
-    uncover 3
+    uncover 2
     extract 2 0
     dup
     bytec 8 // "echo: s1"
@@ -1580,7 +1564,7 @@ test_native_tuple:
     assert
     // typed_abi_call/typed_c2c.py:189
     // assert b.native == b"echo: b1"
-    uncover 3
+    uncover 2
     extract 2 0
     dup
     bytec 24 // 0x6563686f3a206231
@@ -1588,8 +1572,9 @@ test_native_tuple:
     assert
     // typed_abi_call/typed_c2c.py:190
     // assert u.native == 2
-    uncover 3
-    btoi
+    uncover 4
+    pushint 8 // 8
+    extract_uint64
     dup
     intc_3 // 2
     ==
@@ -1788,7 +1773,7 @@ test_native_tuple:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    dig 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -1806,16 +1791,16 @@ test_native_tuple:
     extract 2 0
     dig 2
     len
-    dig 3
+    uncover 3
     uncover 3
     uncover 2
     substring3
     extract 2 0
     dig 2
-    extract 4 8 // on error: Index access is out of bounds
-    btoi
+    pushint 8 // 8
+    extract_uint64
     uncover 3
-    extract 12 64 // on error: Index access is out of bounds
+    extract 16 64
     // typed_abi_call/typed_c2c.py:228
     // assert result1.native[0].native == result_native[0]
     uncover 6
@@ -1895,7 +1880,7 @@ test_native_tuple_method_ref:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    dig 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -1913,16 +1898,16 @@ test_native_tuple_method_ref:
     extract 2 0
     dig 2
     len
-    dig 3
+    uncover 3
     uncover 3
     uncover 2
     substring3
     extract 2 0
     dig 2
-    extract 4 8 // on error: Index access is out of bounds
-    btoi
+    pushint 8 // 8
+    extract_uint64
     uncover 3
-    extract 12 64 // on error: Index access is out of bounds
+    extract 16 64
     // typed_abi_call/typed_c2c.py:245
     // assert s == "echo: s1"
     dig 3
@@ -2007,7 +1992,7 @@ test_native_tuple_method_ref:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    dig 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2025,16 +2010,16 @@ test_native_tuple_method_ref:
     extract 2 0
     dig 2
     len
-    dig 3
+    uncover 3
     uncover 3
     uncover 2
     substring3
     extract 2 0
     dig 2
-    extract 4 8 // on error: Index access is out of bounds
-    btoi
+    pushint 8 // 8
+    extract_uint64
     uncover 3
-    extract 12 64 // on error: Index access is out of bounds
+    extract 16 64
     // typed_abi_call/typed_c2c.py:259
     // assert result_2 == result, "expected native arguments to give the same result"
     uncover 3
@@ -2102,7 +2087,7 @@ test_native_tuple_method_ref:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    dig 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2120,16 +2105,16 @@ test_native_tuple_method_ref:
     extract 2 0
     dig 2
     len
-    dig 3
+    uncover 3
     uncover 3
     uncover 2
     substring3
     extract 2 0
     dig 2
-    extract 4 8 // on error: Index access is out of bounds
-    btoi
+    pushint 8 // 8
+    extract_uint64
     uncover 3
-    extract 12 64 // on error: Index access is out of bounds
+    extract 16 64
     // typed_abi_call/typed_c2c.py:270
     // assert result_3 == result, "expected arc4 arguments to give the same result"
     uncover 3
@@ -2197,7 +2182,7 @@ test_native_tuple_method_ref:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    dig 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2215,16 +2200,16 @@ test_native_tuple_method_ref:
     extract 2 0
     dig 2
     len
-    dig 3
+    uncover 3
     uncover 3
     uncover 2
     substring3
     extract 2 0
     dig 2
-    extract 4 8 // on error: Index access is out of bounds
-    btoi
+    pushint 8 // 8
+    extract_uint64
     uncover 3
-    extract 12 64 // on error: Index access is out of bounds
+    extract 16 64
     // typed_abi_call/typed_c2c.py:281
     // assert result_native == result
     uncover 3
@@ -2322,8 +2307,8 @@ test_nested_tuples:
     uncover 2
     substring3
     dup
-    extract 0 8 // on error: Index access is out of bounds
-    btoi
+    intc_0 // 0
+    extract_uint64
     dig 1
     extract 8 8 // on error: Index access is out of bounds
     dig 2
@@ -2434,8 +2419,8 @@ test_nested_tuples:
     uncover 2
     substring3
     dup
-    extract 0 8 // on error: Index access is out of bounds
-    btoi
+    intc_0 // 0
+    extract_uint64
     dig 1
     extract 8 8 // on error: Index access is out of bounds
     dig 2
@@ -2561,8 +2546,8 @@ test_nested_tuples:
     uncover 2
     substring3
     dup
-    extract 0 8 // on error: Index access is out of bounds
-    btoi
+    intc_0 // 0
+    extract_uint64
     dig 1
     extract 8 8 // on error: Index access is out of bounds
     dig 2

@@ -9,19 +9,19 @@ main examples.local_state.local_state_contract.LocalStateContract.__algopy_entry
         let tmp%1#0: bool = examples.local_state.local_state_contract.LocalStateContract.approval_program()
         return tmp%1#0
 
-subroutine examples.local_state.local_state_contract.get_local_state_length(state: bytes, account: bytes) -> uint64:
+subroutine examples.local_state.local_state_contract.get_local_state_length(state: bytes, account: bytes[32]) -> uint64:
     block@0: // L84
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u state#0)
         (assert maybe_exists%0#0) // check LocalState exists for account
         let tmp%0#0: uint64 = (len maybe_value%0#0)
         return tmp%0#0
 
-subroutine examples.local_state.local_state_contract.local_bytes_exists(account: bytes, key: bytes) -> bool:
+subroutine examples.local_state.local_state_contract.local_bytes_exists(account: bytes[32], key: bytes) -> bool:
     block@0: // L89
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u key#0)
         return maybe_exists%0#0
 
-subroutine examples.local_state.local_state_contract.read_local_bytes(account: bytes, key: bytes) -> bytes:
+subroutine examples.local_state.local_state_contract.read_local_bytes(account: bytes[32], key: bytes) -> bytes:
     block@0: // L94
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u key#0)
         (assert maybe_exists%0#0) // check LocalState exists for account
@@ -62,7 +62,7 @@ subroutine examples.local_state.local_state_contract.LocalStateContract.approval
         let tmp%8#0: bool = (== method#0 0x6765745f67756172616e746565645f64617461)
         goto tmp%8#0 ? block@9 : block@10
     block@9: // if_body_L31
-        let tmp%9#0: bytes = (txn Sender)
+        let tmp%9#0: bytes[32] = (txn Sender)
         let tmp%10#0: bytes = examples.local_state.local_state_contract.LocalStateContract.get_guaranteed_data(tmp%9#0)
         (log tmp%10#0)
         goto block@17
@@ -70,7 +70,7 @@ subroutine examples.local_state.local_state_contract.LocalStateContract.approval
         let tmp%11#0: bool = (== method#0 0x6765745f646174615f6f725f617373657274)
         goto tmp%11#0 ? block@11 : block@12
     block@11: // if_body_L33
-        let tmp%12#0: bytes = (txn Sender)
+        let tmp%12#0: bytes[32] = (txn Sender)
         let tmp%13#0: bytes = examples.local_state.local_state_contract.LocalStateContract.get_data_or_assert(tmp%12#0)
         (log tmp%13#0)
         goto block@16
@@ -78,7 +78,7 @@ subroutine examples.local_state.local_state_contract.LocalStateContract.approval
         let tmp%14#0: bool = (== method#0 0x64656c6574655f64617461)
         goto tmp%14#0 ? block@13 : block@14
     block@13: // if_body_L35
-        let tmp%15#0: bytes = (txn Sender)
+        let tmp%15#0: bytes[32] = (txn Sender)
         examples.local_state.local_state_contract.LocalStateContract.delete_data(tmp%15#0)
         (log "Deleted")
         goto block@15
@@ -98,7 +98,7 @@ subroutine examples.local_state.local_state_contract.LocalStateContract.approval
         let tmp%18#0: bool = (== method#0 0x7365745f64617461)
         goto tmp%18#0 ? block@20 : block@21
     block@20: // if_body_L42
-        let tmp%19#0: bytes = (txn Sender)
+        let tmp%19#0: bytes[32] = (txn Sender)
         let tmp%20#0: bytes = (txna ApplicationArgs 1)
         examples.local_state.local_state_contract.LocalStateContract.set_data(tmp%19#0, tmp%20#0)
         goto block@25
@@ -106,7 +106,7 @@ subroutine examples.local_state.local_state_contract.LocalStateContract.approval
         let tmp%21#0: bool = (== method#0 0x6765745f646174615f776974685f64656661756c74)
         goto tmp%21#0 ? block@22 : block@23
     block@22: // if_body_L44
-        let tmp%22#0: bytes = (txn Sender)
+        let tmp%22#0: bytes[32] = (txn Sender)
         let tmp%23#0: bytes = (txna ApplicationArgs 1)
         let tmp%24#0: bytes = examples.local_state.local_state_contract.LocalStateContract.get_data_with_default(tmp%22#0, tmp%23#0)
         (log tmp%24#0)
@@ -120,7 +120,7 @@ subroutine examples.local_state.local_state_contract.LocalStateContract.approval
     block@26: // else_body_L49
         return 0u
 
-subroutine examples.local_state.local_state_contract.LocalStateContract.get_guaranteed_data(for_account: bytes) -> bytes:
+subroutine examples.local_state.local_state_contract.LocalStateContract.get_guaranteed_data(for_account: bytes[32]) -> bytes:
     block@0: // L54
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex for_account#0 0u "local")
         (assert maybe_exists%0#0) // check self.local exists for account
@@ -136,13 +136,13 @@ subroutine examples.local_state.local_state_contract.LocalStateContract.get_guar
         (assert tmp%5#0)
         return result#0
 
-subroutine examples.local_state.local_state_contract.LocalStateContract.get_data_with_default(for_account: bytes, default: bytes) -> bytes:
+subroutine examples.local_state.local_state_contract.LocalStateContract.get_data_with_default(for_account: bytes[32], default: bytes) -> bytes:
     block@0: // L64
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex for_account#0 0u "local")
-        let tmp%0#0: bytes = (select default#0 maybe_value%0#0 maybe_exists%0#0)
-        return tmp%0#0
+        let state_get%0#0: bytes = (select default#0 maybe_value%0#0 maybe_exists%0#0)
+        return state_get%0#0
 
-subroutine examples.local_state.local_state_contract.LocalStateContract.get_data_or_assert(for_account: bytes) -> bytes:
+subroutine examples.local_state.local_state_contract.LocalStateContract.get_data_or_assert(for_account: bytes[32]) -> bytes:
     block@0: // L69
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex for_account#0 0u "local")
         let result#0: bytes = maybe_value%0#0
@@ -150,12 +150,12 @@ subroutine examples.local_state.local_state_contract.LocalStateContract.get_data
         (assert exists#0) // no data for account
         return result#0
 
-subroutine examples.local_state.local_state_contract.LocalStateContract.set_data(for_account: bytes, value: bytes) -> void:
+subroutine examples.local_state.local_state_contract.LocalStateContract.set_data(for_account: bytes[32], value: bytes) -> void:
     block@0: // L75
         (app_local_put for_account#0 "local" value#0)
         return 
 
-subroutine examples.local_state.local_state_contract.LocalStateContract.delete_data(for_account: bytes) -> void:
+subroutine examples.local_state.local_state_contract.LocalStateContract.delete_data(for_account: bytes[32]) -> void:
     block@0: // L79
         (app_local_del for_account#0 "local")
         return 

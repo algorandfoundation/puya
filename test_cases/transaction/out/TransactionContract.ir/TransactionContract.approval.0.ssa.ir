@@ -177,8 +177,8 @@ subroutine test_cases.transaction.contract.TransactionContract._common_checks(tx
         let tmp%1#0: uint64 = (len tmp%0#0)
         let tmp%2#0: bool = (!= tmp%1#0 0u)
         (assert tmp%2#0) // txn_id
-        let tmp%3#0: bytes = ((gtxns Sender) txn#0)
-        let tmp%4#0: bytes = (global CreatorAddress)
+        let tmp%3#0: bytes[32] = ((gtxns Sender) txn#0)
+        let tmp%4#0: bytes[32] = (global CreatorAddress)
         let tmp%5#0: bool = (== tmp%3#0 tmp%4#0)
         (assert tmp%5#0) // sender
         let tmp%6#0: uint64 = ((gtxns Fee) txn#0)
@@ -207,8 +207,8 @@ subroutine test_cases.transaction.contract.TransactionContract._common_checks(tx
         let tmp%22#0: uint64 = (len tmp%21#0)
         let tmp%23#0: bool = (!= tmp%22#0 0u)
         (assert tmp%23#0) // lease
-        let tmp%24#0: bytes = ((gtxns RekeyTo) txn#0)
-        let tmp%25#0: bytes = (global ZeroAddress)
+        let tmp%24#0: bytes[32] = ((gtxns RekeyTo) txn#0)
+        let tmp%25#0: bytes[32] = (global ZeroAddress)
         let tmp%26#0: bool = (== tmp%24#0 tmp%25#0)
         (assert tmp%26#0) // rekey_to
         return 
@@ -216,15 +216,15 @@ subroutine test_cases.transaction.contract.TransactionContract._common_checks(tx
 subroutine test_cases.transaction.contract.TransactionContract.pay(txn: uint64) -> void:
     block@0: // L31
         test_cases.transaction.contract.TransactionContract._common_checks(txn#0)
-        let tmp%0#0: bytes = ((gtxns Receiver) txn#0)
-        let tmp%1#0: bytes = (global CurrentApplicationAddress)
+        let tmp%0#0: bytes[32] = ((gtxns Receiver) txn#0)
+        let tmp%1#0: bytes[32] = (global CurrentApplicationAddress)
         let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
         (assert tmp%2#0) // Payment should be for this app
         let tmp%3#0: uint64 = ((gtxns Amount) txn#0)
         let tmp%4#0: bool = (> tmp%3#0 1000u)
         (assert tmp%4#0) // Payment should be for >1000 micro algos
-        let tmp%5#0: bytes = ((gtxns CloseRemainderTo) txn#0)
-        let tmp%6#0: bytes = (global ZeroAddress)
+        let tmp%5#0: bytes[32] = ((gtxns CloseRemainderTo) txn#0)
+        let tmp%6#0: bytes[32] = (global ZeroAddress)
         let tmp%7#0: bool = (== tmp%5#0 tmp%6#0)
         (assert tmp%7#0) // close_remainder_to
         return 
@@ -286,20 +286,20 @@ subroutine test_cases.transaction.contract.TransactionContract.asset_config(txn:
         let tmp%15#0: uint64 = (len tmp%14#0)
         let tmp%16#0: bool = (!= tmp%15#0 0u)
         (assert tmp%16#0) // metadata_hash
-        let tmp%17#0: bytes = ((gtxns ConfigAssetManager) txn#0)
-        let tmp%18#0: bytes = (global ZeroAddress)
+        let tmp%17#0: bytes[32] = ((gtxns ConfigAssetManager) txn#0)
+        let tmp%18#0: bytes[32] = (global ZeroAddress)
         let tmp%19#0: bool = (!= tmp%17#0 tmp%18#0)
         (assert tmp%19#0) // manager
-        let tmp%20#0: bytes = ((gtxns ConfigAssetReserve) txn#0)
-        let tmp%21#0: bytes = (global ZeroAddress)
+        let tmp%20#0: bytes[32] = ((gtxns ConfigAssetReserve) txn#0)
+        let tmp%21#0: bytes[32] = (global ZeroAddress)
         let tmp%22#0: bool = (!= tmp%20#0 tmp%21#0)
         (assert tmp%22#0) // reserve
-        let tmp%23#0: bytes = ((gtxns ConfigAssetFreeze) txn#0)
-        let tmp%24#0: bytes = (global ZeroAddress)
+        let tmp%23#0: bytes[32] = ((gtxns ConfigAssetFreeze) txn#0)
+        let tmp%24#0: bytes[32] = (global ZeroAddress)
         let tmp%25#0: bool = (!= tmp%23#0 tmp%24#0)
         (assert tmp%25#0) // freeze
-        let tmp%26#0: bytes = ((gtxns ConfigAssetClawback) txn#0)
-        let tmp%27#0: bytes = (global ZeroAddress)
+        let tmp%26#0: bytes[32] = ((gtxns ConfigAssetClawback) txn#0)
+        let tmp%27#0: bytes[32] = (global ZeroAddress)
         let tmp%28#0: bool = (!= tmp%26#0 tmp%27#0)
         (assert tmp%28#0) // clawback
         return 
@@ -312,16 +312,16 @@ subroutine test_cases.transaction.contract.TransactionContract.asset_transfer(tx
         let tmp%0#0: uint64 = ((gtxns AssetAmount) txn#0)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
         (assert tmp%1#0) // asset_amount
-        let tmp%2#0: bytes = ((gtxns AssetSender) txn#0)
-        let tmp%3#0: bytes = (global ZeroAddress)
+        let tmp%2#0: bytes[32] = ((gtxns AssetSender) txn#0)
+        let tmp%3#0: bytes[32] = (global ZeroAddress)
         let tmp%4#0: bool = (!= tmp%2#0 tmp%3#0)
         (assert tmp%4#0) // asset_sender
-        let tmp%5#0: bytes = ((gtxns AssetReceiver) txn#0)
-        let tmp%6#0: bytes = (global ZeroAddress)
+        let tmp%5#0: bytes[32] = ((gtxns AssetReceiver) txn#0)
+        let tmp%6#0: bytes[32] = (global ZeroAddress)
         let tmp%7#0: bool = (!= tmp%5#0 tmp%6#0)
         (assert tmp%7#0) // asset_receiver
-        let tmp%8#0: bytes = ((gtxns AssetCloseTo) txn#0)
-        let tmp%9#0: bytes = (global ZeroAddress)
+        let tmp%8#0: bytes[32] = ((gtxns AssetCloseTo) txn#0)
+        let tmp%9#0: bytes[32] = (global ZeroAddress)
         let tmp%10#0: bool = (!= tmp%8#0 tmp%9#0)
         (assert tmp%10#0) // asset_close_to
         return 
@@ -331,8 +331,8 @@ subroutine test_cases.transaction.contract.TransactionContract.asset_freeze(txn:
         test_cases.transaction.contract.TransactionContract._common_checks(txn#0)
         let reinterpret_bool%0#0: bool = ((gtxns FreezeAsset) txn#0)
         (assert reinterpret_bool%0#0) // freeze_asset
-        let tmp%0#0: bytes = ((gtxns FreezeAssetAccount) txn#0)
-        let tmp%1#0: bytes = (global ZeroAddress)
+        let tmp%0#0: bytes[32] = ((gtxns FreezeAssetAccount) txn#0)
+        let tmp%1#0: bytes[32] = (global ZeroAddress)
         let tmp%2#0: bool = (!= tmp%0#0 tmp%1#0)
         (assert tmp%2#0) // freeze_account
         let tmp%3#0: bool = ((gtxns FreezeAssetFrozen) txn#0)
@@ -396,8 +396,8 @@ subroutine test_cases.transaction.contract.TransactionContract.application_call(
         let tmp%34#0: uint64 = (len tmp%33#0)
         let tmp%35#0: bool = (!= tmp%34#0 0u)
         (assert tmp%35#0) // app_args(0)
-        let tmp%36#0: bytes = ((gtxnsas Accounts) txn#0 0u)
-        let tmp%37#0: bytes = (global ZeroAddress)
+        let tmp%36#0: bytes[32] = ((gtxnsas Accounts) txn#0 0u)
+        let tmp%37#0: bytes[32] = (global ZeroAddress)
         let tmp%38#0: bool = (!= tmp%36#0 tmp%37#0)
         (assert tmp%38#0) // accounts(0)
         let reinterpret_bool%1#0: bool = ((gtxnsas Assets) txn#0 0u)

@@ -222,6 +222,18 @@ class StableSet[T](MutableSet[T]):
         result._data = dict.fromkeys(data)
         return result
 
+    # have to override r variants as default impl does not work with our __init__
+    __ror__ = __or__
+
+    def __rsub__(self, other: Set[T]) -> "StableSet[T]":
+        result = StableSet.__new__(StableSet)
+        if isinstance(other, StableSet):
+            data: Iterable[T] = other._data.keys() - self._data.keys()
+        else:
+            data = (k for k in other if k not in self._data)
+        result._data = dict.fromkeys(data)
+        return result
+
     def __repr__(self) -> str:
         return type(self).__name__ + "(" + ", ".join(map(repr, self._data)) + ")"
 

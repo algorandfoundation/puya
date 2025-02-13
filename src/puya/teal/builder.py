@@ -7,6 +7,7 @@ from puya.avm import AVMType
 from puya.errors import InternalError
 from puya.ir.types_ import AVMBytesEncoding
 from puya.mir import models as mir
+from puya.mir.stack import Stack
 from puya.mir.visitor import MIRVisitor
 from puya.teal import models as teal
 
@@ -42,7 +43,7 @@ class TealBuilder(MIRVisitor[None]):
                 use_frame=not mir_sub.is_main,
                 label_stack=label_stack,
             )
-            if mir_block is entry_block and not mir_sub.is_main:
+            if mir_block is entry_block and _NeedsProto.check(mir_sub):
                 builder.ops.append(
                     teal.Proto(
                         parameters=len(mir_sub.signature.parameters),
@@ -470,3 +471,30 @@ def _lstack_manipulations(op: mir.BaseOp) -> list[teal.StackManipulation]:
         result.append(teal.StackExtend(op.produces))
         result.append(teal.StackDefine(op.produces))
     return result
+
+
+@attrs.define
+class _NeedsProto(Stack):
+    needs_proto: bool = attrs.field(default=False, init=False)
+
+    @classmethod
+    def check(cls, sub: mir.MemorySubroutine) -> bool:
+        if sub.is_main:
+            return False
+        # if parameters are passed then need proto op to ensure they are removed after returning
+        if sub.signature.parameters:
+            return True
+        for block in sub.body:
+            stack = cls.begin_block(sub, block)
+            for op in block.ops:
+                op.accept(stack)
+            if stack.needs_proto:
+                return True
+        return False
+
+    def visit_retsub(self, retsub: mir.RetSub) -> None:
+        # if the stack height does not match the number of return values then
+        # the proto op is required for the sub
+        if self.fxl_height != retsub.returns:
+            self.needs_proto = True
+        super().visit_retsub(retsub)

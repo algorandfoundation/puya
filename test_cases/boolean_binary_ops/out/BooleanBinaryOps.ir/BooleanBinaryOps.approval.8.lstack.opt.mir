@@ -1,0 +1,276 @@
+// Op                                                                         Stack (out)
+// test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program() -> uint64:
+main:
+    int 0                                                                     0
+    v-store loop_counter%0#0
+    // boolean_binary_ops/contract.py:40
+    // for lhs in (True, False):
+    int 1                                                                     1
+    v-store lhs#0
+    b main_for_body@4
+
+main_for_body@4:
+    int 0                                                                     0
+    v-store loop_counter%1#0
+    // boolean_binary_ops/contract.py:41
+    // for rhs in (True, False):
+    int 1                                                                     1
+    v-store rhs#0
+    b main_for_body@5
+
+main_for_body@5:
+    // boolean_binary_ops/contract.py:35
+    // return Bytes(b"true" if x else b"false")
+    byte 0x66616c7365                                                         0x66616c7365
+    byte 0x74727565                                                           0x66616c7365,0x74727565
+    v-load lhs#0                                                              0x66616c7365,0x74727565,lhs#0
+    l-store-copy lhs#0 2                                                      lhs#0,0x66616c7365,0x74727565,lhs#0 (copy)
+    select                                                                    lhs#0,select%0#2
+    // boolean_binary_ops/contract.py:42
+    // and_msg = b"_" + bool_to_bytes(lhs) + b"_and_" + bool_to_bytes(rhs)
+    byte 0x5f                                                                 lhs#0,select%0#2,0x5f
+    l-load select%0#2 1                                                       lhs#0,0x5f,select%0#2
+    concat                                                                    lhs#0,tmp%1#1
+    l-store-copy tmp%1#1 0                                                    lhs#0,tmp%1#1,tmp%1#1 (copy)
+    v-store tmp%1#1                                                           lhs#0,tmp%1#1
+    l-load tmp%1#1 0                                                          lhs#0,tmp%1#1
+    byte 0x5f616e645f                                                         lhs#0,tmp%1#1,0x5f616e645f
+    concat                                                                    lhs#0,tmp%2#1
+    // boolean_binary_ops/contract.py:35
+    // return Bytes(b"true" if x else b"false")
+    byte 0x66616c7365                                                         lhs#0,tmp%2#1,0x66616c7365
+    byte 0x74727565                                                           lhs#0,tmp%2#1,0x66616c7365,0x74727565
+    v-load rhs#0                                                              lhs#0,tmp%2#1,0x66616c7365,0x74727565,rhs#0
+    select                                                                    lhs#0,tmp%2#1,select%0#2
+    l-store-copy select%0#2 0                                                 lhs#0,tmp%2#1,select%0#2,select%0#2 (copy)
+    v-store select%0#2                                                        lhs#0,tmp%2#1,select%0#2
+    // boolean_binary_ops/contract.py:42
+    // and_msg = b"_" + bool_to_bytes(lhs) + b"_and_" + bool_to_bytes(rhs)
+    l-load tmp%2#1 1                                                          lhs#0,select%0#2,tmp%2#1
+    l-load select%0#2 1                                                       lhs#0,tmp%2#1,select%0#2
+    concat                                                                    lhs#0,and_msg#0
+    l-store-copy and_msg#0 0                                                  lhs#0,and_msg#0,and_msg#0 (copy)
+    v-store and_msg#0                                                         lhs#0,and_msg#0
+    // boolean_binary_ops/contract.py:43
+    // and_result = log_and_return(lhs, b"lhs" + and_msg) and log_and_return(
+    byte 0x6c6873                                                             lhs#0,and_msg#0,0x6c6873
+    l-load and_msg#0 1                                                        lhs#0,0x6c6873,and_msg#0
+    concat                                                                    lhs#0,msg#0
+    // boolean_binary_ops/contract.py:56
+    // log(msg)
+    log                                                                       lhs#0
+    // boolean_binary_ops/contract.py:43-45
+    // and_result = log_and_return(lhs, b"lhs" + and_msg) and log_and_return(
+    //     rhs, b"rhs" + and_msg
+    // )
+    l-load lhs#0 0                                                            lhs#0
+    bz main_bool_false@8 ; b main_and_contd@6
+
+main_and_contd@6:
+    // boolean_binary_ops/contract.py:44
+    // rhs, b"rhs" + and_msg
+    byte 0x726873                                                             0x726873
+    v-load and_msg#0                                                          0x726873,and_msg#0
+    concat                                                                    msg#0
+    // boolean_binary_ops/contract.py:56
+    // log(msg)
+    log
+    // boolean_binary_ops/contract.py:43-45
+    // and_result = log_and_return(lhs, b"lhs" + and_msg) and log_and_return(
+    //     rhs, b"rhs" + and_msg
+    // )
+    v-load rhs#0                                                              rhs#0
+    bz main_bool_false@8 ; b main_bool_true@7
+
+main_bool_true@7:
+    int 1                                                                     and_result%0#0
+    v-store and_result#0
+    b main_bool_merge@9
+
+main_bool_false@8:
+    int 0                                                                     and_result%0#0
+    v-store and_result#0
+    b main_bool_merge@9
+
+main_bool_merge@9:
+    // boolean_binary_ops/contract.py:46
+    // assert and_result == (lhs and rhs)
+    v-load lhs#0                                                              lhs#0
+    l-store-copy lhs#0 0                                                      lhs#0,lhs#0 (copy)
+    v-load rhs#0                                                              lhs#0,lhs#0 (copy),rhs#0
+    &&                                                                        lhs#0,tmp%8#1
+    v-load and_result#0                                                       lhs#0,tmp%8#1,and_result#0
+    l-load tmp%8#1 1                                                          lhs#0,and_result#0,tmp%8#1
+    ==                                                                        lhs#0,tmp%9#1
+    assert                                                                    lhs#0
+    // boolean_binary_ops/contract.py:47
+    // or_msg = b"_" + bool_to_bytes(lhs) + b"_or_" + bool_to_bytes(rhs)
+    v-load tmp%1#1                                                            lhs#0,tmp%1#1
+    byte 0x5f6f725f                                                           lhs#0,tmp%1#1,0x5f6f725f
+    concat                                                                    lhs#0,tmp%12#0
+    v-load select%0#2                                                         lhs#0,tmp%12#0,select%0#2
+    concat                                                                    lhs#0,or_msg#0
+    l-store-copy or_msg#0 0                                                   lhs#0,or_msg#0,or_msg#0 (copy)
+    v-store or_msg#0                                                          lhs#0,or_msg#0
+    // boolean_binary_ops/contract.py:48
+    // or_result = log_and_return(lhs, b"lhs" + or_msg) or log_and_return(
+    byte 0x6c6873                                                             lhs#0,or_msg#0,0x6c6873
+    l-load or_msg#0 1                                                         lhs#0,0x6c6873,or_msg#0
+    concat                                                                    lhs#0,msg#0
+    // boolean_binary_ops/contract.py:56
+    // log(msg)
+    log                                                                       lhs#0
+    // boolean_binary_ops/contract.py:48-50
+    // or_result = log_and_return(lhs, b"lhs" + or_msg) or log_and_return(
+    //     rhs, b"rhs" + or_msg
+    // )
+    l-load lhs#0 0                                                            lhs#0
+    bz main_or_contd@10 ; b main_bool_true@11
+
+main_or_contd@10:
+    // boolean_binary_ops/contract.py:49
+    // rhs, b"rhs" + or_msg
+    byte 0x726873                                                             0x726873
+    v-load or_msg#0                                                           0x726873,or_msg#0
+    concat                                                                    msg#0
+    // boolean_binary_ops/contract.py:56
+    // log(msg)
+    log
+    // boolean_binary_ops/contract.py:48-50
+    // or_result = log_and_return(lhs, b"lhs" + or_msg) or log_and_return(
+    //     rhs, b"rhs" + or_msg
+    // )
+    v-load rhs#0                                                              rhs#0
+    bz main_bool_false@12 ; b main_bool_true@11
+
+main_bool_true@11:
+    int 1                                                                     or_result%0#0
+    v-store or_result#0
+    b main_bool_merge@13
+
+main_bool_false@12:
+    int 0                                                                     or_result%0#0
+    v-store or_result#0
+    b main_bool_merge@13
+
+main_bool_merge@13:
+    // boolean_binary_ops/contract.py:51
+    // assert or_result == (lhs or rhs)
+    v-load lhs#0                                                              lhs#0
+    v-load rhs#0                                                              lhs#0,rhs#0
+    ||                                                                        tmp%18#0
+    v-load or_result#0                                                        tmp%18#0,or_result#0
+    l-load tmp%18#0 1                                                         or_result#0,tmp%18#0
+    ==                                                                        tmp%19#0
+    assert
+    // boolean_binary_ops/contract.py:41
+    // for rhs in (True, False):
+    v-load loop_counter%1#0                                                   loop_counter%1#0
+    bz main_for_header_1@15 ; b main_after_for@16
+
+main_for_header_1@15:
+    int 1                                                                     1
+    v-store loop_counter%1#0
+    // boolean_binary_ops/contract.py:41
+    // for rhs in (True, False):
+    int 0                                                                     0
+    v-store rhs#0
+    b main_for_body@5
+
+main_after_for@16:
+    // boolean_binary_ops/contract.py:40
+    // for lhs in (True, False):
+    v-load loop_counter%0#0                                                   loop_counter%0#0
+    bz main_for_header_1@18 ; b main_after_for@19
+
+main_for_header_1@18:
+    int 1                                                                     1
+    v-store loop_counter%0#0
+    // boolean_binary_ops/contract.py:40
+    // for lhs in (True, False):
+    int 0                                                                     0
+    v-store lhs#0
+    b main_for_body@4
+
+main_after_for@19:
+    int 0                                                                     item_index_internal%0#0
+    v-store idx#0
+    b main_for_header@68
+
+main_for_header@68:
+    // boolean_binary_ops/contract.py:85
+    // for idx, b in uenumerate(Bytes(b"never seen") and bytes_to_iterate):
+    v-load idx#0                                                              idx#0
+    int 3                                                                     idx#0,3
+    <                                                                         continue_looping%0#0
+    bz main_after_for@71 ; b main_for_body@69
+
+main_for_body@69:
+    v-load idx#0                                                              idx#0
+    int 1                                                                     idx#0,1
+    +                                                                         item_index_internal%0#0
+    v-store idx#0
+    b main_for_header@68
+
+main_after_for@71:
+    int 0                                                                     0
+    v-store start#0
+    b main_while_top@118
+
+main_while_top@118:
+    v-load start#0                                                            start#0
+    int 4                                                                     start#0,4
+    +                                                                         tmp%1#6
+    l-store-copy tmp%1#6 0                                                    tmp%1#6,tmp%1#6 (copy)
+    v-store tmp%1#6                                                           tmp%1#6
+    l-load tmp%1#6 0                                                          tmp%1#6
+    int 5                                                                     tmp%1#6,5
+    <=                                                                        tmp%3#6
+    bz main_after_while@122 ; b main_while_body@119
+
+main_while_body@119:
+    // boolean_binary_ops/contract.py:89
+    // assert "ight" in (String("left") and String("right"))
+    byte "right"                                                              "right"
+    v-load start#0                                                            "right",start#0
+    v-load tmp%1#6                                                            "right",start#0,tmp%1#6
+    substring3                                                                tmp%6#4
+    // boolean_binary_ops/contract.py:89
+    // assert "ight" in (String("left") and String("right"))
+    byte "ight"                                                               tmp%6#4,"ight"
+    l-load tmp%6#4 1                                                          "ight",tmp%6#4
+    ==                                                                        tmp%7#4
+    bz main_after_if_else@121 ; b main_if_body@120
+
+main_if_body@120:
+    int 1                                                                     _puya_lib.bytes_.is_substring%0#0
+    v-store tmp%54#0
+    // boolean_binary_ops/contract.py:89
+    // assert "ight" in (String("left") and String("right"))
+    b main_after_inlined__puya_lib.bytes_.is_substring@123
+
+main_after_if_else@121:
+    v-load start#0                                                            start#0
+    int 1                                                                     start#0,1
+    +                                                                         start#0
+    v-store start#0
+    b main_while_top@118
+
+main_after_while@122:
+    int 0                                                                     _puya_lib.bytes_.is_substring%0#0
+    v-store tmp%54#0
+    // boolean_binary_ops/contract.py:89
+    // assert "ight" in (String("left") and String("right"))
+    b main_after_inlined__puya_lib.bytes_.is_substring@123
+
+main_after_inlined__puya_lib.bytes_.is_substring@123:
+    // boolean_binary_ops/contract.py:89
+    // assert "ight" in (String("left") and String("right"))
+    v-load tmp%54#0                                                           tmp%54#0
+    assert
+    // boolean_binary_ops/contract.py:13
+    // return True
+    int 1                                                                     1
+    return
+
+

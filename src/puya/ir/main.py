@@ -1,8 +1,9 @@
 import contextlib
 import copy
+import functools
 import typing
 from collections import defaultdict
-from collections.abc import Collection, Iterator
+from collections.abc import Callable, Collection, Iterator, Set
 from pathlib import Path
 
 from immutabledict import immutabledict
@@ -13,17 +14,35 @@ from puya.awst import nodes as awst_nodes
 from puya.awst.awst_traverser import AWSTTraverser
 from puya.awst.function_traverser import FunctionTraverser
 from puya.awst.serialize import awst_from_json
-from puya.context import CompileContext
+from puya.context import ArtifactCompileContext, CompileContext
 from puya.ir import arc4_router
 from puya.ir._contract_metadata import build_contract_metadata
 from puya.ir._utils import make_subroutine
 from puya.ir.arc4_router import AWSTContractMethodSignature
+from puya.ir.builder.lower_array import lower_array_nodes
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
-from puya.ir.models import Contract, LogicSignature, ModuleArtifact, Program, Subroutine
+from puya.ir.destructure.main import destructure_ssa
+from puya.ir.models import (
+    Contract,
+    LogicSignature,
+    ModuleArtifact,
+    Program,
+    SlotAllocation,
+    SlotAllocationStrategy,
+    Subroutine,
+)
 from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
+from puya.ir.optimize.main import optimize_program_ir
+from puya.ir.optimize.slot_elimination import slot_elimination
+from puya.ir.to_text_visitor import render_program
 from puya.ir.types_ import wtype_to_ir_type
-from puya.program_refs import ProgramKind
+from puya.ir.validation.main import validate_module_artifact
+from puya.program_refs import (
+    ContractReference,
+    LogicSigReference,
+    ProgramKind,
+)
 from puya.utils import StableSet, attrs_extend, coalesce, set_add, set_remove
 
 logger = log.get_logger(__name__)
@@ -157,6 +176,33 @@ class _CompilationSetCollector(AWSTTraverser):
                     typing.assert_never(unexpected)
 
 
+def get_transform_pipeline(
+    artifact_ir: ModuleArtifact,
+) -> list[Callable[[ArtifactCompileContext, Program], None]]:
+    ref = artifact_ir.metadata.ref
+    return [
+        functools.partial(_optimize_program_ir, artifact_ir=artifact_ir, qualifier="ssa.opt"),
+        functools.partial(_lower_array_ir, ref=ref),
+        functools.partial(
+            _optimize_program_ir, artifact_ir=artifact_ir, qualifier="ssa.array.opt"
+        ),
+        functools.partial(slot_elimination, ref=ref),
+        destructure_ssa,
+    ]
+
+
+def transform_ir(context: ArtifactCompileContext, artifact_ir: ModuleArtifact) -> ModuleArtifact:
+    pipeline = get_transform_pipeline(artifact_ir)
+    for transform in pipeline:
+        for program in artifact_ir.all_programs():
+            transform(context, program)
+    # validation is run as the last step, in case we've accidentally inserted something,
+    # and in particular post subroutine removal, because some things that are "linked"
+    # are not necessarily used from the current artifact
+    validate_module_artifact(context, artifact_ir)
+    return artifact_ir
+
+
 def _build_logic_sig_ir(
     ctx: IRBuildContext, logic_sig: awst_nodes.LogicSignature
 ) -> LogicSignature:
@@ -165,14 +211,52 @@ def _build_logic_sig_ir(
         description=logic_sig.docstring,
         name=logic_sig.short_name,
     )
-
     avm_version = coalesce(logic_sig.avm_version, ctx.options.target_avm_version)
     sig_ir = _make_program(
-        ctx, logic_sig.program, kind=ProgramKind.logic_signature, avm_version=avm_version
+        ctx,
+        logic_sig.program,
+        kind=ProgramKind.logic_signature,
+        avm_version=avm_version,
+        reserved_scratch_space=logic_sig.reserved_scratch_space,
     )
     return LogicSignature(
         program=sig_ir, metadata=metadata, source_location=logic_sig.source_location
     )
+
+
+def _optimize_program_ir(
+    context: ArtifactCompileContext,
+    program: Program,
+    *,
+    artifact_ir: ModuleArtifact,
+    qualifier: str,
+) -> None:
+    if isinstance(artifact_ir, LogicSignature):
+        routable_method_ids = None
+    else:
+        routable_method_ids = {a4m.id for a4m in artifact_ir.metadata.arc4_methods}
+    ref = artifact_ir.metadata.ref
+    logger.debug(
+        f"optimizing {program.kind} program of {ref} at level {context.options.optimization_level}"
+    )
+
+    optimize_program_ir(
+        context, program, routable_method_ids=routable_method_ids, qualifier=qualifier
+    )
+
+
+def _lower_array_ir(
+    context: ArtifactCompileContext,
+    program: Program,
+    *,
+    ref: ContractReference | LogicSigReference,
+) -> None:
+    logger.debug(f"lowering array IR nodes in {program.kind} program of {ref}")
+    for sub in program.all_subroutines:
+        lower_array_nodes(sub)
+        sub.validate_with_ssa()
+    if context.options.output_ssa_ir:
+        render_program(context, program, qualifier="ssa.array")
 
 
 def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
@@ -214,10 +298,18 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
 
     avm_version = coalesce(contract.avm_version, ctx.options.target_avm_version)
     approval_ir = _make_program(
-        ctx, contract.approval_program, kind=ProgramKind.approval, avm_version=avm_version
+        ctx,
+        contract.approval_program,
+        kind=ProgramKind.approval,
+        avm_version=avm_version,
+        reserved_scratch_space=contract.reserved_scratch_space,
     )
     clear_state_ir = _make_program(
-        ctx, contract.clear_program, kind=ProgramKind.clear_state, avm_version=avm_version
+        ctx,
+        contract.clear_program,
+        kind=ProgramKind.clear_state,
+        avm_version=avm_version,
+        reserved_scratch_space=contract.reserved_scratch_space,
     )
     return Contract(
         approval_program=approval_ir,
@@ -233,9 +325,10 @@ def _make_program(
     *,
     kind: ProgramKind,
     avm_version: int,
+    reserved_scratch_space: Set[int],
 ) -> Program:
     assert not main.args, "main method should not have args"
-    return_type = wtype_to_ir_type(main.return_type)
+    return_type = wtype_to_ir_type(main.return_type, None)
     assert return_type.avm_type == AVMType.uint64, "main method should return uint64 backed type"
     main_sub = Subroutine(
         id=main.full_name,
@@ -252,6 +345,11 @@ def _make_program(
         main=main_sub,
         subroutines=tuple(ctx.subroutines.values()),
         avm_version=avm_version,
+        slot_allocation=SlotAllocation(
+            reserved=reserved_scratch_space,
+            strategy=SlotAllocationStrategy.none,
+        ),
+        source_location=ctx.root.source_location if ctx.root else None,
     )
     remove_unused_subroutines(program)
     program = copy.deepcopy(program)

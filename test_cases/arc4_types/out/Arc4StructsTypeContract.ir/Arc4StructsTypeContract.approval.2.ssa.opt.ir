@@ -1,12 +1,21 @@
 main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
     block@0: // L35
-        let val#0: bytes = 0x0000001079f7e42e
-        let val#2: bytes = 0x0000004607097084
+        let tmp%0#4: uint64 = 35382882839u
+        let tmp%1#4: uint64 = 35382882839u
+        let tmp%2#4: uint64 = 70765765678u
+        let reinterpret_bytes[8]%0#0: bytes[8] = (itob 70765765678u)
+        let tmp%0#5: uint64 = 150382884930u
+        let tmp%1#5: uint64 = 150382884930u
+        let tmp%2#5: uint64 = 300765769860u
+        let reinterpret_bytes[8]%0#1: bytes[8] = (itob 300765769860u)
+        let coord_3#0: bytes[16] = 0x0000001079f7e42e0000004607097084
+        let val#0: bytes[8] = 0x0000001079f7e42e
+        let val#2: bytes[8] = 0x0000004607097084
         let loop_counter%0#0: uint64 = 0u
         goto block@1
     block@1: // for_body_L40
         let loop_counter%0#1: uint64 = φ(loop_counter%0#0 <- block@0, loop_counter%0#2 <- block@3)
-        let val#1: bytes = φ(val#0 <- block@0, val#2 <- block@3)
+        let val#1: bytes[8] = φ(val#0 <- block@0, val#2 <- block@3)
         (log val#1)
         goto loop_counter%0#1 ? block@4 : block@3
     block@3: // for_header_1_L39
@@ -14,4 +23,12 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         goto block@1
     block@4: // after_for_L39
         (log 0xa0)
+        let encoded%0#0: bytes[1][] = encode<bytes[1]>(0x2a)
+        let len_%0#0: uint64 = (len encoded%0#0)
+        let as_bytes%2#0: bytes[8] = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%2#0)
+        let concat_result%0#0: bytes = (concat len_16_bit%0#0 encoded%0#0)
+        let copy#1: bytes = (concat 0x0002 concat_result%0#0)
+        let tmp%4#0: bool = (!= 0x00020000 copy#1)
+        (assert tmp%4#0) // expected copy is different
         return 1u

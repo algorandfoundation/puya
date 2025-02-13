@@ -3,14 +3,14 @@
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 2 0 3
+    intcblock 1 0 2 3
     bytecblock "build_nested_call_count" 0x151f7c75 0x000c
     txn ApplicationID
     bnz main_after_if_else@2
     // tuple_support/nested_tuples.py:20
     // self.build_nested_call_count = UInt64(0)
     bytec_0 // "build_nested_call_count"
-    intc_2 // 0
+    intc_1 // 0
     app_global_put
 
 main_after_if_else@2:
@@ -25,7 +25,7 @@ main_after_if_else@2:
 main_after_if_else@11:
     // tuple_support/nested_tuples.py:18
     // class NestedTuples(ARC4Contract):
-    intc_2 // 0
+    intc_1 // 0
     return
 
 main_nested_named_tuple_params_route@8:
@@ -40,8 +40,8 @@ main_nested_named_tuple_params_route@8:
     // class NestedTuples(ARC4Contract):
     txna ApplicationArgs 1
     dup
-    extract 0 8 // on error: Index access is out of bounds
-    btoi
+    intc_1 // 0
+    extract_uint64
     dig 1
     extract 8 8 // on error: Index access is out of bounds
     dig 2
@@ -53,8 +53,8 @@ main_nested_named_tuple_params_route@8:
     cover 2
     substring3
     dup
-    extract 0 8 // on error: Index access is out of bounds
-    btoi
+    intc_1 // 0
+    extract_uint64
     dig 1
     pushint 8 // 8
     extract_uint16
@@ -131,8 +131,8 @@ main_named_tuple_route@7:
     // class NestedTuples(ARC4Contract):
     txna ApplicationArgs 1
     dup
-    extract 0 8 // on error: Index access is out of bounds
-    btoi
+    intc_1 // 0
+    extract_uint64
     dig 1
     pushint 8 // 8
     extract_uint16
@@ -200,10 +200,10 @@ main_nested_tuple_params_route@6:
     // class NestedTuples(ARC4Contract):
     txna ApplicationArgs 1
     dup
-    intc_2 // 0
+    intc_1 // 0
     extract_uint16
     dig 1
-    intc_1 // 2
+    intc_2 // 2
     extract_uint16
     dig 2
     uncover 2
@@ -217,7 +217,7 @@ main_nested_tuple_params_route@6:
     uncover 2
     substring3
     dup
-    intc_2 // 0
+    intc_1 // 0
     extract_uint16
     dig 1
     len
@@ -227,8 +227,8 @@ main_nested_tuple_params_route@6:
     extract 2 0
     swap
     extract 2 8 // on error: Index access is out of bounds
-    extract 0 8 // on error: Index access is out of bounds
-    btoi
+    intc_1 // 0
+    extract_uint64
     // tuple_support/nested_tuples.py:51
     // @arc4.abimethod()
     dig 1
@@ -280,7 +280,7 @@ main_run_tests_route@5:
     assert // can only call when not creating
     callsub run_tests
     pushbytes 0x00
-    intc_2 // 0
+    intc_1 // 0
     uncover 2
     setbit
     bytec_1 // 0x151f7c75
@@ -310,10 +310,10 @@ test_nested_singles:
     proto 2 0
     // tuple_support/nested_tuples.py:134
     // (UInt64(0),),
-    intc_2 // 0
+    intc_1 // 0
     // tuple_support/nested_tuples.py:136
     // (UInt64(2),),
-    intc_1 // 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:140
     // assert s[1][0] == 1
     frame_dig -2
@@ -367,7 +367,7 @@ test_nested_singles_after_if_else@2:
     assert
     // tuple_support/nested_tuples.py:153
     // assert tmp == (5 if reassign else 2)
-    intc_1 // 2
+    intc_2 // 2
     pushint 5 // 5
     frame_dig -1
     select
@@ -407,7 +407,7 @@ run_tests:
     // tuple_support/nested_tuples.py:38
     // test_intrinsics(UInt64(1), UInt64(2))
     intc_0 // 1
-    intc_1 // 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:98
     // nt = (UInt64(1), op.addw(num1, num2), UInt64(42))
     addw
@@ -436,18 +436,18 @@ run_tests:
     // tuple_support/nested_tuples.py:41
     // test_nested_singles(UInt64(1), reassign=False)
     intc_0 // 1
-    intc_2 // 0
+    intc_1 // 0
     callsub test_nested_singles
     // tuple_support/nested_tuples.py:179
     // total = UInt64(0)
-    intc_2 // 0
+    intc_1 // 0
     // tuple_support/nested_tuples.py:177
     // x = UInt64(1)
     intc_0 // 1
     // tuple_support/nested_tuples.py:178
     // y = UInt64(2)
-    intc_1 // 2
-    intc_2 // 0
+    intc_2 // 2
+    intc_1 // 0
 
 run_tests_for_body@12:
     // tuple_support/nested_tuples.py:183
@@ -461,7 +461,7 @@ run_tests_for_body@12:
     // tuple_support/nested_tuples.py:181
     // for t in ((x, y), (y, x), (x, x), (y, y)):
     switch run_tests_for_header_1@13 run_tests_for_header_2@14 run_tests_for_header_3@15
-    intc_2 // 0
+    intc_1 // 0
     // tuple_support/nested_tuples.py:177
     // x = UInt64(1)
     intc_0 // 1
@@ -470,7 +470,7 @@ run_tests_for_body@12:
     frame_bury 0
     // tuple_support/nested_tuples.py:178
     // y = UInt64(2)
-    intc_1 // 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:185
     // for a, b in ((x, y), (y, x), (x, x), (y, y)):
     swap
@@ -498,11 +498,11 @@ run_tests_for_body@17:
     // tuple_support/nested_tuples.py:75
     // self.build_nested_call_count = UInt64(0)
     bytec_0 // "build_nested_call_count"
-    intc_2 // 0
+    intc_1 // 0
     app_global_put
     // tuple_support/nested_tuples.py:70
     // self.build_nested_call_count += 1
-    intc_2 // 0
+    intc_1 // 0
     bytec_0 // "build_nested_call_count"
     app_global_get_ex
     assert // check self.build_nested_call_count exists
@@ -513,7 +513,7 @@ run_tests_for_body@17:
     app_global_put
     // tuple_support/nested_tuples.py:78
     // assert self.build_nested_call_count == 1
-    intc_2 // 0
+    intc_1 // 0
     bytec_0 // "build_nested_call_count"
     app_global_get_ex
     assert // check self.build_nested_call_count exists
@@ -530,20 +530,20 @@ run_tests_for_header_3@20:
     intc_3 // 3
     // tuple_support/nested_tuples.py:178
     // y = UInt64(2)
-    intc_1 // 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:185
     // for a, b in ((x, y), (y, x), (x, x), (y, y)):
     frame_bury 0
     // tuple_support/nested_tuples.py:178
     // y = UInt64(2)
-    intc_1 // 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:185
     // for a, b in ((x, y), (y, x), (x, x), (y, y)):
     swap
     b run_tests_for_body@17
 
 run_tests_for_header_2@19:
-    intc_1 // 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:177
     // x = UInt64(1)
     intc_0 // 1
@@ -562,7 +562,7 @@ run_tests_for_header_1@18:
     intc_0 // 1
     // tuple_support/nested_tuples.py:178
     // y = UInt64(2)
-    intc_1 // 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:185
     // for a, b in ((x, y), (y, x), (x, x), (y, y)):
     frame_bury 0
@@ -578,20 +578,20 @@ run_tests_for_header_3@15:
     intc_3 // 3
     // tuple_support/nested_tuples.py:178
     // y = UInt64(2)
-    intc_1 // 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:181
     // for t in ((x, y), (y, x), (x, x), (y, y)):
     frame_bury 2
     // tuple_support/nested_tuples.py:178
     // y = UInt64(2)
-    intc_1 // 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:181
     // for t in ((x, y), (y, x), (x, x), (y, y)):
     swap
     b run_tests_for_body@12
 
 run_tests_for_header_2@14:
-    intc_1 // 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:177
     // x = UInt64(1)
     intc_0 // 1
@@ -610,7 +610,7 @@ run_tests_for_header_1@13:
     intc_0 // 1
     // tuple_support/nested_tuples.py:178
     // y = UInt64(2)
-    intc_1 // 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:181
     // for t in ((x, y), (y, x), (x, x), (y, y)):
     frame_bury 2

@@ -6,13 +6,14 @@ import attrs
 import mypy.nodes
 
 from puya import log
+from puya.awst import nodes as awst_nodes
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puyapy.awst_build import arc4_utils, pytypes
 from puyapy.awst_build.arc4_utils import pytype_to_arc4_pytype, split_tuple_types
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._utils import dummy_value
-from puyapy.awst_build.eb.factories import builder_for_type
+from puyapy.awst_build.eb.factories import builder_for_instance, builder_for_type
 from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
     NodeBuilder,
@@ -193,15 +194,19 @@ def _implicit_arc4_conversion(
                 instance.iterate_static(), target_type.types, strict=True
             )
         ]
-    else:
-        conversion_args = [instance]
-    target_type_builder = builder_for_type(target_type, instance.source_location)
-    return target_type_builder.call(
-        args=conversion_args,
-        arg_names=[None] * len(conversion_args),
-        arg_kinds=[mypy.nodes.ARG_POS] * len(conversion_args),
-        location=instance.source_location,
+        target_type_builder = builder_for_type(target_type, instance.source_location)
+        return target_type_builder.call(
+            args=conversion_args,
+            arg_names=[None] * len(conversion_args),
+            arg_kinds=[mypy.nodes.ARG_POS] * len(conversion_args),
+            location=instance.source_location,
+        )
+    encoded = awst_nodes.ARC4Encode(
+        value=instance.resolve(),
+        wtype=target_wtype,
+        source_location=instance.source_location,
     )
+    return builder_for_instance(target_type, encoded)
 
 
 def _maybe_resolve_arc4_literal(

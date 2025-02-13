@@ -1,6 +1,7 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#1 0u)
         goto tmp%0#1 ? block@2 : block@7
     block@2: // abi_routing_L4
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
@@ -10,6 +11,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%4#0: bool = (! tmp%3#0)
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%5#0) // can only call when not creating
         let tmp%7#0: uint64 = (txn GroupIndex)
         let gtxn_idx%0#0: uint64 = (- tmp%7#0 2u)
@@ -22,8 +24,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 appl)
         (assert gtxn_type_matches%1#0) // transaction type is appl
         let (elements_to_encode%0#0: uint64, elements_to_encode%1#0: uint64) = test_cases.group_side_effects.contract.AppExpectingEffects.create_group(gtxn_idx%0#0, gtxn_idx%1#0)
-        let val_as_bytes%0#0: bytes = (itob elements_to_encode%0#0)
-        let val_as_bytes%1#0: bytes = (itob elements_to_encode%1#0)
+        let val_as_bytes%0#0: bytes[8] = (itob elements_to_encode%0#0)
+        let val_as_bytes%1#0: bytes[8] = (itob elements_to_encode%1#0)
+        let encoded_tuple_buffer%1#0: bytes = val_as_bytes%0#0
         let encoded_tuple_buffer%2#0: bytes = (concat val_as_bytes%0#0 val_as_bytes%1#0)
         let tmp%9#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%2#0)
         (log tmp%9#0)
@@ -34,6 +37,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // OnCompletion is not NoOp
         let tmp%12#0: uint64 = (txn ApplicationID)
+        let tmp%13#0: bool = (!= tmp%12#0 0u)
         (assert tmp%12#0) // can only call when not creating
         let tmp%14#0: uint64 = (txn GroupIndex)
         let gtxn_idx%2#0: uint64 = (- tmp%14#0 1u)
@@ -63,12 +67,14 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.group_side_effects.contract.AppExpectingEffects.create_group(asset_create: uint64, app_create: uint64) -> <uint64, uint64>:
     block@0: // L5
         let tmp%0#0: uint64 = ((gtxns CreatedAssetID) asset_create#0)
+        let tmp%1#0: bool = (!= tmp%0#0 0u)
         (assert tmp%0#0) // expected asset created
         let tmp%2#0: uint64 = ((gtxns GroupIndex) asset_create#0)
         let tmp%3#0: uint64 = (gaids tmp%2#0)
         let tmp%5#0: bool = (== tmp%3#0 tmp%0#0)
         (assert tmp%5#0) // expected correct asset id
         let tmp%6#0: uint64 = ((gtxns CreatedApplicationID) app_create#0)
+        let tmp%7#0: bool = (!= tmp%6#0 0u)
         (assert tmp%6#0) // expected app created
         let tmp%8#0: uint64 = ((gtxns GroupIndex) app_create#0)
         let tmp%9#0: uint64 = (gaids tmp%8#0)
@@ -85,7 +91,7 @@ subroutine test_cases.group_side_effects.contract.AppExpectingEffects.log_group(
         let tmp%3#0: bool = (== tmp%2#0 1u)
         (assert tmp%3#0) // expected logs
         let awst_tmp%0#0: bytes = ((gtxns LastLog) app_call#0)
-        let tmp%4#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let tmp%4#0: bytes[8] = ((extract 4 0) awst_tmp%0#0)
         let tmp%5#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%6#0: bool = (== tmp%5#0 0x151f7c75)
         (assert tmp%6#0) // ARC4 prefix is valid

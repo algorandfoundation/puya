@@ -1,3 +1,4 @@
+import abc
 import typing
 from collections.abc import Iterable, Mapping
 from functools import cached_property
@@ -180,23 +181,48 @@ class WStructType(WType):
             raise CodeError("struct should not contain void types", self.source_location)
 
 
-@typing.final
 @attrs.frozen
-class WArray(WType):
+class NativeArray(WType, abc.ABC):
     element_type: WType = attrs.field()
-    name: str = attrs.field(init=False)
-    scalar_type: None = attrs.field(default=None, init=False)
     source_location: SourceLocation | None = attrs.field(eq=False)
-    immutable: bool = attrs.field(default=False, init=False)
 
     @element_type.validator
     def _element_type_validator(self, _: object, element_type: WType) -> None:
         if element_type == void_wtype:
             raise CodeError("array element type cannot be void", self.source_location)
+        if element_type == arc4_bool_wtype:
+            # technically we could support this, but it requires a additional complexity to support
+            # and is less efficient than using a native bool
+            logger.error(
+                "arrays of arc4 bools are not supported, use an array of native bools instead",
+                location=self.source_location,
+            )
+        elif not element_type.immutable:
+            logger.error("arrays must have immutable elements", location=self.source_location)
+
+
+@typing.final
+@attrs.frozen
+class StackArray(NativeArray):
+    name: str = attrs.field(init=False)
+    immutable: bool = attrs.field(default=True, init=False)
+    scalar_type: typing.Literal[AVMType.bytes] = attrs.field(default=AVMType.bytes, init=False)
 
     @name.default
     def _name(self) -> str:
-        return f"array<{self.element_type.name}>"
+        return f"stack_array<{self.element_type.name}>"
+
+
+@typing.final
+@attrs.frozen
+class ReferenceArray(NativeArray):
+    name: str = attrs.field(init=False)
+    immutable: bool = attrs.field(default=False, init=False)
+    scalar_type: None = attrs.field(default=None, init=False)
+
+    @name.default
+    def _name(self) -> str:
+        return f"ref_array<{self.element_type.name}>"
 
 
 @typing.final
@@ -417,6 +443,16 @@ class ARC4DynamicArray(ARC4Array):
     @arc4_name.default
     def _arc4_name(self) -> str:
         return f"{self.element_type.arc4_name}[]"
+
+    @typing.override
+    def can_encode_type(self, wtype: WType) -> bool:
+        return super().can_encode_type(wtype) or (
+            isinstance(wtype, StackArray)
+            and (
+                self.element_type == wtype.element_type
+                or self.element_type.can_encode_type(wtype.element_type)
+            )
+        )
 
 
 @typing.final

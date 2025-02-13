@@ -67,6 +67,13 @@ def _get_converter() -> cattrs.preconf.json.JsonConverter:
     include_subclasses(wtypes.WType, converter, union_strategy=union_strategy)
     union_strategy(wtypes.WStructType | wtypes.ARC4Struct, converter)
     union_strategy(nodes.SubroutineTarget, converter)
+    union_strategy(
+        wtypes.ARC4DynamicArray
+        | wtypes.ARC4StaticArray
+        | wtypes.StackArray
+        | wtypes.ReferenceArray,
+        converter,
+    )
     include_subclasses(nodes.Expression, converter, union_strategy=union_strategy)
     union_strategy(nodes.Lvalue, converter)
     union_strategy(nodes.StorageExpression, converter)

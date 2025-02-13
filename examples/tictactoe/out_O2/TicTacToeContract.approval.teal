@@ -3,7 +3,7 @@
 
 // examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 1 3 2
+    intcblock 0 1 3 8
     bytecblock "game" "turns" "winner" "challenger" 0x01 0x02 "host"
     pushbytes ""
     dupn 2
@@ -29,11 +29,11 @@ main_play_route@16:
     assert // can only call when not creating
     txna ApplicationArgs 1
     dup
-    extract 0 8 // on error: Index access is out of bounds
-    btoi
+    intc_0 // 0
+    extract_uint64
     bury 4
-    extract 8 8 // on error: Index access is out of bounds
-    btoi
+    intc_3 // 8
+    extract_uint64
     bury 2
     intc_0 // 0
     bytec_2 // "winner"
@@ -45,7 +45,7 @@ main_play_route@16:
     bytec_1 // "turns"
     app_global_get_ex
     assert // check self.turns exists
-    intc_3 // 2
+    pushint 2 // 2
     %
     bz main_else_body@18
     txn Sender
@@ -87,7 +87,7 @@ main_whose_turn_route@15:
     bytec_1 // "turns"
     app_global_get_ex
     assert // check self.turns exists
-    intc_3 // 2
+    pushint 2 // 2
     %
     bytec 5 // 0x02
     bytec 4 // 0x01
@@ -109,11 +109,11 @@ main_join_game_route@14:
     assert // can only call when not creating
     txna ApplicationArgs 1
     dup
-    extract 0 8 // on error: Index access is out of bounds
-    btoi
+    intc_0 // 0
+    extract_uint64
     swap
-    extract 8 8 // on error: Index access is out of bounds
-    btoi
+    intc_3 // 8
+    extract_uint64
     intc_0 // 0
     bytec_3 // "challenger"
     app_global_get_ex
@@ -136,11 +136,11 @@ main_new_game_route@5:
     assert // OnCompletion is not NoOp
     txna ApplicationArgs 1
     dup
-    extract 0 8 // on error: Index access is out of bounds
-    btoi
+    intc_0 // 0
+    extract_uint64
     bury 4
-    extract 8 8 // on error: Index access is out of bounds
-    btoi
+    intc_3 // 8
+    extract_uint64
     bury 2
     txn ApplicationID
     bz main_after_if_else@9

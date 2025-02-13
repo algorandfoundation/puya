@@ -73,6 +73,7 @@ lg-control
 lg-modules
 lg-builtins
 lg-errors
+lg-data-structures
 lg-storage
 lg-logs
 lg-transactions

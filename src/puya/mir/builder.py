@@ -4,8 +4,10 @@ from collections.abc import Sequence
 import attrs
 
 from puya import log
+from puya.avm import AVMType
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
+from puya.ir.avm_ops import AVMOp
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.visitor import IRVisitor
 from puya.mir import models
@@ -13,6 +15,14 @@ from puya.mir.context import ProgramMIRContext
 from puya.utils import biguint_bytes_eval
 
 logger = log.get_logger(__name__)
+# TODO: ensure unique
+_NEW_SLOT_SUB = "_puya_lib.mem.new_slot"
+
+
+@attrs.frozen
+class TempVar:
+    local_id: str
+    atype: AVMType
 
 
 @attrs.define
@@ -110,6 +120,93 @@ class MemoryIRBuilder(IRVisitor[None]):
             )
         )
 
+    def visit_new_slot(self, new_slot: ir.NewSlot) -> None:
+        self._add_op(
+            models.CallSub(
+                target=_NEW_SLOT_SUB,
+                parameters=0,
+                returns=1,
+                produces=_produces_from_op(_NEW_SLOT_SUB, 1, self.active_op),
+                source_location=new_slot.source_location,
+            )
+        )
+
+    def visit_read_slot(self, read: ir.ReadSlot) -> None:
+        if isinstance(read.slot, ir.SlotConstant):
+            self._add_op(
+                models.AbstractLoad(
+                    local_id=f"slot{ir.TMP_VAR_INDICATOR}{read.slot.value}",
+                    atype=read.slot.ir_type.contents.avm_type,
+                )
+            )
+        else:
+            if isinstance(read.slot, ir.UInt64Constant):
+                op = "load"
+                consumes = 0
+                immediates = [read.slot.value]
+            else:
+                read.slot.accept(self)
+                op = "loads"
+                consumes = 1
+                immediates = []
+            self._add_op(
+                models.IntrinsicOp(
+                    op_code=op,
+                    source_location=read.source_location,
+                    immediates=immediates,
+                    consumes=consumes,
+                    produces=_produces_from_op(op, 1, self.active_op),
+                )
+            )
+
+    def visit_write_slot(self, write: ir.WriteSlot) -> None:
+        if isinstance(write.slot, ir.SlotConstant):
+            write.value.accept(self)
+            self._add_op(
+                models.AbstractStore(
+                    local_id=f"slot{ir.TMP_VAR_INDICATOR}{write.slot.value}",
+                    atype=write.slot.ir_type.contents.avm_type,
+                )
+            )
+        else:
+            if isinstance(write.slot, ir.UInt64Constant):
+                op = "store"
+                consumes = 1
+                immediates = [write.slot.value]
+            else:
+                write.slot.accept(self)
+                op = "stores"
+                consumes = 2
+                immediates = []
+            write.value.accept(self)
+            self._add_op(
+                models.IntrinsicOp(
+                    op_code=op,
+                    source_location=write.source_location,
+                    immediates=immediates,
+                    consumes=consumes,
+                    produces=(),
+                )
+            )
+
+    def visit_array_read_index(self, read: ir.ArrayReadIndex) -> None:
+        _unexpected_node(read)
+
+    def visit_array_write_index(self, write: ir.ArrayWriteIndex) -> None:
+        _unexpected_node(write)
+
+    def visit_array_concat(self, concat: ir.ArrayConcat) -> None:
+        _unexpected_node(concat)
+
+    def visit_array_encode(self, encode: ir.ArrayEncode) -> None:
+        _unexpected_node(encode)
+
+    def visit_array_length(self, length: ir.ArrayLength) -> None:
+        _unexpected_node(length)
+
+    def visit_array_pop(self, pop: ir.ArrayPop) -> None:
+        _unexpected_node(pop)
+
     def visit_template_var(self, deploy_var: ir.TemplateVar) -> None:
         self._add_op(
             models.TemplateVar(
@@ -161,8 +258,6 @@ class MemoryIRBuilder(IRVisitor[None]):
         )
 
     def visit_intrinsic_op(self, intrinsic: ir.Intrinsic) -> None:
-        discard_results = intrinsic is self.active_op
-
         if intrinsic.op.code.startswith("box_"):
             try:
                 box_key = intrinsic.args[0]
@@ -184,11 +279,8 @@ class MemoryIRBuilder(IRVisitor[None]):
                 error_message=intrinsic.error_message,
             )
         )
-        if discard_results and produces:
-            self._add_op(models.Pop(produces))
 
     def visit_invoke_subroutine(self, callsub: ir.InvokeSubroutine) -> None:
-        discard_results = callsub is self.active_op
         target = callsub.target
 
         callsub_op = models.CallSub(
@@ -207,10 +299,6 @@ class MemoryIRBuilder(IRVisitor[None]):
 
         # call sub
         self._add_op(callsub_op)
-
-        if discard_results and target.returns:
-            num_returns = len(target.returns)
-            self._add_op(models.Pop(num_returns))
 
     def visit_conditional_branch(self, branch: ir.ConditionalBranch) -> None:
         branch.condition.accept(self)
@@ -283,6 +371,9 @@ class MemoryIRBuilder(IRVisitor[None]):
             assert not isinstance(op, ir.Phi)
             self.active_op = op
             op.accept(self)
+            # pop any values that may have been left on the stack and not assigned
+            if isinstance(op, ir.ValueProvider) and op.atypes:
+                self._add_op(models.Pop(len(op.atypes)))
 
         assert self.terminator is not None
         block_name = self._get_block_name(block)
@@ -309,6 +400,9 @@ class MemoryIRBuilder(IRVisitor[None]):
     def visit_itxn_constant(self, const: ir.ITxnConstant) -> None:
         _unexpected_node(const)
 
+    def visit_slot_constant(self, const: ir.SlotConstant) -> None:
+        _unexpected_node(const)
+
     def visit_inner_transaction_field(self, field: ir.InnerTransactionField) -> None:
         _unexpected_node(field)
 
@@ -324,6 +418,96 @@ def _unexpected_node(node: ir.IRVisitable) -> typing.Never:
         f"Encountered node of type {type(node).__name__!r} during codegen"
         f" - should have been eliminated in prior stages",
         node.source_location,
+    )
+
+
+def build_new_slot_sub(allocation_slot: int) -> models.MemorySubroutine:
+    """
+    # bitlen counts bits from the right-most bit
+    # setbit sets bits from the left-most bit
+    # to convert the result of a bitlen back to an index compatible with setbit
+    # we need to subtract the bitlen result from the length of the byte array
+    # which is hardcoded to 256 bits
+
+    load SLOT       // slot
+    bitlen          // free_slot
+    load SLOT       // free_slot, slot
+    int 256         // free_slot, slot, 256
+    dig 2           // free_slot, slot, 256, free_slot
+    -               // free_slot, slot, free_slot_idx
+    int 0           // free_slot, slot, free_slot_idx, 0
+    setbit          // free_slot, new_slot
+    store SLOT      // free_slot
+    retsub
+    """
+
+    def make_op(
+        op: AVMOp, *immediates: int, local_id: str | None = None, error_message: str | None = None
+    ) -> models.IntrinsicOp:
+        variant = op.get_variant(immediates)
+        produces = (
+            (local_id,)
+            if local_id
+            else _produces_from_op(op, len(variant.signature.returns), None)
+        )
+        return models.IntrinsicOp(
+            op_code=op,
+            immediates=immediates,
+            consumes=len(variant.signature.args),
+            produces=produces,
+            error_message=error_message,
+            source_location=None,
+        )
+
+    return models.MemorySubroutine(
+        id=_NEW_SLOT_SUB,
+        is_main=False,
+        signature=models.Signature(name=_NEW_SLOT_SUB, parameters=(), returns=(AVMType.uint64,)),
+        body=[
+            models.MemoryBasicBlock(
+                id=0,
+                block_name=_NEW_SLOT_SUB,
+                mem_ops=[
+                    make_op(AVMOp.load, allocation_slot, local_id="slot_allocations"),
+                    make_op(AVMOp.bitlen),
+                    models.AbstractStore(
+                        local_id="free_slot#0",
+                        atype=AVMType.uint64,
+                        source_location=None,
+                    ),
+                    make_op(AVMOp.load, allocation_slot, local_id="slot_allocations"),
+                    models.Int(
+                        value=256,
+                        source_location=None,
+                    ),
+                    models.AbstractLoad(
+                        local_id="free_slot#0",
+                        atype=AVMType.uint64,
+                        source_location=None,
+                    ),
+                    make_op(AVMOp.sub, local_id="free_slot_idx"),
+                    models.Int(
+                        value=0,
+                        source_location=None,
+                    ),
+                    make_op(
+                        AVMOp.setbit,
+                        error_message="no available slots",
+                        local_id="new_slot_allocations",
+                    ),
+                    make_op(AVMOp.store, allocation_slot),
+                    models.AbstractLoad(
+                        local_id="free_slot#0",
+                        atype=AVMType.uint64,
+                        source_location=None,
+                    ),
+                ],
+                predecessors=[],
+                terminator=models.RetSub(returns=1, fx_height=0, source_location=None),
+                source_location=None,
+            )
+        ],
+        source_location=None,
     )
 
 

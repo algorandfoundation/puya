@@ -18,20 +18,20 @@ subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.__puya
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
-        let tmp%7#0: bytes = (txna ApplicationArgs 1)
-        test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call(tmp%7#0)
+        let reinterpret_bytes[1]%0#0: bytes[1] = (txna ApplicationArgs 1)
+        test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call(reinterpret_bytes[1]%0#0)
         return 1u
     block@3: // switch_case_default_L20
         goto block@4
     block@4: // switch_case_next_L20
         goto block@9
     block@5: // bare_routing_L20
-        let tmp%8#0: uint64 = (txn OnCompletion)
-        switch tmp%8#0 {0u => block@6, * => block@7}
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        switch tmp%7#0 {0u => block@6, * => block@7}
     block@6: // __algopy_default_create_L1
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (== tmp%9#0 0u)
-        (assert tmp%10#0) // can only call when creating
+        let tmp%8#0: uint64 = (txn ApplicationID)
+        let tmp%9#0: bool = (== tmp%8#0 0u)
+        (assert tmp%9#0) // can only call when creating
         test_cases.inner_transactions.array_access.ArrayAccessContract.__algopy_default_create()
         return 1u
     block@7: // switch_case_default_L20
@@ -41,7 +41,7 @@ subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.__puya
     block@9: // after_if_else_L20
         return 0u
 
-subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call(maybe: bytes) -> void:
+subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call(maybe: bytes[1]) -> void:
     block@0: // L21
         let tmp%0#0: bool = (!= maybe#0 0x00)
         goto tmp%0#0 ? block@1 : block@3
@@ -116,16 +116,16 @@ subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_b
         itxn_submit
         let create_app_txn#0: itxn_group_idx = itxn_group_idx(0)
         let create_app_txn._is_last#0: bool = 1u
-        let create_app_txn.Sender#0: bytes = itxn[create_app_txn#0].Sender
+        let create_app_txn.Sender#0: bytes[32] = itxn[create_app_txn#0].Sender
         let create_app_txn.Fee#0: uint64 = itxn[create_app_txn#0].Fee
         let create_app_txn.FirstValid#0: uint64 = itxn[create_app_txn#0].FirstValid
         let create_app_txn.FirstValidTime#0: uint64 = itxn[create_app_txn#0].FirstValidTime
         let create_app_txn.LastValid#0: uint64 = itxn[create_app_txn#0].LastValid
         let create_app_txn.Note#0: bytes = itxn[create_app_txn#0].Note
         let create_app_txn.Lease#0: bytes = itxn[create_app_txn#0].Lease
-        let create_app_txn.Receiver#0: bytes = itxn[create_app_txn#0].Receiver
+        let create_app_txn.Receiver#0: bytes[32] = itxn[create_app_txn#0].Receiver
         let create_app_txn.Amount#0: uint64 = itxn[create_app_txn#0].Amount
-        let create_app_txn.CloseRemainderTo#0: bytes = itxn[create_app_txn#0].CloseRemainderTo
+        let create_app_txn.CloseRemainderTo#0: bytes[32] = itxn[create_app_txn#0].CloseRemainderTo
         let create_app_txn.VotePK#0: bytes = itxn[create_app_txn#0].VotePK
         let create_app_txn.SelectionPK#0: bytes = itxn[create_app_txn#0].SelectionPK
         let create_app_txn.VoteFirst#0: uint64 = itxn[create_app_txn#0].VoteFirst
@@ -135,9 +135,9 @@ subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_b
         let create_app_txn.TypeEnum#0: uint64 = itxn[create_app_txn#0].TypeEnum
         let create_app_txn.XferAsset#0: uint64 = itxn[create_app_txn#0].XferAsset
         let create_app_txn.AssetAmount#0: uint64 = itxn[create_app_txn#0].AssetAmount
-        let create_app_txn.AssetSender#0: bytes = itxn[create_app_txn#0].AssetSender
-        let create_app_txn.AssetReceiver#0: bytes = itxn[create_app_txn#0].AssetReceiver
-        let create_app_txn.AssetCloseTo#0: bytes = itxn[create_app_txn#0].AssetCloseTo
+        let create_app_txn.AssetSender#0: bytes[32] = itxn[create_app_txn#0].AssetSender
+        let create_app_txn.AssetReceiver#0: bytes[32] = itxn[create_app_txn#0].AssetReceiver
+        let create_app_txn.AssetCloseTo#0: bytes[32] = itxn[create_app_txn#0].AssetCloseTo
         let create_app_txn.GroupIndex#0: uint64 = itxn[create_app_txn#0].GroupIndex
         let create_app_txn.TxID#0: bytes = itxn[create_app_txn#0].TxID
         let create_app_txn.ApplicationID#0: uint64 = itxn[create_app_txn#0].ApplicationID
@@ -146,7 +146,7 @@ subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_b
         let create_app_txn.NumAccounts#0: uint64 = itxn[create_app_txn#0].NumAccounts
         let create_app_txn.ApprovalProgram#0: bytes = itxn[create_app_txn#0].ApprovalProgram
         let create_app_txn.ClearStateProgram#0: bytes = itxn[create_app_txn#0].ClearStateProgram
-        let create_app_txn.RekeyTo#0: bytes = itxn[create_app_txn#0].RekeyTo
+        let create_app_txn.RekeyTo#0: bytes[32] = itxn[create_app_txn#0].RekeyTo
         let create_app_txn.ConfigAsset#0: uint64 = itxn[create_app_txn#0].ConfigAsset
         let create_app_txn.ConfigAssetTotal#0: uint64 = itxn[create_app_txn#0].ConfigAssetTotal
         let create_app_txn.ConfigAssetDecimals#0: uint64 = itxn[create_app_txn#0].ConfigAssetDecimals
@@ -155,12 +155,12 @@ subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_b
         let create_app_txn.ConfigAssetName#0: bytes = itxn[create_app_txn#0].ConfigAssetName
         let create_app_txn.ConfigAssetURL#0: bytes = itxn[create_app_txn#0].ConfigAssetURL
         let create_app_txn.ConfigAssetMetadataHash#0: bytes = itxn[create_app_txn#0].ConfigAssetMetadataHash
-        let create_app_txn.ConfigAssetManager#0: bytes = itxn[create_app_txn#0].ConfigAssetManager
-        let create_app_txn.ConfigAssetReserve#0: bytes = itxn[create_app_txn#0].ConfigAssetReserve
-        let create_app_txn.ConfigAssetFreeze#0: bytes = itxn[create_app_txn#0].ConfigAssetFreeze
-        let create_app_txn.ConfigAssetClawback#0: bytes = itxn[create_app_txn#0].ConfigAssetClawback
+        let create_app_txn.ConfigAssetManager#0: bytes[32] = itxn[create_app_txn#0].ConfigAssetManager
+        let create_app_txn.ConfigAssetReserve#0: bytes[32] = itxn[create_app_txn#0].ConfigAssetReserve
+        let create_app_txn.ConfigAssetFreeze#0: bytes[32] = itxn[create_app_txn#0].ConfigAssetFreeze
+        let create_app_txn.ConfigAssetClawback#0: bytes[32] = itxn[create_app_txn#0].ConfigAssetClawback
         let create_app_txn.FreezeAsset#0: uint64 = itxn[create_app_txn#0].FreezeAsset
-        let create_app_txn.FreezeAssetAccount#0: bytes = itxn[create_app_txn#0].FreezeAssetAccount
+        let create_app_txn.FreezeAssetAccount#0: bytes[32] = itxn[create_app_txn#0].FreezeAssetAccount
         let create_app_txn.FreezeAssetFrozen#0: bool = itxn[create_app_txn#0].FreezeAssetFrozen
         let create_app_txn.NumAssets#0: uint64 = itxn[create_app_txn#0].NumAssets
         let create_app_txn.NumApplications#0: uint64 = itxn[create_app_txn#0].NumApplications
@@ -253,16 +253,16 @@ subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_b
         itxn_submit
         let create_app_txn#1: itxn_group_idx = itxn_group_idx(0)
         let create_app_txn._is_last#1: bool = 1u
-        let create_app_txn.Sender#1: bytes = itxn[create_app_txn#1].Sender
+        let create_app_txn.Sender#1: bytes[32] = itxn[create_app_txn#1].Sender
         let create_app_txn.Fee#1: uint64 = itxn[create_app_txn#1].Fee
         let create_app_txn.FirstValid#1: uint64 = itxn[create_app_txn#1].FirstValid
         let create_app_txn.FirstValidTime#1: uint64 = itxn[create_app_txn#1].FirstValidTime
         let create_app_txn.LastValid#1: uint64 = itxn[create_app_txn#1].LastValid
         let create_app_txn.Note#1: bytes = itxn[create_app_txn#1].Note
         let create_app_txn.Lease#1: bytes = itxn[create_app_txn#1].Lease
-        let create_app_txn.Receiver#1: bytes = itxn[create_app_txn#1].Receiver
+        let create_app_txn.Receiver#1: bytes[32] = itxn[create_app_txn#1].Receiver
         let create_app_txn.Amount#1: uint64 = itxn[create_app_txn#1].Amount
-        let create_app_txn.CloseRemainderTo#1: bytes = itxn[create_app_txn#1].CloseRemainderTo
+        let create_app_txn.CloseRemainderTo#1: bytes[32] = itxn[create_app_txn#1].CloseRemainderTo
         let create_app_txn.VotePK#1: bytes = itxn[create_app_txn#1].VotePK
         let create_app_txn.SelectionPK#1: bytes = itxn[create_app_txn#1].SelectionPK
         let create_app_txn.VoteFirst#1: uint64 = itxn[create_app_txn#1].VoteFirst
@@ -272,9 +272,9 @@ subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_b
         let create_app_txn.TypeEnum#1: uint64 = itxn[create_app_txn#1].TypeEnum
         let create_app_txn.XferAsset#1: uint64 = itxn[create_app_txn#1].XferAsset
         let create_app_txn.AssetAmount#1: uint64 = itxn[create_app_txn#1].AssetAmount
-        let create_app_txn.AssetSender#1: bytes = itxn[create_app_txn#1].AssetSender
-        let create_app_txn.AssetReceiver#1: bytes = itxn[create_app_txn#1].AssetReceiver
-        let create_app_txn.AssetCloseTo#1: bytes = itxn[create_app_txn#1].AssetCloseTo
+        let create_app_txn.AssetSender#1: bytes[32] = itxn[create_app_txn#1].AssetSender
+        let create_app_txn.AssetReceiver#1: bytes[32] = itxn[create_app_txn#1].AssetReceiver
+        let create_app_txn.AssetCloseTo#1: bytes[32] = itxn[create_app_txn#1].AssetCloseTo
         let create_app_txn.GroupIndex#1: uint64 = itxn[create_app_txn#1].GroupIndex
         let create_app_txn.TxID#1: bytes = itxn[create_app_txn#1].TxID
         let create_app_txn.ApplicationID#1: uint64 = itxn[create_app_txn#1].ApplicationID
@@ -283,7 +283,7 @@ subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_b
         let create_app_txn.NumAccounts#1: uint64 = itxn[create_app_txn#1].NumAccounts
         let create_app_txn.ApprovalProgram#1: bytes = itxn[create_app_txn#1].ApprovalProgram
         let create_app_txn.ClearStateProgram#1: bytes = itxn[create_app_txn#1].ClearStateProgram
-        let create_app_txn.RekeyTo#1: bytes = itxn[create_app_txn#1].RekeyTo
+        let create_app_txn.RekeyTo#1: bytes[32] = itxn[create_app_txn#1].RekeyTo
         let create_app_txn.ConfigAsset#1: uint64 = itxn[create_app_txn#1].ConfigAsset
         let create_app_txn.ConfigAssetTotal#1: uint64 = itxn[create_app_txn#1].ConfigAssetTotal
         let create_app_txn.ConfigAssetDecimals#1: uint64 = itxn[create_app_txn#1].ConfigAssetDecimals
@@ -292,12 +292,12 @@ subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_b
         let create_app_txn.ConfigAssetName#1: bytes = itxn[create_app_txn#1].ConfigAssetName
         let create_app_txn.ConfigAssetURL#1: bytes = itxn[create_app_txn#1].ConfigAssetURL
         let create_app_txn.ConfigAssetMetadataHash#1: bytes = itxn[create_app_txn#1].ConfigAssetMetadataHash
-        let create_app_txn.ConfigAssetManager#1: bytes = itxn[create_app_txn#1].ConfigAssetManager
-        let create_app_txn.ConfigAssetReserve#1: bytes = itxn[create_app_txn#1].ConfigAssetReserve
-        let create_app_txn.ConfigAssetFreeze#1: bytes = itxn[create_app_txn#1].ConfigAssetFreeze
-        let create_app_txn.ConfigAssetClawback#1: bytes = itxn[create_app_txn#1].ConfigAssetClawback
+        let create_app_txn.ConfigAssetManager#1: bytes[32] = itxn[create_app_txn#1].ConfigAssetManager
+        let create_app_txn.ConfigAssetReserve#1: bytes[32] = itxn[create_app_txn#1].ConfigAssetReserve
+        let create_app_txn.ConfigAssetFreeze#1: bytes[32] = itxn[create_app_txn#1].ConfigAssetFreeze
+        let create_app_txn.ConfigAssetClawback#1: bytes[32] = itxn[create_app_txn#1].ConfigAssetClawback
         let create_app_txn.FreezeAsset#1: uint64 = itxn[create_app_txn#1].FreezeAsset
-        let create_app_txn.FreezeAssetAccount#1: bytes = itxn[create_app_txn#1].FreezeAssetAccount
+        let create_app_txn.FreezeAssetAccount#1: bytes[32] = itxn[create_app_txn#1].FreezeAssetAccount
         let create_app_txn.FreezeAssetFrozen#1: bool = itxn[create_app_txn#1].FreezeAssetFrozen
         let create_app_txn.NumAssets#1: uint64 = itxn[create_app_txn#1].NumAssets
         let create_app_txn.NumApplications#1: uint64 = itxn[create_app_txn#1].NumApplications

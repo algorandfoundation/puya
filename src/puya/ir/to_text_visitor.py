@@ -55,6 +55,10 @@ class ToTextVisitor(IRVisitor[str]):
         return f"{op.ir_type.name}({op.value})"
 
     @typing.override
+    def visit_slot_constant(self, op: models.SlotConstant) -> str:
+        return f"local.{op.value}"
+
+    @typing.override
     def visit_compiled_contract_reference(self, const: models.CompiledContractReference) -> str:
         return (
             ", ".join(
@@ -85,6 +89,48 @@ class ToTextVisitor(IRVisitor[str]):
             )
             + ")"
         )
+
+    @typing.override
+    def visit_new_slot(self, new_slot: models.NewSlot) -> str:
+        return "new()"
+
+    @typing.override
+    def visit_read_slot(self, read: models.ReadSlot) -> str:
+        slot = read.slot.accept(self)
+        return f"read({slot})"
+
+    @typing.override
+    def visit_write_slot(self, write: models.WriteSlot) -> str:
+        slot = write.slot.accept(self)
+        value = write.value.accept(self)
+        return f"write({slot}, {value})"
+
+    @typing.override
+    def visit_array_read_index(self, read: models.ArrayReadIndex) -> str:
+        return f"{read.array.accept(self)}[{read.index.accept(self)}]"
+
+    @typing.override
+    def visit_array_write_index(self, write: models.ArrayWriteIndex) -> str:
+        return (
+            f"{write.array.accept(self)}[{write.index.accept(self)}] = {write.value.accept(self)}"
+        )
+
+    @typing.override
+    def visit_array_concat(self, concat: models.ArrayConcat) -> str:
+        return f"{concat.array.accept(self)}.concat({concat.other.accept(self)})"
+
+    @typing.override
+    def visit_array_encode(self, encode: models.ArrayEncode) -> str:
+        values = ", ".join(val.accept(self) for val in encode.values)
+        return f"encode<{encode.array_type.element}>({values})"
+
+    @typing.override
+    def visit_array_pop(self, pop: models.ArrayPop) -> str:
+        return f"{pop.array.accept(self)}.pop()"
+
+    @typing.override
+    def visit_array_length(self, pop: models.ArrayLength) -> str:
+        return f"{pop.array.accept(self)}.length"
 
     @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> str:
@@ -211,6 +257,11 @@ def render_program(
     if path is None:
         return
     emitter = TextEmitter()
+    if program.slot_allocation.strategy != models.SlotAllocationStrategy.none:
+        emitter.append(
+            f"slot_allocation({program.slot_allocation.strategy.name},"
+            f" reserved={sorted(program.slot_allocation.reserved)})"
+        )
     emitter.append(f"main {program.main.id}:")
     with emitter.indent():
         _render_body(emitter, program.main.body)

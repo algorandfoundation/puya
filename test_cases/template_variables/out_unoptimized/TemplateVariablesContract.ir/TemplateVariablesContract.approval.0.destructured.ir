@@ -17,7 +17,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%6#0) // can only call when not creating
         let to_encode%0#0: bytes = test_cases.template_variables.contract.TemplateVariablesContract.get_bytes()
         let length%0#0: uint64 = (len to_encode%0#0)
-        let as_bytes%0#0: bytes = (itob length%0#0)
+        let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 to_encode%0#0)
         let tmp%7#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
@@ -32,7 +32,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (!= tmp%10#0 0u)
         (assert tmp%11#0) // can only call when not creating
-        let tmp%12#0: bytes = test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint()
+        let tmp%12#0: bytes[64] = test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint()
         let tmp%13#0: bytes = (concat 0x151f7c75 tmp%12#0)
         (log tmp%13#0)
         let test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__%0#0: bool = 1u
@@ -87,7 +87,7 @@ subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_
     block@0: // L6
         return TemplateVar[bytes](TMPL_SOME_BYTES)
 
-subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint() -> bytes:
+subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint() -> bytes[64]:
     block@0: // L10
         let x#0: biguint = TemplateVar[biguint](TMPL_SOME_BIG_UINT)
         let len_%0#0: uint64 = (len x#0)

@@ -1,0 +1,56 @@
+// Op                                                                                      Stack (out)
+// test_cases.conditional_expressions.literals.Literals.approval_program() -> uint64:
+main:
+    // conditional_expressions/literals.py:6
+    // self.with_variable_condition(condition=False)
+    int 0                                                                                  0
+    callsub with_variable_condition
+    // conditional_expressions/literals.py:7
+    // self.with_variable_condition(condition=True)
+    int 1                                                                                  1
+    callsub with_variable_condition
+    // conditional_expressions/literals.py:9
+    // return True
+    int 1                                                                                  1
+    return
+
+
+// test_cases.conditional_expressions.literals.Literals.with_variable_condition(condition: uint64) -> void:
+with_variable_condition:                                                                   (𝕡) condition#0 |
+    // conditional_expressions/literals.py:19
+    // y = x + ((1 if condition else 2) - 1)  # test binary op with non-literal & literal
+    p-load condition#0                                                                     (𝕡) condition#0 | condition#0 (copy)
+    !                                                                                      (𝕡) condition#0 | select%2#0
+    p-load condition#0                                                                     (𝕡) condition#0 | select%2#0,condition#0 (copy)
+    l-load-copy select%2#0 1                                                               (𝕡) condition#0 | select%2#0,condition#0 (copy),select%2#0 (copy)
+    +                                                                                      (𝕡) condition#0 | select%2#0,y#0
+    // conditional_expressions/literals.py:20
+    // y2 = ((1 if condition else 2) - 1) + x  # test binary op with literal & non-literal
+    l-load-copy select%2#0 1                                                               (𝕡) condition#0 | select%2#0,y#0,select%2#0 (copy)
+    p-load condition#0                                                                     (𝕡) condition#0 | select%2#0,y#0,select%2#0 (copy),condition#0 (copy)
+    +                                                                                      (𝕡) condition#0 | select%2#0,y#0,y2#0
+    // conditional_expressions/literals.py:21
+    // assert y == 1
+    l-load-copy y#0 1                                                                      (𝕡) condition#0 | select%2#0,y#0,y2#0,y#0 (copy)
+    int 1                                                                                  (𝕡) condition#0 | select%2#0,y#0,y2#0,y#0 (copy),1
+    ==                                                                                     (𝕡) condition#0 | select%2#0,y#0,y2#0,tmp%3#0
+    assert                                                                                 (𝕡) condition#0 | select%2#0,y#0,y2#0
+    // conditional_expressions/literals.py:22
+    // assert y2 == 1
+    l-load y2#0 0                                                                          (𝕡) condition#0 | select%2#0,y#0,y2#0
+    int 1                                                                                  (𝕡) condition#0 | select%2#0,y#0,y2#0,1
+    ==                                                                                     (𝕡) condition#0 | select%2#0,y#0,tmp%4#0
+    assert                                                                                 (𝕡) condition#0 | select%2#0,y#0
+    // conditional_expressions/literals.py:23
+    // maybe = (1 if condition else 0) < y  # test comparison with non-literal
+    l-load y#0 0                                                                           (𝕡) condition#0 | select%2#0,y#0
+    p-load condition#0                                                                     (𝕡) condition#0 | select%2#0,y#0,condition#0 (copy)
+    >                                                                                      (𝕡) condition#0 | select%2#0,maybe#0
+    // conditional_expressions/literals.py:24
+    // assert maybe == (not condition)
+    l-load select%2#0 1                                                                    (𝕡) condition#0 | maybe#0,select%2#0
+    ==                                                                                     (𝕡) condition#0 | tmp%6#0
+    assert                                                                                 (𝕡) condition#0 |
+    retsub
+
+

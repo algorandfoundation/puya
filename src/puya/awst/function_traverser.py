@@ -98,6 +98,16 @@ class FunctionTraverser(
         expr.other.accept(self)
 
     @typing.override
+    def visit_array_length(self, expr: awst_nodes.ArrayLength) -> None:
+        expr.array.accept(self)
+
+    @typing.override
+    def visit_array_replace(self, expr: awst_nodes.ArrayReplace) -> None:
+        expr.base.accept(self)
+        expr.index.accept(self)
+        expr.value.accept(self)
+
+    @typing.override
     def visit_method_constant(self, expr: awst_nodes.MethodConstant) -> None:
         pass
 

@@ -1,16 +1,23 @@
+import base64
 import math
 import random
+from collections.abc import Sequence
 from pathlib import Path
 
 import algokit_utils
 import algokit_utils.config
 import algosdk
 import pytest
-from algokit_utils import LogicError
+from algokit_utils import ApplicationClient, LogicError, OnCompleteCallParametersDict
 from algosdk import abi, constants, transaction
-from algosdk.atomic_transaction_composer import AtomicTransactionComposer, TransactionWithSigner
+from algosdk.atomic_transaction_composer import (
+    AtomicTransactionComposer,
+    SimulateAtomicTransactionResponse,
+    TransactionWithSigner,
+)
 from algosdk.transaction import OnComplete
 from algosdk.v2client.algod import AlgodClient
+from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
 from nacl.signing import SigningKey
 
 from puya.arc32 import create_arc32_json
@@ -30,12 +37,14 @@ def compile_arc32(
     optimization_level: int = 1,
     debug_level: int = 2,
     file_name: str | None = None,
+    disabled_optimizations: Sequence[str] = (),
 ) -> str:
     result = compile_src_from_options(
         PuyaPyOptions(
             paths=(src_path,),
             optimization_level=optimization_level,
             debug_level=debug_level,
+            disabled_optimizations=disabled_optimizations,
         )
     )
     if file_name is None:
@@ -54,7 +63,9 @@ def compile_arc32(
 
     assert isinstance(contract, CompiledContract), "Compilation artifact must be a contract"
     return create_arc32_json(
-        contract.approval_program.teal_src, contract.clear_program.teal_src, contract.metadata
+        contract.approval_program.teal_src,
+        contract.clear_program.teal_src,
+        contract.metadata,
     )
 
 
@@ -910,7 +921,9 @@ def test_merkle(algod_client: AlgodClient, account: algokit_utils.Account) -> No
     app_client.create(call_abi_method="create", root=test_tree.root)
 
     assert app_client.call(
-        call_abi_method="verify", leaf=sha_256_raw(b"a"), proof=test_tree.get_proof(b"a")
+        call_abi_method="verify",
+        leaf=sha_256_raw(b"a"),
+        proof=test_tree.get_proof(b"a"),
     ).return_value
 
 
@@ -1079,7 +1092,9 @@ def other_account(algod_client: AlgodClient) -> algokit_utils.Account:
 
 
 def test_tictactoe(
-    algod_client: AlgodClient, account: algokit_utils.Account, other_account: algokit_utils.Account
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+    other_account: algokit_utils.Account,
 ) -> None:
     app_spec = algokit_utils.ApplicationSpecification.from_json(
         compile_arc32(EXAMPLES_DIR / "tictactoe" / "tictactoe.py")
@@ -1474,7 +1489,8 @@ def test_box(box_client: algokit_utils.ApplicationClient) -> None:
     assert not c_exist
 
     box_client.call(
-        call_abi_method="slice_box", transaction_parameters=_params_with_boxes(b"0", box_c)
+        call_abi_method="slice_box",
+        transaction_parameters=_params_with_boxes(b"0", box_c),
     )
 
     box_client.call(call_abi_method="arc4_box", transaction_parameters=_params_with_boxes(b"d"))
@@ -1606,7 +1622,8 @@ def test_named_tuples(
     app_client.call("test_tuple", value=(a, b, c, d))
 
     app_client.call(
-        "test_tuple", value={"a": 34, "b": 53934433, "c": "hmmmm", "d": account.public_key}
+        "test_tuple",
+        value={"a": 34, "b": 53934433, "c": "hmmmm", "d": account.public_key},
     )
 
 
@@ -1743,3 +1760,363 @@ def test_diamond_mro(
     method_logs_raw = method_response.tx_info["logs"]
     method_logs = decode_logs(method_logs_raw, len(method_logs_raw) * "u")
     assert method_logs == expected_method_log
+
+
+@pytest.mark.parametrize("optimization_level", [0, 1])
+def test_array_uint64(
+    algod_client: AlgodClient,
+    optimization_level: int,
+    account: algokit_utils.Account,
+) -> None:
+    example = TEST_CASES_DIR / "array" / "uint64.py"
+
+    app_spec = _get_app_spec(example, optimization_level)
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    simulate_call(app_client, "test_array")
+    simulate_call(app_client, "test_array_extend")
+    simulate_call(app_client, "test_array_multiple_append")
+    simulate_call(app_client, "test_iteration")
+    simulate_call(app_client, "test_array_copy_and_extend")
+    simulate_call(app_client, "test_array_evaluation_order")
+
+    simulate_call(app_client, "test_allocations", num=255)
+    with pytest.raises(LogicError, match="no available slots\t\t<-- Error"):
+        simulate_call(app_client, "test_allocations", num=256)
+
+    with pytest.raises(LogicError, match="max array length exceeded\t\t<-- Error"):
+        simulate_call(app_client, "test_array_too_long")
+
+    simulate_call(app_client, "test_quicksort")
+
+
+@pytest.mark.parametrize("optimization_level", [0, 1])
+def test_array_static_size(
+    algod_client: AlgodClient,
+    optimization_level: int,
+    account: algokit_utils.Account,
+) -> None:
+    example = TEST_CASES_DIR / "array" / "static_size.py"
+
+    app_spec = _get_app_spec(example, optimization_level)
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+    # ensure app meets minimum balance requirements
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=200_000,
+        ),
+    )
+
+    x1, y1 = 3, 4
+    x2, y2 = 6, 8
+    sender = account.public_key[:32]
+    response = simulate_call(app_client, "test_array", x1=x1, y1=y1, x2=x2, y2=y2)
+    assert response.abi_results[0].return_value == 15
+    assert _get_box_state(response, b"a") == _get_arc4_bytes(
+        "(uint64,uint64,(uint64,uint64,address,(uint64,uint64)))[]",
+        [
+            (0, 0, (5, 1, sender, (2, 1))),
+            (x1, y1, (5, 2, sender, (3, 4))),
+            (x2, y2, (5, 3, sender, (4, 9))),
+        ],
+    )
+
+    response = simulate_call(app_client, "test_arc4_conversion", length=5)
+    assert response.abi_results[0].return_value == [1, 2, 3, 4, 5]
+
+    response = simulate_call(app_client, "sum_array", arc4_arr=[1, 2, 3, 4, 5])
+    assert response.abi_results[0].return_value == 15
+
+    response = simulate_call(app_client, "test_bool_array", length=5)
+    assert response.abi_results[0].return_value == 2
+    response = simulate_call(app_client, "test_bool_array", length=4)
+    assert response.abi_results[0].return_value == 2
+    response = simulate_call(app_client, "test_bool_array", length=6)
+    assert response.abi_results[0].return_value == 3
+
+    response = simulate_call(app_client, "test_bool_array", length=5)
+    assert response.abi_results[0].return_value == 2
+
+    response = simulate_call(app_client, "test_extend_from_tuple", some_more=[[1, 2], [3, 4]])
+    assert response.abi_results[0].return_value == [[1, 2], [3, 4]]
+
+    response = simulate_call(app_client, "test_extend_from_arc4_tuple", some_more=[[1, 2], [3, 4]])
+    assert response.abi_results[0].return_value == [[1, 2], [3, 4]]
+
+
+@pytest.mark.parametrize("optimization_level", [0, 1])
+def test_immutable_array(
+    algod_client: AlgodClient, optimization_level: int, account: algokit_utils.Account
+) -> None:
+    immutable_array_app = _get_immutable_array_app(algod_client, optimization_level, account)
+    response = simulate_call(immutable_array_app, "test_uint64_array")
+    assert _get_global_state(response, b"a") == _get_arc4_bytes(
+        "uint64[]", [42, 0, 23, 2, *range(10), 44]
+    )
+
+    response = simulate_call(immutable_array_app, "test_fixed_size_tuple_array")
+    assert _get_global_state(response, b"c") == _get_arc4_bytes(
+        "(uint64,uint64)[]", [(i + 1, i + 2) for i in range(4)]
+    )
+
+    response = simulate_call(immutable_array_app, "test_fixed_size_named_tuple_array")
+    assert _get_global_state(response, b"d") == _get_arc4_bytes(
+        "(uint64,bool,bool)[]", [(i, i % 2 == 0, i * 3 % 2 == 0) for i in range(5)]
+    )
+
+    response = simulate_call(immutable_array_app, "test_dynamic_sized_tuple_array")
+    assert _get_global_state(response, b"e") == _get_arc4_bytes(
+        "(uint64,byte[])[]", [(i + 1, b"\x00" * i) for i in range(4)]
+    )
+
+    response = simulate_call(immutable_array_app, "test_dynamic_sized_named_tuple_array")
+    assert _get_global_state(response, b"f") == _get_arc4_bytes(
+        "(uint64,string)[]", [(i + 1, " " * i) for i in range(4)]
+    )
+
+    response = simulate_call(immutable_array_app, "test_bit_packed_tuples")
+    assert _get_global_state(response, b"bool2") == _get_arc4_bytes(
+        "(bool,bool)[]", [(i == 0, i == 1) for i in range(5)]
+    )
+    assert _get_global_state(response, b"bool7") == _get_arc4_bytes(
+        "(uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[]",
+        [(i, i == 0, i == 1, i == 2, i == 3, i == 4, i == 5, i == 6, i + 1) for i in range(5)],
+    )
+    assert _get_global_state(response, b"bool8") == _get_arc4_bytes(
+        "(uint64,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[]",
+        [
+            (i, i == 0, i == 1, i == 2, i == 3, i == 4, i == 5, i == 6, i == 7, i + 1)
+            for i in range(5)
+        ],
+    )
+    assert _get_global_state(response, b"bool9") == _get_arc4_bytes(
+        "(uint64,bool,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[]",
+        [
+            (i, i == 0, i == 1, i == 2, i == 3, i == 4, i == 5, i == 6, i == 7, i == 8, i + 1)
+            for i in range(5)
+        ],
+    )
+
+    append = 5
+    arr = [[i, i % 2 == 0, i % 3 == 0] for i in range(append)]
+    response = simulate_call(
+        immutable_array_app, "test_convert_to_array_and_back", arr=arr, append=append
+    )
+    assert response.abi_results[0].return_value == [*arr, *arr]
+
+    for tuple_type in ("arc4", "native"):
+        response = simulate_call(
+            immutable_array_app, f"test_concat_with_{tuple_type}_tuple", arg=(3, 4)
+        )
+        abi_result = response.abi_results[0]
+        assert not abi_result.decode_error
+        assert abi_result.return_value == [1, 2, 3, 4]
+    for tuple_type in ("native", "arc4"):
+        response = simulate_call(
+            immutable_array_app, f"test_dynamic_concat_with_{tuple_type}_tuple", arg=("c", "d")
+        )
+        abi_result = response.abi_results[0]
+        assert (
+            not abi_result.decode_error
+        ), f"{abi_result.method.get_signature()}: {abi_result.decode_error}"
+        assert abi_result.return_value == ["a", "b", "c", "d"]
+
+    response = simulate_call(
+        immutable_array_app,
+        "test_concat_immutable_dynamic",
+        imm1=[[1, "one"], [2, "foo"]],
+        imm2=[[3, "tree"], [4, "floor"]],
+    )
+    assert response.abi_results[0].return_value == [
+        [1, "one"],
+        [2, "foo"],
+        [3, "tree"],
+        [4, "floor"],
+    ]
+
+
+_EXPECTED_LENGTH_20 = [False, False, True, *(False,) * 17]
+
+
+@pytest.mark.parametrize("length", [0, 1, 2, 3, 4, 7, 8, 9, 15, 16, 17])
+@pytest.mark.parametrize("optimization_level", [0, 1])
+def test_immutable_bool_array(
+    algod_client: AlgodClient, optimization_level: int, length: int, account: algokit_utils.Account
+) -> None:
+    immutable_array_app = _get_immutable_array_app(algod_client, optimization_level, account)
+
+    response = simulate_call(immutable_array_app, "test_bool_array", length=length)
+    expected = _EXPECTED_LENGTH_20[:length]
+    assert _get_global_state(response, b"g") == _get_arc4_bytes("bool[]", expected)
+
+
+@pytest.mark.parametrize("optimization_level", [0, 1])
+def test_immutable_routing(
+    algod_client: AlgodClient, optimization_level: int, account: algokit_utils.Account
+) -> None:
+    immutable_array_app = _get_immutable_array_app(algod_client, optimization_level, account)
+
+    response = simulate_call(
+        immutable_array_app,
+        "sum_uints_and_lengths_and_trues",
+        arr1=list(range(5)),
+        arr2=[i % 2 == 0 for i in range(6)],
+        arr3=[(i, i % 2 == 0, i % 3 == 0) for i in range(7)],
+        arr4=[(i, " " * i) for i in range(8)],
+    )
+    assert response.abi_results[0].return_value == [10, 3, 21 + 4 + 3, 28 * 2]
+
+    append = 4
+    response = simulate_call(immutable_array_app, "test_uint64_return", append=append)
+    assert response.abi_results[0].return_value == [1, 2, 3, *range(append)]
+
+    append = 5
+    response = simulate_call(immutable_array_app, "test_bool_return", append=append)
+    assert response.abi_results[0].return_value == [
+        *[True, False, True, False, True],
+        *(i % 2 == 0 for i in range(append)),
+    ]
+
+    append = 6
+    response = simulate_call(immutable_array_app, "test_tuple_return", append=append)
+    assert response.abi_results[0].return_value == [
+        [0, True, False],
+        *([i, i % 2 == 0, i % 3 == 0] for i in range(append)),
+    ]
+
+    append = 3
+    response = simulate_call(immutable_array_app, "test_dynamic_tuple_return", append=append)
+    assert response.abi_results[0].return_value == [
+        [0, "Hello"],
+        *([i, " " * i] for i in range(append)),
+    ]
+
+
+@pytest.mark.parametrize("optimization_level", [0, 1])
+def test_nested_immutable(
+    algod_client: AlgodClient, optimization_level: int, account: algokit_utils.Account
+) -> None:
+    immutable_array_app = _get_immutable_array_app(algod_client, optimization_level, account)
+
+    response = simulate_call(
+        immutable_array_app,
+        "test_nested_array",
+        arr_to_add=5,
+        arr=[[i * j for i in range(5)] for j in range(3)],
+    )
+    assert response.abi_results[0].return_value == [
+        0,
+        10,
+        20,
+        0,
+        0,
+        1,
+        3,
+        6,
+    ]
+
+
+def _get_immutable_array_app(
+    algod_client: AlgodClient,
+    optimization_level: int,
+    account: algokit_utils.Account,
+) -> ApplicationClient:
+    example = TEST_CASES_DIR / "array" / "immutable.py"
+
+    app_spec = _get_app_spec(example, optimization_level)
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    return app_client
+
+
+def _get_app_spec(
+    app_spec_path: Path, optimization_level: int
+) -> algokit_utils.ApplicationSpecification:
+    return algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(
+            app_spec_path,
+            optimization_level=optimization_level,
+            disabled_optimizations=() if optimization_level else ("remove_unused_variables",),
+        )
+    )
+
+
+def simulate_call(
+    app_client: algokit_utils.ApplicationClient,
+    method: str,
+    extra_budget: int = 20_000,
+    txn_params: OnCompleteCallParametersDict | None = None,
+    **kwargs: object,
+) -> SimulateAtomicTransactionResponse:
+    atc = algosdk.atomic_transaction_composer.AtomicTransactionComposer()
+    app_client.compose_call(
+        atc, call_abi_method=method, transaction_parameters=txn_params, **kwargs
+    )
+    simulate_response = atc.simulate(
+        app_client.algod_client,
+        SimulateRequest(
+            txn_groups=[],
+            extra_opcode_budget=extra_budget,
+            allow_unnamed_resources=True,
+            exec_trace_config=SimulateTraceConfig(
+                enable=True,
+                stack_change=True,
+                scratch_change=True,
+                state_change=True,
+            ),
+        ),
+    )
+
+    if simulate_response.failure_message:
+        logic_error_data = algokit_utils.logic_error.parse_logic_error(
+            simulate_response.failure_message
+        )
+        assert (
+            logic_error_data is not None
+        ), f"expected LogicError, got {simulate_response.failure_message}"
+        assert app_client.approval is not None, "expected approval program"
+        raise algokit_utils.LogicError(
+            logic_error_str=simulate_response.failure_message,
+            program=app_client.approval.teal,
+            source_map=app_client.approval.source_map,
+            **logic_error_data,
+        )
+    return simulate_response
+
+
+def _get_arc4_bytes(arc4_type: str, value: object) -> bytes:
+    return algosdk.abi.ABIType.from_string(arc4_type).encode(value)
+
+
+def _get_global_state(
+    sim: SimulateAtomicTransactionResponse,
+    key: bytes,
+) -> bytes:
+    group = sim.simulate_response["txn-groups"][0]
+    deltas = group["txn-results"][0]["txn-result"]["global-state-delta"]
+    key_b64 = base64.b64encode(key).decode("utf8")
+    (match,) = (base64.b64decode(d["value"]["bytes"]) for d in deltas if d["key"] == key_b64)
+    return match
+
+
+def _get_box_state(
+    sim: SimulateAtomicTransactionResponse,
+    key: bytes,
+) -> bytes:
+    group = sim.simulate_response["txn-groups"][0]
+    trace = group["txn-results"][0]["exec-trace"]["approval-program-trace"]
+    scs = [sc for t in trace for sc in t.get("state-changes", [])]
+    key_b64 = base64.b64encode(key).decode("utf8")
+    *_, sc = (  # get last matching write to state-change
+        sc
+        for sc in scs
+        if sc.get("app-state-type") == "b"  # box
+        and sc.get("operation") == "w"  # write
+        and sc.get("key") == key_b64  # matching key
+    )
+    return base64.b64decode(sc["new-value"]["bytes"])

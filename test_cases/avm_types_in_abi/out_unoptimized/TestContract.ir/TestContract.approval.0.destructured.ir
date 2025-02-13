@@ -15,36 +15,36 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (== tmp%5#0 0u)
         (assert tmp%6#0) // can only call when creating
-        let tmp%7#0: bytes = (txna ApplicationArgs 1)
-        let tmp%8#0: bool = (getbit tmp%7#0 0u)
-        let tmp%9#0: bytes = (txna ApplicationArgs 2)
-        let tmp%10#0: uint64 = (btoi tmp%9#0)
-        let tmp%11#0: bytes = (txna ApplicationArgs 3)
+        let reinterpret_bytes[1]%0#0: bytes[1] = (txna ApplicationArgs 1)
+        let tmp%7#0: bool = (getbit reinterpret_bytes[1]%0#0 0u)
+        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 2)
+        let tmp%8#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
+        let tmp%9#0: bytes = (txna ApplicationArgs 3)
+        let tmp%10#0: bytes = ((extract 2 0) tmp%9#0)
+        let reinterpret_bytes[64]%0#0: bytes[64] = (txna ApplicationArgs 4)
+        let tmp%11#0: bytes = (txna ApplicationArgs 5)
         let tmp%12#0: bytes = ((extract 2 0) tmp%11#0)
-        let tmp%13#0: bytes = (txna ApplicationArgs 4)
-        let tmp%14#0: bytes = (txna ApplicationArgs 5)
-        let tmp%15#0: bytes = ((extract 2 0) tmp%14#0)
-        let tmp%16#0: bytes = (txna ApplicationArgs 6)
-        let is_true%0#0: uint64 = (getbit tmp%16#0 0u)
-        let encoded_bool%0#0: bytes = (setbit 0x00 0u is_true%0#0)
-        let item0%0#0: bytes = encoded_bool%0#0
+        let tmp%13#0: bytes = (txna ApplicationArgs 6)
+        let is_true%0#0: uint64 = (getbit tmp%13#0 0u)
+        let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u is_true%0#0)
+        let item0%0#0: bytes[1] = encoded_bool%0#0
         let item0%0%0#0: bool = (getbit item0%0#0 0u)
-        let item1%0#0: bytes = (extract3 tmp%16#0 1u 8u) // on error: Index access is out of bounds
+        let item1%0#0: bytes = (extract3 tmp%13#0 1u 8u) // on error: Index access is out of bounds
         let item1%0%0#0: uint64 = (btoi item1%0#0)
-        let item_start_offset%0#0: uint64 = (extract_uint16 tmp%16#0 9u)
-        let item_end_offset%0#0: uint64 = (extract_uint16 tmp%16#0 75u)
-        let item2%0#0: bytes = (substring3 tmp%16#0 item_start_offset%0#0 item_end_offset%0#0)
+        let item_start_offset%0#0: uint64 = (extract_uint16 tmp%13#0 9u)
+        let item_end_offset%0#0: uint64 = (extract_uint16 tmp%13#0 75u)
+        let item2%0#0: bytes = (substring3 tmp%13#0 item_start_offset%0#0 item_end_offset%0#0)
         let item2%0%0#0: bytes = ((extract 2 0) item2%0#0)
-        let item3%0#0: bytes = (extract3 tmp%16#0 11u 64u) // on error: Index access is out of bounds
-        let item_start_offset%1#0: uint64 = (extract_uint16 tmp%16#0 75u)
-        let item_end_offset%1#0: uint64 = (len tmp%16#0)
-        let item4%0#0: bytes = (substring3 tmp%16#0 item_start_offset%1#0 item_end_offset%1#0)
+        let item3%0#0: bytes = (extract3 tmp%13#0 11u 64u) // on error: Index access is out of bounds
+        let item_start_offset%1#0: uint64 = (extract_uint16 tmp%13#0 75u)
+        let item_end_offset%1#0: uint64 = (len tmp%13#0)
+        let item4%0#0: bytes = (substring3 tmp%13#0 item_start_offset%1#0 item_end_offset%1#0)
         let item4%0%0#0: bytes = ((extract 2 0) item4%0#0)
-        let (elements_to_encode%0#0: bool, elements_to_encode%1#0: uint64, elements_to_encode%2#0: bytes, elements_to_encode%3#0: biguint, elements_to_encode%4#0: bytes) = test_cases.avm_types_in_abi.contract.TestContract.create(tmp%8#0, tmp%10#0, tmp%12#0, tmp%13#0, tmp%15#0, item0%0%0#0, item1%0%0#0, item2%0%0#0, item3%0#0, item4%0%0#0)
-        let encoded_bool%1#0: bytes = (setbit 0x00 0u elements_to_encode%0#0)
-        let val_as_bytes%0#0: bytes = (itob elements_to_encode%1#0)
+        let (elements_to_encode%0#0: bool, elements_to_encode%1#0: uint64, elements_to_encode%2#0: bytes, elements_to_encode%3#0: biguint, elements_to_encode%4#0: bytes) = test_cases.avm_types_in_abi.contract.TestContract.create(tmp%7#0, tmp%8#0, tmp%10#0, reinterpret_bytes[64]%0#0, tmp%12#0, item0%0%0#0, item1%0%0#0, item2%0%0#0, item3%0#0, item4%0%0#0)
+        let encoded_bool%1#0: bytes[1] = (setbit 0x00 0u elements_to_encode%0#0)
+        let val_as_bytes%0#0: bytes[8] = (itob elements_to_encode%1#0)
         let length%0#0: uint64 = (len elements_to_encode%2#0)
-        let as_bytes%0#0: bytes = (itob length%0#0)
+        let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 elements_to_encode%2#0)
         let len_%0#0: uint64 = (len elements_to_encode%3#0)
@@ -53,42 +53,42 @@ main algopy.arc4.ARC4Contract.approval_program:
         let b_zeros%0#0: bytes = (bzero 64u)
         let arc4_item%0#0: bytes = (b| elements_to_encode%3#0 b_zeros%0#0)
         let length%1#0: uint64 = (len elements_to_encode%4#0)
-        let as_bytes%1#0: bytes = (itob length%1#0)
+        let as_bytes%1#0: bytes[8] = (itob length%1#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded_value%1#0: bytes = (concat length_uint16%1#0 elements_to_encode%4#0)
         let encoded_tuple_buffer%1#0: bytes = (concat 0x encoded_bool%1#0)
         let encoded_tuple_buffer%2#0: bytes = (concat encoded_tuple_buffer%1#0 val_as_bytes%0#0)
-        let as_bytes%2#0: bytes = (itob 77u)
+        let as_bytes%2#0: bytes[8] = (itob 77u)
         let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%2#0)
         let encoded_tuple_buffer%3#0: bytes = (concat encoded_tuple_buffer%2#0 offset_as_uint16%0#0)
         let data_length%0#0: uint64 = (len encoded_value%0#0)
         let current_tail_offset%1#0: uint64 = (+ 77u data_length%0#0)
         let encoded_tuple_buffer%4#0: bytes = (concat encoded_tuple_buffer%3#0 arc4_item%0#0)
-        let as_bytes%3#0: bytes = (itob current_tail_offset%1#0)
+        let as_bytes%3#0: bytes[8] = (itob current_tail_offset%1#0)
         let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%3#0)
         let encoded_tuple_buffer%5#0: bytes = (concat encoded_tuple_buffer%4#0 offset_as_uint16%1#0)
         let encoded_tuple_buffer%6#0: bytes = (concat encoded_tuple_buffer%5#0 encoded_value%0#0)
         let encoded_tuple_buffer%7#0: bytes = (concat encoded_tuple_buffer%6#0 encoded_value%1#0)
-        let tmp%17#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%7#0)
-        (log tmp%17#0)
+        let tmp%14#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%7#0)
+        (log tmp%14#0)
         let test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0
         goto block@9
     block@4: // tuple_of_arc4_route_L19
-        let tmp%18#0: uint64 = (txn OnCompletion)
-        let tmp%19#0: bool = (== tmp%18#0 NoOp)
-        (assert tmp%19#0) // OnCompletion is not NoOp
-        let tmp%20#0: uint64 = (txn ApplicationID)
-        let tmp%21#0: bool = (!= tmp%20#0 0u)
-        (assert tmp%21#0) // can only call when not creating
-        let tmp%22#0: bytes = (txna ApplicationArgs 1)
-        let item0%1#0: bytes = (extract3 tmp%22#0 0u 1u) // on error: Index access is out of bounds
-        let item1%1#0: bytes = (extract3 tmp%22#0 1u 32u) // on error: Index access is out of bounds
-        let (elements_to_encode%5#0: bytes, elements_to_encode%6#0: bytes) = test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(item0%1#0, item1%1#0)
+        let tmp%15#0: uint64 = (txn OnCompletion)
+        let tmp%16#0: bool = (== tmp%15#0 NoOp)
+        (assert tmp%16#0) // OnCompletion is not NoOp
+        let tmp%17#0: uint64 = (txn ApplicationID)
+        let tmp%18#0: bool = (!= tmp%17#0 0u)
+        (assert tmp%18#0) // can only call when not creating
+        let reinterpret_bytes[33]%0#0: bytes[33] = (txna ApplicationArgs 1)
+        let item0%1#0: bytes = (extract3 reinterpret_bytes[33]%0#0 0u 1u) // on error: Index access is out of bounds
+        let item1%1#0: bytes = (extract3 reinterpret_bytes[33]%0#0 1u 32u) // on error: Index access is out of bounds
+        let (elements_to_encode%5#0: bytes[1], elements_to_encode%6#0: bytes[32]) = test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(item0%1#0, item1%1#0)
         let encoded_tuple_buffer%9#0: bytes = (concat 0x elements_to_encode%5#0)
         let encoded_tuple_buffer%10#0: bytes = (concat encoded_tuple_buffer%9#0 elements_to_encode%6#0)
-        let tmp%23#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%10#0)
-        (log tmp%23#0)
+        let tmp%19#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%10#0)
+        (log tmp%19#0)
         let test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0
         goto block@9
@@ -124,7 +124,7 @@ subroutine test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: 
         (assert tmp%8#0)
         return result.0#0 result.1#0 result.2#0 result.3#0 result.4#0
 
-subroutine test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(args.0: bytes, args.1: bytes) -> <bytes, bytes>:
+subroutine test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(args.0: bytes[1], args.1: bytes[32]) -> <bytes[1], bytes[32]>:
     block@0: // L19
         let tmp%0#0: uint64 = (len args.0#0)
         let tmp%1#0: bool = (== tmp%0#0 1u)

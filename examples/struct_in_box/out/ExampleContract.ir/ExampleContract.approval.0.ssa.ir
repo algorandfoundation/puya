@@ -28,35 +28,35 @@ subroutine examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__(
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (!= tmp%10#0 0u)
         (assert tmp%11#0) // can only call when not creating
-        let tmp%12#0: bytes = (txna ApplicationArgs 1)
-        let tmp%13#0: bytes = (txna ApplicationArgs 2)
-        let tmp%14#0: uint64 = (btoi tmp%13#0)
-        let tmp%15#0: uint64 = ((txnas Assets) tmp%14#0)
-        examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(tmp%12#0, tmp%15#0)
+        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 1)
+        let reinterpret_bytes[1]%0#0: bytes[1] = (txna ApplicationArgs 2)
+        let tmp%12#0: uint64 = (btoi reinterpret_bytes[1]%0#0)
+        let tmp%13#0: uint64 = ((txnas Assets) tmp%12#0)
+        examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(reinterpret_bytes[8]%0#0, tmp%13#0)
         return 1u
     block@4: // get_user_route_L41
-        let tmp%16#0: uint64 = (txn OnCompletion)
-        let tmp%17#0: bool = (== tmp%16#0 NoOp)
-        (assert tmp%17#0) // OnCompletion is not NoOp
-        let tmp%18#0: uint64 = (txn ApplicationID)
-        let tmp%19#0: bool = (!= tmp%18#0 0u)
-        (assert tmp%19#0) // can only call when not creating
-        let tmp%20#0: bytes = (txna ApplicationArgs 1)
-        let tmp%21#0: bytes = examples.struct_in_box.contract.ExampleContract.get_user(tmp%20#0)
-        let tmp%22#0: bytes = (concat 0x151f7c75 tmp%21#0)
-        (log tmp%22#0)
+        let tmp%14#0: uint64 = (txn OnCompletion)
+        let tmp%15#0: bool = (== tmp%14#0 NoOp)
+        (assert tmp%15#0) // OnCompletion is not NoOp
+        let tmp%16#0: uint64 = (txn ApplicationID)
+        let tmp%17#0: bool = (!= tmp%16#0 0u)
+        (assert tmp%17#0) // can only call when not creating
+        let reinterpret_bytes[8]%1#0: bytes[8] = (txna ApplicationArgs 1)
+        let tmp%18#0: bytes = examples.struct_in_box.contract.ExampleContract.get_user(reinterpret_bytes[8]%1#0)
+        let tmp%19#0: bytes = (concat 0x151f7c75 tmp%18#0)
+        (log tmp%19#0)
         return 1u
     block@5: // switch_case_default_L10
         goto block@6
     block@6: // switch_case_next_L10
         goto block@11
     block@7: // bare_routing_L10
-        let tmp%23#0: uint64 = (txn OnCompletion)
-        switch tmp%23#0 {0u => block@8, * => block@9}
+        let tmp%20#0: uint64 = (txn OnCompletion)
+        switch tmp%20#0 {0u => block@8, * => block@9}
     block@8: // __algopy_default_create_L1
-        let tmp%24#0: uint64 = (txn ApplicationID)
-        let tmp%25#0: bool = (== tmp%24#0 0u)
-        (assert tmp%25#0) // can only call when creating
+        let tmp%21#0: uint64 = (txn ApplicationID)
+        let tmp%22#0: bool = (== tmp%21#0 0u)
+        (assert tmp%22#0) // can only call when creating
         examples.struct_in_box.contract.ExampleContract.__algopy_default_create()
         return 1u
     block@9: // switch_case_default_L10
@@ -66,7 +66,7 @@ subroutine examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__(
     block@11: // after_if_else_L10
         return 0u
 
-subroutine examples.struct_in_box.contract.ExampleContract.read_from_box(user_id: bytes) -> bytes:
+subroutine examples.struct_in_box.contract.ExampleContract.read_from_box(user_id: bytes[8]) -> bytes:
     block@0: // L11
         let (tuple_assignment%0#0: bytes, tuple_assignment%1#0: bool) = (box_get user_id#0)
         let box_data#0: bytes = tuple_assignment%0#0
@@ -83,7 +83,7 @@ subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: by
         (box_put box_key#0 user#0)
         return user%out#0
 
-subroutine examples.struct_in_box.contract.ExampleContract.box_exists(user_id: bytes) -> bool:
+subroutine examples.struct_in_box.contract.ExampleContract.box_exists(user_id: bytes[8]) -> bool:
     block@0: // L25
         let (tuple_assignment%0#0: bytes, tuple_assignment%1#0: bool) = (box_get user_id#0)
         let _data#0: bytes = tuple_assignment%0#0
@@ -100,18 +100,18 @@ subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: bytes)
         let user#1: bytes = write_to_box%0#0
         return 
 
-subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(user_id: bytes, asset: uint64) -> void:
+subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(user_id: bytes[8], asset: uint64) -> void:
     block@0: // L35
         let user#0: bytes = examples.struct_in_box.contract.ExampleContract.read_from_box(user_id#0)
-        let val_as_bytes%0#0: bytes = (itob asset#0)
-        let assigned_value%0#0: bytes = val_as_bytes%0#0
+        let val_as_bytes%0#0: bytes[8] = (itob asset#0)
+        let assigned_value%0#0: bytes[8] = val_as_bytes%0#0
         let updated_data%0#0: bytes = (replace3 user#0 10u assigned_value%0#0)
         let user#1: bytes = updated_data%0#0
         let write_to_box%0#0: bytes = examples.struct_in_box.contract.ExampleContract.write_to_box(user#1)
         let user#2: bytes = write_to_box%0#0
         return 
 
-subroutine examples.struct_in_box.contract.ExampleContract.get_user(user_id: bytes) -> bytes:
+subroutine examples.struct_in_box.contract.ExampleContract.get_user(user_id: bytes[8]) -> bytes:
     block@0: // L41
         let tmp%0#0: bytes = examples.struct_in_box.contract.ExampleContract.read_from_box(user_id#0)
         return tmp%0#0
