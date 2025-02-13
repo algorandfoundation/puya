@@ -1,0 +1,84 @@
+// Op                                                                                           Stack (out)
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // array/unused_opt_allowed.py:5
+    // class AbiCallContract(arc4.ARC4Contract):
+    txn NumAppArgs                                                                              tmp%0#1
+    bz main_bare_routing@6 ; b main_abi_routing@2
+
+main_abi_routing@2:
+    // array/unused_opt_allowed.py:5
+    // class AbiCallContract(arc4.ARC4Contract):
+    txna ApplicationArgs 0                                                                      tmp%2#0
+    method test_implicit_conversion_abi_call(uint64[],application)void                          tmp%2#0,Method(test_implicit_conversion_abi_call(uint64[],application)void)
+    l-load tmp%2#0 1                                                                            Method(test_implicit_conversion_abi_call(uint64[],application)void),tmp%2#0
+    match main_test_implicit_conversion_abi_call_route@3 ; b main_after_if_else@10
+
+main_test_implicit_conversion_abi_call_route@3:
+    // array/unused_opt_allowed.py:6
+    // @arc4.abimethod()
+    txn OnCompletion                                                                            tmp%3#0
+    !                                                                                           tmp%4#0
+    assert // OnCompletion is not NoOp
+    txn ApplicationID                                                                           tmp%5#0
+    assert // can only call when not creating
+    // array/unused_opt_allowed.py:5
+    // class AbiCallContract(arc4.ARC4Contract):
+    txna ApplicationArgs 1                                                                      reinterpret_uint64[]%0#0
+    txna ApplicationArgs 2                                                                      reinterpret_uint64[]%0#0,reinterpret_bytes[1]%0#0
+    btoi                                                                                        reinterpret_uint64[]%0#0,tmp%7#0
+    txnas Applications                                                                          reinterpret_uint64[]%0#0,tmp%8#0
+    // array/unused_opt_allowed.py:6
+    // @arc4.abimethod()
+    l-load reinterpret_uint64[]%0#0 1                                                           tmp%8#0,reinterpret_uint64[]%0#0
+    l-load tmp%8#0 1                                                                            reinterpret_uint64[]%0#0,tmp%8#0
+    callsub test_implicit_conversion_abi_call
+    int 1                                                                                       tmp%0#0
+    x-store tmp%0#0                                                                             (𝕏) tmp%0#0 |
+    b main_after_inlined_test_cases.array.unused_opt_allowed.AbiCallContract.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
+
+main_bare_routing@6:
+    // array/unused_opt_allowed.py:5
+    // class AbiCallContract(arc4.ARC4Contract):
+    txn OnCompletion                                                                            tmp%9#0
+    bz main___algopy_default_create@7 ; b main_after_if_else@10
+
+main___algopy_default_create@7:
+    txn ApplicationID                                                                           tmp%10#0
+    !                                                                                           tmp%11#0
+    assert // can only call when creating
+    int 1                                                                                       tmp%0#0
+    x-store tmp%0#0                                                                             (𝕏) tmp%0#0 |
+    b main_after_inlined_test_cases.array.unused_opt_allowed.AbiCallContract.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
+
+main_after_if_else@10:
+    // array/unused_opt_allowed.py:5
+    // class AbiCallContract(arc4.ARC4Contract):
+    int 0                                                                                       tmp%0#0
+    x-store tmp%0#0                                                                             (𝕏) tmp%0#0 |
+    b main_after_inlined_test_cases.array.unused_opt_allowed.AbiCallContract.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
+
+main_after_inlined_test_cases.array.unused_opt_allowed.AbiCallContract.__puya_arc4_router__@11: (𝕏) tmp%0#0 |
+    x-load tmp%0#0                                                                              tmp%0#0
+    return
+
+
+// test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call(arr: bytes, app: uint64) -> void:
+test_implicit_conversion_abi_call:                                                              (𝕡) arr#0,app#0 |
+    // array/unused_opt_allowed.py:11
+    // arc4.abi_call("dont_call(uint64[])uint64", arr, app_id=app)
+    itxn_begin                                                                                  (𝕡) arr#0,app#0 |
+    p-load app#0                                                                                (𝕡) arr#0,app#0 | app#0 (copy)
+    itxn_field ApplicationID                                                                    (𝕡) arr#0,app#0 |
+    method dont_call(uint64[])uint64                                                            (𝕡) arr#0,app#0 | Method(dont_call(uint64[])uint64)
+    itxn_field ApplicationArgs                                                                  (𝕡) arr#0,app#0 |
+    p-load arr#0                                                                                (𝕡) arr#0,app#0 | arr#0 (copy)
+    itxn_field ApplicationArgs                                                                  (𝕡) arr#0,app#0 |
+    int appl                                                                                    (𝕡) arr#0,app#0 | appl
+    itxn_field TypeEnum                                                                         (𝕡) arr#0,app#0 |
+    int 0                                                                                       (𝕡) arr#0,app#0 | 0
+    itxn_field Fee                                                                              (𝕡) arr#0,app#0 |
+    itxn_submit                                                                                 (𝕡) arr#0,app#0 |
+    retsub
+
+

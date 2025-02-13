@@ -39,13 +39,6 @@ class ImmutableArrayContract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
-    def test_implicit_conversion_abi_call(
-        self,
-        arr: algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[64]]],
-        app: algopy.Application,
-    ) -> None: ...
-
-    @algopy.arc4.abimethod
     def test_implicit_conversion_log(
         self,
         arr: algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[64]]],

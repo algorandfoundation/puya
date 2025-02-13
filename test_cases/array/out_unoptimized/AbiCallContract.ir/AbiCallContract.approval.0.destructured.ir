@@ -1,0 +1,68 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        goto block@1
+    block@1: // L5
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#1 0u)
+        goto tmp%1#0 ? block@2 : block@6
+    block@2: // abi_routing_L5
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "test_implicit_conversion_abi_call(uint64[],application)void" => block@3, * => block@4}
+    block@3: // test_implicit_conversion_abi_call_route_L6
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (== tmp%3#0 NoOp)
+        (assert tmp%4#0) // OnCompletion is not NoOp
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%6#0: bool = (!= tmp%5#0 0u)
+        (assert tmp%6#0) // can only call when not creating
+        let reinterpret_uint64[]%0#0: uint64[] = (txna ApplicationArgs 1)
+        let reinterpret_bytes[1]%0#0: bytes[1] = (txna ApplicationArgs 2)
+        let tmp%7#0: uint64 = (btoi reinterpret_bytes[1]%0#0)
+        let tmp%8#0: uint64 = ((txnas Applications) tmp%7#0)
+        test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call(reinterpret_uint64[]%0#0, tmp%8#0)
+        let test_cases.array.unused_opt_allowed.AbiCallContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.array.unused_opt_allowed.AbiCallContract.__puya_arc4_router__%0#0
+        goto block@11
+    block@4: // switch_case_default_L5
+        goto block@5
+    block@5: // switch_case_next_L5
+        goto block@10
+    block@6: // bare_routing_L5
+        let tmp%9#0: uint64 = (txn OnCompletion)
+        switch tmp%9#0 {0u => block@7, * => block@8}
+    block@7: // __algopy_default_create_L1
+        let tmp%10#0: uint64 = (txn ApplicationID)
+        let tmp%11#0: bool = (== tmp%10#0 0u)
+        (assert tmp%11#0) // can only call when creating
+        goto block@12
+    block@12: // L1
+        goto block@13
+    block@13: // after_inlined_test_cases.array.unused_opt_allowed.AbiCallContract.__algopy_default_create_L1
+        let test_cases.array.unused_opt_allowed.AbiCallContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.array.unused_opt_allowed.AbiCallContract.__puya_arc4_router__%0#0
+        goto block@11
+    block@8: // switch_case_default_L5
+        goto block@9
+    block@9: // switch_case_next_L5
+        goto block@10
+    block@10: // after_if_else_L5
+        let test_cases.array.unused_opt_allowed.AbiCallContract.__puya_arc4_router__%0#0: bool = 0u
+        let tmp%0#0: bool = test_cases.array.unused_opt_allowed.AbiCallContract.__puya_arc4_router__%0#0
+        goto block@11
+    block@11: // after_inlined_test_cases.array.unused_opt_allowed.AbiCallContract.__puya_arc4_router___L1
+        return tmp%0#0
+
+subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call(arr: uint64[], app: uint64) -> void:
+    block@0: // L6
+        itxn_begin
+        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: uint64[] = arr#0
+        let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
+        ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
+        ((itxn_field ApplicationArgs) method "dont_call(uint64[])uint64")
+        ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_1#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        goto block@1
+    block@1: // next_txn_L11
+        itxn_submit
+        return 

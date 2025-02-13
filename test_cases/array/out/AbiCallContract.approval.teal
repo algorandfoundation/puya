@@ -1,0 +1,76 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1
+    // array/unused_opt_allowed.py:5
+    // class AbiCallContract(arc4.ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@6
+    pushbytes 0xe739158e // method "test_implicit_conversion_abi_call(uint64[],application)void"
+    txna ApplicationArgs 0
+    match main_test_implicit_conversion_abi_call_route@3
+
+main_after_if_else@10:
+    // array/unused_opt_allowed.py:5
+    // class AbiCallContract(arc4.ARC4Contract):
+    intc_0 // 0
+    return
+
+main_test_implicit_conversion_abi_call_route@3:
+    // array/unused_opt_allowed.py:6
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // array/unused_opt_allowed.py:5
+    // class AbiCallContract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    btoi
+    txnas Applications
+    // array/unused_opt_allowed.py:6
+    // @arc4.abimethod()
+    callsub test_implicit_conversion_abi_call
+    intc_1 // 1
+    return
+
+main_bare_routing@6:
+    // array/unused_opt_allowed.py:5
+    // class AbiCallContract(arc4.ARC4Contract):
+    txn OnCompletion
+    bnz main_after_if_else@10
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_1 // 1
+    return
+
+
+// test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call(arr: bytes, app: uint64) -> void:
+test_implicit_conversion_abi_call:
+    // array/unused_opt_allowed.py:6-9
+    // @arc4.abimethod()
+    // def test_implicit_conversion_abi_call(
+    //     self, arr: ImmutableArray[UInt64], app: Application
+    // ) -> None:
+    proto 2 0
+    // array/unused_opt_allowed.py:10-11
+    // # itxn requires remove_unused_variables
+    // arc4.abi_call("dont_call(uint64[])uint64", arr, app_id=app)
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    pushbytes 0x75b694f3 // method "dont_call(uint64[])uint64"
+    itxn_field ApplicationArgs
+    frame_dig -2
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    retsub
