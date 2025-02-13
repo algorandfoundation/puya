@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import codecs
+import contextlib
 import enum
 import os
 import re
@@ -31,7 +32,6 @@ logger = log.get_logger(__name__)
 _PUYAPY_SRC_ROOT = Path(__file__).parent
 _PUYA_SRC_ROOT = _PUYAPY_SRC_ROOT.parent / "puya"
 TYPESHED_PATH = _PUYAPY_SRC_ROOT / "_typeshed"
-_MYPY_FSCACHE = mypy.fscache.FileSystemCache()
 _MYPY_SEVERITY_TO_LOG_LEVEL = {
     "error": log.LogLevel.error,
     "warning": log.LogLevel.warning,
@@ -92,22 +92,32 @@ class ParseResult:
 
 
 def parse_and_typecheck(
-    paths: Sequence[Path], mypy_options: mypy.options.Options
+    paths: Sequence[Path],
+    mypy_options: mypy.options.Options,
+    *,
+    sources: Mapping[Path, str] | None = None,
 ) -> tuple[mypy.build.BuildManager, dict[str, SourceModule]]:
     """Generate the ASTs from the build sources, and all imported modules (recursively)"""
 
     # ensure we have the absolute, canonical paths to the files
     resolved_input_paths = {p.resolve() for p in paths}
+    resolved_sources = {p.resolve(): s for p, s in (sources or {}).items()}
+    fscache = mypy.fscache.FileSystemCache()
     # creates a list of BuildSource objects from the contract Paths
     mypy_build_sources = mypy.find_sources.create_source_list(
         paths=[str(p) for p in resolved_input_paths],
         options=mypy_options,
-        fscache=_MYPY_FSCACHE,
+        fscache=fscache,
     )
+    for src in mypy_build_sources:
+        if src.path:
+            path = Path(src.path)
+            with contextlib.suppress(KeyError):
+                src.text = resolved_sources[path]
     build_source_paths = {
         Path(m.path).resolve() for m in mypy_build_sources if m.path and not m.followed
     }
-    result = _mypy_build(mypy_build_sources, mypy_options, _MYPY_FSCACHE)
+    result = _mypy_build(mypy_build_sources, mypy_options, fscache)
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
     result.manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
@@ -132,8 +142,8 @@ def parse_and_typecheck(
                 # nothing and is only in the graph as a reference
                 pass
             else:
-                _check_encoding(_MYPY_FSCACHE, module_path)
-                lines = mypy.util.read_py_file(str(module_path), _MYPY_FSCACHE.read)
+                _check_encoding(fscache, module_path)
+                lines = mypy.util.read_py_file(str(module_path), fscache.read)
                 if module_path in resolved_input_paths:
                     discovery_mechanism = SourceDiscoveryMechanism.explicit_file
                 elif module_path in build_source_paths:
