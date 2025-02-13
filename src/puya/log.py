@@ -336,7 +336,10 @@ def configure_logging(
 
 class _Logger:
     def __init__(self, name: str, initial_values: dict[str, typing.Any]):
-        self._logger = structlog.get_logger(name, **initial_values)
+        if structlog.is_configured():
+            self._logger = structlog.get_logger(name, **initial_values)
+        else:
+            self._logger = None
 
     def debug(
         self,
@@ -422,7 +425,8 @@ class _Logger:
             file_source = log_ctx.sources_by_path.get(location.file)
             if file_source is not None:
                 kwargs["related_lines"] = _get_pretty_source(file_source, location)
-        self._logger.log(level, event, *args, location=location, **kwargs)
+        if self._logger:
+            self._logger.log(level, event, *args, location=location, **kwargs)
         if log_ctx:
             if isinstance(event, str) and args:
                 message = event % args
