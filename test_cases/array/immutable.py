@@ -8,6 +8,7 @@ from algopy import (
     Txn,
     UInt64,
     arc4,
+    log,
     op,
     subroutine,
     uenumerate,
@@ -201,6 +202,7 @@ class ImmutableArrayContract(arc4.ARC4Contract):
         assert arr[0] == MyDynamicSizedTuple(UInt64(1), String()), "expected 1, 0"
         assert arr[-1] == MyDynamicSizedTuple(UInt64(4), String("   ")), "expected 4, 3"
         self.f = arr
+        log(arr)
 
     @arc4.abimethod()
     def test_nested_array(

@@ -17,9 +17,7 @@ def ensure_budget(
 ) -> None:
     """Ensure the available op code budget is greater than or equal to required_budget"""
 
-def log(
-    *args: UInt64 | Bytes | BytesBacked | str | bytes | int, sep: String | str | Bytes | bytes = ""
-) -> None:
+def log(*args: object, sep: String | str | Bytes | bytes = "") -> None:
     """Concatenates and logs supplied args as a single bytes value.
 
     UInt64 args are converted to bytes and each argument is separated by `sep`.
