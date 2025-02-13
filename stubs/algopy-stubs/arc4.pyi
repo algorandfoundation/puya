@@ -577,7 +577,7 @@ def abi_call(
     self,
     method: Callable[..., _TABIResult_co] | str,
     /,
-    *args: _TABIArg,
+    *args: object,
     app_id: algopy.Application | algopy.UInt64 | int = ...,
     on_completion: algopy.OnCompleteAction = ...,
     approval_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
