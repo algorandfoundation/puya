@@ -25,7 +25,7 @@ def slot_elimination(
     dynamic_slots = 0
     non_local_slots = 0
     for sub in program.all_subroutines:
-        visitor = SlotGatherer()
+        visitor = _SlotGatherer()
         visitor.visit_all_blocks(sub.body)
         logger.debug(
             f"auto reserving slots in {sub.id}, {sorted(visitor.intrinsic_slots)}",
@@ -69,7 +69,7 @@ def slot_elimination(
         render_program(ctx, program, qualifier="ssa.slot")
 
 
-class SlotGatherer(IRTraverser):
+class _SlotGatherer(IRTraverser):
     def __init__(self) -> None:
         self.intrinsic_slots = set[int]()
         # Registers containing any assigned new_slot:

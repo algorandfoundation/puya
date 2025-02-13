@@ -111,27 +111,27 @@ class Value(ValueProvider, abc.ABC):
         return self
 
 
-def is_array_type(_op: Context, _attribute: object, value: Value) -> None:
+def _is_array_type(_op: Context, _attribute: object, value: Value) -> None:
     if not isinstance(value.ir_type, ArrayType):
         raise InternalError(
             f"expected array type, received: {value.ir_type}", value.source_location
         )
 
 
-def is_uint64_type(_op: Context, _attribute: object, value: Value) -> None:
+def _is_uint64_type(_op: Context, _attribute: object, value: Value) -> None:
     if value.ir_type != PrimitiveIRType.uint64:
         raise InternalError(
             f"expected uint64 type, received: {value.ir_type}", value.source_location
         )
 
 
-def is_slot_type(_op: Context, _attribute: object, value: Value) -> None:
+def _is_slot_type(_op: Context, _attribute: object, value: Value) -> None:
     (typ,) = value.types
     if not isinstance(typ, SlotType):
         raise InternalError(f"expected SlotType, received: {typ}", value.source_location)
 
 
-def narrow_to_slot_type(typ: IRType) -> SlotType:
+def _narrow_to_slot_type(typ: IRType) -> SlotType:
     if not isinstance(typ, SlotType):
         raise InternalError(f"expected SlotType, received: {typ}")
     return typ
@@ -309,7 +309,7 @@ class SlotConstant(Constant):
 
     value: int
     """Used to determine a unique slot in a functions f-stack for this variable"""
-    ir_type: SlotType = attrs.field(converter=narrow_to_slot_type)
+    ir_type: SlotType = attrs.field(converter=_narrow_to_slot_type)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_slot_constant(self)
@@ -474,8 +474,8 @@ def _array_type(value: Value) -> ArrayType:
 
 @attrs.define(eq=False)
 class ArrayReadIndex(Op, ValueProvider):
-    array: Value = attrs.field(validator=is_array_type)
-    index: Value = attrs.field(validator=is_uint64_type)
+    array: Value = attrs.field(validator=_is_array_type)
+    index: Value = attrs.field(validator=_is_uint64_type)
 
     @property
     def types(self) -> Sequence[IRType]:
@@ -491,8 +491,8 @@ class ArrayReadIndex(Op, ValueProvider):
 
 @attrs.define(eq=False)
 class ArrayWriteIndex(Op, ValueProvider):
-    array: Value = attrs.field(validator=is_array_type)
-    index: Value = attrs.field(validator=is_uint64_type)
+    array: Value = attrs.field(validator=_is_array_type)
+    index: Value = attrs.field(validator=_is_uint64_type)
     value: "Value | ValueTuple" = attrs.field(validator=_value_has_encoded_array_element_type)
 
     def _frozen_data(self) -> object:
@@ -510,8 +510,8 @@ class ArrayWriteIndex(Op, ValueProvider):
 class ArrayConcat(Op, ValueProvider):
     """Concats two array values"""
 
-    array: Value = attrs.field(validator=is_array_type)
-    other: Value = attrs.field(validator=is_array_type)
+    array: Value = attrs.field(validator=_is_array_type)
+    other: Value = attrs.field(validator=_is_array_type)
 
     def _frozen_data(self) -> object:
         return self.array, self.other
@@ -548,7 +548,7 @@ class ArrayEncode(Op, ValueProvider):
 
 @attrs.define(eq=False)
 class ArrayPop(Op, ValueProvider):
-    array: Value = attrs.field(validator=is_array_type)
+    array: Value = attrs.field(validator=_is_array_type)
     # TODO: maybe allow pop with an index?
 
     def _frozen_data(self) -> object:
@@ -566,7 +566,7 @@ class ArrayPop(Op, ValueProvider):
 
 @attrs.define(eq=False)
 class ArrayLength(Op, ValueProvider):
-    array: Value = attrs.field(validator=is_array_type)
+    array: Value = attrs.field(validator=_is_array_type)
 
     def _frozen_data(self) -> object:
         return self.array
@@ -581,7 +581,7 @@ class ArrayLength(Op, ValueProvider):
 
 @attrs.define(eq=False)
 class NewSlot(Op, ValueProvider):
-    ir_type: SlotType = attrs.field(converter=narrow_to_slot_type)
+    ir_type: SlotType = attrs.field(converter=_narrow_to_slot_type)
 
     def _frozen_data(self) -> object:
         return self.ir_type
@@ -596,7 +596,7 @@ class NewSlot(Op, ValueProvider):
 
 @attrs.define(eq=False)
 class ReadSlot(Op, ValueProvider):
-    slot: Value = attrs.field(validator=is_slot_type)
+    slot: Value = attrs.field(validator=_is_slot_type)
 
     def _frozen_data(self) -> object:
         return self.slot
@@ -613,7 +613,7 @@ class ReadSlot(Op, ValueProvider):
 
 @attrs.define(eq=False)
 class WriteSlot(Op):
-    slot: Value = attrs.field(validator=is_slot_type)
+    slot: Value = attrs.field(validator=_is_slot_type)
     value: Value = attrs.field()
     source_location: SourceLocation | None
 

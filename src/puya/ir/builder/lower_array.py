@@ -22,15 +22,15 @@ logger = log.get_logger(__name__)
 
 
 def lower_array_nodes(subroutine: ir.Subroutine) -> bool:
-    existing_versions = VersionGatherer.gather(subroutine)
-    replacer = ArrayNodeReplacer(versions=existing_versions)
+    existing_versions = _VersionGatherer.gather(subroutine)
+    replacer = _ArrayNodeReplacer(versions=existing_versions)
     for block in subroutine.body:
         replacer.visit_block(block)
     return replacer.modified
 
 
 @attrs.define
-class VersionGatherer(IRTraverser):
+class _VersionGatherer(IRTraverser):
     versions: dict[str, int] = attrs.field(factory=dict)
 
     @classmethod
@@ -44,7 +44,7 @@ class VersionGatherer(IRTraverser):
 
 
 @attrs.define(kw_only=True)
-class ArrayNodeReplacer(IRMutator, IRRegisterContext):
+class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
     _versions: dict[str, int]
     modified: bool = False
     _tmp_counters: defaultdict[str, Iterator[int]] = attrs.field(
