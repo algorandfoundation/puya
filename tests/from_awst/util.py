@@ -12,6 +12,7 @@ from puya.awst import (
 from puya.compile import awst_to_teal
 from puya.errors import log_exceptions
 from puya.options import PuyaOptions
+from puya.parse import DictSourceProvider
 from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import unique
 from tests import VCS_ROOT
@@ -50,7 +51,7 @@ def compile_contract(
                     logger.error(f"compilation target {target_id!r} not found in AWST")
                 case other:
                     logger.error(f"unexpected compilation target type: {type(other).__name__}")
-        awst_to_teal(log_ctx, options, compilation_set_validated, {}, awst)
+        awst_to_teal(log_ctx, options, compilation_set_validated, DictSourceProvider(), awst)
     # note: needs to be outside the with block
     log_ctx.exit_if_errors()
 

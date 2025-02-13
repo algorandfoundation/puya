@@ -13,7 +13,7 @@ from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
 from puya.log import LogLevel, logging_context
 from puya.options import PuyaOptions
-from puya.parse import SourceLocation
+from puya.parse import DictSourceProvider, SourceLocation
 
 _location = SourceLocation(
     file=Path("/test_ir.ts"),
@@ -91,7 +91,7 @@ def _build_ir_and_return_errors(expr: awst.Expression) -> list[str]:
     ctx = IRBuildContext(
         options=PuyaOptions(),
         compilation_set={},
-        sources_by_path={},
+        source_provider=DictSourceProvider({}),
         awst=[],
         subroutines={},
         embedded_funcs_lookup={},

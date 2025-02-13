@@ -28,7 +28,7 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
         logger.debug(puyapy_options)
         try:
             parse_result = parse_python(puyapy_options.paths)
-            log_ctx.sources_by_path = parse_result.sources_by_path
+            log_ctx.source_provider = parse_result.source_provider
             log_ctx.exit_if_errors()
             awst, compilation_targets = transform_ast(parse_result, puyapy_options)
         except mypy.errors.CompileError:
@@ -48,7 +48,7 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
             if loc.file
         }
         teal = awst_to_teal(
-            log_ctx, puyapy_options, compilation_set, parse_result.sources_by_path, awst
+            log_ctx, puyapy_options, compilation_set, parse_result.source_provider, awst
         )
         log_ctx.exit_if_errors()
         if puyapy_options.output_client:

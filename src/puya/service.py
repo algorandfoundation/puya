@@ -5,7 +5,9 @@ from collections.abc import Callable, Iterator, Mapping, Sequence
 from pathlib import Path
 
 import attrs
+from cattrs import Converter
 from immutabledict import immutabledict
+from pygls.client import JsonRPCClient
 from pygls.protocol.json_rpc import JsonRPCProtocol
 from pygls.server import JsonRPCServer
 
@@ -16,6 +18,7 @@ from puya.errors import PuyaExitError, log_exceptions
 from puya.log import Log, LogLevel, configure_logging, configure_stdio, get_logger, logging_context
 from puya.main import PuyaOptionsWithCompilationSet, match_compilation_set
 from puya.options import PuyaOptions
+from puya.parse import DictSourceProvider
 from puya.utils import pushd
 
 logger = get_logger(__name__)
@@ -98,6 +101,28 @@ class PuyaProtocol(JsonRPCProtocol):
             return None
 
 
+class PuyaClient(JsonRPCClient):
+    def __init__(
+        self,
+        protocol: type[PuyaProtocol] = PuyaProtocol,
+        converter: Callable[[], Converter] = get_converter,
+    ):
+        super().__init__(protocol, converter)
+
+    async def shutdown_async(self) -> None:
+        await self.protocol.send_request_async("shutdown")
+
+    async def analyse_async(self, params: AnalyseParams) -> AnalyseResult:
+        result = await self.protocol.send_request_async("analyse", params)
+        assert isinstance(result, AnalyseResult)
+        return result
+
+    async def compile_async(self, params: CompileParams) -> CompileResult:
+        result = await self.protocol.send_request_async("compile", params)
+        assert isinstance(result, CompileResult)
+        return result
+
+
 def create_server(max_workers: int | None) -> JsonRPCServer:
     server = JsonRPCServer(PuyaProtocol, get_converter, max_workers=max_workers)
     feature = server.feature
@@ -139,7 +164,7 @@ def create_server(max_workers: int | None) -> JsonRPCServer:
                 log_ctx,
                 options,
                 compilation_set,
-                {},
+                DictSourceProvider(),
                 awst,
             )
 
@@ -164,7 +189,7 @@ def create_server(max_workers: int | None) -> JsonRPCServer:
                 log_ctx,
                 options,
                 compilation_set,
-                params.source_annotations,
+                DictSourceProvider(params.source_annotations),
                 awst,
             )
 

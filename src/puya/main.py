@@ -13,6 +13,7 @@ from puya.awst.nodes import AWST
 from puya.compile import awst_to_teal
 from puya.errors import log_exceptions
 from puya.options import PuyaOptions
+from puya.parse import DictSourceProvider
 from puya.program_refs import ContractReference, LogicSigReference
 
 logger = log.get_logger(__name__)
@@ -29,11 +30,12 @@ def main(*, options_json: str, awst_json: str, source_annotations_json: str | No
         sources_by_path = {}
         if source_annotations_json:
             sources_by_path = serialize.source_annotations_from_json(source_annotations_json)
-        log_ctx.sources_by_path = sources_by_path
+        source_provider = log_ctx.source_provider = DictSourceProvider(sources_by_path)
+        log_ctx.source_provider = source_provider
         awst = serialize.awst_from_json(awst_json)
         options = json_converter.loads(options_json, PuyaOptionsWithCompilationSet)
         compilation_set = match_compilation_set(options.compilation_set, awst)
-        awst_to_teal(log_ctx, options, compilation_set, sources_by_path, awst)
+        awst_to_teal(log_ctx, options, compilation_set, source_provider, awst)
     # note: needs to be outside the with block
     log_ctx.exit_if_errors()
 
