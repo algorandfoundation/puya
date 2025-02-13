@@ -1,4 +1,5 @@
 import codecs
+import contextlib
 import enum
 import os
 import re
@@ -96,12 +97,19 @@ def parse_and_typecheck(
 
     # ensure we have the absolute, canonical paths to the files
     resolved_input_paths = {p.resolve() for p in paths}
+    resolved_sources = {p.resolve(): s for p, s in (sources or {}).items()}
+    fscache = mypy.fscache.FileSystemCache()
     # creates a list of BuildSource objects from the contract Paths
     mypy_build_sources = mypy.find_sources.create_source_list(
         paths=[str(p) for p in resolved_input_paths],
         options=mypy_options,
         fscache=fs_cache,
     )
+    for src in mypy_build_sources:
+        if src.path:
+            path = Path(src.path)
+            with contextlib.suppress(KeyError):
+                src.text = resolved_sources[path]
     build_source_paths = {
         Path(m.path).resolve() for m in mypy_build_sources if m.path and not m.followed
     }

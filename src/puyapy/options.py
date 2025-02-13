@@ -1,4 +1,4 @@
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 import attrs
@@ -10,6 +10,8 @@ from puya.options import PuyaOptions
 @attrs.frozen(kw_only=True)
 class PuyaPyOptions(PuyaOptions):
     paths: Sequence[Path] = attrs.field(default=(), repr=lambda p: str(list(map(str, p))))
+    sources: Mapping[Path, str] = attrs.field(factory=dict)
+
     output_awst: bool = False
     output_awst_json: bool = False
     output_client: bool = False
