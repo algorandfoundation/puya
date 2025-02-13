@@ -13,7 +13,10 @@ from puya.ir.arc4 import (
     is_arc4_dynamic_size,
     is_arc4_static_size,
 )
-from puya.ir.arc4_types import effective_array_encoding, maybe_wtype_to_arc4_wtype
+from puya.ir.arc4_types import (
+    is_equivalent_effective_array_encoding,
+    maybe_wtype_to_arc4_wtype,
+)
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import (
     OpFactory,
@@ -97,7 +100,7 @@ def decode_arc4_value(
                 context, arc4_tuple, value, target_wtype=native_tuple, source_location=loc
             )
         case wtypes.ARC4DynamicArray(), wtypes.StackArray() if (
-            effective_array_encoding(target_wtype, loc) == arc4_wtype
+            is_equivalent_effective_array_encoding(target_wtype, arc4_wtype, loc)
         ):
             return value
     raise InternalError(
@@ -177,7 +180,7 @@ def encode_value_provider(
         case (
             wtypes.ARC4Array(),
             wtypes.StackArray(),
-        ) if effective_array_encoding(value_wtype, loc) == arc4_wtype:
+        ) if is_equivalent_effective_array_encoding(value_wtype, arc4_wtype, loc):
             # already ARC4 encoded
             return value_provider
         case _:

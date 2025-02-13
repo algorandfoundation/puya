@@ -1,3 +1,5 @@
+import typing
+
 from puya.awst import wtypes
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -90,3 +92,14 @@ def effective_array_encoding(
         # so this is the right spot to do this validation in currently
         raise CodeError("unsupported array element type", loc)
     return wtypes.ARC4DynamicArray(element_type=arc4_element_type, immutable=True)
+
+
+def is_equivalent_effective_array_encoding(
+    array_type: wtypes.StackArray, encoding_type: wtypes.WType, loc: SourceLocation | None
+) -> bool:
+    effective_type = effective_array_encoding(array_type, loc)
+    typing.assert_type(effective_type, wtypes.ARC4DynamicArray)  # could be expanded to ARC4Type
+    return (
+        isinstance(encoding_type, wtypes.ARC4Type)
+        and effective_type.arc4_name == encoding_type.arc4_name
+    )

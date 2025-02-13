@@ -559,7 +559,21 @@ contract ImmutableArrayContract
     assert(&&(SINGLE_EVAL(id=6, source=arr[0u])[0] == SINGLE_EVAL(id=7, source=(1u, ''))[0], SINGLE_EVAL(id=6)[1] == SINGLE_EVAL(id=7)[1]), comment="expected 1, 0")
     assert(&&(SINGLE_EVAL(id=8, source=arr[arr.length - 1u])[0] == SINGLE_EVAL(id=9, source=(4u, '   '))[0], SINGLE_EVAL(id=8)[1] == SINGLE_EVAL(id=9)[1]), comment="expected 4, 3")
     GlobalState['f']: stack_array<test_cases.array.immutable.MyDynamicSizedTuple> = arr
+  }
+  
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_abi_call(arr: stack_array<uint64>, app: application): void
+  {
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("dont_call(uint64[])uint64"), arc4_encode(arr, arc4.dynamic_array<arc4.uint64>)), ApplicationID=app))
+  }
+  
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_log(arr: stack_array<uint64>): void
+  {
     log(arr)
+  }
+  
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_emit(arr: stack_array<uint64>): void
+  {
+    emit('emit_test(uint64[])', new emit_test(field1=arc4_encode(arr, arc4.dynamic_array<arc4.uint64>)))
   }
   
   abimethod test_cases.array.immutable.ImmutableArrayContract.test_nested_array(arr_to_add: uint64, arr: stack_array<stack_array<uint64>>): stack_array<uint64>
