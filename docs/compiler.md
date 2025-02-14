@@ -2,7 +2,8 @@
 
 The PuyaPy compiler is a multi-stage, optimising compiler that takes Algorand Python and prepares it for execution on the AVM. PuyaPy ensures the resulting AVM bytecode execution semantics that match the given Python code. PuyaPy produces output that is directly compatible with [AlgoKit typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients) to make deployment and calling easy (among other formats).
 
-The PuyaPy compiler is based on the [Puya compiler architecture](#compiler-architecture), which allows for multiple frontend languages to leverage the majority of the compiler logic so adding new frontend languages for execution on Algorand is relatively easy.
+The PuyaPy compiler is based on the [Puya compiler architecture](https://github.com/algorandfoundation/puya/blob/main/ARCHITECTURE.md), 
+which allows for multiple frontend languages to leverage the majority of the compiler logic so adding new frontend languages for execution on Algorand is relatively easy.
 
 ## Compiler installation
 
@@ -54,29 +55,6 @@ discovered therein will be compiled, allowing you to compile multiple contracts 
 also supply more than one path at a time to the compiler.
 
 e.g. either `puyapy my_project/` or `puyapy my_project/contract.py` will work to compile a single contract.
-
-## Compiler architecture
-
-The PuyaPy compiler is based on the Puya compiler architecture, which allows for multiple frontend languages to leverage the majority of the compiler logic so adding new frontend languages for execution on Algorand is relatively easy.
-
-The PuyaPy compiler takes Algorand Python through a series of transformations with each transformation serving a specific purpose:
-
-    Python code
-        -> Python Abstract Syntax Tree (AST)
-        -> MyPy AST
-        -> Puya AST (AWST)
-        -> Intermediate Representation (IR) in SSA form
-        -> Optimizations (multiple rounds)
-        -> Destructured IR
-        -> Optimizations (multiple rounds)
-        -> Memory IR (MIR)
-        -> Optimizations (multiple rounds)
-        -> TealOps IR
-        -> Optimizations (multiple rounds)
-        -> TEAL code
-        -> AVM bytecode
-
-While this may appear complex, splitting it in this manner allows for each step to be expressed in a simple form to do one thing (well) and allows us to make use of industry research into compiler algorithms and formats.
 
 ## Type checking
 
