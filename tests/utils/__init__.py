@@ -14,11 +14,10 @@ from puya.parse import SourceLocation
 from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import pushd
 from puyapy.awst_build.main import transform_ast
-from puyapy.compile import output_awst, parse_with_mypy, write_arc4_clients
+from puyapy.compile import determine_out_dir, output_awst, parse_with_mypy, write_arc4_clients
 from puyapy.options import PuyaPyOptions
 from puyapy.parse import ParseResult, SourceDiscoveryMechanism
 from puyapy.template import parse_template_key_value
-from puyapy.utils import determine_out_dir
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 
 APPROVAL_EXTENSIONS = frozenset((".teal", ".awst", ".ir", ".mir", ".arc32.json", ".arc56.json"))
