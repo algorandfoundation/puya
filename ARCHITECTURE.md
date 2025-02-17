@@ -92,8 +92,9 @@ any source language specifics.
 
 ### puyapy
 
-The `puyapy` program takes `.py` file(s) containing "Algorand Python" - a [strict subset of the full Python language](https://algorandfoundation.github.io/puya/language-guide.html)
-and produces `AWST`.
+The `puyapy` program takes `.py` file(s) containing "Algorand Python" - a 
+[strict subset of the full Python language](https://algorandfoundation.github.io/puya/language-guide.html),
+and produces AWST.
 
 Since Algorand Python has the same grammar as CPython, parsing makes use of the builtin 
 [`ast`](https://docs.python.org/3/library/ast.html)
@@ -128,11 +129,32 @@ the entry point here.
 
 ## Backend Layers
 
+Although "backend" would, in the three stage architecture noted above, imply everything after the
+optimization stage, we use this term to refer to `puya` here. 
+
 ### AWST: Abstract Wyvern Syntax Tree
 
 The project to build this compiler was initially codenamed Wyvern, and the W has stuck around.
 
+Since the AWST serves as the starting point for the backend, the executable code contained in this
+layer mostly revolves around validation and also the [visitor pattern](https://craftinginterpreters.com/representing-code.html#the-visitor-pattern).
+
+The model definitions in [puya.awst.nodes](/src/puya/awst/nodes.py) contain validation which 
+can be done without looking at a larger program context - the latter being located in
+[puya.awst.validation](/src/puya/awst/validation/).
+
+The type system is defined in [puya.awst.wtypes](/src/puya/awst/wtypes.py).
+
 ### IR: Intermediate Representation
+
+The core model for the IR layer is a hybrid model: linear basic blocks + control flow graph 
+(CFG).
+
+The IR is constructed directly into static single assignment (SSA) form - see [puya.ir.ssa](/src/puya/ir/ssa.py)
+for relevant literature references.
+
+At the IR level, we attempt to abstract away the specific "memory model" of the AVM, as well as 
+it's stack based nature.
 
 ### MIR: Memory IR
 
