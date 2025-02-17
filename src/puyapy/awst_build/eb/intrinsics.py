@@ -12,6 +12,8 @@ from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb._literals import LiteralBuilderImpl
 from puyapy.awst_build.eb._utils import dummy_value
+from puyapy.awst_build.eb.arc4._utils import ARC4Signature
+from puyapy.awst_build.eb.arc4.abi_call import ARC4ClientMethodExpressionBuilder
 from puyapy.awst_build.eb.bytes import BytesExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance, builder_for_type
 from puyapy.awst_build.eb.interface import (
@@ -20,11 +22,13 @@ from puyapy.awst_build.eb.interface import (
     NodeBuilder,
     TypeBuilder,
 )
+from puyapy.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puyapy.awst_build.intrinsic_models import (
     FunctionOpMapping,
     OpMappingWithOverloads,
     PropertyOpMapping,
 )
+from puyapy.models import ARC4ABIMethodData
 
 logger = log.get_logger(__name__)
 
@@ -38,10 +42,31 @@ class Arc4SignatureBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect.exactly_one_arg(args, location, default=expect.default_none)
-        if arg is None:
-            return dummy_value(pytypes.BytesType, location)
-        str_value = expect.simple_string_literal(arg, default=expect.default_fixed_value(""))
+        match args:
+            case [
+                ARC4ClientMethodExpressionBuilder(method=fmethod)
+                | BaseClassSubroutineInvokerExpressionBuilder(method=fmethod)
+            ]:
+                if not isinstance(fmethod.metadata, ARC4ABIMethodData):
+                    logger.error("method is not an ARC4 ABI method", location=location)
+                    return dummy_value(pytypes.BytesType, location)
+
+                abi_method_data = fmethod.metadata
+                signature = ARC4Signature(
+                    method_name=abi_method_data.config.name,
+                    arg_types=abi_method_data.arc4_argument_types,
+                    return_type=abi_method_data.arc4_return_type,
+                    source_location=location,
+                )
+                str_value = signature.method_selector
+            case _:
+                arg = expect.exactly_one_arg(args, location, default=expect.default_none)
+                if arg is None:
+                    return dummy_value(pytypes.BytesType, location)
+                str_value = expect.simple_string_literal(
+                    arg, default=expect.default_fixed_value("")
+                )
+
         return BytesExpressionBuilder(
             MethodConstant(
                 value=str_value,

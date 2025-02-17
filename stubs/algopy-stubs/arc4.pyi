@@ -85,8 +85,8 @@ def baremethod(
     :arg allow_actions: Which On-Completion Action(s) to handle.
     """
 
-def arc4_signature(signature: str, /) -> algopy.Bytes:
-    """Returns the ARC4 encoded method selector for the specified signature"""
+def arc4_signature(signature: str | Callable[_P, _R], /) -> algopy.Bytes:
+    """Returns the ARC4 encoded method selector for the specified signature or abi method"""
 
 class _ABIEncoded(algopy.BytesBacked, typing.Protocol):
     @classmethod

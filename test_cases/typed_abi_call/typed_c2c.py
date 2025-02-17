@@ -26,6 +26,7 @@ class Greeter(ARC4Contract):
 
     @arc4.abimethod()
     def test_method_selector_kinds(self, app: Application) -> None:
+        assert arc4.arc4_signature(Logger.echo) == arc4.arc4_signature("echo(string)string")
         result, _txn = arc4.abi_call(Logger.echo, arc4.String("test1"), app_id=app)
         assert result == "echo: test1"
         result, _txn = arc4.abi_call(LoggerClient.echo, "test2", app_id=app)

@@ -33,6 +33,10 @@ class Reference(ARC4Contract):
 
         assert arc4.arc4_signature("get(uint64,byte[])byte[]"), "has method selector"
 
+        assert arc4.arc4_signature(Reference.opt_in) == arc4.arc4_signature(
+            "opt_in(uint64,byte[])void"
+        ), "has method selector for method reference"
+
     @arc4.abimethod
     def noop_with_uint64(self, a: arc4.UInt64) -> arc4.UInt8:
         result = 1 + a.native
