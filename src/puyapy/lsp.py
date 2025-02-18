@@ -23,10 +23,11 @@ NAME = "puyapy-lsp"
 logger = logging.getLogger(__name__)
 
 
+
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     parser = argparse.ArgumentParser(
-        description="start a puyapy-lsp instance, defaults to listening on port 8888"
+        description="start a puyapy-lsp instance, defaults to listening on localhost:8888"
     )
     parser.add_argument("--stdio", action="store_true", help="start a stdio server")
     parser.add_argument("--host", default="localhost", help="bind to this address")
@@ -54,15 +55,8 @@ class PuyaPyLanguageServer(LanguageServer):
         src_path = Path(document.path)
         options = PuyaPyOptions(log_level=LogLevel.warning, paths=[src_path], sources={src_path: document.source})
         with logging_context() as log_ctx:
-            try:
-                _parse_and_log(log_ctx, options)
-            except BaseException:
-                for log in log_ctx.logs:
-                    if log.level >= LogLevel.critical:
-                        logger.error(log.message)  # noqa: TRY400
-                logs = []
-            else:
-                logs = log_ctx.logs
+            _parse_and_log(log_ctx, options)
+        logs = log_ctx.logs
 
         diagnostics.extend(
             _diag(log.message, log.level, log.location)

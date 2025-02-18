@@ -1,10 +1,12 @@
 import argparse
+import sys
 import typing
 from collections.abc import Sequence
 from importlib.metadata import version
 from pathlib import Path
 
 from puya.algo_constants import MAINNET_AVM_VERSION, SUPPORTED_AVM_VERSIONS
+from puya.errors import PuyaExitError
 from puya.log import LogLevel, configure_logging
 from puya.options import LocalsCoalescingStrategy
 from puyapy.compile import compile_to_teal
@@ -168,7 +170,10 @@ def main() -> None:
     namespace = parser.parse_args()
     options = PuyaPyOptions(**vars(namespace))
     configure_logging(min_log_level=options.log_level)
-    compile_to_teal(options)
+    try:
+        compile_to_teal(options)
+    except PuyaExitError as ex:
+        sys.exit(ex.exit_code)
 
 
 class _EmitDeprecated(argparse.Action):
