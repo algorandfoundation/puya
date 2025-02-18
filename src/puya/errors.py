@@ -1,6 +1,5 @@
 import contextlib
 import enum
-import sys
 import traceback
 from collections.abc import Iterator
 
@@ -22,6 +21,11 @@ class PuyaError(Exception):
         self.location = location
 
 
+class PuyaExitError(Exception):
+    def __init__(self, exit_code: ErrorExitCode):
+        self.exit_code = exit_code
+
+
 class InternalError(PuyaError):
     """Base class for all exceptions that indicate a fault in the compiler."""
 
@@ -39,11 +43,11 @@ def log_exceptions(fallback_location: SourceLocation | None = None) -> Iterator[
     except InternalError as ex:
         _log_traceback()
         logger.critical(ex.msg, location=ex.location or fallback_location)
-        sys.exit(ErrorExitCode.internal)
+        raise PuyaExitError(ErrorExitCode.internal) from ex
     except Exception as ex:
         _log_traceback()
         logger.critical(f"{type(ex).__name__}: {ex}", location=fallback_location)
-        sys.exit(ErrorExitCode.internal)
+        raise PuyaExitError(ErrorExitCode.internal) from ex
 
 
 def _log_traceback() -> None:
