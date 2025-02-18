@@ -1,4 +1,12 @@
 # CHANGELOG
+## v4.4.0 (2025-02-18)
+
+### Feature
+
+* accept reference abi method as a parameter to arc4_signature method ([`d870f12`](https://github.com/algorandfoundation/puya/commit/d870f12205719f849f3fba426af42a7b851d373e))
+
+* add `algopy.Array` and `algopy.ImmutableArray` (#386) ([`2c16718`](https://github.com/algorandfoundation/puya/commit/2c16718a4f6e68d54bb1577e7173678bf157cfae))
+
 ## v4.3.3 (2025-02-07)
 
 ### Fix
