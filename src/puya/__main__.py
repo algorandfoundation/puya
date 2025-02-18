@@ -1,10 +1,12 @@
 import argparse
+import sys
 from importlib.metadata import version
 from multiprocessing import freeze_support
 from pathlib import Path
 
 import attrs
 
+from puya.errors import PuyaExitError
 from puya.log import LogFormat, LogLevel, configure_logging
 from puya.main import main
 
@@ -50,11 +52,14 @@ def cli() -> None:
     source_annotations_json = None
     if parsed_args.source_annotations:
         source_annotations_json = parsed_args.source_annotations.read_text("utf8")
-    main(
-        options_json=options_json,
-        awst_json=awst_json,
-        source_annotations_json=source_annotations_json,
-    )
+    try:
+        main(
+            options_json=options_json,
+            awst_json=awst_json,
+            source_annotations_json=source_annotations_json,
+        )
+    except PuyaExitError as ex:
+        sys.exit(ex.exit_code)
 
 
 if __name__ == "__main__":
