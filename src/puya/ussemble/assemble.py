@@ -21,6 +21,8 @@ _BRANCHING_OPS = {
     if any(i in (ImmediateKind.label, ImmediateKind.label_array) for i in op.immediates)
 }
 
+T = typing.TypeVar("T")
+
 
 def assemble_bytecode_and_debug_info(
     ctx: AssembleContext, program: teal.TealProgram
@@ -302,6 +304,9 @@ def _encode_bytes_array(values: Sequence[bytes]) -> bytes:
             *map(_encode_bytes, values),
         ),
     )
+
+
+_T = typing.TypeVar("_T")
 
 
 def _is_sequence[_T](maybe: object, typ: type[_T]) -> typing.TypeGuard[Sequence[_T]]:

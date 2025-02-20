@@ -1,10 +1,13 @@
 import itertools
+import typing
 from collections.abc import Callable, Iterable
 
 from puya import log
 from puya.ir import models
 
 logger = log.get_logger(__name__)
+
+T = typing.TypeVar("T")
 
 
 def sequentialize_parallel_copies(sub: models.Subroutine) -> None:

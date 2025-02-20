@@ -7,7 +7,7 @@ import typing
 from collections import Counter
 from collections.abc import Iterator, Mapping, Sequence
 from contextvars import ContextVar
-from enum import IntEnum, StrEnum, auto
+from enum import IntEnum, StrEnum
 from io import StringIO
 from pathlib import Path
 
@@ -18,8 +18,8 @@ from puya.parse import SourceLocation
 
 
 class LogFormat(StrEnum):
-    default = auto()
-    json = auto()
+    default = "default"
+    json = "json"
 
     @staticmethod
     def from_string(s: str) -> "LogFormat":

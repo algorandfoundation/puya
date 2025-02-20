@@ -8,6 +8,7 @@ from collections.abc import Callable, Iterable, Iterator, MutableMapping, Mutabl
 from pathlib import Path
 
 import attrs
+from Cryptodome.Hash import SHA512
 
 from puya.algo_constants import (
     ADDRESS_CHECKSUM_LENGTH,
@@ -17,6 +18,8 @@ from puya.algo_constants import (
     MAX_UINT64,
     PUBLIC_KEY_HASH_LENGTH,
 )
+
+T = typing.TypeVar("T")
 
 
 @attrs.frozen
@@ -108,8 +111,6 @@ def sha512_256_hash(value: bytes) -> bytes:
     Returns the SHA512/256 hash of a value. This is the hashing algorithm used
     to generate address checksums
     """
-    from Cryptodome.Hash import SHA512
-
     sha = SHA512.new(truncate="256")
     sha.update(value)
     return sha.digest()
@@ -152,7 +153,7 @@ def unique[T](items: Iterable[T]) -> list[T]:
     return list(dict.fromkeys(items))
 
 
-class StableSet[T](MutableSet[T]):
+class StableSet(MutableSet[T], typing.Generic[T]):
     __slots__ = ("_data",)
 
     def __init__(self, *items: T) -> None:
@@ -238,6 +239,9 @@ class StableSet[T](MutableSet[T]):
         return type(self).__name__ + "(" + ", ".join(map(repr, self._data)) + ")"
 
 
+U = typing.TypeVar("U")
+
+
 def lazy_setdefault[T, U](m: MutableMapping[T, U], /, key: T, default: Callable[[T], U]) -> U:
     """dict.setdefault, but with a callable"""
     try:
@@ -303,7 +307,7 @@ def coalesce[T](arg1: T | None, arg2: T, /) -> T: ...
 
 
 @typing.overload
-def coalesce[T](arg1: T | None, arg2: T | None, arg3: T, /) -> T: ...
+def coalesce[T](arg1: T | None, arg2: T, /) -> T: ...
 
 
 @typing.overload

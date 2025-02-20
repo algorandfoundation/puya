@@ -6,8 +6,10 @@ from abc import ABC, abstractmethod
 if t.TYPE_CHECKING:
     import puya.awst.nodes
 
+T = t.TypeVar("T")
 
-class StatementVisitor[T](ABC):
+
+class StatementVisitor(ABC, t.Generic[T]):
     @abstractmethod
     def visit_block(self, statement: puya.awst.nodes.Block) -> T: ...
 
@@ -57,7 +59,7 @@ class StatementVisitor[T](ABC):
     def visit_goto(self, statement: puya.awst.nodes.Goto) -> T: ...
 
 
-class RootNodeVisitor[T](ABC):
+class RootNodeVisitor(ABC, t.Generic[T]):
     @abstractmethod
     def visit_subroutine(self, statement: puya.awst.nodes.Subroutine) -> T: ...
 
@@ -68,7 +70,7 @@ class RootNodeVisitor[T](ABC):
     def visit_logic_signature(self, statement: puya.awst.nodes.LogicSignature) -> T: ...
 
 
-class ContractMemberVisitor[T](ABC):
+class ContractMemberVisitor(ABC, t.Generic[T]):
     @abstractmethod
     def visit_contract_method(self, statement: puya.awst.nodes.ContractMethod) -> T: ...
 
@@ -78,7 +80,7 @@ class ContractMemberVisitor[T](ABC):
     ) -> T: ...
 
 
-class ExpressionVisitor[T](ABC):
+class ExpressionVisitor(ABC, t.Generic[T]):
     @abstractmethod
     def visit_state_delete(self, expr: puya.awst.nodes.StateDelete) -> T: ...
 

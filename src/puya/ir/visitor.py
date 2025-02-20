@@ -10,8 +10,10 @@ if t.TYPE_CHECKING:
 
     import puya.ir.models
 
+T = t.TypeVar("T")
 
-class IRVisitor[T](ABC):
+
+class IRVisitor(ABC, t.Generic[T]):
     @abstractmethod
     def visit_assignment(self, ass: puya.ir.models.Assignment) -> T: ...
 
@@ -263,7 +265,7 @@ class IRTraverser(IRVisitor[None]):
             v.accept(self)
 
 
-class NoOpIRVisitor[T](IRVisitor[T | None]):
+class NoOpIRVisitor(IRVisitor[T | None], t.Generic[T]):
     def visit_assignment(self, ass: puya.ir.models.Assignment) -> T | None:
         return None
 

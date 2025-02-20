@@ -6,8 +6,10 @@ import typing
 if typing.TYPE_CHECKING:
     from puya.mir import models
 
+T = typing.TypeVar("T")
 
-class MIRVisitor[T](abc.ABC):
+
+class MIRVisitor(abc.ABC, typing.Generic[T]):
     @abc.abstractmethod
     def visit_int(self, push: models.Int) -> T: ...
 

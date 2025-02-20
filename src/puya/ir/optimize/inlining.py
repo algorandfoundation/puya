@@ -18,6 +18,8 @@ from puya.utils import lazy_setdefault
 
 logger = log.get_logger(__name__)
 
+T = typing.TypeVar("T")
+
 
 def analyse_subroutines_for_inlining(
     context: IROptimizationContext,
