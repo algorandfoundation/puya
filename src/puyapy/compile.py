@@ -108,9 +108,12 @@ def write_arc4_clients(
 
 
 def parse_with_mypy(
-    paths: Sequence[Path], sources: Mapping[Path, str] | None = None
+    paths: Sequence[Path],
+    sources: Mapping[Path, str] | None = None,
+    *,
+    prefix: Path | None = None,
 ) -> ParseResult:
-    mypy_options = get_mypy_options()
+    mypy_options = get_mypy_options(prefix)
     _, ordered_modules = parse_and_typecheck(paths, mypy_options, sources=sources)
     return ParseResult(
         mypy_options=mypy_options,
@@ -118,7 +121,7 @@ def parse_with_mypy(
     )
 
 
-def get_mypy_options() -> mypy.options.Options:
+def get_mypy_options(prefix: Path | None = None) -> mypy.options.Options:
     mypy_opts = mypy.options.Options()
 
     # improve mypy parsing performance by using a cut-down typeshed
@@ -126,7 +129,7 @@ def get_mypy_options() -> mypy.options.Options:
     mypy_opts.abs_custom_typeshed_dir = str(TYPESHED_PATH.resolve())
 
     # set python_executable so third-party packages can be found
-    mypy_opts.python_executable = _get_python_executable()
+    mypy_opts.python_executable = _get_python_executable(prefix)
 
     mypy_opts.preserve_asts = True
     mypy_opts.include_docstrings = True
@@ -160,8 +163,8 @@ def get_mypy_options() -> mypy.options.Options:
     return mypy_opts
 
 
-def _get_python_executable() -> str | None:
-    prefix = _get_prefix()
+def _get_python_executable(prefix_: Path | None) -> str | None:
+    prefix = str(prefix_) if prefix_ else _get_prefix()
     if not prefix:
         logger.warning("Could not determine python prefix or algopy version")
         return None
