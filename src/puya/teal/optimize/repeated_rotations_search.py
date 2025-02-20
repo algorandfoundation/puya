@@ -90,10 +90,10 @@ ROTATION_SIMPLIFY_OPS = frozenset(
 )
 
 
-def repeated_rotation_ops_search(teal_ops: list[models.TealOp]) -> list[models.TealOp]:
+def repeated_rotation_ops_search(block: models.TealBlock) -> None:
     maybe_remove_rotations = list[models.TealOpUInt8]()
     result = list[models.TealOp]()
-    for teal_op in teal_ops:
+    for teal_op in block.ops:
         if teal_op.op_code in ROTATION_SIMPLIFY_OPS:
             maybe_remove_rotations.append(typing.cast(models.TealOpUInt8, teal_op))
         else:
@@ -102,7 +102,7 @@ def repeated_rotation_ops_search(teal_ops: list[models.TealOp]) -> list[models.T
             result.extend(maybe_simplified)
             result.append(teal_op)
     result.extend(_maybe_simplified(maybe_remove_rotations))
-    return result
+    block.ops[:] = result
 
 
 def _maybe_simplified(

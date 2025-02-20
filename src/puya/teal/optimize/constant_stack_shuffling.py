@@ -23,7 +23,15 @@ def perform_constant_stack_shuffling(block: models.TealBlock) -> bool:
             (n,) = op.immediates or (1,)
             assert isinstance(n, int)
             # extend loads with n copies of the last load
-            loads.extend([attrs.evolve(loads[-1], source_location=op.source_location)] * n)
+            last_load = loads[-1]
+            repeated_load = attrs.evolve(
+                last_load, source_location=op.source_location, stack_manipulations=[]
+            )
+            repeated_loads = [repeated_load] * n
+            repeated_loads[-1] = attrs.evolve(
+                repeated_loads[-1], stack_manipulations=op.stack_manipulations
+            )
+            loads.extend(repeated_loads)
         elif loads:
             match op:
                 case models.Uncover(n=n) if n < len(loads):
