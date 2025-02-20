@@ -6,7 +6,12 @@ from puya.context import ArtifactCompileContext
 from puya.teal import models
 
 
-def emit_teal(context: ArtifactCompileContext, program: models.TealProgram) -> str:
+def emit_teal(
+    context: ArtifactCompileContext,
+    program: models.TealProgram,
+    *,
+    include_stack_manipulations: bool = False,
+) -> str:
     indent = " " * 4
 
     result = [
@@ -34,7 +39,20 @@ def emit_teal(context: ArtifactCompileContext, program: models.TealProgram) -> s
                             result.append(f"{indent}// {whole_lines_location}")
                             lines = textwrap.dedent("\n".join(src)).splitlines()
                             result.extend(f"{indent}// {line.rstrip()}" for line in lines)
-
+                if include_stack_manipulations and teal_op.stack_manipulations:
+                    result.append(f"{indent}// stack manipulations = [")
+                    result.extend(f"{indent}//   {sm!r}" for sm in teal_op.stack_manipulations)
+                    result.append(f"{indent}// ]")
                 result.append(f"{indent}{teal_op.teal()}")
             result.append("")
     return "\n".join(result)
+
+
+def maybe_output_intermediate_teal(
+    context: ArtifactCompileContext, program: models.TealProgram, *, qualifier: str
+) -> None:
+    if context.options.output_teal_intermediates:
+        path = context.build_output_path(kind=program.kind, qualifier=qualifier, suffix="teal")
+        if path is not None:
+            output = emit_teal(context, program, include_stack_manipulations=True)
+            path.write_text(output, encoding="utf8")

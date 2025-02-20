@@ -111,6 +111,12 @@ def main() -> None:
         help="Output MIR before lowering to TealOps",
     )
     parser.add_argument(
+        "--output-teal-intermediates",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Output TEAL before peephole optimisation and before block optimisation",
+    )
+    parser.add_argument(
         "--output-bytecode",
         action=argparse.BooleanOptionalAction,
         default=False,

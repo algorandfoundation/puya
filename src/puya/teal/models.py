@@ -10,6 +10,7 @@ from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.utils import format_bytes, format_error_comment
 from puya.mir import models as mir
 from puya.parse import SourceLocation
+from puya.program_refs import ProgramKind
 from puya.utils import valid_bytes, valid_int64
 
 MAX_NUMBER_CONSTANTS = 256
@@ -628,6 +629,7 @@ class TealSubroutine:
 
 @attrs.define
 class TealProgram:
+    kind: ProgramKind
     avm_version: int
     main: TealSubroutine
     subroutines: list[TealSubroutine]

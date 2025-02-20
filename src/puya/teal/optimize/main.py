@@ -1,10 +1,12 @@
+import contextlib
 import itertools
 from collections import defaultdict
+from collections.abc import Iterator
 
 import attrs
 
 from puya import log
-from puya.context import CompileContext
+from puya.context import ArtifactCompileContext, CompileContext
 from puya.teal import models
 from puya.teal._util import preserve_stack_manipulations
 from puya.teal.optimize.combine_pushes import combine_pushes
@@ -17,35 +19,64 @@ from puya.teal.optimize.constant_stack_shuffling import (
 from puya.teal.optimize.peephole import peephole
 from puya.teal.optimize.repeated_rotations import simplify_repeated_rotation_ops, simplify_swap_ops
 from puya.teal.optimize.repeated_rotations_search import repeated_rotation_ops_search
+from puya.teal.output import maybe_output_intermediate_teal
 
 logger = log.get_logger(__name__)
 
 
-def optimize_teal_program(context: CompileContext, teal_program: models.TealProgram) -> None:
+def optimize_teal_program(
+    context: ArtifactCompileContext, teal_program: models.TealProgram
+) -> None:
+    with _preserve_stack_manipulations(teal_program):
+        for teal_sub in teal_program.all_subroutines:
+            _optimize_subroutine_ops(context, teal_sub)
+    maybe_output_intermediate_teal(context, teal_program, qualifier="peephole")
+
     for teal_sub in teal_program.all_subroutines:
-        _optimize_subroutine(context, teal_sub)
-    before = [_get_all_stack_manipulations(sub) for sub in teal_program.subroutines]
-    gather_program_constants(teal_program)
-    if context.options.optimization_level > 0:
-        combine_pushes(teal_program)
-    after = [_get_all_stack_manipulations(sub) for sub in teal_program.subroutines]
+        _optimize_subroutine_blocks(context, teal_sub)
+    maybe_output_intermediate_teal(context, teal_program, qualifier="block")
+
+    with _preserve_stack_manipulations(teal_program):
+        gather_program_constants(teal_program)
+        if context.options.optimization_level > 0:
+            combine_pushes(teal_program)
+
+
+@contextlib.contextmanager
+def _preserve_stack_manipulations(teal_program: models.TealProgram) -> Iterator[None]:
+    def _get_all_stack_manipulations(
+        program: models.TealProgram,
+    ) -> dict[str, list[models.StackManipulation]]:
+        return {
+            teal_sub.signature.name: [
+                sm
+                for block in teal_sub.blocks
+                for op in block.ops
+                for sm in op.stack_manipulations
+            ]
+            for teal_sub in program.all_subroutines
+        }
+
+    before = _get_all_stack_manipulations(teal_program)
+    yield
+    after = _get_all_stack_manipulations(teal_program)
     assert before == after, "expected stack manipulations to be preserved after optimization"
 
 
-def _get_all_stack_manipulations(sub: models.TealSubroutine) -> list[models.StackManipulation]:
-    return [sm for block in sub.blocks for op in block.ops for sm in op.stack_manipulations]
-
-
-def _optimize_subroutine(context: CompileContext, teal_sub: models.TealSubroutine) -> None:
+def _optimize_subroutine_ops(context: CompileContext, teal_sub: models.TealSubroutine) -> None:
     logger.debug(
-        f"optimizing TEAL subroutine {teal_sub.signature}", location=teal_sub.source_location
+        f"optimizing TEAL subroutine ops {teal_sub.signature}", location=teal_sub.source_location
     )
-    before = _get_all_stack_manipulations(teal_sub)
     for teal_block in teal_sub.blocks:
         _optimize_block(teal_block, level=context.options.optimization_level)
         teal_block.validate_stack_height()
-    after = _get_all_stack_manipulations(teal_sub)
-    assert before == after, "expected stack manipulations to be preserved after optimization"
+
+
+def _optimize_subroutine_blocks(context: CompileContext, teal_sub: models.TealSubroutine) -> None:
+    logger.debug(
+        f"optimizing TEAL subroutine blocks {teal_sub.signature}",
+        location=teal_sub.source_location,
+    )
     if context.options.optimization_level > 0:
         # at this point, blocks should still be almost "basic"
         # - control flow should only enter at the start of a block.
