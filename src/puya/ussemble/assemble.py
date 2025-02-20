@@ -8,6 +8,7 @@ from puya.compilation_artifacts import DebugEvent
 from puya.errors import InternalError
 from puya.parse import SourceLocation
 from puya.teal import models as teal
+from puya.teal.stack_manipulations import apply_stack_manipulations
 from puya.ussemble import models
 from puya.ussemble.context import AssembleContext
 from puya.ussemble.debug import build_debug_info
@@ -113,23 +114,7 @@ def _add_op_debug_events(
         event["error"] = op.error_message
     event["op"] = op.teal()
 
-    for sm in op.stack_manipulations:
-        match sm:
-            case teal.StackConsume(n=n):
-                for _ in range(n):
-                    stack.pop()
-            case teal.StackExtend() as se:
-                stack.extend(se.local_ids)
-            case teal.StackDefine() as sd:
-                defined.update(sd.local_ids)
-            case teal.StackInsert() as si:
-                index = len(stack) - si.depth
-                stack.insert(index, si.local_id)
-            case teal.StackPop() as sp:
-                index = len(stack) - sp.depth - 1
-                stack.pop(index)
-            case _:
-                typing.assert_never(sm)
+    apply_stack_manipulations(op.stack_manipulations, stack=stack, defined=defined)
 
     if len(defined) != num_defined:
         event["defined_out"] = sorted(set(defined) & set(stack))

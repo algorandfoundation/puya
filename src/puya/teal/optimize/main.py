@@ -1,14 +1,11 @@
-import contextlib
 import itertools
 from collections import defaultdict
-from collections.abc import Iterator
 
 import attrs
 
 from puya import log
 from puya.context import ArtifactCompileContext, CompileContext
 from puya.teal import models
-from puya.teal._util import preserve_stack_manipulations
 from puya.teal.optimize.combine_pushes import combine_pushes
 from puya.teal.optimize.constant_block import gather_program_constants
 from puya.teal.optimize.constant_stack_shuffling import (
@@ -27,40 +24,17 @@ logger = log.get_logger(__name__)
 def optimize_teal_program(
     context: ArtifactCompileContext, teal_program: models.TealProgram
 ) -> None:
-    with _preserve_stack_manipulations(teal_program):
-        for teal_sub in teal_program.all_subroutines:
-            _optimize_subroutine_ops(context, teal_sub)
+    for teal_sub in teal_program.all_subroutines:
+        _optimize_subroutine_ops(context, teal_sub)
     maybe_output_intermediate_teal(context, teal_program, qualifier="peephole")
 
     for teal_sub in teal_program.all_subroutines:
         _optimize_subroutine_blocks(context, teal_sub)
     maybe_output_intermediate_teal(context, teal_program, qualifier="block")
 
-    with _preserve_stack_manipulations(teal_program):
-        gather_program_constants(teal_program)
-        if context.options.optimization_level > 0:
-            combine_pushes(teal_program)
-
-
-@contextlib.contextmanager
-def _preserve_stack_manipulations(teal_program: models.TealProgram) -> Iterator[None]:
-    def _get_all_stack_manipulations(
-        program: models.TealProgram,
-    ) -> dict[str, list[models.StackManipulation]]:
-        return {
-            teal_sub.signature.name: [
-                sm
-                for block in teal_sub.blocks
-                for op in block.ops
-                for sm in op.stack_manipulations
-            ]
-            for teal_sub in program.all_subroutines
-        }
-
-    before = _get_all_stack_manipulations(teal_program)
-    yield
-    after = _get_all_stack_manipulations(teal_program)
-    assert before == after, "expected stack manipulations to be preserved after optimization"
+    gather_program_constants(teal_program)
+    if context.options.optimization_level > 0:
+        combine_pushes(teal_program)
 
 
 def _optimize_subroutine_ops(context: CompileContext, teal_sub: models.TealSubroutine) -> None:
@@ -111,7 +85,7 @@ def _optimize_block(block: models.TealBlock, *, level: int) -> None:
     if level >= 2:
         # this is a brute-force search which can be slow at times,
         # so it's only done once and only at higher optimisation levels
-        block.ops[:] = repeated_rotation_ops_search(block.ops)
+        repeated_rotation_ops_search(block)
 
     # simplifying uncover/cover 1 to swap is easier to do after other rotation optimizations
     simplify_swap_ops(block)
@@ -156,29 +130,48 @@ def _inline_jump_chains(teal_sub: models.TealSubroutine) -> None:
 def _inline_single_op_blocks(teal_sub: models.TealSubroutine) -> None:
     # TODO: this should only encounter exiting ops, so we don't need a traversal to find unused,
     #       just keep track of predecessors??
-    single_op_blocks = {b.label: b.ops for b in teal_sub.blocks if len(b.ops) == 1}
+    single_op_blocks = dict[str, models.ControlOp]()
+    for block in teal_sub.blocks[1:]:
+        try:
+            (single_op,) = block.ops
+        except ValueError:
+            pass
+        else:
+            # we shouldn't encounter any branching ops, since any block that
+            # is just an unconditional branch has already been inlined, and
+            # at this point blocks should still have an unconditional exit as the final op,
+            # which rules out bz/bnz/match/switch, leaving only exiting ops
+            # like retsub, return, or err.
+            # this also means we can keep track of which blocks to eliminate without having
+            # to do a traversal, thus the assertion
+            assert isinstance(single_op, models.ControlOp) and not single_op.targets
+            single_op_blocks[block.label] = single_op
+
+    if not single_op_blocks:
+        return
+
     modified = False
     for teal_block, next_block in itertools.zip_longest(teal_sub.blocks, teal_sub.blocks[1:]):
-        match teal_block.ops[-1]:
-            case models.Branch(target=target_label) as branch_op if (
-                (replace_ops := single_op_blocks.get(target_label))
-                and (next_block is None or target_label != next_block.label)
-            ):
-                modified = True
-                (replace_op,) = replace_ops
-                # we shouldn't encounter any branching ops, since any block that
-                # is just an unconditional branch has already been inlined, and
-                # at this point blocks should still have an unconditional exit as the final op,
-                # which rules out bz/bnz/match/switch, leaving only exiting ops
-                # like retsub, return, or err.
-                # this also means we can keep track of which blocks to eliminate without having
-                # to do a traversal, thus the assertion
-                assert isinstance(replace_op, models.ControlOp) and not replace_op.targets
-                logger.debug(
-                    f"replacing `{branch_op.teal()}` with `{replace_op.teal()}`",
-                    location=branch_op.source_location,
+        final_op = teal_block.ops[-1]
+        if (
+            isinstance(final_op, models.Branch)
+            and (next_block is None or final_op.target != next_block.label)
+            and (replace_op := single_op_blocks.get(final_op.target)) is not None
+        ):
+            modified = True
+            logger.debug(
+                f"replacing `{final_op.teal()}` with `{replace_op.teal()}`",
+                location=final_op.source_location,
+            )
+            if final_op.stack_manipulations:
+                replace_op = attrs.evolve(
+                    replace_op,
+                    stack_manipulations=[
+                        *final_op.stack_manipulations,
+                        *replace_op.stack_manipulations,
+                    ],
                 )
-                preserve_stack_manipulations(teal_block.ops, slice(-1, None), replace_ops)
+            teal_block.ops[-1] = replace_op
     if modified:
         # if any were inlined, they may no longer be referenced and thus removable
         _remove_unreachable_blocks(teal_sub)
@@ -233,7 +226,15 @@ def _inline_singly_referenced_blocks(teal_sub: models.TealSubroutine) -> None:
             while (next_label := pairs.get(this_label)) is not None:
                 logger.debug(f"inlining single reference block {next_label} into {block.label}")
                 next_block = blocks_by_label[next_label]
-                preserve_stack_manipulations(block.ops, slice(-1, None), next_block.ops)
+                next_first_op, *next_rest_ops = next_block.ops
+                block.ops[-1] = attrs.evolve(
+                    next_first_op,
+                    stack_manipulations=[
+                        *block.ops[-1].stack_manipulations,
+                        *next_first_op.stack_manipulations,
+                    ],
+                )
+                block.ops.extend(next_rest_ops)
                 this_label = next_label
     teal_sub.blocks[:] = result
 
