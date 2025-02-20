@@ -40,7 +40,7 @@ from puya.options import PuyaOptions
 from puya.parse import SourceLocation
 from puya.program_refs import ContractReference, LogicSigReference, ProgramKind
 from puya.teal.main import mir_to_teal
-from puya.teal.models import TealProgram, TealSubroutine
+from puya.teal.models import TealProgram
 from puya.teal.output import emit_teal
 from puya.ussemble.main import assemble_program
 from puya.utils import attrs_extend, make_path_relative_to, make_path_relative_to_cwd
@@ -239,29 +239,6 @@ class _CompiledLogicSig(CompiledLogicSig):
     source_location: SourceLocation | None
     program: _CompiledProgram
     metadata: LogicSignatureMetaData
-
-
-def _dummy_program() -> _CompiledProgram:
-    from puya.mir.models import Signature
-
-    return _CompiledProgram(
-        teal=TealProgram(
-            avm_version=0,
-            main=TealSubroutine(
-                is_main=True,
-                signature=Signature(
-                    name="",
-                    parameters=(),
-                    returns=(),
-                ),
-                blocks=[],
-                source_location=None,
-            ),
-            subroutines=[],
-        ),
-        teal_src="",
-        template_variables={},
-    )
 
 
 def _contract_ir_to_teal(
