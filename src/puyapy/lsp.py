@@ -19,24 +19,21 @@ from puyapy.compile import get_mypy_options, parse_with_mypy
 from puyapy.options import PuyaPyOptions
 from puyapy.utils import determine_out_dir
 
-NAME = "puyapy-lsp"
-logger = logging.getLogger(__name__)
-
+_NAME = "puyapy-lsp"
+_VERSION = version("puyapy")
 
 
 def main() -> None:
-    logging.basicConfig(level=logging.INFO, format="%(message)s")
     parser = argparse.ArgumentParser(
-        description="start a puyapy-lsp instance, defaults to listening on localhost:8888"
+        prog=_NAME,
+        description="puyapy language server, defaults to listening on localhost:8888",
     )
+    parser.add_argument("--version", action="version", version=f"%(prog)s ({_VERSION})")
     parser.add_argument("--stdio", action="store_true", help="start a stdio server")
     parser.add_argument("--host", default="localhost", help="bind to this address")
     parser.add_argument("--socket", type=int, default=8888, help="bind to this port")
 
     arguments = parser.parse_args(sys.argv[1:])
-    mypy_options = get_mypy_options()
-    logger.info(f"Python exe: {mypy_options.python_executable}")
-
     if arguments.stdio:
         server.start_io()
     else:
@@ -48,12 +45,13 @@ class PuyaPyLanguageServer(LanguageServer):
     def __init__(self, name: str, version: str) -> None:
         super().__init__(name, version=version)
         self.diagnostics = dict[str, tuple[int, list[types.Diagnostic]]]()
+        self.analysis_prefix: Path | None = None
 
     def parse(self, document: TextDocument) -> None:
         diagnostics = list[types.Diagnostic]()
 
         src_path = Path(document.path)
-        options = PuyaPyOptions(log_level=LogLevel.warning, paths=[src_path], sources={src_path: document.source})
+        options = PuyaPyOptions(log_level=LogLevel.warning, paths=[src_path], sources={src_path: document.source}, prefix=self.analysis_prefix)
         with logging_context() as log_ctx:
             _parse_and_log(log_ctx, options)
         logs = log_ctx.logs
@@ -66,12 +64,12 @@ class PuyaPyLanguageServer(LanguageServer):
         self.diagnostics[document.uri] = (document.version or 0, diagnostics)
 
 
-server = PuyaPyLanguageServer(NAME, version=version("puyapy"))
+server = PuyaPyLanguageServer(_NAME, version=_VERSION)
 
 
 def _parse_and_log(log_ctx: LoggingContext, puyapy_options: PuyaPyOptions) -> None:
     with log_exceptions():
-        parse_result = parse_with_mypy(puyapy_options.paths, puyapy_options.sources)
+        parse_result = parse_with_mypy(puyapy_options.paths, puyapy_options.sources, prefix=puyapy_options.prefix)
 
         log_ctx.sources_by_path = parse_result.sources_by_path
         if log_ctx.num_errors:
@@ -108,11 +106,24 @@ def _refresh_diagnostics(ls: PuyaPyLanguageServer, params: _HasTextDocument) -> 
                 diagnostics=diagnostics,
             )
         )
+@server.feature(types.INITIALIZE)
+def _initialization(ls: PuyaPyLanguageServer, params: types.InitializeParams) -> None:
+    options = params.initialization_options
+    analysis_prefix = options.get("analysisPrefix")
+    if not analysis_prefix:
+        analysis_prefix = sys.prefix
+        ls.window_log_message(
+            types.LogMessageParams(
+                type=types.MessageType.Warning,
+                message=f"No analysis prefix provided, using {analysis_prefix}",
+            )
+        )
+    ls.analysis_prefix = Path(analysis_prefix)
+
 
 server.feature(types.TEXT_DOCUMENT_DID_SAVE)(_refresh_diagnostics)
 server.feature(types.TEXT_DOCUMENT_DID_OPEN)(_refresh_diagnostics)
 server.feature(types.TEXT_DOCUMENT_DID_CHANGE)(_refresh_diagnostics)
-
 
 def _diag(
     message: str, level: LogLevel = LogLevel.info, loc: SourceLocation | None = None
@@ -134,7 +145,7 @@ def _diag(
         range_ = types.Range(start=zero, end=zero)
 
     return types.Diagnostic(
-        message=message, severity=_map_severity(level), range=range_, source=NAME
+        message=message, severity=_map_severity(level), range=range_, source=_NAME
     )
 
 
