@@ -304,6 +304,7 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
         flags = [
             "-O1",
             "--output-awst",
+            "--output-awst-json",
             "--output-ssa-ir",
             "--output-optimization-ir",
             "--output-memory-ir",
