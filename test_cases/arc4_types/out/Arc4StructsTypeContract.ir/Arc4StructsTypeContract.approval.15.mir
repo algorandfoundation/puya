@@ -1,43 +1,44 @@
-// Op                                                                                              Stack (out)
+// Op                                                                                                  Stack (out)
 // test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program() -> uint64:
-main:
-    // arc4_types/structs.py:39
-    // for val in (coord_3.x, coord_3.y):
-    byte 0x0000001079f7e42e                                                                        val#0
-    x-store val#0                                                                                  (𝕏) val#0 |
-    byte 0x0000004607097084                                                                        (𝕏) val#0 | val#2
-    f-store val#2                                                                                  (𝕗) val#2 | (𝕏) val#0 |
-    int 0                                                                                          (𝕗) val#2 | (𝕏) val#0 | loop_counter%0#0
-    f-store loop_counter%0#0                                                                       (𝕗) val#2,loop_counter%0#0 | (𝕏) val#0 |
-    b main_for_body@1                                                                              (𝕗) val#2,loop_counter%0#0 | (𝕏) val#0 |
+subroutine main:
+    main_block@0:
+        // arc4_types/structs.py:39
+        // for val in (coord_3.x, coord_3.y):
+        byte 0x0000001079f7e42e                                                                        val#0
+        x-store val#0                                                                                  (𝕏) val#0 |
+        byte 0x0000004607097084                                                                        (𝕏) val#0 | val#2
+        f-store val#2                                                                                  (𝕗) val#2 | (𝕏) val#0 |
+        int 0                                                                                          (𝕗) val#2 | (𝕏) val#0 | loop_counter%0#0
+        f-store loop_counter%0#0                                                                       (𝕗) val#2,loop_counter%0#0 | (𝕏) val#0 |
+        b main_for_body@1                                                                              (𝕗) val#2,loop_counter%0#0 | (𝕏) val#0 |
 
-main_for_body@1:                                                                                   (𝕗) val#2,loop_counter%0#0 | (𝕏) val#0 |
-    // arc4_types/structs.py:40
-    // log(val.bytes)
-    x-load val#0                                                                                   (𝕗) val#2,loop_counter%0#0 | val#0
-    log                                                                                            (𝕗) val#2,loop_counter%0#0 |
-    // arc4_types/structs.py:39
-    // for val in (coord_3.x, coord_3.y):
-    f-load loop_counter%0#0                                                                        (𝕗) val#2,loop_counter%0#0 | loop_counter%0#0
-    bz main_for_header_1@3 ; b main_after_for@4                                                    (𝕗) val#2,loop_counter%0#0 |
+    main_for_body@1:                                                                                   (𝕗) val#2,loop_counter%0#0 | (𝕏) val#0 |
+        // arc4_types/structs.py:40
+        // log(val.bytes)
+        x-load val#0                                                                                   (𝕗) val#2,loop_counter%0#0 | val#0
+        log                                                                                            (𝕗) val#2,loop_counter%0#0 |
+        // arc4_types/structs.py:39
+        // for val in (coord_3.x, coord_3.y):
+        f-load loop_counter%0#0                                                                        (𝕗) val#2,loop_counter%0#0 | loop_counter%0#0
+        bz main_for_header_1@3 ; b main_after_for@4                                                    (𝕗) val#2,loop_counter%0#0 |
 
-main_for_header_1@3:                                                                               (𝕗) val#2,loop_counter%0#0 |
-    int 1                                                                                          (𝕗) val#2,loop_counter%0#0 | loop_counter%0#0
-    f-store loop_counter%0#0                                                                       (𝕗) val#2,loop_counter%0#0 |
-    f-load val#2                                                                                   (𝕗) val#2,loop_counter%0#0 | val#0
-    x-store val#0                                                                                  (𝕗) val#2,loop_counter%0#0 | (𝕏) val#0 |
-    b main_for_body@1                                                                              (𝕗) val#2,loop_counter%0#0 | (𝕏) val#0 |
+    main_for_header_1@3:                                                                               (𝕗) val#2,loop_counter%0#0 |
+        int 1                                                                                          (𝕗) val#2,loop_counter%0#0 | loop_counter%0#0
+        f-store loop_counter%0#0                                                                       (𝕗) val#2,loop_counter%0#0 |
+        f-load val#2                                                                                   (𝕗) val#2,loop_counter%0#0 | val#0
+        x-store val#0                                                                                  (𝕗) val#2,loop_counter%0#0 | (𝕏) val#0 |
+        b main_for_body@1                                                                              (𝕗) val#2,loop_counter%0#0 | (𝕏) val#0 |
 
-main_after_for@4:                                                                                  (𝕗) val#2,loop_counter%0#0 |
-    // arc4_types/structs.py:42
-    // flags = Flags(a=arc4.Bool(True), b=arc4.Bool(False), c=arc4.Bool(True), d=arc4.Bool(False))
-    byte 0xa0                                                                                      (𝕗) val#2,loop_counter%0#0 | 0xa0
-    // arc4_types/structs.py:44
-    // log(flags.bytes)
-    log                                                                                            (𝕗) val#2,loop_counter%0#0 |
-    // arc4_types/structs.py:62
-    // return True
-    int 1                                                                                          (𝕗) val#2,loop_counter%0#0 | 1
-    return                                                                                         (𝕗) val#2,loop_counter%0#0 |
+    main_after_for@4:                                                                                  (𝕗) val#2,loop_counter%0#0 |
+        // arc4_types/structs.py:42
+        // flags = Flags(a=arc4.Bool(True), b=arc4.Bool(False), c=arc4.Bool(True), d=arc4.Bool(False))
+        byte 0xa0                                                                                      (𝕗) val#2,loop_counter%0#0 | 0xa0
+        // arc4_types/structs.py:44
+        // log(flags.bytes)
+        log                                                                                            (𝕗) val#2,loop_counter%0#0 |
+        // arc4_types/structs.py:62
+        // return True
+        int 1                                                                                          (𝕗) val#2,loop_counter%0#0 | 1
+        return                                                                                         (𝕗) val#2,loop_counter%0#0 |
 
 

@@ -1,145 +1,149 @@
-// Op                                                                                                        Stack (out)
+// Op                                                                                                            Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
-main:
-    // template_variables/contract.py:5
-    // class TemplateVariablesContract(arc4.ARC4Contract):
-    txn NumAppArgs                                                                                           tmp%0#1
-    bz main_bare_routing@7 ; b main_abi_routing@2
+subroutine main:
+    main_block@0:
+        // template_variables/contract.py:5
+        // class TemplateVariablesContract(arc4.ARC4Contract):
+        txn NumAppArgs                                                                                           tmp%0#1
+        bz main_bare_routing@7 ; b main_abi_routing@2
 
-main_abi_routing@2:
-    // template_variables/contract.py:5
-    // class TemplateVariablesContract(arc4.ARC4Contract):
-    txna ApplicationArgs 0                                                                                   tmp%2#0
-    method get_bytes()byte[]                                                                                 tmp%2#0,Method(get_bytes()byte[])
-    method get_big_uint()uint512                                                                             tmp%2#0,Method(get_bytes()byte[]),Method(get_big_uint()uint512)
-    l-load tmp%2#0 2                                                                                         Method(get_bytes()byte[]),Method(get_big_uint()uint512),tmp%2#0
-    match main_get_bytes_route@3 main_get_big_uint_route@4 ; b main_after_if_else@13
+    main_abi_routing@2:
+        // template_variables/contract.py:5
+        // class TemplateVariablesContract(arc4.ARC4Contract):
+        txna ApplicationArgs 0                                                                                   tmp%2#0
+        method get_bytes()byte[]                                                                                 tmp%2#0,Method(get_bytes()byte[])
+        method get_big_uint()uint512                                                                             tmp%2#0,Method(get_bytes()byte[]),Method(get_big_uint()uint512)
+        l-load tmp%2#0 2                                                                                         Method(get_bytes()byte[]),Method(get_big_uint()uint512),tmp%2#0
+        match main_get_bytes_route@3 main_get_big_uint_route@4 ; b main_after_if_else@13
 
-main_get_bytes_route@3:
-    // template_variables/contract.py:6
-    // @arc4.abimethod()
-    txn OnCompletion                                                                                         tmp%3#0
-    !                                                                                                        tmp%4#0
-    assert // OnCompletion is not NoOp
-    txn ApplicationID                                                                                        tmp%5#0
-    assert // can only call when not creating
-    // template_variables/contract.py:8
-    // return TemplateVar[Bytes]("SOME_BYTES")
-    byte TMPL_SOME_BYTES                                                                                     to_encode%0#0
-    // template_variables/contract.py:6
-    // @arc4.abimethod()
-    l-load-copy to_encode%0#0 0                                                                              to_encode%0#0,to_encode%0#0 (copy)
-    len                                                                                                      to_encode%0#0,length%0#0
-    itob                                                                                                     to_encode%0#0,as_bytes%0#0
-    extract 6 2                                                                                              to_encode%0#0,length_uint16%0#0
-    l-load to_encode%0#0 1                                                                                   length_uint16%0#0,to_encode%0#0
-    concat                                                                                                   encoded_value%0#0
-    byte 0x151f7c75                                                                                          encoded_value%0#0,0x151f7c75
-    l-load encoded_value%0#0 1                                                                               0x151f7c75,encoded_value%0#0
-    concat                                                                                                   tmp%7#0
-    log
-    int 1                                                                                                    test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__%0#0
-    v-store tmp%0#0
-    b main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__@14 
+    main_get_bytes_route@3:
+        // template_variables/contract.py:6
+        // @arc4.abimethod()
+        txn OnCompletion                                                                                         tmp%3#0
+        !                                                                                                        tmp%4#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                                        tmp%5#0
+        assert // can only call when not creating
+        // template_variables/contract.py:8
+        // return TemplateVar[Bytes]("SOME_BYTES")
+        byte TMPL_SOME_BYTES                                                                                     to_encode%0#0
+        // template_variables/contract.py:6
+        // @arc4.abimethod()
+        l-load-copy to_encode%0#0 0                                                                              to_encode%0#0,to_encode%0#0 (copy)
+        len                                                                                                      to_encode%0#0,length%0#0
+        itob                                                                                                     to_encode%0#0,as_bytes%0#0
+        extract 6 2                                                                                              to_encode%0#0,length_uint16%0#0
+        l-load to_encode%0#0 1                                                                                   length_uint16%0#0,to_encode%0#0
+        concat                                                                                                   encoded_value%0#0
+        byte 0x151f7c75                                                                                          encoded_value%0#0,0x151f7c75
+        l-load encoded_value%0#0 1                                                                               0x151f7c75,encoded_value%0#0
+        concat                                                                                                   tmp%7#0
+        log
+        int 1                                                                                                    test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__@14 
 
-main_get_big_uint_route@4:
-    // template_variables/contract.py:10
-    // @arc4.abimethod()
-    txn OnCompletion                                                                                         tmp%8#0
-    !                                                                                                        tmp%9#0
-    assert // OnCompletion is not NoOp
-    txn ApplicationID                                                                                        tmp%10#0
-    assert // can only call when not creating
-    callsub get_big_uint                                                                                     tmp%12#0
-    byte 0x151f7c75                                                                                          tmp%12#0,0x151f7c75
-    l-load tmp%12#0 1                                                                                        0x151f7c75,tmp%12#0
-    concat                                                                                                   tmp%13#0
-    log
-    int 1                                                                                                    test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__%0#0
-    v-store tmp%0#0
-    b main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__@14 
+    main_get_big_uint_route@4:
+        // template_variables/contract.py:10
+        // @arc4.abimethod()
+        txn OnCompletion                                                                                         tmp%8#0
+        !                                                                                                        tmp%9#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                                        tmp%10#0
+        assert // can only call when not creating
+        callsub get_big_uint                                                                                     tmp%12#0
+        byte 0x151f7c75                                                                                          tmp%12#0,0x151f7c75
+        l-load tmp%12#0 1                                                                                        0x151f7c75,tmp%12#0
+        concat                                                                                                   tmp%13#0
+        log
+        int 1                                                                                                    test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__@14 
 
-main_bare_routing@7:
-    // template_variables/contract.py:5
-    // class TemplateVariablesContract(arc4.ARC4Contract):
-    txn OnCompletion                                                                                         tmp%14#0
-    switch main___algopy_default_create@10 main_after_if_else@13 main_after_if_else@13 main_after_if_else@13 main_on_update@8 main_on_delete@9 ; b main_after_if_else@13 
+    main_bare_routing@7:
+        // template_variables/contract.py:5
+        // class TemplateVariablesContract(arc4.ARC4Contract):
+        txn OnCompletion                                                                                         tmp%14#0
+        switch main___algopy_default_create@10 main_after_if_else@13 main_after_if_else@13 main_after_if_else@13 main_on_update@8 main_on_delete@9 ; b main_after_if_else@13 
 
-main_on_update@8:
-    // template_variables/contract.py:15
-    // @arc4.baremethod(allow_actions=["UpdateApplication"])
-    txn ApplicationID                                                                                        tmp%15#0
-    assert // can only call when not creating
-    callsub on_update
-    int 1                                                                                                    test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__%0#0
-    v-store tmp%0#0
-    b main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__@14 
+    main_on_update@8:
+        // template_variables/contract.py:15
+        // @arc4.baremethod(allow_actions=["UpdateApplication"])
+        txn ApplicationID                                                                                        tmp%15#0
+        assert // can only call when not creating
+        callsub on_update
+        int 1                                                                                                    test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__@14 
 
-main_on_delete@9:
-    // template_variables/contract.py:19
-    // @arc4.baremethod(allow_actions=["DeleteApplication"])
-    txn ApplicationID                                                                                        tmp%17#0
-    assert // can only call when not creating
-    callsub on_delete
-    int 1                                                                                                    test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__%0#0
-    v-store tmp%0#0
-    b main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__@14 
+    main_on_delete@9:
+        // template_variables/contract.py:19
+        // @arc4.baremethod(allow_actions=["DeleteApplication"])
+        txn ApplicationID                                                                                        tmp%17#0
+        assert // can only call when not creating
+        callsub on_delete
+        int 1                                                                                                    test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__@14 
 
-main___algopy_default_create@10:
-    txn ApplicationID                                                                                        tmp%19#0
-    !                                                                                                        tmp%20#0
-    assert // can only call when creating
-    int 1                                                                                                    test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__%0#0
-    v-store tmp%0#0
-    b main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__@14 
+    main___algopy_default_create@10:
+        txn ApplicationID                                                                                        tmp%19#0
+        !                                                                                                        tmp%20#0
+        assert // can only call when creating
+        int 1                                                                                                    test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__@14 
 
-main_after_if_else@13:
-    // template_variables/contract.py:5
-    // class TemplateVariablesContract(arc4.ARC4Contract):
-    int 0                                                                                                    test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__%0#0
-    v-store tmp%0#0
-    b main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__@14 
+    main_after_if_else@13:
+        // template_variables/contract.py:5
+        // class TemplateVariablesContract(arc4.ARC4Contract):
+        int 0                                                                                                    test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__@14 
 
-main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__@14:
-    v-load tmp%0#0                                                                                           tmp%0#0
-    return
+    main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__@14:
+        v-load tmp%0#0                                                                                           tmp%0#0
+        return
 
 
 // test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint() -> bytes:
-get_big_uint:
-    // template_variables/contract.py:12
-    // x = TemplateVar[BigUInt]("SOME_BIG_UINT")
-    byte TMPL_SOME_BIG_UINT                                                                                  x#0
-    // template_variables/contract.py:13
-    // return UInt512(x)
-    l-load-copy x#0 0                                                                                        x#0,x#0 (copy)
-    len                                                                                                      x#0,len_%0#0
-    int 64                                                                                                   x#0,len_%0#0,64
-    <=                                                                                                       x#0,no_overflow%0#0
-    assert // overflow                                                                                       x#0
-    int 64                                                                                                   x#0,64
-    bzero                                                                                                    x#0,b_zeros%0#0
-    l-load x#0 1                                                                                             b_zeros%0#0,x#0
-    l-load b_zeros%0#0 1                                                                                     x#0,b_zeros%0#0
-    b|                                                                                                       tmp%0#0
-    retsub                                                                                                   tmp%0#0
+subroutine get_big_uint:
+    get_big_uint_block@0:
+        // template_variables/contract.py:12
+        // x = TemplateVar[BigUInt]("SOME_BIG_UINT")
+        byte TMPL_SOME_BIG_UINT                                                                                  x#0
+        // template_variables/contract.py:13
+        // return UInt512(x)
+        l-load-copy x#0 0                                                                                        x#0,x#0 (copy)
+        len                                                                                                      x#0,len_%0#0
+        int 64                                                                                                   x#0,len_%0#0,64
+        <=                                                                                                       x#0,no_overflow%0#0
+        assert // overflow                                                                                       x#0
+        int 64                                                                                                   x#0,64
+        bzero                                                                                                    x#0,b_zeros%0#0
+        l-load x#0 1                                                                                             b_zeros%0#0,x#0
+        l-load b_zeros%0#0 1                                                                                     x#0,b_zeros%0#0
+        b|                                                                                                       tmp%0#0
+        retsub                                                                                                   tmp%0#0
 
 
 // test_cases.template_variables.contract.TemplateVariablesContract.on_update() -> void:
-on_update:
-    // template_variables/contract.py:17
-    // assert TemplateVar[bool]("UPDATABLE")
-    int TMPL_UPDATABLE                                                                                       TMPL_UPDATABLE
-    assert
-    retsub
+subroutine on_update:
+    on_update_block@0:
+        // template_variables/contract.py:17
+        // assert TemplateVar[bool]("UPDATABLE")
+        int TMPL_UPDATABLE                                                                                       TMPL_UPDATABLE
+        assert
+        retsub
 
 
 // test_cases.template_variables.contract.TemplateVariablesContract.on_delete() -> void:
-on_delete:
-    // template_variables/contract.py:21
-    // assert TemplateVar[UInt64]("DELETABLE")
-    int TMPL_DELETABLE                                                                                       TMPL_DELETABLE
-    assert
-    retsub
+subroutine on_delete:
+    on_delete_block@0:
+        // template_variables/contract.py:21
+        // assert TemplateVar[UInt64]("DELETABLE")
+        int TMPL_DELETABLE                                                                                       TMPL_DELETABLE
+        assert
+        retsub
 
 

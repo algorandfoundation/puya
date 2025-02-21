@@ -1,101 +1,103 @@
-// Op                                                                                             Stack (out)
+// Op                                                                                                 Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
-main:
-    // hello_world_arc4/contract.py:9
-    // class HelloWorldContract(ARC4Contract):
-    txn NumAppArgs                                                                                tmp%0#1
-    l-load tmp%0#1 0                                                                              tmp%0#1
-    bz main_bare_routing@6 ; b main_abi_routing@2
+subroutine main:
+    main_block@0:
+        // hello_world_arc4/contract.py:9
+        // class HelloWorldContract(ARC4Contract):
+        txn NumAppArgs                                                                                tmp%0#1
+        l-load tmp%0#1 0                                                                              tmp%0#1
+        bz main_bare_routing@6 ; b main_abi_routing@2
 
-main_abi_routing@2:
-    // hello_world_arc4/contract.py:9
-    // class HelloWorldContract(ARC4Contract):
-    txna ApplicationArgs 0                                                                        tmp%2#0
-    method hello(string)string                                                                    tmp%2#0,Method(hello(string)string)
-    l-load tmp%2#0 1                                                                              Method(hello(string)string),tmp%2#0
-    match main_hello_route@3 ; b main_after_if_else@10
+    main_abi_routing@2:
+        // hello_world_arc4/contract.py:9
+        // class HelloWorldContract(ARC4Contract):
+        txna ApplicationArgs 0                                                                        tmp%2#0
+        method hello(string)string                                                                    tmp%2#0,Method(hello(string)string)
+        l-load tmp%2#0 1                                                                              Method(hello(string)string),tmp%2#0
+        match main_hello_route@3 ; b main_after_if_else@10
 
-main_hello_route@3:
-    // hello_world_arc4/contract.py:10
-    // @arc4.abimethod
-    txn OnCompletion                                                                              tmp%3#0
-    l-load tmp%3#0 0                                                                              tmp%3#0
-    !                                                                                             tmp%4#0
-    l-load tmp%4#0 0                                                                              tmp%4#0
-    assert // OnCompletion is not NoOp
-    txn ApplicationID                                                                             tmp%5#0
-    l-load tmp%5#0 0                                                                              tmp%5#0
-    assert // can only call when not creating
-    // hello_world_arc4/contract.py:9
-    // class HelloWorldContract(ARC4Contract):
-    txna ApplicationArgs 1                                                                        tmp%7#0
-    l-load tmp%7#0 0                                                                              tmp%7#0
-    extract 2 0                                                                                   tmp%8#0
-    // hello_world_arc4/contract.py:10
-    // @arc4.abimethod
-    l-load tmp%8#0 0                                                                              tmp%8#0
-    callsub hello                                                                                 to_encode%0#0
-    l-load-copy to_encode%0#0 0                                                                   to_encode%0#0,to_encode%0#0 (copy)
-    len                                                                                           to_encode%0#0,length%0#0
-    l-load length%0#0 0                                                                           to_encode%0#0,length%0#0
-    itob                                                                                          to_encode%0#0,as_bytes%0#0
-    l-load as_bytes%0#0 0                                                                         to_encode%0#0,as_bytes%0#0
-    extract 6 2                                                                                   to_encode%0#0,length_uint16%0#0
-    l-load length_uint16%0#0 0                                                                    to_encode%0#0,length_uint16%0#0
-    l-load to_encode%0#0 1                                                                        length_uint16%0#0,to_encode%0#0
-    concat                                                                                        encoded_value%0#0
-    byte 0x151f7c75                                                                               encoded_value%0#0,0x151f7c75
-    l-load encoded_value%0#0 1                                                                    0x151f7c75,encoded_value%0#0
-    concat                                                                                        tmp%9#0
-    l-load tmp%9#0 0                                                                              tmp%9#0
-    log
-    int 1                                                                                         1
-    l-store examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0 0 examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0
-    l-load examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0 0 examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0
-    v-store tmp%0#0
-    b main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__@11 
+    main_hello_route@3:
+        // hello_world_arc4/contract.py:10
+        // @arc4.abimethod
+        txn OnCompletion                                                                              tmp%3#0
+        l-load tmp%3#0 0                                                                              tmp%3#0
+        !                                                                                             tmp%4#0
+        l-load tmp%4#0 0                                                                              tmp%4#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                             tmp%5#0
+        l-load tmp%5#0 0                                                                              tmp%5#0
+        assert // can only call when not creating
+        // hello_world_arc4/contract.py:9
+        // class HelloWorldContract(ARC4Contract):
+        txna ApplicationArgs 1                                                                        tmp%7#0
+        l-load tmp%7#0 0                                                                              tmp%7#0
+        extract 2 0                                                                                   tmp%8#0
+        // hello_world_arc4/contract.py:10
+        // @arc4.abimethod
+        l-load tmp%8#0 0                                                                              tmp%8#0
+        callsub hello                                                                                 to_encode%0#0
+        l-load-copy to_encode%0#0 0                                                                   to_encode%0#0,to_encode%0#0 (copy)
+        len                                                                                           to_encode%0#0,length%0#0
+        l-load length%0#0 0                                                                           to_encode%0#0,length%0#0
+        itob                                                                                          to_encode%0#0,as_bytes%0#0
+        l-load as_bytes%0#0 0                                                                         to_encode%0#0,as_bytes%0#0
+        extract 6 2                                                                                   to_encode%0#0,length_uint16%0#0
+        l-load length_uint16%0#0 0                                                                    to_encode%0#0,length_uint16%0#0
+        l-load to_encode%0#0 1                                                                        length_uint16%0#0,to_encode%0#0
+        concat                                                                                        encoded_value%0#0
+        byte 0x151f7c75                                                                               encoded_value%0#0,0x151f7c75
+        l-load encoded_value%0#0 1                                                                    0x151f7c75,encoded_value%0#0
+        concat                                                                                        tmp%9#0
+        l-load tmp%9#0 0                                                                              tmp%9#0
+        log
+        int 1                                                                                         1
+        l-store examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0 0 examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0
+        l-load examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0 0 examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__@11 
 
-main_bare_routing@6:
-    // hello_world_arc4/contract.py:9
-    // class HelloWorldContract(ARC4Contract):
-    txn OnCompletion                                                                              tmp%10#0
-    l-load tmp%10#0 0                                                                             tmp%10#0
-    bz main___algopy_default_create@7 ; b main_after_if_else@10
+    main_bare_routing@6:
+        // hello_world_arc4/contract.py:9
+        // class HelloWorldContract(ARC4Contract):
+        txn OnCompletion                                                                              tmp%10#0
+        l-load tmp%10#0 0                                                                             tmp%10#0
+        bz main___algopy_default_create@7 ; b main_after_if_else@10
 
-main___algopy_default_create@7:
-    txn ApplicationID                                                                             tmp%11#0
-    l-load tmp%11#0 0                                                                             tmp%11#0
-    !                                                                                             tmp%12#0
-    l-load tmp%12#0 0                                                                             tmp%12#0
-    assert // can only call when creating
-    int 1                                                                                         1
-    l-store examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0 0 examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0
-    l-load examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0 0 examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0
-    v-store tmp%0#0
-    b main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__@11 
+    main___algopy_default_create@7:
+        txn ApplicationID                                                                             tmp%11#0
+        l-load tmp%11#0 0                                                                             tmp%11#0
+        !                                                                                             tmp%12#0
+        l-load tmp%12#0 0                                                                             tmp%12#0
+        assert // can only call when creating
+        int 1                                                                                         1
+        l-store examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0 0 examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0
+        l-load examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0 0 examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__@11 
 
-main_after_if_else@10:
-    // hello_world_arc4/contract.py:9
-    // class HelloWorldContract(ARC4Contract):
-    int 0                                                                                         0
-    l-store examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0 0 examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0
-    l-load examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0 0 examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0
-    v-store tmp%0#0
-    b main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__@11 
+    main_after_if_else@10:
+        // hello_world_arc4/contract.py:9
+        // class HelloWorldContract(ARC4Contract):
+        int 0                                                                                         0
+        l-store examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0 0 examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0
+        l-load examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0 0 examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__@11 
 
-main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__@11:
-    v-load tmp%0#0                                                                                tmp%0#0
-    return
+    main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__@11:
+        v-load tmp%0#0                                                                                tmp%0#0
+        return
 
 
 // examples.hello_world_arc4.contract.HelloWorldContract.hello(name: bytes) -> bytes:
-hello:                                                                                            (𝕡) name#0 |
-    // hello_world_arc4/contract.py:12
-    // return "Hello, " + name
-    byte "Hello, "                                                                                (𝕡) name#0 | "Hello, "
-    p-load name#0                                                                                 (𝕡) name#0 | "Hello, ",name#0 (copy)
-    concat                                                                                        (𝕡) name#0 | tmp%0#0
-    l-load tmp%0#0 0                                                                              (𝕡) name#0 | tmp%0#0
-    retsub                                                                                        tmp%0#0
+subroutine hello:
+    hello_block@0:                                                                                    (𝕡) name#0 |
+        // hello_world_arc4/contract.py:12
+        // return "Hello, " + name
+        byte "Hello, "                                                                                (𝕡) name#0 | "Hello, "
+        p-load name#0                                                                                 (𝕡) name#0 | "Hello, ",name#0 (copy)
+        concat                                                                                        (𝕡) name#0 | tmp%0#0
+        l-load tmp%0#0 0                                                                              (𝕡) name#0 | tmp%0#0
+        retsub                                                                                        tmp%0#0
 
 

@@ -5,6 +5,8 @@
 main:
     intcblock 0 1 1000 4 10000000000
     bytecblock "asset_a" "asset_b" "pool_token" "governor" "ratio"
+
+main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
 
@@ -31,6 +33,8 @@ tokens_to_mint:
     proto 5 1
     pushbytes ""
     dup
+
+tokens_to_mint_block@0:
     // amm/contract.py:331
     // is_initial_mint = a_balance == a_amount and b_balance == b_amount
     frame_dig -4
@@ -130,6 +134,8 @@ tokens_to_burn:
     // @subroutine
     // def tokens_to_burn(*, pool_balance: UInt64, supply: UInt64, amount: UInt64) -> UInt64:
     proto 3 1
+
+tokens_to_burn_block@0:
     // amm/contract.py:345
     // issued = TOTAL_SUPPLY - pool_balance - amount
     intc 4 // 10000000000
@@ -153,6 +159,8 @@ tokens_to_swap:
     // @subroutine
     // def tokens_to_swap(*, in_amount: UInt64, in_supply: UInt64, out_supply: UInt64) -> UInt64:
     proto 3 1
+
+tokens_to_swap_block@0:
     // amm/contract.py:351
     // in_total = SCALE * (in_supply - in_amount) + (in_amount * FACTOR)
     frame_dig -2
@@ -184,6 +192,8 @@ do_asset_transfer:
     // @subroutine
     // def do_asset_transfer(*, receiver: Account, asset: Asset, amount: UInt64) -> None:
     proto 3 0
+
+do_asset_transfer_block@0:
     // amm/contract.py:358-362
     // itxn.AssetTransfer(
     //     xfer_asset=asset,
@@ -223,6 +233,8 @@ do_asset_transfer_next_txn@1:
 
 // examples.amm.contract.ConstantProductAMM.__init__() -> void:
 __init__:
+
+__init___block@0:
     // amm/contract.py:32-33
     // # The asset id of asset A
     // self.asset_a = Asset()
@@ -263,6 +275,8 @@ set_governor:
     // @arc4.abimethod()
     // def set_governor(self, new_governor: Account) -> None:
     proto 1 0
+
+set_governor_block@0:
     // amm/contract.py:46
     // self._check_is_governor()
     callsub _check_is_governor
@@ -280,6 +294,8 @@ bootstrap:
     // @arc4.abimethod()
     // def bootstrap(self, seed: gtxn.PaymentTransaction, a_asset: Asset, b_asset: Asset) -> UInt64:
     proto 3 1
+
+bootstrap_block@0:
     // amm/contract.py:66
     // assert not self.pool_token, "application has already been bootstrapped"
     intc_0 // 0
@@ -375,6 +391,8 @@ mint:
     //     b_asset: Asset,
     // ) -> None:
     proto 5 0
+
+mint_block@0:
     // amm/contract.py:111
     // self._check_bootstrapped()
     callsub _check_bootstrapped
@@ -549,6 +567,8 @@ burn:
     //     b_asset: Asset,
     // ) -> None:
     proto 4 0
+
+burn_block@0:
     // amm/contract.py:170
     // self._check_bootstrapped()
     callsub _check_bootstrapped
@@ -699,6 +719,8 @@ swap:
     proto 3 0
     pushbytes ""
     dup
+
+swap_block@0:
     // amm/contract.py:223
     // self._check_bootstrapped()
     callsub _check_bootstrapped
@@ -837,6 +859,8 @@ swap_switch_case_0@1:
 
 // examples.amm.contract.ConstantProductAMM._check_bootstrapped() -> void:
 _check_bootstrapped:
+
+_check_bootstrapped_block@0:
     // amm/contract.py:253
     // assert self.pool_token, "bootstrap method needs to be called first"
     intc_0 // 0
@@ -849,6 +873,8 @@ _check_bootstrapped:
 
 // examples.amm.contract.ConstantProductAMM._update_ratio() -> void:
 _update_ratio:
+
+_update_ratio_block@0:
     // amm/contract.py:257
     // a_balance = self._current_a_balance()
     callsub _current_a_balance
@@ -870,6 +896,8 @@ _update_ratio:
 
 // examples.amm.contract.ConstantProductAMM._check_is_governor() -> void:
 _check_is_governor:
+
+_check_is_governor_block@0:
     // amm/contract.py:265
     // Txn.sender == self.governor
     txn Sender
@@ -888,6 +916,8 @@ _check_is_governor:
 
 // examples.amm.contract.ConstantProductAMM._create_pool_token() -> uint64:
 _create_pool_token:
+
+_create_pool_token_block@0:
     // amm/contract.py:271-279
     // itxn.AssetConfig(
     //     asset_name=b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name,
@@ -993,6 +1023,8 @@ _do_opt_in:
     // @subroutine
     // def _do_opt_in(self, asset: Asset) -> None:
     proto 1 0
+
+_do_opt_in_block@0:
     // amm/contract.py:286
     // receiver=Global.current_application_address,
     global CurrentApplicationAddress
@@ -1018,6 +1050,8 @@ _do_opt_in:
 
 // examples.amm.contract.ConstantProductAMM._current_pool_balance() -> uint64:
 _current_pool_balance:
+
+_current_pool_balance_block@0:
     // amm/contract.py:293
     // return self.pool_token.balance(Global.current_application_address)
     global CurrentApplicationAddress
@@ -1032,6 +1066,8 @@ _current_pool_balance:
 
 // examples.amm.contract.ConstantProductAMM._current_a_balance() -> uint64:
 _current_a_balance:
+
+_current_a_balance_block@0:
     // amm/contract.py:297
     // return self.asset_a.balance(Global.current_application_address)
     global CurrentApplicationAddress
@@ -1046,6 +1082,8 @@ _current_a_balance:
 
 // examples.amm.contract.ConstantProductAMM._current_b_balance() -> uint64:
 _current_b_balance:
+
+_current_b_balance_block@0:
     // amm/contract.py:301
     // return self.asset_b.balance(Global.current_application_address)
     global CurrentApplicationAddress
@@ -1060,6 +1098,8 @@ _current_b_balance:
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
+
+approval_program_block@0:
 
 approval_program_block@1:
     // amm/contract.py:27

@@ -1,326 +1,330 @@
-// Op                                                                          Stack (out)
+// Op                                                                              Stack (out)
 // test_cases.undefined_phi_args.baddie.Baddie.approval_program() -> uint64:
-main:
-    // undefined_phi_args/baddie.py:6
-    // test_case = op.Txn.application_args(0)
-    txna ApplicationArgs 0                                                     test_case#0
-    v-store test_case#0
-    // undefined_phi_args/baddie.py:8
-    // op.Txn.num_app_args > 1 and op.btoi(op.Txn.application_args(1)) > 0
-    txn NumAppArgs                                                             tmp%0#0
-    int 1                                                                      tmp%0#0,1
-    >                                                                          tmp%1#0
-    bz main_bool_false@3 ; b main_and_contd@1
+subroutine main:
+    main_block@0:
+        // undefined_phi_args/baddie.py:6
+        // test_case = op.Txn.application_args(0)
+        txna ApplicationArgs 0                                                     test_case#0
+        v-store test_case#0
+        // undefined_phi_args/baddie.py:8
+        // op.Txn.num_app_args > 1 and op.btoi(op.Txn.application_args(1)) > 0
+        txn NumAppArgs                                                             tmp%0#0
+        int 1                                                                      tmp%0#0,1
+        >                                                                          tmp%1#0
+        bz main_bool_false@3 ; b main_and_contd@1
 
-main_and_contd@1:
-    // undefined_phi_args/baddie.py:8
-    // op.Txn.num_app_args > 1 and op.btoi(op.Txn.application_args(1)) > 0
-    txna ApplicationArgs 1                                                     tmp%2#0
-    btoi                                                                       tmp%3#0
-    bz main_bool_false@3 ; b main_bool_true@2
+    main_and_contd@1:
+        // undefined_phi_args/baddie.py:8
+        // op.Txn.num_app_args > 1 and op.btoi(op.Txn.application_args(1)) > 0
+        txna ApplicationArgs 1                                                     tmp%2#0
+        btoi                                                                       tmp%3#0
+        bz main_bool_false@3 ; b main_bool_true@2
 
-main_bool_true@2:
-    int 1                                                                      and_result%0#0
-    v-store invert_second_condition#0
-    b main_bool_merge@4
+    main_bool_true@2:
+        int 1                                                                      and_result%0#0
+        v-store invert_second_condition#0
+        b main_bool_merge@4
 
-main_bool_false@3:
-    int 0                                                                      and_result%0#0
-    v-store invert_second_condition#0
-    b main_bool_merge@4
+    main_bool_false@3:
+        int 0                                                                      and_result%0#0
+        v-store invert_second_condition#0
+        b main_bool_merge@4
 
-main_bool_merge@4:
-    // undefined_phi_args/baddie.py:11
-    // if invert_second_condition:
-    v-load invert_second_condition#0                                           invert_second_condition#0
-    bz main_else_body@12 ; b main_if_body@5
+    main_bool_merge@4:
+        // undefined_phi_args/baddie.py:11
+        // if invert_second_condition:
+        v-load invert_second_condition#0                                           invert_second_condition#0
+        bz main_else_body@12 ; b main_if_body@5
 
-main_if_body@5:
-    // undefined_phi_args/baddie.py:12
-    // if test_case == b"uint":
-    v-load test_case#0                                                         test_case#0
-    byte 0x75696e74                                                            test_case#0,0x75696e74
-    ==                                                                         tmp%5#0
-    bz main_else_body@7 ; b main_if_body@6
+    main_if_body@5:
+        // undefined_phi_args/baddie.py:12
+        // if test_case == b"uint":
+        v-load test_case#0                                                         test_case#0
+        byte 0x75696e74                                                            test_case#0,0x75696e74
+        ==                                                                         tmp%5#0
+        bz main_else_body@7 ; b main_if_body@6
 
-main_if_body@6:
-    // undefined_phi_args/baddie.py:13
-    // assert test_uint_undefined(True, False) == 10
-    int 1                                                                      1
-    int 0                                                                      1,0
-    callsub test_uint_undefined                                                tmp%6#0
-    int 10                                                                     tmp%6#0,10
-    ==                                                                         tmp%7#0
-    assert
-    // undefined_phi_args/baddie.py:14
-    // assert test_uint_undefined(False, True) == 8  # should fail
-    int 0                                                                      0
-    int 1                                                                      0,1
-    callsub test_uint_undefined                                                tmp%8#0
-    int 8                                                                      tmp%8#0,8
-    ==                                                                         tmp%9#0
-    assert
-    b main_after_if_else@19
+    main_if_body@6:
+        // undefined_phi_args/baddie.py:13
+        // assert test_uint_undefined(True, False) == 10
+        int 1                                                                      1
+        int 0                                                                      1,0
+        callsub test_uint_undefined                                                tmp%6#0
+        int 10                                                                     tmp%6#0,10
+        ==                                                                         tmp%7#0
+        assert
+        // undefined_phi_args/baddie.py:14
+        // assert test_uint_undefined(False, True) == 8  # should fail
+        int 0                                                                      0
+        int 1                                                                      0,1
+        callsub test_uint_undefined                                                tmp%8#0
+        int 8                                                                      tmp%8#0,8
+        ==                                                                         tmp%9#0
+        assert
+        b main_after_if_else@19
 
-main_else_body@7:
-    // undefined_phi_args/baddie.py:15
-    // elif test_case == b"bytes":
-    v-load test_case#0                                                         test_case#0
-    byte 0x6279746573                                                          test_case#0,0x6279746573
-    ==                                                                         tmp%10#0
-    bz main_else_body@9 ; b main_if_body@8
+    main_else_body@7:
+        // undefined_phi_args/baddie.py:15
+        // elif test_case == b"bytes":
+        v-load test_case#0                                                         test_case#0
+        byte 0x6279746573                                                          test_case#0,0x6279746573
+        ==                                                                         tmp%10#0
+        bz main_else_body@9 ; b main_if_body@8
 
-main_if_body@8:
-    // undefined_phi_args/baddie.py:16
-    // assert test_bytes_undefined(True, False) == 10
-    int 1                                                                      1
-    int 0                                                                      1,0
-    callsub test_bytes_undefined                                               tmp%11#0
-    byte 0x0a                                                                  tmp%11#0,0x0a
-    b==                                                                        tmp%12#0
-    assert
-    // undefined_phi_args/baddie.py:17
-    // assert test_bytes_undefined(False, True) == 8  # should fail
-    int 0                                                                      0
-    int 1                                                                      0,1
-    callsub test_bytes_undefined                                               tmp%13#0
-    byte 0x08                                                                  tmp%13#0,0x08
-    b==                                                                        tmp%14#0
-    assert
-    b main_after_if_else@19
+    main_if_body@8:
+        // undefined_phi_args/baddie.py:16
+        // assert test_bytes_undefined(True, False) == 10
+        int 1                                                                      1
+        int 0                                                                      1,0
+        callsub test_bytes_undefined                                               tmp%11#0
+        byte 0x0a                                                                  tmp%11#0,0x0a
+        b==                                                                        tmp%12#0
+        assert
+        // undefined_phi_args/baddie.py:17
+        // assert test_bytes_undefined(False, True) == 8  # should fail
+        int 0                                                                      0
+        int 1                                                                      0,1
+        callsub test_bytes_undefined                                               tmp%13#0
+        byte 0x08                                                                  tmp%13#0,0x08
+        b==                                                                        tmp%14#0
+        assert
+        b main_after_if_else@19
 
-main_else_body@9:
-    // undefined_phi_args/baddie.py:19
-    // assert test_mixed_undefined(True, False) == 10
-    int 1                                                                      1
-    int 0                                                                      1,0
-    callsub test_mixed_undefined                                               tmp%15#0
-    byte 0x0a                                                                  tmp%15#0,0x0a
-    b==                                                                        tmp%16#0
-    assert
-    // undefined_phi_args/baddie.py:20
-    // assert test_mixed_undefined(False, True) == 8  # should fail
-    int 0                                                                      0
-    int 1                                                                      0,1
-    callsub test_mixed_undefined                                               tmp%17#0
-    byte 0x08                                                                  tmp%17#0,0x08
-    b==                                                                        tmp%18#0
-    assert
-    b main_after_if_else@19
+    main_else_body@9:
+        // undefined_phi_args/baddie.py:19
+        // assert test_mixed_undefined(True, False) == 10
+        int 1                                                                      1
+        int 0                                                                      1,0
+        callsub test_mixed_undefined                                               tmp%15#0
+        byte 0x0a                                                                  tmp%15#0,0x0a
+        b==                                                                        tmp%16#0
+        assert
+        // undefined_phi_args/baddie.py:20
+        // assert test_mixed_undefined(False, True) == 8  # should fail
+        int 0                                                                      0
+        int 1                                                                      0,1
+        callsub test_mixed_undefined                                               tmp%17#0
+        byte 0x08                                                                  tmp%17#0,0x08
+        b==                                                                        tmp%18#0
+        assert
+        b main_after_if_else@19
 
-main_else_body@12:
-    // undefined_phi_args/baddie.py:22
-    // if test_case == b"uint":
-    v-load test_case#0                                                         test_case#0
-    byte 0x75696e74                                                            test_case#0,0x75696e74
-    ==                                                                         tmp%19#0
-    bz main_else_body@14 ; b main_if_body@13
+    main_else_body@12:
+        // undefined_phi_args/baddie.py:22
+        // if test_case == b"uint":
+        v-load test_case#0                                                         test_case#0
+        byte 0x75696e74                                                            test_case#0,0x75696e74
+        ==                                                                         tmp%19#0
+        bz main_else_body@14 ; b main_if_body@13
 
-main_if_body@13:
-    // undefined_phi_args/baddie.py:23
-    // assert test_uint_undefined(True, True) == 8
-    int 1                                                                      1
-    int 1                                                                      1,1
-    callsub test_uint_undefined                                                tmp%20#0
-    int 8                                                                      tmp%20#0,8
-    ==                                                                         tmp%21#0
-    assert
-    // undefined_phi_args/baddie.py:24
-    // assert test_uint_undefined(False, False) == 10
-    int 0                                                                      0
-    int 0                                                                      0,0
-    callsub test_uint_undefined                                                tmp%22#0
-    int 10                                                                     tmp%22#0,10
-    ==                                                                         tmp%23#0
-    assert
-    b main_after_if_else@19
+    main_if_body@13:
+        // undefined_phi_args/baddie.py:23
+        // assert test_uint_undefined(True, True) == 8
+        int 1                                                                      1
+        int 1                                                                      1,1
+        callsub test_uint_undefined                                                tmp%20#0
+        int 8                                                                      tmp%20#0,8
+        ==                                                                         tmp%21#0
+        assert
+        // undefined_phi_args/baddie.py:24
+        // assert test_uint_undefined(False, False) == 10
+        int 0                                                                      0
+        int 0                                                                      0,0
+        callsub test_uint_undefined                                                tmp%22#0
+        int 10                                                                     tmp%22#0,10
+        ==                                                                         tmp%23#0
+        assert
+        b main_after_if_else@19
 
-main_else_body@14:
-    // undefined_phi_args/baddie.py:25
-    // elif test_case == b"bytes":
-    v-load test_case#0                                                         test_case#0
-    byte 0x6279746573                                                          test_case#0,0x6279746573
-    ==                                                                         tmp%24#0
-    bz main_else_body@16 ; b main_if_body@15
+    main_else_body@14:
+        // undefined_phi_args/baddie.py:25
+        // elif test_case == b"bytes":
+        v-load test_case#0                                                         test_case#0
+        byte 0x6279746573                                                          test_case#0,0x6279746573
+        ==                                                                         tmp%24#0
+        bz main_else_body@16 ; b main_if_body@15
 
-main_if_body@15:
-    // undefined_phi_args/baddie.py:26
-    // assert test_bytes_undefined(True, True) == 8
-    int 1                                                                      1
-    int 1                                                                      1,1
-    callsub test_bytes_undefined                                               tmp%25#0
-    byte 0x08                                                                  tmp%25#0,0x08
-    b==                                                                        tmp%26#0
-    assert
-    // undefined_phi_args/baddie.py:27
-    // assert test_bytes_undefined(False, False) == 10
-    int 0                                                                      0
-    int 0                                                                      0,0
-    callsub test_bytes_undefined                                               tmp%27#0
-    byte 0x0a                                                                  tmp%27#0,0x0a
-    b==                                                                        tmp%28#0
-    assert
-    b main_after_if_else@19
+    main_if_body@15:
+        // undefined_phi_args/baddie.py:26
+        // assert test_bytes_undefined(True, True) == 8
+        int 1                                                                      1
+        int 1                                                                      1,1
+        callsub test_bytes_undefined                                               tmp%25#0
+        byte 0x08                                                                  tmp%25#0,0x08
+        b==                                                                        tmp%26#0
+        assert
+        // undefined_phi_args/baddie.py:27
+        // assert test_bytes_undefined(False, False) == 10
+        int 0                                                                      0
+        int 0                                                                      0,0
+        callsub test_bytes_undefined                                               tmp%27#0
+        byte 0x0a                                                                  tmp%27#0,0x0a
+        b==                                                                        tmp%28#0
+        assert
+        b main_after_if_else@19
 
-main_else_body@16:
-    // undefined_phi_args/baddie.py:29
-    // assert test_mixed_undefined(True, True) == 8
-    int 1                                                                      1
-    int 1                                                                      1,1
-    callsub test_mixed_undefined                                               tmp%29#0
-    byte 0x08                                                                  tmp%29#0,0x08
-    b==                                                                        tmp%30#0
-    assert
-    // undefined_phi_args/baddie.py:30
-    // assert test_mixed_undefined(False, False) == 10
-    int 0                                                                      0
-    int 0                                                                      0,0
-    callsub test_mixed_undefined                                               tmp%31#0
-    byte 0x0a                                                                  tmp%31#0,0x0a
-    b==                                                                        tmp%32#0
-    assert
-    b main_after_if_else@19
+    main_else_body@16:
+        // undefined_phi_args/baddie.py:29
+        // assert test_mixed_undefined(True, True) == 8
+        int 1                                                                      1
+        int 1                                                                      1,1
+        callsub test_mixed_undefined                                               tmp%29#0
+        byte 0x08                                                                  tmp%29#0,0x08
+        b==                                                                        tmp%30#0
+        assert
+        // undefined_phi_args/baddie.py:30
+        // assert test_mixed_undefined(False, False) == 10
+        int 0                                                                      0
+        int 0                                                                      0,0
+        callsub test_mixed_undefined                                               tmp%31#0
+        byte 0x0a                                                                  tmp%31#0,0x0a
+        b==                                                                        tmp%32#0
+        assert
+        b main_after_if_else@19
 
-main_after_if_else@19:
-    // undefined_phi_args/baddie.py:31
-    // return True
-    int 1                                                                      1
-    return
+    main_after_if_else@19:
+        // undefined_phi_args/baddie.py:31
+        // return True
+        int 1                                                                      1
+        return
 
 
 // test_cases.undefined_phi_args.baddie.test_uint_undefined(x: uint64, y: uint64) -> uint64:
-test_uint_undefined:                                                           (𝕡) x#0,y#0 |
-    undefined                                                                  (𝕡) x#0,y#0 | undefined
-    v-store a#0                                                                (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:39
-    // if x:
-    p-load x#0                                                                 (𝕡) x#0,y#0 | x#0 (copy)
-    bz test_uint_undefined_after_if_else@2 ; b test_uint_undefined_if_body@1   (𝕡) x#0,y#0 |
+subroutine test_uint_undefined:
+    test_uint_undefined_block@0:                                                   (𝕡) x#0,y#0 |
+        undefined                                                                  (𝕡) x#0,y#0 | undefined
+        v-store a#0                                                                (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:39
+        // if x:
+        p-load x#0                                                                 (𝕡) x#0,y#0 | x#0 (copy)
+        bz test_uint_undefined_after_if_else@2 ; b test_uint_undefined_if_body@1   (𝕡) x#0,y#0 |
 
-test_uint_undefined_if_body@1:                                                 (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:40
-    // a = UInt64(7)
-    int 7                                                                      (𝕡) x#0,y#0 | 7
-    v-store a#0                                                                (𝕡) x#0,y#0 |
-    b test_uint_undefined_after_if_else@2                                      (𝕡) x#0,y#0 |
+    test_uint_undefined_if_body@1:                                                 (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:40
+        // a = UInt64(7)
+        int 7                                                                      (𝕡) x#0,y#0 | 7
+        v-store a#0                                                                (𝕡) x#0,y#0 |
+        b test_uint_undefined_after_if_else@2                                      (𝕡) x#0,y#0 |
 
-test_uint_undefined_after_if_else@2:                                           (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:45
-    // if y:
-    p-load y#0                                                                 (𝕡) x#0,y#0 | y#0 (copy)
-    bz test_uint_undefined_else_body@7 ; b test_uint_undefined_if_body@6       (𝕡) x#0,y#0 |
+    test_uint_undefined_after_if_else@2:                                           (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:45
+        // if y:
+        p-load y#0                                                                 (𝕡) x#0,y#0 | y#0 (copy)
+        bz test_uint_undefined_else_body@7 ; b test_uint_undefined_if_body@6       (𝕡) x#0,y#0 |
 
-test_uint_undefined_if_body@6:                                                 (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:46
-    // c = a + 1  # 💥
-    v-load a#0                                                                 (𝕡) x#0,y#0 | a#0
-    int 1                                                                      (𝕡) x#0,y#0 | a#0,1
-    +                                                                          (𝕡) x#0,y#0 | c#0
-    v-store c#0                                                                (𝕡) x#0,y#0 |
-    b test_uint_undefined_after_if_else@8                                      (𝕡) x#0,y#0 |
+    test_uint_undefined_if_body@6:                                                 (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:46
+        // c = a + 1  # 💥
+        v-load a#0                                                                 (𝕡) x#0,y#0 | a#0
+        int 1                                                                      (𝕡) x#0,y#0 | a#0,1
+        +                                                                          (𝕡) x#0,y#0 | c#0
+        v-store c#0                                                                (𝕡) x#0,y#0 |
+        b test_uint_undefined_after_if_else@8                                      (𝕡) x#0,y#0 |
 
-test_uint_undefined_else_body@7:                                               (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:48
-    // c = b - 1
-    int 10                                                                     (𝕡) x#0,y#0 | 10
-    v-store c#0                                                                (𝕡) x#0,y#0 |
-    b test_uint_undefined_after_if_else@8                                      (𝕡) x#0,y#0 |
+    test_uint_undefined_else_body@7:                                               (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:48
+        // c = b - 1
+        int 10                                                                     (𝕡) x#0,y#0 | 10
+        v-store c#0                                                                (𝕡) x#0,y#0 |
+        b test_uint_undefined_after_if_else@8                                      (𝕡) x#0,y#0 |
 
-test_uint_undefined_after_if_else@8:                                           (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:49
-    // return c
-    v-load c#0                                                                 (𝕡) x#0,y#0 | c#0
-    retsub                                                                     c#0
+    test_uint_undefined_after_if_else@8:                                           (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:49
+        // return c
+        v-load c#0                                                                 (𝕡) x#0,y#0 | c#0
+        retsub                                                                     c#0
 
 
 // test_cases.undefined_phi_args.baddie.test_bytes_undefined(x: uint64, y: uint64) -> bytes:
-test_bytes_undefined:                                                          (𝕡) x#0,y#0 |
-    undefined                                                                  (𝕡) x#0,y#0 | undefined
-    v-store a#0                                                                (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:54
-    // if x:
-    p-load x#0                                                                 (𝕡) x#0,y#0 | x#0 (copy)
-    bz test_bytes_undefined_after_if_else@2 ; b test_bytes_undefined_if_body@1 (𝕡) x#0,y#0 |
+subroutine test_bytes_undefined:
+    test_bytes_undefined_block@0:                                                  (𝕡) x#0,y#0 |
+        undefined                                                                  (𝕡) x#0,y#0 | undefined
+        v-store a#0                                                                (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:54
+        // if x:
+        p-load x#0                                                                 (𝕡) x#0,y#0 | x#0 (copy)
+        bz test_bytes_undefined_after_if_else@2 ; b test_bytes_undefined_if_body@1 (𝕡) x#0,y#0 |
 
-test_bytes_undefined_if_body@1:                                                (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:55
-    // a = BigUInt(7)
-    byte 0x07                                                                  (𝕡) x#0,y#0 | 0x07
-    v-store a#0                                                                (𝕡) x#0,y#0 |
-    b test_bytes_undefined_after_if_else@2                                     (𝕡) x#0,y#0 |
+    test_bytes_undefined_if_body@1:                                                (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:55
+        // a = BigUInt(7)
+        byte 0x07                                                                  (𝕡) x#0,y#0 | 0x07
+        v-store a#0                                                                (𝕡) x#0,y#0 |
+        b test_bytes_undefined_after_if_else@2                                     (𝕡) x#0,y#0 |
 
-test_bytes_undefined_after_if_else@2:                                          (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:60
-    // if y:
-    p-load y#0                                                                 (𝕡) x#0,y#0 | y#0 (copy)
-    bz test_bytes_undefined_else_body@7 ; b test_bytes_undefined_if_body@6     (𝕡) x#0,y#0 |
+    test_bytes_undefined_after_if_else@2:                                          (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:60
+        // if y:
+        p-load y#0                                                                 (𝕡) x#0,y#0 | y#0 (copy)
+        bz test_bytes_undefined_else_body@7 ; b test_bytes_undefined_if_body@6     (𝕡) x#0,y#0 |
 
-test_bytes_undefined_if_body@6:                                                (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:61
-    // c = a + 1  # 💥
-    v-load a#0                                                                 (𝕡) x#0,y#0 | a#0
-    byte 0x01                                                                  (𝕡) x#0,y#0 | a#0,0x01
-    b+                                                                         (𝕡) x#0,y#0 | c#0
-    v-store c#0                                                                (𝕡) x#0,y#0 |
-    b test_bytes_undefined_after_if_else@8                                     (𝕡) x#0,y#0 |
+    test_bytes_undefined_if_body@6:                                                (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:61
+        // c = a + 1  # 💥
+        v-load a#0                                                                 (𝕡) x#0,y#0 | a#0
+        byte 0x01                                                                  (𝕡) x#0,y#0 | a#0,0x01
+        b+                                                                         (𝕡) x#0,y#0 | c#0
+        v-store c#0                                                                (𝕡) x#0,y#0 |
+        b test_bytes_undefined_after_if_else@8                                     (𝕡) x#0,y#0 |
 
-test_bytes_undefined_else_body@7:                                              (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:63
-    // c = b - 1
-    byte 0x0a                                                                  (𝕡) x#0,y#0 | 0x0a
-    v-store c#0                                                                (𝕡) x#0,y#0 |
-    b test_bytes_undefined_after_if_else@8                                     (𝕡) x#0,y#0 |
+    test_bytes_undefined_else_body@7:                                              (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:63
+        // c = b - 1
+        byte 0x0a                                                                  (𝕡) x#0,y#0 | 0x0a
+        v-store c#0                                                                (𝕡) x#0,y#0 |
+        b test_bytes_undefined_after_if_else@8                                     (𝕡) x#0,y#0 |
 
-test_bytes_undefined_after_if_else@8:                                          (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:64
-    // return c
-    v-load c#0                                                                 (𝕡) x#0,y#0 | c#0
-    retsub                                                                     c#0
+    test_bytes_undefined_after_if_else@8:                                          (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:64
+        // return c
+        v-load c#0                                                                 (𝕡) x#0,y#0 | c#0
+        retsub                                                                     c#0
 
 
 // test_cases.undefined_phi_args.baddie.test_mixed_undefined(x: uint64, y: uint64) -> bytes:
-test_mixed_undefined:                                                          (𝕡) x#0,y#0 |
-    undefined                                                                  (𝕡) x#0,y#0 | undefined
-    v-store a#0                                                                (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:69
-    // if x:
-    p-load x#0                                                                 (𝕡) x#0,y#0 | x#0 (copy)
-    bz test_mixed_undefined_after_if_else@2 ; b test_mixed_undefined_if_body@1 (𝕡) x#0,y#0 |
+subroutine test_mixed_undefined:
+    test_mixed_undefined_block@0:                                                  (𝕡) x#0,y#0 |
+        undefined                                                                  (𝕡) x#0,y#0 | undefined
+        v-store a#0                                                                (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:69
+        // if x:
+        p-load x#0                                                                 (𝕡) x#0,y#0 | x#0 (copy)
+        bz test_mixed_undefined_after_if_else@2 ; b test_mixed_undefined_if_body@1 (𝕡) x#0,y#0 |
 
-test_mixed_undefined_if_body@1:                                                (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:70
-    // a = UInt64(7)
-    int 7                                                                      (𝕡) x#0,y#0 | 7
-    v-store a#0                                                                (𝕡) x#0,y#0 |
-    b test_mixed_undefined_after_if_else@2                                     (𝕡) x#0,y#0 |
+    test_mixed_undefined_if_body@1:                                                (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:70
+        // a = UInt64(7)
+        int 7                                                                      (𝕡) x#0,y#0 | 7
+        v-store a#0                                                                (𝕡) x#0,y#0 |
+        b test_mixed_undefined_after_if_else@2                                     (𝕡) x#0,y#0 |
 
-test_mixed_undefined_after_if_else@2:                                          (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:75
-    // if y:
-    p-load y#0                                                                 (𝕡) x#0,y#0 | y#0 (copy)
-    bz test_mixed_undefined_else_body@7 ; b test_mixed_undefined_if_body@6     (𝕡) x#0,y#0 |
+    test_mixed_undefined_after_if_else@2:                                          (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:75
+        // if y:
+        p-load y#0                                                                 (𝕡) x#0,y#0 | y#0 (copy)
+        bz test_mixed_undefined_else_body@7 ; b test_mixed_undefined_if_body@6     (𝕡) x#0,y#0 |
 
-test_mixed_undefined_if_body@6:                                                (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:76
-    // c = BigUInt(a) + BigUInt(1)  # 💥
-    v-load a#0                                                                 (𝕡) x#0,y#0 | a#0
-    itob                                                                       (𝕡) x#0,y#0 | tmp%0#0
-    byte 0x01                                                                  (𝕡) x#0,y#0 | tmp%0#0,0x01
-    b+                                                                         (𝕡) x#0,y#0 | c#0
-    v-store c#0                                                                (𝕡) x#0,y#0 |
-    b test_mixed_undefined_after_if_else@8                                     (𝕡) x#0,y#0 |
+    test_mixed_undefined_if_body@6:                                                (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:76
+        // c = BigUInt(a) + BigUInt(1)  # 💥
+        v-load a#0                                                                 (𝕡) x#0,y#0 | a#0
+        itob                                                                       (𝕡) x#0,y#0 | tmp%0#0
+        byte 0x01                                                                  (𝕡) x#0,y#0 | tmp%0#0,0x01
+        b+                                                                         (𝕡) x#0,y#0 | c#0
+        v-store c#0                                                                (𝕡) x#0,y#0 |
+        b test_mixed_undefined_after_if_else@8                                     (𝕡) x#0,y#0 |
 
-test_mixed_undefined_else_body@7:                                              (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:78
-    // c = b - 1
-    byte 0x0a                                                                  (𝕡) x#0,y#0 | 0x0a
-    v-store c#0                                                                (𝕡) x#0,y#0 |
-    b test_mixed_undefined_after_if_else@8                                     (𝕡) x#0,y#0 |
+    test_mixed_undefined_else_body@7:                                              (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:78
+        // c = b - 1
+        byte 0x0a                                                                  (𝕡) x#0,y#0 | 0x0a
+        v-store c#0                                                                (𝕡) x#0,y#0 |
+        b test_mixed_undefined_after_if_else@8                                     (𝕡) x#0,y#0 |
 
-test_mixed_undefined_after_if_else@8:                                          (𝕡) x#0,y#0 |
-    // undefined_phi_args/baddie.py:79
-    // return c
-    v-load c#0                                                                 (𝕡) x#0,y#0 | c#0
-    retsub                                                                     c#0
+    test_mixed_undefined_after_if_else@8:                                          (𝕡) x#0,y#0 |
+        // undefined_phi_args/baddie.py:79
+        // return c
+        v-load c#0                                                                 (𝕡) x#0,y#0 | c#0
+        retsub                                                                     c#0
 
 
