@@ -177,6 +177,8 @@ def encode_value_provider(
             length = factory.len(value, "length")
             length_uint16 = factory.as_u16_bytes(length, "length_uint16")
             return factory.concat(length_uint16, value, "encoded_value")
+        case (wtypes.arc4_address_alias, wtypes.account_wtype):
+            return value_provider
         case (
             wtypes.ARC4Array(),
             wtypes.StackArray(),
