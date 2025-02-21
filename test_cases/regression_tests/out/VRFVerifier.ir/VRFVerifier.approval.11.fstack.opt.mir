@@ -1,0 +1,122 @@
+// Op                                                                                               Stack (out)
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // regression_tests/branch_to_proto.py:4
+    // class VRFVerifier(ARC4Contract):
+    txn NumAppArgs                                                                                  tmp%0#1
+    bz main_bare_routing@6 ; b main_abi_routing@2
+
+main_abi_routing@2:
+    // regression_tests/branch_to_proto.py:4
+    // class VRFVerifier(ARC4Contract):
+    txna ApplicationArgs 0                                                                          tmp%2#0
+    method verify(byte[],byte[],byte[])(byte[],bool)                                                tmp%2#0,Method(verify(byte[],byte[],byte[])(byte[],bool))
+    l-load tmp%2#0 1                                                                                Method(verify(byte[],byte[],byte[])(byte[],bool)),tmp%2#0
+    match main_verify_route@3 ; b main_after_if_else@10
+
+main_verify_route@3:
+    // regression_tests/branch_to_proto.py:5
+    // @arc4.abimethod
+    txn OnCompletion                                                                                tmp%3#0
+    !                                                                                               tmp%4#0
+    assert // OnCompletion is not NoOp
+    txn ApplicationID                                                                               tmp%5#0
+    assert // can only call when not creating
+    // regression_tests/branch_to_proto.py:4
+    // class VRFVerifier(ARC4Contract):
+    txna ApplicationArgs 1                                                                          tmp%7#0
+    extract 2 0                                                                                     tmp%8#0
+    txna ApplicationArgs 2                                                                          tmp%8#0,tmp%9#0
+    extract 2 0                                                                                     tmp%8#0,tmp%10#0
+    txna ApplicationArgs 3                                                                          tmp%8#0,tmp%10#0,tmp%11#0
+    extract 2 0                                                                                     tmp%8#0,tmp%10#0,tmp%12#0
+    // regression_tests/branch_to_proto.py:5
+    // @arc4.abimethod
+    l-load tmp%8#0 2                                                                                tmp%10#0,tmp%12#0,tmp%8#0
+    l-load tmp%10#0 2                                                                               tmp%12#0,tmp%8#0,tmp%10#0
+    l-load tmp%12#0 2                                                                               tmp%8#0,tmp%10#0,tmp%12#0
+    callsub verify                                                                                  elements_to_encode%0#0,elements_to_encode%1#0
+    l-load-copy elements_to_encode%0#0 1                                                            elements_to_encode%0#0,elements_to_encode%1#0,elements_to_encode%0#0 (copy)
+    len                                                                                             elements_to_encode%0#0,elements_to_encode%1#0,length%0#0
+    itob                                                                                            elements_to_encode%0#0,elements_to_encode%1#0,as_bytes%0#0
+    extract 6 2                                                                                     elements_to_encode%0#0,elements_to_encode%1#0,length_uint16%0#0
+    l-load elements_to_encode%0#0 2                                                                 elements_to_encode%1#0,length_uint16%0#0,elements_to_encode%0#0
+    concat                                                                                          elements_to_encode%1#0,encoded_value%0#0
+    byte 0x00                                                                                       elements_to_encode%1#0,encoded_value%0#0,0x00
+    int 0                                                                                           elements_to_encode%1#0,encoded_value%0#0,0x00,0
+    l-load elements_to_encode%1#0 3                                                                 encoded_value%0#0,0x00,0,elements_to_encode%1#0
+    setbit                                                                                          encoded_value%0#0,encoded_bool%0#0
+    byte 0x0003                                                                                     encoded_value%0#0,encoded_bool%0#0,0x0003
+    l-load encoded_bool%0#0 1                                                                       encoded_value%0#0,0x0003,encoded_bool%0#0
+    concat                                                                                          encoded_value%0#0,encoded_tuple_buffer%2#0
+    l-load encoded_value%0#0 1                                                                      encoded_tuple_buffer%2#0,encoded_value%0#0
+    concat                                                                                          encoded_tuple_buffer%3#0
+    byte 0x151f7c75                                                                                 encoded_tuple_buffer%3#0,0x151f7c75
+    l-load encoded_tuple_buffer%3#0 1                                                               0x151f7c75,encoded_tuple_buffer%3#0
+    concat                                                                                          tmp%13#0
+    log
+    int 1                                                                                           tmp%0#0
+    x-store tmp%0#0                                                                                 (𝕏) tmp%0#0 |
+    b main_after_inlined_test_cases.regression_tests.branch_to_proto.VRFVerifier.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
+
+main_bare_routing@6:
+    // regression_tests/branch_to_proto.py:4
+    // class VRFVerifier(ARC4Contract):
+    txn OnCompletion                                                                                tmp%14#0
+    bz main___algopy_default_create@7 ; b main_after_if_else@10
+
+main___algopy_default_create@7:
+    txn ApplicationID                                                                               tmp%15#0
+    !                                                                                               tmp%16#0
+    assert // can only call when creating
+    int 1                                                                                           tmp%0#0
+    x-store tmp%0#0                                                                                 (𝕏) tmp%0#0 |
+    b main_after_inlined_test_cases.regression_tests.branch_to_proto.VRFVerifier.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
+
+main_after_if_else@10:
+    // regression_tests/branch_to_proto.py:4
+    // class VRFVerifier(ARC4Contract):
+    int 0                                                                                           tmp%0#0
+    x-store tmp%0#0                                                                                 (𝕏) tmp%0#0 |
+    b main_after_inlined_test_cases.regression_tests.branch_to_proto.VRFVerifier.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
+
+main_after_inlined_test_cases.regression_tests.branch_to_proto.VRFVerifier.__puya_arc4_router__@11: (𝕏) tmp%0#0 |
+    x-load tmp%0#0                                                                                  tmp%0#0
+    return
+
+
+// test_cases.regression_tests.branch_to_proto.VRFVerifier.verify(message: bytes, proof: bytes, pk: bytes) -> bytes, uint64:
+verify:                                                                                             (𝕡) message#0,proof#0,pk#0 |
+    global OpcodeBudget                                                                             (𝕡) message#0,proof#0,pk#0 | tmp%0#1
+    int 10010                                                                                       (𝕡) message#0,proof#0,pk#0 | tmp%0#1,10010
+    l-load tmp%0#1 1                                                                                (𝕡) message#0,proof#0,pk#0 | 10010,tmp%0#1
+    >                                                                                               (𝕡) message#0,proof#0,pk#0 | tmp%1#0
+    bz verify_after_while@7 ; b verify_while_body@3                                                 (𝕡) message#0,proof#0,pk#0 |
+
+verify_while_body@3:                                                                                (𝕡) message#0,proof#0,pk#0 |
+    itxn_begin                                                                                      (𝕡) message#0,proof#0,pk#0 |
+    int appl                                                                                        (𝕡) message#0,proof#0,pk#0 | appl
+    itxn_field TypeEnum                                                                             (𝕡) message#0,proof#0,pk#0 |
+    int DeleteApplication                                                                           (𝕡) message#0,proof#0,pk#0 | DeleteApplication
+    itxn_field OnCompletion                                                                         (𝕡) message#0,proof#0,pk#0 |
+    byte 0x068101                                                                                   (𝕡) message#0,proof#0,pk#0 | 0x068101
+    itxn_field ApprovalProgram                                                                      (𝕡) message#0,proof#0,pk#0 |
+    byte 0x068101                                                                                   (𝕡) message#0,proof#0,pk#0 | 0x068101
+    itxn_field ClearStateProgram                                                                    (𝕡) message#0,proof#0,pk#0 |
+    global MinTxnFee                                                                                (𝕡) message#0,proof#0,pk#0 | tmp%2#0
+    itxn_field Fee                                                                                  (𝕡) message#0,proof#0,pk#0 |
+    itxn_submit                                                                                     (𝕡) message#0,proof#0,pk#0 |
+    b verify                                                                                        (𝕡) message#0,proof#0,pk#0 |
+
+verify_after_while@7:                                                                               (𝕡) message#0,proof#0,pk#0 |
+    // regression_tests/branch_to_proto.py:8
+    // return op.vrf_verify(op.VrfVerify.VrfAlgorand, message, proof, pk)
+    p-load message#0                                                                                (𝕡) message#0,proof#0,pk#0 | message#0 (copy)
+    p-load proof#0                                                                                  (𝕡) message#0,proof#0,pk#0 | message#0 (copy),proof#0 (copy)
+    p-load pk#0                                                                                     (𝕡) message#0,proof#0,pk#0 | message#0 (copy),proof#0 (copy),pk#0 (copy)
+    vrf_verify VrfAlgorand                                                                          (𝕡) message#0,proof#0,pk#0 | tmp%0#0,tmp%1#0
+    l-load tmp%0#0 1                                                                                (𝕡) message#0,proof#0,pk#0 | tmp%1#0,tmp%0#0
+    l-load tmp%1#0 1                                                                                (𝕡) message#0,proof#0,pk#0 | tmp%0#0,tmp%1#0
+    retsub                                                                                          tmp%0#0,tmp%1#0
+
+

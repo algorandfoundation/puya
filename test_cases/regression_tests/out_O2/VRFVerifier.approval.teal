@@ -1,0 +1,89 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1
+    bytecblock 0x068101
+    intc_0 // 0
+    dupn 2
+    txn NumAppArgs
+    bz main_bare_routing@6
+    pushbytes 0x6e50bd99 // method "verify(byte[],byte[],byte[])(byte[],bool)"
+    txna ApplicationArgs 0
+    match main_verify_route@3
+
+main_after_if_else@10:
+    intc_0 // 0
+    return
+
+main_verify_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    extract 2 0
+    bury 3
+    txna ApplicationArgs 2
+    extract 2 0
+    bury 1
+    txna ApplicationArgs 3
+    extract 2 0
+    bury 2
+
+main_while_top@15:
+    pushint 10010 // 10010
+    global OpcodeBudget
+    >
+    bz main_after_while@18
+    itxn_begin
+    pushint 6 // appl
+    itxn_field TypeEnum
+    pushint 5 // DeleteApplication
+    itxn_field OnCompletion
+    bytec_0 // 0x068101
+    itxn_field ApprovalProgram
+    bytec_0 // 0x068101
+    itxn_field ClearStateProgram
+    global MinTxnFee
+    itxn_field Fee
+    itxn_submit
+    b main_while_top@15
+
+main_after_while@18:
+    dig 2
+    dig 1
+    dig 3
+    vrf_verify VrfAlgorand
+    dig 1
+    len
+    itob
+    extract 6 2
+    uncover 2
+    concat
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 3
+    setbit
+    pushbytes 0x0003
+    swap
+    concat
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_bare_routing@6:
+    txn OnCompletion
+    bnz main_after_if_else@10
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_1 // 1
+    return

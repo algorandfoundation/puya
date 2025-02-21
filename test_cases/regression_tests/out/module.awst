@@ -78,3 +78,30 @@ contract Issue118
   {
   }
 }
+
+contract VRFVerifier
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.branch_to_proto.VRFVerifier.verify(message: bytes, proof: bytes, pk: bytes): tuple<bytes,bool>
+  {
+    _puya_lib.util.ensure_budget(required_budget=10000u, fee_source=1u)
+    return vrf_verify<VrfAlgorand>(message, proof, pk)
+  }
+  
+  baremethod test_cases.regression_tests.branch_to_proto.VRFVerifier.__algopy_default_create(): void
+  {
+  }
+}
