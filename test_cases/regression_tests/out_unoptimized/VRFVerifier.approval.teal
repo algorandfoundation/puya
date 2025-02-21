@@ -1,0 +1,182 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1
+    bytecblock 0x068101
+
+main_block@1:
+    // regression_tests/branch_to_proto.py:4
+    // class VRFVerifier(ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main_bare_routing@6
+
+main_abi_routing@2:
+    // regression_tests/branch_to_proto.py:4
+    // class VRFVerifier(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x6e50bd99 // method "verify(byte[],byte[],byte[])(byte[],bool)"
+    swap
+    match main_verify_route@3
+
+main_switch_case_default@4:
+
+main_switch_case_next@5:
+
+main_after_if_else@10:
+    // regression_tests/branch_to_proto.py:4
+    // class VRFVerifier(ARC4Contract):
+    intc_0 // 0
+
+main_after_inlined_test_cases.regression_tests.branch_to_proto.VRFVerifier.__puya_arc4_router__@11:
+    return
+
+main_verify_route@3:
+    // regression_tests/branch_to_proto.py:5
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // regression_tests/branch_to_proto.py:4
+    // class VRFVerifier(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    txna ApplicationArgs 3
+    extract 2 0
+    // regression_tests/branch_to_proto.py:5
+    // @arc4.abimethod
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub verify
+    swap
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    swap
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    pushint 3 // 3
+    itob
+    extract 6 2
+    pushbytes 0x
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b main_after_inlined_test_cases.regression_tests.branch_to_proto.VRFVerifier.__puya_arc4_router__@11
+
+main_bare_routing@6:
+    // regression_tests/branch_to_proto.py:4
+    // class VRFVerifier(ARC4Contract):
+    txn OnCompletion
+    intc_0 // 0
+    swap
+    match main___algopy_default_create@7
+
+main_switch_case_default@8:
+
+main_switch_case_next@9:
+    b main_after_if_else@10
+
+main___algopy_default_create@7:
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    assert // can only call when creating
+
+main_block@12:
+
+main_after_inlined_test_cases.regression_tests.branch_to_proto.VRFVerifier.__algopy_default_create@13:
+    intc_1 // 1
+    b main_after_inlined_test_cases.regression_tests.branch_to_proto.VRFVerifier.__puya_arc4_router__@11
+
+
+// _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
+ensure_budget:
+    proto 2 0
+    frame_dig -2
+    pushint 10 // 10
+    +
+
+ensure_budget_while_top@1:
+    global OpcodeBudget
+    frame_dig 0
+    <
+    bz ensure_budget_after_while@7
+
+ensure_budget_while_body@2:
+    itxn_begin
+    pushint 6 // appl
+    itxn_field TypeEnum
+    pushint 5 // DeleteApplication
+    itxn_field OnCompletion
+    bytec_0 // 0x068101
+    itxn_field ApprovalProgram
+    bytec_0 // 0x068101
+    itxn_field ClearStateProgram
+    intc_0 // 0
+    intc_1 // 1
+    frame_dig -1
+    match ensure_budget_switch_case_0@3 ensure_budget_switch_case_1@4
+
+ensure_budget_switch_case_default@5:
+
+ensure_budget_switch_case_next@6:
+    itxn_submit
+    b ensure_budget_while_top@1
+
+ensure_budget_switch_case_1@4:
+    global MinTxnFee
+    itxn_field Fee
+    b ensure_budget_switch_case_next@6
+
+ensure_budget_switch_case_0@3:
+    intc_0 // 0
+    itxn_field Fee
+    b ensure_budget_switch_case_next@6
+
+ensure_budget_after_while@7:
+    retsub
+
+
+// test_cases.regression_tests.branch_to_proto.VRFVerifier.verify(message: bytes, proof: bytes, pk: bytes) -> bytes, uint64:
+verify:
+    // regression_tests/branch_to_proto.py:5-6
+    // @arc4.abimethod
+    // def verify(self, message: Bytes, proof: Bytes, pk: Bytes) -> tuple[Bytes, bool]:
+    proto 3 2
+    // regression_tests/branch_to_proto.py:7
+    // ensure_budget(10_000, OpUpFeeSource.AppAccount)
+    pushint 10000 // 10000
+    intc_1 // 1
+    callsub ensure_budget
+    // regression_tests/branch_to_proto.py:8
+    // return op.vrf_verify(op.VrfVerify.VrfAlgorand, message, proof, pk)
+    frame_dig -3
+    frame_dig -2
+    frame_dig -1
+    vrf_verify VrfAlgorand
+    retsub
