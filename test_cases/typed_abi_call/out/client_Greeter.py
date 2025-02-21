@@ -53,6 +53,12 @@ class Greeter(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
+    def test_account_to_address(
+        self,
+        app: algopy.Application,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
     def test_native_string(
         self,
         app: algopy.Application,

@@ -66,6 +66,12 @@ class Logger(algopy.arc4.ARC4Client, typing.Protocol):
         app: algopy.Application,
     ) -> None: ...
 
+    @algopy.arc4.abimethod(name='log')
+    def log7(
+        self,
+        address: algopy.arc4.Address,
+    ) -> None: ...
+
     @algopy.arc4.abimethod
     def echo_native_string(
         self,
