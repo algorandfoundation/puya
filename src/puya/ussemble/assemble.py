@@ -47,6 +47,7 @@ def assemble_bytecode_and_debug_info(
             # update stack with correct values on entry to a block
             f_stack_height = block.entry_stack_height - len(block.x_stack_in)
             stack[f_stack_height:] = block.x_stack_in
+            assert block.label not in label_pcs, "expected unique block labels"
             label_pcs[block.label] = pc
             current_event["block"] = block.label
             current_event["stack_in"] = stack.copy()
