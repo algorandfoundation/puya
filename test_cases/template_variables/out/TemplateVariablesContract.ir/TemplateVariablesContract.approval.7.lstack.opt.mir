@@ -24,11 +24,7 @@ subroutine main:
         assert // OnCompletion is not NoOp
         txn ApplicationID                                                                                        tmp%5#0
         assert // can only call when not creating
-        // template_variables/contract.py:8
-        // return TemplateVar[Bytes]("SOME_BYTES")
-        byte TMPL_SOME_BYTES                                                                                     to_encode%0#0
-        // template_variables/contract.py:6
-        // @arc4.abimethod()
+        callsub get_bytes                                                                                        to_encode%0#0
         l-load-copy to_encode%0#0 0                                                                              to_encode%0#0,to_encode%0#0 (copy)
         len                                                                                                      to_encode%0#0,length%0#0
         itob                                                                                                     to_encode%0#0,as_bytes%0#0
@@ -104,6 +100,15 @@ subroutine main:
     main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__@14:
         v-load tmp%0#0                                                                                           tmp%0#0
         return
+
+
+// test_cases.template_variables.contract.TemplateVariablesContract.get_bytes() -> bytes:
+subroutine get_bytes:
+    get_bytes_block@0:
+        // template_variables/contract.py:8
+        // return self.receive_value(TemplateVar[Bytes]("SOME_BYTES"))
+        byte TMPL_SOME_BYTES                                                                                     value#0
+        retsub                                                                                                   value#0
 
 
 // test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint() -> bytes:
