@@ -9,16 +9,41 @@ _R = typing.TypeVar("_R")
 _ReadOnlyNoArgsMethod: typing.TypeAlias = Callable[..., typing.Any]  # type: ignore[misc]
 
 class ARC4Contract(algopy.Contract):
-    """A contract that conforms to the ARC4 ABI specification, functions decorated with
-    `@abimethod` or `@baremethod` will form the public interface of the contract
+    """The base class for a contract that conforms to the [ARC4 ABI specification](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0004.md). Most contracts
+    should inherit from this class or a superclass thereof.
 
-    The approval_program will be implemented by the compiler, and route application args
-    according to the ARC4 ABI specification
+    ```python
+    class HelloWorldContract(ARC4Contract):
+        # ...
+    ```
 
-    The clear_state_program will by default return True, but can be overridden"""
+    Functions decorated with {py:func}`algopy.arc4.abimethod` or {py:func}`algopy.arc4.baremethod` will form the public
+    interface of the contract.
 
-    def approval_program(self) -> bool: ...
-    def clear_state_program(self) -> algopy.UInt64 | bool: ...
+    The {py:meth}`algopy.arc4.ARC4Contract.approval_program` will be implemented by the compiler, and route application args
+    according to the ARC4 ABI specification.
+
+    The {py:meth}`algopy.arc4.ARC4Contract.clear_state_program` will by default return True, but can be overridden
+
+    The Puya compiler will generate ARC32 and ARC56 application specifications for the contract
+    automatically.
+    """
+
+    def approval_program(self) -> bool:
+        """
+        The approval program for the ARC4Contract is implemented by the compile in
+        accordance with ARC4
+        """
+
+    def clear_state_program(self) -> algopy.UInt64 | bool:
+        """
+        The clear_state_program contains the logic when the `OnCompletion` is `ClearState`.
+
+        The default implementation simply returns True, but this can be overridden.
+
+        ClearState transactions always clear local state of the sender. Documentation on
+        `ClearState` behavior should be read before implementing this method: https://developer.algorand.org/docs/get-details/dapps/smart-contracts/frontend/apps/#clear-state
+        """
 
 # if we use type aliasing here for Callable[_P, _R], mypy thinks it involves Any...
 @typing.overload
@@ -42,11 +67,30 @@ def abimethod(
     readonly: bool = False,
     default_args: Mapping[str, str | _ReadOnlyNoArgsMethod | object] = ...,
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
-    """Decorator that indicates a method is an ARC4 ABI method.
+    """
+    Decorator that indicates a method is an ARC4 ABI method. If the method should not be externally
+    callable, use {py:func}`algopy.subroutine` instead.
+
+    Method docstrings will be used when outputting ARC-32 or ARC-56 application specifications,
+    the following docstrings styles are supported ReST, Google, Numpydoc-style and Epydoc.
+
+    ```python
+    from algopy import ARC4Contract, subroutine, arc4
+
+
+    class HelloWorldContract(ARC4Contract):
+        @arc4.abimethod(create=False, allow_actions=["NoOp", "OptIn"], name="external_name")
+        def hello(self, name: arc4.String) -> arc4.String:
+            return self.internal_method() + name
+
+        @subroutine
+        def internal_method(self) -> arc4.String:
+            return arc4.String("Hello, ")
+    ```
 
     :arg name: Name component of the ABI method selector. Defaults to using the function name.
     :arg create: Controls the validation of the Application ID. "require" means it must be zero,
-                 "disallow" requires it must be non-zero, and "allow" disables the validation.
+                    "disallow" requires it must be non-zero, and "allow" disables the validation.
     :arg allow_actions: A sequence of allowed On-Completion Actions to validate against.
     :arg readonly: If True, then this method can be used via dry-run / simulate.
     :arg default_args: Default argument sources for clients to use. For dynamic defaults, this can
@@ -96,7 +140,9 @@ class _ABIEncoded(algopy.BytesBacked, typing.Protocol):
         """
 
 class String(_ABIEncoded):
-    """An ARC4 sequence of bytes containing a UTF8 string"""
+    """An ARC4 sequence of bytes containing a UTF8 string.
+
+    The length is the number of bytes, NOT the number of characters"""
 
     def __init__(self, value: algopy.String | str = "", /) -> None: ...
     @property
@@ -146,7 +192,20 @@ class _UIntN(_ABIEncoded, typing.Protocol):
         """Returns `True` if not equal to zero"""
 
 class UIntN(_UIntN, typing.Generic[_TBitSize]):
-    """An ARC4 UInt consisting of the number of bits specified.
+    """An ARC4 UInt consisting of the number of bits specified (big-endian encoded).
+
+    Common bit sizes have also been aliased under \
+    {py:type}`algopy.arc4.UInt8`, {py:type}`algopy.arc4.UInt16` etc.
+
+    A uint of any size between 8 and 512 bits (in intervals of 8bits) can be created using a
+    generic parameter. It can be helpful to define your own alias for this type.
+
+    ```python
+    import typing as t
+    from algopy import arc4
+
+    UInt40: t.TypeAlias = arc4.UIntN[t.Literal[40]]
+    ```
 
     Max Size: 64 bits"""
 
@@ -168,7 +227,16 @@ _TDecimalPlaces = typing.TypeVar("_TDecimalPlaces", bound=int)
 class UFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
     """An ARC4 UFixed representing a decimal with the number of bits and precision specified.
 
-    Max size: 64 bits"""
+    Max size: 64 bits
+
+    ```python
+    import typing as t
+    from algopy import arc4
+
+    Decimal: t.TypeAlias = arc4.UFixedNxM[t.Literal[64], t.Literal[10]]
+    ```
+
+    """
 
     def __init__(self, value: str = "0.0", /):
         """
@@ -224,7 +292,7 @@ UInt512: typing.TypeAlias = BigUIntN[typing.Literal[512]]
 """An ARC4 UInt512"""
 
 class Bool(_ABIEncoded):
-    """An ARC4 encoded bool"""
+    """An ARC4 encoded bool. The most significant bit is `1` for `True` and `0` for `False`"""
 
     def __init__(self, value: bool = False, /) -> None: ...  # noqa: FBT001, FBT002
     def __eq__(self, other: Bool | bool) -> bool: ...  # type: ignore[override]
@@ -241,7 +309,15 @@ class StaticArray(
     typing.Generic[_TArrayItem, _TArrayLength],
     Reversible[_TArrayItem],
 ):
-    """A fixed length ARC4 Array of the specified type and length"""
+    """A fixed length ARC4 Array of the specified type and length
+
+    ```python
+    import typing as t
+    from algopy import arc4
+
+    FourBytes: t.TypeAlias = arc4.StaticArray[arc4.Byte, t.Literal[4]]
+    ```
+    """
 
     @typing.overload
     def __init__(self) -> None: ...
@@ -368,7 +444,15 @@ class StaticArray(
         """Create a copy of this array"""
 
 class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
-    """A dynamically sized ARC4 Array of the specified type"""
+    """A dynamically sized ARC4 Array of the specified type
+
+    ```python
+    import typing as t
+    from algopy import arc4
+
+    UInt64Array: t.TypeAlias = arc4.DynamicArray[arc4.UInt64]
+    ```
+    """
 
     def __init__(self, *items: _TArrayItem):
         """Initializes a new array with items provided"""
@@ -448,7 +532,9 @@ class DynamicBytes(DynamicArray[Byte]):
 _TTuple = typing.TypeVarTuple("_TTuple")
 
 class Tuple(_ABIEncoded, tuple[typing.Unpack[_TTuple]]):
-    """An ARC4 ABI tuple, containing other ARC4 ABI types"""
+    """An ARC4 ABI tuple, containing other ARC4 ABI types. ARC4 Tuples are immutable statically
+    sized arrays of mixed item types. Item types can be specified via generic parameters or
+    inferred from constructor parameters."""
 
     def __init__(self, items: tuple[typing.Unpack[_TTuple]], /):
         """Construct an ARC4 tuple from a native Python tuple"""
@@ -475,7 +561,24 @@ class _StructMeta(type):
     ) -> _StructMeta: ...
 
 class Struct(metaclass=_StructMeta):
-    """Base class for ARC4 Struct types"""
+    """Base class for ARC4 Struct types. ARC4 Structs are named tuples. The class keyword `frozen`
+    can be used to indicate if a struct can be mutated.
+
+    Items can be accessed and mutated via names instead of indexes. Structs do not have a `.native`
+    property, but a NamedTuple can be used in ABI methods are will be encoded/decode to an ARC4
+    struct automatically.
+
+    ```python
+    import typing
+
+    from algopy import arc4
+
+    Decimal: typing.TypeAlias = arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
+
+    class Vector(arc4.Struct, kw_only=True, frozen=True):
+        x: Decimal
+        y: Decimal
+    ```"""
 
     @classmethod
     def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
