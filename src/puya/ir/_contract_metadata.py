@@ -201,6 +201,7 @@ class _TemplateVariableTypeCollector(FunctionTraverser):
         return self._func_stack[-1]
 
     def visit_subroutine_call_expression(self, expr: awst_nodes.SubroutineCallExpression) -> None:
+        super().visit_subroutine_call_expression(expr)
         target = self.context.resolve_function_reference(
             expr.target,
             expr.source_location,
