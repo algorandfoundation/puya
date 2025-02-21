@@ -127,6 +127,15 @@ class Greeter(ARC4Contract):
         )
 
     @arc4.abimethod()
+    def test_account_to_address(self, app: Application) -> None:
+        txn = arc4.abi_call(
+            Logger.log_address,
+            Global.current_application_address,
+            app_id=app,
+        )
+        assert txn.last_log == Global.current_application_address.bytes
+
+    @arc4.abimethod()
     def test_native_string(self, app: Application) -> None:
         result1, _txn = arc4.abi_call(Logger.echo_native_string, "s", app_id=app)
         assert result1 == "echo: s"

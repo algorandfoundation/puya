@@ -989,6 +989,12 @@ def test_typed_abi_call(
     )
 
     app_client.call(
+        "test_account_to_address",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+    )
+
+    app_client.call(
         "test_native_tuple",
         transaction_parameters=txn_params,
         app=logger.app_id,
