@@ -60,6 +60,11 @@ contract Logger
     log(concat(concat(concat(concat(checked_maybe(asset_params_get<AssetName>(asset)), ''), reinterpret_cast<bytes>(account)), ''), reinterpret_cast<bytes>(checked_maybe(app_params_get<AppAddress>(app)))))
   }
   
+  abimethod[name_override=log] test_cases.typed_abi_call.logger.Logger.log_address(address: arc4.static_array<arc4.uint8, 32>): void
+  {
+    log(reinterpret_cast<bytes>(address))
+  }
+  
   abimethod test_cases.typed_abi_call.logger.Logger.echo_native_string(value: string): string
   {
     return 'echo: ' + value
@@ -193,6 +198,12 @@ contract Greeter
   {
     txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(asset,account,application)void"), hex<"00">, hex<"01">, hex<"01">), Accounts=(global<CurrentApplicationAddress>()), Applications=(app), Assets=(asset), ApplicationID=app))
     assert(txn.LastLog == checked_maybe(asset_params_get<AssetName>(asset)) + reinterpret_cast<bytes>(global<CurrentApplicationAddress>()) + reinterpret_cast<bytes>(checked_maybe(app_params_get<AppAddress>(app))))
+  }
+  
+  abimethod test_cases.typed_abi_call.typed_c2c.Greeter.test_account_to_address(app: application): void
+  {
+    txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(address)void"), arc4_encode(global<CurrentApplicationAddress>(), arc4.static_array<arc4.uint8, 32>)), ApplicationID=app))
+    assert(txn.LastLog == reinterpret_cast<bytes>(global<CurrentApplicationAddress>()))
   }
   
   abimethod test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string(app: application): void
