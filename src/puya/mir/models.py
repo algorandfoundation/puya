@@ -689,13 +689,6 @@ class MemorySubroutine:
     body: Sequence[MemoryBasicBlock]
     source_location: SourceLocation | None
 
-    @cached_property
-    def block_map(self) -> Mapping[str, MemoryBasicBlock]:
-        return {b.block_name: b for b in self.body}
-
-    def get_block(self, block_name: str) -> MemoryBasicBlock:
-        return self.block_map[block_name]
-
 
 @attrs.define
 class Program:
