@@ -193,19 +193,18 @@ def get_edge_set(block: BlockRecord) -> EdgeSet | None:
 
 
 def get_edge_sets(ctx: SubroutineCodeGenContext) -> Sequence[EdgeSet]:
-    subroutine = ctx.subroutine
-    vla = ctx.vla
     records = {
-        block: BlockRecord(
+        block.block_name: BlockRecord(
             block=block,
             local_references=[
                 op for op in block.ops if isinstance(op, mir.AbstractStore | mir.AbstractLoad)
             ],
-            live_in=vla.get_live_in_variables(block.ops[0]),
-            live_out=vla.get_live_out_variables(block.ops[-1]),
+            live_in=ctx.vla.get_live_in_variables(block.ops[0]),
+            live_out=ctx.vla.get_live_out_variables(block.ops[-1]),
         )
-        for block in subroutine.body
+        for block in ctx.subroutine.body
     }
+    blocks = list(records.values())
 
     # given blocks 1,2,3,4,5,6 and 7
     # edges: 1->5, 2->4, 2->5, 2->6, 3->5, 7->6, 7->8
@@ -223,9 +222,8 @@ def get_edge_sets(ctx: SubroutineCodeGenContext) -> Sequence[EdgeSet]:
 
     # 1. first pass
     # populate children and parents
-    blocks = [records[b] for b in subroutine.body]
     for block in blocks:
-        block.children = [records[subroutine.get_block(c)] for c in block.block.successors]
+        block.children = [records[c] for c in block.block.successors]
         for child in block.children:
             child.parents.append(block)
 
