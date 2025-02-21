@@ -8,15 +8,15 @@ from puya.avm import AVMType
 from puya.errors import InternalError
 from puya.mir import models as mir
 from puya.mir.context import SubroutineCodeGenContext
+from puya.mir.models import FStackPreAllocation
 from puya.mir.stack import Stack
 from puya.utils import attrs_extend
 
 logger = log.get_logger(__name__)
 
 
-def _get_lazy_fstack(subroutine: mir.MemorySubroutine) -> dict[str, mir.AbstractStore]:
+def _get_lazy_fstack(entry: mir.MemoryBasicBlock) -> dict[str, mir.AbstractStore]:
     # TODO: consider more than the entry block
-    entry = subroutine.body[0]
     # if entry is re-entrant then can't lazy allocate anything
     if entry.predecessors:
         return {}
@@ -40,9 +40,9 @@ def _get_local_id_types(subroutine: mir.MemorySubroutine) -> dict[str, AVMType]:
     return variable_mapping
 
 
-def _get_allocate_op(
+def _get_pre_alloc(
     subroutine: mir.MemorySubroutine, all_variables: Sequence[str]
-) -> mir.Allocate:
+) -> mir.FStackPreAllocation:
     # determine variables to allocate at beginning of frame,
     # and order them so bytes are listed first, followed by uints
     byte_vars = []
@@ -65,32 +65,30 @@ def _get_allocate_op(
                 raise InternalError(f"Undefined register: {variable}", subroutine.source_location)
             case unexpected:
                 typing.assert_never(unexpected)
-    return mir.Allocate(bytes_vars=byte_vars, uint64_vars=uint64_vars)
+    return mir.FStackPreAllocation(bytes_vars=byte_vars, uint64_vars=uint64_vars)
 
 
 def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
+    subroutine = ctx.subroutine
     all_variables = ctx.vla.all_variables
     if not all_variables:
+        subroutine.pre_alloc = FStackPreAllocation.empty()
         return
 
-    subroutine = ctx.subroutine
-    first_store_ops = _get_lazy_fstack(subroutine)
-    allocate_on_first_store = list(first_store_ops)
-
+    entry_block = subroutine.body[0]
+    first_store_ops = _get_lazy_fstack(entry_block)
     unsorted_pre_allocate = [x for x in all_variables if x not in first_store_ops]
-    if unsorted_pre_allocate:
-        allocate = _get_allocate_op(subroutine, unsorted_pre_allocate)
-        allocate_at_entry = allocate.allocate_on_entry
-        subroutine.body[0].mem_ops.insert(0, allocate)
-    else:
-        allocate_at_entry = []
-    logger.debug(f"{subroutine.signature.name} f-stack entry: {allocate_at_entry}")
-    logger.debug(f"{subroutine.signature.name} f-stack on first store: {allocate_on_first_store}")
+    subroutine.pre_alloc = _get_pre_alloc(subroutine, unsorted_pre_allocate)
+    logger.debug(
+        f"{subroutine.signature.name} f-stack entry: {subroutine.pre_alloc.allocate_on_entry}"
+    )
+    logger.debug(f"{subroutine.signature.name} f-stack on first store: {list(first_store_ops)}")
 
-    all_f_stack = [*allocate_at_entry, *first_store_ops.keys()]
-    subroutine.body[0].f_stack_out = all_f_stack
+    entry_block.f_stack_in = subroutine.pre_alloc.allocate_on_entry
+    entry_block.f_stack_out = [*entry_block.f_stack_in, *first_store_ops]
+    # f-stack is initialized in the entry block and doesn't change after that
     for block in subroutine.body[1:]:
-        block.f_stack_in = block.f_stack_out = all_f_stack
+        block.f_stack_in = block.f_stack_out = entry_block.f_stack_out
 
     removed_virtual = False
     for block in subroutine.body:
@@ -100,6 +98,7 @@ def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
                 case mir.AbstractStore() as store:
                     insert = op in first_store_ops.values()
                     if insert:
+                        assert block is entry_block
                         depth = stack.xl_height - 1
                     else:
                         depth = stack.fxl_height - stack.f_stack.index(store.local_id) - 1

@@ -23,30 +23,39 @@ def output_memory_ir(
     writer.add_header("Stack (out)", 4)
     for subroutine in program.all_subroutines:
         writer.append_line(f"// {subroutine.signature}")
-        for block in subroutine.body:
-            stack = Stack.begin_block(subroutine, block)
-            last_location = None
-            writer.append(f"{block.block_name}:")
-            writer.append(stack.full_stack_desc)
-            writer.new_line()
-            with writer.indent():
-                for op in block.ops:
-                    last_location = _output_src_comment(
-                        ctx, writer, last_location, op.source_location
-                    )
-                    op_str = str(op)
-                    op.accept(stack)
-                    # some ops can be very long (generally due to labels)
-                    # in those (rare?) cases bypass the column alignment
-                    if len(op_str) > 80:
-                        writer.append_line(
-                            writer.current_indent + op_str + " " + stack.full_stack_desc
-                        )
-                    else:
-                        writer.append(op_str)
-                        writer.append(stack.full_stack_desc)
-                        writer.new_line()
+        writer.append_line(f"subroutine {subroutine.id}:")
+        with writer.indent():
+            if subroutine.pre_alloc:
+                if subroutine.pre_alloc.bytes_vars:
+                    writer.append(f"declare bytes {", ".join(subroutine.pre_alloc.bytes_vars)}")
+                    writer.new_line()
+                if subroutine.pre_alloc.uint64_vars:
+                    writer.append(f"declare uint64 {", ".join(subroutine.pre_alloc.uint64_vars)}")
+                    writer.new_line()
+            for block in subroutine.body:
+                stack = Stack.begin_block(subroutine, block)
+                last_location = None
+                writer.append(f"{block.block_name}:")
+                writer.append(stack.full_stack_desc)
                 writer.new_line()
+                with writer.indent():
+                    for op in block.ops:
+                        last_location = _output_src_comment(
+                            ctx, writer, last_location, op.source_location
+                        )
+                        op_str = str(op)
+                        op.accept(stack)
+                        # some ops can be very long (generally due to labels)
+                        # in those (rare?) cases bypass the column alignment
+                        if len(op_str) > 80:
+                            writer.append_line(
+                                writer.current_indent + op_str + " " + stack.full_stack_desc
+                            )
+                        else:
+                            writer.append(op_str)
+                            writer.append(stack.full_stack_desc)
+                            writer.new_line()
+                    writer.new_line()
         writer.new_line()
     writer.new_line()
     output_path.write_text("\n".join(writer.write()), "utf8")
