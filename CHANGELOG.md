@@ -1,4 +1,12 @@
 # CHANGELOG
+## v4.4.1 (2025-02-21)
+
+### Fix
+
+* prevent `proto` instruction from being looped to and thus executed multiple times, potentially causing an execution failure ([`7393bab`](https://github.com/algorandfoundation/puya/commit/7393babc0e9bd9a681daeb052424a41645048243))
+
+* handle implicit conversions of `algopy.Account` to `algopy.arc4.Address` ([`6ef05bc`](https://github.com/algorandfoundation/puya/commit/6ef05bcca0e8b1c2894c88b655aac137b895a006))
+
 ## v4.4.0 (2025-02-18)
 
 ### Feature
