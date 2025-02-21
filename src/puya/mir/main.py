@@ -102,5 +102,6 @@ def _lower_subroutine_to_mir(
         signature=signature,
         is_main=is_main,
         body=body,
+        pre_alloc=None,  # filled in by f_stack_allocation
         source_location=subroutine.source_location,
     )

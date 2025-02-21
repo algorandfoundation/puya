@@ -21,18 +21,19 @@ class TealBuilder(MIRVisitor[None]):
 
     @classmethod
     def build_subroutine(cls, mir_sub: mir.MemorySubroutine) -> teal.TealSubroutine:
+        first_label = mir_sub.body[0].block_name
+        proto_block = _build_preamble(first_label, mir_sub)
         result = teal.TealSubroutine(
             is_main=mir_sub.is_main,
             signature=mir_sub.signature,
-            blocks=[],
+            blocks=[proto_block],
             source_location=mir_sub.source_location,
         )
-        entry_block = mir_sub.body[0]
-        label_stack = [entry_block.block_name]
         blocks_by_label = {
             b.block_name: (b, None if next_b is None else next_b.block_name)
             for b, next_b in zip_longest(mir_sub.body, mir_sub.body[1:])
         }
+        label_stack = [first_label]
         while label_stack:
             label = label_stack.pop()
             mir_block, next_block_label = blocks_by_label.pop(label, (None, None))
@@ -43,14 +44,6 @@ class TealBuilder(MIRVisitor[None]):
                 use_frame=not mir_sub.is_main,
                 label_stack=label_stack,
             )
-            if mir_block is entry_block and _NeedsProto.check(mir_sub):
-                builder.ops.append(
-                    teal.Proto(
-                        parameters=len(mir_sub.signature.parameters),
-                        returns=len(mir_sub.signature.returns),
-                        source_location=mir_sub.source_location,
-                    )
-                )
             for op in mir_block.ops:
                 op.accept(builder)
             teal_block = teal.TealBlock(
@@ -292,26 +285,6 @@ class TealBuilder(MIRVisitor[None]):
             )
         )
 
-    def visit_allocate(self, allocate: mir.Allocate) -> None:
-        bad_bytes_value = teal.Int(
-            0,
-            source_location=allocate.source_location,
-        )
-        bad_uint_value = teal.Byte(
-            value=b"",
-            encoding=AVMBytesEncoding.utf8,
-            source_location=allocate.source_location,
-        )
-
-        for idx, local_id in enumerate(allocate.allocate_on_entry):
-            bad_value = bad_bytes_value if idx < allocate.num_bytes else bad_uint_value
-            self._add_op(
-                attrs.evolve(
-                    bad_value,
-                    stack_manipulations=[teal.StackExtend([local_id])],
-                )
-            )
-
     def visit_pop(self, pop: mir.Pop) -> None:
         self._add_op(
             teal.PopN(
@@ -471,6 +444,62 @@ def _lstack_manipulations(op: mir.BaseOp) -> list[teal.StackManipulation]:
         result.append(teal.StackExtend(op.produces))
         result.append(teal.StackDefine(op.produces))
     return result
+
+
+def _build_preamble(first_label: str, mir_sub: mir.MemorySubroutine) -> teal.TealBlock:
+    assert mir_sub.pre_alloc is not None, "f-stack allocation should have been performed"
+    preamble = list[teal.TealOp]()
+    # insert proto op if needed
+    if _NeedsProto.check(mir_sub):
+        preamble.append(
+            teal.Proto(
+                parameters=len(mir_sub.signature.parameters),
+                returns=len(mir_sub.signature.returns),
+                source_location=mir_sub.source_location,
+            )
+        )
+    # to be completely safe against future changes in the MIR model here, which could
+    # affect stack ordering, we either double check the pre-allocations are in the right order
+    # as we do here or we would have to ensure that the union of bytes and uint64 vars is equal
+    # to allocate_on_entry and then loop through it, pulling the correct value each time.
+    # this seems easier...
+    assert mir_sub.pre_alloc.allocate_on_entry == [
+        *mir_sub.pre_alloc.bytes_vars,
+        *mir_sub.pre_alloc.uint64_vars,
+    ]
+
+    # build f-stack pre-allocations
+    bytes_prealloc = [
+        teal.Int(
+            value=0,
+            stack_manipulations=[teal.StackExtend([local_id])],
+            source_location=None,
+        )
+        for local_id in mir_sub.pre_alloc.bytes_vars
+    ]
+    preamble.extend(bytes_prealloc)
+
+    uint64_prealloc = [
+        teal.Byte(
+            value=b"",
+            encoding=AVMBytesEncoding.utf8,
+            stack_manipulations=[teal.StackExtend([local_id])],
+            source_location=None,
+        )
+        for local_id in mir_sub.pre_alloc.uint64_vars
+    ]
+    preamble.extend(uint64_prealloc)
+
+    # unconditional branch to first block of "user code"
+    preamble.append(teal.Branch(target=first_label, source_location=None))
+    proto_block = teal.TealBlock(
+        label=mir_sub.id,
+        ops=preamble,
+        x_stack_in=(),
+        entry_stack_height=0,  # params are "below" the stack
+        exit_stack_height=len(bytes_prealloc) + len(uint64_prealloc),
+    )
+    return proto_block
 
 
 @attrs.define

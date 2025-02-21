@@ -51,9 +51,6 @@ class MIRVisitor[T](abc.ABC):
     def visit_abstract_load(self, load: models.AbstractLoad) -> T: ...
 
     @abc.abstractmethod
-    def visit_allocate(self, allocate: models.Allocate) -> T: ...
-
-    @abc.abstractmethod
     def visit_pop(self, pop: models.Pop) -> T: ...
 
     @abc.abstractmethod

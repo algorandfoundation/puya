@@ -3,7 +3,6 @@ from __future__ import annotations
 import abc
 import typing
 import typing as t
-from functools import cached_property
 
 import attrs
 
@@ -13,7 +12,7 @@ from puya.ir.utils import format_bytes, format_error_comment
 from puya.program_refs import ProgramKind
 
 if t.TYPE_CHECKING:
-    from collections.abc import Iterator, Mapping, Sequence
+    from collections.abc import Iterator, Sequence
 
     from puya.ir.types_ import AVMBytesEncoding
     from puya.mir.visitor import MIRVisitor
@@ -389,32 +388,6 @@ class Pop(Op):
 
 
 @attrs.frozen(eq=False)
-class Allocate(Op):
-    bytes_vars: Sequence[str]
-    uint64_vars: Sequence[str]
-    consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(default=(), init=False)
-
-    @property
-    def allocate_on_entry(self) -> Sequence[str]:
-        return [*self.bytes_vars, *self.uint64_vars]
-
-    @property
-    def num_bytes(self) -> int:
-        return len(self.bytes_vars)
-
-    @property
-    def num_uints(self) -> int:
-        return len(self.uint64_vars)
-
-    def accept(self, visitor: MIRVisitor[_T]) -> _T:
-        return visitor.visit_allocate(self)
-
-    def __str__(self) -> str:
-        return f"allocate {len(self.allocate_on_entry)} to stack"
-
-
-@attrs.frozen(eq=False)
 class CallSub(Op):
     target: str
     parameters: int
@@ -679,6 +652,23 @@ class Signature:
         return f"{self.name}({params}) -> {returns or 'void'}:"
 
 
+@attrs.frozen(eq=False, kw_only=True)
+class FStackPreAllocation:
+    bytes_vars: Sequence[str]
+    uint64_vars: Sequence[str]
+
+    @classmethod
+    def empty(cls) -> typing.Self:
+        return cls(bytes_vars=(), uint64_vars=())
+
+    @property
+    def allocate_on_entry(self) -> Sequence[str]:
+        return [*self.bytes_vars, *self.uint64_vars]
+
+    def __bool__(self) -> bool:
+        return bool(self.bytes_vars or self.uint64_vars)
+
+
 @attrs.define
 class MemorySubroutine:
     """A lower form of IR that is concerned with memory assignment (both stack and scratch)"""
@@ -687,6 +677,7 @@ class MemorySubroutine:
     is_main: bool
     signature: Signature
     body: Sequence[MemoryBasicBlock]
+    pre_alloc: FStackPreAllocation | None
     source_location: SourceLocation | None
 
 

@@ -64,7 +64,7 @@ def _optimize_subroutine_blocks(context: CompileContext, teal_sub: models.TealSu
         # inlining these are only possible when they are unconditionally branched to,
         # thus this still maintains the "almost basic" structure as outlined above.
         _inline_single_op_blocks(teal_sub)
-        _inline_singly_referenced_blocks(teal_sub)
+        _inline_singly_referenced_blocks(teal_sub, level=context.options.optimization_level)
     _remove_jump_fallthroughs(teal_sub)
 
 
@@ -95,6 +95,8 @@ def _inline_jump_chains(teal_sub: models.TealSubroutine) -> None:
     # build a map of any blocks that are just an unconditional branch to their targets
     jumps = dict[str, str]()
     for block_idx, block in enumerate(teal_sub.blocks.copy()):
+        if block_idx == 0:
+            continue  # skip entry block
         match block.ops:
             case [models.Branch(target=target_label) as b]:
                 if b.stack_manipulations:
@@ -197,7 +199,7 @@ def _remove_unreachable_blocks(teal_sub: models.TealSubroutine) -> None:
         ]
 
 
-def _inline_singly_referenced_blocks(teal_sub: models.TealSubroutine) -> None:
+def _inline_singly_referenced_blocks(teal_sub: models.TealSubroutine, *, level: int) -> None:
     predecessors = defaultdict[str, list[str]](list)
     predecessors[teal_sub.blocks[0].label].append("<entrypoint>")
     for block in teal_sub.blocks:
@@ -222,8 +224,9 @@ def _inline_singly_referenced_blocks(teal_sub: models.TealSubroutine) -> None:
     for block in teal_sub.blocks:
         this_label = block.label
         if this_label not in inlineable:
-            result.append(block)
+            block_has_changes = False
             while (next_label := pairs.get(this_label)) is not None:
+                block_has_changes = True
                 logger.debug(f"inlining single reference block {next_label} into {block.label}")
                 next_block = blocks_by_label[next_label]
                 next_first_op, *next_rest_ops = next_block.ops
@@ -236,6 +239,12 @@ def _inline_singly_referenced_blocks(teal_sub: models.TealSubroutine) -> None:
                 )
                 block.ops.extend(next_rest_ops)
                 this_label = next_label
+                block = attrs.evolve(block, exit_stack_height=next_block.exit_stack_height)
+            # when multiple blocks are combined, re-run intra-block optimisations
+            if block_has_changes:
+                _optimize_block(block, level=level)
+                block.validate_stack_height()
+            result.append(block)
     teal_sub.blocks[:] = result
 
 

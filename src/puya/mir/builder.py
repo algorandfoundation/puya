@@ -42,8 +42,6 @@ class MemoryIRBuilder(IRVisitor[None]):
         self.terminator = op
 
     def _get_block_name(self, block: ir.BasicBlock) -> str:
-        if block is self.current_subroutine.entry:
-            return self.context.subroutine_names[self.current_subroutine]
         assert block in self.current_subroutine.body
         comment = (block.comment or "block").replace(" ", "_")
         subroutine_name = self.context.subroutine_names[self.current_subroutine]
@@ -463,10 +461,11 @@ def build_new_slot_sub(allocation_slot: int) -> models.MemorySubroutine:
         id=_NEW_SLOT_SUB,
         is_main=False,
         signature=models.Signature(name=_NEW_SLOT_SUB, parameters=(), returns=(AVMType.uint64,)),
+        pre_alloc=models.FStackPreAllocation.empty(),
         body=[
             models.MemoryBasicBlock(
                 id=0,
-                block_name=_NEW_SLOT_SUB,
+                block_name=_NEW_SLOT_SUB + "@entry",
                 mem_ops=[
                     make_op(AVMOp.load, allocation_slot, local_id="slot_allocations"),
                     make_op(AVMOp.bitlen),

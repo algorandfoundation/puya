@@ -175,9 +175,6 @@ class Stack(MIRVisitor[None]):
         assert store.local_id in self.parameters, f"{store.local_id} is not a parameter"
         self._apply_lstack_effects(store)
 
-    def visit_allocate(self, allocate: models.Allocate) -> None:
-        self._f_stack.extend(allocate.allocate_on_entry)
-
     def visit_pop(self, pop: models.Pop) -> None:
         self._apply_lstack_effects(pop)
 
