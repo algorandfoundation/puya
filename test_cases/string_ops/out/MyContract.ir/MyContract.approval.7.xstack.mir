@@ -1,82 +1,84 @@
-// Op                                                                                         Stack (out)
+// Op                                                                                             Stack (out)
 // test_cases.string_ops.contract.MyContract.approval_program() -> uint64:
-main:
-    // string_ops/contract.py:6
-    // assert Bytes(b"brown fox") in Bytes(b"The quick brown fox jumped over the lazy dog")
-    byte 0x62726f776e20666f78                                                                 0x62726f776e20666f78
-    byte 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67 0x62726f776e20666f78,0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
-    callsub is_substring                                                                      tmp%0#0
-    assert
-    // string_ops/contract.py:7
-    // assert b"brown fox" in Bytes(b"The quick brown fox jumped over the lazy dog")
-    byte 0x62726f776e20666f78                                                                 0x62726f776e20666f78
-    byte 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67 0x62726f776e20666f78,0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
-    callsub is_substring                                                                      tmp%1#0
-    assert
-    // string_ops/contract.py:8
-    // assert Bytes(b"red fox") not in Bytes(b"The quick brown fox jumped over the lazy dog")
-    byte 0x72656420666f78                                                                     0x72656420666f78
-    byte 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67 0x72656420666f78,0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
-    callsub is_substring                                                                      tmp%2#0
-    !                                                                                         tmp%3#0
-    assert
-    // string_ops/contract.py:9
-    // assert b"red fox" not in Bytes(b"The quick brown fox jumped over the lazy dog")
-    byte 0x72656420666f78                                                                     0x72656420666f78
-    byte 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67 0x72656420666f78,0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
-    callsub is_substring                                                                      tmp%4#0
-    !                                                                                         tmp%5#0
-    assert
-    // string_ops/contract.py:11
-    // return True
-    int 1                                                                                     1
-    return
+subroutine main:
+    main_block@0:
+        // string_ops/contract.py:6
+        // assert Bytes(b"brown fox") in Bytes(b"The quick brown fox jumped over the lazy dog")
+        byte 0x62726f776e20666f78                                                                 0x62726f776e20666f78
+        byte 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67 0x62726f776e20666f78,0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
+        callsub is_substring                                                                      tmp%0#0
+        assert
+        // string_ops/contract.py:7
+        // assert b"brown fox" in Bytes(b"The quick brown fox jumped over the lazy dog")
+        byte 0x62726f776e20666f78                                                                 0x62726f776e20666f78
+        byte 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67 0x62726f776e20666f78,0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
+        callsub is_substring                                                                      tmp%1#0
+        assert
+        // string_ops/contract.py:8
+        // assert Bytes(b"red fox") not in Bytes(b"The quick brown fox jumped over the lazy dog")
+        byte 0x72656420666f78                                                                     0x72656420666f78
+        byte 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67 0x72656420666f78,0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
+        callsub is_substring                                                                      tmp%2#0
+        !                                                                                         tmp%3#0
+        assert
+        // string_ops/contract.py:9
+        // assert b"red fox" not in Bytes(b"The quick brown fox jumped over the lazy dog")
+        byte 0x72656420666f78                                                                     0x72656420666f78
+        byte 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67 0x72656420666f78,0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
+        callsub is_substring                                                                      tmp%4#0
+        !                                                                                         tmp%5#0
+        assert
+        // string_ops/contract.py:11
+        // return True
+        int 1                                                                                     1
+        return
 
 
 // _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:
-is_substring:                                                                                 (𝕡) item#0,sequence#0 |
-    int 0                                                                                     (𝕡) item#0,sequence#0 | 0
-    v-store start#0                                                                           (𝕡) item#0,sequence#0 |
-    b is_substring_while_top@1                                                                (𝕡) item#0,sequence#0 |
+subroutine is_substring:
+    is_substring_block@0:                                                                         (𝕡) item#0,sequence#0 |
+        int 0                                                                                     (𝕡) item#0,sequence#0 | 0
+        v-store start#0                                                                           (𝕡) item#0,sequence#0 |
+        b is_substring_while_top@1                                                                (𝕡) item#0,sequence#0 |
 
-is_substring_while_top@1:                                                                     (𝕡) item#0,sequence#0 |
-    p-load item#0                                                                             (𝕡) item#0,sequence#0 | item#0 (copy)
-    len                                                                                       (𝕡) item#0,sequence#0 | tmp%0#0
-    v-load start#0                                                                            (𝕡) item#0,sequence#0 | tmp%0#0,start#0
-    l-load tmp%0#0 1                                                                          (𝕡) item#0,sequence#0 | start#0,tmp%0#0
-    +                                                                                         (𝕡) item#0,sequence#0 | tmp%1#0
-    l-store-copy tmp%1#0 0                                                                    (𝕡) item#0,sequence#0 | tmp%1#0,tmp%1#0 (copy)
-    v-store tmp%1#0                                                                           (𝕡) item#0,sequence#0 | tmp%1#0
-    p-load sequence#0                                                                         (𝕡) item#0,sequence#0 | tmp%1#0,sequence#0 (copy)
-    len                                                                                       (𝕡) item#0,sequence#0 | tmp%1#0,tmp%2#0
-    l-load tmp%1#0 1                                                                          (𝕡) item#0,sequence#0 | tmp%2#0,tmp%1#0
-    l-load tmp%2#0 1                                                                          (𝕡) item#0,sequence#0 | tmp%1#0,tmp%2#0
-    <=                                                                                        (𝕡) item#0,sequence#0 | tmp%3#0
-    bz is_substring_after_while@5 ; b is_substring_while_body@2                               (𝕡) item#0,sequence#0 |
+    is_substring_while_top@1:                                                                     (𝕡) item#0,sequence#0 |
+        p-load item#0                                                                             (𝕡) item#0,sequence#0 | item#0 (copy)
+        len                                                                                       (𝕡) item#0,sequence#0 | tmp%0#0
+        v-load start#0                                                                            (𝕡) item#0,sequence#0 | tmp%0#0,start#0
+        l-load tmp%0#0 1                                                                          (𝕡) item#0,sequence#0 | start#0,tmp%0#0
+        +                                                                                         (𝕡) item#0,sequence#0 | tmp%1#0
+        l-store-copy tmp%1#0 0                                                                    (𝕡) item#0,sequence#0 | tmp%1#0,tmp%1#0 (copy)
+        v-store tmp%1#0                                                                           (𝕡) item#0,sequence#0 | tmp%1#0
+        p-load sequence#0                                                                         (𝕡) item#0,sequence#0 | tmp%1#0,sequence#0 (copy)
+        len                                                                                       (𝕡) item#0,sequence#0 | tmp%1#0,tmp%2#0
+        l-load tmp%1#0 1                                                                          (𝕡) item#0,sequence#0 | tmp%2#0,tmp%1#0
+        l-load tmp%2#0 1                                                                          (𝕡) item#0,sequence#0 | tmp%1#0,tmp%2#0
+        <=                                                                                        (𝕡) item#0,sequence#0 | tmp%3#0
+        bz is_substring_after_while@5 ; b is_substring_while_body@2                               (𝕡) item#0,sequence#0 |
 
-is_substring_while_body@2:                                                                    (𝕡) item#0,sequence#0 |
-    p-load sequence#0                                                                         (𝕡) item#0,sequence#0 | sequence#0 (copy)
-    v-load start#0                                                                            (𝕡) item#0,sequence#0 | sequence#0 (copy),start#0
-    v-load tmp%1#0                                                                            (𝕡) item#0,sequence#0 | sequence#0 (copy),start#0,tmp%1#0
-    substring3                                                                                (𝕡) item#0,sequence#0 | tmp%6#0
-    p-load item#0                                                                             (𝕡) item#0,sequence#0 | tmp%6#0,item#0 (copy)
-    l-load tmp%6#0 1                                                                          (𝕡) item#0,sequence#0 | item#0 (copy),tmp%6#0
-    ==                                                                                        (𝕡) item#0,sequence#0 | tmp%7#0
-    bz is_substring_after_if_else@4 ; b is_substring_if_body@3                                (𝕡) item#0,sequence#0 |
+    is_substring_while_body@2:                                                                    (𝕡) item#0,sequence#0 |
+        p-load sequence#0                                                                         (𝕡) item#0,sequence#0 | sequence#0 (copy)
+        v-load start#0                                                                            (𝕡) item#0,sequence#0 | sequence#0 (copy),start#0
+        v-load tmp%1#0                                                                            (𝕡) item#0,sequence#0 | sequence#0 (copy),start#0,tmp%1#0
+        substring3                                                                                (𝕡) item#0,sequence#0 | tmp%6#0
+        p-load item#0                                                                             (𝕡) item#0,sequence#0 | tmp%6#0,item#0 (copy)
+        l-load tmp%6#0 1                                                                          (𝕡) item#0,sequence#0 | item#0 (copy),tmp%6#0
+        ==                                                                                        (𝕡) item#0,sequence#0 | tmp%7#0
+        bz is_substring_after_if_else@4 ; b is_substring_if_body@3                                (𝕡) item#0,sequence#0 |
 
-is_substring_if_body@3:                                                                       (𝕡) item#0,sequence#0 |
-    int 1                                                                                     (𝕡) item#0,sequence#0 | 1
-    retsub                                                                                    1
+    is_substring_if_body@3:                                                                       (𝕡) item#0,sequence#0 |
+        int 1                                                                                     (𝕡) item#0,sequence#0 | 1
+        retsub                                                                                    1
 
-is_substring_after_if_else@4:                                                                 (𝕡) item#0,sequence#0 |
-    v-load start#0                                                                            (𝕡) item#0,sequence#0 | start#0
-    int 1                                                                                     (𝕡) item#0,sequence#0 | start#0,1
-    +                                                                                         (𝕡) item#0,sequence#0 | start#0
-    v-store start#0                                                                           (𝕡) item#0,sequence#0 |
-    b is_substring_while_top@1                                                                (𝕡) item#0,sequence#0 |
+    is_substring_after_if_else@4:                                                                 (𝕡) item#0,sequence#0 |
+        v-load start#0                                                                            (𝕡) item#0,sequence#0 | start#0
+        int 1                                                                                     (𝕡) item#0,sequence#0 | start#0,1
+        +                                                                                         (𝕡) item#0,sequence#0 | start#0
+        v-store start#0                                                                           (𝕡) item#0,sequence#0 |
+        b is_substring_while_top@1                                                                (𝕡) item#0,sequence#0 |
 
-is_substring_after_while@5:                                                                   (𝕡) item#0,sequence#0 |
-    int 0                                                                                     (𝕡) item#0,sequence#0 | 0
-    retsub                                                                                    0
+    is_substring_after_while@5:                                                                   (𝕡) item#0,sequence#0 |
+        int 0                                                                                     (𝕡) item#0,sequence#0 | 0
+        retsub                                                                                    0
 
 

@@ -1,127 +1,128 @@
-// Op                                                       Stack (out)
+// Op                                                           Stack (out)
 // test_cases.loop_else.loop_else.LoopElseContract.approval_program() -> uint64:
-main:
-    allocate 2 to stack                                     (𝕗) account_index#0,tmp%5#0 |
-    // loop_else/loop_else.py:9
-    // arg_idx = UInt64(0)
-    int 0                                                   (𝕗) account_index#0,tmp%5#0 | arg_idx#0
-    f-store arg_idx#0                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
-    b main_while_top@1                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+subroutine main:
+    declare uint64 account_index#0, tmp%5#0
+    main_block@0:                                               (𝕗) account_index#0,tmp%5#0 |
+        // loop_else/loop_else.py:9
+        // arg_idx = UInt64(0)
+        int 0                                                   (𝕗) account_index#0,tmp%5#0 | arg_idx#0
+        f-store arg_idx#0                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        b main_while_top@1                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
 
-main_while_top@1:                                           (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
-    // loop_else/loop_else.py:10
-    // while arg_idx < Txn.num_app_args:
-    txn NumAppArgs                                          (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%0#0
-    f-load arg_idx#0                                        (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%0#0,arg_idx#0
-    l-store-copy arg_idx#0 1                                (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0,tmp%0#0,arg_idx#0 (copy)
-    l-load tmp%0#0 1                                        (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0,arg_idx#0 (copy),tmp%0#0
-    <                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0,tmp%1#0
-    assert // access denied, missing secret argument        (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0
-    // loop_else/loop_else.py:15
-    // if Txn.application_args(arg_idx) == b"while_secret":
-    l-load arg_idx#0 0                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0
-    txnas ApplicationArgs                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%3#0
-    byte 0x7768696c655f736563726574                         (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%3#0,0x7768696c655f736563726574
-    ==                                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%4#0
-    bz main_after_if_else@16 ; b main_if_body@8             (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+    main_while_top@1:                                           (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        // loop_else/loop_else.py:10
+        // while arg_idx < Txn.num_app_args:
+        txn NumAppArgs                                          (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%0#0
+        f-load arg_idx#0                                        (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%0#0,arg_idx#0
+        l-store-copy arg_idx#0 1                                (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0,tmp%0#0,arg_idx#0 (copy)
+        l-load tmp%0#0 1                                        (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0,arg_idx#0 (copy),tmp%0#0
+        <                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0,tmp%1#0
+        assert // access denied, missing secret argument        (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0
+        // loop_else/loop_else.py:15
+        // if Txn.application_args(arg_idx) == b"while_secret":
+        l-load arg_idx#0 0                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0
+        txnas ApplicationArgs                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%3#0
+        byte 0x7768696c655f736563726574                         (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%3#0,0x7768696c655f736563726574
+        ==                                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%4#0
+        bz main_after_if_else@16 ; b main_if_body@8             (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
 
-main_if_body@8:                                             (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
-    // loop_else/loop_else.py:17
-    // for account_index in urange(Txn.num_accounts):
-    txn NumAccounts                                         (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%5#0
-    f-store tmp%5#0                                         (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
-    int 0                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0
-    f-store account_index#0                                 (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
-    b main_for_header@9                                     (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+    main_if_body@8:                                             (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        // loop_else/loop_else.py:17
+        // for account_index in urange(Txn.num_accounts):
+        txn NumAccounts                                         (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%5#0
+        f-store tmp%5#0                                         (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        int 0                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0
+        f-store account_index#0                                 (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        b main_for_header@9                                     (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
 
-main_for_header@9:                                          (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
-    // loop_else/loop_else.py:17
-    // for account_index in urange(Txn.num_accounts):
-    f-load account_index#0                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0
-    l-store-copy account_index#0 0                          (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0,account_index#0 (copy)
-    f-load tmp%5#0                                          (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0,account_index#0 (copy),tmp%5#0
-    <                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0,continue_looping%1#0
-    assert // access denied, missing secret account         (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0
-    // loop_else/loop_else.py:18
-    // account = Txn.accounts(account_index)
-    l-load account_index#0 0                                (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0
-    txnas Accounts                                          (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account#0
-    // loop_else/loop_else.py:19
-    // if account == Global.zero_address:
-    global ZeroAddress                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account#0,tmp%6#0
-    l-load account#0 1                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%6#0,account#0
-    l-load tmp%6#0 1                                        (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account#0,tmp%6#0
-    ==                                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%7#0
-    bz main_after_if_else@12 ; b main_if_body@11            (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+    main_for_header@9:                                          (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        // loop_else/loop_else.py:17
+        // for account_index in urange(Txn.num_accounts):
+        f-load account_index#0                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0
+        l-store-copy account_index#0 0                          (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0,account_index#0 (copy)
+        f-load tmp%5#0                                          (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0,account_index#0 (copy),tmp%5#0
+        <                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0,continue_looping%1#0
+        assert // access denied, missing secret account         (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0
+        // loop_else/loop_else.py:18
+        // account = Txn.accounts(account_index)
+        l-load account_index#0 0                                (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0
+        txnas Accounts                                          (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account#0
+        // loop_else/loop_else.py:19
+        // if account == Global.zero_address:
+        global ZeroAddress                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account#0,tmp%6#0
+        l-load account#0 1                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%6#0,account#0
+        l-load tmp%6#0 1                                        (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account#0,tmp%6#0
+        ==                                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%7#0
+        bz main_after_if_else@12 ; b main_if_body@11            (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
 
-main_if_body@11:                                            (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
-    // loop_else/loop_else.py:29
-    // op.itob(secret_index + 48)[-1],
-    f-load arg_idx#0                                        (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0
-    int 48                                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0,48
-    +                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%9#0
-    itob                                                    (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%10#0
-    l-load-copy tmp%10#0 0                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%10#0,tmp%10#0 (copy)
-    len                                                     (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%10#0,tmp%11#0
-    int 1                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%10#0,tmp%11#0,1
-    -                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%10#0,tmp%12#0
-    l-load tmp%10#0 1                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%12#0,tmp%10#0
-    l-load tmp%12#0 1                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%10#0,tmp%12#0
-    int 1                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%10#0,tmp%12#0,1
-    extract3                                                (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%13#0
-    byte "found secret argument at idx="                    (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%13#0,"found secret argument at idx="
-    l-load tmp%13#0 1                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | "found secret argument at idx=",tmp%13#0
-    concat                                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%14#0
-    // loop_else/loop_else.py:30
-    // " and secret account at idx=",
-    byte " and secret account at idx="                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%14#0," and secret account at idx="
-    concat                                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0
-    // loop_else/loop_else.py:31
-    // op.itob(account_index + 48)[-1],
-    f-load account_index#0                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,account_index#0
-    int 48                                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,account_index#0,48
-    +                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%18#0
-    itob                                                    (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%19#0
-    l-load-copy tmp%19#0 0                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%19#0,tmp%19#0 (copy)
-    len                                                     (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%19#0,tmp%20#0
-    int 1                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%19#0,tmp%20#0,1
-    -                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%19#0,tmp%21#0
-    l-load tmp%19#0 1                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%21#0,tmp%19#0
-    l-load tmp%21#0 1                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%19#0,tmp%21#0
-    int 1                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%19#0,tmp%21#0,1
-    extract3                                                (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%22#0
-    l-load tmp%16#0 1                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%22#0,tmp%16#0
-    l-load tmp%22#0 1                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%22#0
-    concat                                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%23#0
-    // loop_else/loop_else.py:27-32
-    // log(
-    //     "found secret argument at idx=",
-    //     op.itob(secret_index + 48)[-1],
-    //     " and secret account at idx=",
-    //     op.itob(account_index + 48)[-1],
-    // )
-    log                                                     (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
-    // loop_else/loop_else.py:33
-    // return True
-    int 1                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | 1
-    return                                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+    main_if_body@11:                                            (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        // loop_else/loop_else.py:29
+        // op.itob(secret_index + 48)[-1],
+        f-load arg_idx#0                                        (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0
+        int 48                                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0,48
+        +                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%9#0
+        itob                                                    (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%10#0
+        l-load-copy tmp%10#0 0                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%10#0,tmp%10#0 (copy)
+        len                                                     (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%10#0,tmp%11#0
+        int 1                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%10#0,tmp%11#0,1
+        -                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%10#0,tmp%12#0
+        l-load tmp%10#0 1                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%12#0,tmp%10#0
+        l-load tmp%12#0 1                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%10#0,tmp%12#0
+        int 1                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%10#0,tmp%12#0,1
+        extract3                                                (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%13#0
+        byte "found secret argument at idx="                    (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%13#0,"found secret argument at idx="
+        l-load tmp%13#0 1                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | "found secret argument at idx=",tmp%13#0
+        concat                                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%14#0
+        // loop_else/loop_else.py:30
+        // " and secret account at idx=",
+        byte " and secret account at idx="                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%14#0," and secret account at idx="
+        concat                                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0
+        // loop_else/loop_else.py:31
+        // op.itob(account_index + 48)[-1],
+        f-load account_index#0                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,account_index#0
+        int 48                                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,account_index#0,48
+        +                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%18#0
+        itob                                                    (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%19#0
+        l-load-copy tmp%19#0 0                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%19#0,tmp%19#0 (copy)
+        len                                                     (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%19#0,tmp%20#0
+        int 1                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%19#0,tmp%20#0,1
+        -                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%19#0,tmp%21#0
+        l-load tmp%19#0 1                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%21#0,tmp%19#0
+        l-load tmp%21#0 1                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%19#0,tmp%21#0
+        int 1                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%19#0,tmp%21#0,1
+        extract3                                                (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%22#0
+        l-load tmp%16#0 1                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%22#0,tmp%16#0
+        l-load tmp%22#0 1                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%16#0,tmp%22#0
+        concat                                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%23#0
+        // loop_else/loop_else.py:27-32
+        // log(
+        //     "found secret argument at idx=",
+        //     op.itob(secret_index + 48)[-1],
+        //     " and secret account at idx=",
+        //     op.itob(account_index + 48)[-1],
+        // )
+        log                                                     (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        // loop_else/loop_else.py:33
+        // return True
+        int 1                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | 1
+        return                                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
 
-main_after_if_else@12:                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
-    // loop_else/loop_else.py:17
-    // for account_index in urange(Txn.num_accounts):
-    f-load account_index#0                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0
-    int 1                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0,1
-    +                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0
-    f-store account_index#0                                 (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
-    b main_for_header@9                                     (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+    main_after_if_else@12:                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        // loop_else/loop_else.py:17
+        // for account_index in urange(Txn.num_accounts):
+        f-load account_index#0                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0
+        int 1                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0,1
+        +                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0
+        f-store account_index#0                                 (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        b main_for_header@9                                     (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
 
-main_after_if_else@16:                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
-    // loop_else/loop_else.py:24
-    // arg_idx += 1
-    f-load arg_idx#0                                        (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0
-    int 1                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0,1
-    +                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0
-    f-store arg_idx#0                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
-    b main_while_top@1                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+    main_after_if_else@16:                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        // loop_else/loop_else.py:24
+        // arg_idx += 1
+        f-load arg_idx#0                                        (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0
+        int 1                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0,1
+        +                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0
+        f-store arg_idx#0                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        b main_while_top@1                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
 
 

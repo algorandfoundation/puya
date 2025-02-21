@@ -3,8 +3,10 @@
 
 // examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 0 3 2
+    intcblock 0 1 3 2
     bytecblock "game" "turns" "challenger" "winner" 0x01 0x02 "host"
+
+main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
 
@@ -18,6 +20,8 @@ main_after_if_else@2:
 
 // examples.tictactoe.tictactoe.TicTacToeContract.__init__() -> void:
 __init__:
+
+__init___block@0:
     retsub
 
 
@@ -29,6 +33,8 @@ new_game:
     proto 2 0
     pushbytes ""
     dup
+
+new_game_block@0:
     // tictactoe/tictactoe.py:22
     // if Txn.application_id:
     txn ApplicationID
@@ -39,7 +45,7 @@ new_game_if_body@1:
     // # if a challenger has joined, don't allow starting a new game
     // # until this one is complete
     // if self.challenger:
-    intc_1 // 0
+    intc_0 // 0
     bytec_2 // "challenger"
     app_global_get_ex
     bury 1
@@ -48,7 +54,7 @@ new_game_if_body@1:
 new_game_if_body@2:
     // tictactoe/tictactoe.py:26
     // assert self.winner, "Game isn't over"
-    intc_1 // 0
+    intc_0 // 0
     bytec_3 // "winner"
     app_global_get_ex
     bury 1
@@ -101,7 +107,7 @@ new_game_and_contd@5:
     bz new_game_bool_false@7
 
 new_game_bool_true@6:
-    intc_0 // 1
+    intc_1 // 1
 
 new_game_bool_merge@8:
     // tictactoe/tictactoe.py:33
@@ -109,7 +115,7 @@ new_game_bool_merge@8:
     assert // Move must be in range
     // tictactoe/tictactoe.py:34
     // self.game[row][column] = arc4.UInt8(HOST)
-    intc_1 // 0
+    intc_0 // 0
     bytec_0 // "game"
     app_global_get_ex
     assert // check self.game exists
@@ -126,7 +132,7 @@ new_game_bool_merge@8:
     intc_2 // 3
     <
     assert // Index access is out of bounds
-    intc_0 // 1
+    intc_1 // 1
     *
     bytec 4 // 0x01
     replace3
@@ -147,12 +153,12 @@ new_game_bool_merge@8:
     // tictactoe/tictactoe.py:35
     // self.turns = UInt64(0)
     bytec_1 // "turns"
-    intc_1 // 0
+    intc_0 // 0
     app_global_put
     retsub
 
 new_game_bool_false@7:
-    intc_1 // 0
+    intc_0 // 0
     b new_game_bool_merge@8
 
 
@@ -162,9 +168,11 @@ join_game:
     // @arc4.abimethod
     // def join_game(self, move: Move) -> None:
     proto 2 0
+
+join_game_block@0:
     // tictactoe/tictactoe.py:39
     // assert not self.challenger, "Host already has a challenger"
-    intc_1 // 0
+    intc_0 // 0
     bytec_2 // "challenger"
     app_global_get_ex
     bury 1
@@ -187,15 +195,17 @@ join_game:
 
 // examples.tictactoe.tictactoe.TicTacToeContract.whose_turn() -> bytes:
 whose_turn:
+
+whose_turn_block@0:
     // tictactoe/tictactoe.py:45
     // return arc4.UInt8(HOST) if self.turns % 2 else arc4.UInt8(CHALLENGER)
-    intc_1 // 0
+    intc_0 // 0
     bytec_1 // "turns"
     app_global_get_ex
     assert // check self.turns exists
     intc_3 // 2
     %
-    intc_1 // 0
+    intc_0 // 0
     !=
     bytec 5 // 0x02
     bytec 4 // 0x01
@@ -210,9 +220,11 @@ play:
     // @arc4.abimethod
     // def play(self, move: Move) -> None:
     proto 2 0
+
+play_block@0:
     // tictactoe/tictactoe.py:49
     // assert not self.winner, "Game is already finished"
-    intc_1 // 0
+    intc_0 // 0
     bytec_3 // "winner"
     app_global_get_ex
     bury 1
@@ -220,13 +232,13 @@ play:
     assert // Game is already finished
     // tictactoe/tictactoe.py:50
     // if self.turns % 2:
-    intc_1 // 0
+    intc_0 // 0
     bytec_1 // "turns"
     app_global_get_ex
     assert // check self.turns exists
     intc_3 // 2
     %
-    intc_1 // 0
+    intc_0 // 0
     !=
     bz play_else_body@2
 
@@ -234,7 +246,7 @@ play_if_body@1:
     // tictactoe/tictactoe.py:51
     // assert Txn.sender == self.host, "It is the host's turn"
     txn Sender
-    intc_1 // 0
+    intc_0 // 0
     bytec 6 // "host"
     app_global_get_ex
     assert // check self.host exists
@@ -261,7 +273,7 @@ play_else_body@2:
     global ZeroAddress
     // tictactoe/tictactoe.py:54
     // assert Txn.sender == self.challenger.get(
-    intc_1 // 0
+    intc_0 // 0
     bytec_2 // "challenger"
     // tictactoe/tictactoe.py:54-56
     // assert Txn.sender == self.challenger.get(
@@ -287,6 +299,8 @@ make_move:
     // @subroutine
     // def make_move(self, player: arc4.UInt8, move: Move) -> None:
     proto 3 0
+
+make_move_block@0:
     // tictactoe/tictactoe.py:62
     // column, row = move
     frame_dig -2
@@ -308,7 +322,7 @@ make_move_and_contd@1:
     bz make_move_bool_false@3
 
 make_move_bool_true@2:
-    intc_0 // 1
+    intc_1 // 1
 
 make_move_bool_merge@4:
     // tictactoe/tictactoe.py:63
@@ -316,7 +330,7 @@ make_move_bool_merge@4:
     assert // Move must be in range
     // tictactoe/tictactoe.py:64
     // assert self.game[row][column] == EMPTY, "Square is already taken"
-    intc_1 // 0
+    intc_0 // 0
     bytec_0 // "game"
     app_global_get_ex
     assert // check self.game exists
@@ -330,16 +344,16 @@ make_move_bool_merge@4:
     frame_dig 0
     dup
     cover 3
-    intc_0 // 1
+    intc_1 // 1
     *
-    intc_0 // 1
+    intc_1 // 1
     extract3 // on error: Index access is out of bounds
     pushbytes 0x00
     b==
     assert // Square is already taken
     // tictactoe/tictactoe.py:65
     // self.game[row][column] = player
-    intc_1 // 0
+    intc_0 // 0
     bytec_0 // "game"
     app_global_get_ex
     assert // check self.game exists
@@ -356,7 +370,7 @@ make_move_bool_merge@4:
     <
     assert // Index access is out of bounds
     dig 4
-    intc_0 // 1
+    intc_1 // 1
     *
     uncover 2
     replace3
@@ -376,11 +390,11 @@ make_move_bool_merge@4:
     app_global_put
     // tictactoe/tictactoe.py:66
     // self.turns += 1
-    intc_1 // 0
+    intc_0 // 0
     bytec_1 // "turns"
     app_global_get_ex
     assert // check self.turns exists
-    intc_0 // 1
+    intc_1 // 1
     +
     bytec_1 // "turns"
     swap
@@ -406,7 +420,7 @@ make_move_after_if_else@9:
 make_move_else_body@6:
     // tictactoe/tictactoe.py:69
     // elif self.turns == 9:
-    intc_1 // 0
+    intc_0 // 0
     bytec_1 // "turns"
     app_global_get_ex
     assert // check self.turns exists
@@ -425,7 +439,7 @@ make_move_after_if_else@8:
     b make_move_after_if_else@9
 
 make_move_bool_false@3:
-    intc_1 // 0
+    intc_0 // 0
     b make_move_bool_merge@4
 
 
@@ -435,10 +449,12 @@ did_win:
     // @subroutine
     // def did_win(self, player: arc4.UInt8, column: UInt64, row: UInt64) -> bool:
     proto 3 1
-    intc_1 // 0
+    intc_0 // 0
+
+did_win_block@0:
     // tictactoe/tictactoe.py:74
     // g = self.game.copy()
-    dup
+    intc_0 // 0
     bytec_0 // "game"
     app_global_get_ex
     assert // check self.game exists
@@ -450,10 +466,10 @@ did_win:
     *
     intc_2 // 3
     extract3 // on error: Index access is out of bounds
-    intc_1 // 0
-    intc_0 // 1
+    intc_0 // 0
+    intc_1 // 1
     *
-    intc_0 // 1
+    intc_1 // 1
     extract3 // on error: Index access is out of bounds
     swap
     frame_dig -1
@@ -461,10 +477,10 @@ did_win:
     *
     intc_2 // 3
     extract3 // on error: Index access is out of bounds
-    intc_0 // 1
+    intc_1 // 1
     dup
     *
-    intc_0 // 1
+    intc_1 // 1
     extract3 // on error: Index access is out of bounds
     dup
     cover 2
@@ -482,9 +498,9 @@ did_win_and_contd@1:
     intc_2 // 3
     extract3 // on error: Index access is out of bounds
     intc_3 // 2
-    intc_0 // 1
+    intc_1 // 1
     *
-    intc_0 // 1
+    intc_1 // 1
     extract3 // on error: Index access is out of bounds
     b==
     bz did_win_after_if_else@3
@@ -492,7 +508,7 @@ did_win_and_contd@1:
 did_win_if_body@2:
     // tictactoe/tictactoe.py:77
     // return True
-    intc_0 // 1
+    intc_1 // 1
     frame_bury 0
     retsub
 
@@ -501,26 +517,26 @@ did_win_after_if_else@3:
     // if g[0][column] == g[1][column] == g[2][column]:
     frame_dig 1
     dup
-    intc_1 // 0
+    intc_0 // 0
     intc_2 // 3
     *
     intc_2 // 3
     extract3 // on error: Index access is out of bounds
     frame_dig -2
-    intc_0 // 1
+    intc_1 // 1
     *
-    intc_0 // 1
+    intc_1 // 1
     extract3 // on error: Index access is out of bounds
     swap
-    intc_0 // 1
+    intc_1 // 1
     intc_2 // 3
     *
     intc_2 // 3
     extract3 // on error: Index access is out of bounds
     frame_dig -2
-    intc_0 // 1
+    intc_1 // 1
     *
-    intc_0 // 1
+    intc_1 // 1
     extract3 // on error: Index access is out of bounds
     dup
     frame_bury 0
@@ -538,9 +554,9 @@ did_win_and_contd@4:
     intc_2 // 3
     extract3 // on error: Index access is out of bounds
     frame_dig -2
-    intc_0 // 1
+    intc_1 // 1
     *
-    intc_0 // 1
+    intc_1 // 1
     extract3 // on error: Index access is out of bounds
     b==
     bz did_win_after_if_else@6
@@ -548,7 +564,7 @@ did_win_and_contd@4:
 did_win_if_body@5:
     // tictactoe/tictactoe.py:80
     // return True
-    intc_0 // 1
+    intc_1 // 1
     frame_bury 0
     retsub
 
@@ -558,15 +574,15 @@ did_win_after_if_else@6:
     // if player == g[1][1]:
     frame_dig -3
     frame_dig 1
-    intc_0 // 1
+    intc_1 // 1
     intc_2 // 3
     *
     intc_2 // 3
     extract3 // on error: Index access is out of bounds
-    intc_0 // 1
+    intc_1 // 1
     dup
     *
-    intc_0 // 1
+    intc_1 // 1
     extract3 // on error: Index access is out of bounds
     b==
     bz did_win_after_if_else@14
@@ -575,15 +591,15 @@ did_win_if_body@7:
     // tictactoe/tictactoe.py:84
     // if g[0][0] == player == g[2][2]:
     frame_dig 1
-    intc_1 // 0
+    intc_0 // 0
     intc_2 // 3
     *
     intc_2 // 3
     extract3 // on error: Index access is out of bounds
-    intc_1 // 0
-    intc_0 // 1
+    intc_0 // 0
+    intc_1 // 1
     *
-    intc_0 // 1
+    intc_1 // 1
     extract3 // on error: Index access is out of bounds
     frame_dig -3
     b==
@@ -600,9 +616,9 @@ did_win_and_contd@8:
     intc_2 // 3
     extract3 // on error: Index access is out of bounds
     intc_3 // 2
-    intc_0 // 1
+    intc_1 // 1
     *
-    intc_0 // 1
+    intc_1 // 1
     extract3 // on error: Index access is out of bounds
     b==
     bz did_win_after_if_else@10
@@ -610,7 +626,7 @@ did_win_and_contd@8:
 did_win_if_body@9:
     // tictactoe/tictactoe.py:85
     // return True
-    intc_0 // 1
+    intc_1 // 1
     frame_bury 0
     retsub
 
@@ -618,15 +634,15 @@ did_win_after_if_else@10:
     // tictactoe/tictactoe.py:86
     // if g[0][2] == player == g[2][0]:
     frame_dig 1
-    intc_1 // 0
+    intc_0 // 0
     intc_2 // 3
     *
     intc_2 // 3
     extract3 // on error: Index access is out of bounds
     intc_3 // 2
-    intc_0 // 1
+    intc_1 // 1
     *
-    intc_0 // 1
+    intc_1 // 1
     extract3 // on error: Index access is out of bounds
     frame_dig -3
     b==
@@ -642,10 +658,10 @@ did_win_and_contd@11:
     *
     intc_2 // 3
     extract3 // on error: Index access is out of bounds
-    intc_1 // 0
-    intc_0 // 1
+    intc_0 // 0
+    intc_1 // 1
     *
-    intc_0 // 1
+    intc_1 // 1
     extract3 // on error: Index access is out of bounds
     b==
     bz did_win_after_if_else@13
@@ -653,7 +669,7 @@ did_win_and_contd@11:
 did_win_if_body@12:
     // tictactoe/tictactoe.py:87
     // return True
-    intc_0 // 1
+    intc_1 // 1
     frame_bury 0
     retsub
 
@@ -662,7 +678,7 @@ did_win_after_if_else@13:
 did_win_after_if_else@14:
     // tictactoe/tictactoe.py:88
     // return False
-    intc_1 // 0
+    intc_0 // 0
     frame_bury 0
     retsub
 
@@ -670,11 +686,13 @@ did_win_after_if_else@14:
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
 
+approval_program_block@0:
+
 approval_program_block@1:
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
     txn NumAppArgs
-    intc_1 // 0
+    intc_0 // 0
     !=
     bz approval_program_bare_routing@9
 
@@ -696,7 +714,7 @@ approval_program_switch_case_next@8:
 approval_program_after_if_else@10:
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
-    intc_1 // 0
+    intc_0 // 0
 
 approval_program_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@11:
     retsub
@@ -705,18 +723,18 @@ approval_program_play_route@6:
     // tictactoe/tictactoe.py:47
     // @arc4.abimethod
     txn OnCompletion
-    intc_1 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is not NoOp
     txn ApplicationID
-    intc_1 // 0
+    intc_0 // 0
     !=
     assert // can only call when not creating
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
+    intc_0 // 0
     pushint 8 // 8
     extract3 // on error: Index access is out of bounds
     btoi
@@ -728,18 +746,18 @@ approval_program_play_route@6:
     // tictactoe/tictactoe.py:47
     // @arc4.abimethod
     callsub play
-    intc_0 // 1
+    intc_1 // 1
     b approval_program_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@11
 
 approval_program_whose_turn_route@5:
     // tictactoe/tictactoe.py:43
     // @arc4.abimethod
     txn OnCompletion
-    intc_1 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is not NoOp
     txn ApplicationID
-    intc_1 // 0
+    intc_0 // 0
     !=
     assert // can only call when not creating
     callsub whose_turn
@@ -747,25 +765,25 @@ approval_program_whose_turn_route@5:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     b approval_program_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@11
 
 approval_program_join_game_route@4:
     // tictactoe/tictactoe.py:37
     // @arc4.abimethod
     txn OnCompletion
-    intc_1 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is not NoOp
     txn ApplicationID
-    intc_1 // 0
+    intc_0 // 0
     !=
     assert // can only call when not creating
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
+    intc_0 // 0
     pushint 8 // 8
     extract3 // on error: Index access is out of bounds
     btoi
@@ -777,21 +795,21 @@ approval_program_join_game_route@4:
     // tictactoe/tictactoe.py:37
     // @arc4.abimethod
     callsub join_game
-    intc_0 // 1
+    intc_1 // 1
     b approval_program_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@11
 
 approval_program_new_game_route@3:
     // tictactoe/tictactoe.py:20
     // @arc4.abimethod(create="allow")
     txn OnCompletion
-    intc_1 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is not NoOp
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
+    intc_0 // 0
     pushint 8 // 8
     extract3 // on error: Index access is out of bounds
     btoi
@@ -803,7 +821,7 @@ approval_program_new_game_route@3:
     // tictactoe/tictactoe.py:20
     // @arc4.abimethod(create="allow")
     callsub new_game
-    intc_0 // 1
+    intc_1 // 1
     b approval_program_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@11
 
 approval_program_bare_routing@9:

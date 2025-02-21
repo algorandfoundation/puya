@@ -1,37 +1,38 @@
-// Op                                                                    Stack (out)
+// Op                                                                        Stack (out)
 // test_cases.arc4_types.string.Arc4StringTypesContract.approval_program() -> uint64:
-main:
-    // arc4_types/string.py:41
-    // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
-    txn NumAppArgs                                                       tmp%11#0
-    l-load tmp%11#0 0                                                    tmp%11#0
-    bz main_ternary_false@2 ; b main_ternary_true@1
+subroutine main:
+    main_block@0:
+        // arc4_types/string.py:41
+        // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
+        txn NumAppArgs                                                       tmp%11#0
+        l-load tmp%11#0 0                                                    tmp%11#0
+        bz main_ternary_false@2 ; b main_ternary_true@1
 
-main_ternary_true@1:
-    // arc4_types/string.py:41
-    // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
-    byte 0x0003617965                                                    0x0003617965
-    v-store ternary_result%0#0
-    b main_ternary_merge@3
+    main_ternary_true@1:
+        // arc4_types/string.py:41
+        // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
+        byte 0x0003617965                                                    0x0003617965
+        v-store ternary_result%0#0
+        b main_ternary_merge@3
 
-main_ternary_false@2:
-    // arc4_types/string.py:41
-    // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
-    byte 0x0003626565                                                    0x0003626565
-    v-store ternary_result%0#0
-    b main_ternary_merge@3
+    main_ternary_false@2:
+        // arc4_types/string.py:41
+        // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
+        byte 0x0003626565                                                    0x0003626565
+        v-store ternary_result%0#0
+        b main_ternary_merge@3
 
-main_ternary_merge@3:
-    // arc4_types/string.py:41
-    // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
-    v-load ternary_result%0#0                                            ternary_result%0#0
-    byte 0x0003626565                                                    ternary_result%0#0,0x0003626565
-    ==                                                                   tmp%13#0
-    l-load tmp%13#0 0                                                    tmp%13#0
-    assert
-    // arc4_types/string.py:42
-    // return True
-    int 1                                                                1
-    return
+    main_ternary_merge@3:
+        // arc4_types/string.py:41
+        // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
+        v-load ternary_result%0#0                                            ternary_result%0#0
+        byte 0x0003626565                                                    ternary_result%0#0,0x0003626565
+        ==                                                                   tmp%13#0
+        l-load tmp%13#0 0                                                    tmp%13#0
+        assert
+        // arc4_types/string.py:42
+        // return True
+        int 1                                                                1
+        return
 
 

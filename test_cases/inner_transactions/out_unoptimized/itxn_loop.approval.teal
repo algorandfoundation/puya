@@ -3,21 +3,24 @@
 
 // test_cases.inner_transactions.itxn_loop.MyContract.approval_program() -> uint64:
 main:
-    intcblock 1 0 2 3
+    intcblock 0 1 2 3
     bytecblock 0x31 0x0a8101 0x32
-    intc_1 // 0
-    dupn 3
+    intc_0 // 0
+
+main_block@0:
+    intc_0 // 0
+    dupn 2
     // inner_transactions/itxn_loop.py:25
     // note=b"",
     pushbytes 0x
     // inner_transactions/itxn_loop.py:21
     // app_params = itxn.ApplicationCall(
-    intc_1 // 0
+    intc_0 // 0
     // inner_transactions/itxn_loop.py:27
     // for i in urange(4):
-    intc_0 // 1
+    intc_1 // 1
     assert // Step cannot be zero
-    intc_1 // 0
+    intc_0 // 0
 
 main_for_header@1:
     // inner_transactions/itxn_loop.py:27
@@ -33,7 +36,7 @@ main_for_body@2:
     pushbytes 0x4142434445
     // inner_transactions/itxn_loop.py:28
     // i_note = op.extract(note, 0, i)
-    intc_1 // 0
+    intc_0 // 0
     dig 2
     dup
     cover 3
@@ -41,7 +44,7 @@ main_for_body@2:
     bury 8
     // inner_transactions/itxn_loop.py:30
     // case UInt64(1):
-    intc_0 // 1
+    intc_1 // 1
     // inner_transactions/itxn_loop.py:32
     // case UInt64(2):
     intc_2 // 2
@@ -69,7 +72,7 @@ main_switch_case_next@7:
     // app_txn = app_params.submit()
     itxn_begin
     dig 1
-    intc_0 // 1
+    intc_1 // 1
     >=
     bz main_next_field@11
 
@@ -116,7 +119,7 @@ main_next_field@11:
     // app_params = itxn.ApplicationCall(
     pushint 6 // appl
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
 
 main_next_txn@12:
@@ -138,7 +141,7 @@ main_for_footer@13:
     // inner_transactions/itxn_loop.py:27
     // for i in urange(4):
     dup
-    intc_0 // 1
+    intc_1 // 1
     +
     bury 1
     b main_for_header@1
@@ -180,12 +183,12 @@ main_switch_case_0@3:
     bury 3
     bytec_0 // 0x31
     bury 4
-    intc_0 // 1
+    intc_1 // 1
     bury 2
     b main_switch_case_next@7
 
 main_after_for@14:
     // inner_transactions/itxn_loop.py:43
     // return True
-    intc_0 // 1
+    intc_1 // 1
     return

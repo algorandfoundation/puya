@@ -1,384 +1,385 @@
-// Op                                                 Stack (out)
+// Op                                                     Stack (out)
 // test_cases.conditional_execution.contract.ConditionalExecutionContract.__algopy_entrypoint_with_init() -> uint64:
-main:
-    txn ApplicationID                                 tmp%0#0
-    bz main_call___init__@1 ; b main_after_if_else@2
+subroutine main:
+    main_block@0:
+        txn ApplicationID                                 tmp%0#0
+        bz main_call___init__@1 ; b main_after_if_else@2
 
-main_call___init__@1:
-    // conditional_execution/contract.py:6
-    // self.did_execute_a = False
-    byte "did_execute_a"                              "did_execute_a"
-    int 0                                             "did_execute_a",0
-    app_global_put
-    // conditional_execution/contract.py:7
-    // self.did_execute_b = False
-    byte "did_execute_b"                              "did_execute_b"
-    int 0                                             "did_execute_b",0
-    app_global_put
-    b main_after_if_else@2
+    main_call___init__@1:
+        // conditional_execution/contract.py:6
+        // self.did_execute_a = False
+        byte "did_execute_a"                              "did_execute_a"
+        int 0                                             "did_execute_a",0
+        app_global_put
+        // conditional_execution/contract.py:7
+        // self.did_execute_b = False
+        byte "did_execute_b"                              "did_execute_b"
+        int 0                                             "did_execute_b",0
+        app_global_put
+        b main_after_if_else@2
 
-main_after_if_else@2:
-    // conditional_execution/contract.py:65
-    // self.did_execute_a = True
-    byte "did_execute_a"                              "did_execute_a"
-    int 1                                             "did_execute_a",1
-    app_global_put
-    // conditional_execution/contract.py:13
-    // self.did_execute_a and not self.did_execute_b,
-    int 0                                             0
-    byte "did_execute_a"                              0,"did_execute_a"
-    app_global_get_ex                                 maybe_value%0#0,maybe_exists%0#0
-    assert // check self.did_execute_a exists         maybe_value%0#0
-    l-load maybe_value%0#0 0                          maybe_value%0#0
-    bz main_bool_false@10 ; b main_and_contd@8
+    main_after_if_else@2:
+        // conditional_execution/contract.py:65
+        // self.did_execute_a = True
+        byte "did_execute_a"                              "did_execute_a"
+        int 1                                             "did_execute_a",1
+        app_global_put
+        // conditional_execution/contract.py:13
+        // self.did_execute_a and not self.did_execute_b,
+        int 0                                             0
+        byte "did_execute_a"                              0,"did_execute_a"
+        app_global_get_ex                                 maybe_value%0#0,maybe_exists%0#0
+        assert // check self.did_execute_a exists         maybe_value%0#0
+        l-load maybe_value%0#0 0                          maybe_value%0#0
+        bz main_bool_false@10 ; b main_and_contd@8
 
-main_and_contd@8:
-    // conditional_execution/contract.py:13
-    // self.did_execute_a and not self.did_execute_b,
-    int 0                                             0
-    byte "did_execute_b"                              0,"did_execute_b"
-    app_global_get_ex                                 maybe_value%1#0,maybe_exists%1#0
-    assert // check self.did_execute_b exists         maybe_value%1#0
-    l-load maybe_value%1#0 0                          maybe_value%1#0
-    bz main_bool_true@9 ; b main_bool_false@10
+    main_and_contd@8:
+        // conditional_execution/contract.py:13
+        // self.did_execute_a and not self.did_execute_b,
+        int 0                                             0
+        byte "did_execute_b"                              0,"did_execute_b"
+        app_global_get_ex                                 maybe_value%1#0,maybe_exists%1#0
+        assert // check self.did_execute_b exists         maybe_value%1#0
+        l-load maybe_value%1#0 0                          maybe_value%1#0
+        bz main_bool_true@9 ; b main_bool_false@10
 
-main_bool_true@9:
-    int 1                                             and_result%0#0
-    x-store condition#0                               (𝕏) condition#0 |
-    b main_bool_merge@11                              (𝕏) condition#0 |
+    main_bool_true@9:
+        int 1                                             and_result%0#0
+        x-store condition#0                               (𝕏) condition#0 |
+        b main_bool_merge@11                              (𝕏) condition#0 |
 
-main_bool_false@10:
-    int 0                                             and_result%0#0
-    x-store condition#0                               (𝕏) condition#0 |
-    b main_bool_merge@11                              (𝕏) condition#0 |
+    main_bool_false@10:
+        int 0                                             and_result%0#0
+        x-store condition#0                               (𝕏) condition#0 |
+        b main_bool_merge@11                              (𝕏) condition#0 |
 
-main_bool_merge@11:                                   (𝕏) condition#0 |
-    // conditional_execution/contract.py:59
-    // assert condition
-    x-load condition#0                                condition#0
-    assert
-    // conditional_execution/contract.py:60
-    // self.did_execute_b = False
-    byte "did_execute_b"                              "did_execute_b"
-    int 0                                             "did_execute_b",0
-    app_global_put
-    // conditional_execution/contract.py:61
-    // self.did_execute_a = False
-    byte "did_execute_a"                              "did_execute_a"
-    int 0                                             "did_execute_a",0
-    app_global_put
-    // conditional_execution/contract.py:65
-    // self.did_execute_a = True
-    byte "did_execute_a"                              "did_execute_a"
-    int 1                                             "did_execute_a",1
-    app_global_put
-    // conditional_execution/contract.py:70
-    // self.did_execute_b = True
-    byte "did_execute_b"                              "did_execute_b"
-    int 1                                             "did_execute_b",1
-    app_global_put
-    // conditional_execution/contract.py:19
-    // self.did_execute_a and self.did_execute_b,
-    int 0                                             0
-    byte "did_execute_a"                              0,"did_execute_a"
-    app_global_get_ex                                 maybe_value%2#0,maybe_exists%2#0
-    assert // check self.did_execute_a exists         maybe_value%2#0
-    l-load maybe_value%2#0 0                          maybe_value%2#0
-    bz main_bool_false@18 ; b main_and_contd@16
+    main_bool_merge@11:                                   (𝕏) condition#0 |
+        // conditional_execution/contract.py:59
+        // assert condition
+        x-load condition#0                                condition#0
+        assert
+        // conditional_execution/contract.py:60
+        // self.did_execute_b = False
+        byte "did_execute_b"                              "did_execute_b"
+        int 0                                             "did_execute_b",0
+        app_global_put
+        // conditional_execution/contract.py:61
+        // self.did_execute_a = False
+        byte "did_execute_a"                              "did_execute_a"
+        int 0                                             "did_execute_a",0
+        app_global_put
+        // conditional_execution/contract.py:65
+        // self.did_execute_a = True
+        byte "did_execute_a"                              "did_execute_a"
+        int 1                                             "did_execute_a",1
+        app_global_put
+        // conditional_execution/contract.py:70
+        // self.did_execute_b = True
+        byte "did_execute_b"                              "did_execute_b"
+        int 1                                             "did_execute_b",1
+        app_global_put
+        // conditional_execution/contract.py:19
+        // self.did_execute_a and self.did_execute_b,
+        int 0                                             0
+        byte "did_execute_a"                              0,"did_execute_a"
+        app_global_get_ex                                 maybe_value%2#0,maybe_exists%2#0
+        assert // check self.did_execute_a exists         maybe_value%2#0
+        l-load maybe_value%2#0 0                          maybe_value%2#0
+        bz main_bool_false@18 ; b main_and_contd@16
 
-main_and_contd@16:
-    // conditional_execution/contract.py:19
-    // self.did_execute_a and self.did_execute_b,
-    int 0                                             0
-    byte "did_execute_b"                              0,"did_execute_b"
-    app_global_get_ex                                 maybe_value%3#0,maybe_exists%3#0
-    assert // check self.did_execute_b exists         maybe_value%3#0
-    l-load maybe_value%3#0 0                          maybe_value%3#0
-    bz main_bool_false@18 ; b main_bool_true@17
+    main_and_contd@16:
+        // conditional_execution/contract.py:19
+        // self.did_execute_a and self.did_execute_b,
+        int 0                                             0
+        byte "did_execute_b"                              0,"did_execute_b"
+        app_global_get_ex                                 maybe_value%3#0,maybe_exists%3#0
+        assert // check self.did_execute_b exists         maybe_value%3#0
+        l-load maybe_value%3#0 0                          maybe_value%3#0
+        bz main_bool_false@18 ; b main_bool_true@17
 
-main_bool_true@17:
-    int 1                                             and_result%1#0
-    x-store condition#0                               (𝕏) condition#0 |
-    b main_bool_merge@19                              (𝕏) condition#0 |
+    main_bool_true@17:
+        int 1                                             and_result%1#0
+        x-store condition#0                               (𝕏) condition#0 |
+        b main_bool_merge@19                              (𝕏) condition#0 |
 
-main_bool_false@18:
-    int 0                                             and_result%1#0
-    x-store condition#0                               (𝕏) condition#0 |
-    b main_bool_merge@19                              (𝕏) condition#0 |
+    main_bool_false@18:
+        int 0                                             and_result%1#0
+        x-store condition#0                               (𝕏) condition#0 |
+        b main_bool_merge@19                              (𝕏) condition#0 |
 
-main_bool_merge@19:                                   (𝕏) condition#0 |
-    // conditional_execution/contract.py:59
-    // assert condition
-    x-load condition#0                                condition#0
-    assert
-    // conditional_execution/contract.py:60
-    // self.did_execute_b = False
-    byte "did_execute_b"                              "did_execute_b"
-    int 0                                             "did_execute_b",0
-    app_global_put
-    // conditional_execution/contract.py:61
-    // self.did_execute_a = False
-    byte "did_execute_a"                              "did_execute_a"
-    int 0                                             "did_execute_a",0
-    app_global_put
-    // conditional_execution/contract.py:65
-    // self.did_execute_a = True
-    byte "did_execute_a"                              "did_execute_a"
-    int 1                                             "did_execute_a",1
-    app_global_put
-    // conditional_execution/contract.py:25
-    // self.did_execute_a and not self.did_execute_b,
-    int 0                                             0
-    byte "did_execute_a"                              0,"did_execute_a"
-    app_global_get_ex                                 maybe_value%4#0,maybe_exists%4#0
-    assert // check self.did_execute_a exists         maybe_value%4#0
-    l-load maybe_value%4#0 0                          maybe_value%4#0
-    bz main_bool_false@26 ; b main_and_contd@24
+    main_bool_merge@19:                                   (𝕏) condition#0 |
+        // conditional_execution/contract.py:59
+        // assert condition
+        x-load condition#0                                condition#0
+        assert
+        // conditional_execution/contract.py:60
+        // self.did_execute_b = False
+        byte "did_execute_b"                              "did_execute_b"
+        int 0                                             "did_execute_b",0
+        app_global_put
+        // conditional_execution/contract.py:61
+        // self.did_execute_a = False
+        byte "did_execute_a"                              "did_execute_a"
+        int 0                                             "did_execute_a",0
+        app_global_put
+        // conditional_execution/contract.py:65
+        // self.did_execute_a = True
+        byte "did_execute_a"                              "did_execute_a"
+        int 1                                             "did_execute_a",1
+        app_global_put
+        // conditional_execution/contract.py:25
+        // self.did_execute_a and not self.did_execute_b,
+        int 0                                             0
+        byte "did_execute_a"                              0,"did_execute_a"
+        app_global_get_ex                                 maybe_value%4#0,maybe_exists%4#0
+        assert // check self.did_execute_a exists         maybe_value%4#0
+        l-load maybe_value%4#0 0                          maybe_value%4#0
+        bz main_bool_false@26 ; b main_and_contd@24
 
-main_and_contd@24:
-    // conditional_execution/contract.py:25
-    // self.did_execute_a and not self.did_execute_b,
-    int 0                                             0
-    byte "did_execute_b"                              0,"did_execute_b"
-    app_global_get_ex                                 maybe_value%5#0,maybe_exists%5#0
-    assert // check self.did_execute_b exists         maybe_value%5#0
-    l-load maybe_value%5#0 0                          maybe_value%5#0
-    bz main_bool_true@25 ; b main_bool_false@26
+    main_and_contd@24:
+        // conditional_execution/contract.py:25
+        // self.did_execute_a and not self.did_execute_b,
+        int 0                                             0
+        byte "did_execute_b"                              0,"did_execute_b"
+        app_global_get_ex                                 maybe_value%5#0,maybe_exists%5#0
+        assert // check self.did_execute_b exists         maybe_value%5#0
+        l-load maybe_value%5#0 0                          maybe_value%5#0
+        bz main_bool_true@25 ; b main_bool_false@26
 
-main_bool_true@25:
-    int 1                                             and_result%3#0
-    x-store condition#0                               (𝕏) condition#0 |
-    b main_bool_merge@27                              (𝕏) condition#0 |
+    main_bool_true@25:
+        int 1                                             and_result%3#0
+        x-store condition#0                               (𝕏) condition#0 |
+        b main_bool_merge@27                              (𝕏) condition#0 |
 
-main_bool_false@26:
-    int 0                                             and_result%3#0
-    x-store condition#0                               (𝕏) condition#0 |
-    b main_bool_merge@27                              (𝕏) condition#0 |
+    main_bool_false@26:
+        int 0                                             and_result%3#0
+        x-store condition#0                               (𝕏) condition#0 |
+        b main_bool_merge@27                              (𝕏) condition#0 |
 
-main_bool_merge@27:                                   (𝕏) condition#0 |
-    // conditional_execution/contract.py:59
-    // assert condition
-    x-load condition#0                                condition#0
-    assert
-    // conditional_execution/contract.py:60
-    // self.did_execute_b = False
-    byte "did_execute_b"                              "did_execute_b"
-    int 0                                             "did_execute_b",0
-    app_global_put
-    // conditional_execution/contract.py:61
-    // self.did_execute_a = False
-    byte "did_execute_a"                              "did_execute_a"
-    int 0                                             "did_execute_a",0
-    app_global_put
-    // conditional_execution/contract.py:65
-    // self.did_execute_a = True
-    byte "did_execute_a"                              "did_execute_a"
-    int 1                                             "did_execute_a",1
-    app_global_put
-    // conditional_execution/contract.py:70
-    // self.did_execute_b = True
-    byte "did_execute_b"                              "did_execute_b"
-    int 1                                             "did_execute_b",1
-    app_global_put
-    // conditional_execution/contract.py:31
-    // self.did_execute_a and self.did_execute_b,
-    int 0                                             0
-    byte "did_execute_a"                              0,"did_execute_a"
-    app_global_get_ex                                 maybe_value%6#0,maybe_exists%6#0
-    assert // check self.did_execute_a exists         maybe_value%6#0
-    l-load maybe_value%6#0 0                          maybe_value%6#0
-    bz main_bool_false@34 ; b main_and_contd@32
+    main_bool_merge@27:                                   (𝕏) condition#0 |
+        // conditional_execution/contract.py:59
+        // assert condition
+        x-load condition#0                                condition#0
+        assert
+        // conditional_execution/contract.py:60
+        // self.did_execute_b = False
+        byte "did_execute_b"                              "did_execute_b"
+        int 0                                             "did_execute_b",0
+        app_global_put
+        // conditional_execution/contract.py:61
+        // self.did_execute_a = False
+        byte "did_execute_a"                              "did_execute_a"
+        int 0                                             "did_execute_a",0
+        app_global_put
+        // conditional_execution/contract.py:65
+        // self.did_execute_a = True
+        byte "did_execute_a"                              "did_execute_a"
+        int 1                                             "did_execute_a",1
+        app_global_put
+        // conditional_execution/contract.py:70
+        // self.did_execute_b = True
+        byte "did_execute_b"                              "did_execute_b"
+        int 1                                             "did_execute_b",1
+        app_global_put
+        // conditional_execution/contract.py:31
+        // self.did_execute_a and self.did_execute_b,
+        int 0                                             0
+        byte "did_execute_a"                              0,"did_execute_a"
+        app_global_get_ex                                 maybe_value%6#0,maybe_exists%6#0
+        assert // check self.did_execute_a exists         maybe_value%6#0
+        l-load maybe_value%6#0 0                          maybe_value%6#0
+        bz main_bool_false@34 ; b main_and_contd@32
 
-main_and_contd@32:
-    // conditional_execution/contract.py:31
-    // self.did_execute_a and self.did_execute_b,
-    int 0                                             0
-    byte "did_execute_b"                              0,"did_execute_b"
-    app_global_get_ex                                 maybe_value%7#0,maybe_exists%7#0
-    assert // check self.did_execute_b exists         maybe_value%7#0
-    l-load maybe_value%7#0 0                          maybe_value%7#0
-    bz main_bool_false@34 ; b main_bool_true@33
+    main_and_contd@32:
+        // conditional_execution/contract.py:31
+        // self.did_execute_a and self.did_execute_b,
+        int 0                                             0
+        byte "did_execute_b"                              0,"did_execute_b"
+        app_global_get_ex                                 maybe_value%7#0,maybe_exists%7#0
+        assert // check self.did_execute_b exists         maybe_value%7#0
+        l-load maybe_value%7#0 0                          maybe_value%7#0
+        bz main_bool_false@34 ; b main_bool_true@33
 
-main_bool_true@33:
-    int 1                                             and_result%5#0
-    x-store condition#0                               (𝕏) condition#0 |
-    b main_bool_merge@35                              (𝕏) condition#0 |
+    main_bool_true@33:
+        int 1                                             and_result%5#0
+        x-store condition#0                               (𝕏) condition#0 |
+        b main_bool_merge@35                              (𝕏) condition#0 |
 
-main_bool_false@34:
-    int 0                                             and_result%5#0
-    x-store condition#0                               (𝕏) condition#0 |
-    b main_bool_merge@35                              (𝕏) condition#0 |
+    main_bool_false@34:
+        int 0                                             and_result%5#0
+        x-store condition#0                               (𝕏) condition#0 |
+        b main_bool_merge@35                              (𝕏) condition#0 |
 
-main_bool_merge@35:                                   (𝕏) condition#0 |
-    // conditional_execution/contract.py:59
-    // assert condition
-    x-load condition#0                                condition#0
-    assert
-    // conditional_execution/contract.py:60
-    // self.did_execute_b = False
-    byte "did_execute_b"                              "did_execute_b"
-    int 0                                             "did_execute_b",0
-    app_global_put
-    // conditional_execution/contract.py:61
-    // self.did_execute_a = False
-    byte "did_execute_a"                              "did_execute_a"
-    int 0                                             "did_execute_a",0
-    app_global_put
-    // conditional_execution/contract.py:65
-    // self.did_execute_a = True
-    byte "did_execute_a"                              "did_execute_a"
-    int 1                                             "did_execute_a",1
-    app_global_put
-    // conditional_execution/contract.py:70
-    // self.did_execute_b = True
-    byte "did_execute_b"                              "did_execute_b"
-    int 1                                             "did_execute_b",1
-    app_global_put
-    // conditional_execution/contract.py:37
-    // self.did_execute_a and self.did_execute_b,
-    int 0                                             0
-    byte "did_execute_a"                              0,"did_execute_a"
-    app_global_get_ex                                 maybe_value%8#0,maybe_exists%8#0
-    assert // check self.did_execute_a exists         maybe_value%8#0
-    l-load maybe_value%8#0 0                          maybe_value%8#0
-    bz main_bool_false@38 ; b main_and_contd@36
+    main_bool_merge@35:                                   (𝕏) condition#0 |
+        // conditional_execution/contract.py:59
+        // assert condition
+        x-load condition#0                                condition#0
+        assert
+        // conditional_execution/contract.py:60
+        // self.did_execute_b = False
+        byte "did_execute_b"                              "did_execute_b"
+        int 0                                             "did_execute_b",0
+        app_global_put
+        // conditional_execution/contract.py:61
+        // self.did_execute_a = False
+        byte "did_execute_a"                              "did_execute_a"
+        int 0                                             "did_execute_a",0
+        app_global_put
+        // conditional_execution/contract.py:65
+        // self.did_execute_a = True
+        byte "did_execute_a"                              "did_execute_a"
+        int 1                                             "did_execute_a",1
+        app_global_put
+        // conditional_execution/contract.py:70
+        // self.did_execute_b = True
+        byte "did_execute_b"                              "did_execute_b"
+        int 1                                             "did_execute_b",1
+        app_global_put
+        // conditional_execution/contract.py:37
+        // self.did_execute_a and self.did_execute_b,
+        int 0                                             0
+        byte "did_execute_a"                              0,"did_execute_a"
+        app_global_get_ex                                 maybe_value%8#0,maybe_exists%8#0
+        assert // check self.did_execute_a exists         maybe_value%8#0
+        l-load maybe_value%8#0 0                          maybe_value%8#0
+        bz main_bool_false@38 ; b main_and_contd@36
 
-main_and_contd@36:
-    // conditional_execution/contract.py:37
-    // self.did_execute_a and self.did_execute_b,
-    int 0                                             0
-    byte "did_execute_b"                              0,"did_execute_b"
-    app_global_get_ex                                 maybe_value%9#0,maybe_exists%9#0
-    assert // check self.did_execute_b exists         maybe_value%9#0
-    l-load maybe_value%9#0 0                          maybe_value%9#0
-    bz main_bool_false@38 ; b main_bool_true@37
+    main_and_contd@36:
+        // conditional_execution/contract.py:37
+        // self.did_execute_a and self.did_execute_b,
+        int 0                                             0
+        byte "did_execute_b"                              0,"did_execute_b"
+        app_global_get_ex                                 maybe_value%9#0,maybe_exists%9#0
+        assert // check self.did_execute_b exists         maybe_value%9#0
+        l-load maybe_value%9#0 0                          maybe_value%9#0
+        bz main_bool_false@38 ; b main_bool_true@37
 
-main_bool_true@37:
-    int 1                                             and_result%6#0
-    x-store condition#0                               (𝕏) condition#0 |
-    b main_bool_merge@39                              (𝕏) condition#0 |
+    main_bool_true@37:
+        int 1                                             and_result%6#0
+        x-store condition#0                               (𝕏) condition#0 |
+        b main_bool_merge@39                              (𝕏) condition#0 |
 
-main_bool_false@38:
-    int 0                                             and_result%6#0
-    x-store condition#0                               (𝕏) condition#0 |
-    b main_bool_merge@39                              (𝕏) condition#0 |
+    main_bool_false@38:
+        int 0                                             and_result%6#0
+        x-store condition#0                               (𝕏) condition#0 |
+        b main_bool_merge@39                              (𝕏) condition#0 |
 
-main_bool_merge@39:                                   (𝕏) condition#0 |
-    // conditional_execution/contract.py:59
-    // assert condition
-    x-load condition#0                                condition#0
-    assert
-    // conditional_execution/contract.py:60
-    // self.did_execute_b = False
-    byte "did_execute_b"                              "did_execute_b"
-    int 0                                             "did_execute_b",0
-    app_global_put
-    // conditional_execution/contract.py:61
-    // self.did_execute_a = False
-    byte "did_execute_a"                              "did_execute_a"
-    int 0                                             "did_execute_a",0
-    app_global_put
-    // conditional_execution/contract.py:65
-    // self.did_execute_a = True
-    byte "did_execute_a"                              "did_execute_a"
-    int 1                                             "did_execute_a",1
-    app_global_put
-    // conditional_execution/contract.py:43
-    // self.did_execute_a and not self.did_execute_b,
-    int 0                                             0
-    byte "did_execute_a"                              0,"did_execute_a"
-    app_global_get_ex                                 maybe_value%10#0,maybe_exists%10#0
-    assert // check self.did_execute_a exists         maybe_value%10#0
-    l-load maybe_value%10#0 0                         maybe_value%10#0
-    bz main_bool_false@45 ; b main_and_contd@43
+    main_bool_merge@39:                                   (𝕏) condition#0 |
+        // conditional_execution/contract.py:59
+        // assert condition
+        x-load condition#0                                condition#0
+        assert
+        // conditional_execution/contract.py:60
+        // self.did_execute_b = False
+        byte "did_execute_b"                              "did_execute_b"
+        int 0                                             "did_execute_b",0
+        app_global_put
+        // conditional_execution/contract.py:61
+        // self.did_execute_a = False
+        byte "did_execute_a"                              "did_execute_a"
+        int 0                                             "did_execute_a",0
+        app_global_put
+        // conditional_execution/contract.py:65
+        // self.did_execute_a = True
+        byte "did_execute_a"                              "did_execute_a"
+        int 1                                             "did_execute_a",1
+        app_global_put
+        // conditional_execution/contract.py:43
+        // self.did_execute_a and not self.did_execute_b,
+        int 0                                             0
+        byte "did_execute_a"                              0,"did_execute_a"
+        app_global_get_ex                                 maybe_value%10#0,maybe_exists%10#0
+        assert // check self.did_execute_a exists         maybe_value%10#0
+        l-load maybe_value%10#0 0                         maybe_value%10#0
+        bz main_bool_false@45 ; b main_and_contd@43
 
-main_and_contd@43:
-    // conditional_execution/contract.py:43
-    // self.did_execute_a and not self.did_execute_b,
-    int 0                                             0
-    byte "did_execute_b"                              0,"did_execute_b"
-    app_global_get_ex                                 maybe_value%11#0,maybe_exists%11#0
-    assert // check self.did_execute_b exists         maybe_value%11#0
-    l-load maybe_value%11#0 0                         maybe_value%11#0
-    bz main_bool_true@44 ; b main_bool_false@45
+    main_and_contd@43:
+        // conditional_execution/contract.py:43
+        // self.did_execute_a and not self.did_execute_b,
+        int 0                                             0
+        byte "did_execute_b"                              0,"did_execute_b"
+        app_global_get_ex                                 maybe_value%11#0,maybe_exists%11#0
+        assert // check self.did_execute_b exists         maybe_value%11#0
+        l-load maybe_value%11#0 0                         maybe_value%11#0
+        bz main_bool_true@44 ; b main_bool_false@45
 
-main_bool_true@44:
-    int 1                                             and_result%7#0
-    x-store condition#0                               (𝕏) condition#0 |
-    b main_bool_merge@46                              (𝕏) condition#0 |
+    main_bool_true@44:
+        int 1                                             and_result%7#0
+        x-store condition#0                               (𝕏) condition#0 |
+        b main_bool_merge@46                              (𝕏) condition#0 |
 
-main_bool_false@45:
-    int 0                                             and_result%7#0
-    x-store condition#0                               (𝕏) condition#0 |
-    b main_bool_merge@46                              (𝕏) condition#0 |
+    main_bool_false@45:
+        int 0                                             and_result%7#0
+        x-store condition#0                               (𝕏) condition#0 |
+        b main_bool_merge@46                              (𝕏) condition#0 |
 
-main_bool_merge@46:                                   (𝕏) condition#0 |
-    // conditional_execution/contract.py:59
-    // assert condition
-    x-load condition#0                                condition#0
-    assert
-    // conditional_execution/contract.py:60
-    // self.did_execute_b = False
-    byte "did_execute_b"                              "did_execute_b"
-    int 0                                             "did_execute_b",0
-    app_global_put
-    // conditional_execution/contract.py:61
-    // self.did_execute_a = False
-    byte "did_execute_a"                              "did_execute_a"
-    int 0                                             "did_execute_a",0
-    app_global_put
-    // conditional_execution/contract.py:70
-    // self.did_execute_b = True
-    byte "did_execute_b"                              "did_execute_b"
-    int 1                                             "did_execute_b",1
-    app_global_put
-    // conditional_execution/contract.py:49
-    // not self.did_execute_a and self.did_execute_b,
-    int 0                                             0
-    byte "did_execute_a"                              0,"did_execute_a"
-    app_global_get_ex                                 maybe_value%12#0,maybe_exists%12#0
-    assert // check self.did_execute_a exists         maybe_value%12#0
-    l-load maybe_value%12#0 0                         maybe_value%12#0
-    bz main_and_contd@50 ; b main_bool_false@52
+    main_bool_merge@46:                                   (𝕏) condition#0 |
+        // conditional_execution/contract.py:59
+        // assert condition
+        x-load condition#0                                condition#0
+        assert
+        // conditional_execution/contract.py:60
+        // self.did_execute_b = False
+        byte "did_execute_b"                              "did_execute_b"
+        int 0                                             "did_execute_b",0
+        app_global_put
+        // conditional_execution/contract.py:61
+        // self.did_execute_a = False
+        byte "did_execute_a"                              "did_execute_a"
+        int 0                                             "did_execute_a",0
+        app_global_put
+        // conditional_execution/contract.py:70
+        // self.did_execute_b = True
+        byte "did_execute_b"                              "did_execute_b"
+        int 1                                             "did_execute_b",1
+        app_global_put
+        // conditional_execution/contract.py:49
+        // not self.did_execute_a and self.did_execute_b,
+        int 0                                             0
+        byte "did_execute_a"                              0,"did_execute_a"
+        app_global_get_ex                                 maybe_value%12#0,maybe_exists%12#0
+        assert // check self.did_execute_a exists         maybe_value%12#0
+        l-load maybe_value%12#0 0                         maybe_value%12#0
+        bz main_and_contd@50 ; b main_bool_false@52
 
-main_and_contd@50:
-    // conditional_execution/contract.py:49
-    // not self.did_execute_a and self.did_execute_b,
-    int 0                                             0
-    byte "did_execute_b"                              0,"did_execute_b"
-    app_global_get_ex                                 maybe_value%13#0,maybe_exists%13#0
-    assert // check self.did_execute_b exists         maybe_value%13#0
-    l-load maybe_value%13#0 0                         maybe_value%13#0
-    bz main_bool_false@52 ; b main_bool_true@51
+    main_and_contd@50:
+        // conditional_execution/contract.py:49
+        // not self.did_execute_a and self.did_execute_b,
+        int 0                                             0
+        byte "did_execute_b"                              0,"did_execute_b"
+        app_global_get_ex                                 maybe_value%13#0,maybe_exists%13#0
+        assert // check self.did_execute_b exists         maybe_value%13#0
+        l-load maybe_value%13#0 0                         maybe_value%13#0
+        bz main_bool_false@52 ; b main_bool_true@51
 
-main_bool_true@51:
-    int 1                                             and_result%8#0
-    x-store condition#0                               (𝕏) condition#0 |
-    b main_bool_merge@53                              (𝕏) condition#0 |
+    main_bool_true@51:
+        int 1                                             and_result%8#0
+        x-store condition#0                               (𝕏) condition#0 |
+        b main_bool_merge@53                              (𝕏) condition#0 |
 
-main_bool_false@52:
-    int 0                                             and_result%8#0
-    x-store condition#0                               (𝕏) condition#0 |
-    b main_bool_merge@53                              (𝕏) condition#0 |
+    main_bool_false@52:
+        int 0                                             and_result%8#0
+        x-store condition#0                               (𝕏) condition#0 |
+        b main_bool_merge@53                              (𝕏) condition#0 |
 
-main_bool_merge@53:                                   (𝕏) condition#0 |
-    // conditional_execution/contract.py:59
-    // assert condition
-    x-load condition#0                                condition#0
-    assert
-    // conditional_execution/contract.py:60
-    // self.did_execute_b = False
-    byte "did_execute_b"                              "did_execute_b"
-    int 0                                             "did_execute_b",0
-    app_global_put
-    // conditional_execution/contract.py:61
-    // self.did_execute_a = False
-    byte "did_execute_a"                              "did_execute_a"
-    int 0                                             "did_execute_a",0
-    app_global_put
-    // conditional_execution/contract.py:52
-    // return True
-    int 1                                             1
-    return
+    main_bool_merge@53:                                   (𝕏) condition#0 |
+        // conditional_execution/contract.py:59
+        // assert condition
+        x-load condition#0                                condition#0
+        assert
+        // conditional_execution/contract.py:60
+        // self.did_execute_b = False
+        byte "did_execute_b"                              "did_execute_b"
+        int 0                                             "did_execute_b",0
+        app_global_put
+        // conditional_execution/contract.py:61
+        // self.did_execute_a = False
+        byte "did_execute_a"                              "did_execute_a"
+        int 0                                             "did_execute_a",0
+        app_global_put
+        // conditional_execution/contract.py:52
+        // return True
+        int 1                                             1
+        return
 
 

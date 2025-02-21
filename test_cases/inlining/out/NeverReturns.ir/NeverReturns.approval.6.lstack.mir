@@ -1,65 +1,66 @@
-// Op                                                                                 Stack (out)
+// Op                                                                                     Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
-main:
-    // inlining/contract.py:34
-    // class NeverReturns(arc4.ARC4Contract):
-    txn NumAppArgs                                                                    tmp%0#1
-    l-load tmp%0#1 0                                                                  tmp%0#1
-    bz main_bare_routing@6 ; b main_abi_routing@2
+subroutine main:
+    main_block@0:
+        // inlining/contract.py:34
+        // class NeverReturns(arc4.ARC4Contract):
+        txn NumAppArgs                                                                    tmp%0#1
+        l-load tmp%0#1 0                                                                  tmp%0#1
+        bz main_bare_routing@6 ; b main_abi_routing@2
 
-main_abi_routing@2:
-    // inlining/contract.py:34
-    // class NeverReturns(arc4.ARC4Contract):
-    txna ApplicationArgs 0                                                            tmp%2#0
-    method err()void                                                                  tmp%2#0,Method(err()void)
-    l-load tmp%2#0 1                                                                  Method(err()void),tmp%2#0
-    match main_err_route@3 ; b main_after_if_else@10
+    main_abi_routing@2:
+        // inlining/contract.py:34
+        // class NeverReturns(arc4.ARC4Contract):
+        txna ApplicationArgs 0                                                            tmp%2#0
+        method err()void                                                                  tmp%2#0,Method(err()void)
+        l-load tmp%2#0 1                                                                  Method(err()void),tmp%2#0
+        match main_err_route@3 ; b main_after_if_else@10
 
-main_err_route@3:
-    // inlining/contract.py:35
-    // @arc4.abimethod()
-    txn OnCompletion                                                                  tmp%3#0
-    l-load tmp%3#0 0                                                                  tmp%3#0
-    !                                                                                 tmp%4#0
-    l-load tmp%4#0 0                                                                  tmp%4#0
-    assert // OnCompletion is not NoOp
-    txn ApplicationID                                                                 tmp%5#0
-    l-load tmp%5#0 0                                                                  tmp%5#0
-    assert // can only call when not creating
-    // inlining/contract.py:37
-    // op.err()
-    err
+    main_err_route@3:
+        // inlining/contract.py:35
+        // @arc4.abimethod()
+        txn OnCompletion                                                                  tmp%3#0
+        l-load tmp%3#0 0                                                                  tmp%3#0
+        !                                                                                 tmp%4#0
+        l-load tmp%4#0 0                                                                  tmp%4#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                 tmp%5#0
+        l-load tmp%5#0 0                                                                  tmp%5#0
+        assert // can only call when not creating
+        // inlining/contract.py:37
+        // op.err()
+        err
 
-main_bare_routing@6:
-    // inlining/contract.py:34
-    // class NeverReturns(arc4.ARC4Contract):
-    txn OnCompletion                                                                  tmp%7#0
-    l-load tmp%7#0 0                                                                  tmp%7#0
-    bz main___algopy_default_create@7 ; b main_after_if_else@10
+    main_bare_routing@6:
+        // inlining/contract.py:34
+        // class NeverReturns(arc4.ARC4Contract):
+        txn OnCompletion                                                                  tmp%7#0
+        l-load tmp%7#0 0                                                                  tmp%7#0
+        bz main___algopy_default_create@7 ; b main_after_if_else@10
 
-main___algopy_default_create@7:
-    txn ApplicationID                                                                 tmp%8#0
-    l-load tmp%8#0 0                                                                  tmp%8#0
-    !                                                                                 tmp%9#0
-    l-load tmp%9#0 0                                                                  tmp%9#0
-    assert // can only call when creating
-    int 1                                                                             1
-    l-store test_cases.inlining.contract.NeverReturns.__puya_arc4_router__%0#1 0      test_cases.inlining.contract.NeverReturns.__puya_arc4_router__%0#1
-    l-load test_cases.inlining.contract.NeverReturns.__puya_arc4_router__%0#1 0       test_cases.inlining.contract.NeverReturns.__puya_arc4_router__%0#1
-    v-store tmp%0#0
-    b main_after_inlined_test_cases.inlining.contract.NeverReturns.__puya_arc4_router__@11 
+    main___algopy_default_create@7:
+        txn ApplicationID                                                                 tmp%8#0
+        l-load tmp%8#0 0                                                                  tmp%8#0
+        !                                                                                 tmp%9#0
+        l-load tmp%9#0 0                                                                  tmp%9#0
+        assert // can only call when creating
+        int 1                                                                             1
+        l-store test_cases.inlining.contract.NeverReturns.__puya_arc4_router__%0#1 0      test_cases.inlining.contract.NeverReturns.__puya_arc4_router__%0#1
+        l-load test_cases.inlining.contract.NeverReturns.__puya_arc4_router__%0#1 0       test_cases.inlining.contract.NeverReturns.__puya_arc4_router__%0#1
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.inlining.contract.NeverReturns.__puya_arc4_router__@11 
 
-main_after_if_else@10:
-    // inlining/contract.py:34
-    // class NeverReturns(arc4.ARC4Contract):
-    int 0                                                                             0
-    l-store test_cases.inlining.contract.NeverReturns.__puya_arc4_router__%0#1 0      test_cases.inlining.contract.NeverReturns.__puya_arc4_router__%0#1
-    l-load test_cases.inlining.contract.NeverReturns.__puya_arc4_router__%0#1 0       test_cases.inlining.contract.NeverReturns.__puya_arc4_router__%0#1
-    v-store tmp%0#0
-    b main_after_inlined_test_cases.inlining.contract.NeverReturns.__puya_arc4_router__@11 
+    main_after_if_else@10:
+        // inlining/contract.py:34
+        // class NeverReturns(arc4.ARC4Contract):
+        int 0                                                                             0
+        l-store test_cases.inlining.contract.NeverReturns.__puya_arc4_router__%0#1 0      test_cases.inlining.contract.NeverReturns.__puya_arc4_router__%0#1
+        l-load test_cases.inlining.contract.NeverReturns.__puya_arc4_router__%0#1 0       test_cases.inlining.contract.NeverReturns.__puya_arc4_router__%0#1
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.inlining.contract.NeverReturns.__puya_arc4_router__@11 
 
-main_after_inlined_test_cases.inlining.contract.NeverReturns.__puya_arc4_router__@11:
-    v-load tmp%0#0                                                                    tmp%0#0
-    return
+    main_after_inlined_test_cases.inlining.contract.NeverReturns.__puya_arc4_router__@11:
+        v-load tmp%0#0                                                                    tmp%0#0
+        return
 
 

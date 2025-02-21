@@ -1,180 +1,181 @@
-// Op                                                                   Stack (out)
+// Op                                                                       Stack (out)
 // test_cases.intrinsics.immediate_variants.ImmediateVariants.approval_program() -> uint64:
-main:
-    // intrinsics/immediate_variants.py:19
-    // num_app_args = Txn.num_app_args
-    txn NumAppArgs                                                      num_app_args#0
-    // intrinsics/immediate_variants.py:20
-    // assert GTxn.num_app_args(0) == num_app_args
-    gtxn 0 NumAppArgs                                                   num_app_args#0,tmp%0#0
-    l-load tmp%0#0 0                                                    num_app_args#0,tmp%0#0
-    l-load-copy num_app_args#0 1                                        num_app_args#0,tmp%0#0,num_app_args#0 (copy)
-    ==                                                                  num_app_args#0,tmp%1#0
-    l-load tmp%1#0 0                                                    num_app_args#0,tmp%1#0
-    assert                                                              num_app_args#0
-    // intrinsics/immediate_variants.py:21
-    // assert GTxn.num_app_args(UInt64(0)) == num_app_args
-    int 0                                                               num_app_args#0,0
-    gtxns NumAppArgs                                                    num_app_args#0,tmp%2#0
-    l-load tmp%2#0 0                                                    num_app_args#0,tmp%2#0
-    l-load num_app_args#0 1                                             tmp%2#0,num_app_args#0
-    ==                                                                  tmp%3#0
-    l-load tmp%3#0 0                                                    tmp%3#0
-    assert
-    // intrinsics/immediate_variants.py:22
-    // first_arg = Txn.application_args(0)
-    txna ApplicationArgs 0                                              first_arg#0
-    // intrinsics/immediate_variants.py:23
-    // assert Txn.application_args(UInt64(0)) == first_arg
-    int 0                                                               first_arg#0,0
-    txnas ApplicationArgs                                               first_arg#0,tmp%4#0
-    l-load tmp%4#0 0                                                    first_arg#0,tmp%4#0
-    l-load-copy first_arg#0 1                                           first_arg#0,tmp%4#0,first_arg#0 (copy)
-    ==                                                                  first_arg#0,tmp%5#0
-    l-load tmp%5#0 0                                                    first_arg#0,tmp%5#0
-    assert                                                              first_arg#0
-    // intrinsics/immediate_variants.py:24
-    // assert GTxn.application_args(0, 0) == first_arg
-    gtxna 0 ApplicationArgs 0                                           first_arg#0,tmp%6#0
-    l-load tmp%6#0 0                                                    first_arg#0,tmp%6#0
-    l-load-copy first_arg#0 1                                           first_arg#0,tmp%6#0,first_arg#0 (copy)
-    ==                                                                  first_arg#0,tmp%7#0
-    l-load tmp%7#0 0                                                    first_arg#0,tmp%7#0
-    assert                                                              first_arg#0
-    // intrinsics/immediate_variants.py:25
-    // assert GTxn.application_args(0, UInt64(0)) == first_arg
-    int 0                                                               first_arg#0,0
-    gtxnas 0 ApplicationArgs                                            first_arg#0,tmp%8#0
-    l-load tmp%8#0 0                                                    first_arg#0,tmp%8#0
-    l-load-copy first_arg#0 1                                           first_arg#0,tmp%8#0,first_arg#0 (copy)
-    ==                                                                  first_arg#0,tmp%9#0
-    l-load tmp%9#0 0                                                    first_arg#0,tmp%9#0
-    assert                                                              first_arg#0
-    // intrinsics/immediate_variants.py:26
-    // assert GTxn.application_args(UInt64(0), 0) == first_arg
-    int 0                                                               first_arg#0,0
-    gtxnsa ApplicationArgs 0                                            first_arg#0,tmp%10#0
-    l-load tmp%10#0 0                                                   first_arg#0,tmp%10#0
-    l-load-copy first_arg#0 1                                           first_arg#0,tmp%10#0,first_arg#0 (copy)
-    ==                                                                  first_arg#0,tmp%11#0
-    l-load tmp%11#0 0                                                   first_arg#0,tmp%11#0
-    assert                                                              first_arg#0
-    // intrinsics/immediate_variants.py:27
-    // assert GTxn.application_args(UInt64(0), UInt64(0)) == first_arg
-    int 0                                                               first_arg#0,0
-    int 0                                                               first_arg#0,0,0
-    gtxnsas ApplicationArgs                                             first_arg#0,tmp%12#0
-    l-load tmp%12#0 0                                                   first_arg#0,tmp%12#0
-    l-load-copy first_arg#0 1                                           first_arg#0,tmp%12#0,first_arg#0 (copy)
-    ==                                                                  first_arg#0,tmp%13#0
-    l-load tmp%13#0 0                                                   first_arg#0,tmp%13#0
-    assert                                                              first_arg#0
-    // intrinsics/immediate_variants.py:29
-    // ITxnCreate.begin()
-    itxn_begin                                                          first_arg#0
-    // intrinsics/immediate_variants.py:30
-    // ITxnCreate.set_type_enum(TransactionType.ApplicationCall)
-    int appl                                                            first_arg#0,appl
-    itxn_field TypeEnum                                                 first_arg#0
-    // intrinsics/immediate_variants.py:31
-    // ITxnCreate.set_on_completion(OnCompleteAction.DeleteApplication)
-    int DeleteApplication                                               first_arg#0,DeleteApplication
-    itxn_field OnCompletion                                             first_arg#0
-    // intrinsics/immediate_variants.py:32
-    // ITxnCreate.set_approval_program(Bytes.from_hex("068101"))
-    byte 0x068101                                                       first_arg#0,0x068101
-    itxn_field ApprovalProgram                                          first_arg#0
-    // intrinsics/immediate_variants.py:33
-    // ITxnCreate.set_clear_state_program(Bytes.from_hex("068101"))
-    byte 0x068101                                                       first_arg#0,0x068101
-    itxn_field ClearStateProgram                                        first_arg#0
-    // intrinsics/immediate_variants.py:35
-    // ITxnCreate.set_fee(UInt64(0))  # cover fee with outer txn
-    int 0                                                               first_arg#0,0
-    itxn_field Fee                                                      first_arg#0
-    // intrinsics/immediate_variants.py:36
-    // ITxnCreate.set_application_args(first_arg)
-    l-load-copy first_arg#0 0                                           first_arg#0,first_arg#0 (copy)
-    itxn_field ApplicationArgs                                          first_arg#0
-    // intrinsics/immediate_variants.py:37
-    // second_arg = first_arg + b"2"
-    l-load-copy first_arg#0 0                                           first_arg#0,first_arg#0 (copy)
-    byte 0x32                                                           first_arg#0,first_arg#0 (copy),0x32
-    concat                                                              first_arg#0,second_arg#0
-    // intrinsics/immediate_variants.py:38
-    // ITxnCreate.set_application_args(second_arg)
-    l-load-copy second_arg#0 0                                          first_arg#0,second_arg#0,second_arg#0 (copy)
-    itxn_field ApplicationArgs                                          first_arg#0,second_arg#0
-    // intrinsics/immediate_variants.py:39
-    // ITxnCreate.submit()
-    itxn_submit                                                         first_arg#0,second_arg#0
-    // intrinsics/immediate_variants.py:41
-    // assert ITxn.num_app_args() == 2
-    itxn NumAppArgs                                                     first_arg#0,second_arg#0,tmp%14#0
-    l-load tmp%14#0 0                                                   first_arg#0,second_arg#0,tmp%14#0
-    int 2                                                               first_arg#0,second_arg#0,tmp%14#0,2
-    ==                                                                  first_arg#0,second_arg#0,tmp%15#0
-    l-load tmp%15#0 0                                                   first_arg#0,second_arg#0,tmp%15#0
-    assert                                                              first_arg#0,second_arg#0
-    // intrinsics/immediate_variants.py:42
-    // assert ITxn.application_args(0) == first_arg
-    itxna ApplicationArgs 0                                             first_arg#0,second_arg#0,tmp%16#0
-    l-load tmp%16#0 0                                                   first_arg#0,second_arg#0,tmp%16#0
-    l-load-copy first_arg#0 2                                           first_arg#0,second_arg#0,tmp%16#0,first_arg#0 (copy)
-    ==                                                                  first_arg#0,second_arg#0,tmp%17#0
-    l-load tmp%17#0 0                                                   first_arg#0,second_arg#0,tmp%17#0
-    assert                                                              first_arg#0,second_arg#0
-    // intrinsics/immediate_variants.py:43
-    // assert ITxn.application_args(UInt64(1)) == second_arg
-    itxna ApplicationArgs 1                                             first_arg#0,second_arg#0,tmp%18#0
-    l-load tmp%18#0 0                                                   first_arg#0,second_arg#0,tmp%18#0
-    l-load-copy second_arg#0 1                                          first_arg#0,second_arg#0,tmp%18#0,second_arg#0 (copy)
-    ==                                                                  first_arg#0,second_arg#0,tmp%19#0
-    l-load tmp%19#0 0                                                   first_arg#0,second_arg#0,tmp%19#0
-    assert                                                              first_arg#0,second_arg#0
-    // intrinsics/immediate_variants.py:45
-    // assert GITxn.num_app_args(0) == 2
-    gitxn 0 NumAppArgs                                                  first_arg#0,second_arg#0,tmp%20#0
-    l-load tmp%20#0 0                                                   first_arg#0,second_arg#0,tmp%20#0
-    int 2                                                               first_arg#0,second_arg#0,tmp%20#0,2
-    ==                                                                  first_arg#0,second_arg#0,tmp%21#0
-    l-load tmp%21#0 0                                                   first_arg#0,second_arg#0,tmp%21#0
-    assert                                                              first_arg#0,second_arg#0
-    // intrinsics/immediate_variants.py:46
-    // assert GITxn.application_args(0, UInt64(0)) == first_arg
-    gitxna 0 ApplicationArgs 0                                          first_arg#0,second_arg#0,tmp%22#0
-    l-load tmp%22#0 0                                                   first_arg#0,second_arg#0,tmp%22#0
-    l-load-copy first_arg#0 2                                           first_arg#0,second_arg#0,tmp%22#0,first_arg#0 (copy)
-    ==                                                                  first_arg#0,second_arg#0,tmp%23#0
-    l-load tmp%23#0 0                                                   first_arg#0,second_arg#0,tmp%23#0
-    assert                                                              first_arg#0,second_arg#0
-    // intrinsics/immediate_variants.py:47
-    // assert GITxn.application_args(0, UInt64(1)) == second_arg
-    gitxna 0 ApplicationArgs 1                                          first_arg#0,second_arg#0,tmp%24#0
-    l-load tmp%24#0 0                                                   first_arg#0,second_arg#0,tmp%24#0
-    l-load-copy second_arg#0 1                                          first_arg#0,second_arg#0,tmp%24#0,second_arg#0 (copy)
-    ==                                                                  first_arg#0,second_arg#0,tmp%25#0
-    l-load tmp%25#0 0                                                   first_arg#0,second_arg#0,tmp%25#0
-    assert                                                              first_arg#0,second_arg#0
-    // intrinsics/immediate_variants.py:48
-    // assert GITxn.application_args(0, 0) == first_arg
-    gitxna 0 ApplicationArgs 0                                          first_arg#0,second_arg#0,tmp%26#0
-    l-load tmp%26#0 0                                                   first_arg#0,second_arg#0,tmp%26#0
-    l-load first_arg#0 2                                                second_arg#0,tmp%26#0,first_arg#0
-    ==                                                                  second_arg#0,tmp%27#0
-    l-load tmp%27#0 0                                                   second_arg#0,tmp%27#0
-    assert                                                              second_arg#0
-    // intrinsics/immediate_variants.py:49
-    // assert GITxn.application_args(0, 1) == second_arg
-    gitxna 0 ApplicationArgs 1                                          second_arg#0,tmp%28#0
-    l-load tmp%28#0 0                                                   second_arg#0,tmp%28#0
-    l-load second_arg#0 1                                               tmp%28#0,second_arg#0
-    ==                                                                  tmp%29#0
-    l-load tmp%29#0 0                                                   tmp%29#0
-    assert
-    // intrinsics/immediate_variants.py:51
-    // return True
-    int 1                                                               1
-    return
+subroutine main:
+    main_block@0:
+        // intrinsics/immediate_variants.py:19
+        // num_app_args = Txn.num_app_args
+        txn NumAppArgs                                                      num_app_args#0
+        // intrinsics/immediate_variants.py:20
+        // assert GTxn.num_app_args(0) == num_app_args
+        gtxn 0 NumAppArgs                                                   num_app_args#0,tmp%0#0
+        l-load tmp%0#0 0                                                    num_app_args#0,tmp%0#0
+        l-load-copy num_app_args#0 1                                        num_app_args#0,tmp%0#0,num_app_args#0 (copy)
+        ==                                                                  num_app_args#0,tmp%1#0
+        l-load tmp%1#0 0                                                    num_app_args#0,tmp%1#0
+        assert                                                              num_app_args#0
+        // intrinsics/immediate_variants.py:21
+        // assert GTxn.num_app_args(UInt64(0)) == num_app_args
+        int 0                                                               num_app_args#0,0
+        gtxns NumAppArgs                                                    num_app_args#0,tmp%2#0
+        l-load tmp%2#0 0                                                    num_app_args#0,tmp%2#0
+        l-load num_app_args#0 1                                             tmp%2#0,num_app_args#0
+        ==                                                                  tmp%3#0
+        l-load tmp%3#0 0                                                    tmp%3#0
+        assert
+        // intrinsics/immediate_variants.py:22
+        // first_arg = Txn.application_args(0)
+        txna ApplicationArgs 0                                              first_arg#0
+        // intrinsics/immediate_variants.py:23
+        // assert Txn.application_args(UInt64(0)) == first_arg
+        int 0                                                               first_arg#0,0
+        txnas ApplicationArgs                                               first_arg#0,tmp%4#0
+        l-load tmp%4#0 0                                                    first_arg#0,tmp%4#0
+        l-load-copy first_arg#0 1                                           first_arg#0,tmp%4#0,first_arg#0 (copy)
+        ==                                                                  first_arg#0,tmp%5#0
+        l-load tmp%5#0 0                                                    first_arg#0,tmp%5#0
+        assert                                                              first_arg#0
+        // intrinsics/immediate_variants.py:24
+        // assert GTxn.application_args(0, 0) == first_arg
+        gtxna 0 ApplicationArgs 0                                           first_arg#0,tmp%6#0
+        l-load tmp%6#0 0                                                    first_arg#0,tmp%6#0
+        l-load-copy first_arg#0 1                                           first_arg#0,tmp%6#0,first_arg#0 (copy)
+        ==                                                                  first_arg#0,tmp%7#0
+        l-load tmp%7#0 0                                                    first_arg#0,tmp%7#0
+        assert                                                              first_arg#0
+        // intrinsics/immediate_variants.py:25
+        // assert GTxn.application_args(0, UInt64(0)) == first_arg
+        int 0                                                               first_arg#0,0
+        gtxnas 0 ApplicationArgs                                            first_arg#0,tmp%8#0
+        l-load tmp%8#0 0                                                    first_arg#0,tmp%8#0
+        l-load-copy first_arg#0 1                                           first_arg#0,tmp%8#0,first_arg#0 (copy)
+        ==                                                                  first_arg#0,tmp%9#0
+        l-load tmp%9#0 0                                                    first_arg#0,tmp%9#0
+        assert                                                              first_arg#0
+        // intrinsics/immediate_variants.py:26
+        // assert GTxn.application_args(UInt64(0), 0) == first_arg
+        int 0                                                               first_arg#0,0
+        gtxnsa ApplicationArgs 0                                            first_arg#0,tmp%10#0
+        l-load tmp%10#0 0                                                   first_arg#0,tmp%10#0
+        l-load-copy first_arg#0 1                                           first_arg#0,tmp%10#0,first_arg#0 (copy)
+        ==                                                                  first_arg#0,tmp%11#0
+        l-load tmp%11#0 0                                                   first_arg#0,tmp%11#0
+        assert                                                              first_arg#0
+        // intrinsics/immediate_variants.py:27
+        // assert GTxn.application_args(UInt64(0), UInt64(0)) == first_arg
+        int 0                                                               first_arg#0,0
+        int 0                                                               first_arg#0,0,0
+        gtxnsas ApplicationArgs                                             first_arg#0,tmp%12#0
+        l-load tmp%12#0 0                                                   first_arg#0,tmp%12#0
+        l-load-copy first_arg#0 1                                           first_arg#0,tmp%12#0,first_arg#0 (copy)
+        ==                                                                  first_arg#0,tmp%13#0
+        l-load tmp%13#0 0                                                   first_arg#0,tmp%13#0
+        assert                                                              first_arg#0
+        // intrinsics/immediate_variants.py:29
+        // ITxnCreate.begin()
+        itxn_begin                                                          first_arg#0
+        // intrinsics/immediate_variants.py:30
+        // ITxnCreate.set_type_enum(TransactionType.ApplicationCall)
+        int appl                                                            first_arg#0,appl
+        itxn_field TypeEnum                                                 first_arg#0
+        // intrinsics/immediate_variants.py:31
+        // ITxnCreate.set_on_completion(OnCompleteAction.DeleteApplication)
+        int DeleteApplication                                               first_arg#0,DeleteApplication
+        itxn_field OnCompletion                                             first_arg#0
+        // intrinsics/immediate_variants.py:32
+        // ITxnCreate.set_approval_program(Bytes.from_hex("068101"))
+        byte 0x068101                                                       first_arg#0,0x068101
+        itxn_field ApprovalProgram                                          first_arg#0
+        // intrinsics/immediate_variants.py:33
+        // ITxnCreate.set_clear_state_program(Bytes.from_hex("068101"))
+        byte 0x068101                                                       first_arg#0,0x068101
+        itxn_field ClearStateProgram                                        first_arg#0
+        // intrinsics/immediate_variants.py:35
+        // ITxnCreate.set_fee(UInt64(0))  # cover fee with outer txn
+        int 0                                                               first_arg#0,0
+        itxn_field Fee                                                      first_arg#0
+        // intrinsics/immediate_variants.py:36
+        // ITxnCreate.set_application_args(first_arg)
+        l-load-copy first_arg#0 0                                           first_arg#0,first_arg#0 (copy)
+        itxn_field ApplicationArgs                                          first_arg#0
+        // intrinsics/immediate_variants.py:37
+        // second_arg = first_arg + b"2"
+        l-load-copy first_arg#0 0                                           first_arg#0,first_arg#0 (copy)
+        byte 0x32                                                           first_arg#0,first_arg#0 (copy),0x32
+        concat                                                              first_arg#0,second_arg#0
+        // intrinsics/immediate_variants.py:38
+        // ITxnCreate.set_application_args(second_arg)
+        l-load-copy second_arg#0 0                                          first_arg#0,second_arg#0,second_arg#0 (copy)
+        itxn_field ApplicationArgs                                          first_arg#0,second_arg#0
+        // intrinsics/immediate_variants.py:39
+        // ITxnCreate.submit()
+        itxn_submit                                                         first_arg#0,second_arg#0
+        // intrinsics/immediate_variants.py:41
+        // assert ITxn.num_app_args() == 2
+        itxn NumAppArgs                                                     first_arg#0,second_arg#0,tmp%14#0
+        l-load tmp%14#0 0                                                   first_arg#0,second_arg#0,tmp%14#0
+        int 2                                                               first_arg#0,second_arg#0,tmp%14#0,2
+        ==                                                                  first_arg#0,second_arg#0,tmp%15#0
+        l-load tmp%15#0 0                                                   first_arg#0,second_arg#0,tmp%15#0
+        assert                                                              first_arg#0,second_arg#0
+        // intrinsics/immediate_variants.py:42
+        // assert ITxn.application_args(0) == first_arg
+        itxna ApplicationArgs 0                                             first_arg#0,second_arg#0,tmp%16#0
+        l-load tmp%16#0 0                                                   first_arg#0,second_arg#0,tmp%16#0
+        l-load-copy first_arg#0 2                                           first_arg#0,second_arg#0,tmp%16#0,first_arg#0 (copy)
+        ==                                                                  first_arg#0,second_arg#0,tmp%17#0
+        l-load tmp%17#0 0                                                   first_arg#0,second_arg#0,tmp%17#0
+        assert                                                              first_arg#0,second_arg#0
+        // intrinsics/immediate_variants.py:43
+        // assert ITxn.application_args(UInt64(1)) == second_arg
+        itxna ApplicationArgs 1                                             first_arg#0,second_arg#0,tmp%18#0
+        l-load tmp%18#0 0                                                   first_arg#0,second_arg#0,tmp%18#0
+        l-load-copy second_arg#0 1                                          first_arg#0,second_arg#0,tmp%18#0,second_arg#0 (copy)
+        ==                                                                  first_arg#0,second_arg#0,tmp%19#0
+        l-load tmp%19#0 0                                                   first_arg#0,second_arg#0,tmp%19#0
+        assert                                                              first_arg#0,second_arg#0
+        // intrinsics/immediate_variants.py:45
+        // assert GITxn.num_app_args(0) == 2
+        gitxn 0 NumAppArgs                                                  first_arg#0,second_arg#0,tmp%20#0
+        l-load tmp%20#0 0                                                   first_arg#0,second_arg#0,tmp%20#0
+        int 2                                                               first_arg#0,second_arg#0,tmp%20#0,2
+        ==                                                                  first_arg#0,second_arg#0,tmp%21#0
+        l-load tmp%21#0 0                                                   first_arg#0,second_arg#0,tmp%21#0
+        assert                                                              first_arg#0,second_arg#0
+        // intrinsics/immediate_variants.py:46
+        // assert GITxn.application_args(0, UInt64(0)) == first_arg
+        gitxna 0 ApplicationArgs 0                                          first_arg#0,second_arg#0,tmp%22#0
+        l-load tmp%22#0 0                                                   first_arg#0,second_arg#0,tmp%22#0
+        l-load-copy first_arg#0 2                                           first_arg#0,second_arg#0,tmp%22#0,first_arg#0 (copy)
+        ==                                                                  first_arg#0,second_arg#0,tmp%23#0
+        l-load tmp%23#0 0                                                   first_arg#0,second_arg#0,tmp%23#0
+        assert                                                              first_arg#0,second_arg#0
+        // intrinsics/immediate_variants.py:47
+        // assert GITxn.application_args(0, UInt64(1)) == second_arg
+        gitxna 0 ApplicationArgs 1                                          first_arg#0,second_arg#0,tmp%24#0
+        l-load tmp%24#0 0                                                   first_arg#0,second_arg#0,tmp%24#0
+        l-load-copy second_arg#0 1                                          first_arg#0,second_arg#0,tmp%24#0,second_arg#0 (copy)
+        ==                                                                  first_arg#0,second_arg#0,tmp%25#0
+        l-load tmp%25#0 0                                                   first_arg#0,second_arg#0,tmp%25#0
+        assert                                                              first_arg#0,second_arg#0
+        // intrinsics/immediate_variants.py:48
+        // assert GITxn.application_args(0, 0) == first_arg
+        gitxna 0 ApplicationArgs 0                                          first_arg#0,second_arg#0,tmp%26#0
+        l-load tmp%26#0 0                                                   first_arg#0,second_arg#0,tmp%26#0
+        l-load first_arg#0 2                                                second_arg#0,tmp%26#0,first_arg#0
+        ==                                                                  second_arg#0,tmp%27#0
+        l-load tmp%27#0 0                                                   second_arg#0,tmp%27#0
+        assert                                                              second_arg#0
+        // intrinsics/immediate_variants.py:49
+        // assert GITxn.application_args(0, 1) == second_arg
+        gitxna 0 ApplicationArgs 1                                          second_arg#0,tmp%28#0
+        l-load tmp%28#0 0                                                   second_arg#0,tmp%28#0
+        l-load second_arg#0 1                                               tmp%28#0,second_arg#0
+        ==                                                                  tmp%29#0
+        l-load tmp%29#0 0                                                   tmp%29#0
+        assert
+        // intrinsics/immediate_variants.py:51
+        // return True
+        int 1                                                               1
+        return
 
 

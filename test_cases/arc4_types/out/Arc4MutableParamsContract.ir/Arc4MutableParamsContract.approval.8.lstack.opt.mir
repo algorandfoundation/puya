@@ -1,494 +1,497 @@
-// Op                                                                                      Stack (out)
+// Op                                                                                          Stack (out)
 // test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program() -> uint64:
-main:
-    // arc4_types/mutable_params.py:46
-    // my_array[2] = UInt8(5)
-    byte 0x01020504                                                                        0x01020504
-    // arc4_types/mutable_params.py:36-41
-    // my_struct = TestStruct(
-    //     b_val=Bool(True),
-    //     u_val=UInt8(50),
-    //     s_val_1=String("Happy"),
-    //     s_val_2=String("Days"),
-    // )
-    byte 0x80320006000d00054861707079000444617973                                          0x01020504,0x80320006000d00054861707079000444617973
-    // arc4_types/mutable_params.py:52
-    // t, f = self.other_routine(my_array, my_struct)
-    callsub other_routine                                                                  t#0,f#0,my_array#2,my_struct#1
-    // arc4_types/mutable_params.py:53
-    // assert t
-    l-load t#0 3                                                                           f#0,my_array#2,my_struct#1,t#0
-    assert                                                                                 f#0,my_array#2,my_struct#1
-    // arc4_types/mutable_params.py:54
-    // assert not f
-    l-load f#0 2                                                                           my_array#2,my_struct#1,f#0
-    !                                                                                      my_array#2,my_struct#1,tmp%2#0
-    assert                                                                                 my_array#2,my_struct#1
-    // arc4_types/mutable_params.py:56
-    // assert my_array[1] == UInt8(5), "my_array has been mutated by the subroutine"
-    l-load-copy my_array#2 1                                                               my_array#2,my_struct#1,my_array#2 (copy)
-    extract 1 1 // on error: Index access is out of bounds                                 my_array#2,my_struct#1,reinterpret_biguint%4#0
-    byte 0x05                                                                              my_array#2,my_struct#1,reinterpret_biguint%4#0,0x05
-    b==                                                                                    my_array#2,my_struct#1,tmp%3#0
-    assert // my_array has been mutated by the subroutine                                  my_array#2,my_struct#1
-    // arc4_types/mutable_params.py:58
-    // assert my_struct.s_val_1 == String(
-    l-load-copy my_struct#1 0                                                              my_array#2,my_struct#1,my_struct#1 (copy)
-    int 2                                                                                  my_array#2,my_struct#1,my_struct#1 (copy),2
-    extract_uint16                                                                         my_array#2,my_struct#1,item_start_offset%0#0
-    l-load-copy my_struct#1 1                                                              my_array#2,my_struct#1,item_start_offset%0#0,my_struct#1 (copy)
-    int 4                                                                                  my_array#2,my_struct#1,item_start_offset%0#0,my_struct#1 (copy),4
-    extract_uint16                                                                         my_array#2,my_struct#1,item_start_offset%0#0,item_end_offset%0#0
-    l-load my_struct#1 2                                                                   my_array#2,item_start_offset%0#0,item_end_offset%0#0,my_struct#1
-    l-load item_start_offset%0#0 2                                                         my_array#2,item_end_offset%0#0,my_struct#1,item_start_offset%0#0
-    l-load item_end_offset%0#0 2                                                           my_array#2,my_struct#1,item_start_offset%0#0,item_end_offset%0#0
-    substring3                                                                             my_array#2,tmp%4#0
-    // arc4_types/mutable_params.py:58-60
-    // assert my_struct.s_val_1 == String(
-    //     "AARRGH!"
-    // ), "my_struct has been mutated by the subroutine"
-    byte 0x000741415252474821                                                              my_array#2,tmp%4#0,0x000741415252474821
-    ==                                                                                     my_array#2,tmp%5#0
-    assert // my_struct has been mutated by the subroutine                                 my_array#2
-    // arc4_types/mutable_params.py:35
-    // my_array = StaticArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
-    byte 0x01020304                                                                        my_array#2,0x01020304
-    // arc4_types/mutable_params.py:36-41
-    // my_struct = TestStruct(
-    //     b_val=Bool(True),
-    //     u_val=UInt8(50),
-    //     s_val_1=String("Happy"),
-    //     s_val_2=String("Days"),
-    // )
-    byte 0x80320006000d00054861707079000444617973                                          my_array#2,0x01020304,0x80320006000d00054861707079000444617973
-    // arc4_types/mutable_params.py:63
-    // self.other_routine(my_array_copy.copy(), my_struct_copy.copy())
-    callsub other_routine                                                                  my_array#2,other_routine%4#0,other_routine%5#0,other_routine%6#0,other_routine%7#0
-    pop 1                                                                                  my_array#2,other_routine%4#0,other_routine%5#0,other_routine%6#0
-    pop 1                                                                                  my_array#2,other_routine%4#0,other_routine%5#0
-    pop 1                                                                                  my_array#2,other_routine%4#0
-    pop 1                                                                                  my_array#2
-    // arc4_types/mutable_params.py:85-89
-    // self.mutate_tuple_items_and_reassign(
-    //     (my_array.copy(), my_array_copy_2.copy(), my_array_copy_3.copy()),
-    //     start=UInt64(0),
-    //     reassign=True,
-    // )
-    l-load-copy my_array#2 0                                                               my_array#2,my_array#2 (copy)
-    // arc4_types/mutable_params.py:127
-    // array[0] = UInt8(10)
-    byte 0x0a020304                                                                        my_array#2,my_array#2 (copy),0x0a020304
-    // arc4_types/mutable_params.py:35
-    // my_array = StaticArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
-    byte 0x01020304                                                                        my_array#2,my_array#2 (copy),0x0a020304,0x01020304
-    // arc4_types/mutable_params.py:87
-    // start=UInt64(0),
-    int 0                                                                                  my_array#2,my_array#2 (copy),0x0a020304,0x01020304,0
-    // arc4_types/mutable_params.py:88
-    // reassign=True,
-    int 1                                                                                  my_array#2,my_array#2 (copy),0x0a020304,0x01020304,0,1
-    // arc4_types/mutable_params.py:85-89
-    // self.mutate_tuple_items_and_reassign(
-    //     (my_array.copy(), my_array_copy_2.copy(), my_array_copy_3.copy()),
-    //     start=UInt64(0),
-    //     reassign=True,
-    // )
-    callsub mutate_tuple_items_and_reassign                                                my_array#2,mutate_tuple_items_and_reassign%0#0,mutate_tuple_items_and_reassign%1#0,mutate_tuple_items_and_reassign%2#0
-    pop 1                                                                                  my_array#2,mutate_tuple_items_and_reassign%0#0,mutate_tuple_items_and_reassign%1#0
-    pop 1                                                                                  my_array#2,mutate_tuple_items_and_reassign%0#0
-    pop 1                                                                                  my_array#2
-    // arc4_types/mutable_params.py:92-94
-    // self.mutate_tuple_items_and_reassign(
-    //     (my_array, my_array_copy_2, my_array_copy_3), start=UInt64(100), reassign=True
-    // )
-    l-load my_array#2 0                                                                    my_array#2
-    // arc4_types/mutable_params.py:127
-    // array[0] = UInt8(10)
-    byte 0x0a020304                                                                        my_array#2,0x0a020304
-    // arc4_types/mutable_params.py:35
-    // my_array = StaticArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
-    byte 0x01020304                                                                        my_array#2,0x0a020304,0x01020304
-    // arc4_types/mutable_params.py:93
-    // (my_array, my_array_copy_2, my_array_copy_3), start=UInt64(100), reassign=True
-    int 100                                                                                my_array#2,0x0a020304,0x01020304,100
-    int 1                                                                                  my_array#2,0x0a020304,0x01020304,100,1
-    // arc4_types/mutable_params.py:92-94
-    // self.mutate_tuple_items_and_reassign(
-    //     (my_array, my_array_copy_2, my_array_copy_3), start=UInt64(100), reassign=True
-    // )
-    callsub mutate_tuple_items_and_reassign                                                my_array#2,my_array_copy_2#4,my_array_copy_3#1
-    // arc4_types/mutable_params.py:96
-    // assert my_array[0] == 100
-    l-load-copy my_array#2 2                                                               my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array#2 (copy)
-    extract 0 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%12#0
-    byte 0x64                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%12#0,0x64
-    b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%16#0
-    assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
-    // arc4_types/mutable_params.py:97
-    // assert my_array_copy_2[0] == 101
-    l-load-copy my_array_copy_2#4 1                                                        my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array_copy_2#4 (copy)
-    extract 0 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%14#0
-    byte 0x65                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%14#0,0x65
-    b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%17#0
-    assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
-    // arc4_types/mutable_params.py:98
-    // assert my_array_copy_3[0] == 102
-    l-load-copy my_array_copy_3#1 0                                                        my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array_copy_3#1 (copy)
-    extract 0 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%16#0
-    byte 0x66                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%16#0,0x66
-    b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%18#0
-    assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
-    // arc4_types/mutable_params.py:99
-    // assert my_array[1] == 103
-    l-load-copy my_array#2 2                                                               my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array#2 (copy)
-    extract 1 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%18#0
-    byte 0x67                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%18#0,0x67
-    b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%19#0
-    assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
-    // arc4_types/mutable_params.py:100
-    // assert my_array_copy_2[1] == 104
-    l-load-copy my_array_copy_2#4 1                                                        my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array_copy_2#4 (copy)
-    extract 1 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%20#0
-    byte 0x68                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%20#0,0x68
-    b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%20#0
-    assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
-    // arc4_types/mutable_params.py:101
-    // assert my_array_copy_3[1] == 105
-    l-load-copy my_array_copy_3#1 0                                                        my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array_copy_3#1 (copy)
-    extract 1 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%22#0
-    byte 0x69                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%22#0,0x69
-    b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%21#0
-    assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
-    // arc4_types/mutable_params.py:103-105
-    // self.mutate_tuple_items_and_reassign(
-    //     (my_array, my_array_copy_2, my_array_copy_3), start=UInt64(200), reassign=False
-    // )
-    l-load my_array#2 2                                                                    my_array_copy_2#4,my_array_copy_3#1,my_array#2
-    l-load my_array_copy_2#4 2                                                             my_array_copy_3#1,my_array#2,my_array_copy_2#4
-    l-load my_array_copy_3#1 2                                                             my_array#2,my_array_copy_2#4,my_array_copy_3#1
-    // arc4_types/mutable_params.py:104
-    // (my_array, my_array_copy_2, my_array_copy_3), start=UInt64(200), reassign=False
-    int 200                                                                                my_array#2,my_array_copy_2#4,my_array_copy_3#1,200
-    int 0                                                                                  my_array#2,my_array_copy_2#4,my_array_copy_3#1,200,0
-    // arc4_types/mutable_params.py:103-105
-    // self.mutate_tuple_items_and_reassign(
-    //     (my_array, my_array_copy_2, my_array_copy_3), start=UInt64(200), reassign=False
-    // )
-    callsub mutate_tuple_items_and_reassign                                                my_array#2,my_array_copy_2#4,my_array_copy_3#1
-    // arc4_types/mutable_params.py:107
-    // assert my_array[0] == 200
-    l-load-copy my_array#2 2                                                               my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array#2 (copy)
-    extract 0 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%24#0
-    byte 0xc8                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%24#0,0xc8
-    b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%22#0
-    assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
-    // arc4_types/mutable_params.py:108
-    // assert my_array_copy_2[0] == 201
-    l-load-copy my_array_copy_2#4 1                                                        my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array_copy_2#4 (copy)
-    extract 0 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%26#0
-    byte 0xc9                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%26#0,0xc9
-    b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%23#0
-    assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
-    // arc4_types/mutable_params.py:109
-    // assert my_array_copy_3[0] == 202
-    l-load-copy my_array_copy_3#1 0                                                        my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array_copy_3#1 (copy)
-    extract 0 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%28#0
-    byte 0xca                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%28#0,0xca
-    b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%24#0
-    assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
-    // arc4_types/mutable_params.py:110
-    // assert my_array[1] == 206
-    l-load my_array#2 2                                                                    my_array_copy_2#4,my_array_copy_3#1,my_array#2
-    extract 1 1 // on error: Index access is out of bounds                                 my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%30#0
-    byte 0xce                                                                              my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%30#0,0xce
-    b==                                                                                    my_array_copy_2#4,my_array_copy_3#1,tmp%25#0
-    assert                                                                                 my_array_copy_2#4,my_array_copy_3#1
-    // arc4_types/mutable_params.py:111
-    // assert my_array_copy_2[1] == 207
-    l-load my_array_copy_2#4 1                                                             my_array_copy_3#1,my_array_copy_2#4
-    extract 1 1 // on error: Index access is out of bounds                                 my_array_copy_3#1,reinterpret_biguint%32#0
-    byte 0xcf                                                                              my_array_copy_3#1,reinterpret_biguint%32#0,0xcf
-    b==                                                                                    my_array_copy_3#1,tmp%26#0
-    assert                                                                                 my_array_copy_3#1
-    // arc4_types/mutable_params.py:112
-    // assert my_array_copy_3[1] == 208
-    l-load my_array_copy_3#1 0                                                             my_array_copy_3#1
-    extract 1 1 // on error: Index access is out of bounds                                 reinterpret_biguint%34#0
-    byte 0xd0                                                                              reinterpret_biguint%34#0,0xd0
-    b==                                                                                    tmp%27#0
-    assert
-    // arc4_types/mutable_params.py:31
-    // return True
-    int 1                                                                                  1
-    return
+subroutine main:
+    main_block@0:
+        // arc4_types/mutable_params.py:46
+        // my_array[2] = UInt8(5)
+        byte 0x01020504                                                                        0x01020504
+        // arc4_types/mutable_params.py:36-41
+        // my_struct = TestStruct(
+        //     b_val=Bool(True),
+        //     u_val=UInt8(50),
+        //     s_val_1=String("Happy"),
+        //     s_val_2=String("Days"),
+        // )
+        byte 0x80320006000d00054861707079000444617973                                          0x01020504,0x80320006000d00054861707079000444617973
+        // arc4_types/mutable_params.py:52
+        // t, f = self.other_routine(my_array, my_struct)
+        callsub other_routine                                                                  t#0,f#0,my_array#2,my_struct#1
+        // arc4_types/mutable_params.py:53
+        // assert t
+        l-load t#0 3                                                                           f#0,my_array#2,my_struct#1,t#0
+        assert                                                                                 f#0,my_array#2,my_struct#1
+        // arc4_types/mutable_params.py:54
+        // assert not f
+        l-load f#0 2                                                                           my_array#2,my_struct#1,f#0
+        !                                                                                      my_array#2,my_struct#1,tmp%2#0
+        assert                                                                                 my_array#2,my_struct#1
+        // arc4_types/mutable_params.py:56
+        // assert my_array[1] == UInt8(5), "my_array has been mutated by the subroutine"
+        l-load-copy my_array#2 1                                                               my_array#2,my_struct#1,my_array#2 (copy)
+        extract 1 1 // on error: Index access is out of bounds                                 my_array#2,my_struct#1,reinterpret_biguint%4#0
+        byte 0x05                                                                              my_array#2,my_struct#1,reinterpret_biguint%4#0,0x05
+        b==                                                                                    my_array#2,my_struct#1,tmp%3#0
+        assert // my_array has been mutated by the subroutine                                  my_array#2,my_struct#1
+        // arc4_types/mutable_params.py:58
+        // assert my_struct.s_val_1 == String(
+        l-load-copy my_struct#1 0                                                              my_array#2,my_struct#1,my_struct#1 (copy)
+        int 2                                                                                  my_array#2,my_struct#1,my_struct#1 (copy),2
+        extract_uint16                                                                         my_array#2,my_struct#1,item_start_offset%0#0
+        l-load-copy my_struct#1 1                                                              my_array#2,my_struct#1,item_start_offset%0#0,my_struct#1 (copy)
+        int 4                                                                                  my_array#2,my_struct#1,item_start_offset%0#0,my_struct#1 (copy),4
+        extract_uint16                                                                         my_array#2,my_struct#1,item_start_offset%0#0,item_end_offset%0#0
+        l-load my_struct#1 2                                                                   my_array#2,item_start_offset%0#0,item_end_offset%0#0,my_struct#1
+        l-load item_start_offset%0#0 2                                                         my_array#2,item_end_offset%0#0,my_struct#1,item_start_offset%0#0
+        l-load item_end_offset%0#0 2                                                           my_array#2,my_struct#1,item_start_offset%0#0,item_end_offset%0#0
+        substring3                                                                             my_array#2,tmp%4#0
+        // arc4_types/mutable_params.py:58-60
+        // assert my_struct.s_val_1 == String(
+        //     "AARRGH!"
+        // ), "my_struct has been mutated by the subroutine"
+        byte 0x000741415252474821                                                              my_array#2,tmp%4#0,0x000741415252474821
+        ==                                                                                     my_array#2,tmp%5#0
+        assert // my_struct has been mutated by the subroutine                                 my_array#2
+        // arc4_types/mutable_params.py:35
+        // my_array = StaticArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
+        byte 0x01020304                                                                        my_array#2,0x01020304
+        // arc4_types/mutable_params.py:36-41
+        // my_struct = TestStruct(
+        //     b_val=Bool(True),
+        //     u_val=UInt8(50),
+        //     s_val_1=String("Happy"),
+        //     s_val_2=String("Days"),
+        // )
+        byte 0x80320006000d00054861707079000444617973                                          my_array#2,0x01020304,0x80320006000d00054861707079000444617973
+        // arc4_types/mutable_params.py:63
+        // self.other_routine(my_array_copy.copy(), my_struct_copy.copy())
+        callsub other_routine                                                                  my_array#2,other_routine%4#0,other_routine%5#0,other_routine%6#0,other_routine%7#0
+        pop 1                                                                                  my_array#2,other_routine%4#0,other_routine%5#0,other_routine%6#0
+        pop 1                                                                                  my_array#2,other_routine%4#0,other_routine%5#0
+        pop 1                                                                                  my_array#2,other_routine%4#0
+        pop 1                                                                                  my_array#2
+        // arc4_types/mutable_params.py:85-89
+        // self.mutate_tuple_items_and_reassign(
+        //     (my_array.copy(), my_array_copy_2.copy(), my_array_copy_3.copy()),
+        //     start=UInt64(0),
+        //     reassign=True,
+        // )
+        l-load-copy my_array#2 0                                                               my_array#2,my_array#2 (copy)
+        // arc4_types/mutable_params.py:127
+        // array[0] = UInt8(10)
+        byte 0x0a020304                                                                        my_array#2,my_array#2 (copy),0x0a020304
+        // arc4_types/mutable_params.py:35
+        // my_array = StaticArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
+        byte 0x01020304                                                                        my_array#2,my_array#2 (copy),0x0a020304,0x01020304
+        // arc4_types/mutable_params.py:87
+        // start=UInt64(0),
+        int 0                                                                                  my_array#2,my_array#2 (copy),0x0a020304,0x01020304,0
+        // arc4_types/mutable_params.py:88
+        // reassign=True,
+        int 1                                                                                  my_array#2,my_array#2 (copy),0x0a020304,0x01020304,0,1
+        // arc4_types/mutable_params.py:85-89
+        // self.mutate_tuple_items_and_reassign(
+        //     (my_array.copy(), my_array_copy_2.copy(), my_array_copy_3.copy()),
+        //     start=UInt64(0),
+        //     reassign=True,
+        // )
+        callsub mutate_tuple_items_and_reassign                                                my_array#2,mutate_tuple_items_and_reassign%0#0,mutate_tuple_items_and_reassign%1#0,mutate_tuple_items_and_reassign%2#0
+        pop 1                                                                                  my_array#2,mutate_tuple_items_and_reassign%0#0,mutate_tuple_items_and_reassign%1#0
+        pop 1                                                                                  my_array#2,mutate_tuple_items_and_reassign%0#0
+        pop 1                                                                                  my_array#2
+        // arc4_types/mutable_params.py:92-94
+        // self.mutate_tuple_items_and_reassign(
+        //     (my_array, my_array_copy_2, my_array_copy_3), start=UInt64(100), reassign=True
+        // )
+        l-load my_array#2 0                                                                    my_array#2
+        // arc4_types/mutable_params.py:127
+        // array[0] = UInt8(10)
+        byte 0x0a020304                                                                        my_array#2,0x0a020304
+        // arc4_types/mutable_params.py:35
+        // my_array = StaticArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
+        byte 0x01020304                                                                        my_array#2,0x0a020304,0x01020304
+        // arc4_types/mutable_params.py:93
+        // (my_array, my_array_copy_2, my_array_copy_3), start=UInt64(100), reassign=True
+        int 100                                                                                my_array#2,0x0a020304,0x01020304,100
+        int 1                                                                                  my_array#2,0x0a020304,0x01020304,100,1
+        // arc4_types/mutable_params.py:92-94
+        // self.mutate_tuple_items_and_reassign(
+        //     (my_array, my_array_copy_2, my_array_copy_3), start=UInt64(100), reassign=True
+        // )
+        callsub mutate_tuple_items_and_reassign                                                my_array#2,my_array_copy_2#4,my_array_copy_3#1
+        // arc4_types/mutable_params.py:96
+        // assert my_array[0] == 100
+        l-load-copy my_array#2 2                                                               my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array#2 (copy)
+        extract 0 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%12#0
+        byte 0x64                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%12#0,0x64
+        b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%16#0
+        assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
+        // arc4_types/mutable_params.py:97
+        // assert my_array_copy_2[0] == 101
+        l-load-copy my_array_copy_2#4 1                                                        my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array_copy_2#4 (copy)
+        extract 0 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%14#0
+        byte 0x65                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%14#0,0x65
+        b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%17#0
+        assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
+        // arc4_types/mutable_params.py:98
+        // assert my_array_copy_3[0] == 102
+        l-load-copy my_array_copy_3#1 0                                                        my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array_copy_3#1 (copy)
+        extract 0 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%16#0
+        byte 0x66                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%16#0,0x66
+        b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%18#0
+        assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
+        // arc4_types/mutable_params.py:99
+        // assert my_array[1] == 103
+        l-load-copy my_array#2 2                                                               my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array#2 (copy)
+        extract 1 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%18#0
+        byte 0x67                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%18#0,0x67
+        b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%19#0
+        assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
+        // arc4_types/mutable_params.py:100
+        // assert my_array_copy_2[1] == 104
+        l-load-copy my_array_copy_2#4 1                                                        my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array_copy_2#4 (copy)
+        extract 1 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%20#0
+        byte 0x68                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%20#0,0x68
+        b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%20#0
+        assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
+        // arc4_types/mutable_params.py:101
+        // assert my_array_copy_3[1] == 105
+        l-load-copy my_array_copy_3#1 0                                                        my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array_copy_3#1 (copy)
+        extract 1 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%22#0
+        byte 0x69                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%22#0,0x69
+        b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%21#0
+        assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
+        // arc4_types/mutable_params.py:103-105
+        // self.mutate_tuple_items_and_reassign(
+        //     (my_array, my_array_copy_2, my_array_copy_3), start=UInt64(200), reassign=False
+        // )
+        l-load my_array#2 2                                                                    my_array_copy_2#4,my_array_copy_3#1,my_array#2
+        l-load my_array_copy_2#4 2                                                             my_array_copy_3#1,my_array#2,my_array_copy_2#4
+        l-load my_array_copy_3#1 2                                                             my_array#2,my_array_copy_2#4,my_array_copy_3#1
+        // arc4_types/mutable_params.py:104
+        // (my_array, my_array_copy_2, my_array_copy_3), start=UInt64(200), reassign=False
+        int 200                                                                                my_array#2,my_array_copy_2#4,my_array_copy_3#1,200
+        int 0                                                                                  my_array#2,my_array_copy_2#4,my_array_copy_3#1,200,0
+        // arc4_types/mutable_params.py:103-105
+        // self.mutate_tuple_items_and_reassign(
+        //     (my_array, my_array_copy_2, my_array_copy_3), start=UInt64(200), reassign=False
+        // )
+        callsub mutate_tuple_items_and_reassign                                                my_array#2,my_array_copy_2#4,my_array_copy_3#1
+        // arc4_types/mutable_params.py:107
+        // assert my_array[0] == 200
+        l-load-copy my_array#2 2                                                               my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array#2 (copy)
+        extract 0 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%24#0
+        byte 0xc8                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%24#0,0xc8
+        b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%22#0
+        assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
+        // arc4_types/mutable_params.py:108
+        // assert my_array_copy_2[0] == 201
+        l-load-copy my_array_copy_2#4 1                                                        my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array_copy_2#4 (copy)
+        extract 0 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%26#0
+        byte 0xc9                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%26#0,0xc9
+        b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%23#0
+        assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
+        // arc4_types/mutable_params.py:109
+        // assert my_array_copy_3[0] == 202
+        l-load-copy my_array_copy_3#1 0                                                        my_array#2,my_array_copy_2#4,my_array_copy_3#1,my_array_copy_3#1 (copy)
+        extract 0 1 // on error: Index access is out of bounds                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%28#0
+        byte 0xca                                                                              my_array#2,my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%28#0,0xca
+        b==                                                                                    my_array#2,my_array_copy_2#4,my_array_copy_3#1,tmp%24#0
+        assert                                                                                 my_array#2,my_array_copy_2#4,my_array_copy_3#1
+        // arc4_types/mutable_params.py:110
+        // assert my_array[1] == 206
+        l-load my_array#2 2                                                                    my_array_copy_2#4,my_array_copy_3#1,my_array#2
+        extract 1 1 // on error: Index access is out of bounds                                 my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%30#0
+        byte 0xce                                                                              my_array_copy_2#4,my_array_copy_3#1,reinterpret_biguint%30#0,0xce
+        b==                                                                                    my_array_copy_2#4,my_array_copy_3#1,tmp%25#0
+        assert                                                                                 my_array_copy_2#4,my_array_copy_3#1
+        // arc4_types/mutable_params.py:111
+        // assert my_array_copy_2[1] == 207
+        l-load my_array_copy_2#4 1                                                             my_array_copy_3#1,my_array_copy_2#4
+        extract 1 1 // on error: Index access is out of bounds                                 my_array_copy_3#1,reinterpret_biguint%32#0
+        byte 0xcf                                                                              my_array_copy_3#1,reinterpret_biguint%32#0,0xcf
+        b==                                                                                    my_array_copy_3#1,tmp%26#0
+        assert                                                                                 my_array_copy_3#1
+        // arc4_types/mutable_params.py:112
+        // assert my_array_copy_3[1] == 208
+        l-load my_array_copy_3#1 0                                                             my_array_copy_3#1
+        extract 1 1 // on error: Index access is out of bounds                                 reinterpret_biguint%34#0
+        byte 0xd0                                                                              reinterpret_biguint%34#0,0xd0
+        b==                                                                                    tmp%27#0
+        assert
+        // arc4_types/mutable_params.py:31
+        // return True
+        int 1                                                                                  1
+        return
 
 
 // test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(array: bytes, struct: bytes) -> uint64, uint64, bytes, bytes:
-other_routine:                                                                             (𝕡) array#0,struct#0 |
-    // arc4_types/mutable_params.py:120
-    // array[1] = UInt8(5)
-    p-load array#0                                                                         (𝕡) array#0,struct#0 | array#0 (copy)
-    byte 0x05                                                                              (𝕡) array#0,struct#0 | array#0 (copy),0x05
-    replace2 1                                                                             (𝕡) array#0,struct#0 | array#0
-    p-store array#0                                                                        (𝕡) array#0,struct#0 |
-    // arc4_types/mutable_params.py:121
-    // struct.s_val_1 = String("AARRGH!")
-    p-load struct#0                                                                        (𝕡) array#0,struct#0 | struct#0 (copy)
-    int 2                                                                                  (𝕡) array#0,struct#0 | struct#0 (copy),2
-    extract_uint16                                                                         (𝕡) array#0,struct#0 | item_offset%0#0
-    p-load struct#0                                                                        (𝕡) array#0,struct#0 | item_offset%0#0,struct#0 (copy)
-    int 0                                                                                  (𝕡) array#0,struct#0 | item_offset%0#0,struct#0 (copy),0
-    l-load-copy item_offset%0#0 2                                                          (𝕡) array#0,struct#0 | item_offset%0#0,struct#0 (copy),0,item_offset%0#0 (copy)
-    extract3                                                                               (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0
-    p-load struct#0                                                                        (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,struct#0 (copy)
-    int 4                                                                                  (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,struct#0 (copy),4
-    extract_uint16                                                                         (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0
-    p-load struct#0                                                                        (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,struct#0 (copy)
-    len                                                                                    (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,total_data_length%0#0
-    p-load struct#0                                                                        (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,total_data_length%0#0,struct#0 (copy)
-    l-load-copy next_item_offset%0#0 2                                                     (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,total_data_length%0#0,struct#0 (copy),next_item_offset%0#0 (copy)
-    l-load total_data_length%0#0 2                                                         (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,struct#0 (copy),next_item_offset%0#0 (copy),total_data_length%0#0
-    substring3                                                                             (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,data_beyond_item%0#0
-    l-load data_up_to_item%0#0 2                                                           (𝕡) array#0,struct#0 | item_offset%0#0,next_item_offset%0#0,data_beyond_item%0#0,data_up_to_item%0#0
-    byte 0x000741415252474821                                                              (𝕡) array#0,struct#0 | item_offset%0#0,next_item_offset%0#0,data_beyond_item%0#0,data_up_to_item%0#0,0x000741415252474821
-    concat                                                                                 (𝕡) array#0,struct#0 | item_offset%0#0,next_item_offset%0#0,data_beyond_item%0#0,updated_data%0#0
-    l-load data_beyond_item%0#0 1                                                          (𝕡) array#0,struct#0 | item_offset%0#0,next_item_offset%0#0,updated_data%0#0,data_beyond_item%0#0
-    concat                                                                                 (𝕡) array#0,struct#0 | item_offset%0#0,next_item_offset%0#0,updated_data%1#0
-    l-load next_item_offset%0#0 1                                                          (𝕡) array#0,struct#0 | item_offset%0#0,updated_data%1#0,next_item_offset%0#0
-    l-load item_offset%0#0 2                                                               (𝕡) array#0,struct#0 | updated_data%1#0,next_item_offset%0#0,item_offset%0#0
-    -                                                                                      (𝕡) array#0,struct#0 | updated_data%1#0,item_length%0#0
-    l-load-copy updated_data%1#0 1                                                         (𝕡) array#0,struct#0 | updated_data%1#0,item_length%0#0,updated_data%1#0 (copy)
-    int 4                                                                                  (𝕡) array#0,struct#0 | updated_data%1#0,item_length%0#0,updated_data%1#0 (copy),4
-    extract_uint16                                                                         (𝕡) array#0,struct#0 | updated_data%1#0,item_length%0#0,tail_offset%0#0
-    int 9                                                                                  (𝕡) array#0,struct#0 | updated_data%1#0,item_length%0#0,tail_offset%0#0,9
-    +                                                                                      (𝕡) array#0,struct#0 | updated_data%1#0,item_length%0#0,tail_offset%1#0
-    l-load item_length%0#0 1                                                               (𝕡) array#0,struct#0 | updated_data%1#0,tail_offset%1#0,item_length%0#0
-    -                                                                                      (𝕡) array#0,struct#0 | updated_data%1#0,tail_offset%2#0
-    itob                                                                                   (𝕡) array#0,struct#0 | updated_data%1#0,as_bytes%0#0
-    extract 6 2                                                                            (𝕡) array#0,struct#0 | updated_data%1#0,tail_offset_bytes%0#0
-    l-load updated_data%1#0 1                                                              (𝕡) array#0,struct#0 | tail_offset_bytes%0#0,updated_data%1#0
-    l-load tail_offset_bytes%0#0 1                                                         (𝕡) array#0,struct#0 | updated_data%1#0,tail_offset_bytes%0#0
-    replace2 4                                                                             (𝕡) array#0,struct#0 | struct#0
-    p-store struct#0                                                                       (𝕡) array#0,struct#0 |
-    // arc4_types/mutable_params.py:122
-    // return True, False
-    int 1                                                                                  (𝕡) array#0,struct#0 | 1
-    int 0                                                                                  (𝕡) array#0,struct#0 | 1,0
-    p-load array#0                                                                         (𝕡) array#0,struct#0 | 1,0,array#0 (copy)
-    p-load struct#0                                                                        (𝕡) array#0,struct#0 | 1,0,array#0 (copy),struct#0 (copy)
-    retsub                                                                                 1,0,array#0 (copy),struct#0 (copy)
+subroutine other_routine:
+    other_routine_block@0:                                                                     (𝕡) array#0,struct#0 |
+        // arc4_types/mutable_params.py:120
+        // array[1] = UInt8(5)
+        p-load array#0                                                                         (𝕡) array#0,struct#0 | array#0 (copy)
+        byte 0x05                                                                              (𝕡) array#0,struct#0 | array#0 (copy),0x05
+        replace2 1                                                                             (𝕡) array#0,struct#0 | array#0
+        p-store array#0                                                                        (𝕡) array#0,struct#0 |
+        // arc4_types/mutable_params.py:121
+        // struct.s_val_1 = String("AARRGH!")
+        p-load struct#0                                                                        (𝕡) array#0,struct#0 | struct#0 (copy)
+        int 2                                                                                  (𝕡) array#0,struct#0 | struct#0 (copy),2
+        extract_uint16                                                                         (𝕡) array#0,struct#0 | item_offset%0#0
+        p-load struct#0                                                                        (𝕡) array#0,struct#0 | item_offset%0#0,struct#0 (copy)
+        int 0                                                                                  (𝕡) array#0,struct#0 | item_offset%0#0,struct#0 (copy),0
+        l-load-copy item_offset%0#0 2                                                          (𝕡) array#0,struct#0 | item_offset%0#0,struct#0 (copy),0,item_offset%0#0 (copy)
+        extract3                                                                               (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0
+        p-load struct#0                                                                        (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,struct#0 (copy)
+        int 4                                                                                  (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,struct#0 (copy),4
+        extract_uint16                                                                         (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0
+        p-load struct#0                                                                        (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,struct#0 (copy)
+        len                                                                                    (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,total_data_length%0#0
+        p-load struct#0                                                                        (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,total_data_length%0#0,struct#0 (copy)
+        l-load-copy next_item_offset%0#0 2                                                     (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,total_data_length%0#0,struct#0 (copy),next_item_offset%0#0 (copy)
+        l-load total_data_length%0#0 2                                                         (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,struct#0 (copy),next_item_offset%0#0 (copy),total_data_length%0#0
+        substring3                                                                             (𝕡) array#0,struct#0 | item_offset%0#0,data_up_to_item%0#0,next_item_offset%0#0,data_beyond_item%0#0
+        l-load data_up_to_item%0#0 2                                                           (𝕡) array#0,struct#0 | item_offset%0#0,next_item_offset%0#0,data_beyond_item%0#0,data_up_to_item%0#0
+        byte 0x000741415252474821                                                              (𝕡) array#0,struct#0 | item_offset%0#0,next_item_offset%0#0,data_beyond_item%0#0,data_up_to_item%0#0,0x000741415252474821
+        concat                                                                                 (𝕡) array#0,struct#0 | item_offset%0#0,next_item_offset%0#0,data_beyond_item%0#0,updated_data%0#0
+        l-load data_beyond_item%0#0 1                                                          (𝕡) array#0,struct#0 | item_offset%0#0,next_item_offset%0#0,updated_data%0#0,data_beyond_item%0#0
+        concat                                                                                 (𝕡) array#0,struct#0 | item_offset%0#0,next_item_offset%0#0,updated_data%1#0
+        l-load next_item_offset%0#0 1                                                          (𝕡) array#0,struct#0 | item_offset%0#0,updated_data%1#0,next_item_offset%0#0
+        l-load item_offset%0#0 2                                                               (𝕡) array#0,struct#0 | updated_data%1#0,next_item_offset%0#0,item_offset%0#0
+        -                                                                                      (𝕡) array#0,struct#0 | updated_data%1#0,item_length%0#0
+        l-load-copy updated_data%1#0 1                                                         (𝕡) array#0,struct#0 | updated_data%1#0,item_length%0#0,updated_data%1#0 (copy)
+        int 4                                                                                  (𝕡) array#0,struct#0 | updated_data%1#0,item_length%0#0,updated_data%1#0 (copy),4
+        extract_uint16                                                                         (𝕡) array#0,struct#0 | updated_data%1#0,item_length%0#0,tail_offset%0#0
+        int 9                                                                                  (𝕡) array#0,struct#0 | updated_data%1#0,item_length%0#0,tail_offset%0#0,9
+        +                                                                                      (𝕡) array#0,struct#0 | updated_data%1#0,item_length%0#0,tail_offset%1#0
+        l-load item_length%0#0 1                                                               (𝕡) array#0,struct#0 | updated_data%1#0,tail_offset%1#0,item_length%0#0
+        -                                                                                      (𝕡) array#0,struct#0 | updated_data%1#0,tail_offset%2#0
+        itob                                                                                   (𝕡) array#0,struct#0 | updated_data%1#0,as_bytes%0#0
+        extract 6 2                                                                            (𝕡) array#0,struct#0 | updated_data%1#0,tail_offset_bytes%0#0
+        l-load updated_data%1#0 1                                                              (𝕡) array#0,struct#0 | tail_offset_bytes%0#0,updated_data%1#0
+        l-load tail_offset_bytes%0#0 1                                                         (𝕡) array#0,struct#0 | updated_data%1#0,tail_offset_bytes%0#0
+        replace2 4                                                                             (𝕡) array#0,struct#0 | struct#0
+        p-store struct#0                                                                       (𝕡) array#0,struct#0 |
+        // arc4_types/mutable_params.py:122
+        // return True, False
+        int 1                                                                                  (𝕡) array#0,struct#0 | 1
+        int 0                                                                                  (𝕡) array#0,struct#0 | 1,0
+        p-load array#0                                                                         (𝕡) array#0,struct#0 | 1,0,array#0 (copy)
+        p-load struct#0                                                                        (𝕡) array#0,struct#0 | 1,0,array#0 (copy),struct#0 (copy)
+        retsub                                                                                 1,0,array#0 (copy),struct#0 (copy)
 
 
 // test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(arrays.0: bytes, arrays.1: bytes, arrays.2: bytes, start: uint64, reassign: uint64) -> bytes, bytes, bytes:
-mutate_tuple_items_and_reassign:                                                           (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    int 1                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 1
-    v-store arrays.0%is_original#0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    int 1                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 1
-    v-store arrays.1%is_original#0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    int 1                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 1
-    v-store arrays.2%is_original#0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    // arc4_types/mutable_params.py:134
-    // arrays[0][0] = UInt8(start)
-    p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy)
-    itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0
-    l-load-copy val_as_bytes%0#0 0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%0#0 (copy)
-    extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,assigned_value%0#0
-    p-load arrays.0#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,assigned_value%0#0,arrays.0#0 (copy)
-    l-load assigned_value%0#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,arrays.0#0 (copy),assigned_value%0#0
-    replace2 0                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,arrays.0#0
-    p-store arrays.0#0                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0
-    // arc4_types/mutable_params.py:135
-    // arrays[1][0] = UInt8(start + 1)
-    p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,start#0 (copy)
-    int 1                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,start#0 (copy),1
-    +                                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,to_encode%0#0
-    itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0
-    l-load-copy val_as_bytes%1#0 0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%1#0 (copy)
-    extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,assigned_value%1#0
-    p-load arrays.1#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,assigned_value%1#0,arrays.1#0 (copy)
-    l-load assigned_value%1#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,arrays.1#0 (copy),assigned_value%1#0
-    replace2 0                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,arrays.1#0
-    p-store arrays.1#0                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0
-    // arc4_types/mutable_params.py:136
-    // arrays[2][0] = UInt8(start + 2)
-    p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,start#0 (copy)
-    int 2                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,start#0 (copy),2
-    +                                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,to_encode%1#0
-    itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0
-    l-load-copy val_as_bytes%2#0 0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,val_as_bytes%2#0 (copy)
-    extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,assigned_value%2#0
-    p-load arrays.2#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,assigned_value%2#0,arrays.2#0 (copy)
-    l-load assigned_value%2#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arrays.2#0 (copy),assigned_value%2#0
-    replace2 0                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arrays.2#0
-    p-store arrays.2#0                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0
-    // arc4_types/mutable_params.py:138
-    // assert arrays[0][0] == start
-    p-load arrays.0#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arrays.0#0 (copy)
-    extract 0 1 // on error: Index access is out of bounds                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,reinterpret_biguint%0#0
-    l-load val_as_bytes%0#0 3                                                              (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%1#0,val_as_bytes%2#0,reinterpret_biguint%0#0,val_as_bytes%0#0
-    b==                                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%1#0,val_as_bytes%2#0,tmp%1#0
-    assert                                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%1#0,val_as_bytes%2#0
-    // arc4_types/mutable_params.py:139
-    // assert arrays[1][0] == start + 1
-    p-load arrays.1#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%1#0,val_as_bytes%2#0,arrays.1#0 (copy)
-    extract 0 1 // on error: Index access is out of bounds                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%1#0,val_as_bytes%2#0,reinterpret_biguint%1#0
-    l-load val_as_bytes%1#0 2                                                              (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%2#0,reinterpret_biguint%1#0,val_as_bytes%1#0
-    b==                                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%2#0,tmp%4#0
-    assert                                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%2#0
-    // arc4_types/mutable_params.py:140
-    // assert arrays[2][0] == start + 2
-    p-load arrays.2#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%2#0,arrays.2#0 (copy)
-    extract 0 1 // on error: Index access is out of bounds                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%2#0,reinterpret_biguint%2#0
-    l-load val_as_bytes%2#0 1                                                              (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | reinterpret_biguint%2#0,val_as_bytes%2#0
-    b==                                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | tmp%7#0
-    assert                                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    // arc4_types/mutable_params.py:142
-    // arrays[0][1] = UInt8(start + 3)
-    p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy)
-    int 3                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy),3
-    +                                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | to_encode%2#0
-    itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%3#0
-    extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%3#0
-    p-load arrays.0#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%3#0,arrays.0#0 (copy)
-    l-load assigned_value%3#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0#0 (copy),assigned_value%3#0
-    replace2 1                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0#0
-    p-store arrays.0#0                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    // arc4_types/mutable_params.py:143
-    // arrays[1][1] = UInt8(start + 4)
-    p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy)
-    int 4                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy),4
-    +                                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | to_encode%3#0
-    itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%4#0
-    extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%4#0
-    p-load arrays.1#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%4#0,arrays.1#0 (copy)
-    l-load assigned_value%4#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.1#0 (copy),assigned_value%4#0
-    replace2 1                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.1#0
-    p-store arrays.1#0                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    // arc4_types/mutable_params.py:144
-    // arrays[2][1] = UInt8(start + 5)
-    p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy)
-    int 5                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy),5
-    +                                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | to_encode%4#0
-    itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%5#0
-    extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%5#0
-    p-load arrays.2#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%5#0,arrays.2#0 (copy)
-    l-load assigned_value%5#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.2#0 (copy),assigned_value%5#0
-    replace2 1                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.2#0
-    p-store arrays.2#0                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    // arc4_types/mutable_params.py:147
-    // if reassign:
-    p-load reassign#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | reassign#0 (copy)
-    bz mutate_tuple_items_and_reassign_after_if_else@20 ; b mutate_tuple_items_and_reassign_if_body@13 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 
+subroutine mutate_tuple_items_and_reassign:
+    mutate_tuple_items_and_reassign_block@0:                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        int 1                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 1
+        v-store arrays.0%is_original#0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        int 1                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 1
+        v-store arrays.1%is_original#0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        int 1                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 1
+        v-store arrays.2%is_original#0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        // arc4_types/mutable_params.py:134
+        // arrays[0][0] = UInt8(start)
+        p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy)
+        itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0
+        l-load-copy val_as_bytes%0#0 0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%0#0 (copy)
+        extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,assigned_value%0#0
+        p-load arrays.0#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,assigned_value%0#0,arrays.0#0 (copy)
+        l-load assigned_value%0#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,arrays.0#0 (copy),assigned_value%0#0
+        replace2 0                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,arrays.0#0
+        p-store arrays.0#0                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0
+        // arc4_types/mutable_params.py:135
+        // arrays[1][0] = UInt8(start + 1)
+        p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,start#0 (copy)
+        int 1                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,start#0 (copy),1
+        +                                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,to_encode%0#0
+        itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0
+        l-load-copy val_as_bytes%1#0 0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%1#0 (copy)
+        extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,assigned_value%1#0
+        p-load arrays.1#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,assigned_value%1#0,arrays.1#0 (copy)
+        l-load assigned_value%1#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,arrays.1#0 (copy),assigned_value%1#0
+        replace2 0                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,arrays.1#0
+        p-store arrays.1#0                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0
+        // arc4_types/mutable_params.py:136
+        // arrays[2][0] = UInt8(start + 2)
+        p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,start#0 (copy)
+        int 2                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,start#0 (copy),2
+        +                                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,to_encode%1#0
+        itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0
+        l-load-copy val_as_bytes%2#0 0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,val_as_bytes%2#0 (copy)
+        extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,assigned_value%2#0
+        p-load arrays.2#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,assigned_value%2#0,arrays.2#0 (copy)
+        l-load assigned_value%2#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arrays.2#0 (copy),assigned_value%2#0
+        replace2 0                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arrays.2#0
+        p-store arrays.2#0                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0
+        // arc4_types/mutable_params.py:138
+        // assert arrays[0][0] == start
+        p-load arrays.0#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arrays.0#0 (copy)
+        extract 0 1 // on error: Index access is out of bounds                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,reinterpret_biguint%0#0
+        l-load val_as_bytes%0#0 3                                                              (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%1#0,val_as_bytes%2#0,reinterpret_biguint%0#0,val_as_bytes%0#0
+        b==                                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%1#0,val_as_bytes%2#0,tmp%1#0
+        assert                                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%1#0,val_as_bytes%2#0
+        // arc4_types/mutable_params.py:139
+        // assert arrays[1][0] == start + 1
+        p-load arrays.1#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%1#0,val_as_bytes%2#0,arrays.1#0 (copy)
+        extract 0 1 // on error: Index access is out of bounds                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%1#0,val_as_bytes%2#0,reinterpret_biguint%1#0
+        l-load val_as_bytes%1#0 2                                                              (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%2#0,reinterpret_biguint%1#0,val_as_bytes%1#0
+        b==                                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%2#0,tmp%4#0
+        assert                                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%2#0
+        // arc4_types/mutable_params.py:140
+        // assert arrays[2][0] == start + 2
+        p-load arrays.2#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%2#0,arrays.2#0 (copy)
+        extract 0 1 // on error: Index access is out of bounds                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%2#0,reinterpret_biguint%2#0
+        l-load val_as_bytes%2#0 1                                                              (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | reinterpret_biguint%2#0,val_as_bytes%2#0
+        b==                                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | tmp%7#0
+        assert                                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        // arc4_types/mutable_params.py:142
+        // arrays[0][1] = UInt8(start + 3)
+        p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy)
+        int 3                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy),3
+        +                                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | to_encode%2#0
+        itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%3#0
+        extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%3#0
+        p-load arrays.0#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%3#0,arrays.0#0 (copy)
+        l-load assigned_value%3#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0#0 (copy),assigned_value%3#0
+        replace2 1                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0#0
+        p-store arrays.0#0                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        // arc4_types/mutable_params.py:143
+        // arrays[1][1] = UInt8(start + 4)
+        p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy)
+        int 4                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy),4
+        +                                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | to_encode%3#0
+        itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%4#0
+        extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%4#0
+        p-load arrays.1#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%4#0,arrays.1#0 (copy)
+        l-load assigned_value%4#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.1#0 (copy),assigned_value%4#0
+        replace2 1                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.1#0
+        p-store arrays.1#0                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        // arc4_types/mutable_params.py:144
+        // arrays[2][1] = UInt8(start + 5)
+        p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy)
+        int 5                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy),5
+        +                                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | to_encode%4#0
+        itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%5#0
+        extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%5#0
+        p-load arrays.2#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%5#0,arrays.2#0 (copy)
+        l-load assigned_value%5#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.2#0 (copy),assigned_value%5#0
+        replace2 1                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.2#0
+        p-store arrays.2#0                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        // arc4_types/mutable_params.py:147
+        // if reassign:
+        p-load reassign#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | reassign#0 (copy)
+        bz mutate_tuple_items_and_reassign_after_if_else@20 ; b mutate_tuple_items_and_reassign_if_body@13 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 
 
-mutate_tuple_items_and_reassign_if_body@13:                                                (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    int 0                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 0
-    v-store arrays.0%is_original#0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    int 0                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 0
-    v-store arrays.1%is_original#0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    int 0                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 0
-    v-store arrays.2%is_original#0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    b mutate_tuple_items_and_reassign_after_if_else@20                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+    mutate_tuple_items_and_reassign_if_body@13:                                                (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        int 0                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 0
+        v-store arrays.0%is_original#0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        int 0                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 0
+        v-store arrays.1%is_original#0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        int 0                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 0
+        v-store arrays.2%is_original#0                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        b mutate_tuple_items_and_reassign_after_if_else@20                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
 
-mutate_tuple_items_and_reassign_after_if_else@20:                                          (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    // arc4_types/mutable_params.py:150
-    // arrays[0][1] = UInt8(start + 6)
-    p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy)
-    int 6                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy),6
-    +                                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | to_encode%5#0
-    itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%6#0
-    l-store-copy val_as_bytes%6#0 0                                                        (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%6#0,val_as_bytes%6#0 (copy)
-    v-store val_as_bytes%6#0                                                               (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%6#0
-    l-load val_as_bytes%6#0 0                                                              (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%6#0
-    extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%6#0
-    p-load arrays.0#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%6#0,arrays.0#0 (copy)
-    l-load assigned_value%6#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0#0 (copy),assigned_value%6#0
-    replace2 1                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0#14
-    v-store arrays.0#14                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    p-load arrays.0#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0%out#7
-    v-store arrays.0%out#7                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    v-load arrays.0%is_original#0                                                          (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0%is_original#0
-    bz mutate_tuple_items_and_reassign_after_if_else@22 ; b mutate_tuple_items_and_reassign_if_body@21 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 
+    mutate_tuple_items_and_reassign_after_if_else@20:                                          (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        // arc4_types/mutable_params.py:150
+        // arrays[0][1] = UInt8(start + 6)
+        p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy)
+        int 6                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy),6
+        +                                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | to_encode%5#0
+        itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%6#0
+        l-store-copy val_as_bytes%6#0 0                                                        (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%6#0,val_as_bytes%6#0 (copy)
+        v-store val_as_bytes%6#0                                                               (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%6#0
+        l-load val_as_bytes%6#0 0                                                              (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%6#0
+        extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%6#0
+        p-load arrays.0#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%6#0,arrays.0#0 (copy)
+        l-load assigned_value%6#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0#0 (copy),assigned_value%6#0
+        replace2 1                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0#14
+        v-store arrays.0#14                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        p-load arrays.0#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0%out#7
+        v-store arrays.0%out#7                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        v-load arrays.0%is_original#0                                                          (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0%is_original#0
+        bz mutate_tuple_items_and_reassign_after_if_else@22 ; b mutate_tuple_items_and_reassign_if_body@21 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 
 
-mutate_tuple_items_and_reassign_if_body@21:                                                (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    v-load arrays.0#14                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0%out#7
-    v-store arrays.0%out#7                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    b mutate_tuple_items_and_reassign_after_if_else@22                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+    mutate_tuple_items_and_reassign_if_body@21:                                                (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        v-load arrays.0#14                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0%out#7
+        v-store arrays.0%out#7                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        b mutate_tuple_items_and_reassign_after_if_else@22                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
 
-mutate_tuple_items_and_reassign_after_if_else@22:                                          (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    // arc4_types/mutable_params.py:151
-    // arrays[1][1] = UInt8(start + 7)
-    p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy)
-    int 7                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy),7
-    +                                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | to_encode%6#0
-    itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%7#0
-    l-store-copy val_as_bytes%7#0 0                                                        (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%7#0,val_as_bytes%7#0 (copy)
-    v-store val_as_bytes%7#0                                                               (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%7#0
-    l-load val_as_bytes%7#0 0                                                              (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%7#0
-    extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%7#0
-    p-load arrays.1#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%7#0,arrays.1#0 (copy)
-    l-load assigned_value%7#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.1#0 (copy),assigned_value%7#0
-    replace2 1                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.1#15
-    v-store arrays.1#15                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    p-load arrays.1#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.1%out#6
-    v-store arrays.1%out#6                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    v-load arrays.1%is_original#0                                                          (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.1%is_original#0
-    bz mutate_tuple_items_and_reassign_after_if_else@24 ; b mutate_tuple_items_and_reassign_if_body@23 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 
+    mutate_tuple_items_and_reassign_after_if_else@22:                                          (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        // arc4_types/mutable_params.py:151
+        // arrays[1][1] = UInt8(start + 7)
+        p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy)
+        int 7                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy),7
+        +                                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | to_encode%6#0
+        itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%7#0
+        l-store-copy val_as_bytes%7#0 0                                                        (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%7#0,val_as_bytes%7#0 (copy)
+        v-store val_as_bytes%7#0                                                               (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%7#0
+        l-load val_as_bytes%7#0 0                                                              (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%7#0
+        extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%7#0
+        p-load arrays.1#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%7#0,arrays.1#0 (copy)
+        l-load assigned_value%7#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.1#0 (copy),assigned_value%7#0
+        replace2 1                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.1#15
+        v-store arrays.1#15                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        p-load arrays.1#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.1%out#6
+        v-store arrays.1%out#6                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        v-load arrays.1%is_original#0                                                          (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.1%is_original#0
+        bz mutate_tuple_items_and_reassign_after_if_else@24 ; b mutate_tuple_items_and_reassign_if_body@23 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 
 
-mutate_tuple_items_and_reassign_if_body@23:                                                (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    v-load arrays.1#15                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.1%out#6
-    v-store arrays.1%out#6                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    b mutate_tuple_items_and_reassign_after_if_else@24                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+    mutate_tuple_items_and_reassign_if_body@23:                                                (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        v-load arrays.1#15                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.1%out#6
+        v-store arrays.1%out#6                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        b mutate_tuple_items_and_reassign_after_if_else@24                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
 
-mutate_tuple_items_and_reassign_after_if_else@24:                                          (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    // arc4_types/mutable_params.py:152
-    // arrays[2][1] = UInt8(start + 8)
-    p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy)
-    int 8                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy),8
-    +                                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | to_encode%7#0
-    itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%8#0
-    l-store-copy val_as_bytes%8#0 0                                                        (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%8#0,val_as_bytes%8#0 (copy)
-    v-store val_as_bytes%8#0                                                               (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%8#0
-    l-load val_as_bytes%8#0 0                                                              (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%8#0
-    extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%8#0
-    p-load arrays.2#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%8#0,arrays.2#0 (copy)
-    l-load assigned_value%8#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.2#0 (copy),assigned_value%8#0
-    replace2 1                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.2#16
-    v-store arrays.2#16                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    p-load arrays.2#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.2%out#5
-    v-store arrays.2%out#5                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    v-load arrays.2%is_original#0                                                          (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.2%is_original#0
-    bz mutate_tuple_items_and_reassign_after_if_else@26 ; b mutate_tuple_items_and_reassign_if_body@25 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 
+    mutate_tuple_items_and_reassign_after_if_else@24:                                          (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        // arc4_types/mutable_params.py:152
+        // arrays[2][1] = UInt8(start + 8)
+        p-load start#0                                                                         (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy)
+        int 8                                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | start#0 (copy),8
+        +                                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | to_encode%7#0
+        itob                                                                                   (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%8#0
+        l-store-copy val_as_bytes%8#0 0                                                        (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%8#0,val_as_bytes%8#0 (copy)
+        v-store val_as_bytes%8#0                                                               (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%8#0
+        l-load val_as_bytes%8#0 0                                                              (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | val_as_bytes%8#0
+        extract 7 1                                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%8#0
+        p-load arrays.2#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | assigned_value%8#0,arrays.2#0 (copy)
+        l-load assigned_value%8#0 1                                                            (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.2#0 (copy),assigned_value%8#0
+        replace2 1                                                                             (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.2#16
+        v-store arrays.2#16                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        p-load arrays.2#0                                                                      (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.2%out#5
+        v-store arrays.2%out#5                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        v-load arrays.2%is_original#0                                                          (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.2%is_original#0
+        bz mutate_tuple_items_and_reassign_after_if_else@26 ; b mutate_tuple_items_and_reassign_if_body@25 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | 
 
-mutate_tuple_items_and_reassign_if_body@25:                                                (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    v-load arrays.2#16                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.2%out#5
-    v-store arrays.2%out#5                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    b mutate_tuple_items_and_reassign_after_if_else@26                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+    mutate_tuple_items_and_reassign_if_body@25:                                                (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        v-load arrays.2#16                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.2%out#5
+        v-store arrays.2%out#5                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        b mutate_tuple_items_and_reassign_after_if_else@26                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
 
-mutate_tuple_items_and_reassign_after_if_else@26:                                          (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    // arc4_types/mutable_params.py:154
-    // assert arrays[0][1] == start + 6
-    v-load arrays.0#14                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0#14
-    extract 1 1 // on error: Index access is out of bounds                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | reinterpret_biguint%3#0
-    v-load val_as_bytes%6#0                                                                (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | reinterpret_biguint%3#0,val_as_bytes%6#0
-    b==                                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | tmp%10#0
-    assert                                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    // arc4_types/mutable_params.py:155
-    // assert arrays[1][1] == start + 7
-    v-load arrays.1#15                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.1#15
-    extract 1 1 // on error: Index access is out of bounds                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | reinterpret_biguint%4#0
-    v-load val_as_bytes%7#0                                                                (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | reinterpret_biguint%4#0,val_as_bytes%7#0
-    b==                                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | tmp%13#0
-    assert                                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    // arc4_types/mutable_params.py:156
-    // assert arrays[2][1] == start + 8
-    v-load arrays.2#16                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.2#16
-    extract 1 1 // on error: Index access is out of bounds                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | reinterpret_biguint%5#0
-    v-load val_as_bytes%8#0                                                                (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | reinterpret_biguint%5#0,val_as_bytes%8#0
-    b==                                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | tmp%16#0
-    assert                                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
-    v-load arrays.0%out#7                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0%out#7
-    v-load arrays.1%out#6                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0%out#7,arrays.1%out#6
-    v-load arrays.2%out#5                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0%out#7,arrays.1%out#6,arrays.2%out#5
-    retsub                                                                                 arrays.0%out#7,arrays.1%out#6,arrays.2%out#5
+    mutate_tuple_items_and_reassign_after_if_else@26:                                          (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        // arc4_types/mutable_params.py:154
+        // assert arrays[0][1] == start + 6
+        v-load arrays.0#14                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0#14
+        extract 1 1 // on error: Index access is out of bounds                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | reinterpret_biguint%3#0
+        v-load val_as_bytes%6#0                                                                (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | reinterpret_biguint%3#0,val_as_bytes%6#0
+        b==                                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | tmp%10#0
+        assert                                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        // arc4_types/mutable_params.py:155
+        // assert arrays[1][1] == start + 7
+        v-load arrays.1#15                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.1#15
+        extract 1 1 // on error: Index access is out of bounds                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | reinterpret_biguint%4#0
+        v-load val_as_bytes%7#0                                                                (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | reinterpret_biguint%4#0,val_as_bytes%7#0
+        b==                                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | tmp%13#0
+        assert                                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        // arc4_types/mutable_params.py:156
+        // assert arrays[2][1] == start + 8
+        v-load arrays.2#16                                                                     (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.2#16
+        extract 1 1 // on error: Index access is out of bounds                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | reinterpret_biguint%5#0
+        v-load val_as_bytes%8#0                                                                (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | reinterpret_biguint%5#0,val_as_bytes%8#0
+        b==                                                                                    (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | tmp%16#0
+        assert                                                                                 (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 |
+        v-load arrays.0%out#7                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0%out#7
+        v-load arrays.1%out#6                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0%out#7,arrays.1%out#6
+        v-load arrays.2%out#5                                                                  (𝕡) arrays.0#0,arrays.1#0,arrays.2#0,start#0,reassign#0 | arrays.0%out#7,arrays.1%out#6,arrays.2%out#5
+        retsub                                                                                 arrays.0%out#7,arrays.1%out#6,arrays.2%out#5
 
 

@@ -1,125 +1,127 @@
-// Op                                                                              Stack (out)
+// Op                                                                                  Stack (out)
 // test_cases.compile.apps.HelloBase.__algopy_entrypoint_with_init() -> uint64:
-main:
-    txn ApplicationID                                                              tmp%0#0
-    bz main_call___init__@1 ; b main_after_if_else@2
+subroutine main:
+    main_block@0:
+        txn ApplicationID                                                              tmp%0#0
+        bz main_call___init__@1 ; b main_after_if_else@2
 
-main_call___init__@1:
-    // compile/apps.py:22
-    // self.greeting = String()
-    byte "greeting"                                                                "greeting"
-    byte ""                                                                        "greeting",""
-    app_global_put
-    b main_after_if_else@2
+    main_call___init__@1:
+        // compile/apps.py:22
+        // self.greeting = String()
+        byte "greeting"                                                                "greeting"
+        byte ""                                                                        "greeting",""
+        app_global_put
+        b main_after_if_else@2
 
-main_after_if_else@2:
-    // compile/apps.py:20
-    // class HelloBase(ARC4Contract):
-    txn NumAppArgs                                                                 tmp%0#2
-    bz main_bare_routing@7 ; b main_abi_routing@4
+    main_after_if_else@2:
+        // compile/apps.py:20
+        // class HelloBase(ARC4Contract):
+        txn NumAppArgs                                                                 tmp%0#2
+        bz main_bare_routing@7 ; b main_abi_routing@4
 
-main_abi_routing@4:
-    // compile/apps.py:20
-    // class HelloBase(ARC4Contract):
-    txna ApplicationArgs 0                                                         tmp%2#0
-    method delete()void                                                            tmp%2#0,Method(delete()void)
-    method greet(string)string                                                     tmp%2#0,Method(delete()void),Method(greet(string)string)
-    l-load tmp%2#0 2                                                               Method(delete()void),Method(greet(string)string),tmp%2#0
-    match main_delete_route@5 main_greet_route@6 ; b main_after_if_else@10
+    main_abi_routing@4:
+        // compile/apps.py:20
+        // class HelloBase(ARC4Contract):
+        txna ApplicationArgs 0                                                         tmp%2#0
+        method delete()void                                                            tmp%2#0,Method(delete()void)
+        method greet(string)string                                                     tmp%2#0,Method(delete()void),Method(greet(string)string)
+        l-load tmp%2#0 2                                                               Method(delete()void),Method(greet(string)string),tmp%2#0
+        match main_delete_route@5 main_greet_route@6 ; b main_after_if_else@10
 
-main_delete_route@5:
-    // compile/apps.py:24
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion                                                               tmp%3#0
-    int DeleteApplication                                                          tmp%3#0,DeleteApplication
-    ==                                                                             tmp%4#0
-    assert // OnCompletion is not DeleteApplication
-    txn ApplicationID                                                              tmp%5#0
-    assert // can only call when not creating
-    int 1                                                                          test_cases.compile.apps.HelloBase.__puya_arc4_router__%0#0
-    v-store tmp%0#0
-    b main_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@11
+    main_delete_route@5:
+        // compile/apps.py:24
+        // @arc4.abimethod(allow_actions=["DeleteApplication"])
+        txn OnCompletion                                                               tmp%3#0
+        int DeleteApplication                                                          tmp%3#0,DeleteApplication
+        ==                                                                             tmp%4#0
+        assert // OnCompletion is not DeleteApplication
+        txn ApplicationID                                                              tmp%5#0
+        assert // can only call when not creating
+        int 1                                                                          test_cases.compile.apps.HelloBase.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@11
 
-main_greet_route@6:
-    // compile/apps.py:32
-    // @arc4.abimethod()
-    txn OnCompletion                                                               tmp%7#0
-    !                                                                              tmp%8#0
-    assert // OnCompletion is not NoOp
-    txn ApplicationID                                                              tmp%9#0
-    assert // can only call when not creating
-    // compile/apps.py:20
-    // class HelloBase(ARC4Contract):
-    txna ApplicationArgs 1                                                         tmp%11#0
-    extract 2 0                                                                    tmp%12#0
-    // compile/apps.py:32
-    // @arc4.abimethod()
-    callsub greet                                                                  to_encode%0#0
-    l-load-copy to_encode%0#0 0                                                    to_encode%0#0,to_encode%0#0 (copy)
-    len                                                                            to_encode%0#0,length%0#0
-    itob                                                                           to_encode%0#0,as_bytes%0#0
-    extract 6 2                                                                    to_encode%0#0,length_uint16%0#0
-    l-load to_encode%0#0 1                                                         length_uint16%0#0,to_encode%0#0
-    concat                                                                         encoded_value%0#0
-    byte 0x151f7c75                                                                encoded_value%0#0,0x151f7c75
-    l-load encoded_value%0#0 1                                                     0x151f7c75,encoded_value%0#0
-    concat                                                                         tmp%13#0
-    log
-    int 1                                                                          test_cases.compile.apps.HelloBase.__puya_arc4_router__%0#0
-    v-store tmp%0#0
-    b main_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@11
+    main_greet_route@6:
+        // compile/apps.py:32
+        // @arc4.abimethod()
+        txn OnCompletion                                                               tmp%7#0
+        !                                                                              tmp%8#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                              tmp%9#0
+        assert // can only call when not creating
+        // compile/apps.py:20
+        // class HelloBase(ARC4Contract):
+        txna ApplicationArgs 1                                                         tmp%11#0
+        extract 2 0                                                                    tmp%12#0
+        // compile/apps.py:32
+        // @arc4.abimethod()
+        callsub greet                                                                  to_encode%0#0
+        l-load-copy to_encode%0#0 0                                                    to_encode%0#0,to_encode%0#0 (copy)
+        len                                                                            to_encode%0#0,length%0#0
+        itob                                                                           to_encode%0#0,as_bytes%0#0
+        extract 6 2                                                                    to_encode%0#0,length_uint16%0#0
+        l-load to_encode%0#0 1                                                         length_uint16%0#0,to_encode%0#0
+        concat                                                                         encoded_value%0#0
+        byte 0x151f7c75                                                                encoded_value%0#0,0x151f7c75
+        l-load encoded_value%0#0 1                                                     0x151f7c75,encoded_value%0#0
+        concat                                                                         tmp%13#0
+        log
+        int 1                                                                          test_cases.compile.apps.HelloBase.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@11
 
-main_bare_routing@7:
-    // compile/apps.py:20
-    // class HelloBase(ARC4Contract):
-    txn OnCompletion                                                               tmp%14#0
-    int 4                                                                          tmp%14#0,4
-    int 0                                                                          tmp%14#0,4,0
-    l-load tmp%14#0 2                                                              4,0,tmp%14#0
-    match main_update@8 main___algopy_default_create@9 ; b main_after_if_else@10
+    main_bare_routing@7:
+        // compile/apps.py:20
+        // class HelloBase(ARC4Contract):
+        txn OnCompletion                                                               tmp%14#0
+        int 4                                                                          tmp%14#0,4
+        int 0                                                                          tmp%14#0,4,0
+        l-load tmp%14#0 2                                                              4,0,tmp%14#0
+        match main_update@8 main___algopy_default_create@9 ; b main_after_if_else@10
 
-main_update@8:
-    // compile/apps.py:28
-    // @arc4.baremethod(allow_actions=["UpdateApplication"])
-    txn ApplicationID                                                              tmp%15#0
-    assert // can only call when not creating
-    int 1                                                                          test_cases.compile.apps.HelloBase.__puya_arc4_router__%0#0
-    v-store tmp%0#0
-    b main_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@11
+    main_update@8:
+        // compile/apps.py:28
+        // @arc4.baremethod(allow_actions=["UpdateApplication"])
+        txn ApplicationID                                                              tmp%15#0
+        assert // can only call when not creating
+        int 1                                                                          test_cases.compile.apps.HelloBase.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@11
 
-main___algopy_default_create@9:
-    txn ApplicationID                                                              tmp%17#0
-    !                                                                              tmp%18#0
-    assert // can only call when creating
-    int 1                                                                          test_cases.compile.apps.HelloBase.__puya_arc4_router__%0#0
-    v-store tmp%0#0
-    b main_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@11
+    main___algopy_default_create@9:
+        txn ApplicationID                                                              tmp%17#0
+        !                                                                              tmp%18#0
+        assert // can only call when creating
+        int 1                                                                          test_cases.compile.apps.HelloBase.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@11
 
-main_after_if_else@10:
-    // compile/apps.py:20
-    // class HelloBase(ARC4Contract):
-    int 0                                                                          test_cases.compile.apps.HelloBase.__puya_arc4_router__%0#0
-    v-store tmp%0#0
-    b main_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@11
+    main_after_if_else@10:
+        // compile/apps.py:20
+        // class HelloBase(ARC4Contract):
+        int 0                                                                          test_cases.compile.apps.HelloBase.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@11
 
-main_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@11:
-    v-load tmp%0#0                                                                 tmp%0#0
-    return
+    main_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@11:
+        v-load tmp%0#0                                                                 tmp%0#0
+        return
 
 
 // test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
-greet:                                                                             (𝕡) name#0 |
-    // compile/apps.py:34
-    // return self.greeting + " " + name
-    int 0                                                                          (𝕡) name#0 | 0
-    byte "greeting"                                                                (𝕡) name#0 | 0,"greeting"
-    app_global_get_ex                                                              (𝕡) name#0 | maybe_value%0#0,maybe_exists%0#0
-    assert // check self.greeting exists                                           (𝕡) name#0 | maybe_value%0#0
-    l-load maybe_value%0#0 0                                                       (𝕡) name#0 | maybe_value%0#0
-    byte " "                                                                       (𝕡) name#0 | maybe_value%0#0," "
-    concat                                                                         (𝕡) name#0 | tmp%0#0
-    p-load name#0                                                                  (𝕡) name#0 | tmp%0#0,name#0 (copy)
-    concat                                                                         (𝕡) name#0 | tmp%1#0
-    retsub                                                                         tmp%1#0
+subroutine greet:
+    greet_block@0:                                                                     (𝕡) name#0 |
+        // compile/apps.py:34
+        // return self.greeting + " " + name
+        int 0                                                                          (𝕡) name#0 | 0
+        byte "greeting"                                                                (𝕡) name#0 | 0,"greeting"
+        app_global_get_ex                                                              (𝕡) name#0 | maybe_value%0#0,maybe_exists%0#0
+        assert // check self.greeting exists                                           (𝕡) name#0 | maybe_value%0#0
+        l-load maybe_value%0#0 0                                                       (𝕡) name#0 | maybe_value%0#0
+        byte " "                                                                       (𝕡) name#0 | maybe_value%0#0," "
+        concat                                                                         (𝕡) name#0 | tmp%0#0
+        p-load name#0                                                                  (𝕡) name#0 | tmp%0#0,name#0 (copy)
+        concat                                                                         (𝕡) name#0 | tmp%1#0
+        retsub                                                                         tmp%1#0
 
 
