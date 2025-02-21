@@ -60,6 +60,10 @@ class Logger(ARC4Contract):
     def log_asset_account_app(self, asset: Asset, account: Account, app: Application) -> None:
         log(asset.name, account.bytes, app.address)
 
+    @arc4.abimethod(name=LOG_METHOD_NAME)
+    def log_address(self, address: arc4.Address) -> None:
+        log(address)
+
     @arc4.abimethod
     def echo_native_string(self, value: String) -> String:
         return "echo: " + value
