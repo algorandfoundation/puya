@@ -94,7 +94,7 @@ def _optimize_block(block: models.TealBlock, *, level: int) -> None:
 def _inline_jump_chains(teal_sub: models.TealSubroutine) -> None:
     # build a map of any blocks that are just an unconditional branch to their targets
     jumps = dict[str, str]()
-    for block_idx, block in enumerate(teal_sub.blocks.copy()):
+    for block_idx, block in reversed(list(enumerate(teal_sub.blocks))):
         if block_idx == 0:
             continue  # skip entry block
         match block.ops:
@@ -139,14 +139,7 @@ def _inline_single_op_blocks(teal_sub: models.TealSubroutine) -> None:
         except ValueError:
             pass
         else:
-            # we shouldn't encounter any branching ops, since any block that
-            # is just an unconditional branch has already been inlined, and
-            # at this point blocks should still have an unconditional exit as the final op,
-            # which rules out bz/bnz/match/switch, leaving only exiting ops
-            # like retsub, return, or err.
-            # this also means we can keep track of which blocks to eliminate without having
-            # to do a traversal, thus the assertion
-            assert isinstance(single_op, models.ControlOp) and not single_op.targets
+            assert isinstance(single_op, models.ControlOp), "expected a control op"
             single_op_blocks[block.label] = single_op
 
     if not single_op_blocks:
