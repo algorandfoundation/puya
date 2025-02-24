@@ -1,4 +1,14 @@
 # CHANGELOG
+## v4.4.2 (2025-02-24)
+
+### Fix
+
+* fix compilation error during TEAL optimisations with greatly nested code ([`4436f79`](https://github.com/algorandfoundation/puya/commit/4436f795cafce919bae517e28b7e1b2015bf87d6))
+
+* gracefully handle cases where infinite loops are detected ([`c6b23d5`](https://github.com/algorandfoundation/puya/commit/c6b23d54ca687ed7a06b171ada97e8167626119a))
+
+* _TemplateVariableTypeCollector not visiting subroutine call args (#395) ([`0518184`](https://github.com/algorandfoundation/puya/commit/05181849dc679f3e75ce898e6a8828e9bae359a3))
+
 ## v4.4.1 (2025-02-21)
 
 ### Fix
