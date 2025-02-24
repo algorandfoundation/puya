@@ -416,3 +416,26 @@ class TupleIterationMutation(ARC4Contract):
 @subroutine
 def get_dynamic_bytes() -> tuple[arc4.DynamicBytes, arc4.DynamicBytes, arc4.DynamicBytes]:
     return (arc4.DynamicBytes(), arc4.DynamicBytes(), arc4.DynamicBytes())
+
+
+## case: infinite_loop
+from algopy import *
+
+class Loop(arc4.ARC4Contract):
+    @arc4.abimethod
+    def infinite(self) -> None:
+        while True: ## E: infinite loop detected
+            if hmm():
+                break
+
+    @arc4.abimethod
+    def finite(self) -> None:
+        foo = UInt64()
+        while True:
+            if foo > 5:
+                break
+            foo += 1
+
+@subroutine(inline=True)
+def hmm() -> bool:
+    return False

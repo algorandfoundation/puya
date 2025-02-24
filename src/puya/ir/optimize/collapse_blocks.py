@@ -120,7 +120,9 @@ def remove_empty_blocks(_context: CompileContext, subroutine: models.Subroutine)
         if not block.phis and not block.ops and isinstance(block.terminator, models.Goto):
             empty_block = block
             target = block.terminator.target
-
+            if target is empty_block:
+                logger.debug(f"Unconditional infinite loop detected in {empty_block}")
+                continue
             if target.phis:
                 logger.debug(
                     f"Not removing empty block {empty_block} because it's used by phi nodes"
