@@ -1,7 +1,6 @@
 import json
 import os
 import shutil
-import subprocess
 import typing
 from pathlib import Path
 
@@ -17,6 +16,7 @@ from tests.utils import (
     get_relative_path,
     load_template_vars,
 )
+from tests.utils.git import check_for_diff
 
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
@@ -32,7 +32,7 @@ def test_compile(test_case: PuyaTestCase) -> None:
     _compile_no_optimization(test_case)
     _compile_with_level1_optimizations(test_case)
     _compile_with_level2_optimizations(test_case)
-    diff = _check_for_diff(test_case.path)
+    diff = check_for_diff(test_case.path, VCS_ROOT)
     assert not diff, f"Uncommitted changes were found:\n{diff}"
 
 
@@ -144,19 +144,6 @@ def _remove_output(path: Path) -> None:
                         shutil.rmtree(file)
                     else:
                         file.unlink()
-
-
-def _check_for_diff(path: Path) -> str | None:
-    git = shutil.which("git")
-    assert git, "could not find git"
-    assert path.is_dir()
-    result = subprocess.run(
-        [git, "diff", str(path)],
-        check=True,
-        capture_output=True,
-        cwd=VCS_ROOT,
-    )
-    return result.stdout.decode("utf8")
 
 
 def _normalize_arc56(path: Path) -> None:
