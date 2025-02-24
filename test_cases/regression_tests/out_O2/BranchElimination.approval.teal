@@ -1,0 +1,284 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1 8 2
+    intc_0 // 0
+    dupn 4
+    pushbytes ""
+    dupn 12
+    txn NumAppArgs
+    bz main_bare_routing@8
+    pushbytess 0xaec250ef 0xbd4b223f 0x847f775f // method "umm()uint64", method "umm2()void", method "calculate(uint64[][],uint64)void"
+    txna ApplicationArgs 0
+    match main_umm_route@3 main_umm2_route@4 main_calculate_route@5
+
+main_after_if_else@12:
+    intc_0 // 0
+    return
+
+main_calculate_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    dup
+    bury 17
+    txna ApplicationArgs 2
+    bury 16
+    intc_0 // 0
+    bury 3
+    intc_0 // 0
+    bury 7
+    intc_0 // 0
+    extract_uint16
+    bury 4
+    intc_0 // 0
+    bury 9
+
+main_for_header@17:
+    dig 8
+    dig 4
+    <
+    dup
+    bury 11
+    bz main_if_body@38
+    dig 15
+    extract 2 0
+    dig 10
+    assert // Index access is out of bounds
+    dig 9
+    intc_3 // 2
+    *
+    dig 1
+    swap
+    extract_uint16
+    dup2
+    extract_uint16
+    intc_2 // 8
+    *
+    intc_3 // 2
+    +
+    extract3
+    dup
+    bury 18
+    intc_0 // 0
+    extract_uint16
+    dup
+    bury 4
+    intc_1 // 1
+    -
+    bury 7
+    intc_0 // 0
+    bury 8
+
+main_for_header@19:
+    dig 7
+    dig 3
+    <
+    bz main_after_for@27
+    dig 16
+    extract 2 0
+    dup
+    bury 19
+    dig 8
+    intc_2 // 8
+    *
+    intc_2 // 8
+    extract3 // on error: Index access is out of bounds
+    dup
+    bury 15
+    dig 15
+    b>=
+    dig 6
+    bury 6
+    dig 2
+    bury 2
+    bz main_after_if_else@26
+    dig 7
+    dig 7
+    <
+    dig 6
+    bury 6
+    dig 2
+    bury 2
+    bz main_after_if_else@25
+    dig 1
+    intc_1 // 1
+    +
+    dup
+    bury 3
+    dig 8
+    intc_1 // 1
+    +
+    intc_2 // 8
+    *
+    dig 19
+    swap
+    intc_2 // 8
+    extract3 // on error: Index access is out of bounds
+    dig 15
+    b>
+    dig 7
+    bury 7
+    swap
+    bury 2
+    bz main_after_if_else@24
+    dig 1
+    intc_3 // 2
+    *
+    dig 6
+    intc_1 // 1
+    +
+    bury 6
+    bury 1
+
+main_after_if_else@24:
+    dup
+    dig 5
+    bury 6
+    bury 1
+
+main_after_if_else@25:
+    dup
+    dig 5
+    bury 6
+    bury 1
+
+main_after_if_else@26:
+    dig 4
+    bury 6
+    dup
+    bury 2
+    dig 7
+    intc_1 // 1
+    +
+    bury 8
+    b main_for_header@19
+
+main_after_for@27:
+    dig 8
+    intc_1 // 1
+    +
+    bury 9
+    b main_for_header@17
+
+main_if_body@38:
+    intc_1 // 1
+    return
+
+main_umm2_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    intc_0 // 0
+    bury 12
+
+main_while_top@31:
+    callsub hmm
+    dig 12
+    bury 12
+    bz main_after_if_else@37
+    callsub hmm
+    dig 12
+    bury 12
+    bz main_after_if_else@37
+    callsub hmm
+    dig 12
+    bury 12
+    bz main_after_if_else@37
+    callsub hmm
+    dig 12
+    +
+    bury 11
+
+main_after_if_else@37:
+    dig 10
+    bury 12
+    callsub hmm
+    bz main_while_top@31
+    b main_if_body@38
+
+main_umm_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    intc_0 // 0
+    bury 12
+
+main_while_top@42:
+    callsub hmm_uint64
+    bury 4
+    intc_0 // 0
+    bury 13
+
+main_for_header@43:
+    dig 12
+    dig 4
+    <
+    bz main_after_for@51
+    callsub hmm
+    dig 12
+    bury 12
+    bz main_after_if_else@50
+    callsub hmm
+    dig 12
+    bury 12
+    bz main_after_if_else@50
+    callsub hmm
+    dig 12
+    bury 12
+    bz main_after_if_else@50
+    callsub hmm
+    dig 12
+    +
+    bury 11
+
+main_after_if_else@50:
+    dig 10
+    bury 12
+    dig 12
+    intc_1 // 1
+    +
+    bury 13
+    b main_for_header@43
+
+main_after_for@51:
+    callsub hmm
+    bz main_while_top@42
+    dig 11
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_bare_routing@8:
+    txn OnCompletion
+    bnz main_after_if_else@12
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_1 // 1
+    return
+
+
+// test_cases.regression_tests.leftover_branch.hmm() -> uint64:
+hmm:
+    intc_0 // 0
+    retsub
+
+
+// test_cases.regression_tests.leftover_branch.hmm_uint64() -> uint64:
+hmm_uint64:
+    intc_0 // 0
+    retsub
