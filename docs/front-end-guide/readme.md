@@ -6,7 +6,7 @@ This guide is for those looking to add support for a new front end language to P
  - They are familiar with Puya's existing front end languages of Algorand Python and Algorand TypeScript
  - They understand lexing and parsing, and how that applies to the language they would like to target
 
-Whilst making use of Puya's back end abstracts away the worst of the complexities in lowering a high level front end language to the stack based teal, adding a new front end is still a significant undertaking. 
+Whilst leveraging the Puya back end takes care of a lot of the complexities in lowering a high level front end language to the stack based teal language, adding a new front end is still a significant undertaking. 
 
 ## Table of contents
 
