@@ -9,7 +9,7 @@
 
 ## Context
 
-Algorand Python and Algorand TypeScript are semantically compatible implementations of their respective high-level languages that compile to Algorand Virtual Machine (AVM) bytecode. Due to the inherent constraints of the AVM, these implementations support only a subset of the full language features. This creates a disconnect where developers can author syntactically valid Python or TypeScript code that fails to compile as valid Algorand Python or Algorand TypeScript, introducing some friction in the smart contract development process.
+Algorand Python and Algorand TypeScript are semantically compatible implementations of their respective high-level languages that compile to Algorand Virtual Machine (AVM) bytecode. Due to the inherent constraints of the AVM, these implementations support only a subset of the full language features. This creates a disconnect where developers can author syntactically valid Python or TypeScript code that fails to compile as valid Algorand Python or Algorand TypeScript, introducing some friction in the smart contract development experience.
 
 Surfacing these compilation results earlier in the development process significantly enhances the contract authoring experience. This is where a language server can be used, allowing developers to receive real-time syntax validation and compilation diagnostics directly within their IDE. Issues can be identified and addressed without explicitly running a compilation step, which results in improved productivity and reduced friction in the contract development workflow.
 
@@ -46,7 +46,7 @@ This approach involves developing a unified language server that handles both Al
 -   Vigilance will be required to ensure compatibility between the language server and compiler.
 -   There is potential for needing more inter process calls, as at least one language won't be native.
 -   The extension will need to manage installing the language server version.
--   Seamlessly supporting multiple compiler version is difficult.
+-   Seamlessly supporting multiple compiler versions is difficult.
 -   Updates to one language will require releasing a new version for both languages, even if only one is affected.
 -   New language features will first need to be released before being incorporated into the language server.
 
@@ -66,7 +66,7 @@ This approach involves creating separate language servers for Algorand Python an
 -   A language server per language needs to be maintained.
 -   Vigilance will be required to ensure compatibility between the language server and compiler.
 -   The extension will need to manage installing the language server version.
--   Seamlessly supporting multiple compiler version is difficult.
+-   Seamlessly supporting multiple compiler versions is difficult.
 -   New language features will first need to be released before being incorporated into the language server.
 
 ### Option 3. Multiple Embedded Language Servers
@@ -94,4 +94,4 @@ Option 3 provides the most pragmatic solution, which automatically enforces comp
 
 ## Selected option
 
-When have chosen to implement option 3.
+We have chosen to implement option 3.
