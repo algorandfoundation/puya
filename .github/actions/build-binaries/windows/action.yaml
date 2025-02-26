@@ -1,0 +1,58 @@
+name: "Build Windows Binary Artifacts"
+description: "Build Windows specific pyinstaller binary artifacts"
+inputs:
+  package_name:
+    description: "The name of the package"
+    required: true
+  artifacts_dir:
+    description: "The directory to write artifacts you want to publish"
+    required: true
+  with_codesign:
+    description: "Flag to determine if we should sign the binary"
+    required: true
+  azure_tenant_id:
+    description: "The Microsoft Entra tenant (directory) ID."
+    required: true
+  azure_client_id:
+    description: "The client (application) ID of an App Registration in the tenant."
+    required: true
+  azure_client_secret:
+    description: "A client secret that was generated for the App Registration."
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure build environment
+      shell: bash
+      run: |
+        echo 'C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x64' >> $GITHUB_PATH
+        echo 'BINARY_BUILD_DIR=dist\puya' >> $GITHUB_ENV
+
+    - name: Build binary
+      shell: bash
+      run: |
+        poetry run poe package_windows
+
+    - name: Sign executable
+      if: ${{ inputs.with_codesign == 'true' }}
+      uses: azure/trusted-signing-action@v0.3.20
+      with:
+        azure-tenant-id: ${{ inputs.azure_tenant_id }}
+        azure-client-id: ${{ inputs.azure_client_id }}
+        azure-client-secret: ${{ inputs.azure_client_secret }}
+        endpoint: https://weu.codesigning.azure.net/
+        trusted-signing-account-name: algokit-signing
+        certificate-profile-name: algokit
+        files-folder: ${{ env.BINARY_BUILD_DIR }}
+        files-folder-filter: exe
+        file-digest: SHA256
+        timestamp-rfc3161: http://timestamp.acs.microsoft.com
+        timestamp-digest: SHA256
+
+    - name: Upload binary artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}
+        path: ${{ env.BINARY_BUILD_DIR }}
+        if-no-files-found: error
