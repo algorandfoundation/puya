@@ -10,7 +10,7 @@ If you have elected to extend an existing language then there is hopefully an ex
 
 > ^ Depending on when you are reading this, work is underway to replace the use of mypy in puyapy with cpython for performance reasons.
 
-If you are unfortunate enough to have chosen a language which does not an existing parser you can capitalise on, or you are going down the route of an entirely bespoke language then your option is to write your own lexers and parsers which is well beyond the scope of this guide. Luckily there are plenty of guides available on the internet. 
+If you are unfortunate enough to have chosen a language which does not have an existing parser you can capitalise on, or you are going down the route of an entirely bespoke language then your option is to write your own lexers and parsers which is well beyond the scope of this guide. Luckily there are plenty of guides available on the internet. 
 
 Your end goal here is to have an in memory AST representation of your source code.
 
