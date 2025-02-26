@@ -17,7 +17,7 @@ logger = log.get_logger(__name__)
 
 
 @attrs.frozen(kw_only=True)
-class _PuyaOptionsWithCompilationSet(PuyaOptions):
+class PuyaOptionsWithCompilationSet(PuyaOptions):
     compilation_set: dict[str, Path]
 
 
@@ -31,7 +31,7 @@ def main(*, options_json: str, awst_json: str, source_annotations_json: str | No
             )
         log_ctx.sources_by_path = sources_by_path
         awst = serialize.awst_from_json(awst_json)
-        options = json_converter.loads(options_json, _PuyaOptionsWithCompilationSet)
+        options = json_converter.loads(options_json, PuyaOptionsWithCompilationSet)
         compilation_set = dict[ContractReference | LogicSigReference, Path]()
         awst_lookup = {n.id: n for n in awst}
         for target_id, path in options.compilation_set.items():
