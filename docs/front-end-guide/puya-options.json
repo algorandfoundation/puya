@@ -1,0 +1,114 @@
+{
+  "$ref": "#/definitions/PuyaOptions",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "PuyaOptions": {
+      "description": "Defines options for how the Puya compiler should produce compilation output",
+      "type": "object",
+      "required": ["compilation_set"],
+      "properties": {
+        "compilation_set": {
+          "$ref": "#/definitions/CompilationSet"
+        },
+        "output_teal": {
+          "type": "boolean",
+          "default": false,
+          "description": "Output `*.approval.teal` and `*.clear.teal` files for smart contracts and `*.teal` files for logic signatures"
+        },
+        "output_source_map": { "type": "boolean", "default": false, "description": "Output debug source maps" },
+        "output_arc32": {
+          "type": "boolean",
+          "default": false,
+          "description": "Output an ARC32 compliant spec file for ARC4 smart contracts."
+        },
+        "output_arc56": {
+          "type": "boolean",
+          "default": false,
+          "description": "Output an ARC56 compliant spec file for ARC4 smart contracts."
+        },
+        "output_bytecode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Output `*.approval.bin` and `*.clear.bin` files for smart contracts and `*.bin` files for logic signatures. This will require any template variables to have a value"
+        },
+        "output_ssa_ir": {
+          "type": "boolean",
+          "default": false,
+          "description": "Output a representation of the SSA IR nodes for advanced debugging purposes"
+        },
+        "output_destructured_ir": {
+          "type": "boolean",
+          "default": false,
+          "description": "Output a representation of the destructured (out of ssa) IR nodes for advanced debugging purposes"
+        },
+        "output_optimization_ir": {
+          "type": "boolean",
+          "default": false,
+          "description": "Output a representation of the IR nodes after each optimization round for advanced debugging purposes"
+        },
+        "output_memory_ir": {
+          "type": "boolean",
+          "default": false,
+          "description": "Output a representation of the Memory IR nodes for advanced debugging purposes"
+        },
+        "debug_level": {
+          "$ref": "#/definitions/DebugLevel",
+          "default": 1
+        },
+        "optimization_level": {
+          "$ref": "#/definitions/OptimizationLevel",
+          "default": 1
+        },
+        "target_avm_version": {
+          "type": "integer",
+          "description": "Which AVM version to target for compilation output of contracts which do not explicitly identify their target version. Will default to current version in `mainnet` (with a small lag). Number must be a supported version of the compiler."
+        },
+        "template_vars_prefix": {
+          "type": "string",
+          "description": "The prefix used by template variables in the compilation targets.",
+          "default": "TMPL_"
+        },
+        "cli_template_definitions": {
+          "type": "object",
+          "description": "A dictionary of template variable names, and the values which should be substituted in their place. The names should not contain the template_vars_prefix.",
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/B85EncodedBytes"
+              },
+              {
+                "type": "integer"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "DebugLevel": {
+      "type": "integer",
+      "description": "Determines what debug information is included in the compiled code. 0 None, 1 Source code annotations, 2 Reserved for future use",
+      "enum": [0, 1, 2]
+    },
+    "OptimizationLevel": {
+      "type": "integer",
+      "description": "Determines which optimizations are made to the compiled code, 0 None, 1 Normal, 2 Intensive",
+      "enum": [0, 1, 2]
+    },
+    "LocalsCoalescingStrategy": {
+      "type": "string",
+      "description": "Determines the out-of-ssa variable name coalescing strategy used by the compiler. root_operand coalesces based on the original variable name, root_operand_excluding_args is the same but won't coalesce subroutine arguments whilst aggressive will attempt to minimise the number of local variables used regardless of name or type - based only on variable lifetimes. The strategy used can affect output code legibility and size.",
+      "enum": ["root_operand", "root_operand_excluding_args", "aggressive"]
+    },
+    "B85EncodedBytes": {
+      "type": "string",
+      "description": "Binary content encoded to match python's base54.b85encode(...) function implementation. It is based on the character set of rfc1924 but supports arbitrary sized input. It IS NOT an ascii85 implementation"
+    },
+    "CompilationSet": {
+      "type": "object",
+      "description": "A dictionary of compilation targets mapped to their output directories. The key should match the 'id' of a contract or logic signature available in the accompanying awst file. The value should be an output path relative to the current working directory for writing compilation artifacts.",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  }
+}
