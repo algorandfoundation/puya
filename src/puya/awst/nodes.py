@@ -30,17 +30,33 @@ T = typing.TypeVar("T")
 
 @attrs.frozen
 class Node:
+    """
+    The base class for all AWST nodes
+
+    source_location: Details which source code was responsible for outputting this node
+    """
+
     source_location: SourceLocation
 
 
 @attrs.frozen
 class Statement(Node, ABC):
+    """
+    The base class for all Statement nodes
+    """
+
     @abstractmethod
     def accept(self, visitor: StatementVisitor[T]) -> T: ...
 
 
 @attrs.frozen
 class Expression(Node, ABC):
+    """
+    The base class for all Expression nodes
+
+    wtype: The type of value this expression represents, if evaluated
+    """
+
     wtype: WType
 
     @abstractmethod
@@ -49,6 +65,12 @@ class Expression(Node, ABC):
 
 @attrs.frozen
 class ExpressionStatement(Statement):
+    """
+    Wrapper for expressions which are used where a statement is expected
+
+    expr: The expression to be evaluated as a statement
+    """
+
     expr: Expression
     source_location: SourceLocation = attrs.field(init=False)
 
@@ -199,6 +221,15 @@ class Goto(Statement):
 
 @attrs.frozen
 class IfElse(Statement):
+    """
+    A stand c-like if-then-else statement. Flow will continue to the following statement after an
+    if_branch or else_branch has been executed unless those branches contain a control op which
+    leads elsewhere (eg. return/break/continue)
+
+    condition: A boolean condition to be evaluated
+    if_branch: The block to execute if the condition is true
+    else_branch: The block to execute if the condition is false
+    """
     condition: Expression = attrs.field(validator=[wtype_is_bool])
     if_branch: Block
     else_branch: Block | None
