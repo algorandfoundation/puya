@@ -208,7 +208,7 @@ class _SequentialOutputPathProvider(OutputPathProvider):
     @typing.override
     def __call__(self, *, kind: str, qualifier: str, suffix: str) -> Path:
         out_dir = self._out_dir
-        out_dir.mkdir(exist_ok=True)
+        out_dir.mkdir(exist_ok=True, parents=True)
         if qualifier:
             qualifier = f".{qualifier}"
         qualifier = f"{next(self._output_seq[kind])}{qualifier}"
@@ -298,6 +298,7 @@ def _write_artifacts(
         out_dir = context.compilation_set.get(artifact.id)
         if out_dir is None:
             continue
+        out_dir.mkdir(exist_ok=True, parents=True)
         teal_file_stem = artifact.metadata.name
         artifact_base_path = out_dir / teal_file_stem
         match artifact:
