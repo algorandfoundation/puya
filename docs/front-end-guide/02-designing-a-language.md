@@ -10,7 +10,7 @@ The first step to adding a new front end for Puya is designing the language itse
    - Building on top of an existing language allows you to leverage existing developer tools and presents a familiar developer experience for your users; but limitations of the source langauge will constrain your solution.
    - Defining a language from scratch gives you the ultimate in flexibility to build something fit for the purpose of writing smart contracts and logic signatures but represents a significantly larger undertaking. Developer experience will be heavily influenced by the effort put into accompanying developer tools (linter, formatter, language-service/autocomplete etc) 
  - If building on an existing language, will you strive for semantic compatability with the source language - or match the language only in syntax. 
-   - Maintaining semantic compatability can be move restrictive than the alternative, but it ensures existing developer tooling such as code quick fixes are still relevant to code written in your dialect. 
+   - Maintaining semantic compatibility can be more restrictive than the alternative, but it ensures existing developer tooling such as code quick fixes are still relevant to code written in your dialect. 
 
 Regardless of which option is chosen, the language will be composed of a set of supported syntax (likely a subset of the source language if based on an existing one), and a library of types and functions representing the full API of your solution. 
 
@@ -20,7 +20,7 @@ AWST defines a number of different primitive and compound types. You will need t
 
 ### Contract and logic signature paradigms
 
-Next you should decide how your language will represent contracts and logic signatures. Algorand Python and Algorand TypeScript use classes to represent contracts - _newing_ up a contract class is akin to creating the application with instance members use to define contract methods and state. For Algorand Python, logic signatures are implemented as a pure function whilst Algorand TypeScript uses a class again due to technical limitations of the language. 
+Next you should decide how your language will represent contracts and logic signatures. Algorand Python and Algorand TypeScript use classes to represent contracts - _newing_ up a contract class is akin to creating the application with instance members used to define contract methods and state. For Algorand Python, logic signatures are implemented as a pure function whilst Algorand TypeScript uses a class again due to technical limitations of the language. 
 
 The paradigm your language uses should be tailored to what is idiomatic in the base language.
 
