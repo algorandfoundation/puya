@@ -1,8 +1,8 @@
-import argparse
+import contextlib
 import sys
+import time
 import typing
-from collections.abc import Sequence
-from importlib.metadata import version
+from collections.abc import Iterator, Sequence
 from pathlib import Path
 
 import attrs
@@ -12,60 +12,43 @@ from pygls.lsp.server import LanguageServer
 
 from puya.compile import awst_to_teal
 from puya.errors import log_exceptions
-from puya.log import Log, LoggingContext, LogLevel, logging_context
+from puya.log import Log, LoggingContext, LogLevel, get_logger, logging_context
 from puya.parse import SourceLocation
 from puyapy.awst_build.main import transform_ast
 from puyapy.compile import parse_with_mypy
+from puyapy.lsp import constants
 from puyapy.options import PuyaPyOptions
 from puyapy.parse import ParseResult
 from puyapy.utils import determine_out_dir
 
-_NAME = "puyapy-lsp"
-_VERSION = version("puyapy")
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        prog=_NAME,
-        description="puyapy language server, defaults to listening on localhost:8888",
-    )
-    parser.add_argument("--version", action="version", version=f"%(prog)s ({_VERSION})")
-    parser.add_argument("--stdio", action="store_true", help="start a stdio server")
-    parser.add_argument("--host", default="localhost", help="bind to this address")
-    parser.add_argument("--socket", type=int, default=8888, help="bind to this port")
-
-    arguments = parser.parse_args(sys.argv[1:])
-    if arguments.stdio:
-        server.start_io()
-    else:
-        server.start_tcp(arguments.host, arguments.socket)
+logger = get_logger(__name__)
 
 
 class PuyaPyLanguageServer(LanguageServer):
     def __init__(self, name: str, version: str) -> None:
         super().__init__(name, version=version)
+        logger.info(f"{name} - {version}")
+        logger.debug(f"Server location: {__file__}")
         self.diagnostics = dict[str, tuple[int | None, list[types.Diagnostic]]]()
         self.analysis_prefix: Path | None = None
 
     def parse_all(self) -> None:
-        # examine all files from workspace root
-        src_path = Path(self.workspace.root_path)
         # get all sources tracked by the workspace
         sources = {Path(d.path): d.source for d in self.workspace.text_documents.values()}
         options = PuyaPyOptions(
             log_level=LogLevel.warning,
-            paths=[src_path],
+            paths=self._discover_algopy_paths(Path(self.workspace.root_path)),
             sources=sources,
             prefix=self.analysis_prefix,
         )
         logs = self._parse_and_log(options)
 
-        # need to include existing documents in diagnostics case all errors are cleared
+        # need to include existing documents in diagnostics in case all errors are cleared
         diagnostics: dict[str, tuple[int | None, list[types.Diagnostic]]] = {
             uri: (self.workspace.get_text_document(uri).version, []) for uri in self.diagnostics
         }
         for log in logs:
-            if log.location and log.location.file:
+            if log.location and log.location.file and log.level > LogLevel.info:
                 uri = log.location.file.as_uri()
                 doc = self.workspace.get_text_document(uri)
                 version_diags = diagnostics.setdefault(uri, (doc.version, []))[1]
@@ -125,15 +108,21 @@ class PuyaPyLanguageServer(LanguageServer):
 
     def _parse_and_log(self, puyapy_options: PuyaPyOptions) -> Sequence[Log]:
         with logging_context() as log_ctx, log_exceptions():
-            parse_result = parse_with_mypy(
-                puyapy_options.paths, puyapy_options.sources, prefix=puyapy_options.prefix
-            )
-            log_ctx.sources_by_path = parse_result.sources_by_path
+            with _time_it("mypy parsing"):
+                try:
+                    parse_result = parse_with_mypy(
+                        puyapy_options.paths, puyapy_options.sources, prefix=puyapy_options.prefix
+                    )
+                except Exception as ex:
+                    logger.debug(f"internal mypy error: {ex}")
+                    return log_ctx.logs
+                log_ctx.sources_by_path = parse_result.sources_by_path
             if log_ctx.num_errors:
                 # if there were type checking errors
                 # attempt to continue with any modules that don't have errors
                 parse_result = self._filter_parse_results(log_ctx, parse_result)
-            awst, compilation_targets = transform_ast(parse_result)
+            with _time_it("awst building"):
+                awst, compilation_targets = transform_ast(parse_result)
             # if no errors, then attempt to lower further
             if not log_ctx.num_errors:
                 awst_lookup = {n.id: n for n in awst}
@@ -144,13 +133,31 @@ class PuyaPyLanguageServer(LanguageServer):
                     )
                     if loc.file
                 }
-                awst_to_teal(
-                    log_ctx, puyapy_options, compilation_set, parse_result.sources_by_path, awst
-                )
+                with _time_it("teal compilation"):
+                    awst_to_teal(
+                        log_ctx,
+                        puyapy_options,
+                        compilation_set,
+                        parse_result.sources_by_path,
+                        awst,
+                    )
         return log_ctx.logs
 
+    def _discover_algopy_paths(self, root_path: Path) -> list[Path]:
+        """Discover all algopy paths in the workspace"""
+        algopy_paths = []
+        for path in root_path.rglob("*.py"):
+            assert isinstance(path, Path)
+            if self.analysis_prefix in path.parents:
+                continue
+            document = self.workspace.get_text_document(path.as_uri())
+            # naive filtering of documents to anything that references algopy
+            if "algopy" in document.source:
+                algopy_paths.append(path)
+        return algopy_paths
 
-server = PuyaPyLanguageServer(_NAME, version=_VERSION)
+
+server = PuyaPyLanguageServer(constants.NAME, version=constants.VERSION)
 
 
 class _HasTextDocument(typing.Protocol):
@@ -160,7 +167,9 @@ class _HasTextDocument(typing.Protocol):
 
 def _refresh_diagnostics(ls: PuyaPyLanguageServer, _params: _HasTextDocument) -> None:
     """Refresh all diagnostics when a document changes"""
-    ls.parse_all()
+    logger.info("parsing workspace")
+    with _time_it("parsing workspace"):
+        ls.parse_all()
 
     # currently publishes for all documents, ideally only publishes for documents that have changes
     for uri, (doc_version, diagnostics) in ls.diagnostics.items():
@@ -171,6 +180,11 @@ def _refresh_diagnostics(ls: PuyaPyLanguageServer, _params: _HasTextDocument) ->
                 diagnostics=diagnostics,
             )
         )
+
+
+server.feature(types.TEXT_DOCUMENT_DID_SAVE)(_refresh_diagnostics)
+server.feature(types.TEXT_DOCUMENT_DID_OPEN)(_refresh_diagnostics)
+server.feature(types.TEXT_DOCUMENT_DID_CHANGE)(_refresh_diagnostics)
 
 
 @server.feature(types.INITIALIZE)
@@ -229,11 +243,6 @@ def code_actions(
     return items
 
 
-server.feature(types.TEXT_DOCUMENT_DID_SAVE)(_refresh_diagnostics)
-server.feature(types.TEXT_DOCUMENT_DID_OPEN)(_refresh_diagnostics)
-server.feature(types.TEXT_DOCUMENT_DID_CHANGE)(_refresh_diagnostics)
-
-
 def _diag(
     message: str,
     level: LogLevel,
@@ -244,7 +253,7 @@ def _diag(
         message=message,
         severity=_map_severity(level),
         range=range_,
-        source=_NAME,
+        source=constants.NAME,
         data=data,
     )
 
@@ -257,5 +266,9 @@ def _map_severity(log_level: LogLevel) -> DiagnosticSeverity:
     return DiagnosticSeverity.Information
 
 
-if __name__ == "__main__":
-    main()
+@contextlib.contextmanager
+def _time_it(name: str) -> Iterator[None]:
+    start = time.perf_counter()
+    yield
+    duration = time.perf_counter() - start
+    logger.info(f"{name} took {duration:.3f}s")
