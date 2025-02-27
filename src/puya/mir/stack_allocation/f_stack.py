@@ -7,9 +7,10 @@ from puya import log
 from puya.avm import AVMType
 from puya.errors import InternalError
 from puya.mir import models as mir
-from puya.mir.context import SubroutineCodeGenContext
+from puya.mir.context import ProgramMIRContext
 from puya.mir.models import FStackPreAllocation
 from puya.mir.stack import Stack
+from puya.mir.vla import VariableLifetimeAnalysis
 from puya.utils import attrs_extend
 
 logger = log.get_logger(__name__)
@@ -68,9 +69,9 @@ def _get_pre_alloc(
     return mir.FStackPreAllocation(bytes_vars=byte_vars, uint64_vars=uint64_vars)
 
 
-def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
-    subroutine = ctx.subroutine
-    all_variables = ctx.vla.all_variables
+def f_stack_allocation(_ctx: ProgramMIRContext, subroutine: mir.MemorySubroutine) -> None:
+    vla = VariableLifetimeAnalysis(subroutine)
+    all_variables = vla.all_variables
     if not all_variables:
         subroutine.pre_alloc = FStackPreAllocation.empty()
         return
@@ -90,7 +91,6 @@ def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
     for block in subroutine.body[1:]:
         block.f_stack_in = block.f_stack_out = entry_block.f_stack_out
 
-    removed_virtual = False
     for block in subroutine.body:
         stack = Stack.begin_block(subroutine, block)
         for index, op in enumerate(block.mem_ops):
@@ -110,7 +110,6 @@ def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
                         frame_index=stack.fxl_height - depth - 1,
                         insert=insert,
                     )
-                    removed_virtual = True
                 case mir.AbstractLoad() as load:
                     depth = stack.fxl_height - stack.f_stack.index(load.local_id) - 1
                     block.mem_ops[index] = op = attrs_extend(
@@ -119,12 +118,9 @@ def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
                         depth=depth,
                         frame_index=stack.fxl_height - depth - 1,
                     )
-                    removed_virtual = True
             op.accept(stack)
         match block.terminator:
             case mir.RetSub() as retsub:
                 block.terminator = attrs.evolve(
                     retsub, fx_height=len(stack.f_stack) + len(stack.x_stack)
                 )
-    if removed_virtual:
-        ctx.invalidate_vla()
