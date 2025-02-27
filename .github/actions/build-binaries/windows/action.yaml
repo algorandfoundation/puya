@@ -50,6 +50,15 @@ runs:
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
         timestamp-digest: SHA256
 
+    # Create tar.gz archive in the artifacts directory for GitHub releases
+    - name: Package binary for release
+      shell: pwsh
+      run: |
+        cd dist\puya
+        tar -czf "${{ inputs.artifacts_dir }}\${{ inputs.package_name }}.tar.gz" *
+        cd ..\..
+
+    # Upload uncompressed folder for GitHub Actions artifacts
     - name: Upload binary artifact
       uses: actions/upload-artifact@v4
       with:
