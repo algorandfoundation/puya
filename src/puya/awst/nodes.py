@@ -230,6 +230,7 @@ class IfElse(Statement):
     if_branch: The block to execute if the condition is true
     else_branch: The block to execute if the condition is false
     """
+
     condition: Expression = attrs.field(validator=[wtype_is_bool])
     if_branch: Block
     else_branch: Block | None
