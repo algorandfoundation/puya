@@ -67,8 +67,8 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         uses: ./.github/actions/build-binaries/linux
         with:
-          package_name: ${{ env.PACKAGE_NAME }}-linux-${{ matrix.architecture }}
-          artifacts_dir: ${{ github.workspace }}/artifacts
+          package_name: ${{ env.PACKAGE_NAME }}
+          artifacts_dir: ${{ env.ARTIFACTS_DIR }}
           with_codesign: ${{ github.event_name == 'release' && github.event.release.prerelease == false }}
           gpg-signing-private-key: ${{ secrets.GPG_SIGNING_PRIVATE_KEY }}
           gpg-signing-private-key-password: ${{ secrets.GPG_SIGNING_PRIVATE_KEY_PASSWORD }}
@@ -92,7 +92,7 @@ jobs:
         with:
           package_name: ${{ env.PACKAGE_NAME }}
           artifacts_dir: ${{ env.ARTIFACTS_DIR }}
-          with_codesign: ${{ steps.signing.outputs.allowed }}
+          with_codesign: ${{ steps.signing.outputs.allowed == 'true' }}
           azure_tenant_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.AZURE_TENANT_ID || '' }}
           azure_client_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.AZURE_CLIENT_ID || '' }}
           azure_client_secret: ${{ steps.signing.outputs.allowed == 'true' && secrets.AZURE_CLIENT_SECRET || '' }}
@@ -110,7 +110,7 @@ jobs:
         with:
           package_name: ${{ env.PACKAGE_NAME }}
           artifacts_dir: ${{ env.ARTIFACTS_DIR }}
-          with_codesign: ${{ steps.signing.outputs.allowed }}
+          with_codesign: ${{ steps.signing.outputs.allowed == 'true' }}
           apple_team_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_TEAM_ID || '' }}
           apple_bundle_id: ${{ inputs.production_release == 'true' && vars.APPLE_BUNDLE_ID || format('beta.{0}', vars.APPLE_BUNDLE_ID) }}
           apple_cert_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_CERT_ID || '' }}
