@@ -25,28 +25,28 @@ jobs:
 
       - name: Check pre-commits
         run: |
-            set -o pipefail
-            poetry run pre-commit run --all-files && git diff --exit-code
+          set -o pipefail
+          poetry run pre-commit run --all-files && git diff --exit-code
 
       - name: Check generated code
         run: |
-            set -o pipefail
-            poetry run poe gen && git diff --exit-code
+          set -o pipefail
+          poetry run poe gen && git diff --exit-code
 
       - name: Check documentation
         run: |
-            set -o pipefail
-            poetry run poe docs
+          set -o pipefail
+          poetry run poe docs
 
       - name: Check wheels can be built
         run: |
           set -o pipefail
-          
+
           # build stubs
           pushd stubs
           poetry build --format wheel
           popd
-          
+
           # build compiler
           poetry build --format wheel
 
@@ -117,7 +117,6 @@ jobs:
       - name: Show diff
         if: failure()
         run: git diff examples/ test_cases/
-
 
   compile-all-windows:
     runs-on: "windows-latest"
