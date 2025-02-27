@@ -1,0 +1,165 @@
+name: "Build Linux Binary Artifacts"
+description: "Build Linux specific pyinstaller binary artifacts using Docker container"
+inputs:
+  package_name:
+    description: "The name of the package"
+    required: true
+  artifacts_dir:
+    description: "The directory to write artifacts you want to publish"
+    required: true
+  with_codesign:
+    description: "Flag to determine if we should sign the binary"
+    required: true
+    type: boolean
+  gpg-signing-private-key:
+    description: "The GPG signing private key (base64 encoded)"
+    required: true
+  gpg-signing-private-key-password:
+    description: "The GPG signing private key password"
+    required: true
+  gpg-key-id:
+    description: "The GPG key ID to use for signing"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set base image according to architecture
+      id: set-base-image
+      shell: bash
+      run: |
+        if [ "${{ runner.arch }}" == "ARM64" ]; then
+          echo "BASE_IMAGE=quay.io/pypa/manylinux_2_28_aarch64" >> $GITHUB_OUTPUT
+        else
+          echo "BASE_IMAGE=quay.io/pypa/manylinux_2_28_x86_64" >> $GITHUB_OUTPUT
+        fi
+
+        # Set the cache tag based on architecture
+        ARCH=$(echo "${{ runner.arch }}" | tr '[:upper:]' '[:lower:]')
+        echo "CACHE_TAG=ghcr.io/${{ github.repository }}/puya-manylinux:${ARCH}" >> $GITHUB_OUTPUT
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v6
+      env:
+        DOCKER_BUILD_SUMMARY: false
+      with:
+        context: ${{ github.action_path }}
+        file: ${{ github.action_path }}/Dockerfile
+        build-args: |
+          BASE_IMAGE=${{ steps.set-base-image.outputs.BASE_IMAGE }}
+        push: true
+        load: true
+        tags: ${{ steps.set-base-image.outputs.CACHE_TAG }}
+        cache-from: type=registry,ref=${{ steps.set-base-image.outputs.CACHE_TAG }}
+        cache-to: type=registry,ref=${{ steps.set-base-image.outputs.CACHE_TAG }},mode=max
+
+    - name: Run the container with the built image
+      shell: bash
+      run: |
+        docker run --rm \
+          -v ${{ github.workspace }}:/src \
+          -v ${{ inputs.artifacts_dir }}:${{ inputs.artifacts_dir }} \
+          -e GITHUB_WORKSPACE=/src \
+          ${{ steps.set-base-image.outputs.CACHE_TAG }} \
+          ${{ inputs.package_name }} \
+          ${{ inputs.artifacts_dir }}
+
+    # Create tar.gz archive in the artifacts directory for GitHub releases
+    - name: Package binary for release
+      shell: bash
+      run: |
+        cd dist/puya/
+        tar -zcf ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz *
+        cd ../..
+
+    # Generate SHA-256 checksum for the release archive
+    - name: Generate SHA-256 checksum
+      shell: bash
+      run: |
+        cd ${{ inputs.artifacts_dir }}
+        sha256sum ${{ inputs.package_name }}.tar.gz > ${{ inputs.package_name }}.sha256.txt
+        cat ${{ inputs.package_name }}.sha256.txt
+        cd ..
+
+    # Sign the package with GPG
+    - name: Sign package with GPG
+      if: ${{ inputs.with_codesign == 'true' }}
+      shell: bash
+      run: |
+        # Create temporary GPG directory
+        mkdir -p /tmp/gpg-signing
+        chmod 700 /tmp/gpg-signing
+
+        # Explicitly disable agent to avoid connection errors
+        export GNUPGHOME=/tmp/gpg-signing
+        echo "disable-scdaemon" > $GNUPGHOME/gpg-agent.conf
+
+        # Import the GPG private key
+        echo "${{ inputs.gpg-signing-private-key }}" | base64 -d > $GNUPGHOME/private.key
+
+        # Debug info
+        echo "Checking if private key file exists:"
+        ls -la $GNUPGHOME/
+
+        # Import key with batch mode
+        gpg --batch --import $GNUPGHOME/private.key
+
+        # Only remove after confirming import was successful
+        gpg --list-secret-keys ${{ inputs.gpg-key-id }}
+        rm -f $GNUPGHOME/private.key
+
+        # Skip the trust command as it requires user interaction
+        # Instead, just list the keys to confirm import
+        gpg --list-keys ${{ inputs.gpg-key-id }}
+
+        # Sign the package and checksum file
+        cd ${{ inputs.artifacts_dir }}
+
+        # Sign the main package
+        gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
+            --local-user ${{ inputs.gpg-key-id }} --detach-sign --armor ${{ inputs.package_name }}.tar.gz
+
+        # Sign the checksum file
+        gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
+            --local-user ${{ inputs.gpg-key-id }} --detach-sign --armor ${{ inputs.package_name }}.sha256.txt
+
+        # Clean up
+        rm -rf $GNUPGHOME
+        cd ../..
+
+    # Upload the tar.gz archive as GitHub Actions artifact
+    - name: Upload binary artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz
+        if-no-files-found: error
+
+    # Upload checksum as a separate artifact
+    - name: Upload checksum artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}-sha256
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.sha256.txt
+        if-no-files-found: error
+
+    # Upload GPG signature for checksum file
+    - name: Upload checksum signature artifact
+      if: ${{ inputs.with_codesign == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}-sha256-signature
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.sha256.txt.asc
+        if-no-files-found: error
+
+    # Upload GPG signature for binary
+    - name: Upload binary signature artifact
+      if: ${{ inputs.with_codesign == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}-signature
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz.asc
+        if-no-files-found: error

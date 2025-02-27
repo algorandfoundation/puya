@@ -1,11 +1,15 @@
 import argparse
 from importlib.metadata import version
+from multiprocessing import freeze_support
 from pathlib import Path
 
 import attrs
 
 from puya.log import LogFormat, LogLevel, configure_logging
 from puya.main import main
+
+# Required to support multiprocessing in pyinstaller binaries
+freeze_support()
 
 
 @attrs.define(kw_only=True)

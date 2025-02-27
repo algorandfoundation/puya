@@ -30,7 +30,7 @@ immutabledict = "^4.2.0"
 packaging = "^24.0"
 colorama = { version = "^0.4.6", markers = "sys_platform == 'win32'" }
 mypy_extensions = "^1.0.0" # vendored mypy dependency
-cattrs = "^24.1"
+cattrs = "^24.1" 
 networkx = "^3.4.2"
 
 [tool.poetry.group.dev.dependencies]
@@ -40,6 +40,7 @@ mypy = "1.13.0"
 ruff = "^0.7.4"
 pre-commit = "^4.0.1"
 poethepoet = "^0.30.0"
+pyinstaller = { version = "^6.12.0", python = ">=3.12,<3.14" }
 
 [tool.poetry.group.testing.dependencies]
 pytest = "^7.4.0"
@@ -79,8 +80,9 @@ puyapy-clientgen = "puyapy.client_gen:main"
 markers = [
     "localnet: test requires `algokit localnet start`",
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "pyinstaller_binary_tests"
 ]
-addopts = "-n auto --cov-config=.coveragerc"
+addopts = "-n auto --cov-config=.coveragerc -m 'not pyinstaller_binary_tests'"
 testpaths = [
     "tests"
 ]
@@ -309,3 +311,6 @@ gen_assemble_ops = "poetry run python -m scripts.generate_assemble_op_spec"
 gen_puya_lib = "poetry run scripts/generate_puya_lib.py"
 gen = ["gen_lang_spec", "gen_stubs", "gen_avm_ops", "gen_assemble_ops", "gen_puya_lib"]
 compile_all = "poetry run scripts/compile_all_examples.py"
+package_unix = { cmd = "scripts/distribution/package_unix.sh" }
+package_mac = { cmd = "scripts/distribution/package_mac.sh" }
+package_windows = { cmd = ".\\\\scripts\\\\distribution\\\\package_windows.bat" }
