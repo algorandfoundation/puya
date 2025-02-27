@@ -17,6 +17,7 @@ from pathlib import Path
 import attrs
 import structlog
 
+from puya.errors import ErrorExitCode, PuyaExitError
 from puya.parse import SourceLocation
 
 
@@ -82,9 +83,9 @@ class LoggingContext:
     def exit_if_errors(self) -> None:
         level_counts = self._log_level_counts()
         if level_counts[LogLevel.critical]:
-            sys.exit(2)
-        elif level_counts[LogLevel.error]:
-            sys.exit(1)
+            raise PuyaExitError(ErrorExitCode.internal)
+        if level_counts[LogLevel.error]:
+            raise PuyaExitError(ErrorExitCode.code)
 
 
 _current_ctx: ContextVar[LoggingContext] = ContextVar("current_ctx")
@@ -283,6 +284,7 @@ def configure_logging(
     min_log_level: LogLevel = LogLevel.notset,
     cache_logger: bool = True,
     log_format: LogFormat = LogFormat.default,
+    file: typing.TextIO | None = None,
     reconfigure_stdio: bool = True,
 ) -> None:
     if reconfigure_stdio:
@@ -329,17 +331,14 @@ def configure_logging(
     structlog.configure(
         processors=processors,
         context_class=dict,
-        logger_factory=structlog.PrintLoggerFactory(),
+        logger_factory=structlog.PrintLoggerFactory(file=file),
         cache_logger_on_first_use=cache_logger,
     )
 
 
 class _Logger:
     def __init__(self, name: str, initial_values: dict[str, typing.Any]):
-        if structlog.is_configured():
-            self._logger = structlog.get_logger(name, **initial_values)
-        else:
-            self._logger = None
+        self._logger = structlog.get_logger(name, **initial_values)
 
     def debug(
         self,
@@ -425,8 +424,7 @@ class _Logger:
             file_source = log_ctx.sources_by_path.get(location.file)
             if file_source is not None:
                 kwargs["related_lines"] = _get_pretty_source(file_source, location)
-        if self._logger:
-            self._logger.log(level, event, *args, location=location, **kwargs)
+        self._logger.log(level, event, *args, location=location, **kwargs)
         if log_ctx:
             if isinstance(event, str) and args:
                 message = event % args

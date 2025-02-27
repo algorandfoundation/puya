@@ -159,11 +159,12 @@ def get_mypy_options(prefix: Path | None = None) -> mypy.options.Options:
     mypy_opts.disallow_any_explicit = True
 
     mypy_opts.pretty = True  # show source in output
+    mypy_opts.raise_exceptions = True  # prevent mypy from exiting
 
     return mypy_opts
 
 
-def _get_python_executable(prefix_: Path | None) -> str | None:
+def _get_python_executable(prefix_: Path | None = None) -> str | None:
     prefix = str(prefix_) if prefix_ else _get_prefix()
     if not prefix:
         logger.warning("Could not determine python prefix or algopy version")
