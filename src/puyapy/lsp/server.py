@@ -39,6 +39,8 @@ class PuyaPyLanguageServer(LanguageServer):
             log_level=LogLevel.warning,
             paths=self._discover_algopy_paths(Path(self.workspace.root_path)),
             sources=sources,
+            # don't need optimization for analysis
+            optimization_level=0,
             prefix=self.analysis_prefix,
         )
         logs = self._parse_and_log(options)
