@@ -93,27 +93,41 @@ runs:
         mkdir -p /tmp/gpg-signing
         chmod 700 /tmp/gpg-signing
 
-        # Import the GPG private key
-        echo "${{ inputs.gpg-signing-private-key }}" | base64 -d > /tmp/gpg-signing/private.key
-        gpg --homedir /tmp/gpg-signing --import /tmp/gpg-signing/private.key
-        rm /tmp/gpg-signing/private.key
+        # Explicitly disable agent to avoid connection errors
+        export GNUPGHOME=/tmp/gpg-signing
+        echo "disable-scdaemon" > $GNUPGHOME/gpg-agent.conf
 
-        # Trust the key
-        echo -e "5\ny\n" | gpg --homedir /tmp/gpg-signing --command-fd 0 --expert --edit-key ${{ inputs.gpg-key-id }} trust
+        # Import the GPG private key
+        echo "${{ inputs.gpg-signing-private-key }}" | base64 -d > $GNUPGHOME/private.key
+
+        # Debug info
+        echo "Checking if private key file exists:"
+        ls -la $GNUPGHOME/
+
+        # Import key with batch mode
+        gpg --batch --import $GNUPGHOME/private.key
+
+        # Only remove after confirming import was successful
+        gpg --list-secret-keys ${{ inputs.gpg-key-id }}
+        rm -f $GNUPGHOME/private.key
+
+        # Skip the trust command as it requires user interaction
+        # Instead, just list the keys to confirm import
+        gpg --list-keys ${{ inputs.gpg-key-id }}
 
         # Sign the package and checksum file
         cd ${{ inputs.artifacts_dir }}
 
         # Sign the main package
-        gpg --homedir /tmp/gpg-signing --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
+        gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
             --local-user ${{ inputs.gpg-key-id }} --detach-sign --armor ${{ inputs.package_name }}.tar.gz
 
         # Sign the checksum file
-        gpg --homedir /tmp/gpg-signing --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
+        gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
             --local-user ${{ inputs.gpg-key-id }} --detach-sign --armor ${{ inputs.package_name }}.sha256.txt
 
         # Clean up
-        rm -rf /tmp/gpg-signing
+        rm -rf $GNUPGHOME
         cd ../..
 
     # Upload the tar.gz archive as GitHub Actions artifact

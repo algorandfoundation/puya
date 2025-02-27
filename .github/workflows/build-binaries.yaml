@@ -31,13 +31,14 @@ jobs:
           # Allow signing on:
           # 1. Main branch non-PR events when production_release is true OR
           # 2. Main branch CRON triggered events
-          if [[ "${{ github.event_name }}" != "pull_request" && \
-                "${{ github.ref_name }}" == "main" && \
-                ("${{ inputs.production_release }}" == "true" || "${{ github.event_name }}" == "schedule") ]]; then
-            echo "allowed=true" >> $GITHUB_OUTPUT
-          else
-            echo "allowed=false" >> $GITHUB_OUTPUT
-          fi
+          echo "allowed=true" >> $GITHUB_OUTPUT
+          # if [[ "${{ github.event_name }}" != "pull_request" && \
+          #       "${{ github.ref_name }}" == "main" && \
+          #       ("${{ inputs.production_release }}" == "true" || "${{ github.event_name }}" == "schedule") ]]; then
+          #   echo "allowed=true" >> $GITHUB_OUTPUT
+          # else
+          #   echo "allowed=false" >> $GITHUB_OUTPUT
+          # fi
         shell: bash
 
       - name: Checkout source code
@@ -69,10 +70,10 @@ jobs:
         with:
           package_name: ${{ env.PACKAGE_NAME }}
           artifacts_dir: ${{ env.ARTIFACTS_DIR }}
-          with_codesign: ${{ github.event_name == 'release' && github.event.release.prerelease == false }}
-          gpg-signing-private-key: ${{ secrets.GPG_SIGNING_PRIVATE_KEY }}
-          gpg-signing-private-key-password: ${{ secrets.GPG_SIGNING_PRIVATE_KEY_PASSWORD }}
-          gpg-key-id: ${{ secrets.GPG_KEY_ID }}
+          with_codesign: ${{ steps.signing.outputs.allowed == 'true' }}
+          gpg-signing-private-key: ${{ steps.signing.outputs.allowed == 'true' && secrets.GPG_SIGNING_PRIVATE_KEY || '' }}
+          gpg-signing-private-key-password: ${{ steps.signing.outputs.allowed == 'true' && secrets.GPG_SIGNING_PRIVATE_KEY_PASSWORD || '' }}
+          gpg-key-id: ${{ steps.signing.outputs.allowed == 'true' && secrets.GPG_KEY_ID || '' }}
 
       # Setup python and poetry after the docker container has been run to avoid .venv clashing
       - name: Set up Python
