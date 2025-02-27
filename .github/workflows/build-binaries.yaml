@@ -31,14 +31,13 @@ jobs:
           # Allow signing on:
           # 1. Main branch non-PR events when production_release is true OR
           # 2. Main branch CRON triggered events
-          echo "allowed=true" >> $GITHUB_OUTPUT
-          # if [[ "${{ github.event_name }}" != "pull_request" && \
-          #       "${{ github.ref_name }}" == "main" && \
-          #       ("${{ inputs.production_release }}" == "true" || "${{ github.event_name }}" == "schedule") ]]; then
-          #   echo "allowed=true" >> $GITHUB_OUTPUT
-          # else
-          #   echo "allowed=false" >> $GITHUB_OUTPUT
-          # fi
+          if [[ "${{ github.event_name }}" != "pull_request" && \
+                "${{ github.ref_name }}" == "main" && \
+                ("${{ inputs.production_release }}" == "true" || "${{ github.event_name }}" == "schedule") ]]; then
+            echo "allowed=true" >> $GITHUB_OUTPUT
+          else
+            echo "allowed=false" >> $GITHUB_OUTPUT
+          fi
         shell: bash
 
       - name: Checkout source code
