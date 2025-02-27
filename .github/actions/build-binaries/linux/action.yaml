@@ -62,10 +62,27 @@ runs:
         tar -zcf ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz *
         cd ../..
 
-    # Upload uncompressed folder for GitHub Actions artifacts
+    # Generate SHA-256 checksum for the release archive
+    - name: Generate SHA-256 checksum
+      shell: bash
+      run: |
+        cd ${{ inputs.artifacts_dir }}
+        sha256sum ${{ inputs.package_name }}.tar.gz > ${{ inputs.package_name }}.sha256.txt
+        cat ${{ inputs.package_name }}.sha256.txt
+        cd ..
+
+    # Upload the tar.gz archive as GitHub Actions artifact
     - name: Upload binary artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.package_name }}
-        path: ${{ github.workspace }}/dist/puya
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz
+        if-no-files-found: error
+
+    # Upload checksum as a separate artifact
+    - name: Upload checksum artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}-sha256
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.sha256.txt
         if-no-files-found: error

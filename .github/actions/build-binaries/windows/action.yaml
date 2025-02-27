@@ -58,10 +58,28 @@ runs:
         tar -czf "${{ inputs.artifacts_dir }}\${{ inputs.package_name }}.tar.gz" *
         cd ..\..
 
-    # Upload uncompressed folder for GitHub Actions artifacts
+    # Generate SHA-256 checksum for the release archive
+    - name: Generate SHA-256 checksum
+      shell: pwsh
+      run: |
+        cd ${{ inputs.artifacts_dir }}
+        $hash = Get-FileHash -Algorithm SHA256 -Path "${{ inputs.package_name }}.tar.gz"
+        "$($hash.Hash.ToLower())  ${{ inputs.package_name }}.tar.gz" | Out-File -Encoding utf8 "${{ inputs.package_name }}.sha256.txt"
+        Get-Content "${{ inputs.package_name }}.sha256.txt"
+        cd ..
+
+    # Upload the tar.gz archive as GitHub Actions artifact
     - name: Upload binary artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.package_name }}
-        path: ${{ env.BINARY_BUILD_DIR }}
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz
+        if-no-files-found: error
+
+    # Upload checksum as a separate artifact
+    - name: Upload checksum artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}-sha256
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.sha256.txt
         if-no-files-found: error
