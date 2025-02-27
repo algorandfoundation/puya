@@ -67,8 +67,12 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         uses: ./.github/actions/build-binaries/linux
         with:
-          package_name: ${{ env.PACKAGE_NAME }}
-          artifacts_dir: ${{ env.ARTIFACTS_DIR }}
+          package_name: ${{ env.PACKAGE_NAME }}-linux-${{ matrix.architecture }}
+          artifacts_dir: ${{ github.workspace }}/artifacts
+          with_codesign: ${{ github.event_name == 'release' && github.event.release.prerelease == false }}
+          gpg-signing-private-key: ${{ secrets.GPG_SIGNING_PRIVATE_KEY }}
+          gpg-signing-private-key-password: ${{ secrets.GPG_SIGNING_PRIVATE_KEY_PASSWORD }}
+          gpg-key-id: ${{ secrets.GPG_KEY_ID }}
 
       # Setup python and poetry after the docker container has been run to avoid .venv clashing
       - name: Set up Python

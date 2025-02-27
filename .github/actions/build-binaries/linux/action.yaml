@@ -7,6 +7,18 @@ inputs:
   artifacts_dir:
     description: "The directory to write artifacts you want to publish"
     required: true
+  with_codesign:
+    description: "Flag to determine if we should sign the binary"
+    required: true
+  gpg-signing-private-key:
+    description: "The GPG signing private key (base64 encoded)"
+    required: true
+  gpg-signing-private-key-password:
+    description: "The GPG signing private key password"
+    required: true
+  gpg-key-id:
+    description: "The GPG key ID to use for signing"
+    required: true
 
 runs:
   using: "composite"
@@ -71,6 +83,38 @@ runs:
         cat ${{ inputs.package_name }}.sha256.txt
         cd ..
 
+    # Sign the package with GPG
+    - name: Sign package with GPG
+      if: ${{ inputs.with_codesign == 'true' }}
+      shell: bash
+      run: |
+        # Create temporary GPG directory
+        mkdir -p /tmp/gpg-signing
+        chmod 700 /tmp/gpg-signing
+
+        # Import the GPG private key
+        echo "${{ inputs.gpg-signing-private-key }}" | base64 -d > /tmp/gpg-signing/private.key
+        gpg --homedir /tmp/gpg-signing --import /tmp/gpg-signing/private.key
+        rm /tmp/gpg-signing/private.key
+
+        # Trust the key
+        echo -e "5\ny\n" | gpg --homedir /tmp/gpg-signing --command-fd 0 --expert --edit-key ${{ inputs.gpg-key-id }} trust
+
+        # Sign the package and checksum file
+        cd ${{ inputs.artifacts_dir }}
+
+        # Sign the main package
+        gpg --homedir /tmp/gpg-signing --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
+            --local-user ${{ inputs.gpg-key-id }} --detach-sign --armor ${{ inputs.package_name }}.tar.gz
+
+        # Sign the checksum file
+        gpg --homedir /tmp/gpg-signing --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
+            --local-user ${{ inputs.gpg-key-id }} --detach-sign --armor ${{ inputs.package_name }}.sha256.txt
+
+        # Clean up
+        rm -rf /tmp/gpg-signing
+        cd ../..
+
     # Upload the tar.gz archive as GitHub Actions artifact
     - name: Upload binary artifact
       uses: actions/upload-artifact@v4
@@ -85,4 +129,22 @@ runs:
       with:
         name: ${{ inputs.package_name }}-sha256
         path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.sha256.txt
+        if-no-files-found: error
+
+    # Upload GPG signature for checksum file
+    - name: Upload checksum signature artifact
+      if: ${{ inputs.with_codesign == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}-sha256-signature
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.sha256.txt.asc
+        if-no-files-found: error
+
+    # Upload GPG signature for binary
+    - name: Upload binary signature artifact
+      if: ${{ inputs.with_codesign == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}-signature
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz.asc
         if-no-files-found: error
