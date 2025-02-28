@@ -17,7 +17,6 @@ from pathlib import Path
 import attrs
 import structlog
 
-from puya.errors import ErrorExitCode, PuyaExitError
 from puya.parse import SourceLocation
 
 
@@ -81,6 +80,8 @@ class LoggingContext:
         return sum(count for level, count in level_counts.items() if level >= LogLevel.error)
 
     def exit_if_errors(self) -> None:
+        from puya.errors import ErrorExitCode, PuyaExitError
+
         level_counts = self._log_level_counts()
         if level_counts[LogLevel.critical]:
             raise PuyaExitError(ErrorExitCode.internal)
