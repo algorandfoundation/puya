@@ -38,6 +38,8 @@ class CodeError(PuyaError):
 def log_exceptions(fallback_location: SourceLocation | None = None) -> Iterator[None]:
     try:
         yield
+    except* PuyaExitError:
+        raise
     except* CodeError as code_errors:
         for code_error in code_errors.exceptions:
             assert isinstance(code_error, CodeError)
