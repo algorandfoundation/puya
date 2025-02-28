@@ -48,9 +48,11 @@ def copy_propagation(_context: CompileContext, subroutine: models.Subroutine) ->
             except ValueError:
                 continue
             else:
-                replacements[phi.register] = single_register
-                block.phis.remove(phi)
-                modified = True
+                # don't replace if phi.register is being used as a replacement for another register
+                if phi.register not in replacements.values():
+                    replacements[phi.register] = single_register
+                    block.phis.remove(phi)
+                    modified = True
     replaced = MemoryReplacer.apply(subroutine.body, replacements=replacements)
     if replaced:
         logger.debug(f"Copy propagation made {replaced} modifications")
