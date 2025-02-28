@@ -222,8 +222,8 @@ class Goto(Statement):
 @attrs.frozen
 class IfElse(Statement):
     """
-    A stand c-like if-then-else statement. Flow will continue to the following statement after an
-    if_branch or else_branch has been executed unless those branches contain a control op which
+    A stand c-like if-then-else statement. Execution will continue to the following statement after
+    an if_branch or else_branch has been executed unless those branches contain a control op which
     leads elsewhere (eg. return/break/continue)
 
     condition: A boolean condition to be evaluated
@@ -241,6 +241,20 @@ class IfElse(Statement):
 
 @attrs.frozen
 class Switch(Statement):
+    """
+    Evaluates `value` and the `key` expression of all cases.
+    Execute the block associated with the case whose expression matches value.
+    If no case matches, and default_case is provided - execute default case.
+    Execution will continue to the following statement after a case block has been executed.
+
+    NOTE: There is no case block fall-through, execution will implicitly break to after this
+          statement after a case block has been executed.
+
+    value: A subject to be compared to each case clause
+    cases: A mapping of case clause expressions to blocks which should be executed upon a match
+    default_case: An optional block to execute if no case clauses are matched
+    """
+
     value: Expression
     cases: Mapping[Expression, Block] = attrs.field(converter=immutabledict)
     default_case: Block | None
@@ -251,6 +265,16 @@ class Switch(Statement):
 
 @attrs.frozen
 class WhileLoop(Statement):
+    """
+    A pre-checked loop construct.
+    Evaluates `condition` and executes `loop_body` if the condition is true or execute the
+    statement which follows this one if it is false. After `loop_body` has been executed, check
+    the condition again and repeat.
+
+    condition: An expression to be evaluated before each loop iteration
+    loop_body: The block to execute if the condition is true
+    """
+
     condition: Expression = attrs.field(validator=[wtype_is_bool])
     loop_body: Block
 
@@ -260,7 +284,9 @@ class WhileLoop(Statement):
 
 @attrs.frozen
 class LoopExit(Statement):
-    """break out of the current innermost loop"""
+    """
+    Goto the statement immediately following the current innermost loop construct
+    """
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_loop_exit(self)
@@ -268,7 +294,10 @@ class LoopExit(Statement):
 
 @attrs.frozen
 class LoopContinue(Statement):
-    """continue with the next iteration of the current innermost loop"""
+    """
+    Goto the end of the loop_body of the current innermost loop construct and continue to the next
+    iteration of the loop.
+    """
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_loop_continue(self)
@@ -276,6 +305,12 @@ class LoopContinue(Statement):
 
 @attrs.frozen
 class ReturnStatement(Statement):
+    """
+    Return from the current subroutine with an optional value.
+
+    value: The value (if any) to be returned
+    """
+
     value: Expression | None
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
@@ -284,6 +319,14 @@ class ReturnStatement(Statement):
 
 @attrs.frozen
 class AssertExpression(Expression):
+    """
+    Asserts the `condition` is true and errors with `error_message` if it is not. If no condition
+    is provided, the assertion will always fail.
+
+    condition: The condition (if any) to be checked
+    error_message: An error message to be associated with the assertion failure
+    """
+
     condition: Expression | None
     error_message: str | None
     wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
@@ -294,6 +337,17 @@ class AssertExpression(Expression):
 
 @attrs.frozen(kw_only=True)
 class IntegerConstant(Expression):
+    """
+    A compile-time constant integer value. The wtype of this expression determines the size and
+    encoding of this value when it is lowered to IR and beyond. An alias can be included for
+    readability if this constant value represents one of teal's named integer constants
+
+    See: https://developer.algorand.org/docs/get-details/dapps/avm/teal/specification/#named-integer-constants
+
+    value: Any integer value that is valid for the given wtype
+    teal_alias: Teal's alias of this constant value, if applicable
+    """
+
     wtype: WType = attrs.field(
         validator=[
             wtype_is_one_of(
@@ -312,6 +366,11 @@ class IntegerConstant(Expression):
 
 @attrs.frozen
 class DecimalConstant(Expression):
+    """
+    A compile-time constant decimal value. The wtype of this expression determines the size and
+    encoding of this value when it is lowered to IR and beyond.
+    """
+
     wtype: wtypes.ARC4UFixedNxM
     value: decimal.Decimal = attrs.field()
 
@@ -342,6 +401,11 @@ def BigUIntConstant(  # noqa: N802
 
 @attrs.frozen
 class BoolConstant(Expression):
+    """
+    A compile-time boolean constant value. The wtype of this expression determines the encoding of
+    this value when it is lowered to IR and beyond.
+    """
+
     value: bool
     wtype: WType = attrs.field(
         default=wtypes.bool_wtype,
@@ -354,6 +418,11 @@ class BoolConstant(Expression):
 
 @enum.unique
 class BytesEncoding(enum.StrEnum):
+    """
+    Captures the source encoding of a bytes constant so that an appropriate encoding
+    can be used to produce a human-readable value in code output.
+    """
+
     unknown = enum.auto()
     base16 = enum.auto()
     base32 = enum.auto()
@@ -392,6 +461,14 @@ wtype_is_uint64_backed: typing.Final = _WTypeIsBackedBy(backed_by=AVMType.uint64
 
 @attrs.frozen(kw_only=True)
 class BytesConstant(Expression):
+    """
+    A compile-time bytes constant. Actual type could be any expression which is backed by the
+    bytes type.
+
+    value: The bytes value
+    encoding: The encoding used to represent this bytes value in the source material.
+    """
+
     wtype: WType = attrs.field(default=wtypes.bytes_wtype, validator=wtype_is_bytes_backed)
     value: bytes = attrs.field()
     encoding: BytesEncoding = attrs.field()
@@ -402,6 +479,11 @@ class BytesConstant(Expression):
 
 @attrs.frozen
 class StringConstant(Expression):
+    """
+    A compile-time string constant. The wtype of this expression determines the encoding of
+    this value when it is lowered to IR and beyond.
+    """
+
     value: str = attrs.field()
     wtype: WType = attrs.field(
         default=wtypes.string_wtype,
@@ -419,7 +501,12 @@ class StringConstant(Expression):
 
 @attrs.frozen
 class VoidConstant(Expression):
-    # useful as a "no-op"
+    """
+    An expression with no value. Akin to calling a pure subroutine with no args or return value
+
+    Useful as a "no-op" when an expression must be returned but none is available
+    """
+
     wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -428,6 +515,12 @@ class VoidConstant(Expression):
 
 @attrs.frozen
 class TemplateVar(Expression):
+    """
+    An expression whose value will be substituted with a constant value prior to deployment.
+
+    name: A unique identifier for this template variable
+    """
+
     wtype: WType
     name: str
 
@@ -437,6 +530,14 @@ class TemplateVar(Expression):
 
 @attrs.frozen
 class MethodConstant(Expression):
+    """
+    An expression whose value is the first 4 bytes of the sha512/256 hash of `value` when
+    interpreted as utf-8 bytes. Assuming `value` is an ARC4 method _signature_, the value of this
+    expression will be the ARC4 method _selector_.
+
+    value: An ARC4 method signature. eg. my_method(int,string)bytes
+    """
+
     wtype: WType = attrs.field(default=wtypes.bytes_wtype, init=False)
     value: str
 
@@ -446,6 +547,13 @@ class MethodConstant(Expression):
 
 @attrs.frozen(kw_only=True)
 class AddressConstant(Expression):
+    """
+    An expression whose value is the 32 byte _public key_ of the 58 character Algorand Address
+    specified by `value`.
+
+    value: A 58 character base-32 encoded Algorand Address
+    """
+
     wtype: WType = attrs.field(
         default=wtypes.account_wtype,
         validator=wtype_is_one_of(wtypes.account_wtype, wtypes.arc4_address_alias),
