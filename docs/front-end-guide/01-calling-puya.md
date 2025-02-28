@@ -60,8 +60,8 @@ The second artifact required by the compiler is the AWST nodes themselves, seria
 ```json
 {
     "_type": "BoolConstant",
-    "source_location": ...,
-    "wtype": ...,
+    "source_location": { },
+    "wtype": { },
     "value": true
 }
 ```
