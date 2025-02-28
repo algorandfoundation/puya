@@ -38,6 +38,8 @@ class CodeError(PuyaError):
 def log_exceptions(fallback_location: SourceLocation | None = None) -> Iterator[None]:
     try:
         yield
+    except PuyaExitError:
+        raise
     except CodeError as ex:
         logger.error(ex.msg, location=ex.location or fallback_location)  # noqa: TRY400
     except InternalError as ex:
