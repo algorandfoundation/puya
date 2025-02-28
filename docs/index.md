@@ -56,6 +56,7 @@ hidden: true
 ---
 
 language-guide
+front-end-guide/readme
 principles
 api
 compiler

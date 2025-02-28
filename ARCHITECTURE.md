@@ -132,6 +132,11 @@ containing the source code at the time of compilation, and a mandatory "control"
 specifies options, what to compile, etc. See [`src/puya/__main__.py`](/src/puya/__main__.py) for 
 the entry point here.
 
+### 3rd Party Front Ends
+
+Puya has been architected in a way to support additional front end languages, allowing them to take
+advantage of the compilation and optimizations of the backend layers. Please see the [Building a front end for Puya](docs/front-end-guide/readme.md) docs for a guide to contributing your own front end.
+
 ## 4. Backend Layers
 
 Although "backend" would, in the three stage architecture noted above, imply everything after the

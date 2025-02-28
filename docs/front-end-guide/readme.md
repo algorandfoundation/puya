@@ -10,8 +10,20 @@ Whilst leveraging the Puya back end takes care of a lot of the complexities in l
 
 ## Table of contents
 
-1. [Introduction](./00-introduction.md)
-2. [Calling puya](./01-calling-puya.md)
-3. [Designing a langauge](./02-designing-a-language.md)
-4. [Parsing](./03-parsing.md)
-5. [AWST build](./04-awst-build.md)
+```{toctree}
+---
+maxdepth: 3
+---
+
+00-introduction
+01-calling-puya
+02-designing-a-language
+03-parsing
+04-awst-build
+```
+
+
+
+
+
+
