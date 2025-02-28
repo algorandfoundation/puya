@@ -15,14 +15,9 @@ from puya.mir.context import ProgramMIRContext
 from puya.utils import biguint_bytes_eval
 
 logger = log.get_logger(__name__)
+
 # TODO: ensure unique
 _NEW_SLOT_SUB = "_puya_lib.mem.new_slot"
-
-
-@attrs.frozen
-class TempVar:
-    local_id: str
-    atype: AVMType
 
 
 @attrs.define
