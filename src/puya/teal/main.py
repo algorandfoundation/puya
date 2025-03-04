@@ -12,7 +12,9 @@ logger = log.get_logger(__name__)
 def mir_to_teal(
     context: ArtifactCompileContext, program_mir: mir.Program
 ) -> teal_models.TealProgram:
-    main = TealBuilder.build_subroutine(program_mir.main)
+    main = TealBuilder.build_subroutine(
+        program_mir.main, slot_allocation=program_mir.slot_allocation
+    )
     subroutines = [TealBuilder.build_subroutine(mir_sub) for mir_sub in program_mir.subroutines]
     teal = teal_models.TealProgram(
         kind=program_mir.kind,

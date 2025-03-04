@@ -20,9 +20,11 @@ class TealBuilder(MIRVisitor[None]):
     ops: list[teal.TealOp] = attrs.field(factory=list)
 
     @classmethod
-    def build_subroutine(cls, mir_sub: mir.MemorySubroutine) -> teal.TealSubroutine:
+    def build_subroutine(
+        cls, mir_sub: mir.MemorySubroutine, *, slot_allocation: mir.SlotAllocation | None = None
+    ) -> teal.TealSubroutine:
         first_label = mir_sub.body[0].block_name
-        proto_block = _build_preamble(first_label, mir_sub)
+        proto_block = _build_preamble(first_label, mir_sub, slot_allocation)
         result = teal.TealSubroutine(
             is_main=mir_sub.is_main,
             signature=mir_sub.signature,
@@ -446,7 +448,9 @@ def _lstack_manipulations(op: mir.BaseOp) -> list[teal.StackManipulation]:
     return result
 
 
-def _build_preamble(first_label: str, mir_sub: mir.MemorySubroutine) -> teal.TealBlock:
+def _build_preamble(
+    first_label: str, mir_sub: mir.MemorySubroutine, slot_allocation: mir.SlotAllocation | None
+) -> teal.TealBlock:
     assert mir_sub.pre_alloc is not None, "f-stack allocation should have been performed"
     preamble = list[teal.TealOp]()
     # insert proto op if needed
@@ -458,6 +462,24 @@ def _build_preamble(first_label: str, mir_sub: mir.MemorySubroutine) -> teal.Tea
                 source_location=mir_sub.source_location,
             )
         )
+
+    # insert slot allocation if needed
+    if slot_allocation is not None:
+        preamble += [
+            teal.Byte(
+                value=slot_allocation.allocation_map,
+                encoding=AVMBytesEncoding.base16,
+                source_location=None,
+            ),
+            teal.TealOpN(
+                op_code="store",
+                n=slot_allocation.allocation_slot,
+                consumes=1,
+                produces=0,
+                source_location=None,
+            ),
+        ]
+
     # to be completely safe against future changes in the MIR model here, which could
     # affect stack ordering, we either double check the pre-allocations are in the right order
     # as we do here or we would have to ensure that the union of bytes and uint64 vars is equal
