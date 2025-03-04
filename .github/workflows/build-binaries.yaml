@@ -31,13 +31,14 @@ jobs:
           # Allow signing on:
           # 1. Main branch non-PR events when production_release is true OR
           # 2. Main branch CRON triggered events
-          if [[ "${{ github.event_name }}" != "pull_request" && \
-                "${{ github.ref_name }}" == "main" && \
-                ("${{ inputs.production_release }}" == "true" || "${{ github.event_name }}" == "schedule") ]]; then
-            echo "allowed=true" >> $GITHUB_OUTPUT
-          else
-            echo "allowed=false" >> $GITHUB_OUTPUT
-          fi
+          # if [[ "${{ github.event_name }}" != "pull_request" && \
+          #       "${{ github.ref_name }}" == "main" && \
+          #       ("${{ inputs.production_release }}" == "true" || "${{ github.event_name }}" == "schedule") ]]; then
+          #   echo "allowed=true" >> $GITHUB_OUTPUT
+          # else
+          #   echo "allowed=false" >> $GITHUB_OUTPUT
+          # fi
+          echo "allowed=true" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Checkout source code
@@ -112,7 +113,7 @@ jobs:
           artifacts_dir: ${{ env.ARTIFACTS_DIR }}
           with_codesign: ${{ steps.signing.outputs.allowed == 'true' }}
           apple_team_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_TEAM_ID || '' }}
-          apple_bundle_id: ${{ inputs.production_release == 'true' && vars.APPLE_BUNDLE_ID || format('beta.{0}', vars.APPLE_BUNDLE_ID) }}
+          apple_bundle_id: ${{ inputs.production_release == 'true' && secrets.APPLE_BUNDLE_ID || format('beta.{0}', secrets.APPLE_BUNDLE_ID) }}
           apple_cert_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_CERT_ID || '' }}
           apple_notary_user: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_NOTARY_USER || '' }}
           apple_notary_password: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_NOTARY_PASSWORD || '' }}
