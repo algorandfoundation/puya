@@ -6,7 +6,7 @@ import algopy
 _P = typing.ParamSpec("_P")
 _R = typing.TypeVar("_R")
 
-_ReadOnlyNoArgsMethod: typing.TypeAlias = Callable[..., typing.Any]  # type: ignore[misc]
+_ReadOnlyNoArgsMethod: typing.TypeAlias = Callable[..., typing.Any]  # type: ignore[explicit-any]
 
 class ARC4Contract(algopy.Contract):
     """A contract that conforms to the ARC-4 ABI specification, functions decorated with
@@ -513,7 +513,7 @@ class Struct(metaclass=_StructMeta):
     def copy(self) -> typing.Self:
         """Create a copy of this struct"""
 
-    def _replace(self, **kwargs: typing.Any) -> typing.Self:  # type: ignore[misc]
+    def _replace(self, **kwargs: typing.Any) -> typing.Self:  # type: ignore[explicit-any]
         """Return a new instance of the struct replacing specified fields with new values.
 
         Note that any mutable fields must be explicitly copied to avoid aliasing."""
@@ -546,7 +546,7 @@ class _ABICallWithReturnProtocol(typing.Protocol[_TABIResult_co]):
 
 class _ABICallProtocolType(typing.Protocol):
     @typing.overload
-    def __call__(  # type: ignore[misc]
+    def __call__(  # type: ignore[overload-overlap,explicit-any]
         self,
         method: Callable[..., None] | str,
         /,
@@ -566,7 +566,7 @@ class _ABICallProtocolType(typing.Protocol):
         rekey_to: algopy.Account | str = ...,
     ) -> algopy.itxn.ApplicationCallInnerTransaction: ...
     @typing.overload
-    def __call__(  # type: ignore[misc]
+    def __call__(  # type: ignore[explicit-any]
         self,
         method: Callable[..., _TABIResult_co],
         /,

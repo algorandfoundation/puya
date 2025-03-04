@@ -224,7 +224,7 @@ class Struct:
     def copy(self) -> typing.Self:
         """Create a copy of this struct"""
 
-    def _replace(self, **kwargs: typing.Any) -> typing.Self:  # type: ignore[misc]
+    def _replace(self, **kwargs: typing.Any) -> typing.Self:  # type: ignore[explicit-any]
         """
         Return a new instance of the struct replacing specified fields with new values.
 

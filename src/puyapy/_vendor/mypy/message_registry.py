@@ -188,7 +188,6 @@ INVALID_PARAM_SPEC_LOCATION_NOTE: Final = (
 
 # TypeVar
 INCOMPATIBLE_TYPEVAR_VALUE: Final = 'Value of type variable "{}" of {} cannot be {}'
-CANNOT_USE_TYPEVAR_AS_EXPRESSION: Final = 'Type variable "{}.{}" cannot be used as an expression'
 INVALID_TYPEVAR_AS_TYPEARG: Final = 'Type variable "{}" not valid as type argument value for "{}"'
 INVALID_TYPEVAR_ARG_BOUND: Final = 'Type argument {} of "{}" must be a subtype of {}'
 INVALID_TYPEVAR_ARG_VALUE: Final = 'Invalid type argument value for "{}"'
@@ -196,8 +195,7 @@ TYPEVAR_VARIANCE_DEF: Final = 'TypeVar "{}" may only be a literal bool'
 TYPEVAR_ARG_MUST_BE_TYPE: Final = '{} "{}" must be a type'
 TYPEVAR_UNEXPECTED_ARGUMENT: Final = 'Unexpected argument to "TypeVar()"'
 UNBOUND_TYPEVAR: Final = (
-    "A function returning TypeVar should receive at least "
-    "one argument containing the same TypeVar"
+    "A function returning TypeVar should receive at least one argument containing the same TypeVar"
 )
 TYPE_PARAMETERS_SHOULD_BE_DECLARED: Final = (
     "All type parameters should be declared ({} not declared)"
@@ -242,7 +240,7 @@ CANNOT_ACCESS_FINAL_INSTANCE_ATTR: Final = (
 CANNOT_MAKE_DELETABLE_FINAL: Final = ErrorMessage("Deletable attribute cannot be final")
 
 # Enum
-ENUM_MEMBERS_ATTR_WILL_BE_OVERRIDEN: Final = ErrorMessage(
+ENUM_MEMBERS_ATTR_WILL_BE_OVERRIDDEN: Final = ErrorMessage(
     'Assigned "__members__" will be overridden by "Enum" internally'
 )
 
@@ -351,6 +349,10 @@ TYPE_VAR_AWAIT_EXPRESSION_IN_BOUND: Final = ErrorMessage(
     "Await expression cannot be used as a type variable bound", codes.SYNTAX
 )
 
+TYPE_VAR_GENERIC_CONSTRAINT_TYPE: Final = ErrorMessage(
+    "TypeVar constraint type cannot be parametrized by type variables", codes.MISC
+)
+
 TYPE_ALIAS_WITH_YIELD_EXPRESSION: Final = ErrorMessage(
     "Yield expression cannot be used within a type alias", codes.SYNTAX
 )
@@ -361,9 +363,4 @@ TYPE_ALIAS_WITH_NAMED_EXPRESSION: Final = ErrorMessage(
 
 TYPE_ALIAS_WITH_AWAIT_EXPRESSION: Final = ErrorMessage(
     "Await expression cannot be used within a type alias", codes.SYNTAX
-)
-
-TYPE_PARAM_DEFAULT_NOT_SUPPORTED: Final = ErrorMessage(
-    "Type parameter default types not supported when using Python 3.12 type parameter syntax",
-    codes.MISC,
 )

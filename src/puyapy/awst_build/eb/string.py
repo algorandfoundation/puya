@@ -132,12 +132,12 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
         reverse: bool,
     ) -> InstanceBuilder:
         if op != BuilderBinaryOp.add:
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
 
         other = other.resolve_literal(converter=StringTypeBuilder(other.source_location))
         # defer to most derived if not equal
         if not (other.pytype <= pytypes.StringType):
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
 
         lhs = self.resolve()
         rhs = other.resolve()

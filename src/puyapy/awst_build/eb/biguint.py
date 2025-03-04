@@ -109,7 +109,7 @@ class BigUIntExpressionBuilder(
         elif pytypes.UInt64Type <= other.pytype:
             other_expr = _uint64_to_biguint(other, location)
         else:
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
         cmp_expr = NumericComparisonExpression(
             source_location=location,
             lhs=self.resolve(),
@@ -129,14 +129,14 @@ class BigUIntExpressionBuilder(
     ) -> InstanceBuilder:
         biguint_op = _translate_biguint_math_operator(op, location)
         if biguint_op is None:
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
         other = other.resolve_literal(converter=BigUIntTypeBuilder(other.source_location))
         if pytypes.BigUIntType <= other.pytype:
             other_expr = other.resolve()
         elif pytypes.UInt64Type <= other.pytype:
             other_expr = _uint64_to_biguint(other, location)
         else:
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
         lhs = self.resolve()
         rhs = other_expr
         if reverse:

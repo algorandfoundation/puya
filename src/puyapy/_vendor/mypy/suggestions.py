@@ -27,9 +27,10 @@ from __future__ import annotations
 import itertools
 import json
 import os
+import sys
+from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Callable, Iterator, NamedTuple, TypeVar, cast
-from typing_extensions import TypedDict
+from typing import Callable, NamedTuple, TypedDict, TypeVar, cast
 
 from mypy.argmap import map_actuals_to_formals
 from mypy.build import Graph, State
@@ -52,14 +53,14 @@ from mypy.nodes import (
     SymbolNode,
     SymbolTable,
     TypeInfo,
-    reverse_builtin_aliases,
+    Var,
 )
 from mypy.options import Options
 from mypy.plugin import FunctionContext, MethodContext, Plugin
 from mypy.server.update import FineGrainedBuildManager
 from mypy.state import state
 from mypy.traverser import TraverserVisitor
-from mypy.typeops import make_simplified_union
+from mypy.typeops import bind_self, make_simplified_union
 from mypy.types import (
     AnyType,
     CallableType,
@@ -454,7 +455,7 @@ class SuggestionEngine:
             pnode = parent.names.get(node.name)
             if pnode and isinstance(pnode.node, (FuncDef, Decorator)):
                 typ = get_proper_type(pnode.node.type)
-                # FIXME: Doesn't work right with generic tyeps
+                # FIXME: Doesn't work right with generic types
                 if isinstance(typ, CallableType) and len(typ.arg_types) == len(node.arguments):
                     # Return the first thing we find, since it probably doesn't make sense
                     # to grab things further up in the chain if an earlier parent has it.
@@ -537,12 +538,17 @@ class SuggestionEngine:
         # TODO: Also return OverloadedFuncDef -- currently these are ignored.
         node: SymbolNode | None = None
         if ":" in key:
-            if key.count(":") > 1:
+            # A colon might be part of a drive name on Windows (like `C:/foo/bar`)
+            # and is also used as a delimiter between file path and lineno.
+            # If a colon is there for any of those reasons, it must be a file+line
+            # reference.
+            platform_key_count = 2 if sys.platform == "win32" else 1
+            if key.count(":") > platform_key_count:
                 raise SuggestionFailure(
                     "Malformed location for function: {}. Must be either"
                     " package.module.Class.method or path/to/file.py:line".format(key)
                 )
-            file, line = key.split(":")
+            file, line = key.rsplit(":", 1)
             if not line.isdigit():
                 raise SuggestionFailure(f"Line number must be a number. Got {line}")
             line_number = int(line)
@@ -638,15 +644,20 @@ class SuggestionEngine:
     def extract_from_decorator(self, node: Decorator) -> FuncDef | None:
         for dec in node.decorators:
             typ = None
-            if isinstance(dec, RefExpr) and isinstance(dec.node, FuncDef):
-                typ = dec.node.type
+            if isinstance(dec, RefExpr) and isinstance(dec.node, (Var, FuncDef)):
+                typ = get_proper_type(dec.node.type)
             elif (
                 isinstance(dec, CallExpr)
                 and isinstance(dec.callee, RefExpr)
-                and isinstance(dec.callee.node, FuncDef)
-                and isinstance(dec.callee.node.type, CallableType)
+                and isinstance(dec.callee.node, (Decorator, FuncDef, Var))
+                and isinstance((call_tp := get_proper_type(dec.callee.node.type)), CallableType)
             ):
-                typ = get_proper_type(dec.callee.node.type.ret_type)
+                typ = get_proper_type(call_tp.ret_type)
+
+            if isinstance(typ, Instance):
+                call_method = typ.type.get_method("__call__")
+                if isinstance(call_method, FuncDef) and isinstance(call_method.type, FunctionLike):
+                    typ = bind_self(call_method.type, None)
 
             if not isinstance(typ, FunctionLike):
                 return None
@@ -824,8 +835,6 @@ class TypeFormatter(TypeStrVisitor):
         s = t.type.fullname or t.type.name or None
         if s is None:
             return "<???>"
-        if s in reverse_builtin_aliases:
-            s = reverse_builtin_aliases[s]
 
         mod_obj = split_target(self.graph, s)
         assert mod_obj

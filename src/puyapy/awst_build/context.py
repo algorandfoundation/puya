@@ -273,7 +273,7 @@ def type_to_pytype(
                         in_func_sig=True,
                     )
                     func_args.append(pytypes.FuncArg(type=arg_pytype, kind=kind, name=name))
-                if func_like.bound_args:
+                if func_like.bound():
                     logger.error("function type has bound arguments", location=loc)
                 if func_like.definition is not None:
                     name = func_like.definition.fullname

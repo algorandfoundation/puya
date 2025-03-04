@@ -38,7 +38,10 @@ class CoalesceGroupStrategy[TKey](t.Protocol):
 
 
 def coalesce_registers(
-    group_strategy: CoalesceGroupStrategy[object], sub: models.Subroutine, *, allow_params: bool
+    group_strategy: CoalesceGroupStrategy[typing.Any],
+    sub: models.Subroutine,
+    *,
+    allow_params: bool,
 ) -> int:
     """
     A local can be merged with another local if they are never live at the same time.
@@ -201,7 +204,7 @@ class AggressiveGrouping(CoalesceGroupStrategy[types.IRType]):
 
 def coalesce_locals(subroutine: models.Subroutine, strategy: LocalsCoalescingStrategy) -> None:
     logger.debug(f"Coalescing local variables in {subroutine.id} using strategy {strategy.name!r}")
-    group_strategy: CoalesceGroupStrategy[typing.Any]
+    group_strategy: RootOperandGrouping | AggressiveGrouping
     match strategy:
         case LocalsCoalescingStrategy.root_operand:
             group_strategy = RootOperandGrouping(params=subroutine.parameters)

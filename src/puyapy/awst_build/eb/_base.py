@@ -141,7 +141,7 @@ class InstanceExpressionBuilder(
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        return NotImplemented
+        return NotImplemented  # type: ignore[no-any-return]
 
     @typing.override
     def binary_op(
@@ -152,7 +152,7 @@ class InstanceExpressionBuilder(
         *,
         reverse: bool,
     ) -> InstanceBuilder:
-        return NotImplemented
+        return NotImplemented  # type: ignore[no-any-return]
 
     @typing.override
     def bool_binary_op(

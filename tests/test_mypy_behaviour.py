@@ -710,8 +710,8 @@ def test_if_else_expr_combined_type() -> None:
     result = mypy_parse_and_type_check(test)
     assert strip_error_prefixes(result) == [
         'note: Revealed type is "__test__.Base"',
-        "note: Revealed type is \"Union[Literal['str']?, Literal[1]?]\"",
-        'note: Revealed type is "Union[builtins.str, builtins.int]"',
+        "note: Revealed type is \"Literal['str']? | Literal[1]?\"",
+        'note: Revealed type is "builtins.str | builtins.int"',
         'error: Incompatible types in assignment (expression has type "str | int",'
         ' variable has type "str")  [assignment]',
     ]
@@ -719,8 +719,8 @@ def test_if_else_expr_combined_type() -> None:
     assert tree
     assert list(map(repr, get_revealed_types(result, tree))) == [
         "__test__.Base",
-        "Union[Literal['str']?, Literal[1]?]",
-        "Union[builtins.str, builtins.int]",
+        "Literal['str']? | Literal[1]?",
+        "builtins.str | builtins.int",
     ]
 
 
@@ -751,8 +751,8 @@ def test_or_expr_combined_type() -> None:
     assert strip_error_prefixes(result) == [
         'note: Revealed type is "__test__.Base"',
         'note: Revealed type is "__test__.Base"',
-        'note: Revealed type is "Union[Literal[True], __test__.Base]"',
-        'note: Revealed type is "Union[__test__.Base, builtins.int]"',
+        'note: Revealed type is "Literal[True] | __test__.Base"',
+        'note: Revealed type is "__test__.Base | builtins.int"',
         'error: Incompatible types in assignment (expression has type "Base",'
         ' variable has type "Derived")  [assignment]',
     ]
@@ -761,8 +761,8 @@ def test_or_expr_combined_type() -> None:
     assert list(map(repr, get_revealed_types(result, tree))) == [
         "__test__.Base",
         "__test__.Base",
-        "Union[Literal[True], __test__.Base]",
-        "Union[__test__.Base, builtins.int]",
+        "Literal[True] | __test__.Base",
+        "__test__.Base | builtins.int",
     ]
 
 
