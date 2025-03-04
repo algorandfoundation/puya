@@ -1,0 +1,175 @@
+#pragma version 10
+#pragma typetrack false
+
+// test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining.approval_program() -> uint64:
+main:
+    intcblock 0 1
+    bytecblock 0x 0x068101
+    pushbytes 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    store 0
+
+main_block@0:
+    // regression_tests/slot_allocation_inlining.py:6
+    // ensure_budget(800)
+    pushint 800 // 800
+    intc_0 // 0
+    callsub ensure_budget
+    // regression_tests/slot_allocation_inlining.py:7
+    // do_something_with_array()
+    callsub do_something_with_array
+    // regression_tests/slot_allocation_inlining.py:8
+    // return True
+    intc_1 // 1
+    return
+
+
+// _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
+ensure_budget:
+    proto 2 0
+
+ensure_budget_block@0:
+    frame_dig -2
+    pushint 10 // 10
+    +
+
+ensure_budget_while_top@1:
+    global OpcodeBudget
+    frame_dig 0
+    <
+    bz ensure_budget_after_while@7
+
+ensure_budget_while_body@2:
+    itxn_begin
+    pushint 6 // appl
+    itxn_field TypeEnum
+    pushint 5 // DeleteApplication
+    itxn_field OnCompletion
+    bytec_1 // 0x068101
+    itxn_field ApprovalProgram
+    bytec_1 // 0x068101
+    itxn_field ClearStateProgram
+    intc_0 // 0
+    intc_1 // 1
+    frame_dig -1
+    match ensure_budget_switch_case_0@3 ensure_budget_switch_case_1@4
+
+ensure_budget_switch_case_default@5:
+
+ensure_budget_switch_case_next@6:
+    itxn_submit
+    b ensure_budget_while_top@1
+
+ensure_budget_switch_case_1@4:
+    global MinTxnFee
+    itxn_field Fee
+    b ensure_budget_switch_case_next@6
+
+ensure_budget_switch_case_0@3:
+    intc_0 // 0
+    itxn_field Fee
+    b ensure_budget_switch_case_next@6
+
+ensure_budget_after_while@7:
+    retsub
+
+
+// test_cases.regression_tests.slot_allocation_inlining.do_something_with_array() -> void:
+do_something_with_array:
+
+do_something_with_array_block@0:
+    // regression_tests/slot_allocation_inlining.py:16-17
+    // # create pseudo random array from sender address
+    // arr = Array[UInt64]()
+    callsub _puya_lib.mem.new_slot
+    dup
+    bytec_0 // 0x
+    stores
+    // regression_tests/slot_allocation_inlining.py:18
+    // append_to_array(arr)
+    dup
+    callsub append_to_array
+    // regression_tests/slot_allocation_inlining.py:19
+    // assert arr.length == 32, "expected array of length 32"
+    loads
+    len
+    pushint 8 // 8
+    /
+    pushint 32 // 32
+    ==
+    assert // expected array of length 32
+    retsub
+
+
+// test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr: uint64) -> void:
+append_to_array:
+    // regression_tests/slot_allocation_inlining.py:22-23
+    // @subroutine(inline=False)
+    // def append_to_array(arr: Array[UInt64]) -> None:
+    proto 1 0
+
+append_to_array_block@0:
+    // regression_tests/slot_allocation_inlining.py:24
+    // for b in Txn.sender.bytes:
+    txn Sender
+    dup
+    len
+    intc_0 // 0
+
+append_to_array_for_header@1:
+    // regression_tests/slot_allocation_inlining.py:24
+    // for b in Txn.sender.bytes:
+    frame_dig 2
+    frame_dig 1
+    <
+    bz append_to_array_after_for@4
+
+append_to_array_for_body@2:
+    // regression_tests/slot_allocation_inlining.py:24
+    // for b in Txn.sender.bytes:
+    frame_dig 0
+    frame_dig 2
+    intc_1 // 1
+    extract3
+    // regression_tests/slot_allocation_inlining.py:25
+    // arr.append(op.btoi(b))
+    btoi
+    itob
+    bytec_0 // 0x
+    swap
+    concat
+    bytec_0 // 0x
+    swap
+    concat
+    frame_dig -1
+    loads
+    swap
+    concat // on error: max array length exceeded
+    frame_dig -1
+    swap
+    stores
+
+append_to_array_for_footer@3:
+    frame_dig 2
+    intc_1 // 1
+    +
+    frame_bury 2
+    b append_to_array_for_header@1
+
+append_to_array_after_for@4:
+    retsub
+
+
+// _puya_lib.mem.new_slot() -> uint64:
+_puya_lib.mem.new_slot:
+
+_puya_lib.mem.new_slot@entry:
+    load 0
+    bitlen
+    load 0
+    pushint 256 // 256
+    dig 2
+    -
+    intc_0 // 0
+    setbit // on error: no available slots
+    store 0
+    retsub

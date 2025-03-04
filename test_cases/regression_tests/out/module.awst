@@ -24,6 +24,38 @@ contract TealSwitchInlining
   }
 }
 
+contract SlotAllocationInlining
+{
+  method_resolution_order: (
+  )
+  
+  subroutine test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining.approval_program(): bool
+  {
+    _puya_lib.util.ensure_budget(required_budget=800u, fee_source=0u)
+    test_cases.regression_tests.slot_allocation_inlining.do_something_with_array()
+    return true
+  }
+  
+  subroutine test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining.clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+subroutine do_something_with_array(): void
+{
+  arr: ref_array<uint64> = new ref_array<uint64>()
+  test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr)
+  assert(arr.length == 32u, comment="expected array of length 32")
+}
+
+subroutine append_to_array(arr: ref_array<uint64>): void
+{
+  for b in reinterpret_cast<bytes>(txn<Sender>()) {
+    arr.extend((btoi(b)))
+  }
+}
+
 contract BranchElimination
 {
   method_resolution_order: (
@@ -114,6 +146,40 @@ subroutine hmm(): bool
 subroutine hmm_uint64(): uint64
 {
   return 0u
+}
+
+contract Jira142
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.regression_tests.jira_142.Jira142.some_subroutine(char: test_cases.regression_tests.jira_142.MyStruct): void
+  {
+  }
+  
+  abimethod test_cases.regression_tests.jira_142.Jira142.battle(): void
+  {
+    my_struct: test_cases.regression_tests.jira_142.MyStruct = new test_cases.regression_tests.jira_142.MyStruct(foo=200_arc4u64)
+    if (reinterpret_cast<biguint>(my_struct.foo) > reinterpret_cast<biguint>(100_arc4u64)) {
+      this::some_subroutine(my_struct)
+    }
+    log(reinterpret_cast<bytes>(my_struct.copy()))
+  }
+  
+  baremethod test_cases.regression_tests.jira_142.Jira142.__algopy_default_create(): void
+  {
+  }
 }
 
 contract Issue194

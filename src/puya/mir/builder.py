@@ -15,14 +15,9 @@ from puya.mir.context import ProgramMIRContext
 from puya.utils import biguint_bytes_eval
 
 logger = log.get_logger(__name__)
+
 # TODO: ensure unique
 _NEW_SLOT_SUB = "_puya_lib.mem.new_slot"
-
-
-@attrs.frozen
-class TempVar:
-    local_id: str
-    atype: AVMType
 
 
 @attrs.define
@@ -73,37 +68,21 @@ class MemoryIRBuilder(IRVisitor[None]):
                 )
 
     def visit_register(self, reg: ir.Register) -> None:
-        produces = (reg.local_id,)
-        if isinstance(self.active_op, ir.Assignment):
-            if reg is self.active_op.source:
-                (target,) = self.active_op.targets
-                produces = (target.local_id,)
-            elif (
-                isinstance(self.active_op.source, ir.ValueTuple)
-                and reg in self.active_op.source.values
-            ):
-                index = self.active_op.source.values.index(reg)
-                target = self.active_op.targets[index]
-                produces = (target.local_id,)
         try:
             param_idx = self.current_subroutine.parameters.index(reg)
         except ValueError:
             self._add_op(
                 models.AbstractLoad(
                     local_id=reg.local_id,
-                    produces=produces,
                     source_location=(self.active_op or reg).source_location,
                     atype=reg.atype,
                 )
             )
         else:
             index = param_idx - len(self.current_subroutine.parameters)
-            if produces[0] == reg.local_id:
-                produces = (f"{produces[0]} (copy)",)
             self._add_op(
                 models.LoadParam(
                     local_id=reg.local_id,
-                    produces=produces,
                     index=index,
                     source_location=(self.active_op or reg).source_location,
                     atype=reg.atype,

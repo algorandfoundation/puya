@@ -30,5 +30,7 @@ class MemoryReplacer(IRMutator):
             replacement = self._replacements[reg]
         except KeyError:
             return reg
+        # make sure we don't replace with a register that is being replaced itself
+        assert replacement not in self._replacements, "Replacement chains are not supported"
         self.replaced += 1
         return replacement

@@ -1544,22 +1544,3 @@ def create_bytes_binary_op(
                 source_location=source_location,
             )
     raise InternalError("Unsupported BytesBinaryOperator: " + op)
-
-
-def get_comparison_op_for_wtype(
-    numeric_comparison_equivalent: awst_nodes.NumericComparison, wtype: wtypes.WType
-) -> AVMOp:
-    match wtype:
-        case wtypes.biguint_wtype:
-            return AVMOp("b" + numeric_comparison_equivalent)
-        case wtypes.uint64_wtype:
-            return AVMOp(numeric_comparison_equivalent)
-        case wtypes.bytes_wtype:
-            match numeric_comparison_equivalent:
-                case awst_nodes.NumericComparison.eq:
-                    return AVMOp.eq
-                case awst_nodes.NumericComparison.ne:
-                    return AVMOp.neq
-    raise InternalError(
-        f"unsupported operation of {numeric_comparison_equivalent} on type of {wtype}"
-    )

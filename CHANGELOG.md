@@ -1,4 +1,20 @@
 # CHANGELOG
+## v4.4.3 (2025-03-04)
+
+### Fix
+
+* prevent slot allocation ops from being inlined ([`85b076b`](https://github.com/algorandfoundation/puya/commit/85b076b1a6b5812e52df01e90f051931b61736b5))
+
+* do not remove the phi node if it is used as a replacement for (#402) ([`50655bf`](https://github.com/algorandfoundation/puya/commit/50655bf9687ace74227d34debde52c7ec24faf0d))
+
+  another register
+
+### Documentation
+
+* add adr for language server packaging (#399) ([`40db806`](https://github.com/algorandfoundation/puya/commit/40db806f7082b30faf816393828d61272642cc18))
+
+  * docs: add adr for language server packaging
+
 ## v4.4.2 (2025-02-24)
 
 ### Fix

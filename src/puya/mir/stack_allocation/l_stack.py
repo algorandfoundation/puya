@@ -4,8 +4,9 @@ import attrs
 
 from puya import log
 from puya.mir import models as mir
-from puya.mir.context import SubroutineCodeGenContext
+from puya.mir.context import ProgramMIRContext
 from puya.mir.stack import Stack
+from puya.mir.vla import VariableLifetimeAnalysis
 
 logger = log.get_logger(__name__)
 
@@ -22,22 +23,18 @@ class UsagePair:
         return pair.b_index - pair.a_index, pair.a_index, pair.b_index
 
 
-def l_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
+def l_stack_allocation(ctx: ProgramMIRContext, sub: mir.MemorySubroutine) -> None:
     # the following is basically koopmans algorithm
     # done as part of http://www.euroforth.org/ef06/shannon-bailey06.pdf
     # see also https://users.ece.cmu.edu/~koopman/stack_compiler/stack_co.html#appendix
-    for block in ctx.subroutine.body:
+    for block in sub.body:
         usage_pairs = _find_usage_pairs(block)
-        _copy_usage_pairs(ctx, block, usage_pairs)
-    for block in ctx.subroutine.body:
-        _dead_store_removal(ctx, block)
-        if ctx.options.optimization_level:
-            _implicit_store_removal(block)
-    # update vla after dead store removal
-    ctx.invalidate_vla()
+        _copy_usage_pairs(sub, block, usage_pairs)
+    _dead_store_removal(sub)
+    if ctx.options.optimization_level:
+        _implicit_store_removal(sub)
     # calculate load depths now that l-stack allocations are done
-    for block in ctx.subroutine.body:
-        _calculate_load_depths(ctx, block)
+    _calculate_load_depths(sub)
 
 
 def _find_usage_pairs(block: mir.MemoryBasicBlock) -> list[UsagePair]:
@@ -63,7 +60,7 @@ def _find_usage_pairs(block: mir.MemoryBasicBlock) -> list[UsagePair]:
 
 
 def _copy_usage_pairs(
-    ctx: SubroutineCodeGenContext, block: mir.MemoryBasicBlock, pairs: list[UsagePair]
+    sub: mir.MemorySubroutine, block: mir.MemoryBasicBlock, pairs: list[UsagePair]
 ) -> None:
     # 1. copy define or use to bottom of l-stack
     # 2. replace usage with instruction to rotate the value from the bottom of l-stack to the top
@@ -83,7 +80,7 @@ def _copy_usage_pairs(
 
         # insert replacement before store, or after load
         insert_index = a_index if isinstance(a, mir.AbstractStore) else a_index + 1
-        stack = Stack.begin_block(ctx.subroutine, block)
+        stack = Stack.begin_block(sub, block)
         for op in block.mem_ops[:insert_index]:
             op.accept(stack)
         dup = mir.StoreLStack(
@@ -123,67 +120,76 @@ def _copy_usage_pairs(
         logger.debug(f"Replaced {block.block_name}.ops[{b_index}]: '{b}' with '{uncover}'")
 
 
-def _dead_store_removal(ctx: SubroutineCodeGenContext, block: mir.MemoryBasicBlock) -> None:
-    ops = block.mem_ops
-    op_idx = 0
-    while op_idx < len(ops) - 1:
-        window = slice(op_idx, op_idx + 2)
-        a, b = ops[window]
-        if (
-            isinstance(a, mir.StoreLStack)
-            and a.copy
-            and isinstance(b, mir.AbstractStore)
-            and b.local_id not in ctx.vla.get_live_out_variables(b)
-        ):
+def _dead_store_removal(sub: mir.MemorySubroutine) -> None:
+    vla = VariableLifetimeAnalysis(sub)
+    for block in sub.body:
+        ops = block.mem_ops
+        op_idx = 0
+        while op_idx < len(ops) - 1:
+            window = slice(op_idx, op_idx + 2)
+            a, b = ops[window]
             # StoreLStack is used to:
             #   1.) create copy of the value to be immediately stored via virtual store
             #   2.) rotate the value to the bottom of the stack for use in a later op in this block
             # If it is a dead store, then the 1st scenario is no longer needed
             # and instead just need to ensure the value is moved to the bottom of the stack
-            a = attrs.evolve(a, copy=False, produces=())
-            ops[window] = [a]
-        elif (
-            isinstance(a, mir.LoadLStack)
-            and not a.copy
-            and isinstance(b, mir.StoreLStack)
-            and b.copy
-            and a.local_id == b.local_id
-        ):
-            a = attrs.evolve(
-                a,
-                copy=True,
-                produces=(f"{a.local_id} (copy)",),
-            )
-            ops[window] = [a]
-        op_idx += 1
+            if isinstance(a, mir.StoreLStack):
+                if a.copy and vla.is_dead_store(b):
+                    a = attrs.evolve(a, copy=False, produces=())
+                    ops[window] = [a]
+            elif (
+                (isinstance(a, mir.LoadLStack) and not a.copy)
+                and (isinstance(b, mir.StoreLStack) and b.copy)
+                and a.local_id == b.local_id
+            ):
+                a = attrs.evolve(
+                    a,
+                    copy=True,
+                    produces=(f"{a.local_id} (copy)",),
+                )
+                ops[window] = [a]
+            op_idx += 1
 
 
-def _implicit_store_removal(block: mir.MemoryBasicBlock) -> None:
-    ops = block.mem_ops
-    op_idx = 0
-    while op_idx < len(ops):
-        op = ops[op_idx]
-        # see if ops immediately after this op are all storing to the l-stack what this op produces
-        next_op_idx = op_idx + 1
-        maybe_remove_window = slice(next_op_idx, next_op_idx + len(op.produces))
-        maybe_remove = [
-            maybe_store
-            for maybe_store in ops[maybe_remove_window]
-            if isinstance(maybe_store, mir.StoreLStack)
-            and not maybe_store.copy
-            and maybe_store.local_id in op.produces
-        ]
-        # if they all match then this means all values are implicitly on the l-stack
-        # and we can safely remove the store ops
-        if len(maybe_remove) == len(op.produces):
-            ops[maybe_remove_window] = []
-        op_idx = next_op_idx
+def _implicit_store_removal(sub: mir.MemorySubroutine) -> None:
+    """
+    This handles the case where some operation (such as subroutine calls) is evaluated to
+    temporary register(s), which are then immediately assigned to other variables, we can eliminate
+    the assignment of temporaries and just make the operation assign the other variables directly.
+    """
+    for block in sub.body:
+        ops = block.mem_ops
+        op_idx = 0
+        while op_idx < len(ops):
+            op = ops[op_idx]
+            # see if ops immediately after this are all storing to l-stack what this op produces
+            next_op_idx = op_idx + 1
+            if op.produces:
+                produces_window = slice(next_op_idx, next_op_idx + len(op.produces))
+                store_ids = [
+                    (
+                        maybe_store.local_id
+                        if isinstance(maybe_store, mir.StoreLStack) and not maybe_store.copy
+                        else None
+                    )
+                    for maybe_store in ops[produces_window]
+                ]
+                store_ids.reverse()
+                # If they all match then this means all values are implicitly on the l-stack
+                # and we can safely remove the store ops.
+                # We don't need to check the depths since the load depths are not calculated yet.
+                if store_ids == op.produces:
+                    ops[produces_window] = []
+            op_idx = next_op_idx
 
 
-def _calculate_load_depths(ctx: SubroutineCodeGenContext, block: mir.MemoryBasicBlock) -> None:
-    stack = Stack.begin_block(ctx.subroutine, block)
-    for idx, op in enumerate(block.mem_ops):
-        if isinstance(op, mir.LoadLStack):
-            local_id_index = stack.l_stack.index(op.local_id)
-            block.mem_ops[idx] = attrs.evolve(op, depth=len(stack.l_stack) - local_id_index - 1)
-        op.accept(stack)
+def _calculate_load_depths(sub: mir.MemorySubroutine) -> None:
+    for block in sub.body:
+        stack = Stack.begin_block(sub, block)
+        for idx, op in enumerate(block.mem_ops):
+            if isinstance(op, mir.LoadLStack):
+                local_id_index = stack.l_stack.index(op.local_id)
+                block.mem_ops[idx] = attrs.evolve(
+                    op, depth=len(stack.l_stack) - local_id_index - 1
+                )
+            op.accept(stack)
