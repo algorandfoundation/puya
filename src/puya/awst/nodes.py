@@ -1585,6 +1585,15 @@ class StateDelete(Expression):
     field: StorageExpression
     wtype: WType = attrs.field(default=wtypes.void_wtype)
 
+    @wtype.validator
+    def _validate_wtype(self, _: object, value: WType) -> None:
+        expected = [wtypes.void_wtype]
+        if isinstance(self.field, BoxValueExpression):
+            expected.append(wtypes.bool_wtype)
+
+        if value not in expected:
+            raise ValueError(f"Expected {expected}, got {value}")
+
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_state_delete(self)
 

@@ -4,7 +4,6 @@ from collections.abc import Sequence
 
 import mypy.nodes
 
-from puya.awst import wtypes
 from puya.awst.nodes import (
     BoxValueExpression,
     ExpressionStatement,
@@ -79,9 +78,7 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder[pytypes.PyType, BoxV
     @typing.override
     def delete(self, location: SourceLocation) -> Statement:
         return ExpressionStatement(
-            expr=StateDelete(
-                field=self.resolve(), source_location=location, wtype=wtypes.bool_wtype
-            )
+            expr=StateDelete(field=self.resolve(), source_location=location)
         )
 
     @typing.override
