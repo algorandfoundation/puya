@@ -45,4 +45,4 @@ class DemoContract(ARC4Contract):
 
     @arc4.abimethod()
     def compare(self) -> bool:
-        return self.get_one() == self.get_two() and self.get_two() == self.get_three()
+        return self.get_one() == self.get_two() and self.get_two() == self.get_three()  # type: ignore[comparison-overlap]

@@ -118,7 +118,7 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
             other.pytype == self.pytype  # can only compare with other of same type?
             and op in (BuilderComparisonOp.eq, BuilderComparisonOp.ne)
         ):
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
         cmp_expr = NumericComparisonExpression(
             source_location=location,
             lhs=self.resolve(),

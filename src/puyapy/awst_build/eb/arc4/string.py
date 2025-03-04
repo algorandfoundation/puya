@@ -120,7 +120,7 @@ class ARC4StringExpressionBuilder(
         reverse: bool,
     ) -> InstanceBuilder:
         if op != BuilderBinaryOp.add:
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
 
         other = other.resolve_literal(ARC4StringTypeBuilder(other.source_location))
         if pytypes.ARC4StringType <= other.pytype:
@@ -128,7 +128,7 @@ class ARC4StringExpressionBuilder(
         elif pytypes.StringType <= other.pytype:
             other_expr = _from_native(other, other.source_location).resolve()
         else:
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
 
         lhs = self.resolve()
         rhs = other_expr
@@ -150,7 +150,7 @@ class ARC4StringExpressionBuilder(
             # when comparing arc4 to native, easier to convert by stripping length prefix
             lhs = _string_to_native(self, self.source_location)
         else:
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
         return compare_expr_bytes(
             lhs=lhs.resolve(),
             op=op,

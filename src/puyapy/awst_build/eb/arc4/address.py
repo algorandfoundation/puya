@@ -112,7 +112,7 @@ class AddressExpressionBuilder(StaticArrayExpressionBuilder):
         elif pytypes.ARC4AddressType <= other.pytype:
             rhs = other.resolve()
         else:
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
         return compare_expr_bytes(lhs=self.resolve(), op=op, rhs=rhs, source_location=location)
 
     @typing.override

@@ -124,7 +124,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
     ) -> InstanceBuilder:
         other = _resolve_literal_and_upcast_bool(other)
         if not (pytypes.UInt64Type <= other.pytype):
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
         cmp_expr = NumericComparisonExpression(
             source_location=location,
             lhs=self.resolve(),
@@ -144,10 +144,10 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
     ) -> InstanceBuilder:
         uint64_op = _translate_uint64_math_operator(op, location)
         if uint64_op is None:
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
         other = _resolve_literal_and_upcast_bool(other)
         if not (pytypes.UInt64Type <= other.pytype):
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
 
         lhs = self.resolve()
         rhs = other.resolve()

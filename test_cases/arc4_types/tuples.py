@@ -14,7 +14,7 @@ class Arc4TuplesTypeContract(Contract):
     def approval_program(self) -> bool:
         my_tuple = Tuple((UInt8(1), UInt8(2), String("hello"), String("world"), UInt8(255)))
 
-        assert my_tuple == TestTuple.from_bytes(  # type: ignore[comparison-overlap]
+        assert my_tuple == TestTuple.from_bytes(
             Bytes.from_hex("01020007000EFF000568656C6C6F0005776F726C64")
         )
         boolean_packing = Tuple(

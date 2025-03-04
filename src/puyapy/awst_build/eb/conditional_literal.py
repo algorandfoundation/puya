@@ -120,7 +120,7 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         transformed_true = self._true_literal.compare(other, op, location)
         transformed_false = self._false_literal.compare(other, op, location)
         if transformed_true is NotImplemented or transformed_false is NotImplemented:
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
         return ConditionalLiteralBuilder(
             true_literal=transformed_true,
             false_literal=transformed_false,
@@ -141,7 +141,7 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         transformed_true = self._true_literal.binary_op(other, op, location, reverse=reverse)
         transformed_false = self._false_literal.binary_op(other, op, location, reverse=reverse)
         if transformed_true is NotImplemented or transformed_false is NotImplemented:
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
         return ConditionalLiteralBuilder(
             true_literal=transformed_true,
             false_literal=transformed_false,

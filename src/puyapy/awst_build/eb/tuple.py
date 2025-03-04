@@ -237,7 +237,7 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType], StaticSizedCollect
                     case _:
                         raise CodeError("can't multiply sequence by non-int-literal", location)
             case _:
-                return NotImplemented
+                return NotImplemented  # type: ignore[no-any-return]
 
     @typing.override
     def bool_binary_op(
@@ -343,7 +343,7 @@ class TupleExpressionBuilder(
                     case _:
                         raise CodeError("can't multiply sequence by non-int-literal", location)
             case _:
-                return NotImplemented
+                return NotImplemented  # type: ignore[no-any-return]
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
@@ -531,7 +531,7 @@ def _compare(
     location: SourceLocation,
 ) -> InstanceBuilder:
     if not isinstance(rhs.pytype, pytypes.TupleType):
-        return NotImplemented
+        return NotImplemented  # type: ignore[no-any-return]
 
     match op:
         case BuilderComparisonOp.eq:
