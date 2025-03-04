@@ -88,7 +88,7 @@ def visit_state_get_ex(
 
 def visit_state_delete(
     context: IRFunctionBuildContext, statement: awst_nodes.StateDelete
-) -> ValueProvider | None:
+) -> ValueProvider:
     match statement.field:
         case awst_nodes.BoxValueExpression(key=awst_key):
             op = AVMOp.box_del
@@ -108,10 +108,8 @@ def visit_state_delete(
     key_value = context.visitor.visit_and_materialise_single(awst_key)
     args.append(key_value)
 
-    context.block_builder.add(
-        Intrinsic(op=op, args=args, source_location=statement.source_location)
-    )
-    return None
+    delete_ex = Intrinsic(op=op, args=args, source_location=statement.source_location)
+    return delete_ex
 
 
 def _build_state_get_ex(
