@@ -24,6 +24,38 @@ contract TealSwitchInlining
   }
 }
 
+contract SlotAllocationInlining
+{
+  method_resolution_order: (
+  )
+  
+  subroutine test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining.approval_program(): bool
+  {
+    _puya_lib.util.ensure_budget(required_budget=800u, fee_source=0u)
+    test_cases.regression_tests.slot_allocation_inlining.do_something_with_array()
+    return true
+  }
+  
+  subroutine test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining.clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+subroutine do_something_with_array(): void
+{
+  arr: ref_array<uint64> = new ref_array<uint64>()
+  test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr)
+  assert(arr.length == 32u, comment="expected array of length 32")
+}
+
+subroutine append_to_array(arr: ref_array<uint64>): void
+{
+  for b in reinterpret_cast<bytes>(txn<Sender>()) {
+    arr.extend((btoi(b)))
+  }
+}
+
 contract BranchElimination
 {
   method_resolution_order: (

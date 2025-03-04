@@ -1,0 +1,94 @@
+#pragma version 10
+#pragma typetrack false
+
+// test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining.approval_program() -> uint64:
+main:
+    intcblock 0 1
+    bytecblock 0x068101
+
+main_while_top@2:
+    pushbytes 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    store 0
+    pushint 810 // 810
+    global OpcodeBudget
+    >
+    bz main_after_while@8
+    itxn_begin
+    pushint 6 // appl
+    itxn_field TypeEnum
+    pushint 5 // DeleteApplication
+    itxn_field OnCompletion
+    bytec_0 // 0x068101
+    itxn_field ApprovalProgram
+    bytec_0 // 0x068101
+    itxn_field ClearStateProgram
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    b main_while_top@2
+
+main_after_while@8:
+    callsub _puya_lib.mem.new_slot
+    dup
+    pushbytes 0x
+    stores
+    dup
+    callsub append_to_array
+    loads
+    len
+    pushint 8 // 8
+    /
+    pushint 32 // 32
+    ==
+    assert // expected array of length 32
+    intc_1 // 1
+    return
+
+
+// test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr: uint64) -> void:
+append_to_array:
+    proto 1 0
+    txn Sender
+    dup
+    len
+    intc_0 // 0
+
+append_to_array_for_header@1:
+    frame_dig 2
+    frame_dig 1
+    <
+    bz append_to_array_after_for@4
+    frame_dig 0
+    frame_dig 2
+    dup
+    cover 2
+    getbyte
+    itob
+    frame_dig -1
+    loads
+    swap
+    concat // on error: max array length exceeded
+    frame_dig -1
+    swap
+    stores
+    intc_1 // 1
+    +
+    frame_bury 2
+    b append_to_array_for_header@1
+
+append_to_array_after_for@4:
+    retsub
+
+
+// _puya_lib.mem.new_slot() -> uint64:
+_puya_lib.mem.new_slot:
+    load 0
+    bitlen
+    load 0
+    pushint 256 // 256
+    dig 2
+    -
+    intc_0 // 0
+    setbit // on error: no available slots
+    store 0
+    retsub
