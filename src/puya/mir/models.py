@@ -681,12 +681,19 @@ class MemorySubroutine:
     source_location: SourceLocation | None
 
 
+@attrs.frozen(kw_only=True)
+class SlotAllocation:
+    allocation_slot: int
+    allocation_map: bytes
+
+
 @attrs.define
 class Program:
     kind: ProgramKind
     main: MemorySubroutine
     subroutines: list[MemorySubroutine]
     avm_version: int
+    slot_allocation: SlotAllocation | None
 
     @property
     def all_subroutines(self) -> Iterator[MemorySubroutine]:
