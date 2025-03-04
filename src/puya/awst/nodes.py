@@ -1583,7 +1583,7 @@ class StateExists(Expression):
 @attrs.frozen
 class StateDelete(Expression):
     field: StorageExpression
-    wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
+    wtype: WType = attrs.field(default=wtypes.void_wtype)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_state_delete(self)

@@ -108,8 +108,7 @@ def visit_state_delete(
     key_value = context.visitor.visit_and_materialise_single(awst_key)
     args.append(key_value)
 
-    delete_ex = Intrinsic(op=op, args=args, source_location=statement.source_location)
-    return delete_ex
+    return Intrinsic(op=op, args=args, source_location=statement.source_location)
 
 
 def _build_state_get_ex(
