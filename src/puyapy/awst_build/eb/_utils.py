@@ -93,7 +93,7 @@ def compare_bytes(
 ) -> InstanceBuilder:
     # defer to most derived type if not equal
     if not (other.pytype <= self.pytype):
-        return NotImplemented
+        return NotImplemented  # type: ignore[no-any-return]
     return _compare_expr_bytes_unchecked(self.resolve(), op, other.resolve(), source_location)
 
 
@@ -105,7 +105,7 @@ def compare_expr_bytes(
     source_location: SourceLocation,
 ) -> InstanceBuilder:
     if rhs.wtype != lhs.wtype:
-        return NotImplemented
+        return NotImplemented  # type: ignore[no-any-return]
     return _compare_expr_bytes_unchecked(lhs, op, rhs, source_location)
 
 
@@ -120,7 +120,7 @@ def _compare_expr_bytes_unchecked(
     try:
         eq_op = EqualityComparison(op.value)
     except ValueError:
-        return NotImplemented
+        return NotImplemented  # type: ignore[no-any-return]
     cmp_expr = BytesComparisonExpression(
         lhs=lhs,
         operator=eq_op,

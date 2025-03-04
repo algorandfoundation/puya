@@ -100,7 +100,7 @@ class LiteralBuilderImpl(LiteralBuilder):
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> LiteralBuilder:
         if not isinstance(other, LiteralBuilder):
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
         folded = fold_binary_expr(location, op.value, self.value, other.value)
         return LiteralBuilderImpl(value=folded, source_location=location)
 
@@ -114,7 +114,7 @@ class LiteralBuilderImpl(LiteralBuilder):
         reverse: bool,
     ) -> LiteralBuilder:
         if not isinstance(other, LiteralBuilder):
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
         lhs, rhs = self.value, other.value
         if reverse:
             lhs, rhs = rhs, lhs

@@ -6,6 +6,7 @@ import logging
 import os.path
 import platform
 import sys
+import types
 import typing
 from collections import Counter
 from collections.abc import Iterator, Mapping, Sequence
@@ -221,8 +222,8 @@ class PuyaConsoleRender(structlog.dev.ConsoleRenderer):
 
         if exc_info:
             exc_info = figure_out_exc_info(exc_info)
-
-            self._exception_formatter(sio, exc_info)
+            if exc_info:
+                self._exception_formatter(sio, exc_info)
         elif exc is not None:
             sio.write("\n" + exc)
 
@@ -230,23 +231,30 @@ class PuyaConsoleRender(structlog.dev.ConsoleRenderer):
 
 
 # copied from structlog.dev._figure_out_exc_info
-def figure_out_exc_info(
-    v: BaseException | structlog.typing.ExcInfo | bool,
-) -> structlog.typing.ExcInfo | bool:
+def figure_out_exc_info(v: object) -> structlog.typing.ExcInfo | None:
     """
-    Depending on the Python version will try to do the smartest thing possible
-    to transform *v* into an ``exc_info`` tuple.
+    Try to convert *v* into an ``exc_info`` tuple.
+
+    Return ``None`` if *v* does not represent an exception or if there is no
+    current exception.
     """
     if isinstance(v, BaseException):
-        return type(v), v, v.__traceback__
+        return (v.__class__, v, v.__traceback__)
 
-    if isinstance(v, tuple):
-        return v
+    if isinstance(v, tuple) and len(v) == 3:
+        has_type = isinstance(v[0], type) and issubclass(v[0], BaseException)
+        has_exc = isinstance(v[1], BaseException)
+        has_tb = v[2] is None or isinstance(v[2], types.TracebackType)
+        if has_type and has_exc and has_tb:
+            return v
 
     if v:
-        return sys.exc_info()  # type: ignore[return-value]
+        result = sys.exc_info()
+        if result == (None, None, None):
+            return None
+        return typing.cast(structlog.typing.ExcInfo, result)
 
-    return v
+    return None
 
 
 @attrs.define

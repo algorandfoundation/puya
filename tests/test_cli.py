@@ -93,7 +93,7 @@ def test_run_version() -> None:
 def test_run_not_python() -> None:
     result = run_puyapy(["pyproject.toml"], check=False)
     assert result.returncode == 1
-    assert "error: invalid syntax" in result.stdout
+    assert "error: Invalid syntax" in result.stdout
 
 
 def test_run_single_file() -> None:

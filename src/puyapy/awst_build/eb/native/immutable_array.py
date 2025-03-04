@@ -157,7 +157,7 @@ class ImmutableArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayTyp
     ) -> InstanceBuilder:
         # only __add__ is implemented, not __radd__
         if op != BuilderBinaryOp.add or reverse:
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
 
         other = _match_array_concat_arg(other, self.pytype)
         return ImmutableArrayExpressionBuilder(

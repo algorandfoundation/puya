@@ -314,7 +314,8 @@ def get_mypy_options(
 
     # disallow use of any
     mypy_opts.disallow_any_unimported = True
-    mypy_opts.disallow_any_expr = True
+    # should be True but: https://github.com/python/mypy/issues/18770
+    mypy_opts.disallow_any_expr = False
     mypy_opts.disallow_any_decorated = True
     mypy_opts.disallow_any_explicit = True
 

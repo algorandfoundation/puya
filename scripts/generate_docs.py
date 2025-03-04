@@ -131,9 +131,20 @@ class SymbolCollector(NodeVisitor[None]):
             lines[0] = lines[0][columns[0] :]
         return "\n".join(lines)
 
+    @typing.override
     def visit_mypy_file(self, o: mypy.nodes.MypyFile) -> None:
         for stmt in o.defs:
-            stmt.accept(self)
+            match stmt:
+                case mypy.nodes.ClassDef():
+                    self.visit_class_def(stmt)
+                case mypy.nodes.FuncDef():
+                    self.visit_func_def(stmt)
+                case mypy.nodes.OverloadedFuncDef():
+                    self.visit_overloaded_func_def(stmt)
+                case mypy.nodes.AssignmentStmt():
+                    self.visit_assignment_stmt(stmt)
+                case mypy.nodes.ExpressionStmt():
+                    self.visit_expression_stmt(stmt)
             self.last_stmt = stmt
 
     def _get_bases(self, klass: mypy.nodes.ClassDef) -> ClassBases:
@@ -164,6 +175,7 @@ class SymbolCollector(NodeVisitor[None]):
             )
         return "\n".join(src)
 
+    @typing.override
     def visit_class_def(self, o: mypy.nodes.ClassDef) -> None:
         self.all_classes[o.fullname] = self.file, o
         class_bases = self._get_bases(o)
@@ -172,9 +184,11 @@ class SymbolCollector(NodeVisitor[None]):
         else:
             self.symbols[o.name] = self.get_src(o)
 
+    @typing.override
     def visit_func_def(self, o: mypy.nodes.FuncDef) -> None:
         self.symbols[o.name] = self.get_src(o)
 
+    @typing.override
     def visit_overloaded_func_def(self, o: mypy.nodes.OverloadedFuncDef) -> None:
         line = o.line
         end_line = o.end_line or o.line
@@ -191,6 +205,7 @@ class SymbolCollector(NodeVisitor[None]):
 
         self.symbols[o.name] = src
 
+    @typing.override
     def visit_assignment_stmt(self, o: mypy.nodes.AssignmentStmt) -> None:
         try:
             (lvalue,) = o.lvalues
@@ -205,6 +220,7 @@ class SymbolCollector(NodeVisitor[None]):
             loc.column = lvalue.end_column
         self.symbols[lvalue.name] = self.get_src(loc)
 
+    @typing.override
     def visit_expression_stmt(self, o: mypy.nodes.ExpressionStmt) -> None:
         if isinstance(o.expr, mypy.nodes.StrExpr) and isinstance(
             self.last_stmt, mypy.nodes.AssignmentStmt
@@ -254,15 +270,22 @@ class ImportCollector(NodeVisitor[None]):
             imports = self.collected_imports[module_id] = ModuleImports()
         return imports
 
+    @typing.override
     def visit_mypy_file(self, o: mypy.nodes.MypyFile) -> None:
         for stmt in o.defs:
-            stmt.accept(self)
+            match stmt:
+                case mypy.nodes.ImportFrom():
+                    self.visit_import_from(stmt)
+                case mypy.nodes.Import():
+                    self.visit_import(stmt)
 
+    @typing.override
     def visit_import_from(self, o: mypy.nodes.ImportFrom) -> None:
         imports = self.get_imports(o.id)
         for name, name_as in o.names:
             imports.from_imports[name] = name_as
 
+    @typing.override
     def visit_import(self, o: mypy.nodes.Import) -> None:
         for name, name_as in o.ids:
             if name != (name_as or name):
@@ -331,11 +354,19 @@ class DocStub(NodeVisitor[None]):
                     else:
                         print(f"Symbol/import collision: from {module} import {name} as {name_as}")
 
+    @typing.override
     def visit_mypy_file(self, o: mypy.nodes.MypyFile) -> None:
         for stmt in o.defs:
-            stmt.accept(self)
+            match stmt:
+                case mypy.nodes.ImportAll():
+                    self.visit_import_all(stmt)
+                case mypy.nodes.Import():
+                    self.visit_import(stmt)
+                case mypy.nodes.ImportFrom():
+                    self.visit_import_from(stmt)
         self._add_all_symbols(o.fullname)
 
+    @typing.override
     def visit_import_from(self, o: mypy.nodes.ImportFrom) -> None:
         if not _should_inline_module(o.id):
             self._collect_imports(o)
@@ -351,6 +382,7 @@ class DocStub(NodeVisitor[None]):
                 raise Exception("Aliasing symbols in stubs is not supported")
             self.add_symbol(module, name)
 
+    @typing.override
     def visit_import_all(self, o: mypy.nodes.ImportAll) -> None:
         if _should_inline_module(o.id):
             self._add_all_symbols(o.id)
@@ -362,6 +394,7 @@ class DocStub(NodeVisitor[None]):
         for sym in module.symbols:
             self.add_symbol(module, sym)
 
+    @typing.override
     def visit_import(self, o: mypy.nodes.Import) -> None:
         self._collect_imports(o)
 

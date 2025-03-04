@@ -131,7 +131,7 @@ class UIntNExpressionBuilder(
                 source_location=other.source_location,
             )
         else:
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
         cmp_expr = NumericComparisonExpression(
             operator=NumericComparison(op.value),
             lhs=self._as_biguint(),

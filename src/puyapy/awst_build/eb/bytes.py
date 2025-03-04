@@ -262,11 +262,11 @@ class BytesExpressionBuilder(InstanceExpressionBuilder[pytypes.RuntimeType]):
     ) -> InstanceBuilder:
         bytes_op = _translate_binary_bytes_operator(op)
         if bytes_op is None:
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
 
         other = other.resolve_literal(converter=BytesTypeBuilder(other.source_location))
         if not (pytypes.BytesType <= other.pytype):
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
 
         lhs = self.resolve()
         rhs = other.resolve()
