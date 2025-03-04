@@ -6,8 +6,9 @@ import attrs
 from puya import log
 from puya.errors import InternalError
 from puya.mir import models as mir
-from puya.mir.context import SubroutineCodeGenContext
+from puya.mir.context import ProgramMIRContext
 from puya.mir.stack import Stack
+from puya.mir.vla import VariableLifetimeAnalysis
 
 logger = log.get_logger(__name__)
 
@@ -129,13 +130,13 @@ def get_x_stack_store_ops(record: BlockRecord) -> set[mir.AbstractStore]:
     return set(store_ops)
 
 
-def add_x_stack_ops(ctx: SubroutineCodeGenContext, record: BlockRecord) -> None:
+def add_x_stack_ops(sub: mir.MemorySubroutine, record: BlockRecord) -> None:
     block = record.block
     # determine ops to replace
     load_ops = get_x_stack_load_ops(record)
     store_ops = get_x_stack_store_ops(record)
 
-    stack = Stack.begin_block(ctx.subroutine, block)
+    stack = Stack.begin_block(sub, block)
     for index, op in enumerate(block.mem_ops):
         if op in store_ops:
             assert isinstance(op, mir.AbstractStore)
@@ -158,9 +159,7 @@ def add_x_stack_ops(ctx: SubroutineCodeGenContext, record: BlockRecord) -> None:
         op.accept(stack)
 
 
-def add_x_stack_ops_to_edge_sets(
-    ctx: SubroutineCodeGenContext, edge_sets: Sequence[EdgeSet]
-) -> None:
+def add_x_stack_ops_to_edge_sets(sub: mir.MemorySubroutine, edge_sets: Sequence[EdgeSet]) -> None:
     records = dict.fromkeys(
         b
         for edge_set in edge_sets
@@ -172,7 +171,7 @@ def add_x_stack_ops_to_edge_sets(
         assert record.x_stack_out is not None
         record.block.x_stack_in = record.x_stack_in
         record.block.x_stack_out = record.x_stack_out
-        add_x_stack_ops(ctx, record)
+        add_x_stack_ops(sub, record)
 
 
 def _unique_ordered_blocks(blocks: Iterable[BlockRecord]) -> list[BlockRecord]:
@@ -192,17 +191,17 @@ def get_edge_set(block: BlockRecord) -> EdgeSet | None:
     return EdgeSet(out_blocks, in_blocks) if in_blocks else None
 
 
-def get_edge_sets(ctx: SubroutineCodeGenContext) -> Sequence[EdgeSet]:
+def get_edge_sets(sub: mir.MemorySubroutine, vla: VariableLifetimeAnalysis) -> Sequence[EdgeSet]:
     records = {
         block.block_name: BlockRecord(
             block=block,
             local_references=[
                 op for op in block.ops if isinstance(op, mir.AbstractStore | mir.AbstractLoad)
             ],
-            live_in=ctx.vla.get_live_in_variables(block.ops[0]),
-            live_out=ctx.vla.get_live_out_variables(block.ops[-1]),
+            live_in=vla.get_live_in_variables(block.ops[0]),
+            live_out=vla.get_live_out_variables(block.ops[-1]),
         )
-        for block in ctx.subroutine.body
+        for block in sub.body
     }
     blocks = list(records.values())
 
@@ -256,12 +255,11 @@ def get_edge_sets(ctx: SubroutineCodeGenContext) -> Sequence[EdgeSet]:
     return list(edge_sets.keys())
 
 
-def schedule_sets(ctx: SubroutineCodeGenContext, edge_sets: Sequence[EdgeSet]) -> None:
+def schedule_sets(vla: VariableLifetimeAnalysis, edge_sets: Sequence[EdgeSet]) -> None:
     # determine all blocks referencing variables, so we can track if all references to a
     # variable are scheduled to x-stack
     stores = dict[str, set[mir.MemoryBasicBlock]]()
     loads = dict[str, set[mir.MemoryBasicBlock]]()
-    vla = ctx.vla
     for variable in vla.all_variables:
         stores[variable] = vla.get_store_blocks(variable)
         loads[variable] = vla.get_load_blocks(variable)
@@ -318,7 +316,6 @@ def schedule_sets(ctx: SubroutineCodeGenContext, edge_sets: Sequence[EdgeSet]) -
         )
 
     if variables_successfully_scheduled:
-        ctx.invalidate_vla()
         logger.debug(
             f"Allocated {len(variables_successfully_scheduled)} "
             f"variable/s to x-stack: {', '.join(variables_successfully_scheduled)}"
@@ -350,17 +347,18 @@ def validate_x_stacks(edge_sets: Sequence[EdgeSet]) -> bool:
     return ok
 
 
-def x_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
+def x_stack_allocation(_ctx: ProgramMIRContext, sub: mir.MemorySubroutine) -> None:
     # this is basically baileys algorithm
-    edge_sets = get_edge_sets(ctx)
+    vla = VariableLifetimeAnalysis(sub)
+    edge_sets = get_edge_sets(sub, vla)
     if not edge_sets:
         # nothing to do
         return
 
-    logger.debug(f"Found {len(edge_sets)} edge set/s for {ctx.subroutine.signature.name}")
-    schedule_sets(ctx, edge_sets)
+    logger.debug(f"Found {len(edge_sets)} edge set/s for {sub.signature.name}")
+    schedule_sets(vla, edge_sets)
 
     if not validate_x_stacks(edge_sets):
         raise InternalError("Could not schedule x-stack")
 
-    add_x_stack_ops_to_edge_sets(ctx, edge_sets)
+    add_x_stack_ops_to_edge_sets(sub, edge_sets)

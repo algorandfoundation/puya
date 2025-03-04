@@ -21,21 +21,24 @@ class _OpLifetime:
     live_out: StableSet[str] = attrs.field(factory=StableSet)
 
 
-@attrs.define
+@attrs.frozen
 class VariableLifetimeAnalysis:
     """Performs VLA analysis for a subroutine, providing a mapping of ops to sets of live local_ids
     see https://www.classes.cs.uchicago.edu/archive/2004/spring/22620-1/docs/liveness.pdf"""
 
     subroutine: models.MemorySubroutine
-    _op_lifetimes: dict[models.BaseOp, _OpLifetime] = attrs.field(init=False)
 
-    @cached_property
+    @property
     def all_variables(self) -> Sequence[str]:
         return sorted(
             {v for live in self._op_lifetimes.values() for v in (*live.defined, *live.used)}
         )
 
-    @_op_lifetimes.default
+    def is_dead_store(self, op: models.BaseOp) -> bool:
+        return isinstance(op, models.AbstractStore) and (
+            op.local_id not in self.get_live_out_variables(op)
+        )
+
     def _op_lifetimes_factory(self) -> dict[models.BaseOp, _OpLifetime]:
         result = dict[models.BaseOp, _OpLifetime]()
         block_map = {b.block_name: b.ops[0] for b in self.subroutine.body}
@@ -80,14 +83,10 @@ class VariableLifetimeAnalysis:
     def get_load_blocks(self, variable: str) -> set[models.MemoryBasicBlock]:
         return {op.block for op in self._op_lifetimes.values() if variable in op.used}
 
-    @classmethod
-    def analyze(cls, subroutine: models.MemorySubroutine) -> typing.Self:
-        analysis = cls(subroutine)
-        analysis._analyze()  # noqa: SLF001
-        return analysis
-
-    def _analyze(self) -> None:
-        changed = list(self._op_lifetimes.values())
+    @cached_property
+    def _op_lifetimes(self) -> dict[models.BaseOp, _OpLifetime]:
+        data = self._op_lifetimes_factory()
+        changed = list(data.values())
         while changed:
             orig_changed = changed
             changed = []
@@ -107,3 +106,4 @@ class VariableLifetimeAnalysis:
                     n.live_in = live_in
                     n.live_out = live_out
                     changed.extend(n.predecessors)
+        return data
