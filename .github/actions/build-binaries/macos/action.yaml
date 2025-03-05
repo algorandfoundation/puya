@@ -1,0 +1,92 @@
+name: "Build macOS Binary Artifacts"
+description: "Build macOS specific pyinstaller binary artifacts"
+inputs:
+  package_name:
+    description: "The name of the package"
+    required: true
+  artifacts_dir:
+    description: "The directory to write artifacts you want to publish"
+    required: true
+  with_codesign:
+    description: "Flag to determine if we should sign the binary"
+    required: true
+    type: boolean
+  apple_team_id:
+    description: "The Apple Team ID"
+    required: true
+  apple_bundle_id:
+    description: "The bundle ID to be used for packaging and notarisation"
+    required: true
+  apple_cert_id:
+    description: "The Apple Developer ID certificate ID"
+    required: true
+  apple_notary_user:
+    description: "The Apple user to notarise the package"
+    required: true
+  apple_notary_password:
+    description: "The Apple password to notarise the package"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Build binary
+      shell: bash
+      run: |
+        export APPLE_CERT_ID="${{ inputs.with_codesign == 'true' && inputs.apple_cert_id || '' }}"
+        export APPLE_BUNDLE_ID="${{ inputs.with_codesign == 'true' && inputs.apple_bundle_id || format('beta.{0}', inputs.apple_bundle_id) }}"
+        poetry run poe package_mac
+      env:
+        APPLE_CERT_ID: ${{ inputs.with_codesign == 'true' && inputs.apple_cert_id || '' }}
+        APPLE_BUNDLE_ID: ${{ inputs.with_codesign == 'true' && inputs.apple_bundle_id || format('beta.{0}', inputs.apple_bundle_id) }}
+    # Workaround an issue with PyInstaller where Python.framework was incorrectly signed during the build
+    - name: Codesign python.framework
+      if: ${{ inputs.with_codesign == 'true' }}
+      shell: bash
+      run: |
+        codesign --force --sign "${{ inputs.apple_cert_id }}" --timestamp "${{ github.workspace }}/dist/puya/_internal/Python.framework"
+
+    - name: Notarize
+      if: ${{ inputs.with_codesign == 'true' }}
+      uses: lando/notarize-action@v2
+      with:
+        appstore-connect-team-id: ${{ inputs.apple_team_id }}
+        appstore-connect-username: ${{ inputs.apple_notary_user }}
+        appstore-connect-password: ${{ inputs.apple_notary_password }}
+        primary-bundle-id: ${{ inputs.apple_bundle_id }}
+        product-path: "${{ github.workspace }}/dist/puya"
+        tool: notarytool
+        verbose: true
+
+    # Create tar.gz archive in the artifacts directory for GitHub releases
+    - name: Package binary for release
+      shell: bash
+      run: |
+        cd dist/puya/
+        tar -zcf ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz *
+        cd ../..
+
+    # Generate SHA-256 checksum for the release archive
+    - name: Generate SHA-256 checksum
+      shell: bash
+      run: |
+        cd ${{ inputs.artifacts_dir }}
+        shasum -a 256 ${{ inputs.package_name }}.tar.gz > ${{ inputs.package_name }}.sha256.txt
+        cat ${{ inputs.package_name }}.sha256.txt
+        cd ..
+
+    # Upload the tar.gz archive as GitHub Actions artifact
+    - name: Upload binary artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz
+        if-no-files-found: error
+
+    # Upload checksum as a separate artifact
+    - name: Upload checksum artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}-sha256
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.sha256.txt
+        if-no-files-found: error
