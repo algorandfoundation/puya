@@ -11,6 +11,7 @@ from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.compilation_artifacts import CompilationArtifact, CompiledContract
 from puya.compile import awst_to_teal
 from puya.errors import log_exceptions
+from puya.parse import SourceProvider
 from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import make_path_relative_to_cwd
 from puyapy.awst_build.arc4_client_gen import write_arc4_client
@@ -28,7 +29,7 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
         logger.debug(puyapy_options)
         try:
             parse_result = parse_python(puyapy_options.paths, puyapy_options.sources)
-            log_ctx.sources_by_path = parse_result.sources_by_path
+            log_ctx.source_provider = parse_result.source_provider
             log_ctx.exit_if_errors()
             awst, compilation_targets = transform_ast(parse_result)
         except mypy.errors.CompileError:
@@ -58,7 +59,7 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
             if loc.file
         }
         teal = awst_to_teal(
-            log_ctx, puyapy_options, compilation_set, parse_result.sources_by_path, awst
+            log_ctx, puyapy_options, compilation_set, parse_result.source_provider, awst
         )
         log_ctx.exit_if_errors()
         if puyapy_options.output_client:

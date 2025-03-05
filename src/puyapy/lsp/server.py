@@ -15,11 +15,10 @@ from puya.errors import log_exceptions
 from puya.log import Log, LoggingContext, LogLevel, get_logger, logging_context
 from puya.parse import SourceLocation
 from puyapy.awst_build.main import transform_ast
-from puyapy.compile import parse_with_mypy
+from puyapy.compile import determine_out_dir, parse_with_mypy
 from puyapy.lsp import constants
 from puyapy.options import PuyaPyOptions
 from puyapy.parse import ParseResult
-from puyapy.utils import determine_out_dir
 
 logger = get_logger(__name__)
 
@@ -34,11 +33,9 @@ class PuyaPyLanguageServer(LanguageServer):
 
     def parse_all(self) -> None:
         # get all sources tracked by the workspace
-        sources = {Path(d.path): d.source for d in self.workspace.text_documents.values()}
         options = PuyaPyOptions(
             log_level=LogLevel.warning,
             paths=self._discover_algopy_paths(Path(self.workspace.root_path)),
-            sources=sources,
             # don't need optimization for analysis
             optimization_level=0,
             prefix=self.analysis_prefix,
@@ -108,17 +105,26 @@ class PuyaPyLanguageServer(LanguageServer):
             },
         )
 
+    def get_source(self, path: Path) -> Sequence[str] | None:
+        uri = path.as_uri()
+        try:
+            source = self.workspace.text_documents[uri].source
+        except KeyError:
+            return None
+        assert isinstance(source, str)
+        return source.splitlines()
+
     def _parse_and_log(self, puyapy_options: PuyaPyOptions) -> Sequence[Log]:
         with logging_context() as log_ctx, log_exceptions():
             with _time_it("mypy parsing"):
                 try:
                     parse_result = parse_with_mypy(
-                        puyapy_options.paths, puyapy_options.sources, prefix=puyapy_options.prefix
+                        puyapy_options.paths, prefix=puyapy_options.prefix, source_provider=self
                     )
                 except Exception as ex:
                     logger.debug(f"internal mypy error: {ex}")
                     return log_ctx.logs
-                log_ctx.sources_by_path = parse_result.sources_by_path
+                log_ctx.source_provider = parse_result.source_provider
             if log_ctx.num_errors:
                 # if there were type checking errors
                 # attempt to continue with any modules that don't have errors
@@ -140,7 +146,7 @@ class PuyaPyLanguageServer(LanguageServer):
                         log_ctx,
                         puyapy_options,
                         compilation_set,
-                        parse_result.sources_by_path,
+                        parse_result.source_provider,
                         awst,
                     )
         return log_ctx.logs
@@ -152,9 +158,13 @@ class PuyaPyLanguageServer(LanguageServer):
             assert isinstance(path, Path)
             if self.analysis_prefix in path.parents:
                 continue
-            document = self.workspace.get_text_document(path.as_uri())
+            # not using get_text_document to avoid creating an entry
+            try:
+                source = self.workspace.text_documents[path.as_uri()].source
+            except KeyError:
+                source = path.read_text()
             # naive filtering of documents to anything that references algopy
-            if "algopy" in document.source:
+            if "algopy" in source:
                 algopy_paths.append(path)
         return algopy_paths
 

@@ -9,6 +9,7 @@ from puya.compilation_artifacts import CompiledContract, CompiledLogicSig, Compi
 from puya.context import CompileContext
 from puya.mir.models import Signature
 from puya.options import PuyaOptions
+from puya.parse import DictSourceProvider
 from puya.program_refs import LogicSigReference, ProgramKind
 from puya.teal import models as teal
 from puya.ussemble.main import assemble_program
@@ -118,7 +119,7 @@ def test_assemble_last_op_jump() -> None:
         CompileContext(
             options=PuyaOptions(),
             compilation_set={},
-            sources_by_path={},
+            source_provider=DictSourceProvider({}),
         ),
         LogicSigReference(),
         program=teal.TealProgram(
