@@ -89,17 +89,30 @@ def visit_state_get_ex(
 def visit_state_delete(
     context: IRFunctionBuildContext, statement: awst_nodes.StateDelete
 ) -> ValueProvider | None:
-    match statement.field:
-        case awst_nodes.BoxValueExpression(key=awst_key):
+    match statement:
+        case awst_nodes.StateDelete(
+            field=awst_nodes.BoxValueExpression(key=awst_key),
+            wtype=wtypes.bool_wtype
+            | wtypes.void_wtype,
+        ):
             op = AVMOp.box_del
             awst_account = None
-        case awst_nodes.AppStateExpression(key=awst_key):
+        case awst_nodes.StateDelete(
+            field=awst_nodes.AppStateExpression(key=awst_key), wtype=wtypes.void_wtype
+        ):
             op = AVMOp.app_global_del
             awst_account = None
-        case awst_nodes.AppAccountStateExpression(key=awst_key, account=awst_account):
+        case awst_nodes.StateDelete(
+            field=awst_nodes.AppAccountStateExpression(key=awst_key, account=awst_account),
+            wtype=wtypes.void_wtype,
+        ):
             op = AVMOp.app_local_del
+        case awst_nodes.StateDelete():
+            raise ValueError(
+                f"Unexpected StateDelete field type: {statement.field}, wtype: {statement.wtype}"
+            )
         case _:
-            typing.assert_never(statement.field)
+            typing.assert_never(statement)
 
     args = []
     if awst_account is not None:
@@ -108,9 +121,11 @@ def visit_state_delete(
     key_value = context.visitor.visit_and_materialise_single(awst_key)
     args.append(key_value)
 
-    context.block_builder.add(
-        Intrinsic(op=op, args=args, source_location=statement.source_location)
-    )
+    state_delete = Intrinsic(op=op, args=args, source_location=statement.source_location)
+    if statement.wtype == wtypes.bool_wtype:
+        return state_delete
+
+    context.block_builder.add(state_delete)
     return None
 
 
