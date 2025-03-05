@@ -89,7 +89,7 @@ class ASTConversionModuleContext(ASTConversionContext):
         # if not at start of file, try and expand to preceding comment lines,
         if loc.line > 1:
             prior_code = try_get_source(
-                self._parse_result.sources_by_path,
+                self._parse_result.source_provider,
                 SourceLocation(file=module_path, line=1, end_line=loc.line - 1),
             )
             comment_lines_count = 0
@@ -101,7 +101,7 @@ class ASTConversionModuleContext(ASTConversionContext):
                 loc = attrs.evolve(loc, comment_lines=comment_lines_count)
         # if multi-line, strip trailing blank/comment lines
         if loc.end_line != loc.line:
-            lines = try_get_source(self._parse_result.sources_by_path, loc)
+            lines = try_get_source(self._parse_result.source_provider, loc)
             if lines is not None:
                 chop = 0
                 for line in reversed(lines):

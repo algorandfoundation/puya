@@ -24,6 +24,7 @@ from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.compilation_artifacts import CompilationArtifact, CompiledContract
 from puya.compile import awst_to_teal
 from puya.errors import log_exceptions
+from puya.parse import SourceProvider
 from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import make_path_relative_to_cwd
 from puyapy.awst_build.arc4_client_gen import write_arc4_client
@@ -45,8 +46,8 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
     with log.logging_context() as log_ctx, log_exceptions():
         logger.debug(puyapy_options)
         try:
-            parse_result = parse_with_mypy(puyapy_options.paths, puyapy_options.sources)
-            log_ctx.sources_by_path = parse_result.sources_by_path
+            parse_result = parse_with_mypy(puyapy_options.paths)
+            log_ctx.source_provider = parse_result.source_provider
             log_ctx.exit_if_errors()
             awst, compilation_targets = transform_ast(parse_result)
         except mypy.errors.CompileError:
@@ -76,7 +77,7 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
             if loc.file
         }
         teal = awst_to_teal(
-            log_ctx, puyapy_options, compilation_set, parse_result.sources_by_path, awst
+            log_ctx, puyapy_options, compilation_set, parse_result.source_provider, awst
         )
         log_ctx.exit_if_errors()
         if puyapy_options.output_client:
@@ -109,12 +110,12 @@ def write_arc4_clients(
 
 def parse_with_mypy(
     paths: Sequence[Path],
-    sources: Mapping[Path, str] | None = None,
     *,
+    source_provider: SourceProvider | None = None,
     prefix: Path | None = None,
 ) -> ParseResult:
     mypy_options = get_mypy_options(prefix)
-    _, ordered_modules = parse_and_typecheck(paths, mypy_options, sources=sources)
+    _, ordered_modules = parse_and_typecheck(paths, mypy_options, source_provider=source_provider)
     return ParseResult(
         mypy_options=mypy_options,
         ordered_modules=ordered_modules,

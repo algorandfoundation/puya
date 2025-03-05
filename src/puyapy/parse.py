@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import codecs
-import contextlib
 import enum
 import os
 import re
@@ -19,10 +18,11 @@ import mypy.modulefinder
 import mypy.nodes
 import mypy.options
 import mypy.util
+from mypy.util import hash_digest
 
 from puya import log
 from puya.awst.nodes import MethodDocumentation
-from puya.parse import SourceLocation
+from puya.parse import DictSourceProvider, SourceLocation, SourceProvider
 from puya.utils import make_path_relative_to_cwd
 
 if typing.TYPE_CHECKING:
@@ -79,8 +79,8 @@ class ParseResult:
     roots (nodes on which no other nodes depend)."""
 
     @cached_property
-    def sources_by_path(self) -> Mapping[Path, Sequence[str] | None]:
-        return {s.path: s.lines for s in self.ordered_modules.values()}
+    def source_provider(self) -> SourceProvider:
+        return DictSourceProvider({s.path: s.lines for s in self.ordered_modules.values()})
 
     @cached_property
     def explicit_source_paths(self) -> Set[Path]:
@@ -95,25 +95,21 @@ def parse_and_typecheck(
     paths: Sequence[Path],
     mypy_options: mypy.options.Options,
     *,
-    sources: Mapping[Path, str] | None = None,
+    source_provider: SourceProvider | None = None,
 ) -> tuple[mypy.build.BuildManager, dict[str, SourceModule]]:
     """Generate the ASTs from the build sources, and all imported modules (recursively)"""
 
     # ensure we have the absolute, canonical paths to the files
     resolved_input_paths = {p.resolve() for p in paths}
-    resolved_sources = {p.resolve(): s for p, s in (sources or {}).items()}
-    fscache = mypy.fscache.FileSystemCache()
+    fscache = (
+        _FileSystemCache(source_provider) if source_provider else mypy.fscache.FileSystemCache()
+    )
     # creates a list of BuildSource objects from the contract Paths
     mypy_build_sources = mypy.find_sources.create_source_list(
         paths=[str(p) for p in resolved_input_paths],
         options=mypy_options,
         fscache=fscache,
     )
-    for src in mypy_build_sources:
-        if src.path:
-            path = Path(src.path)
-            with contextlib.suppress(KeyError):
-                src.text = resolved_sources[path]
     build_source_paths = {
         Path(m.path).resolve() for m in mypy_build_sources if m.path and not m.followed
     }
@@ -159,6 +155,22 @@ def parse_and_typecheck(
                 )
 
     return result.manager, ordered_modules
+
+
+class _FileSystemCache(mypy.fscache.FileSystemCache):
+    def __init__(self, source_provider: SourceProvider) -> None:
+        super().__init__()
+        self._source_provider = source_provider
+
+    def read(self, fn: str) -> bytes:
+        # attempt to read from source provider first
+        lines = self._source_provider.get_source(Path(fn))
+        if lines is not None:
+            data = "\n".join(lines).encode("utf-8")
+            self.stat_or_none(fn)
+            self.read_cache[fn] = data
+            self.hash_cache[fn] = hash_digest(data)
+        return super().read(fn)
 
 
 def _check_encoding(mypy_fscache: mypy.fscache.FileSystemCache, module_path: Path) -> None:
