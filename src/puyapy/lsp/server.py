@@ -12,11 +12,12 @@ from lsprotocol.types import DiagnosticSeverity
 from pygls.lsp.server import LanguageServer
 
 from puya.compile import awst_to_teal
-from puya.errors import log_exceptions
+from puya.errors import ContextErrorData, log_exceptions
 from puya.log import Log, LoggingContext, LogLevel, get_logger, logging_context
 from puya.parse import SourceLocation
 from puyapy.awst_build.main import transform_ast
 from puyapy.compile import determine_out_dir, parse_with_mypy
+from puyapy.error_codes import TypeErrorContext
 from puyapy.lsp import constants
 from puyapy.options import PuyaPyOptions
 from puyapy.parse import ParseResult
@@ -31,7 +32,7 @@ class PuyaPyLanguageServer(LanguageServer):
         super().__init__(name, version=version)
         logger.info(f"{name} - {version}")
         logger.debug(f"Server location: {__file__}")
-        self.diagnostics = dict[str, tuple[int | None, list[types.Diagnostic]]]()
+        self.diagnostics = dict[str, tuple[int | None, list[tuple[Log, types.Diagnostic]]]]()
         self.analysis_prefix: Path | None = None
         self.current_refresh_token = object()
 
@@ -47,7 +48,7 @@ class PuyaPyLanguageServer(LanguageServer):
         logs = self._parse_and_log(options)
 
         # need to include existing documents in diagnostics in case all errors are cleared
-        diagnostics: dict[str, tuple[int | None, list[types.Diagnostic]]] = {
+        diagnostics: dict[str, tuple[int | None, list[tuple[Log, types.Diagnostic]]]] = {
             uri: (self.workspace.get_text_document(uri).version, []) for uri in self.diagnostics
         }
         for log in logs:
@@ -57,11 +58,14 @@ class PuyaPyLanguageServer(LanguageServer):
                 version_diags = diagnostics.setdefault(uri, (doc.version, []))[1]
                 range_ = self._resolve_location(log.location)
                 version_diags.append(
-                    _diag(
-                        log.message,
-                        log.level,
-                        range_,
-                        data=self._get_source_code_data(uri, range_),
+                    (
+                        log,
+                        _diag(
+                            log.message,
+                            log.level,
+                            range_,
+                            data=self._get_source_code_data(uri, range_),
+                        ),
                     )
                 )
         self.diagnostics = diagnostics
@@ -202,7 +206,7 @@ def _refresh_diagnostics(ls: PuyaPyLanguageServer) -> None:
             types.PublishDiagnosticsParams(
                 uri=uri,
                 version=doc_version,
-                diagnostics=diagnostics,
+                diagnostics=[d[1] for d in diagnostics],
             )
         )
 
@@ -244,27 +248,29 @@ def code_actions(
     except KeyError:
         diagnostics = []
     for diag in diagnostics:
-        if diag.severity in (DiagnosticSeverity.Warning, DiagnosticSeverity.Error):
-            # POC - fix an int
-            if diag.message == "a Python literal is not valid at this location" and isinstance(
-                diag.data, dict
-            ):
-                source_code = diag.data.get("source_code", "")
+        error = diag[0].error
+        match error:
+            case ContextErrorData(context=TypeErrorContext(type="builtins.int")):
                 # TODO: resolve algopy.UInt64 to correct alias in document
                 #       fall back to fully qualified type name if unknown
                 uint64_symbol = "UInt64"
-                fix = types.TextEdit(
-                    range=diag.range,
-                    new_text=f"{uint64_symbol}({source_code})",
+                end = diag[1].range.end
+                end_of_int = attrs.evolve(end, character=end.character + 1)
+                start_of_int = diag[1].range.start
+                fix1 = types.TextEdit(
+                    range=types.Range(end_of_int, end_of_int),
+                    new_text=")",
+                )
+                fix2 = types.TextEdit(
+                    range=types.Range(start_of_int, start_of_int),
+                    new_text=f"{uint64_symbol}(",
                 )
                 action = types.CodeAction(
                     title="Use algopy.UInt64",
                     kind=types.CodeActionKind.QuickFix,
-                    edit=types.WorkspaceEdit(changes={document_uri: [fix]}),
+                    edit=types.WorkspaceEdit(changes={document_uri: [fix1, fix2]}),
                 )
                 items.append(action)
-            else:
-                pass
     return items
 
 

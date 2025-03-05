@@ -16,6 +16,9 @@ import structlog
 
 from puya.parse import SourceLocation, SourceProvider
 
+if typing.TYPE_CHECKING:
+    from puya.errors import ErrorData
+
 
 class LogFormat(StrEnum):
     default = auto()
@@ -53,6 +56,7 @@ class Log:
     level: LogLevel
     message: str
     location: SourceLocation | None
+    error: "ErrorData | None" = None
 
     @property
     def file(self) -> Path | None:
@@ -358,6 +362,17 @@ class _Logger:
     ) -> None:
         self._report(LogLevel.error, event, *args, location=location, **kwargs)
 
+    def structured_error(
+        self,
+        error: "ErrorData",
+    ) -> None:
+        self._report(
+            LogLevel.from_string(error.severity),
+            f"{error.message} ({error.severity})",
+            location=error.location,
+            error=error,
+        )
+
     def exception(
         self,
         event: object,
@@ -392,6 +407,7 @@ class _Logger:
         level: LogLevel,
         event: object,
         *args: typing.Any,
+        error: "ErrorData | None" = None,
         location: SourceLocation | None = None,
         **kwargs: typing.Any,
     ) -> None:
@@ -412,7 +428,16 @@ class _Logger:
                 message = event % args
             else:
                 message = str(event)
-            log_ctx.logs.append(Log(level, message, location))
+            if error is None and level.name in ("error", "warning") and location:
+                from puya.errors import ErrorData
+
+                error = ErrorData(
+                    message=message,
+                    severity=level.name,  # type: ignore[arg-type]
+                    code="misc",
+                    location=location,
+                )
+            log_ctx.logs.append(Log(level, message, location, error=error))
 
 
 def _get_pretty_source(

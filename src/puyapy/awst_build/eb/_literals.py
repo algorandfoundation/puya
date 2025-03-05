@@ -10,7 +10,7 @@ from puya.awst.nodes import (
     Lvalue,
     Statement,
 )
-from puya.errors import CodeError
+from puya.errors import CodeError, StructuredCodeError
 from puya.parse import SourceLocation
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb.interface import (
@@ -22,6 +22,7 @@ from puyapy.awst_build.eb.interface import (
     TypeBuilder,
 )
 from puyapy.awst_build.utils import fold_binary_expr, fold_unary_expr
+from puyapy.error_codes import INVALID_LITERAL
 from puyapy.models import ConstantValue
 
 logger = log.get_logger(__name__)
@@ -57,7 +58,9 @@ class LiteralBuilderImpl(LiteralBuilder):
     def resolve(self) -> Expression:
         if isinstance(self.value, bool):
             return BoolConstant(value=self.value, source_location=self.source_location)
-        raise CodeError("a Python literal is not valid at this location", self.source_location)
+        raise StructuredCodeError(
+            INVALID_LITERAL(self.pytype.name, self.source_location),
+        )
 
     @typing.override
     def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:

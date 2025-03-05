@@ -45,6 +45,7 @@ from puyapy.awst_build.eb.interface import (
     TypeBuilder,
 )
 from puyapy.awst_build.utils import determine_base_type, get_arg_mapping
+from puyapy.error_codes import INVALID_LITERAL
 
 logger = log.get_logger(__name__)
 
@@ -440,9 +441,7 @@ class TupleExpressionBuilder(
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         contains_expr = None
         if isinstance(item.pytype, pytypes.LiteralOnlyType):
-            logger.error(
-                "a Python literal is not valid at this location", location=self.source_location
-            )
+            logger.structured_error(INVALID_LITERAL(item.pytype.name, self.source_location))
             return dummy_value(pytypes.BoolType, location)
         item = item.single_eval()
         # note: iterate_static single_evals the sequence and is the only usage of self

@@ -42,7 +42,7 @@ from puya.awst.nodes import (
     VarExpression,
     WhileLoop,
 )
-from puya.errors import CodeError, InternalError
+from puya.errors import CodeError, InternalError, StructuredCodeError
 from puya.parse import SourceLocation
 from puya.program_refs import ContractReference, LogicSigReference
 from puyapy.awst_build import constants, pytypes
@@ -82,6 +82,7 @@ from puyapy.awst_build.utils import (
     maybe_resolve_literal,
     require_callable_type,
 )
+from puyapy.error_codes import ENUMERATE_UNSUPPORTED, LEN_UNSUPPORTED, RANGE_UNSUPPORTED
 from puyapy.models import ContractFragmentBase
 from puyapy.parse import parse_docstring
 
@@ -237,17 +238,11 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
             case "None":
                 raise CodeError("None is not supported as a value, only a return type", location)
             case "len":
-                raise CodeError(
-                    "len() is not supported -"
-                    " types with a length will have a .length property instead",
-                    location,
-                )
+                raise StructuredCodeError(LEN_UNSUPPORTED(location))
             case "range":
-                raise CodeError("range() is not supported - use algopy.urange() instead", location)
+                raise StructuredCodeError(RANGE_UNSUPPORTED(location))
             case "enumerate":
-                raise CodeError(
-                    "enumerate() is not supported - use algopy.uenumerate() instead", location
-                )
+                raise StructuredCodeError(ENUMERATE_UNSUPPORTED(location))
             case _:
                 raise CodeError(f"Unsupported builtin: {rest_of_name}", location)
 
