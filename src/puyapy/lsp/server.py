@@ -1,3 +1,4 @@
+import asyncio
 import contextlib
 import sys
 import time
@@ -22,6 +23,8 @@ from puyapy.parse import ParseResult
 
 logger = get_logger(__name__)
 
+_DEBOUNCE_INTERVAL = 0.6
+
 
 class PuyaPyLanguageServer(LanguageServer):
     def __init__(self, name: str, version: str) -> None:
@@ -30,6 +33,7 @@ class PuyaPyLanguageServer(LanguageServer):
         logger.debug(f"Server location: {__file__}")
         self.diagnostics = dict[str, tuple[int | None, list[types.Diagnostic]]]()
         self.analysis_prefix: Path | None = None
+        self.current_refresh_token = object()
 
     def parse_all(self) -> None:
         # get all sources tracked by the workspace
@@ -177,9 +181,18 @@ class _HasTextDocument(typing.Protocol):
     def text_document(self) -> types.VersionedTextDocumentIdentifier: ...
 
 
-def _refresh_diagnostics(ls: PuyaPyLanguageServer, _params: _HasTextDocument) -> None:
+async def _queue_diagnostics(ls: PuyaPyLanguageServer, _params: _HasTextDocument) -> None:
+    token = ls.current_refresh_token = object()
+    await asyncio.sleep(_DEBOUNCE_INTERVAL)
+    # if no other refreshes have been received then proceed to update diagnostics
+    if ls.current_refresh_token is token:
+        # note: this runs on the main thread and will block further messages until it is complete
+        #       currently this desirable to provide a consistent state
+        _refresh_diagnostics(ls)
+
+
+def _refresh_diagnostics(ls: PuyaPyLanguageServer) -> None:
     """Refresh all diagnostics when a document changes"""
-    logger.info("parsing workspace")
     with _time_it("parsing workspace"):
         ls.parse_all()
 
@@ -194,9 +207,9 @@ def _refresh_diagnostics(ls: PuyaPyLanguageServer, _params: _HasTextDocument) ->
         )
 
 
-server.feature(types.TEXT_DOCUMENT_DID_SAVE)(_refresh_diagnostics)
-server.feature(types.TEXT_DOCUMENT_DID_OPEN)(_refresh_diagnostics)
-server.feature(types.TEXT_DOCUMENT_DID_CHANGE)(_refresh_diagnostics)
+server.feature(types.TEXT_DOCUMENT_DID_SAVE)(_queue_diagnostics)
+server.feature(types.TEXT_DOCUMENT_DID_OPEN)(_queue_diagnostics)
+server.feature(types.TEXT_DOCUMENT_DID_CHANGE)(_queue_diagnostics)
 
 
 @server.feature(types.INITIALIZE)
