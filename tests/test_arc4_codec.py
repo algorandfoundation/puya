@@ -7,7 +7,7 @@ from puya.errors import log_exceptions
 from puya.ir.main import awst_to_ir
 from puya.log import LogLevel, logging_context
 from puya.options import PuyaOptions
-from puya.parse import SourceLocation
+from puya.parse import DictSourceProvider, SourceLocation
 
 
 def _arc4_name_or_str(wtype: wtypes.WType) -> str:
@@ -69,7 +69,7 @@ def _get_ir_build_errors(func: nodes.Subroutine) -> list[str]:
         ctx = CompileContext(
             options=PuyaOptions(),
             compilation_set={},
-            sources_by_path={},
+            source_provider=DictSourceProvider({}),
         )
         # force iteration
         results = list(awst_to_ir(ctx, [func]))

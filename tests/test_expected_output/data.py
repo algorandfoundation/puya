@@ -312,7 +312,7 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
                     case_log_ctx,
                     case_options,
                     {k: Path() for k in case_compilation_set},
-                    case_parse_result.sources_by_path,
+                    case_parse_result.source_provider,
                     case_awst,
                     write=False,
                 )
