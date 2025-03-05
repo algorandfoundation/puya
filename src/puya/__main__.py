@@ -63,6 +63,8 @@ def cli(input_str: str) -> None:
             awst_json=awst_json,
             source_annotations_json=source_annotations_json,
         )
+
+        print("done", end="", flush=True)  # noqa: T201
     except SystemExit:
         # Catch and ignore SystemExit from argparse
         pass
@@ -92,10 +94,27 @@ class StdinAsyncReader:
         return self.loop.run_in_executor(self.executor, self.stdin.read, n)
 
 
+class StdoutWriter:
+    """Align a stdout stream with pygls' writer interface."""
+
+    def __init__(self, stdout: BinaryIO):
+        self._stdout = stdout
+
+    def close(self) -> None:
+        self._stdout.close()
+
+    def write(self, data: bytes) -> None:
+        self._stdout.write(data)
+        self._stdout.flush()
+
+
 async def run_async(
     reader: StdinAsyncReader,
+    writer: StdoutWriter,
 ) -> None:
     """Run a main message processing loop, asynchronously"""
+
+    print("ready", end="", flush=True)  # noqa: T201
 
     while True:
         line = await reader.readline()
@@ -108,4 +127,6 @@ async def run_async(
 
 if __name__ == "__main__":
     reader = StdinAsyncReader(sys.stdin.buffer)
-    asyncio.run(run_async(reader))
+    writer = StdoutWriter(sys.stdout.buffer)
+
+    asyncio.run(run_async(reader, writer))
