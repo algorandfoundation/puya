@@ -1,4 +1,18 @@
 # CHANGELOG
+## v4.4.4 (2025-03-05)
+
+### Fix
+
+* allow bool return type for all calls to `box_del` op code (#409) ([`a37b4d9`](https://github.com/algorandfoundation/puya/commit/a37b4d926020eb96292c26b44819957858262ac1))
+
+  * fix: allow bool return type for STATE_DEL awst node
+
+  * fix: allow assignment to bool variable
+
+  * refactor: ensure app_global_del and app_local_del remain the same
+
+  * refactor: validate wtype and StorageExpression pair
+
 ## v4.4.3 (2025-03-04)
 
 ### Fix
