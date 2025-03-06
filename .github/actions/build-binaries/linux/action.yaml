@@ -67,14 +67,16 @@ runs:
           ${{ inputs.package_name }} \
           ${{ inputs.artifacts_dir }}
 
-    # Sign the executable and _internal folder with GPG before packaging
-    - name: Sign executable and _internal folder with GPG
+    # Copy files to a writable location and sign them there
+    - name: Setup GPG and copy files for signing
       if: ${{ inputs.with_codesign == 'true' }}
       shell: bash
       run: |
-        # Create temporary GPG directory
+        # Create temporary directories
         mkdir -p /tmp/gpg-signing
+        mkdir -p /tmp/puya-signing/artifacts
         chmod 700 /tmp/gpg-signing
+        chmod 755 /tmp/puya-signing
 
         # Explicitly disable agent to avoid connection errors
         export GNUPGHOME=/tmp/gpg-signing
@@ -97,21 +99,38 @@ runs:
         # List the keys to confirm import
         gpg --list-keys ${{ inputs.gpg-key-id }}
 
-        # Sign the executable and _internal folder
+        # Create a copy of the executable for signing
+        echo "Copying executable for signing..."
+        cp dist/puya/puya /tmp/puya-signing/puya
+
+        # Create a checksum for _internal folder
+        echo "Creating checksums for _internal folder..."
         cd dist/puya/
+        find _internal -type f -exec sha256sum {} \; | sort > /tmp/puya-signing/_internal_checksums.txt
+
+    # Sign the executable and _internal checksums
+    - name: Sign executable and _internal checksums
+      if: ${{ inputs.with_codesign == 'true' }}
+      shell: bash
+      run: |
+        export GNUPGHOME=/tmp/gpg-signing
+        cd /tmp/puya-signing
 
         # Sign the main executable
         echo "Signing main executable..."
         gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
             --local-user ${{ inputs.gpg-key-id }} --detach-sign --armor puya
 
-        # Create a signature for _internal folder by creating a checksum of all files and signing that
-        echo "Creating and signing checksum for _internal folder..."
-        find _internal -type f -exec sha256sum {} \; | sort > _internal_checksums.txt
+        # Sign the _internal checksums
+        echo "Signing _internal checksums..."
         gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
             --local-user ${{ inputs.gpg-key-id }} --detach-sign --armor _internal_checksums.txt
-            
-        cd ../..
+
+        # Move signed artifacts to the artifacts directory
+        mkdir -p ${{ inputs.artifacts_dir }}/signatures
+        cp puya.asc ${{ inputs.artifacts_dir }}/signatures/
+        cp _internal_checksums.txt ${{ inputs.artifacts_dir }}/signatures/
+        cp _internal_checksums.txt.asc ${{ inputs.artifacts_dir }}/signatures/
 
     # Create tar.gz archive in the artifacts directory for GitHub releases
     - name: Package binary for release
@@ -135,9 +154,7 @@ runs:
       if: ${{ inputs.with_codesign == 'true' }}
       shell: bash
       run: |
-        # Use the existing GPG home
         export GNUPGHOME=/tmp/gpg-signing
-
         cd ${{ inputs.artifacts_dir }}
 
         # Sign the checksum file
@@ -179,7 +196,16 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.package_name }}-executable-signature
-        path: dist/puya/puya.asc
+        path: ${{ inputs.artifacts_dir }}/signatures/puya.asc
+        if-no-files-found: error
+
+    # Upload GPG signature for _internal checksums
+    - name: Upload _internal checksums file
+      if: ${{ inputs.with_codesign == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}-internal-checksums
+        path: ${{ inputs.artifacts_dir }}/signatures/_internal_checksums.txt
         if-no-files-found: error
 
     # Upload GPG signature for _internal checksums
@@ -188,5 +214,5 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.package_name }}-internal-checksums-signature
-        path: dist/puya/_internal_checksums.txt.asc
+        path: ${{ inputs.artifacts_dir }}/signatures/_internal_checksums.txt.asc
         if-no-files-found: error
