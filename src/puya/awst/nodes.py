@@ -580,7 +580,8 @@ class ARC4Decode(Expression):
             wtypes.ARC4UIntN,
             wtypes.ARC4Tuple,
             wtypes.ARC4Struct,
-            wtypes.ARC4DynamicArray,  # only if element type is bytes for now
+            wtypes.ARC4DynamicArray,
+            wtypes.ARC4StaticArray,
         )
     )
 
