@@ -28,12 +28,9 @@ jobs:
       - name: Set signing condition
         id: signing
         run: |
-          # Allow signing on:
-          # 1. Main branch non-PR events when production_release is true OR
-          # 2. Main branch CRON triggered events
+          # Allow signing on main branch non-PR events (regardless of production_release value)
           if [[ "${{ github.event_name }}" != "pull_request" && \
-                "${{ github.ref_name }}" == "main" && \
-                ("${{ inputs.production_release }}" == "true" || "${{ github.event_name }}" == "schedule") ]]; then
+                "${{ github.ref_name }}" == "main" ]]; then
             echo "allowed=true" >> $GITHUB_OUTPUT
           else
             echo "allowed=false" >> $GITHUB_OUTPUT
