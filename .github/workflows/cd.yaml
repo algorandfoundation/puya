@@ -124,17 +124,13 @@ jobs:
 
       - name: Publish to GitHub
         if: steps.get_branch.outputs.branch == 'main' && !inputs.dry_run && inputs.publish_github
+        id: get_release_version
         run: |
           poetry run semantic-release $DRY_RUN publish
           release_version="$(poetry run semantic-release print-version --current)"
-          echo "RELEASE_VERSION=$release_version" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=$release_version" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
-
-      - name: Get release version
-        shell: bash
-        run: echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_OUTPUT
-        id: get_release_version
 
       - name: Publish to PyPI - Compiler
         if: steps.get_branch.outputs.branch == 'main' && !inputs.dry_run && inputs.publish_pypi && inputs.compiler_wheel
