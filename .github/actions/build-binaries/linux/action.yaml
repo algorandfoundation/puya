@@ -67,25 +67,8 @@ runs:
           ${{ inputs.package_name }} \
           ${{ inputs.artifacts_dir }}
 
-    # Create tar.gz archive in the artifacts directory for GitHub releases
-    - name: Package binary for release
-      shell: bash
-      run: |
-        cd dist/puya/
-        tar -zcf ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz *
-        cd ../..
-
-    # Generate SHA-256 checksum for the release archive
-    - name: Generate SHA-256 checksum
-      shell: bash
-      run: |
-        cd ${{ inputs.artifacts_dir }}
-        sha256sum ${{ inputs.package_name }}.tar.gz > ${{ inputs.package_name }}.sha256.txt
-        cat ${{ inputs.package_name }}.sha256.txt
-        cd ..
-
-    # Sign the package with GPG
-    - name: Sign package with GPG
+    # Sign the executable and _internal folder with GPG before packaging
+    - name: Sign executable and _internal folder with GPG
       if: ${{ inputs.with_codesign == 'true' }}
       shell: bash
       run: |
@@ -111,16 +94,51 @@ runs:
         gpg --list-secret-keys ${{ inputs.gpg-key-id }}
         rm -f $GNUPGHOME/private.key
 
-        # Skip the trust command as it requires user interaction
-        # Instead, just list the keys to confirm import
+        # List the keys to confirm import
         gpg --list-keys ${{ inputs.gpg-key-id }}
 
-        # Sign the package and checksum file
-        cd ${{ inputs.artifacts_dir }}
+        # Sign the executable and _internal folder
+        cd dist/puya/
 
-        # Sign the main package
+        # Sign the main executable
+        echo "Signing main executable..."
         gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
-            --local-user ${{ inputs.gpg-key-id }} --detach-sign --armor ${{ inputs.package_name }}.tar.gz
+            --local-user ${{ inputs.gpg-key-id }} --detach-sign --armor puya
+
+        # Create a signature for _internal folder by creating a checksum of all files and signing that
+        echo "Creating and signing checksum for _internal folder..."
+        find _internal -type f -exec sha256sum {} \; | sort > _internal_checksums.txt
+        gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
+            --local-user ${{ inputs.gpg-key-id }} --detach-sign --armor _internal_checksums.txt
+            
+        cd ../..
+
+    # Create tar.gz archive in the artifacts directory for GitHub releases
+    - name: Package binary for release
+      shell: bash
+      run: |
+        cd dist/puya/
+        tar -zcf ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz *
+        cd ../..
+
+    # Generate SHA-256 checksum for the release archive
+    - name: Generate SHA-256 checksum
+      shell: bash
+      run: |
+        cd ${{ inputs.artifacts_dir }}
+        sha256sum ${{ inputs.package_name }}.tar.gz > ${{ inputs.package_name }}.sha256.txt
+        cat ${{ inputs.package_name }}.sha256.txt
+        cd ..
+
+    # Sign the checksum file with GPG
+    - name: Sign checksum with GPG
+      if: ${{ inputs.with_codesign == 'true' }}
+      shell: bash
+      run: |
+        # Use the existing GPG home
+        export GNUPGHOME=/tmp/gpg-signing
+
+        cd ${{ inputs.artifacts_dir }}
 
         # Sign the checksum file
         gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
@@ -155,11 +173,20 @@ runs:
         path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.sha256.txt.asc
         if-no-files-found: error
 
-    # Upload GPG signature for binary
-    - name: Upload binary signature artifact
+    # Upload GPG signature for executable
+    - name: Upload executable signature artifact
       if: ${{ inputs.with_codesign == 'true' }}
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ inputs.package_name }}-signature
-        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz.asc
+        name: ${{ inputs.package_name }}-executable-signature
+        path: dist/puya/puya.asc
+        if-no-files-found: error
+
+    # Upload GPG signature for _internal checksums
+    - name: Upload _internal checksums signature artifact
+      if: ${{ inputs.with_codesign == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}-internal-checksums-signature
+        path: dist/puya/_internal_checksums.txt.asc
         if-no-files-found: error
