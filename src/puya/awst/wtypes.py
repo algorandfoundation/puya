@@ -464,6 +464,15 @@ class ARC4StaticArray(ARC4Array):
     def _arc4_name(self) -> str:
         return f"{self.element_type.arc4_name}[{self.array_size}]"
 
+    @typing.override
+    def can_encode_type(self, wtype: WType) -> bool:
+        return super().can_encode_type(wtype) or (
+            isinstance(wtype, WTuple)
+            and all(
+                t == self.element_type or self.element_type.can_encode_type(t) for t in wtype.types
+            )
+        )
+
 
 def _require_arc4_fields(fields: Mapping[str, WType]) -> immutabledict[str, ARC4Type]:
     if not fields:

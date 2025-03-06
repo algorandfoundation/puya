@@ -99,6 +99,19 @@ def decode_arc4_value(
             return _visit_arc4_tuple_decode(
                 context, arc4_tuple, value, target_wtype=native_tuple, source_location=loc
             )
+        case (
+            wtypes.ARC4StaticArray() as arc4_static,
+            wtypes.WTuple() as native_tuple,
+        ) if (arc4_static.array_size == len(native_tuple.types)):
+            return _visit_arc4_tuple_decode(
+                context,
+                wtypes.ARC4Tuple(
+                    types=tuple(arc4_static.element_type for _ in range(arc4_static.array_size))
+                ),
+                value,
+                target_wtype=native_tuple,
+                source_location=loc,
+            )
         case wtypes.ARC4DynamicArray(), wtypes.StackArray() if (
             is_equivalent_effective_array_encoding(target_wtype, arc4_wtype, loc)
         ):
