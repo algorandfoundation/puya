@@ -36,8 +36,13 @@ def run_puyapy(args: list[str | Path], *, check: bool = True) -> subprocess.Comp
     )
 
 
-def run_puya(args: list[str | Path]) -> subprocess.CompletedProcess[str]:
+def run_puya(
+    args: list[str | Path], *, use_binary: bool = True
+) -> subprocess.CompletedProcess[str]:
     puya = shutil.which("puya")
+    if not puya and use_binary:
+        puya = os.environ.get("PUYA_BINARY")
+
     assert puya is not None, "puya not found"
     return _run(
         [
@@ -152,8 +157,9 @@ _OUTPUT_OPTIONS = [
 ]
 
 
-@pytest.mark.parametrize("output_option", _OUTPUT_OPTIONS)
-def test_puya_output(hello_world_awst_json: Path, output_option: str) -> None:
+def _test_puya_output_implementation(
+    hello_world_awst_json: Path, output_option: str, *, use_binary: bool = False
+) -> None:
     with TemporaryDirectory() as tmp_dir_:
         tmp_dir = Path(tmp_dir_)
         assert hello_world_awst_json.exists(), "expected awst json to exist"
@@ -168,6 +174,19 @@ def test_puya_output(hello_world_awst_json: Path, output_option: str) -> None:
         options_json.write_text(converter.dumps(options))
         assert not out_dir.exists(), "precondition, out dir does not yet exist"
         run_puya(
-            ["--awst", hello_world_awst_json, "--options", options_json, "--log-level", "debug"]
+            ["--awst", hello_world_awst_json, "--options", options_json, "--log-level", "debug"],
+            use_binary=use_binary,
         )
         assert out_dir.exists(), "out dir should exist"
+
+
+@pytest.mark.parametrize("output_option", _OUTPUT_OPTIONS)
+def test_puya_output(hello_world_awst_json: Path, output_option: str) -> None:
+    _test_puya_output_implementation(hello_world_awst_json, output_option, use_binary=False)
+
+
+@pytest.mark.pyinstaller_binary_tests
+@pytest.mark.parametrize("output_option", _OUTPUT_OPTIONS)
+def test_puya_binary_output(hello_world_awst_json: Path, output_option: str) -> None:
+    assert os.environ.get("PUYA_BINARY") is not None, "PUYA_BINARY should be set"
+    _test_puya_output_implementation(hello_world_awst_json, output_option, use_binary=True)
