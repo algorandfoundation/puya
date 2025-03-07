@@ -15,7 +15,6 @@ from tests import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
     "PYTHONUTF8": "1",  # force utf8 on windows
-    "PYTHONIOENCODING": "utf-8",  # ensure stdout/stderr use UTF-8
 }
 
 
@@ -38,8 +37,6 @@ def run_puyapy(args: list[str | Path], *, check: bool = True) -> subprocess.Comp
 
 
 def run_puya(args: list[str | Path], puya_path: str) -> subprocess.CompletedProcess[str]:
-    print("Path to puya:")  # noqa: T201
-    print(puya_path)  # noqa: T201
     assert puya_path is not None, "puya not found"
     return _run(
         [
