@@ -4,14 +4,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         return tmp%0#0
 
 subroutine examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__() -> bool:
-    block@0: // L9
+    block@0: // L10
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
         goto tmp%1#0 ? block@1 : block@5
-    block@1: // abi_routing_L9
+    block@1: // abi_routing_L10
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
         switch tmp%2#0 {method "hello(string)string" => block@2, * => block@3}
-    block@2: // hello_route_L10
+    block@2: // hello_route_L11
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
         (assert tmp%4#0) // OnCompletion is not NoOp
@@ -28,11 +28,11 @@ subroutine examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_rou
         let tmp%9#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
         (log tmp%9#0)
         return 1u
-    block@3: // switch_case_default_L9
+    block@3: // switch_case_default_L10
         goto block@4
-    block@4: // switch_case_next_L9
+    block@4: // switch_case_next_L10
         goto block@9
-    block@5: // bare_routing_L9
+    block@5: // bare_routing_L10
         let tmp%10#0: uint64 = (txn OnCompletion)
         switch tmp%10#0 {0u => block@6, * => block@7}
     block@6: // __algopy_default_create_L1
@@ -41,17 +41,105 @@ subroutine examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_rou
         (assert tmp%12#0) // can only call when creating
         examples.hello_world_arc4.contract.HelloWorldContract.__algopy_default_create()
         return 1u
-    block@7: // switch_case_default_L9
+    block@7: // switch_case_default_L10
         goto block@8
-    block@8: // switch_case_next_L9
+    block@8: // switch_case_next_L10
         goto block@9
-    block@9: // after_if_else_L9
+    block@9: // after_if_else_L10
         return 0u
 
 subroutine examples.hello_world_arc4.contract.HelloWorldContract.hello(name: bytes) -> bytes:
-    block@0: // L10
-        let tmp%0#0: bytes = (concat "Hello, " name#0)
-        return tmp%0#0
+    block@0: // L11
+        let array_data%0#0: bytes = (concat 0x0000 0x)
+        let arr#0: bytes[32][] = array_data%0#0
+        let expr_value_trimmed%0#0: bytes = ((extract 2 0) arr#0)
+        let tmp%0#0: bytes[32] = (global ZeroAddress)
+        let encoded%0#0: bytes[32][] = encode<bytes[32]>(tmp%0#0)
+        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 encoded%0#0)
+        let byte_len%0#0: uint64 = (len concatenated%0#0)
+        let len_%0#0: uint64 = (/ byte_len%0#0 32u)
+        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
+        let arr#1: bytes[32][] = concat_result%0#0
+        let expr_value_trimmed%1#0: bytes = ((extract 2 0) arr#1)
+        let tmp%1#0: bytes[32] = (global ZeroAddress)
+        let encoded%1#0: bytes[32][] = encode<bytes[32]>(tmp%1#0)
+        let concatenated%1#0: bytes = (concat expr_value_trimmed%1#0 encoded%1#0)
+        let byte_len%1#0: uint64 = (len concatenated%1#0)
+        let len_%1#0: uint64 = (/ byte_len%1#0 32u)
+        let as_bytes%1#0: bytes[8] = (itob len_%1#0)
+        let len_16_bit%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let concat_result%1#0: bytes = (concat len_16_bit%1#0 concatenated%1#0)
+        let arr#2: bytes[32][] = concat_result%1#0
+        itxn_begin
+        let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
+        let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
+        let inner_txn_params%0%%Fee_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
+        let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "verify(address[])void"
+        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes[32][] = arr#2
+        let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 2u
+        let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = 1234u
+        let inner_txn_params%0%%ApplicationID_length#0: uint64 = 1u
+        let inner_txn_params%0%%Sender_length#0: uint64 = 0u
+        let inner_txn_params%0%%Note_length#0: uint64 = 0u
+        let inner_txn_params%0%%Receiver_length#0: uint64 = 0u
+        let inner_txn_params%0%%Amount_length#0: uint64 = 0u
+        let inner_txn_params%0%%CloseRemainderTo_length#0: uint64 = 0u
+        let inner_txn_params%0%%VotePK_length#0: uint64 = 0u
+        let inner_txn_params%0%%SelectionPK_length#0: uint64 = 0u
+        let inner_txn_params%0%%VoteFirst_length#0: uint64 = 0u
+        let inner_txn_params%0%%VoteLast_length#0: uint64 = 0u
+        let inner_txn_params%0%%VoteKeyDilution_length#0: uint64 = 0u
+        let inner_txn_params%0%%Type_length#0: uint64 = 0u
+        let inner_txn_params%0%%XferAsset_length#0: uint64 = 0u
+        let inner_txn_params%0%%AssetAmount_length#0: uint64 = 0u
+        let inner_txn_params%0%%AssetSender_length#0: uint64 = 0u
+        let inner_txn_params%0%%AssetReceiver_length#0: uint64 = 0u
+        let inner_txn_params%0%%AssetCloseTo_length#0: uint64 = 0u
+        let inner_txn_params%0%%OnCompletion_length#0: uint64 = 0u
+        let inner_txn_params%0%%ApprovalProgram_length#0: uint64 = 0u
+        let inner_txn_params%0%%ClearStateProgram_length#0: uint64 = 0u
+        let inner_txn_params%0%%RekeyTo_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAsset_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetTotal_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetDecimals_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetUnitName_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetName_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetURL_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetManager_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetReserve_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetFreeze_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetClawback_length#0: uint64 = 0u
+        let inner_txn_params%0%%FreezeAsset_length#0: uint64 = 0u
+        let inner_txn_params%0%%FreezeAssetAccount_length#0: uint64 = 0u
+        let inner_txn_params%0%%FreezeAssetFrozen_length#0: uint64 = 0u
+        let inner_txn_params%0%%GlobalNumUint_length#0: uint64 = 0u
+        let inner_txn_params%0%%GlobalNumByteSlice_length#0: uint64 = 0u
+        let inner_txn_params%0%%LocalNumUint_length#0: uint64 = 0u
+        let inner_txn_params%0%%LocalNumByteSlice_length#0: uint64 = 0u
+        let inner_txn_params%0%%ExtraProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%0%%Nonparticipation_length#0: uint64 = 0u
+        let inner_txn_params%0%%StateProofPK_length#0: uint64 = 0u
+        let inner_txn_params%0%%Accounts_length#0: uint64 = 0u
+        let inner_txn_params%0%%Assets_length#0: uint64 = 0u
+        let inner_txn_params%0%%Applications_length#0: uint64 = 0u
+        let inner_txn_params%0%%ApprovalProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%0%%ClearStateProgramPages_length#0: uint64 = 0u
+        ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
+        ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_0#0)
+        ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_1#0)
+        ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
+        ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
+        goto block@1
+    block@1: // next_txn_L16
+        itxn_submit
+        let tmp%2#0: bytes = (concat "Hello, " name#0)
+        return tmp%2#0
 
 subroutine examples.hello_world_arc4.contract.HelloWorldContract.__algopy_default_create() -> void:
     block@0: // L1

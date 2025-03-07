@@ -23,11 +23,7 @@ class ErrorData:
     message: str
     severity: typing.Literal["error", "warning"]
     location: SourceLocation
-
-
-@attrs.frozen
-class ContextErrorData[T](ErrorData):
-    context: T
+    fix: object | None = None
 
 
 class PuyaError(Exception):

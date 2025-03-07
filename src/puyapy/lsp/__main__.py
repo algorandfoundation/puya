@@ -29,7 +29,7 @@ def main() -> None:
 
     # logging to stdout interferes with stdio protocol, so log to stderr instead
     log_file = sys.stderr if options.stdio else sys.stdout
-    configure_logging(min_log_level=LogLevel.debug, file=log_file)
+    configure_logging(min_log_level=LogLevel.info, file=log_file)
     _start_server(options)
 
 

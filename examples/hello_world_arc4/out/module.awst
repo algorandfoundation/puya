@@ -16,10 +16,39 @@ contract HelloWorldContract
   
   abimethod examples.hello_world_arc4.contract.HelloWorldContract.hello(name: string): string
   {
+    arr: stack_array<arc4.static_array<arc4.uint8, 32>> = new stack_array<arc4.static_array<arc4.uint8, 32>>()
+    arr: stack_array<arc4.static_array<arc4.uint8, 32>> = arr + (global<ZeroAddress>())
+    arr: stack_array<arc4.static_array<arc4.uint8, 32>> = arr + (global<ZeroAddress>())
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("verify(address[])void"), arc4_encode(arr, arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>)), ApplicationID=reinterpret_cast<application>(1234u)))
     return 'Hello, ' + name
   }
   
   baremethod examples.hello_world_arc4.contract.HelloWorldContract.__algopy_default_create(): void
+  {
+  }
+}
+
+contract Foo
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod examples.hello_world_arc4.contract.Foo.verify(arr: stack_array<arc4.static_array<arc4.uint8, 32>>): void
+  {
+  }
+  
+  baremethod examples.hello_world_arc4.contract.Foo.__algopy_default_create(): void
   {
   }
 }

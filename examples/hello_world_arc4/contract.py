@@ -1,4 +1,5 @@
-from algopy import ARC4Contract, String, arc4
+from algopy import ARC4Contract, String, arc4, ImmutableArray
+
 
 # Note: this contract is also used in the Puya AlgoKit template. So any breaking changes
 # that require fixing this contract should also be made there
@@ -9,4 +10,19 @@ from algopy import ARC4Contract, String, arc4
 class HelloWorldContract(ARC4Contract):
     @arc4.abimethod
     def hello(self, name: String) -> String:
+        arr = ImmutableArray[arc4.Address]()
+        arr = arr.append(arc4.Address())
+        arr = arr.append(arc4.Address())
+        arc4.abi_call(
+            Foo.verify,
+            arr,
+            app_id=1234
+        )
         return "Hello, " + name
+
+
+class Foo(ARC4Contract):
+
+    @arc4.abimethod
+    def verify(self, arr: ImmutableArray[arc4.Address]) -> None:
+        pass

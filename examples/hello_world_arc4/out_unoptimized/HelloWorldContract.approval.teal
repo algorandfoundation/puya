@@ -3,12 +3,13 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 0 1 32
+    bytecblock 0x
 
 main_block@0:
 
 main_block@1:
-    // hello_world_arc4/contract.py:9
+    // hello_world_arc4/contract.py:10
     // class HelloWorldContract(ARC4Contract):
     txn NumAppArgs
     intc_0 // 0
@@ -16,7 +17,7 @@ main_block@1:
     bz main_bare_routing@6
 
 main_abi_routing@2:
-    // hello_world_arc4/contract.py:9
+    // hello_world_arc4/contract.py:10
     // class HelloWorldContract(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x02bece11 // method "hello(string)string"
@@ -28,7 +29,7 @@ main_switch_case_default@4:
 main_switch_case_next@5:
 
 main_after_if_else@10:
-    // hello_world_arc4/contract.py:9
+    // hello_world_arc4/contract.py:10
     // class HelloWorldContract(ARC4Contract):
     intc_0 // 0
 
@@ -36,7 +37,7 @@ main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__puya_
     return
 
 main_hello_route@3:
-    // hello_world_arc4/contract.py:10
+    // hello_world_arc4/contract.py:11
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -46,11 +47,11 @@ main_hello_route@3:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    // hello_world_arc4/contract.py:9
+    // hello_world_arc4/contract.py:10
     // class HelloWorldContract(ARC4Contract):
     txna ApplicationArgs 1
     extract 2 0
-    // hello_world_arc4/contract.py:10
+    // hello_world_arc4/contract.py:11
     // @arc4.abimethod
     callsub hello
     dup
@@ -67,7 +68,7 @@ main_hello_route@3:
     b main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__@11
 
 main_bare_routing@6:
-    // hello_world_arc4/contract.py:9
+    // hello_world_arc4/contract.py:10
     // class HelloWorldContract(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
@@ -94,13 +95,89 @@ main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__algop
 
 // examples.hello_world_arc4.contract.HelloWorldContract.hello(name: bytes) -> bytes:
 hello:
-    // hello_world_arc4/contract.py:10-11
+    // hello_world_arc4/contract.py:11-12
     // @arc4.abimethod
     // def hello(self, name: String) -> String:
     proto 1 1
 
 hello_block@0:
-    // hello_world_arc4/contract.py:12
+    // hello_world_arc4/contract.py:13
+    // arr = ImmutableArray[arc4.Address]()
+    pushbytes 0x0000
+    bytec_0 // 0x
+    concat
+    // hello_world_arc4/contract.py:14
+    // arr = arr.append(arc4.Address())
+    extract 2 0
+    global ZeroAddress
+    bytec_0 // 0x
+    swap
+    concat
+    bytec_0 // 0x
+    swap
+    concat
+    concat
+    dup
+    len
+    intc_2 // 32
+    /
+    itob
+    extract 6 2
+    swap
+    concat
+    // hello_world_arc4/contract.py:15
+    // arr = arr.append(arc4.Address())
+    extract 2 0
+    global ZeroAddress
+    bytec_0 // 0x
+    swap
+    concat
+    bytec_0 // 0x
+    swap
+    concat
+    concat
+    dup
+    len
+    intc_2 // 32
+    /
+    itob
+    extract 6 2
+    swap
+    concat
+    // hello_world_arc4/contract.py:16-20
+    // arc4.abi_call(
+    //     Foo.verify,
+    //     arr,
+    //     app_id=1234
+    // )
+    itxn_begin
+    // hello_world_arc4/contract.py:19
+    // app_id=1234
+    pushint 1234 // 1234
+    itxn_field ApplicationID
+    // hello_world_arc4/contract.py:16-20
+    // arc4.abi_call(
+    //     Foo.verify,
+    //     arr,
+    //     app_id=1234
+    // )
+    pushbytes 0x343d7236 // method "verify(address[])void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+
+hello_next_txn@1:
+    // hello_world_arc4/contract.py:16-20
+    // arc4.abi_call(
+    //     Foo.verify,
+    //     arr,
+    //     app_id=1234
+    // )
+    itxn_submit
+    // hello_world_arc4/contract.py:21
     // return "Hello, " + name
     pushbytes "Hello, "
     frame_dig -1

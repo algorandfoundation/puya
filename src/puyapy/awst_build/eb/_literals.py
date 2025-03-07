@@ -151,7 +151,9 @@ class LiteralBuilderImpl(LiteralBuilder):
 
     @typing.override
     def iterate(self) -> typing.Never:
-        raise CodeError("cannot iterate literal")
+        if self.pytype in (pytypes.StrLiteralType, pytypes.BytesLiteralType):
+            raise StructuredCodeError(INVALID_LITERAL(self.pytype.name, self.source_location))
+        raise CodeError("cannot iterate literal", self.source_location)
 
     @typing.override
     def iterable_item_type(self) -> typing.Never:

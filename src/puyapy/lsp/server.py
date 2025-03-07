@@ -12,12 +12,12 @@ from lsprotocol.types import DiagnosticSeverity
 from pygls.lsp.server import LanguageServer
 
 from puya.compile import awst_to_teal
-from puya.errors import ContextErrorData, log_exceptions
+from puya.errors import log_exceptions
 from puya.log import Log, LoggingContext, LogLevel, get_logger, logging_context
 from puya.parse import SourceLocation
 from puyapy.awst_build.main import transform_ast
 from puyapy.compile import determine_out_dir, parse_with_mypy
-from puyapy.error_codes import TypeErrorContext
+from puyapy.error_codes import ReplaceWithMember, ReplaceWithSymbol, WrapWithSymbol
 from puyapy.lsp import constants
 from puyapy.options import PuyaPyOptions
 from puyapy.parse import ParseResult
@@ -176,6 +176,11 @@ class PuyaPyLanguageServer(LanguageServer):
                 algopy_paths.append(path)
         return algopy_paths
 
+    def resolve_alias(self, type_name: str) -> str | None:
+        # TODO: resolve type_name to correct alias in document
+        #       fall back to fully qualified type name if unknown
+        return type_name
+
 
 server = PuyaPyLanguageServer(constants.NAME, version=constants.VERSION)
 
@@ -249,26 +254,59 @@ def code_actions(
         diagnostics = []
     for diag in diagnostics:
         error = diag[0].error
-        match error:
-            case ContextErrorData(context=TypeErrorContext(type="builtins.int")):
-                # TODO: resolve algopy.UInt64 to correct alias in document
-                #       fall back to fully qualified type name if unknown
-                uint64_symbol = "UInt64"
-                end = diag[1].range.end
-                end_of_int = attrs.evolve(end, character=end.character + 1)
-                start_of_int = diag[1].range.start
+        if not error or not error.location or not error.fix:
+            continue
+        loc = error.location
+        match error.fix:
+            case WrapWithSymbol(symbol=symbol):
+                symbol_alias = ls.resolve_alias(symbol) or symbol
+                assert loc.column is not None, "column must be set"
+                assert loc.end_column is not None, "end_column must be set"
+                wrap_start = types.Position(line=loc.line - 1, character=loc.column)
+                wrap_end_insert = types.Position(
+                    line=loc.end_line - 1, character=loc.end_column + 1
+                )
                 fix1 = types.TextEdit(
-                    range=types.Range(end_of_int, end_of_int),
+                    range=types.Range(wrap_end_insert, wrap_end_insert),
                     new_text=")",
                 )
                 fix2 = types.TextEdit(
-                    range=types.Range(start_of_int, start_of_int),
-                    new_text=f"{uint64_symbol}(",
+                    range=types.Range(wrap_start, wrap_start),
+                    new_text=f"{symbol_alias}(",
                 )
                 action = types.CodeAction(
-                    title="Use algopy.UInt64",
+                    title=f"Use {symbol}",
                     kind=types.CodeActionKind.QuickFix,
                     edit=types.WorkspaceEdit(changes={document_uri: [fix1, fix2]}),
+                )
+                items.append(action)
+            case ReplaceWithSymbol(symbol=symbol):
+                symbol_alias = ls.resolve_alias(symbol) or symbol
+                fix = types.TextEdit(
+                    range=_map_source_location(loc),
+                    new_text=symbol_alias,
+                )
+                action = types.CodeAction(
+                    title=f"Use {symbol}",
+                    kind=types.CodeActionKind.QuickFix,
+                    edit=types.WorkspaceEdit(changes={document_uri: [fix]}),
+                )
+                items.append(action)
+            case ReplaceWithMember(expr_location=expr_loc, member=member):
+                remove = types.TextEdit(
+                    range=_map_source_location(loc),
+                    new_text="",
+                )
+                end = _map_source_location(expr_loc).end
+                insert_at_end = attrs.evolve(end, character=end.character + 1)
+                append = types.TextEdit(
+                    range=types.Range(insert_at_end, insert_at_end),
+                    new_text=f".{member}",
+                )
+                action = types.CodeAction(
+                    title=f"Use .{member}",
+                    kind=types.CodeActionKind.QuickFix,
+                    edit=types.WorkspaceEdit(changes={document_uri: [append, remove]}),
                 )
                 items.append(action)
     return items
@@ -287,6 +325,15 @@ def _diag(
         source=constants.NAME,
         data=data,
     )
+
+
+def _map_source_location(loc: SourceLocation) -> types.Range:
+    assert loc.column is not None, "column must be set"
+    assert loc.end_column is not None, "end_column must be set"
+    assert loc.end_line is not None, "end_line must be set"
+    start = types.Position(loc.line - 1, loc.column)
+    end = types.Position(loc.end_line - 1, loc.end_column)
+    return types.Range(start=start, end=end)
 
 
 def _map_severity(log_level: LogLevel) -> DiagnosticSeverity:
