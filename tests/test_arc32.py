@@ -2026,17 +2026,30 @@ def test_nested_immutable(
     ]
 
 
-@pytest.mark.parametrize("optimization_level", [0, 1])
 def test_arc4_bool_array_from_native(
-    algod_client: AlgodClient, optimization_level: int, account: algokit_utils.Account
+    algod_client: AlgodClient, account: algokit_utils.Account
 ) -> None:
-    example = TEST_CASES_DIR / "arc4_encode_decode" / "contract.py"
-
-    app_spec = _get_app_spec(example, optimization_level)
+    example = TEST_CASES_DIR / "arc4_encode_decode"
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(
+            example,
+            file_name="contract.py",
+        )
+    )
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
     app_client.create()
 
-    response = simulate_call(app_client, "test_arc4_bool_array")
+    sp = algod_client.suggested_params()
+    sp.flat_fee = True
+    sp.fee = 1_000 * 8
+
+    simulate_call(app_client, "test_arc4_bool_array", txn_params={"suggested_params": sp})
+
+    # TODO: would need to fix this to allow ReferenceArrays with ARC-4 bools
+    with pytest.raises(algokit_utils.LogicError, match="inner tx 0 failed"):
+        simulate_call(
+            app_client, "test_arc4_bool_array_not_working", txn_params={"suggested_params": sp}
+        )
 
 
 def _get_immutable_array_app(

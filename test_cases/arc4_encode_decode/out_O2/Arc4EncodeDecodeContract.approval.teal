@@ -1,0 +1,232 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 6 1 8
+    bytecblock 0xf9d0fe74 base64(CoEBQw==) base64(CiACAAEmAQEAMRtBAFeCAgT50P50BCQ3jTw2GgCOAgANAAIiQzEZgQUSRDEYRCNDMRkURDEYRDYaAUkiWUmBAhJETFcCAEsBREkiUygiTwJUKBNEI08CDEQjUygiTwJUKBNEI0MxGUD/uTEYFEQjQw==) 0x24378d3c 0x0000 0x8080
+    txn NumAppArgs
+    bz main_bare_routing@7
+    pushbytess 0x7f067754 0xfbc75e8c // method "test_arc4_bool_array()void", method "test_arc4_bool_array_not_working()void"
+    txna ApplicationArgs 0
+    match main_test_arc4_bool_array_route@3 main_test_arc4_bool_array_not_working_route@4
+
+main_after_if_else@11:
+    intc_0 // 0
+    return
+
+main_test_arc4_bool_array_not_working_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    itxn_begin
+    bytec_1 // base64(CoEBQw==)
+    itxn_field ClearStateProgramPages
+    bytec_2 // base64(CiACAAEmAQEAMRtBAFeCAgT50P50BCQ3jTw2GgCOAgANAAIiQzEZgQUSRDEYRCNDMRkURDEYRDYaAUkiWUmBAhJETFcCAEsBREkiUygiTwJUKBNEI08CDEQjUygiTwJUKBNEI0MxGUD/uTEYFEQjQw==)
+    itxn_field ApprovalProgramPages
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    bytec_0 // method "receive_bools(bool[])void"
+    itxn_field ApplicationArgs
+    pushbytes 0x0001c0
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn_begin
+    pushint 5 // DeleteApplication
+    itxn_field OnCompletion
+    itxn_field ApplicationID
+    bytec_3 // method "delete()void"
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    intc_2 // 1
+    return
+
+main_test_arc4_bool_array_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    itxn_begin
+    bytec_1 // base64(CoEBQw==)
+    itxn_field ClearStateProgramPages
+    bytec_2 // base64(CiACAAEmAQEAMRtBAFeCAgT50P50BCQ3jTw2GgCOAgANAAIiQzEZgQUSRDEYRCNDMRkURDEYRDYaAUkiWUmBAhJETFcCAEsBREkiUygiTwJUKBNEI08CDEQjUygiTwJUKBNEI0MxGUD/uTEYFEQjQw==)
+    itxn_field ApprovalProgramPages
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    bytec 4 // 0x0000
+    bytec 5 // 0x8080
+    pushint 2 // 2
+    intc_3 // 8
+    callsub dynamic_array_concat_bits
+    itxn_begin
+    dig 1
+    itxn_field ApplicationID
+    bytec_0 // method "receive_bools(bool[])void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    bytec 4 // 0x0000
+    bytec 5 // 0x8080
+    pushint 2 // 2
+    intc_3 // 8
+    callsub dynamic_array_concat_bits
+    itxn_begin
+    dig 1
+    itxn_field ApplicationID
+    bytec_0 // method "receive_bools(bool[])void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    bytec_0 // method "receive_bools(bool[])void"
+    itxn_field ApplicationArgs
+    pushbytes 0x0002c0
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn_begin
+    pushint 5 // DeleteApplication
+    itxn_field OnCompletion
+    itxn_field ApplicationID
+    bytec_3 // method "delete()void"
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    intc_2 // 1
+    return
+
+main_bare_routing@7:
+    txn OnCompletion
+    bnz main_after_if_else@11
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_2 // 1
+    return
+
+
+// _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:
+dynamic_array_concat_bits:
+    proto 4 1
+    pushbytes ""
+    dupn 2
+    frame_dig -4
+    intc_0 // 0
+    extract_uint16
+    dupn 2
+    frame_dig -2
+    +
+    dup
+    itob
+    extract 6 0
+    frame_dig -4
+    swap
+    replace2 0
+    dup
+    uncover 2
+    uncover 3
+    pushint 7 // 7
+    +
+    intc_3 // 8
+    /
+    dup
+    cover 3
+    swap
+    pushint 7 // 7
+    +
+    intc_3 // 8
+    /
+    dup
+    cover 3
+    <
+    bz dynamic_array_concat_bits_after_if_else@2
+    frame_dig 6
+    frame_dig 5
+    -
+    bzero
+    frame_dig 4
+    swap
+    concat
+    frame_bury 7
+
+dynamic_array_concat_bits_after_if_else@2:
+    frame_dig 7
+    frame_bury 4
+    intc_0 // 0
+    frame_bury 0
+    frame_dig 3
+    pushint 16 // 16
+    +
+    dup
+    frame_bury 2
+    frame_dig -2
+    +
+    frame_bury 1
+
+dynamic_array_concat_bits_while_top@3:
+    frame_dig 2
+    frame_dig 1
+    <
+    bz dynamic_array_concat_bits_after_while@5
+    frame_dig -3
+    frame_dig 0
+    dup
+    cover 2
+    getbit
+    frame_dig 4
+    frame_dig 2
+    dup
+    cover 3
+    uncover 2
+    setbit
+    frame_bury 4
+    intc_2 // 1
+    +
+    frame_bury 2
+    frame_dig -1
+    +
+    frame_bury 0
+    b dynamic_array_concat_bits_while_top@3
+
+dynamic_array_concat_bits_after_while@5:
+    frame_dig 4
+    frame_bury 0
+    retsub

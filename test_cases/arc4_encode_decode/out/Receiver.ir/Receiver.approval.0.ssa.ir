@@ -1,0 +1,82 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#0: bool = test_cases.arc4_encode_decode.receiver.Receiver.__puya_arc4_router__()
+        return tmp%0#0
+
+subroutine test_cases.arc4_encode_decode.receiver.Receiver.__puya_arc4_router__() -> bool:
+    block@0: // L5
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#0 0u)
+        goto tmp%1#0 ? block@1 : block@6
+    block@1: // abi_routing_L5
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "receive_bools(bool[])void" => block@2, method "delete()void" => block@3, * => block@4}
+    block@2: // receive_bools_route_L6
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (== tmp%3#0 NoOp)
+        (assert tmp%4#0) // OnCompletion is not NoOp
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%6#0: bool = (!= tmp%5#0 0u)
+        (assert tmp%6#0) // can only call when not creating
+        let tmp%7#0: bytes = (txna ApplicationArgs 1)
+        test_cases.arc4_encode_decode.receiver.Receiver.receive_bools(tmp%7#0)
+        return 1u
+    block@3: // delete_route_L12
+        let tmp%8#0: uint64 = (txn OnCompletion)
+        let tmp%9#0: bool = (== tmp%8#0 DeleteApplication)
+        (assert tmp%9#0) // OnCompletion is not DeleteApplication
+        let tmp%10#0: uint64 = (txn ApplicationID)
+        let tmp%11#0: bool = (!= tmp%10#0 0u)
+        (assert tmp%11#0) // can only call when not creating
+        test_cases.arc4_encode_decode.receiver.Receiver.delete()
+        return 1u
+    block@4: // switch_case_default_L5
+        goto block@5
+    block@5: // switch_case_next_L5
+        goto block@10
+    block@6: // bare_routing_L5
+        let tmp%12#0: uint64 = (txn OnCompletion)
+        switch tmp%12#0 {0u => block@7, * => block@8}
+    block@7: // __algopy_default_create_L1
+        let tmp%13#0: uint64 = (txn ApplicationID)
+        let tmp%14#0: bool = (== tmp%13#0 0u)
+        (assert tmp%14#0) // can only call when creating
+        test_cases.arc4_encode_decode.receiver.Receiver.__algopy_default_create()
+        return 1u
+    block@8: // switch_case_default_L5
+        goto block@9
+    block@9: // switch_case_next_L5
+        goto block@10
+    block@10: // after_if_else_L5
+        return 0u
+
+subroutine test_cases.arc4_encode_decode.receiver.Receiver.receive_bools(b: bytes) -> void:
+    block@0: // L6
+        let tmp%0#0: uint64 = (extract_uint16 b#0 0u)
+        let tmp%1#0: bool = (== tmp%0#0 2u)
+        (assert tmp%1#0) // expected 2 bools
+        let array_head_and_tail%0#0: bytes = ((extract 2 0) b#0)
+        let array_length%0#0: uint64 = (extract_uint16 b#0 0u)
+        let index_is_in_bounds%0#0: bool = (< 0u array_length%0#0)
+        (assert index_is_in_bounds%0#0) // Index access is out of bounds
+        let is_true%0#0: uint64 = (getbit array_head_and_tail%0#0 0u)
+        let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u is_true%0#0)
+        let tmp%2#0: bool = (!= encoded_bool%0#0 0x00)
+        (assert tmp%2#0) // expected first bool to be true
+        let array_head_and_tail%1#0: bytes = ((extract 2 0) b#0)
+        let array_length%1#0: uint64 = (extract_uint16 b#0 0u)
+        let index_is_in_bounds%1#0: bool = (< 1u array_length%1#0)
+        (assert index_is_in_bounds%1#0) // Index access is out of bounds
+        let is_true%1#0: uint64 = (getbit array_head_and_tail%1#0 1u)
+        let encoded_bool%1#0: bytes[1] = (setbit 0x00 0u is_true%1#0)
+        let tmp%3#0: bool = (!= encoded_bool%1#0 0x00)
+        (assert tmp%3#0) // expected second bool to be true
+        return 
+
+subroutine test_cases.arc4_encode_decode.receiver.Receiver.delete() -> void:
+    block@0: // L12
+        return 
+
+subroutine test_cases.arc4_encode_decode.receiver.Receiver.__algopy_default_create() -> void:
+    block@0: // L1
+        return 

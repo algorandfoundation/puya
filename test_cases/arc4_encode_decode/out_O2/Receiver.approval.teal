@@ -1,0 +1,79 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1
+    bytecblock 0x00
+    txn NumAppArgs
+    bz main_bare_routing@7
+    pushbytess 0xf9d0fe74 0x24378d3c // method "receive_bools(bool[])void", method "delete()void"
+    txna ApplicationArgs 0
+    match main_receive_bools_route@3 main_delete_route@4
+
+main_after_if_else@11:
+    intc_0 // 0
+    return
+
+main_delete_route@4:
+    txn OnCompletion
+    pushint 5 // DeleteApplication
+    ==
+    assert // OnCompletion is not DeleteApplication
+    txn ApplicationID
+    assert // can only call when not creating
+    intc_1 // 1
+    return
+
+main_receive_bools_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    dup
+    pushint 2 // 2
+    ==
+    assert // expected 2 bools
+    swap
+    extract 2 0
+    dig 1
+    assert // Index access is out of bounds
+    dup
+    intc_0 // 0
+    getbit
+    bytec_0 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_0 // 0x00
+    !=
+    assert // expected first bool to be true
+    intc_1 // 1
+    uncover 2
+    <
+    assert // Index access is out of bounds
+    intc_1 // 1
+    getbit
+    bytec_0 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_0 // 0x00
+    !=
+    assert // expected second bool to be true
+    intc_1 // 1
+    return
+
+main_bare_routing@7:
+    txn OnCompletion
+    bnz main_after_if_else@11
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_1 // 1
+    return
