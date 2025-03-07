@@ -224,14 +224,12 @@ jobs:
               cd /workspace
               set -e  # Exit immediately if a command fails
               
-              # Set up environment for testing
-              export PUYA_BINARY=/workspace/binary/puya
+              # Set up binary and add to PATH
+              chmod +x /workspace/binary/puya
               
-              chmod +x "$PUYA_BINARY"
-              
-              # Create directory and symlink for consistency
+              # Create directory for binaries and add to PATH
               mkdir -p /root/bin
-              ln -sf "$PUYA_BINARY" /root/bin/puya
+              ln -sf /workspace/binary/puya /root/bin/puya
               export PATH="/root/bin:$PATH"
               
               # Configure git (required for some tests)
@@ -246,5 +244,5 @@ jobs:
               
               # Run the binary tests
               poetry install --no-interaction 
-              PUYA_BINARY="$PUYA_BINARY" poetry run pytest tests/ -m pyinstaller_binary_tests --log-cli-level=INFO
+              poetry run pytest tests/ -m pyinstaller_binary_tests -v -s --log-cli-level=INFO -n0
             '
