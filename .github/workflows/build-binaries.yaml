@@ -117,22 +117,28 @@ jobs:
 
       - name: Add binary to path
         run: |
+          binary_path="${{ github.workspace }}${{ runner.os == 'Windows' && '\dist\puya\puya.exe' || '/dist/puya/puya' }}"
           echo "${{ github.workspace }}${{ runner.os == 'Windows' && '\dist\puya' || '/dist/puya' }}" >> $GITHUB_PATH
+          echo "PUYA_BINARY=${binary_path}" >> $GITHUB_ENV
         shell: bash
 
       - name: Run portability tests on Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
           git config --global user.email "actions@github.com" && git config --global user.name "github-actions"
-          poetry run pytest tests/ -m pyinstaller_binary_tests -v -s --log-cli-level=INFO -n0
+          poetry run pytest tests/ -m pyinstaller_binary_tests --log-cli-level=INFO -n0 -s -v
         shell: cmd
+        env:
+          PUYA_BINARY: ${{ env.PUYA_BINARY }}
 
       - name: Run portability tests on macOS ${{ matrix.os }}
         if: ${{ runner.os == 'macOS' }}
         run: |
           git config --global user.email "actions@github.com" && git config --global user.name "github-actions"
-          poetry run pytest tests/ -m pyinstaller_binary_tests -v -s --log-cli-level=INFO -n0
+          poetry run pytest tests/ -m pyinstaller_binary_tests --log-cli-level=INFO -n0 -s -v
         shell: bash
+        env:
+          PUYA_BINARY: ${{ env.PUYA_BINARY }}
 
       - name: Adjust artifacts directory for softprops/action-gh-release
         if: ${{ runner.os == 'Windows' }}
