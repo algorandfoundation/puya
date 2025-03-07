@@ -2026,6 +2026,19 @@ def test_nested_immutable(
     ]
 
 
+@pytest.mark.parametrize("optimization_level", [0, 1])
+def test_arc4_bool_array_from_native(
+    algod_client: AlgodClient, optimization_level: int, account: algokit_utils.Account
+) -> None:
+    example = TEST_CASES_DIR / "arc4_encode_decode" / "contract.py"
+
+    app_spec = _get_app_spec(example, optimization_level)
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    response = simulate_call(app_client, "test_arc4_bool_array")
+
+
 def _get_immutable_array_app(
     algod_client: AlgodClient,
     optimization_level: int,

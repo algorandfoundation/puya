@@ -439,11 +439,21 @@ class ARC4DynamicArray(ARC4Array):
 
     @typing.override
     def can_encode_type(self, wtype: WType) -> bool:
-        return super().can_encode_type(wtype) or (
-            isinstance(wtype, StackArray)
-            and (
-                self.element_type == wtype.element_type
-                or self.element_type.can_encode_type(wtype.element_type)
+        return (
+            super().can_encode_type(wtype)
+            or (
+                isinstance(wtype, StackArray)
+                and (
+                    self.element_type == wtype.element_type
+                    or self.element_type.can_encode_type(wtype.element_type)
+                )
+            )
+            or (
+                isinstance(wtype, WTuple)
+                and all(
+                    t == self.element_type or self.element_type.can_encode_type(t)
+                    for t in wtype.types
+                )
             )
         )
 

@@ -198,6 +198,29 @@ def encode_value_provider(
         ) if is_equivalent_effective_array_encoding(value_wtype, arc4_wtype, loc):
             # already ARC4 encoded
             return value_provider
+        case (
+            wtypes.ARC4Array(element_type=element_type) as arc4,
+            wtypes.WTuple(types=item_types) as native_tup,
+        ) if all(t == element_type for t in item_types):
+            arc4_item_types = [element_type] * len(item_types)
+            elements = context.visitor.materialise_value_provider(
+                value_provider, description="elements_to_encode"
+            )
+
+            arc4_items = _encode_arc4_tuple_items(
+                context, elements, item_types, arc4_item_types, loc
+            )
+            encoded = _visit_arc4_tuple_encode(context, arc4_items, arc4_item_types, loc)
+            if isinstance(arc4, wtypes.ARC4StaticArray):
+                return encoded
+            (value,) = context.visitor.materialise_value_provider(
+                encoded, description="static_array_data"
+            )
+
+            factory = OpFactory(context, loc)
+            length = factory.len(value, "length")
+            length_uint16 = factory.as_u16_bytes(length, "length_uint16")
+            return factory.concat(length_uint16, value, "encoded_value")
         case _:
             raise InternalError(
                 f"unsupported ARC4 translation from {value_wtype} to {arc4_wtype}", loc
