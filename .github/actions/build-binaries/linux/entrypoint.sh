@@ -11,7 +11,7 @@ echo "Artifacts will be saved to $ARTIFACTS_DIR"
 # Install project dependencies
 cd ${GITHUB_WORKSPACE}
 poetry config virtualenvs.create false
-poetry install --no-interaction --without=dev --with=cicd --no-root
+poetry install --no-interaction --without=dev --with=cicd
 
 # Build the binary
 poetry run pyinstaller \
@@ -20,7 +20,6 @@ poetry run pyinstaller \
     --name puya \
     --noconfirm src/puya/__main__.py \
     --add-data './src/puya/ir/_puya_lib.awst.json:puya/ir/' \
-    --exclude-module puyapy \
     --exclude-module colorama \
     --exclude-module mypy_extensions \
     --optimize=2
