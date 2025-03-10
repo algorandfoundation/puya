@@ -874,6 +874,8 @@ def _try_simplify_bytes_unary_op(
         if biguint_const is not None:
             value = math.isqrt(biguint_const)
             return models.BigUIntConstant(value=value, source_location=op_loc)
+    if intrinsic.op is AVMOp.len_ and arg.ir_type.size is not None:
+        return models.UInt64Constant(value=arg.ir_type.size, source_location=op_loc)
     else:
         byte_const = _get_byte_constant(register_assignments, arg)
         if byte_const is not None:
