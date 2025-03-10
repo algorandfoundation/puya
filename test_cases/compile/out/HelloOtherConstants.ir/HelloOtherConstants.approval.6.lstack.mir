@@ -151,15 +151,15 @@ subroutine greet:
         assert // check self.num exists                                                               (𝕡) name#0 | maybe_value%0#0
         l-load maybe_value%0#0 0                                                                      (𝕡) name#0 | maybe_value%0#0
         byte 0x30                                                                                     (𝕡) name#0 | maybe_value%0#0,0x30
-        b+                                                                                            (𝕡) name#0 | reinterpret_bytes%0#0
-        l-load-copy reinterpret_bytes%0#0 0                                                           (𝕡) name#0 | reinterpret_bytes%0#0,reinterpret_bytes%0#0 (copy)
-        len                                                                                           (𝕡) name#0 | reinterpret_bytes%0#0,tmp%0#0
-        l-load tmp%0#0 0                                                                              (𝕡) name#0 | reinterpret_bytes%0#0,tmp%0#0
-        int 1                                                                                         (𝕡) name#0 | reinterpret_bytes%0#0,tmp%0#0,1
-        -                                                                                             (𝕡) name#0 | reinterpret_bytes%0#0,tmp%1#0
-        l-load reinterpret_bytes%0#0 1                                                                (𝕡) name#0 | tmp%1#0,reinterpret_bytes%0#0
-        l-load tmp%1#0 1                                                                              (𝕡) name#0 | reinterpret_bytes%0#0,tmp%1#0
-        int 1                                                                                         (𝕡) name#0 | reinterpret_bytes%0#0,tmp%1#0,1
+        b+                                                                                            (𝕡) name#0 | tmp%0#0
+        l-load-copy tmp%0#0 0                                                                         (𝕡) name#0 | tmp%0#0,tmp%0#0 (copy)
+        len                                                                                           (𝕡) name#0 | tmp%0#0,tmp%1#0
+        l-load tmp%1#0 0                                                                              (𝕡) name#0 | tmp%0#0,tmp%1#0
+        int 1                                                                                         (𝕡) name#0 | tmp%0#0,tmp%1#0,1
+        -                                                                                             (𝕡) name#0 | tmp%0#0,tmp%2#0
+        l-load tmp%0#0 1                                                                              (𝕡) name#0 | tmp%2#0,tmp%0#0
+        l-load tmp%2#0 1                                                                              (𝕡) name#0 | tmp%0#0,tmp%2#0
+        int 1                                                                                         (𝕡) name#0 | tmp%0#0,tmp%2#0,1
         extract3                                                                                      (𝕡) name#0 | num_alpha#0
         // compile/apps.py:95
         // self.greeting.bytes + b" " + name.bytes + num_alpha + self.address.bytes + self.method
@@ -170,34 +170,34 @@ subroutine greet:
         assert // check self.greeting exists                                                          (𝕡) name#0 | num_alpha#0,maybe_value%1#0
         l-load maybe_value%1#0 0                                                                      (𝕡) name#0 | num_alpha#0,maybe_value%1#0
         byte 0x20                                                                                     (𝕡) name#0 | num_alpha#0,maybe_value%1#0,0x20
-        concat                                                                                        (𝕡) name#0 | num_alpha#0,tmp%2#0
-        l-load tmp%2#0 0                                                                              (𝕡) name#0 | num_alpha#0,tmp%2#0
-        p-load name#0                                                                                 (𝕡) name#0 | num_alpha#0,tmp%2#0,name#0 (copy)
         concat                                                                                        (𝕡) name#0 | num_alpha#0,tmp%3#0
         l-load tmp%3#0 0                                                                              (𝕡) name#0 | num_alpha#0,tmp%3#0
-        l-load num_alpha#0 1                                                                          (𝕡) name#0 | tmp%3#0,num_alpha#0
-        concat                                                                                        (𝕡) name#0 | tmp%4#0
-        int 0                                                                                         (𝕡) name#0 | tmp%4#0,0
-        byte "address"                                                                                (𝕡) name#0 | tmp%4#0,0,"address"
-        app_global_get_ex                                                                             (𝕡) name#0 | tmp%4#0,maybe_value%2#0,maybe_exists%2#0
-        l-load maybe_exists%2#0 0                                                                     (𝕡) name#0 | tmp%4#0,maybe_value%2#0,maybe_exists%2#0
-        assert // check self.address exists                                                           (𝕡) name#0 | tmp%4#0,maybe_value%2#0
-        l-load tmp%4#0 1                                                                              (𝕡) name#0 | maybe_value%2#0,tmp%4#0
-        l-load maybe_value%2#0 1                                                                      (𝕡) name#0 | tmp%4#0,maybe_value%2#0
+        p-load name#0                                                                                 (𝕡) name#0 | num_alpha#0,tmp%3#0,name#0 (copy)
+        concat                                                                                        (𝕡) name#0 | num_alpha#0,tmp%4#0
+        l-load tmp%4#0 0                                                                              (𝕡) name#0 | num_alpha#0,tmp%4#0
+        l-load num_alpha#0 1                                                                          (𝕡) name#0 | tmp%4#0,num_alpha#0
         concat                                                                                        (𝕡) name#0 | tmp%5#0
         int 0                                                                                         (𝕡) name#0 | tmp%5#0,0
-        byte "method"                                                                                 (𝕡) name#0 | tmp%5#0,0,"method"
-        app_global_get_ex                                                                             (𝕡) name#0 | tmp%5#0,maybe_value%3#0,maybe_exists%3#0
-        l-load maybe_exists%3#0 0                                                                     (𝕡) name#0 | tmp%5#0,maybe_value%3#0,maybe_exists%3#0
-        assert // check self.method exists                                                            (𝕡) name#0 | tmp%5#0,maybe_value%3#0
-        l-load tmp%5#0 1                                                                              (𝕡) name#0 | maybe_value%3#0,tmp%5#0
-        l-load maybe_value%3#0 1                                                                      (𝕡) name#0 | tmp%5#0,maybe_value%3#0
+        byte "address"                                                                                (𝕡) name#0 | tmp%5#0,0,"address"
+        app_global_get_ex                                                                             (𝕡) name#0 | tmp%5#0,maybe_value%2#0,maybe_exists%2#0
+        l-load maybe_exists%2#0 0                                                                     (𝕡) name#0 | tmp%5#0,maybe_value%2#0,maybe_exists%2#0
+        assert // check self.address exists                                                           (𝕡) name#0 | tmp%5#0,maybe_value%2#0
+        l-load tmp%5#0 1                                                                              (𝕡) name#0 | maybe_value%2#0,tmp%5#0
+        l-load maybe_value%2#0 1                                                                      (𝕡) name#0 | tmp%5#0,maybe_value%2#0
         concat                                                                                        (𝕡) name#0 | tmp%6#0
+        int 0                                                                                         (𝕡) name#0 | tmp%6#0,0
+        byte "method"                                                                                 (𝕡) name#0 | tmp%6#0,0,"method"
+        app_global_get_ex                                                                             (𝕡) name#0 | tmp%6#0,maybe_value%3#0,maybe_exists%3#0
+        l-load maybe_exists%3#0 0                                                                     (𝕡) name#0 | tmp%6#0,maybe_value%3#0,maybe_exists%3#0
+        assert // check self.method exists                                                            (𝕡) name#0 | tmp%6#0,maybe_value%3#0
+        l-load tmp%6#0 1                                                                              (𝕡) name#0 | maybe_value%3#0,tmp%6#0
+        l-load maybe_value%3#0 1                                                                      (𝕡) name#0 | tmp%6#0,maybe_value%3#0
+        concat                                                                                        (𝕡) name#0 | tmp%7#0
         // compile/apps.py:94-96
         // return (
         //     self.greeting.bytes + b" " + name.bytes + num_alpha + self.address.bytes + self.method
         // )
-        l-load tmp%6#0 0                                                                              (𝕡) name#0 | tmp%6#0
-        retsub                                                                                        tmp%6#0
+        l-load tmp%7#0 0                                                                              (𝕡) name#0 | tmp%7#0
+        retsub                                                                                        tmp%7#0
 
 
