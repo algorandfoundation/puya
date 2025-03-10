@@ -6,7 +6,7 @@ on:
       release_version:
         required: false
         type: string
-      artifact_name_prefix:
+      package_prefix:
         description: "Prefix for the artifact name to download"
         required: true
         type: string
@@ -18,8 +18,8 @@ jobs:
       fail-fast: false
       matrix:
         arch:
-          - { runner: "ubuntu-22.04", name: "amd64" }
-          - { runner: "ubuntu-22.04-arm", name: "arm64" }
+          - { runner: "ubuntu-22.04", name: "amd64", identifier: "linux_x64" }
+          - { runner: "ubuntu-22.04-arm", name: "arm64", identifier: "linux_arm64" }
         distro:
           # Debian family (glibc 2.28+)
           - { name: "Debian 10", image: "debian:10" }
@@ -63,11 +63,8 @@ jobs:
       - name: Configure package name
         shell: bash
         run: |
-          package_name_version="${{ inputs.release_version != '' && format('-{0}', inputs.release_version) || '' }}"
-          os_name="Linux"
-          arch_name="${{ matrix.arch.name == 'amd64' && 'X64' || 'ARM64' }}"
-          package_name="${{ inputs.artifact_name_prefix }}${package_name_version}-${os_name}_${arch_name}"
-          echo "PACKAGE_NAME=`echo $package_name | tr '[:upper:]' '[:lower:]'`" >> $GITHUB_ENV
+          package_name="${{ inputs.package_prefix }}-${{ matrix.arch.identifier }}"
+          echo "PACKAGE_NAME=${package_name}" >> $GITHUB_ENV
 
       - name: Download binary artifact
         uses: actions/download-artifact@v4

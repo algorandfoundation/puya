@@ -23,6 +23,8 @@ jobs:
         # macos-13 is the last available Intel Mac runner (mac os 13)
         # See https://github.com/actions/runner-images?tab=readme-ov-file#available-images
         os: [ubuntu-22.04, ubuntu-22.04-arm, windows-latest, macos-13, macos-14]
+    outputs:
+      package-prefix: ${{ steps.configure.outputs.package_prefix }}
 
     steps:
       - name: Set signing condition
@@ -43,12 +45,15 @@ jobs:
           ref: ${{ inputs.release_version != '' && format('v{0}', inputs.release_version) || '' }}
 
       - name: Configure build environment
+        id: configure
         shell: bash
         run: |
           artifacts_dir="${{ github.workspace }}${{ runner.os == 'Windows' && '\dist\artifacts' || '/dist/artifacts' }}"
           mkdir -p $artifacts_dir
           package_name_version="${{ inputs.release_version != '' && format('-{0}', inputs.release_version) || '' }}"
-          package_name="puya${package_name_version}-${{ runner.os }}_${{ runner.arch }}"
+          package_prefix="puya${package_name_version}"
+          echo "package_prefix=${package_prefix}" >> "$GITHUB_OUTPUT"
+          package_name="${package_prefix}-${{ runner.os }}_${{ runner.arch }}"
           echo "PACKAGE_NAME=`echo $package_name | tr '[:upper:]' '[:lower:]'`" >> $GITHUB_ENV
           echo "ARTIFACTS_DIR=${artifacts_dir}" >> $GITHUB_ENV
 
@@ -73,11 +78,6 @@ jobs:
 
       - name: Install dependencies
         run: poetry install --no-interaction
-
-      - name: Build example inputs
-        run: |
-          poetry run puyapy --output-awst-json examples/hello_world_arc4
-          echo '{"compilation_set":{"examples.hello_world_arc4.contract.HelloWorldContract": "."}, "output_teal": true}' > options.json
 
       - name: Build windows binary
         if: ${{ runner.os == 'Windows' }}
@@ -117,9 +117,13 @@ jobs:
           echo "TEST_PUYA_BINARY=${binary_path}" >> $GITHUB_ENV
         shell: bash
 
-      - name: Run runner-native portability tests
+      - name: Binary smoke test
         shell: bash
         run: |
+          # Build example inputs
+          poetry run puyapy --output-awst-json examples/hello_world_arc4
+          echo '{"compilation_set":{"examples.hello_world_arc4.contract.HelloWorldContract": "."}, "output_teal": true}' > options.json
+          
           # Run a basic test to verify the binary works
           ${TEST_PUYA_BINARY} --version
           
@@ -149,5 +153,5 @@ jobs:
     needs: build-binaries
     uses: ./.github/workflows/test-linux-distros.yaml
     with:
-      artifact_name_prefix: "puya"
+      package_prefix: ${{ needs.build-binaries.outputs.package-prefix }}
       release_version: ${{ inputs.release_version }}
