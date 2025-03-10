@@ -1,5 +1,6 @@
 from puya import log
 from puya.context import CompileContext
+from puya.errors import InternalError
 from puya.ir import models
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 
@@ -31,12 +32,21 @@ def copy_propagation(_context: CompileContext, subroutine: models.Subroutine) ->
         assert len(equivalence_set) >= 2
         equiv_set_ids = ", ".join(x.local_id for x in equivalence_set)
         logger.debug(f"Found equivalence set: {equiv_set_ids}")
-        for reg in equivalence_set:
-            if models.TMP_VAR_INDICATOR not in reg.name:
-                replacement = reg
-                break
-        else:
-            replacement = equivalence_set[0]
+
+        parameters = [r for r in equivalence_set if r in subroutine.parameters]
+        match parameters:
+            case [param]:
+                replacement = param
+            case []:
+                for reg in equivalence_set:
+                    if models.TMP_VAR_INDICATOR not in reg.name:
+                        replacement = reg
+                        break
+                else:  # fall back to first register if all are temp
+                    replacement = equivalence_set[0]
+            case _:
+                raise InternalError("multiple parameters in the same equivalence set")
+        logger.debug(f"selected {replacement} from equivalence set")
         for r in equivalence_set:
             if r is not replacement:
                 replacements[r] = replacement
