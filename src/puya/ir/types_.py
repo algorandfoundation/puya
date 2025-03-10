@@ -47,19 +47,22 @@ class IRType:
 
     @typing.final
     def __lt__(self, other: object) -> bool:
+        if not isinstance(other, IRType):
+            return NotImplemented
+        # types are not super types of themselves
+        if self == other:
+            return False
         # any is a super type of all types
         if self == PrimitiveIRType.any:
             return True
-        if (
-            isinstance(other, ArrayType | EncodedTupleType | SizedBytesType)
-            and self == PrimitiveIRType.bytes
-        ):
+        # bytes is a super type of other bytes types
+        if self == PrimitiveIRType.bytes and other.maybe_avm_type == AVMType.bytes:
             return True
-        if isinstance(other, SlotType) and self == PrimitiveIRType.uint64:
+        # uint64 is a super type of other uint64 types
+        if self == PrimitiveIRType.uint64 and other.maybe_avm_type == AVMType.uint64:  # noqa: SIM103
             return True
-        if not isinstance(other, IRType):
-            return NotImplemented
-        return False
+        else:
+            return False
 
     @typing.final
     def __le__(self, other: object) -> bool:

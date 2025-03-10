@@ -312,6 +312,9 @@ def _inlined_blocks(
 ) -> list[models.BasicBlock]:
     ref_collector = _SubroutineReferenceCollector()
     ref_collector.visit_all_blocks(sub.body)
+    assert (
+        sub not in ref_collector.subroutines
+    ), "auto recursive blocks should already be filtered out"
     memo = {id(s): s for s in ref_collector.subroutines}
     blocks = copy.deepcopy(sub.body, memo=memo)
     _OffsetRegisterVersions.apply(blocks, register_offsets=register_offsets)
