@@ -55,7 +55,7 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
     def visit_array_read_index(self, read: ir.ArrayReadIndex) -> ir.ValueProvider:
         self.modified = True
         values = self._read_item(
-            read.array, read.index, _get_element_type(read.array), read.source_location
+            read.array, read.index, read.array_type.element, read.source_location
         )
         value: ir.ValueProvider
         try:
@@ -67,7 +67,7 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
     @typing.override
     def visit_array_write_index(self, write: ir.ArrayWriteIndex) -> ir.Value:
         self.modified = True
-        element_type = _get_element_type(write.array)
+        element_type = write.array_type.element
         element_size = _get_element_size(element_type, write.source_location)
 
         factory = OpFactory(self, write.source_location)
@@ -78,7 +78,7 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
     @typing.override
     def visit_array_pop(self, pop: ir.ArrayPop) -> ir.ValueTuple:
         self.modified = True
-        element_type = _get_element_type(pop.array)
+        element_type = pop.array_type.element
         element_size = _get_element_size(element_type, pop.source_location)
 
         factory = OpFactory(self, pop.source_location)
@@ -125,7 +125,7 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
             args=[length.array],
             source_location=length.source_location,
         )
-        element_type = _get_element_type(length.array)
+        element_type = length.array_type.element
         element_size = _get_element_size(element_type, length.source_location)
         array_len = assign_intrinsic_op(
             self,
@@ -187,11 +187,6 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
         self.current_block_ops.append(op)
 
     # endregion
-
-
-def _get_element_type(value: ir.Value) -> IRType:
-    assert isinstance(value.ir_type, ArrayType), "expected array"
-    return value.ir_type.element
 
 
 def _get_element_size(element_type: IRType, loc: SourceLocation | None) -> int:
