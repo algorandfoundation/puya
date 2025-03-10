@@ -32,7 +32,7 @@ import algopy
 class MyContract(algopy.ARC4Contract):
 
     @algopy.arc4.abimethod()
-    def process_payment(self: algopy.gtxn.PaymentTransaction) -> None:
+    def process_payment(self, payment: algopy.gtxn.PaymentTransaction) -> None:
         ...
 ```
 
@@ -227,7 +227,7 @@ def example() -> None:
     txn_id = payment_txn.txn_id  # this is ok
 ```
 
-#### Inner transactions methods cannot be called if there is a subsequent inner transaction submitted or another subroutine is called.
+#### Inner transactions methods cannot be called if there is a subsequent inner transaction submitted or another subroutine is called
 
 ```python
 from algopy import itxn, subroutine
