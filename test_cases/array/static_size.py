@@ -116,6 +116,20 @@ class StaticSizeContract(arc4.ARC4Contract):
     def more(self) -> More:
         return More(foo=arc4.UInt64(self.count + 1), bar=arc4.UInt64(self.count * self.count))
 
+    @arc4.abimethod()
+    def test_arc4_bool(self) -> ImmutableArray[arc4.Bool]:
+        arr = Array[arc4.Bool]()
+        arr.append(arc4.Bool(Txn.sender == Txn.receiver))
+        arr.append(arc4.Bool(Txn.sender != Txn.receiver))
+
+        dyn_arr = arc4.DynamicArray[arc4.Bool]()
+        dyn_arr.extend(arr)
+        assert dyn_arr.length == 2, "expected correct length"
+        assert dyn_arr.bytes.length == 3, "expected 3 bytes"
+        assert dyn_arr[0] == (Txn.sender == Txn.receiver), "expected correct value at 0"
+        assert dyn_arr[1] == (Txn.sender != Txn.receiver), "expected correct value at 1"
+        return arr.freeze()
+
 
 @subroutine
 def path_length(path: Array[Point]) -> UInt64:
