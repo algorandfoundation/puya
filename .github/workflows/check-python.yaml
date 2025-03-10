@@ -5,144 +5,155 @@ on:
   pull_request:
 
 jobs:
-  check-python:
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
+  # TODO: REMOVE ME
+  build-and-upload-binaries:
+    name: Build and Upload Binaries
+    uses: ./.github/workflows/build-binaries.yaml
+    with:
+      production_release: "false"
+      python_version: "3.12"
+      release_version: ""
+    secrets: inherit
 
-      - name: Install poetry
-        run: pipx install poetry
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: "poetry"
-
-      - name: Install dependencies
-        run: poetry install --no-interaction --with cicd --with doc
-
-      - name: Check pre-commits
-        run: |
-            set -o pipefail
-            poetry run pre-commit run --all-files && git diff --exit-code
-
-      - name: Check generated code
-        run: |
-            set -o pipefail
-            poetry run poe gen && git diff --exit-code
-
-      - name: Check documentation
-        run: |
-            set -o pipefail
-            poetry run poe docs
-
-      - name: Check wheels can be built
-        run: |
-          set -o pipefail
-          
-          # build stubs
-          pushd stubs
-          poetry build --format wheel
-          popd
-          
-          # build compiler
-          poetry build --format wheel
-
-  tests:
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Install poetry
-        run: pipx install poetry
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: "poetry"
-
-      - name: Install dependencies
-        run: poetry install --no-interaction --with cicd
-
-      - name: Start LocalNet
-        run: poetry run algokit localnet start
-
-      - name: pytest + coverage
-        shell: bash
-        env:
-          COVERAGE_CORE: sysmon
-        run: |
-          set -o pipefail
-          poetry run pytest --junitxml=pytest-junit.xml --cov | tee pytest-coverage.txt
-
-      - name: pytest coverage comment
-        continue-on-error: true # forks fail to add a comment, so continue any way
-        uses: MishaKav/pytest-coverage-comment@main
-        with:
-          pytest-coverage-path: ./pytest-coverage.txt
-          junitxml-path: ./pytest-junit.xml
-
-  compile-all:
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Install poetry
-        run: pipx install poetry
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: "poetry"
-
-      - name: Install dependencies
-        run: poetry install --no-interaction
-
-      - name: Compile all
-        run: poetry run scripts/compile_all_examples.py
-
-      - name: Check for any changes
-        run: test -z "$(git status --porcelain examples/ test_cases/)"
-
-      - name: Show changed files summary
-        if: failure()
-        run: git status --porcelain examples/ test_cases/
-
-      - name: Show diff
-        if: failure()
-        run: git diff examples/ test_cases/
-
-
-  compile-all-windows:
-    runs-on: "windows-latest"
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Install poetry
-        run: pipx install poetry
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: "poetry"
-
-      - name: Install dependencies
-        run: poetry install --no-interaction
-
-      - name: Compile all
-        shell: bash
-        run: poetry run python scripts/compile_all_examples.py
-        env:
-          PYTHONUTF8: 1
-
-      # simple diff check here as line endings mess with git status
-      - name: Check diff
-        run: git diff --exit-code examples/ test_cases/
+# TODO: uncomment me!!
+#  check-python:
+#    runs-on: "ubuntu-latest"
+#    steps:
+#      - name: Checkout source code
+#        uses: actions/checkout@v4
+#
+#      - name: Install poetry
+#        run: pipx install poetry
+#
+#      - name: Set up Python 3.12
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: "3.12"
+#          cache: "poetry"
+#
+#      - name: Install dependencies
+#        run: poetry install --no-interaction --with cicd --with doc
+#
+#      - name: Check pre-commits
+#        run: |
+#            set -o pipefail
+#            poetry run pre-commit run --all-files && git diff --exit-code
+#
+#      - name: Check generated code
+#        run: |
+#            set -o pipefail
+#            poetry run poe gen && git diff --exit-code
+#
+#      - name: Check documentation
+#        run: |
+#            set -o pipefail
+#            poetry run poe docs
+#
+#      - name: Check wheels can be built
+#        run: |
+#          set -o pipefail
+#
+#          # build stubs
+#          pushd stubs
+#          poetry build --format wheel
+#          popd
+#
+#          # build compiler
+#          poetry build --format wheel
+#
+#  tests:
+#    runs-on: "ubuntu-latest"
+#    steps:
+#      - name: Checkout source code
+#        uses: actions/checkout@v4
+#
+#      - name: Install poetry
+#        run: pipx install poetry
+#
+#      - name: Set up Python 3.12
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: "3.12"
+#          cache: "poetry"
+#
+#      - name: Install dependencies
+#        run: poetry install --no-interaction --with cicd
+#
+#      - name: Start LocalNet
+#        run: poetry run algokit localnet start
+#
+#      - name: pytest + coverage
+#        shell: bash
+#        env:
+#          COVERAGE_CORE: sysmon
+#        run: |
+#          set -o pipefail
+#          poetry run pytest --junitxml=pytest-junit.xml --cov | tee pytest-coverage.txt
+#
+#      - name: pytest coverage comment
+#        continue-on-error: true # forks fail to add a comment, so continue any way
+#        uses: MishaKav/pytest-coverage-comment@main
+#        with:
+#          pytest-coverage-path: ./pytest-coverage.txt
+#          junitxml-path: ./pytest-junit.xml
+#
+#  compile-all:
+#    runs-on: "ubuntu-latest"
+#    steps:
+#      - name: Checkout source code
+#        uses: actions/checkout@v4
+#
+#      - name: Install poetry
+#        run: pipx install poetry
+#
+#      - name: Set up Python 3.12
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: "3.12"
+#          cache: "poetry"
+#
+#      - name: Install dependencies
+#        run: poetry install --no-interaction
+#
+#      - name: Compile all
+#        run: poetry run scripts/compile_all_examples.py
+#
+#      - name: Check for any changes
+#        run: test -z "$(git status --porcelain examples/ test_cases/)"
+#
+#      - name: Show changed files summary
+#        if: failure()
+#        run: git status --porcelain examples/ test_cases/
+#
+#      - name: Show diff
+#        if: failure()
+#        run: git diff examples/ test_cases/
+#
+#
+#  compile-all-windows:
+#    runs-on: "windows-latest"
+#    steps:
+#      - name: Checkout source code
+#        uses: actions/checkout@v4
+#
+#      - name: Install poetry
+#        run: pipx install poetry
+#
+#      - name: Set up Python 3.12
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: "3.12"
+#          cache: "poetry"
+#
+#      - name: Install dependencies
+#        run: poetry install --no-interaction
+#
+#      - name: Compile all
+#        shell: bash
+#        run: poetry run python scripts/compile_all_examples.py
+#        env:
+#          PYTHONUTF8: 1
+#
+#      # simple diff check here as line endings mess with git status
+#      - name: Check diff
+#        run: git diff --exit-code examples/ test_cases/

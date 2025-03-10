@@ -36,10 +36,12 @@ def run_puyapy(args: list[str | Path], *, check: bool = True) -> subprocess.Comp
     )
 
 
-def run_puya(puya_path: str, args: list[str | Path]) -> subprocess.CompletedProcess[str]:
+def run_puya(args: list[str | Path]) -> subprocess.CompletedProcess[str]:
+    puya = shutil.which("puya")
+    assert puya is not None, "puya not found"
     return _run(
         [
-            puya_path,
+            puya,
             *map(str, args),
         ]
     )
@@ -64,7 +66,6 @@ def _run(args: list[str], *, check: bool = True) -> subprocess.CompletedProcess[
     result = subprocess.run(
         args,
         text=True,
-        encoding="utf-8",
         # capture stdout
         stdout=subprocess.PIPE,
         # redirect stderr to stdout, so they're interleaved in the correct ordering
@@ -151,9 +152,8 @@ _OUTPUT_OPTIONS = [
 ]
 
 
-def _test_puya_output_implementation(
-    hello_world_awst_json: Path, output_option: str, puya_path: str
-) -> None:
+@pytest.mark.parametrize("output_option", _OUTPUT_OPTIONS)
+def test_puya_output(hello_world_awst_json: Path, output_option: str) -> None:
     with TemporaryDirectory() as tmp_dir_:
         tmp_dir = Path(tmp_dir_)
         assert hello_world_awst_json.exists(), "expected awst json to exist"
@@ -168,22 +168,6 @@ def _test_puya_output_implementation(
         options_json.write_text(converter.dumps(options))
         assert not out_dir.exists(), "precondition, out dir does not yet exist"
         run_puya(
-            puya_path,
-            ["--awst", hello_world_awst_json, "--options", options_json, "--log-level", "debug"],
+            ["--awst", hello_world_awst_json, "--options", options_json, "--log-level", "debug"]
         )
         assert out_dir.exists(), "out dir should exist"
-
-
-@pytest.mark.parametrize("output_option", _OUTPUT_OPTIONS)
-def test_puya_output(hello_world_awst_json: Path, output_option: str) -> None:
-    puya_path = shutil.which("puya")
-    assert puya_path is not None, "puya not found"
-    _test_puya_output_implementation(hello_world_awst_json, output_option, puya_path)
-
-
-@pytest.mark.pyinstaller_binary_tests
-@pytest.mark.parametrize("output_option", _OUTPUT_OPTIONS)
-def test_puya_binary_output(hello_world_awst_json: Path, output_option: str) -> None:
-    puya_path = os.environ.get("TEST_PUYA_BINARY")
-    assert puya_path is not None, "TEST_PUYA_BINARY should be set"
-    _test_puya_output_implementation(hello_world_awst_json, output_option, puya_path)

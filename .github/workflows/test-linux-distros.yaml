@@ -3,12 +3,6 @@ name: Test Linux Distros with manylinux puya binary
 on:
   workflow_call:
     inputs:
-      production_release:
-        required: true
-        type: string
-      python_version:
-        required: true
-        type: string
       release_version:
         required: false
         type: string
@@ -28,49 +22,43 @@ jobs:
           - { runner: "ubuntu-22.04-arm", name: "arm64" }
         distro:
           # Debian family (glibc 2.28+)
-          - { name: "Debian 10", image: "debian:10", pkg_manager: "apt-get" }
-          - { name: "Debian 11", image: "debian:11", pkg_manager: "apt-get" }
-          - { name: "Debian 12", image: "debian:12", pkg_manager: "apt-get" }
-
+          - { name: "Debian 10", image: "debian:10" }
+          - { name: "Debian 11", image: "debian:11" }
+          - { name: "Debian 12", image: "debian:12" }
           # Ubuntu family (glibc 2.31+)
-          - {
-              name: "Ubuntu 20.04",
-              image: "ubuntu:20.04",
-              pkg_manager: "apt-get",
-            }
-          - {
-              name: "Ubuntu 22.04",
-              image: "ubuntu:22.04",
-              pkg_manager: "apt-get",
-            }
-          - {
-              name: "Ubuntu 24.04",
-              image: "ubuntu:24.04",
-              pkg_manager: "apt-get",
-            }
-
+          - { name: "Ubuntu 20.04", image: "ubuntu:20.04" }
+          - { name: "Ubuntu 22.04", image: "ubuntu:22.04" }
+          - { name: "Ubuntu 24.04", image: "ubuntu:24.04" }
           # Fedora family (glibc 2.28+)
-          - { name: "Fedora 38", image: "fedora:38", pkg_manager: "dnf" }
-          - { name: "Fedora 39", image: "fedora:39", pkg_manager: "dnf" }
-          - { name: "Fedora 40", image: "fedora:40", pkg_manager: "dnf" }
-
+          - { name: "Fedora 38", image: "fedora:38" }
+          - { name: "Fedora 39", image: "fedora:39" }
+          - { name: "Fedora 40", image: "fedora:40" }
           # RHEL family (glibc 2.28+)
-          - {
-              name: "CentOS Stream 8",
-              image: "quay.io/centos/centos:stream8",
-              pkg_manager: "dnf",
-            }
-          - {
-              name: "CentOS Stream 9",
-              image: "quay.io/centos/centos:stream9",
-              pkg_manager: "dnf",
-            }
+          - { name: "CentOS Stream 8", image: "quay.io/centos/centos:stream8" }
+          - { name: "CentOS Stream 9", image: "quay.io/centos/centos:stream9" }
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.release_version != '' && format('v{0}', inputs.release_version) || '' }}
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "poetry"
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Build example inputs
+        run: |
+          poetry run puyapy --output-awst-json examples/hello_world_arc4
+          echo '{"compilation_set":{"examples.hello_world_arc4.contract.HelloWorldContract": "."}, "output_teal": true}' > options.json
 
       - name: Configure package name
         shell: bash
@@ -85,166 +73,34 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.PACKAGE_NAME }}
-          path: ./binary
 
-      - name: Extract binary artifact
-        run: cd ./binary && tar -xzf ${{ env.PACKAGE_NAME }}.tar.gz
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Docker registry login
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
-
-      - name: Prepare cache tag
-        id: cache-tag
-        run: |
-          # Create a sanitized tag name from the distro name
-          DISTRO_TAG=$(echo "${{ matrix.distro.name }}" | tr ' ' '-' | tr '[:upper:]' '[:lower:]')
-          ARCH_TAG="${{ matrix.arch.name }}"
-          CACHE_TAG="ghcr.io/${{ github.repository }}/test-env-${DISTRO_TAG}-${ARCH_TAG}:latest"
-          echo "tag=${CACHE_TAG}" >> $GITHUB_OUTPUT
-
-      - name: Create Dockerfile
+      - name: Create test script
         run: |
           # First create a setup script
-          cat > setup.sh << 'SETUPEOF'
-          #!/bin/bash
-          set -e
+          cat > test.sh << EOF
+          set -e  # Exit immediately if a command fails
+      
+          # Print glibc version
+          ldd --version
+      
+          # extract the binary
+          cd /workspace
+          tar -xzf ${PACKAGE_NAME}.tar.gz               
 
-          # Function to install dependencies based on the distribution
-          setup_environment() {
-            if [[ "$DISTRO" == *"centos:stream9"* ]]; then
-              # CentOS Stream 9 specific handling
-              if [ -f /etc/yum.repos.d/centos.repo ]; then
-                sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/centos.repo
-                sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/centos.repo
-              fi
-              
-              # Enable repositories and install dependencies with --allowerasing flag to handle package conflicts
-              dnf -y install dnf-plugins-core
-              dnf -y config-manager --set-enabled crb || true
-              dnf -y install epel-release || dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E %rhel).noarch.rpm
-              
-              # Use --allowerasing flag to handle curl conflicts
-              dnf -y --allowerasing install git curl make gcc zlib-devel openssl-devel bzip2 \
-                bzip2-devel readline-devel sqlite-devel tk-devel libffi-devel \
-                xz-devel libuuid-devel
-            elif [[ "$DISTRO" == *"centos:stream8"* ]]; then
-              # CentOS Stream 8 specific handling
-              if ls /etc/yum.repos.d/CentOS-*.repo &>/dev/null; then
-                sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*.repo
-                sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*.repo
-              fi
-              
-              # Enable repositories directly
-              dnf -y install dnf-plugins-core
-              dnf -y config-manager --set-enabled powertools || true
-              dnf -y install epel-release || dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E %rhel).noarch.rpm
-              dnf -y install git curl make gcc zlib-devel openssl-devel bzip2 \
-                bzip2-devel readline-devel sqlite-devel tk-devel libffi-devel \
-                xz-devel libuuid-devel
-            elif command -v apt-get &> /dev/null; then
-              export DEBIAN_FRONTEND=noninteractive
-              apt-get update
-              apt-get install -y git curl make gcc zlib1g-dev \
-                libssl-dev libbz2-dev libreadline-dev libsqlite3-dev tk-dev \
-                libffi-dev liblzma-dev uuid-dev
-            elif command -v dnf &> /dev/null; then
-              dnf install -y dnf-plugins-core
-              dnf config-manager --set-enabled crb || dnf config-manager --set-enabled powertools || true
-              dnf install -y --allowerasing git curl make gcc zlib-devel openssl-devel bzip2 \
-                bzip2-devel readline-devel sqlite-devel tk-devel libffi-devel \
-                xz-devel libuuid-devel
-            fi
-          }
-
-          # Run the setup
-          setup_environment
-          SETUPEOF
-
-          chmod +x setup.sh
-
-          # Now create the Dockerfile that uses this script
-          cat > Dockerfile.test << EOF
-          FROM ${{ matrix.distro.image }}
-
-          # Copy setup script
-          COPY setup.sh /setup.sh
-
-          # Set the DISTRO environment variable and run setup
-          ENV DISTRO="${{ matrix.distro.image }}"
-          RUN /setup.sh
-
-          # Install pyenv
-          ENV PYENV_ROOT="/root/.pyenv"
-          ENV PATH="\$PYENV_ROOT/bin:\$PYENV_ROOT/shims:\$PATH"
-
-          RUN git clone https://github.com/pyenv/pyenv.git \$PYENV_ROOT && \
-              cd \$PYENV_ROOT && git checkout master
-
-          # Install Python 3.12 using pyenv
-          RUN PYTHON_VERSION="3.12.9" && \
-              CONFIGURE_OPTS="--enable-shared" pyenv install \$PYTHON_VERSION && \
-              pyenv global \$PYTHON_VERSION
-
-          # Install poetry
-          RUN pip install poetry
-
-          # Create workspace directory
-          RUN mkdir -p /workspace
-          WORKDIR /workspace
+          # Run a basic test to verify the binary works
+          ./puya --version
+          
+          # Run the binary tests
+          ./puya --options options.json --awst module.awst.json 
+          
+          cat HelloWorldContract.approval.teal 
           EOF
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        env:
-          DOCKER_BUILD_SUMMARY: false
-        with:
-          context: .
-          file: Dockerfile.test
-          platforms: linux/${{ matrix.arch.name }}
-          push: true
-          load: true
-          tags: ${{ steps.cache-tag.outputs.tag }}
-          cache-from: type=registry,ref=${{ steps.cache-tag.outputs.tag }}
-          cache-to: type=registry,ref=${{ steps.cache-tag.outputs.tag }},mode=max
 
       - name: Run portability tests on ${{ matrix.distro.name }} (${{ matrix.arch.name }})
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/workspace \
             --platform linux/${{ matrix.arch.name }} \
-            ${{ steps.cache-tag.outputs.tag }} \
-            bash -c '
-              cd /workspace
-              set -e  # Exit immediately if a command fails
-              
-              # Set up environment for testing
-              export TEST_PUYA_BINARY=/workspace/binary/puya
-              
-              chmod +x "$TEST_PUYA_BINARY"
-              
-              # Create directory and symlink for consistency
-              mkdir -p /root/bin
-              ln -sf "$TEST_PUYA_BINARY" /root/bin/puya
-              export PATH="/root/bin:$PATH"
-              
-              # Configure git (required for some tests)
-              git config --global user.email "actions@github.com"
-              git config --global user.name "github-actions"
-              
-              # Print glibc version
-              ldd --version
-
-              # Run a basic test to verify the binary works
-              puya --version
-              
-              # Run the binary tests
-              poetry install --no-interaction 
-              TEST_PUYA_BINARY="$TEST_PUYA_BINARY" poetry run pytest tests/ -m pyinstaller_binary_tests --log-cli-level=INFO -n0 -s -v
-            '
+            --env PACKAGE_NAME=${{ env.PACKAGE_NAME }} \
+            ${{ matrix.distro.image }} \
+            bash /workspace/test.sh
