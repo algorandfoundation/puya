@@ -509,7 +509,7 @@ def dynamic_array_concat_and_convert(
         (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
             context, iter_expr, element_type, right_native_type, source_location
         )
-        if isinstance(right_wtype, wtypes.WTuple):
+        if isinstance(right_wtype, wtypes.WTuple | wtypes.ReferenceArray):
             # each bit is in its own byte
             read_step = 8
         else:
@@ -1185,7 +1185,7 @@ def _get_arc4_array_tail_data_and_item_count(
     if isinstance(wtype, wtypes.ARC4Tuple):
         head_and_tail = stack_value
         item_count = UInt64Constant(value=len(wtype.types), source_location=source_location)
-    elif isinstance(wtype, wtypes.ARC4Array | wtypes.StackArray):
+    elif isinstance(wtype, wtypes.ARC4Array | wtypes.StackArray | wtypes.ReferenceArray):
         item_count_vp = _get_any_array_length(context, wtype, stack_value, source_location)
         item_count = factory.assign(item_count_vp, "array_length")
         if native_element_type is not None:
@@ -1197,8 +1197,6 @@ def _get_arc4_array_tail_data_and_item_count(
             context, wtype, stack_value, source_location
         )
         head_and_tail = factory.assign(head_and_tail_vp, "array_head_and_tail")
-    elif isinstance(wtype, wtypes.ReferenceArray):
-        raise InternalError("reference array of dynamic sized elements", source_location)
     else:
         raise InternalError(f"Unsupported array type: {wtype}")
 
