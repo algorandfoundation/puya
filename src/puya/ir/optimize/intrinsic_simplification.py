@@ -950,7 +950,7 @@ def _try_simplify_uint64_binary_op(
             c = 1
         elif a_const == 1 and op == AVMOp.mul:
             c = b
-        elif b_const == 1 and op == AVMOp.mul:
+        elif b_const == 1 and op in (AVMOp.mul, AVMOp.div_floor):
             c = a
         elif a_const == 0 and op in (AVMOp.add, AVMOp.or_):
             c = b
@@ -1065,7 +1065,7 @@ def _try_simplify_bytes_binary_op(
         b_const, b_const_bytes, b_encoding = _get_biguint_constant(register_assignments, b)
         if a_const == 1 and op == AVMOp.mul_bytes:
             c = b
-        elif b_const == 1 and op == AVMOp.mul_bytes:
+        elif b_const == 1 and op in (AVMOp.mul_bytes, AVMOp.div_floor_bytes):
             c = a
         elif a_const == 0 and op == AVMOp.add_bytes:
             c = b
