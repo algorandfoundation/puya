@@ -9,16 +9,15 @@ LABEL org.opencontainers.image.licenses=MIT
 SHELL ["/bin/bash", "-c"]
 
 ARG HOME=/root
-ARG PYTHON_VERSION=3.12
-ARG PYTHON_LAST=3.12.9
-ARG PYINSTALLER_VERSION=6.12.0
+ARG PYTHON_VERSION
 ARG OPENSSL_VERSION=openssl-1.1.1u
 ARG OPENSSL_DIR=/usr/local/ssl
 ARG PYENV_ROOT="${HOME}/.pyenv"
 
+# myake PYTHON_VERSION a required build argument
+RUN test -n "$PYTHON_VERSION"
+
 ENV PYTHON_VERSION=${PYTHON_VERSION} \
-    PYTHON_LAST=${PYTHON_LAST} \
-    PYINSTALLER_VERSION=${PYINSTALLER_VERSION} \
     OPENSSL_VERSION=${OPENSSL_VERSION} \
     OPENSSL_DIR=${OPENSSL_DIR} \
     PYENV_ROOT="${PYENV_ROOT}" \
@@ -59,14 +58,13 @@ RUN set -exuo pipefail && \
     LD_RUN_PATH="${OPENSSL_DIR}/lib" \
     CONFIGURE_OPTS="--with-openssl=${OPENSSL_DIR}" \
     PYTHON_CONFIGURE_OPTS="--enable-shared" \
-    ${PYENV_ROOT}/bin/pyenv install ${PYTHON_LAST} && \
-    ${PYENV_ROOT}/bin/pyenv global ${PYTHON_LAST}
+    ${PYENV_ROOT}/bin/pyenv install ${PYTHON_VERSION} && \
+    ${PYENV_ROOT}/bin/pyenv global ${PYTHON_VERSION}
 
 # Install Python packages
 RUN set -exuo pipefail && \
     ${PYENV_ROOT}/shims/pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    ${PYENV_ROOT}/shims/pip install --no-cache-dir --upgrade pyinstaller==$PYINSTALLER_VERSION && \
-    ${PYENV_ROOT}/shims/pip install --no-cache-dir poetry 
+    ${PYENV_ROOT}/shims/pip install --no-cache-dir poetry
 
 # Clean up
 RUN set -exuo pipefail && \

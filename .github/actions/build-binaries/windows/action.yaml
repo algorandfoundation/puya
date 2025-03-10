@@ -20,6 +20,9 @@ inputs:
   azure_client_secret:
     description: "A client secret that was generated for the App Registration."
     required: true
+  python_version:
+    required: true
+    type: string
 
 runs:
   using: "composite"
@@ -30,10 +33,32 @@ runs:
         echo 'C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x64' >> $GITHUB_PATH
         echo 'BINARY_BUILD_DIR=dist\puya' >> $GITHUB_ENV
 
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python_version }}
+
+    - name: Set up Poetry
+      uses: ./.github/actions/setup-poetry
+
+    - name: Install dependencies
+      shell: bash
+      run: poetry install --no-interaction --without=dev --with=cicd --no-root
+
     - name: Build binary
       shell: bash
       run: |
-        poetry run poe package_windows
+        poetry run pyinstaller \
+          --clean \
+          --onedir \
+          --name puya \
+          --noconfirm src/puya/__main__.py \
+          --add-data './src/puya/ir/_puya_lib.awst.json:puya/ir/' \
+          --exclude-module puyapy \
+          --exclude-module mypy_extensions \
+          --optimize=2 \
+          --hidden-import colorama \
+          --runtime-hook scripts/distribution/hook_puya.py
 
     - name: Sign executable
       if: ${{ inputs.with_codesign == 'true' }}

@@ -20,6 +20,9 @@ inputs:
   gpg-key-id:
     description: "The GPG key ID to use for signing"
     required: true
+  python_version:
+    required: true
+    type: string
 
 runs:
   using: "composite"
@@ -57,6 +60,7 @@ runs:
         file: ${{ github.action_path }}/Dockerfile
         build-args: |
           BASE_IMAGE=${{ steps.set-base-image.outputs.BASE_IMAGE }}
+          PYTHON_VERSION=${{ inputs.python_version }}
         push: true
         load: true
         tags: ${{ steps.set-base-image.outputs.CACHE_TAG }}

@@ -31,12 +31,11 @@ jobs:
         uses: ./.github/actions/setup-poetry
 
       - name: Install dependencies
-        run: poetry install --no-interaction --without=dev
+        run: poetry install --no-interaction
 
-      - name: Binary smoke test
+      - name: Generate input data
         shell: bash
         run: |
-          # Build example inputs
           poetry run puyapy --output-awst-json examples/hello_world_arc4
           echo '{"compilation_set":{"examples.hello_world_arc4.contract.HelloWorldContract": "."}, "output_teal": true}' > options.json
 
@@ -97,6 +96,7 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         uses: ./.github/actions/build-binaries/linux
         with:
+          python_version: ${{ inputs.python_version }}
           package_name: ${{ env.PACKAGE_NAME }}
           artifacts_dir: ${{ env.ARTIFACTS_DIR }}
           with_codesign: ${{ steps.signing.outputs.allowed == 'true' }}
@@ -104,21 +104,11 @@ jobs:
           gpg-signing-private-key-password: ${{ steps.signing.outputs.allowed == 'true' && secrets.GPG_SIGNING_PRIVATE_KEY_PASSWORD || '' }}
           gpg-key-id: ${{ steps.signing.outputs.allowed == 'true' && secrets.GPG_KEY_ID || '' }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ inputs.python_version }}
-
-      - name: Set up Poetry
-        uses: ./.github/actions/setup-poetry
-
-      - name: Install dependencies
-        run: poetry install --no-interaction --with=cicd --no-root
-
       - name: Build windows binary
         if: ${{ runner.os == 'Windows' }}
         uses: ./.github/actions/build-binaries/windows
         with:
+          python_version: ${{ inputs.python_version }}
           package_name: ${{ env.PACKAGE_NAME }}
           artifacts_dir: ${{ env.ARTIFACTS_DIR }}
           with_codesign: ${{ steps.signing.outputs.allowed == 'true' }}
@@ -137,6 +127,7 @@ jobs:
         if: ${{ runner.os == 'macOS' }}
         uses: ./.github/actions/build-binaries/macos
         with:
+          python_version: ${{ inputs.python_version }}
           package_name: ${{ env.PACKAGE_NAME }}
           artifacts_dir: ${{ env.ARTIFACTS_DIR }}
           with_codesign: ${{ steps.signing.outputs.allowed == 'true' }}
