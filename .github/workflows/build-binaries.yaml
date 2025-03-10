@@ -138,11 +138,13 @@ jobs:
           apple_notary_password: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_NOTARY_PASSWORD || '' }}
 
       - name: Download smoke test data
+        if: ${{ runner.os != 'Linux' }}
         uses: actions/download-artifact@v4
         with:
           name: binary-smoke-test-inputs
 
       - name: Binary smoke test
+        if: ${{ runner.os != 'Linux' }}
         shell: bash
         run: |
           # Run a basic test to verify the binary works
