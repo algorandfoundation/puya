@@ -35,36 +35,21 @@ jobs:
           - { name: "CentOS Stream 9", image: "quay.io/centos/centos:stream9" }
 
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Install poetry
-        run: pipx install poetry
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+      - name: Download smoke test data
+        uses: actions/download-artifact@v4
         with:
-          python-version: "3.12"
-          cache: "poetry"
+          name: binary-smoke-test-inputs
 
-      - name: Install dependencies
-        run: poetry install --no-interaction
-
-      - name: Build example inputs
-        run: |
-          poetry run puyapy --output-awst-json examples/hello_world_arc4
-          echo '{"compilation_set":{"examples.hello_world_arc4.contract.HelloWorldContract": "."}, "output_teal": true}' > options.json
+      - name: Download binary artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PACKAGE_NAME }}
 
       - name: Configure package name
         shell: bash
         run: |
           package_name="${{ inputs.package_prefix }}-${{ matrix.arch.identifier }}"
           echo "PACKAGE_NAME=${package_name}" >> $GITHUB_ENV
-
-      - name: Download binary artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ env.PACKAGE_NAME }}
 
       - name: Create test script
         run: |

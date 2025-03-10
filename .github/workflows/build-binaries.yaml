@@ -14,6 +14,41 @@ on:
         type: string
 
 jobs:
+  generate-smoke-test-inputs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_version != '' && format('v{0}', inputs.release_version) || '' }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python_version }}
+
+      - name: Set up Poetry
+        uses: ./.github/actions/setup-poetry
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --without=dev
+
+      - name: Binary smoke test
+        shell: bash
+        run: |
+          # Build example inputs
+          poetry run puyapy --output-awst-json examples/hello_world_arc4
+          echo '{"compilation_set":{"examples.hello_world_arc4.contract.HelloWorldContract": "."}, "output_teal": true}' > options.json
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-smoke-test-inputs
+          if-no-files-found: error
+          path: |
+            module.awst.json
+            options.json
+
   build-binaries:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -77,7 +112,7 @@ jobs:
         uses: ./.github/actions/setup-poetry
 
       - name: Install dependencies
-        run: poetry install --no-interaction --with=cicd
+        run: poetry install --no-interaction --with=cicd --no-root
 
       - name: Build windows binary
         if: ${{ runner.os == 'Windows' }}
@@ -110,13 +145,14 @@ jobs:
           apple_notary_user: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_NOTARY_USER || '' }}
           apple_notary_password: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_NOTARY_PASSWORD || '' }}
 
+      - name: Download smoke test data
+        uses: actions/download-artifact@v4
+        with:
+          name: binary-smoke-test-inputs
+
       - name: Binary smoke test
         shell: bash
         run: |
-          # Build example inputs
-          poetry run puyapy --output-awst-json examples/hello_world_arc4
-          echo '{"compilation_set":{"examples.hello_world_arc4.contract.HelloWorldContract": "."}, "output_teal": true}' > options.json
-          
           # Run a basic test to verify the binary works
           ./dist/puya/puya --version
           
