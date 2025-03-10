@@ -62,7 +62,9 @@ jobs:
     env:
       DRY_RUN: ${{ inputs.dry_run && '--noop' || '' }}
     outputs:
-      release_version: ${{ steps.get_release_version.outputs.RELEASE_VERSION }}
+      version_number: ${{ steps.get_version_info.outputs.version_number }}
+      version_tag: ${{ steps.get_version_info.outputs.version_tag }}
+      branch_name: ${{ steps.get_branch.outputs.branch }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -92,14 +94,15 @@ jobs:
             pytest
 
       - name: Get branch name
-        shell: bash
-        run: echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
         id: get_branch
+        run: echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
 
       - name: Set Git user as GitHub actions
-        run: git config --global user.email "actions@github.com" && git config --global user.name "github-actions"
+        run: |
+          git config --global user.email "actions@github.com" 
+          git config --global user.name "github-actions"
 
-      - name: Update release
+      - name: Update version
         if: inputs.bump_version
         run: poetry run semantic-release $DRY_RUN --strict version
         env:
@@ -111,10 +114,8 @@ jobs:
 
       - name: Create Stubs Wheel
         if: inputs.stubs_wheel
-        run: |
-            pushd stubs
-            poetry build --format wheel
-            popd
+        working-directory: ./stubs
+        run: poetry build --format wheel
 
       - uses: actions/upload-artifact@v4 # upload artifacts so they are retained on the job
         with:
@@ -122,15 +123,21 @@ jobs:
             dist
             stubs/dist
 
+      - name: Get version info
+        id: get_version_info
+        run: |
+          echo "version_tag=$(poetry run semantic-release version --print-last-released-tag)" >> $GITHUB_OUTPUT
+          echo "version_number=$(poetry run semantic-release version --print-last-released)" >> $GITHUB_OUTPUT
+
+      # TODO: new job starts here, after build-and-upload-binaries
+
       - name: Publish to GitHub
         if: steps.get_branch.outputs.branch == 'main' && !inputs.dry_run && inputs.publish_github
-        id: get_release_version
-        run: |
-          poetry run semantic-release $DRY_RUN publish
-          release_version="$(poetry run semantic-release print-version --current)"
-          echo "RELEASE_VERSION=$release_version" >> $GITHUB_OUTPUT
+        run: poetry run semantic-release $DRY_RUN publish
         env:
             GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+
+      # TODO: add binary artifacts to release
 
       - name: Publish to PyPI - Compiler
         if: steps.get_branch.outputs.branch == 'main' && !inputs.dry_run && inputs.publish_pypi && inputs.compiler_wheel
@@ -147,9 +154,10 @@ jobs:
     needs: release
     uses: ./.github/workflows/build-binaries.yaml
     with:
-      production_release: ${{ inputs.publish_github == 'true' }}
+      production_release: ${{ inputs.publish_github }}
       python_version: "3.12"
-      release_version: ${{ needs.release.outputs.release_version }}
+      version_number: ${{ needs.release.outputs.version_number }}
+      version_tag: ${{ needs.release.outputs.version_tag }}
     secrets: inherit
 
   publish-docs:

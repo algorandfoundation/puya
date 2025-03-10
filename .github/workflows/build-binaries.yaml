@@ -5,16 +5,56 @@ on:
     inputs:
       production_release:
         required: true
-        type: string
+        type: boolean
+        default: false
       python_version:
-        required: true
-        type: string
-      release_version:
         required: false
         type: string
-
+        default: "3.12"
+      version_tag:
+        required: true
+        type: string
+      version_number:
+        required: true
+        type: string
 jobs:
+  generate-smoke-test-inputs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version_tag }}
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python_version }}
+          cache: "poetry"
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Generate input data
+        shell: bash
+        run: |
+          poetry run puyapy --output-awst-json examples/hello_world_arc4
+          echo '{"compilation_set":{"examples.hello_world_arc4.contract.HelloWorldContract": "."}, "output_teal": true}' > options.json
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-smoke-test-inputs
+          if-no-files-found: error
+          path: |
+            module.awst.json
+            options.json
+
   build-binaries:
+    needs: generate-smoke-test-inputs
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false # Continue with other matrix jobs even if one fails
@@ -23,47 +63,45 @@ jobs:
         # macos-13 is the last available Intel Mac runner (mac os 13)
         # See https://github.com/actions/runner-images?tab=readme-ov-file#available-images
         os: [ubuntu-22.04, ubuntu-22.04-arm, windows-latest, macos-13, macos-14]
+    outputs:
+      package-prefix: ${{ steps.configure.outputs.package_prefix }}
 
     steps:
       - name: Set signing condition
         id: signing
+        shell: bash
+        # TODO: FIXME allowed=false
         run: |
           # Allow signing on main branch non-PR events (regardless of production_release value)
           if [[ "${{ github.event_name }}" != "pull_request" && \
                 "${{ github.ref_name }}" == "main" ]]; then
-            echo "allowed=true" >> $GITHUB_OUTPUT
+            echo "allowed=false" >> $GITHUB_OUTPUT
           else
             echo "allowed=false" >> $GITHUB_OUTPUT
           fi
-        shell: bash
 
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.release_version != '' && format('v{0}', inputs.release_version) || '' }}
+          ref: ${{ inputs.version_tag }}
 
       - name: Configure build environment
+        id: configure
         shell: bash
         run: |
-          artifacts_dir="${{ github.workspace }}${{ runner.os == 'Windows' && '\dist\artifacts' || '/dist/artifacts' }}"
+          artifacts_dir="${{ github.workspace }}/dist/artifacts"
           mkdir -p $artifacts_dir
-          package_name_version="${{ inputs.release_version != '' && format('-{0}', inputs.release_version) || '' }}"
-          package_name="puya${package_name_version}-${{ runner.os }}_${{ runner.arch }}"
+          package_prefix="puya-${{ inputs.version_number }}"
+          echo "package_prefix=${package_prefix}" >> "$GITHUB_OUTPUT"
+          package_name="${package_prefix}-${{ runner.os }}_${{ runner.arch }}"
           echo "PACKAGE_NAME=`echo $package_name | tr '[:upper:]' '[:lower:]'`" >> $GITHUB_ENV
           echo "ARTIFACTS_DIR=${artifacts_dir}" >> $GITHUB_ENV
-
-      - name: Docker registry login
-        if: ${{ runner.os == 'Linux' }}
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
 
       - name: Build linux binary
         if: ${{ runner.os == 'Linux' }}
         uses: ./.github/actions/build-binaries/linux
         with:
+          python_version: ${{ inputs.python_version }}
           package_name: ${{ env.PACKAGE_NAME }}
           artifacts_dir: ${{ env.ARTIFACTS_DIR }}
           with_codesign: ${{ steps.signing.outputs.allowed == 'true' }}
@@ -71,22 +109,11 @@ jobs:
           gpg-signing-private-key-password: ${{ steps.signing.outputs.allowed == 'true' && secrets.GPG_SIGNING_PRIVATE_KEY_PASSWORD || '' }}
           gpg-key-id: ${{ steps.signing.outputs.allowed == 'true' && secrets.GPG_KEY_ID || '' }}
 
-      # Setup python and poetry after the docker container has been run to avoid .venv clashing
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ inputs.python_version }}
-
-      - name: Set up Poetry
-        uses: ./.github/actions/setup-poetry
-
-      - name: Install dependencies
-        run: poetry install --no-interaction
-
       - name: Build windows binary
         if: ${{ runner.os == 'Windows' }}
         uses: ./.github/actions/build-binaries/windows
         with:
+          python_version: ${{ inputs.python_version }}
           package_name: ${{ env.PACKAGE_NAME }}
           artifacts_dir: ${{ env.ARTIFACTS_DIR }}
           with_codesign: ${{ steps.signing.outputs.allowed == 'true' }}
@@ -105,40 +132,34 @@ jobs:
         if: ${{ runner.os == 'macOS' }}
         uses: ./.github/actions/build-binaries/macos
         with:
+          python_version: ${{ inputs.python_version }}
           package_name: ${{ env.PACKAGE_NAME }}
           artifacts_dir: ${{ env.ARTIFACTS_DIR }}
           with_codesign: ${{ steps.signing.outputs.allowed == 'true' }}
           apple_team_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_TEAM_ID || '' }}
-          apple_bundle_id: ${{ inputs.production_release == 'true' && secrets.APPLE_BUNDLE_ID || format('beta.{0}', secrets.APPLE_BUNDLE_ID) }}
+          apple_bundle_id: ${{ inputs.production_release && secrets.APPLE_BUNDLE_ID || format('beta.{0}', secrets.APPLE_BUNDLE_ID) }}
           apple_cert_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_CERT_ID || '' }}
           apple_notary_user: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_NOTARY_USER || '' }}
           apple_notary_password: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_NOTARY_PASSWORD || '' }}
 
-      - name: Add binary to path
-        run: |
-          binary_path="${{ github.workspace }}${{ runner.os == 'Windows' && '\dist\puya\puya.exe' || '/dist/puya/puya' }}"
-          echo "${{ github.workspace }}${{ runner.os == 'Windows' && '\dist\puya' || '/dist/puya' }}" >> $GITHUB_PATH
-          echo "TEST_PUYA_BINARY=${binary_path}" >> $GITHUB_ENV
+      - name: Download smoke test data
+        uses: actions/download-artifact@v4
+        with:
+          name: binary-smoke-test-inputs
+
+      - name: Binary smoke test
         shell: bash
-
-      - name: Run portability tests on Windows
-        if: ${{ runner.os == 'Windows' }}
         run: |
-          git config --global user.email "actions@github.com" && git config --global user.name "github-actions"
-          poetry run pytest tests/ -m pyinstaller_binary_tests --log-cli-level=INFO -n0 -s -v
-        shell: cmd
-        env:
-          TEST_PUYA_BINARY: ${{ env.TEST_PUYA_BINARY }}
+          # Run a basic test to verify the binary works
+          ./dist/puya/puya --version
+          
+          # Run the binary tests
+          ./dist/puya/puya --options options.json --awst module.awst.json 
+          
+          # TODO: can remove this here and elsewhere - maybe just "assert" the file exists? 
+          cat HelloWorldContract.approval.teal
 
-      - name: Run portability tests on macOS ${{ matrix.os }}
-        if: ${{ runner.os == 'macOS' }}
-        run: |
-          git config --global user.email "actions@github.com" && git config --global user.name "github-actions"
-          poetry run pytest tests/ -m pyinstaller_binary_tests --log-cli-level=INFO -n0 -s -v
-        shell: bash
-        env:
-          TEST_PUYA_BINARY: ${{ env.TEST_PUYA_BINARY }}
-
+      # TODO: move this stuff to CD job
       - name: Adjust artifacts directory for softprops/action-gh-release
         if: ${{ runner.os == 'Windows' }}
         shell: pwsh
@@ -147,7 +168,7 @@ jobs:
           echo "ARTIFACTS_DIR=$adjusted" >> $env:GITHUB_ENV
 
       - name: Append artifacts to release
-        if: ${{ inputs.production_release == 'true' }}
+        if: ${{ inputs.production_release }}
         uses: softprops/action-gh-release@v1
         with:
           fail_on_unmatched_files: true
@@ -160,7 +181,4 @@ jobs:
     needs: build-binaries
     uses: ./.github/workflows/test-linux-distros.yaml
     with:
-      production_release: ${{ inputs.production_release }}
-      python_version: ${{ inputs.python_version }}
-      release_version: ${{ inputs.release_version }}
-      artifact_name_prefix: "puya"
+      package_prefix: ${{ needs.build-binaries.outputs.package-prefix }}

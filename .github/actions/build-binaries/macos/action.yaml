@@ -26,16 +26,43 @@ inputs:
   apple_notary_password:
     description: "The Apple password to notarise the package"
     required: true
+  python_version:
+    required: true
+    type: string
 
 runs:
   using: "composite"
   steps:
+    - name: Install poetry
+      shell: bash
+      run: pipx install poetry
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python_version }}
+        cache: "poetry"
+
+    - name: Install dependencies
+      shell: bash
+      run: poetry install --no-interaction --without=dev --with=cicd
+
     - name: Build binary
       shell: bash
       run: |
         export APPLE_CERT_ID="${{ inputs.with_codesign == 'true' && inputs.apple_cert_id || '' }}"
         export APPLE_BUNDLE_ID="${{ inputs.with_codesign == 'true' && inputs.apple_bundle_id || format('beta.{0}', inputs.apple_bundle_id) }}"
-        poetry run poe package_mac
+        CMD="poetry run pyinstaller --clean --onedir --name puya --noconfirm src/puya/__main__.py --add-data './src/puya/ir/_puya_lib.awst.json:puya/ir/' --exclude-module colorama --exclude-module mypy_extensions --optimize=2"
+        if [ ! -z "$APPLE_BUNDLE_ID" ]; then
+            CMD="$CMD --osx-bundle-identifier \"$APPLE_BUNDLE_ID\""
+        fi
+        if [ ! -z "$APPLE_CERT_ID" ]; then
+            CMD="$CMD --codesign-identity \"$APPLE_CERT_ID\""
+        fi        
+        if [ -f "./entitlements.xml" ]; then
+            CMD="$CMD --osx-entitlements-file './entitlements.xml'"
+        fi        
+        eval $CMD
       env:
         APPLE_CERT_ID: ${{ inputs.with_codesign == 'true' && inputs.apple_cert_id || '' }}
         APPLE_BUNDLE_ID: ${{ inputs.with_codesign == 'true' && inputs.apple_bundle_id || format('beta.{0}', inputs.apple_bundle_id) }}
@@ -61,19 +88,16 @@ runs:
     # Create tar.gz archive in the artifacts directory for GitHub releases
     - name: Package binary for release
       shell: bash
-      run: |
-        cd dist/puya/
-        tar -zcf ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz *
-        cd ../..
+      working-directory: dist/puya
+      run: tar -zcf ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz *
 
     # Generate SHA-256 checksum for the release archive
     - name: Generate SHA-256 checksum
       shell: bash
+      working-directory: ${{ inputs.artifacts_dir }}
       run: |
-        cd ${{ inputs.artifacts_dir }}
         shasum -a 256 ${{ inputs.package_name }}.tar.gz > ${{ inputs.package_name }}.sha256.txt
         cat ${{ inputs.package_name }}.sha256.txt
-        cd ..
 
     # Upload the tar.gz archive as GitHub Actions artifact
     - name: Upload binary artifact
