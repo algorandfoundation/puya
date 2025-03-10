@@ -29,6 +29,7 @@ jobs:
     steps:
       - name: Set signing condition
         id: signing
+        shell: bash
         run: |
           # Allow signing on main branch non-PR events (regardless of production_release value)
           if [[ "${{ github.event_name }}" != "pull_request" && \
@@ -37,7 +38,6 @@ jobs:
           else
             echo "allowed=false" >> $GITHUB_OUTPUT
           fi
-        shell: bash
 
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -48,7 +48,7 @@ jobs:
         id: configure
         shell: bash
         run: |
-          artifacts_dir="${{ github.workspace }}${{ runner.os == 'Windows' && '\dist\artifacts' || '/dist/artifacts' }}"
+          artifacts_dir="${{ github.workspace }}/dist/artifacts"
           mkdir -p $artifacts_dir
           package_name_version="${{ inputs.release_version != '' && format('-{0}', inputs.release_version) || '' }}"
           package_prefix="puya${package_name_version}"
@@ -111,11 +111,11 @@ jobs:
           apple_notary_password: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_NOTARY_PASSWORD || '' }}
 
       - name: Add binary to path
-        run: |
-          binary_path="${{ github.workspace }}${{ runner.os == 'Windows' && '\dist\puya\puya.exe' || '/dist/puya/puya' }}"
-          echo "${{ github.workspace }}${{ runner.os == 'Windows' && '\dist\puya' || '/dist/puya' }}" >> $GITHUB_PATH
-          echo "TEST_PUYA_BINARY=${binary_path}" >> $GITHUB_ENV
         shell: bash
+        run: |
+          binary_path="${{ github.workspace }}/dist/puya/puya"
+          echo "${{ github.workspace }}/dist/puya" >> $GITHUB_PATH
+          echo "TEST_PUYA_BINARY=${binary_path}" >> $GITHUB_ENV
 
       - name: Binary smoke test
         shell: bash
