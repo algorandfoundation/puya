@@ -1853,6 +1853,9 @@ def test_array_static_size(
     response = simulate_call(app_client, "test_extend_from_arc4_tuple", some_more=[[1, 2], [3, 4]])
     assert response.abi_results[0].return_value == [[1, 2], [3, 4]]
 
+    response = simulate_call(app_client, "test_arc4_bool")
+    assert response.abi_results[0].return_value == [False, True]
+
 
 @pytest.mark.parametrize("optimization_level", [0, 1])
 def test_immutable_array(

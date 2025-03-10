@@ -190,14 +190,7 @@ class NativeArray(WType, abc.ABC):
     def _element_type_validator(self, _: object, element_type: WType) -> None:
         if element_type == void_wtype:
             raise CodeError("array element type cannot be void", self.source_location)
-        if element_type == arc4_bool_wtype:
-            # technically we could support this, but it requires a additional complexity to support
-            # and is less efficient than using a native bool
-            logger.error(
-                "arrays of arc4 bools are not supported, use an array of native bools instead",
-                location=self.source_location,
-            )
-        elif not element_type.immutable:
+        if not element_type.immutable:
             logger.error("arrays must have immutable elements", location=self.source_location)
 
 
