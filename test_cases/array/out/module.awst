@@ -412,6 +412,20 @@ contract StaticSizeContract
     return new test_cases.array.static_size.More(foo=arc4_encode(GlobalState['count'] + 1u, arc4.uint64), bar=arc4_encode(GlobalState['count'] * GlobalState['count'], arc4.uint64))
   }
   
+  abimethod test_cases.array.static_size.StaticSizeContract.test_arc4_bool(): stack_array<arc4.bool>
+  {
+    arr: ref_array<arc4.bool> = new ref_array<arc4.bool>()
+    arr.extend((arc4_encode(txn<Sender>() == txn<Receiver>(), arc4.bool)))
+    arr.extend((arc4_encode(txn<Sender>() != txn<Receiver>(), arc4.bool)))
+    dyn_arr: arc4.dynamic_array<arc4.bool> = new arc4.dynamic_array<arc4.bool>()
+    dyn_arr.extend(arr)
+    assert(dyn_arr.length == 2u, comment="expected correct length")
+    assert(len(reinterpret_cast<bytes>(dyn_arr)) == 3u, comment="expected 3 bytes")
+    assert(arc4_decode(dyn_arr[0u], bool) == txn<Sender>() == txn<Receiver>(), comment="expected correct value at 0")
+    assert(arc4_decode(dyn_arr[1u], bool) == txn<Sender>() != txn<Receiver>(), comment="expected correct value at 1")
+    return new stack_array<arc4.bool>() + arr
+  }
+  
   baremethod test_cases.array.static_size.StaticSizeContract.__algopy_default_create(): void
   {
   }
