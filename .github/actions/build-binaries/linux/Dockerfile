@@ -1,5 +1,4 @@
 # Modified from https://github.com/oleksis/pyinstaller-manylinux
-# TODO: what was modified? why?
 
 ARG BASE_IMAGE=quay.io/pypa/manylinux_2_28_x86_64
 FROM ${BASE_IMAGE} AS builder

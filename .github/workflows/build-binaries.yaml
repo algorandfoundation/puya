@@ -110,13 +110,6 @@ jobs:
           apple_notary_user: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_NOTARY_USER || '' }}
           apple_notary_password: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_NOTARY_PASSWORD || '' }}
 
-      - name: Add binary to path
-        shell: bash
-        run: |
-          binary_path="${{ github.workspace }}/dist/puya/puya"
-          echo "${{ github.workspace }}/dist/puya" >> $GITHUB_PATH
-          echo "TEST_PUYA_BINARY=${binary_path}" >> $GITHUB_ENV
-
       - name: Binary smoke test
         shell: bash
         run: |
@@ -125,10 +118,10 @@ jobs:
           echo '{"compilation_set":{"examples.hello_world_arc4.contract.HelloWorldContract": "."}, "output_teal": true}' > options.json
           
           # Run a basic test to verify the binary works
-          ${TEST_PUYA_BINARY} --version
+          ./dist/puya/puya --version
           
           # Run the binary tests
-          ${TEST_PUYA_BINARY} --options options.json --awst module.awst.json 
+          ./dist/puya/puya --options options.json --awst module.awst.json 
           
           cat HelloWorldContract.approval.teal
 
