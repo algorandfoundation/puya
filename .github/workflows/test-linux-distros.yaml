@@ -35,6 +35,12 @@ jobs:
           - { name: "CentOS Stream 9", image: "quay.io/centos/centos:stream9" }
 
     steps:
+      - name: Configure package name
+        shell: bash
+        run: |
+          package_name="${{ inputs.package_prefix }}-${{ matrix.arch.identifier }}"
+          echo "PACKAGE_NAME=${package_name}" >> $GITHUB_ENV
+
       - name: Download smoke test data
         uses: actions/download-artifact@v4
         with:
@@ -44,12 +50,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.PACKAGE_NAME }}
-
-      - name: Configure package name
-        shell: bash
-        run: |
-          package_name="${{ inputs.package_prefix }}-${{ matrix.arch.identifier }}"
-          echo "PACKAGE_NAME=${package_name}" >> $GITHUB_ENV
 
       - name: Create test script
         run: |
