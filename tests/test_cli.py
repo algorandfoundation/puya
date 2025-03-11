@@ -36,12 +36,15 @@ def run_puyapy(args: list[str | Path], *, check: bool = True) -> subprocess.Comp
     )
 
 
-def run_puya(args: list[str | Path]) -> subprocess.CompletedProcess[str]:
+def run_puya(args: list[str | Path], log_level: str = "info") -> subprocess.CompletedProcess[str]:
     puya = shutil.which("puya")
     assert puya is not None, "puya not found"
     return _run(
         [
             puya,
+            "--log-level",
+            log_level,
+            "compile",
             *map(str, args),
         ]
     )
@@ -168,6 +171,7 @@ def test_puya_output(hello_world_awst_json: Path, output_option: str) -> None:
         options_json.write_text(converter.dumps(options))
         assert not out_dir.exists(), "precondition, out dir does not yet exist"
         run_puya(
-            ["--awst", hello_world_awst_json, "--options", options_json, "--log-level", "debug"]
+            ["--awst", hello_world_awst_json, "--options", options_json],
+            log_level="debug",
         )
         assert out_dir.exists(), "out dir should exist"
