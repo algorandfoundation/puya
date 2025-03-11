@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import subprocess
 import json
 import time
@@ -62,35 +63,40 @@ class PuyaDaemonClient:
         
         print(f"Starting Puya daemon with command: {' '.join(cmd)}")
         
-        # Start the process
-        self.process = subprocess.Popen(
-            cmd,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            bufsize=1  # Line buffered
-        )
-        
-        self.is_running = True
-        
-        # Start threads to read stdout and stderr
-        self.stdout_thread = threading.Thread(target=self._read_stdout)
-        self.stdout_thread.daemon = True
-        self.stdout_thread.start()
-        
-        self.stderr_thread = threading.Thread(target=self._read_stderr)
-        self.stderr_thread.daemon = True
-        self.stderr_thread.start()
-        
-        # Wait a moment for the daemon to initialize
-        time.sleep(1)
-        
-        # Check if process is still running after initialization
-        if self._check_process_running():
-            print("Puya daemon started")
-        else:
-            self._handle_startup_failure()
+        try:
+            # Start the process
+            self.process = subprocess.Popen(
+                cmd,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                bufsize=1  # Line buffered
+            )
+            
+            self.is_running = True
+            
+            # Start threads to read stdout and stderr
+            self.stdout_thread = threading.Thread(target=self._read_stdout)
+            self.stdout_thread.daemon = True
+            self.stdout_thread.start()
+            
+            self.stderr_thread = threading.Thread(target=self._read_stderr)
+            self.stderr_thread.daemon = True
+            self.stderr_thread.start()
+            
+            # Wait a moment for the daemon to initialize
+            time.sleep(1)
+            
+            # Check if process is still running after initialization
+            if self._check_process_running():
+                return  # Success - daemon is running
+            else:
+                self._handle_startup_failure()
+                
+        except Exception as e:
+            print(f"Error starting daemon process: {e}")
+            self.is_running = False
     
     def _check_process_running(self) -> bool:
         """Check if the process is still running."""
@@ -377,19 +383,71 @@ def main():
     
     try:
         # Start the daemon
+        print("Starting Puya daemon...")
         client.start()
         
         if not client.is_running:
-            print("Failed to start daemon, exiting")
+            print("Failed to start daemon. Please check the error output above.")
             return
+            
+        print("Daemon started successfully!")
         
-        # Get daemon status
-        print("\n1. Testing status request...")
+        # Wait to ensure daemon is fully initialized
+        print("Waiting for daemon initialization...")
+        time.sleep(5)  
+        
+        # Try a simple status request first to verify connection
+        print("\nTesting basic status request...")
         status = client.get_status()
         if status:
-            print(f"Status result: {json.dumps(status, indent=2)}")
+            print(f"✅ Connection successful! Status: {json.dumps(status, indent=2)}")
         else:
-            print("Failed to get status")
+            print("❌ Failed to get status. Daemon may not be responding correctly.")
+            client.stop()
+            return
+        
+        # Proceed with concurrency testing
+        print("\n1. Testing status request concurrency...")
+        print("This will make multiple concurrent requests to test threading")
+        
+        # Track unique thread IDs to verify concurrency
+        thread_ids = set()
+        request_count = 20  # Number of concurrent requests to make
+        success_count = 0
+        
+        # Create a thread pool for parallel status requests
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            futures = []
+            for i in range(request_count):
+                futures.append(executor.submit(client.get_status))
+                
+            # Process results as they complete
+            for future in as_completed(futures):
+                try:
+                    status = future.result()
+                    if status:
+                        success_count += 1
+                        # Extract and store thread ID
+                        if "thread_id" in status:
+                            thread_ids.add(status["thread_id"])
+                            print(f"Request completed on server thread: {status['thread_id']}")
+                        else:
+                            print(f"Status result (no thread ID): {json.dumps(status, indent=2)}")
+                    else:
+                        print("Failed to get status")
+                except Exception as e:
+                    print(f"Error getting status: {e}")
+        
+        # Summarize the results
+        print(f"\nConcurrency Results:")
+        print(f"- Successful requests: {success_count}/{request_count}")
+        print(f"- Unique server thread IDs: {len(thread_ids)}")
+        print(f"- Thread IDs: {thread_ids}")
+        
+        if len(thread_ids) > 1:
+            print("✅ SUCCESS: The server processed requests concurrently on multiple threads!")
+        else:
+            print("❌ NOTE: The server processed all requests on the same thread.")
         
         # Example usage for compilation - uncomment and replace paths when needed
         # print("\n2. Testing compilation...")

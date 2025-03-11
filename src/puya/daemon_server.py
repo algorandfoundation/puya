@@ -4,10 +4,9 @@ import sys
 import time
 import traceback
 import logging
-from concurrent.futures import ThreadPoolExecutor
+import threading
 from pathlib import Path
 from typing import Any, Dict, Optional
-import threading
 
 from pygls.lsp.server import LanguageServer
 
@@ -17,7 +16,7 @@ from puya.main import main
 # Constants
 DEFAULT_DAEMON_DIR = ".puya"
 DEFAULT_PID_FILENAME = "daemon.pid"
-COMPILATION_SEMAPHORE_VALUE = 5  # at most 5 compilations can run concurrently
+COMPILATION_SEMAPHORE_VALUE = 10
 PROCESS_GRACEFUL_TERMINATE_TIMEOUT = 3
 
 # Import psutil for Windows
@@ -122,14 +121,20 @@ class PuyaDaemonServer(LanguageServer):
     
     def __init__(self):
         """Initialize the daemon server."""
-        super().__init__("puya", "v1.0")
-        self.executor = ThreadPoolExecutor(max_workers=COMPILATION_SEMAPHORE_VALUE)
+        # Fix parameter passing - pass max_workers as a keyword argument to JsonRPCServer
+        # The correct initialization based on PyGLS inheritance chain
+        super().__init__(
+            name="puya", 
+            version="v1.0",
+            # Don't pass max_workers here - it should be passed via **kwargs
+        )
+        
+        # Set max_workers on the thread_pool after initialization
+        self._max_workers = COMPILATION_SEMAPHORE_VALUE
+        
         self.start_time = time.time()
         self.shutting_down = False
         self._shutdown_lock = threading.Lock()  # Lock for thread-safe shutdown
-        
-        # Note: Do not attempt to set daemon status on current thread
-        # threading.current_thread().daemon = False  # This causes RuntimeError
         
         # Register RPC methods
         self._register_methods()
@@ -147,12 +152,15 @@ class PuyaDaemonServer(LanguageServer):
             return self.stop(params)
 
         @self.feature("puya/status")
+        @self.thread()  # Run in a thread to avoid blocking
         def _status(params: Optional[Any] = None) -> Dict[str, Any]:
             """Get server status."""
             logger.info("Received status request")
+            # The sleep is included in the status method
             return self.status(params)
 
         @self.feature("puya/compile")
+        @self.thread()  # Compilation should run in a thread
         def _compile_awst(params: Dict[str, Any]) -> Dict[str, Any]:
             """Compile Algorand Python code."""
             logger.info("Received compile request")
@@ -162,7 +170,8 @@ class PuyaDaemonServer(LanguageServer):
         """Stop the server."""
         try:
             # Schedule shutdown to happen after response is sent
-            self.executor.submit(self.shutdown)
+            # Use the built-in thread pool
+            self.thread_pool.submit(self.shutdown)
             return {"success": True, "message": "Server stopping"}
         except Exception as e:
             logger.exception("Error handling stop request")
@@ -171,7 +180,11 @@ class PuyaDaemonServer(LanguageServer):
     def status(self, params: Optional[Any] = None) -> Dict[str, Any]:
         """Get server status."""
         try:
-            return self.get_status()
+            time.sleep(2)  # Simulate work
+            status_info = self.get_status()
+            # Add thread information for debugging
+            status_info["thread_id"] = threading.get_ident()
+            return status_info
         except Exception as e:
             logger.exception("Error handling status request")
             return {"status": "error", "error": str(e)}
@@ -193,8 +206,11 @@ class PuyaDaemonServer(LanguageServer):
             # Log compilation attempt
             logger.info(f"Compiling AWST code (options size: {len(options_json)}, AWST size: {len(awst_json)})")
             
-            # Run compilation in thread pool to avoid blocking
+            # Run compilation directly (no need for executor.submit, PyGLS handles it)
             result = self._compile(options_json, awst_json, source_annotations_json)
+            
+            # Add thread information for debugging
+            result["thread_id"] = threading.get_ident()
             
             # Return success result
             return {"success": True, **result}
@@ -226,7 +242,7 @@ class PuyaDaemonServer(LanguageServer):
             "status": "running",
             "uptime": time.time() - self.start_time,
             "pid": os.getpid(),
-            "worker_count": COMPILATION_SEMAPHORE_VALUE
+            "worker_count": self._max_workers
         }
 
     def setup_signal_handlers(self) -> None:
@@ -279,12 +295,12 @@ class PuyaDaemonServer(LanguageServer):
         force_timer.start()
         
         try:
-            # Log that we're shutting down the executor
-            logger.info("Shutting down thread pool executor")
+            # Log that we're shutting down
+            logger.info("Shutting down thread pool")
             
-            # Use a shorter timeout for the executor shutdown
-            self.executor.shutdown(wait=True, cancel_futures=True)
-            logger.info("Thread pool executor shutdown complete")
+            # The super().shutdown() will handle the thread pool
+            super().shutdown()
+            logger.info("Thread pool shutdown complete")
             
             # Cancel the force exit timer since we've completed normally
             force_timer.cancel()
@@ -295,7 +311,7 @@ class PuyaDaemonServer(LanguageServer):
             time.sleep(0.1)
             os._exit(0)  # Use os._exit to ensure we exit even if threads are hanging
         except Exception as e:
-            logger.error(f"Error during executor shutdown: {e}")
+            logger.error(f"Error during shutdown: {e}")
             # Don't cancel the force timer - let it exit for us
         
     def start(self) -> None:
