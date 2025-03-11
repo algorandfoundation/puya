@@ -5,10 +5,12 @@ on:
     inputs:
       production_release:
         required: true
-        type: string
+        type: boolean
+        default: false
       python_version:
-        required: true
+        required: false
         type: string
+        default: "3.12"
       release_version:
         required: false
         type: string
@@ -26,9 +28,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python_version }}
-
-      - name: Set up Poetry
-        uses: ./.github/actions/setup-poetry
+          cache: "poetry"
 
       - name: Install dependencies
         run: poetry install --no-interaction
@@ -132,7 +132,7 @@ jobs:
           artifacts_dir: ${{ env.ARTIFACTS_DIR }}
           with_codesign: ${{ steps.signing.outputs.allowed == 'true' }}
           apple_team_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_TEAM_ID || '' }}
-          apple_bundle_id: ${{ inputs.production_release == 'true' && secrets.APPLE_BUNDLE_ID || format('beta.{0}', secrets.APPLE_BUNDLE_ID) }}
+          apple_bundle_id: ${{ inputs.production_release && secrets.APPLE_BUNDLE_ID || format('beta.{0}', secrets.APPLE_BUNDLE_ID) }}
           apple_cert_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_CERT_ID || '' }}
           apple_notary_user: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_NOTARY_USER || '' }}
           apple_notary_password: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_NOTARY_PASSWORD || '' }}
@@ -163,7 +163,7 @@ jobs:
           echo "ARTIFACTS_DIR=$adjusted" >> $env:GITHUB_ENV
 
       - name: Append artifacts to release
-        if: ${{ inputs.production_release == 'true' }}
+        if: ${{ inputs.production_release }}
         uses: softprops/action-gh-release@v1
         with:
           fail_on_unmatched_files: true
