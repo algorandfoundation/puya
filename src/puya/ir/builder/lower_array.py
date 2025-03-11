@@ -13,7 +13,13 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import OpFactory, assign_intrinsic_op
 from puya.ir.builder.arc4 import ARC4_FALSE, ARC4_TRUE
 from puya.ir.register_context import IRRegisterContext
-from puya.ir.types_ import ArrayType, EncodedTupleType, IRType, PrimitiveIRType
+from puya.ir.types_ import (
+    ArrayType,
+    IRType,
+    PrimitiveIRType,
+    encoded_ir_type_to_ir_types,
+    expand_encoded_type_and_group,
+)
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
 from puya.parse import SourceLocation, sequential_source_locations_merge
@@ -201,8 +207,7 @@ def _encode_array_items(context: IRRegisterContext, encode: ir.ArrayEncode) -> i
     array_type = encode.array_type
     data = factory.constant(b"", ir_type=array_type)
     element_type = array_type.element
-    expanded_element_types = EncodedTupleType.expand_types(element_type)
-    num_reg_per_element = len(expanded_element_types)
+    num_reg_per_element = len(encoded_ir_type_to_ir_types(element_type))
     while len(values) >= num_reg_per_element:
         item_values = values[:num_reg_per_element]
         values = values[num_reg_per_element:]
@@ -238,9 +243,16 @@ def _encode_array_item(
     bit_packed_index = 0
     encoded_length = 0
     for value, (sub_type, tuple_group) in zip(
-        values, EncodedTupleType.expand_type_and_group_id(element_type), strict=True
+        values, expand_encoded_type_and_group(element_type), strict=True
     ):
-        if sub_type == PrimitiveIRType.bool:
+        if sub_type.size is None:
+            raise InternalError("expected fixed size element", loc)
+        value_type = value.ir_type
+        # bool values are encoded as a single ARC-4 Bool value, i.e. consecutive values are not
+        # bit-packed. This allows easier conversion from ReferenceArray encoding to ARC-4 encoding
+        # and also means the standard way of calculating array length
+        # len(array_bytes) / sizeof(EncodedElementType) continues to work
+        if value_type == PrimitiveIRType.bool:
             # sequential bits in the same tuple are bit-packed
             if last_type_and_group == (sub_type, tuple_group):
                 bit_packed_index += 1
@@ -265,15 +277,21 @@ def _encode_array_item(
                     temp_desc="encoded_bit",
                 )
                 bit_packed_index = 0
-        elif sub_type.avm_type == AVMType.uint64:
+        # uint64 values are encoded to their equivalent bytes
+        elif value_type.avm_type == AVMType.uint64:
             value = factory.itob(value, "sub_item")
             if sub_type.size != 8:
-                assert sub_type.size is not None, "expected fixed type"
                 value = factory.extract3(
                     value, 8 - sub_type.size, sub_type.size, "sub_item_truncated"
                 )
-        if sub_type.size is None:
-            raise InternalError("expected fixed size element", loc)
+        # biguint values are first padded to 64 bytes
+        elif value_type == PrimitiveIRType.biguint:
+            value = factory.to_fixed_size(value, 64, "sub_item")
+        # all other byte values should be the correct size already due to earlier check
+        elif value_type.avm_type == AVMType.bytes:
+            pass
+        else:
+            raise InternalError(f"unexpected element type for array encoding: {value_type}", loc)
         encoded_length += sub_type.size
         last_type_and_group = sub_type, tuple_group
         encoded = factory.concat(encoded, value, "encoded", ir_type=array_type)
@@ -290,14 +308,15 @@ def _decode_array_item(
     bit_offset = offset = 0
     values = []
     last_sub_typ = None
-    for sub_type, group_id in EncodedTupleType.expand_type_and_group_id(element_type):
+    for encoded_sub_type, group_id in expand_encoded_type_and_group(element_type):
         # special handling for bit-packed bools in aggregate types
+        (sub_type,) = encoded_ir_type_to_ir_types(encoded_sub_type)
         if sub_type == PrimitiveIRType.bool and element_type != PrimitiveIRType.bool:
             if last_sub_typ == (sub_type, group_id):
                 bit_offset += 1
             sub_item = factory.get_bit(item_bytes, offset * 8 + bit_offset, "sub_item")
         else:
-            sub_type_size = _get_element_size(sub_type, loc)
+            sub_type_size = _get_element_size(encoded_sub_type, loc)
             bit_offset = 0
             sub_item = factory.extract3(item_bytes, offset, sub_type_size, "sub_item")
             if sub_type.avm_type == AVMType.uint64:

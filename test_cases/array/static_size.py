@@ -1,6 +1,18 @@
 import typing
 
-from algopy import Account, Array, Box, ImmutableArray, Txn, UInt64, arc4, op, subroutine, urange
+from algopy import (
+    Account,
+    Array,
+    BigUInt,
+    Box,
+    ImmutableArray,
+    Txn,
+    UInt64,
+    arc4,
+    op,
+    subroutine,
+    urange,
+)
 
 
 class More(arc4.Struct, frozen=True):
@@ -13,6 +25,7 @@ class Xtra(typing.NamedTuple):
     b: UInt64
     c: Account
     d: More
+    e: BigUInt
 
 
 class Point(typing.NamedTuple):
@@ -110,6 +123,7 @@ class StaticSizeContract(arc4.ARC4Contract):
             b=self.count,
             c=Txn.sender,
             d=self.more(),
+            e=BigUInt(self.count),
         )
 
     @subroutine(inline=False)
