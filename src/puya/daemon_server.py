@@ -1,33 +1,24 @@
-import asyncio
-import json
 import os
 import signal
-import socket
 import sys
 import time
+import traceback
+import logging
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, Optional
+import threading
 
-import structlog
-import websockets
-from jsonrpcserver import Error, Result, Success, async_dispatch, method
-from websockets.server import serve
+from pygls.lsp.server import LanguageServer
 
 from puya.log import get_logger
 from puya.main import main
 
-logger = get_logger(__name__)
-
 # Constants
-SERVER_STOP_TIMEOUT_ATTEMPTS = 10
-SERVER_STOP_CHECK_INTERVAL = 0.5
-PROCESS_GRACEFUL_TERMINATE_TIMEOUT = 3
 DEFAULT_DAEMON_DIR = ".puya"
 DEFAULT_PID_FILENAME = "daemon.pid"
-JSON_RPC_VERSION = "2.0"
-JSON_RPC_STOP_ID = 1
 COMPILATION_SEMAPHORE_VALUE = 5  # at most 5 compilations can run concurrently
-SHUTDOWN_COMPILATION_TIMEOUT = 30
+PROCESS_GRACEFUL_TERMINATE_TIMEOUT = 3
 
 # Import psutil for Windows
 if sys.platform == "win32":
@@ -36,12 +27,24 @@ if sys.platform == "win32":
     except ImportError:
         psutil = None
 
-# Get structlog logger
-logger = structlog.get_logger("puya.daemon")
+# Configure standard logging to stderr for the daemon
+# This ensures JSON responses on stdout don't get mixed with logs
+handler = logging.StreamHandler(stream=sys.stderr)
+formatter = logging.Formatter('%(levelname)s: %(message)s')
+handler.setFormatter(formatter)
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.INFO)
+# Remove existing handlers
+for h in root_logger.handlers[:]:
+    root_logger.removeHandler(h)
+root_logger.addHandler(handler)
+
+# Get logger
+logger = get_logger(__name__)
 
 
 # Daemon utility functions
-def get_pid_file_path(pid_file: Path | None = None) -> Path:
+def get_pid_file_path(pid_file: Optional[Path] = None) -> Path:
     """Get the path to the PID file."""
     if pid_file:
         return pid_file
@@ -50,58 +53,6 @@ def get_pid_file_path(pid_file: Path | None = None) -> Path:
     default_dir.mkdir(parents=True, exist_ok=True)
 
     return default_dir / DEFAULT_PID_FILENAME
-
-
-def check_server_running(host: str, port: int) -> bool:
-    """Check if a server is already running on the specified host and port."""
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.settimeout(1)
-            return s.connect_ex((host, port)) == 0
-    except Exception:
-        return False
-
-
-async def _send_stop_request(host: str, port: int) -> bool:
-    """Send a stop request to the server."""
-    uri = f"ws://{host}:{port}"
-    try:
-        async with websockets.connect(uri) as websocket:
-            stop_request = json.dumps(
-                {"jsonrpc": JSON_RPC_VERSION, "method": "stop", "id": JSON_RPC_STOP_ID}
-            )
-            await websocket.send(stop_request)
-            await websocket.recv()
-            logger.info("Server stopped")
-            return True
-    except (ConnectionRefusedError, websockets.exceptions.ConnectionClosedError):
-        logger.info("Server is not responding.")
-        return False
-
-
-def stop_daemon(host: str, port: int, pid_file: Path | None = None) -> None:
-    """Stop the daemon server."""
-    if not check_server_running(host, port):
-        logger.info("No server is running.")
-        cleanup_zombie_daemon(host, port, pid_file)
-        return
-
-    try:
-        asyncio.run(_send_stop_request(host, port))
-
-        for _ in range(SERVER_STOP_TIMEOUT_ATTEMPTS):
-            if not check_server_running(host, port):
-                break
-            time.sleep(SERVER_STOP_CHECK_INTERVAL)
-
-        if check_server_running(host, port):
-            logger.info("Warning: Server did not stop properly.")
-        else:
-            logger.info("Server stopped successfully.")
-
-        cleanup_zombie_daemon(host, port, pid_file)
-    except ImportError:
-        logger.info("Error: websockets library not available. Cannot stop daemon.")
 
 
 def check_process_running(pid: int) -> bool:
@@ -137,7 +88,7 @@ def terminate_process(pid: int) -> bool:
         return True
 
 
-def cleanup_zombie_daemon(host: str, port: int, pid_file: Path | None = None) -> None:
+def cleanup_zombie_daemon(pid_file: Optional[Path] = None) -> None:
     """Clean up any zombie daemon processes."""
     pid_file_path = get_pid_file_path(pid_file)
 
@@ -146,114 +97,120 @@ def cleanup_zombie_daemon(host: str, port: int, pid_file: Path | None = None) ->
             with Path(pid_file_path).open("r") as f:
                 pid = int(f.read().strip())
 
-            if check_process_running(pid) and not check_server_running(host, port):
+            if check_process_running(pid):
                 if terminate_process(pid):
                     logger.info(f"Terminated zombie daemon process with PID {pid}.")
                 else:
                     logger.info(f"Failed to terminate zombie daemon process with PID {pid}.")
 
-            if not check_server_running(host, port):
-                pid_file_path.unlink()
-                logger.info(f"Removed stale PID file at {pid_file_path}.")
+            pid_file_path.unlink()
+            logger.info(f"Removed stale PID file at {pid_file_path}.")
         except (OSError, ValueError) as e:
             logger.info(f"Error reading or processing PID file: {e}")
-            pid_file_path.unlink()
+            try:
+                pid_file_path.unlink()
+            except OSError:
+                pass
 
 
-class DaemonServer:
+class PuyaDaemonServer(LanguageServer):
     """
-    A daemon server that provides Puya compilation services via JSON-RPC over WebSockets.
+    A daemon server that provides Puya compilation services via JSON-RPC over stdio.
     """
-
-    def __init__(self, host: str, port: int):
+    
+    CONFIGURATION_SECTION = "puya"
+    
+    def __init__(self):
         """Initialize the daemon server."""
-        self.host = host
-        self.port = port
-        self.stop_event = asyncio.Event()
-        self.server: websockets.WebSocketServer | None = None
-        self.compile_semaphore = asyncio.Semaphore(COMPILATION_SEMAPHORE_VALUE)
-        self.start_time: float | None = None
-
+        super().__init__("puya", "v1.0")
+        self.executor = ThreadPoolExecutor(max_workers=COMPILATION_SEMAPHORE_VALUE)
+        self.start_time = time.time()
+        self.shutting_down = False
+        self._shutdown_lock = threading.Lock()  # Lock for thread-safe shutdown
+        
+        # Note: Do not attempt to set daemon status on current thread
+        # threading.current_thread().daemon = False  # This causes RuntimeError
+        
         # Register RPC methods
         self._register_methods()
+        
+        # Log initialization
+        logger.info("PuyaDaemonServer initialized")
 
     def _register_methods(self) -> None:
-        """Register JSON-RPC methods with the server."""
+        """Register custom JSON-RPC methods with the server."""
 
-        # Define the methods
-        @method
-        async def ping() -> Result:
-            """Check if the server is responsive."""
-            return Success({"status": "ok"})
-
-        @method
-        async def stop() -> Result:
+        @self.feature("puya/stop")
+        def _stop(params: Optional[Any] = None) -> Dict[str, Any]:
             """Stop the server."""
-            result = self.handle_stop()
-            return Success(result)
+            logger.info("Received stop request")
+            return self.stop(params)
 
-        @method
-        async def status() -> Result:
+        @self.feature("puya/status")
+        def _status(params: Optional[Any] = None) -> Dict[str, Any]:
             """Get server status."""
-            result = self.get_status()
-            return Success(result)
+            logger.info("Received status request")
+            return self.status(params)
 
-        @method
-        async def compile_awst(
-            options_json: str, awst_json: str, source_annotations_json: str | None = None
-        ) -> Result:
+        @self.feature("puya/compile")
+        def _compile_awst(params: Dict[str, Any]) -> Dict[str, Any]:
             """Compile Algorand Python code."""
-            result = await self.handle_compile(options_json, awst_json, source_annotations_json)
-            return Success(result)
-
-    async def process_request(self, websocket: websockets.WebSocketServerProtocol) -> None:
-        """Process incoming WebSocket requests using jsonrpcserver."""
+            logger.info("Received compile request")
+            return self.compile_awst(params)
+        
+    def stop(self, params: Optional[Any] = None) -> Dict[str, Any]:
+        """Stop the server."""
         try:
-            async for message in websocket:
-                if self.stop_event.is_set():
-                    break
-
-                try:
-                    response = await async_dispatch(message)
-                    if response:
-                        await websocket.send(str(response))
-                except Exception as e:
-                    logger.exception("Error processing request")
-                    error_response = Error(-32603, f"Internal error: {e!s}")
-                    await websocket.send(str(error_response))
-        except websockets.exceptions.ConnectionClosedError:
-            logger.info("Connection closed")
-        except Exception:
-            logger.exception("Unexpected error in websocket handler")
-
-    def handle_stop(self) -> dict[str, Any]:
-        """Handle a stop request."""
-        logger.info("Received stop request")
-        self._shutdown_task = asyncio.create_task(self.shutdown())
-        return {"success": True, "message": "Server stopping"}
-
-    async def handle_compile(
-        self, options_json: str, awst_json: str, source_annotations_json: str | None
-    ) -> dict[str, Any]:
-        """Handle a compile request."""
-        logger.info("Received compile request")
-        async with self.compile_semaphore:
-            try:
-                # Use ThreadPoolExecutor to run CPU-bound compilation in a separate thread
-                loop = asyncio.get_running_loop()
-                result = await loop.run_in_executor(
-                    None, lambda: self._compile(options_json, awst_json, source_annotations_json)
-                )
-            except Exception as e:
-                logger.exception("Compilation error")
-                return {"success": False, "error": str(e)}
-            else:
-                return {"success": True, **result}
+            # Schedule shutdown to happen after response is sent
+            self.executor.submit(self.shutdown)
+            return {"success": True, "message": "Server stopping"}
+        except Exception as e:
+            logger.exception("Error handling stop request")
+            return {"success": False, "error": str(e)}
+        
+    def status(self, params: Optional[Any] = None) -> Dict[str, Any]:
+        """Get server status."""
+        try:
+            return self.get_status()
+        except Exception as e:
+            logger.exception("Error handling status request")
+            return {"status": "error", "error": str(e)}
+        
+    def compile_awst(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Compile Algorand Python code."""
+        try:
+            # Extract parameters
+            options_json = params.get("options_json", "")
+            if not options_json:
+                return {"success": False, "error": "Missing options_json parameter"}
+                
+            awst_json = params.get("awst_json", "")
+            if not awst_json:
+                return {"success": False, "error": "Missing awst_json parameter"}
+                
+            source_annotations_json = params.get("source_annotations_json")
+            
+            # Log compilation attempt
+            logger.info(f"Compiling AWST code (options size: {len(options_json)}, AWST size: {len(awst_json)})")
+            
+            # Run compilation in thread pool to avoid blocking
+            result = self._compile(options_json, awst_json, source_annotations_json)
+            
+            # Return success result
+            return {"success": True, **result}
+        except Exception as e:
+            # Detailed error logging
+            logger.exception("Compilation error")
+            error_details = {
+                "message": str(e),
+                "traceback": traceback.format_exc()
+            }
+            return {"success": False, "error": str(e), "error_details": error_details}
 
     def _compile(
-        self, options_json: str, awst_json: str, source_annotations_json: str | None
-    ) -> dict[str, Any]:
-        """Synchronous compilation function to run in thread pool."""
+        self, options_json: str, awst_json: str, source_annotations_json: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Synchronous compilation function."""
         start_time = time.time()
         main(
             options_json=options_json,
@@ -263,63 +220,114 @@ class DaemonServer:
         end_time = time.time()
         return {"elapsed_time": end_time - start_time}
 
-    def get_status(self) -> dict[str, Any]:
+    def get_status(self) -> Dict[str, Any]:
         """Return daemon status information."""
         return {
             "status": "running",
-            "uptime": time.time() - self.start_time if self.start_time else 0,
+            "uptime": time.time() - self.start_time,
+            "pid": os.getpid(),
+            "worker_count": COMPILATION_SEMAPHORE_VALUE
         }
 
     def setup_signal_handlers(self) -> None:
         """Set up graceful shutdown handlers."""
-        loop = asyncio.get_event_loop()
-
+        self._last_signal_time = 0
+        self._force_exit_threshold = 1.0  # Seconds
+        
+        def signal_handler(sig, frame):
+            current_time = time.time()
+            
+            if self.shutting_down:
+                # If shutdown is already in progress, check if this is a repeated signal
+                if current_time - self._last_signal_time < self._force_exit_threshold:
+                    logger.warning("Multiple interrupts detected, forcing immediate exit...")
+                    os._exit(1)  # Force exit
+                else:
+                    logger.info(f"Shutdown already in progress, ignoring signal {sig}...")
+                self._last_signal_time = current_time
+                return
+                
+            logger.info(f"Received signal {sig}, shutting down...")
+            self._last_signal_time = current_time
+            self.shutdown()
+            
         try:
-            for sig in (signal.SIGINT, signal.SIGTERM):
-                loop.add_signal_handler(sig, lambda: asyncio.create_task(self.shutdown()))
+            signal.signal(signal.SIGINT, signal_handler)
+            signal.signal(signal.SIGTERM, signal_handler)
             logger.info("Signal handlers set up")
         except (ImportError, NotImplementedError):
             logger.info("Signal handlers not supported on this platform")
 
-    async def shutdown(self) -> None:
+    def shutdown(self) -> None:
         """Graceful shutdown sequence."""
-        if self.stop_event.is_set():
-            return  # Prevent multiple shutdown attempts
-
+        with self._shutdown_lock:
+            if self.shutting_down:
+                return
+                
+            self.shutting_down = True
+        
         logger.info("Initiating graceful shutdown...")
-        self.stop_event.set()
-
-        # Wait for ongoing compilations to complete with timeout
+        
+        # Set a timer to force kill if graceful shutdown takes too long
+        def force_exit():
+            logger.warning("Shutdown taking too long, forcing exit...")
+            os._exit(1)  # Hard exit that can't be caught
+            
+        # Set up a timer to force exit after 5 seconds
+        force_timer = threading.Timer(5.0, force_exit)
+        force_timer.daemon = True
+        force_timer.start()
+        
         try:
-            if not self.compile_semaphore.locked():
-                logger.info("No pending compilations")
-            else:
-                logger.info("Waiting for pending compilations to complete...")
-                await asyncio.wait_for(
-                    self.compile_semaphore.acquire(), timeout=SHUTDOWN_COMPILATION_TIMEOUT
-                )
-                self.compile_semaphore.release()
-                logger.info("All pending compilations completed")
-        except TimeoutError:
-            logger.warning("Timed out waiting for compilation to complete")
-
-        # Close the server
-        if self.server:
-            self.server.close()
-            await self.server.wait_closed()
-
-        logger.info("Puya daemon server stopped")
-
-    async def start(self) -> None:
-        """Start the daemon server."""
-        self.start_time = time.time()
-        logger.info(f"Starting Puya daemon server on {self.host}:{self.port}")
-
+            # Log that we're shutting down the executor
+            logger.info("Shutting down thread pool executor")
+            
+            # Use a shorter timeout for the executor shutdown
+            self.executor.shutdown(wait=True, cancel_futures=True)
+            logger.info("Thread pool executor shutdown complete")
+            
+            # Cancel the force exit timer since we've completed normally
+            force_timer.cancel()
+            
+            logger.info("Puya daemon server stopped")
+            
+            # Exit after a small delay to allow logs to be written
+            time.sleep(0.1)
+            os._exit(0)  # Use os._exit to ensure we exit even if threads are hanging
+        except Exception as e:
+            logger.error(f"Error during executor shutdown: {e}")
+            # Don't cancel the force timer - let it exit for us
+        
+    def start(self) -> None:
+        """Start the daemon server over stdio."""
         self.setup_signal_handlers()
-
-        # Start the websocket server
-        self.server = await serve(self.process_request, self.host, self.port)
-        logger.info(f"Puya daemon server started on {self.host}:{self.port}")
-
-        # Wait for stop event
-        await self.stop_event.wait()
+        logger.info("Starting Puya daemon server over stdio")
+        
+        try:
+            # Set up a watchdog to force exit if something goes wrong
+            def watchdog():
+                # Wait for server to start
+                time.sleep(0.5)
+                
+                while not self.shutting_down:
+                    time.sleep(1.0)
+                    
+                # If we're shutting down, set a timeout to force exit
+                time.sleep(5.0)
+                if threading.current_thread().is_alive():  # If still running
+                    logger.error("Shutdown watchdog triggered - forcing exit")
+                    os._exit(1)
+                    
+            watchdog_thread = threading.Thread(target=watchdog)
+            watchdog_thread.daemon = True
+            watchdog_thread.start()
+            
+            # Start the server
+            self.start_io()
+        except KeyboardInterrupt:
+            logger.info("Keyboard interrupt received")
+            self.shutdown()
+        except Exception as e:
+            logger.exception(f"Error running server: {e}")
+            # Force exit on unhandled exceptions
+            os._exit(1)
