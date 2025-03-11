@@ -11,10 +11,12 @@ on:
         required: false
         type: string
         default: "3.12"
-      release_version:
-        required: false
+      version_tag:
+        required: true
         type: string
-
+      version_number:
+        required: true
+        type: string
 jobs:
   generate-smoke-test-inputs:
     runs-on: ubuntu-latest
@@ -22,7 +24,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.release_version != '' && format('v{0}', inputs.release_version) || '' }}
+          ref: ${{ inputs.version_tag }}
 
       - name: Install poetry
         run: pipx install poetry
@@ -68,11 +70,12 @@ jobs:
       - name: Set signing condition
         id: signing
         shell: bash
+        # TODO: FIXME allowed=false
         run: |
           # Allow signing on main branch non-PR events (regardless of production_release value)
           if [[ "${{ github.event_name }}" != "pull_request" && \
                 "${{ github.ref_name }}" == "main" ]]; then
-            echo "allowed=true" >> $GITHUB_OUTPUT
+            echo "allowed=false" >> $GITHUB_OUTPUT
           else
             echo "allowed=false" >> $GITHUB_OUTPUT
           fi
@@ -80,7 +83,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.release_version != '' && format('v{0}', inputs.release_version) || '' }}
+          ref: ${{ inputs.version_tag }}
 
       - name: Configure build environment
         id: configure
@@ -88,8 +91,7 @@ jobs:
         run: |
           artifacts_dir="${{ github.workspace }}/dist/artifacts"
           mkdir -p $artifacts_dir
-          package_name_version="${{ inputs.release_version != '' && format('-{0}', inputs.release_version) || '' }}"
-          package_prefix="puya${package_name_version}"
+          package_prefix="puya-${{ inputs.version_number }}"
           echo "package_prefix=${package_prefix}" >> "$GITHUB_OUTPUT"
           package_name="${package_prefix}-${{ runner.os }}_${{ runner.arch }}"
           echo "PACKAGE_NAME=`echo $package_name | tr '[:upper:]' '[:lower:]'`" >> $GITHUB_ENV

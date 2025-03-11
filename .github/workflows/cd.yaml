@@ -62,7 +62,8 @@ jobs:
     env:
       DRY_RUN: ${{ inputs.dry_run && '--noop' || '' }}
     outputs:
-      release_version: ${{ steps.get_release_version.outputs.release_version }}
+      version_number: ${{ steps.get_version_info.outputs.version_number }}
+      version_tag: ${{ steps.get_version_info.outputs.version_tag }}
       branch_name: ${{ steps.get_branch.outputs.branch }}
     steps:
       - uses: actions/checkout@v4
@@ -128,11 +129,11 @@ jobs:
         env:
             GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
 
-      - name: Save release version
-        if: steps.get_branch.outputs.branch == 'main' && !inputs.dry_run && inputs.publish_github
-        id: get_release_version
+      - name: Get version info
+        id: get_version_info
         run: |
-          echo "release_version=$(poetry run semantic-release print-version --current)" >> $GITHUB_OUTPUT
+          echo "version_tag=$(poetry run semantic-release version --print-last-released-tag)" >> $GITHUB_OUTPUT
+          echo "version_number=$(poetry run semantic-release version --print-last-released)" >> $GITHUB_OUTPUT
 
       - name: Publish to PyPI - Compiler
         if: steps.get_branch.outputs.branch == 'main' && !inputs.dry_run && inputs.publish_pypi && inputs.compiler_wheel
@@ -151,7 +152,8 @@ jobs:
     with:
       production_release: ${{ inputs.publish_github }}
       python_version: "3.12"
-      release_version: ${{ needs.release.outputs.release_version }}
+      version_number: ${{ needs.release.outputs.version_number }}
+      version_tag: ${{ needs.release.outputs.version_tag }}
     secrets: inherit
 
   publish-docs:

@@ -79,21 +79,18 @@ runs:
 
     # Create tar.gz archive in the artifacts directory for GitHub releases
     - name: Package binary for release
-      shell: pwsh
-      run: |
-        cd dist\puya
-        tar -czf "${{ inputs.artifacts_dir }}\${{ inputs.package_name }}.tar.gz" *
-        cd ..\..
+      shell: bash
+      working-directory: dist/puya
+      run: tar -czf "${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz" *
 
     # Generate SHA-256 checksum for the release archive
     - name: Generate SHA-256 checksum
       shell: pwsh
+      working-directory: ${{ inputs.artifacts_dir }}
       run: |
-        cd ${{ inputs.artifacts_dir }}
         $hash = Get-FileHash -Algorithm SHA256 -Path "${{ inputs.package_name }}.tar.gz"
         "$($hash.Hash.ToLower())  ${{ inputs.package_name }}.tar.gz" | Out-File -Encoding utf8 "${{ inputs.package_name }}.sha256.txt"
         Get-Content "${{ inputs.package_name }}.sha256.txt"
-        cd ..
 
     # Upload the tar.gz archive as GitHub Actions artifact
     - name: Upload binary artifact
