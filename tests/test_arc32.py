@@ -1823,11 +1823,11 @@ def test_array_static_size(
     response = simulate_call(app_client, "test_array", x1=x1, y1=y1, x2=x2, y2=y2)
     assert response.abi_results[0].return_value == 15
     assert _get_box_state(response, b"a") == _get_arc4_bytes(
-        "(uint64,uint64,(uint64,uint64,address,(uint64,uint64)))[]",
+        "(uint64,uint64,(uint64,uint64,address,(uint64,uint64),uint512))[]",
         [
-            (0, 0, (5, 1, sender, (2, 1))),
-            (x1, y1, (5, 2, sender, (3, 4))),
-            (x2, y2, (5, 3, sender, (4, 9))),
+            (0, 0, (5, 1, sender, (2, 1), 1)),
+            (x1, y1, (5, 2, sender, (3, 4), 2)),
+            (x2, y2, (5, 3, sender, (4, 9), 3)),
         ],
     )
 

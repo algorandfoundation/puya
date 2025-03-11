@@ -23,6 +23,7 @@ from puya.ir.types_ import (
     SizedBytesType,
     SlotType,
     UnionType,
+    encoded_ir_type_to_ir_types,
 )
 from puya.ir.visitor import IRVisitor
 from puya.parse import SourceLocation
@@ -434,22 +435,16 @@ def _value_has_encoded_array_element_type(
 ) -> None:
     array_ir_type = _array_type(op.array)
     element_type = array_ir_type.element
-    if isinstance(value, Value):
-        if value.ir_type != element_type:
-            raise InternalError(
-                f"expected {element_type} type, received: {value.ir_type}",
-                value.source_location,
-            )
-    else:
-        # this is only comparing the linear sequence of tuple types,
-        # as the ValueTuple does not retain the higher level structure
-        element_types = list(_expand_types(element_type))
-        value_types = [v.ir_type for v in value.values]
-        if element_types != value_types:
-            raise InternalError(
-                f"unexpected types {value.types}: expected: {element_types}",
-                value.source_location,
-            )
+    # this is only comparing the linear sequence of types,
+    # as ValueTuple's do not retain the higher level structure
+    element_types = encoded_ir_type_to_ir_types(element_type)
+    values = (value,) if isinstance(value, Value) else value.values
+    value_types = tuple(v.ir_type for v in values)
+    if element_types != value_types:
+        raise InternalError(
+            f"unexpected types {value_types}: expected: {element_types}",
+            value.source_location,
+        )
 
 
 def _expand_types(typ: IRType) -> Iterable[IRType]:
@@ -484,7 +479,7 @@ class ArrayReadIndex(_ArrayOp):
 
     @property
     def types(self) -> Sequence[IRType]:
-        return EncodedTupleType.expand_types(self.array_type.element)
+        return encoded_ir_type_to_ir_types(self.array_type.element)
 
     def _frozen_data(self) -> object:
         return self.array, self.index
@@ -557,7 +552,7 @@ class ArrayPop(_ArrayOp):
 
     @property
     def types(self) -> Sequence[IRType]:
-        return self.array_type, *EncodedTupleType.expand_types(self.array_type.element)
+        return self.array_type, *encoded_ir_type_to_ir_types(self.array_type.element)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_array_pop(self)
