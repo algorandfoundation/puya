@@ -63,6 +63,7 @@ jobs:
       DRY_RUN: ${{ inputs.dry_run && '--noop' || '' }}
     outputs:
       release_version: ${{ steps.get_release_version.outputs.release_version }}
+      branch_name: ${{ steps.get_branch.outputs.branch }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -100,7 +101,7 @@ jobs:
           git config --global user.email "actions@github.com" 
           git config --global user.name "github-actions"
 
-      - name: Update release
+      - name: Update version
         if: inputs.bump_version
         run: poetry run semantic-release $DRY_RUN --strict version
         env:
