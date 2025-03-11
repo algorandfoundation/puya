@@ -61,11 +61,11 @@ runs:
         build-args: |
           BASE_IMAGE=${{ steps.set-base-image.outputs.BASE_IMAGE }}
           PYTHON_VERSION=${{ inputs.python_version }}
-        push: true
+        push: false
         load: true
         tags: ${{ steps.set-base-image.outputs.CACHE_TAG }}
-        cache-from: type=registry,ref=${{ steps.set-base-image.outputs.CACHE_TAG }}
-        cache-to: type=registry,ref=${{ steps.set-base-image.outputs.CACHE_TAG }},mode=max
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
     - name: Run the container with the built image
       shell: bash
@@ -114,13 +114,8 @@ runs:
         echo "Copying executable for signing..."
         cp dist/puya/puya /tmp/puya-signing/puya
 
-        # Create a checksum for _internal folder
-        echo "Creating checksums for _internal folder..."
-        cd dist/puya/
-        find _internal -type f -exec sha256sum {} \; | sort > /tmp/puya-signing/_internal_checksums.txt
-
-    # Sign the executable and _internal checksums
-    - name: Sign executable and _internal checksums
+    # Sign the executable
+    - name: Sign executable
       if: ${{ inputs.with_codesign == 'true' }}
       shell: bash
       run: |
@@ -132,16 +127,8 @@ runs:
         gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
             --local-user ${{ inputs.gpg-key-id }} --detach-sign --armor puya
 
-        # Sign the _internal checksums
-        echo "Signing _internal checksums..."
-        gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
-            --local-user ${{ inputs.gpg-key-id }} --detach-sign --armor _internal_checksums.txt
-
         # Move signed artifacts to the artifacts directory
-        mkdir -p ${{ inputs.artifacts_dir }}/signatures
-        cp puya.asc ${{ inputs.artifacts_dir }}/signatures/
-        cp _internal_checksums.txt ${{ inputs.artifacts_dir }}/signatures/
-        cp _internal_checksums.txt.asc ${{ inputs.artifacts_dir }}/signatures/
+        cp puya.asc ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}-executable.asc
 
     # Create tar.gz archive in the artifacts directory for GitHub releases
     - name: Package binary for release
@@ -176,6 +163,34 @@ runs:
         rm -rf $GNUPGHOME
         cd ../..
 
+    # Sign the tar.gz archive with GPG
+    - name: Sign tar.gz archive with GPG
+      if: ${{ inputs.with_codesign == 'true' }}
+      shell: bash
+      run: |
+        # Create temporary directory for GPG operations
+        mkdir -p /tmp/gpg-signing
+        chmod 700 /tmp/gpg-signing
+        export GNUPGHOME=/tmp/gpg-signing
+
+        # Configure GPG
+        echo "disable-scdaemon" > $GNUPGHOME/gpg-agent.conf
+
+        # Import the GPG private key
+        echo "${{ inputs.gpg-signing-private-key }}" | base64 -d > $GNUPGHOME/private.key
+        gpg --batch --import $GNUPGHOME/private.key
+        rm -f $GNUPGHOME/private.key
+
+        cd ${{ inputs.artifacts_dir }}
+
+        # Sign the tar.gz archive
+        gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
+            --local-user ${{ inputs.gpg-key-id }} --detach-sign --armor ${{ inputs.package_name }}.tar.gz
+            
+        # Clean up
+        rm -rf $GNUPGHOME
+        cd ../..
+
     # Upload the tar.gz archive as GitHub Actions artifact
     - name: Upload binary artifact
       uses: actions/upload-artifact@v4
@@ -201,29 +216,20 @@ runs:
         path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.sha256.txt.asc
         if-no-files-found: error
 
+    # Upload GPG signature for tar.gz archive
+    - name: Upload tar.gz signature artifact
+      if: ${{ inputs.with_codesign == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}-archive-signature
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz.asc
+        if-no-files-found: error
+
     # Upload GPG signature for executable
     - name: Upload executable signature artifact
       if: ${{ inputs.with_codesign == 'true' }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.package_name }}-executable-signature
-        path: ${{ inputs.artifacts_dir }}/signatures/puya.asc
-        if-no-files-found: error
-
-    # Upload GPG signature for _internal checksums
-    - name: Upload _internal checksums file
-      if: ${{ inputs.with_codesign == 'true' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ inputs.package_name }}-internal-checksums
-        path: ${{ inputs.artifacts_dir }}/signatures/_internal_checksums.txt
-        if-no-files-found: error
-
-    # Upload GPG signature for _internal checksums
-    - name: Upload _internal checksums signature artifact
-      if: ${{ inputs.with_codesign == 'true' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ inputs.package_name }}-internal-checksums-signature
-        path: ${{ inputs.artifacts_dir }}/signatures/_internal_checksums.txt.asc
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}-executable.asc
         if-no-files-found: error

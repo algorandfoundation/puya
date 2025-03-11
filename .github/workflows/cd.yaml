@@ -51,14 +51,12 @@ permissions:
   packages: read
 
 jobs:
-  release:
-    name: Release Library
+  prepare-release:
+    name: Prepare Release
     runs-on: ubuntu-latest
     permissions:
       # IMPORTANT: this permission is mandatory for trusted publishing
       id-token: write
-      contents: write
-      packages: read
     env:
       DRY_RUN: ${{ inputs.dry_run && '--noop' || '' }}
     outputs:
@@ -117,8 +115,9 @@ jobs:
         working-directory: ./stubs
         run: poetry build --format wheel
 
-      - uses: actions/upload-artifact@v4 # upload artifacts so they are retained on the job
+      - uses: actions/upload-artifact@v4
         with:
+          name: release-artifacts
           path: |
             dist
             stubs/dist
@@ -129,40 +128,107 @@ jobs:
           echo "version_tag=$(poetry run semantic-release version --print-last-released-tag)" >> $GITHUB_OUTPUT
           echo "version_number=$(poetry run semantic-release version --print-last-released)" >> $GITHUB_OUTPUT
 
-      # TODO: new job starts here, after build-and-upload-binaries
+  build-and-upload-binaries:
+    name: Build and Upload Binaries
+    needs: prepare-release
+    if: needs.prepare-release.outputs.branch_name == 'main' && !inputs.dry_run
+    uses: ./.github/workflows/build-binaries.yaml
+    with:
+      production_release: true
+      python_version: "3.12"
+      version_number: ${{ needs.prepare-release.outputs.version_number }}
+      version_tag: ${{ needs.prepare-release.outputs.version_tag }}
+    secrets: inherit
+
+  publish-to-github:
+    name: Publish to GitHub
+    needs: [prepare-release, build-and-upload-binaries]
+    if: needs.prepare-release.outputs.branch_name == 'main' && !inputs.dry_run && inputs.publish_github
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    env:
+      DRY_RUN: ${{ inputs.dry_run && '--noop' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "poetry"
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --with cicd
 
       - name: Publish to GitHub
-        if: steps.get_branch.outputs.branch == 'main' && !inputs.dry_run && inputs.publish_github
         run: poetry run semantic-release $DRY_RUN publish
         env:
             GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
 
-      # TODO: add binary artifacts to release
+  append-binaries-to-release:
+    name: Append Binaries to GitHub Release
+    needs: [prepare-release, publish-to-github, build-and-upload-binaries]
+    if: needs.prepare-release.outputs.branch_name == 'main' && !inputs.dry_run && inputs.publish_github
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-artifacts
+          pattern: binary-artifacts-*
+          merge-multiple: true
+
+      - name: Display structure of downloaded files
+        run: find all-artifacts -type f | sort
+          
+      - name: Append artifacts to release
+        uses: softprops/action-gh-release@v1
+        with:
+          fail_on_unmatched_files: true
+          files: all-artifacts/**/*
+          tag_name: ${{ format('v{0}', needs.prepare-release.outputs.version_number) }}
+
+  publish-to-pypi:
+    name: Publish to PyPI
+    needs: [prepare-release, append-binaries-to-release]
+    if: needs.prepare-release.outputs.branch_name == 'main' && !inputs.dry_run && inputs.publish_pypi
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+          path: release-artifacts
 
       - name: Publish to PyPI - Compiler
-        if: steps.get_branch.outputs.branch == 'main' && !inputs.dry_run && inputs.publish_pypi && inputs.compiler_wheel
-        uses: pypa/gh-action-pypi-publish@release/v1
-
-      - name: Publish to PyPI - Stubs
-        if: steps.get_branch.outputs.branch == 'main' && !inputs.dry_run && inputs.publish_pypi && inputs.stubs_wheel
+        if: inputs.compiler_wheel
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          packages-dir: stubs/dist
+          packages-dir: release-artifacts/dist
 
-  build-and-upload-binaries:
-    name: Build and Upload Binaries
-    needs: release
-    uses: ./.github/workflows/build-binaries.yaml
-    with:
-      production_release: ${{ inputs.publish_github }}
-      python_version: "3.12"
-      version_number: ${{ needs.release.outputs.version_number }}
-      version_tag: ${{ needs.release.outputs.version_tag }}
-    secrets: inherit
+      - name: Publish to PyPI - Stubs
+        if: inputs.stubs_wheel
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: release-artifacts/stubs/dist
 
   publish-docs:
     name: Publish Docs
-    if: ${{ !inputs.dry_run && inputs.publish_docs }}
+    needs: [prepare-release]
+    if: needs.prepare-release.outputs.branch_name == 'main' && !inputs.dry_run && inputs.publish_docs
     uses: ./.github/workflows/gh-pages.yaml
     permissions:
       contents: read
