@@ -63,7 +63,6 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%14#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%7#0)
         (log tmp%14#0)
         let test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0
         goto block@9
     block@4: // tuple_of_arc4_route_L19
         let tmp%15#0: uint64 = (txn OnCompletion)
@@ -72,20 +71,18 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%17#0: uint64 = (txn ApplicationID)
         (assert tmp%17#0) // can only call when not creating
         let reinterpret_bytes[33]%0#0: bytes[33] = (txna ApplicationArgs 1)
-        let item0%1#0: bytes = ((extract 0 1) reinterpret_bytes[33]%0#0) // on error: Index access is out of bounds
-        let item1%1#0: bytes = ((extract 1 32) reinterpret_bytes[33]%0#0) // on error: Index access is out of bounds
-        let (elements_to_encode%5#0: bytes[1], elements_to_encode%6#0: bytes[32]) = test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(item0%1#0, item1%1#0)
-        let encoded_tuple_buffer%10#0: bytes = (concat elements_to_encode%5#0 elements_to_encode%6#0)
+        let args.0#0: bytes[1] = ((extract 0 1) reinterpret_bytes[33]%0#0) // on error: Index access is out of bounds
+        let args.1#0: bytes[32] = ((extract 1 32) reinterpret_bytes[33]%0#0) // on error: Index access is out of bounds
+        let encoded_tuple_buffer%10#0: bytes = (concat args.0#0 args.1#0)
         let tmp%19#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%10#0)
         (log tmp%19#0)
-        let test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0
+        let test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#1: bool = 1u
         goto block@9
     block@8: // after_if_else_L4
-        let test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0
+        let test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#2: bool = 0u
         goto block@9
     block@9: // after_inlined_test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router___L1
+        let tmp%0#0: bool = φ(test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0 <- block@3, test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#1 <- block@4, test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#2 <- block@8)
         return tmp%0#0
 
 subroutine test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: bool, uint64_param: uint64, bytes_param: bytes, biguint_param: biguint, string_param: bytes, tuple_param.0: bool, tuple_param.1: uint64, tuple_param.2: bytes, tuple_param.3: biguint, tuple_param.4: bytes) -> <bool, uint64, bytes, biguint, bytes>:
@@ -101,13 +98,3 @@ subroutine test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: 
         let tmp%8#0: bool = (&& tmp%6#0 tmp%7#0)
         (assert tmp%8#0)
         return bool_param#0 uint64_param#0 bytes_param#0 biguint_param#0 string_param#0
-
-subroutine test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(args.0: bytes[1], args.1: bytes[32]) -> <bytes[1], bytes[32]>:
-    block@0: // L19
-        let tmp%0#0: uint64 = (len args.0#0)
-        let tmp%1#0: bool = (== tmp%0#0 1u)
-        (assert tmp%1#0)
-        let tmp%2#0: uint64 = (len args.1#0)
-        let tmp%3#0: bool = (== tmp%2#0 32u)
-        (assert tmp%3#0)
-        return args.0#0 args.1#0

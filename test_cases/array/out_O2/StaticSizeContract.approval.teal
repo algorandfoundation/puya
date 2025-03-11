@@ -3,7 +3,7 @@
 
 // test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 1 8 16
+    intcblock 0 1 8 16 144
     bytecblock "count" 0x151f7c75 0x00 0x 0x0000
     intc_0 // 0
     dupn 5
@@ -49,8 +49,6 @@ main_test_arc4_bool_route@33:
     concat // on error: max array length exceeded
     dupn 2
     len
-    intc_1 // 1
-    /
     bytec 4 // 0x0000
     cover 2
     intc_2 // 8
@@ -104,8 +102,6 @@ main_test_arc4_bool_route@33:
     assert // expected correct value at 1
     dup
     len
-    intc_1 // 1
-    /
     bytec 4 // 0x0000
     cover 2
     intc_2 // 8
@@ -132,13 +128,13 @@ main_sum_array_route@29:
     len
     intc_2 // 8
     /
-    bury 13
+    bury 14
     intc_0 // 0
     bury 8
 
 main_for_header@30:
     dig 7
-    dig 13
+    dig 14
     <
     bz main_after_for@32
     dig 15
@@ -210,7 +206,7 @@ main_after_for@23:
     intc_2 // 8
     /
     dup
-    bury 15
+    bury 16
     dig 5
     ==
     assert // expected correct length
@@ -221,7 +217,7 @@ main_after_for@23:
 
 main_for_header@24:
     dig 7
-    dig 14
+    dig 15
     <
     bz main_after_for@28
     dig 16
@@ -311,10 +307,8 @@ main_for_header@12:
 main_after_for@14:
     dig 17
     len
-    intc_1 // 1
-    /
     dup
-    bury 16
+    bury 14
     dig 5
     ==
     assert // expected correct length
@@ -325,7 +319,7 @@ main_after_for@14:
 
 main_for_header@15:
     dig 7
-    dig 15
+    dig 13
     <
     bz main_after_for@19
     dig 17
@@ -333,7 +327,7 @@ main_for_header@15:
     intc_1 // 1
     extract3
     intc_0 // 0
-    getbyte
+    getbit
     dig 12
     bury 12
     bz main_after_if_else@18
@@ -370,12 +364,7 @@ main_test_extend_from_arc4_tuple_route@10:
     txna ApplicationArgs 1
     dup
     pop
-    dup
-    len
-    intc_3 // 16
-    /
-    itob
-    extract 6 2
+    pushbytes 0x0002
     swap
     concat
     bytec_1 // 0x151f7c75
@@ -462,10 +451,38 @@ main_test_array_route@5:
     callsub xtra
     callsub xtra
     callsub xtra
-    uncover 11
+    uncover 14
     itob
     pushbytes 0x00000000000000000000000000000000
     swap
+    concat
+    uncover 14
+    itob
+    concat
+    uncover 13
+    concat
+    uncover 12
+    concat
+    dig 11
+    len
+    pushint 64 // 64
+    <=
+    assert // value is bigger than 64 bytes
+    pushint 64 // 64
+    bzero
+    uncover 12
+    dig 1
+    b|
+    uncover 2
+    swap
+    concat
+    uncover 14
+    itob
+    uncover 15
+    swap
+    concat
+    uncover 12
+    itob
     concat
     uncover 11
     itob
@@ -474,36 +491,39 @@ main_test_array_route@5:
     concat
     uncover 9
     concat
-    uncover 11
-    itob
-    uncover 12
-    swap
-    concat
-    uncover 9
-    itob
-    concat
+    dig 8
+    len
+    pushint 64 // 64
+    <=
+    assert // value is bigger than 64 bytes
     uncover 8
-    itob
+    dig 3
+    b|
+    concat
     concat
     uncover 7
-    concat
-    uncover 6
-    concat
-    concat
-    uncover 5
     itob
-    uncover 6
+    uncover 8
     swap
     concat
-    uncover 5
+    uncover 7
     itob
+    concat
+    uncover 6
+    itob
+    concat
+    uncover 5
     concat
     uncover 4
-    itob
     concat
+    dig 3
+    len
+    pushint 64 // 64
+    <=
+    assert // value is bigger than 64 bytes
     uncover 3
-    concat
-    uncover 2
+    uncover 3
+    b|
     concat
     concat
     bury 19
@@ -519,9 +539,9 @@ main_for_header@6:
     dig 9
     dup
     cover 2
-    pushint 80 // 80
+    intc 4 // 144
     *
-    pushint 80 // 80
+    intc 4 // 144
     extract3
     dup
     pushint 24 // 24
@@ -557,7 +577,7 @@ main_after_for@8:
     dig 18
     dup
     len
-    pushint 80 // 80
+    intc 4 // 144
     /
     dup
     bury 8
@@ -571,7 +591,7 @@ main_after_for@8:
     pushbytes "a"
     swap
     box_put
-    extract 0 80
+    extract 0 144
     dup
     bury 22
     dup
@@ -592,9 +612,9 @@ main_for_header@39:
     bz main_after_for@47
     dig 18
     dig 3
-    pushint 80 // 80
+    intc 4 // 144
     *
-    pushint 80 // 80
+    intc 4 // 144
     extract3
     dupn 2
     extract 0 8
@@ -766,7 +786,7 @@ dynamic_array_concat_bits_after_while@5:
     retsub
 
 
-// test_cases.array.static_size.StaticSizeContract.xtra() -> uint64, uint64, bytes, bytes:
+// test_cases.array.static_size.StaticSizeContract.xtra() -> uint64, uint64, bytes, bytes, bytes:
 xtra:
     intc_0 // 0
     bytec_0 // "count"
@@ -784,6 +804,11 @@ xtra:
     assert // check self.count exists
     txn Sender
     callsub more
+    intc_0 // 0
+    bytec_0 // "count"
+    app_global_get_ex
+    assert // check self.count exists
+    itob
     retsub
 
 
