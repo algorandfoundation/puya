@@ -123,17 +123,21 @@ jobs:
             dist
             stubs/dist
 
+      - name: Get version info
+        id: get_version_info
+        run: |
+          echo "version_tag=$(poetry run semantic-release version --print-last-released-tag)" >> $GITHUB_OUTPUT
+          echo "version_number=$(poetry run semantic-release version --print-last-released)" >> $GITHUB_OUTPUT
+
+      # TODO: new job starts here, after build-and-upload-binaries
+
       - name: Publish to GitHub
         if: steps.get_branch.outputs.branch == 'main' && !inputs.dry_run && inputs.publish_github
         run: poetry run semantic-release $DRY_RUN publish
         env:
             GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
 
-      - name: Get version info
-        id: get_version_info
-        run: |
-          echo "version_tag=$(poetry run semantic-release version --print-last-released-tag)" >> $GITHUB_OUTPUT
-          echo "version_number=$(poetry run semantic-release version --print-last-released)" >> $GITHUB_OUTPUT
+      # TODO: add binary artifacts to release
 
       - name: Publish to PyPI - Compiler
         if: steps.get_branch.outputs.branch == 'main' && !inputs.dry_run && inputs.publish_pypi && inputs.compiler_wheel
