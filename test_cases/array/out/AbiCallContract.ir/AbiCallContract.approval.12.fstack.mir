@@ -25,14 +25,14 @@ subroutine main:
         assert // can only call when not creating
         // array/unused_opt_allowed.py:12
         // class AbiCallContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                      reinterpret_uint64[]%0#0
-        txna ApplicationArgs 2                                                                      reinterpret_uint64[]%0#0,reinterpret_bytes[1]%0#0
-        btoi                                                                                        reinterpret_uint64[]%0#0,tmp%7#0
-        txnas Applications                                                                          reinterpret_uint64[]%0#0,tmp%8#0
+        txna ApplicationArgs 1                                                                      reinterpret_encoded_uint64[]%0#0
+        txna ApplicationArgs 2                                                                      reinterpret_encoded_uint64[]%0#0,reinterpret_bytes[1]%0#0
+        btoi                                                                                        reinterpret_encoded_uint64[]%0#0,tmp%7#0
+        txnas Applications                                                                          reinterpret_encoded_uint64[]%0#0,tmp%8#0
         // array/unused_opt_allowed.py:13
         // @arc4.abimethod()
-        l-load reinterpret_uint64[]%0#0 1                                                           tmp%8#0,reinterpret_uint64[]%0#0
-        l-load tmp%8#0 1                                                                            reinterpret_uint64[]%0#0,tmp%8#0
+        l-load reinterpret_encoded_uint64[]%0#0 1                                                   tmp%8#0,reinterpret_encoded_uint64[]%0#0
+        l-load tmp%8#0 1                                                                            reinterpret_encoded_uint64[]%0#0,tmp%8#0
         callsub test_implicit_conversion_abi_call
         int 1                                                                                       tmp%0#0
         x-store tmp%0#0                                                                             (𝕏) tmp%0#0 |
@@ -246,13 +246,8 @@ subroutine test_implicit_conversion_abi_call:
         // array/unused_opt_allowed.py:29
         // address_arr = address_arr.append(arc4.Address(Txn.sender))
         txn Sender                                                                                  (𝕡) arr#0,app#0 | tmp%1#0
-        l-load-copy tmp%1#0 0                                                                       (𝕡) arr#0,app#0 | tmp%1#0,tmp%1#0 (copy)
-        len                                                                                         (𝕡) arr#0,app#0 | tmp%1#0,byte_len%0#0
-        int 32                                                                                      (𝕡) arr#0,app#0 | tmp%1#0,byte_len%0#0,32
-        /                                                                                           (𝕡) arr#0,app#0 | tmp%1#0,len_%0#0
-        itob                                                                                        (𝕡) arr#0,app#0 | tmp%1#0,as_bytes%3#0
-        extract 6 2                                                                                 (𝕡) arr#0,app#0 | tmp%1#0,len_16_bit%0#0
-        l-load tmp%1#0 1                                                                            (𝕡) arr#0,app#0 | len_16_bit%0#0,tmp%1#0
+        byte 0x0001                                                                                 (𝕡) arr#0,app#0 | tmp%1#0,0x0001
+        l-load tmp%1#0 1                                                                            (𝕡) arr#0,app#0 | 0x0001,tmp%1#0
         concat                                                                                      (𝕡) arr#0,app#0 | address_arr#1
         // array/unused_opt_allowed.py:30
         // arc4.abi_call("dont_call(address[])void", address_arr, app_id=app)

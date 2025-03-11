@@ -404,7 +404,7 @@ contract StaticSizeContract
   subroutine test_cases.array.static_size.StaticSizeContract.xtra(): test_cases.array.static_size.Xtra
   {
     GlobalState['count'] += 1u
-    return (txn<NumAppArgs>(), GlobalState['count'], txn<Sender>(), this::more())
+    return (txn<NumAppArgs>(), GlobalState['count'], txn<Sender>(), this::more(), itob(GlobalState['count']))
   }
   
   subroutine test_cases.array.static_size.StaticSizeContract.more(): test_cases.array.static_size.More
@@ -512,6 +512,27 @@ contract ImmutableArrayContract
     assert(arr.length == 15u)
     assert(arr[2u] == 23u)
     GlobalState['a']: stack_array<uint64> = arr
+  }
+  
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_biguint_array(): void
+  {
+    arr: stack_array<biguint> = new stack_array<biguint>()
+    assert(arr.length == 0u)
+    arr: stack_array<biguint> = arr + (itob(txn<NumAppArgs>() - 1u))
+    assert(arr.length == 1u)
+    assert(arr[arr.length - 1u] == 0n)
+    arr: stack_array<biguint> = test_cases.array.immutable.add_xb(arr, 5u)
+    assert(arr.length == 6u)
+    assert(arr[arr.length - 1u] == 4n)
+    arr: stack_array<biguint> = arr + (13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n b- itob(txn<NumAppArgs>()))
+    assert(arr.length == 7u)
+    assert(arr[arr.length - 1u] == 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084094n)
+    assert(arr[0u] == 0n)
+    arr: stack_array<biguint> = arr + (13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n)
+    assert(arr.length == 8u)
+    assert(arr[arr.length - 1u] == 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n)
+    assert(arr[0u] == 0n)
+    Box[hex<"62696775696E74">]: stack_array<biguint> = arr
   }
   
   abimethod test_cases.array.immutable.ImmutableArrayContract.test_bool_array(length: uint64): void
@@ -799,6 +820,14 @@ subroutine pop_x(arr: stack_array<uint64>, x: uint64): stack_array<uint64>
 {
   for _i in range(0u, x, 1u) {
     arr: stack_array<uint64> = arr[:-1]
+  }
+  return arr
+}
+
+subroutine add_xb(arr: stack_array<biguint>, x: uint64): stack_array<biguint>
+{
+  for i in range(0u, x, 1u) {
+    arr: stack_array<biguint> = arr + (itob(i))
   }
   return arr
 }

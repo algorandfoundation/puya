@@ -11,7 +11,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
-        let arr#0: uint64[] = (txna ApplicationArgs 1)
+        let arr#0: encoded_uint64[] = (txna ApplicationArgs 1)
         let reinterpret_bytes[1]%0#0: bytes[1] = (txna ApplicationArgs 2)
         let tmp%7#0: uint64 = (btoi reinterpret_bytes[1]%0#0)
         let app#0: uint64 = ((txnas Applications) tmp%7#0)
@@ -23,7 +23,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         let result%1#0: bytes = (concat 0x0002 arr#0)
-        let nested_arr#1: uint64[][] = _puya_lib.arc4.dynamic_array_concat_dynamic_element(0u, 0x, 1u, result%1#0)
+        let nested_arr#1: encoded_uint64[][] = _puya_lib.arc4.dynamic_array_concat_dynamic_element(0u, 0x, 1u, result%1#0)
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "dont_call(uint64[][])uint64")
@@ -36,7 +36,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let encoded_tuple_buffer%2#0: bytes = (concat 0x000a val_as_bytes%0#0)
         let encoded_tuple_buffer%3#0: bytes = (concat encoded_tuple_buffer%2#0 arr#0)
         let result%3#0: bytes = (concat 0x0002 encoded_tuple_buffer%3#0)
-        let indirect_nested_arr#1: (uint64[],uint64)[] = _puya_lib.arc4.dynamic_array_concat_dynamic_element(0u, 0x, 1u, result%3#0)
+        let indirect_nested_arr#1: (encoded_uint64[],encoded_uint64)[] = _puya_lib.arc4.dynamic_array_concat_dynamic_element(0u, 0x, 1u, result%3#0)
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "dont_call((uint64[],uint64)[])uint64")
@@ -45,11 +45,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         let tmp%1#1: bytes[32] = (txn Sender)
-        let byte_len%0#0: uint64 = (len tmp%1#1)
-        let len_%0#0: uint64 = (/ byte_len%0#0 32u)
-        let as_bytes%3#0: bytes[8] = (itob len_%0#0)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%3#0)
-        let address_arr#1: bytes[32][] = (concat len_16_bit%0#0 tmp%1#1)
+        let address_arr#1: bytes[32][] = (concat 0x0001 tmp%1#1)
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "dont_call(address[])void")

@@ -37,11 +37,11 @@ subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uin
 
 subroutine test_cases.regression_tests.slot_allocation_inlining.do_something_with_array() -> void:
     block@0: // L14
-        let slot%0#0: uint64[]* = new()
+        let slot%0#0: encoded_uint64[]* = new()
         write(slot%0#0, 0x)
-        let arr#0: uint64[]* = slot%0#0
+        let arr#0: encoded_uint64[]* = slot%0#0
         test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr#0)
-        let slot_contents%0#0: uint64[] = read(arr#0)
+        let slot_contents%0#0: encoded_uint64[] = read(arr#0)
         let array%bytes_len%0#1: uint64 = (len slot_contents%0#0)
         let array%array_len%0#1: uint64 = (/ array%bytes_len%0#1 8u)
         let tmp%0#0: uint64 = array%array_len%0#1
@@ -49,7 +49,7 @@ subroutine test_cases.regression_tests.slot_allocation_inlining.do_something_wit
         (assert tmp%1#0) // expected array of length 32
         return 
 
-subroutine test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr: uint64[]*) -> void:
+subroutine test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr: encoded_uint64[]*) -> void:
     block@0: // L22
         let tmp%0#0: bytes[32] = (txn Sender)
         let bytes_length%0#0: uint64 = (len tmp%0#0)
@@ -62,12 +62,12 @@ subroutine test_cases.regression_tests.slot_allocation_inlining.append_to_array(
         let b#0: bytes = (extract3 tmp%0#0 item_index_internal%0#0 1u)
         let tmp%1#0: uint64 = (btoi b#0)
         let array%sub_item%0#1: bytes[8] = (itob tmp%1#0)
-        let array%encoded%0#1: uint64[] = (concat 0x array%sub_item%0#1)
-        let array%data%0#1: uint64[] = (concat 0x array%encoded%0#1)
-        let encoded%0#0: uint64[] = array%data%0#1
-        let slot_contents%0#0: uint64[] = read(arr#0)
+        let array%encoded%0#1: encoded_uint64[] = (concat 0x array%sub_item%0#1)
+        let array%data%0#1: encoded_uint64[] = (concat 0x array%encoded%0#1)
+        let encoded%0#0: encoded_uint64[] = array%data%0#1
+        let slot_contents%0#0: encoded_uint64[] = read(arr#0)
         let array%array_contents%0#1: bytes = (concat slot_contents%0#0 encoded%0#0) // on error: max array length exceeded
-        let extended%0#0: uint64[] = array%array_contents%0#1
+        let extended%0#0: encoded_uint64[] = array%array_contents%0#1
         write(arr#0, extended%0#0)
         goto block@3
     block@3: // for_footer_L24
