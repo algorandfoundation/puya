@@ -2,6 +2,8 @@ import typing
 
 from algopy import (
     Array,
+    BigUInt,
+    Box,
     Bytes,
     ImmutableArray,
     String,
@@ -107,6 +109,31 @@ class ImmutableArrayContract(arc4.ARC4Contract):
         assert arr[2] == 23
 
         self.a = arr
+
+    @arc4.abimethod()
+    def test_biguint_array(self) -> None:
+        arr = ImmutableArray[BigUInt]()
+        assert arr.length == 0
+
+        arr = arr.append(BigUInt(Txn.num_app_args - 1))
+        assert arr.length == 1
+        assert arr[-1] == 0
+
+        arr = add_xb(arr, UInt64(5))
+        assert arr.length == 6
+        assert arr[-1] == 4
+
+        arr = arr.append(BigUInt(2**512 - 1) - Txn.num_app_args)
+        assert arr.length == 7
+        assert arr[-1] == 2**512 - 2
+        assert arr[0] == 0
+
+        arr = arr.append(BigUInt(2**512 - 1))
+        assert arr.length == 8
+        assert arr[-1] == 2**512 - 1
+        assert arr[0] == 0
+
+        Box(ImmutableArray[BigUInt], key=b"biguint").value = arr
 
     @arc4.abimethod()
     def test_bool_array(self, length: UInt64) -> None:
@@ -417,6 +444,13 @@ def add_x(arr: ImmutableArray[UInt64], x: UInt64) -> ImmutableArray[UInt64]:
 def pop_x(arr: ImmutableArray[UInt64], x: UInt64) -> ImmutableArray[UInt64]:
     for _i in urange(x):
         arr = arr.pop()
+    return arr
+
+
+@subroutine
+def add_xb(arr: ImmutableArray[BigUInt], x: UInt64) -> ImmutableArray[BigUInt]:
+    for i in urange(x):
+        arr = arr.append(BigUInt(i))
     return arr
 
 

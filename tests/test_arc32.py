@@ -1862,9 +1862,15 @@ def test_immutable_array(
     algod_client: AlgodClient, optimization_level: int, account: algokit_utils.Account
 ) -> None:
     immutable_array_app = _get_immutable_array_app(algod_client, optimization_level, account)
+
     response = simulate_call(immutable_array_app, "test_uint64_array")
     assert _get_global_state(response, b"a") == _get_arc4_bytes(
         "uint64[]", [42, 0, 23, 2, *range(10), 44]
+    )
+
+    response = simulate_call(immutable_array_app, "test_biguint_array")
+    assert _get_box_state(response, b"biguint") == _get_arc4_bytes(
+        "uint512[]", [0, *range(5), 2**512 - 2, 2**512 - 1]
     )
 
     response = simulate_call(immutable_array_app, "test_fixed_size_tuple_array")
@@ -2040,6 +2046,15 @@ def _get_immutable_array_app(
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
     app_client.create()
 
+    # ensure app meets minimum balance requirements
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=400_000,
+        ),
+    )
+
     return app_client
 
 
@@ -2085,10 +2100,11 @@ def simulate_call(
         logic_error_data = algokit_utils.logic_error.parse_logic_error(
             simulate_response.failure_message
         )
-        assert (
-            logic_error_data is not None
-        ), f"expected LogicError, got {simulate_response.failure_message}"
-        assert app_client.approval is not None, "expected approval program"
+        if logic_error_data is None:
+            pytest.fail(f"expected LogicError, got {simulate_response.failure_message}")
+
+        if app_client.approval is None:
+            pytest.fail("expected approval program")
         raise algokit_utils.LogicError(
             logic_error_str=simulate_response.failure_message,
             program=app_client.approval.teal,
