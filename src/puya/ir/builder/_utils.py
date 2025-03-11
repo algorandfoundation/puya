@@ -16,7 +16,7 @@ from puya.ir.models import (
     ValueProvider,
 )
 from puya.ir.register_context import IRRegisterContext
-from puya.ir.types_ import AVMBytesEncoding, IRType, PrimitiveIRType
+from puya.ir.types_ import AVMBytesEncoding, IRType, PrimitiveIRType, SizedBytesType
 from puya.parse import SourceLocation
 
 
@@ -255,6 +255,16 @@ class OpFactory:
         )
         return result
 
+    def lte(self, a: Value | int, b: Value | int, temp_desc: str) -> Register:
+        result = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.lte,
+            args=[a, b],
+            source_location=self.source_location,
+        )
+        return result
+
     def select(
         self,
         *,
@@ -313,6 +323,34 @@ class OpFactory:
             source_location=self.source_location,
         )
         return itob
+
+    def to_fixed_size(self, value: Value, size: int, temp_desc: str) -> Register:
+        # assert value isn't too big
+        value_len = self.len(value, "value_len")
+        len_ok = self.lte(value_len, size, "len_ok")
+        self.context.add_op(
+            Intrinsic(
+                op=AVMOp.assert_,
+                args=[len_ok],
+                error_message=f"value is bigger than {size} bytes",
+                source_location=self.source_location,
+            )
+        )
+        zero = assign_intrinsic_op(
+            self.context,
+            target="bzero",
+            op=AVMOp.bzero,
+            args=[size],
+            source_location=self.source_location,
+        )
+        return assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.bitwise_or_bytes,
+            args=[value, zero],
+            return_type=SizedBytesType(size=size),
+            source_location=self.source_location,
+        )
 
     def as_u16_bytes(self, a: Value | int, temp_desc: str) -> Register:
         as_bytes = self.itob(a, "as_bytes")
