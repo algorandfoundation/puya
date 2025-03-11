@@ -70,11 +70,15 @@ jobs:
           # Run the binary tests
           ./puya --options options.json --awst module.awst.json 
           
-          cat HelloWorldContract.approval.teal 
+          if [ -f HelloWorldContract.approval.teal ]; then
+            cat HelloWorldContract.approval.teal
+          else
+            echo "File HelloWorldContract.approval.teal does not exist" >&2
+            exit 1
+          fi
           EOF
 
       - name: Run portability tests on ${{ matrix.distro.name }} (${{ matrix.arch.name }})
-        # TODO: test what happens on failure
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/workspace \

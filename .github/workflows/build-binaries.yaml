@@ -70,12 +70,11 @@ jobs:
       - name: Set signing condition
         id: signing
         shell: bash
-        # TODO: FIXME allowed=false
         run: |
           # Allow signing on main branch non-PR events (regardless of production_release value)
           if [[ "${{ github.event_name }}" != "pull_request" && \
                 "${{ github.ref_name }}" == "main" ]]; then
-            echo "allowed=false" >> $GITHUB_OUTPUT
+            echo "allowed=true" >> $GITHUB_OUTPUT
           else
             echo "allowed=false" >> $GITHUB_OUTPUT
           fi
@@ -152,30 +151,24 @@ jobs:
         run: |
           # Run a basic test to verify the binary works
           ./dist/puya/puya --version
-          
+
           # Run the binary tests
           ./dist/puya/puya --options options.json --awst module.awst.json 
-          
-          # TODO: can remove this here and elsewhere - maybe just "assert" the file exists? 
-          cat HelloWorldContract.approval.teal
 
-      # TODO: move this stuff to CD job
-      - name: Adjust artifacts directory for softprops/action-gh-release
-        if: ${{ runner.os == 'Windows' }}
-        shell: pwsh
-        run: |
-          $adjusted = '${{ env.ARTIFACTS_DIR }}' -replace '\\','/'
-          echo "ARTIFACTS_DIR=$adjusted" >> $env:GITHUB_ENV
+          if [ -f HelloWorldContract.approval.teal ]; then
+            cat HelloWorldContract.approval.teal
+          else
+            echo "File HelloWorldContract.approval.teal does not exist" >&2
+            exit 1
+          fi
 
-      - name: Append artifacts to release
-        if: ${{ inputs.production_release }}
-        uses: softprops/action-gh-release@v1
+      # Upload binary artifacts for the CD workflow to handle
+      - name: Upload binary artifacts
+        uses: actions/upload-artifact@v4
         with:
-          fail_on_unmatched_files: true
-          files: |
-            ${{ env.ARTIFACTS_DIR }}/*.*
-          tag_name: ${{ format('v{0}', inputs.release_version) }}
-          prerelease: ${{ contains(inputs.release_version, 'beta') }}
+          name: binary-artifacts-${{ runner.os }}-${{ runner.arch }}
+          if-no-files-found: error
+          path: ${{ env.ARTIFACTS_DIR }}/*.*
 
   test-linux-compatibility:
     needs: build-binaries
