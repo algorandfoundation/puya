@@ -235,6 +235,16 @@ class OpFactory:
         )
         return result
 
+    def bitlen(self, value: Value, temp_desc: str) -> Register:
+        result = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.bitlen,
+            args=[value],
+            source_location=self.source_location,
+        )
+        return result
+
     def btoi(self, value: Value, temp_desc: str) -> Register:
         result = assign_intrinsic_op(
             self.context,

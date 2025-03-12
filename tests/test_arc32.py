@@ -1633,6 +1633,26 @@ def test_named_tuples(
     )
 
 
+def test_uint_overflow(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+    app_client = algokit_utils.ApplicationClient(
+        algod_client,
+        algokit_utils.ApplicationSpecification.from_json(
+            compile_arc32(TEST_CASES_DIR / "arc4_types", file_name="uint_overflow.py")
+        ),
+        signer=account,
+    )
+    app_client.create()
+
+    with pytest.raises(LogicError, match="overflow\t\t<-- Error"):
+        app_client.call("test_uint8")
+
+    with pytest.raises(LogicError, match="overflow\t\t<-- Error"):
+        app_client.call("test_uint16")
+
+    with pytest.raises(LogicError, match="overflow\t\t<-- Error"):
+        app_client.call("test_uint32")
+
+
 def test_group_side_effects(
     algod_client: AlgodClient,
     account: algokit_utils.Account,
