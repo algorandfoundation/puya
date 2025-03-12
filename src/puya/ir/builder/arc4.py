@@ -1213,25 +1213,30 @@ def _get_arc4_array_tail_data_and_item_count(
 def _itob_fixed(
     context: IRFunctionBuildContext, value: Value, num_bytes: int, source_location: SourceLocation
 ) -> ValueProvider:
+    factory = OpFactory(context, source_location)
     if value.atype == AVMType.uint64:
-        val_as_bytes = assign_temp(
-            context,
-            temp_description="val_as_bytes",
-            source=Intrinsic(op=AVMOp.itob, args=[value], source_location=source_location),
-            source_location=source_location,
-        )
+        val_as_bytes = factory.itob(value, "val_as_bytes")
 
         if num_bytes == 8:
             return val_as_bytes
         if num_bytes < 8:
-            return Intrinsic(
-                op=AVMOp.extract,
-                immediates=[8 - num_bytes, num_bytes],
-                args=[val_as_bytes],
-                source_location=source_location,
+            bit_len = factory.bitlen(val_as_bytes, "bitlen")
+            no_overflow = factory.lte(bit_len, num_bytes * 8, "no_overflow")
+            context.block_builder.add(
+                Intrinsic(
+                    op=AVMOp.assert_,
+                    args=[no_overflow],
+                    source_location=source_location,
+                    error_message="overflow",
+                )
             )
+            return factory.extract3(val_as_bytes, 8 - num_bytes, num_bytes, f"uint{num_bytes*8}")
         bytes_value: Value = val_as_bytes
     else:
+        # note this excludes values that are valid when interpreted as big-endian values but may
+        #      exceed the bytes size due to leading zero bytes
+        #      however it would be less efficient to do both a pad and truncate to support that
+        #      case
         len_ = assign_temp(
             context,
             temp_description="len_",

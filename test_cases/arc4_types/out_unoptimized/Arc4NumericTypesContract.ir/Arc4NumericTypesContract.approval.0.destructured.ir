@@ -1,7 +1,11 @@
 main test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program:
     block@0: // L30
         let val_as_bytes%0#0: bytes[8] = (itob 255u)
-        let int8_encoded#0: bytes[1] = ((extract 7 1) val_as_bytes%0#0)
+        let bitlen%0#0: uint64 = (bitlen val_as_bytes%0#0)
+        let no_overflow%0#0: bool = (<= bitlen%0#0 8u)
+        (assert no_overflow%0#0) // overflow
+        let uint8%0#0: bytes = (extract3 val_as_bytes%0#0 7u 1u)
+        let int8_encoded#0: bytes[1] = uint8%0#0
         let int8_decoded#0: uint64 = (btoi int8_encoded#0)
         let tmp%0#0: bool = (== 255u int8_decoded#0)
         (assert tmp%0#0)
@@ -91,8 +95,8 @@ main test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program:
         (assert tmp%40#0)
         let to_encode%0#0: biguint = (b+ 1b 1b)
         let len_%0#0: uint64 = (len to_encode%0#0)
-        let no_overflow%0#0: bool = (<= len_%0#0 16u)
-        (assert no_overflow%0#0) // overflow
+        let no_overflow%1#0: bool = (<= len_%0#0 16u)
+        (assert no_overflow%1#0) // overflow
         let b_zeros%0#0: bytes = (bzero 16u)
         let arc4_biguint_dynamic#0: bytes[16] = (b| to_encode%0#0 b_zeros%0#0)
         let tmp%41#0: bool = (b== 1b 0x00000000000000000000000000000001)
