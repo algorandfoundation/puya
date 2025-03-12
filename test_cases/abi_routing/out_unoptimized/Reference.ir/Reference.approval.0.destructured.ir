@@ -33,8 +33,11 @@ subroutine test_cases.abi_routing.contract.Reference.noop_with_uint64(a: bytes[8
         let tmp%0#0: uint64 = (btoi a#0)
         let result#0: uint64 = (+ 1u tmp%0#0)
         let val_as_bytes%0#0: bytes[8] = (itob result#0)
-        let tmp%1#0: bytes = ((extract 7 1) val_as_bytes%0#0)
-        return tmp%1#0
+        let bitlen%0#0: uint64 = (bitlen val_as_bytes%0#0)
+        let no_overflow%0#0: bool = (<= bitlen%0#0 8u)
+        (assert no_overflow%0#0) // overflow
+        let uint8%0#0: bytes = (extract3 val_as_bytes%0#0 7u 1u)
+        return uint8%0#0
 
 subroutine test_cases.abi_routing.contract.Reference.opt_in(uint: uint64, bites: bytes) -> void:
     block@0: // L45
@@ -49,16 +52,22 @@ subroutine test_cases.abi_routing.contract.Reference.full_abi_config(a: bytes[8]
         let tmp%0#0: uint64 = (btoi a#0)
         let result#0: uint64 = (+ 1u tmp%0#0)
         let val_as_bytes%0#0: bytes[8] = (itob result#0)
-        let tmp%1#0: bytes = ((extract 7 1) val_as_bytes%0#0)
-        return tmp%1#0
+        let bitlen%0#0: uint64 = (bitlen val_as_bytes%0#0)
+        let no_overflow%0#0: bool = (<= bitlen%0#0 8u)
+        (assert no_overflow%0#0) // overflow
+        let uint8%0#0: bytes = (extract3 val_as_bytes%0#0 7u 1u)
+        return uint8%0#0
 
 subroutine test_cases.abi_routing.contract.Reference.mixed_oca(a: bytes[8]) -> bytes[1]:
     block@0: // L66
         let tmp%0#0: uint64 = (btoi a#0)
         let result#0: uint64 = (+ 1u tmp%0#0)
         let val_as_bytes%0#0: bytes[8] = (itob result#0)
-        let tmp%1#0: bytes = ((extract 7 1) val_as_bytes%0#0)
-        return tmp%1#0
+        let bitlen%0#0: uint64 = (bitlen val_as_bytes%0#0)
+        let no_overflow%0#0: bool = (<= bitlen%0#0 8u)
+        (assert no_overflow%0#0) // overflow
+        let uint8%0#0: bytes = (extract3 val_as_bytes%0#0 7u 1u)
+        return uint8%0#0
 
 subroutine test_cases.abi_routing.contract.Reference.bare_abi_config() -> void:
     block@0: // L79

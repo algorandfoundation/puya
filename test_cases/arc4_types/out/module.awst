@@ -1,3 +1,42 @@
+contract UIntOverflow
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint8(): void
+  {
+    too_big: arc4.uint8 = arc4_encode(txn<NumAppArgs>() + 256u, arc4.uint8)
+    assert(reinterpret_cast<bytes>(too_big) != hex<"01">, comment="this should not happen")
+  }
+  
+  abimethod test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint16(): void
+  {
+    too_big: arc4.uint16 = arc4_encode(txn<NumAppArgs>() + 65536u, arc4.uint16)
+    assert(reinterpret_cast<bytes>(too_big) != hex<"0001">, comment="this should not happen")
+  }
+  
+  abimethod test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint32(): void
+  {
+    too_big: arc4.uint32 = arc4_encode(txn<NumAppArgs>() + 4294967296u, arc4.uint32)
+    assert(reinterpret_cast<bytes>(too_big) != hex<"00000001">, comment="this should not happen")
+  }
+  
+  baremethod test_cases.arc4_types.uint_overflow.UIntOverflow.__algopy_default_create(): void
+  {
+  }
+}
+
 contract Arc4TuplesTypeContract
 {
   method_resolution_order: (
