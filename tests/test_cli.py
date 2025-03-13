@@ -164,7 +164,7 @@ def test_puya_output(hello_world_awst_json: Path, output_option: str) -> None:
             compilation_set={"examples.hello_world_arc4.contract.HelloWorldContract": out_dir},
         )
         converter = make_converter()
-        options_json.write_text(converter.dumps(options))
+        options_json.write_text(converter.dumps(options), encoding="utf8")
         assert not out_dir.exists(), "precondition, out dir does not yet exist"
         run_puya(
             ["--awst", hello_world_awst_json, "--options", options_json, "--log-level", "debug"]

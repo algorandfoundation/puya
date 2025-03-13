@@ -262,7 +262,7 @@ def checked_compile(p: Path, flags: list[str], *, out_suffix: str) -> Compilatio
 
 
 def _normalize_arc56(path: Path) -> None:
-    arc56 = json.loads(path.read_text())
+    arc56 = json.loads(path.read_text(encoding="utf8"))
     compiler_version = arc56.get("compilerInfo", {}).get("compilerVersion", {})
     compiler_version["major"] = 99
     compiler_version["minor"] = 99
@@ -376,7 +376,7 @@ def _run(options: CompileAllOptions) -> None:
             for o, size in sizes.items():
                 merged.sizes[program][o] = size
         program_sizes = merged
-    SIZE_TALLY_PATH.write_text(str(program_sizes))
+    SIZE_TALLY_PATH.write_text(str(program_sizes), encoding="utf8")
     sys.exit(len(failures))
 
 

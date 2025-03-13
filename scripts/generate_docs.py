@@ -80,7 +80,7 @@ def output_combined_stub(stubs: "DocStub", output: Path) -> None:
 
     # output and linting
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text("\n".join(lines))
+    output.write_text("\n".join(lines), encoding="utf8")
 
     subprocess.run(["ruff", "format", str(output)], check=True, cwd=VCS_ROOT)
     subprocess.run(["ruff", "check", "--fix", str(output)], check=True, cwd=VCS_ROOT)

@@ -146,7 +146,7 @@ def _remove_output(path: Path) -> None:
 
 
 def _normalize_arc56(path: Path) -> None:
-    arc56 = json.loads(path.read_text())
+    arc56 = json.loads(path.read_text(encoding="utf8"))
     compiler_version = arc56.get("compilerInfo", {}).get("compilerVersion", {})
     compiler_version["major"] = 99
     compiler_version["minor"] = 99
