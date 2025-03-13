@@ -32,26 +32,18 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Install poetry
-      shell: bash
-      run: pipx install poetry
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Setup Python venv
+      uses: ./.github/actions/setup-python-venv
       with:
-        python-version: ${{ inputs.python_version }}
-        cache: "poetry"
-
-    - name: Install dependencies
-      shell: bash
-      run: poetry install --no-interaction --without=dev --with=cicd
+        python_version: ${{ inputs.python_version }}
+        poetry_install_args: "--without=dev --with=cicd"
 
     - name: Build binary
       shell: bash
       run: |
         export APPLE_CERT_ID="${{ inputs.with_codesign == 'true' && inputs.apple_cert_id || '' }}"
         export APPLE_BUNDLE_ID="${{ inputs.with_codesign == 'true' && inputs.apple_bundle_id || format('beta.{0}', inputs.apple_bundle_id) }}"
-        CMD="poetry run pyinstaller --clean --onedir --name puya --noconfirm src/puya/__main__.py --add-data './src/puya/ir/_puya_lib.awst.json:puya/ir/' --exclude-module colorama --exclude-module mypy_extensions --optimize=2"
+        CMD="pyinstaller --clean --onedir --name puya --noconfirm src/puya/__main__.py --add-data './src/puya/ir/_puya_lib.awst.json:puya/ir/' --exclude-module colorama --exclude-module mypy_extensions --optimize=2"
         if [ ! -z "$APPLE_BUNDLE_ID" ]; then
             CMD="$CMD --osx-bundle-identifier \"$APPLE_BUNDLE_ID\""
         fi
