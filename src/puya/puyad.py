@@ -209,7 +209,7 @@ def create_server(thread_count: int = 4) -> JsonRPCServer:
                             )
                         )
                         return True
-                        
+
                     # Process the compilation directly
                     awst_to_teal(
                         log_ctx,
