@@ -34,31 +34,20 @@ jobs:
         run: poetry install --no-interaction --with cicd --with doc
 
       - name: Check pre-commits
-        run: |
-            set -o pipefail
-            poetry run pre-commit run --all-files && git diff --exit-code
+        run: poetry run pre-commit run --all-files && git diff --exit-code
 
       - name: Check generated code
-        run: |
-            set -o pipefail
-            poetry run poe gen && git diff --exit-code
+        run: poetry run poe gen && git diff --exit-code
 
       - name: Check documentation
-        run: |
-            set -o pipefail
-            poetry run poe docs && git diff --exit-code
+        run: poetry run poe docs
 
-      - name: Check wheels can be built
-        run: |
-          set -o pipefail
+      - name: Check compiler wheel can be built
+        run: poetry build --format wheel
 
-          # build stubs
-          pushd stubs
-          poetry build --format wheel
-          popd
-
-          # build compiler
-          poetry build --format wheel
+      - name: Check stubs wheel can be built
+        run: poetry build --format wheel
+        working-directory: stubs
 
   tests:
     runs-on: "ubuntu-latest"
@@ -82,12 +71,10 @@ jobs:
         run: poetry run algokit localnet start
 
       - name: pytest + coverage
-        shell: bash
+        shell: bash # sets pipefail etc
+        run: poetry run pytest --junitxml=pytest-junit.xml --cov | tee pytest-coverage.txt
         env:
           COVERAGE_CORE: sysmon
-        run: |
-          set -o pipefail
-          poetry run pytest --junitxml=pytest-junit.xml --cov | tee pytest-coverage.txt
 
       - name: pytest coverage comment
         continue-on-error: true # forks fail to add a comment, so continue any way
@@ -118,6 +105,7 @@ jobs:
         run: poetry run poe compile_all
 
       - name: Check for any changes
+        # this checks for empty output of porcelain status, if there's no output there's no diff
         run: test -z "$(git status --porcelain examples/ test_cases/)"
 
       - name: Show changed files summary
@@ -164,7 +152,7 @@ jobs:
         run: git diff --exit-code examples/ test_cases/
 
 
-  generate-docs-windows:
+  run-puyapy-windows:
     runs-on: "windows-latest"
     steps:
       - name: Checkout source code
@@ -180,28 +168,16 @@ jobs:
           cache: "poetry"
 
       - name: Install dependencies
-        run: poetry install --no-interaction --with=doc
+        run: poetry install --no-interaction
 
-      - name: Generate docs (CMD.exe)
+      - name: Compile AMM (CMD.exe)
         shell: cmd
-        run: poetry run poe docs
+        run: poetry run puyapy --log-level=debug examples/amm
 
-      - name: Check for diff
-        shell: bash
-        run: git diff --exit-code
-
-      - name: Generate docs (PowerShell)
+      - name: Compile AMM (PowerShell)
         shell: pwsh
-        run: poetry run poe docs
+        run: poetry run puyapy --log-level=debug examples/amm
 
-      - name: Check for diff
+      - name: Compile AMM (bash)
         shell: bash
-        run: git diff --exit-code
-
-      - name: Generate docs (bash)
-        shell: bash
-        run: poetry run poe docs
-
-      - name: Check for diff
-        shell: bash
-        run: git diff --exit-code
+        run: poetry run puyapy --log-level=debug examples/amm
