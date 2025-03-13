@@ -10,6 +10,12 @@ inputs:
   with_codesign:
     description: "Flag to determine if we should sign the binary"
     required: true
+  cert_data:
+    description: "Apple Developer ID certificate data"
+    required: true
+  cert_password:
+    description: "Apple Developer ID certificate password"
+    required: true
   apple_team_id:
     description: "The Apple Team ID"
     required: true
@@ -32,6 +38,36 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Install Apple Developer ID Cert
+      if: ${{ inputs.with_codesign == 'true' }}
+      shell: bash
+      run: |
+        # Export certs
+        echo "${{ inputs.cert_data }}" | base64 --decode > /tmp/certs.p12
+
+        # Create keychain
+        security create-keychain -p actions macos-build.keychain
+        security default-keychain -s macos-build.keychain
+        security unlock-keychain -p actions macos-build.keychain
+        security set-keychain-settings -t 3600 -u macos-build.keychain
+        echo "Keychain created"
+
+        # Import certs to keychain
+        security import /tmp/certs.p12 \
+          -k ~/Library/Keychains/macos-build.keychain \
+          -P "${{ inputs.cert_password }}" \
+          -T /usr/bin/codesign \
+          -T /usr/bin/productsign
+        echo "Cert imported"
+
+        # Key signing
+        security set-key-partition-list -S apple-tool:,apple: -s -k actions macos-build.keychain
+        echo "Key signed"
+
+        # Delete temp file
+        rm /tmp/certs.p12
+        echo "Done"      
+
     - name: Setup Python venv
       uses: ./.github/actions/setup-python-venv
       with:

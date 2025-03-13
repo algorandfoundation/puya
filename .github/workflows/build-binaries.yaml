@@ -113,13 +113,6 @@ jobs:
           azure_client_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.AZURE_CLIENT_ID || '' }}
           azure_client_secret: ${{ steps.signing.outputs.allowed == 'true' && secrets.AZURE_CLIENT_SECRET || '' }}
 
-      - name: Install Apple Developer Id Cert
-        if: ${{ runner.os == 'macOS' && steps.signing.outputs.allowed == 'true' }}
-        uses: ./.github/actions/install-apple-dev-id-cert
-        with:
-          cert_data: ${{ secrets.APPLE_CERT_DATA }}
-          cert_password: ${{ secrets.APPLE_CERT_PASSWORD }}
-
       - name: Build macOS binary
         if: ${{ runner.os == 'macOS' }}
         uses: ./.github/actions/build-binaries/macos
@@ -128,6 +121,8 @@ jobs:
           package_name: ${{ env.PACKAGE_NAME }}
           artifacts_dir: ${{ env.ARTIFACTS_DIR }}
           with_codesign: ${{ steps.signing.outputs.allowed == 'true' }}
+          cert_data: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_CERT_DATA || '' }}
+          cert_password: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_CERT_PASSWORD || '' }}
           apple_team_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_TEAM_ID || '' }}
           apple_bundle_id: ${{ inputs.production_release && secrets.APPLE_BUNDLE_ID || format('beta.{0}', secrets.APPLE_BUNDLE_ID) }}
           apple_cert_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_CERT_ID || '' }}
