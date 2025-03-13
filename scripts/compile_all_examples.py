@@ -16,6 +16,8 @@ import algokit_utils.deploy
 import attrs
 import prettytable
 
+from puya.log import configure_stdio
+
 SCRIPT_DIR = Path(__file__).parent
 GIT_ROOT = SCRIPT_DIR.parent
 CONTRACT_ROOT_DIRS = [
@@ -25,7 +27,6 @@ CONTRACT_ROOT_DIRS = [
 SIZE_TALLY_PATH = GIT_ROOT / "examples" / "sizes.txt"
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
-    "PYTHONUTF8": "1",  # force utf8 on windows
 }
 # iterate optimization levels first and with O1 first and then cases, this is a workaround
 # to prevent race conditions that occur when the mypy parsing stage of O0, O2 tries to
@@ -261,7 +262,7 @@ def checked_compile(p: Path, flags: list[str], *, out_suffix: str) -> Compilatio
 
 
 def _normalize_arc56(path: Path) -> None:
-    arc56 = json.loads(path.read_text())
+    arc56 = json.loads(path.read_text(encoding="utf8"))
     compiler_version = arc56.get("compilerInfo", {}).get("compilerVersion", {})
     compiler_version["major"] = 99
     compiler_version["minor"] = 99
@@ -322,7 +323,7 @@ class CompileAllOptions:
     optimization_level: list[int] = attrs.field(factory=list)
 
 
-def main(options: CompileAllOptions) -> None:
+def _run(options: CompileAllOptions) -> None:
     limit_to = options.limit_to
     if limit_to:
         to_compile = [Path(x).resolve() for x in limit_to]
@@ -375,11 +376,12 @@ def main(options: CompileAllOptions) -> None:
             for o, size in sizes.items():
                 merged.sizes[program][o] = size
         program_sizes = merged
-    SIZE_TALLY_PATH.write_text(str(program_sizes))
+    SIZE_TALLY_PATH.write_text(str(program_sizes), encoding="utf8")
     sys.exit(len(failures))
 
 
-if __name__ == "__main__":
+def main() -> None:
+    configure_stdio()
     parser = argparse.ArgumentParser()
     parser.add_argument("limit_to", type=Path, nargs="*", metavar="LIMIT_TO")
     parser.add_argument(
@@ -393,4 +395,8 @@ if __name__ == "__main__":
     )
     options = CompileAllOptions()
     parser.parse_args(namespace=options)
-    main(options)
+    _run(options)
+
+
+if __name__ == "__main__":
+    main()

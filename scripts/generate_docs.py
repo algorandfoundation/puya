@@ -5,6 +5,8 @@ import typing
 from collections.abc import Callable
 from pathlib import Path
 
+from puya.log import configure_stdio
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "src" / "puyapy" / "_vendor"))
 
 
@@ -32,6 +34,7 @@ class ModuleImports:
 
 
 def main() -> None:
+    configure_stdio()
     manager, _ = parse_and_typecheck([STUBS_DIR], get_mypy_options())
     output_doc_stubs(manager)
     run_sphinx()
@@ -77,7 +80,7 @@ def output_combined_stub(stubs: "DocStub", output: Path) -> None:
 
     # output and linting
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text("\n".join(lines))
+    output.write_text("\n".join(lines), encoding="utf8")
 
     subprocess.run(["ruff", "format", str(output)], check=True, cwd=VCS_ROOT)
     subprocess.run(["ruff", "check", "--fix", str(output)], check=True, cwd=VCS_ROOT)

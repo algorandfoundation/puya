@@ -67,7 +67,7 @@ def awst_to_ir(context: CompileContext, awst: awst_nodes.AWST) -> Iterator[Modul
 
 
 def _build_subroutines(ctx: CompileContext, awst: awst_nodes.AWST) -> IRBuildContext:
-    embedded_awst = awst_from_json(_EMBEDDED_LIB.read_text())
+    embedded_awst = awst_from_json(_EMBEDDED_LIB.read_text(encoding="utf8"))
     embedded_subroutines = {
         node: make_subroutine(node, allow_implicits=False)
         for node in embedded_awst

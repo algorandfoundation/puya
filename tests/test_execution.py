@@ -380,7 +380,7 @@ class ATCRunner:
                     ", ".join(map(str, stack)),
                 ]
             )
-        output_path.write_text(writer.get_string())
+        output_path.write_text(writer.get_string(), encoding="utf8")
 
 
 @attrs.define

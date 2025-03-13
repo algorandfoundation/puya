@@ -15,20 +15,13 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Install poetry
-        run: pipx install poetry
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+      - name: Setup Python venv
+        uses: ./.github/actions/setup-python-venv
         with:
-          python-version: "3.12"
-          cache: "poetry"
-
-      - name: Install dependencies
-        run: poetry install --no-interaction --with doc
+          poetry_install_args: "--with doc"
 
       - name: Build doc
-        run: poetry run poe docs
+        run: poe docs
 
       - name: Upload to GitHub pages
         uses: actions/upload-pages-artifact@v3

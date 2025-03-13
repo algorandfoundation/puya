@@ -179,7 +179,7 @@ def test_txn_fields(builtins_registry: Mapping[str, pytypes.PyType]) -> None:
 
 def test_mismatched_langspec_txn_fields() -> None:
     langspec_path = VCS_ROOT / "langspec.puya.json"
-    langspec = json.loads(langspec_path.read_text())
+    langspec = json.loads(langspec_path.read_text(encoding="utf8"))
     arg_enums = langspec["arg_enums"]
     all_txn_fields = {field["name"] for field in arg_enums["txn"]}
     txn_array_fields = {field["name"] for field in arg_enums["txna"]}

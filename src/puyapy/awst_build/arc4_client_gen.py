@@ -25,7 +25,7 @@ def write_arc4_client(contract: arc56.Contract, out_dir: Path) -> None:
     if _can_overwrite_auto_generated_file(stub_path):
         logger.info(f"writing {make_path_relative_to_cwd(stub_path)}")
         stub_text = _ClientGenerator.generate(contract)
-        stub_path.write_text(stub_text)
+        stub_path.write_text(stub_text, encoding="utf8")
     else:
         logger.error(
             f"Not outputting {make_path_relative_to_cwd(stub_path)} "
@@ -34,7 +34,7 @@ def write_arc4_client(contract: arc56.Contract, out_dir: Path) -> None:
 
 
 def _can_overwrite_auto_generated_file(path: Path) -> bool:
-    return not path.exists() or path.read_text().startswith(_AUTO_GENERATED_COMMENT)
+    return not path.exists() or path.read_text(encoding="utf8").startswith(_AUTO_GENERATED_COMMENT)
 
 
 class _ClientGenerator:

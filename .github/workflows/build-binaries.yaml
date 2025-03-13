@@ -1,0 +1,226 @@
+name: Build, Test and Publish Pyinstaller Binaries
+
+on:
+  workflow_call:
+    inputs:
+      production_release:
+        required: true
+        type: boolean
+        default: false
+      python_version:
+        required: false
+        type: string
+        default: "3.12"
+      version_tag:
+        required: true
+        type: string
+      version_number:
+        required: true
+        type: string
+jobs:
+  generate-smoke-test-inputs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version_tag }}
+
+      - name: Setup Python venv
+        uses: ./.github/actions/setup-python-venv
+        with:
+          python_version: ${{ inputs.python_version }}
+
+      - name: Generate input data
+        shell: bash
+        run: |
+          puyapy --output-awst-json examples/hello_world_arc4
+          echo '{"compilation_set":{"examples.hello_world_arc4.contract.HelloWorldContract": "."}, "output_teal": true}' > options.json
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-smoke-test-inputs
+          if-no-files-found: error
+          path: |
+            module.awst.json
+            options.json
+
+  build-binaries-and-smoke-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false # Continue with other matrix jobs even if one fails
+      matrix:
+        # macos-14 is the Apple Silicon M1 runner (mac os 14)
+        # macos-13 is the last available Intel Mac runner (mac os 13)
+        # See https://github.com/actions/runner-images?tab=readme-ov-file#available-images
+        os: [ubuntu-22.04, ubuntu-22.04-arm, windows-latest, macos-13, macos-14]
+    outputs:
+      package-prefix: ${{ steps.configure.outputs.package_prefix }}
+
+    steps:
+      - name: Set signing condition
+        id: signing
+        shell: bash
+        run: |
+          # Allow signing on main branch non-PR events (regardless of production_release value)
+          if [[ "${{ github.event_name }}" != "pull_request" && \
+                "${{ github.ref_name }}" == "main" ]]; then
+            echo "allowed=true" >> $GITHUB_OUTPUT
+          else
+            echo "allowed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version_tag }}
+
+      - name: Configure build environment
+        id: configure
+        shell: bash
+        run: |
+          artifacts_dir="${{ github.workspace }}/dist/artifacts"
+          mkdir -p $artifacts_dir
+          package_prefix="puya-${{ inputs.version_number }}"
+          echo "package_prefix=${package_prefix}" >> "$GITHUB_OUTPUT"
+          package_name="${package_prefix}-${{ runner.os }}_${{ runner.arch }}"
+          echo "PACKAGE_NAME=`echo $package_name | tr '[:upper:]' '[:lower:]'`" >> $GITHUB_ENV
+          echo "ARTIFACTS_DIR=${artifacts_dir}" >> $GITHUB_ENV
+
+      - name: Build linux binary
+        if: ${{ runner.os == 'Linux' }}
+        uses: ./.github/actions/build-binaries/linux
+        with:
+          python_version: ${{ inputs.python_version }}
+          package_name: ${{ env.PACKAGE_NAME }}
+          artifacts_dir: ${{ env.ARTIFACTS_DIR }}
+          with_codesign: ${{ steps.signing.outputs.allowed == 'true' }}
+          gpg_signing_private_key: ${{ steps.signing.outputs.allowed == 'true' && secrets.GPG_SIGNING_PRIVATE_KEY || '' }}
+          gpg_signing_private_key_password: ${{ steps.signing.outputs.allowed == 'true' && secrets.GPG_SIGNING_PRIVATE_KEY_PASSWORD || '' }}
+          gpg_key_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.GPG_KEY_ID || '' }}
+
+      - name: Build windows binary
+        if: ${{ runner.os == 'Windows' }}
+        uses: ./.github/actions/build-binaries/windows
+        with:
+          python_version: ${{ inputs.python_version }}
+          package_name: ${{ env.PACKAGE_NAME }}
+          artifacts_dir: ${{ env.ARTIFACTS_DIR }}
+          with_codesign: ${{ steps.signing.outputs.allowed == 'true' }}
+          azure_tenant_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.AZURE_TENANT_ID || '' }}
+          azure_client_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.AZURE_CLIENT_ID || '' }}
+          azure_client_secret: ${{ steps.signing.outputs.allowed == 'true' && secrets.AZURE_CLIENT_SECRET || '' }}
+
+      - name: Build macOS binary
+        if: ${{ runner.os == 'macOS' }}
+        uses: ./.github/actions/build-binaries/macos
+        with:
+          python_version: ${{ inputs.python_version }}
+          package_name: ${{ env.PACKAGE_NAME }}
+          artifacts_dir: ${{ env.ARTIFACTS_DIR }}
+          with_codesign: ${{ steps.signing.outputs.allowed == 'true' }}
+          cert_data: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_CERT_DATA || '' }}
+          cert_password: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_CERT_PASSWORD || '' }}
+          apple_team_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_TEAM_ID || '' }}
+          apple_bundle_id: ${{ inputs.production_release && secrets.APPLE_BUNDLE_ID || format('beta.{0}', secrets.APPLE_BUNDLE_ID) }}
+          apple_cert_id: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_CERT_ID || '' }}
+          apple_notary_user: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_NOTARY_USER || '' }}
+          apple_notary_password: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_NOTARY_PASSWORD || '' }}
+
+      # Upload binary artifacts for the CD workflow to handle
+      - name: Upload binary artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-artifacts-${{ runner.os }}-${{ runner.arch }}
+          if-no-files-found: error
+          path: ${{ env.ARTIFACTS_DIR }}/*.*
+
+      - name: Download smoke test data
+        uses: actions/download-artifact@v4
+        with:
+          name: binary-smoke-test-inputs
+
+      - name: Binary smoke test
+        shell: bash
+        run: |
+          # Run a basic test to verify the binary works
+          ./dist/puya/puya --version
+
+          # Run the binary tests
+          ./dist/puya/puya --log-level=debug --options options.json --awst module.awst.json 
+
+          if [ ! -f *.teal ]; then
+            echo "Compiler exited without outputting TEAL" >&2
+            exit 1
+          fi
+
+  manylinux-docker-smoke-tests:
+    needs: build-binaries-and-smoke-test
+    runs-on: ${{ matrix.arch.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        arch:
+          - { runner: "ubuntu-22.04", name: "amd64", identifier: "linux_x64" }
+          - { runner: "ubuntu-22.04-arm", name: "arm64", identifier: "linux_arm64" }
+        distro:
+          # Debian family (glibc 2.28+)
+          - { name: "Debian 10", image: "debian:10" }
+          - { name: "Debian 11", image: "debian:11" }
+          - { name: "Debian 12", image: "debian:12" }
+          # Ubuntu family (glibc 2.31+)
+          - { name: "Ubuntu 20.04", image: "ubuntu:20.04" }
+          - { name: "Ubuntu 22.04", image: "ubuntu:22.04" }
+          - { name: "Ubuntu 24.04", image: "ubuntu:24.04" }
+          # Fedora family (glibc 2.28+)
+          - { name: "Fedora 38", image: "fedora:38" }
+          - { name: "Fedora 39", image: "fedora:39" }
+          - { name: "Fedora 40", image: "fedora:40" }
+          # RHEL family (glibc 2.28+)
+          - { name: "CentOS Stream 8", image: "quay.io/centos/centos:stream8" }
+          - { name: "CentOS Stream 9", image: "quay.io/centos/centos:stream9" }
+
+    steps:
+      - name: Configure package name
+        shell: bash
+        run: |
+          package_name="${{ needs.build-binaries-and-smoke-test.outputs.package-prefix }}-${{ matrix.arch.identifier }}"
+          echo "PACKAGE_NAME=${package_name}" >> $GITHUB_ENV
+
+      - name: Download smoke test data
+        uses: actions/download-artifact@v4
+        with:
+          name: binary-smoke-test-inputs
+
+      - name: Download binary artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PACKAGE_NAME }}
+
+      - name: Run portability tests on ${{ matrix.distro.name }} (${{ matrix.arch.name }})
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            --platform linux/${{ matrix.arch.name }} \
+            --env PACKAGE_NAME=${{ env.PACKAGE_NAME }} \
+            ${{ matrix.distro.image }} \
+            bash -c -e '
+              # Print glibc version
+              ldd --version
+          
+              # extract the binary
+              cd /workspace
+              tar -xzf ${PACKAGE_NAME}.tar.gz               
+    
+              # Run a basic test to verify the binary works
+              ./puya --version
+              
+              # Run the binary tests
+              ./puya --options options.json --awst module.awst.json 
+              
+              if [ ! -f *.teal ]; then
+                echo "Compiler exited without outputting TEAL" >&2
+                exit 1
+              fi          
+            '

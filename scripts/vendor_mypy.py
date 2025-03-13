@@ -50,7 +50,7 @@ def vendor_mypy(version: str) -> None:
 
         print(f"Copying mypy into {mypy_vendor}...")
         shutil.copytree(Path(tmp_dir) / "mypy", mypy_vendor)
-        (mypy_vendor / ".version").write_text(f"{version}: {git_hash}")
+        (mypy_vendor / ".version").write_text(f"{version}: {git_hash}", encoding="utf8")
     print("Updating custom typeshed")
     update_puya_typeshed(mypy_vendor / "typeshed", puya_src_dir / "_typeshed")
 
@@ -89,7 +89,7 @@ def update_puya_typeshed(mypy_typeshed: Path, puya_typeshed: Path) -> None:
             copy_dst.parent.mkdir(exist_ok=True, parents=True)
             shutil.copy(copy_src, copy_dst)
     (puya_typeshed / stdlib / "collections" / "__init__.pyi").touch()
-    (puya_typeshed / "README.md").write_text(TYPESHED_README)
+    (puya_typeshed / "README.md").write_text(TYPESHED_README, encoding="utf8")
 
 
 if __name__ == "__main__":

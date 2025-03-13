@@ -152,73 +152,70 @@ def parse_file(path: Path) -> tuple[list[str], list[TestCase]]:
     preamble = list[str]()
     cases = list[TestCase]()
     seen_case_names = set[str]()
-    with path.open() as file:
-        current_case: TestCase | None = None
-        lines = file.read().splitlines()
-        src_line = 0  # original line number in .test file ignoring continuations
-        line_num = 0  # logical line number (does not increment when continuations are present)
-        current_line_collector: list[str] = preamble
-        while lines:
-            src_line += 1
-            line_num += 1
-            line = lines.pop(0)
-            if case_name := line_matches_prefix(line, CASE_PREFIX):
-                # new case
-                case_name = get_unique_name(case_name, seen_case_names)
-                current_case = TestCase(name=case_name, src_line=src_line)
-                cases.append(current_case)
-                current_line_collector = current_case.current_file.body
-            elif case_path := line_matches_prefix(line, PATH_PREFIX):
-                if not current_case:
-                    raise ValueError(
-                        f"Path encountered before a case is defined {path}:{line_num}"
-                    )
-                # create a new file if current_file already has content or path is already defined
-                if current_case.current_file.body or current_case.current_file.path:
-                    current_case.add_new_file()
-                assert current_case.current_file.path is None
-                current_case.current_file.path = Path(case_path)
-                current_line_collector = current_case.current_file.body
-            elif template := line_matches_prefix(line, TEMPLATE_PREFIX):
-                if not current_case:
-                    raise ValueError(
-                        f"Template encountered before a case is defined {path}:{line_num}"
-                    )
-                template_var_name, template_var_value = parse_template_key_value(template)
-                current_case.template_vars[template_var_name] = template_var_value
-            elif maybe_collecting_output_for := line_matches_prefix(line, EXPECTED_PREFIX):
-                if not current_case:
-                    raise ValueError(
-                        f"Expected encountered before a case is defined {path}:{line_num}"
-                    )
-                match maybe_collecting_output_for:
-                    case "awst":
-                        current_line_collector = []
-                        current_case.current_file.expected_awst = current_line_collector
-                    case _:
-                        raise ValueError(f"Unrecognized expected type {path}:{line_num}")
-            else:
-                current_line_collector.append(line)
-                if current_case:
-                    current_file = current_case.current_file
+    lines = path.read_text(encoding="utf8").splitlines()
+    current_case: TestCase | None = None
+    src_line = 0  # original line number in .test file ignoring continuations
+    line_num = 0  # logical line number (does not increment when continuations are present)
+    current_line_collector: list[str] = preamble
+    while lines:
+        src_line += 1
+        line_num += 1
+        line = lines.pop(0)
+        if case_name := line_matches_prefix(line, CASE_PREFIX):
+            # new case
+            case_name = get_unique_name(case_name, seen_case_names)
+            current_case = TestCase(name=case_name, src_line=src_line)
+            cases.append(current_case)
+            current_line_collector = current_case.current_file.body
+        elif case_path := line_matches_prefix(line, PATH_PREFIX):
+            if not current_case:
+                raise ValueError(f"Path encountered before a case is defined {path}:{line_num}")
+            # create a new file if current_file already has content or path is already defined
+            if current_case.current_file.body or current_case.current_file.path:
+                current_case.add_new_file()
+            assert current_case.current_file.path is None
+            current_case.current_file.path = Path(case_path)
+            current_line_collector = current_case.current_file.body
+        elif template := line_matches_prefix(line, TEMPLATE_PREFIX):
+            if not current_case:
+                raise ValueError(
+                    f"Template encountered before a case is defined {path}:{line_num}"
+                )
+            template_var_name, template_var_value = parse_template_key_value(template)
+            current_case.template_vars[template_var_name] = template_var_value
+        elif maybe_collecting_output_for := line_matches_prefix(line, EXPECTED_PREFIX):
+            if not current_case:
+                raise ValueError(
+                    f"Expected encountered before a case is defined {path}:{line_num}"
+                )
+            match maybe_collecting_output_for:
+                case "awst":
+                    current_line_collector = []
+                    current_case.current_file.expected_awst = current_line_collector
+                case _:
+                    raise ValueError(f"Unrecognized expected type {path}:{line_num}")
+        else:
+            current_line_collector.append(line)
+            if current_case:
+                current_file = current_case.current_file
+                python, output = get_python_expected_output(line)
+                file_line_num = len(current_file.body)
+                current_file.expected_output.setdefault(file_line_num, []).extend(output)
+
+                while line.endswith(LINE_CONTINUATION):
+                    current_case.approved_case_source.append(line)
+                    line = lines.pop(0)
                     python, output = get_python_expected_output(line)
-                    file_line_num = len(current_file.body)
+
+                    if python.strip():
+                        raise ValueError(
+                            f"Unexpected python `{python}`, continuations only supported "
+                            f"for case comment assertions"
+                        )
                     current_file.expected_output.setdefault(file_line_num, []).extend(output)
 
-                    while line.endswith(LINE_CONTINUATION):
-                        current_case.approved_case_source.append(line)
-                        line = lines.pop(0)
-                        python, output = get_python_expected_output(line)
-
-                        if python.strip():
-                            raise ValueError(
-                                f"Unexpected python `{python}`, continuations only supported "
-                                f"for case comment assertions"
-                            )
-                        current_file.expected_output.setdefault(file_line_num, []).extend(output)
-
-            if current_case:
-                current_case.approved_case_source.append(line)
+        if current_case:
+            current_case.approved_case_source.append(line)
     return preamble, cases
 
 
@@ -286,7 +283,7 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
                 file_name = file.path or f"{get_python_file_name(case.name)}.py"
                 tmp_src = (case_dir / file_name).resolve()
                 tmp_src.parent.mkdir(parents=True, exist_ok=True)
-                tmp_src.write_text("\n".join(file.body))
+                tmp_src.write_text("\n".join(file.body), encoding="utf8")
                 srcs.append(tmp_src)
                 file.src_path = tmp_src
         puyapy_options = PuyaPyOptions(

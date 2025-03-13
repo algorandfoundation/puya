@@ -20,7 +20,6 @@ from tests.utils.git import check_for_diff
 
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
-    "PYTHONUTF8": "1",  # force utf8 on windows
 }
 SUFFIX_O0 = "_unoptimized"
 SUFFIX_O1 = ""
@@ -147,7 +146,7 @@ def _remove_output(path: Path) -> None:
 
 
 def _normalize_arc56(path: Path) -> None:
-    arc56 = json.loads(path.read_text())
+    arc56 = json.loads(path.read_text(encoding="utf8"))
     compiler_version = arc56.get("compilerInfo", {}).get("compilerVersion", {})
     compiler_version["major"] = 99
     compiler_version["minor"] = 99
