@@ -44,8 +44,9 @@ def cli() -> None:
     configure_logging(min_log_level=parsed_args.log_level, log_format=parsed_args.log_format)
 
     if parsed_args.daemon:
-        from puya.daemon_server import PuyaDaemonServer
-        PuyaDaemonServer().start()
+        from puya.puyad import main as puyad_main
+
+        puyad_main()
         return
 
     assert parsed_args.options

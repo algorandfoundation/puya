@@ -1,31 +1,36 @@
 #!/usr/bin/env python3
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import subprocess
 import json
-import time
-from typing import Dict, Optional, Any, Union
-import threading
 import queue
-import sys
 import re
+import subprocess
+import sys
+import threading
+import time
+from pathlib import Path
+from typing import Any
 
 # Import jsonrpcclient library
 try:
-    from jsonrpcclient import request, parse_json, Ok, Error
+    from jsonrpcclient import Error, Ok, parse_json, request
 except ImportError:
     print("Please install jsonrpcclient: pip install jsonrpcclient")
     import sys
+
     sys.exit(1)
 
-class PuyaDaemonClient:
-    """Client for communicating with Puya in daemon mode via JSON-RPC/LSP."""
-    
-    def __init__(self, python_executable: str = "python", 
-                 log_level: str = "info",
-                 log_format: str = "default",
-                 debug: bool = True):
-        """Initialize the Puya daemon client.
-        
+
+class PuyaClient:
+    """Client for communicating with the Puya daemon (puyad) via JSON-RPC."""
+
+    def __init__(
+        self,
+        python_executable: str = "python",
+        log_level: str = "info",
+        log_format: str = "default",
+        debug: bool = True,
+    ):
+        """Initialize the Puya client.
+
         Args:
             python_executable: Path to the Python executable.
             log_level: Log level to use.
@@ -44,25 +49,18 @@ class PuyaDaemonClient:
         self._buffer = ""  # Buffer for collecting partial messages
         self.request_id = 1  # Simple counter for request IDs
         self.debug = debug
-    
+
     def _debug_print(self, message: str) -> None:
         """Print debug message if debug is enabled."""
         if self.debug:
             print(f"DEBUG: {message}")
-    
+
     def start(self) -> None:
-        """Start the Puya daemon process."""
-        cmd = [
-            'poetry',
-            'run',
-            'puya',
-            '--daemon',
-            '--log-level', self.log_level,
-            '--log-format', self.log_format
-        ]
-        
+        """Start the Puya daemon (puyad) process."""
+        cmd = ["poetry", "run", "puyad"]
+
         print(f"Starting Puya daemon with command: {' '.join(cmd)}")
-        
+
         try:
             # Start the process
             self.process = subprocess.Popen(
@@ -71,41 +69,41 @@ class PuyaDaemonClient:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                bufsize=1  # Line buffered
+                bufsize=1,  # Line buffered
             )
-            
+
             self.is_running = True
-            
+
             # Start threads to read stdout and stderr
             self.stdout_thread = threading.Thread(target=self._read_stdout)
             self.stdout_thread.daemon = True
             self.stdout_thread.start()
-            
+
             self.stderr_thread = threading.Thread(target=self._read_stderr)
             self.stderr_thread.daemon = True
             self.stderr_thread.start()
-            
+
             # Wait a moment for the daemon to initialize
             time.sleep(1)
-            
+
             # Check if process is still running after initialization
             if self._check_process_running():
                 return  # Success - daemon is running
             else:
                 self._handle_startup_failure()
-                
+
         except Exception as e:
             print(f"Error starting daemon process: {e}")
             self.is_running = False
-    
+
     def _check_process_running(self) -> bool:
         """Check if the process is still running."""
         if not self.process:
             return False
-            
+
         # Check if process has terminated
         return self.process.poll() is None
-    
+
     def _handle_startup_failure(self) -> None:
         """Handle failure to start the daemon."""
         self.is_running = False
@@ -114,34 +112,34 @@ class PuyaDaemonClient:
             print("Error output:")
             for line in self.stderr_lines:
                 print(f"  {line}")
-    
+
     def _read_stdout(self) -> None:
         """Read output from the daemon process stdout using LSP protocol."""
         if not self.process or not self.process.stdout:
             return
-        
+
         # Read line by line for both regular stdout and Content-Length headers
-        for line in iter(self.process.stdout.readline, ''):
+        for line in iter(self.process.stdout.readline, ""):
             line = line.strip()
-            
+
             # Debug output for troubleshooting
-            self._debug_print(f"RAW STDOUT: {repr(line)}")
-            
+            self._debug_print(f"RAW STDOUT: {line!r}")
+
             # Handle Content-Length header line
             if line.startswith("Content-Length:"):
                 try:
                     # Extract content length
                     content_length = int(line.split(":", 1)[1].strip())
                     self._debug_print(f"Found Content-Length: {content_length}")
-                    
+
                     # Read the next line (should be Content-Type or empty)
                     next_line = self.process.stdout.readline().strip()
-                    self._debug_print(f"Next line after Content-Length: {repr(next_line)}")
-                    
+                    self._debug_print(f"Next line after Content-Length: {next_line!r}")
+
                     # Read one more line which should be empty (CR+LF)
                     empty_line = self.process.stdout.readline()
-                    self._debug_print(f"Empty line: {repr(empty_line)}")
-                    
+                    self._debug_print(f"Empty line: {empty_line!r}")
+
                     # Now read exactly content_length bytes
                     content = ""
                     bytes_read = 0
@@ -151,14 +149,14 @@ class PuyaDaemonClient:
                             break
                         content += char
                         bytes_read += 1
-                    
+
                     self._debug_print(f"Read content ({bytes_read} bytes): {content}")
-                    
+
                     if content:
                         try:
                             # Parse as JSON-RPC response
                             data = json.loads(content)
-                            
+
                             # Check if it's a response with id field
                             if "id" in data:
                                 print(f"Received JSON-RPC response: {content}")
@@ -173,28 +171,28 @@ class PuyaDaemonClient:
             elif line:
                 # Regular stdout output (not LSP)
                 print(f"Received (stdout): {line}")
-    
+
     def _read_stderr(self) -> None:
         """Read output from the daemon process stderr."""
         if not self.process or not self.process.stderr:
             return
-        
-        for line in iter(self.process.stderr.readline, ''):
+
+        for line in iter(self.process.stderr.readline, ""):
             line = line.strip()
             if line:
                 print(f"Received (stderr): {line}")
                 self.stderr_lines.append(line)
-                
+
                 # Also try to extract JSON if present in the log message
                 # This is a fallback in case the server is incorrectly sending responses to stderr
                 try:
                     # Look for JSON in the line - common pattern in logs is "INFO: Sending data: {json}"
-                    match = re.search(r'Sending data: ({.*})', line)
+                    match = re.search(r"Sending data: ({.*})", line)
                     if match:
                         json_str = match.group(1)
                         self._debug_print(f"Found JSON in stderr: {json_str}")
                         data = json.loads(json_str)
-                        
+
                         if "id" in data and "result" in data:
                             print(f"Found JSON-RPC response in stderr: {json_str}")
                             response = parse_json(json_str)
@@ -202,14 +200,14 @@ class PuyaDaemonClient:
                 except Exception as e:
                     # Just ignore errors in this fallback path
                     self._debug_print(f"Error extracting JSON from stderr: {e}")
-    
-    def send_request(self, method: str, params: Optional[Dict[str, Any]] = None) -> Optional[Union[Ok, Error]]:
+
+    def send_request(self, method: str, params: dict[str, Any] | None = None) -> Ok | Error | None:
         """Send a JSON-RPC request to the daemon and wait for a response.
-        
+
         Args:
-            method: The JSON-RPC method to call (e.g., "puya/status").
+            method: The JSON-RPC method to call (e.g., "analyse").
             params: The parameters to send with the request.
-            
+
         Returns:
             The response from the daemon, or None if there was an error.
         """
@@ -218,35 +216,35 @@ class PuyaDaemonClient:
             print("Daemon process has terminated unexpectedly")
             self.is_running = False
             return None
-            
+
         if not self.is_running or not self.process or not self.process.stdin:
             print("Daemon not running")
             return None
-        
+
         # Clear any previous responses
         while not self.response_queue.empty():
             self.response_queue.get_nowait()
-        
+
         # Use sequential request ID
         request_id = self.request_id
         self.request_id += 1  # Increment for next request
-        
+
         # Create a manual JSON-RPC request to ensure params is always included
         json_request = {
             "jsonrpc": "2.0",
             "id": request_id,
             "method": method,
-            "params": params if params is not None else {}  # Always include params
+            "params": params if params is not None else {},  # Always include params
         }
-        
+
         # Convert the request to JSON string
         request_str = json.dumps(json_request)
-        
+
         # Format according to LSP protocol (Content-Length header + double CRLF + content)
         lsp_message = f"Content-Length: {len(request_str)}\r\n\r\n{request_str}"
-        
+
         print(f"Sending LSP message:\n{lsp_message}")
-        
+
         try:
             # Send the request
             self.process.stdin.write(lsp_message)
@@ -255,11 +253,11 @@ class PuyaDaemonClient:
             print("Error: Broken pipe - daemon process may have terminated")
             self.is_running = False
             return None
-        except IOError as e:
+        except OSError as e:
             print(f"Error communicating with daemon: {e}")
             self.is_running = False
             return None
-        
+
         # Wait for the response (with timeout)
         try:
             response = self.response_queue.get(timeout=10)
@@ -267,73 +265,39 @@ class PuyaDaemonClient:
         except queue.Empty:
             print("Timed out waiting for response")
             return None
-    
-    def get_status(self) -> Optional[Dict[str, Any]]:
-        """Get the status of the daemon.
-        
-        Returns:
-            The daemon status information, or None if there was an error.
-        """
-        response = self.send_request("puya/status")
-        if response is not None and isinstance(response, Ok):
-            return response.result
-        elif response is not None and isinstance(response, Error):
-            print(f"Error getting status: {response.message}")
-        return None
-    
-    def stop_daemon(self) -> bool:
-        """Request the daemon to stop.
-        
-        Returns:
-            True if the stop request was successful, False otherwise.
-        """
-        response = self.send_request("puya/stop")
-        if response is not None and isinstance(response, Ok):
-            return True
-        elif response is not None and isinstance(response, Error):
-            print(f"Error stopping daemon: {response.message}")
-        return False
-    
-    def compile(self, options_path: str, awst_path: str, 
-                source_annotations_path: Optional[str] = None) -> Optional[Dict[str, Any]]:
-        """Send a compile command to the daemon.
-        
+
+    def analyse(self, awst_path: str, compilation_set: dict[str, str]) -> dict[str, Any] | None:
+        """Send an analyse request to the daemon.
+
         Args:
-            options_path: Path to the options JSON file.
             awst_path: Path to the AWST JSON file.
-            source_annotations_path: Optional path to source annotations JSON file.
-            
+            compilation_set: Dictionary mapping compilation unit names to file paths.
+
         Returns:
-            The compilation result, or None if there was an error.
+            The analysis result, or None if there was an error.
         """
         try:
-            # Read the files
-            with open(options_path, 'r') as f:
-                options_json = f.read()
-            
-            with open(awst_path, 'r') as f:
-                awst_json = f.read()
-            
-            source_annotations_json = None
-            if source_annotations_path:
-                with open(source_annotations_path, 'r') as f:
-                    source_annotations_json = f.read()
-            
+            # Read the AWST file
+            with open(awst_path) as f:
+                awst_json = json.loads(f.read())
+
+            # Convert compilation_set paths to Path objects if they're strings
+            path_compilation_set = {}
+            for key, value in compilation_set.items():
+                if isinstance(value, str):
+                    path_compilation_set[key] = str(Path(value))
+                else:
+                    path_compilation_set[key] = value
+
             # Create the params for the JSON-RPC request
-            params = {
-                "options_json": options_json,
-                "awst_json": awst_json
-            }
-            
-            if source_annotations_json:
-                params["source_annotations_json"] = source_annotations_json
-            
+            params = {"awst": awst_json, "compilation_set": path_compilation_set}
+
             # Send the request
-            response = self.send_request("puya/compile", params)
+            response = self.send_request("analyse", params)
             if response is not None and isinstance(response, Ok):
                 return response.result
             elif response is not None and isinstance(response, Error):
-                print(f"Error during compilation: {response.message}")
+                print(f"Error during analysis: {response.message}")
             return None
         except FileNotFoundError as e:
             print(f"Error: File not found - {e}")
@@ -342,24 +306,15 @@ class PuyaDaemonClient:
             print(f"Error: Invalid JSON in input file - {e}")
             return None
         except Exception as e:
-            print(f"Error during compilation: {e}")
+            print(f"Error during analysis: {e}")
             return None
-    
+
     def stop(self) -> None:
         """Stop the daemon process."""
         if self.is_running and self.process:
             print("Stopping Puya daemon")
-            
-            # Try to send exit command first
-            try:
-                if self._check_process_running():
-                    self.stop_daemon()
-                    # Give it a moment to exit gracefully
-                    time.sleep(0.5)
-            except Exception as e:
-                print(f"Error sending exit command: {e}")
-            
-            # Force terminate if still running
+
+            # Force terminate if running
             if self._check_process_running():
                 try:
                     self.process.terminate()
@@ -371,94 +326,44 @@ class PuyaDaemonClient:
                         self.process.wait(timeout=2)
                 except Exception as e:
                     print(f"Error terminating process: {e}")
-            
+
             self.is_running = False
             print("Puya daemon stopped")
 
 
 def main():
-    """Main function to demonstrate usage of the PuyaDaemonClient."""
+    """Main function to demonstrate usage of the PuyaClient."""
     # Create a client
-    client = PuyaDaemonClient(debug=True)
-    
+    client = PuyaClient(debug=True)
+
     try:
         # Start the daemon
-        print("Starting Puya daemon...")
+        print("Starting Puya daemon (puyad)...")
         client.start()
-        
+
         if not client.is_running:
             print("Failed to start daemon. Please check the error output above.")
             return
-            
+
         print("Daemon started successfully!")
-        
+
         # Wait to ensure daemon is fully initialized
         print("Waiting for daemon initialization...")
-        time.sleep(5)  
-        
-        # Try a simple status request first to verify connection
-        print("\nTesting basic status request...")
-        status = client.get_status()
-        if status:
-            print(f"✅ Connection successful! Status: {json.dumps(status, indent=2)}")
-        else:
-            print("❌ Failed to get status. Daemon may not be responding correctly.")
-            client.stop()
-            return
-        
-        # Proceed with concurrency testing
-        print("\n1. Testing status request concurrency...")
-        print("This will make multiple concurrent requests to test threading")
-        
-        # Track unique thread IDs to verify concurrency
-        thread_ids = set()
-        request_count = 20  # Number of concurrent requests to make
-        success_count = 0
-        
-        # Create a thread pool for parallel status requests
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            futures = []
-            for i in range(request_count):
-                futures.append(executor.submit(client.get_status))
-                
-            # Process results as they complete
-            for future in as_completed(futures):
-                try:
-                    status = future.result()
-                    if status:
-                        success_count += 1
-                        # Extract and store thread ID
-                        if "thread_id" in status:
-                            thread_ids.add(status["thread_id"])
-                            print(f"Request completed on server thread: {status['thread_id']}")
-                        else:
-                            print(f"Status result (no thread ID): {json.dumps(status, indent=2)}")
-                    else:
-                        print("Failed to get status")
-                except Exception as e:
-                    print(f"Error getting status: {e}")
-        
-        # Summarize the results
-        print(f"\nConcurrency Results:")
-        print(f"- Successful requests: {success_count}/{request_count}")
-        print(f"- Unique server thread IDs: {len(thread_ids)}")
-        print(f"- Thread IDs: {thread_ids}")
-        
-        if len(thread_ids) > 1:
-            print("✅ SUCCESS: The server processed requests concurrently on multiple threads!")
-        else:
-            print("❌ NOTE: The server processed all requests on the same thread.")
-        
-        # Example usage for compilation - uncomment and replace paths when needed
-        # print("\n2. Testing compilation...")
-        # options_path = "path/to/options.json"
+        time.sleep(2)
+
+        # Example usage for analysis - uncomment and replace paths when needed
+        # print("\nTesting analysis...")
         # awst_path = "path/to/awst.json"
-        # result = client.compile(options_path, awst_path)
+        # compilation_set = {
+        #     "unit1": "path/to/file1.py",
+        #     "unit2": "path/to/file2.py"
+        # }
+        # result = client.analyse(awst_path, compilation_set)
         # if result:
-        #     print(f"Compilation result: {json.dumps(result, indent=2)}")
+        #     print(f"Analysis result: {json.dumps(result, indent=2)}")
         # else:
-        #     print("Compilation failed")
-        
+        #     print("Analysis failed")
+
         # Keep alive for interactive testing
         print("\nDaemon running. Press Ctrl+C to stop...")
         try:
@@ -466,10 +371,11 @@ def main():
                 time.sleep(1)
         except KeyboardInterrupt:
             print("\nExiting...")
-    
+
     except Exception as e:
         print(f"Error: {e}")
         import traceback
+
         traceback.print_exc()
     finally:
         # Always stop the daemon
@@ -477,4 +383,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()
