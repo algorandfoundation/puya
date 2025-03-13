@@ -125,7 +125,7 @@ class AppTransactionParameters:
     on_complete: OnComplete = OnComplete.NoOpOC
     sp: transaction.SuggestedParams | None = None
     extra_pages: int | None = None
-    add_random_note: bool = False
+    add_random_note: bool = True
 
 
 GroupTransactionsProvider: typing.TypeAlias = Callable[[int], Iterable[TransactionWithSigner]]
