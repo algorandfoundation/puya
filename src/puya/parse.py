@@ -1,11 +1,23 @@
 import functools
 import typing
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 
 import attrs
 
 from puya.utils import make_path_relative_to_cwd
+
+
+class SourceProvider(typing.Protocol):
+    def get_source(self, path: Path) -> Sequence[str] | None: ...
+
+
+class DictSourceProvider:
+    def __init__(self, sources_by_path: Mapping[Path, Sequence[str] | None]):
+        self._sources_by_path = sources_by_path
+
+    def get_source(self, path: Path) -> Sequence[str] | None:
+        return self._sources_by_path.get(path)
 
 
 @attrs.frozen(kw_only=True, repr=False, str=False)

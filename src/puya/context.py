@@ -9,7 +9,7 @@ from puya import log
 from puya.artifact_metadata import StateTotals
 from puya.compilation_artifacts import TemplateValue
 from puya.options import PuyaOptions
-from puya.parse import SourceLocation
+from puya.parse import SourceLocation, SourceProvider
 from puya.program_refs import ContractReference, LogicSigReference, ProgramKind
 
 logger = log.get_logger(__name__)
@@ -19,18 +19,18 @@ logger = log.get_logger(__name__)
 class CompileContext:
     options: PuyaOptions
     compilation_set: Mapping[ContractReference | LogicSigReference, Path]
-    sources_by_path: Mapping[Path, Sequence[str] | None]
+    source_provider: SourceProvider
 
     def try_get_source(self, location: SourceLocation | None) -> Sequence[str] | None:
-        return try_get_source(self.sources_by_path, location)
+        return try_get_source(self.source_provider, location)
 
 
 def try_get_source(
-    sources_by_path: Mapping[Path, Sequence[str] | None], location: SourceLocation | None
+    source_provider: SourceProvider, location: SourceLocation | None
 ) -> Sequence[str] | None:
     if not location or not location.file:
         return None
-    source_lines = sources_by_path.get(location.file)
+    source_lines = source_provider.get_source(location.file)
     if source_lines is None:
         return None
 
