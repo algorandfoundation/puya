@@ -46,7 +46,7 @@ jobs:
       - name: Check documentation
         run: |
             set -o pipefail
-            poetry run poe docs
+            poetry run poe docs && git diff --exit-code
 
       - name: Check wheels can be built
         run: |
@@ -162,3 +162,46 @@ jobs:
       # simple diff check here as line endings mess with git status
       - name: Check diff
         run: git diff --exit-code examples/ test_cases/
+
+
+  generate-docs-windows:
+    runs-on: "windows-latest"
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "poetry"
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --with=doc
+
+      - name: Generate docs (CMD.exe)
+        shell: cmd
+        run: poetry run poe docs
+
+      - name: Check for diff
+        shell: bash
+        run: git diff --exit-code
+
+      - name: Generate docs (PowerShell)
+        shell: pwsh
+        run: poetry run poe docs
+
+      - name: Check for diff
+        shell: bash
+        run: git diff --exit-code
+
+      - name: Generate docs (bash)
+        shell: bash
+        run: poetry run poe docs
+
+      - name: Check for diff
+        shell: bash
+        run: git diff --exit-code

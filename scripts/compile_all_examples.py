@@ -323,7 +323,7 @@ class CompileAllOptions:
     optimization_level: list[int] = attrs.field(factory=list)
 
 
-def main(options: CompileAllOptions) -> None:
+def _run(options: CompileAllOptions) -> None:
     limit_to = options.limit_to
     if limit_to:
         to_compile = [Path(x).resolve() for x in limit_to]
@@ -380,7 +380,7 @@ def main(options: CompileAllOptions) -> None:
     sys.exit(len(failures))
 
 
-if __name__ == "__main__":
+def main() -> None:
     configure_stdio()
     parser = argparse.ArgumentParser()
     parser.add_argument("limit_to", type=Path, nargs="*", metavar="LIMIT_TO")
@@ -395,4 +395,8 @@ if __name__ == "__main__":
     )
     options = CompileAllOptions()
     parser.parse_args(namespace=options)
-    main(options)
+    _run(options)
+
+
+if __name__ == "__main__":
+    main()

@@ -5,6 +5,8 @@ import typing
 from collections.abc import Callable
 from pathlib import Path
 
+from puya.log import configure_stdio
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "src" / "puyapy" / "_vendor"))
 
 
@@ -32,6 +34,7 @@ class ModuleImports:
 
 
 def main() -> None:
+    configure_stdio()
     manager, _ = parse_and_typecheck([STUBS_DIR], get_mypy_options())
     output_doc_stubs(manager)
     run_sphinx()
