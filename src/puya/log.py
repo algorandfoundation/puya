@@ -290,9 +290,22 @@ def configure_logging(
         case LogFormat.json:
             log_renderer: structlog.typing.Processor = PuyaJsonRender(base_path=base_path)
         case LogFormat.default:
-            log_renderer = PuyaConsoleRender(
-                colors="NO_COLOR" not in os.environ, base_path=base_path
-            )
+            # we handle NO_COLOR to prevent logging with colours on any platform,
+            # otherwise we replicate the default colors value from structlog/dev.py,
+            # which is only available as a module-private variable...
+            if "NO_COLOR" in os.environ:
+                colors = False
+            elif sys.platform != "win32":
+                colors = True
+            else:
+                try:
+                    import colorama  # noqa: F401
+                except ImportError:
+                    colors = False
+                else:
+                    colors = True
+
+            log_renderer = PuyaConsoleRender(colors=colors, base_path=base_path)
         case never:
             typing.assert_never(never)
 
