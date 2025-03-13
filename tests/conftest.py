@@ -39,7 +39,11 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
 def _setup_logging() -> None:
     # configure logging for tests
     # note cache_logger should be False if calling configure_logging more than once
-    log.configure_logging(min_log_level=log.LogLevel.info, cache_logger=False)
+    log.configure_logging(
+        min_log_level=log.LogLevel.info,
+        cache_logger=False,
+        reconfigure_stdio=False,
+    )
 
 
 @pytest.fixture(scope="session")
