@@ -7,11 +7,12 @@ from pathlib import Path
 import attrs
 
 from puya.errors import PuyaExitError
-from puya.log import LogFormat, LogLevel, configure_logging
+from puya.log import LogFormat, LogLevel, configure_logging, get_logger
 from puya.main import main
 
 # Required to support multiprocessing in pyinstaller binaries
 freeze_support()
+logger = get_logger(__name__)
 
 
 @attrs.define(kw_only=True)
@@ -45,13 +46,23 @@ def cli() -> None:
     parser.add_argument("--daemon", action="store_true", help="Run in daemon mode")
     parsed_args = _PuyaCLIArgs()
     parser.parse_args(namespace=parsed_args)
-    configure_logging(min_log_level=parsed_args.log_level, log_format=parsed_args.log_format)
 
     if parsed_args.daemon:
-        from puya.puyad import main as puyad_main
+        import multiprocessing
 
-        puyad_main()
+        from puya.puyad import create_server
+
+        num_physical_cores = multiprocessing.cpu_count() // 2  # Estimate physical cores
+        num_threads = min(max(2, num_physical_cores), 8)  # Between 2-8 threads
+        puyad_server = create_server(num_threads)
+
+        log_file = sys.stderr
+        configure_logging(min_log_level=parsed_args.log_level, file=log_file)
+        logger.info("Starting puyad server...")
+        puyad_server.start_io()
         return
+    else:
+        configure_logging(min_log_level=parsed_args.log_level, log_format=parsed_args.log_format)
 
     assert parsed_args.options
     options_json = parsed_args.options.read_text("utf8")
