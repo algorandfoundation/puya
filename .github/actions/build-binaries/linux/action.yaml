@@ -11,13 +11,13 @@ inputs:
     description: "Flag to determine if we should sign the binary"
     required: true
     type: boolean
-  gpg-signing-private-key:
+  gpg_signing_private_key:
     description: "The GPG signing private key (base64 encoded)"
     required: true
-  gpg-signing-private-key-password:
+  gpg_signing_private_key_password:
     description: "The GPG signing private key password"
     required: true
-  gpg-key-id:
+  gpg_key_id:
     description: "The GPG key ID to use for signing"
     required: true
   python_version:
@@ -94,7 +94,7 @@ runs:
         echo "disable-scdaemon" > $GNUPGHOME/gpg-agent.conf
 
         # Import the GPG private key
-        echo "${{ inputs.gpg-signing-private-key }}" | base64 -d > $GNUPGHOME/private.key
+        echo "${{ inputs.gpg_signing_private_key }}" | base64 -d > $GNUPGHOME/private.key
 
         # Debug info
         echo "Checking if private key file exists:"
@@ -104,11 +104,11 @@ runs:
         gpg --batch --import $GNUPGHOME/private.key
 
         # Only remove after confirming import was successful
-        gpg --list-secret-keys ${{ inputs.gpg-key-id }}
+        gpg --list-secret-keys ${{ inputs.gpg_key_id }}
         rm -f $GNUPGHOME/private.key
 
         # List the keys to confirm import
-        gpg --list-keys ${{ inputs.gpg-key-id }}
+        gpg --list-keys ${{ inputs.gpg_key_id }}
 
         # Create a copy of the executable for signing
         echo "Copying executable for signing..."
@@ -124,8 +124,8 @@ runs:
 
         # Sign the main executable
         echo "Signing main executable..."
-        gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
-            --local-user ${{ inputs.gpg-key-id }} --detach-sign --armor puya
+        gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg_signing_private_key_password }}" \
+            --local-user ${{ inputs.gpg_key_id }} --detach-sign --armor puya
 
         # Move signed artifacts to the artifacts directory
         cp puya.asc ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}-executable.asc
@@ -156,8 +156,8 @@ runs:
         cd ${{ inputs.artifacts_dir }}
 
         # Sign the checksum file
-        gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
-            --local-user ${{ inputs.gpg-key-id }} --detach-sign --armor ${{ inputs.package_name }}.sha256.txt
+        gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg_signing_private_key_password }}" \
+            --local-user ${{ inputs.gpg_key_id }} --detach-sign --armor ${{ inputs.package_name }}.sha256.txt
 
         # Clean up
         rm -rf $GNUPGHOME
@@ -177,15 +177,15 @@ runs:
         echo "disable-scdaemon" > $GNUPGHOME/gpg-agent.conf
 
         # Import the GPG private key
-        echo "${{ inputs.gpg-signing-private-key }}" | base64 -d > $GNUPGHOME/private.key
+        echo "${{ inputs.gpg_signing_private_key }}" | base64 -d > $GNUPGHOME/private.key
         gpg --batch --import $GNUPGHOME/private.key
         rm -f $GNUPGHOME/private.key
 
         cd ${{ inputs.artifacts_dir }}
 
         # Sign the tar.gz archive
-        gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg-signing-private-key-password }}" \
-            --local-user ${{ inputs.gpg-key-id }} --detach-sign --armor ${{ inputs.package_name }}.tar.gz
+        gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg_signing_private_key_password }}" \
+            --local-user ${{ inputs.gpg_key_id }} --detach-sign --armor ${{ inputs.package_name }}.tar.gz
             
         # Clean up
         rm -rf $GNUPGHOME
