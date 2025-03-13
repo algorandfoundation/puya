@@ -1,7 +1,10 @@
 import contextlib
+import functools
+import io
 import json
 import logging
 import os.path
+import platform
 import sys
 import typing
 from collections import Counter
@@ -281,6 +284,7 @@ def configure_logging(
     cache_logger: bool = True,
     log_format: LogFormat = LogFormat.default,
 ) -> None:
+    patch_windows_stdio()
     if cache_logger and structlog.is_configured():
         raise ValueError(
             "Logging can not be configured more than once if using cache_logger = True"
@@ -460,3 +464,15 @@ def logging_context() -> Iterator[LoggingContext]:
         yield ctx
     finally:
         _current_ctx.reset(restore)
+
+
+@functools.cache  # only run this once
+def patch_windows_stdio() -> None:
+    if platform.system() == "Windows":
+        # Force UTF-8 for stdout and stderr
+        sys.stdout = io.TextIOWrapper(
+            sys.stdout.buffer, encoding="utf-8", errors="backslashreplace", line_buffering=True
+        )
+        sys.stderr = io.TextIOWrapper(
+            sys.stderr.buffer, encoding="utf-8", errors="backslashreplace", line_buffering=True
+        )

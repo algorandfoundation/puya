@@ -14,7 +14,6 @@ from tests import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT
 
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
-    "PYTHONUTF8": "1",  # force utf8 on windows
 }
 
 
