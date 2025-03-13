@@ -15,13 +15,13 @@ poetry install --no-interaction --without=dev --with=cicd
 
 # Build the binary
 poetry run pyinstaller \
-    --clean \
-    --onedir \
-    --name puya \
-    --noconfirm src/puya/__main__.py \
-    --add-data './src/puya/ir/_puya_lib.awst.json:puya/ir/' \
-    --exclude-module colorama \
-    --exclude-module mypy_extensions \
-    --optimize=2
+  --clean \
+  --onedir \
+  --name puya \
+  --noconfirm src/puya/__main__.py \
+  --add-data './src/puya/ir/_puya_lib.awst.json:puya/ir/' \
+  --exclude-module mypy_extensions \
+  --optimize=2 \
+   --exclude-module colorama
 
 echo "Build completed successfully for $ARCH architecture"

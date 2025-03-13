@@ -46,8 +46,7 @@ jobs:
             module.awst.json
             options.json
 
-  build-binaries:
-    needs: generate-smoke-test-inputs
+  build-binaries-and-smoke-test:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false # Continue with other matrix jobs even if one fails
@@ -129,6 +128,14 @@ jobs:
           apple_notary_user: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_NOTARY_USER || '' }}
           apple_notary_password: ${{ steps.signing.outputs.allowed == 'true' && secrets.APPLE_NOTARY_PASSWORD || '' }}
 
+      # Upload binary artifacts for the CD workflow to handle
+      - name: Upload binary artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-artifacts-${{ runner.os }}-${{ runner.arch }}
+          if-no-files-found: error
+          path: ${{ env.ARTIFACTS_DIR }}/*.*
+
       - name: Download smoke test data
         uses: actions/download-artifact@v4
         with:
@@ -143,23 +150,77 @@ jobs:
           # Run the binary tests
           ./dist/puya/puya --log-level=debug --options options.json --awst module.awst.json 
 
-          if [ -f HelloWorldContract.approval.teal ]; then
-            cat HelloWorldContract.approval.teal
-          else
-            echo "File HelloWorldContract.approval.teal does not exist" >&2
+          if [ ! -f *.teal ]; then
+            echo "Compiler exited without outputting TEAL" >&2
             exit 1
           fi
 
-      # Upload binary artifacts for the CD workflow to handle
-      - name: Upload binary artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: binary-artifacts-${{ runner.os }}-${{ runner.arch }}
-          if-no-files-found: error
-          path: ${{ env.ARTIFACTS_DIR }}/*.*
+  manylinux-docker-smoke-tests:
+    needs: build-binaries-and-smoke-test
+    runs-on: ${{ matrix.arch.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        arch:
+          - { runner: "ubuntu-22.04", name: "amd64", identifier: "linux_x64" }
+          - { runner: "ubuntu-22.04-arm", name: "arm64", identifier: "linux_arm64" }
+        distro:
+          # Debian family (glibc 2.28+)
+          - { name: "Debian 10", image: "debian:10" }
+          - { name: "Debian 11", image: "debian:11" }
+          - { name: "Debian 12", image: "debian:12" }
+          # Ubuntu family (glibc 2.31+)
+          - { name: "Ubuntu 20.04", image: "ubuntu:20.04" }
+          - { name: "Ubuntu 22.04", image: "ubuntu:22.04" }
+          - { name: "Ubuntu 24.04", image: "ubuntu:24.04" }
+          # Fedora family (glibc 2.28+)
+          - { name: "Fedora 38", image: "fedora:38" }
+          - { name: "Fedora 39", image: "fedora:39" }
+          - { name: "Fedora 40", image: "fedora:40" }
+          # RHEL family (glibc 2.28+)
+          - { name: "CentOS Stream 8", image: "quay.io/centos/centos:stream8" }
+          - { name: "CentOS Stream 9", image: "quay.io/centos/centos:stream9" }
 
-  test-linux-compatibility:
-    needs: build-binaries
-    uses: ./.github/workflows/test-linux-distros.yaml
-    with:
-      package_prefix: ${{ needs.build-binaries.outputs.package-prefix }}
+    steps:
+      - name: Configure package name
+        shell: bash
+        run: |
+          package_name="${{ needs.build-binaries-and-smoke-test.outputs.package-prefix }}-${{ matrix.arch.identifier }}"
+          echo "PACKAGE_NAME=${package_name}" >> $GITHUB_ENV
+
+      - name: Download smoke test data
+        uses: actions/download-artifact@v4
+        with:
+          name: binary-smoke-test-inputs
+
+      - name: Download binary artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PACKAGE_NAME }}
+
+      - name: Run portability tests on ${{ matrix.distro.name }} (${{ matrix.arch.name }})
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            --platform linux/${{ matrix.arch.name }} \
+            --env PACKAGE_NAME=${{ env.PACKAGE_NAME }} \
+            ${{ matrix.distro.image }} \
+            bash -c -e '
+              # Print glibc version
+              ldd --version
+          
+              # extract the binary
+              cd /workspace
+              tar -xzf ${PACKAGE_NAME}.tar.gz               
+    
+              # Run a basic test to verify the binary works
+              ./puya --version
+              
+              # Run the binary tests
+              ./puya --options options.json --awst module.awst.json 
+              
+              if [ ! -f *.teal ]; then
+                echo "Compiler exited without outputting TEAL" >&2
+                exit 1
+              fi          
+            '
