@@ -1226,7 +1226,7 @@ def dynamic_app_client(
         ),
         signer=account,
     )
-    app_client.create()
+    app_client.create(transaction_parameters={"note": random.randbytes(8)})
     return app_client
 
 
@@ -2064,7 +2064,7 @@ def _get_immutable_array_app(
 
     app_spec = _get_app_spec(example, optimization_level)
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
-    app_client.create()
+    app_client.create(transaction_parameters={"note": random.randbytes(8)})
 
     # ensure app meets minimum balance requirements
     algokit_utils.ensure_funded(
