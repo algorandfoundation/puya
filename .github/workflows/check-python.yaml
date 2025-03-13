@@ -135,15 +135,7 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction
 
-      - name: Compile AMM (CMD.exe)
-        shell: cmd
-        run: poetry run poe compile_all examples/amm
-
-      - name: Compile AMM (PowerShell)
-        shell: pwsh
-        run: poetry run poe compile_all examples/amm
-
-      - name: Compile all (bash)
+      - name: Compile all
         shell: bash
         run: poetry run poe compile_all
 
@@ -151,9 +143,17 @@ jobs:
       - name: Check diff
         run: git diff --exit-code examples/ test_cases/
 
-
+  # run a test in all Windows
   run-puyapy-windows:
+    name: "Run PuyaPy on Windows via ${{ matrix.shell }}"
     runs-on: "windows-latest"
+    strategy:
+      fail-fast: false # Continue with other matrix jobs even if one fails
+      matrix:
+        shell: [cmd, pwsh, bash]
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -170,14 +170,8 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction
 
-      - name: Compile AMM (CMD.exe)
-        shell: cmd
-        run: poetry run puyapy --log-level=debug examples/amm
+      - name: Compile AMM via compile_all
+        run: poetry run poe compile_all examples/amm
 
-      - name: Compile AMM (PowerShell)
-        shell: pwsh
-        run: poetry run puyapy --log-level=debug examples/amm
-
-      - name: Compile AMM (bash)
-        shell: bash
+      - name: Compile AMM directly
         run: poetry run puyapy --log-level=debug examples/amm
