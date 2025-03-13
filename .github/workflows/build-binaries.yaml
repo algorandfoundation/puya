@@ -162,6 +162,16 @@ jobs:
             exit 1
           fi
 
+      - name: Binary smoke test (PowerShell)
+        if: ${{ runner.os == 'Windows' }}
+        shell: pwsh
+        run: ./dist/puya/puya --log-level=debug --options options.json --awst module.awst.json
+
+      - name: Binary smoke test (CMD.exe)
+        if: ${{ runner.os == 'Windows' }}
+        shell: cmd
+        run: dist\puya\puya --log-level=debug --options options.json --awst module.awst.json
+
       # Upload binary artifacts for the CD workflow to handle
       - name: Upload binary artifacts
         uses: actions/upload-artifact@v4
