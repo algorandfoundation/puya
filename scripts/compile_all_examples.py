@@ -16,6 +16,10 @@ import algokit_utils.deploy
 import attrs
 import prettytable
 
+from puya.log import patch_windows_stdio
+
+patch_windows_stdio()
+
 SCRIPT_DIR = Path(__file__).parent
 GIT_ROOT = SCRIPT_DIR.parent
 CONTRACT_ROOT_DIRS = [
@@ -25,7 +29,6 @@ CONTRACT_ROOT_DIRS = [
 SIZE_TALLY_PATH = GIT_ROOT / "examples" / "sizes.txt"
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
-    "PYTHONUTF8": "1",  # force utf8 on windows
 }
 # iterate optimization levels first and with O1 first and then cases, this is a workaround
 # to prevent race conditions that occur when the mypy parsing stage of O0, O2 tries to

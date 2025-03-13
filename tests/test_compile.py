@@ -20,7 +20,6 @@ from tests.utils.git import check_for_diff
 
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
-    "PYTHONUTF8": "1",  # force utf8 on windows
 }
 SUFFIX_O0 = "_unoptimized"
 SUFFIX_O1 = ""
