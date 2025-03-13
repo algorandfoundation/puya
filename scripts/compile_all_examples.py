@@ -16,9 +16,7 @@ import algokit_utils.deploy
 import attrs
 import prettytable
 
-from puya.log import patch_windows_stdio
-
-patch_windows_stdio()
+from puya.log import configure_stdio
 
 SCRIPT_DIR = Path(__file__).parent
 GIT_ROOT = SCRIPT_DIR.parent
@@ -383,6 +381,7 @@ def main(options: CompileAllOptions) -> None:
 
 
 if __name__ == "__main__":
+    configure_stdio()
     parser = argparse.ArgumentParser()
     parser.add_argument("limit_to", type=Path, nargs="*", metavar="LIMIT_TO")
     parser.add_argument(

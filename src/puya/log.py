@@ -283,8 +283,10 @@ def configure_logging(
     min_log_level: LogLevel = LogLevel.notset,
     cache_logger: bool = True,
     log_format: LogFormat = LogFormat.default,
+    reconfigure_stdio: bool = True,
 ) -> None:
-    patch_windows_stdio()
+    if reconfigure_stdio:
+        configure_stdio()
     if cache_logger and structlog.is_configured():
         raise ValueError(
             "Logging can not be configured more than once if using cache_logger = True"
@@ -467,12 +469,23 @@ def logging_context() -> Iterator[LoggingContext]:
 
 
 @functools.cache  # only run this once
-def patch_windows_stdio() -> None:
+def configure_stdio() -> None:
+    encoding = None  # keep the default
     if platform.system() == "Windows":
-        # Force UTF-8 for stdout and stderr
-        sys.stdout = io.TextIOWrapper(
-            sys.stdout.buffer, encoding="utf-8", errors="backslashreplace", line_buffering=True
-        )
-        sys.stderr = io.TextIOWrapper(
-            sys.stderr.buffer, encoding="utf-8", errors="backslashreplace", line_buffering=True
-        )
+        encoding = "utf-8"  # force UTF-8
+    # just to be safe, output a ? or similar when an encoding error still occurs
+    on_encoding_error = "backslashreplace"
+    # enable line buffering, making a flush implicit when a newline character occurs
+    line_buffering = True
+    sys.stdout = io.TextIOWrapper(
+        sys.stdout.buffer,
+        encoding=encoding,
+        errors=on_encoding_error,
+        line_buffering=line_buffering,
+    )
+    sys.stderr = io.TextIOWrapper(
+        sys.stderr.buffer,
+        encoding=encoding,
+        errors=on_encoding_error,
+        line_buffering=line_buffering,
+    )
