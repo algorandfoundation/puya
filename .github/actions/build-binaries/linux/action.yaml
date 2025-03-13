@@ -31,14 +31,16 @@ runs:
       shell: bash
       run: |
         if [ "${{ runner.arch }}" == "ARM64" ]; then
-          echo "BASE_IMAGE=quay.io/pypa/manylinux_2_28_aarch64" >> $GITHUB_OUTPUT
+          docker_arch="aarch64"
+          arch_tag="arm64"
         else
-          echo "BASE_IMAGE=quay.io/pypa/manylinux_2_28_x86_64" >> $GITHUB_OUTPUT
+          docker_arch="x86_64"
+          arch_tag="x64"
         fi
+        echo "base_image=quay.io/pypa/manylinux_2_28_${docker_arch}" >> $GITHUB_OUTPUT
 
         # Set the cache tag based on architecture
-        ARCH=$(echo "${{ runner.arch }}" | tr '[:upper:]' '[:lower:]')
-        echo "CACHE_TAG=ghcr.io/${{ github.repository }}/puya-manylinux:${ARCH}" >> $GITHUB_OUTPUT
+        echo "cache_tag=ghcr.io/${{ github.repository }}/puya-manylinux:${arch_tag}" >> $GITHUB_OUTPUT
 
     - name: Docker registry login
       uses: docker/login-action@v3
@@ -58,137 +60,31 @@ runs:
         context: ${{ github.action_path }}
         file: ${{ github.action_path }}/Dockerfile
         build-args: |
-          BASE_IMAGE=${{ steps.set-base-image.outputs.BASE_IMAGE }}
+          BASE_IMAGE=${{ steps.set-base-image.outputs.base_image }}
           PYTHON_VERSION=${{ inputs.python_version }}
         push: false
         load: true
-        tags: ${{ steps.set-base-image.outputs.CACHE_TAG }}
+        tags: ${{ steps.set-base-image.outputs.cache_tag }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-    - name: Run the container with the built image
+    - name: Run PyInstaller inside Docker container
       shell: bash
       run: |
         docker run --rm \
           -v ${{ github.workspace }}:/src \
           -v ${{ inputs.artifacts_dir }}:${{ inputs.artifacts_dir }} \
           -e GITHUB_WORKSPACE=/src \
-          ${{ steps.set-base-image.outputs.CACHE_TAG }} \
+          ${{ steps.set-base-image.outputs.cache_tag }} \
           ${{ inputs.package_name }} \
           ${{ inputs.artifacts_dir }}
-
-    # Copy files to a writable location and sign them there
-    - name: Setup GPG and copy files for signing
-      if: ${{ inputs.with_codesign == 'true' }}
-      shell: bash
-      run: |
-        # Create temporary directories
-        mkdir -p /tmp/gpg-signing
-        mkdir -p /tmp/puya-signing/artifacts
-        chmod 700 /tmp/gpg-signing
-        chmod 755 /tmp/puya-signing
-
-        # Explicitly disable agent to avoid connection errors
-        export GNUPGHOME=/tmp/gpg-signing
-        echo "disable-scdaemon" > $GNUPGHOME/gpg-agent.conf
-
-        # Import the GPG private key
-        echo "${{ inputs.gpg_signing_private_key }}" | base64 -d > $GNUPGHOME/private.key
-
-        # Debug info
-        echo "Checking if private key file exists:"
-        ls -la $GNUPGHOME/
-
-        # Import key with batch mode
-        gpg --batch --import $GNUPGHOME/private.key
-
-        # Only remove after confirming import was successful
-        gpg --list-secret-keys ${{ inputs.gpg_key_id }}
-        rm -f $GNUPGHOME/private.key
-
-        # List the keys to confirm import
-        gpg --list-keys ${{ inputs.gpg_key_id }}
-
-        # Create a copy of the executable for signing
-        echo "Copying executable for signing..."
-        cp dist/puya/puya /tmp/puya-signing/puya
-
-    # Sign the executable
-    - name: Sign executable
-      if: ${{ inputs.with_codesign == 'true' }}
-      shell: bash
-      run: |
-        export GNUPGHOME=/tmp/gpg-signing
-        cd /tmp/puya-signing
-
-        # Sign the main executable
-        echo "Signing main executable..."
-        gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg_signing_private_key_password }}" \
-            --local-user ${{ inputs.gpg_key_id }} --detach-sign --armor puya
-
-        # Move signed artifacts to the artifacts directory
-        cp puya.asc ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}-executable.asc
 
     # Create tar.gz archive in the artifacts directory for GitHub releases
     - name: Package binary for release
       shell: bash
+      working-directory: dist/puya/
       run: |
-        cd dist/puya/
         tar -zcf ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz *
-        cd ../..
-
-    # Generate SHA-256 checksum for the release archive
-    - name: Generate SHA-256 checksum
-      shell: bash
-      run: |
-        cd ${{ inputs.artifacts_dir }}
-        sha256sum ${{ inputs.package_name }}.tar.gz > ${{ inputs.package_name }}.sha256.txt
-        cat ${{ inputs.package_name }}.sha256.txt
-        cd ..
-
-    # Sign the checksum file with GPG
-    - name: Sign checksum with GPG
-      if: ${{ inputs.with_codesign == 'true' }}
-      shell: bash
-      run: |
-        export GNUPGHOME=/tmp/gpg-signing
-        cd ${{ inputs.artifacts_dir }}
-
-        # Sign the checksum file
-        gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg_signing_private_key_password }}" \
-            --local-user ${{ inputs.gpg_key_id }} --detach-sign --armor ${{ inputs.package_name }}.sha256.txt
-
-        # Clean up
-        rm -rf $GNUPGHOME
-        cd ../..
-
-    # Sign the tar.gz archive with GPG
-    - name: Sign tar.gz archive with GPG
-      if: ${{ inputs.with_codesign == 'true' }}
-      shell: bash
-      run: |
-        # Create temporary directory for GPG operations
-        mkdir -p /tmp/gpg-signing
-        chmod 700 /tmp/gpg-signing
-        export GNUPGHOME=/tmp/gpg-signing
-
-        # Configure GPG
-        echo "disable-scdaemon" > $GNUPGHOME/gpg-agent.conf
-
-        # Import the GPG private key
-        echo "${{ inputs.gpg_signing_private_key }}" | base64 -d > $GNUPGHOME/private.key
-        gpg --batch --import $GNUPGHOME/private.key
-        rm -f $GNUPGHOME/private.key
-
-        cd ${{ inputs.artifacts_dir }}
-
-        # Sign the tar.gz archive
-        gpg --batch --pinentry-mode loopback --passphrase "${{ inputs.gpg_signing_private_key_password }}" \
-            --local-user ${{ inputs.gpg_key_id }} --detach-sign --armor ${{ inputs.package_name }}.tar.gz
-            
-        # Clean up
-        rm -rf $GNUPGHOME
-        cd ../..
 
     # Upload the tar.gz archive as GitHub Actions artifact
     - name: Upload binary artifact
@@ -198,6 +94,16 @@ runs:
         path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz
         if-no-files-found: error
 
+    # Generate SHA-256 checksum for the release archive
+    # This is useful to ensure the archive file was not corrupted in transit,
+    # without requiring the user to setup GPG or similar
+    - name: Generate SHA-256 checksum
+      shell: bash
+      working-directory: ${{ inputs.artifacts_dir }}
+      run: |
+        sha256sum ${{ inputs.package_name }}.tar.gz > ${{ inputs.package_name }}.sha256.txt
+        cat ${{ inputs.package_name }}.sha256.txt
+
     # Upload checksum as a separate artifact
     - name: Upload checksum artifact
       uses: actions/upload-artifact@v4
@@ -206,14 +112,41 @@ runs:
         path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.sha256.txt
         if-no-files-found: error
 
-    # Upload GPG signature for checksum file
-    - name: Upload checksum signature artifact
+    # Sign the distribution archive with GPG.outputs:
+    # This will allow the end user to both ensure the archive file was not corrupted in transit,
+    # and also verify it comes from a trusted source
+    - name: Sign with GPG
       if: ${{ inputs.with_codesign == 'true' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ inputs.package_name }}-sha256-signature
-        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.sha256.txt.asc
-        if-no-files-found: error
+      shell: bash
+      working-directory: ${{ inputs.artifacts_dir }}
+      run: |
+        # Create temporary directories
+        GNUPGHOME=/tmp/gpg-signing
+        mkdir -m 700 $GNUPGHOME
+
+        # Explicitly disable agent to avoid connection errors
+        echo "disable-scdaemon" > $GNUPGHOME/gpg-agent.conf
+
+        # Import the GPG private key
+        echo "${{ inputs.gpg_signing_private_key }}" | base64 -d > $GNUPGHOME/private.key
+        gpg --batch --import $GNUPGHOME/private.key
+        rm -f $GNUPGHOME/private.key
+
+        # List the keys to confirm import
+        gpg --list-secret-keys ${{ inputs.gpg_key_id }}
+        gpg --list-keys ${{ inputs.gpg_key_id }}
+
+        # Sign the archive
+        gpg --batch \
+            --pinentry-mode loopback \
+            --passphrase "${{ inputs.gpg_signing_private_key_password }}" \
+            --local-user ${{ inputs.gpg_key_id }} \
+            --detach-sign \
+            --armor \
+            ${{ inputs.package_name }}.tar.gz
+        
+        # Done with signing, clean up GPG home
+        rm -rf $GNUPGHOME
 
     # Upload GPG signature for tar.gz archive
     - name: Upload tar.gz signature artifact
@@ -222,13 +155,4 @@ runs:
       with:
         name: ${{ inputs.package_name }}-archive-signature
         path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz.asc
-        if-no-files-found: error
-
-    # Upload GPG signature for executable
-    - name: Upload executable signature artifact
-      if: ${{ inputs.with_codesign == 'true' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ inputs.package_name }}-executable-signature
-        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}-executable.asc
         if-no-files-found: error

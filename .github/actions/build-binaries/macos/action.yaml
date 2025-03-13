@@ -66,7 +66,7 @@ runs:
 
         # Delete temp file
         rm /tmp/certs.p12
-        echo "Done"      
+        echo "Apple Developer ID cerificate imported successfully"      
 
     - name: Setup Python venv
       uses: ./.github/actions/setup-python-venv
@@ -77,8 +77,6 @@ runs:
     - name: Build binary
       shell: bash
       run: |
-        export APPLE_CERT_ID="${{ inputs.with_codesign == 'true' && inputs.apple_cert_id || '' }}"
-        export APPLE_BUNDLE_ID="${{ inputs.with_codesign == 'true' && inputs.apple_bundle_id || format('beta.{0}', inputs.apple_bundle_id) }}"
         CMD="pyinstaller --clean --onedir --name puya --noconfirm src/puya/__main__.py --add-data './src/puya/ir/_puya_lib.awst.json:puya/ir/' --exclude-module colorama --exclude-module mypy_extensions --optimize=2"
         if [ ! -z "$APPLE_BUNDLE_ID" ]; then
             CMD="$CMD --osx-bundle-identifier \"$APPLE_BUNDLE_ID\""
