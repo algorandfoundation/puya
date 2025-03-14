@@ -9,8 +9,8 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.function_traverser import FunctionTraverser
 from puya.awst.to_code_visitor import ToCodeVisitor
+from puya.awst.visitors import ExpressionVisitor
 from puya.awst.wtypes import WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
@@ -30,7 +30,13 @@ from puya.ir.models import (
     ValueTuple,
 )
 from puya.ir.ssa import BraunSSA
-from puya.ir.types_ import PrimitiveIRType, wtype_to_ir_type
+from puya.ir.types_ import (
+    PrimitiveIRType,
+    get_wtype_arity,
+    sum_wtypes_arity,
+    wtype_to_ir_type,
+    wtype_to_ir_types,
+)
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 from puya.utils import StableSet, positive_index
@@ -189,22 +195,24 @@ class InnerTransactionBuilder:
         # targets are the assignment results, which will all be registers here,
         # the only case they aren't registers is when assigning to storage, which will
         # never be supported for itxn's because they're ephemeral
-        itx_targets = [
-            t
-            for t in targets
-            if isinstance(t, Register) and t.ir_type == PrimitiveIRType.itxn_group_idx
-        ]
-        source_actions = SourceActionExtractor.visit(source_expr)
-        if len(itx_targets) != len(source_actions):
-            raise CodeError("unsupported inner transaction assignment", ass_loc)
-        for itxn_target, source_action in zip(itx_targets, source_actions, strict=True):
-            match source_action:
-                case _CopySource(var_name=src_var_name):
-                    self._copy_submit_inner_transaction_fields(itxn_target.name, src_var_name)
-                case _AssignSubmit(is_last=is_last):
-                    self._assign_submit_inner_transaction_fields(itxn_target, is_last=is_last)
-                case unexpected:
-                    typing.assert_never(unexpected)
+        source_actions = _ITxnSourceValueActionExtractor.visit(source_expr)
+        for target, source_action in zip(targets, source_actions, strict=True):
+            match target, source_action:
+                case Register(ir_type=PrimitiveIRType.itxn_group_idx), _CopySource(
+                    var_name=src_var_name
+                ):
+                    self._copy_submit_inner_transaction_fields(target.name, src_var_name)
+                case Register(ir_type=PrimitiveIRType.itxn_group_idx), _AssignSubmit(
+                    is_last=is_last
+                ):
+                    self._assign_submit_inner_transaction_fields(target, is_last=is_last)
+                case tt, None if tt.ir_type != PrimitiveIRType.itxn_group_idx:
+                    pass
+                case _:
+                    raise CodeError(
+                        f"unsupported inner transaction assignment: {target!r} <- {source_action}",
+                        ass_loc,
+                    )
 
     def handle_update_inner_transaction(self, call: awst_nodes.UpdateInnerTransaction) -> None:
         var_name = self._resolve_inner_txn_params_var_name(call.itxn)
@@ -615,71 +623,395 @@ class _AssignSubmit:
     is_last: bool
 
 
-_SourceAction = _CopySource | _AssignSubmit
+_SourceAction = _CopySource | _AssignSubmit | None
 
 
-class SourceActionExtractor(FunctionTraverser):
-    def __init__(self) -> None:
-        self._actions = list[_SourceAction]()
+class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
+    """
+    Collects itxn group index values used in an assignment statement source
+    So when these are assigned to their targets the itxn fields can be cached
+    """
 
     @classmethod
-    def visit(cls, node: awst_nodes.Expression) -> list[_SourceAction]:
+    def visit(cls, expr: awst_nodes.Expression) -> list[_SourceAction]:
         visitor = cls()
-        node.accept(visitor)
-        return visitor._actions  # noqa: SLF001
+        result = expr.accept(visitor)
+        if len(visitor.seen_submit_exprs) > 1:
+            logger.error(
+                "multiple inner transactions cannot be individually"
+                " submitted in the same statement. Try using a group",
+                location=expr.source_location,
+            )
+        return result
 
-    def visit_submit_inner_transaction(self, call: awst_nodes.SubmitInnerTransaction) -> None:
-        itxns = len(call.itxns)
-        self._actions.extend(
-            _AssignSubmit(index=idx, is_last=idx == itxns - 1) for idx in range(itxns)
-        )
+    def __init__(self) -> None:
+        # used to ensure multiple submits are not present
+        self.seen_submit_exprs = set[awst_nodes.SubmitInnerTransaction]()
 
-    def visit_var_expression(self, expr: awst_nodes.VarExpression) -> None:
-        self._actions.extend(
-            [
-                _CopySource(var_name=name)
-                for name, ir_type in build_tuple_item_names(
-                    expr.name, expr.wtype, expr.source_location
-                )
-                if ir_type == PrimitiveIRType.itxn_group_idx
-            ]
-        )
+    @typing.override
+    def visit_submit_inner_transaction(
+        self, expr: awst_nodes.SubmitInnerTransaction
+    ) -> list[_SourceAction]:
+        self.seen_submit_exprs.add(expr)
+        itxns = len(expr.itxns)
+        return [_AssignSubmit(index=idx, is_last=idx == itxns - 1) for idx in range(itxns)]
 
-    def visit_inner_transaction_field(self, itxn_field: awst_nodes.InnerTransactionField) -> None:
-        # this will consume any referenced inner transaction, so don't need to traverse it
-        pass
+    @typing.override
+    def visit_var_expression(self, expr: awst_nodes.VarExpression) -> list[_SourceAction]:
+        return [
+            _CopySource(var_name=name) if ir_type == PrimitiveIRType.itxn_group_idx else None
+            for name, ir_type in build_tuple_item_names(
+                expr.name, expr.wtype, expr.source_location
+            )
+        ]
 
-    def visit_tuple_item_expression(self, expr: awst_nodes.TupleItemExpression) -> None:
-        start_len = len(self._actions)
-        super().visit_tuple_item_expression(expr)
-        added = self._actions[start_len:]
+    @typing.override
+    def visit_single_evaluation(self, expr: awst_nodes.SingleEvaluation) -> list[_SourceAction]:
+        return expr.source.accept(self)
+
+    @typing.override
+    def visit_checked_maybe(self, expr: awst_nodes.CheckedMaybe) -> list[_SourceAction]:
+        # return the expr without the maybe portion
+        return expr.expr.accept(self)[:1]
+
+    @typing.override
+    def visit_tuple_item_expression(
+        self, expr: awst_nodes.TupleItemExpression
+    ) -> list[_SourceAction]:
         # only keep the relevant action
-        if isinstance(expr.wtype, wtypes.WInnerTransaction):
-            self._actions[start_len:] = [added[expr.index]]
+        if isinstance(expr.base.wtype, wtypes.ARC4Tuple):
+            return self._empty_actions_from_wtype(expr)
+        assert isinstance(expr.base.wtype, wtypes.WTuple)
+        added = expr.base.accept(self)
+        assert len(added) == get_wtype_arity(expr.base.wtype)
+        return list(
+            _get_tuple_items(
+                tuple_values=added,
+                tuple_wtype=expr.base.wtype,
+                index=expr.index,
+            )
+        )
 
-    def visit_slice_expression(self, expr: awst_nodes.SliceExpression) -> None:
-        start_len = len(self._actions)
-        super().visit_slice_expression(expr)
-        added = self._actions[start_len:]
-        if not added or not isinstance(expr.base.wtype, wtypes.WTuple):
-            return
+    @typing.override
+    def visit_tuple_expression(self, expr: awst_nodes.TupleExpression) -> list[_SourceAction]:
+        return [t for item in expr.items for t in item.accept(self)]
+
+    @typing.override
+    def visit_field_expression(self, expr: awst_nodes.FieldExpression) -> list[_SourceAction]:
+        if not (isinstance(expr.wtype, wtypes.WTuple) and expr.wtype.names):
+            return self._empty_actions_from_wtype(expr)
+        added = expr.base.accept(self)
+        index = expr.wtype.name_to_index(expr.name, expr.source_location)
+        return list(
+            _get_tuple_items(
+                tuple_values=added,
+                tuple_wtype=expr.wtype,
+                index=index,
+            )
+        )
+
+    @typing.override
+    def visit_slice_expression(self, expr: awst_nodes.SliceExpression) -> list[_SourceAction]:
+        if not isinstance(expr.base.wtype, wtypes.WTuple):
+            return self._empty_actions_from_wtype(expr)
+        added = expr.base.accept(self)
+        assert len(added) == get_wtype_arity(expr.base.wtype)
         # determine constant indexes
         tuple_size = len(added)
         begin_index = 0 if expr.begin_index is None else _get_uint64_const(expr.begin_index)
-        if begin_index is None:
-            return
-        begin_index = positive_index(begin_index, added)
         end_index = tuple_size if expr.end_index is None else _get_uint64_const(expr.end_index)
-        if end_index is None:
-            return
+        if begin_index is None or end_index is None:
+            raise InternalError("uh-oh spaghetti-do's", expr.source_location)
+        begin_index = positive_index(begin_index, added)
         end_index = positive_index(end_index, added)
+        added = expr.base.accept(self)
+        return list(
+            _get_tuple_items(
+                tuple_values=added,
+                tuple_wtype=expr.base.wtype,
+                index=(begin_index, end_index),
+            )
+        )
 
-        # include relevant items from sliced tuple
-        self._actions[start_len:] = [
-            added[idx]
-            for idx in range(begin_index, end_index)
-            if isinstance(expr.base.wtype.types[idx], wtypes.WInnerTransaction)
-        ]
+    @typing.override
+    def visit_assignment_expression(
+        self, expr: awst_nodes.AssignmentExpression
+    ) -> list[_SourceAction]:
+        return expr.value.accept(self)
+
+    @typing.override
+    def visit_reinterpret_cast(self, expr: awst_nodes.ReinterpretCast) -> list[_SourceAction]:
+        return expr.expr.accept(self)
+
+    # region idc
+    def _empty_actions_from_wtype(self, expr: awst_nodes.Expression) -> list[_SourceAction]:
+        ir_types = wtype_to_ir_types(expr.wtype, source_location=expr.source_location)
+        # itxn_group_idx values are only supported in specific types of expressions
+        if PrimitiveIRType.itxn_group_idx in ir_types:
+            logger.error("unsupported inner transaction expression", location=expr.source_location)
+        return [None] * len(ir_types)
+
+    @typing.override
+    def visit_state_delete(self, expr: awst_nodes.StateDelete) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_uint64_binary_operation(
+        self, expr: awst_nodes.UInt64BinaryOperation
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_biguint_binary_operation(
+        self, expr: awst_nodes.BigUIntBinaryOperation
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_integer_constant(self, expr: awst_nodes.IntegerConstant) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_decimal_constant(self, expr: awst_nodes.DecimalConstant) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_bool_constant(self, expr: awst_nodes.BoolConstant) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_bytes_constant(self, expr: awst_nodes.BytesConstant) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_string_constant(self, expr: awst_nodes.StringConstant) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_void_constant(self, expr: awst_nodes.VoidConstant) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_address_constant(self, expr: awst_nodes.AddressConstant) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_compiled_contract(self, expr: awst_nodes.CompiledContract) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_compiled_logicsig(self, expr: awst_nodes.CompiledLogicSig) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_numeric_comparison_expression(
+        self, expr: awst_nodes.NumericComparisonExpression
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_intrinsic_call(self, expr: awst_nodes.IntrinsicCall) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_puya_lib_call(self, expr: awst_nodes.PuyaLibCall) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_group_transaction_reference(
+        self, expr: awst_nodes.GroupTransactionReference
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_create_inner_transaction(
+        self, expr: awst_nodes.CreateInnerTransaction
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_update_inner_transaction(
+        self, expr: awst_nodes.UpdateInnerTransaction
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_assert_expression(self, expr: awst_nodes.AssertExpression) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_arc4_decode(self, expr: awst_nodes.ARC4Decode) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_conditional_expression(
+        self, expr: awst_nodes.ConditionalExpression
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_app_state_expression(
+        self, expr: awst_nodes.AppStateExpression
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_app_account_state_expression(
+        self, expr: awst_nodes.AppAccountStateExpression
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_new_array(self, expr: awst_nodes.NewArray) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_array_length(self, expr: awst_nodes.ArrayLength) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_new_struct(self, expr: awst_nodes.NewStruct) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_bytes_comparison_expression(
+        self, expr: awst_nodes.BytesComparisonExpression
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_subroutine_call_expression(
+        self, expr: awst_nodes.SubroutineCallExpression
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_bytes_binary_operation(
+        self, expr: awst_nodes.BytesBinaryOperation
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_boolean_binary_operation(
+        self, expr: awst_nodes.BooleanBinaryOperation
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_uint64_unary_operation(
+        self, expr: awst_nodes.UInt64UnaryOperation
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_bytes_unary_operation(
+        self, expr: awst_nodes.BytesUnaryOperation
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_not_expression(self, expr: awst_nodes.Not) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_enumeration(self, expr: awst_nodes.Enumeration) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_method_constant(self, expr: awst_nodes.MethodConstant) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_array_pop(self, expr: awst_nodes.ArrayPop) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_array_replace(self, expr: awst_nodes.ArrayReplace) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_copy(self, expr: awst_nodes.Copy) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_reversed(self, expr: awst_nodes.Reversed) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_state_get(self, expr: awst_nodes.StateGet) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_state_get_ex(self, expr: awst_nodes.StateGetEx) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_state_exists(self, expr: awst_nodes.StateExists) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_template_var(self, expr: awst_nodes.TemplateVar) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_intersection_slice_expression(
+        self, expr: awst_nodes.IntersectionSliceExpression
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_box_value_expression(
+        self, expr: awst_nodes.BoxValueExpression
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_uint64_postfix_unary_operation(
+        self, expr: awst_nodes.UInt64PostfixUnaryOperation
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_biguint_postfix_unary_operation(
+        self, expr: awst_nodes.BigUIntPostfixUnaryOperation
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_range(self, expr: awst_nodes.Range) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_emit(self, expr: awst_nodes.Emit) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_inner_transaction_field(
+        self, expr: awst_nodes.InnerTransactionField
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    # endregion
 
 
 def _get_uint64_const(expr: awst_nodes.Expression) -> int | None:
@@ -726,3 +1058,19 @@ def _get_txn_field_var_name(var_name: str, field: str) -> str:
 
 def _get_txn_is_last(var_name: str) -> str:
     return f"{var_name}._is_last"
+
+
+def _get_tuple_items[T](
+    *,
+    tuple_values: Sequence[T],
+    tuple_wtype: wtypes.WTuple,
+    index: int | tuple[int, int | None],
+) -> Sequence[T]:
+    if isinstance(index, tuple):
+        skip_values = sum_wtypes_arity(tuple_wtype.types[: index[0]])
+        target_arity = sum_wtypes_arity(tuple_wtype.types[index[0] : index[1]])
+    else:
+        skip_values = sum_wtypes_arity(tuple_wtype.types[:index])
+        target_arity = get_wtype_arity(tuple_wtype.types[index])
+
+    return tuple_values[skip_values : skip_values + target_arity]
