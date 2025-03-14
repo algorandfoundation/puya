@@ -7,6 +7,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.awst_traverser import AWSTTraverser
+from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.parse import SourceLocation
 
@@ -65,6 +66,9 @@ class InnerTransactionsValidator(AWSTTraverser):
 
     def _check_inner_transaction_assignment(self, value: awst_nodes.Expression) -> None:
         if _is_itxn_wtype(value.wtype) and not _is_assignable_itxn_expr(value):
+            logger.debug(
+                f"Inner transaction expression is not assignable {value.accept(ToCodeVisitor())}"
+            )
             logger.error(INNER_TRANSACTION_SOURCE_ERROR, location=value.source_location)
 
     def _check_inner_transaction_fields_assignment(self, value: awst_nodes.Expression) -> None:
@@ -82,6 +86,9 @@ class InnerTransactionsValidator(AWSTTraverser):
             case awst_nodes.Expression(wtype=wtype) if (
                 isinstance(wtype, WInnerTransactionFields)
             ):
+                logger.debug(
+                    f"Inner transaction fields are not assignable {value.accept(ToCodeVisitor())}"
+                )
                 logger.error(
                     INNER_TRANSACTION_SOURCE_ERROR,
                     location=value.source_location,
@@ -209,6 +216,10 @@ def _is_assignable_itxn_expr(expr: awst_nodes.Expression) -> bool:
             base=base
         ):  # tuple items are assignable if their base is assignable
             return _is_assignable_itxn_expr(base)
+        case awst_nodes.FieldExpression(
+            base=awst_nodes.Expression(wtype=wtypes.WTuple()) as base
+        ):  # named tuple fields are assignable if their base is assignable
+            return _is_assignable_itxn_expr(base)
         case awst_nodes.SingleEvaluation(source=source):
             return _is_assignable_itxn_expr(source)
         case awst_nodes.SliceExpression(
@@ -216,6 +227,8 @@ def _is_assignable_itxn_expr(expr: awst_nodes.Expression) -> bool:
         ):  # tuple slices can be assigned if base can be
             return _is_assignable_itxn_expr(base)
     # anything else is not considered assignable
+    expr_str = expr.accept(ToCodeVisitor())
+    logger.debug(f"not assignable: {expr_str=}, {type(expr)=}")
     return False
 
 

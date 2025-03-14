@@ -180,7 +180,7 @@ class InnerTransactionBuilder:
         """Performs special handling for inner transaction related assignments"""
         # awst_nodes.SubmitInnerTransaction is used to submit itxn field sets as an inner
         # transaction group
-        # Then all non aray fields are assigned to local registers and cached
+        # Then all non array fields are assigned to local registers and cached
         # This allows these fields to be read later even if additional itxn submissions have been
         # performed.
         # Array fields can not be cached in the same way currently, due to the lack of an
@@ -621,14 +621,24 @@ _SourceAction = _CopySource | _AssignSubmit
 class SourceActionExtractor(FunctionTraverser):
     def __init__(self) -> None:
         self._actions = list[_SourceAction]()
+        self.itxn_submits = set[awst_nodes.SubmitInnerTransaction]()
+        self.single_evals = dict[awst_nodes.SingleEvaluation, awst_nodes.Expression]()
 
     @classmethod
     def visit(cls, node: awst_nodes.Expression) -> list[_SourceAction]:
         visitor = cls()
         node.accept(visitor)
+        if len(visitor.itxn_submits) > 1:
+            logger.error(
+                "multiple inner transactions cannot be individually"
+                " submitted in the same statement. Try using a group",
+                location=node.source_location,
+            )
         return visitor._actions  # noqa: SLF001
 
     def visit_submit_inner_transaction(self, call: awst_nodes.SubmitInnerTransaction) -> None:
+        super().visit_submit_inner_transaction(call)
+        self.itxn_submits.add(call)
         itxns = len(call.itxns)
         self._actions.extend(
             _AssignSubmit(index=idx, is_last=idx == itxns - 1) for idx in range(itxns)
@@ -645,9 +655,33 @@ class SourceActionExtractor(FunctionTraverser):
             ]
         )
 
+    def visit_single_evaluation(self, expr: awst_nodes.SingleEvaluation) -> None:
+        # reuse the first node seen when visiting single evaluations
+        # this allows tracking if there are multiple SubmitInnerTransaction nodes
+        try:
+            first_expr = self.single_evals[expr]
+        except KeyError:
+            self.single_evals[expr] = first_expr = expr.source
+        first_expr.accept(self)
+
     def visit_inner_transaction_field(self, itxn_field: awst_nodes.InnerTransactionField) -> None:
         # this will consume any referenced inner transaction, so don't need to traverse it
         pass
+
+    def visit_field_expression(self, expr: awst_nodes.FieldExpression) -> None:
+        start_len = len(self._actions)
+        super().visit_field_expression(expr)
+        added = self._actions[start_len:]
+        # only keep the relevant action
+        base_wtype = expr.base.wtype
+        if isinstance(expr.wtype, wtypes.WInnerTransaction) and isinstance(
+            base_wtype, wtypes.WTuple
+        ):
+            assert base_wtype.names is not None, "expected named tuple"
+            index = base_wtype.names.index(expr.name)
+            self._actions[start_len:] = [added[index]]
+        elif added:
+            self._actions[start_len:] = []
 
     def visit_tuple_item_expression(self, expr: awst_nodes.TupleItemExpression) -> None:
         start_len = len(self._actions)
@@ -656,6 +690,8 @@ class SourceActionExtractor(FunctionTraverser):
         # only keep the relevant action
         if isinstance(expr.wtype, wtypes.WInnerTransaction):
             self._actions[start_len:] = [added[expr.index]]
+        elif added:
+            self._actions[start_len:] = []
 
     def visit_slice_expression(self, expr: awst_nodes.SliceExpression) -> None:
         start_len = len(self._actions)
