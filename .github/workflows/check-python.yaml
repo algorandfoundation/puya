@@ -60,6 +60,10 @@ jobs:
 
   compile-all:
     runs-on: "ubuntu-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        flags: ["-O0", "-O1", "-O2"]
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -68,7 +72,7 @@ jobs:
         uses: ./.github/actions/setup-python-venv
 
       - name: Compile all
-        run: poe compile_all
+        run: poe compile_all ${{ matrix.flags }}
 
       - name: Check for any changes
         # this checks for empty output of porcelain status, if there's no output there's no diff
@@ -85,6 +89,10 @@ jobs:
 
   compile-all-windows:
     runs-on: "windows-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        flags: ["-O0", "-O1", "-O2"]
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -93,8 +101,7 @@ jobs:
         uses: ./.github/actions/setup-python-venv
 
       - name: Compile all
-        shell: bash
-        run: poe compile_all
+        run: poe compile_all ${{ matrix.flags }}
 
       # simple diff check here as line endings mess with git status
       - name: Check diff
