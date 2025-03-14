@@ -73,12 +73,25 @@ runs:
       run: |
         mkdir -p ${{ inputs.artifacts_dir }}
         docker run --rm \
-          -v ${{ github.workspace }}:/src \
-          -v ${{ inputs.artifacts_dir }}:${{ inputs.artifacts_dir }} \
-          -e GITHUB_WORKSPACE=/src \
+          --volume ${{ github.workspace }}:/src \
+          --volume ${{ inputs.artifacts_dir }}:${{ inputs.artifacts_dir }} \
+          --env GITHUB_WORKSPACE=/src \
           ${{ steps.set-base-image.outputs.cache_tag }} \
-          ${{ inputs.package_name }} \
-          ${{ inputs.artifacts_dir }}
+          bash -c -e '
+            # Install project dependencies
+            cd ${GITHUB_WORKSPACE}
+            poetry install --no-interaction --without=dev --with=cicd
+            # Build the binary
+            poetry run pyinstaller \
+              --clean \
+              --onedir \
+              --name puya \
+              --noconfirm src/puya/__main__.py \
+              --add-data './src/puya/ir/_puya_lib.awst.json:puya/ir/' \
+              --exclude-module mypy_extensions \
+              --optimize=2 \
+              --exclude-module colorama
+          '
 
     # Create tar.gz archive in the artifacts directory for GitHub releases
     - name: Package binary for release

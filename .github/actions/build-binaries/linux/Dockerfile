@@ -94,10 +94,5 @@ RUN dnf -y install zlib bzip2 readline sqlite tk libffi libnsl2 libuuid gdbm && 
 COPY --from=builder ${OPENSSL_DIR} ${OPENSSL_DIR}
 COPY --from=builder ${PYENV_ROOT} ${PYENV_ROOT}
 
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
 VOLUME /src/
 WORKDIR /src/
-
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
