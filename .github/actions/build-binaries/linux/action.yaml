@@ -30,24 +30,17 @@ runs:
       shell: bash
       run: |
         mkdir -p ${{ inputs.artifacts_dir }}
-        if [ "${{ runner.arch }}" == "ARM64" ]; then
-          docker_arch="aarch64"
-        else
-          docker_arch="x86_64"
-        fi
         docker run --rm \
           --volume ${{ github.workspace }}:/src \
           --volume ${{ inputs.artifacts_dir }}:${{ inputs.artifacts_dir }} \
           --env PYTHON_VERSION=${{ inputs.python_version }} \
           ghcr.io/astral-sh/uv:debian \
           bash -c -e '
-            # Install Python, since the bundled ones do not have --enable-shared, we use uv instead
             export PATH=$HOME/.local/bin:$PATH
-            # only-managed = do not use existing system Pythons
             # --preview: link in ~/.local/bin
             # --default: also create default alias: ie link python, not just python3
-            uv python install --python-preference=only-managed $PYTHON_VERSION --preview --default
-            # it is turtles all the way down...
+            uv python install $PYTHON_VERSION --preview --default
+            # Turtles all the way down...
             uv tool install poetry
             # Install project dependencies
             cd /src
