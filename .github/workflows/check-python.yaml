@@ -1,18 +1,9 @@
 name: Check Python Code
 
 on:
-  workflow_call:
   pull_request:
 
 jobs:
-  build-and-upload-binaries: # TODO: REMOVE ME
-    name: Build and Upload Binaries
-    uses: ./.github/workflows/build-binaries.yaml
-    with:
-      python_version: "3.12"
-      package_prefix: "puya-4.4.4"
-    secrets: inherit
-
   check-python:
     runs-on: "ubuntu-latest"
     steps:
@@ -132,3 +123,11 @@ jobs:
 
       - name: Compile AMM directly
         run: puyapy --log-level=debug examples/amm
+
+  build-and-test-binaries:
+    name: Build and test binaries
+    uses: ./.github/workflows/build-binaries.yaml
+    secrets: {}
+    with:
+      package_prefix: puya-${{ format('pr{0}', github.event.number) }}
+      allow_signing: false

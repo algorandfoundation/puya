@@ -60,7 +60,6 @@ jobs:
     outputs:
       version_number: ${{ steps.get_version_info.outputs.version_number }}
       version_tag: ${{ steps.get_version_info.outputs.version_tag }}
-      branch_name: ${{ steps.get_branch.outputs.branch }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -80,10 +79,6 @@ jobs:
             pre-commit run --all-files && git diff --exit-code
             algokit localnet start
             pytest
-
-      - name: Get branch name
-        id: get_branch
-        run: echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
 
       - name: Set git user as GitHub Actions
         run: |
@@ -124,7 +119,7 @@ jobs:
     with:
       python_version: "3.12"
       package_prefix: "puya-${{ needs.prepare-release.outputs.version_number }}"
-      allow_signing: ${{ needs.prepare-release.outputs.branch_name == 'main' }}
+      allow_signing: ${{ github.ref_name == 'main' }}
     secrets: inherit
 
   publish-to-github:
@@ -174,7 +169,7 @@ jobs:
   publish-to-pypi:
     name: Publish to PyPI
     needs: [prepare-release,  publish-to-github]
-    if: needs.prepare-release.outputs.branch_name == 'main' && !inputs.dry_run && inputs.publish_pypi
+    if: github.ref_name == 'main' && !inputs.dry_run && inputs.publish_pypi
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -201,7 +196,7 @@ jobs:
   publish-docs:
     name: Publish docs
     needs: [prepare-release]
-    if: needs.prepare-release.outputs.branch_name == 'main' && !inputs.dry_run && inputs.publish_docs
+    if: github.ref_name == 'main' && !inputs.dry_run && inputs.publish_docs
     uses: ./.github/workflows/gh-pages.yaml
     permissions:
       contents: read
