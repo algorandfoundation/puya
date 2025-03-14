@@ -1226,7 +1226,7 @@ def dynamic_app_client(
         ),
         signer=account,
     )
-    app_client.create()
+    app_client.create(transaction_parameters={"note": random.randbytes(8)})
     return app_client
 
 
@@ -1633,6 +1633,26 @@ def test_named_tuples(
     )
 
 
+def test_uint_overflow(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+    app_client = algokit_utils.ApplicationClient(
+        algod_client,
+        algokit_utils.ApplicationSpecification.from_json(
+            compile_arc32(TEST_CASES_DIR / "arc4_types", file_name="uint_overflow.py")
+        ),
+        signer=account,
+    )
+    app_client.create()
+
+    with pytest.raises(LogicError, match="overflow\t\t<-- Error"):
+        app_client.call("test_uint8")
+
+    with pytest.raises(LogicError, match="overflow\t\t<-- Error"):
+        app_client.call("test_uint16")
+
+    with pytest.raises(LogicError, match="overflow\t\t<-- Error"):
+        app_client.call("test_uint32")
+
+
 def test_group_side_effects(
     algod_client: AlgodClient,
     account: algokit_utils.Account,
@@ -1823,11 +1843,11 @@ def test_array_static_size(
     response = simulate_call(app_client, "test_array", x1=x1, y1=y1, x2=x2, y2=y2)
     assert response.abi_results[0].return_value == 15
     assert _get_box_state(response, b"a") == _get_arc4_bytes(
-        "(uint64,uint64,(uint64,uint64,address,(uint64,uint64)))[]",
+        "(uint64,uint64,(uint64,uint64,address,(uint64,uint64),uint512))[]",
         [
-            (0, 0, (5, 1, sender, (2, 1))),
-            (x1, y1, (5, 2, sender, (3, 4))),
-            (x2, y2, (5, 3, sender, (4, 9))),
+            (0, 0, (5, 1, sender, (2, 1), 1)),
+            (x1, y1, (5, 2, sender, (3, 4), 2)),
+            (x2, y2, (5, 3, sender, (4, 9), 3)),
         ],
     )
 
@@ -1853,15 +1873,24 @@ def test_array_static_size(
     response = simulate_call(app_client, "test_extend_from_arc4_tuple", some_more=[[1, 2], [3, 4]])
     assert response.abi_results[0].return_value == [[1, 2], [3, 4]]
 
+    response = simulate_call(app_client, "test_arc4_bool")
+    assert response.abi_results[0].return_value == [False, True]
+
 
 @pytest.mark.parametrize("optimization_level", [0, 1])
 def test_immutable_array(
     algod_client: AlgodClient, optimization_level: int, account: algokit_utils.Account
 ) -> None:
     immutable_array_app = _get_immutable_array_app(algod_client, optimization_level, account)
+
     response = simulate_call(immutable_array_app, "test_uint64_array")
     assert _get_global_state(response, b"a") == _get_arc4_bytes(
         "uint64[]", [42, 0, 23, 2, *range(10), 44]
+    )
+
+    response = simulate_call(immutable_array_app, "test_biguint_array")
+    assert _get_box_state(response, b"biguint") == _get_arc4_bytes(
+        "uint512[]", [0, *range(5), 2**512 - 2, 2**512 - 1]
     )
 
     response = simulate_call(immutable_array_app, "test_fixed_size_tuple_array")
@@ -2035,7 +2064,16 @@ def _get_immutable_array_app(
 
     app_spec = _get_app_spec(example, optimization_level)
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
-    app_client.create()
+    app_client.create(transaction_parameters={"note": random.randbytes(8)})
+
+    # ensure app meets minimum balance requirements
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=400_000,
+        ),
+    )
 
     return app_client
 
@@ -2082,10 +2120,11 @@ def simulate_call(
         logic_error_data = algokit_utils.logic_error.parse_logic_error(
             simulate_response.failure_message
         )
-        assert (
-            logic_error_data is not None
-        ), f"expected LogicError, got {simulate_response.failure_message}"
-        assert app_client.approval is not None, "expected approval program"
+        if logic_error_data is None:
+            pytest.fail(f"expected LogicError, got {simulate_response.failure_message}")
+
+        if app_client.approval is None:
+            pytest.fail("expected approval program")
         raise algokit_utils.LogicError(
             logic_error_str=simulate_response.failure_message,
             program=app_client.approval.teal,

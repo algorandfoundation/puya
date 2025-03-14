@@ -7,6 +7,7 @@ import mypy.nodes
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    ARC4Encode,
     ArrayConcat,
     ArrayLength,
     ArrayReplace,
@@ -15,12 +16,14 @@ from puya.awst.nodes import (
     IndexExpression,
     IntersectionSliceExpression,
     NewArray,
+    ReinterpretCast,
     Statement,
     TupleExpression,
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puyapy.awst_build import pytypes
+from puyapy.awst_build.arc4_utils import pytype_to_arc4_pytype
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import (
     FunctionBuilder,
@@ -131,7 +134,21 @@ class ImmutableArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayTyp
     @typing.override
     @typing.final
     def to_bytes(self, location: SourceLocation) -> Expression:
-        return self.resolve()
+        def on_error(bad_type: pytypes.PyType) -> typing.Never:
+            raise CodeError(f"cannot serialize {bad_type}", location)
+
+        arc4_wtype = pytype_to_arc4_pytype(self.pytype, on_error).checked_wtype(location)
+        assert isinstance(arc4_wtype, wtypes.ARC4Type), "expected ARC4Type"
+        return ReinterpretCast(
+            # ensure value is explicitly encoded as ARC4
+            expr=ARC4Encode(
+                value=self.resolve(),
+                wtype=arc4_wtype,
+                source_location=location,
+            ),
+            wtype=wtypes.bytes_wtype,
+            source_location=location,
+        )
 
     def length(self, location: SourceLocation) -> InstanceBuilder:
         return UInt64ExpressionBuilder(ArrayLength(array=self.resolve(), source_location=location))

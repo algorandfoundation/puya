@@ -23,6 +23,7 @@ from puya.ir.types_ import (
     SizedBytesType,
     SlotType,
     UnionType,
+    encoded_ir_type_to_ir_types,
 )
 from puya.ir.visitor import IRVisitor
 from puya.parse import SourceLocation
@@ -109,13 +110,6 @@ class Value(ValueProvider, abc.ABC):
 
     def _frozen_data(self) -> object:
         return self
-
-
-def _is_array_type(_op: Context, _attribute: object, value: Value) -> None:
-    if not isinstance(value.ir_type, ArrayType):
-        raise InternalError(
-            f"expected array type, received: {value.ir_type}", value.source_location
-        )
 
 
 def _is_uint64_type(_op: Context, _attribute: object, value: Value) -> None:
@@ -441,22 +435,16 @@ def _value_has_encoded_array_element_type(
 ) -> None:
     array_ir_type = _array_type(op.array)
     element_type = array_ir_type.element
-    if isinstance(value, Value):
-        if value.ir_type != element_type:
-            raise InternalError(
-                f"expected {element_type} type, received: {value.ir_type}",
-                value.source_location,
-            )
-    else:
-        # this is only comparing the linear sequence of tuple types,
-        # as the ValueTuple does not retain the higher level structure
-        element_types = list(_expand_types(element_type))
-        value_types = [v.ir_type for v in value.values]
-        if element_types != value_types:
-            raise InternalError(
-                f"unexpected types {value.types}: expected: {element_types}",
-                value.source_location,
-            )
+    # this is only comparing the linear sequence of types,
+    # as ValueTuple's do not retain the higher level structure
+    element_types = encoded_ir_type_to_ir_types(element_type)
+    values = (value,) if isinstance(value, Value) else value.values
+    value_types = tuple(v.ir_type for v in values)
+    if element_types != value_types:
+        raise InternalError(
+            f"unexpected types {value_types}: expected: {element_types}",
+            value.source_location,
+        )
 
 
 def _expand_types(typ: IRType) -> Iterable[IRType]:
@@ -468,19 +456,30 @@ def _expand_types(typ: IRType) -> Iterable[IRType]:
 
 
 def _array_type(value: Value) -> ArrayType:
-    assert isinstance(value.ir_type, ArrayType)
+    if not isinstance(value.ir_type, ArrayType):
+        raise InternalError("expected ArrayType: {value.ir_type}", value.source_location)
     return value.ir_type
 
 
+@attrs.define(eq=False, kw_only=True)
+class _ArrayOp(Op, ValueProvider):
+    array: Value = attrs.field()
+    # capture array type on the node, so the array value can be optimized
+    # and still retain array type information
+    array_type: ArrayType = attrs.field()
+
+    @array_type.default
+    def _array_type(self) -> ArrayType:
+        return _array_type(self.array)
+
+
 @attrs.define(eq=False)
-class ArrayReadIndex(Op, ValueProvider):
-    array: Value = attrs.field(validator=_is_array_type)
+class ArrayReadIndex(_ArrayOp):
     index: Value = attrs.field(validator=_is_uint64_type)
 
     @property
     def types(self) -> Sequence[IRType]:
-        element_type = _array_type(self.array).element
-        return EncodedTupleType.expand_types(element_type)
+        return encoded_ir_type_to_ir_types(self.array_type.element)
 
     def _frozen_data(self) -> object:
         return self.array, self.index
@@ -490,8 +489,7 @@ class ArrayReadIndex(Op, ValueProvider):
 
 
 @attrs.define(eq=False)
-class ArrayWriteIndex(Op, ValueProvider):
-    array: Value = attrs.field(validator=_is_array_type)
+class ArrayWriteIndex(_ArrayOp):
     index: Value = attrs.field(validator=_is_uint64_type)
     value: "Value | ValueTuple" = attrs.field(validator=_value_has_encoded_array_element_type)
 
@@ -500,18 +498,17 @@ class ArrayWriteIndex(Op, ValueProvider):
 
     @property
     def types(self) -> Sequence[IRType]:
-        return self.array.types
+        return (self.array_type,)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_array_write_index(self)
 
 
 @attrs.define(eq=False)
-class ArrayConcat(Op, ValueProvider):
+class ArrayConcat(_ArrayOp):
     """Concats two array values"""
 
-    array: Value = attrs.field(validator=_is_array_type)
-    other: Value = attrs.field(validator=_is_array_type)
+    other: Value = attrs.field()
 
     def _frozen_data(self) -> object:
         return self.array, self.other
@@ -522,7 +519,7 @@ class ArrayConcat(Op, ValueProvider):
 
     @property
     def types(self) -> Sequence[IRType]:
-        return (_array_type(self.array),)
+        return (self.array_type,)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_array_concat(self)
@@ -547,8 +544,7 @@ class ArrayEncode(Op, ValueProvider):
 
 
 @attrs.define(eq=False)
-class ArrayPop(Op, ValueProvider):
-    array: Value = attrs.field(validator=_is_array_type)
+class ArrayPop(_ArrayOp):
     # TODO: maybe allow pop with an index?
 
     def _frozen_data(self) -> object:
@@ -556,18 +552,14 @@ class ArrayPop(Op, ValueProvider):
 
     @property
     def types(self) -> Sequence[IRType]:
-        array_type = _array_type(self.array)
-        element_type = array_type.element
-        return array_type, *EncodedTupleType.expand_types(element_type)
+        return self.array_type, *encoded_ir_type_to_ir_types(self.array_type.element)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_array_pop(self)
 
 
 @attrs.define(eq=False)
-class ArrayLength(Op, ValueProvider):
-    array: Value = attrs.field(validator=_is_array_type)
-
+class ArrayLength(_ArrayOp):
     def _frozen_data(self) -> object:
         return self.array
 
