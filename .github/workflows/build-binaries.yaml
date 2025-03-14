@@ -196,6 +196,13 @@ jobs:
             exit 1
           fi
 
+  # Whilst we don't use manylinux docker images to build, due to a lack of --enable-shared,
+  # which is required by PyInstaller, we still want to test against compatibility with
+  # most recent stable policy (currently manylinux_2_28).
+  # If the current approach of using uv to install Python (from python-build-standalone) starts
+  # to cause failures here, might need to return to using manylinux images and then compile
+  # Python manually on there...
+  # ref: https://github.com/pypa/manylinux
   manylinux-docker-smoke-tests:
     name: "Smoke test ${{ matrix.distro.name }} ${{ matrix.arch.name }}"
     if: ${{ inputs.run_manylinux_tests }}
