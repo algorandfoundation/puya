@@ -1,4 +1,10 @@
 # CHANGELOG
+## v4.5.0 (2025-03-14)
+
+### Feature
+
+* PyInstaller based binary support ([`8e344ff`](https://github.com/algorandfoundation/puya/commit/8e344ffd6040bb01c0cb53a7a4e93ffb4307f13f))
+
 ## v4.4.4 (2025-03-05)
 
 ### Fix
