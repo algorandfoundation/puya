@@ -39,7 +39,7 @@ runs:
           --volume ${{ github.workspace }}:/src \
           --volume ${{ inputs.artifacts_dir }}:${{ inputs.artifacts_dir }} \
           --env PYTHON_VERSION=${{ inputs.python_version }} \
-          quay.io/pypa/manylinux_2_28_${docker_arch} \
+          ghcr.io/astral-sh/uv:debian \
           bash -c -e '
             # Install Python, since the bundled ones do not have --enable-shared, we use uv instead
             export PATH=$HOME/.local/bin:$PATH
@@ -51,9 +51,9 @@ runs:
             uv tool install poetry
             # Install project dependencies
             cd /src
-            uv tool run poetry install --no-interaction --without=dev --with=cicd
+            poetry install --no-interaction --without=dev --with=cicd
             # Build the binary
-            uv tool run poetry run pyinstaller \
+            poetry run pyinstaller \
               --clean \
               --onedir \
               --name puya \
