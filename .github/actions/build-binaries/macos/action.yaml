@@ -1,0 +1,152 @@
+name: "Build macOS Binary Artifacts"
+description: "Build macOS specific pyinstaller binary artifacts"
+inputs:
+  package_name:
+    description: "The name of the package"
+    required: true
+  artifacts_dir:
+    description: "The directory to write artifacts you want to publish"
+    required: true
+  with_codesign:
+    description: "Flag to determine if we should sign the binary"
+    required: true
+  cert_data:
+    description: "Apple Developer ID certificate data"
+    required: true
+  cert_password:
+    description: "Apple Developer ID certificate password"
+    required: true
+  apple_team_id:
+    description: "The Apple Team ID"
+    required: true
+  apple_bundle_id:
+    description: "The bundle ID to be used for packaging and notarisation"
+    required: true
+  apple_cert_id:
+    description: "The Apple Developer ID certificate ID"
+    required: true
+  apple_notary_user:
+    description: "The Apple user to notarise the package"
+    required: true
+  apple_notary_password:
+    description: "The Apple password to notarise the package"
+    required: true
+  python_version:
+    description: "The Python version to use"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Apple Developer ID Cert
+      if: ${{ inputs.with_codesign == 'true' }}
+      shell: bash
+      run: |
+        # Export certs
+        echo "${{ inputs.cert_data }}" | base64 --decode > /tmp/certs.p12
+
+        # Create keychain
+        security create-keychain -p actions macos-build.keychain
+        security default-keychain -s macos-build.keychain
+        security unlock-keychain -p actions macos-build.keychain
+        security set-keychain-settings -t 3600 -u macos-build.keychain
+        echo "Keychain created"
+
+        # Import certs to keychain
+        security import /tmp/certs.p12 \
+          -k ~/Library/Keychains/macos-build.keychain \
+          -P "${{ inputs.cert_password }}" \
+          -T /usr/bin/codesign \
+          -T /usr/bin/productsign
+        echo "Cert imported"
+
+        # Key signing
+        security set-key-partition-list -S apple-tool:,apple: -s -k actions macos-build.keychain
+        echo "Key signed"
+
+        # Delete temp file
+        rm /tmp/certs.p12
+        echo "Apple Developer ID cerificate imported successfully"      
+
+    - name: Setup Python venv
+      uses: ./.github/actions/setup-python-venv
+      with:
+        python_version: ${{ inputs.python_version }}
+        poetry_install_args: "--without=dev --with=cicd"
+
+    - name: Build binary
+      shell: bash
+      run: |
+        build_cmd="pyinstaller \
+          --clean \
+          --onedir \
+          --name puya \
+          --noconfirm src/puya/__main__.py \
+          --add-data './src/puya/ir/_puya_lib.awst.json:puya/ir/' \
+          --exclude-module mypy_extensions \
+          --optimize=2 \
+          --exclude-module colorama"
+        if [ ! -z "$APPLE_BUNDLE_ID" ]; then
+            build_cmd="$build_cmd --osx-bundle-identifier \"$APPLE_BUNDLE_ID\""
+        fi
+        if [ ! -z "$APPLE_CERT_ID" ]; then
+            build_cmd="$build_cmd --codesign-identity \"$APPLE_CERT_ID\""
+        fi        
+        if [ -f "./entitlements.xml" ]; then
+            build_cmd="$build_cmd --osx-entitlements-file './entitlements.xml'"
+        fi        
+        eval $build_cmd
+      env:
+        APPLE_CERT_ID: ${{ inputs.with_codesign == 'true' && inputs.apple_cert_id || '' }}
+        APPLE_BUNDLE_ID: ${{ inputs.with_codesign == 'true' && inputs.apple_bundle_id || format('beta.{0}', inputs.apple_bundle_id) }}
+
+    # Workaround an issue with PyInstaller where Python.framework was incorrectly signed during the build
+    - name: Codesign python.framework
+      if: ${{ inputs.with_codesign == 'true' }}
+      shell: bash
+      run: |
+        codesign --force --sign "${{ inputs.apple_cert_id }}" --timestamp "${{ github.workspace }}/dist/puya/_internal/Python.framework"
+
+    - name: Notarize
+      if: ${{ inputs.with_codesign == 'true' }}
+      uses: lando/notarize-action@v2
+      with:
+        appstore-connect-team-id: ${{ inputs.apple_team_id }}
+        appstore-connect-username: ${{ inputs.apple_notary_user }}
+        appstore-connect-password: ${{ inputs.apple_notary_password }}
+        primary-bundle-id: ${{ inputs.apple_bundle_id }}
+        product-path: "${{ github.workspace }}/dist/puya"
+        tool: notarytool
+        verbose: true
+
+    # Create tar.gz archive in the artifacts directory for GitHub releases
+    - name: Package binary for release
+      shell: bash
+      working-directory: dist/puya
+      run: |
+        mkdir -p ${{ inputs.artifacts_dir }}
+        tar -zcf ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz *
+
+    # Generate SHA-256 checksum for the release archive
+    - name: Generate SHA-256 checksum
+      shell: bash
+      working-directory: ${{ inputs.artifacts_dir }}
+      run: |
+        shasum -a 256 ${{ inputs.package_name }}.tar.gz > ${{ inputs.package_name }}.sha256.txt
+        cat ${{ inputs.package_name }}.sha256.txt
+
+    # Upload the tar.gz archive as GitHub Actions artifact
+    - name: Upload binary artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz
+        if-no-files-found: error
+
+    # Upload checksum as a separate artifact
+    - name: Upload checksum artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}-sha256
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.sha256.txt
+        if-no-files-found: error

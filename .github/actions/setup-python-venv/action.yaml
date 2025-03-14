@@ -1,0 +1,34 @@
+name: "Setup Python venv"
+description: "Setup Python, install poetry, install dependencies, and activate venv"
+inputs:
+  python_version:
+    description: "The Python version to use"
+    default: "3.12"
+    required: false
+  poetry_install_args:
+    description: "Additional args to pass to poetry install command"
+    default: ""
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install poetry
+      shell: bash
+      run: pipx install poetry
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python_version }}
+        cache: "poetry"
+
+    - name: Install dependencies
+      shell: bash
+      run: poetry install --no-interaction ${{ inputs.poetry_install_args }}
+
+    - name: Activate virtual environment
+      shell: bash
+      run: |
+        echo "VIRTUAL_ENV=$(poetry env info --path)" >> $GITHUB_ENV
+        echo "$(dirname $(poetry env info --executable))" >> $GITHUB_PATH

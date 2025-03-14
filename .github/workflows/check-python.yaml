@@ -1,7 +1,6 @@
 name: Check Python Code
 
 on:
-  workflow_call:
   pull_request:
 
 jobs:
@@ -11,44 +10,26 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Install poetry
-        run: pipx install poetry
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+      - name: Setup Python venv
+        uses: ./.github/actions/setup-python-venv
         with:
-          python-version: "3.12"
-          cache: "poetry"
-
-      - name: Install dependencies
-        run: poetry install --no-interaction --with cicd --with doc
+          poetry_install_args: "--with cicd --with doc"
 
       - name: Check pre-commits
-        run: |
-            set -o pipefail
-            poetry run pre-commit run --all-files && git diff --exit-code
+        run: pre-commit run --all-files && git diff --exit-code
 
       - name: Check generated code
-        run: |
-            set -o pipefail
-            poetry run poe gen && git diff --exit-code
+        run: poe gen && git diff --exit-code
 
       - name: Check documentation
-        run: |
-            set -o pipefail
-            poetry run poe docs
+        run: poe docs
 
-      - name: Check wheels can be built
-        run: |
-          set -o pipefail
-          
-          # build stubs
-          pushd stubs
-          poetry build --format wheel
-          popd
-          
-          # build compiler
-          poetry build --format wheel
+      - name: Check compiler wheel can be built
+        run: poetry build --format wheel
+
+      - name: Check stubs wheel can be built
+        run: poetry build --format wheel
+        working-directory: stubs
 
   tests:
     runs-on: "ubuntu-latest"
@@ -56,28 +37,19 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Install poetry
-        run: pipx install poetry
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+      - name: Setup Python venv
+        uses: ./.github/actions/setup-python-venv
         with:
-          python-version: "3.12"
-          cache: "poetry"
-
-      - name: Install dependencies
-        run: poetry install --no-interaction --with cicd
+          poetry_install_args: "--with cicd"
 
       - name: Start LocalNet
-        run: poetry run algokit localnet start
+        run: algokit localnet start
 
       - name: pytest + coverage
-        shell: bash
+        shell: bash # sets pipefail etc
+        run: pytest --junitxml=pytest-junit.xml --cov | tee pytest-coverage.txt
         env:
           COVERAGE_CORE: sysmon
-        run: |
-          set -o pipefail
-          poetry run pytest --junitxml=pytest-junit.xml --cov | tee pytest-coverage.txt
 
       - name: pytest coverage comment
         continue-on-error: true # forks fail to add a comment, so continue any way
@@ -88,26 +60,22 @@ jobs:
 
   compile-all:
     runs-on: "ubuntu-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        flags: ["-O0", "-O1", "-O2"]
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Install poetry
-        run: pipx install poetry
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: "poetry"
-
-      - name: Install dependencies
-        run: poetry install --no-interaction
+      - name: Setup Python venv
+        uses: ./.github/actions/setup-python-venv
 
       - name: Compile all
-        run: poetry run scripts/compile_all_examples.py
+        run: poe compile_all ${{ matrix.flags }}
 
       - name: Check for any changes
+        # this checks for empty output of porcelain status, if there's no output there's no diff
         run: test -z "$(git status --porcelain examples/ test_cases/)"
 
       - name: Show changed files summary
@@ -121,28 +89,53 @@ jobs:
 
   compile-all-windows:
     runs-on: "windows-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        flags: ["-O0", "-O1", "-O2"]
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Install poetry
-        run: pipx install poetry
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: "poetry"
-
-      - name: Install dependencies
-        run: poetry install --no-interaction
+      - name: Setup Python venv
+        uses: ./.github/actions/setup-python-venv
 
       - name: Compile all
-        shell: bash
-        run: poetry run python scripts/compile_all_examples.py
-        env:
-          PYTHONUTF8: 1
+        run: poe compile_all ${{ matrix.flags }}
 
       # simple diff check here as line endings mess with git status
       - name: Check diff
         run: git diff --exit-code examples/ test_cases/
+
+  # run a test in all Windows
+  run-puyapy-windows:
+    name: "Run PuyaPy on Windows via ${{ matrix.shell }}"
+    runs-on: "windows-latest"
+    strategy:
+      fail-fast: false # Continue with other matrix jobs even if one fails
+      matrix:
+        shell: [cmd, pwsh, bash]
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Python venv
+        uses: ./.github/actions/setup-python-venv
+
+      - name: Compile AMM via compile_all
+        run: poe compile_all examples/amm
+
+      - name: Compile AMM directly
+        run: puyapy --log-level=debug examples/amm
+
+  build-and-test-binaries:
+    name: Build and test binaries
+    uses: ./.github/workflows/build-binaries.yaml
+    secrets: {}
+    with:
+      package_prefix: puya-${{ format('pr{0}', github.event.number) }}
+      allow_signing: false
+      run_manylinux_tests: false

@@ -1,0 +1,95 @@
+name: "Build Windows Binary Artifacts"
+description: "Build Windows specific pyinstaller binary artifacts"
+inputs:
+  package_name:
+    description: "The name of the package"
+    required: true
+  artifacts_dir:
+    description: "The directory to write artifacts you want to publish"
+    required: true
+  with_codesign:
+    description: "Flag to determine if we should sign the binary"
+    required: true
+  azure_tenant_id:
+    description: "The Microsoft Entra tenant (directory) ID."
+    required: true
+  azure_client_id:
+    description: "The client (application) ID of an App Registration in the tenant."
+    required: true
+  azure_client_secret:
+    description: "A client secret that was generated for the App Registration."
+    required: true
+  python_version:
+    description: "The Python version to use"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Python venv
+      uses: ./.github/actions/setup-python-venv
+      with:
+        python_version: ${{ inputs.python_version }}
+        poetry_install_args: "--without=dev --with=cicd"
+
+    - name: Build binary
+      shell: bash
+      run: |
+        pyinstaller \
+          --clean \
+          --onedir \
+          --name puya \
+          --noconfirm src/puya/__main__.py \
+          --add-data './src/puya/ir/_puya_lib.awst.json:puya/ir/' \
+          --exclude-module mypy_extensions \
+          --optimize=2 \
+          --hidden-import colorama
+
+    - name: Sign executable
+      if: ${{ inputs.with_codesign == 'true' }}
+      uses: azure/trusted-signing-action@v0.5.1
+      with:
+        azure-tenant-id: ${{ inputs.azure_tenant_id }}
+        azure-client-id: ${{ inputs.azure_client_id }}
+        azure-client-secret: ${{ inputs.azure_client_secret }}
+        endpoint: https://weu.codesigning.azure.net/
+        trusted-signing-account-name: algokit-signing
+        certificate-profile-name: algokit
+        files-folder: dist/puya
+        files-folder-filter: exe
+        file-digest: SHA256
+        timestamp-rfc3161: http://timestamp.acs.microsoft.com
+        timestamp-digest: SHA256
+
+    # Create tar.gz archive in the artifacts directory for GitHub releases
+    - name: Package binary for release
+      shell: pwsh
+      working-directory: dist/puya
+      run: |
+        mkdir -p ${{ inputs.artifacts_dir }}
+        tar -czf "${{ inputs.artifacts_dir }}\${{ inputs.package_name }}.tar.gz" *
+
+    # Generate SHA-256 checksum for the release archive
+    - name: Generate SHA-256 checksum
+      shell: pwsh
+      working-directory: ${{ inputs.artifacts_dir }}
+      run: |
+        $hash = Get-FileHash -Algorithm SHA256 -Path "${{ inputs.package_name }}.tar.gz"
+        "$($hash.Hash.ToLower())  ${{ inputs.package_name }}.tar.gz" | Out-File -Encoding utf8 "${{ inputs.package_name }}.sha256.txt"
+        Get-Content "${{ inputs.package_name }}.sha256.txt"
+
+    # Upload the tar.gz archive as GitHub Actions artifact
+    - name: Upload binary artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz
+        if-no-files-found: error
+
+    # Upload checksum as a separate artifact
+    - name: Upload checksum artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}-sha256
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.sha256.txt
+        if-no-files-found: error

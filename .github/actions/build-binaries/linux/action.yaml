@@ -1,0 +1,136 @@
+name: "Build Linux Binary Artifacts"
+description: "Build Linux specific pyinstaller binary artifacts using Docker container"
+inputs:
+  package_name:
+    description: "The name of the package"
+    required: true
+  artifacts_dir:
+    description: "The directory to write artifacts you want to publish"
+    required: true
+  with_codesign:
+    description: "Flag to determine if we should sign the binary"
+    required: true
+  gpg_signing_private_key:
+    description: "The GPG signing private key (base64 encoded)"
+    required: true
+  gpg_signing_private_key_password:
+    description: "The GPG signing private key password"
+    required: true
+  gpg_key_id:
+    description: "The GPG key ID to use for signing"
+    required: true
+  python_version:
+    description: "The Python version to use"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run PyInstaller inside Docker container
+      shell: bash
+      run: |
+        mkdir -p ${{ inputs.artifacts_dir }}
+        docker run --rm \
+          --volume ${{ github.workspace }}:/src \
+          --volume ${{ inputs.artifacts_dir }}:${{ inputs.artifacts_dir }} \
+          --env PYTHON_VERSION=${{ inputs.python_version }} \
+          ghcr.io/astral-sh/uv:debian \
+          bash -c -e '
+            export PATH=$HOME/.local/bin:$PATH
+            # --preview: link in ~/.local/bin
+            # --default: also create default alias: ie link python, not just python3
+            uv python install $PYTHON_VERSION --preview --default
+            # Turtles all the way down...
+            uv tool install poetry
+            # Install project dependencies
+            cd /src
+            poetry install --no-interaction --without=dev --with=cicd
+            # Build the binary
+            poetry run pyinstaller \
+              --clean \
+              --onedir \
+              --name puya \
+              --noconfirm src/puya/__main__.py \
+              --add-data "./src/puya/ir/_puya_lib.awst.json:puya/ir/" \
+              --exclude-module mypy_extensions \
+              --optimize=2 \
+              --exclude-module colorama
+          '
+
+    # Create tar.gz archive in the artifacts directory for GitHub releases
+    - name: Package binary for release
+      shell: bash
+      working-directory: dist/puya/
+      run: |
+        tar -zcf ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz *
+
+    # Upload the tar.gz archive as GitHub Actions artifact
+    - name: Upload binary artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz
+        if-no-files-found: error
+
+    # Generate SHA-256 checksum for the release archive
+    # This is useful to ensure the archive file was not corrupted in transit,
+    # without requiring the user to setup GPG or similar
+    - name: Generate SHA-256 checksum
+      shell: bash
+      working-directory: ${{ inputs.artifacts_dir }}
+      run: |
+        sha256sum ${{ inputs.package_name }}.tar.gz > ${{ inputs.package_name }}.sha256.txt
+        cat ${{ inputs.package_name }}.sha256.txt
+
+    # Upload checksum as a separate artifact
+    - name: Upload checksum artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}-sha256
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.sha256.txt
+        if-no-files-found: error
+
+    # Sign the distribution archive with GPG.outputs:
+    # This will allow the end user to both ensure the archive file was not corrupted in transit,
+    # and also verify it comes from a trusted source
+    - name: Sign with GPG
+      if: ${{ inputs.with_codesign == 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.artifacts_dir }}
+      run: |
+        # Create temporary directories
+        GNUPGHOME=/tmp/gpg-signing
+        mkdir -m 700 $GNUPGHOME
+
+        # Explicitly disable agent to avoid connection errors
+        echo "disable-scdaemon" > $GNUPGHOME/gpg-agent.conf
+
+        # Import the GPG private key
+        echo "${{ inputs.gpg_signing_private_key }}" | base64 -d > $GNUPGHOME/private.key
+        gpg --batch --import $GNUPGHOME/private.key
+        rm -f $GNUPGHOME/private.key
+
+        # List the keys to confirm import
+        gpg --list-secret-keys ${{ inputs.gpg_key_id }}
+        gpg --list-keys ${{ inputs.gpg_key_id }}
+
+        # Sign the archive
+        gpg --batch \
+            --pinentry-mode loopback \
+            --passphrase "${{ inputs.gpg_signing_private_key_password }}" \
+            --local-user ${{ inputs.gpg_key_id }} \
+            --detach-sign \
+            --armor \
+            ${{ inputs.package_name }}.tar.gz
+        
+        # Done with signing, clean up GPG home
+        rm -rf $GNUPGHOME
+
+    # Upload GPG signature for tar.gz archive
+    - name: Upload tar.gz signature artifact
+      if: ${{ inputs.with_codesign == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}-archive-signature
+        path: ${{ inputs.artifacts_dir }}/${{ inputs.package_name }}.tar.gz.asc
+        if-no-files-found: error

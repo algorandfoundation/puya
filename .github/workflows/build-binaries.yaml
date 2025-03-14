@@ -1,0 +1,271 @@
+name: Build, Test and Publish Pyinstaller Binaries
+
+on:
+  workflow_call:
+    inputs:
+      python_version:
+        required: false
+        type: string
+        default: "3.12"
+      package_prefix:
+        required: true
+        type: string
+      allow_signing:
+        required: false
+        type: boolean
+        default: false
+      run_manylinux_tests:
+        required: false
+        type: boolean
+        default: true
+env:
+  ARTIFACTS_DIR: "${{ github.workspace }}/dist/artifacts"
+
+jobs:
+  generate-smoke-test-inputs:
+    name: Generate smoke-test inputs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Python venv
+        uses: ./.github/actions/setup-python-venv
+        with:
+          python_version: ${{ inputs.python_version }}
+
+      - name: Generate input data
+        shell: bash
+        run: |
+          puyapy --output-awst-json examples/hello_world_arc4
+          echo '{"compilation_set":{"examples.hello_world_arc4.contract.HelloWorldContract": "."}, "output_teal": true}' > options.json
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-smoke-test-inputs
+          if-no-files-found: error
+          path: |
+            module.awst.json
+            options.json
+
+  build-linux-binaries:
+    name: Build Linux binaries
+    runs-on: ${{ matrix.runner.id }}
+    strategy:
+      fail-fast: false # Continue with other matrix jobs even if one fails
+      matrix:
+        runner:
+          - { id: ubuntu-22.04, arch: x64}
+          - { id: ubuntu-22.04-arm, arch: arm64 }
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Build Linux binaries
+        uses: ./.github/actions/build-binaries/linux
+        with:
+          python_version: ${{ inputs.python_version }}
+          package_name: "${{ inputs.package_prefix }}-linux_${{ matrix.runner.arch }}"
+          artifacts_dir: ${{ env.ARTIFACTS_DIR }}
+          with_codesign: ${{ inputs.allow_signing }}
+          gpg_signing_private_key: ${{ inputs.allow_signing && secrets.GPG_SIGNING_PRIVATE_KEY || '' }}
+          gpg_signing_private_key_password: ${{ inputs.allow_signing && secrets.GPG_SIGNING_PRIVATE_KEY_PASSWORD || '' }}
+          gpg_key_id: ${{ inputs.allow_signing && secrets.GPG_KEY_ID || '' }}
+
+      # Upload binary artifacts for the CD workflow to handle
+      - name: Upload binary artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-artifacts-${{ runner.os }}-${{ runner.arch }}
+          if-no-files-found: error
+          path: ${{ env.ARTIFACTS_DIR }}/*.*
+
+  build-windows-binaries:
+    name: Build Windows binaries
+    runs-on: ${{ matrix.runner.id }}
+    strategy:
+      fail-fast: false # Continue with other matrix jobs even if one fails
+      matrix:
+        runner:
+          - { id: windows-latest, arch: x64 }
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Build Windows binaries
+        uses: ./.github/actions/build-binaries/windows
+        with:
+          python_version: ${{ inputs.python_version }}
+          package_name: "${{ inputs.package_prefix }}-windows_${{ matrix.runner.arch }}"
+          artifacts_dir: ${{ env.ARTIFACTS_DIR }}
+          with_codesign: ${{ inputs.allow_signing }}
+          azure_tenant_id: ${{ inputs.allow_signing && secrets.AZURE_TENANT_ID || '' }}
+          azure_client_id: ${{ inputs.allow_signing && secrets.AZURE_CLIENT_ID || '' }}
+          azure_client_secret: ${{ inputs.allow_signing && secrets.AZURE_CLIENT_SECRET || '' }}
+
+      # Upload binary artifacts for the CD workflow to handle
+      - name: Upload binary artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-artifacts-${{ runner.os }}-${{ runner.arch }}
+          if-no-files-found: error
+          path: ${{ env.ARTIFACTS_DIR }}/*.*
+
+  build-macos-binaries:
+    name: Build macOS binaries
+    runs-on: ${{ matrix.runner.id }}
+    strategy:
+      fail-fast: false # Continue with other matrix jobs even if one fails
+      matrix:
+        runner:
+            # macos-14 is the Apple Silicon M1 runner (mac os 14)
+            # macos-13 is the last available Intel Mac runner (mac os 13)
+            # See https://github.com/actions/runner-images?tab=readme-ov-file#available-images
+          - { id: macos-13, arch: x64 }
+          - { id: macos-14, arch: arm64 }
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Build macOS binary
+        uses: ./.github/actions/build-binaries/macos
+        with:
+          python_version: ${{ inputs.python_version }}
+          package_name: "${{ inputs.package_prefix }}-macos_${{ matrix.runner.arch }}"
+          artifacts_dir: ${{ env.ARTIFACTS_DIR }}
+          with_codesign: ${{ inputs.allow_signing }}
+          cert_data: ${{ inputs.allow_signing && secrets.APPLE_CERT_DATA || '' }}
+          cert_password: ${{ inputs.allow_signing && secrets.APPLE_CERT_PASSWORD || '' }}
+          apple_team_id: ${{ inputs.allow_signing && secrets.APPLE_TEAM_ID || '' }}
+          apple_bundle_id: ${{ inputs.allow_signing && secrets.APPLE_BUNDLE_ID || format('beta.{0}', secrets.APPLE_BUNDLE_ID) }}
+          apple_cert_id: ${{ inputs.allow_signing && secrets.APPLE_CERT_ID || '' }}
+          apple_notary_user: ${{ inputs.allow_signing && secrets.APPLE_NOTARY_USER || '' }}
+          apple_notary_password: ${{ inputs.allow_signing && secrets.APPLE_NOTARY_PASSWORD || '' }}
+
+      # Upload binary artifacts for the CD workflow to handle
+      - name: Upload binary artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-artifacts-${{ runner.os }}-${{ runner.arch }}
+          if-no-files-found: error
+          path: ${{ env.ARTIFACTS_DIR }}/*.*
+
+  runner-native-smoketests:
+    name: "Smoke test ${{ matrix.runner.id }}"
+    runs-on: ${{ matrix.runner.id }}
+    needs: [ generate-smoke-test-inputs, build-linux-binaries, build-windows-binaries, build-macos-binaries ]
+    strategy:
+      fail-fast: false # Continue with other matrix jobs even if one fails
+      matrix:
+        runner:
+          - { id: ubuntu-22.04, os: linux, arch: x64}
+          - { id: ubuntu-22.04-arm, os: linux, arch: arm64 }
+          - { id: windows-latest, os: windows, arch: x64 }
+            # macos-14 is the Apple Silicon M1 runner (mac os 14)
+            # macos-13 is the last available Intel Mac runner (mac os 13)
+            # See https://github.com/actions/runner-images?tab=readme-ov-file#available-images
+          - { id: macos-13, os: macos, arch: x64 }
+          - { id: macos-14, os: macos, arch: arm64 }
+    env:
+      PACKAGE_NAME: "${{ inputs.package_prefix }}-${{ matrix.runner.os }}_${{ matrix.runner.arch }}"
+    steps:
+      - name: Download smoke test data
+        uses: actions/download-artifact@v4
+        with:
+          name: binary-smoke-test-inputs
+
+      - name: Download binary artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PACKAGE_NAME }}
+
+      - name: Binary smoke test
+        shell: bash
+        run: |
+          tar -xzf ${PACKAGE_NAME}.tar.gz       
+          
+          # Run a basic test to verify the binary works
+          ./puya --version
+
+          # Run the binary tests
+          ./puya --log-level=debug --options options.json --awst module.awst.json 
+
+          if [ ! -f *.approval.teal ]; then
+            echo "Compiler exited without outputting TEAL" >&2
+            exit 1
+          fi
+
+  # Whilst we don't use manylinux docker images to build, due to a lack of --enable-shared,
+  # which is required by PyInstaller, we still want to test against compatibility with
+  # most recent stable policy (currently manylinux_2_28).
+  # If the current approach of using uv to install Python (from python-build-standalone) starts
+  # to cause failures here, might need to return to using manylinux images and then compile
+  # Python manually on there...
+  # ref: https://github.com/pypa/manylinux
+  manylinux-docker-smoke-tests:
+    name: "Smoke test ${{ matrix.distro.name }} ${{ matrix.arch.name }}"
+    if: ${{ inputs.run_manylinux_tests }}
+    needs: [ generate-smoke-test-inputs, build-linux-binaries ]
+    runs-on: ${{ matrix.arch.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        arch:
+          - { runner: "ubuntu-22.04", name: "amd64", identifier: "linux_x64" }
+          - { runner: "ubuntu-22.04-arm", name: "arm64", identifier: "linux_arm64" }
+        distro:
+          # Debian family (glibc 2.28+)
+          - { name: "Debian 10", image: "debian:10" }
+          - { name: "Debian 11", image: "debian:11" }
+          - { name: "Debian 12", image: "debian:12" }
+          # Ubuntu family (glibc 2.31+)
+          - { name: "Ubuntu 20.04", image: "ubuntu:20.04" }
+          - { name: "Ubuntu 22.04", image: "ubuntu:22.04" }
+          - { name: "Ubuntu 24.04", image: "ubuntu:24.04" }
+          # Fedora family (glibc 2.28+)
+          - { name: "Fedora 38", image: "fedora:38" }
+          - { name: "Fedora 39", image: "fedora:39" }
+          - { name: "Fedora 40", image: "fedora:40" }
+          # RHEL family (glibc 2.28+)
+          - { name: "CentOS Stream 8", image: "quay.io/centos/centos:stream8" }
+          - { name: "CentOS Stream 9", image: "quay.io/centos/centos:stream9" }
+    env:
+      PACKAGE_NAME: "${{ inputs.package_prefix }}-${{ matrix.arch.identifier }}"
+    steps:
+      - name: Download smoke test data
+        uses: actions/download-artifact@v4
+        with:
+          name: binary-smoke-test-inputs
+
+      - name: Download binary artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PACKAGE_NAME }}
+
+      - name: Run portability tests on ${{ matrix.distro.name }} (${{ matrix.arch.name }})
+        run: |
+          docker run --rm \
+            --volume ${{ github.workspace }}:/workspace \
+            --platform linux/${{ matrix.arch.name }} \
+            --env PACKAGE_NAME=${{ env.PACKAGE_NAME }} \
+            ${{ matrix.distro.image }} \
+            bash -c -e '
+              # Print glibc version
+              ldd --version
+          
+              # extract the binary
+              cd /workspace
+              tar -xzf ${PACKAGE_NAME}.tar.gz               
+    
+              # Run a basic test to verify the binary works
+              ./puya --version
+              
+              # Run the binary tests
+              ./puya --options options.json --awst module.awst.json 
+              
+              if [ ! -f *.approval.teal ]; then
+                echo "Compiler exited without outputting TEAL" >&2
+                exit 1
+              fi          
+            '
