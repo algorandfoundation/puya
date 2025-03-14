@@ -14,6 +14,10 @@ on:
         required: false
         type: boolean
         default: false
+      run_manylinux_tests:
+        required: false
+        type: boolean
+        default: true
 env:
   ARTIFACTS_DIR: "${{ github.workspace }}/dist/artifacts"
 
@@ -194,6 +198,7 @@ jobs:
 
   manylinux-docker-smoke-tests:
     name: "Smoke test ${{ matrix.distro.name }} ${{ matrix.arch.name }}"
+    if: ${{ inputs.run_manylinux_tests }}
     needs: [ generate-smoke-test-inputs, build-linux-binaries ]
     runs-on: ${{ matrix.arch.runner }}
     strategy:
