@@ -26,60 +26,31 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Set base image according to architecture
-      id: set-base-image
-      shell: bash
-      run: |
-        if [ "${{ runner.arch }}" == "ARM64" ]; then
-          docker_arch="aarch64"
-          arch_tag="arm64"
-        else
-          docker_arch="x86_64"
-          arch_tag="x64"
-        fi
-        echo "base_image=quay.io/pypa/manylinux_2_28_${docker_arch}" >> $GITHUB_OUTPUT
-
-        # Set the cache tag based on architecture
-        echo "cache_tag=ghcr.io/${{ github.repository }}/puya-manylinux:${arch_tag}" >> $GITHUB_OUTPUT
-
-    - name: Docker registry login
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ github.token }}
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Build Docker image
-      uses: docker/build-push-action@v6
-      env:
-        DOCKER_BUILD_SUMMARY: false
-      with:
-        context: ${{ github.action_path }}
-        file: ${{ github.action_path }}/Dockerfile
-        build-args: |
-          BASE_IMAGE=${{ steps.set-base-image.outputs.base_image }}
-          PYTHON_VERSION=${{ inputs.python_version }}
-        push: false
-        load: true
-        tags: ${{ steps.set-base-image.outputs.cache_tag }}
-        cache-from: type=gha,scope=${{ runner.arch }}-build-cache
-        cache-to: type=gha,mode=max,scope=${{ runner.arch }}-build-cache
-
     - name: Run PyInstaller inside Docker container
       shell: bash
       run: |
         mkdir -p ${{ inputs.artifacts_dir }}
+        if [ "${{ runner.arch }}" == "ARM64" ]; then
+          docker_arch="aarch64"
+        else
+          docker_arch="x86_64"
+        fi
         docker run --rm \
           --volume ${{ github.workspace }}:/src \
           --volume ${{ inputs.artifacts_dir }}:${{ inputs.artifacts_dir }} \
-          --env GITHUB_WORKSPACE=/src \
-          ${{ steps.set-base-image.outputs.cache_tag }} \
+          --env PYTHON_VERSION=${{ inputs.python_version }} \
+          quay.io/pypa/manylinux_2_28_${docker_arch} \
           bash -c -e '
+            # Install Python. The bundled ones don't have --enable-shared, so we use uv.
+            export PATH=$HOME/.local/bin:$PATH
+            # only-managed = don't use existing system Pythons
+            # --preview: link in ~/.local/bin
+            # --default: also create default alias - ie link python, not just python3
+            uv python install --python-preference=only-managed $PYTHON_VERSION --preview --default
+            # it's turtles all the way down...
+            uv tool install poetry
             # Install project dependencies
-            cd ${GITHUB_WORKSPACE}
+            cd /src
             uv tool run poetry install --no-interaction --without=dev --with=cicd
             # Build the binary
             uv tool run poetry run pyinstaller \
