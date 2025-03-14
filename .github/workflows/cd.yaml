@@ -124,8 +124,8 @@ jobs:
 
   publish-to-github:
     name: Publish to GitHub
-    needs: [prepare-release, build-binaries]
-    if: inputs.publish_github
+    needs: [ prepare-release, build-binaries ]
+    if: github.ref_name == 'main' && inputs.publish_github
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -168,7 +168,7 @@ jobs:
 
   publish-to-pypi:
     name: Publish to PyPI
-    needs: [prepare-release,  publish-to-github]
+    needs: [ prepare-release, publish-to-github ]
     if: github.ref_name == 'main' && !inputs.dry_run && inputs.publish_pypi
     runs-on: ubuntu-latest
     permissions:
@@ -195,7 +195,7 @@ jobs:
 
   publish-docs:
     name: Publish docs
-    needs: [prepare-release]
+    needs: [ prepare-release ]
     if: github.ref_name == 'main' && !inputs.dry_run && inputs.publish_docs
     uses: ./.github/workflows/gh-pages.yaml
     permissions:
