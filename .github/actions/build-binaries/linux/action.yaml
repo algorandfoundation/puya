@@ -41,13 +41,13 @@ runs:
           --env PYTHON_VERSION=${{ inputs.python_version }} \
           quay.io/pypa/manylinux_2_28_${docker_arch} \
           bash -c -e '
-            # Install Python. The bundled ones don't have --enable-shared, so we use uv.
+            # Install Python, since the bundled ones do not have --enable-shared, we use uv instead
             export PATH=$HOME/.local/bin:$PATH
-            # only-managed = don't use existing system Pythons
+            # only-managed = do not use existing system Pythons
             # --preview: link in ~/.local/bin
-            # --default: also create default alias - ie link python, not just python3
+            # --default: also create default alias: ie link python, not just python3
             uv python install --python-preference=only-managed $PYTHON_VERSION --preview --default
-            # it's turtles all the way down...
+            # it is turtles all the way down...
             uv tool install poetry
             # Install project dependencies
             cd /src
@@ -58,7 +58,7 @@ runs:
               --onedir \
               --name puya \
               --noconfirm src/puya/__main__.py \
-              --add-data './src/puya/ir/_puya_lib.awst.json:puya/ir/' \
+              --add-data "./src/puya/ir/_puya_lib.awst.json:puya/ir/" \
               --exclude-module mypy_extensions \
               --optimize=2 \
               --exclude-module colorama
