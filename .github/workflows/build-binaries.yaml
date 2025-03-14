@@ -17,6 +17,8 @@ on:
         required: false
         type: boolean
         default: false
+env:
+  ARTIFACTS_DIR: "${{ github.workspace }}/dist/artifacts"
 
 jobs:
   generate-smoke-test-inputs:
@@ -57,9 +59,6 @@ jobs:
         runner:
           - { id: ubuntu-22.04, arch: x64}
           - { id: ubuntu-22.04-arm, arch: arm64 }
-    env:
-      ARTIFACTS_DIR: "${{ github.workspace }}/dist/artifacts"
-      PACKAGE_NAME: "${{ inputs.package_prefix }}-linux_${{ matrix.runner.arch }}"
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -70,7 +69,7 @@ jobs:
         uses: ./.github/actions/build-binaries/linux
         with:
           python_version: ${{ inputs.python_version }}
-          package_name: ${{ env.PACKAGE_NAME }}
+          package_name: "${{ inputs.package_prefix }}-linux_${{ matrix.runner.arch }}"
           artifacts_dir: ${{ env.ARTIFACTS_DIR }}
           with_codesign: ${{ inputs.allow_signing }}
           gpg_signing_private_key: ${{ inputs.allow_signing && secrets.GPG_SIGNING_PRIVATE_KEY || '' }}
@@ -93,9 +92,6 @@ jobs:
       matrix:
         runner:
           - { id: windows-latest, arch: x64 }
-    env:
-      ARTIFACTS_DIR: "${{ github.workspace }}/dist/artifacts"
-      PACKAGE_NAME: "${{ inputs.package_prefix }}-windows_${{ matrix.runner.arch }}"
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -106,7 +102,7 @@ jobs:
         uses: ./.github/actions/build-binaries/windows
         with:
           python_version: ${{ inputs.python_version }}
-          package_name: ${{ env.PACKAGE_NAME }}
+          package_name: "${{ inputs.package_prefix }}-windows_${{ matrix.runner.arch }}"
           artifacts_dir: ${{ env.ARTIFACTS_DIR }}
           with_codesign: ${{ inputs.allow_signing }}
           azure_tenant_id: ${{ inputs.allow_signing && secrets.AZURE_TENANT_ID || '' }}
@@ -133,9 +129,6 @@ jobs:
             # See https://github.com/actions/runner-images?tab=readme-ov-file#available-images
           - { id: macos-13, arch: x64 }
           - { id: macos-14, arch: arm64 }
-    env:
-      ARTIFACTS_DIR: "${{ github.workspace }}/dist/artifacts"
-      PACKAGE_NAME: "${{ inputs.package_prefix }}-macos_${{ matrix.runner.arch }}"
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -146,7 +139,7 @@ jobs:
         uses: ./.github/actions/build-binaries/macos
         with:
           python_version: ${{ inputs.python_version }}
-          package_name: ${{ env.PACKAGE_NAME }}
+          package_name: "${{ inputs.package_prefix }}-macos_${{ matrix.runner.arch }}"
           artifacts_dir: ${{ env.ARTIFACTS_DIR }}
           with_codesign: ${{ inputs.allow_signing }}
           cert_data: ${{ inputs.allow_signing && secrets.APPLE_CERT_DATA || '' }}
