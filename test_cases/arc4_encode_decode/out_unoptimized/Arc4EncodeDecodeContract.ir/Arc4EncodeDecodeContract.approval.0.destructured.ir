@@ -1,0 +1,234 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        goto block@1
+    block@1: // L7
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#1 0u)
+        goto tmp%1#0 ? block@2 : block@7
+    block@2: // abi_routing_L7
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "test_arc4_bool_array()void" => block@3, method "test_arc4_bool_array_not_working()void" => block@4, * => block@5}
+    block@3: // test_arc4_bool_array_route_L8
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (== tmp%3#0 NoOp)
+        (assert tmp%4#0) // OnCompletion is not NoOp
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%6#0: bool = (!= tmp%5#0 0u)
+        (assert tmp%6#0) // can only call when not creating
+        test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.test_arc4_bool_array()
+        let test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0
+        goto block@12
+    block@4: // test_arc4_bool_array_not_working_route_L24
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        (assert tmp%8#0) // OnCompletion is not NoOp
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (!= tmp%9#0 0u)
+        (assert tmp%10#0) // can only call when not creating
+        test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.test_arc4_bool_array_not_working()
+        let test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0
+        goto block@12
+    block@5: // switch_case_default_L7
+        goto block@6
+    block@6: // switch_case_next_L7
+        goto block@11
+    block@7: // bare_routing_L7
+        let tmp%11#0: uint64 = (txn OnCompletion)
+        switch tmp%11#0 {0u => block@8, * => block@9}
+    block@8: // __algopy_default_create_L1
+        let tmp%12#0: uint64 = (txn ApplicationID)
+        let tmp%13#0: bool = (== tmp%12#0 0u)
+        (assert tmp%13#0) // can only call when creating
+        goto block@13
+    block@13: // L1
+        goto block@14
+    block@14: // after_inlined_test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__algopy_default_create_L1
+        let test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0
+        goto block@12
+    block@9: // switch_case_default_L7
+        goto block@10
+    block@10: // switch_case_next_L7
+        goto block@11
+    block@11: // after_if_else_L7
+        let test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0: bool = 0u
+        let tmp%0#0: bool = test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0
+        goto block@12
+    block@12: // after_inlined_test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router___L1
+        return tmp%0#0
+
+subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:
+    block@0: // L124
+        let array_length#0: uint64 = (extract_uint16 array#0 0u)
+        let new_array_length#0: uint64 = (+ array_length#0 new_items_count#0)
+        let tmp%0#0: bytes = (itob new_array_length#0)
+        let new_array_length_b#0: bytes = ((extract 6 0) tmp%0#0)
+        let result#0: bytes = ((replace2 0) array#0 new_array_length_b#0)
+        let tmp%1#0: uint64 = (+ array_length#0 7u)
+        let current_bytes#0: uint64 = (/ tmp%1#0 8u)
+        let tmp%2#0: uint64 = (+ new_array_length#0 7u)
+        let required_bytes#0: uint64 = (/ tmp%2#0 8u)
+        let tmp%3#0: bool = (< current_bytes#0 required_bytes#0)
+        let result#7: bytes = result#0
+        goto tmp%3#0 ? block@1 : block@2
+    block@1: // if_body_L148
+        let tmp%4#0: uint64 = (- required_bytes#0 current_bytes#0)
+        let tmp%5#0: bytes = (bzero tmp%4#0)
+        let result#0: bytes = (concat result#0 tmp%5#0)
+        let result#7: bytes = result#0
+        goto block@2
+    block@2: // after_if_else_L147
+        let result#0: bytes = result#7
+        let read_offset#0: uint64 = 0u
+        let write_offset#0: uint64 = (+ array_length#0 16u)
+        let write_end#0: uint64 = (+ write_offset#0 new_items_count#0)
+        goto block@3
+    block@3: // while_top_L153
+        let tmp%6#0: bool = (< write_offset#0 write_end#0)
+        goto tmp%6#0 ? block@4 : block@5
+    block@4: // while_body_L154
+        let tmp%7#0: uint64 = (getbit new_items_bytes#0 read_offset#0)
+        let result#0: bytes = (setbit result#0 write_offset#0 tmp%7#0)
+        let write_offset#0: uint64 = (+ write_offset#0 1u)
+        let read_offset#0: uint64 = (+ read_offset#0 read_step#0)
+        goto block@3
+    block@5: // after_while_L153
+        return result#0
+
+subroutine test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.test_arc4_bool_array() -> void:
+    block@0: // L8
+        itxn_begin
+        ((itxn_field LocalNumUint) 0u)
+        ((itxn_field LocalNumByteSlice) 0u)
+        ((itxn_field GlobalNumUint) 0u)
+        ((itxn_field GlobalNumByteSlice) 0u)
+        ((itxn_field ExtraProgramPages) 0u)
+        ((itxn_field ClearStateProgramPages) CoEBQw==)
+        (itxn_field ClearStateProgramPages)
+        ((itxn_field ApprovalProgramPages) CiACAAEmAQEAMRsiE0EAPzYaAIAE+dD+dIAEJDeNPE8CjgIAFAACIkMxGYEFEkQxGCITRIgAZCNC/+0xGSISRDEYIhNENhoBiAAYI0L/2TEZIkyOAQADQv/NMRgiEkQjQv/FigEAi/8iWYECEkSL/1cCAIv/IlkiDUQiUygiTwJUKBNEi/9XAgCL/yJZIw1EI1MoIk8CVCgTRImJ)
+        (itxn_field ApprovalProgramPages)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        goto block@1
+    block@1: // next_txn_L10
+        itxn_submit
+        let app_id#0: uint64 = (itxn CreatedApplicationID)
+        let array_data%0#0: bytes = (concat 0x0000 0x)
+        let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u 1u)
+        let encoded_bool%1#0: bytes[1] = (setbit 0x00 0u 1u)
+        let data%0#0: bytes = (concat 0x encoded_bool%0#0)
+        let data%1#0: bytes = (concat data%0#0 encoded_bool%1#0)
+        let concat_result%0#0: bytes = _puya_lib.arc4.dynamic_array_concat_bits(array_data%0#0, data%1#0, 2u, 8u)
+        let imm_arc4#0: bytes[1][] = concat_result%0#0
+        itxn_begin
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes[1][] = imm_arc4#0
+        let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app_id#0
+        ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+        ((itxn_field ApplicationArgs) method "receive_bools(bool[])void")
+        ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        goto block@2
+    block@2: // next_txn_L13
+        itxn_submit
+        let array_data%1#0: bytes = (concat 0x0000 0x)
+        let encoded_bool%2#0: bytes[1] = (setbit 0x00 0u 1u)
+        let encoded_bool%3#0: bytes[1] = (setbit 0x00 0u 1u)
+        let data%2#0: bytes = (concat 0x encoded_bool%2#0)
+        let data%3#0: bytes = (concat data%2#0 encoded_bool%3#0)
+        let concat_result%1#0: bytes = _puya_lib.arc4.dynamic_array_concat_bits(array_data%1#0, data%3#0, 2u, 8u)
+        let imm_nat#0: bool[] = concat_result%1#0
+        itxn_begin
+        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: bool[] = imm_nat#0
+        let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app_id#0
+        ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+        ((itxn_field ApplicationArgs) method "receive_bools(bool[])void")
+        ((itxn_field ApplicationArgs) inner_txn_params%2%%param_ApplicationArgs_idx_1#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        goto block@3
+    block@3: // next_txn_L16
+        itxn_submit
+        let encoded_bool%4#0: bytes[1] = (setbit 0x00 0u 1u)
+        let encoded_bool%5#0: bytes[1] = (setbit 0x00 0u 1u)
+        let array_head_and_tail%0#0: bytes = (concat 0x encoded_bool%4#0)
+        let is_true%0#0: uint64 = (getbit encoded_bool%5#0 0u)
+        let array_head_and_tail%1#0: bytes = (setbit array_head_and_tail%0#0 1u is_true%0#0)
+        let array_data%2#0: bytes = (concat 0x0002 array_head_and_tail%1#0)
+        let arc4_arc4#0: bytes = array_data%2#0
+        itxn_begin
+        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: bytes = arc4_arc4#0
+        let inner_txn_params%3%%param_ApplicationID_idx_0#0: uint64 = app_id#0
+        ((itxn_field ApplicationID) inner_txn_params%3%%param_ApplicationID_idx_0#0)
+        ((itxn_field ApplicationArgs) method "receive_bools(bool[])void")
+        ((itxn_field ApplicationArgs) inner_txn_params%3%%param_ApplicationArgs_idx_1#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        goto block@4
+    block@4: // next_txn_L19
+        itxn_submit
+        itxn_begin
+        let inner_txn_params%4%%param_ApplicationID_idx_0#0: uint64 = app_id#0
+        ((itxn_field OnCompletion) DeleteApplication)
+        ((itxn_field ApplicationID) inner_txn_params%4%%param_ApplicationID_idx_0#0)
+        ((itxn_field ApplicationArgs) method "delete()void")
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        goto block@5
+    block@5: // next_txn_L22
+        itxn_submit
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.test_arc4_bool_array_not_working() -> void:
+    block@0: // L24
+        itxn_begin
+        ((itxn_field LocalNumUint) 0u)
+        ((itxn_field LocalNumByteSlice) 0u)
+        ((itxn_field GlobalNumUint) 0u)
+        ((itxn_field GlobalNumByteSlice) 0u)
+        ((itxn_field ExtraProgramPages) 0u)
+        ((itxn_field ClearStateProgramPages) CoEBQw==)
+        (itxn_field ClearStateProgramPages)
+        ((itxn_field ApprovalProgramPages) CiACAAEmAQEAMRsiE0EAPzYaAIAE+dD+dIAEJDeNPE8CjgIAFAACIkMxGYEFEkQxGCITRIgAZCNC/+0xGSISRDEYIhNENhoBiAAYI0L/2TEZIkyOAQADQv/NMRgiEkQjQv/FigEAi/8iWYECEkSL/1cCAIv/IlkiDUQiUygiTwJUKBNEi/9XAgCL/yJZIw1EI1MoIk8CVCgTRImJ)
+        (itxn_field ApprovalProgramPages)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        goto block@1
+    block@1: // next_txn_L26
+        itxn_submit
+        let app_id#0: uint64 = (itxn CreatedApplicationID)
+        let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u 1u)
+        let encoded_bool%1#0: bytes[1] = (setbit 0x00 0u 1u)
+        let tup_arc4.0#0: bytes[1] = encoded_bool%0#0
+        let tup_arc4.1#0: bytes[1] = encoded_bool%1#0
+        itxn_begin
+        let encoded_tuple_buffer%1#0: bytes = (concat 0x tup_arc4.0#0)
+        let is_true%0#0: uint64 = (getbit tup_arc4.1#0 0u)
+        let encoded_tuple_buffer%2#0: bytes = (setbit encoded_tuple_buffer%1#0 1u is_true%0#0)
+        let length%0#0: uint64 = (len encoded_tuple_buffer%2#0)
+        let as_bytes%0#0: bytes[8] = (itob length%0#0)
+        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let encoded_value%0#0: bytes = (concat length_uint16%0#0 encoded_tuple_buffer%2#0)
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%0#0
+        let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app_id#0
+        ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+        ((itxn_field ApplicationArgs) method "receive_bools(bool[])void")
+        ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        goto block@2
+    block@2: // next_txn_L40
+        itxn_submit
+        itxn_begin
+        let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app_id#0
+        ((itxn_field OnCompletion) DeleteApplication)
+        ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+        ((itxn_field ApplicationArgs) method "delete()void")
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        goto block@3
+    block@3: // next_txn_L43
+        itxn_submit
+        return 

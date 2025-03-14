@@ -1,0 +1,72 @@
+contract Receiver
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.arc4_encode_decode.receiver.Receiver.receive_bools(b: arc4.dynamic_array<arc4.bool>): void
+  {
+    assert(b.length == 2u, comment="expected 2 bools")
+    assert(b[0u] != hex<"00">, comment="expected first bool to be true")
+    assert(b[1u] != hex<"00">, comment="expected second bool to be true")
+  }
+  
+  abimethod test_cases.arc4_encode_decode.receiver.Receiver.delete(): void
+  {
+  }
+  
+  baremethod test_cases.arc4_encode_decode.receiver.Receiver.__algopy_default_create(): void
+  {
+  }
+}
+
+contract Arc4EncodeDecodeContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.test_arc4_bool_array(): void
+  {
+    app_id: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=1, source=SINGLE_EVAL(id=0, source=compiled_contract(test_cases.arc4_encode_decode.receiver.Receiver,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=1)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=2, source=SINGLE_EVAL(id=0).clear_state_program)[0], SINGLE_EVAL(id=2)[1]), ExtraProgramPages=SINGLE_EVAL(id=0).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=0).global_bytes, GlobalNumUint=SINGLE_EVAL(id=0).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=0).local_bytes, LocalNumUint=SINGLE_EVAL(id=0).local_uints)).CreatedApplicationID
+    imm_arc4: stack_array<arc4.bool> = new stack_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("receive_bools(bool[])void"), arc4_encode(imm_arc4, arc4.dynamic_array<arc4.bool>)), ApplicationID=app_id))
+    imm_nat: stack_array<bool> = new stack_array<bool>(true, true)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("receive_bools(bool[])void"), arc4_encode(imm_nat, arc4.dynamic_array<arc4.bool>)), ApplicationID=app_id))
+    arc4_arc4: arc4.dynamic_array<arc4.bool> = new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("receive_bools(bool[])void"), arc4_arc4), ApplicationID=app_id))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app_id, OnCompletion=DeleteApplication))
+  }
+  
+  abimethod test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.test_arc4_bool_array_not_working(): void
+  {
+    app_id: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=4, source=SINGLE_EVAL(id=3, source=compiled_contract(test_cases.arc4_encode_decode.receiver.Receiver,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=4)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=5, source=SINGLE_EVAL(id=3).clear_state_program)[0], SINGLE_EVAL(id=5)[1]), ExtraProgramPages=SINGLE_EVAL(id=3).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=3).global_bytes, GlobalNumUint=SINGLE_EVAL(id=3).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=3).local_bytes, LocalNumUint=SINGLE_EVAL(id=3).local_uints)).CreatedApplicationID
+    tup_arc4: tuple<arc4.bool,arc4.bool> = (arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("receive_bools(bool[])void"), arc4_encode(tup_arc4, arc4.dynamic_array<arc4.bool>)), ApplicationID=app_id))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app_id, OnCompletion=DeleteApplication))
+  }
+  
+  baremethod test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__algopy_default_create(): void
+  {
+  }
+}

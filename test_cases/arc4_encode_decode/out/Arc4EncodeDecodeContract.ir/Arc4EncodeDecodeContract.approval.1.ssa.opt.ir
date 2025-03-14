@@ -1,0 +1,210 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#1 0u)
+        goto tmp%0#1 ? block@2 : block@7
+    block@2: // abi_routing_L7
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "test_arc4_bool_array()void" => block@3, method "test_arc4_bool_array_not_working()void" => block@4, * => block@11}
+    block@3: // test_arc4_bool_array_route_L8
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (! tmp%3#0)
+        (assert tmp%4#0) // OnCompletion is not NoOp
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%6#0: bool = (!= tmp%5#0 0u)
+        (assert tmp%5#0) // can only call when not creating
+        test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.test_arc4_bool_array()
+        let test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0: bool = 1u
+        goto block@12
+    block@4: // test_arc4_bool_array_not_working_route_L24
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        (assert tmp%8#0) // OnCompletion is not NoOp
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (!= tmp%9#0 0u)
+        (assert tmp%9#0) // can only call when not creating
+        test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.test_arc4_bool_array_not_working()
+        let test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#1: bool = 1u
+        goto block@12
+    block@7: // bare_routing_L7
+        let tmp%11#0: uint64 = (txn OnCompletion)
+        goto tmp%11#0 ? block@11 : block@8
+    block@8: // __algopy_default_create_L1
+        let tmp%12#0: uint64 = (txn ApplicationID)
+        let tmp%13#0: bool = (! tmp%12#0)
+        (assert tmp%13#0) // can only call when creating
+        test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__algopy_default_create()
+        let test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#2: bool = 1u
+        goto block@12
+    block@11: // after_if_else_L7
+        let test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#3: bool = 0u
+        goto block@12
+    block@12: // after_inlined_test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router___L1
+        let tmp%0#0: bool = φ(test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0 <- block@3, test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#1 <- block@4, test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#2 <- block@8, test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#3 <- block@11)
+        return tmp%0#0
+
+subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:
+    block@0: // L124
+        let array_length#0: uint64 = (extract_uint16 array#0 0u)
+        let new_array_length#0: uint64 = (+ array_length#0 new_items_count#0)
+        let tmp%0#0: bytes = (itob new_array_length#0)
+        let new_array_length_b#0: bytes = ((extract 6 0) tmp%0#0)
+        let result#0: bytes = ((replace2 0) array#0 new_array_length_b#0)
+        let tmp%1#0: uint64 = (+ array_length#0 7u)
+        let current_bytes#0: uint64 = (/ tmp%1#0 8u)
+        let tmp%2#0: uint64 = (+ new_array_length#0 7u)
+        let required_bytes#0: uint64 = (/ tmp%2#0 8u)
+        let tmp%3#0: bool = (< current_bytes#0 required_bytes#0)
+        goto tmp%3#0 ? block@1 : block@2
+    block@1: // if_body_L148
+        let tmp%4#0: uint64 = (- required_bytes#0 current_bytes#0)
+        let tmp%5#0: bytes = (bzero tmp%4#0)
+        let result#1: bytes = (concat result#0 tmp%5#0)
+        goto block@2
+    block@2: // after_if_else_L147
+        let result#4: bytes = φ(result#0 <- block@0, result#1 <- block@1)
+        let read_offset#0: uint64 = 0u
+        let write_offset#0: uint64 = (+ array_length#0 16u)
+        let write_end#0: uint64 = (+ write_offset#0 new_items_count#0)
+        goto block@3
+    block@3: // while_top_L153
+        let write_offset#1: uint64 = φ(write_offset#0 <- block@2, write_offset#2 <- block@4)
+        let result#2: bytes = φ(result#4 <- block@2, result#3 <- block@4)
+        let read_offset#1: uint64 = φ(read_offset#0 <- block@2, read_offset#2 <- block@4)
+        let tmp%6#0: bool = (< write_offset#1 write_end#0)
+        goto tmp%6#0 ? block@4 : block@5
+    block@4: // while_body_L154
+        let tmp%7#0: uint64 = (getbit new_items_bytes#0 read_offset#1)
+        let result#3: bytes = (setbit result#2 write_offset#1 tmp%7#0)
+        let write_offset#2: uint64 = (+ write_offset#1 1u)
+        let read_offset#2: uint64 = (+ read_offset#1 read_step#0)
+        goto block@3
+    block@5: // after_while_L153
+        return result#2
+
+subroutine test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.test_arc4_bool_array() -> void:
+    block@0: // L8
+        itxn_begin
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = CiACAAEmAQEAMRtBADGCAgT50P50BCQ3jTw2GgCOAgANAAIiQzEZgQUSRDEYRCNDMRkURDEYRDYaAYgADSNDMRlA/98xGBREI0OKAQCL/yJZSYECEkSL/1cCAEsBREkiUygiTwJUKBNEI08CDEQjUygiTwJUKBNEiQ==
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = 
+        let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = CoEBQw==
+        let inner_txn_params%0%%param_ClearStateProgramPages_idx_1#0: bytes = 
+        let inner_txn_params%0%%param_ExtraProgramPages_idx_0#0: uint64 = 0u
+        let inner_txn_params%0%%param_GlobalNumByteSlice_idx_0#0: uint64 = 0u
+        let inner_txn_params%0%%param_GlobalNumUint_idx_0#0: uint64 = 0u
+        let inner_txn_params%0%%param_LocalNumByteSlice_idx_0#0: uint64 = 0u
+        let inner_txn_params%0%%param_LocalNumUint_idx_0#0: uint64 = 0u
+        ((itxn_field LocalNumUint) inner_txn_params%0%%param_LocalNumUint_idx_0#0)
+        ((itxn_field LocalNumByteSlice) inner_txn_params%0%%param_LocalNumByteSlice_idx_0#0)
+        ((itxn_field GlobalNumUint) inner_txn_params%0%%param_GlobalNumUint_idx_0#0)
+        ((itxn_field GlobalNumByteSlice) inner_txn_params%0%%param_GlobalNumByteSlice_idx_0#0)
+        ((itxn_field ExtraProgramPages) inner_txn_params%0%%param_ExtraProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ClearStateProgramPages_idx_1#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let app_id#0: uint64 = (itxn CreatedApplicationID)
+        let array_data%0#0: bytes = 0x0000
+        let encoded_bool%0#0: bytes[1] = 0x80
+        let encoded_bool%1#0: bytes[1] = 0x80
+        let data%0#0: bytes = 0x80
+        let data%1#0: bytes = 0x8080
+        let imm_arc4#0: bytes[1][] = _puya_lib.arc4.dynamic_array_concat_bits(0x0000, 0x8080, 2u, 8u)
+        itxn_begin
+        ((itxn_field ApplicationID) app_id#0)
+        ((itxn_field ApplicationArgs) method "receive_bools(bool[])void")
+        ((itxn_field ApplicationArgs) imm_arc4#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let array_data%1#0: bytes = 0x0000
+        let encoded_bool%2#0: bytes[1] = 0x80
+        let encoded_bool%3#0: bytes[1] = 0x80
+        let data%2#0: bytes = 0x80
+        let data%3#0: bytes = 0x8080
+        let imm_nat#0: bool[] = _puya_lib.arc4.dynamic_array_concat_bits(0x0000, 0x8080, 2u, 8u)
+        itxn_begin
+        ((itxn_field ApplicationID) app_id#0)
+        ((itxn_field ApplicationArgs) method "receive_bools(bool[])void")
+        ((itxn_field ApplicationArgs) imm_nat#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let encoded_bool%4#0: bytes[1] = 0x80
+        let encoded_bool%5#0: bytes[1] = 0x80
+        let array_head_and_tail%0#0: bytes = 0x80
+        let is_true%0#0: uint64 = 1u
+        let array_head_and_tail%1#0: bytes = 0xc0
+        let arc4_arc4#0: bytes = 0x0002c0
+        itxn_begin
+        ((itxn_field ApplicationID) app_id#0)
+        ((itxn_field ApplicationArgs) method "receive_bools(bool[])void")
+        ((itxn_field ApplicationArgs) 0x0002c0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        ((itxn_field OnCompletion) DeleteApplication)
+        ((itxn_field ApplicationID) app_id#0)
+        ((itxn_field ApplicationArgs) method "delete()void")
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.test_arc4_bool_array_not_working() -> void:
+    block@0: // L24
+        itxn_begin
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = CiACAAEmAQEAMRtBADGCAgT50P50BCQ3jTw2GgCOAgANAAIiQzEZgQUSRDEYRCNDMRkURDEYRDYaAYgADSNDMRlA/98xGBREI0OKAQCL/yJZSYECEkSL/1cCAEsBREkiUygiTwJUKBNEI08CDEQjUygiTwJUKBNEiQ==
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = 
+        let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = CoEBQw==
+        let inner_txn_params%0%%param_ClearStateProgramPages_idx_1#0: bytes = 
+        let inner_txn_params%0%%param_ExtraProgramPages_idx_0#0: uint64 = 0u
+        let inner_txn_params%0%%param_GlobalNumByteSlice_idx_0#0: uint64 = 0u
+        let inner_txn_params%0%%param_GlobalNumUint_idx_0#0: uint64 = 0u
+        let inner_txn_params%0%%param_LocalNumByteSlice_idx_0#0: uint64 = 0u
+        let inner_txn_params%0%%param_LocalNumUint_idx_0#0: uint64 = 0u
+        ((itxn_field LocalNumUint) inner_txn_params%0%%param_LocalNumUint_idx_0#0)
+        ((itxn_field LocalNumByteSlice) inner_txn_params%0%%param_LocalNumByteSlice_idx_0#0)
+        ((itxn_field GlobalNumUint) inner_txn_params%0%%param_GlobalNumUint_idx_0#0)
+        ((itxn_field GlobalNumByteSlice) inner_txn_params%0%%param_GlobalNumByteSlice_idx_0#0)
+        ((itxn_field ExtraProgramPages) inner_txn_params%0%%param_ExtraProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ClearStateProgramPages_idx_1#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let app_id#0: uint64 = (itxn CreatedApplicationID)
+        let tup_arc4.0#0: bytes[1] = 0x80
+        let tup_arc4.1#0: bytes[1] = 0x80
+        itxn_begin
+        let encoded_tuple_buffer%1#0: bytes = 0x80
+        let is_true%0#0: uint64 = 1u
+        let encoded_tuple_buffer%2#0: bytes = 0xc0
+        let length%0#0: uint64 = 1u
+        let as_bytes%0#0: bytes[8] = (itob 1u)
+        let length_uint16%0#0: bytes = 0x0001
+        let encoded_value%0#0: bytes = 0x0001c0
+        ((itxn_field ApplicationID) app_id#0)
+        ((itxn_field ApplicationArgs) method "receive_bools(bool[])void")
+        ((itxn_field ApplicationArgs) 0x0001c0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        ((itxn_field OnCompletion) DeleteApplication)
+        ((itxn_field ApplicationID) app_id#0)
+        ((itxn_field ApplicationArgs) method "delete()void")
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__algopy_default_create() -> void:
+    block@0: // L1
+        return 

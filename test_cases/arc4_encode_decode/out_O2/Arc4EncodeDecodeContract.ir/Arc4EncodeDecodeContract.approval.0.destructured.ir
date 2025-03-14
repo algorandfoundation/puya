@@ -1,0 +1,137 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@2 : block@7
+    block@2: // abi_routing_L7
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "test_arc4_bool_array()void" => block@3, method "test_arc4_bool_array_not_working()void" => block@4, * => block@11}
+    block@3: // test_arc4_bool_array_route_L8
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (! tmp%3#0)
+        (assert tmp%4#0) // OnCompletion is not NoOp
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        (assert tmp%5#0) // can only call when not creating
+        itxn_begin
+        ((itxn_field ClearStateProgramPages) CoEBQw==)
+        ((itxn_field ApprovalProgramPages) CiACAAEmAQEAMRtBAFeCAgT50P50BCQ3jTw2GgCOAgANAAIiQzEZgQUSRDEYRCNDMRkURDEYRDYaAUkiWUmBAhJETFcCAEsBREkiUygiTwJUKBNEI08CDEQjUygiTwJUKBNEI0MxGUD/uTEYFEQjQw==)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let app_id#0: uint64 = (itxn CreatedApplicationID)
+        let imm_arc4#0: bytes[1][] = _puya_lib.arc4.dynamic_array_concat_bits(0x0000, 0x8080, 2u, 8u)
+        itxn_begin
+        ((itxn_field ApplicationID) app_id#0)
+        ((itxn_field ApplicationArgs) method "receive_bools(bool[])void")
+        ((itxn_field ApplicationArgs) imm_arc4#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let imm_nat#0: bool[] = _puya_lib.arc4.dynamic_array_concat_bits(0x0000, 0x8080, 2u, 8u)
+        itxn_begin
+        ((itxn_field ApplicationID) app_id#0)
+        ((itxn_field ApplicationArgs) method "receive_bools(bool[])void")
+        ((itxn_field ApplicationArgs) imm_nat#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        ((itxn_field ApplicationID) app_id#0)
+        ((itxn_field ApplicationArgs) method "receive_bools(bool[])void")
+        ((itxn_field ApplicationArgs) 0x0002c0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        ((itxn_field OnCompletion) DeleteApplication)
+        ((itxn_field ApplicationID) app_id#0)
+        ((itxn_field ApplicationArgs) method "delete()void")
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0
+        goto block@12
+    block@4: // test_arc4_bool_array_not_working_route_L24
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        (assert tmp%8#0) // OnCompletion is not NoOp
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        (assert tmp%9#0) // can only call when not creating
+        itxn_begin
+        ((itxn_field ClearStateProgramPages) CoEBQw==)
+        ((itxn_field ApprovalProgramPages) CiACAAEmAQEAMRtBAFeCAgT50P50BCQ3jTw2GgCOAgANAAIiQzEZgQUSRDEYRCNDMRkURDEYRDYaAUkiWUmBAhJETFcCAEsBREkiUygiTwJUKBNEI08CDEQjUygiTwJUKBNEI0MxGUD/uTEYFEQjQw==)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let app_id#0: uint64 = (itxn CreatedApplicationID)
+        itxn_begin
+        ((itxn_field ApplicationID) app_id#0)
+        ((itxn_field ApplicationArgs) method "receive_bools(bool[])void")
+        ((itxn_field ApplicationArgs) 0x0001c0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        itxn_begin
+        ((itxn_field OnCompletion) DeleteApplication)
+        ((itxn_field ApplicationID) app_id#0)
+        ((itxn_field ApplicationArgs) method "delete()void")
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0
+        goto block@12
+    block@7: // bare_routing_L7
+        let tmp%11#0: uint64 = (txn OnCompletion)
+        goto tmp%11#0 ? block@11 : block@8
+    block@8: // __algopy_default_create_L1
+        let tmp%12#0: uint64 = (txn ApplicationID)
+        let tmp%13#0: bool = (! tmp%12#0)
+        (assert tmp%13#0) // can only call when creating
+        let test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0
+        goto block@12
+    block@11: // after_if_else_L7
+        let test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0: bool = 0u
+        let tmp%0#0: bool = test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__%0#0
+        goto block@12
+    block@12: // after_inlined_test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router___L1
+        return tmp%0#0
+
+subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:
+    block@0: // L124
+        let array_length#0: uint64 = (extract_uint16 array#0 0u)
+        let new_array_length#0: uint64 = (+ array_length#0 new_items_count#0)
+        let tmp%0#0: bytes = (itob new_array_length#0)
+        let new_array_length_b#0: bytes = ((extract 6 0) tmp%0#0)
+        let result#0: bytes = ((replace2 0) array#0 new_array_length_b#0)
+        let tmp%1#0: uint64 = (+ array_length#0 7u)
+        let current_bytes#0: uint64 = (/ tmp%1#0 8u)
+        let tmp%2#0: uint64 = (+ new_array_length#0 7u)
+        let required_bytes#0: uint64 = (/ tmp%2#0 8u)
+        let tmp%3#0: bool = (< current_bytes#0 required_bytes#0)
+        let result#7: bytes = result#0
+        goto tmp%3#0 ? block@1 : block@2
+    block@1: // if_body_L148
+        let tmp%4#0: uint64 = (- required_bytes#0 current_bytes#0)
+        let tmp%5#0: bytes = (bzero tmp%4#0)
+        let result#0: bytes = (concat result#0 tmp%5#0)
+        let result#7: bytes = result#0
+        goto block@2
+    block@2: // after_if_else_L147
+        let result#0: bytes = result#7
+        let read_offset#0: uint64 = 0u
+        let write_offset#0: uint64 = (+ array_length#0 16u)
+        let write_end#0: uint64 = (+ write_offset#0 new_items_count#0)
+        goto block@3
+    block@3: // while_top_L153
+        let tmp%6#0: bool = (< write_offset#0 write_end#0)
+        goto tmp%6#0 ? block@4 : block@5
+    block@4: // while_body_L154
+        let tmp%7#0: uint64 = (getbit new_items_bytes#0 read_offset#0)
+        let result#0: bytes = (setbit result#0 write_offset#0 tmp%7#0)
+        let write_offset#0: uint64 = (+ write_offset#0 1u)
+        let read_offset#0: uint64 = (+ read_offset#0 read_step#0)
+        goto block@3
+    block@5: // after_while_L153
+        return result#0

@@ -379,6 +379,8 @@ def wtype_to_encoded_ir_type(
                 for e in wtype.types
             ]
         )
+    if wtype == wtypes.biguint_wtype:
+        return SizedBytesType(512)
     else:
         ir_type = wtype_to_ir_type(wtype, loc)
         if ir_type.size is None and require_static_size:

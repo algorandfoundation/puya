@@ -1,0 +1,311 @@
+// Op                                                                                                           Stack (out)
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // arc4_encode_decode/contract.py:7
+        // class Arc4EncodeDecodeContract(ARC4Contract):
+        txn NumAppArgs                                                                                          tmp%0#1
+        bz main_bare_routing@7 ; b main_abi_routing@2
+
+    main_abi_routing@2:
+        // arc4_encode_decode/contract.py:7
+        // class Arc4EncodeDecodeContract(ARC4Contract):
+        txna ApplicationArgs 0                                                                                  tmp%2#0
+        method test_arc4_bool_array()void                                                                       tmp%2#0,Method(test_arc4_bool_array()void)
+        method test_arc4_bool_array_not_working()void                                                           tmp%2#0,Method(test_arc4_bool_array()void),Method(test_arc4_bool_array_not_working()void)
+        l-load tmp%2#0 2                                                                                        Method(test_arc4_bool_array()void),Method(test_arc4_bool_array_not_working()void),tmp%2#0
+        match main_test_arc4_bool_array_route@3 main_test_arc4_bool_array_not_working_route@4 ; b main_after_if_else@11 
+
+    main_test_arc4_bool_array_route@3:
+        // arc4_encode_decode/contract.py:8
+        // @abimethod
+        txn OnCompletion                                                                                        tmp%3#0
+        !                                                                                                       tmp%4#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                                       tmp%5#0
+        assert // can only call when not creating
+        callsub test_arc4_bool_array
+        int 1                                                                                                   tmp%0#0
+        x-store tmp%0#0                                                                                         (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__@12 (𝕏) tmp%0#0 | 
+
+    main_test_arc4_bool_array_not_working_route@4:
+        // arc4_encode_decode/contract.py:24
+        // @abimethod
+        txn OnCompletion                                                                                        tmp%7#0
+        !                                                                                                       tmp%8#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                                       tmp%9#0
+        assert // can only call when not creating
+        callsub test_arc4_bool_array_not_working
+        int 1                                                                                                   tmp%0#0
+        x-store tmp%0#0                                                                                         (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__@12 (𝕏) tmp%0#0 | 
+
+    main_bare_routing@7:
+        // arc4_encode_decode/contract.py:7
+        // class Arc4EncodeDecodeContract(ARC4Contract):
+        txn OnCompletion                                                                                        tmp%11#0
+        bz main___algopy_default_create@8 ; b main_after_if_else@11
+
+    main___algopy_default_create@8:
+        txn ApplicationID                                                                                       tmp%12#0
+        !                                                                                                       tmp%13#0
+        assert // can only call when creating
+        int 1                                                                                                   tmp%0#0
+        x-store tmp%0#0                                                                                         (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__@12 (𝕏) tmp%0#0 | 
+
+    main_after_if_else@11:
+        // arc4_encode_decode/contract.py:7
+        // class Arc4EncodeDecodeContract(ARC4Contract):
+        int 0                                                                                                   tmp%0#0
+        x-store tmp%0#0                                                                                         (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__@12 (𝕏) tmp%0#0 | 
+
+    main_after_inlined_test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.__puya_arc4_router__@12: (𝕏) tmp%0#0 |
+        x-load tmp%0#0                                                                                          tmp%0#0
+        return
+
+
+// _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:
+subroutine dynamic_array_concat_bits:
+    declare uint64 read_offset#0, write_end#0, write_offset#0
+    dynamic_array_concat_bits_block@0:                                                                          (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0 |
+        p-load array#0                                                                                          (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0 | array#0 (copy)
+        int 0                                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0 | array#0 (copy),0
+        extract_uint16                                                                                          (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0 | array_length#0
+        l-store-copy array_length#0 0                                                                           (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0 | array_length#0,array_length#0
+        f-store array_length#0                                                                                  (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | array_length#0
+        l-load-copy array_length#0 0                                                                            (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | array_length#0,array_length#0 (copy)
+        p-load new_items_count#0                                                                                (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | array_length#0,array_length#0 (copy),new_items_count#0 (copy)
+        +                                                                                                       (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | array_length#0,new_array_length#0
+        l-load-copy new_array_length#0 0                                                                        (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | array_length#0,new_array_length#0,new_array_length#0 (copy)
+        itob                                                                                                    (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | array_length#0,new_array_length#0,tmp%0#0
+        extract 6 0                                                                                             (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | array_length#0,new_array_length#0,new_array_length_b#0
+        p-load array#0                                                                                          (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | array_length#0,new_array_length#0,new_array_length_b#0,array#0 (copy)
+        l-load new_array_length_b#0 1                                                                           (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | array_length#0,new_array_length#0,array#0 (copy),new_array_length_b#0
+        replace2 0                                                                                              (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | array_length#0,new_array_length#0,result#0
+        l-store-copy result#0 2                                                                                 (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0 | result#0,array_length#0,new_array_length#0,result#0
+        f-store result#0                                                                                        (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0 | result#0,array_length#0,new_array_length#0
+        l-load array_length#0 1                                                                                 (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0 | result#0,new_array_length#0,array_length#0
+        int 7                                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0 | result#0,new_array_length#0,array_length#0,7
+        +                                                                                                       (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0 | result#0,new_array_length#0,tmp%1#0
+        int 8                                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0 | result#0,new_array_length#0,tmp%1#0,8
+        /                                                                                                       (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0 | result#0,new_array_length#0,current_bytes#0
+        l-store-copy current_bytes#0 0                                                                          (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0 | result#0,new_array_length#0,current_bytes#0,current_bytes#0
+        f-store current_bytes#0                                                                                 (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0 | result#0,new_array_length#0,current_bytes#0
+        l-load new_array_length#0 1                                                                             (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0 | result#0,current_bytes#0,new_array_length#0
+        int 7                                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0 | result#0,current_bytes#0,new_array_length#0,7
+        +                                                                                                       (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0 | result#0,current_bytes#0,tmp%2#0
+        int 8                                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0 | result#0,current_bytes#0,tmp%2#0,8
+        /                                                                                                       (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0 | result#0,current_bytes#0,required_bytes#0
+        l-store-copy required_bytes#0 0                                                                         (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0 | result#0,current_bytes#0,required_bytes#0,required_bytes#0
+        f-store required_bytes#0                                                                                (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0 | result#0,current_bytes#0,required_bytes#0
+        l-load current_bytes#0 1                                                                                (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0 | result#0,required_bytes#0,current_bytes#0
+        l-load required_bytes#0 1                                                                               (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0 | result#0,current_bytes#0,required_bytes#0
+        <                                                                                                       (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0 | result#0,tmp%3#0
+        l-load result#0 1                                                                                       (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0 | tmp%3#0,result#7
+        f-store result#7                                                                                        (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | tmp%3#0
+        l-load tmp%3#0 0                                                                                        (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | tmp%3#0
+        bz dynamic_array_concat_bits_after_if_else@2 ; b dynamic_array_concat_bits_if_body@1 (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | 
+
+    dynamic_array_concat_bits_if_body@1:                                                                        (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+        f-load required_bytes#0                                                                                 (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | required_bytes#0
+        f-load current_bytes#0                                                                                  (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | required_bytes#0,current_bytes#0
+        -                                                                                                       (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | tmp%4#0
+        bzero                                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | tmp%5#0
+        f-load result#0                                                                                         (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | tmp%5#0,result#0
+        l-load tmp%5#0 1                                                                                        (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | result#0,tmp%5#0
+        concat                                                                                                  (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | result#7
+        f-store result#7                                                                                        (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+        b dynamic_array_concat_bits_after_if_else@2                                                             (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+
+    dynamic_array_concat_bits_after_if_else@2:                                                                  (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+        f-load result#7                                                                                         (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | result#0
+        f-store result#0                                                                                        (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+        int 0                                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0
+        f-store read_offset#0                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+        f-load array_length#0                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | array_length#0
+        int 16                                                                                                  (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | array_length#0,16
+        +                                                                                                       (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | write_offset#0
+        l-store-copy write_offset#0 0                                                                           (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | write_offset#0,write_offset#0
+        f-store write_offset#0                                                                                  (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | write_offset#0
+        l-load write_offset#0 0                                                                                 (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | write_offset#0
+        p-load new_items_count#0                                                                                (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | write_offset#0,new_items_count#0 (copy)
+        +                                                                                                       (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | write_end#0
+        f-store write_end#0                                                                                     (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+        b dynamic_array_concat_bits_while_top@3                                                                 (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+
+    dynamic_array_concat_bits_while_top@3:                                                                      (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+        f-load write_offset#0                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | write_offset#0
+        f-load write_end#0                                                                                      (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | write_offset#0,write_end#0
+        <                                                                                                       (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | tmp%6#0
+        bz dynamic_array_concat_bits_after_while@5 ; b dynamic_array_concat_bits_while_body@4 (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | 
+
+    dynamic_array_concat_bits_while_body@4:                                                                     (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+        p-load new_items_bytes#0                                                                                (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | new_items_bytes#0 (copy)
+        f-load read_offset#0                                                                                    (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | new_items_bytes#0 (copy),read_offset#0
+        l-store-copy read_offset#0 1                                                                            (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,new_items_bytes#0 (copy),read_offset#0 (copy)
+        getbit                                                                                                  (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,tmp%7#0
+        f-load result#0                                                                                         (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,tmp%7#0,result#0
+        f-load write_offset#0                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,tmp%7#0,result#0,write_offset#0
+        l-store-copy write_offset#0 2                                                                           (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,write_offset#0,tmp%7#0,result#0,write_offset#0 (copy)
+        l-load tmp%7#0 2                                                                                        (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,write_offset#0,result#0,write_offset#0 (copy),tmp%7#0
+        setbit                                                                                                  (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,write_offset#0,result#0
+        f-store result#0                                                                                        (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,write_offset#0
+        l-load write_offset#0 0                                                                                 (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,write_offset#0
+        int 1                                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,write_offset#0,1
+        +                                                                                                       (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,write_offset#0
+        f-store write_offset#0                                                                                  (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0
+        l-load read_offset#0 0                                                                                  (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0
+        p-load read_step#0                                                                                      (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0,read_step#0 (copy)
+        +                                                                                                       (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | read_offset#0
+        f-store read_offset#0                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+        b dynamic_array_concat_bits_while_top@3                                                                 (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+
+    dynamic_array_concat_bits_after_while@5:                                                                    (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 |
+        f-load result#0                                                                                         (𝕡) array#0,new_items_bytes#0,new_items_count#0,read_step#0 | (𝕗) read_offset#0,write_end#0,write_offset#0,array_length#0,result#0,current_bytes#0,required_bytes#0,result#7 | result#0
+        retsub                                                                                                  result#0
+
+
+// test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.test_arc4_bool_array() -> void:
+subroutine test_arc4_bool_array:
+    test_arc4_bool_array_block@0:
+        // arc4_encode_decode/contract.py:10
+        // app_id = arc4_create(Receiver).created_app
+        itxn_begin
+        byte CoEBQw==                                                                                           CoEBQw==
+        itxn_field ClearStateProgramPages
+        byte CiACAAEmAQEAMRtBADGCAgT50P50BCQ3jTw2GgCOAgANAAIiQzEZgQUSRDEYRCNDMRkURDEYRDYaAYgADSNDMRlA/98xGBREI0OKAQCL/yJZSYECEkSL/1cCAEsBREkiUygiTwJUKBNEI08CDEQjUygiTwJUKBNEiQ== CiACAAEmAQEAMRtBADGCAgT50P50BCQ3jTw2GgCOAgANAAIiQzEZgQUSRDEYRCNDMRkURDEYRDYaAYgADSNDMRlA/98xGBREI0OKAQCL/yJZSYECEkSL/1cCAEsBREkiUygiTwJUKBNEI08CDEQjUygiTwJUKBNEiQ==
+        itxn_field ApprovalProgramPages
+        int appl                                                                                                appl
+        itxn_field TypeEnum
+        int 0                                                                                                   0
+        itxn_field Fee
+        itxn_submit
+        itxn CreatedApplicationID                                                                               app_id#0
+        // arc4_encode_decode/contract.py:12
+        // imm_arc4 = ImmutableArray(Bool(True), Bool(True))
+        byte 0x0000                                                                                             app_id#0,0x0000
+        byte 0x8080                                                                                             app_id#0,0x0000,0x8080
+        int 2                                                                                                   app_id#0,0x0000,0x8080,2
+        int 8                                                                                                   app_id#0,0x0000,0x8080,2,8
+        callsub dynamic_array_concat_bits                                                                       app_id#0,imm_arc4#0
+        // arc4_encode_decode/contract.py:13
+        // abi_call(Receiver.receive_bools, imm_arc4, app_id=app_id)
+        itxn_begin                                                                                              app_id#0,imm_arc4#0
+        l-load-copy app_id#0 1                                                                                  app_id#0,imm_arc4#0,app_id#0 (copy)
+        itxn_field ApplicationID                                                                                app_id#0,imm_arc4#0
+        method receive_bools(bool[])void                                                                        app_id#0,imm_arc4#0,Method(receive_bools(bool[])void)
+        itxn_field ApplicationArgs                                                                              app_id#0,imm_arc4#0
+        l-load imm_arc4#0 0                                                                                     app_id#0,imm_arc4#0
+        itxn_field ApplicationArgs                                                                              app_id#0
+        int appl                                                                                                app_id#0,appl
+        itxn_field TypeEnum                                                                                     app_id#0
+        int 0                                                                                                   app_id#0,0
+        itxn_field Fee                                                                                          app_id#0
+        itxn_submit                                                                                             app_id#0
+        // arc4_encode_decode/contract.py:15
+        // imm_nat = ImmutableArray(True, True)
+        byte 0x0000                                                                                             app_id#0,0x0000
+        byte 0x8080                                                                                             app_id#0,0x0000,0x8080
+        int 2                                                                                                   app_id#0,0x0000,0x8080,2
+        int 8                                                                                                   app_id#0,0x0000,0x8080,2,8
+        callsub dynamic_array_concat_bits                                                                       app_id#0,imm_nat#0
+        // arc4_encode_decode/contract.py:16
+        // abi_call(Receiver.receive_bools, imm_nat, app_id=app_id)
+        itxn_begin                                                                                              app_id#0,imm_nat#0
+        l-load-copy app_id#0 1                                                                                  app_id#0,imm_nat#0,app_id#0 (copy)
+        itxn_field ApplicationID                                                                                app_id#0,imm_nat#0
+        method receive_bools(bool[])void                                                                        app_id#0,imm_nat#0,Method(receive_bools(bool[])void)
+        itxn_field ApplicationArgs                                                                              app_id#0,imm_nat#0
+        l-load imm_nat#0 0                                                                                      app_id#0,imm_nat#0
+        itxn_field ApplicationArgs                                                                              app_id#0
+        int appl                                                                                                app_id#0,appl
+        itxn_field TypeEnum                                                                                     app_id#0
+        int 0                                                                                                   app_id#0,0
+        itxn_field Fee                                                                                          app_id#0
+        itxn_submit                                                                                             app_id#0
+        // arc4_encode_decode/contract.py:19
+        // abi_call(Receiver.receive_bools, arc4_arc4, app_id=app_id)
+        itxn_begin                                                                                              app_id#0
+        l-load-copy app_id#0 0                                                                                  app_id#0,app_id#0 (copy)
+        itxn_field ApplicationID                                                                                app_id#0
+        method receive_bools(bool[])void                                                                        app_id#0,Method(receive_bools(bool[])void)
+        itxn_field ApplicationArgs                                                                              app_id#0
+        // arc4_encode_decode/contract.py:18
+        // arc4_arc4 = DynamicArray(Bool(True), Bool(True))
+        byte 0x0002c0                                                                                           app_id#0,0x0002c0
+        itxn_field ApplicationArgs                                                                              app_id#0
+        // arc4_encode_decode/contract.py:19
+        // abi_call(Receiver.receive_bools, arc4_arc4, app_id=app_id)
+        int appl                                                                                                app_id#0,appl
+        itxn_field TypeEnum                                                                                     app_id#0
+        int 0                                                                                                   app_id#0,0
+        itxn_field Fee                                                                                          app_id#0
+        itxn_submit                                                                                             app_id#0
+        // arc4_encode_decode/contract.py:22
+        // abi_call(Receiver.delete, app_id=app_id)
+        itxn_begin                                                                                              app_id#0
+        int DeleteApplication                                                                                   app_id#0,DeleteApplication
+        itxn_field OnCompletion                                                                                 app_id#0
+        l-load app_id#0 0                                                                                       app_id#0
+        itxn_field ApplicationID
+        method delete()void                                                                                     Method(delete()void)
+        itxn_field ApplicationArgs
+        int appl                                                                                                appl
+        itxn_field TypeEnum
+        int 0                                                                                                   0
+        itxn_field Fee
+        itxn_submit
+        retsub
+
+
+// test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.test_arc4_bool_array_not_working() -> void:
+subroutine test_arc4_bool_array_not_working:
+    test_arc4_bool_array_not_working_block@0:
+        // arc4_encode_decode/contract.py:26
+        // app_id = arc4_create(Receiver).created_app
+        itxn_begin
+        byte CoEBQw==                                                                                           CoEBQw==
+        itxn_field ClearStateProgramPages
+        byte CiACAAEmAQEAMRtBADGCAgT50P50BCQ3jTw2GgCOAgANAAIiQzEZgQUSRDEYRCNDMRkURDEYRDYaAYgADSNDMRlA/98xGBREI0OKAQCL/yJZSYECEkSL/1cCAEsBREkiUygiTwJUKBNEI08CDEQjUygiTwJUKBNEiQ== CiACAAEmAQEAMRtBADGCAgT50P50BCQ3jTw2GgCOAgANAAIiQzEZgQUSRDEYRCNDMRkURDEYRDYaAYgADSNDMRlA/98xGBREI0OKAQCL/yJZSYECEkSL/1cCAEsBREkiUygiTwJUKBNEI08CDEQjUygiTwJUKBNEiQ==
+        itxn_field ApprovalProgramPages
+        int appl                                                                                                appl
+        itxn_field TypeEnum
+        int 0                                                                                                   0
+        itxn_field Fee
+        itxn_submit
+        itxn CreatedApplicationID                                                                               app_id#0
+        // arc4_encode_decode/contract.py:40
+        // abi_call(Receiver.receive_bools, tup_arc4, app_id=app_id)
+        itxn_begin                                                                                              app_id#0
+        l-load-copy app_id#0 0                                                                                  app_id#0,app_id#0 (copy)
+        itxn_field ApplicationID                                                                                app_id#0
+        method receive_bools(bool[])void                                                                        app_id#0,Method(receive_bools(bool[])void)
+        itxn_field ApplicationArgs                                                                              app_id#0
+        byte 0x0001c0                                                                                           app_id#0,0x0001c0
+        itxn_field ApplicationArgs                                                                              app_id#0
+        int appl                                                                                                app_id#0,appl
+        itxn_field TypeEnum                                                                                     app_id#0
+        int 0                                                                                                   app_id#0,0
+        itxn_field Fee                                                                                          app_id#0
+        itxn_submit                                                                                             app_id#0
+        // arc4_encode_decode/contract.py:43
+        // abi_call(Receiver.delete, app_id=app_id)
+        itxn_begin                                                                                              app_id#0
+        int DeleteApplication                                                                                   app_id#0,DeleteApplication
+        itxn_field OnCompletion                                                                                 app_id#0
+        l-load app_id#0 0                                                                                       app_id#0
+        itxn_field ApplicationID
+        method delete()void                                                                                     Method(delete()void)
+        itxn_field ApplicationArgs
+        int appl                                                                                                appl
+        itxn_field TypeEnum
+        int 0                                                                                                   0
+        itxn_field Fee
+        itxn_submit
+        retsub
+
+
