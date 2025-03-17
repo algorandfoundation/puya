@@ -405,7 +405,7 @@ contract HelloFactory
   abimethod test_cases.compile.factory.HelloFactory.test_arc4_create_modified_compiled(): void
   {
     compiled: algopy._compiled.CompiledContract = compiled_contract(test_cases.compile.apps.Hello,,, prefix=None, variables={})
-    compiled: algopy._compiled.CompiledContract = (compiled[0], compiled[1], compiled[2], 4u, 6u, 3u, 5u)
+    compiled: algopy._compiled.CompiledContract = (approval_program=compiled[0], clear_state_program=compiled[1], extra_program_pages=compiled[2], global_uints=4u, global_bytes=6u, local_uints=3u, local_bytes=5u)
     app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("create(string)void"), arc4_encode('hey', arc4.dynamic_array<arc4.uint8>)), ApprovalProgramPages=(SINGLE_EVAL(id=30, source=compiled.approval_program)[0], SINGLE_EVAL(id=30)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=31, source=compiled.clear_state_program)[0], SINGLE_EVAL(id=31)[1]), ExtraProgramPages=compiled.extra_program_pages, GlobalNumByteSlice=compiled.global_bytes, GlobalNumUint=compiled.global_uints, LocalNumByteSlice=compiled.local_bytes, LocalNumUint=compiled.local_uints)).CreatedApplicationID
     assert(checked_maybe(app_params_get<AppLocalNumUint>(app)) == 3u)
     assert(checked_maybe(app_params_get<AppGlobalNumUint>(app)) == 4u)
