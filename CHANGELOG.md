@@ -1,4 +1,10 @@
 # CHANGELOG
+## v4.5.2 (2025-03-17)
+
+### Fix
+
+* ensure `puya` binaries report the correct version number ([`d646c58`](https://github.com/algorandfoundation/puya/commit/d646c582ea96996053bdf42517b4ad087ea1c492))
+
 ## v4.5.1 (2025-03-17)
 
 ### Fix
