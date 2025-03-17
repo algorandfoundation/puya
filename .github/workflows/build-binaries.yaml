@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: true
+      # This is necessary when running through CD workflow,
+      # so that the built binaries report the correct version number.
+      git_ref:
+        required: false
+        type: string
 env:
   ARTIFACTS_DIR: "${{ github.workspace }}/dist/artifacts"
 
@@ -61,6 +66,8 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref }}
 
       - name: Build Linux binaries
         uses: ./.github/actions/build-binaries/linux
@@ -92,6 +99,8 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref }}
 
       - name: Build Windows binaries
         uses: ./.github/actions/build-binaries/windows
@@ -127,6 +136,8 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref }}
 
       - name: Build macOS binary
         uses: ./.github/actions/build-binaries/macos
