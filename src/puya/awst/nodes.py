@@ -787,7 +787,7 @@ class InnerTransactionField(Expression):
         return visitor.visit_inner_transaction_field(self)
 
 
-@attrs.define
+@attrs.frozen
 class SubmitInnerTransaction(Expression):
     itxns: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
     wtype: WType = attrs.field(init=False)
