@@ -477,7 +477,15 @@ class ToCodeVisitor(
 
     @typing.override
     def visit_tuple_expression(self, expr: nodes.TupleExpression) -> str:
-        items = ", ".join([item.accept(self) for item in expr.items])
+        if expr.wtype.names:
+            items = ", ".join(
+                [
+                    f"{name}={item.accept(self)}"
+                    for name, item in zip(expr.wtype.names, expr.items, strict=True)
+                ]
+            )
+        else:
+            items = ", ".join([item.accept(self) for item in expr.items])
         return f"({items})"
 
     @typing.override
