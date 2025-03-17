@@ -849,6 +849,10 @@ class IndexExpression(Expression):
 
 @attrs.frozen
 class SliceExpression(Expression):
+    """
+    Errors if begin or end indices are out of bounds
+    """
+
     base: Expression = attrs.field(
         validator=expression_has_wtype(
             wtypes.bytes_wtype,
