@@ -147,12 +147,9 @@ jobs:
       - name: Download all binary artifacts
         uses: actions/download-artifact@v4
         with:
-          path: binary-artifacts
+          path: bdist
           pattern: binary-artifacts-*
           merge-multiple: true
-
-      - name: Display structure of downloaded files
-        run: find binary-artifacts -type f | sort
 
       - name: Setup Python venv
         uses: ./.github/actions/setup-python-venv
@@ -163,14 +160,6 @@ jobs:
         run: semantic-release $SEMANTIC_RELEASE_DRY_RUN publish --tag $VERSION_TAG
         env:
             GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
-
-      - name: Append artifacts to release
-        uses: softprops/action-gh-release@v1
-        if: ( !inputs.dry_run )
-        with:
-          fail_on_unmatched_files: true
-          files: binary-artifacts/**/*
-          tag_name: ${{ env.VERSION_TAG }}
 
   publish-to-pypi:
     name: Publish to PyPI
