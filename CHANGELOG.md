@@ -1,4 +1,10 @@
 # CHANGELOG
+## v4.5.1 (2025-03-17)
+
+### Fix
+
+* support named tuple use with inner transaction results ([`277c071`](https://github.com/algorandfoundation/puya/commit/277c07114d3532bbb2e48a83ac2a7cf4429de977))
+
 ## v4.5.0 (2025-03-14)
 
 ### Feature
