@@ -1,3 +1,36 @@
+contract ItxnNamedTuple
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn(amt: uint64): void
+  {
+    hmm: test_cases.inner_transactions.itxn_tuple.Hmmm = (foo=amt, bar=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=txn<Sender>(), Amount=amt)))
+    assert(hmm.bar.Amount == 0u)
+  }
+  
+  abimethod test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn2(amt: uint64): void
+  {
+    amt: uint64 = (foo=amt, bar=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=txn<Sender>(), Amount=amt)))[1].Amount
+    assert(amt == 0u)
+  }
+  
+  baremethod test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__algopy_default_create(): void
+  {
+  }
+}
+
 contract itxn_loop
 {
   method_resolution_order: (

@@ -1,0 +1,70 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 1 0
+    txn NumAppArgs
+    bz main_bare_routing@7
+    pushbytess 0xdf478c6e 0x20694f7b // method "named_tuple_itxn(uint64)void", method "named_tuple_itxn2(uint64)void"
+    txna ApplicationArgs 0
+    match main_named_tuple_itxn_route@3 main_named_tuple_itxn2_route@4
+
+main_after_if_else@11:
+    intc_1 // 0
+    return
+
+main_named_tuple_itxn2_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    itxn_begin
+    txn Sender
+    itxn_field Receiver
+    itxn_field Amount
+    intc_0 // pay
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    gitxn 0 Amount
+    !
+    assert
+    intc_0 // 1
+    return
+
+main_named_tuple_itxn_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    itxn_begin
+    txn Sender
+    itxn_field Receiver
+    itxn_field Amount
+    intc_0 // pay
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn Amount
+    !
+    assert
+    intc_0 // 1
+    return
+
+main_bare_routing@7:
+    txn OnCompletion
+    bnz main_after_if_else@11
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return
