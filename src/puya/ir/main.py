@@ -5,6 +5,7 @@ import typing
 from collections import defaultdict
 from collections.abc import Callable, Collection, Iterator, Set
 from pathlib import Path
+from typing import TypeVar
 
 from immutabledict import immutabledict
 
@@ -43,7 +44,14 @@ from puya.program_refs import (
     LogicSigReference,
     ProgramKind,
 )
-from puya.utils import StableSet, attrs_extend, coalesce, set_add, set_remove
+from puya.utils import (
+    StableSet,
+    attrs_extend,
+    cancellation_requested,
+    coalesce,
+    set_add,
+    set_remove,
+)
 
 logger = log.get_logger(__name__)
 
@@ -51,13 +59,32 @@ logger = log.get_logger(__name__)
 CalleesLookup: typing.TypeAlias = defaultdict[awst_nodes.Function, set[awst_nodes.Function]]
 _EMBEDDED_LIB = Path(__file__).parent / "_puya_lib.awst.json"
 
+# Type variable for the return type
+T = TypeVar("T")
 
-def awst_to_ir(context: CompileContext, awst: awst_nodes.AWST) -> Iterator[ModuleArtifact]:
+
+def awst_to_ir(
+    context: CompileContext,
+    awst: awst_nodes.AWST,
+    cancellation_callback: typing.Callable[[], bool] | None = None,
+) -> Iterator[ModuleArtifact]:
     compilation_set = _CompilationSetCollector.collect(context, awst)
+
+    # Check for cancellation after collecting compilation set
+    if cancellation_requested(cancellation_callback):
+        return
 
     ir_ctx = _build_subroutines(context, awst)
 
+    # Check for cancellation after building subroutines
+    if cancellation_requested(cancellation_callback):
+        return
+
     for node in compilation_set:
+        # Check for cancellation at start of each node processing
+        if cancellation_requested(cancellation_callback):
+            return
+
         artifact_ctx = ir_ctx.for_root(node)
         with artifact_ctx.log_exceptions():
             if isinstance(node, awst_nodes.LogicSignature):
