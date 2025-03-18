@@ -1,5 +1,6 @@
 import itertools
 import shutil
+import time
 import typing
 from collections import defaultdict
 from collections.abc import Iterator, Mapping, Sequence
@@ -43,7 +44,12 @@ from puya.teal.main import mir_to_teal
 from puya.teal.models import TealProgram
 from puya.teal.output import emit_teal
 from puya.ussemble.main import assemble_program
-from puya.utils import attrs_extend, make_path_relative_to, make_path_relative_to_cwd
+from puya.utils import (
+    attrs_extend,
+    cancellation_requested,
+    make_path_relative_to,
+    make_path_relative_to_cwd,
+)
 
 logger = log.get_logger(__name__)
 
@@ -56,26 +62,60 @@ def awst_to_teal(
     awst: AWST,
     *,
     write: bool = True,
+    cancellation_callback: typing.Callable[[], bool] | None = None,
 ) -> list[CompilationArtifact]:
+    # TEST HOOK: If this is a test AWST with a slow compilation flag, introduce a delay
+    # This is used by tests to reliably test cancellation functionality
+    if hasattr(awst, "metadata") and getattr(awst.metadata, "test_slow_compilation", False):
+        logger.debug("Test slow compilation triggered, introducing delay")
+        for _ in range(20):  # Sleep in small increments to be responsive to cancellation
+            time.sleep(0.5)
+            if cancellation_requested(cancellation_callback):
+                logger.debug("Cancellation detected during test delay")
+                return []
+
     validate_awst(awst)
     log_ctx.exit_if_errors()
+
+    # Check for cancellation after validation
+    if cancellation_requested(cancellation_callback):
+        return []
+
     context = CompileContext(
         options=options,
         compilation_set=compilation_set,
         source_provider=source_provider,
     )
     log_ctx.exit_if_errors()
-    ir = list(awst_to_ir(context, awst))
+
+    # Check for cancellation after context setup
+    if cancellation_requested(cancellation_callback):
+        return []
+
+    ir = list(awst_to_ir(context, awst, cancellation_callback=cancellation_callback))
     log_ctx.exit_if_errors()
-    teal = list(_ir_to_teal(log_ctx, context, ir))
+
+    # Check for cancellation after IR generation
+    if cancellation_requested(cancellation_callback):
+        return []
+
+    teal = list(_ir_to_teal(log_ctx, context, ir, cancellation_callback))
     log_ctx.exit_if_errors()
+
+    # Check for cancellation before writing
+    if cancellation_requested(cancellation_callback):
+        return []
+
     if write:
         _write_artifacts(context, teal)
     return teal
 
 
 def _ir_to_teal(
-    log_ctx: LoggingContext, context: CompileContext, all_ir: Sequence[ir_models.ModuleArtifact]
+    log_ctx: LoggingContext,
+    context: CompileContext,
+    all_ir: Sequence[ir_models.ModuleArtifact],
+    cancellation_callback: typing.Callable[[], bool] | None = None,
 ) -> Iterator[CompilationArtifact]:
     compiled_program_provider = _CompiledProgramProviderImpl(
         compile_context=context,
@@ -86,9 +126,17 @@ def _ir_to_teal(
         },
     )
 
+    # Check for cancellation after setting up the provider
+    if cancellation_requested(cancellation_callback):
+        return
+
     # used to check for conflicts that would occur on output
     artifacts_by_output_base = dict[Path, Artifact]()
     for artifact in ArtifactCompilationSorter.sort(all_ir):
+        # Check for cancellation at start of each artifact compilation
+        if cancellation_requested(cancellation_callback):
+            return
+
         output_path_provider = None
         if out_dir_setting := context.compilation_set.get(artifact.id):
             name = artifact.ir.metadata.name
@@ -103,7 +151,7 @@ def _ir_to_teal(
                 out_dir = maybe_out_dir
                 shutil.rmtree(out_dir, ignore_errors=True)
                 output_path_provider = _SequentialOutputPathProvider(
-                    metadata=artifact.ir.metadata, out_dir=out_dir
+                    _metadata=artifact.ir.metadata, _out_dir=out_dir
                 )
 
         artifact_context = attrs_extend(
@@ -113,12 +161,20 @@ def _ir_to_teal(
             compiled_program_provider=compiled_program_provider,
         )
 
+        # Check for cancellation before IR transformation
+        if cancellation_requested(cancellation_callback):
+            return
+
         num_errors_before_transforms = log_ctx.num_errors
         artifact_ir = artifact.ir
         if artifact_context.options.output_ssa_ir:
             for program in artifact_ir.all_programs():
                 render_program(artifact_context, program, qualifier="ssa")
         artifact_ir = transform_ir(artifact_context, artifact_ir)
+
+        # Check for cancellation after IR transformation
+        if cancellation_requested(cancellation_callback):
+            return
 
         # IR validation that occurs at the end of optimize_and_destructure_ir may have revealed
         # further errors, add dummy artifacts and continue so other artifacts can still be lowered
@@ -199,8 +255,8 @@ class _CompiledProgramProviderImpl(CompiledProgramProvider):
 
 @attrs.frozen
 class _SequentialOutputPathProvider(OutputPathProvider):
-    _metadata: ContractMetaData | LogicSignatureMetaData
-    _out_dir: Path
+    _metadata: ContractMetaData | LogicSignatureMetaData = attrs.field(alias="_metadata")
+    _out_dir: Path = attrs.field(alias="_out_dir")
     _output_seq: defaultdict[str, Iterator[int]] = attrs.field(
         factory=lambda: defaultdict(itertools.count), init=False
     )

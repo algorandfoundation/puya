@@ -7,11 +7,12 @@ from pathlib import Path
 import attrs
 
 from puya.errors import PuyaExitError
-from puya.log import LogFormat, LogLevel, configure_logging
+from puya.log import LogFormat, LogLevel, configure_logging, get_logger
 from puya.main import main
 
 # Required to support multiprocessing in pyinstaller binaries
 freeze_support()
+logger = get_logger(__name__)
 
 
 @attrs.define(kw_only=True)
@@ -19,6 +20,8 @@ class _PuyaCLIArgs:
     options: Path | None = None
     awst: Path | None = None
     source_annotations: Path | None = None
+    daemon: bool = False
+    daemon_threads: int = 2
     log_level: LogLevel = LogLevel.info
     log_format: LogFormat = LogFormat.default
 
@@ -38,12 +41,27 @@ def cli() -> None:
         choices=list(LogFormat),
         default=LogFormat.default,
     )
-    parser.add_argument("--options", type=Path, required=True)
-    parser.add_argument("--awst", type=Path, required=True)
+    parser.add_argument("--options", type=Path, required=False)
+    parser.add_argument("--awst", type=Path, required=False)
     parser.add_argument("--source-annotations", type=Path)
+    parser.add_argument("--daemon", action="store_true", help="Run in daemon mode")
+    parser.add_argument(
+        "--daemon-threads", type=int, default=2, help="Worker thread count for service mode"
+    )
     parsed_args = _PuyaCLIArgs()
     parser.parse_args(namespace=parsed_args)
-    configure_logging(min_log_level=parsed_args.log_level, log_format=parsed_args.log_format)
+
+    if parsed_args.daemon:
+        from puya.puyad import create_server
+
+        puyad_server = create_server(thread_count=parsed_args.daemon_threads)
+        log_file = sys.stderr
+        configure_logging(min_log_level=parsed_args.log_level, file=log_file)
+        logger.info("Starting puyad server...")
+        puyad_server.start_io()
+        return
+    else:
+        configure_logging(min_log_level=parsed_args.log_level, log_format=parsed_args.log_format)
 
     assert parsed_args.options
     options_json = parsed_args.options.read_text("utf8")
