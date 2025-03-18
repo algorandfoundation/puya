@@ -36,7 +36,7 @@ def compile_arc32(
     *,
     optimization_level: int = 1,
     debug_level: int = 2,
-    file_name: str | None = None,
+    contract_name: str | None = None,
     disabled_optimizations: Sequence[str] = (),
 ) -> str:
     result = compile_src_from_options(
@@ -47,18 +47,14 @@ def compile_arc32(
             disabled_optimizations=disabled_optimizations,
         )
     )
-    if file_name is None:
+    if contract_name is None:
         (contract,) = result.teal
     else:
         (contract,) = (
             t
             for t in result.teal
             if isinstance(t, CompiledContract)
-            if (
-                t.source_location
-                and t.source_location.file
-                and t.source_location.file.name == file_name
-            )
+            if t.metadata.name == contract_name
         )
 
     assert isinstance(contract, CompiledContract), "Compilation artifact must be a contract"
@@ -1558,7 +1554,7 @@ def test_box_map(box_client: algokit_utils.ApplicationClient) -> None:
 
 def test_compile(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     app_spec = algokit_utils.ApplicationSpecification.from_json(
-        compile_arc32(TEST_CASES_DIR / "compile", file_name="factory.py")
+        compile_arc32(TEST_CASES_DIR / "compile", contract_name="HelloFactory")
     )
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
 
@@ -1637,7 +1633,7 @@ def test_uint_overflow(algod_client: AlgodClient, account: algokit_utils.Account
     app_client = algokit_utils.ApplicationClient(
         algod_client,
         algokit_utils.ApplicationSpecification.from_json(
-            compile_arc32(TEST_CASES_DIR / "arc4_types", file_name="uint_overflow.py")
+            compile_arc32(TEST_CASES_DIR / "arc4_types", contract_name="UIntOverflow")
         ),
         signer=account,
     )
@@ -1786,6 +1782,27 @@ def test_diamond_mro(
     method_logs_raw = method_response.tx_info["logs"]
     method_logs = decode_logs(method_logs_raw, len(method_logs_raw) * "u")
     assert method_logs == expected_method_log
+
+
+def test_arc4_encode_decode(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+    example = TEST_CASES_DIR / "arc4_conversions"
+
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(example, contract_name="TestContract")
+    )
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    sp = algod_client.suggested_params()
+    sp.flat_fee = True
+    sp.fee = 10_000
+    app_client.suggested_params = sp
+    app_client.create()
+
+    app_client.call("test_literal_encoding")
+    app_client.call("test_native_encoding")
+    app_client.call("test_arc4_encoding")
+    app_client.call("test_array_uint64_encoding")
+    app_client.call("test_array_static_encoding")
+    app_client.call("test_array_dynamic_encoding")
 
 
 @pytest.mark.parametrize("optimization_level", [0, 1])
