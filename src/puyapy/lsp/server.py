@@ -16,7 +16,7 @@ from puya.errors import log_exceptions
 from puya.log import Log, LoggingContext, LogLevel, get_logger, logging_context
 from puya.parse import SourceLocation
 from puyapy.awst_build.main import transform_ast
-from puyapy.compile import determine_out_dir, parse_with_mypy
+from puyapy.compile import determine_out_dir, get_python_executable, parse_with_mypy
 from puyapy.lsp import constants
 from puyapy.options import PuyaPyOptions
 from puyapy.parse import ParseResult
@@ -228,6 +228,14 @@ def _initialization(ls: PuyaPyLanguageServer, params: types.InitializeParams) ->
             )
         )
     ls.analysis_prefix = Path(analysis_prefix)
+
+    # the following is to work around a deadlock issue in mypy.modulefinder.get_search_dirs
+    # when mixing async code and mypy on windows.
+    # by calling get_search_dirs here on initialization the deadlock issue is avoided
+    from mypy.modulefinder import get_search_dirs
+
+    python_exe = get_python_executable(analysis_prefix)
+    get_search_dirs(python_exe)
 
 
 @server.feature(
