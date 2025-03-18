@@ -12,7 +12,7 @@ import pytest
 from puya.awst.nodes import AWST
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.compile import awst_to_teal
-from puya.errors import PuyaError, log_exceptions
+from puya.errors import PuyaError, PuyaExitError, log_exceptions
 from puya.log import Log, LogLevel, logging_context
 from puya.utils import coalesce
 from puyapy.awst_build.main import transform_ast
@@ -302,7 +302,7 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
             )
             case_parse_result = narrowed_parse_result(parse_result, case_path[case])
             with (
-                contextlib.suppress(SystemExit),
+                contextlib.suppress(PuyaExitError),
                 logging_context() as case_log_ctx,
                 log_exceptions(),
             ):
@@ -505,7 +505,7 @@ class TestFile(pytest.File):
         # however a ParseError in a single case will effect all cases which is not ideal
         try:
             compile_and_update_cases(self.cases)
-        except (PuyaError, SystemExit) as ex:
+        except (PuyaError, PuyaExitError) as ex:
             pytest.fail(f"Unhandled compiler error: {ex}", pytrace=False)
         except BaseException as ex:
             # unexpected error, fail immediately
