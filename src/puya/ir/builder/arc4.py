@@ -185,6 +185,25 @@ def encode_value_provider(
         ) if is_equivalent_effective_array_encoding(value_wtype, arc4_wtype, loc):
             # already ARC4 encoded
             return value_provider
+        case (
+            wtypes.ARC4Array(element_type=arc4_element_type),
+            wtypes.WTuple(types=item_types),
+        ) if (
+            all(arc4_element_type.can_encode_type(t) for t in item_types)
+            or all(t == arc4_element_type for t in item_types)
+        ):
+            (src_element_type,) = set(item_types)
+            arc4_element_types = [arc4_element_type] * len(item_types)
+            elements = context.visitor.materialise_value_provider(
+                value_provider, description="elements_to_encode"
+            )
+            if src_element_type != arc4_element_type:
+                arc4_items = _encode_arc4_tuple_items(
+                    context, elements, item_types, arc4_element_types, loc
+                )
+            else:
+                arc4_items = elements
+            return _encode_arc4_values_as_array(context, arc4_wtype, arc4_items, loc)
         case _:
             raise InternalError(
                 f"unsupported ARC4 translation from {value_wtype} to {arc4_wtype}", loc
@@ -197,7 +216,7 @@ def _encode_arc4_tuple_items(
     item_wtypes: Sequence[wtypes.WType],
     arc4_item_wtypes: Sequence[wtypes.ARC4Type],
     loc: SourceLocation,
-) -> Sequence[Value]:
+) -> list[Value]:
     arc4_items = []
     for item_wtype, arc4_item_wtype in zip(item_wtypes, arc4_item_wtypes, strict=True):
         item_arity = get_wtype_arity(item_wtype)

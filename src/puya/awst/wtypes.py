@@ -285,7 +285,10 @@ class ARC4Type(WType):
     native_type: WType | None
 
     def can_encode_type(self, wtype: WType) -> bool:
-        return wtype == self.native_type
+        return self.native_type == wtype
+
+    def can_encode_type_in_array(self, wtype: WType) -> bool:
+        return wtype in (self, self.native_type)
 
 
 arc4_bool_wtype: typing.Final = ARC4Type(
@@ -321,8 +324,20 @@ class ARC4UIntN(ARC4Type):
     def _name(self) -> str:
         return f"arc4.{self._arc4_name()}"
 
+    @typing.override
     def can_encode_type(self, wtype: WType) -> bool:
         return wtype in (bool_wtype, uint64_wtype, biguint_wtype)
+
+    @typing.override
+    def can_encode_type_in_array(self, wtype: WType) -> bool:
+        if self == wtype:
+            return True
+        if self.n == 64 and wtype == uint64_wtype:
+            return True
+        if self.n == 512 and wtype == biguint_wtype:  # noqa: SIM103
+            return True
+        else:
+            return False
 
 
 @typing.final
@@ -355,6 +370,14 @@ class ARC4UFixedNxM(ARC4Type):
     def _m_validator(self, _attribute: object, m: int) -> None:
         if not (1 <= m <= 160):
             raise CodeError("Precision must be between 1 and 160 inclusive", self.source_location)
+
+    @typing.override
+    def can_encode_type(self, wtype: WType) -> bool:
+        return False
+
+    @typing.override
+    def can_encode_type_in_array(self, wtype: WType) -> bool:
+        return wtype == self
 
 
 def _required_arc4_wtypes(wtypes: Iterable[WType]) -> tuple[ARC4Type, ...]:
@@ -392,21 +415,31 @@ class ARC4Tuple(ARC4Type):
     def _native_type(self) -> WTuple:
         return WTuple(self.types, self.source_location)
 
+    @typing.override
     def can_encode_type(self, wtype: WType) -> bool:
-        return super().can_encode_type(wtype) or _is_arc4_encodeable_tuple(wtype, self.types)
-
-
-def _is_arc4_encodeable_tuple(
-    wtype: WType, target_types: tuple[ARC4Type, ...]
-) -> typing.TypeGuard[WTuple]:
-    return (
-        isinstance(wtype, WTuple)
-        and len(wtype.types) == len(target_types)
-        and all(
-            arc4_wtype == encode_wtype or arc4_wtype.can_encode_type(encode_wtype)
-            for arc4_wtype, encode_wtype in zip(target_types, wtype.types, strict=True)
+        if self.native_type == wtype:
+            return True
+        return (
+            isinstance(wtype, WTuple)
+            and len(wtype.types) == len(self.types)
+            and all(
+                arc4_wtype == encode_wtype or arc4_wtype.can_encode_type(encode_wtype)
+                for arc4_wtype, encode_wtype in zip(self.types, wtype.types, strict=True)
+            )
         )
-    )
+
+    @typing.override
+    def can_encode_type_in_array(self, wtype: WType) -> bool:
+        if self == wtype:
+            return True
+        return (
+            isinstance(wtype, WTuple | ARC4Tuple | ARC4Struct)
+            and len(wtype.types) == len(self.types)
+            and all(
+                arc4_wtype == encode_wtype or arc4_wtype.can_encode_type_in_array(encode_wtype)
+                for arc4_wtype, encode_wtype in zip(self.types, wtype.types, strict=True)
+            )
+        )
 
 
 def _expect_arc4_type(wtype: WType) -> ARC4Type:
@@ -439,12 +472,25 @@ class ARC4DynamicArray(ARC4Array):
 
     @typing.override
     def can_encode_type(self, wtype: WType) -> bool:
-        return super().can_encode_type(wtype) or (
-            isinstance(wtype, StackArray)
-            and (
-                self.element_type == wtype.element_type
-                or self.element_type.can_encode_type(wtype.element_type)
-            )
+        if wtype == self.native_type:
+            return True
+        if isinstance(wtype, WTuple):
+            try:
+                (single_type,) = set(wtype.types)
+            except ValueError:
+                return False
+            else:
+                return self.element_type.can_encode_type(single_type)
+        return isinstance(wtype, StackArray) and self.element_type.can_encode_type_in_array(
+            wtype.element_type
+        )
+
+    @typing.override
+    def can_encode_type_in_array(self, wtype: WType) -> bool:
+        if wtype in (self.native_type, self):
+            return True
+        return isinstance(wtype, StackArray) and self.element_type.can_encode_type_in_array(
+            wtype.element_type
         )
 
 
@@ -463,6 +509,29 @@ class ARC4StaticArray(ARC4Array):
     @arc4_name.default
     def _arc4_name(self) -> str:
         return f"{self.element_type.arc4_name}[{self.array_size}]"
+
+    @typing.override
+    def can_encode_type(self, wtype: WType) -> bool:
+        if wtype == self.native_type:
+            return True
+        if isinstance(wtype, WTuple) and len(wtype.types) == self.array_size:
+            try:
+                (single_type,) = set(wtype.types)
+            except ValueError:
+                return False
+            else:
+                return self.element_type.can_encode_type(single_type)
+        return isinstance(wtype, StackArray) and self.element_type.can_encode_type_in_array(
+            wtype.element_type
+        )
+
+    @typing.override
+    def can_encode_type_in_array(self, wtype: WType) -> bool:
+        if wtype in (self.native_type, self):
+            return True
+        return isinstance(wtype, ARC4StaticArray) and self.element_type.can_encode_type_in_array(
+            wtype.element_type
+        )
 
 
 def _require_arc4_fields(fields: Mapping[str, WType]) -> immutabledict[str, ARC4Type]:
@@ -508,10 +577,37 @@ class ARC4Struct(ARC4Type):
     def types(self) -> tuple[ARC4Type, ...]:
         return tuple(self.fields.values())
 
+    @typing.override
     def can_encode_type(self, wtype: WType) -> bool:
-        return super().can_encode_type(wtype) or (
-            _is_arc4_encodeable_tuple(wtype, self.types)
+        return (
+            isinstance(wtype, WTuple)
+            and len(self.types) == len(wtype.types)
+            # TODO: in theory could support encoding a named tuple with a different layout but
+            #       the same names and encodable types
             and (wtype.names is None or wtype.names == self.names)
+            and all(
+                arc4_type == encode_type or arc4_type.can_encode_type(encode_type)
+                for arc4_type, encode_type in zip(self.types, wtype.types, strict=True)
+            )
+        )
+
+    @typing.override
+    def can_encode_type_in_array(self, wtype: WType) -> bool:
+        if self == wtype:
+            return True
+        if isinstance(wtype, WTuple | ARC4Struct):
+            names = wtype.names
+        elif isinstance(wtype, ARC4Tuple):
+            names = None
+        else:
+            return False
+        return (
+            len(self.types) == len(wtype.types)
+            and (names is None or names == self.names)
+            and all(
+                arc4_type.can_encode_type_in_array(encode_type)
+                for arc4_type, encode_type in zip(self.types, wtype.types, strict=True)
+            )
         )
 
 
