@@ -7,7 +7,7 @@ import mypy.nodes
 import mypy.types
 from mypy.options import NEW_GENERIC_SYNTAX
 
-from puyapy.compile import _get_python_executable
+from puyapy.compile import get_python_executable
 from puyapy.parse import SourceModule, parse_and_typecheck
 
 
@@ -333,7 +333,7 @@ def get_mypy_options() -> mypy.options.Options:
     mypy_opts = mypy.options.Options()
 
     # set python_executable so third-party packages can be found
-    mypy_opts.python_executable = _get_python_executable()
+    mypy_opts.python_executable = get_python_executable()
 
     mypy_opts.preserve_asts = True
     mypy_opts.include_docstrings = True

@@ -130,7 +130,7 @@ def get_mypy_options(prefix: Path | None = None) -> mypy.options.Options:
     mypy_opts.abs_custom_typeshed_dir = str(TYPESHED_PATH.resolve())
 
     # set python_executable so third-party packages can be found
-    mypy_opts.python_executable = _get_python_executable(prefix)
+    mypy_opts.python_executable = get_python_executable(prefix)
 
     mypy_opts.preserve_asts = True
     mypy_opts.include_docstrings = True
@@ -165,7 +165,7 @@ def get_mypy_options(prefix: Path | None = None) -> mypy.options.Options:
     return mypy_opts
 
 
-def _get_python_executable(prefix_: Path | None = None) -> str | None:
+def get_python_executable(prefix_: Path | None = None) -> str | None:
     prefix = str(prefix_) if prefix_ else _get_prefix()
     if not prefix:
         logger.warning("Could not determine python prefix or algopy version")
