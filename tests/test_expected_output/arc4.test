@@ -700,3 +700,52 @@ class DefaultArgsContract4(ARC4Contract):
     })
     def parse_failure(self, x: UInt64) -> None:
         assert x
+
+## case: struct_member_ordering
+import typing
+from algopy import *
+
+class MyStruct(arc4.Struct):
+    foo: arc4.UInt64
+    bar: arc4.Bool
+
+
+class Client(arc4.ARC4Client, typing.Protocol):
+
+    @arc4.abimethod
+    def check(self, arg: arc4.DynamicArray[MyStruct]) -> None: ...
+
+@subroutine
+def incorrect_positional() -> MyStruct:
+    return MyStruct(arc4.Bool(), arc4.UInt64()) ## E: unexpected argument type \
+                                                ## E: Argument 1 to "MyStruct" has incompatible type "Bool"; expected "UIntN[Literal[64]]"  [arg-type] \
+                                                ## E: Argument 2 to "MyStruct" has incompatible type "UIntN[Literal[64]]"; expected "Bool"  [arg-type]
+
+
+@subroutine
+def correct_kwarg() -> MyStruct:
+    return MyStruct(bar=arc4.Bool(), foo=arc4.UInt64())
+
+
+@subroutine
+def incorrect_array_positional() -> None:
+    arc4.abi_call(Client.check, ImmutableArray((True, UInt64())), app_id=1234) ## E: cannot encode algopy.ImmutableArray[tuple[bool, algopy.UInt64]] to algopy.arc4.DynamicArray[struct_member_ordering.MyStruct]
+
+
+@subroutine
+def correct_array_positional() -> None:
+    arc4.abi_call(Client.check, ImmutableArray((UInt64(), True)), app_id=1234)
+
+## case: array_encoding
+import typing
+from algopy import *
+
+class Client(arc4.ARC4Client, typing.Protocol):
+
+    @arc4.abimethod
+    def take_arc4_uint8(self, arr: arc4.DynamicArray[arc4.UInt8]) -> None: ...
+
+@subroutine
+def stack_uint64_to_arc4_uint8() -> None:
+    arr = ImmutableArray[UInt64]()
+    arc4.abi_call(Client.take_arc4_uint8, arr, app_id=1234) ## E: cannot encode algopy.ImmutableArray[algopy.UInt64] to algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[8]]]
