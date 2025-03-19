@@ -22,8 +22,15 @@ contract ItxnNamedTuple
   
   abimethod test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn2(amt: uint64): void
   {
-    amt: uint64 = (foo=amt, bar=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=txn<Sender>(), Amount=amt)))[1].Amount
-    assert(amt == 0u)
+    txn: inner_transaction_pay = (foo=amt, bar=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=txn<Sender>(), Amount=amt))).bar
+    assert(txn.Amount == 0u)
+  }
+  
+  abimethod test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn3(amt: uint64): void
+  {
+    hmmm: test_cases.inner_transactions.itxn_tuple.Hmmm = (foo=amt, bar=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=txn<Sender>(), Amount=amt)))
+    txn: inner_transaction_pay = hmmm.bar
+    assert(txn.Amount == 0u)
   }
   
   baremethod test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__algopy_default_create(): void

@@ -18,3 +18,9 @@ class ItxnNamedTuple(algopy.arc4.ARC4Client, typing.Protocol):
         self,
         amt: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def named_tuple_itxn3(
+        self,
+        amt: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> None: ...
