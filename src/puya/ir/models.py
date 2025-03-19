@@ -629,8 +629,8 @@ class Intrinsic(Op, ValueProvider):
     """Any TEAL op (or pseudo-op) that doesn't interrupt control flow, in the "basic block" sense.
 
     refs:
-    - https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/
-    - https://developer.algorand.org/docs/get-details/dapps/avm/teal/specification/#assembler-syntax
+    - https://dev.algorand.co/reference/algorand-teal/opcodes/
+    - https://dev.algorand.co/concepts/smart-contracts/avm/#assembler-syntax
     """
 
     op: AVMOp
