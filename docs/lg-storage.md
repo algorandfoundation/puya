@@ -1,6 +1,6 @@
 # Storing data on-chain
 
-Algorand smart contracts have [three different types of on-chain storage](https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/state/)
+Algorand smart contracts have [three different types of on-chain storage](https://devdeveloper.algorand.co/concepts/smart-contracts/storage/overview/)
 they can utilise: [Global storage](#global-storage), [Local storage](#local-storage), [Box Storage](#box-storage), and [Scratch storage](#scratch-storage).
 
 The life-cycle of a smart contract matches the semantics of Python classes when you consider
@@ -16,20 +16,20 @@ the current method via [local variables and subroutine params](./lg-structure.md
 ## Global storage
 
 Global storage is state that is stored against the contract instance and can be retrieved
-by key. There are [AVM limits to the amount of global storage that can be allocated to a contract](https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/state/#global-storage).
+by key. There are [AVM limits to the amount of global storage that can be allocated to a contract](https://dev.algorand.co/concepts/smart-contracts/storage/overview/#global-storage).
 
 This is represented in Algorand Python by either:
 
 1. Assigning any [Algorand Python typed](./lg-types.md) value to an instance variable (e.g. `self.value = UInt64(3)`).
-   - Use this approach if you just require a terse API for getting and setting a state value
+    - Use this approach if you just require a terse API for getting and setting a state value
 2. Using an instance of `GlobalState`, which gives [some extra features](./api-algopy.md#algopy.GlobalState) to understand
    and control the value and the metadata of it (which propagates to the ARC-32 app spec file)
-   - Use this approach if you need to:
-     - Omit a default/initial value 
-     - Delete the stored value
-     - Check if a value exists
-     - Specify the exact key bytes
-     - Include a description to be included in App Spec files (ARC32/ARC56)
+    - Use this approach if you need to:
+        - Omit a default/initial value
+        - Delete the stored value
+        - Check if a value exists
+        - Specify the exact key bytes
+        - Include a description to be included in App Spec files (ARC32/ARC56)
 
 For example:
 
@@ -54,7 +54,7 @@ any [generated typed clients](https://github.com/algorandfoundation/algokit-cli/
 ## Local storage
 
 Local storage is state that is stored against the contract instance for a specific account and can be retrieved
-by key and account address. There are [AVM limits to the amount of local storage that can be allocated to a contract](https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/state/#local-storage).
+by key and account address. There are [AVM limits to the amount of local storage that can be allocated to a contract](https://dev.algorand.co/concepts/smart-contracts/storage/overview/#local-storage).
 
 This is represented in Algorand Python by using an instance of [`LocalState`](./api-algopy.md#algopy.LocalState).
 
@@ -96,14 +96,13 @@ any [generated typed clients](https://github.com/algorandfoundation/algokit-cli/
 
 We provide 3 different types for accessing box storage: [Box](./api-algopy.md#algopy.Box), [BoxMap](./api-algopy.md#algopy.BoxMap), and [BoxRef](./api-algopy.md#algopy.BoxBlob). We also expose raw operations via the [AVM ops](./lg-ops.md) module.
 
-Before using box storage, be sure to familiarise yourself with the [requirements and restrictions](https://developer.algorand.org/articles/smart-contract-storage-boxes/) of the underlying API.
+Before using box storage, be sure to familiarise yourself with the [requirements and restrictions](https://dev.algorand.co/concepts/smart-contracts/storage/overview/#boxes) of the underlying API.
 
 The `Box` type provides an abstraction over storing a single value in a single box. A box can be declared against `self`
-in an `__init__` method (in which case the key must be a compile time constant); or as a local variable within any 
-subroutine. `Box` proxy instances can be passed around like any other value. 
+in an `__init__` method (in which case the key must be a compile time constant); or as a local variable within any
+subroutine. `Box` proxy instances can be passed around like any other value.
 
 Once declared, you can interact with the box via its instance methods.
-
 
 ```python
 import typing as t
@@ -113,7 +112,7 @@ from algopy import Box, arc4, Contract, op
 class MyContract(Contract):
     def __init__(self) -> None:
         self.box_a = Box(arc4.StaticArray[arc4.UInt32, t.Literal[20]], key=b"a")
-    
+
     def approval_program(self) -> bool:
         box_b = Box(arc4.String, key=b"b")
         box_b.value = arc4.String("Hello")
@@ -125,11 +124,11 @@ class MyContract(Contract):
             # Assign a new value
             self.box_a.value = arc4.StaticArray[arc4.UInt32, t.Literal[20]].from_bytes(op.bzero(20 * 4))
         # Read a value
-        return self.box_a.value[4] == arc4.UInt32(2)    
+        return self.box_a.value[4] == arc4.UInt32(2)
 ```
 
-`BoxMap` is similar to the `Box` type, but allows for grouping a set of boxes with a common key and content type. 
-A custom `key_prefix` can optionally be provided, with the default being to use the variable name as the prefix. 
+`BoxMap` is similar to the `Box` type, but allows for grouping a set of boxes with a common key and content type.
+A custom `key_prefix` can optionally be provided, with the default being to use the variable name as the prefix.
 The key can be a `Bytes` value, or anything that can be converted to `Bytes`. The final box name is the combination of `key_prefix + key`.
 
 ```python
@@ -138,8 +137,8 @@ from algopy import BoxMap, Contract, Account, Txn, String
 class MyContract(Contract):
     def __init__(self) -> None:
         self.my_map = BoxMap(Account, String, key_prefix=b"a_")
-    
-    def approval_program(self) -> bool:        
+
+    def approval_program(self) -> bool:
         # Check if the box exists
         if Txn.sender in self.my_map:
             # Reassign the value
@@ -151,7 +150,7 @@ class MyContract(Contract):
         return self.my_map[Txn.sender] == String("Hello World")
 ```
 
-`BoxRef` is a specialised type for interacting with boxes which contain binary data. In addition to being able to set and read the box value, there are operations for extracting and replacing just a portion of the box data which 
+`BoxRef` is a specialised type for interacting with boxes which contain binary data. In addition to being able to set and read the box value, there are operations for extracting and replacing just a portion of the box data which
 is useful for minimizing the amount of reads and writes required, but also allows you to interact with byte arrays which are longer than the AVM can support (currently 4096).
 
 ```python
@@ -179,9 +178,7 @@ class MyContract(Contract):
         return True
 ```
 
-
-
-If none of these abstractions suit your needs, you can use the box storage [AVM ops](./lg-ops.md) to interact with box storage. These ops match closely to the opcodes available on the AVM. 
+If none of these abstractions suit your needs, you can use the box storage [AVM ops](./lg-ops.md) to interact with box storage. These ops match closely to the opcodes available on the AVM.
 
 For example:
 

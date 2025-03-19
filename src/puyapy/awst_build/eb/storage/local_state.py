@@ -189,7 +189,7 @@ def _build_field(
         pytypes.AccountType,
         resolve_literal=True,
     ).resolve()
-    # https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/#resource-availability
+    # https://dev.algorand.co/concepts/smart-contracts/resource-usage/
     # Note that the sender address is implicitly included in the array,
     # but doesn't count towards the limit of 4, so the <= 4 below is correct
     # and intended

@@ -10,7 +10,7 @@ Algorand Python exposes a number of types that provide a statically typed repres
 
 ## AVM types
 
-The most basic [types on the AVM](https://developer.algorand.org/docs/get-details/dapps/avm/teal/specification/#stack-types)
+The most basic [types on the AVM](https://devdeveloper.algorand.co/concepts/smart-contracts/avm/#stack-types)
 are `uint64` and `bytes[]`, representing unsigned 64-bit integers and byte arrays respectively.
 These are represented by [`UInt64`](./#uint64) and [`Bytes`](./#bytes) in Algorand Python.
 
@@ -205,7 +205,6 @@ if a:
 bytes of the public key (without the checksum). It has various account related methods that can be called from the type.
 
 Also see [`algopy.arc4.Address`](#algopy.arc4.Address) if needing to represent the address as a distinct type.
-
 
 ### Asset
 
