@@ -16,5 +16,11 @@ class ItxnNamedTuple(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def named_tuple_itxn2(self, amt: UInt64) -> None:
-        amt = Hmmm(foo=amt, bar=itxn.Payment(receiver=Txn.sender, amount=amt).submit())[1].amount
-        assert amt == 0
+        txn = Hmmm(foo=amt, bar=itxn.Payment(receiver=Txn.sender, amount=amt).submit()).bar
+        assert txn.amount == 0
+
+    @arc4.abimethod()
+    def named_tuple_itxn3(self, amt: UInt64) -> None:
+        hmmm = Hmmm(foo=amt, bar=itxn.Payment(receiver=Txn.sender, amount=amt).submit())
+        txn = hmmm.bar
+        assert txn.amount == 0

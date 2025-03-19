@@ -6,7 +6,7 @@ subroutine main:
         // class ItxnNamedTuple(arc4.ARC4Contract):
         txn NumAppArgs                                                                                  tmp%0#1
         l-load tmp%0#1 0                                                                                tmp%0#1
-        bz main_bare_routing@7 ; b main_abi_routing@2
+        bz main_bare_routing@8 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // inner_transactions/itxn_tuple.py:11
@@ -14,8 +14,9 @@ subroutine main:
         txna ApplicationArgs 0                                                                          tmp%2#0
         method named_tuple_itxn(uint64)void                                                             tmp%2#0,Method(named_tuple_itxn(uint64)void)
         method named_tuple_itxn2(uint64)void                                                            tmp%2#0,Method(named_tuple_itxn(uint64)void),Method(named_tuple_itxn2(uint64)void)
-        l-load tmp%2#0 2                                                                                Method(named_tuple_itxn(uint64)void),Method(named_tuple_itxn2(uint64)void),tmp%2#0
-        match main_named_tuple_itxn_route@3 main_named_tuple_itxn2_route@4 ; b main_after_if_else@11 
+        method named_tuple_itxn3(uint64)void                                                            tmp%2#0,Method(named_tuple_itxn(uint64)void),Method(named_tuple_itxn2(uint64)void),Method(named_tuple_itxn3(uint64)void)
+        l-load tmp%2#0 3                                                                                Method(named_tuple_itxn(uint64)void),Method(named_tuple_itxn2(uint64)void),Method(named_tuple_itxn3(uint64)void),tmp%2#0
+        match main_named_tuple_itxn_route@3 main_named_tuple_itxn2_route@4 main_named_tuple_itxn3_route@5 ; b main_after_if_else@12 
 
     main_named_tuple_itxn_route@3:
         // inner_transactions/itxn_tuple.py:12
@@ -41,7 +42,7 @@ subroutine main:
         l-store test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0 0 test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0
         l-load test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0 0 test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0
         v-store tmp%0#0
-        b main_after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__@12 
+        b main_after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__@13 
 
     main_named_tuple_itxn2_route@4:
         // inner_transactions/itxn_tuple.py:17
@@ -67,37 +68,63 @@ subroutine main:
         l-store test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0 0 test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0
         l-load test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0 0 test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0
         v-store tmp%0#0
-        b main_after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__@12 
+        b main_after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__@13 
 
-    main_bare_routing@7:
-        // inner_transactions/itxn_tuple.py:11
-        // class ItxnNamedTuple(arc4.ARC4Contract):
+    main_named_tuple_itxn3_route@5:
+        // inner_transactions/itxn_tuple.py:22
+        // @arc4.abimethod()
         txn OnCompletion                                                                                tmp%13#0
         l-load tmp%13#0 0                                                                               tmp%13#0
-        bz main___algopy_default_create@8 ; b main_after_if_else@11
-
-    main___algopy_default_create@8:
-        txn ApplicationID                                                                               tmp%14#0
+        !                                                                                               tmp%14#0
         l-load tmp%14#0 0                                                                               tmp%14#0
-        !                                                                                               tmp%15#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                               tmp%15#0
         l-load tmp%15#0 0                                                                               tmp%15#0
+        assert // can only call when not creating
+        // inner_transactions/itxn_tuple.py:11
+        // class ItxnNamedTuple(arc4.ARC4Contract):
+        txna ApplicationArgs 1                                                                          reinterpret_bytes[8]%2#0
+        l-load reinterpret_bytes[8]%2#0 0                                                               reinterpret_bytes[8]%2#0
+        btoi                                                                                            tmp%17#0
+        // inner_transactions/itxn_tuple.py:22
+        // @arc4.abimethod()
+        l-load tmp%17#0 0                                                                               tmp%17#0
+        callsub named_tuple_itxn3
+        int 1                                                                                           1
+        l-store test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0 0 test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0
+        l-load test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0 0 test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__@13 
+
+    main_bare_routing@8:
+        // inner_transactions/itxn_tuple.py:11
+        // class ItxnNamedTuple(arc4.ARC4Contract):
+        txn OnCompletion                                                                                tmp%18#0
+        l-load tmp%18#0 0                                                                               tmp%18#0
+        bz main___algopy_default_create@9 ; b main_after_if_else@12
+
+    main___algopy_default_create@9:
+        txn ApplicationID                                                                               tmp%19#0
+        l-load tmp%19#0 0                                                                               tmp%19#0
+        !                                                                                               tmp%20#0
+        l-load tmp%20#0 0                                                                               tmp%20#0
         assert // can only call when creating
         int 1                                                                                           1
         l-store test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0 0 test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0
         l-load test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0 0 test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0
         v-store tmp%0#0
-        b main_after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__@12 
+        b main_after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__@13 
 
-    main_after_if_else@11:
+    main_after_if_else@12:
         // inner_transactions/itxn_tuple.py:11
         // class ItxnNamedTuple(arc4.ARC4Contract):
         int 0                                                                                           0
         l-store test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0 0 test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0
         l-load test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0 0 test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0
         v-store tmp%0#0
-        b main_after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__@12 
+        b main_after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__@13 
 
-    main_after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__@12:
+    main_after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__@13:
         v-load tmp%0#0                                                                                  tmp%0#0
         return
 
@@ -132,7 +159,7 @@ subroutine named_tuple_itxn:
 subroutine named_tuple_itxn2:
     named_tuple_itxn2_block@0:                                                                          (𝕡) amt#0 |
         // inner_transactions/itxn_tuple.py:19
-        // amt = Hmmm(foo=amt, bar=itxn.Payment(receiver=Txn.sender, amount=amt).submit())[1].amount
+        // txn = Hmmm(foo=amt, bar=itxn.Payment(receiver=Txn.sender, amount=amt).submit()).bar
         itxn_begin                                                                                      (𝕡) amt#0 |
         txn Sender                                                                                      (𝕡) amt#0 | inner_txn_params%0%%param_Receiver_idx_0#0
         p-load amt#0                                                                                    (𝕡) amt#0 | inner_txn_params%0%%param_Receiver_idx_0#0,amt#0 (copy)
@@ -144,11 +171,36 @@ subroutine named_tuple_itxn2:
         int 0                                                                                           (𝕡) amt#0 | 0
         itxn_field Fee                                                                                  (𝕡) amt#0 |
         itxn_submit                                                                                     (𝕡) amt#0 |
-        gitxn 0 Amount                                                                                  (𝕡) amt#0 | amt#0
-        p-store amt#0                                                                                   (𝕡) amt#0 |
+        itxn Amount                                                                                     (𝕡) amt#0 | txn.Amount#0
         // inner_transactions/itxn_tuple.py:20
-        // assert amt == 0
-        p-load amt#0                                                                                    (𝕡) amt#0 | amt#0 (copy)
+        // assert txn.amount == 0
+        l-load txn.Amount#0 0                                                                           (𝕡) amt#0 | txn.Amount#0
+        !                                                                                               (𝕡) amt#0 | tmp%0#0
+        l-load tmp%0#0 0                                                                                (𝕡) amt#0 | tmp%0#0
+        assert                                                                                          (𝕡) amt#0 |
+        retsub
+
+
+// test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn3(amt: uint64) -> void:
+subroutine named_tuple_itxn3:
+    named_tuple_itxn3_block@0:                                                                          (𝕡) amt#0 |
+        // inner_transactions/itxn_tuple.py:24
+        // hmmm = Hmmm(foo=amt, bar=itxn.Payment(receiver=Txn.sender, amount=amt).submit())
+        itxn_begin                                                                                      (𝕡) amt#0 |
+        txn Sender                                                                                      (𝕡) amt#0 | inner_txn_params%0%%param_Receiver_idx_0#0
+        p-load amt#0                                                                                    (𝕡) amt#0 | inner_txn_params%0%%param_Receiver_idx_0#0,amt#0 (copy)
+        itxn_field Amount                                                                               (𝕡) amt#0 | inner_txn_params%0%%param_Receiver_idx_0#0
+        l-load inner_txn_params%0%%param_Receiver_idx_0#0 0                                             (𝕡) amt#0 | inner_txn_params%0%%param_Receiver_idx_0#0
+        itxn_field Receiver                                                                             (𝕡) amt#0 |
+        int pay                                                                                         (𝕡) amt#0 | pay
+        itxn_field TypeEnum                                                                             (𝕡) amt#0 |
+        int 0                                                                                           (𝕡) amt#0 | 0
+        itxn_field Fee                                                                                  (𝕡) amt#0 |
+        itxn_submit                                                                                     (𝕡) amt#0 |
+        itxn Amount                                                                                     (𝕡) amt#0 | hmmm.bar.Amount#0
+        // inner_transactions/itxn_tuple.py:26
+        // assert txn.amount == 0
+        l-load hmmm.bar.Amount#0 0                                                                      (𝕡) amt#0 | hmmm.bar.Amount#0
         !                                                                                               (𝕡) amt#0 | tmp%0#0
         l-load tmp%0#0 0                                                                                (𝕡) amt#0 | tmp%0#0
         assert                                                                                          (𝕡) amt#0 |

@@ -2,10 +2,10 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%0#1 ? block@2 : block@7
+        goto tmp%0#1 ? block@2 : block@8
     block@2: // abi_routing_L11
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "named_tuple_itxn(uint64)void" => block@3, method "named_tuple_itxn2(uint64)void" => block@4, * => block@11}
+        switch tmp%2#0 {method "named_tuple_itxn(uint64)void" => block@3, method "named_tuple_itxn2(uint64)void" => block@4, method "named_tuple_itxn3(uint64)void" => block@5, * => block@12}
     block@3: // named_tuple_itxn_route_L12
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (! tmp%3#0)
@@ -17,7 +17,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%7#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
         test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn(tmp%7#0)
         let test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0: bool = 1u
-        goto block@12
+        goto block@13
     block@4: // named_tuple_itxn2_route_L17
         let tmp%8#0: uint64 = (txn OnCompletion)
         let tmp%9#0: bool = (! tmp%8#0)
@@ -29,22 +29,34 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%12#0: uint64 = (btoi reinterpret_bytes[8]%1#0)
         test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn2(tmp%12#0)
         let test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#1: bool = 1u
-        goto block@12
-    block@7: // bare_routing_L11
+        goto block@13
+    block@5: // named_tuple_itxn3_route_L22
         let tmp%13#0: uint64 = (txn OnCompletion)
-        goto tmp%13#0 ? block@11 : block@8
-    block@8: // __algopy_default_create_L1
-        let tmp%14#0: uint64 = (txn ApplicationID)
-        let tmp%15#0: bool = (! tmp%14#0)
-        (assert tmp%15#0) // can only call when creating
-        test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__algopy_default_create()
+        let tmp%14#0: bool = (! tmp%13#0)
+        (assert tmp%14#0) // OnCompletion is not NoOp
+        let tmp%15#0: uint64 = (txn ApplicationID)
+        let tmp%16#0: bool = (!= tmp%15#0 0u)
+        (assert tmp%15#0) // can only call when not creating
+        let reinterpret_bytes[8]%2#0: bytes[8] = (txna ApplicationArgs 1)
+        let tmp%17#0: uint64 = (btoi reinterpret_bytes[8]%2#0)
+        test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn3(tmp%17#0)
         let test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#2: bool = 1u
-        goto block@12
-    block@11: // after_if_else_L11
-        let test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#3: bool = 0u
-        goto block@12
-    block@12: // after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router___L1
-        let tmp%0#0: bool = φ(test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0 <- block@3, test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#1 <- block@4, test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#2 <- block@8, test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#3 <- block@11)
+        goto block@13
+    block@8: // bare_routing_L11
+        let tmp%18#0: uint64 = (txn OnCompletion)
+        goto tmp%18#0 ? block@12 : block@9
+    block@9: // __algopy_default_create_L1
+        let tmp%19#0: uint64 = (txn ApplicationID)
+        let tmp%20#0: bool = (! tmp%19#0)
+        (assert tmp%20#0) // can only call when creating
+        test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__algopy_default_create()
+        let test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#3: bool = 1u
+        goto block@13
+    block@12: // after_if_else_L11
+        let test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#4: bool = 0u
+        goto block@13
+    block@13: // after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router___L1
+        let tmp%0#0: bool = φ(test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#0 <- block@3, test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#1 <- block@4, test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#2 <- block@5, test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#3 <- block@9, test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_router__%0#4 <- block@12)
         return tmp%0#0
 
 subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn(amt: uint64) -> void:
@@ -70,8 +82,22 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         ((itxn_field TypeEnum) pay)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let amt#1: uint64 = (gitxn 0 Amount)
-        let tmp%0#0: bool = (! amt#1)
+        let txn.Amount#0: uint64 = (itxn Amount)
+        let tmp%0#0: bool = (! txn.Amount#0)
+        (assert tmp%0#0)
+        return 
+
+subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn3(amt: uint64) -> void:
+    block@0: // L22
+        itxn_begin
+        let inner_txn_params%0%%param_Receiver_idx_0#0: bytes[32] = (txn Sender)
+        ((itxn_field Amount) amt#0)
+        ((itxn_field Receiver) inner_txn_params%0%%param_Receiver_idx_0#0)
+        ((itxn_field TypeEnum) pay)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let hmmm.bar.Amount#0: uint64 = (itxn Amount)
+        let tmp%0#0: bool = (! hmmm.bar.Amount#0)
         (assert tmp%0#0)
         return 
 

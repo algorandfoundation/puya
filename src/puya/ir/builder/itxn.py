@@ -698,14 +698,15 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
 
     @typing.override
     def visit_field_expression(self, expr: awst_nodes.FieldExpression) -> list[_SourceAction]:
-        if not (isinstance(expr.wtype, wtypes.WTuple) and expr.wtype.names):
+        base_wtype = expr.base.wtype
+        if not (isinstance(base_wtype, wtypes.WTuple) and base_wtype.names):
             return self._empty_actions_from_wtype(expr)
         added = expr.base.accept(self)
-        index = expr.wtype.name_to_index(expr.name, expr.source_location)
+        index = base_wtype.name_to_index(expr.name, expr.source_location)
         return list(
             _get_tuple_items(
                 tuple_values=added,
-                tuple_wtype=expr.wtype,
+                tuple_wtype=base_wtype,
                 index=index,
             )
         )
