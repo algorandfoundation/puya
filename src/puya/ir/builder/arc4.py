@@ -91,6 +91,11 @@ def decode_arc4_value(
                 args=[value],
                 source_location=loc,
             )
+        case wtypes.ARC4StaticArray(element_type=wtypes.ARC4UIntN(n=8)), (
+            wtypes.bytes_wtype
+            | wtypes.string_wtype
+        ):
+            return value
         case (
             wtypes.ARC4Tuple()
             | wtypes.ARC4Struct() as arc4_tuple,
