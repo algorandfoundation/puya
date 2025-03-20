@@ -86,7 +86,7 @@ The following argument/return types are not currently supported:
 
 ## Contract classes
 
-An [Algorand smart contract](https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/)
+An [Algorand smart contract](https://dev.algorand.co/concepts/smart-contracts/apps/)
 consists of two distinct "programs"; an approval program, and a
 clear-state program. These are tied together in Algorand Python as a single class.
 
@@ -266,7 +266,7 @@ See the [ARC-4 section](lg-arc4.md) of this language guide for more info on the 
 
 ## Logic signatures
 
-[Logic signatures on Algorand](https://developer.algorand.org/docs/get-details/dapps/smart-contracts/smartsigs/)
+[Logic signatures on Algorand](https://dev.algorand.co/concepts/smart-contracts/logic-sigs/)
 are stateless, and consist of a single program. As such, they are implemented as functions in Algorand Python
 rather than classes.
 

@@ -74,7 +74,7 @@ STACK_TYPE_MAPPING: dict[StackType, Sequence[pytypes.PyType]] = {
 BYTES_LITERAL = "bytes"
 UINT64_LITERAL = "int"
 STUB_NAMESPACE = "op"
-ALGORAND_OP_URL = "https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/"
+ALGORAND_OP_URL = "https://dev.algorand.co/reference/algorand-teal/opcodes/"
 
 
 class OpCodeGroup(typing.Protocol):
