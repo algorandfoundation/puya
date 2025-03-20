@@ -336,8 +336,7 @@ class ARC4UIntN(ARC4Type):
             return True
         if self.n == 512 and wtype == biguint_wtype:  # noqa: SIM103
             return True
-        else:
-            return False
+        return False
 
 
 @typing.final
