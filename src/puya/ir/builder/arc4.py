@@ -1517,8 +1517,8 @@ def _assert_index_in_bounds(
     assert_value(
         context,
         index_is_in_bounds,
+        error_message="Index access is out of bounds",
         source_location=source_location,
-        comment="Index access is out of bounds",
     )
 
 
