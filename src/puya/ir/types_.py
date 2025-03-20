@@ -42,7 +42,7 @@ class IRType:
 
     @property
     @abc.abstractmethod
-    def size(self) -> int | None:
+    def num_bytes(self) -> int | None:
         """Size of the type in bytes, None if the type is dynamically sized"""
 
     @typing.final
@@ -120,7 +120,7 @@ class PrimitiveIRType(IRType, enum.StrEnum):
                 raise InternalError(f"could not determine AVM type for {self.name}")
 
     @property
-    def size(self) -> None:
+    def num_bytes(self) -> None:
         return None
 
     def __repr__(self) -> str:
@@ -146,7 +146,7 @@ class ArrayType(IRType):
         return self.avm_type
 
     @property
-    def size(self) -> int | None:
+    def num_bytes(self) -> int | None:
         return None
 
     def __str__(self) -> str:
@@ -173,12 +173,12 @@ class EncodedTupleType(IRType):
         return self.avm_type
 
     @property
-    def size(self) -> int | None:
+    def num_bytes(self) -> int | None:
         total = 0
         for element in self.elements:
-            if element.size is None:
+            if element.num_bytes is None:
                 return None
-            total += element.size
+            total += element.num_bytes
         return total
 
     def __str__(self) -> str:
@@ -204,7 +204,7 @@ class SlotType(IRType):
         return self.avm_type
 
     @property
-    def size(self) -> int | None:
+    def num_bytes(self) -> int | None:
         return None
 
     def __str__(self) -> str:
@@ -235,7 +235,7 @@ class UnionType(IRType):
         return self.avm_type
 
     @property
-    def size(self) -> None:
+    def num_bytes(self) -> None:
         return None
 
     def __str__(self) -> str:
@@ -247,11 +247,11 @@ class EncodedUIntType(IRType):
     """"""
 
     original_type: IRType
-    size: int
+    num_bytes: int
 
     @property
     def name(self) -> str:
-        n = self.size * 8
+        n = self.num_bytes * 8
         return f"encoded_uint{n}"
 
     @property
@@ -270,11 +270,11 @@ class EncodedUIntType(IRType):
 class SizedBytesType(IRType):
     """A bytes type with a static length"""
 
-    size: int
+    num_bytes: int
 
     @property
     def name(self) -> str:
-        return f"bytes[{self.size}]"
+        return f"bytes[{self.num_bytes}]"
 
     @property
     def avm_type(self) -> typing.Literal[AVMType.bytes]:
@@ -340,7 +340,7 @@ def wtype_to_ir_type(
         case wtypes.ARC4Type() as arc4_wtype if is_arc4_static_size(arc4_wtype):
             return SizedBytesType(bits_to_bytes(get_arc4_static_bit_size(arc4_wtype)))
         case wtypes.arc4_address_alias | wtypes.account_wtype:
-            return SizedBytesType(size=32)
+            return SizedBytesType(num_bytes=32)
         case wtypes.void_wtype:
             raise InternalError("can't translate void wtype to irtype", source_location)
         # case wtypes.state_key:
@@ -378,14 +378,14 @@ def wtype_to_encoded_ir_type(
         )
     # note: any types added here should also be handled when lowering ArrayEncode nodes
     elif wtype == wtypes.bool_wtype:
-        return EncodedUIntType(original_type=PrimitiveIRType.bool, size=1)
+        return EncodedUIntType(original_type=PrimitiveIRType.bool, num_bytes=1)
     elif wtype.scalar_type == AVMType.uint64:
-        return EncodedUIntType(original_type=PrimitiveIRType.uint64, size=8)
+        return EncodedUIntType(original_type=PrimitiveIRType.uint64, num_bytes=8)
     elif wtype == wtypes.biguint_wtype:
-        return SizedBytesType(size=64)
+        return SizedBytesType(num_bytes=64)
     else:
         ir_type = wtype_to_ir_type(wtype, loc)
-        if ir_type.size is None and require_static_size:
+        if ir_type.num_bytes is None and require_static_size:
             raise CodeError("unsupported array element type", loc)
         return ir_type
 

@@ -357,7 +357,7 @@ class OpFactory:
         return self._unsafe_pad_bytes(value, num_bytes=num_bytes, temp_desc=temp_desc)
 
     def pad_bytes(self, value: Value, *, num_bytes: int, temp_desc: str) -> Register:
-        assert isinstance(value.ir_type, SizedBytesType) and value.ir_type.size <= num_bytes
+        assert isinstance(value.ir_type, SizedBytesType) and value.ir_type.num_bytes <= num_bytes
         return self._unsafe_pad_bytes(value, num_bytes=num_bytes, temp_desc=temp_desc)
 
     def _unsafe_pad_bytes(self, value: Value, *, num_bytes: int, temp_desc: str) -> Register:
@@ -375,7 +375,7 @@ class OpFactory:
             target=temp_desc,
             op=AVMOp.bitwise_or_bytes,
             args=[value, zero],
-            return_type=SizedBytesType(size=num_bytes),
+            return_type=SizedBytesType(num_bytes=num_bytes),
             source_location=self.source_location,
         )
 
