@@ -325,18 +325,18 @@ subroutine main:
         // @arc4.abimethod
         callsub echo_native_biguint                                                     to_encode%4#0
         l-load-copy to_encode%4#0 0                                                     to_encode%4#0,to_encode%4#0 (copy)
-        len                                                                             to_encode%4#0,len_%0#0
-        int 64                                                                          to_encode%4#0,len_%0#0,64
-        <=                                                                              to_encode%4#0,no_overflow%0#0
+        len                                                                             to_encode%4#0,value_len%0#0
+        int 64                                                                          to_encode%4#0,value_len%0#0,64
+        <=                                                                              to_encode%4#0,len_ok%0#0
         assert // overflow                                                              to_encode%4#0
         int 64                                                                          to_encode%4#0,64
-        bzero                                                                           to_encode%4#0,b_zeros%0#0
-        l-load to_encode%4#0 1                                                          b_zeros%0#0,to_encode%4#0
-        l-load b_zeros%0#0 1                                                            to_encode%4#0,b_zeros%0#0
-        b|                                                                              tmp%83#0
-        byte 0x151f7c75                                                                 tmp%83#0,0x151f7c75
-        l-load tmp%83#0 1                                                               0x151f7c75,tmp%83#0
-        concat                                                                          tmp%84#0
+        bzero                                                                           to_encode%4#0,bzero%0#0
+        l-load to_encode%4#0 1                                                          bzero%0#0,to_encode%4#0
+        l-load bzero%0#0 1                                                              to_encode%4#0,bzero%0#0
+        b|                                                                              arc4_encoded%0#0
+        byte 0x151f7c75                                                                 arc4_encoded%0#0,0x151f7c75
+        l-load arc4_encoded%0#0 1                                                       0x151f7c75,arc4_encoded%0#0
+        concat                                                                          tmp%83#0
         log
         int 1                                                                           test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__%0#0
         v-store tmp%0#0
@@ -345,26 +345,26 @@ subroutine main:
     main_echo_native_tuple_route@17:
         // typed_abi_call/logger.py:83
         // @arc4.abimethod
-        txn OnCompletion                                                                tmp%85#0
-        !                                                                               tmp%86#0
+        txn OnCompletion                                                                tmp%84#0
+        !                                                                               tmp%85#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                               tmp%87#0
+        txn ApplicationID                                                               tmp%86#0
         assert // can only call when not creating
         // typed_abi_call/logger.py:25
         // class Logger(ARC4Contract):
-        txna ApplicationArgs 1                                                          tmp%89#0
-        extract 2 0                                                                     tmp%90#0
-        txna ApplicationArgs 2                                                          tmp%90#0,tmp%91#0
-        extract 2 0                                                                     tmp%90#0,tmp%92#0
-        txna ApplicationArgs 3                                                          tmp%90#0,tmp%92#0,reinterpret_bytes[8]%2#0
-        btoi                                                                            tmp%90#0,tmp%92#0,tmp%93#0
-        txna ApplicationArgs 4                                                          tmp%90#0,tmp%92#0,tmp%93#0,reinterpret_bytes[64]%2#0
+        txna ApplicationArgs 1                                                          tmp%88#0
+        extract 2 0                                                                     tmp%89#0
+        txna ApplicationArgs 2                                                          tmp%89#0,tmp%90#0
+        extract 2 0                                                                     tmp%89#0,tmp%91#0
+        txna ApplicationArgs 3                                                          tmp%89#0,tmp%91#0,reinterpret_bytes[8]%2#0
+        btoi                                                                            tmp%89#0,tmp%91#0,tmp%92#0
+        txna ApplicationArgs 4                                                          tmp%89#0,tmp%91#0,tmp%92#0,reinterpret_bytes[64]%2#0
         // typed_abi_call/logger.py:83
         // @arc4.abimethod
-        l-load tmp%90#0 3                                                               tmp%92#0,tmp%93#0,reinterpret_bytes[64]%2#0,tmp%90#0
-        l-load tmp%92#0 3                                                               tmp%93#0,reinterpret_bytes[64]%2#0,tmp%90#0,tmp%92#0
-        l-load tmp%93#0 3                                                               reinterpret_bytes[64]%2#0,tmp%90#0,tmp%92#0,tmp%93#0
-        l-load reinterpret_bytes[64]%2#0 3                                              tmp%90#0,tmp%92#0,tmp%93#0,reinterpret_bytes[64]%2#0
+        l-load tmp%89#0 3                                                               tmp%91#0,tmp%92#0,reinterpret_bytes[64]%2#0,tmp%89#0
+        l-load tmp%91#0 3                                                               tmp%92#0,reinterpret_bytes[64]%2#0,tmp%89#0,tmp%91#0
+        l-load tmp%92#0 3                                                               reinterpret_bytes[64]%2#0,tmp%89#0,tmp%91#0,tmp%92#0
+        l-load reinterpret_bytes[64]%2#0 3                                              tmp%89#0,tmp%91#0,tmp%92#0,reinterpret_bytes[64]%2#0
         callsub echo_native_tuple                                                       elements_to_encode%0#0,elements_to_encode%1#0,elements_to_encode%2#0,elements_to_encode%3#0
         l-load-copy elements_to_encode%0#0 3                                            elements_to_encode%0#0,elements_to_encode%1#0,elements_to_encode%2#0,elements_to_encode%3#0,elements_to_encode%0#0 (copy)
         len                                                                             elements_to_encode%0#0,elements_to_encode%1#0,elements_to_encode%2#0,elements_to_encode%3#0,length%2#0
@@ -381,28 +381,28 @@ subroutine main:
         l-load elements_to_encode%2#0 3                                                 elements_to_encode%3#0,encoded_value%2#0,encoded_value%3#0,elements_to_encode%2#0
         itob                                                                            elements_to_encode%3#0,encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0
         l-load-copy elements_to_encode%3#0 3                                            elements_to_encode%3#0,encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,elements_to_encode%3#0 (copy)
-        len                                                                             elements_to_encode%3#0,encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,len_%1#0
-        int 64                                                                          elements_to_encode%3#0,encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,len_%1#0,64
-        <=                                                                              elements_to_encode%3#0,encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,no_overflow%1#0
+        len                                                                             elements_to_encode%3#0,encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,value_len%1#0
+        int 64                                                                          elements_to_encode%3#0,encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,value_len%1#0,64
+        <=                                                                              elements_to_encode%3#0,encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,len_ok%1#0
         assert // overflow                                                              elements_to_encode%3#0,encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0
         int 64                                                                          elements_to_encode%3#0,encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,64
-        bzero                                                                           elements_to_encode%3#0,encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,b_zeros%1#0
-        l-load elements_to_encode%3#0 4                                                 encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,b_zeros%1#0,elements_to_encode%3#0
-        l-load b_zeros%1#0 1                                                            encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,elements_to_encode%3#0,b_zeros%1#0
-        b|                                                                              encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_item%0#0
-        l-load-copy encoded_value%2#0 3                                                 encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_item%0#0,encoded_value%2#0 (copy)
-        len                                                                             encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_item%0#0,data_length%0#0
-        int 76                                                                          encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_item%0#0,data_length%0#0,76
-        l-load data_length%0#0 1                                                        encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_item%0#0,76,data_length%0#0
-        +                                                                               encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_item%0#0,current_tail_offset%1#0
-        itob                                                                            encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_item%0#0,as_bytes%5#0
-        extract 6 2                                                                     encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_item%0#0,offset_as_uint16%1#0
-        byte 0x004c                                                                     encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_item%0#0,offset_as_uint16%1#0,0x004c
-        l-load offset_as_uint16%1#0 1                                                   encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_item%0#0,0x004c,offset_as_uint16%1#0
-        concat                                                                          encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_item%0#0,encoded_tuple_buffer%2#0
-        l-load val_as_bytes%2#0 2                                                       encoded_value%2#0,encoded_value%3#0,arc4_item%0#0,encoded_tuple_buffer%2#0,val_as_bytes%2#0
-        concat                                                                          encoded_value%2#0,encoded_value%3#0,arc4_item%0#0,encoded_tuple_buffer%3#0
-        l-load arc4_item%0#0 1                                                          encoded_value%2#0,encoded_value%3#0,encoded_tuple_buffer%3#0,arc4_item%0#0
+        bzero                                                                           elements_to_encode%3#0,encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,bzero%1#0
+        l-load elements_to_encode%3#0 4                                                 encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,bzero%1#0,elements_to_encode%3#0
+        l-load bzero%1#0 1                                                              encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,elements_to_encode%3#0,bzero%1#0
+        b|                                                                              encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_encoded%1#0
+        l-load-copy encoded_value%2#0 3                                                 encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_encoded%1#0,encoded_value%2#0 (copy)
+        len                                                                             encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_encoded%1#0,data_length%0#0
+        int 76                                                                          encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_encoded%1#0,data_length%0#0,76
+        l-load data_length%0#0 1                                                        encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_encoded%1#0,76,data_length%0#0
+        +                                                                               encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_encoded%1#0,current_tail_offset%1#0
+        itob                                                                            encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_encoded%1#0,as_bytes%5#0
+        extract 6 2                                                                     encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_encoded%1#0,offset_as_uint16%1#0
+        byte 0x004c                                                                     encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_encoded%1#0,offset_as_uint16%1#0,0x004c
+        l-load offset_as_uint16%1#0 1                                                   encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_encoded%1#0,0x004c,offset_as_uint16%1#0
+        concat                                                                          encoded_value%2#0,encoded_value%3#0,val_as_bytes%2#0,arc4_encoded%1#0,encoded_tuple_buffer%2#0
+        l-load val_as_bytes%2#0 2                                                       encoded_value%2#0,encoded_value%3#0,arc4_encoded%1#0,encoded_tuple_buffer%2#0,val_as_bytes%2#0
+        concat                                                                          encoded_value%2#0,encoded_value%3#0,arc4_encoded%1#0,encoded_tuple_buffer%3#0
+        l-load arc4_encoded%1#0 1                                                       encoded_value%2#0,encoded_value%3#0,encoded_tuple_buffer%3#0,arc4_encoded%1#0
         concat                                                                          encoded_value%2#0,encoded_value%3#0,encoded_tuple_buffer%4#0
         l-load encoded_value%2#0 2                                                      encoded_value%3#0,encoded_tuple_buffer%4#0,encoded_value%2#0
         concat                                                                          encoded_value%3#0,encoded_tuple_buffer%5#0
@@ -410,7 +410,7 @@ subroutine main:
         concat                                                                          encoded_tuple_buffer%6#0
         byte 0x151f7c75                                                                 encoded_tuple_buffer%6#0,0x151f7c75
         l-load encoded_tuple_buffer%6#0 1                                               0x151f7c75,encoded_tuple_buffer%6#0
-        concat                                                                          tmp%94#0
+        concat                                                                          tmp%93#0
         log
         int 1                                                                           test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__%0#0
         v-store tmp%0#0
@@ -419,46 +419,46 @@ subroutine main:
     main_echo_nested_tuple_route@18:
         // typed_abi_call/logger.py:89
         // @arc4.abimethod
-        txn OnCompletion                                                                tmp%95#0
-        !                                                                               tmp%96#0
+        txn OnCompletion                                                                tmp%94#0
+        !                                                                               tmp%95#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                               tmp%97#0
+        txn ApplicationID                                                               tmp%96#0
         assert // can only call when not creating
         // typed_abi_call/logger.py:25
         // class Logger(ARC4Contract):
-        txna ApplicationArgs 1                                                          tmp%99#0
-        l-load-copy tmp%99#0 0                                                          tmp%99#0,tmp%99#0 (copy)
-        int 0                                                                           tmp%99#0,tmp%99#0 (copy),0
-        extract_uint16                                                                  tmp%99#0,item_start_offset%0#0
-        l-load-copy tmp%99#0 1                                                          tmp%99#0,item_start_offset%0#0,tmp%99#0 (copy)
-        int 2                                                                           tmp%99#0,item_start_offset%0#0,tmp%99#0 (copy),2
-        extract_uint16                                                                  tmp%99#0,item_start_offset%0#0,item_end_offset%0#0
-        l-load-copy tmp%99#0 2                                                          tmp%99#0,item_start_offset%0#0,item_end_offset%0#0,tmp%99#0 (copy)
-        l-load item_start_offset%0#0 2                                                  tmp%99#0,item_end_offset%0#0,tmp%99#0 (copy),item_start_offset%0#0
-        l-load-copy item_end_offset%0#0 2                                               tmp%99#0,item_end_offset%0#0,tmp%99#0 (copy),item_start_offset%0#0,item_end_offset%0#0 (copy)
-        substring3                                                                      tmp%99#0,item_end_offset%0#0,item0%0#0
-        l-load-copy item0%0#0 0                                                         tmp%99#0,item_end_offset%0#0,item0%0#0,item0%0#0 (copy)
-        int 0                                                                           tmp%99#0,item_end_offset%0#0,item0%0#0,item0%0#0 (copy),0
-        extract_uint16                                                                  tmp%99#0,item_end_offset%0#0,item0%0#0,item_start_offset%1#0
-        l-load-copy item0%0#0 1                                                         tmp%99#0,item_end_offset%0#0,item0%0#0,item_start_offset%1#0,item0%0#0 (copy)
-        int 2                                                                           tmp%99#0,item_end_offset%0#0,item0%0#0,item_start_offset%1#0,item0%0#0 (copy),2
-        extract_uint16                                                                  tmp%99#0,item_end_offset%0#0,item0%0#0,item_start_offset%1#0,item_end_offset%1#0
-        l-load-copy item0%0#0 2                                                         tmp%99#0,item_end_offset%0#0,item0%0#0,item_start_offset%1#0,item_end_offset%1#0,item0%0#0 (copy)
-        l-load item_start_offset%1#0 2                                                  tmp%99#0,item_end_offset%0#0,item0%0#0,item_end_offset%1#0,item0%0#0 (copy),item_start_offset%1#0
-        l-load-copy item_end_offset%1#0 2                                               tmp%99#0,item_end_offset%0#0,item0%0#0,item_end_offset%1#0,item0%0#0 (copy),item_start_offset%1#0,item_end_offset%1#0 (copy)
-        substring3                                                                      tmp%99#0,item_end_offset%0#0,item0%0#0,item_end_offset%1#0,item0%1#0
-        extract 2 0                                                                     tmp%99#0,item_end_offset%0#0,item0%0#0,item_end_offset%1#0,item0%1%0#0
-        l-load-copy item0%0#0 2                                                         tmp%99#0,item_end_offset%0#0,item0%0#0,item_end_offset%1#0,item0%1%0#0,item0%0#0 (copy)
-        len                                                                             tmp%99#0,item_end_offset%0#0,item0%0#0,item_end_offset%1#0,item0%1%0#0,item_end_offset%2#0
-        l-load item0%0#0 3                                                              tmp%99#0,item_end_offset%0#0,item_end_offset%1#0,item0%1%0#0,item_end_offset%2#0,item0%0#0
-        l-load item_end_offset%1#0 3                                                    tmp%99#0,item_end_offset%0#0,item0%1%0#0,item_end_offset%2#0,item0%0#0,item_end_offset%1#0
-        l-load item_end_offset%2#0 2                                                    tmp%99#0,item_end_offset%0#0,item0%1%0#0,item0%0#0,item_end_offset%1#0,item_end_offset%2#0
-        substring3                                                                      tmp%99#0,item_end_offset%0#0,item0%1%0#0,item1%0#0
-        l-load-copy tmp%99#0 3                                                          tmp%99#0,item_end_offset%0#0,item0%1%0#0,item1%0#0,tmp%99#0 (copy)
-        len                                                                             tmp%99#0,item_end_offset%0#0,item0%1%0#0,item1%0#0,item_end_offset%3#0
-        l-load tmp%99#0 4                                                               item_end_offset%0#0,item0%1%0#0,item1%0#0,item_end_offset%3#0,tmp%99#0
-        l-load item_end_offset%0#0 4                                                    item0%1%0#0,item1%0#0,item_end_offset%3#0,tmp%99#0,item_end_offset%0#0
-        l-load item_end_offset%3#0 2                                                    item0%1%0#0,item1%0#0,tmp%99#0,item_end_offset%0#0,item_end_offset%3#0
+        txna ApplicationArgs 1                                                          tmp%98#0
+        l-load-copy tmp%98#0 0                                                          tmp%98#0,tmp%98#0 (copy)
+        int 0                                                                           tmp%98#0,tmp%98#0 (copy),0
+        extract_uint16                                                                  tmp%98#0,item_start_offset%0#0
+        l-load-copy tmp%98#0 1                                                          tmp%98#0,item_start_offset%0#0,tmp%98#0 (copy)
+        int 2                                                                           tmp%98#0,item_start_offset%0#0,tmp%98#0 (copy),2
+        extract_uint16                                                                  tmp%98#0,item_start_offset%0#0,item_end_offset%0#0
+        l-load-copy tmp%98#0 2                                                          tmp%98#0,item_start_offset%0#0,item_end_offset%0#0,tmp%98#0 (copy)
+        l-load item_start_offset%0#0 2                                                  tmp%98#0,item_end_offset%0#0,tmp%98#0 (copy),item_start_offset%0#0
+        l-load-copy item_end_offset%0#0 2                                               tmp%98#0,item_end_offset%0#0,tmp%98#0 (copy),item_start_offset%0#0,item_end_offset%0#0 (copy)
+        substring3                                                                      tmp%98#0,item_end_offset%0#0,item0%0#0
+        l-load-copy item0%0#0 0                                                         tmp%98#0,item_end_offset%0#0,item0%0#0,item0%0#0 (copy)
+        int 0                                                                           tmp%98#0,item_end_offset%0#0,item0%0#0,item0%0#0 (copy),0
+        extract_uint16                                                                  tmp%98#0,item_end_offset%0#0,item0%0#0,item_start_offset%1#0
+        l-load-copy item0%0#0 1                                                         tmp%98#0,item_end_offset%0#0,item0%0#0,item_start_offset%1#0,item0%0#0 (copy)
+        int 2                                                                           tmp%98#0,item_end_offset%0#0,item0%0#0,item_start_offset%1#0,item0%0#0 (copy),2
+        extract_uint16                                                                  tmp%98#0,item_end_offset%0#0,item0%0#0,item_start_offset%1#0,item_end_offset%1#0
+        l-load-copy item0%0#0 2                                                         tmp%98#0,item_end_offset%0#0,item0%0#0,item_start_offset%1#0,item_end_offset%1#0,item0%0#0 (copy)
+        l-load item_start_offset%1#0 2                                                  tmp%98#0,item_end_offset%0#0,item0%0#0,item_end_offset%1#0,item0%0#0 (copy),item_start_offset%1#0
+        l-load-copy item_end_offset%1#0 2                                               tmp%98#0,item_end_offset%0#0,item0%0#0,item_end_offset%1#0,item0%0#0 (copy),item_start_offset%1#0,item_end_offset%1#0 (copy)
+        substring3                                                                      tmp%98#0,item_end_offset%0#0,item0%0#0,item_end_offset%1#0,item0%1#0
+        extract 2 0                                                                     tmp%98#0,item_end_offset%0#0,item0%0#0,item_end_offset%1#0,item0%1%0#0
+        l-load-copy item0%0#0 2                                                         tmp%98#0,item_end_offset%0#0,item0%0#0,item_end_offset%1#0,item0%1%0#0,item0%0#0 (copy)
+        len                                                                             tmp%98#0,item_end_offset%0#0,item0%0#0,item_end_offset%1#0,item0%1%0#0,item_end_offset%2#0
+        l-load item0%0#0 3                                                              tmp%98#0,item_end_offset%0#0,item_end_offset%1#0,item0%1%0#0,item_end_offset%2#0,item0%0#0
+        l-load item_end_offset%1#0 3                                                    tmp%98#0,item_end_offset%0#0,item0%1%0#0,item_end_offset%2#0,item0%0#0,item_end_offset%1#0
+        l-load item_end_offset%2#0 2                                                    tmp%98#0,item_end_offset%0#0,item0%1%0#0,item0%0#0,item_end_offset%1#0,item_end_offset%2#0
+        substring3                                                                      tmp%98#0,item_end_offset%0#0,item0%1%0#0,item1%0#0
+        l-load-copy tmp%98#0 3                                                          tmp%98#0,item_end_offset%0#0,item0%1%0#0,item1%0#0,tmp%98#0 (copy)
+        len                                                                             tmp%98#0,item_end_offset%0#0,item0%1%0#0,item1%0#0,item_end_offset%3#0
+        l-load tmp%98#0 4                                                               item_end_offset%0#0,item0%1%0#0,item1%0#0,item_end_offset%3#0,tmp%98#0
+        l-load item_end_offset%0#0 4                                                    item0%1%0#0,item1%0#0,item_end_offset%3#0,tmp%98#0,item_end_offset%0#0
+        l-load item_end_offset%3#0 2                                                    item0%1%0#0,item1%0#0,tmp%98#0,item_end_offset%0#0,item_end_offset%3#0
         substring3                                                                      item0%1%0#0,item1%0#0,item1%1#0
         l-load-copy item1%1#0 0                                                         item0%1%0#0,item1%0#0,item1%1#0,item1%1#0 (copy)
         int 0                                                                           item0%1%0#0,item1%0#0,item1%1#0,item1%1#0 (copy),0
@@ -534,7 +534,7 @@ subroutine main:
         concat                                                                          encoded_tuple_buffer%21#0
         byte 0x151f7c75                                                                 encoded_tuple_buffer%21#0,0x151f7c75
         l-load encoded_tuple_buffer%21#0 1                                              0x151f7c75,encoded_tuple_buffer%21#0
-        concat                                                                          tmp%100#0
+        concat                                                                          tmp%99#0
         log
         int 1                                                                           test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__%0#0
         v-store tmp%0#0
@@ -543,10 +543,10 @@ subroutine main:
     main_return_args_after_14th_route@19:
         // typed_abi_call/logger.py:100
         // @arc4.abimethod
-        txn OnCompletion                                                                tmp%101#0
-        !                                                                               tmp%102#0
+        txn OnCompletion                                                                tmp%100#0
+        !                                                                               tmp%101#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                               tmp%103#0
+        txn ApplicationID                                                               tmp%102#0
         assert // can only call when not creating
         // typed_abi_call/logger.py:25
         // class Logger(ARC4Contract):
@@ -565,43 +565,43 @@ subroutine main:
         txna ApplicationArgs 13                                                         reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0
         txna ApplicationArgs 14                                                         reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0
         txna ApplicationArgs 15                                                         reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,reinterpret_bytes[9]%0#0
-        extract 0 1 // on error: Index access is out of bounds                          reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0
-        txna ApplicationArgs 15                                                         reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,reinterpret_bytes[9]%1#0
-        extract 1 1 // on error: Index access is out of bounds                          reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0
-        txna ApplicationArgs 15                                                         reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,reinterpret_bytes[9]%2#0
-        extract 2 1 // on error: Index access is out of bounds                          reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0
-        txna ApplicationArgs 15                                                         reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,reinterpret_bytes[9]%3#0
-        extract 3 1 // on error: Index access is out of bounds                          reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0
-        txna ApplicationArgs 15                                                         reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,reinterpret_bytes[9]%4#0
-        extract 4 4 // on error: Index access is out of bounds                          reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0
-        txna ApplicationArgs 15                                                         reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[9]%5#0
-        extract 8 1 // on error: Index access is out of bounds                          reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0
+        extract 0 1 // on error: Index access is out of bounds                          reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0
+        txna ApplicationArgs 15                                                         reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,reinterpret_bytes[9]%1#0
+        extract 1 1 // on error: Index access is out of bounds                          reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0
+        txna ApplicationArgs 15                                                         reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,reinterpret_bytes[9]%2#0
+        extract 2 1 // on error: Index access is out of bounds                          reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0
+        txna ApplicationArgs 15                                                         reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,reinterpret_bytes[9]%3#0
+        extract 3 1 // on error: Index access is out of bounds                          reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0
+        txna ApplicationArgs 15                                                         reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,reinterpret_bytes[9]%4#0
+        extract 4 4 // on error: Index access is out of bounds                          reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0
+        txna ApplicationArgs 15                                                         reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,reinterpret_bytes[9]%5#0
+        extract 8 1 // on error: Index access is out of bounds                          reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0
         // typed_abi_call/logger.py:100
         // @arc4.abimethod
-        l-load reinterpret_bytes[8]%3#0 19                                              reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0
-        l-load reinterpret_bytes[8]%4#0 19                                              reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0
-        l-load reinterpret_bytes[8]%5#0 19                                              reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0
-        l-load reinterpret_bytes[8]%6#0 19                                              reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0
-        l-load reinterpret_bytes[8]%7#0 19                                              reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0
-        l-load reinterpret_bytes[8]%8#0 19                                              reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0
-        l-load reinterpret_bytes[8]%9#0 19                                              reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0
-        l-load reinterpret_bytes[8]%10#0 19                                             reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0
-        l-load reinterpret_bytes[8]%11#0 19                                             reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0
-        l-load reinterpret_bytes[8]%12#0 19                                             reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0
-        l-load reinterpret_bytes[8]%13#0 19                                             reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0
-        l-load reinterpret_bytes[8]%14#0 19                                             reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0
-        l-load reinterpret_bytes[8]%15#0 19                                             reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0
-        l-load reinterpret_bytes[8]%16#0 19                                             tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0
-        l-load tmp%105#0 19                                                             tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0
-        l-load tmp%106#0 19                                                             tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0
-        l-load tmp%107#0 19                                                             tmp%108#0,tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0
-        l-load tmp%108#0 19                                                             tmp%109#0,tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0
-        l-load tmp%109#0 19                                                             tmp%110#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0
-        l-load tmp%110#0 19                                                             reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,tmp%110#0
-        callsub return_args_after_14th                                                  tmp%111#0
-        byte 0x151f7c75                                                                 tmp%111#0,0x151f7c75
-        l-load tmp%111#0 1                                                              0x151f7c75,tmp%111#0
-        concat                                                                          tmp%112#0
+        l-load reinterpret_bytes[8]%3#0 19                                              reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0
+        l-load reinterpret_bytes[8]%4#0 19                                              reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0
+        l-load reinterpret_bytes[8]%5#0 19                                              reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0
+        l-load reinterpret_bytes[8]%6#0 19                                              reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0
+        l-load reinterpret_bytes[8]%7#0 19                                              reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0
+        l-load reinterpret_bytes[8]%8#0 19                                              reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0
+        l-load reinterpret_bytes[8]%9#0 19                                              reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0
+        l-load reinterpret_bytes[8]%10#0 19                                             reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0
+        l-load reinterpret_bytes[8]%11#0 19                                             reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0
+        l-load reinterpret_bytes[8]%12#0 19                                             reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0
+        l-load reinterpret_bytes[8]%13#0 19                                             reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0
+        l-load reinterpret_bytes[8]%14#0 19                                             reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0
+        l-load reinterpret_bytes[8]%15#0 19                                             reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0
+        l-load reinterpret_bytes[8]%16#0 19                                             tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0
+        l-load tmp%104#0 19                                                             tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0
+        l-load tmp%105#0 19                                                             tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0
+        l-load tmp%106#0 19                                                             tmp%107#0,tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0
+        l-load tmp%107#0 19                                                             tmp%108#0,tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0
+        l-load tmp%108#0 19                                                             tmp%109#0,reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0
+        l-load tmp%109#0 19                                                             reinterpret_bytes[8]%3#0,reinterpret_bytes[8]%4#0,reinterpret_bytes[8]%5#0,reinterpret_bytes[8]%6#0,reinterpret_bytes[8]%7#0,reinterpret_bytes[8]%8#0,reinterpret_bytes[8]%9#0,reinterpret_bytes[8]%10#0,reinterpret_bytes[8]%11#0,reinterpret_bytes[8]%12#0,reinterpret_bytes[8]%13#0,reinterpret_bytes[8]%14#0,reinterpret_bytes[8]%15#0,reinterpret_bytes[8]%16#0,tmp%104#0,tmp%105#0,tmp%106#0,tmp%107#0,tmp%108#0,tmp%109#0
+        callsub return_args_after_14th                                                  tmp%110#0
+        byte 0x151f7c75                                                                 tmp%110#0,0x151f7c75
+        l-load tmp%110#0 1                                                              0x151f7c75,tmp%110#0
+        concat                                                                          tmp%111#0
         log
         int 1                                                                           test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__%0#0
         v-store tmp%0#0
@@ -610,39 +610,39 @@ subroutine main:
     main_logs_are_equal_route@20:
         // typed_abi_call/logger.py:128
         // @arc4.abimethod
-        txn OnCompletion                                                                tmp%113#0
-        !                                                                               tmp%114#0
+        txn OnCompletion                                                                tmp%112#0
+        !                                                                               tmp%113#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                               tmp%115#0
+        txn ApplicationID                                                               tmp%114#0
         assert // can only call when not creating
         // typed_abi_call/logger.py:25
         // class Logger(ARC4Contract):
-        txna ApplicationArgs 1                                                          tmp%117#0
-        l-load-copy tmp%117#0 0                                                         tmp%117#0,tmp%117#0 (copy)
-        int 0                                                                           tmp%117#0,tmp%117#0 (copy),0
-        extract_uint64                                                                  tmp%117#0,item0%3%0#0
-        l-load-copy tmp%117#0 1                                                         tmp%117#0,item0%3%0#0,tmp%117#0 (copy)
-        int 8                                                                           tmp%117#0,item0%3%0#0,tmp%117#0 (copy),8
-        extract_uint16                                                                  tmp%117#0,item0%3%0#0,item_start_offset%5#0
-        l-load-copy tmp%117#0 2                                                         tmp%117#0,item0%3%0#0,item_start_offset%5#0,tmp%117#0 (copy)
-        len                                                                             tmp%117#0,item0%3%0#0,item_start_offset%5#0,item_end_offset%5#0
-        l-load tmp%117#0 3                                                              item0%3%0#0,item_start_offset%5#0,item_end_offset%5#0,tmp%117#0
-        l-load item_start_offset%5#0 2                                                  item0%3%0#0,item_end_offset%5#0,tmp%117#0,item_start_offset%5#0
-        l-load item_end_offset%5#0 2                                                    item0%3%0#0,tmp%117#0,item_start_offset%5#0,item_end_offset%5#0
+        txna ApplicationArgs 1                                                          tmp%116#0
+        l-load-copy tmp%116#0 0                                                         tmp%116#0,tmp%116#0 (copy)
+        int 0                                                                           tmp%116#0,tmp%116#0 (copy),0
+        extract_uint64                                                                  tmp%116#0,item0%3%0#0
+        l-load-copy tmp%116#0 1                                                         tmp%116#0,item0%3%0#0,tmp%116#0 (copy)
+        int 8                                                                           tmp%116#0,item0%3%0#0,tmp%116#0 (copy),8
+        extract_uint16                                                                  tmp%116#0,item0%3%0#0,item_start_offset%5#0
+        l-load-copy tmp%116#0 2                                                         tmp%116#0,item0%3%0#0,item_start_offset%5#0,tmp%116#0 (copy)
+        len                                                                             tmp%116#0,item0%3%0#0,item_start_offset%5#0,item_end_offset%5#0
+        l-load tmp%116#0 3                                                              item0%3%0#0,item_start_offset%5#0,item_end_offset%5#0,tmp%116#0
+        l-load item_start_offset%5#0 2                                                  item0%3%0#0,item_end_offset%5#0,tmp%116#0,item_start_offset%5#0
+        l-load item_end_offset%5#0 2                                                    item0%3%0#0,tmp%116#0,item_start_offset%5#0,item_end_offset%5#0
         substring3                                                                      item0%3%0#0,item1%3#0
         extract 2 0                                                                     item0%3%0#0,item1%3%0#0
-        txna ApplicationArgs 2                                                          item0%3%0#0,item1%3%0#0,tmp%118#0
-        l-load-copy tmp%118#0 0                                                         item0%3%0#0,item1%3%0#0,tmp%118#0,tmp%118#0 (copy)
-        int 0                                                                           item0%3%0#0,item1%3%0#0,tmp%118#0,tmp%118#0 (copy),0
-        extract_uint64                                                                  item0%3%0#0,item1%3%0#0,tmp%118#0,item0%4%0#0
-        l-load-copy tmp%118#0 1                                                         item0%3%0#0,item1%3%0#0,tmp%118#0,item0%4%0#0,tmp%118#0 (copy)
-        int 8                                                                           item0%3%0#0,item1%3%0#0,tmp%118#0,item0%4%0#0,tmp%118#0 (copy),8
-        extract_uint16                                                                  item0%3%0#0,item1%3%0#0,tmp%118#0,item0%4%0#0,item_start_offset%6#0
-        l-load-copy tmp%118#0 2                                                         item0%3%0#0,item1%3%0#0,tmp%118#0,item0%4%0#0,item_start_offset%6#0,tmp%118#0 (copy)
-        len                                                                             item0%3%0#0,item1%3%0#0,tmp%118#0,item0%4%0#0,item_start_offset%6#0,item_end_offset%6#0
-        l-load tmp%118#0 3                                                              item0%3%0#0,item1%3%0#0,item0%4%0#0,item_start_offset%6#0,item_end_offset%6#0,tmp%118#0
-        l-load item_start_offset%6#0 2                                                  item0%3%0#0,item1%3%0#0,item0%4%0#0,item_end_offset%6#0,tmp%118#0,item_start_offset%6#0
-        l-load item_end_offset%6#0 2                                                    item0%3%0#0,item1%3%0#0,item0%4%0#0,tmp%118#0,item_start_offset%6#0,item_end_offset%6#0
+        txna ApplicationArgs 2                                                          item0%3%0#0,item1%3%0#0,tmp%117#0
+        l-load-copy tmp%117#0 0                                                         item0%3%0#0,item1%3%0#0,tmp%117#0,tmp%117#0 (copy)
+        int 0                                                                           item0%3%0#0,item1%3%0#0,tmp%117#0,tmp%117#0 (copy),0
+        extract_uint64                                                                  item0%3%0#0,item1%3%0#0,tmp%117#0,item0%4%0#0
+        l-load-copy tmp%117#0 1                                                         item0%3%0#0,item1%3%0#0,tmp%117#0,item0%4%0#0,tmp%117#0 (copy)
+        int 8                                                                           item0%3%0#0,item1%3%0#0,tmp%117#0,item0%4%0#0,tmp%117#0 (copy),8
+        extract_uint16                                                                  item0%3%0#0,item1%3%0#0,tmp%117#0,item0%4%0#0,item_start_offset%6#0
+        l-load-copy tmp%117#0 2                                                         item0%3%0#0,item1%3%0#0,tmp%117#0,item0%4%0#0,item_start_offset%6#0,tmp%117#0 (copy)
+        len                                                                             item0%3%0#0,item1%3%0#0,tmp%117#0,item0%4%0#0,item_start_offset%6#0,item_end_offset%6#0
+        l-load tmp%117#0 3                                                              item0%3%0#0,item1%3%0#0,item0%4%0#0,item_start_offset%6#0,item_end_offset%6#0,tmp%117#0
+        l-load item_start_offset%6#0 2                                                  item0%3%0#0,item1%3%0#0,item0%4%0#0,item_end_offset%6#0,tmp%117#0,item_start_offset%6#0
+        l-load item_end_offset%6#0 2                                                    item0%3%0#0,item1%3%0#0,item0%4%0#0,tmp%117#0,item_start_offset%6#0,item_end_offset%6#0
         substring3                                                                      item0%3%0#0,item1%3%0#0,item0%4%0#0,item1%4#0
         extract 2 0                                                                     item0%3%0#0,item1%3%0#0,item0%4%0#0,item1%4%0#0
         // typed_abi_call/logger.py:128
@@ -658,7 +658,7 @@ subroutine main:
         setbit                                                                          encoded_bool%0#0
         byte 0x151f7c75                                                                 encoded_bool%0#0,0x151f7c75
         l-load encoded_bool%0#0 1                                                       0x151f7c75,encoded_bool%0#0
-        concat                                                                          tmp%119#0
+        concat                                                                          tmp%118#0
         log
         int 1                                                                           test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__%0#0
         v-store tmp%0#0
@@ -667,12 +667,12 @@ subroutine main:
     main_bare_routing@23:
         // typed_abi_call/logger.py:25
         // class Logger(ARC4Contract):
-        txn OnCompletion                                                                tmp%120#0
+        txn OnCompletion                                                                tmp%119#0
         bz main___algopy_default_create@24 ; b main_after_if_else@27
 
     main___algopy_default_create@24:
-        txn ApplicationID                                                               tmp%121#0
-        !                                                                               tmp%122#0
+        txn ApplicationID                                                               tmp%120#0
+        !                                                                               tmp%121#0
         assert // can only call when creating
         int 1                                                                           test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__%0#0
         v-store tmp%0#0

@@ -28,12 +28,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%10#0: uint64 = (txn ApplicationID)
         (assert tmp%10#0) // can only call when not creating
         let x#0: biguint = TemplateVar[biguint](TMPL_SOME_BIG_UINT)
-        let len_%0#0: uint64 = (len x#0)
-        let no_overflow%0#0: bool = (<= len_%0#0 64u)
-        (assert no_overflow%0#0) // overflow
-        let b_zeros%0#0: bytes = (bzero 64u)
-        let tmp%0#3: bytes = (b| x#0 b_zeros%0#0)
-        let tmp%13#0: bytes = (concat 0x151f7c75 tmp%0#3)
+        let value_len%0#0: uint64 = (len x#0)
+        let len_ok%0#0: bool = (<= value_len%0#0 64u)
+        (assert len_ok%0#0) // overflow
+        let bzero%0#0: bytes = (bzero 64u)
+        let arc4_encoded%0#0: bytes[64] = (b| x#0 bzero%0#0)
+        let tmp%13#0: bytes = (concat 0x151f7c75 arc4_encoded%0#0)
         (log tmp%13#0)
         let test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__%0#0
