@@ -3,6 +3,7 @@ from collections.abc import Sequence
 
 import attrs
 
+from puya.avm import AVMType
 from puya.awst import nodes as awst_nodes
 from puya.errors import InternalError
 from puya.ir.avm_ops import AVMOp
@@ -145,7 +146,7 @@ def assert_value(
     value: Value,
     *,
     error_message: str,
-    source_location: SourceLocation,
+    source_location: SourceLocation | None,
 ) -> None:
     context.add_op(
         Intrinsic(
@@ -338,23 +339,35 @@ class OpFactory:
         )
         return itob
 
-    def to_fixed_size(self, value: Value, size: int, temp_desc: str) -> Register:
-        # assert value isn't too big
+    def to_fixed_size(
+        self, value: Value, *, num_bytes: int, temp_desc: str, error_message: str | None = None
+    ) -> Register:
+        assert value.atype == AVMType.bytes, "function expects a bytes-backed value to convert"
+        # note this excludes values that are valid when interpreted as big-endian values but may
+        # exceed the bytes size due to leading zero bytes, however it would be less efficient to
+        # do both a pad and truncate to support that case
         value_len = self.len(value, "value_len")
-        len_ok = self.lte(value_len, size, "len_ok")
-        self.context.add_op(
-            Intrinsic(
-                op=AVMOp.assert_,
-                args=[len_ok],
-                error_message=f"value is bigger than {size} bytes",
-                source_location=self.source_location,
-            )
+        len_ok = self.lte(value_len, num_bytes, "len_ok")
+        assert_value(
+            self.context,
+            len_ok,
+            error_message=error_message or f"value is bigger than {num_bytes} bytes",
+            source_location=self.source_location,
         )
+        return self._unsafe_pad_bytes(value, num_bytes=num_bytes, temp_desc=temp_desc)
+
+    def pad_bytes(self, value: Value, *, num_bytes: int, temp_desc: str) -> Register:
+        assert isinstance(value.ir_type, SizedBytesType) and value.ir_type.size <= num_bytes
+        return self._unsafe_pad_bytes(value, num_bytes=num_bytes, temp_desc=temp_desc)
+
+    def _unsafe_pad_bytes(self, value: Value, *, num_bytes: int, temp_desc: str) -> Register:
+        # it's unsafe because we type the result as SizedBytesType, which might not be the case
+        # if the value is larger than num_bytes already
         zero = assign_intrinsic_op(
             self.context,
             target="bzero",
             op=AVMOp.bzero,
-            args=[size],
+            args=[num_bytes],
             source_location=self.source_location,
         )
         return assign_intrinsic_op(
@@ -362,7 +375,7 @@ class OpFactory:
             target=temp_desc,
             op=AVMOp.bitwise_or_bytes,
             args=[value, zero],
-            return_type=SizedBytesType(size=size),
+            return_type=SizedBytesType(size=num_bytes),
             source_location=self.source_location,
         )
 
