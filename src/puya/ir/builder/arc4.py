@@ -137,13 +137,24 @@ def encode_value_provider(
             return _encode_arc4_bool(context, value, loc)
         case (
             wtypes.ARC4UIntN(n=bits),
-            (wtypes.bool_wtype | wtypes.uint64_wtype | wtypes.biguint_wtype),
+            wtypes.biguint_wtype,
+        ):
+            (value,) = context.visitor.materialise_value_provider(
+                value_provider, description="to_encode"
+            )
+            factory = OpFactory(context, loc)
+            return factory.to_fixed_size(
+                value, num_bytes=bits // 8, temp_desc="arc4_encoded", error_message="overflow"
+            )
+        case (
+            wtypes.ARC4UIntN(n=bits),
+            (wtypes.bool_wtype | wtypes.uint64_wtype),
         ):
             (value,) = context.visitor.materialise_value_provider(
                 value_provider, description="to_encode"
             )
             num_bytes = bits // 8
-            return _itob_fixed(context, value, num_bytes, loc)
+            return _encode_native_uint64_to_arc4(context, value, num_bytes, loc)
         case (
             wtypes.ARC4Tuple(types=arc4_item_types),
             wtypes.WTuple(types=item_types),
@@ -1230,78 +1241,23 @@ def _get_arc4_array_tail_data_and_item_count(
     return tail_data, item_count
 
 
-def _itob_fixed(
+def _encode_native_uint64_to_arc4(
     context: IRFunctionBuildContext, value: Value, num_bytes: int, source_location: SourceLocation
 ) -> ValueProvider:
+    assert value.atype == AVMType.uint64, "function expects a native uint64 type to encode"
     factory = OpFactory(context, source_location)
-    if value.atype == AVMType.uint64:
-        val_as_bytes = factory.itob(value, "val_as_bytes")
-
-        if num_bytes == 8:
-            return val_as_bytes
-        if num_bytes < 8:
-            bit_len = factory.bitlen(val_as_bytes, "bitlen")
-            no_overflow = factory.lte(bit_len, num_bytes * 8, "no_overflow")
-            context.block_builder.add(
-                Intrinsic(
-                    op=AVMOp.assert_,
-                    args=[no_overflow],
-                    source_location=source_location,
-                    error_message="overflow",
-                )
-            )
-            return factory.extract3(val_as_bytes, 8 - num_bytes, num_bytes, f"uint{num_bytes*8}")
-        bytes_value: Value = val_as_bytes
-    else:
-        # note this excludes values that are valid when interpreted as big-endian values but may
-        #      exceed the bytes size due to leading zero bytes
-        #      however it would be less efficient to do both a pad and truncate to support that
-        #      case
-        len_ = assign_temp(
-            context,
-            temp_description="len_",
-            source=Intrinsic(op=AVMOp.len_, args=[value], source_location=source_location),
-            source_location=source_location,
-        )
-        no_overflow = assign_temp(
-            context,
-            temp_description="no_overflow",
-            source=Intrinsic(
-                op=AVMOp.lte,
-                args=[
-                    len_,
-                    UInt64Constant(value=num_bytes, source_location=source_location),
-                ],
-                source_location=source_location,
-            ),
-            source_location=source_location,
-        )
-
-        context.block_builder.add(
-            Intrinsic(
-                op=AVMOp.assert_,
-                args=[no_overflow],
-                source_location=source_location,
-                error_message="overflow",
-            )
-        )
-        bytes_value = value
-
-    b_zeros = assign_temp(
-        context,
-        temp_description="b_zeros",
-        source=Intrinsic(
-            op=AVMOp.bzero,
-            args=[UInt64Constant(value=num_bytes, source_location=source_location)],
-            source_location=source_location,
-        ),
-        source_location=source_location,
-    )
-    return Intrinsic(
-        op=AVMOp.bitwise_or_bytes,
-        args=[bytes_value, b_zeros],
-        source_location=source_location,
-    )
+    val_as_bytes = factory.itob(value, "val_as_bytes")
+    # encoding to n==64: no checks or padding required
+    if num_bytes == 8:
+        return val_as_bytes
+    # encoding to n>64, just need to pad
+    if num_bytes > 8:
+        return factory.pad_bytes(val_as_bytes, num_bytes=num_bytes, temp_desc="arc4_encoded")
+    # encoding to n<64, need to check for overflow and then trim
+    bit_len = factory.bitlen(val_as_bytes, "bitlen")
+    no_overflow = factory.lte(bit_len, num_bytes * 8, "no_overflow")
+    assert_value(context, no_overflow, source_location=source_location, error_message="overflow")
+    return factory.extract3(val_as_bytes, 8 - num_bytes, num_bytes, f"uint{num_bytes*8}")
 
 
 def arc4_replace_array_item(
