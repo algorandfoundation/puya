@@ -259,17 +259,17 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encodi
     block@4: // next_txn_L31
         itxn_submit
         itxn_begin
-        let len_%0#0: uint64 = (len 0b)
-        let no_overflow%0#0: bool = (<= len_%0#0 64u)
-        (assert no_overflow%0#0) // overflow
-        let b_zeros%0#0: bytes = (bzero 64u)
-        let tmp%0#0: bytes = (b| 0b b_zeros%0#0)
+        let value_len%0#0: uint64 = (len 0b)
+        let len_ok%0#0: bool = (<= value_len%0#0 64u)
+        (assert len_ok%0#0) // overflow
+        let bzero%0#0: bytes = (bzero 64u)
+        let arc4_encoded%0#0: bytes[64] = (b| 0b bzero%0#0)
         let to_encode%1#0: bytes = (bzero 64u)
         let length%4#0: uint64 = (len to_encode%1#0)
         let as_bytes%4#0: bytes[8] = (itob length%4#0)
         let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%4#0)
         let encoded_value%4#0: bytes = (concat length_uint16%4#0 to_encode%1#0)
-        let inner_txn_params%4%%param_ApplicationArgs_idx_1#0: bytes = tmp%0#0
+        let inner_txn_params%4%%param_ApplicationArgs_idx_1#0: bytes[64] = arc4_encoded%0#0
         let inner_txn_params%4%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%4#0
         let inner_txn_params%4%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%4%%param_ApplicationID_idx_0#0)
@@ -394,17 +394,17 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encodin
     block@4: // next_txn_L57
         itxn_submit
         itxn_begin
-        let len_%0#0: uint64 = (len 0b)
-        let no_overflow%0#0: bool = (<= len_%0#0 64u)
-        (assert no_overflow%0#0) // overflow
-        let b_zeros%0#0: bytes = (bzero 64u)
-        let tmp%2#0: bytes = (b| 0b b_zeros%0#0)
+        let value_len%0#0: uint64 = (len 0b)
+        let len_ok%0#0: bool = (<= value_len%0#0 64u)
+        (assert len_ok%0#0) // overflow
+        let bzero%0#0: bytes = (bzero 64u)
+        let arc4_encoded%0#0: bytes[64] = (b| 0b bzero%0#0)
         let to_encode%4#0: bytes = (bzero 64u)
         let length%5#0: uint64 = (len to_encode%4#0)
         let as_bytes%5#0: bytes[8] = (itob length%5#0)
         let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%5#0)
         let encoded_value%5#0: bytes = (concat length_uint16%5#0 to_encode%4#0)
-        let inner_txn_params%4%%param_ApplicationArgs_idx_1#0: bytes = tmp%2#0
+        let inner_txn_params%4%%param_ApplicationArgs_idx_1#0: bytes[64] = arc4_encoded%0#0
         let inner_txn_params%4%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%5#0
         let inner_txn_params%4%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%4%%param_ApplicationID_idx_0#0)
@@ -417,8 +417,8 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encodin
     block@5: // next_txn_L62
         itxn_submit
         itxn_begin
-        let tmp%3#0: uint64 = (txn NumAppArgs)
-        let to_encode%5#0: bool = (== tmp%3#0 1u)
+        let tmp%2#0: uint64 = (txn NumAppArgs)
+        let to_encode%5#0: bool = (== tmp%2#0 1u)
         let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u to_encode%5#0)
         let length%6#0: uint64 = (len 0x80)
         let as_bytes%6#0: bytes[8] = (itob length%6#0)

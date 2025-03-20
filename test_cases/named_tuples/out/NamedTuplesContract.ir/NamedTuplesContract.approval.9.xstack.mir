@@ -38,29 +38,29 @@ subroutine main:
         l-load a#0 3                                                                                 b#0,c#0,d#0,a#0
         itob                                                                                         b#0,c#0,d#0,val_as_bytes%0#0
         l-load-copy b#0 3                                                                            b#0,c#0,d#0,val_as_bytes%0#0,b#0 (copy)
-        len                                                                                          b#0,c#0,d#0,val_as_bytes%0#0,len_%0#0
-        int 64                                                                                       b#0,c#0,d#0,val_as_bytes%0#0,len_%0#0,64
-        <=                                                                                           b#0,c#0,d#0,val_as_bytes%0#0,no_overflow%0#0
+        len                                                                                          b#0,c#0,d#0,val_as_bytes%0#0,value_len%0#0
+        int 64                                                                                       b#0,c#0,d#0,val_as_bytes%0#0,value_len%0#0,64
+        <=                                                                                           b#0,c#0,d#0,val_as_bytes%0#0,len_ok%0#0
         assert // overflow                                                                           b#0,c#0,d#0,val_as_bytes%0#0
         int 64                                                                                       b#0,c#0,d#0,val_as_bytes%0#0,64
-        bzero                                                                                        b#0,c#0,d#0,val_as_bytes%0#0,b_zeros%0#0
-        l-load b#0 4                                                                                 c#0,d#0,val_as_bytes%0#0,b_zeros%0#0,b#0
-        l-load b_zeros%0#0 1                                                                         c#0,d#0,val_as_bytes%0#0,b#0,b_zeros%0#0
-        b|                                                                                           c#0,d#0,val_as_bytes%0#0,arc4_item%0#0
-        l-load-copy c#0 3                                                                            c#0,d#0,val_as_bytes%0#0,arc4_item%0#0,c#0 (copy)
-        len                                                                                          c#0,d#0,val_as_bytes%0#0,arc4_item%0#0,length%0#0
-        itob                                                                                         c#0,d#0,val_as_bytes%0#0,arc4_item%0#0,as_bytes%0#0
-        extract 6 2                                                                                  c#0,d#0,val_as_bytes%0#0,arc4_item%0#0,length_uint16%0#0
-        l-load c#0 4                                                                                 d#0,val_as_bytes%0#0,arc4_item%0#0,length_uint16%0#0,c#0
-        concat                                                                                       d#0,val_as_bytes%0#0,arc4_item%0#0,encoded_value%0#0
-        l-load-copy d#0 3                                                                            d#0,val_as_bytes%0#0,arc4_item%0#0,encoded_value%0#0,d#0 (copy)
-        len                                                                                          d#0,val_as_bytes%0#0,arc4_item%0#0,encoded_value%0#0,length%1#0
-        itob                                                                                         d#0,val_as_bytes%0#0,arc4_item%0#0,encoded_value%0#0,as_bytes%1#0
-        extract 6 2                                                                                  d#0,val_as_bytes%0#0,arc4_item%0#0,encoded_value%0#0,length_uint16%1#0
-        l-load d#0 4                                                                                 val_as_bytes%0#0,arc4_item%0#0,encoded_value%0#0,length_uint16%1#0,d#0
-        concat                                                                                       val_as_bytes%0#0,arc4_item%0#0,encoded_value%0#0,encoded_value%1#0
-        l-load val_as_bytes%0#0 3                                                                    arc4_item%0#0,encoded_value%0#0,encoded_value%1#0,val_as_bytes%0#0
-        l-load arc4_item%0#0 3                                                                       encoded_value%0#0,encoded_value%1#0,val_as_bytes%0#0,arc4_item%0#0
+        bzero                                                                                        b#0,c#0,d#0,val_as_bytes%0#0,bzero%0#0
+        l-load b#0 4                                                                                 c#0,d#0,val_as_bytes%0#0,bzero%0#0,b#0
+        l-load bzero%0#0 1                                                                           c#0,d#0,val_as_bytes%0#0,b#0,bzero%0#0
+        b|                                                                                           c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0
+        l-load-copy c#0 3                                                                            c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0,c#0 (copy)
+        len                                                                                          c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0,length%0#0
+        itob                                                                                         c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0,as_bytes%0#0
+        extract 6 2                                                                                  c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0,length_uint16%0#0
+        l-load c#0 4                                                                                 d#0,val_as_bytes%0#0,arc4_encoded%0#0,length_uint16%0#0,c#0
+        concat                                                                                       d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0
+        l-load-copy d#0 3                                                                            d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,d#0 (copy)
+        len                                                                                          d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,length%1#0
+        itob                                                                                         d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,as_bytes%1#0
+        extract 6 2                                                                                  d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,length_uint16%1#0
+        l-load d#0 4                                                                                 val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,length_uint16%1#0,d#0
+        concat                                                                                       val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,encoded_value%1#0
+        l-load val_as_bytes%0#0 3                                                                    arc4_encoded%0#0,encoded_value%0#0,encoded_value%1#0,val_as_bytes%0#0
+        l-load arc4_encoded%0#0 3                                                                    encoded_value%0#0,encoded_value%1#0,val_as_bytes%0#0,arc4_encoded%0#0
         concat                                                                                       encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%2#0
         byte 0x004c                                                                                  encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%2#0,0x004c
         concat                                                                                       encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%3#0
