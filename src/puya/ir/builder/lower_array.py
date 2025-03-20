@@ -286,7 +286,7 @@ def _encode_array_item(
                 )
         # biguint values are first padded to 64 bytes
         elif value_type == PrimitiveIRType.biguint:
-            value = factory.to_fixed_size(value, 64, "sub_item")
+            value = factory.to_fixed_size(value, num_bytes=64, temp_desc="sub_item")
         # all other byte values should be the correct size already due to earlier check
         elif value_type.avm_type == AVMType.bytes:
             pass
