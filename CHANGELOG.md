@@ -1,4 +1,10 @@
 # CHANGELOG
+## v4.5.3 (2025-03-20)
+
+### Fix
+
+* assigning an inner transaction result from a named tuple field now works ([`f0cd286`](https://github.com/algorandfoundation/puya/commit/f0cd28622c9c33d652bbc6ec29b946cb6a7d31b5))
+
 ## v4.5.2 (2025-03-17)
 
 ### Fix
