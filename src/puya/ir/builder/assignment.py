@@ -9,7 +9,6 @@ from puya.awst import (
 )
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
-from puya.ir.arc4 import is_arc4_static_size
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, mem
 from puya.ir.builder._tuple_util import build_tuple_registers
@@ -20,7 +19,7 @@ from puya.ir.builder._utils import (
     get_implicit_return_is_original,
 )
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.types_ import PrimitiveIRType, get_wtype_arity
+from puya.ir.types_ import PrimitiveIRType, get_wtype_arity, wtype_to_ir_type
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
@@ -155,7 +154,7 @@ def handle_assignment(
             )
             if scalar_type == AVMType.bytes:
                 serialized_value = mat_value
-                if not (isinstance(wtype, wtypes.ARC4Type) and is_arc4_static_size(wtype)):
+                if wtype_to_ir_type(wtype).num_bytes is None:
                     context.block_builder.add(
                         ir.Intrinsic(
                             op=AVMOp.box_del, args=[key_value], source_location=assignment_location
