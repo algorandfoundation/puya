@@ -32,8 +32,6 @@ from puyapy.awst_build.eb._utils import (
     dummy_value,
     resolve_negative_literal_index,
 )
-
-# TODO: move these out of ARC4 ?
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
