@@ -187,23 +187,24 @@ def encode_value_provider(
             return value_provider
         case (
             wtypes.ARC4Array(element_type=arc4_element_type),
-            wtypes.WTuple(types=item_types),
+            wtypes.WTuple(types=[src_element_type, *src_types_to_check]),
         ) if (
-            all(arc4_element_type.can_encode_type(t) for t in item_types)
-            or all(t == arc4_element_type for t in item_types)
+            all(t == src_element_type for t in src_types_to_check)
+            and (
+                src_element_type == arc4_element_type
+                or arc4_element_type.can_encode_type(src_element_type)
+            )
         ):
-            (src_element_type,) = set(item_types)
-            arc4_element_types = [arc4_element_type] * len(item_types)
-            elements = context.visitor.materialise_value_provider(
+            values = context.visitor.materialise_value_provider(
                 value_provider, description="elements_to_encode"
             )
             if src_element_type != arc4_element_type:
-                arc4_items = _encode_arc4_tuple_items(
-                    context, elements, item_types, arc4_element_types, loc
+                item_types = value_wtype.types
+                arc4_element_types = [arc4_element_type] * len(item_types)
+                values = _encode_arc4_tuple_items(
+                    context, values, item_types, arc4_element_types, loc
                 )
-            else:
-                arc4_items = elements
-            return _encode_arc4_values_as_array(context, arc4_wtype, arc4_items, loc)
+            return _encode_arc4_values_as_array(context, arc4_wtype, values, loc)
         case _:
             raise InternalError(
                 f"unsupported ARC4 translation from {value_wtype} to {arc4_wtype}", loc
