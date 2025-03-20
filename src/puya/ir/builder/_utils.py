@@ -141,14 +141,18 @@ def convert_constants(arg: int | bytes | Value, source_location: SourceLocation 
 
 
 def assert_value(
-    context: IRRegisterContext, value: Value, *, source_location: SourceLocation, comment: str
+    context: IRRegisterContext,
+    value: Value,
+    *,
+    error_message: str,
+    source_location: SourceLocation,
 ) -> None:
     context.add_op(
         Intrinsic(
             op=AVMOp.assert_,
-            source_location=source_location,
             args=[value],
-            error_message=comment,
+            error_message=error_message,
+            source_location=source_location,
         )
     )
 

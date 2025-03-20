@@ -21,7 +21,7 @@ def visit_app_state_expression(
     assert_value(
         context,
         value=exists,
-        comment=expr.exists_assertion_message or "state exists",
+        error_message=expr.exists_assertion_message or "state exists",
         source_location=expr.source_location,
     )
     return maybe_value
@@ -35,7 +35,7 @@ def visit_app_account_state_expression(
     assert_value(
         context,
         value=exists,
-        comment=expr.exists_assertion_message or "state exists for account",
+        error_message=expr.exists_assertion_message or "state exists for account",
         source_location=expr.source_location,
     )
     return maybe_value
@@ -49,7 +49,7 @@ def visit_box_value(
     assert_value(
         context,
         value=exists,
-        comment=expr.exists_assertion_message or "box exists",
+        error_message=expr.exists_assertion_message or "box exists",
         source_location=expr.source_location,
     )
     return maybe_value
