@@ -91,12 +91,12 @@ subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_
 subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint() -> bytes[64]:
     block@0: // L10
         let x#0: biguint = TemplateVar[biguint](TMPL_SOME_BIG_UINT)
-        let len_%0#0: uint64 = (len x#0)
-        let no_overflow%0#0: bool = (<= len_%0#0 64u)
-        (assert no_overflow%0#0) // overflow
-        let b_zeros%0#0: bytes = (bzero 64u)
-        let tmp%0#0: bytes = (b| x#0 b_zeros%0#0)
-        return tmp%0#0
+        let value_len%0#0: uint64 = (len x#0)
+        let len_ok%0#0: bool = (<= value_len%0#0 64u)
+        (assert len_ok%0#0) // overflow
+        let bzero%0#0: bytes = (bzero 64u)
+        let arc4_encoded%0#0: bytes[64] = (b| x#0 bzero%0#0)
+        return arc4_encoded%0#0
 
 subroutine test_cases.template_variables.contract.TemplateVariablesContract.on_update() -> void:
     block@0: // L15
