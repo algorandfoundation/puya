@@ -337,13 +337,13 @@ class BytesConstant(Constant):
 
     @ir_type.default
     def _ir_type(self) -> IRType:
-        return SizedBytesType(size=len(self.value))
+        return SizedBytesType(num_bytes=len(self.value))
 
     @ir_type.validator
     def _validate_ir_type(self, _attribute: object, ir_type: IRType) -> None:
         if ir_type.maybe_avm_type is not AVMType.bytes:
             raise InternalError(f"invalid type for BytesConstant: {ir_type}", self.source_location)
-        if isinstance(ir_type, SizedBytesType) and ir_type.size != len(self.value):
+        if isinstance(ir_type, SizedBytesType) and ir_type.num_bytes != len(self.value):
             raise InternalError(
                 f"incorrect sized type for BytesConstant: {ir_type} + {self.value=}",
                 self.source_location,

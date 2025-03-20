@@ -196,9 +196,9 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
 
 
 def _get_element_size(element_type: IRType, loc: SourceLocation | None) -> int:
-    if element_type.size is None:
+    if element_type.num_bytes is None:
         raise CodeError("only immutable, static sized elements supported", loc)
-    return element_type.size
+    return element_type.num_bytes
 
 
 def _encode_array_items(context: IRRegisterContext, encode: ir.ArrayEncode) -> ir.Value:
@@ -245,7 +245,7 @@ def _encode_array_item(
     for value, (sub_type, tuple_group) in zip(
         values, expand_encoded_type_and_group(element_type), strict=True
     ):
-        if sub_type.size is None:
+        if sub_type.num_bytes is None:
             raise InternalError("expected fixed size element", loc)
         value_type = value.ir_type
         # bool values are encoded as a single ARC-4 Bool value, i.e. consecutive values are not
@@ -280,9 +280,9 @@ def _encode_array_item(
         # uint64 values are encoded to their equivalent bytes
         elif value_type.avm_type == AVMType.uint64:
             value = factory.itob(value, "sub_item")
-            if sub_type.size != 8:
+            if sub_type.num_bytes != 8:
                 value = factory.extract3(
-                    value, 8 - sub_type.size, sub_type.size, "sub_item_truncated"
+                    value, 8 - sub_type.num_bytes, sub_type.num_bytes, "sub_item_truncated"
                 )
         # biguint values are first padded to 64 bytes
         elif value_type == PrimitiveIRType.biguint:
@@ -292,7 +292,7 @@ def _encode_array_item(
             pass
         else:
             raise InternalError(f"unexpected element type for array encoding: {value_type}", loc)
-        encoded_length += sub_type.size
+        encoded_length += sub_type.num_bytes
         last_type_and_group = sub_type, tuple_group
         encoded = factory.concat(encoded, value, "encoded", ir_type=array_type)
     return encoded
