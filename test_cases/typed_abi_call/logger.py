@@ -22,6 +22,11 @@ class LogMessage(typing.NamedTuple):
     message: String
 
 
+class LogStruct(arc4.Struct):
+    level: arc4.UInt64
+    message: arc4.String
+
+
 class Logger(ARC4Contract):
     @arc4.abimethod
     def is_a_b(self, a: Bytes, b: Bytes) -> None:
@@ -128,6 +133,10 @@ class Logger(ARC4Contract):
     @arc4.abimethod
     def logs_are_equal(self, log_1: LogMessage, log_2: LogMessage) -> bool:
         return log_1 == log_2
+
+    @arc4.abimethod
+    def echo_log_struct(self, log: LogStruct) -> LogStruct:
+        return log
 
 
 class LoggerClient(arc4.ARC4Client, typing.Protocol):

@@ -9,6 +9,10 @@ class LogMessage(algopy.arc4.Struct):
     level: algopy.arc4.UIntN[typing.Literal[64]]
     message: algopy.arc4.String
 
+class LogStruct(algopy.arc4.Struct):
+    level: algopy.arc4.UIntN[typing.Literal[64]]
+    message: algopy.arc4.String
+
 class Logger(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def is_a_b(
@@ -142,3 +146,9 @@ class Logger(algopy.arc4.ARC4Client, typing.Protocol):
         log_1: LogMessage,
         log_2: LogMessage,
     ) -> algopy.arc4.Bool: ...
+
+    @algopy.arc4.abimethod
+    def echo_log_struct(
+        self,
+        log: LogStruct,
+    ) -> LogStruct: ...
