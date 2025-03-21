@@ -41,6 +41,7 @@ from puya.ir.models import (
     InvokeSubroutine,
     Register,
     UInt64Constant,
+    Undefined,
     Value,
     ValueProvider,
     ValueTuple,
@@ -50,6 +51,7 @@ from puya.ir.types_ import (
     PrimitiveIRType,
     get_wtype_arity,
     wtype_to_encoded_ir_type,
+    wtype_to_ir_type,
 )
 from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.utils import bits_to_bytes
@@ -125,8 +127,10 @@ def decode_arc4_value(
             is_equivalent_effective_array_encoding(target_wtype, arc4_wtype, loc)
         ):
             return value
-    raise InternalError(
-        f"unsupported ARC4Decode operation from {arc4_wtype} to {target_wtype}", loc
+    logger.error("unsupported ARC4 decode operation", location=loc)
+    return Undefined(
+        ir_type=wtype_to_ir_type(target_wtype, loc),
+        source_location=loc,
     )
 
 
@@ -221,13 +225,7 @@ def encode_value_provider(
         case (
             wtypes.ARC4Array(element_type=arc4_element_type),
             wtypes.WTuple(types=[src_element_type, *src_types_to_check]),
-        ) if (
-            all(t == src_element_type for t in src_types_to_check)
-            and (
-                src_element_type == arc4_element_type
-                or arc4_element_type.can_encode_type(src_element_type)
-            )
-        ):
+        ) if all(t == src_element_type for t in src_types_to_check):
             values = context.visitor.materialise_value_provider(
                 value_provider, description="elements_to_encode"
             )
@@ -239,8 +237,10 @@ def encode_value_provider(
                 )
             return _encode_arc4_values_as_array(context, arc4_wtype, values, loc)
         case _:
-            raise InternalError(
-                f"unsupported ARC4 translation from {value_wtype} to {arc4_wtype}", loc
+            logger.error("unsupported ARC4 encode operation", location=loc)
+            return Undefined(
+                ir_type=wtype_to_ir_type(arc4_wtype, loc),
+                source_location=loc,
             )
 
 

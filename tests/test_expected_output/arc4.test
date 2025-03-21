@@ -721,6 +721,20 @@ def incorrect_positional() -> MyStruct:
                                                 ## E: Argument 1 to "MyStruct" has incompatible type "Bool"; expected "UIntN[Literal[64]]"  [arg-type] \
                                                 ## E: Argument 2 to "MyStruct" has incompatible type "UIntN[Literal[64]]"; expected "Bool"  [arg-type]
 
+## case: struct_member_ordering2
+import typing
+from algopy import *
+
+class MyStruct(arc4.Struct):
+    foo: arc4.UInt64
+    bar: arc4.Bool
+
+
+class Client(arc4.ARC4Client, typing.Protocol):
+
+    @arc4.abimethod
+    def check(self, arg: arc4.DynamicArray[MyStruct]) -> None: ...
+
 
 @subroutine
 def correct_kwarg() -> MyStruct:
@@ -729,7 +743,7 @@ def correct_kwarg() -> MyStruct:
 
 @subroutine
 def incorrect_array_positional() -> None:
-    arc4.abi_call(Client.check, ImmutableArray((True, UInt64())), app_id=1234) ## E: cannot encode algopy.ImmutableArray[tuple[bool, algopy.UInt64]] to algopy.arc4.DynamicArray[struct_member_ordering.MyStruct]
+    arc4.abi_call(Client.check, ImmutableArray((True, UInt64())), app_id=1234) ## E: unsupported ARC4 encode operation
 
 
 @subroutine
@@ -748,4 +762,17 @@ class Client(arc4.ARC4Client, typing.Protocol):
 @subroutine
 def stack_uint64_to_arc4_uint8() -> None:
     arr = ImmutableArray[UInt64]()
-    arc4.abi_call(Client.take_arc4_uint8, arr, app_id=1234) ## E: cannot encode algopy.ImmutableArray[algopy.UInt64] to algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[8]]]
+    arc4.abi_call(Client.take_arc4_uint8, arr, app_id=1234)
+
+
+### case: bad_arc4_tuple_arguments
+import typing
+from algopy import *
+
+TestTuple: typing.TypeAlias = arc4.Tuple[arc4.UInt8, arc4.UInt8, arc4.String, arc4.String, arc4.UInt8]
+
+class Arc4TuplesTypeContract(ARC4Contract):
+    @arc4.abimethod
+    def foobar(self) -> None:
+        x = TestTuple((UInt64(1), UInt64(1), Bytes(b""), Bytes(b""), UInt64(1))) ## E: unexpected argument type
+        log(x)
