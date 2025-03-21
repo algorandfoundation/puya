@@ -265,7 +265,7 @@ def _iterate_urange(
     step = context.visitor.visit_and_materialise_single(urange.step)
     stop = context.visitor.visit_and_materialise_single(urange.stop)
     start = context.visitor.visit_and_materialise_single(urange.start)
-    assert_value(context, step, source_location=statement_loc, comment="Step cannot be zero")
+    assert_value(context, step, error_message="Step cannot be zero", source_location=statement_loc)
 
     if reverse_items or reverse_index:
         return _iterate_urange_with_reversal(

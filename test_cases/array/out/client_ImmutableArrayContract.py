@@ -13,6 +13,11 @@ class ImmutableArrayContract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
+    def test_biguint_array(
+        self,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
     def test_bool_array(
         self,
         length: algopy.arc4.UIntN[typing.Literal[64]],

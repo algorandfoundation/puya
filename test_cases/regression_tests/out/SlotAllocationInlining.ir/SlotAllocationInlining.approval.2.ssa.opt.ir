@@ -13,31 +13,30 @@ main test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining
         itxn_submit
         goto block@2
     block@8: // after_while_L20
-        let encoded%0#0: uint64[] = encode<uint64>()
-        let arr#0: uint64[]* = new()
+        let encoded%0#0: encoded_uint64[] = encode<encoded_uint64>()
+        let arr#0: encoded_uint64[]* = new()
         write(arr#0, encoded%0#0)
         test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr#0)
-        let slot_contents%0#0: uint64[] = read(arr#0)
+        let slot_contents%0#0: encoded_uint64[] = read(arr#0)
         let tmp%0#1: uint64 = slot_contents%0#0.length
         let tmp%1#1: bool = (== tmp%0#1 32u)
         (assert tmp%1#1) // expected array of length 32
         return 1u
 
-subroutine test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr: uint64[]*) -> void:
+subroutine test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr: encoded_uint64[]*) -> void:
     block@0: // L22
         let tmp%0#0: bytes[32] = (txn Sender)
-        let bytes_length%0#0: uint64 = (len tmp%0#0)
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L24
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@2)
-        let continue_looping%0#0: bool = (< item_index_internal%0#1 bytes_length%0#0)
+        let continue_looping%0#0: bool = (< item_index_internal%0#1 32u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L25
         let tmp%1#0: uint64 = (getbyte tmp%0#0 item_index_internal%0#1)
-        let encoded%0#0: uint64[] = encode<uint64>(tmp%1#0)
-        let slot_contents%0#0: uint64[] = read(arr#0)
-        let extended%0#0: uint64[] = slot_contents%0#0.concat(encoded%0#0)
+        let encoded%0#0: encoded_uint64[] = encode<encoded_uint64>(tmp%1#0)
+        let slot_contents%0#0: encoded_uint64[] = read(arr#0)
+        let extended%0#0: encoded_uint64[] = slot_contents%0#0.concat(encoded%0#0)
         write(arr#0, extended%0#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1

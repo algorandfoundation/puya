@@ -33,10 +33,10 @@ STACK_TYPE_TO_IR_TYPE: Mapping[langspec.StackType, IRType] = {
     langspec.StackType.bytes: PrimitiveIRType.bytes,
     langspec.StackType.box_name: PrimitiveIRType.bytes,
     langspec.StackType.state_key: PrimitiveIRType.bytes,
-    langspec.StackType.address: SizedBytesType(size=32),
+    langspec.StackType.address: SizedBytesType(num_bytes=32),
     langspec.StackType.any: PrimitiveIRType.any,
     langspec.StackType.address_or_index: UnionType(
-        types=(SizedBytesType(size=32), PrimitiveIRType.uint64)
+        types=(SizedBytesType(num_bytes=32), PrimitiveIRType.uint64)
     ),
 }
 operator_names = {
@@ -220,7 +220,7 @@ def _map_run_mode(mode: langspec.RunMode) -> RunMode:
 
 def get_stack_type(stack_type: langspec.StackType) -> IRType:
     if stack_type.name.startswith("bytes_"):
-        return SizedBytesType(size=int(stack_type.name.removeprefix("bytes_")))
+        return SizedBytesType(num_bytes=int(stack_type.name.removeprefix("bytes_")))
     else:
         return STACK_TYPE_TO_IR_TYPE[stack_type]
 

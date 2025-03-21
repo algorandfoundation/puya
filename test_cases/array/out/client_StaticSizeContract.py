@@ -45,3 +45,8 @@ class StaticSizeContract(algopy.arc4.ARC4Client, typing.Protocol):
         self,
         arc4_arr: algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[64]]],
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
+
+    @algopy.arc4.abimethod
+    def test_arc4_bool(
+        self,
+    ) -> algopy.arc4.DynamicArray[algopy.arc4.Bool]: ...

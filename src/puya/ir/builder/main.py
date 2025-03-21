@@ -514,7 +514,7 @@ class FunctionIRBuilder(
         assert_value(
             self.context,
             check,
-            comment=expr.comment,
+            error_message=expr.comment,
             source_location=expr.source_location,
         )
         return value
@@ -625,7 +625,7 @@ class FunctionIRBuilder(
             assert_value(
                 self.context,
                 type_matches,
-                comment=f"transaction type is {txn_type.name}",
+                error_message=f"transaction type is {txn_type.name}",
                 source_location=ref.source_location,
             )
         return index

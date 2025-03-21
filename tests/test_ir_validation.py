@@ -121,6 +121,6 @@ def test_expand_encoded_tuple() -> None:
             ir.PrimitiveIRType.bool,
         )
     )
-    types_and_group_id = ir.EncodedTupleType.expand_type_and_group_id(encoded_tuple)
+    types_and_group_id = ir.expand_encoded_type_and_group(encoded_tuple)
     group_ids = [g for t, g in types_and_group_id]
     assert group_ids == [1, 2, 2, 3, 3, 1]

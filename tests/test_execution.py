@@ -125,7 +125,7 @@ class AppTransactionParameters:
     on_complete: OnComplete = OnComplete.NoOpOC
     sp: transaction.SuggestedParams | None = None
     extra_pages: int | None = None
-    add_random_note: bool = False
+    add_random_note: bool = True
 
 
 GroupTransactionsProvider: typing.TypeAlias = Callable[[int], Iterable[TransactionWithSigner]]
@@ -980,7 +980,7 @@ def test_abi_mutable_params(harness: _TestHarness) -> None:
         AppCallRequest(
             extra_pages=1,
             trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "mutable_params.log",
-            increase_budget=1,
+            increase_budget=2,
         ),
     )
 

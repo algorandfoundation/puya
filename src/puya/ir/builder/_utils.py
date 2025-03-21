@@ -3,6 +3,7 @@ from collections.abc import Sequence
 
 import attrs
 
+from puya.avm import AVMType
 from puya.awst import nodes as awst_nodes
 from puya.errors import InternalError
 from puya.ir.avm_ops import AVMOp
@@ -16,7 +17,7 @@ from puya.ir.models import (
     ValueProvider,
 )
 from puya.ir.register_context import IRRegisterContext
-from puya.ir.types_ import AVMBytesEncoding, IRType, PrimitiveIRType
+from puya.ir.types_ import AVMBytesEncoding, IRType, PrimitiveIRType, SizedBytesType
 from puya.parse import SourceLocation
 
 
@@ -141,14 +142,18 @@ def convert_constants(arg: int | bytes | Value, source_location: SourceLocation 
 
 
 def assert_value(
-    context: IRRegisterContext, value: Value, *, source_location: SourceLocation, comment: str
+    context: IRRegisterContext,
+    value: Value,
+    *,
+    error_message: str,
+    source_location: SourceLocation | None,
 ) -> None:
     context.add_op(
         Intrinsic(
             op=AVMOp.assert_,
-            source_location=source_location,
             args=[value],
-            error_message=comment,
+            error_message=error_message,
+            source_location=source_location,
         )
     )
 
@@ -235,6 +240,16 @@ class OpFactory:
         )
         return result
 
+    def bitlen(self, value: Value, temp_desc: str) -> Register:
+        result = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.bitlen,
+            args=[value],
+            source_location=self.source_location,
+        )
+        return result
+
     def btoi(self, value: Value, temp_desc: str) -> Register:
         result = assign_intrinsic_op(
             self.context,
@@ -250,6 +265,16 @@ class OpFactory:
             self.context,
             target=temp_desc,
             op=AVMOp.eq,
+            args=[a, b],
+            source_location=self.source_location,
+        )
+        return result
+
+    def lte(self, a: Value | int, b: Value | int, temp_desc: str) -> Register:
+        result = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.lte,
             args=[a, b],
             source_location=self.source_location,
         )
@@ -313,6 +338,46 @@ class OpFactory:
             source_location=self.source_location,
         )
         return itob
+
+    def to_fixed_size(
+        self, value: Value, *, num_bytes: int, temp_desc: str, error_message: str | None = None
+    ) -> Register:
+        assert value.atype == AVMType.bytes, "function expects a bytes-backed value to convert"
+        # note this excludes values that are valid when interpreted as big-endian values but may
+        # exceed the bytes size due to leading zero bytes, however it would be less efficient to
+        # do both a pad and truncate to support that case
+        value_len = self.len(value, "value_len")
+        len_ok = self.lte(value_len, num_bytes, "len_ok")
+        assert_value(
+            self.context,
+            len_ok,
+            error_message=error_message or f"value is bigger than {num_bytes} bytes",
+            source_location=self.source_location,
+        )
+        return self._unsafe_pad_bytes(value, num_bytes=num_bytes, temp_desc=temp_desc)
+
+    def pad_bytes(self, value: Value, *, num_bytes: int, temp_desc: str) -> Register:
+        assert isinstance(value.ir_type, SizedBytesType) and value.ir_type.num_bytes <= num_bytes
+        return self._unsafe_pad_bytes(value, num_bytes=num_bytes, temp_desc=temp_desc)
+
+    def _unsafe_pad_bytes(self, value: Value, *, num_bytes: int, temp_desc: str) -> Register:
+        # it's unsafe because we type the result as SizedBytesType, which might not be the case
+        # if the value is larger than num_bytes already
+        zero = assign_intrinsic_op(
+            self.context,
+            target="bzero",
+            op=AVMOp.bzero,
+            args=[num_bytes],
+            source_location=self.source_location,
+        )
+        return assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.bitwise_or_bytes,
+            args=[value, zero],
+            return_type=SizedBytesType(num_bytes=num_bytes),
+            source_location=self.source_location,
+        )
 
     def as_u16_bytes(self, a: Value | int, temp_desc: str) -> Register:
         as_bytes = self.itob(a, "as_bytes")

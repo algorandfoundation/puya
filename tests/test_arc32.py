@@ -36,7 +36,7 @@ def compile_arc32(
     *,
     optimization_level: int = 1,
     debug_level: int = 2,
-    file_name: str | None = None,
+    contract_name: str | None = None,
     disabled_optimizations: Sequence[str] = (),
 ) -> str:
     result = compile_src_from_options(
@@ -47,18 +47,14 @@ def compile_arc32(
             disabled_optimizations=disabled_optimizations,
         )
     )
-    if file_name is None:
+    if contract_name is None:
         (contract,) = result.teal
     else:
         (contract,) = (
             t
             for t in result.teal
             if isinstance(t, CompiledContract)
-            if (
-                t.source_location
-                and t.source_location.file
-                and t.source_location.file.name == file_name
-            )
+            if t.metadata.name == contract_name
         )
 
     assert isinstance(contract, CompiledContract), "Compilation artifact must be a contract"
@@ -1056,6 +1052,12 @@ def test_typed_abi_call(
         app=logger.app_id,
     )
 
+    app_client.call(
+        "test_arc4_struct",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+    )
+
 
 def test_arc28(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     app_client = algokit_utils.ApplicationClient(
@@ -1226,7 +1228,7 @@ def dynamic_app_client(
         ),
         signer=account,
     )
-    app_client.create()
+    app_client.create(transaction_parameters={"note": random.randbytes(8)})
     return app_client
 
 
@@ -1558,7 +1560,7 @@ def test_box_map(box_client: algokit_utils.ApplicationClient) -> None:
 
 def test_compile(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     app_spec = algokit_utils.ApplicationSpecification.from_json(
-        compile_arc32(TEST_CASES_DIR / "compile", file_name="factory.py")
+        compile_arc32(TEST_CASES_DIR / "compile", contract_name="HelloFactory")
     )
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
 
@@ -1631,6 +1633,26 @@ def test_named_tuples(
         "test_tuple",
         value={"a": 34, "b": 53934433, "c": "hmmmm", "d": account.public_key},
     )
+
+
+def test_uint_overflow(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+    app_client = algokit_utils.ApplicationClient(
+        algod_client,
+        algokit_utils.ApplicationSpecification.from_json(
+            compile_arc32(TEST_CASES_DIR / "arc4_types", contract_name="UIntOverflow")
+        ),
+        signer=account,
+    )
+    app_client.create()
+
+    with pytest.raises(LogicError, match="overflow\t\t<-- Error"):
+        app_client.call("test_uint8")
+
+    with pytest.raises(LogicError, match="overflow\t\t<-- Error"):
+        app_client.call("test_uint16")
+
+    with pytest.raises(LogicError, match="overflow\t\t<-- Error"):
+        app_client.call("test_uint32")
 
 
 def test_group_side_effects(
@@ -1768,6 +1790,27 @@ def test_diamond_mro(
     assert method_logs == expected_method_log
 
 
+def test_arc4_encode_decode(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+    example = TEST_CASES_DIR / "arc4_conversions"
+
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(example, contract_name="TestContract")
+    )
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    sp = algod_client.suggested_params()
+    sp.flat_fee = True
+    sp.fee = 10_000
+    app_client.suggested_params = sp
+    app_client.create()
+
+    app_client.call("test_literal_encoding")
+    app_client.call("test_native_encoding")
+    app_client.call("test_arc4_encoding")
+    app_client.call("test_array_uint64_encoding")
+    app_client.call("test_array_static_encoding")
+    app_client.call("test_array_dynamic_encoding")
+
+
 @pytest.mark.parametrize("optimization_level", [0, 1])
 def test_array_uint64(
     algod_client: AlgodClient,
@@ -1823,11 +1866,11 @@ def test_array_static_size(
     response = simulate_call(app_client, "test_array", x1=x1, y1=y1, x2=x2, y2=y2)
     assert response.abi_results[0].return_value == 15
     assert _get_box_state(response, b"a") == _get_arc4_bytes(
-        "(uint64,uint64,(uint64,uint64,address,(uint64,uint64)))[]",
+        "(uint64,uint64,(uint64,uint64,address,(uint64,uint64),uint512))[]",
         [
-            (0, 0, (5, 1, sender, (2, 1))),
-            (x1, y1, (5, 2, sender, (3, 4))),
-            (x2, y2, (5, 3, sender, (4, 9))),
+            (0, 0, (5, 1, sender, (2, 1), 1)),
+            (x1, y1, (5, 2, sender, (3, 4), 2)),
+            (x2, y2, (5, 3, sender, (4, 9), 3)),
         ],
     )
 
@@ -1853,15 +1896,24 @@ def test_array_static_size(
     response = simulate_call(app_client, "test_extend_from_arc4_tuple", some_more=[[1, 2], [3, 4]])
     assert response.abi_results[0].return_value == [[1, 2], [3, 4]]
 
+    response = simulate_call(app_client, "test_arc4_bool")
+    assert response.abi_results[0].return_value == [False, True]
+
 
 @pytest.mark.parametrize("optimization_level", [0, 1])
 def test_immutable_array(
     algod_client: AlgodClient, optimization_level: int, account: algokit_utils.Account
 ) -> None:
     immutable_array_app = _get_immutable_array_app(algod_client, optimization_level, account)
+
     response = simulate_call(immutable_array_app, "test_uint64_array")
     assert _get_global_state(response, b"a") == _get_arc4_bytes(
         "uint64[]", [42, 0, 23, 2, *range(10), 44]
+    )
+
+    response = simulate_call(immutable_array_app, "test_biguint_array")
+    assert _get_box_state(response, b"biguint") == _get_arc4_bytes(
+        "uint512[]", [0, *range(5), 2**512 - 2, 2**512 - 1]
     )
 
     response = simulate_call(immutable_array_app, "test_fixed_size_tuple_array")
@@ -2035,7 +2087,16 @@ def _get_immutable_array_app(
 
     app_spec = _get_app_spec(example, optimization_level)
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
-    app_client.create()
+    app_client.create(transaction_parameters={"note": random.randbytes(8)})
+
+    # ensure app meets minimum balance requirements
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=400_000,
+        ),
+    )
 
     return app_client
 
@@ -2082,10 +2143,11 @@ def simulate_call(
         logic_error_data = algokit_utils.logic_error.parse_logic_error(
             simulate_response.failure_message
         )
-        assert (
-            logic_error_data is not None
-        ), f"expected LogicError, got {simulate_response.failure_message}"
-        assert app_client.approval is not None, "expected approval program"
+        if logic_error_data is None:
+            pytest.fail(f"expected LogicError, got {simulate_response.failure_message}")
+
+        if app_client.approval is None:
+            pytest.fail("expected approval program")
         raise algokit_utils.LogicError(
             logic_error_str=simulate_response.failure_message,
             program=app_client.approval.teal,

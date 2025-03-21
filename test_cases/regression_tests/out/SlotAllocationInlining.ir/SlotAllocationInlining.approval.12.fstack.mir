@@ -56,45 +56,41 @@ subroutine append_to_array:
         // regression_tests/slot_allocation_inlining.py:24
         // for b in Txn.sender.bytes:
         txn Sender                                                    (𝕡) arr#0 | tmp%0#0
-        l-store-copy tmp%0#0 0                                        (𝕡) arr#0 | tmp%0#0,tmp%0#0 (copy)
-        f-store tmp%0#0                                               (𝕡) arr#0 | (𝕗) tmp%0#0 | tmp%0#0
-        l-load tmp%0#0 0                                              (𝕡) arr#0 | (𝕗) tmp%0#0 | tmp%0#0
-        len                                                           (𝕡) arr#0 | (𝕗) tmp%0#0 | bytes_length%0#0
-        f-store bytes_length%0#0                                      (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0 |
-        int 0                                                         (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0 | 0
-        f-store item_index_internal%0#0                               (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 |
-        b append_to_array_for_header@1                                (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 |
+        f-store tmp%0#0                                               (𝕡) arr#0 | (𝕗) tmp%0#0 |
+        int 0                                                         (𝕡) arr#0 | (𝕗) tmp%0#0 | 0
+        f-store item_index_internal%0#0                               (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 |
+        b append_to_array_for_header@1                                (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 |
 
-    append_to_array_for_header@1:                                     (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 |
+    append_to_array_for_header@1:                                     (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 |
         // regression_tests/slot_allocation_inlining.py:24
         // for b in Txn.sender.bytes:
-        f-load item_index_internal%0#0                                (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%0#0
-        f-load bytes_length%0#0                                       (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,bytes_length%0#0
-        <                                                             (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | continue_looping%0#0
-        bz append_to_array_after_for@4 ; b append_to_array_for_body@2 (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 |
+        f-load item_index_internal%0#0                                (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | item_index_internal%0#0
+        int 32                                                        (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | item_index_internal%0#0,32
+        <                                                             (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | continue_looping%0#0
+        bz append_to_array_after_for@4 ; b append_to_array_for_body@2 (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 |
 
-    append_to_array_for_body@2:                                       (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 |
+    append_to_array_for_body@2:                                       (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 |
         // regression_tests/slot_allocation_inlining.py:25
         // arr.append(op.btoi(b))
-        f-load tmp%0#0                                                (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | tmp%0#0
-        f-load item_index_internal%0#0                                (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | tmp%0#0,item_index_internal%0#0
-        l-store-copy item_index_internal%0#0 1                        (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,tmp%0#0,item_index_internal%0#0 (copy)
-        getbyte                                                       (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,tmp%1#0
-        itob                                                          (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,array%sub_item%0#1
-        p-load arr#0                                                  (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,array%sub_item%0#1,arr#0 (copy)
-        loads                                                         (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,array%sub_item%0#1,slot_contents%0#0
-        l-load array%sub_item%0#1 1                                   (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,slot_contents%0#0,array%sub_item%0#1
-        concat // on error: max array length exceeded                 (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,array%array_contents%0#1
-        p-load arr#0                                                  (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,array%array_contents%0#1,arr#0 (copy)
-        l-load array%array_contents%0#1 1                             (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,arr#0 (copy),array%array_contents%0#1
-        stores                                                        (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%0#0
-        l-load item_index_internal%0#0 0                              (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%0#0
-        int 1                                                         (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,1
-        +                                                             (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 | item_index_internal%0#0
-        f-store item_index_internal%0#0                               (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 |
-        b append_to_array_for_header@1                                (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 |
+        f-load tmp%0#0                                                (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | tmp%0#0
+        f-load item_index_internal%0#0                                (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | tmp%0#0,item_index_internal%0#0
+        l-store-copy item_index_internal%0#0 1                        (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | item_index_internal%0#0,tmp%0#0,item_index_internal%0#0 (copy)
+        getbyte                                                       (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | item_index_internal%0#0,tmp%1#0
+        itob                                                          (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | item_index_internal%0#0,array%sub_item%0#1
+        p-load arr#0                                                  (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | item_index_internal%0#0,array%sub_item%0#1,arr#0 (copy)
+        loads                                                         (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | item_index_internal%0#0,array%sub_item%0#1,slot_contents%0#0
+        l-load array%sub_item%0#1 1                                   (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | item_index_internal%0#0,slot_contents%0#0,array%sub_item%0#1
+        concat // on error: max array length exceeded                 (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | item_index_internal%0#0,array%array_contents%0#1
+        p-load arr#0                                                  (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | item_index_internal%0#0,array%array_contents%0#1,arr#0 (copy)
+        l-load array%array_contents%0#1 1                             (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | item_index_internal%0#0,arr#0 (copy),array%array_contents%0#1
+        stores                                                        (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | item_index_internal%0#0
+        l-load item_index_internal%0#0 0                              (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | item_index_internal%0#0
+        int 1                                                         (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | item_index_internal%0#0,1
+        +                                                             (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | item_index_internal%0#0
+        f-store item_index_internal%0#0                               (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 |
+        b append_to_array_for_header@1                                (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 |
 
-    append_to_array_after_for@4:                                      (𝕡) arr#0 | (𝕗) tmp%0#0,bytes_length%0#0,item_index_internal%0#0 |
+    append_to_array_after_for@4:                                      (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 |
         retsub
 
 

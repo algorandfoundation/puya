@@ -6,6 +6,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.wtypes import ARC4Tuple
 from puya.errors import CodeError, InternalError
 from puya.ir.arc4 import (
     get_arc4_static_bit_size,
@@ -91,6 +92,11 @@ def decode_arc4_value(
                 args=[value],
                 source_location=loc,
             )
+        case wtypes.ARC4StaticArray(element_type=wtypes.ARC4UIntN(n=8)), (
+            wtypes.bytes_wtype
+            | wtypes.string_wtype
+        ):
+            return value
         case (
             wtypes.ARC4Tuple()
             | wtypes.ARC4Struct() as arc4_tuple,
@@ -98,6 +104,22 @@ def decode_arc4_value(
         ) if (len(arc4_tuple.types) == len(native_tuple.types)):
             return _visit_arc4_tuple_decode(
                 context, arc4_tuple, value, target_wtype=native_tuple, source_location=loc
+            )
+        case (
+            wtypes.ARC4StaticArray() as arc4_static,
+            wtypes.WTuple() as native_tuple,
+        ) if (
+            arc4_static.array_size == len(native_tuple.types)
+            and all(t == arc4_static.element_type for t in native_tuple.types)
+        ):
+            # Since a static array of N is the same encoding as a tuple[N, ...N] of the same arity
+            # we can use the tuple decode helper provided we produce the equivalent ARC4Tuple wtype
+            return _visit_arc4_tuple_decode(
+                context,
+                ARC4Tuple(types=[arc4_static.element_type] * arc4_static.array_size),
+                value,
+                target_wtype=native_tuple,
+                source_location=loc,
             )
         case wtypes.ARC4DynamicArray(), wtypes.StackArray() if (
             is_equivalent_effective_array_encoding(target_wtype, arc4_wtype, loc)
@@ -137,13 +159,24 @@ def encode_value_provider(
             return _encode_arc4_bool(context, value, loc)
         case (
             wtypes.ARC4UIntN(n=bits),
-            (wtypes.bool_wtype | wtypes.uint64_wtype | wtypes.biguint_wtype),
+            wtypes.biguint_wtype,
+        ):
+            (value,) = context.visitor.materialise_value_provider(
+                value_provider, description="to_encode"
+            )
+            factory = OpFactory(context, loc)
+            return factory.to_fixed_size(
+                value, num_bytes=bits // 8, temp_desc="arc4_encoded", error_message="overflow"
+            )
+        case (
+            wtypes.ARC4UIntN(n=bits),
+            (wtypes.bool_wtype | wtypes.uint64_wtype),
         ):
             (value,) = context.visitor.materialise_value_provider(
                 value_provider, description="to_encode"
             )
             num_bytes = bits // 8
-            return _itob_fixed(context, value, num_bytes, loc)
+            return _encode_native_uint64_to_arc4(context, value, num_bytes, loc)
         case (
             wtypes.ARC4Tuple(types=arc4_item_types),
             wtypes.WTuple(types=item_types),
@@ -185,6 +218,26 @@ def encode_value_provider(
         ) if is_equivalent_effective_array_encoding(value_wtype, arc4_wtype, loc):
             # already ARC4 encoded
             return value_provider
+        case (
+            wtypes.ARC4Array(element_type=arc4_element_type),
+            wtypes.WTuple(types=[src_element_type, *src_types_to_check]),
+        ) if (
+            all(t == src_element_type for t in src_types_to_check)
+            and (
+                src_element_type == arc4_element_type
+                or arc4_element_type.can_encode_type(src_element_type)
+            )
+        ):
+            values = context.visitor.materialise_value_provider(
+                value_provider, description="elements_to_encode"
+            )
+            if src_element_type != arc4_element_type:
+                item_types = value_wtype.types
+                arc4_element_types = [arc4_element_type] * len(item_types)
+                values = _encode_arc4_tuple_items(
+                    context, values, item_types, arc4_element_types, loc
+                )
+            return _encode_arc4_values_as_array(context, arc4_wtype, values, loc)
         case _:
             raise InternalError(
                 f"unsupported ARC4 translation from {value_wtype} to {arc4_wtype}", loc
@@ -197,7 +250,7 @@ def _encode_arc4_tuple_items(
     item_wtypes: Sequence[wtypes.WType],
     arc4_item_wtypes: Sequence[wtypes.ARC4Type],
     loc: SourceLocation,
-) -> Sequence[Value]:
+) -> list[Value]:
     arc4_items = []
     for item_wtype, arc4_item_wtype in zip(item_wtypes, arc4_item_wtypes, strict=True):
         item_arity = get_wtype_arity(item_wtype)
@@ -509,7 +562,7 @@ def dynamic_array_concat_and_convert(
         (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
             context, iter_expr, element_type, right_native_type, source_location
         )
-        if isinstance(right_wtype, wtypes.WTuple):
+        if isinstance(right_wtype, wtypes.WTuple | wtypes.ReferenceArray):
             # each bit is in its own byte
             read_step = 8
         else:
@@ -1185,7 +1238,7 @@ def _get_arc4_array_tail_data_and_item_count(
     if isinstance(wtype, wtypes.ARC4Tuple):
         head_and_tail = stack_value
         item_count = UInt64Constant(value=len(wtype.types), source_location=source_location)
-    elif isinstance(wtype, wtypes.ARC4Array | wtypes.StackArray):
+    elif isinstance(wtype, wtypes.ARC4Array | wtypes.StackArray | wtypes.ReferenceArray):
         item_count_vp = _get_any_array_length(context, wtype, stack_value, source_location)
         item_count = factory.assign(item_count_vp, "array_length")
         if native_element_type is not None:
@@ -1197,8 +1250,6 @@ def _get_arc4_array_tail_data_and_item_count(
             context, wtype, stack_value, source_location
         )
         head_and_tail = factory.assign(head_and_tail_vp, "array_head_and_tail")
-    elif isinstance(wtype, wtypes.ReferenceArray):
-        raise InternalError("reference array of dynamic sized elements", source_location)
     else:
         raise InternalError(f"Unsupported array type: {wtype}")
 
@@ -1212,73 +1263,23 @@ def _get_arc4_array_tail_data_and_item_count(
     return tail_data, item_count
 
 
-def _itob_fixed(
+def _encode_native_uint64_to_arc4(
     context: IRFunctionBuildContext, value: Value, num_bytes: int, source_location: SourceLocation
 ) -> ValueProvider:
-    if value.atype == AVMType.uint64:
-        val_as_bytes = assign_temp(
-            context,
-            temp_description="val_as_bytes",
-            source=Intrinsic(op=AVMOp.itob, args=[value], source_location=source_location),
-            source_location=source_location,
-        )
-
-        if num_bytes == 8:
-            return val_as_bytes
-        if num_bytes < 8:
-            return Intrinsic(
-                op=AVMOp.extract,
-                immediates=[8 - num_bytes, num_bytes],
-                args=[val_as_bytes],
-                source_location=source_location,
-            )
-        bytes_value: Value = val_as_bytes
-    else:
-        len_ = assign_temp(
-            context,
-            temp_description="len_",
-            source=Intrinsic(op=AVMOp.len_, args=[value], source_location=source_location),
-            source_location=source_location,
-        )
-        no_overflow = assign_temp(
-            context,
-            temp_description="no_overflow",
-            source=Intrinsic(
-                op=AVMOp.lte,
-                args=[
-                    len_,
-                    UInt64Constant(value=num_bytes, source_location=source_location),
-                ],
-                source_location=source_location,
-            ),
-            source_location=source_location,
-        )
-
-        context.block_builder.add(
-            Intrinsic(
-                op=AVMOp.assert_,
-                args=[no_overflow],
-                source_location=source_location,
-                error_message="overflow",
-            )
-        )
-        bytes_value = value
-
-    b_zeros = assign_temp(
-        context,
-        temp_description="b_zeros",
-        source=Intrinsic(
-            op=AVMOp.bzero,
-            args=[UInt64Constant(value=num_bytes, source_location=source_location)],
-            source_location=source_location,
-        ),
-        source_location=source_location,
-    )
-    return Intrinsic(
-        op=AVMOp.bitwise_or_bytes,
-        args=[bytes_value, b_zeros],
-        source_location=source_location,
-    )
+    assert value.atype == AVMType.uint64, "function expects a native uint64 type to encode"
+    factory = OpFactory(context, source_location)
+    val_as_bytes = factory.itob(value, "val_as_bytes")
+    # encoding to n==64: no checks or padding required
+    if num_bytes == 8:
+        return val_as_bytes
+    # encoding to n>64, just need to pad
+    if num_bytes > 8:
+        return factory.pad_bytes(val_as_bytes, num_bytes=num_bytes, temp_desc="arc4_encoded")
+    # encoding to n<64, need to check for overflow and then trim
+    bit_len = factory.bitlen(val_as_bytes, "bitlen")
+    no_overflow = factory.lte(bit_len, num_bytes * 8, "no_overflow")
+    assert_value(context, no_overflow, source_location=source_location, error_message="overflow")
+    return factory.extract3(val_as_bytes, 8 - num_bytes, num_bytes, f"uint{num_bytes*8}")
 
 
 def arc4_replace_array_item(
@@ -1494,8 +1495,8 @@ def _assert_index_in_bounds(
     assert_value(
         context,
         index_is_in_bounds,
+        error_message="Index access is out of bounds",
         source_location=source_location,
-        comment="Index access is out of bounds",
     )
 
 

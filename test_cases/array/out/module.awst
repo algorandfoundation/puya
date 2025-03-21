@@ -400,12 +400,26 @@ contract StaticSizeContract
   subroutine test_cases.array.static_size.StaticSizeContract.xtra(): test_cases.array.static_size.Xtra
   {
     GlobalState['count'] += 1u
-    return (a=txn<NumAppArgs>(), b=GlobalState['count'], c=txn<Sender>(), d=this::more())
+    return (a=txn<NumAppArgs>(), b=GlobalState['count'], c=txn<Sender>(), d=this::more(), e=itob(GlobalState['count']))
   }
   
   subroutine test_cases.array.static_size.StaticSizeContract.more(): test_cases.array.static_size.More
   {
     return new test_cases.array.static_size.More(foo=arc4_encode(GlobalState['count'] + 1u, arc4.uint64), bar=arc4_encode(GlobalState['count'] * GlobalState['count'], arc4.uint64))
+  }
+  
+  abimethod test_cases.array.static_size.StaticSizeContract.test_arc4_bool(): stack_array<arc4.bool>
+  {
+    arr: ref_array<arc4.bool> = new ref_array<arc4.bool>()
+    arr.extend((arc4_encode(txn<Sender>() == txn<Receiver>(), arc4.bool)))
+    arr.extend((arc4_encode(txn<Sender>() != txn<Receiver>(), arc4.bool)))
+    dyn_arr: arc4.dynamic_array<arc4.bool> = new arc4.dynamic_array<arc4.bool>()
+    dyn_arr.extend(arr)
+    assert(dyn_arr.length == 2u, comment="expected correct length")
+    assert(len(reinterpret_cast<bytes>(dyn_arr)) == 3u, comment="expected 3 bytes")
+    assert(arc4_decode(dyn_arr[0u], bool) == txn<Sender>() == txn<Receiver>(), comment="expected correct value at 0")
+    assert(arc4_decode(dyn_arr[1u], bool) == txn<Sender>() != txn<Receiver>(), comment="expected correct value at 1")
+    return new stack_array<arc4.bool>() + arr
   }
   
   baremethod test_cases.array.static_size.StaticSizeContract.__algopy_default_create(): void
@@ -494,6 +508,27 @@ contract ImmutableArrayContract
     assert(arr.length == 15u)
     assert(arr[2u] == 23u)
     GlobalState['a']: stack_array<uint64> = arr
+  }
+  
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_biguint_array(): void
+  {
+    arr: stack_array<biguint> = new stack_array<biguint>()
+    assert(arr.length == 0u)
+    arr: stack_array<biguint> = arr + (itob(txn<NumAppArgs>() - 1u))
+    assert(arr.length == 1u)
+    assert(arr[arr.length - 1u] == 0n)
+    arr: stack_array<biguint> = test_cases.array.immutable.add_xb(arr, 5u)
+    assert(arr.length == 6u)
+    assert(arr[arr.length - 1u] == 4n)
+    arr: stack_array<biguint> = arr + (13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n b- itob(txn<NumAppArgs>()))
+    assert(arr.length == 7u)
+    assert(arr[arr.length - 1u] == 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084094n)
+    assert(arr[0u] == 0n)
+    arr: stack_array<biguint> = arr + (13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n)
+    assert(arr.length == 8u)
+    assert(arr[arr.length - 1u] == 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n)
+    assert(arr[0u] == 0n)
+    Box[hex<"62696775696E74">]: stack_array<biguint> = arr
   }
   
   abimethod test_cases.array.immutable.ImmutableArrayContract.test_bool_array(length: uint64): void
@@ -781,6 +816,14 @@ subroutine pop_x(arr: stack_array<uint64>, x: uint64): stack_array<uint64>
 {
   for _i in range(0u, x, 1u) {
     arr: stack_array<uint64> = arr[:-1]
+  }
+  return arr
+}
+
+subroutine add_xb(arr: stack_array<biguint>, x: uint64): stack_array<biguint>
+{
+  for i in range(0u, x, 1u) {
+    arr: stack_array<biguint> = arr + (itob(i))
   }
   return arr
 }

@@ -42,24 +42,27 @@ class IRType:
 
     @property
     @abc.abstractmethod
-    def size(self) -> int | None:
+    def num_bytes(self) -> int | None:
         """Size of the type in bytes, None if the type is dynamically sized"""
 
     @typing.final
     def __lt__(self, other: object) -> bool:
+        if not isinstance(other, IRType):
+            return NotImplemented
+        # types are not super types of themselves
+        if self == other:
+            return False
         # any is a super type of all types
         if self == PrimitiveIRType.any:
             return True
-        if (
-            isinstance(other, ArrayType | EncodedTupleType | SizedBytesType)
-            and self == PrimitiveIRType.bytes
-        ):
+        # bytes is a super type of other bytes types
+        if self == PrimitiveIRType.bytes and other.maybe_avm_type == AVMType.bytes:
             return True
-        if isinstance(other, SlotType) and self == PrimitiveIRType.uint64:
+        # uint64 is a super type of other uint64 types
+        if self == PrimitiveIRType.uint64 and other.maybe_avm_type == AVMType.uint64:  # noqa: SIM103
             return True
-        if not isinstance(other, IRType):
-            return NotImplemented
-        return False
+        else:
+            return False
 
     @typing.final
     def __le__(self, other: object) -> bool:
@@ -99,6 +102,7 @@ class PrimitiveIRType(IRType, enum.StrEnum):
         maybe_result = self.maybe_avm_type
         if not isinstance(maybe_result, AVMType):
             raise InternalError(f"{maybe_result} cannot be mapped to AVM stack type")
+
         return maybe_result
 
     @property
@@ -116,12 +120,7 @@ class PrimitiveIRType(IRType, enum.StrEnum):
                 raise InternalError(f"could not determine AVM type for {self.name}")
 
     @property
-    def size(self) -> int | None:
-        match self:
-            case PrimitiveIRType.uint64:
-                return 8
-            case PrimitiveIRType.bool:
-                return 1
+    def num_bytes(self) -> None:
         return None
 
     def __repr__(self) -> str:
@@ -147,7 +146,7 @@ class ArrayType(IRType):
         return self.avm_type
 
     @property
-    def size(self) -> int | None:
+    def num_bytes(self) -> int | None:
         return None
 
     def __str__(self) -> str:
@@ -174,42 +173,13 @@ class EncodedTupleType(IRType):
         return self.avm_type
 
     @property
-    def size(self) -> int | None:
+    def num_bytes(self) -> int | None:
         total = 0
         for element in self.elements:
-            if element.size is None:
+            if element.num_bytes is None:
                 return None
-            total += element.size
+            total += element.num_bytes
         return total
-
-    @classmethod
-    def expand_types(cls, ir_type: IRType) -> Sequence[IRType]:
-        if isinstance(ir_type, cls):
-            return tuple(t for element in ir_type.elements for t in cls.expand_types(element))
-        return (ir_type,)
-
-    @classmethod
-    def expand_type_and_group_id(cls, ir_type: IRType) -> Sequence[tuple[IRType, int]]:
-        """
-        Returns a sequence of (type, group_id) values.
-        Where group_id is an int representing the original tuple they were part of.
-        Items from the same tuple will have the same id.
-
-        e.g.
-        bool,(bool,bool),(bool,bool),bool
-        will return
-        [(bool,1),(bool,2),(bool,2),(bool,3),(bool,3),(bool,1)]
-        """
-        group = idx = 0
-        result = [(ir_type, group)]
-        while idx < len(result):
-            typ = result[idx][0]
-            if isinstance(typ, cls):
-                group += 1
-                result[idx : idx + 1] = [(e, group) for e in typ.elements]
-            else:
-                idx += 1
-        return result
 
     def __str__(self) -> str:
         return self.name
@@ -234,8 +204,8 @@ class SlotType(IRType):
         return self.avm_type
 
     @property
-    def size(self) -> int | None:
-        return PrimitiveIRType.uint64.size
+    def num_bytes(self) -> int | None:
+        return None
 
     def __str__(self) -> str:
         return self.name
@@ -265,8 +235,32 @@ class UnionType(IRType):
         return self.avm_type
 
     @property
-    def size(self) -> None:
+    def num_bytes(self) -> None:
         return None
+
+    def __str__(self) -> str:
+        return self.name
+
+
+@attrs.frozen(str=False, order=False)
+class EncodedUIntType(IRType):
+    """"""
+
+    original_type: IRType
+    num_bytes: int
+
+    @property
+    def name(self) -> str:
+        n = self.num_bytes * 8
+        return f"encoded_uint{n}"
+
+    @property
+    def avm_type(self) -> typing.Literal[AVMType.bytes]:
+        return AVMType.bytes
+
+    @property
+    def maybe_avm_type(self) -> typing.Literal[AVMType.bytes]:
+        return self.avm_type
 
     def __str__(self) -> str:
         return self.name
@@ -276,11 +270,11 @@ class UnionType(IRType):
 class SizedBytesType(IRType):
     """A bytes type with a static length"""
 
-    size: int
+    num_bytes: int
 
     @property
     def name(self) -> str:
-        return f"bytes[{self.size}]"
+        return f"bytes[{self.num_bytes}]"
 
     @property
     def avm_type(self) -> typing.Literal[AVMType.bytes]:
@@ -346,7 +340,7 @@ def wtype_to_ir_type(
         case wtypes.ARC4Type() as arc4_wtype if is_arc4_static_size(arc4_wtype):
             return SizedBytesType(bits_to_bytes(get_arc4_static_bit_size(arc4_wtype)))
         case wtypes.arc4_address_alias | wtypes.account_wtype:
-            return SizedBytesType(size=32)
+            return SizedBytesType(num_bytes=32)
         case wtypes.void_wtype:
             raise InternalError("can't translate void wtype to irtype", source_location)
         # case wtypes.state_key:
@@ -372,6 +366,9 @@ def wtype_to_encoded_ir_type(
     require_static_size: bool,
     loc: SourceLocation | None,
 ) -> IRType:
+    """
+    Return the array encoded IRType of a WType
+    """
     if isinstance(wtype, wtypes.WTuple):
         return EncodedTupleType(
             elements=[
@@ -379,11 +376,51 @@ def wtype_to_encoded_ir_type(
                 for e in wtype.types
             ]
         )
+    # note: any types added here should also be handled when lowering ArrayEncode nodes
+    elif wtype == wtypes.bool_wtype:
+        return EncodedUIntType(original_type=PrimitiveIRType.bool, num_bytes=1)
+    elif wtype.scalar_type == AVMType.uint64:
+        return EncodedUIntType(original_type=PrimitiveIRType.uint64, num_bytes=8)
+    elif wtype == wtypes.biguint_wtype:
+        return SizedBytesType(num_bytes=64)
     else:
         ir_type = wtype_to_ir_type(wtype, loc)
-        if ir_type.size is None and require_static_size:
+        if ir_type.num_bytes is None and require_static_size:
             raise CodeError("unsupported array element type", loc)
         return ir_type
+
+
+def encoded_ir_type_to_ir_types(ir_type: IRType) -> Sequence[IRType]:
+    if isinstance(ir_type, EncodedTupleType):
+        return tuple(
+            t for element in ir_type.elements for t in encoded_ir_type_to_ir_types(element)
+        )
+    if isinstance(ir_type, EncodedUIntType):
+        ir_type = ir_type.original_type
+    return (ir_type,)
+
+
+def expand_encoded_type_and_group(ir_type: IRType) -> Sequence[tuple[IRType, int]]:
+    """
+    Returns a sequence of (type, group_id) values.
+    Where group_id is an int representing the original tuple they were part of.
+    Items from the same tuple will have the same id.
+
+    e.g.
+    bool,(bool,bool),(bool,bool),bool
+    will return
+    [(bool,1),(bool,2),(bool,2),(bool,3),(bool,3),(bool,1)]
+    """
+    group = idx = 0
+    result = [(ir_type, group)]
+    while idx < len(result):
+        typ = result[idx][0]
+        if isinstance(typ, EncodedTupleType):
+            group += 1
+            result[idx : idx + 1] = [(e, group) for e in typ.elements]
+        else:
+            idx += 1
+    return result
 
 
 def get_wtype_arity(wtype: wtypes.WType) -> int:

@@ -15,7 +15,7 @@ from puyapy.awst_build.eb._bytes_backed import (
     BytesBackedTypeBuilder,
 )
 from puyapy.awst_build.eb._utils import compare_bytes, constant_bool_and_error, dummy_value
-from puyapy.awst_build.eb.arc4._base import CopyBuilder
+from puyapy.awst_build.eb.arc4._base import ARC4FromLogBuilder, CopyBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
 from puyapy.awst_build.utils import get_arg_mapping
@@ -57,6 +57,13 @@ class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
         assert isinstance(pytype.wtype, wtypes.ARC4Struct)
         expr = NewStruct(wtype=pytype.wtype, values=values, source_location=location)
         return ARC4StructExpressionBuilder(expr, pytype)
+
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        match name:
+            case "from_log":
+                return ARC4FromLogBuilder(location, self.produces())
+            case _:
+                return super().member_access(name, location)
 
 
 class ARC4StructExpressionBuilder(
