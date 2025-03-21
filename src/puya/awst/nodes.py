@@ -9,6 +9,7 @@ from functools import cached_property
 import attrs
 from immutabledict import immutabledict
 
+from puya import log
 from puya.algo_constants import SUPPORTED_AVM_VERSIONS
 from puya.avm import AVMType, OnCompletionAction
 from puya.awst import wtypes
@@ -26,6 +27,8 @@ from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import unique
 
 T = typing.TypeVar("T")
+
+logger = log.get_logger(__name__)
 
 
 @attrs.frozen
@@ -429,15 +432,16 @@ class ARC4Encode(Expression):
     value: Expression
     wtype: wtypes.ARC4Type = attrs.field()
 
-    @wtype.validator
-    def _wtype_validator(self, _attribute: object, wtype: wtypes.ARC4Type) -> None:
-        if not wtype.can_encode_type(self.value.wtype):
-            raise InternalError(
-                f"cannot ARC4 encode {self.value.wtype} to {wtype}", self.source_location
-            )
-
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_arc4_encode(self)
+
+
+@attrs.frozen
+class ARC4Decode(Expression):
+    value: Expression = attrs.field(validator=expression_has_wtype(wtypes.ARC4Type))
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_arc4_decode(self)
 
 
 @attrs.frozen
@@ -570,32 +574,6 @@ class ArrayReplace(Expression):
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_array_replace(self)
-
-
-@attrs.frozen
-class ARC4Decode(Expression):
-    value: Expression = attrs.field(
-        validator=expression_has_wtype(
-            wtypes.arc4_bool_wtype,
-            wtypes.ARC4UIntN,
-            wtypes.ARC4Tuple,
-            wtypes.ARC4Struct,
-            wtypes.ARC4StaticArray,
-            wtypes.ARC4DynamicArray,
-        )
-    )
-
-    @value.validator
-    def _value_wtype_validator(self, _attribute: object, value: Expression) -> None:
-        assert isinstance(value.wtype, wtypes.ARC4Type)  # validated by `value`
-        if not value.wtype.can_encode_type(self.wtype):
-            raise InternalError(
-                f"ARC4Decode: {value.wtype} cannot be decoded to {self.wtype}",
-                self.source_location,
-            )
-
-    def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_arc4_decode(self)
 
 
 CompileTimeConstantExpression: typing.TypeAlias = (

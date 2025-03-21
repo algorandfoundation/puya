@@ -6,7 +6,10 @@ import attrs
 import mypy.nodes
 
 from puya import log
-from puya.awst import nodes as awst_nodes
+from puya.awst import (
+    nodes as awst_nodes,
+    wtypes,
+)
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puyapy.awst_build import arc4_utils, pytypes
@@ -147,8 +150,6 @@ def _inner_transaction_type_matches(instance: pytypes.PyType, target: pytypes.Py
 def _implicit_arc4_conversion(
     operand: NodeBuilder, target_type: pytypes.PyType
 ) -> InstanceBuilder:
-    from puya.awst.wtypes import ARC4Type
-
     instance = expect.instance_builder(operand, default=expect.default_dummy_value(target_type))
     instance = _maybe_resolve_arc4_literal(instance, target_type)
     if target_type <= instance.pytype:
@@ -163,21 +164,17 @@ def _implicit_arc4_conversion(
                 location=instance.source_location,
             )
             return dummy_value(target_type, instance.source_location)
-    if not isinstance(target_wtype, ARC4Type):
+    if not isinstance(target_wtype, wtypes.ARC4Type):
         raise InternalError(
             "implicit_operand_conversion expected target_type to be an ARC-4 type,"
             f" got {target_type}",
             instance.source_location,
         )
-    if isinstance(instance.pytype.wtype, ARC4Type):
+    instance_wtype = instance.pytype.checked_wtype(instance.source_location)
+    if isinstance(instance_wtype, wtypes.ARC4Type):
         logger.error(
             f"expected type {target_type}, got type {instance.pytype}",
             location=instance.source_location,
-        )
-        return dummy_value(target_type, instance.source_location)
-    if not target_wtype.can_encode_type(instance.pytype.checked_wtype(instance.source_location)):
-        logger.error(
-            f"cannot encode {instance.pytype} to {target_type}", location=instance.source_location
         )
         return dummy_value(target_type, instance.source_location)
     if (

@@ -270,6 +270,16 @@ export class ARC4Encode extends Expression {
      return visitor.visitARC4Encode(this)
    }
 }
+export class ARC4Decode extends Expression {
+  constructor(props: Props<ARC4Decode>) {
+    super(props)
+    this.value = props.value
+  }
+  readonly value: Expression
+  accept<T>(visitor: ExpressionVisitor<T>): T {
+     return visitor.visitARC4Decode(this)
+   }
+}
 export class Copy extends Expression {
   constructor(props: Props<Copy>) {
     super(props)
@@ -336,16 +346,6 @@ export class ArrayReplace extends Expression {
   readonly wtype: wtypes.StackArray
   accept<T>(visitor: ExpressionVisitor<T>): T {
      return visitor.visitArrayReplace(this)
-   }
-}
-export class ARC4Decode extends Expression {
-  constructor(props: Props<ARC4Decode>) {
-    super(props)
-    this.value = props.value
-  }
-  readonly value: Expression
-  accept<T>(visitor: ExpressionVisitor<T>): T {
-     return visitor.visitARC4Decode(this)
    }
 }
 export class IntrinsicCall extends Expression {
@@ -1413,12 +1413,12 @@ export const concreteNodes = {
   methodConstant: MethodConstant,
   addressConstant: AddressConstant,
   aRC4Encode: ARC4Encode,
+  aRC4Decode: ARC4Decode,
   copy: Copy,
   arrayConcat: ArrayConcat,
   arrayExtend: ArrayExtend,
   arrayPop: ArrayPop,
   arrayReplace: ArrayReplace,
-  aRC4Decode: ARC4Decode,
   intrinsicCall: IntrinsicCall,
   createInnerTransaction: CreateInnerTransaction,
   updateInnerTransaction: UpdateInnerTransaction,
@@ -1505,12 +1505,12 @@ export interface ExpressionVisitor<T> {
   visitMethodConstant(expression: MethodConstant): T
   visitAddressConstant(expression: AddressConstant): T
   visitARC4Encode(expression: ARC4Encode): T
+  visitARC4Decode(expression: ARC4Decode): T
   visitCopy(expression: Copy): T
   visitArrayConcat(expression: ArrayConcat): T
   visitArrayExtend(expression: ArrayExtend): T
   visitArrayPop(expression: ArrayPop): T
   visitArrayReplace(expression: ArrayReplace): T
-  visitARC4Decode(expression: ARC4Decode): T
   visitIntrinsicCall(expression: IntrinsicCall): T
   visitCreateInnerTransaction(expression: CreateInnerTransaction): T
   visitUpdateInnerTransaction(expression: UpdateInnerTransaction): T
