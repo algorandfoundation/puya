@@ -11,7 +11,13 @@ from algopy import (
     op,
 )
 
-from test_cases.typed_abi_call.logger import LOG_METHOD_NAME, Logger, LoggerClient, LogMessage
+from test_cases.typed_abi_call.logger import (
+    LOG_METHOD_NAME,
+    Logger,
+    LoggerClient,
+    LogMessage,
+    LogStruct,
+)
 
 
 class Greeter(ARC4Contract):
@@ -362,3 +368,14 @@ class Greeter(ARC4Contract):
             app_id=app,
         )
         assert not result
+
+    @arc4.abimethod()
+    def test_arc4_struct(self, app: Application) -> None:
+        log = LogStruct(level=arc4.UInt64(1), message=arc4.String("log 1"))
+        result, txn = arc4.abi_call(
+            Logger.echo_log_struct,
+            log,
+            app_id=app,
+        )
+        assert result == log, "expected output to match input"
+        assert LogStruct.from_log(txn.last_log) == log, "expected output to match input"
