@@ -15,3 +15,4 @@ class PuyaPyOptions(PuyaOptions):
     output_client: bool = False
     out_dir: Path | None = attrs.field(default=None, repr=False)
     log_level: LogLevel = LogLevel.info
+    prefix: Path | None = attrs.field(default=None, repr=False)
