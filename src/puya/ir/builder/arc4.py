@@ -6,6 +6,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.wtypes import ARC4Tuple
 from puya.errors import CodeError, InternalError
 from puya.ir.arc4 import (
     get_arc4_static_bit_size,
@@ -103,6 +104,22 @@ def decode_arc4_value(
         ) if (len(arc4_tuple.types) == len(native_tuple.types)):
             return _visit_arc4_tuple_decode(
                 context, arc4_tuple, value, target_wtype=native_tuple, source_location=loc
+            )
+        case (
+            wtypes.ARC4StaticArray() as arc4_static,
+            wtypes.WTuple() as native_tuple,
+        ) if (
+            arc4_static.array_size == len(native_tuple.types)
+            and all(t == arc4_static.element_type for t in native_tuple.types)
+        ):
+            # Since a static array of N is the same encoding as a tuple[N, ...N] of the same arity
+            # we can use the tuple decode helper provided we produce the equivalent ARC4Tuple wtype
+            return _visit_arc4_tuple_decode(
+                context,
+                ARC4Tuple(types=[arc4_static.element_type] * arc4_static.array_size),
+                value,
+                target_wtype=native_tuple,
+                source_location=loc,
             )
         case wtypes.ARC4DynamicArray(), wtypes.StackArray() if (
             is_equivalent_effective_array_encoding(target_wtype, arc4_wtype, loc)

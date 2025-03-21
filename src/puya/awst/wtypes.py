@@ -519,7 +519,7 @@ class ARC4StaticArray(ARC4Array):
             except ValueError:
                 return False
             else:
-                return self.element_type.can_encode_type(single_type)
+                return self.element_type.can_encode_type_in_array(single_type)
         return isinstance(wtype, StackArray) and self.element_type.can_encode_type_in_array(
             wtype.element_type
         )
