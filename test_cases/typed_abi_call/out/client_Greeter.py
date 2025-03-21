@@ -111,3 +111,9 @@ class Greeter(algopy.arc4.ARC4Client, typing.Protocol):
         self,
         app: algopy.Application,
     ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_arc4_struct(
+        self,
+        app: algopy.Application,
+    ) -> None: ...
