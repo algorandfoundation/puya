@@ -260,7 +260,7 @@ class OpFactory:
         )
         return result
 
-    def eq(self, a: Value, b: Value, temp_desc: str) -> Register:
+    def eq(self, a: Value | int, b: Value | int, temp_desc: str) -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,

@@ -9,7 +9,6 @@ from functools import cached_property
 import attrs
 from immutabledict import immutabledict
 
-from puya import log
 from puya.algo_constants import SUPPORTED_AVM_VERSIONS
 from puya.avm import AVMType, OnCompletionAction
 from puya.awst import wtypes
@@ -27,8 +26,6 @@ from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import unique
 
 T = typing.TypeVar("T")
-
-logger = log.get_logger(__name__)
 
 
 @attrs.frozen

@@ -41,7 +41,6 @@ def maybe_wtype_to_arc4_wtype(wtype: wtypes.WType) -> wtypes.ARC4Type | None:
         case wtypes.bytes_wtype:
             return wtypes.ARC4DynamicArray(
                 element_type=wtypes.arc4_byte_alias,
-                native_type=wtype,
                 immutable=True,
                 source_location=None,
             )
