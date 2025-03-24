@@ -882,11 +882,7 @@ GenericARC4DynamicArrayType: typing.Final = _GenericType(
 ARC4DynamicBytesType: typing.Final = _register_builtin(
     ArrayType(
         name="algopy.arc4.DynamicBytes",
-        wtype=wtypes.ARC4DynamicArray(
-            element_type=ARC4ByteType.wtype,
-            native_type=wtypes.bytes_wtype,
-            source_location=None,
-        ),
+        wtype=wtypes.ARC4DynamicArray(element_type=ARC4ByteType.wtype, source_location=None),
         size=None,
         items=ARC4ByteType,
         items_wtype=ARC4ByteType.wtype,

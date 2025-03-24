@@ -282,14 +282,12 @@ class WTuple(WType):
 class ARC4Type(WType):
     scalar_type: typing.Literal[AVMType.bytes] = attrs.field(default=AVMType.bytes, init=False)
     arc4_name: str = attrs.field(eq=False)  # exclude from equality in case of aliasing
-    native_type: WType | None
 
 
 arc4_bool_wtype: typing.Final = ARC4Type(
     name="arc4.bool",
     arc4_name="bool",
     immutable=True,
-    native_type=bool_wtype,
 )
 
 
@@ -297,7 +295,6 @@ arc4_bool_wtype: typing.Final = ARC4Type(
 @attrs.frozen(kw_only=True)
 class ARC4UIntN(ARC4Type):
     immutable: bool = attrs.field(default=True, init=False)
-    native_type: WType = attrs.field(default=biguint_wtype, init=False)
     n: int = attrs.field()
     arc4_name: str = attrs.field(eq=False)
     name: str = attrs.field(init=False)
@@ -328,7 +325,6 @@ class ARC4UFixedNxM(ARC4Type):
     arc4_name: str = attrs.field(init=False, eq=False)
     name: str = attrs.field(init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
-    native_type: None = attrs.field(default=None, init=False)
 
     @arc4_name.default
     def _arc4_name(self) -> str:
@@ -368,7 +364,6 @@ class ARC4Tuple(ARC4Type):
     name: str = attrs.field(init=False)
     arc4_name: str = attrs.field(init=False, eq=False)
     immutable: bool = attrs.field(init=False)
-    native_type: WTuple = attrs.field(init=False)
 
     @name.default
     def _name(self) -> str:
@@ -382,10 +377,6 @@ class ARC4Tuple(ARC4Type):
     def _immutable(self) -> bool:
         return all(typ.immutable for typ in self.types)
 
-    @native_type.default
-    def _native_type(self) -> WTuple:
-        return WTuple(self.types, self.source_location)
-
 
 def _expect_arc4_type(wtype: WType) -> ARC4Type:
     if not isinstance(wtype, ARC4Type):
@@ -396,7 +387,6 @@ def _expect_arc4_type(wtype: WType) -> ARC4Type:
 @attrs.frozen(kw_only=True)
 class ARC4Array(ARC4Type):
     element_type: ARC4Type = attrs.field(converter=_expect_arc4_type)
-    native_type: WType | None = None
     immutable: bool = False
 
 
@@ -457,7 +447,6 @@ class ARC4Struct(ARC4Type):
     immutable: bool = attrs.field(init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
     arc4_name: str = attrs.field(init=False, eq=False)
-    native_type: None = attrs.field(default=None, init=False)
     desc: str | None = None
 
     @immutable.default
@@ -486,7 +475,6 @@ arc4_byte_alias: typing.Final = ARC4UIntN(
 arc4_string_alias: typing.Final = ARC4DynamicArray(
     arc4_name="string",
     element_type=arc4_byte_alias,
-    native_type=string_wtype,
     immutable=True,
     source_location=None,
 )
@@ -494,7 +482,6 @@ arc4_string_alias: typing.Final = ARC4DynamicArray(
 arc4_address_alias: typing.Final = ARC4StaticArray(
     arc4_name="address",
     element_type=arc4_byte_alias,
-    native_type=account_wtype,
     array_size=32,
     immutable=True,
     source_location=None,

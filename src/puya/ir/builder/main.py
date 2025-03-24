@@ -173,6 +173,9 @@ class FunctionIRBuilder(
 
     def visit_arc4_decode(self, expr: awst_nodes.ARC4Decode) -> TExpression:
         value = self.visit_and_materialise_single(expr.value)
+        assert isinstance(
+            expr.value.wtype, wtypes.ARC4Type
+        ), f"ARC4Decode node should have value with ARC-4 type, got: {expr.value.wtype}"
         return arc4.decode_arc4_value(
             self.context, value, expr.value.wtype, expr.wtype, expr.source_location
         )
