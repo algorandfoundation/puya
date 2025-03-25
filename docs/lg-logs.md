@@ -15,7 +15,7 @@ This `log` method is a superset of the [AVM `log` method](./lg-ops.md) that adds
     -   `Bytes` values (encoded as is)
     -   `BytesBacked` values, which includes [`String`](./api-algopy.md#algopy.String), [`BigUInt`](./api-algopy.md#algopy.BigUInt), [`Account`](./api-algopy.md#algopy.Account) and all of the [ARC-4 types](./api-algopy.arc4.md) (encoded as their underlying bytes values)
 
-Logged values are [available to the calling client](https://dev.algorand.co/reference/rest-api/algod/#pendingtransactionresponse) and attached to the transaction record stored on the blockchain ledger.
+Logged values are [available to the calling client](https://dev.algorand.co/reference/rest-apis/algod/#pendingtransactionresponse) and attached to the transaction record stored on the blockchain ledger.
 
 If you want to emit ARC-28 events in the logs then there is a [purpose-built function for that](./lg-arc28.md).
 
