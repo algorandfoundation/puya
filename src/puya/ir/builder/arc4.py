@@ -162,10 +162,12 @@ class NativeTupleCodec(ARC4Codec):
             ):
                 arc4_tuple = source_type
             # Can only decode statically sized arrays, since tuples are statically sized
-            case wtypes.ARC4StaticArray(array_size=array_size) if array_size == len(item_types):
+            case wtypes.ARC4StaticArray(
+                element_type=arc4_type, array_size=array_size
+            ) if array_size == len(item_types):
                 # A static array of N is the same encoding as a tuple[N, ...N] of the same arity,
                 # so we can use the equivalent ARC4 tuple type as the decode source type
-                arc4_tuple = wtypes.ARC4Tuple(types=item_types)
+                arc4_tuple = wtypes.ARC4Tuple(types=[arc4_type] * array_size)
             case _:
                 return None
         return _decode_arc4_tuple_items(
