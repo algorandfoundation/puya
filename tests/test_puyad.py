@@ -36,7 +36,7 @@ class PuyadTestClient:
 
     def start(self) -> bool:
         """Start the Puya daemon process."""
-        cmd = ["poetry", "run", "puyad"]
+        cmd = ["poetry", "run", "puya", "--service"]
 
         try:
             self.process = subprocess.Popen(

@@ -1,15 +1,17 @@
 import argparse
 import contextlib
 import logging
+import os
+import signal
 import sys
 import time
+import types
+from collections.abc import Callable
 from importlib.metadata import version
 from pathlib import Path
-from typing import Literal, cast
+from typing import Any, BinaryIO, Literal, NoReturn
 
 import attrs
-import cattrs
-from pygls.exceptions import JsonRpcInternalError
 from pygls.protocol.json_rpc import JsonRPCProtocol
 from pygls.server import JsonRPCServer
 
@@ -30,30 +32,39 @@ logger = logging.getLogger(__name__)
 
 @attrs.frozen
 class AnalyseParams:
+    """Parameters for the analyse method."""
+
     awst: AWST
     compilation_set: dict[str, Path]
-    request_id: str | int | None = None
 
 
 @attrs.frozen
 class AnalyseResult:
+    """Result of the analyse method."""
+
     logs: list[Log]
 
 
 @attrs.frozen(kw_only=True)
 class _RPCMessage:
+    """Base RPC message structure."""
+
     id: int | str
     jsonrpc: str = attrs.field(default="2.0")
 
 
 @attrs.frozen(kw_only=True)
 class AnalyseRequest(_RPCMessage):
+    """RPC request for analysis."""
+
     params: AnalyseParams
     method: Literal["analyse"] = "analyse"
 
 
 @attrs.frozen(kw_only=True)
 class AnalyseResponse(_RPCMessage):
+    """RPC response with analysis results."""
+
     result: AnalyseResult
 
 
@@ -72,51 +83,64 @@ class PuyaProtocol(JsonRPCProtocol):
     def get_result_type(self, method: str) -> type | None:
         return _TYPES.get(method, (None, None))[1]
 
-    def structure_message(self, data: dict[str, object]) -> dict[str, object]:
-        """Override the default structure_message to inject request_id into params if needed."""
-        if "jsonrpc" not in data:
-            return data
 
-        try:
-            # If this is an "analyse" request, we need to add the request_id to params
-            if (
-                "id" in data
-                and "method" in data
-                and data["method"] == "analyse"
-                and "params" in data
-                and isinstance(data["params"], dict)
-            ):
-                data["params"]["request_id"] = data["id"]
+class PuyaServer(JsonRPCServer):
+    """Extended JsonRPCServer with proper signal handling."""
 
-            # Call the parent implementation to handle the actual structuring
-            return cast(dict[str, object], super().structure_message(data))  # type: ignore[no-untyped-call]
+    def __init__(
+        self,
+        protocol_cls: type[JsonRPCProtocol] = PuyaProtocol,
+        converter_func: Callable[..., Any] = get_converter,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(protocol_cls, converter_func, **kwargs)
+        self._exit_handler_installed = False
 
-        except Exception as exc:
-            logger.exception("Unable to deserialize message")
-            raise JsonRpcInternalError(str(exc)) from exc  # type: ignore[no-untyped-call]
+    def install_signal_handlers(self) -> None:
+        """Install signal handlers for clean shutdown."""
+        if self._exit_handler_installed:
+            return
+
+        def handle_exit(sig: int, _frame: types.FrameType | None) -> NoReturn:
+            logger.info(f"Received signal {sig}, shutting down...")
+            # Ensure all logging is flushed
+            sys.stdout.flush()
+            sys.stderr.flush()
+            logging.shutdown()
+
+            # Terminate the process
+            os._exit(0)
+
+        signal.signal(signal.SIGINT, handle_exit)
+        signal.signal(signal.SIGTERM, handle_exit)
+        self._exit_handler_installed = True
+
+    def start_io(
+        self,
+        stdin: BinaryIO | None = None,
+        stdout: BinaryIO | None = None,
+    ) -> None:
+        """Start the server with proper signal handling."""
+        self.install_signal_handlers()
+        logger.info(f"{NAME} server started (version {VERSION})")
+        super().start_io(stdin, stdout)
 
 
-def create_server(thread_count: int = 2) -> JsonRPCServer:
+def create_server(thread_count: int = 2) -> PuyaServer:
     """Create and configure a server with thread pooling."""
-
-    def get_custom_converter() -> cattrs.Converter:
-        converter = get_converter()
-        # Register an unstructure hook for LogLevel enum to convert it to string
-        converter.register_unstructure_hook(LogLevel, lambda e: str(e))
-        return converter
-
-    server = JsonRPCServer(PuyaProtocol, get_custom_converter, max_workers=thread_count)
+    server = PuyaServer(max_workers=thread_count)
 
     @server.feature("analyse")
     @server.thread()  # Thread decorator is necessary for concurrent handling
     def analyse(params: AnalyseParams) -> AnalyseResult:
         """Analyzes Python code to produce TEAL."""
-        message_id = params.request_id or f"msg-{id(params)}"
-        logger.debug("Starting analysis: %s", message_id)
+        message_id = id(params)
+        logger.debug(f"Starting analysis: {message_id}")
 
         start_time = time.time()
         options = PuyaOptions(optimization_level=0)
-        # Initialize with default error result in case something unexpected happens
+
+        # Initialize with default error result
         result = AnalyseResult(
             logs=[
                 Log(
@@ -164,10 +188,10 @@ def create_server(thread_count: int = 2) -> JsonRPCServer:
 
 
 def main() -> None:
-    """Main entry point for the Puya daemon."""
+    """Main entry point for the Puya service mode."""
     parser = argparse.ArgumentParser(
         prog=NAME,
-        description=NAME,
+        description=f"{NAME} - puya service mode",
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s ({VERSION})")
     parser.add_argument("--threads", type=int, default=2, help="Worker thread count")
@@ -176,10 +200,8 @@ def main() -> None:
     # Configure logging to stderr (stdout used for LSP protocol)
     configure_logging(min_log_level=LogLevel.info, file=sys.stderr)
 
-    # Create server with configured thread count
+    # Create server with configured thread count and start it
     server = create_server(thread_count=args.threads)
-
-    # Start server (will handle its own cleanup in start_io)
     server.start_io()
 
 

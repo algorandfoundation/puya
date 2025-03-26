@@ -5,6 +5,8 @@ import typing
 from collections.abc import Mapping
 
 import cattrs
+import cattrs.preconf
+import cattrs.preconf.json
 from cattrs import ClassValidationError, IterableValidationError, transform_error
 from cattrs.preconf.json import make_converter
 from cattrs.strategies import configure_tagged_union, include_subclasses

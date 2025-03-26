@@ -20,8 +20,8 @@ class _PuyaCLIArgs:
     options: Path | None = None
     awst: Path | None = None
     source_annotations: Path | None = None
-    daemon: bool = False
-    daemon_threads: int = 2
+    service: bool = False
+    service_threads: int = 2
     log_level: LogLevel = LogLevel.info
     log_format: LogFormat = LogFormat.default
 
@@ -44,21 +44,25 @@ def cli() -> None:
     parser.add_argument("--options", type=Path, required=False)
     parser.add_argument("--awst", type=Path, required=False)
     parser.add_argument("--source-annotations", type=Path)
-    parser.add_argument("--daemon", action="store_true", help="Run in daemon mode")
+    parser.add_argument("--service", action="store_true", help="Run in service mode")
     parser.add_argument(
-        "--daemon-threads", type=int, default=2, help="Worker thread count for service mode"
+        "--service-threads", type=int, default=2, help="Worker thread count for service mode"
     )
     parsed_args = _PuyaCLIArgs()
     parser.parse_args(namespace=parsed_args)
 
-    if parsed_args.daemon:
+    if parsed_args.service:
         from puya.puyad import create_server
 
-        puyad_server = create_server(thread_count=parsed_args.daemon_threads)
         log_file = sys.stderr
         configure_logging(min_log_level=parsed_args.log_level, file=log_file)
+
         logger.info("Starting puyad server...")
+        puyad_server = create_server(thread_count=parsed_args.service_threads)
+
+        # The server's signal handler will handle Ctrl+C directly with os._exit
         puyad_server.start_io()
+
         return
     else:
         configure_logging(min_log_level=parsed_args.log_level, log_format=parsed_args.log_format)
