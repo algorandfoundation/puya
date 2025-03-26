@@ -347,20 +347,32 @@ class ARC4UFixedNxM(ARC4Type):
             raise CodeError("Precision must be between 1 and 160 inclusive", self.source_location)
 
 
-def _required_arc4_wtypes(wtypes: Iterable[WType]) -> tuple[ARC4Type, ...]:
-    result = []
-    for wtype in wtypes:
-        if not isinstance(wtype, ARC4Type):
-            raise CodeError(f"expected ARC4 type: {wtype}")
-        result.append(wtype)
-    return tuple(result)
+def _required_arc4_wtypes(
+    wtypes: Iterable[WType], tup: attrs.AttrsInstance
+) -> tuple[ARC4Type, ...]:
+    invalid_elements = [idx for idx, wtype in enumerate(wtypes) if not isinstance(wtype, ARC4Type)]
+    if invalid_elements:
+        *head, tail = map(str, invalid_elements)
+        if head:
+            invalid_elements_desc = f"{', '.join(head)} and {tail}"
+        else:
+            invalid_elements_desc = tail
+        raise CodeError(
+            f"ARC4 tuples can only contain ARC-4 types but elements {invalid_elements_desc}"
+            " are not ARC-4 types",
+            tup.source_location,  # type: ignore[attr-defined]
+        )
+
+    return tuple(wtypes)  # type: ignore[arg-type]
 
 
 @typing.final
 @attrs.frozen(kw_only=True)
 class ARC4Tuple(ARC4Type):
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
-    types: tuple[ARC4Type, ...] = attrs.field(converter=_required_arc4_wtypes)
+    types: tuple[ARC4Type, ...] = attrs.field(
+        converter=attrs.Converter(_required_arc4_wtypes, takes_self=True)  # type: ignore[misc]
+    )
     name: str = attrs.field(init=False)
     arc4_name: str = attrs.field(init=False, eq=False)
     immutable: bool = attrs.field(init=False)
