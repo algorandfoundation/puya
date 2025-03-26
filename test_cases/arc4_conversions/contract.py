@@ -4,6 +4,7 @@ from algopy import (
     Account,
     BigUInt,
     Bytes,
+    Global,
     ImmutableArray,
     String,
     Txn,
@@ -13,7 +14,11 @@ from algopy import (
     subroutine,
 )
 
+Bytes32 = arc4.StaticArray[arc4.Byte, typing.Literal[32]]
 
+
+# note these tests are using abi_call in order to test different scenarios of ARC-4 encoding
+# these should be replaced with a more simplified algopy.arc4.encode/decode when it is available
 class TestContract(arc4.ARC4Contract):
     @arc4.abimethod()
     def test_literal_encoding(self) -> None:
@@ -170,6 +175,18 @@ class TestContract(arc4.ARC4Contract):
 
         arc4.abi_call(CheckApp.delete_application, app_id=app)
 
+    @arc4.abimethod
+    def test_bytes_to_fixed(self, wrong_size: bool) -> None:
+        app = arc4.arc4_create(CheckApp).created_app
+        sender = Global.current_application_address.bytes
+
+        if wrong_size:
+            sender = sender + sender
+
+        arc4.abi_call(CheckApp.check_static_bytes, sender, app_id=app)
+
+        arc4.abi_call(CheckApp.delete_application, app_id=app)
+
 
 class MyStruct(typing.NamedTuple):
     num: UInt64
@@ -270,3 +287,7 @@ class CheckApp(arc4.ARC4Contract):
         self, value: arc4.StaticArray[MyDynStructARC4, typing.Literal[3]], expected: Bytes
     ) -> None:
         assert value.bytes == expected, "expected to encode correctly"
+
+    @arc4.abimethod
+    def check_static_bytes(self, bytes32: Bytes32) -> None:
+        assert bytes32.bytes == Txn.sender.bytes, "expected to encode correctly"
