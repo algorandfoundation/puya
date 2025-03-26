@@ -88,3 +88,9 @@ class CheckApp(algopy.arc4.ARC4Client, typing.Protocol):
         value: algopy.arc4.StaticArray[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.Address, algopy.arc4.DynamicBytes], typing.Literal[3]],
         expected: algopy.arc4.DynamicBytes,
     ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def check_static_bytes(
+        self,
+        bytes32: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]],
+    ) -> None: ...

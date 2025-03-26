@@ -36,3 +36,9 @@ class TestContract(algopy.arc4.ARC4Client, typing.Protocol):
     def test_array_dynamic_encoding(
         self,
     ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_bytes_to_fixed(
+        self,
+        wrong_size: algopy.arc4.Bool,
+    ) -> None: ...

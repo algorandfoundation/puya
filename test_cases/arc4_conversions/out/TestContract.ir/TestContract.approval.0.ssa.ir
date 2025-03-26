@@ -63,18 +63,18 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         return tmp%19#0
 
 subroutine test_cases.arc4_conversions.contract.my_struct(value: uint64) -> <uint64, bytes[32]>:
-    block@0: // L184
+    block@0: // L201
         let tmp%0#0: bytes[32] = (txn Sender)
         return value#0 tmp%0#0
 
 subroutine test_cases.arc4_conversions.contract.my_dyn_struct(value: uint64) -> <uint64, bytes[32], bytes>:
-    block@0: // L201
+    block@0: // L218
         let tmp%0#0: bytes[32] = (txn Sender)
         let tmp%1#0: bytes[32] = (txn Sender)
         return value#0 tmp%0#0 tmp%1#0
 
 subroutine test_cases.arc4_conversions.contract.my_dyn_struct_arc4(value: uint64) -> bytes:
-    block@0: // L206
+    block@0: // L223
         let val_as_bytes%0#0: bytes[8] = (itob value#0)
         let tmp%0#0: bytes[32] = (txn Sender)
         let to_encode%0#0: bytes[32] = (txn Sender)
@@ -95,14 +95,14 @@ subroutine test_cases.arc4_conversions.contract.my_dyn_struct_arc4(value: uint64
         return encoded_tuple_buffer%4#0
 
 subroutine test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__() -> bool:
-    block@0: // L17
+    block@0: // L22
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@10
-    block@1: // abi_routing_L17
+        goto tmp%1#0 ? block@1 : block@11
+    block@1: // abi_routing_L22
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_literal_encoding()void" => block@2, method "test_native_encoding()void" => block@3, method "test_arc4_encoding()void" => block@4, method "test_array_uint64_encoding()void" => block@5, method "test_array_static_encoding()void" => block@6, method "test_array_dynamic_encoding()void" => block@7, * => block@8}
-    block@2: // test_literal_encoding_route_L18
+        switch tmp%2#0 {method "test_literal_encoding()void" => block@2, method "test_native_encoding()void" => block@3, method "test_arc4_encoding()void" => block@4, method "test_array_uint64_encoding()void" => block@5, method "test_array_static_encoding()void" => block@6, method "test_array_dynamic_encoding()void" => block@7, method "test_bytes_to_fixed(bool)void" => block@8, * => block@9}
+    block@2: // test_literal_encoding_route_L23
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
         (assert tmp%4#0) // OnCompletion is not NoOp
@@ -111,7 +111,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router_
         (assert tmp%6#0) // can only call when not creating
         test_cases.arc4_conversions.contract.TestContract.test_literal_encoding()
         return 1u
-    block@3: // test_native_encoding_route_L41
+    block@3: // test_native_encoding_route_L46
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (== tmp%7#0 NoOp)
         (assert tmp%8#0) // OnCompletion is not NoOp
@@ -120,7 +120,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router_
         (assert tmp%10#0) // can only call when not creating
         test_cases.arc4_conversions.contract.TestContract.test_native_encoding()
         return 1u
-    block@4: // test_arc4_encoding_route_L69
+    block@4: // test_arc4_encoding_route_L74
         let tmp%11#0: uint64 = (txn OnCompletion)
         let tmp%12#0: bool = (== tmp%11#0 NoOp)
         (assert tmp%12#0) // OnCompletion is not NoOp
@@ -129,7 +129,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router_
         (assert tmp%14#0) // can only call when not creating
         test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding()
         return 1u
-    block@5: // test_array_uint64_encoding_route_L97
+    block@5: // test_array_uint64_encoding_route_L102
         let tmp%15#0: uint64 = (txn OnCompletion)
         let tmp%16#0: bool = (== tmp%15#0 NoOp)
         (assert tmp%16#0) // OnCompletion is not NoOp
@@ -138,7 +138,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router_
         (assert tmp%18#0) // can only call when not creating
         test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding()
         return 1u
-    block@6: // test_array_static_encoding_route_L121
+    block@6: // test_array_static_encoding_route_L126
         let tmp%19#0: uint64 = (txn OnCompletion)
         let tmp%20#0: bool = (== tmp%19#0 NoOp)
         (assert tmp%20#0) // OnCompletion is not NoOp
@@ -147,7 +147,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router_
         (assert tmp%22#0) // can only call when not creating
         test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding()
         return 1u
-    block@7: // test_array_dynamic_encoding_route_L145
+    block@7: // test_array_dynamic_encoding_route_L150
         let tmp%23#0: uint64 = (txn OnCompletion)
         let tmp%24#0: bool = (== tmp%23#0 NoOp)
         (assert tmp%24#0) // OnCompletion is not NoOp
@@ -156,28 +156,39 @@ subroutine test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router_
         (assert tmp%26#0) // can only call when not creating
         test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding()
         return 1u
-    block@8: // switch_case_default_L17
-        goto block@9
-    block@9: // switch_case_next_L17
-        goto block@14
-    block@10: // bare_routing_L17
+    block@8: // test_bytes_to_fixed_route_L178
         let tmp%27#0: uint64 = (txn OnCompletion)
-        switch tmp%27#0 {0u => block@11, * => block@12}
-    block@11: // __algopy_default_create_L1
-        let tmp%28#0: uint64 = (txn ApplicationID)
-        let tmp%29#0: bool = (== tmp%28#0 0u)
-        (assert tmp%29#0) // can only call when creating
+        let tmp%28#0: bool = (== tmp%27#0 NoOp)
+        (assert tmp%28#0) // OnCompletion is not NoOp
+        let tmp%29#0: uint64 = (txn ApplicationID)
+        let tmp%30#0: bool = (!= tmp%29#0 0u)
+        (assert tmp%30#0) // can only call when not creating
+        let reinterpret_bytes[1]%0#0: bytes[1] = (txna ApplicationArgs 1)
+        let tmp%31#0: bool = (getbit reinterpret_bytes[1]%0#0 0u)
+        test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed(tmp%31#0)
+        return 1u
+    block@9: // switch_case_default_L22
+        goto block@10
+    block@10: // switch_case_next_L22
+        goto block@15
+    block@11: // bare_routing_L22
+        let tmp%32#0: uint64 = (txn OnCompletion)
+        switch tmp%32#0 {0u => block@12, * => block@13}
+    block@12: // __algopy_default_create_L1
+        let tmp%33#0: uint64 = (txn ApplicationID)
+        let tmp%34#0: bool = (== tmp%33#0 0u)
+        (assert tmp%34#0) // can only call when creating
         test_cases.arc4_conversions.contract.TestContract.__algopy_default_create()
         return 1u
-    block@12: // switch_case_default_L17
-        goto block@13
-    block@13: // switch_case_next_L17
+    block@13: // switch_case_default_L22
         goto block@14
-    block@14: // after_if_else_L17
+    block@14: // switch_case_next_L22
+        goto block@15
+    block@15: // after_if_else_L22
         return 0u
 
 subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encoding() -> void:
-    block@0: // L18
+    block@0: // L23
         itxn_begin
         let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
         let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
@@ -254,7 +265,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encodi
         ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
         goto block@1
-    block@1: // next_txn_L20
+    block@1: // next_txn_L25
         itxn_submit
         let app#0: uint64 = itxn[itxn_group_idx(0)].CreatedApplicationID
         itxn_begin
@@ -328,7 +339,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encodi
         ((itxn_field TypeEnum) inner_txn_params%1%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%1%%param_Fee_idx_0#0)
         goto block@2
-    block@2: // next_txn_L23
+    block@2: // next_txn_L28
         itxn_submit
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
@@ -404,7 +415,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encodi
         ((itxn_field TypeEnum) inner_txn_params%2%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%2%%param_Fee_idx_0#0)
         goto block@3
-    block@3: // next_txn_L26
+    block@3: // next_txn_L31
         itxn_submit
         itxn_begin
         let inner_txn_params%3#0: itxn_field_set = itxn_field_set(3)
@@ -476,7 +487,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encodi
         ((itxn_field TypeEnum) inner_txn_params%3%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%3%%param_Fee_idx_0#0)
         goto block@4
-    block@4: // next_txn_L31
+    block@4: // next_txn_L36
         itxn_submit
         itxn_begin
         let inner_txn_params%4#0: itxn_field_set = itxn_field_set(4)
@@ -554,7 +565,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encodi
         ((itxn_field TypeEnum) inner_txn_params%4%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%4%%param_Fee_idx_0#0)
         goto block@5
-    block@5: // next_txn_L34
+    block@5: // next_txn_L39
         itxn_submit
         itxn_begin
         let inner_txn_params%5#0: itxn_field_set = itxn_field_set(5)
@@ -626,7 +637,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encodi
         ((itxn_field TypeEnum) inner_txn_params%5%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%5%%param_Fee_idx_0#0)
         goto block@6
-    block@6: // next_txn_L37
+    block@6: // next_txn_L42
         itxn_submit
         itxn_begin
         let inner_txn_params%6#0: itxn_field_set = itxn_field_set(6)
@@ -692,12 +703,12 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encodi
         ((itxn_field TypeEnum) inner_txn_params%6%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%6%%param_Fee_idx_0#0)
         goto block@7
-    block@7: // next_txn_L39
+    block@7: // next_txn_L44
         itxn_submit
         return 
 
 subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encoding() -> void:
-    block@0: // L41
+    block@0: // L46
         itxn_begin
         let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
         let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
@@ -774,7 +785,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encodin
         ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
         goto block@1
-    block@1: // next_txn_L43
+    block@1: // next_txn_L48
         itxn_submit
         let app#0: uint64 = itxn[itxn_group_idx(0)].CreatedApplicationID
         itxn_begin
@@ -851,7 +862,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encodin
         ((itxn_field TypeEnum) inner_txn_params%1%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%1%%param_Fee_idx_0#0)
         goto block@2
-    block@2: // next_txn_L46
+    block@2: // next_txn_L51
         itxn_submit
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
@@ -930,7 +941,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encodin
         ((itxn_field TypeEnum) inner_txn_params%2%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%2%%param_Fee_idx_0#0)
         goto block@3
-    block@3: // next_txn_L49
+    block@3: // next_txn_L54
         itxn_submit
         itxn_begin
         let inner_txn_params%3#0: itxn_field_set = itxn_field_set(3)
@@ -1006,7 +1017,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encodin
         ((itxn_field TypeEnum) inner_txn_params%3%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%3%%param_Fee_idx_0#0)
         goto block@4
-    block@4: // next_txn_L57
+    block@4: // next_txn_L62
         itxn_submit
         itxn_begin
         let inner_txn_params%4#0: itxn_field_set = itxn_field_set(4)
@@ -1084,7 +1095,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encodin
         ((itxn_field TypeEnum) inner_txn_params%4%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%4%%param_Fee_idx_0#0)
         goto block@5
-    block@5: // next_txn_L62
+    block@5: // next_txn_L67
         itxn_submit
         itxn_begin
         let inner_txn_params%5#0: itxn_field_set = itxn_field_set(5)
@@ -1159,7 +1170,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encodin
         ((itxn_field TypeEnum) inner_txn_params%5%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%5%%param_Fee_idx_0#0)
         goto block@6
-    block@6: // next_txn_L65
+    block@6: // next_txn_L70
         itxn_submit
         itxn_begin
         let inner_txn_params%6#0: itxn_field_set = itxn_field_set(6)
@@ -1225,12 +1236,12 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encodin
         ((itxn_field TypeEnum) inner_txn_params%6%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%6%%param_Fee_idx_0#0)
         goto block@7
-    block@7: // next_txn_L67
+    block@7: // next_txn_L72
         itxn_submit
         return 
 
 subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding() -> void:
-    block@0: // L69
+    block@0: // L74
         itxn_begin
         let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
         let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
@@ -1307,7 +1318,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding(
         ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
         goto block@1
-    block@1: // next_txn_L71
+    block@1: // next_txn_L76
         itxn_submit
         let app#0: uint64 = itxn[itxn_group_idx(0)].CreatedApplicationID
         itxn_begin
@@ -1381,7 +1392,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding(
         ((itxn_field TypeEnum) inner_txn_params%1%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%1%%param_Fee_idx_0#0)
         goto block@2
-    block@2: // next_txn_L74
+    block@2: // next_txn_L79
         itxn_submit
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
@@ -1460,7 +1471,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding(
         ((itxn_field TypeEnum) inner_txn_params%2%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%2%%param_Fee_idx_0#0)
         goto block@3
-    block@3: // next_txn_L77
+    block@3: // next_txn_L82
         itxn_submit
         itxn_begin
         let inner_txn_params%3#0: itxn_field_set = itxn_field_set(3)
@@ -1532,7 +1543,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding(
         ((itxn_field TypeEnum) inner_txn_params%3%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%3%%param_Fee_idx_0#0)
         goto block@4
-    block@4: // next_txn_L85
+    block@4: // next_txn_L90
         itxn_submit
         itxn_begin
         let inner_txn_params%4#0: itxn_field_set = itxn_field_set(4)
@@ -1605,7 +1616,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding(
         ((itxn_field TypeEnum) inner_txn_params%4%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%4%%param_Fee_idx_0#0)
         goto block@5
-    block@5: // next_txn_L90
+    block@5: // next_txn_L95
         itxn_submit
         itxn_begin
         let inner_txn_params%5#0: itxn_field_set = itxn_field_set(5)
@@ -1680,7 +1691,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding(
         ((itxn_field TypeEnum) inner_txn_params%5%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%5%%param_Fee_idx_0#0)
         goto block@6
-    block@6: // next_txn_L93
+    block@6: // next_txn_L98
         itxn_submit
         itxn_begin
         let inner_txn_params%6#0: itxn_field_set = itxn_field_set(6)
@@ -1746,12 +1757,12 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding(
         ((itxn_field TypeEnum) inner_txn_params%6%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%6%%param_Fee_idx_0#0)
         goto block@7
-    block@7: // next_txn_L95
+    block@7: // next_txn_L100
         itxn_submit
         return 
 
 subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding() -> void:
-    block@0: // L97
+    block@0: // L102
         itxn_begin
         let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
         let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
@@ -1828,7 +1839,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_e
         ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
         goto block@1
-    block@1: // next_txn_L99
+    block@1: // next_txn_L104
         itxn_submit
         let app#0: uint64 = itxn[itxn_group_idx(0)].CreatedApplicationID
         let array_data%0#0: bytes = (concat 0x0000 0x)
@@ -1925,7 +1936,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_e
         ((itxn_field TypeEnum) inner_txn_params%1%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%1%%param_Fee_idx_0#0)
         goto block@2
-    block@2: // next_txn_L105
+    block@2: // next_txn_L110
         itxn_submit
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
@@ -2009,7 +2020,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_e
         ((itxn_field TypeEnum) inner_txn_params%2%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%2%%param_Fee_idx_0#0)
         goto block@3
-    block@3: // next_txn_L106
+    block@3: // next_txn_L111
         itxn_submit
         itxn_begin
         let inner_txn_params%3#0: itxn_field_set = itxn_field_set(3)
@@ -2097,7 +2108,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_e
         ((itxn_field TypeEnum) inner_txn_params%3%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%3%%param_Fee_idx_0#0)
         goto block@4
-    block@4: // next_txn_L112
+    block@4: // next_txn_L117
         itxn_submit
         itxn_begin
         let inner_txn_params%4#0: itxn_field_set = itxn_field_set(4)
@@ -2163,12 +2174,12 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_e
         ((itxn_field TypeEnum) inner_txn_params%4%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%4%%param_Fee_idx_0#0)
         goto block@5
-    block@5: // next_txn_L119
+    block@5: // next_txn_L124
         itxn_submit
         return 
 
 subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding() -> void:
-    block@0: // L121
+    block@0: // L126
         itxn_begin
         let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
         let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
@@ -2245,7 +2256,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_e
         ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
         goto block@1
-    block@1: // next_txn_L123
+    block@1: // next_txn_L128
         itxn_submit
         let app#0: uint64 = itxn[itxn_group_idx(0)].CreatedApplicationID
         let array_data%0#0: bytes = (concat 0x0000 0x)
@@ -2346,7 +2357,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_e
         ((itxn_field TypeEnum) inner_txn_params%1%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%1%%param_Fee_idx_0#0)
         goto block@2
-    block@2: // next_txn_L135
+    block@2: // next_txn_L140
         itxn_submit
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
@@ -2444,7 +2455,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_e
         ((itxn_field TypeEnum) inner_txn_params%2%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%2%%param_Fee_idx_0#0)
         goto block@3
-    block@3: // next_txn_L136
+    block@3: // next_txn_L141
         itxn_submit
         itxn_begin
         let inner_txn_params%3#0: itxn_field_set = itxn_field_set(3)
@@ -2510,12 +2521,12 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_e
         ((itxn_field TypeEnum) inner_txn_params%3%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%3%%param_Fee_idx_0#0)
         goto block@4
-    block@4: // next_txn_L143
+    block@4: // next_txn_L148
         itxn_submit
         return 
 
 subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding() -> void:
-    block@0: // L145
+    block@0: // L150
         itxn_begin
         let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
         let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
@@ -2592,7 +2603,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
         goto block@1
-    block@1: // next_txn_L147
+    block@1: // next_txn_L152
         itxn_submit
         let app#0: uint64 = itxn[itxn_group_idx(0)].CreatedApplicationID
         let array_data%0#0: bytes = (concat 0x0000 0x)
@@ -2764,7 +2775,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         ((itxn_field TypeEnum) inner_txn_params%1%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%1%%param_Fee_idx_0#0)
         goto block@2
-    block@2: // next_txn_L157
+    block@2: // next_txn_L162
         itxn_submit
         let tmp%12#0: bytes = test_cases.arc4_conversions.contract.my_dyn_struct_arc4(1u)
         let tmp%13#0: bytes = test_cases.arc4_conversions.contract.my_dyn_struct_arc4(2u)
@@ -2926,7 +2937,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         ((itxn_field TypeEnum) inner_txn_params%2%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%2%%param_Fee_idx_0#0)
         goto block@3
-    block@3: // next_txn_L164
+    block@3: // next_txn_L169
         itxn_submit
         itxn_begin
         let inner_txn_params%3#0: itxn_field_set = itxn_field_set(3)
@@ -2992,7 +3003,232 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         ((itxn_field TypeEnum) inner_txn_params%3%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%3%%param_Fee_idx_0#0)
         goto block@4
-    block@4: // next_txn_L171
+    block@4: // next_txn_L176
+        itxn_submit
+        return 
+
+subroutine test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed(wrong_size: bool) -> void:
+    block@0: // L178
+        itxn_begin
+        let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
+        let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
+        let inner_txn_params%0%%Fee_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
+        let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = compiled_contract('test_cases.arc4_conversions.contract.CheckApp', field=ApprovalProgramPages, program_page=0)
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = compiled_contract('test_cases.arc4_conversions.contract.CheckApp', field=ApprovalProgramPages, program_page=1)
+        let inner_txn_params%0%%ApprovalProgramPages_length#0: uint64 = 2u
+        let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = compiled_contract('test_cases.arc4_conversions.contract.CheckApp', field=ClearStateProgramPages, program_page=0)
+        let inner_txn_params%0%%param_ClearStateProgramPages_idx_1#0: bytes = compiled_contract('test_cases.arc4_conversions.contract.CheckApp', field=ClearStateProgramPages, program_page=1)
+        let inner_txn_params%0%%ClearStateProgramPages_length#0: uint64 = 2u
+        let inner_txn_params%0%%param_ExtraProgramPages_idx_0#0: uint64 = compiled_contract('test_cases.arc4_conversions.contract.CheckApp', field=ExtraProgramPages, program_page=None)
+        let inner_txn_params%0%%ExtraProgramPages_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_GlobalNumByteSlice_idx_0#0: uint64 = compiled_contract('test_cases.arc4_conversions.contract.CheckApp', field=GlobalNumByteSlice, program_page=None)
+        let inner_txn_params%0%%GlobalNumByteSlice_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_GlobalNumUint_idx_0#0: uint64 = compiled_contract('test_cases.arc4_conversions.contract.CheckApp', field=GlobalNumUint, program_page=None)
+        let inner_txn_params%0%%GlobalNumUint_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_LocalNumByteSlice_idx_0#0: uint64 = compiled_contract('test_cases.arc4_conversions.contract.CheckApp', field=LocalNumByteSlice, program_page=None)
+        let inner_txn_params%0%%LocalNumByteSlice_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_LocalNumUint_idx_0#0: uint64 = compiled_contract('test_cases.arc4_conversions.contract.CheckApp', field=LocalNumUint, program_page=None)
+        let inner_txn_params%0%%LocalNumUint_length#0: uint64 = 1u
+        let inner_txn_params%0%%Sender_length#0: uint64 = 0u
+        let inner_txn_params%0%%Note_length#0: uint64 = 0u
+        let inner_txn_params%0%%Receiver_length#0: uint64 = 0u
+        let inner_txn_params%0%%Amount_length#0: uint64 = 0u
+        let inner_txn_params%0%%CloseRemainderTo_length#0: uint64 = 0u
+        let inner_txn_params%0%%VotePK_length#0: uint64 = 0u
+        let inner_txn_params%0%%SelectionPK_length#0: uint64 = 0u
+        let inner_txn_params%0%%VoteFirst_length#0: uint64 = 0u
+        let inner_txn_params%0%%VoteLast_length#0: uint64 = 0u
+        let inner_txn_params%0%%VoteKeyDilution_length#0: uint64 = 0u
+        let inner_txn_params%0%%Type_length#0: uint64 = 0u
+        let inner_txn_params%0%%XferAsset_length#0: uint64 = 0u
+        let inner_txn_params%0%%AssetAmount_length#0: uint64 = 0u
+        let inner_txn_params%0%%AssetSender_length#0: uint64 = 0u
+        let inner_txn_params%0%%AssetReceiver_length#0: uint64 = 0u
+        let inner_txn_params%0%%AssetCloseTo_length#0: uint64 = 0u
+        let inner_txn_params%0%%ApplicationID_length#0: uint64 = 0u
+        let inner_txn_params%0%%OnCompletion_length#0: uint64 = 0u
+        let inner_txn_params%0%%ApprovalProgram_length#0: uint64 = 0u
+        let inner_txn_params%0%%ClearStateProgram_length#0: uint64 = 0u
+        let inner_txn_params%0%%RekeyTo_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAsset_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetTotal_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetDecimals_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetUnitName_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetName_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetURL_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetManager_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetReserve_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetFreeze_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetClawback_length#0: uint64 = 0u
+        let inner_txn_params%0%%FreezeAsset_length#0: uint64 = 0u
+        let inner_txn_params%0%%FreezeAssetAccount_length#0: uint64 = 0u
+        let inner_txn_params%0%%FreezeAssetFrozen_length#0: uint64 = 0u
+        let inner_txn_params%0%%Nonparticipation_length#0: uint64 = 0u
+        let inner_txn_params%0%%StateProofPK_length#0: uint64 = 0u
+        let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 0u
+        let inner_txn_params%0%%Accounts_length#0: uint64 = 0u
+        let inner_txn_params%0%%Assets_length#0: uint64 = 0u
+        let inner_txn_params%0%%Applications_length#0: uint64 = 0u
+        ((itxn_field LocalNumUint) inner_txn_params%0%%param_LocalNumUint_idx_0#0)
+        ((itxn_field LocalNumByteSlice) inner_txn_params%0%%param_LocalNumByteSlice_idx_0#0)
+        ((itxn_field GlobalNumUint) inner_txn_params%0%%param_GlobalNumUint_idx_0#0)
+        ((itxn_field GlobalNumByteSlice) inner_txn_params%0%%param_GlobalNumByteSlice_idx_0#0)
+        ((itxn_field ExtraProgramPages) inner_txn_params%0%%param_ExtraProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ClearStateProgramPages_idx_1#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0)
+        ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
+        ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
+        goto block@1
+    block@1: // next_txn_L180
+        itxn_submit
+        let app#0: uint64 = itxn[itxn_group_idx(0)].CreatedApplicationID
+        let sender#0: bytes = (global CurrentApplicationAddress)
+        goto wrong_size#0 ? block@2 : block@3
+    block@2: // if_body_L184
+        let sender#1: bytes = (concat sender#0 sender#0)
+        goto block@3
+    block@3: // after_if_else_L183
+        let sender#2: bytes = φ(sender#0 <- block@1, sender#1 <- block@2)
+        itxn_begin
+        let inner_txn_params%1#0: itxn_field_set = itxn_field_set(1)
+        let inner_txn_params%1%%param_Fee_idx_0#0: uint64 = 0u
+        let inner_txn_params%1%%Fee_length#0: uint64 = 1u
+        let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
+        let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
+        let length%0#0: uint64 = (len sender#2)
+        let lengths_equal%0#0: bool = (== length%0#0 32u)
+        (assert lengths_equal%0#0) // invalid size
+        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "check_static_bytes(byte[32])void"
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = sender#2
+        let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
+        let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
+        let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
+        let inner_txn_params%1%%Sender_length#0: uint64 = 0u
+        let inner_txn_params%1%%Note_length#0: uint64 = 0u
+        let inner_txn_params%1%%Receiver_length#0: uint64 = 0u
+        let inner_txn_params%1%%Amount_length#0: uint64 = 0u
+        let inner_txn_params%1%%CloseRemainderTo_length#0: uint64 = 0u
+        let inner_txn_params%1%%VotePK_length#0: uint64 = 0u
+        let inner_txn_params%1%%SelectionPK_length#0: uint64 = 0u
+        let inner_txn_params%1%%VoteFirst_length#0: uint64 = 0u
+        let inner_txn_params%1%%VoteLast_length#0: uint64 = 0u
+        let inner_txn_params%1%%VoteKeyDilution_length#0: uint64 = 0u
+        let inner_txn_params%1%%Type_length#0: uint64 = 0u
+        let inner_txn_params%1%%XferAsset_length#0: uint64 = 0u
+        let inner_txn_params%1%%AssetAmount_length#0: uint64 = 0u
+        let inner_txn_params%1%%AssetSender_length#0: uint64 = 0u
+        let inner_txn_params%1%%AssetReceiver_length#0: uint64 = 0u
+        let inner_txn_params%1%%AssetCloseTo_length#0: uint64 = 0u
+        let inner_txn_params%1%%OnCompletion_length#0: uint64 = 0u
+        let inner_txn_params%1%%ApprovalProgram_length#0: uint64 = 0u
+        let inner_txn_params%1%%ClearStateProgram_length#0: uint64 = 0u
+        let inner_txn_params%1%%RekeyTo_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAsset_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetTotal_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetDecimals_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetUnitName_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetName_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetURL_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetManager_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetReserve_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetFreeze_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetClawback_length#0: uint64 = 0u
+        let inner_txn_params%1%%FreezeAsset_length#0: uint64 = 0u
+        let inner_txn_params%1%%FreezeAssetAccount_length#0: uint64 = 0u
+        let inner_txn_params%1%%FreezeAssetFrozen_length#0: uint64 = 0u
+        let inner_txn_params%1%%GlobalNumUint_length#0: uint64 = 0u
+        let inner_txn_params%1%%GlobalNumByteSlice_length#0: uint64 = 0u
+        let inner_txn_params%1%%LocalNumUint_length#0: uint64 = 0u
+        let inner_txn_params%1%%LocalNumByteSlice_length#0: uint64 = 0u
+        let inner_txn_params%1%%ExtraProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%1%%Nonparticipation_length#0: uint64 = 0u
+        let inner_txn_params%1%%StateProofPK_length#0: uint64 = 0u
+        let inner_txn_params%1%%Accounts_length#0: uint64 = 0u
+        let inner_txn_params%1%%Assets_length#0: uint64 = 0u
+        let inner_txn_params%1%%Applications_length#0: uint64 = 0u
+        let inner_txn_params%1%%ApprovalProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%1%%ClearStateProgramPages_length#0: uint64 = 0u
+        ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+        ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_0#0)
+        ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+        ((itxn_field TypeEnum) inner_txn_params%1%%param_TypeEnum_idx_0#0)
+        ((itxn_field Fee) inner_txn_params%1%%param_Fee_idx_0#0)
+        goto block@4
+    block@4: // next_txn_L186
+        itxn_submit
+        itxn_begin
+        let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
+        let inner_txn_params%2%%param_Fee_idx_0#0: uint64 = 0u
+        let inner_txn_params%2%%Fee_length#0: uint64 = 1u
+        let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
+        let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
+        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "delete_application()void"
+        let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 1u
+        let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
+        let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
+        let inner_txn_params%2%%param_OnCompletion_idx_0#0: uint64 = DeleteApplication
+        let inner_txn_params%2%%OnCompletion_length#0: uint64 = 1u
+        let inner_txn_params%2%%Sender_length#0: uint64 = 0u
+        let inner_txn_params%2%%Note_length#0: uint64 = 0u
+        let inner_txn_params%2%%Receiver_length#0: uint64 = 0u
+        let inner_txn_params%2%%Amount_length#0: uint64 = 0u
+        let inner_txn_params%2%%CloseRemainderTo_length#0: uint64 = 0u
+        let inner_txn_params%2%%VotePK_length#0: uint64 = 0u
+        let inner_txn_params%2%%SelectionPK_length#0: uint64 = 0u
+        let inner_txn_params%2%%VoteFirst_length#0: uint64 = 0u
+        let inner_txn_params%2%%VoteLast_length#0: uint64 = 0u
+        let inner_txn_params%2%%VoteKeyDilution_length#0: uint64 = 0u
+        let inner_txn_params%2%%Type_length#0: uint64 = 0u
+        let inner_txn_params%2%%XferAsset_length#0: uint64 = 0u
+        let inner_txn_params%2%%AssetAmount_length#0: uint64 = 0u
+        let inner_txn_params%2%%AssetSender_length#0: uint64 = 0u
+        let inner_txn_params%2%%AssetReceiver_length#0: uint64 = 0u
+        let inner_txn_params%2%%AssetCloseTo_length#0: uint64 = 0u
+        let inner_txn_params%2%%ApprovalProgram_length#0: uint64 = 0u
+        let inner_txn_params%2%%ClearStateProgram_length#0: uint64 = 0u
+        let inner_txn_params%2%%RekeyTo_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAsset_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetTotal_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetDecimals_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetUnitName_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetName_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetURL_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetManager_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetReserve_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetFreeze_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetClawback_length#0: uint64 = 0u
+        let inner_txn_params%2%%FreezeAsset_length#0: uint64 = 0u
+        let inner_txn_params%2%%FreezeAssetAccount_length#0: uint64 = 0u
+        let inner_txn_params%2%%FreezeAssetFrozen_length#0: uint64 = 0u
+        let inner_txn_params%2%%GlobalNumUint_length#0: uint64 = 0u
+        let inner_txn_params%2%%GlobalNumByteSlice_length#0: uint64 = 0u
+        let inner_txn_params%2%%LocalNumUint_length#0: uint64 = 0u
+        let inner_txn_params%2%%LocalNumByteSlice_length#0: uint64 = 0u
+        let inner_txn_params%2%%ExtraProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%2%%Nonparticipation_length#0: uint64 = 0u
+        let inner_txn_params%2%%StateProofPK_length#0: uint64 = 0u
+        let inner_txn_params%2%%Accounts_length#0: uint64 = 0u
+        let inner_txn_params%2%%Assets_length#0: uint64 = 0u
+        let inner_txn_params%2%%Applications_length#0: uint64 = 0u
+        let inner_txn_params%2%%ApprovalProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%2%%ClearStateProgramPages_length#0: uint64 = 0u
+        ((itxn_field OnCompletion) inner_txn_params%2%%param_OnCompletion_idx_0#0)
+        ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+        ((itxn_field ApplicationArgs) inner_txn_params%2%%param_ApplicationArgs_idx_0#0)
+        ((itxn_field TypeEnum) inner_txn_params%2%%param_TypeEnum_idx_0#0)
+        ((itxn_field Fee) inner_txn_params%2%%param_Fee_idx_0#0)
+        goto block@5
+    block@5: // next_txn_L188
         itxn_submit
         return 
 

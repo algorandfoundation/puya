@@ -79,6 +79,17 @@ contract TestContract
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete_application()void")), ApplicationID=app, OnCompletion=DeleteApplication))
   }
   
+  abimethod test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed(wrong_size: bool): void
+  {
+    app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=19, source=SINGLE_EVAL(id=18, source=compiled_contract(test_cases.arc4_conversions.contract.CheckApp,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=19)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=20, source=SINGLE_EVAL(id=18).clear_state_program)[0], SINGLE_EVAL(id=20)[1]), ExtraProgramPages=SINGLE_EVAL(id=18).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=18).global_bytes, GlobalNumUint=SINGLE_EVAL(id=18).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=18).local_bytes, LocalNumUint=SINGLE_EVAL(id=18).local_uints)).CreatedApplicationID
+    sender: bytes = reinterpret_cast<bytes>(global<CurrentApplicationAddress>())
+    if (wrong_size) {
+      sender: bytes = sender + sender
+    }
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_static_bytes(byte[32])void"), arc4_encode(sender, arc4.static_array<arc4.uint8, 32>)), ApplicationID=app))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete_application()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+  }
+  
   baremethod test_cases.arc4_conversions.contract.TestContract.__algopy_default_create(): void
   {
   }
@@ -172,6 +183,11 @@ contract CheckApp
   abimethod test_cases.arc4_conversions.contract.CheckApp.check_static_array_dyn_struct(value: arc4.static_array<test_cases.arc4_conversions.contract.MyDynStructARC4, 3>, expected: bytes): void
   {
     assert(reinterpret_cast<bytes>(value) == expected, comment="expected to encode correctly")
+  }
+  
+  abimethod test_cases.arc4_conversions.contract.CheckApp.check_static_bytes(bytes32: arc4.static_array<arc4.uint8, 32>): void
+  {
+    assert(reinterpret_cast<bytes>(bytes32) == reinterpret_cast<bytes>(txn<Sender>()), comment="expected to encode correctly")
   }
   
   baremethod test_cases.arc4_conversions.contract.CheckApp.__algopy_default_create(): void

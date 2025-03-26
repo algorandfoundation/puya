@@ -1790,7 +1790,7 @@ def test_diamond_mro(
     assert method_logs == expected_method_log
 
 
-def test_arc4_encode_decode(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+def test_arc4_conversions(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     example = TEST_CASES_DIR / "arc4_conversions"
 
     app_spec = algokit_utils.ApplicationSpecification.from_json(
@@ -1809,6 +1809,10 @@ def test_arc4_encode_decode(algod_client: AlgodClient, account: algokit_utils.Ac
     app_client.call("test_array_uint64_encoding")
     app_client.call("test_array_static_encoding")
     app_client.call("test_array_dynamic_encoding")
+    app_client.call("test_bytes_to_fixed", wrong_size=False)
+
+    with pytest.raises(LogicError, match="invalid size\t\t<-- Error"):
+        app_client.call("test_bytes_to_fixed", wrong_size=True)
 
 
 @pytest.mark.parametrize("optimization_level", [0, 1])
