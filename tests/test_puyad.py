@@ -26,7 +26,6 @@ class PuyadTestClient:
         self.response_queue: queue.Queue[dict[str, Any]] = queue.Queue()
         self.request_id: int = 1
         self.debug: bool = debug
-        self._last_analysis_id: str | None = None
         self._stop_threads: threading.Event = threading.Event()
         self._log_ctx = LoggingContext()
 
@@ -197,22 +196,12 @@ class PuyadTestClient:
             response = self.send_request("analyse", params)
 
             if response is not None:
-                self._last_analysis_id = response.get("id")
                 return response.get("result")
             else:
                 return None
         except Exception as e:
             self.debug_print(f"Error in analyse: {e}")
             return None
-
-    def cancel_analysis(self) -> bool:
-        """Cancel the most recent analysis request."""
-        if self._last_analysis_id is None:
-            return False
-
-        cancel_params = {"message_id": self._last_analysis_id}
-        response = self.send_request("cancel", cancel_params)
-        return response is not None and response.get("result", False)
 
     def stop(self) -> None:
         """Stop the daemon process."""
@@ -282,9 +271,6 @@ def test_puyad_daemon(tmp_path: Path) -> None:
 
             assert result is not None, "Analysis result should not be None"
             assert "logs" in result, "Result should contain logs field"
-            assert not result.get(
-                "cancelled", False
-            ), "Analysis task completed without cancellation"
 
             # Log information about the test results
             log_ctx.logs.append(
@@ -303,103 +289,6 @@ def test_puyad_daemon(tmp_path: Path) -> None:
                     Log(
                         level=LogLevel.info,
                         message=f"Log messages from analysis: {log_messages}",
-                        location=None,
-                    )
-                )
-
-        finally:
-            client.stop()
-            time.sleep(0.5)
-
-
-def test_puyad_daemon_cancellation(tmp_path: Path) -> None:
-    """Test that Puya daemon properly handles cancellation requests."""
-    with logging_context() as log_ctx:
-        awst_path, compilation_set = generate_awst_file(tmp_path)
-
-        client = PuyadTestClient(debug=True)
-        try:
-            assert client.start(), "Failed to start puyad daemon"
-
-            result = client.analyse(str(awst_path), compilation_set)
-            assert result is not None, "Analysis result should not be None"
-            assert not result.get(
-                "cancelled", False
-            ), "Analysis should not be cancelled by default"
-
-            analysis_started = threading.Event()
-            analysis_result: list[dict[str, Any] | None] = [None]
-
-            def run_analysis() -> None:
-                analysis_started.set()
-                for _ in range(3):
-                    if client._last_analysis_id is None:  # noqa: SLF001
-                        break
-                    temp_result = client.analyse(str(awst_path), compilation_set)
-                    if temp_result and temp_result.get("cancelled", False):
-                        analysis_result[0] = temp_result
-                        break
-                    analysis_result[0] = temp_result
-
-            analyse_thread = threading.Thread(target=run_analysis)
-            analyse_thread.daemon = True
-            analyse_thread.start()
-
-            assert analysis_started.wait(timeout=2), "Analysis should have started"
-            time.sleep(0.5)
-
-            cancelled = False
-            for _ in range(5):
-                cancelled = client.cancel_analysis()
-                if cancelled:
-                    log_message = (
-                        f"Successfully cancelled analysis with ID: {client._last_analysis_id}"  # noqa: SLF001
-                    )
-                    log_ctx.logs.append(
-                        Log(
-                            level=LogLevel.info,
-                            message=log_message,
-                            location=None,
-                        )
-                    )
-                    break
-                time.sleep(0.2)
-
-            analyse_thread.join(timeout=10)
-
-            if not cancelled:
-                log_ctx.logs.append(
-                    Log(
-                        level=LogLevel.warning,
-                        message=(
-                            "Cancellation request was not successful. "
-                            "This might be environment-dependent."
-                        ),
-                        location=None,
-                    )
-                )
-                log_ctx.logs.append(
-                    Log(
-                        level=LogLevel.info,
-                        message=f"Active analysis ID: {client._last_analysis_id}",  # noqa: SLF001
-                        location=None,
-                    )
-                )
-
-            if analysis_result[0] is not None:
-                log_ctx.logs.append(
-                    Log(
-                        level=LogLevel.info,
-                        message=f"Analysis result: {analysis_result[0]}",
-                        location=None,
-                    )
-                )
-                logs = analysis_result[0].get("logs", [])
-                log_messages = [log.get("message", "") for log in logs if isinstance(log, dict)]
-                log_ctx.logs.append(
-                    Log(
-                        level=LogLevel.info,
-                        message=f"Log messages: {log_messages}",
                         location=None,
                     )
                 )

@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Literal, cast
 
 import attrs
+import cattrs
 from pygls.exceptions import JsonRpcInternalError
 from pygls.protocol.json_rpc import JsonRPCProtocol
 from pygls.server import JsonRPCServer
@@ -35,14 +36,8 @@ class AnalyseParams:
 
 
 @attrs.frozen
-class CancelParams:
-    message_id: int | str
-
-
-@attrs.frozen
 class AnalyseResult:
     logs: list[Log]
-    cancelled: bool = False
 
 
 @attrs.frozen(kw_only=True)
@@ -58,12 +53,6 @@ class AnalyseRequest(_RPCMessage):
 
 
 @attrs.frozen(kw_only=True)
-class CancelRequest(_RPCMessage):
-    params: CancelParams
-    method: Literal["cancel"] = "cancel"
-
-
-@attrs.frozen(kw_only=True)
 class AnalyseResponse(_RPCMessage):
     result: AnalyseResult
 
@@ -71,7 +60,6 @@ class AnalyseResponse(_RPCMessage):
 # Map of method name to (request type, response type)
 _TYPES: dict[str, tuple[type | None, type | None]] = {
     "analyse": (AnalyseRequest, AnalyseResponse),
-    "cancel": (CancelRequest, None),
 }
 
 
@@ -108,67 +96,24 @@ class PuyaProtocol(JsonRPCProtocol):
             raise JsonRpcInternalError(str(exc)) from exc  # type: ignore[no-untyped-call]
 
 
-class MessageRegistry:
-    """Registry for tracking and cancelling long-running operations."""
-
-    def __init__(self) -> None:
-        self.active_messages: set[int | str] = set()
-        self.cancelled_messages: set[int | str] = set()
-
-    def register(self, message_id: int | str) -> None:
-        """Register a message as active and remove it from cancelled if present."""
-        self.active_messages.add(message_id)
-        self.cancelled_messages.discard(message_id)  # Ensure it's not in cancelled set
-
-    def unregister(self, message_id: int | str) -> None:
-        """Remove a message from both active and cancelled sets."""
-        self.active_messages.discard(message_id)
-        self.cancelled_messages.discard(message_id)
-
-    def cancel(self, message_id: int | str) -> bool:
-        """Mark a message for cancellation.
-
-        Returns True if the message was found and marked for cancellation,
-        False if the message was not found (already completed or never existed).
-        """
-        logger.debug(f"Message {message_id}: Attempting to cancel")
-        logger.debug(f"Current active messages: {self.active_messages}")
-        logger.debug(f"Current cancelled messages: {self.cancelled_messages}")
-
-        # Check if the message exists in the active set
-        if message_id in self.active_messages:
-            self.cancelled_messages.add(message_id)
-            logger.debug(f"Message {message_id}: Marked for cancellation")
-            return True
-        else:
-            logger.debug(f"Message {message_id} not found or already completed")
-            return False
-
-    def is_cancelled(self, message_id: int | str) -> bool:
-        """Check if a message has been marked for cancellation."""
-        return message_id in self.cancelled_messages
-
-
 def create_server(thread_count: int = 2) -> JsonRPCServer:
     """Create and configure a server with thread pooling."""
-    server = JsonRPCServer(PuyaProtocol, get_converter, max_workers=thread_count)
 
-    # Create message registry for tracking and cancellation
-    message_registry = MessageRegistry()
+    def get_custom_converter() -> cattrs.Converter:
+        converter = get_converter()
+        # Register an unstructure hook for LogLevel enum to convert it to string
+        converter.register_unstructure_hook(LogLevel, lambda e: str(e))
+        return converter
 
-    @server.feature("cancel")
-    def cancel_task(params: CancelParams) -> bool:
-        """Cancel a message by ID."""
-        return message_registry.cancel(params.message_id)
+    server = JsonRPCServer(PuyaProtocol, get_custom_converter, max_workers=thread_count)
 
     @server.feature("analyse")
     @server.thread()  # Thread decorator is necessary for concurrent handling
     def analyse(params: AnalyseParams) -> AnalyseResult:
-        """Analyzes Python code to produce TEAL with cancellation support."""
+        """Analyzes Python code to produce TEAL."""
         message_id = params.request_id or f"msg-{id(params)}"
         logger.debug("Starting analysis: %s", message_id)
 
-        message_registry.register(message_id)
         start_time = time.time()
         options = PuyaOptions(optimization_level=0)
         # Initialize with default error result in case something unexpected happens
@@ -180,7 +125,6 @@ def create_server(thread_count: int = 2) -> JsonRPCServer:
                     location=None,
                 )
             ],
-            cancelled=False,
         )
 
         try:
@@ -189,61 +133,30 @@ def create_server(thread_count: int = 2) -> JsonRPCServer:
                 contextlib.suppress(PuyaExitError),
                 log_exceptions(),
             ):
-                if message_registry.is_cancelled(message_id):
-                    log_ctx.logs.append(
-                        Log(
-                            level=LogLevel.warning,
-                            message="Analysis cancelled before it started",
-                            location=None,
-                        )
-                    )
-                    return AnalyseResult(logs=log_ctx.logs, cancelled=True)
-
-                # Create a cancellation check callback
-                def check_if_cancelled() -> bool:
-                    cancelled = message_registry.is_cancelled(message_id)
-                    if cancelled:
-                        log_ctx.logs.append(
-                            Log(
-                                level=LogLevel.warning,
-                                message="Analysis cancelled during processing",
-                                location=None,
-                            )
-                        )
-                    return cancelled
-
-                # Process the compilation with cancellation support
+                # Process the compilation
                 awst_to_teal(
                     log_ctx,
                     options,
                     params.compilation_set,  # type: ignore[arg-type]
                     DictSourceProvider({}),
                     params.awst,
-                    cancellation_callback=check_if_cancelled,
                 )
 
-                # Check if cancelled after compilation
-                if check_if_cancelled():
-                    result = AnalyseResult(logs=log_ctx.logs, cancelled=True)
-                else:
-                    elapsed = time.time() - start_time
-                    log_ctx.logs.append(
-                        Log(
-                            level=LogLevel.info,
-                            message=f"Analysis completed in {elapsed:.2f}s",
-                            location=None,
-                        )
+                elapsed = time.time() - start_time
+                log_ctx.logs.append(
+                    Log(
+                        level=LogLevel.info,
+                        message=f"Analysis completed in {elapsed:.2f}s",
+                        location=None,
                     )
-                    result = AnalyseResult(logs=log_ctx.logs, cancelled=False)
+                )
+                result = AnalyseResult(logs=log_ctx.logs)
 
         except Exception as e:
             logger.exception("Analysis error")
             return AnalyseResult(
                 logs=[Log(level=LogLevel.error, message=f"Error: {e}", location=None)],
-                cancelled=message_registry.is_cancelled(message_id),
             )
-        finally:
-            message_registry.unregister(message_id)
 
         return result
 

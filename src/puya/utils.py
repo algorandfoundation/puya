@@ -340,16 +340,3 @@ def set_remove[T](set_: MutableSet[T], value: T) -> bool:
 
 def normalize_path(path: Path) -> str:
     return str(path).replace(os.sep, "/")
-
-
-def cancellation_requested(callback: Callable[[], bool] | None) -> bool:
-    """Check if operation cancellation was requested.
-
-    Args:
-        callback: The cancellation callback function that returns
-                 whether cancellation was requested
-
-    Returns:
-        True if cancellation was requested, False otherwise
-    """
-    return bool(callback and callback())
