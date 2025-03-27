@@ -28,11 +28,11 @@ def cli() -> None:
     # TODO: use version of puya instead once package is split
     parser.add_argument("--version", action="version", version=f"%(prog)s {version('puyapy')}")
     parser.add_argument(
-        "--log-level", type=LogLevel.from_string, choices=list(LogLevel), default=LogLevel.info
+        "--log-level", type=LogLevel.__getitem__, choices=list(LogLevel), default=LogLevel.info
     )
     parser.add_argument(
         "--log-format",
-        type=LogFormat.from_string,
+        type=LogFormat,
         choices=list(LogFormat),
         default=LogFormat.default,
     )

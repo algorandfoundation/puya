@@ -24,13 +24,6 @@ class LogFormat(StrEnum):
     default = auto()
     json = auto()
 
-    @staticmethod
-    def from_string(s: str) -> "LogFormat":
-        try:
-            return LogFormat[s]
-        except KeyError as err:
-            raise ValueError from err
-
 
 class LogLevel(IntEnum):
     notset = logging.NOTSET
@@ -42,13 +35,6 @@ class LogLevel(IntEnum):
 
     def __str__(self) -> str:
         return self.name
-
-    @staticmethod
-    def from_string(s: str) -> "LogLevel":
-        try:
-            return LogLevel[s]
-        except KeyError as err:
-            raise ValueError from err
 
 
 @attrs.frozen
@@ -126,7 +112,7 @@ class PuyaJsonRender(structlog.processors.JSONRenderer):
 
         important: bool = event_dict.pop("important", False)
         location: SourceLocation | None = event_dict.pop("location", None)
-        level = event_dict.pop("level", "info")
+        level = event_dict.pop("level", LogLevel.info.name)
 
         return json.dumps(
             {
@@ -180,7 +166,7 @@ class PuyaConsoleRender(structlog.dev.ConsoleRenderer):
         if location and location.file is None:
             location = None
         location_as_link = self._location_as_link(location) if location else ""
-        level = event_dict.pop("level", "info")
+        level = event_dict.pop("level", LogLevel.info.name)
 
         align_related_lines = " " * (len(location_as_link) + 1 + len(level) + 1)
         sio = StringIO()
