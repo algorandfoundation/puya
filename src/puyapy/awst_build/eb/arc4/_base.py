@@ -78,7 +78,7 @@ class ARC4FromLogBuilder(FunctionBuilder):
             expr=arc4_value,
             check=arc4_prefix_is_valid.resolve(),
             source_location=location,
-            comment="ARC4 prefix is valid",
+            comment="application log value is not the result of an ABI return",
         )
 
     @typing.override
