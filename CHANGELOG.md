@@ -1,4 +1,42 @@
 # CHANGELOG
+## v4.6.0 (2025-03-27)
+
+### Feature
+
+* improve code generation for ARC-4 numeric types to boolean conversions ([`57d0b80`](https://github.com/algorandfoundation/puya/commit/57d0b807d1a57bec61aad5f6c561a0bc34e3be24))
+
+* support encoding of homogeneous tuples to equivalent ARC-4 arrays ([`05de462`](https://github.com/algorandfoundation/puya/commit/05de462dd3582bf2768f6d7815aa7ae7d8e52a39))
+
+* add optimization for `/` and `b/` ops when dividing by 1 ([`d55aa99`](https://github.com/algorandfoundation/puya/commit/d55aa9978cd8f411ca1b7337bfaa93e7bc9e01db))
+
+* add optimization for len op when used with statically sized values ([`33dc69a`](https://github.com/algorandfoundation/puya/commit/33dc69a3892f3a14c4c74ddccfc2cf8b43fc99f3))
+
+* add support for `algopy.Array[arc4.Bool]` and `algopy.ImmutableArray[arc4.Bool]` ([`48911bb`](https://github.com/algorandfoundation/puya/commit/48911bb15cc3bfbf5ede7b3b6d4c1d9dfe5886b5))
+
+### Fix
+
+* improve error message when attempting to retrieve a return result from an application log, and it has an incorrect prefix ([`0e1d334`](https://github.com/algorandfoundation/puya/commit/0e1d334591345922f13fc5b86a353314ff78a404))
+
+* improve error messages related to invalid types, particularly those in ARC-4 containers ([`00d3bac`](https://github.com/algorandfoundation/puya/commit/00d3bac1a908f946b30dbf2812ea15b080e477f5))
+
+* replacing an ARC-4 element in an immutable array no longer gives an error ([`75267b9`](https://github.com/algorandfoundation/puya/commit/75267b9d23b9c0a375cb3547e834453533ee7e64))
+
+* ensure `algopy.arc4.Tuple` arguments are validated against explicit type parameters, if specified ([`a3d6df7`](https://github.com/algorandfoundation/puya/commit/a3d6df732c7a77b5ec0813d4d4df7c67cf3de69e))
+
+* `algopy.arc4.Struct.from_log` no longer gives an unrecognised member error ([`f5cabbe`](https://github.com/algorandfoundation/puya/commit/f5cabbe524d86513bdb7146df2be50437766326f))
+
+* check for out of bound values when encoding ARC-4 UIntN less than 64 bits ([`1adb6a1`](https://github.com/algorandfoundation/puya/commit/1adb6a1f6b6d44e1bedb5e67d5fe328b0762e882))
+
+* support `algopy.Array[algopy.BigUInt]` and `algopy.ImmutableArray[algopy.BigUInt]` ([`d4229fd`](https://github.com/algorandfoundation/puya/commit/d4229fd87a0ceef1b998342947e385fea702692a))
+
+### Documentation
+
+* AK-194: Update dev portal links  (#428) ([`a1f6b49`](https://github.com/algorandfoundation/puya/commit/a1f6b49d24afba5f75b75439a8d1247ccc7d7149))
+
+  * AK-194: Update dev portal links
+
+  * Updated links
+
 ## v4.5.3 (2025-03-20)
 
 ### Fix
