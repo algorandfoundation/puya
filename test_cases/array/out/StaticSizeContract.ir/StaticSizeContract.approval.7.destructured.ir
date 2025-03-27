@@ -316,9 +316,9 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_extend_from_tupl
         let tmp%4#0: uint64 = (- tmp%3#0 1u)
         let array_head_and_tail%0#0: bytes = ((extract 2 0) result#0)
         let item_offset%0#0: uint64 = (* tmp%4#0 16u)
-        let arc4_item%0#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 16u) // on error: Index access is out of bounds
-        let tmp%5#0: bool = (== arc4_item%0#0 last#0)
-        (assert tmp%5#0)
+        let tmp%5#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 16u) // on error: Index access is out of bounds
+        let tmp%6#0: bool = (== tmp%5#0 last#0)
+        (assert tmp%6#0)
         return result#0
 
 subroutine test_cases.array.static_size.StaticSizeContract.test_extend_from_arc4_tuple(some_more: bytes[32]) -> bytes[16][]:
@@ -406,7 +406,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_conversion(
         let array%bytes_index%0#1: uint64 = (* item_index_internal%0#0 8u)
         let array%value%0#1: bytes = (extract3 slot_contents%4#0 array%bytes_index%0#1 8u)
         let val#0: bytes[8] = ((extract 0 8) array%value%0#1)
-        let tmp%5#0: bool = (!= val#0 0x0000000000000000)
+        let tmp%5#0: bool = (b!= val#0 0b)
         let count#9: uint64 = count#0
         goto tmp%5#0 ? block@7 : block@8
     block@7: // if_body_L100
