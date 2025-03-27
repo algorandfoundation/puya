@@ -98,7 +98,7 @@ def parse_arc56(app_spec_json: str) -> arc56.Contract:
 def _parse_arc32_app_spec_methods(
     app_spec_json: str,
 ) -> tuple[str, dict[str, Sequence[arc56.StructField]], Sequence[arc56.Method]]:
-    # only need to parse a limited subset of ARC32 for client generation
+    # only need to parse a limited subset of ARC-32 for client generation
     # i.e. ABI methods, their OCA parameters, and any struct info
     # default args are ignored as they aren't supported for on chain calls currently
 

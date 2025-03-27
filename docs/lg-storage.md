@@ -29,7 +29,7 @@ This is represented in Algorand Python by either:
         - Delete the stored value
         - Check if a value exists
         - Specify the exact key bytes
-        - Include a description to be included in App Spec files (ARC32/ARC56)
+        - Include a description to be included in App Spec files (ARC-32/ARC-56)
 
 For example:
 
