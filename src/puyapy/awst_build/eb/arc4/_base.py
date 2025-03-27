@@ -183,7 +183,7 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
     @typing.final
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         logger.error(
-            "item containment with ARC4 arrays is currently unsupported", location=location
+            "item containment with ARC-4 arrays is currently unsupported", location=location
         )
         return dummy_value(pytypes.BoolType, location)
 
@@ -196,4 +196,4 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
         stride: InstanceBuilder | None,
         location: SourceLocation,
     ) -> InstanceBuilder:
-        raise CodeError("slicing ARC4 arrays is currently unsupported", location)
+        raise CodeError("slicing ARC-4 arrays is currently unsupported", location)

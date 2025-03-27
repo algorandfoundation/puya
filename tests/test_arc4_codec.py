@@ -61,7 +61,7 @@ def test_supported_decodes(arc4_type: wtypes.ARC4Type, target_type: wtypes.WType
 def test_unsupported_decodes(arc4_type: wtypes.ARC4Type, target_type: wtypes.WType) -> None:
     func = _build_decode_function(arc4_type, target_type)
     errors = _get_ir_build_errors(func)
-    assert errors == [f"unsupported ARC4 decode operation from type {arc4_type.arc4_name}"]
+    assert errors == [f"unsupported ARC-4 decode operation from type {arc4_type.arc4_name}"]
 
 
 def _get_ir_build_errors(func: nodes.Subroutine) -> list[str]:

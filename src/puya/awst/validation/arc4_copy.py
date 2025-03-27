@@ -68,7 +68,7 @@ class ARC4CopyValidator(AWSTTraverser):
             and _is_arc4_mutable(sequence.wtype)
         ):
             logger.error(
-                "tuple of mutable ARC4 values cannot be iterated",
+                "tuple of mutable ARC-4 values cannot be iterated",
                 location=sequence.source_location,
             )
         elif (  # arrays of mutable types, must be modified and iterated by index
@@ -77,7 +77,7 @@ class ARC4CopyValidator(AWSTTraverser):
             and _is_arc4_mutable(sequence.wtype.element_type)
         ):
             logger.error(
-                "cannot directly iterate an ARC4 array of mutable objects,"
+                "cannot directly iterate an ARC-4 array of mutable objects,"
                 " construct a for-loop over the indexes instead",
                 location=sequence.source_location,
             )
@@ -147,7 +147,7 @@ def _check_assignment(target: awst_nodes.Expression, value: awst_nodes.Expressio
         _check_for_arc4_copy(value, "being assigned to another variable")
     elif _is_referable_expression(value) and any(_is_arc4_mutable(i) for i in target.wtype.types):
         logger.error(
-            "tuples containing a mutable reference to an ARC4-encoded value cannot be unpacked,"
+            "tuples containing a mutable reference to an ARC-4-encoded value cannot be unpacked,"
             " use index access instead",
             location=value.source_location,
         )
@@ -156,7 +156,7 @@ def _check_assignment(target: awst_nodes.Expression, value: awst_nodes.Expressio
 def _check_for_arc4_copy(expr: awst_nodes.Expression, context_desc: str) -> None:
     if _is_arc4_mutable(expr.wtype) and _is_referable_expression(expr):
         logger.error(
-            "mutable reference to ARC4-encoded value"
+            "mutable reference to ARC-4-encoded value"
             f" must be copied using .copy() when {context_desc}",
             location=expr.source_location,
         )

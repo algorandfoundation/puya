@@ -886,7 +886,7 @@ class FunctionIRBuilder(
         return storage.visit_state_exists(self.context, expr)
 
     def visit_new_array(self, expr: awst_nodes.NewArray) -> TExpression:
-        # delegate for ARC4 arrays
+        # delegate for ARC-4 arrays
         if isinstance(expr.wtype, wtypes.ARC4Array):
             return arc4.encode_arc4_exprs_as_array(
                 self.context, expr.wtype, expr.values, expr.source_location
@@ -1332,7 +1332,7 @@ class FunctionIRBuilder(
         root = self.context.root
         if not isinstance(root, awst_nodes.Contract):
             raise CodeError(
-                "cannot create ARC4 router outside of a contract", expr.source_location
+                "cannot create ARC-4 router outside of a contract", expr.source_location
             )
 
         return InvokeSubroutine(

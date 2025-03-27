@@ -183,7 +183,7 @@ def _arc4_method_to_decorator(python_method: str, method: arc56.Method) -> str:
     if not _compatible_actions(method.actions.create, method.actions.call):
         # TODO: support this, once decorators support it
         raise CodeError(
-            f"unsupported on completion combination for generating an ARC4 client"
+            f"unsupported on completion combination for generating an ARC-4 client"
             f" for method: {method.name}"
         )
     actions = sorted(

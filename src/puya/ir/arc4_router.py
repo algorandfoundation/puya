@@ -428,7 +428,7 @@ def route_abi_methods(
         arc4_signature = method.signature
         if not set_add(seen_signatures, arc4_signature):
             raise CodeError(
-                f"Cannot have duplicate ARC4 method signatures: {arc4_signature}", abi_loc
+                f"Cannot have duplicate ARC-4 method signatures: {arc4_signature}", abi_loc
             )
         method_routing_cases[
             awst_nodes.MethodConstant(source_location=location, value=arc4_signature)

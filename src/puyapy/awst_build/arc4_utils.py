@@ -140,13 +140,13 @@ def arc4_to_pytype(typ: str, location: SourceLocation | None = None) -> pytypes.
             arc4_to_pytype(x, location) for x in split_tuple_types(tuple_match.group("types"))
         ]
         return pytypes.GenericARC4TupleType.parameterise(tuple_types, location)
-    raise CodeError(f"unknown ARC4 type '{typ}'", location)
+    raise CodeError(f"unknown ARC-4 type '{typ}'", location)
 
 
 def pytype_to_arc4(typ: pytypes.PyType, loc: SourceLocation | None = None) -> str:
     def on_error(bad_type: pytypes.PyType) -> typing.Never:
         raise CodeError(
-            f"not an ARC4 type or native equivalent: {bad_type}",
+            f"not an ARC-4 type or native equivalent: {bad_type}",
             loc or getattr(bad_type, "source_location", None),
         )
 
@@ -164,7 +164,7 @@ def pytype_to_arc4(typ: pytypes.PyType, loc: SourceLocation | None = None) -> st
             return transaction_type.name if transaction_type else "txn"
     wtype = arc4_pytype.wtype
     if not isinstance(wtype, wtypes.ARC4Type):
-        raise CodeError(f"not an ARC4 type or native equivalent: {wtype}", loc)
+        raise CodeError(f"not an ARC-4 type or native equivalent: {wtype}", loc)
     return wtype.arc4_name
 
 

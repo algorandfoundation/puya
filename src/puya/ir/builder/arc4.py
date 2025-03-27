@@ -166,7 +166,7 @@ class NativeTupleCodec(ARC4Codec):
                 element_type=arc4_type, array_size=array_size
             ) if array_size == len(item_types):
                 # A static array of N is the same encoding as a tuple[N, ...N] of the same arity,
-                # so we can use the equivalent ARC4 tuple type as the decode source type
+                # so we can use the equivalent ARC-4 tuple type as the decode source type
                 arc4_tuple = wtypes.ARC4Tuple(types=[arc4_type] * array_size)
             case _:
                 return None
@@ -484,7 +484,7 @@ def decode_arc4_value(
         if result is not None:
             return result
     logger.error(
-        f"unsupported ARC4 decode operation from type {arc4_wtype.arc4_name}",
+        f"unsupported ARC-4 decode operation from type {arc4_wtype.arc4_name}",
         location=loc,
     )
     return _undefined_value(target_wtype, loc)
@@ -513,7 +513,9 @@ def encode_value_provider(
         result = codec.encode(context, value_provider, arc4_wtype, loc)
         if result is not None:
             return result
-    logger.error(f"unsupported ARC4 encode operation to type {arc4_wtype.arc4_name}", location=loc)
+    logger.error(
+        f"unsupported ARC-4 encode operation to type {arc4_wtype.arc4_name}", location=loc
+    )
     return _undefined_value(arc4_wtype, loc)
 
 
@@ -592,7 +594,7 @@ def _encode_arc4_values_as_array(
             return _undefined_value(wtype, loc)
         len_prefix = b""
     else:
-        raise InternalError("unhandled ARC4 Array type", loc)
+        raise InternalError("unhandled ARC-4 Array type", loc)
     element_type = wtype.element_type
     if element_type != wtypes.arc4_bool_wtype:
         array_head_and_tail = _arc4_items_as_arc4_tuple(context, element_type, elements, loc)
@@ -700,7 +702,7 @@ def build_for_in_array(
 ) -> ArrayIterator:
     if not array_wtype.element_type.immutable:
         raise InternalError(
-            "Attempted iteration of an ARC4 array of mutable objects", source_location
+            "Attempted iteration of an ARC-4 array of mutable objects", source_location
         )
     array = context.visitor.visit_and_materialise_single(array_expr)
     length_vp = get_arc4_array_length(array_wtype, array, source_location)
@@ -825,7 +827,7 @@ def dynamic_array_concat_and_convert(
     """
     Takes an expression which is effectively ARC-4 DynamicArray encoded,
      and concats it with an iterable like expression.
-    If the iterable type contains non ARC4 values, they will be encoded to the element type
+    If the iterable type contains non ARC-4 values, they will be encoded to the element type
     of the array
     """
     factory = OpFactory(context, source_location)
@@ -1496,8 +1498,8 @@ def _get_arc4_array_tail_data_and_item_count(
     source_location: SourceLocation,
 ) -> tuple[Value, Value]:
     """
-    For supported iterable types, will return the ARC4 tail data and item count,
-    doing any necessary ARC4 encoding.
+    For supported iterable types, will return the ARC-4 tail data and item count,
+    doing any necessary ARC-4 encoding.
     """
 
     factory = OpFactory(context, source_location)
@@ -1805,7 +1807,7 @@ def get_arc4_array_length(
                 source_location=source_location,
             )
         case _:
-            raise InternalError("Unexpected ARC4 array type", source_location)
+            raise InternalError("Unexpected ARC-4 array type", source_location)
 
 
 def _get_arc4_array_head_and_tail(
@@ -1827,7 +1829,7 @@ def _get_arc4_array_head_and_tail(
                 source_location=source_location,
             )
         case _:
-            raise InternalError("Unexpected ARC4 array type", source_location)
+            raise InternalError("Unexpected ARC-4 array type", source_location)
 
 
 def _get_arc4_array_tail(

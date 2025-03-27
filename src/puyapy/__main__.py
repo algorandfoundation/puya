@@ -54,7 +54,7 @@ def main() -> None:
         "--output-client",
         action=argparse.BooleanOptionalAction,
         default=False,
-        help="Output Algorand Python contract client for typed ARC4 ABI calls",
+        help="Output Algorand Python contract client for typed ARC-4 ABI calls",
     )
     parser.add_argument(
         "--out-dir", type=Path, help="Path for outputting artefacts", default=False

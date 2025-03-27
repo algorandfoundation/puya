@@ -1035,7 +1035,7 @@ class Parameter(Register):
 class Subroutine(Context):
     id: str
     short_name: str
-    # source_location might be None if it was synthesized e.g. ARC4 approval method
+    # source_location might be None if it was synthesized e.g. ARC-4 approval method
     source_location: SourceLocation | None
     parameters: Sequence[Parameter]
     _returns: Sequence[IRType]

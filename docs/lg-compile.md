@@ -11,7 +11,7 @@ The `--output-bytecode` option can be used to generate `.bin` files for smart co
 
 The [`compile_contract`](#algopy.compile_contract) function takes an Algorand Python smart contract class and returns a [`CompiledContract`](#algopy.CompiledContract),
 The global state, local state and program pages allocation parameters are derived from the contract by default, but can be overridden.
-This compiled contract can then be used to create an [`algopy.itxn.ApplicationCall`](#algopy.itxn.ApplicationCall) transaction or used with the [ARC4](#arc4-contracts) functions.  
+This compiled contract can then be used to create an [`algopy.itxn.ApplicationCall`](#algopy.itxn.ApplicationCall) transaction or used with the [ARC-4](#arc4-contracts) functions.  
 
 The [`compile_logicsig`](#algopy.compile_logicsig) takes an Algorand Python logic signature and returns a [`CompiledLogicSig`](#algopy.CompiledLogicSig), which can be used to
 verify if a transaction has been signed by a particular logic signature.

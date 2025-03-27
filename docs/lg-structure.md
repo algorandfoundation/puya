@@ -160,7 +160,7 @@ class MyContract(
 
 ### Example: Simplest possible `algopy.Contract` implementation
 
-For a non-ARC4 contract, the contract class must implement an `approval_program` and
+For a non-ARC-4 contract, the contract class must implement an `approval_program` and
 a `clear_state_program` method.
 
 As an example, this is a valid contract that always approves:
@@ -214,7 +214,7 @@ Some things to note:
 
 ### Example: Simplest possible `algopy.ARC4Contract` implementation
 
-And here is a valid ARC4 contract:
+And here is a valid ARC-4 contract:
 
 ```python
 class ABIContract(algopy.ARC4Contract):
@@ -229,7 +229,7 @@ based on the transaction application args to the correct public method.
 
 A default `clear_state_program` is implemented which always approves, but this can be overridden.
 
-### Example: An ARC4 call counter
+### Example: An ARC-4 call counter
 
 ```python
 import algopy

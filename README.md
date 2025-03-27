@@ -61,7 +61,7 @@ There are [many](https://github.com/algorandfoundation/puya/tree/main/examples) 
 is possible.
 
 -   [hello world](https://github.com/algorandfoundation/puya/tree/main/examples/hello_world/contract.py)
--   [hello world (ARC4)](https://github.com/algorandfoundation/puya/tree/main/examples/hello_world_arc4/contract.py)
+-   [hello world (ARC-4)](https://github.com/algorandfoundation/puya/tree/main/examples/hello_world_arc4/contract.py)
 -   [voting](https://github.com/algorandfoundation/puya/tree/main/examples/voting/voting.py)
 -   [AMM](https://github.com/algorandfoundation/puya/tree/main/examples/amm/contract.py)
 -   [auction](https://github.com/algorandfoundation/puya/tree/main/examples/auction/contract.py)
