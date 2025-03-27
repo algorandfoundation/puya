@@ -341,12 +341,12 @@ class Contract:
     source: Mapping[ProgramType, str] | None = None
     """
     The pre-compiled TEAL that may contain template variables.
-    MUST be omitted if included as part of ARC23
+    MUST be omitted if included as part of ARC-23
     """
     byteCode: Mapping[ProgramType, str] | None = None
     """
     The compiled bytecode for the application.
-    MUST be omitted if included as part of ARC23
+    MUST be omitted if included as part of ARC-23
     """
     compilerInfo: CompilerInfo | None = None
     """
