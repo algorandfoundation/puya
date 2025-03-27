@@ -111,7 +111,7 @@ def _convert_member_arg_default(
             return f"{member_name!r} does not provide a value"
         return_type_arc4 = wtype_to_arc4(method_source.return_type)
         if return_type_arc4 != param_arc4_type:
-            return f"{member_name!r} does not provide {param_arc4_type!r} type"
+            return f"{method_source.member_name!r} does not provide {param_arc4_type!r} type"
         return models.MethodArgDefaultFromMethod(
             name=abi_method_config.name,
             return_type=return_type_arc4,
