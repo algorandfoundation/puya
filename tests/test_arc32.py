@@ -2000,6 +2000,17 @@ def test_immutable_array(
         [4, "floor"],
     ]
 
+    response = simulate_call(
+        immutable_array_app,
+        "test_immutable_arc4",
+        imm=[[1, 2], [3, 4], [5, 6]],
+    )
+    assert response.abi_results[0].return_value == [
+        [1, 2],
+        [3, 4],
+        [1, 2],
+    ]
+
 
 _EXPECTED_LENGTH_20 = [False, False, True, *(False,) * 17]
 
