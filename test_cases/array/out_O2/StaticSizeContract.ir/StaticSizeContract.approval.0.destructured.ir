@@ -82,10 +82,10 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let tmp%23#0: bool = (== array%sub_item%18#1 i#8)
         (assert tmp%23#0)
         let array%sub_item%30#1: bytes = ((extract 64 16) array%value%0#1)
-        let reinterpret_biguint%0#0: biguint = ((extract 0 8) array%sub_item%30#1) // on error: Index access is out of bounds
+        let reinterpret_biguint%0#1: biguint = ((extract 0 8) array%sub_item%30#1) // on error: Index access is out of bounds
         let tmp%31#1: uint64 = (+ i#0 2u)
         let tmp%32#1: biguint = (itob tmp%31#1)
-        let tmp%33#1: bool = (b== reinterpret_biguint%0#0 tmp%32#1)
+        let tmp%33#1: bool = (b== reinterpret_biguint%0#1 tmp%32#1)
         (assert tmp%33#1)
         let reinterpret_biguint%1#0: biguint = ((extract 8 8) array%sub_item%30#1) // on error: Index access is out of bounds
         let tmp%43#0: uint64 = (* i#8 i#8)
@@ -180,9 +180,9 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let tmp%4#1: uint64 = (- tmp%3#0 1u)
         let array_head_and_tail%0#1: bytes = ((extract 2 0) result#0)
         let item_offset%0#0: uint64 = (* tmp%4#1 16u)
-        let arc4_item%0#0: bytes = (extract3 array_head_and_tail%0#1 item_offset%0#0 16u) // on error: Index access is out of bounds
-        let tmp%5#1: bool = (== arc4_item%0#0 last#0)
-        (assert tmp%5#1)
+        let tmp%5#4: bytes = (extract3 array_head_and_tail%0#1 item_offset%0#0 16u) // on error: Index access is out of bounds
+        let tmp%6#2: bool = (== tmp%5#4 last#0)
+        (assert tmp%6#2)
         let tmp%15#0: bytes = (concat 0x151f7c75 result#0)
         (log tmp%15#0)
         let test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0: bool = 1u
@@ -297,7 +297,7 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let array%bytes_index%7#1: uint64 = (* item_index_internal%0#0 8u)
         let array%value%7#1: bytes = (extract3 slot_contents%4#1 array%bytes_index%7#1 8u)
         let val#0: bytes[8] = ((extract 0 8) array%value%7#1)
-        let tmp%5#1: bool = (!= val#0 0x0000000000000000)
+        let tmp%5#1: bool = (b!= val#0 0b)
         let count#13: uint64 = count#0
         goto tmp%5#1 ? block@26 : block@27
     block@26: // if_body_L100
