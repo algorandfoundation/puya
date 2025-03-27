@@ -1242,13 +1242,16 @@ class FunctionIRBuilder(
     def visit_array_replace(self, expr: awst_nodes.ArrayReplace) -> TExpression:
         arc4_wtype = effective_array_encoding(expr.wtype, expr.source_location)
         value = self.context.visitor.visit_expr(expr.value)
-        arc4_value = arc4.encode_value_provider(
-            self.context,
-            value,
-            expr.value.wtype,
-            arc4_wtype.element_type,
-            expr.source_location,
-        )
+        if arc4_wtype.element_type == expr.value.wtype:
+            arc4_value = value
+        else:
+            arc4_value = arc4.encode_value_provider(
+                self.context,
+                value,
+                expr.value.wtype,
+                arc4_wtype.element_type,
+                expr.source_location,
+            )
         return arc4.arc4_replace_array_item(
             self.context,
             base_expr=expr.base,
