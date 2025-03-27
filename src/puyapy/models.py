@@ -61,7 +61,10 @@ class ARC4ABIMethodData:
                 f"invalid type for an ARC-4 method: {bad_type}", self.config.source_location
             )
 
-        return {k: pytype_to_arc4_pytype(v, on_error=on_error) for k, v in self._signature.items()}
+        return {
+            k: pytype_to_arc4_pytype(v, on_error=on_error, encode_resource_types=k == "output")
+            for k, v in self._signature.items()
+        }
 
     @property
     def signature(self) -> Mapping[str, pytypes.PyType]:

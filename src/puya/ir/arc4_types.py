@@ -5,28 +5,40 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-def wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> str:
-    """Returns the ARC-4 name for a WType, reference types and transaction types are return their
-    applicable ARC-4 aliases, other non ARC-4 types return their ARC-4 equivalents"""
+def wtype_to_arc4(
+    kind: typing.Literal["argument", "return"],
+    wtype: wtypes.WType,
+    loc: SourceLocation,
+) -> str:
+    """
+    Returns the ARC-4 name for a WType, non ARC-4 types are first converted to ARC-4 equivalents.
+    Reference types and transaction types return their applicable ARC-4 aliases when used
+    as an argument
+    """
     match wtype:
         case wtypes.ARC4Type(arc4_name=arc4_name):
             return arc4_name
         case (
-            wtypes.void_wtype
-            | wtypes.asset_wtype
+            wtypes.asset_wtype
             | wtypes.account_wtype
             | wtypes.application_wtype
-        ):
+        ) if kind == "argument":
             return wtype.name
-        case wtypes.WGroupTransaction(transaction_type=transaction_type):
+        case wtypes.WGroupTransaction(transaction_type=transaction_type) if kind == "argument":
             return transaction_type.name if transaction_type else "txn"
-    converted = wtype_to_arc4_wtype(wtype, loc)
-    return wtype_to_arc4(converted, loc)
+        case wtypes.void_wtype if kind == "return":
+            return wtype.name
+    maybe_arc4_wtype = maybe_wtype_to_arc4_wtype(wtype)
+    if maybe_arc4_wtype is None:
+        raise CodeError(f"unsupported {kind} type for an ARC-4 method", loc)
+    return maybe_arc4_wtype.arc4_name
 
 
 def maybe_wtype_to_arc4_wtype(wtype: wtypes.WType) -> wtypes.ARC4Type | None:
-    """Returns the ARC-4 equivalent type, note account, asset and application types are returned
-    as their ARC-4 equivalent stack encoded values and not their ARC-4 reference alias types"""
+    """
+    Returns the ARC-4 equivalent type, note account, asset and application types are returned
+    as their ARC-4 equivalent stack encoded values and not their ARC-4 reference alias types
+    """
     match wtype:
         case wtypes.ARC4Type() as arc4_wtype:
             return arc4_wtype

@@ -62,7 +62,10 @@ class EmitBuilder(FunctionBuilder):
                     location=location,
                 )
         event_name = struct_type.name.split(".")[-1]
-        event_sig = f"{event_name}{pytype_to_arc4(event_arg_eb.pytype, location)}"
+        event_arc4_name = pytype_to_arc4(
+            event_arg_eb.pytype, encode_resource_types=True, loc=location
+        )
+        event_sig = f"{event_name}{event_arc4_name}"
         emit = Emit(
             signature=event_sig,
             value=event_arg_eb.resolve(),
