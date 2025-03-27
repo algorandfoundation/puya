@@ -79,7 +79,6 @@ lg-logs
 lg-transactions
 lg-ops
 lg-opcode-budget
-lg-arc4
 lg-arc28
 lg-calling-apps
 lg-compile

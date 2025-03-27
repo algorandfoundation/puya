@@ -41,7 +41,7 @@ while condition:
 
 ## For Loops
 
-For loops are used to iterate over sequences, ranges and [ARC-4 arrays](./lg-arc4.md). They work the same as Python.
+For loops are used to iterate over sequences, ranges and ARC-4 arrays. They work the same as Python.
 
 Algorand Python provides functions like `uenumerate` and `urange` to facilitate creating sequences and ranges; in-built Python `reversed` method works with these.
 
