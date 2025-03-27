@@ -61,7 +61,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--log-level",
-        type=LogLevel.from_string,
+        type=LogLevel.__getitem__,
         choices=list(LogLevel),
         default=LogLevel.info,
         help="Minimum level to log to console",
