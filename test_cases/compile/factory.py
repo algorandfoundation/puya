@@ -169,7 +169,7 @@ class HelloFactory(ARC4Contract):
         arc4.abi_call(
             Hello.delete,
             app_id=hello_app,
-            # on_complete is inferred from Hello.delete ARC4 definition
+            # on_complete is inferred from Hello.delete ARC-4 definition
         )
 
         assert result == "hello world"
@@ -190,7 +190,7 @@ class HelloFactory(ARC4Contract):
         arc4.abi_call(
             HelloTmpl.delete,
             app_id=hello_app,
-            # on_complete is inferred from Hello.delete ARC4 definition
+            # on_complete is inferred from Hello.delete ARC-4 definition
         )
 
         assert result == "tmpl2 world"
@@ -213,7 +213,7 @@ class HelloFactory(ARC4Contract):
         arc4.abi_call(
             HelloPrfx.delete,
             app_id=hello_app,
-            # on_complete is inferred from Hello.delete ARC4 definition
+            # on_complete is inferred from Hello.delete ARC-4 definition
         )
 
         assert result == "prfx2 world"
@@ -291,7 +291,7 @@ class HelloFactory(ARC4Contract):
         arc4.abi_call(
             Hello.delete,
             app_id=app,
-            # on_complete is inferred from Hello.delete ARC4 definition
+            # on_complete is inferred from Hello.delete ARC-4 definition
         )
 
     @arc4.abimethod()
