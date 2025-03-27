@@ -73,6 +73,11 @@ class NineBoolTuple(typing.NamedTuple):
     bar: UInt64
 
 
+class MyStruct(arc4.Struct, frozen=True):
+    foo: arc4.UInt64
+    bar: arc4.UInt64
+
+
 class ImmutableArrayContract(arc4.ARC4Contract):
     @arc4.abimethod()
     def test_uint64_array(self) -> None:
@@ -423,6 +428,12 @@ class ImmutableArrayContract(arc4.ARC4Contract):
         self, imm1: ImmutableArray[MyDynamicSizedTuple], imm2: ImmutableArray[MyDynamicSizedTuple]
     ) -> ImmutableArray[MyDynamicSizedTuple]:
         return imm1 + imm2
+
+    @arc4.abimethod()
+    def test_immutable_arc4(self, imm: ImmutableArray[MyStruct]) -> ImmutableArray[MyStruct]:
+        assert imm, "expected non empty array"
+        imm = imm.replace(imm.length - 1, imm[0])
+        return imm
 
 
 @subroutine
