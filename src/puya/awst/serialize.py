@@ -35,7 +35,7 @@ def _get_converter() -> cattrs.preconf.json.JsonConverter:
     )
 
     # TxnField and PuyaLibFunction as name
-    for enum_type in (txn_fields.TxnField, nodes.PuyaLibFunction):
+    for enum_type in (txn_fields.TxnField, nodes.PuyaLibFunction, log.LogLevel):
         converter.register_unstructure_hook(enum_type, lambda v: v.name)
         converter.register_structure_hook(enum_type, lambda v, t: t[v])
 
