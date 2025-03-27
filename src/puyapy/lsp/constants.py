@@ -1,4 +1,4 @@
 from importlib.metadata import version
 
-NAME = "puyapy-lsp"
+NAME = "puyapy"
 VERSION = version("puyapy")
