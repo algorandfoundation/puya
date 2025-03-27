@@ -16,7 +16,10 @@ from puya.awst import (
 from puya.context import CompiledProgramProvider
 from puya.errors import CodeError
 from puya.ir._utils import make_subroutine
-from puya.ir.arc4_types import maybe_wtype_to_arc4_wtype, wtype_to_arc4
+from puya.ir.arc4_types import (
+    maybe_wtype_to_arc4_wtype,
+    wtype_to_arc4,
+)
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
 from puya.ir.optimize.context import IROptimizationContext
@@ -74,15 +77,6 @@ def _convert_member_arg_default(
     param: awst_nodes.SubroutineArgument,
     member_name: str,
 ) -> models.MethodArgDefaultFromState | models.MethodArgDefaultFromMethod | str:
-    param_arc4_type = wtype_to_arc4(param.wtype)
-
-    # special handling for reference types
-    match param_arc4_type:
-        case "asset" | "application":
-            param_arc4_type = "uint64"
-        case "account":
-            param_arc4_type = "address"
-
     if (state_source := state_by_name.get(member_name)) is not None:
         if state_source.key_wtype is not None:
             return "state member is a map"
@@ -109,7 +103,11 @@ def _convert_member_arg_default(
             return f"{member_name!r} does not take zero arguments"
         if method_source.return_type == wtypes.void_wtype:
             return f"{member_name!r} does not provide a value"
-        return_type_arc4 = wtype_to_arc4(method_source.return_type)
+        # return is used here so reference types are treated as their ARC-4 encoded equivalents
+        param_arc4_type = wtype_to_arc4("return", param.wtype, param.source_location)
+        return_type_arc4 = wtype_to_arc4(
+            "return", method_source.return_type, method_source.source_location
+        )
         if return_type_arc4 != param_arc4_type:
             return f"{method_source.member_name!r} does not provide {param_arc4_type!r} type"
         return models.MethodArgDefaultFromMethod(

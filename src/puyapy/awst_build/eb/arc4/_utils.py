@@ -29,7 +29,7 @@ logger = log.get_logger(__name__)
 _VALID_NAME_PATTERN = re.compile("^[_A-Za-z][A-Za-z0-9_]*$")
 
 
-def _pytype_to_arc4_pytype(typ: pytypes.PyType, sig: attrs.AttrsInstance) -> pytypes.PyType:
+def _pytype_to_arc4_return_pytype(typ: pytypes.PyType, sig: attrs.AttrsInstance) -> pytypes.PyType:
     assert isinstance(sig, ARC4Signature)
 
     def on_error(bad_type: pytypes.PyType) -> typing.Never:
@@ -37,13 +37,20 @@ def _pytype_to_arc4_pytype(typ: pytypes.PyType, sig: attrs.AttrsInstance) -> pyt
             f"invalid return type for an ARC-4 method: {bad_type}", sig.source_location
         )
 
-    return arc4_utils.pytype_to_arc4_pytype(typ, on_error)
+    return arc4_utils.pytype_to_arc4_pytype(typ, on_error, encode_resource_types=True)
 
 
-def _pytypes_to_arc4_pytypes(
+def _pytypes_to_arc4_arg_pytypes(
     types: Sequence[pytypes.PyType], sig: attrs.AttrsInstance
 ) -> Sequence[pytypes.PyType]:
-    return tuple(_pytype_to_arc4_pytype(t, sig) for t in types)
+    assert isinstance(sig, ARC4Signature)
+
+    def on_error(bad_type: pytypes.PyType) -> typing.Never:
+        raise CodeError(
+            f"invalid argument type for an ARC-4 method: {bad_type}", sig.source_location
+        )
+
+    return tuple(pytype_to_arc4_pytype(t, on_error, encode_resource_types=False) for t in types)
 
 
 @attrs.frozen(kw_only=True)
@@ -51,16 +58,18 @@ class ARC4Signature:
     source_location: SourceLocation | None
     method_name: str
     arg_types: Sequence[pytypes.PyType] = attrs.field(
-        converter=attrs.Converter(_pytypes_to_arc4_pytypes, takes_self=True)  # type: ignore[misc]
+        converter=attrs.Converter(_pytypes_to_arc4_arg_pytypes, takes_self=True)  # type: ignore[misc]
     )
     return_type: pytypes.PyType = attrs.field(
-        converter=attrs.Converter(_pytype_to_arc4_pytype, takes_self=True)  # type: ignore[misc]
+        converter=attrs.Converter(_pytype_to_arc4_return_pytype, takes_self=True)  # type: ignore[misc]
     )
 
     @property
     def method_selector(self) -> str:
-        args = ",".join(map(arc4_utils.pytype_to_arc4, self.arg_types))
-        return_type = arc4_utils.pytype_to_arc4(self.return_type)
+        args = ",".join(
+            arc4_utils.pytype_to_arc4(t, encode_resource_types=False) for t in self.arg_types
+        )
+        return_type = arc4_utils.pytype_to_arc4(self.return_type, encode_resource_types=True)
         return f"{self.method_name}({args}){return_type}"
 
     def convert_args(
@@ -100,7 +109,7 @@ def get_arc4_signature(
     method_name, maybe_args, maybe_returns = _split_signature(method_sig, method.source_location)
     if maybe_args is None:
         arg_types = [
-            _implicit_arc4_type_conversion(
+            _implicit_arc4_type_arg_conversion(
                 expect.instance_builder(na, default=expect.default_raise).pytype, loc
             )
             for na in native_args
@@ -117,7 +126,7 @@ def get_arc4_signature(
     )
 
 
-def _implicit_arc4_type_conversion(typ: pytypes.PyType, loc: SourceLocation) -> pytypes.PyType:
+def _implicit_arc4_type_arg_conversion(typ: pytypes.PyType, loc: SourceLocation) -> pytypes.PyType:
     match typ:
         case pytypes.StrLiteralType:
             return pytypes.ARC4StringType
@@ -134,7 +143,7 @@ def _implicit_arc4_type_conversion(typ: pytypes.PyType, loc: SourceLocation) -> 
             f"{invalid_pytype} is not an ARC-4 type and no implicit ARC-4 conversion possible", loc
         )
 
-    return pytype_to_arc4_pytype(typ, on_error)
+    return pytype_to_arc4_pytype(typ, on_error, encode_resource_types=False)
 
 
 def _inner_transaction_type_matches(instance: pytypes.PyType, target: pytypes.PyType) -> bool:
