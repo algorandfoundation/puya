@@ -8,7 +8,7 @@ from puyapy.lsp import constants
 
 
 @attrs.define(kw_only=True)
-class PuyaPyLspOptions:
+class PuyaPyLanguageServerOptions:
     stdio: bool = False
     host: str = "localhost"
     socket: int = 8888
@@ -17,7 +17,7 @@ class PuyaPyLspOptions:
 def main() -> None:
     parser = argparse.ArgumentParser(
         prog=constants.NAME,
-        description="puyapy language server, defaults to listening on localhost:8888",
+        description="PuyaPy language server",
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s ({constants.VERSION})")
     parser.add_argument("--stdio", action="store_true", help="start a stdio server")
@@ -25,7 +25,7 @@ def main() -> None:
     parser.add_argument("--socket", type=int, default=8888, help="bind to this port")
 
     namespace = parser.parse_args()
-    options = PuyaPyLspOptions(**vars(namespace))
+    options = PuyaPyLanguageServerOptions(**vars(namespace))
 
     # logging to stdout interferes with stdio protocol, so log to stderr instead
     log_file = sys.stderr if options.stdio else sys.stdout
@@ -33,7 +33,7 @@ def main() -> None:
     _start_server(options)
 
 
-def _start_server(options: PuyaPyLspOptions) -> None:
+def _start_server(options: PuyaPyLanguageServerOptions) -> None:
     # defer server import until logging is configured
     from puyapy.lsp.server import server
 
