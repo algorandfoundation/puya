@@ -779,7 +779,7 @@ from algopy import *
 class ARC4Reference(arc4.ARC4Contract):
     @arc4.abimethod()
     def test(self,
-        arg: tuple[Account, Asset], ## E: ARC-4 tuples can only contain ARC-4 types but elements 0 and 1 are not ARC-4 types
+        arg: tuple[Account, Asset],
         arg2: tuple[Account, Application],
     ) -> None:
         pass
@@ -791,6 +791,14 @@ from algopy import *
 class ARC4Reference(arc4.ARC4Contract):
     @arc4.abimethod()
     def test(self,
-        arg: ImmutableArray[Asset], ## E: ARC-4 arrays can only contain ARC-4 elements
+        arg: ImmutableArray[Asset],
     ) -> None:
         pass
+
+## case: return_txn_type
+from algopy import *
+
+class ReferenceReturn(arc4.ARC4Contract):
+    @arc4.abimethod ## E: unsupported return type for an ARC-4 method
+    def txn(self) -> gtxn.Transaction:
+        return gtxn.Transaction(1)
