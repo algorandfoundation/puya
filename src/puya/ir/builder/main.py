@@ -786,7 +786,6 @@ class FunctionIRBuilder(
     def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> TExpression:
         index = self.visit_and_materialise_single(expr.index)
         base = self.visit_and_materialise_single(expr.base)
-        factory = OpFactory(self.context, expr.source_location)
 
         indexable_wtype = expr.base.wtype
         if indexable_wtype == wtypes.bytes_wtype:
@@ -821,14 +820,13 @@ class FunctionIRBuilder(
                 index=index,
                 source_location=expr.source_location,
             )
-
-            encoded_read = factory.assign(encoded_read_vp, "arc4_item")
-            return arc4.decode_arc4_value(
+            return arc4.maybe_decode_arc4_value_provider(
                 self.context,
-                encoded_read,
+                encoded_read_vp,
                 arc4_array_type.element_type,
                 indexable_wtype.element_type,
                 expr.source_location,
+                temp_description="arc4_item",
             )
         elif isinstance(indexable_wtype, wtypes.ARC4Array):
             return arc4.arc4_array_index(

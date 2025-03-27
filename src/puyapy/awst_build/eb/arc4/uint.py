@@ -8,6 +8,7 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4Decode,
     ARC4Encode,
+    BigUIntConstant,
     Expression,
     IntegerConstant,
     NumericComparison,
@@ -19,7 +20,7 @@ from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder, arc4_bool_bytes
+from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
@@ -107,12 +108,13 @@ class UIntNExpressionBuilder(
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        return arc4_bool_bytes(
-            self,
-            false_bytes=b"\x00" * (self.pytype.bits // 8),
-            location=location,
-            negate=negate,
+        cmp_expr = NumericComparisonExpression(
+            operator=NumericComparison.eq if negate else NumericComparison.ne,
+            lhs=self._as_biguint(),
+            rhs=BigUIntConstant(value=0, source_location=location),
+            source_location=location,
         )
+        return BoolExpressionBuilder(cmp_expr)
 
     @typing.override
     def compare(
@@ -133,12 +135,15 @@ class UIntNExpressionBuilder(
             return NotImplemented
         cmp_expr = NumericComparisonExpression(
             operator=NumericComparison(op.value),
-            lhs=ReinterpretCast(
-                expr=self.resolve(),
-                wtype=wtypes.biguint_wtype,
-                source_location=self.source_location,
-            ),
+            lhs=self._as_biguint(),
             rhs=other_expr,
             source_location=location,
         )
         return BoolExpressionBuilder(cmp_expr)
+
+    def _as_biguint(self) -> Expression:
+        return ReinterpretCast(
+            expr=self.resolve(),
+            wtype=wtypes.biguint_wtype,
+            source_location=self.source_location,
+        )

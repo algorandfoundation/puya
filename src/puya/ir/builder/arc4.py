@@ -36,6 +36,7 @@ from puya.ir.builder.assignment import handle_assignment
 from puya.ir.builder.mem import read_slot
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
+    BigUIntConstant,
     Intrinsic,
     InvokeSubroutine,
     Register,
@@ -58,6 +59,25 @@ from puya.utils import bits_to_bytes
 logger = log.get_logger(__name__)
 
 
+def maybe_decode_arc4_value_provider(
+    context: IRFunctionBuildContext,
+    value_provider: ValueProvider,
+    arc4_wtype: wtypes.ARC4Type,
+    target_wtype: wtypes.WType,
+    loc: SourceLocation,
+    *,
+    temp_description: str = "tmp",
+) -> ValueProvider:
+    if target_wtype == arc4_wtype:
+        return value_provider
+    (value,) = context.visitor.materialise_value_provider(
+        value_provider, description=temp_description
+    )
+    return decode_arc4_value(
+        context, value, arc4_wtype=arc4_wtype, target_wtype=target_wtype, loc=loc
+    )
+
+
 def decode_arc4_value(
     context: IRFunctionBuildContext,
     value: Value,
@@ -65,42 +85,31 @@ def decode_arc4_value(
     target_wtype: wtypes.WType,
     loc: SourceLocation,
 ) -> ValueProvider:
-    if arc4_wtype == target_wtype:
-        return value
     match arc4_wtype, target_wtype:
-        case (
-            wtypes.ARC4UIntN(),
-            wtypes.biguint_wtype,
-        ):
+        case wtypes.ARC4UIntN(), wtypes.biguint_wtype:
             return value
-        case (
-            wtypes.ARC4UIntN(),
-            (wtypes.uint64_wtype | wtypes.bool_wtype),
-        ):
+        case wtypes.ARC4UIntN(n=bits), wtypes.uint64_wtype if bits <= 64:
+            return Intrinsic(op=AVMOp.btoi, args=[value], source_location=loc)
+        case wtypes.ARC4UIntN(), wtypes.bool_wtype:
             return Intrinsic(
-                op=AVMOp.btoi,
-                args=[value],
+                op=AVMOp.neq_bytes,
+                args=[value, BigUIntConstant(value=0, source_location=None)],
+                types=(PrimitiveIRType.bool,),
                 source_location=loc,
             )
-        case (
-            wtypes.arc4_bool_wtype,
-            wtypes.bool_wtype,
-        ):
+        case wtypes.arc4_bool_wtype, wtypes.bool_wtype:
             return Intrinsic(
                 op=AVMOp.getbit,
                 args=[value, UInt64Constant(value=0, source_location=None)],
-                source_location=loc,
                 types=(PrimitiveIRType.bool,),
+                source_location=loc,
             )
         case (
             wtypes.ARC4DynamicArray(element_type=wtypes.ARC4UIntN(n=8)),
             (wtypes.bytes_wtype | wtypes.string_wtype),
         ):
             return Intrinsic(
-                op=AVMOp.extract,
-                immediates=[2, 0],
-                args=[value],
-                source_location=loc,
+                op=AVMOp.extract, immediates=[2, 0], args=[value], source_location=loc
             )
         case (
             wtypes.ARC4StaticArray(element_type=wtypes.ARC4UIntN(n=8)),
@@ -154,110 +163,78 @@ def encode_value_provider(
     arc4_wtype: wtypes.ARC4Type,
     loc: SourceLocation,
 ) -> ValueProvider:
+    # handle already ARC4 encoded cases first, no need to materialize
     match arc4_wtype, value_wtype:
-        case (
-            wtypes.arc4_bool_wtype,
-            wtypes.bool_wtype,
-        ):
-            (value,) = context.visitor.materialise_value_provider(
-                value_provider, description="to_encode"
-            )
-            return _encode_arc4_bool(context, value, loc)
-        case (
-            wtypes.ARC4UIntN(n=bits),
-            wtypes.biguint_wtype,
-        ):
-            (value,) = context.visitor.materialise_value_provider(
-                value_provider, description="to_encode"
-            )
-            factory = OpFactory(context, loc)
-            return factory.to_fixed_size(
-                value, num_bytes=bits // 8, temp_desc="arc4_encoded", error_message="overflow"
-            )
-        case (
-            wtypes.ARC4UIntN(n=bits),
-            (wtypes.bool_wtype | wtypes.uint64_wtype),
-        ):
-            (value,) = context.visitor.materialise_value_provider(
-                value_provider, description="to_encode"
-            )
-            num_bytes = bits // 8
-            return _encode_native_uint64_to_arc4(context, value, num_bytes, loc)
-        case (
-            wtypes.ARC4Tuple(types=arc4_item_types),
-            wtypes.WTuple(types=item_types),
-        ):
-            elements = context.visitor.materialise_value_provider(
-                value_provider, description="elements_to_encode"
-            )
-            arc4_items = _encode_arc4_tuple_items(
-                context, elements, item_types, arc4_item_types, loc
-            )
-            return _visit_arc4_tuple_encode(context, arc4_items, arc4_item_types, loc)
-        case (
-            wtypes.ARC4Struct(types=arc4_item_types),
-            wtypes.WTuple(types=item_types),
-        ):
-            elements = context.visitor.materialise_value_provider(
-                value_provider, description="elements_to_encode"
-            )
-            arc4_items = _encode_arc4_tuple_items(
-                context, elements, item_types, arc4_item_types, loc
-            )
-            return _visit_arc4_tuple_encode(context, arc4_items, arc4_item_types, loc)
-        case (
-            wtypes.ARC4DynamicArray(element_type=wtypes.ARC4UIntN(n=8)),
-            (wtypes.bytes_wtype | wtypes.string_wtype),
-        ):
-            (value,) = context.visitor.materialise_value_provider(
-                value_provider, description="to_encode"
-            )
-            factory = OpFactory(context, loc)
-            length = factory.len(value, "length")
-            length_uint16 = factory.as_u16_bytes(length, "length_uint16")
-            return factory.concat(length_uint16, value, "encoded_value")
-        case (
-            wtypes.ARC4StaticArray(element_type=wtypes.ARC4UIntN(n=8), array_size=num_bytes),
-            (wtypes.bytes_wtype | wtypes.string_wtype),
-        ):
-            (value,) = context.visitor.materialise_value_provider(
-                value_provider, description="to_encode"
-            )
-            factory = OpFactory(context, loc)
-            length = factory.len(value, "length")
-            lengths_equal = factory.eq(length, num_bytes, "lengths_equal")
-            assert_value(context, lengths_equal, error_message="invalid size", source_location=loc)
-            return value
-        case (wtypes.arc4_address_alias, wtypes.account_wtype):
+        case wtypes.arc4_address_alias, wtypes.account_wtype:
             return value_provider
-        case (
-            wtypes.ARC4Array(),
-            wtypes.StackArray(),
-        ) if is_equivalent_effective_array_encoding(value_wtype, arc4_wtype, loc):
-            # already ARC4 encoded
+        case wtypes.ARC4Array(), wtypes.StackArray() if (
+            is_equivalent_effective_array_encoding(value_wtype, arc4_wtype, loc)
+        ):
             return value_provider
-        case (
-            wtypes.ARC4Array(element_type=arc4_element_type),
-            wtypes.WTuple(types=[src_element_type, *src_types_to_check]),
-        ) if all(t == src_element_type for t in src_types_to_check):
-            values = context.visitor.materialise_value_provider(
-                value_provider, description="elements_to_encode"
-            )
-            if src_element_type != arc4_element_type:
-                item_types = value_wtype.types
-                arc4_element_types = [arc4_element_type] * len(item_types)
-                values = _encode_arc4_tuple_items(
-                    context, values, item_types, arc4_element_types, loc
+
+    if isinstance(value_wtype, wtypes.WTuple):
+        values = context.visitor.materialise_value_provider(
+            value_provider, description="elements_to_encode"
+        )
+        item_types = value_wtype.types
+        match arc4_wtype:
+            case wtypes.ARC4Tuple(types=arc4_item_types):
+                arc4_items = _encode_arc4_tuple_items(
+                    context, values, item_types, arc4_item_types, loc
                 )
-            return _encode_arc4_values_as_array(context, arc4_wtype, values, loc)
-        case _:
-            logger.error(
-                f"unsupported ARC4 encode operation to type {arc4_wtype.arc4_name}", location=loc
-            )
-            return Undefined(
-                ir_type=wtype_to_ir_type(arc4_wtype, loc),
-                source_location=loc,
-            )
+                return _visit_arc4_tuple_encode(context, arc4_items, arc4_item_types, loc)
+            case wtypes.ARC4Struct(types=arc4_item_types):
+                arc4_items = _encode_arc4_tuple_items(
+                    context, values, item_types, arc4_item_types, loc
+                )
+                return _visit_arc4_tuple_encode(context, arc4_items, arc4_item_types, loc)
+
+            case wtypes.ARC4Array(element_type=arc4_element_type) if item_types and all(
+                t == item_types[0] for t in item_types[1:]
+            ):
+                if item_types[0] != arc4_element_type:
+                    arc4_element_types = [arc4_element_type] * len(item_types)
+                    values = _encode_arc4_tuple_items(
+                        context, values, item_types, arc4_element_types, loc
+                    )
+                return _encode_arc4_values_as_array(context, arc4_wtype, values, loc)
+
+    if value_wtype.scalar_type is not None:
+        factory = OpFactory(context, loc)
+        (value,) = context.visitor.materialise_value_provider(
+            value_provider, description="to_encode"
+        )
+        match arc4_wtype, value_wtype:
+            case wtypes.arc4_bool_wtype, wtypes.bool_wtype:
+                return _encode_arc4_bool(context, value, loc)
+            case wtypes.ARC4UIntN(n=bits), wtypes.biguint_wtype:
+                num_bytes = bits // 8
+                return factory.to_fixed_size(
+                    value, num_bytes=num_bytes, temp_desc="arc4_encoded", error_message="overflow"
+                )
+            case wtypes.ARC4UIntN(n=bits), (wtypes.uint64_wtype | wtypes.bool_wtype):
+                num_bytes = bits // 8
+                return _encode_native_uint64_to_arc4(context, value, num_bytes, loc)
+            case (
+                wtypes.ARC4Array(element_type=wtypes.ARC4UIntN(n=8)),
+                (wtypes.bytes_wtype | wtypes.string_wtype),
+            ):
+                length = factory.len(value, "length")
+                if isinstance(arc4_wtype, wtypes.ARC4DynamicArray):
+                    length_uint16 = factory.as_u16_bytes(length, "length_uint16")
+                    return factory.concat(length_uint16, value, "encoded_value")
+                elif isinstance(arc4_wtype, wtypes.ARC4StaticArray):
+                    lengths_equal = factory.eq(length, arc4_wtype.array_size, "lengths_equal")
+                    assert_value(
+                        context, lengths_equal, error_message="invalid size", source_location=loc
+                    )
+                    return value
+
+    logger.error(f"unsupported ARC4 encode operation to type {arc4_wtype.arc4_name}", location=loc)
+    return Undefined(
+        ir_type=wtype_to_ir_type(arc4_wtype, loc),
+        source_location=loc,
+    )
 
 
 def _encode_arc4_tuple_items(
@@ -831,19 +808,16 @@ def _visit_arc4_tuple_decode(
             index=index,
             source_location=source_location,
         )
-        item = assign_temp(
+        item_name = f"item{index}"
+        item_vp = maybe_decode_arc4_value_provider(
             context,
-            temp_description=f"item{index}",
-            source=item_value,
-            source_location=source_location,
+            item_value,
+            arc4_wtype=item_wtype,
+            target_wtype=target_item_wtype,
+            temp_description=item_name,
+            loc=source_location,
         )
-        if target_item_wtype != item_wtype:
-            decoded_item = decode_arc4_value(
-                context, item, item_wtype, target_item_wtype, source_location
-            )
-            items.extend(context.visitor.materialise_value_provider(decoded_item, item.name))
-        else:
-            items.append(item)
+        items.extend(context.visitor.materialise_value_provider(item_vp, item_name))
     return ValueTuple(source_location=source_location, values=items)
 
 

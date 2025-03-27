@@ -6,14 +6,22 @@ import mypy.nodes
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import DecimalConstant, Expression
+from puya.awst.nodes import (
+    BigUIntConstant,
+    DecimalConstant,
+    Expression,
+    NumericComparison,
+    NumericComparisonExpression,
+    ReinterpretCast,
+)
 from puya.parse import SourceLocation
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puyapy.awst_build.eb._utils import compare_bytes
-from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder, arc4_bool_bytes
+from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder
+from puyapy.awst_build.eb.bool import BoolExpressionBuilder
 from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
@@ -123,12 +131,18 @@ class UFixedNxMExpressionBuilder(
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        return arc4_bool_bytes(
-            self,
-            false_bytes=b"\x00" * (self.pytype.bits // 8),
-            negate=negate,
-            location=location,
+        as_biguint = ReinterpretCast(
+            expr=self.resolve(),
+            wtype=wtypes.biguint_wtype,
+            source_location=self.source_location,
         )
+        cmp_expr = NumericComparisonExpression(
+            operator=NumericComparison.eq if negate else NumericComparison.ne,
+            lhs=as_biguint,
+            rhs=BigUIntConstant(value=0, source_location=location),
+            source_location=location,
+        )
+        return BoolExpressionBuilder(cmp_expr)
 
     @typing.override
     def compare(
