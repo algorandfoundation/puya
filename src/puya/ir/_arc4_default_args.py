@@ -107,7 +107,7 @@ def _convert_member_arg_default(
             return f"{member_name!r} is not readonly"
         if method_source.args:
             return f"{member_name!r} does not take zero arguments"
-        if method_source.return_type is wtypes.void_wtype:
+        if method_source.return_type == wtypes.void_wtype:
             return f"{member_name!r} does not provide a value"
         return_type_arc4 = wtype_to_arc4(method_source.return_type)
         if return_type_arc4 != param_arc4_type:
