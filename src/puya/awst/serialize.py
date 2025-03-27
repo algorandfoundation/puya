@@ -26,7 +26,7 @@ def _unstructure_optional_enum_literal(value: object) -> object:
 
 
 @functools.cache
-def _get_converter() -> cattrs.preconf.json.JsonConverter:
+def get_converter() -> cattrs.preconf.json.JsonConverter:
     converter = make_converter()
 
     # literals with optional enum
@@ -84,7 +84,7 @@ def _get_converter() -> cattrs.preconf.json.JsonConverter:
 
 
 def awst_to_json(awst: nodes.AWST) -> str:
-    return _get_converter().dumps(awst, indent=4)
+    return get_converter().dumps(awst, indent=4)
 
 
 def _find_and_log_puya_errors(err: ClassValidationError | IterableValidationError) -> None:
@@ -98,7 +98,7 @@ def _find_and_log_puya_errors(err: ClassValidationError | IterableValidationErro
 
 def awst_from_json(json: str) -> nodes.AWST:
     try:
-        return _get_converter().loads(json, nodes.AWST)  # type: ignore[type-abstract]
+        return get_converter().loads(json, nodes.AWST)  # type: ignore[type-abstract]
     except (ClassValidationError, IterableValidationError) as err:
         _find_and_log_puya_errors(err)
         logger.debug("Deserialization error: \n" + "\n".join(transform_error(err)))
