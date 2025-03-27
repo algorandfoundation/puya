@@ -82,14 +82,20 @@ def _translate_state(
             raise InternalError(
                 f"maps of {state.kind} are not supported by IR backend yet", state.source_location
             )
-        arc56_key_type = _get_arc56_type(state.key_wtype, state.source_location)
+        arc56_key_type = _get_arc56_type(
+            state.key_wtype, state.source_location, avm_uint64_supported=False
+        )
         is_map = True
     else:
         arc56_key_type = (
             "AVMString" if state.key.encoding == awst_nodes.BytesEncoding.utf8 else "AVMBytes"
         )
         is_map = False
-    arc56_value_type = _get_arc56_type(state.storage_wtype, state.source_location)
+    arc56_value_type = _get_arc56_type(
+        state.storage_wtype,
+        state.source_location,
+        avm_uint64_supported=state.kind != awst_nodes.AppStorageKind.box,
+    )
     return models.ContractState(
         name=state.member_name,
         source_location=state.source_location,
@@ -171,7 +177,7 @@ class _TemplateVariableTypeCollector(FunctionTraverser):
         for function in (contract.approval_program, contract.clear_program, *routable_methods):
             collector.process_func(function)
         return {
-            name: _get_arc56_type(var.wtype, var.source_location)
+            name: _get_arc56_type(var.wtype, var.source_location, avm_uint64_supported=True)
             for name, var in collector.vars.items()
         }
 
@@ -363,9 +369,13 @@ class _EventCollector(FunctionTraverser):
         self.emits[self.current_func] |= self.process_func(target)
 
 
-def _get_arc56_type(wtype: wtypes.WType, loc: SourceLocation) -> str:
+def _get_arc56_type(
+    wtype: wtypes.WType, loc: SourceLocation, *, avm_uint64_supported: bool
+) -> str:
     if isinstance(wtype, wtypes.StackArray):
         wtype = wtype_to_arc4_wtype(wtype, loc)
+    if wtype == wtypes.account_wtype:
+        wtype = wtypes.arc4_address_alias
     if isinstance(wtype, wtypes.ARC4Struct):
         return wtype.name
     if isinstance(wtype, wtypes.ARC4Type):
@@ -375,6 +385,9 @@ def _get_arc56_type(wtype: wtypes.WType, loc: SourceLocation) -> str:
     storage_type = wtypes.persistable_stack_type(wtype, loc)
     match storage_type:
         case AVMType.uint64:
-            return "AVMUint64"
+            if avm_uint64_supported:
+                return "AVMUint64"
+            else:
+                return "uint64"
         case AVMType.bytes:
             return "AVMBytes"
