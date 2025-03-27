@@ -32,7 +32,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         prog="puyapy-clientgen",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        description="Output algopy contract client for typed ARC4 ABI calls from an "
+        description="Output algopy contract client for typed ARC-4 ABI calls from an "
         "ARC-32 or ARC-56 application spec",
     )
     parser.add_argument(

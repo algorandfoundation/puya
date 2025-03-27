@@ -33,7 +33,9 @@ def _pytype_to_arc4_pytype(typ: pytypes.PyType, sig: attrs.AttrsInstance) -> pyt
     assert isinstance(sig, ARC4Signature)
 
     def on_error(bad_type: pytypes.PyType) -> typing.Never:
-        raise CodeError(f"invalid return type for an ARC4 method: {bad_type}", sig.source_location)
+        raise CodeError(
+            f"invalid return type for an ARC-4 method: {bad_type}", sig.source_location
+        )
 
     return arc4_utils.pytype_to_arc4_pytype(typ, on_error)
 
@@ -129,7 +131,7 @@ def _implicit_arc4_type_conversion(typ: pytypes.PyType, loc: SourceLocation) -> 
 
     def on_error(invalid_pytype: pytypes.PyType) -> typing.Never:
         raise CodeError(
-            f"{invalid_pytype} is not an ARC4 type and no implicit ARC4 conversion possible", loc
+            f"{invalid_pytype} is not an ARC-4 type and no implicit ARC-4 conversion possible", loc
         )
 
     return pytype_to_arc4_pytype(typ, on_error)

@@ -58,7 +58,7 @@ class ARC4ABIMethodData:
 
         def on_error(bad_type: pytypes.PyType) -> typing.Never:
             raise CodeError(
-                f"invalid type for an ARC4 method: {bad_type}", self.config.source_location
+                f"invalid type for an ARC-4 method: {bad_type}", self.config.source_location
             )
 
         return {k: pytype_to_arc4_pytype(v, on_error=on_error) for k, v in self._signature.items()}

@@ -127,14 +127,14 @@ class ARC4TupleExpressionBuilder(
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         logger.error(
-            "item containment with ARC4 tuples is currently unsupported", location=location
+            "item containment with ARC-4 tuples is currently unsupported", location=location
         )
         return dummy_value(pytypes.BoolType, location)
 
     @typing.override
     def iterate(self) -> typing.Never:
         # could only support for homogenous types anyway, in which case use a StaticArray?
-        raise CodeError("iterating ARC4 tuples is currently unsupported", self.source_location)
+        raise CodeError("iterating ARC-4 tuples is currently unsupported", self.source_location)
 
     @typing.override
     def iterate_static(self) -> Sequence[InstanceBuilder]:
@@ -159,4 +159,4 @@ class ARC4TupleExpressionBuilder(
         stride: InstanceBuilder | None,
         location: SourceLocation,
     ) -> InstanceBuilder:
-        raise CodeError("slicing ARC4 tuples is currently unsupported", location)
+        raise CodeError("slicing ARC-4 tuples is currently unsupported", location)

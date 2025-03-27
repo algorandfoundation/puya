@@ -17,13 +17,13 @@ The following types are available:
 
 ## Group Transactions
 
-Group transactions can be used as ARC4 parameters or instantiated from a group index.
+Group transactions can be used as ARC-4 parameters or instantiated from a group index.
 
-### ARC4 parameter
+### ARC-4 parameter
 
-Group transactions can be used as parameters in ARC4 method
+Group transactions can be used as parameters in ARC-4 method
 
-For example to require a payment transaction in an ARC4 ABI method:
+For example to require a payment transaction in an ARC-4 ABI method:
 
 ```python
 import algopy
@@ -122,7 +122,7 @@ def example() -> tuple[Asset, Bytes]:
     return asset1_txn.created_asset, app_txn.logs(1)
 ```
 
-#### Create an ARC4 application, and then call it
+#### Create an ARC-4 application, and then call it
 
 ```python
 from algopy import Bytes, arc4, itxn, subroutine

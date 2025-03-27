@@ -9,11 +9,11 @@ _R = typing.TypeVar("_R")
 _ReadOnlyNoArgsMethod: typing.TypeAlias = Callable[..., typing.Any]  # type: ignore[misc]
 
 class ARC4Contract(algopy.Contract):
-    """A contract that conforms to the ARC4 ABI specification, functions decorated with
+    """A contract that conforms to the ARC-4 ABI specification, functions decorated with
     `@abimethod` or `@baremethod` will form the public interface of the contract
 
     The approval_program will be implemented by the compiler, and route application args
-    according to the ARC4 ABI specification
+    according to the ARC-4 ABI specification
 
     The clear_state_program will by default return True, but can be overridden"""
 
@@ -34,7 +34,7 @@ def abimethod(
             "NoOp",
             "OptIn",
             "CloseOut",
-            # ClearState has its own program, so is not considered as part of ARC4 routing
+            # ClearState has its own program, so is not considered as part of ARC-4 routing
             "UpdateApplication",
             "DeleteApplication",
         ]
@@ -42,7 +42,7 @@ def abimethod(
     readonly: bool = False,
     default_args: Mapping[str, str | _ReadOnlyNoArgsMethod | object] = ...,
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
-    """Decorator that indicates a method is an ARC4 ABI method.
+    """Decorator that indicates a method is an ARC-4 ABI method.
 
     :arg name: Name component of the ABI method selector. Defaults to using the function name.
     :arg create: Controls the validation of the Application ID. "require" means it must be zero,
@@ -70,13 +70,13 @@ def baremethod(
             "NoOp",
             "OptIn",
             "CloseOut",
-            # ClearState has its own program, so is not considered as part of ARC4 routing
+            # ClearState has its own program, so is not considered as part of ARC-4 routing
             "UpdateApplication",
             "DeleteApplication",
         ]
     ] = ...,
 ) -> Callable[[Callable[[_TARC4Contract], None]], Callable[[_TARC4Contract], None]]:
-    """Decorator that indicates a method is an ARC4 bare method.
+    """Decorator that indicates a method is an ARC-4 bare method.
 
     There can be only one bare method on a contract for each given On-Completion Action.
 
@@ -86,7 +86,7 @@ def baremethod(
     """
 
 def arc4_signature(signature: str | Callable[_P, _R], /) -> algopy.Bytes:
-    """Returns the ARC4 encoded method selector for the specified signature or abi method"""
+    """Returns the ARC-4 encoded method selector for the specified signature or abi method"""
 
 class _ABIEncoded(algopy.BytesBacked, typing.Protocol):
     @classmethod
@@ -96,12 +96,12 @@ class _ABIEncoded(algopy.BytesBacked, typing.Protocol):
         """
 
 class String(_ABIEncoded):
-    """An ARC4 sequence of bytes containing a UTF8 string"""
+    """An ARC-4 sequence of bytes containing a UTF8 string"""
 
     def __init__(self, value: algopy.String | str = "", /) -> None: ...
     @property
     def native(self) -> algopy.String:
-        """Return the String representation of the UTF8 string after ARC4 decoding"""
+        """Return the String representation of the UTF8 string after ARC-4 decoding"""
 
     def __add__(self, other: String | algopy.String | str) -> String: ...
     def __iadd__(self, other: String | algopy.String | str) -> String: ...
@@ -146,27 +146,27 @@ class _UIntN(_ABIEncoded, typing.Protocol):
         """Returns `True` if not equal to zero"""
 
 class UIntN(_UIntN, typing.Generic[_TBitSize]):
-    """An ARC4 UInt consisting of the number of bits specified.
+    """An ARC-4 UInt consisting of the number of bits specified.
 
     Max Size: 64 bits"""
 
     @property
     def native(self) -> algopy.UInt64:
-        """Return the UInt64 representation of the value after ARC4 decoding"""
+        """Return the UInt64 representation of the value after ARC-4 decoding"""
 
 class BigUIntN(_UIntN, typing.Generic[_TBitSize]):
-    """An ARC4 UInt consisting of the number of bits specified.
+    """An ARC-4 UInt consisting of the number of bits specified.
 
     Max size: 512 bits"""
 
     @property
     def native(self) -> algopy.BigUInt:
-        """Return the BigUInt representation of the value after ARC4 decoding"""
+        """Return the BigUInt representation of the value after ARC-4 decoding"""
 
 _TDecimalPlaces = typing.TypeVar("_TDecimalPlaces", bound=int)
 
 class UFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
-    """An ARC4 UFixed representing a decimal with the number of bits and precision specified.
+    """An ARC-4 UFixed representing a decimal with the number of bits and precision specified.
 
     Max size: 64 bits"""
 
@@ -183,7 +183,7 @@ class UFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
         """Compare for equality, note both operands must be the exact same type"""
 
 class BigUFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
-    """An ARC4 UFixed representing a decimal with the number of bits and precision specified.
+    """An ARC-4 UFixed representing a decimal with the number of bits and precision specified.
 
     Max size: 512 bits"""
 
@@ -200,38 +200,38 @@ class BigUFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
         """Compare for equality, note both operands must be the exact same type"""
 
 class Byte(UIntN[typing.Literal[8]]):
-    """An ARC4 alias for a UInt8"""
+    """An ARC-4 alias for a UInt8"""
 
 UInt8: typing.TypeAlias = UIntN[typing.Literal[8]]
-"""An ARC4 UInt8"""
+"""An ARC-4 UInt8"""
 
 UInt16: typing.TypeAlias = UIntN[typing.Literal[16]]
-"""An ARC4 UInt16"""
+"""An ARC-4 UInt16"""
 
 UInt32: typing.TypeAlias = UIntN[typing.Literal[32]]
-"""An ARC4 UInt32"""
+"""An ARC-4 UInt32"""
 
 UInt64: typing.TypeAlias = UIntN[typing.Literal[64]]
-"""An ARC4 UInt64"""
+"""An ARC-4 UInt64"""
 
 UInt128: typing.TypeAlias = BigUIntN[typing.Literal[128]]
-"""An ARC4 UInt128"""
+"""An ARC-4 UInt128"""
 
 UInt256: typing.TypeAlias = BigUIntN[typing.Literal[256]]
-"""An ARC4 UInt256"""
+"""An ARC-4 UInt256"""
 
 UInt512: typing.TypeAlias = BigUIntN[typing.Literal[512]]
-"""An ARC4 UInt512"""
+"""An ARC-4 UInt512"""
 
 class Bool(_ABIEncoded):
-    """An ARC4 encoded bool"""
+    """An ARC-4 encoded bool"""
 
     def __init__(self, value: bool = False, /) -> None: ...  # noqa: FBT001, FBT002
     def __eq__(self, other: Bool | bool) -> bool: ...  # type: ignore[override]
     def __ne__(self, other: Bool | bool) -> bool: ...  # type: ignore[override]
     @property
     def native(self) -> bool:
-        """Return the bool representation of the value after ARC4 decoding"""
+        """Return the bool representation of the value after ARC-4 decoding"""
 
 _TArrayItem = typing.TypeVar("_TArrayItem")
 _TArrayLength = typing.TypeVar("_TArrayLength", bound=int)
@@ -241,7 +241,7 @@ class StaticArray(
     typing.Generic[_TArrayItem, _TArrayLength],
     Reversible[_TArrayItem],
 ):
-    """A fixed length ARC4 Array of the specified type and length"""
+    """A fixed length ARC-4 Array of the specified type and length"""
 
     @typing.overload
     def __init__(self) -> None: ...
@@ -368,7 +368,7 @@ class StaticArray(
         """Create a copy of this array"""
 
 class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
-    """A dynamically sized ARC4 Array of the specified type"""
+    """A dynamically sized ARC-4 Array of the specified type"""
 
     def __init__(self, *items: _TArrayItem):
         """Initializes a new array with items provided"""
@@ -421,7 +421,7 @@ class Address(StaticArray[Byte, typing.Literal[32]]):
 
     @property
     def native(self) -> algopy.Account:
-        """Return the Account representation of the address after ARC4 decoding"""
+        """Return the Account representation of the address after ARC-4 decoding"""
 
     def __bool__(self) -> bool:
         """Returns `True` if not equal to the zero address"""
@@ -443,15 +443,15 @@ class DynamicBytes(DynamicArray[Byte]):
     def __init__(self, value: algopy.Bytes | bytes, /): ...
     @property
     def native(self) -> algopy.Bytes:
-        """Return the Bytes representation of the address after ARC4 decoding"""
+        """Return the Bytes representation of the address after ARC-4 decoding"""
 
 _TTuple = typing.TypeVarTuple("_TTuple")
 
 class Tuple(_ABIEncoded, tuple[typing.Unpack[_TTuple]]):
-    """An ARC4 ABI tuple, containing other ARC4 ABI types"""
+    """An ARC-4 ABI tuple, containing other ARC-4 ABI types"""
 
     def __init__(self, items: tuple[typing.Unpack[_TTuple]], /):
-        """Construct an ARC4 tuple from a native Python tuple"""
+        """Construct an ARC-4 tuple from a native Python tuple"""
 
     @property
     def native(self) -> tuple[typing.Unpack[_TTuple]]:
@@ -475,7 +475,7 @@ class _StructMeta(type):
     ) -> _StructMeta: ...
 
 class Struct(metaclass=_StructMeta):
-    """Base class for ARC4 Struct types"""
+    """Base class for ARC-4 Struct types"""
 
     @classmethod
     def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
@@ -498,7 +498,7 @@ class Struct(metaclass=_StructMeta):
         Note that any mutable fields must be explicitly copied to avoid aliasing."""
 
 class ARC4Client(typing.Protocol):
-    """Used to provide typed method signatures for ARC4 contracts"""
+    """Used to provide typed method signatures for ARC-4 contracts"""
 
 _TABIResult_co = typing.TypeVar("_TABIResult_co", covariant=True)
 
@@ -570,7 +570,7 @@ class _ABICallProtocolType(typing.Protocol):
 
 abi_call: _ABICallProtocolType = ...
 """
-Provides a typesafe way of calling ARC4 methods via an inner transaction
+Provides a typesafe way of calling ARC-4 methods via an inner transaction
 
 ```python
 def abi_call(
@@ -663,7 +663,7 @@ def arc4_create(
     """
     Provides a typesafe and convenient way of creating an ARC4Contract via an inner transaction
 
-    :param method: An ARC4 create method (ABI or bare), or an ARC4Contract with a single create method
+    :param method: An ARC-4 create method (ABI or bare), or an ARC4Contract with a single create method
     :param args: ABI args for chosen method
     :param compiled: If supplied will be used to specify transaction parameters required for creation,
                      can be omitted if template variables are not used
@@ -702,7 +702,7 @@ def arc4_update(
     """
     Provides a typesafe and convenient way of updating an ARC4Contract via an inner transaction
 
-    :param method: An ARC4 update method (ABI or bare), or an ARC4Contract with a single update method
+    :param method: An ARC-4 update method (ABI or bare), or an ARC4Contract with a single update method
     :param args: ABI args for chosen method
     :param app_id: Application to update
     :param compiled: If supplied will be used to specify transaction parameters required for updating,
@@ -721,13 +721,13 @@ def emit(event: str, /, *args: object) -> None: ...
 def emit(event: str | Struct, /, *args: object) -> None:
     """Emit an ARC-28 event for the provided event signature or name, and provided args.
 
-    :param event: Either an ARC4 Struct, an event name, or event signature.
-        * If event is an ARC4 Struct, the event signature will be determined from the Struct name and fields
+    :param event: Either an ARC-4 Struct, an event name, or event signature.
+        * If event is an ARC-4 Struct, the event signature will be determined from the Struct name and fields
         * If event is a signature, then the following args will be typed checked to ensure they match.
         * If event is just a name, the event signature will be inferred from the name and following arguments
 
     :param args: When event is a signature or name, args will be used as the event data.
-    They will all be encoded as single ARC4 Tuple
+    They will all be encoded as single ARC-4 Tuple
 
     Example:
     ```

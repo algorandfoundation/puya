@@ -109,7 +109,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
     def _insert_default_arc4_create(fragment: "_ContractFragment") -> None:
         if any(fragment.find_arc4_method_metadata(bare=True, oca=OnCompletionAction.NoOp)):
             logger.error(
-                "Non-abstract ARC4 contract has no methods that can be called"
+                "Non-abstract ARC-4 contract has no methods that can be called"
                 " to create the contract, but does have a NoOp bare method,"
                 " so one couldn't be inserted."
                 " In order to allow creating the contract add either"

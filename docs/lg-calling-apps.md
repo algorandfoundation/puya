@@ -6,15 +6,15 @@ and in the case of `arc4_create` and `arc4_update` automatic inclusion of approv
 
 ## `algopy.arc4.abi_call`
 
-[`algopy.arc4.abi_call`](#algopy.arc4.abi_call) can be used to call other ARC4 contracts, the first argument should refer to
-an ARC4 method either by referencing an Algorand Python [`algopy.arc4.ARC4Contract`](#algopy.arc4.ARC4Contract) method,
+[`algopy.arc4.abi_call`](#algopy.arc4.abi_call) can be used to call other ARC-4 contracts, the first argument should refer to
+an ARC-4 method either by referencing an Algorand Python [`algopy.arc4.ARC4Contract`](#algopy.arc4.ARC4Contract) method,
 an [`algopy.arc4.ARC4Client`](#algopy.arc4.ARC4Client) method generated from an ARC-32 app spec, or a string representing
-the ARC4 method signature or name.
+the ARC-4 method signature or name.
 The following arguments should then be the arguments required for the call, these arguments will be type checked and converted where appropriate.
 Any other related transaction parameters such as `app_id`, `fee` etc. can also be provided as keyword arguments.
 
-If the ARC4 method returns an ARC4 result then the result will be a tuple of the ARC4 result and the inner transaction.
-If the ARC4 method does not return a result, or if the result type is not fully qualified then just the inner transaction is returned.
+If the ARC-4 method returns an ARC-4 result then the result will be a tuple of the ARC-4 result and the inner transaction.
+If the ARC-4 method does not return a result, or if the result type is not fully qualified then just the inner transaction is returned.
 
 ```python
 from algopy import Application, ARC4Contract, String, arc4, subroutine
@@ -38,7 +38,7 @@ def call_existing_application(app: Application) -> None:
 
 #### ARC4Client method 
 
-A ARC4Client client represents the ARC4 abimethods of a smart contract and can be used to call abimethods in a type safe way
+A ARC4Client client represents the ARC-4 abimethods of a smart contract and can be used to call abimethods in a type safe way
 
 ARC4Client's can be produced by using `puyapy --output-client=True` when compiling a smart contract 
 (this would be useful if you wanted to publish a client for consumption by other smart contracts)
@@ -62,7 +62,7 @@ def call_another_contract() -> None:
 
 #### Method signature or name
 
-An ARC4 method selector can be used e.g. `"hello(string)string` along with a type index to specify the return type.
+An ARC-4 method selector can be used e.g. `"hello(string)string` along with a type index to specify the return type.
 Additionally just a name can be provided and the method signature will be inferred e.g.
 
 ```python
@@ -83,9 +83,9 @@ def call_another_contract() -> None:
 
 ## `algopy.arc4.arc4_create`
 
-[`algopy.arc4.arc4_create`](#algopy.arc4.arc4_create) can be used to create ARC4 applications, and will automatically populate required fields for app creation (such as approval program, clear state program, and global/local state allocation).
+[`algopy.arc4.arc4_create`](#algopy.arc4.arc4_create) can be used to create ARC-4 applications, and will automatically populate required fields for app creation (such as approval program, clear state program, and global/local state allocation).
 
-Like [`algopy.arc4.abi_call`](lg-transactions.md#arc4-application-calls) it handles ARC4 arguments and provides ARC4 return values.
+Like [`algopy.arc4.abi_call`](lg-transactions.md#arc4-application-calls) it handles ARC-4 arguments and provides ARC-4 return values.
 
 If the compiled programs and state allocation fields need to be customized (for example due to [template variables](#within-other-contracts)), 
 this can be done by passing a [`algopy.CompiledContract`](#algopy.CompiledContract) via the `compiled` keyword argument.
@@ -110,9 +110,9 @@ def create_new_application() -> None:
 
 ## `algopy.arc4.arc4_update`
 
-[`algopy.arc4.arc4_update`](#algopy.arc4.arc4_update) is used to update an existing ARC4 application and will automatically populate the required approval and clear state program fields.
+[`algopy.arc4.arc4_update`](#algopy.arc4.arc4_update) is used to update an existing ARC-4 application and will automatically populate the required approval and clear state program fields.
 
-Like [`algopy.arc4.abi_call`](lg-transactions.md#arc4-application-calls) it handles ARC4 arguments and provides ARC4 return values.
+Like [`algopy.arc4.abi_call`](lg-transactions.md#arc4-application-calls) it handles ARC-4 arguments and provides ARC-4 return values.
 
 If the compiled programs need to be customized (for example due to (for example due to [template variables](#within-other-contracts)), 
 this can be done by passing a [`algopy.CompiledContract`](#algopy.CompiledContract) via the `compiled` keyword argument.
@@ -137,6 +137,6 @@ def update_existing_application(existing_app: Application) -> None:
 
 ## Using `itxn.ApplicationCall`
 
-If the application being called is not an ARC4 contract, or an application specification is not available,
+If the application being called is not an ARC-4 contract, or an application specification is not available,
 then [`algopy.itxn.ApplicationCall`](#algopy.itxn.ApplicationCall) can be used. This approach is generally more verbose
 than the above approaches, so should only be used if required. See [here](./lg-transactions.md#create-an-arc4-application-and-then-call-it) for an example 

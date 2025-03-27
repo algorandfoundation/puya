@@ -125,7 +125,7 @@ class ModuleASTConverter(
             inline = get_subroutine_decorator_inline_arg(self.context, subroutine_dec)
         abimethod_dec = dec_by_fullname.pop(constants.ABIMETHOD_DECORATOR, None)
         if abimethod_dec is not None:
-            self._error("free functions cannot be ARC4 ABI methods", abimethod_dec)
+            self._error("free functions cannot be ARC-4 ABI methods", abimethod_dec)
         # any further decorators are unsupported
         for dec_fullname, dec in dec_by_fullname.items():
             self._error(f'unsupported function decorator "{dec_fullname}"', dec)

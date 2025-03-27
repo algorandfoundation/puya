@@ -72,7 +72,7 @@ def maybe_wtype_to_arc4_wtype(wtype: wtypes.WType) -> wtypes.ARC4Type | None:
 def wtype_to_arc4_wtype(wtype: wtypes.WType, loc: SourceLocation | None) -> wtypes.ARC4Type:
     arc4_wtype = maybe_wtype_to_arc4_wtype(wtype)
     if arc4_wtype is None:
-        raise CodeError(f"unsupported type for ARC4 encoding {wtype}", loc)
+        raise CodeError(f"unsupported type for ARC-4 encoding {wtype}", loc)
     return arc4_wtype
 
 
@@ -83,7 +83,7 @@ def wtype_to_arc4_wtype(wtype: wtypes.WType, loc: SourceLocation | None) -> wtyp
 def effective_array_encoding(
     array_type: wtypes.StackArray, loc: SourceLocation | None
 ) -> wtypes.ARC4DynamicArray:
-    """If a native stack array is effectively ARC4-encoded, return that equivalent type here."""
+    """If a native stack array is effectively ARC-4-encoded, return that equivalent type here."""
     arc4_element_type = maybe_wtype_to_arc4_wtype(array_type.element_type)
     if arc4_element_type is None:
         # we flat out don't support this (yet?), so always raise a CodeError

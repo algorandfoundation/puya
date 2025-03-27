@@ -358,7 +358,7 @@ def _required_arc4_wtypes(
         else:
             invalid_elements_desc = tail
         raise CodeError(
-            f"ARC4 tuples can only contain ARC-4 types but elements {invalid_elements_desc}"
+            f"ARC-4 tuples can only contain ARC-4 types but elements {invalid_elements_desc}"
             " are not ARC-4 types",
             tup.source_location,  # type: ignore[attr-defined]
         )
@@ -447,8 +447,8 @@ def _require_arc4_fields(fields: Mapping[str, WType]) -> immutabledict[str, ARC4
     ]
     if non_arc4_fields:
         raise CodeError(
-            "invalid ARC4 Struct declaration,"
-            f" the following fields are not ARC4 encoded types: {', '.join(non_arc4_fields)}",
+            "invalid ARC-4 Struct declaration,"
+            f" the following fields are not ARC-4 encoded types: {', '.join(non_arc4_fields)}",
         )
     return immutabledict(fields)
 

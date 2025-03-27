@@ -48,7 +48,7 @@ class Arc4SignatureBuilder(FunctionBuilder):
                 | BaseClassSubroutineInvokerExpressionBuilder(method=fmethod)
             ]:
                 if not isinstance(fmethod.metadata, ARC4ABIMethodData):
-                    logger.error("method is not an ARC4 ABI method", location=location)
+                    logger.error("method is not an ARC-4 ABI method", location=location)
                     return dummy_value(pytypes.BytesType, location)
 
                 abi_method_data = fmethod.metadata

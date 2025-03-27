@@ -384,12 +384,12 @@ class _ARC4MethodCall:
     arc4_args: Sequence[InstanceBuilder]
     method_return_type: pytypes.PyType
     """
-    Return type as declared on the method, this may not be an ARC4 type due to automatic
+    Return type as declared on the method, this may not be an ARC-4 type due to automatic
     type conversion
     """
     arc4_return_type: pytypes.PyType
     """
-    ARC4 return type
+    ARC-4 return type
     """
 
 
@@ -397,7 +397,7 @@ def _get_arc4_method_call(
     data: ContractFragmentMethod, abi_args: Sequence[NodeBuilder], location: SourceLocation
 ) -> _ARC4MethodCall:
     if data.metadata is None:
-        raise CodeError("not a valid ARC4 method", location)
+        raise CodeError("not a valid ARC-4 method", location)
     return _map_arc4_method_data_to_call(data.metadata, abi_args, location)
 
 
@@ -456,7 +456,7 @@ def _get_lifecycle_method_call(
         )
     method_call = _map_arc4_method_data_to_call(single_method, abi_args, location)
     # remove method_return_type from result
-    # so _create_abi_call_expr does not attempt to include any decoded ARC4 result
+    # so _create_abi_call_expr does not attempt to include any decoded ARC-4 result
     # as per the stubs overload for arc4_create/arc4_update with a Contract type
     return attrs.evolve(method_call, method_return_type=pytypes.NoneType)
 
@@ -587,7 +587,7 @@ def _create_abi_call_expr(
     last_log = itxn_builder.get_field_value(TxnField.LastLog, pytypes.BytesType, location)
     abi_result = ARC4FromLogBuilder.abi_expr_from_log(arc4_return_type, last_log, location)
     # the declared result type may be different to the arc4 signature return type
-    # due to automatic conversion of ARC4 -> native types
+    # due to automatic conversion of ARC-4 -> native types
     if declared_result_type != arc4_return_type:
         abi_result = ARC4Decode(
             value=abi_result,
@@ -658,10 +658,10 @@ def _validate_transaction_kwargs(
     ):
         arg = field_nodes[TxnField.OnCompletion]
         logger.error(
-            "on completion action is not supported by ARC4 method being called",
+            "on completion action is not supported by ARC-4 method being called",
             location=arg.source_location,
         )
-        logger.info("method ARC4 configuration", location=arc4_config.source_location)
+        logger.info("method ARC-4 configuration", location=arc4_config.source_location)
 
     # programs provided when known not to be creating or updating
     if is_create is False and is_update is False:

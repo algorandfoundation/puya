@@ -128,7 +128,7 @@ def _compile_arc4_default_constant(
     expr: awst_nodes.Expression,
 ) -> models.MethodArgDefaultConstant | None:
     location = expr.source_location
-    logger.debug("Building IR for ARC4 method argument default constant", location=location)
+    logger.debug("Building IR for ARC-4 method argument default constant", location=location)
 
     if param.wtype != expr.wtype:
         logger.error("mismatch between parameter type and default value type", location=location)
