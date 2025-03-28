@@ -54,7 +54,6 @@ jobs:
       - name: pytest
         shell: bash # sets pipefail etc
         run: pytest --cov --splits 2 -m "${{ matrix.module }}" --group ${{ matrix.group }} --junitxml=pytest-junit.xml
-
         env:
           COVERAGE_CORE: sysmon
 
@@ -77,24 +76,29 @@ jobs:
     needs: tests
     runs-on: ubuntu-latest
     steps:
+      # uv is fast...
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v5
+
+      # needed for coverage report
       - name: Checkout source code
         uses: actions/checkout@v4
-
-      - name: Setup Python venv
-        uses: ./.github/actions/setup-python-venv
-        with:
-          poetry_install_args: "--with cicd"
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
 
       - name: Combine coverage
         run: |
+          uv tool install 'coverage[toml]'
+          uv tool install junitparser
+          
           # merge coverage reports from all tests
           coverage combine coverage*/.coverage*
           junitparser merge --glob junit*/pytest-junit.xml pytest-junit.xml
           
           # coverage report output differs slightly from what comment action expects
+          # so append expected title
+          
           echo coverage: platform > pytest-coverage.txt
           coverage report | tee -a pytest-coverage.txt
 
