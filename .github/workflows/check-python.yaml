@@ -33,6 +33,11 @@ jobs:
 
   tests:
     runs-on: "ubuntu-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [ 1, 2 ]
+        module: [ 'localnet', 'not localnet' ]
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -43,13 +48,55 @@ jobs:
           poetry_install_args: "--with cicd"
 
       - name: Start LocalNet
+        if: ${{ matrix.module == 'localnet' }}
         run: algokit localnet start
 
-      - name: pytest + coverage
+      - name: pytest
         shell: bash # sets pipefail etc
-        run: pytest --junitxml=pytest-junit.xml --cov | tee pytest-coverage.txt
+        run: pytest --cov --splits 2 -m "${{ matrix.module }}" --group ${{ matrix.group }} --junitxml=pytest-junit.xml
+
         env:
           COVERAGE_CORE: sysmon
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage${{ matrix.group }}${{ matrix.module }}
+          path: .coverage
+          if-no-files-found: error
+          include-hidden-files: true
+
+      - name: Upload junit
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit${{ matrix.group }}${{ matrix.module }}
+          path: pytest-junit.xml
+          if-no-files-found: error
+
+  coverage:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Python venv
+        uses: ./.github/actions/setup-python-venv
+        with:
+          poetry_install_args: "--with cicd"
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Combine coverage
+        run: |
+          # merge coverage reports from all tests
+          coverage combine coverage*/.coverage*
+          junitparser merge --glob junit*/pytest-junit.xml pytest-junit.xml
+          
+          # coverage report output differs slightly from what comment action expects
+          echo coverage: platform > pytest-coverage.txt
+          coverage report | tee -a pytest-coverage.txt
 
       - name: pytest coverage comment
         continue-on-error: true # forks fail to add a comment, so continue any way
