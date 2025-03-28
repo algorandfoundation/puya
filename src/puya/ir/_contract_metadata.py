@@ -15,9 +15,12 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.function_traverser import FunctionTraverser
-from puya.errors import InternalError
+from puya.errors import CodeError, InternalError
 from puya.ir._arc4_default_args import convert_default_args
-from puya.ir.arc4_types import wtype_to_arc4, wtype_to_arc4_wtype
+from puya.ir.arc4_types import (
+    wtype_to_arc4,
+    wtype_to_arc4_wtype,
+)
 from puya.ir.context import IRBuildContext
 from puya.parse import SourceLocation
 from puya.utils import StableSet, set_add, unique
@@ -25,6 +28,7 @@ from puya.utils import StableSet, set_add, unique
 __all__ = [
     "build_contract_metadata",
 ]
+
 
 logger = log.get_logger(__name__)
 
@@ -82,14 +86,20 @@ def _translate_state(
             raise InternalError(
                 f"maps of {state.kind} are not supported by IR backend yet", state.source_location
             )
-        arc56_key_type = _get_arc56_type(state.key_wtype, state.source_location)
+        arc56_key_type = _get_arc56_type(
+            state.key_wtype, state.source_location, avm_uint64_supported=False
+        )
         is_map = True
     else:
         arc56_key_type = (
             "AVMString" if state.key.encoding == awst_nodes.BytesEncoding.utf8 else "AVMBytes"
         )
         is_map = False
-    arc56_value_type = _get_arc56_type(state.storage_wtype, state.source_location)
+    arc56_value_type = _get_arc56_type(
+        state.storage_wtype,
+        state.source_location,
+        avm_uint64_supported=state.kind != awst_nodes.AppStorageKind.box,
+    )
     return models.ContractState(
         name=state.member_name,
         source_location=state.source_location,
@@ -171,7 +181,7 @@ class _TemplateVariableTypeCollector(FunctionTraverser):
         for function in (contract.approval_program, contract.clear_program, *routable_methods):
             collector.process_func(function)
         return {
-            name: _get_arc56_type(var.wtype, var.source_location)
+            name: _get_arc56_type(var.wtype, var.source_location, avm_uint64_supported=True)
             for name, var in collector.vars.items()
         }
 
@@ -221,26 +231,53 @@ def _extract_arc4_methods_and_type_refs(
         if typ is not None
     ]
     methods = dict[awst_nodes.ContractMethod, models.ARC4Method]()
-    for method_name in unique(m.member_name for m in contract.methods):
-        m = contract.resolve_contract_method(method_name)
-        assert m is not None  # shouldn't logically be possible
-        match m.arc4_method_config:
-            case None:
-                pass
-            case awst_nodes.ARC4BareMethodConfig() as bare_method_config:
-                methods[m] = models.ARC4BareMethod(
-                    id=m.full_name, desc=m.documentation.description, config=bare_method_config
-                )
-            case abi_method_config:
-                event_wtypes = event_collector.process_func(m)
-                events = list(map(_wtype_to_struct, event_wtypes))
-                methods[m] = _abi_method_metadata(ctx, contract, m, abi_method_config, events)
-                if m.return_type is not None:
-                    type_refs.append(m.return_type)
-                type_refs.extend(arg.wtype for arg in m.args)
-                for event_struct in event_wtypes:
-                    type_refs.extend(event_struct.types)
+
+    # aggregate errors for the contract so that the user doesn't get incremental errors
+    with _ARC4TypeMapper.collect_errors() as type_mapper:
+        for method_name in unique(m.member_name for m in contract.methods):
+            m = contract.resolve_contract_method(method_name)
+            assert m is not None  # shouldn't logically be possible
+            match m.arc4_method_config:
+                case None:
+                    pass
+                case awst_nodes.ARC4BareMethodConfig() as bare_method_config:
+                    methods[m] = models.ARC4BareMethod(
+                        id=m.full_name, desc=m.documentation.description, config=bare_method_config
+                    )
+                case abi_method_config:
+                    event_wtypes = event_collector.process_func(m)
+                    events = list(map(_wtype_to_struct, event_wtypes))
+                    methods[m] = _abi_method_metadata(
+                        ctx, contract, m, abi_method_config, events, type_mapper
+                    )
+                    if m.return_type is not None:
+                        type_refs.append(m.return_type)
+                    type_refs.extend(arg.wtype for arg in m.args)
+                    for event_struct in event_wtypes:
+                        type_refs.extend(event_struct.types)
     return methods, type_refs
+
+
+@attrs.frozen
+class _ARC4TypeMapper:
+    errors: list[CodeError] = attrs.field(factory=list)
+
+    @classmethod
+    @contextlib.contextmanager
+    def collect_errors(cls) -> Iterator[typing.Self]:
+        collector = cls()
+        yield collector
+        if collector.errors:
+            raise ExceptionGroup("code errors", collector.errors)
+
+    def map(
+        self, kind: typing.Literal["argument", "return"], wtype: wtypes.WType, loc: SourceLocation
+    ) -> str:
+        try:
+            return wtype_to_arc4(kind, wtype, loc)
+        except CodeError as ex:
+            self.errors.append(ex)
+            return ""
 
 
 def _extract_structs(
@@ -269,13 +306,14 @@ def _abi_method_metadata(
     m: awst_nodes.ContractMethod,
     config: awst_nodes.ARC4ABIMethodConfig,
     events: Sequence[models.ARC4Struct],
+    type_mapper: _ARC4TypeMapper,
 ) -> models.ARC4ABIMethod:
     assert config is m.arc4_method_config
     default_args = convert_default_args(ctx, contract, m, config)
     args = [
         models.ARC4MethodArg(
             name=a.name,
-            type_=wtype_to_arc4(a.wtype),
+            type_=type_mapper.map("argument", a.wtype, a.source_location),
             struct=_get_arc4_struct_name(a.wtype),
             desc=m.documentation.args.get(a.name),
             client_default=default_args[a],
@@ -284,7 +322,7 @@ def _abi_method_metadata(
     ]
     returns = models.ARC4Returns(
         desc=m.documentation.returns,
-        type_=wtype_to_arc4(m.return_type),
+        type_=type_mapper.map("return", m.return_type, m.source_location),
         struct=_get_arc4_struct_name(m.return_type),
     )
     return models.ARC4ABIMethod(
@@ -363,9 +401,13 @@ class _EventCollector(FunctionTraverser):
         self.emits[self.current_func] |= self.process_func(target)
 
 
-def _get_arc56_type(wtype: wtypes.WType, loc: SourceLocation) -> str:
+def _get_arc56_type(
+    wtype: wtypes.WType, loc: SourceLocation, *, avm_uint64_supported: bool
+) -> str:
     if isinstance(wtype, wtypes.StackArray):
         wtype = wtype_to_arc4_wtype(wtype, loc)
+    if wtype == wtypes.account_wtype:
+        wtype = wtypes.arc4_address_alias
     if isinstance(wtype, wtypes.ARC4Struct):
         return wtype.name
     if isinstance(wtype, wtypes.ARC4Type):
@@ -375,6 +417,11 @@ def _get_arc56_type(wtype: wtypes.WType, loc: SourceLocation) -> str:
     storage_type = wtypes.persistable_stack_type(wtype, loc)
     match storage_type:
         case AVMType.uint64:
-            return "AVMUint64"
+            if avm_uint64_supported:
+                return "AVMUint64"
+            else:
+                return "uint64"
         case AVMType.bytes:
             return "AVMBytes"
+        case _:
+            raise InternalError("unexpected storage wtype", loc)

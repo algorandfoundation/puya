@@ -43,6 +43,8 @@ class _DecoratorData:
 def pytype_to_arc4_pytype(
     pytype: pytypes.PyType,
     on_error: Callable[[pytypes.PyType], pytypes.PyType],
+    *,
+    encode_resource_types: bool,
 ) -> pytypes.PyType:
     match pytype:
         case pytypes.BoolType:
@@ -53,20 +55,26 @@ def pytype_to_arc4_pytype(
                 desc=pytype.desc,
                 name=pytype.name,
                 fields={
-                    name: pytype_to_arc4_pytype(t, on_error) for name, t in pytype.fields.items()
+                    name: pytype_to_arc4_pytype(t, on_error, encode_resource_types=True)
+                    for name, t in pytype.fields.items()
                 },
                 frozen=True,
                 source_location=pytype.source_location,
             )
         case pytypes.ArrayType(generic=pytypes.GenericImmutableArrayType, items=items):
             result = pytypes.GenericARC4DynamicArrayType.parameterise(
-                [pytype_to_arc4_pytype(items, on_error)], pytype.source_location
+                [pytype_to_arc4_pytype(items, on_error, encode_resource_types=True)],
+                pytype.source_location,
             )
             result2 = attrs.evolve(result, wtype=attrs.evolve(result.wtype, immutable=True))
             return result2
         case pytypes.TupleType():
             return pytypes.GenericARC4TupleType.parameterise(
-                [pytype_to_arc4_pytype(t, on_error) for t in pytype.items], pytype.source_location
+                [
+                    pytype_to_arc4_pytype(t, on_error, encode_resource_types=True)
+                    for t in pytype.items
+                ],
+                pytype.source_location,
             )
         case pytypes.NoneType | pytypes.GroupTransactionType():
             return pytype
@@ -79,9 +87,17 @@ def pytype_to_arc4_pytype(
         return pytypes.ARC4DynamicBytesType
     elif pytypes.StringType <= pytype:
         return pytypes.ARC4StringType
-    elif pytype.is_type_or_subtype(
-        pytypes.ApplicationType, pytypes.AssetType, pytypes.AccountType
-    ) or isinstance(pytype.wtype, wtypes.ARC4Type):
+    elif pytype.is_type_or_subtype(pytypes.ApplicationType, pytypes.AssetType):
+        if encode_resource_types:
+            return pytypes.ARC4UIntN_Aliases[64]
+        else:
+            return pytype
+    elif pytype.is_type_or_subtype(pytypes.AccountType):
+        if encode_resource_types:
+            return pytypes.ARC4AddressType
+        else:
+            return pytype
+    elif isinstance(pytype.wtype, wtypes.ARC4Type):
         return pytype
     else:
         return on_error(pytype)
@@ -143,14 +159,16 @@ def arc4_to_pytype(typ: str, location: SourceLocation | None = None) -> pytypes.
     raise CodeError(f"unknown ARC-4 type '{typ}'", location)
 
 
-def pytype_to_arc4(typ: pytypes.PyType, loc: SourceLocation | None = None) -> str:
+def pytype_to_arc4(
+    typ: pytypes.PyType, *, encode_resource_types: bool, loc: SourceLocation | None = None
+) -> str:
     def on_error(bad_type: pytypes.PyType) -> typing.Never:
         raise CodeError(
             f"not an ARC-4 type or native equivalent: {bad_type}",
             loc or getattr(bad_type, "source_location", None),
         )
 
-    arc4_pytype = pytype_to_arc4_pytype(typ, on_error)
+    arc4_pytype = pytype_to_arc4_pytype(typ, on_error, encode_resource_types=encode_resource_types)
     match arc4_pytype:
         case pytypes.NoneType:
             return "void"

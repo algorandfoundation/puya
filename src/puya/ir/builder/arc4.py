@@ -451,7 +451,7 @@ def _get_arc4_codec(native_type: wtypes.WType) -> ARC4Codec | None:
     match native_type:
         case wtypes.biguint_wtype:
             return BigUIntCodec()
-        case wtypes.uint64_wtype:
+        case wtypes.uint64_wtype | wtypes.asset_wtype | wtypes.application_wtype:
             return UInt64Codec()
         case wtypes.bool_wtype:
             return BoolCodec()
