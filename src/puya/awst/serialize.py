@@ -85,10 +85,6 @@ def get_converter() -> cattrs.preconf.json.JsonConverter:
     return converter
 
 
-def get_converter() -> cattrs.preconf.json.JsonConverter:
-    return _get_converter()
-
-
 def awst_to_json(awst: nodes.AWST) -> str:
     return get_converter().dumps(awst, indent=4)
 
