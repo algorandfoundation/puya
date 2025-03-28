@@ -340,3 +340,8 @@ def set_remove[T](set_: MutableSet[T], value: T) -> bool:
 
 def normalize_path(path: Path) -> str:
     return str(path).replace(os.sep, "/")
+
+
+def not_none[T](x: T | None) -> T:
+    assert x is not None
+    return x
