@@ -18,7 +18,7 @@ from puya.awst.serialize import get_converter
 from puya.errors import log_exceptions
 from puya.log import Log, LoggingContext, LogLevel, get_logger, logging_context
 from puya.parse import SourceLocation
-from puya.puyad import AnalyseParams, PuyaProtocol
+from puya.puya_service import AnalyseParams, PuyaProtocol
 from puyapy.awst_build.main import transform_ast
 from puyapy.compile import determine_out_dir, get_python_executable, parse_with_mypy
 from puyapy.lsp import constants

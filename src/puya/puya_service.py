@@ -1,4 +1,3 @@
-import argparse
 import contextlib
 import logging
 import os
@@ -6,10 +5,10 @@ import signal
 import sys
 import time
 import types
+import typing
 from collections.abc import Callable
 from importlib.metadata import version
 from pathlib import Path
-from typing import Any, BinaryIO, Literal, NoReturn
 
 import attrs
 from pygls.protocol.json_rpc import JsonRPCProtocol
@@ -19,7 +18,7 @@ from puya.awst.nodes import AWST
 from puya.awst.serialize import get_converter
 from puya.compile import awst_to_teal
 from puya.errors import PuyaExitError, log_exceptions
-from puya.log import Log, LogLevel, configure_logging, logging_context
+from puya.log import Log, LogLevel, logging_context
 from puya.options import PuyaOptions
 from puya.parse import DictSourceProvider
 
@@ -58,7 +57,7 @@ class AnalyseRequest(_RPCMessage):
     """RPC request for analysis."""
 
     params: AnalyseParams
-    method: Literal["analyse"] = "analyse"
+    method: typing.Literal["analyse"] = "analyse"
 
 
 @attrs.frozen(kw_only=True)
@@ -90,8 +89,8 @@ class PuyaServer(JsonRPCServer):
     def __init__(
         self,
         protocol_cls: type[JsonRPCProtocol] = PuyaProtocol,
-        converter_func: Callable[..., Any] = get_converter,
-        **kwargs: Any,
+        converter_func: Callable[..., typing.Any] = get_converter,
+        **kwargs: typing.Any,
     ) -> None:
         super().__init__(protocol_cls, converter_func, **kwargs)
         self._exit_handler_installed = False
@@ -101,7 +100,7 @@ class PuyaServer(JsonRPCServer):
         if self._exit_handler_installed:
             return
 
-        def handle_exit(sig: int, _frame: types.FrameType | None) -> NoReturn:
+        def handle_exit(sig: int, _frame: types.FrameType | None) -> typing.NoReturn:
             logger.info(f"Received signal {sig}, shutting down...")
             # Ensure all logging is flushed
             sys.stdout.flush()
@@ -117,8 +116,8 @@ class PuyaServer(JsonRPCServer):
 
     def start_io(
         self,
-        stdin: BinaryIO | None = None,
-        stdout: BinaryIO | None = None,
+        stdin: typing.BinaryIO | None = None,
+        stdout: typing.BinaryIO | None = None,
     ) -> None:
         """Start the server with proper signal handling."""
         self.install_signal_handlers()
@@ -151,59 +150,30 @@ def create_server(thread_count: int = 2) -> PuyaServer:
             ],
         )
 
-        try:
-            with (
-                logging_context() as log_ctx,
-                contextlib.suppress(PuyaExitError),
-                log_exceptions(),
-            ):
-                # Process the compilation
-                awst_to_teal(
-                    log_ctx,
-                    options,
-                    params.compilation_set,  # type: ignore[arg-type]
-                    DictSourceProvider({}),
-                    params.awst,
-                )
-
-                elapsed = time.time() - start_time
-                log_ctx.logs.append(
-                    Log(
-                        level=LogLevel.info,
-                        message=f"Analysis completed in {elapsed:.2f}s",
-                        location=None,
-                    )
-                )
-                result = AnalyseResult(logs=log_ctx.logs)
-
-        except Exception as e:
-            logger.exception("Analysis error")
-            return AnalyseResult(
-                logs=[Log(level=LogLevel.error, message=f"Error: {e}", location=None)],
+        with (
+            logging_context() as log_ctx,
+            contextlib.suppress(PuyaExitError),
+            log_exceptions(),
+        ):
+            # Process the compilation
+            awst_to_teal(
+                log_ctx,
+                options,
+                params.compilation_set,  # type: ignore[arg-type]
+                DictSourceProvider({}),
+                params.awst,
             )
+
+            elapsed = time.time() - start_time
+            log_ctx.logs.append(
+                Log(
+                    level=LogLevel.info,
+                    message=f"Analysis completed in {elapsed:.2f}s",
+                    location=None,
+                )
+            )
+            result = AnalyseResult(logs=log_ctx.logs)
 
         return result
 
     return server
-
-
-def main() -> None:
-    """Main entry point for the Puya service mode."""
-    parser = argparse.ArgumentParser(
-        prog=NAME,
-        description=f"{NAME} - puya service mode",
-    )
-    parser.add_argument("--version", action="version", version=f"%(prog)s ({VERSION})")
-    parser.add_argument("--threads", type=int, default=2, help="Worker thread count")
-    args = parser.parse_args()
-
-    # Configure logging to stderr (stdout used for LSP protocol)
-    configure_logging(min_log_level=LogLevel.info, file=sys.stderr)
-
-    # Create server with configured thread count and start it
-    server = create_server(thread_count=args.threads)
-    server.start_io()
-
-
-if __name__ == "__main__":
-    main()

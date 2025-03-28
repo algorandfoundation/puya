@@ -59,9 +59,6 @@ def pytype_to_arc4_pytype(
                 source_location=pytype.source_location,
             )
         case pytypes.ArrayType(generic=pytypes.GenericImmutableArrayType, items=items):
-            pytype_loc = None
-            if isinstance(pytype.wtype, wtypes.WType):
-                pytype_loc = pytype.wtype.source_location
             result = pytypes.GenericARC4DynamicArrayType.parameterise(
                 [pytype_to_arc4_pytype(items, on_error)], pytype.source_location
             )
