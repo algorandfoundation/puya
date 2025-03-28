@@ -1,4 +1,12 @@
 # CHANGELOG
+## v4.6.1 (2025-03-28)
+
+### Fix
+
+* prevent optimiser from eliminating repeated computations when a subroutine starts with a simple while-loop ([`ec2b6c9`](https://github.com/algorandfoundation/puya/commit/ec2b6c9446a86c6811466b62f0a56b9d98fa007b))
+
+* allow `.copy()` of an immutable type ([`5ba9364`](https://github.com/algorandfoundation/puya/commit/5ba9364149c8eca0364bf3a3559024a88c9f5aa2))
+
 ## v4.6.0 (2025-03-27)
 
 ### Feature
