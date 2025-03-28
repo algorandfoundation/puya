@@ -150,7 +150,7 @@ class FunctionIRBuilder(
         # will effectively be a copy. We assign the copy to a new register in case it is
         # mutated.
         match expr.value.wtype:
-            case wtypes.ARC4Type(immutable=False):
+            case wtypes.ARC4Type():
                 # Arc4 encoded types are value types
                 original_value = self.visit_and_materialise_single(expr.value)
                 return assign_temp(
