@@ -14,7 +14,7 @@ from puya.ir.optimize.context import IROptimizationContext
 from puya.ir.optimize.intrinsic_simplification import COMPILE_TIME_CONSTANT_OPS
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
-from puya.utils import lazy_setdefault
+from puya.utils import lazy_setdefault, not_none
 
 logger = log.get_logger(__name__)
 
@@ -90,7 +90,7 @@ def analyse_subroutines_for_inlining(
     for sub in program.subroutines:
         if sub.inline is None and sub.id not in skip_routable_ids:
             complexity = sum(
-                len(b.phis) + len(b.ops) + len(_not_none(b.terminator).targets()) for b in sub.body
+                len(b.phis) + len(b.ops) + len(not_none(b.terminator).targets()) for b in sub.body
             )
             threshold = max(3, 1 + len(sub._returns) + len(sub.parameters))  # noqa: SLF001
             if complexity <= threshold:
@@ -120,7 +120,7 @@ def perform_subroutine_inlining(
         return False
     modified = False
     blocks_to_visit = subroutine.body.copy()
-    max_block_id = max(_not_none(block.id) for block in blocks_to_visit)
+    max_block_id = max(not_none(block.id) for block in blocks_to_visit)
     next_id = itertools.count(max_block_id + 1)
     while blocks_to_visit:
         block = blocks_to_visit.pop()
@@ -300,11 +300,6 @@ def _inline_call(
 
         remainder.phis = return_phis
     return remainder, new_blocks
-
-
-def _not_none[T](x: T | None) -> T:
-    assert x is not None
-    return x
 
 
 def _inlined_blocks(

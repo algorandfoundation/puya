@@ -12,6 +12,7 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize.assignments import copy_propagation
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.visitor import NoOpIRVisitor
+from puya.utils import not_none
 
 logger = log.get_logger(__name__)
 
@@ -76,22 +77,44 @@ def repeated_expression_elimination(
 def compute_dominators(
     subroutine: models.Subroutine,
 ) -> dict[models.BasicBlock, list[models.BasicBlock]]:
+    """
+    For each block in the subroutine, compute its dominators (other than itself).
+
+    A block X dominates another block Y if all possible control flow paths to Y must
+    pass through X at least once.
+    """
+    # This is the simple iterative data-flow approach, described as such in the introduction of:
+    # https://www.clear.rice.edu/comp512/Lectures/Papers/TR06-33870-Dom.pdf
+    # Note that the pseudocode in Figure 1 is somewhat misleading, it omits the important detail
+    # that the start node *must* remain as having no dominators other than itself, even if it
+    # forms part of a loop (ie has predecessors).
     all_blocks = set(subroutine.body)
-    dom = {b: all_blocks if b.predecessors else {b} for b in subroutine.body}
+    non_root_blocks = list[models.BasicBlock]()
+    dom = {subroutine.entry: {subroutine.entry}}
+    # Reversed here is not critical but should reduce iterations.
+    # Paper calls for reverse post-order traversal, but this is simpler and good enough.
+    for b in reversed(subroutine.body[1:]):
+        if b.predecessors:
+            dom[b] = all_blocks
+            non_root_blocks.append(b)
+        else:
+            # For non-entry blocks with no predecessors (ie unreachable blocks),
+            # we can similarly pre-compute the end result.
+            # This isn't critical, but without this here we'd need to handle this inside
+            # the loop as the reduce result will be undefined, but should be empty.
+            dom[b] = {b}
     changes = True
     while changes:
         changes = False
-        for block in reversed(subroutine.body):
-            if block.predecessors:
-                pred_dom = functools.reduce(set.intersection, (dom[p] for p in block.predecessors))
-                new = pred_dom | {block}
-                if new != dom[block]:
-                    dom[block] = new
-                    changes = True
-    return {
-        b: sorted(dom_set - {b}, key=lambda a: typing.cast(int, a.id))
-        for b, dom_set in dom.items()
-    }
+        for block in non_root_blocks:
+            pred_dom = functools.reduce(set.intersection, (dom[p] for p in block.predecessors))
+            new = pred_dom | {block}
+            if new != dom[block]:
+                dom[block] = new
+                changes = True
+    # Dominator sets are defined as including the node itself, but that's not useful to us,
+    # so remove it here and also sort the list by block ID.
+    return {b: sorted(dom_set - {b}, key=lambda a: not_none(a.id)) for b, dom_set in dom.items()}
 
 
 @attrs.define
