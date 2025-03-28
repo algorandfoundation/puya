@@ -1,6 +1,8 @@
 import asyncio
 import contextlib
+import shutil
 import sys
+import sysconfig
 import time
 import typing
 from collections.abc import Iterator, Sequence
@@ -9,12 +11,14 @@ from pathlib import Path
 import attrs
 from lsprotocol import types
 from lsprotocol.types import DiagnosticSeverity
+from pygls.client import JsonRPCClient
 from pygls.lsp.server import LanguageServer
 
-from puya.compile import awst_to_teal
+from puya.awst.serialize import get_converter
 from puya.errors import log_exceptions
 from puya.log import Log, LoggingContext, LogLevel, get_logger, logging_context
 from puya.parse import SourceLocation
+from puya.puya_service import AnalyseParams, PuyaProtocol
 from puyapy.awst_build.main import transform_ast
 from puyapy.compile import determine_out_dir, get_python_executable, parse_with_mypy
 from puyapy.lsp import constants
@@ -34,8 +38,22 @@ class PuyaPyLanguageServer(LanguageServer):
         self.diagnostics = dict[str, tuple[int | None, list[types.Diagnostic]]]()
         self.analysis_prefix: Path | None = None
         self.current_refresh_token = object()
+        self._puyad = JsonRPCClient(PuyaProtocol, get_converter)
+        self._puyad_started = False
 
-    def parse_all(self) -> None:
+    async def _ensure_puya_started(self) -> None:
+        if not self._puyad_started:
+            self._puyad_started = True
+            # find puyad on same path as lsp
+            venv_paths = sysconfig.get_paths(vars={"base": sys.prefix})
+            search_path = venv_paths["scripts"]
+            logger.info(f"puyad search path: {search_path}")
+            puyad = shutil.which("puyad", path=search_path)
+            assert puyad is not None, "could not find puyad"
+            await self._puyad.start_io(puyad)
+
+    async def parse_all(self) -> None:
+        await self._ensure_puya_started()
         # get all sources tracked by the workspace
         options = PuyaPyOptions(
             log_level=LogLevel.warning,
@@ -44,7 +62,7 @@ class PuyaPyLanguageServer(LanguageServer):
             optimization_level=0,
             prefix=self.analysis_prefix,
         )
-        logs = self._parse_and_log(options)
+        logs = await self._parse_and_log(options)
 
         # need to include existing documents in diagnostics in case all errors are cleared
         diagnostics: dict[str, tuple[int | None, list[types.Diagnostic]]] = {
@@ -118,7 +136,8 @@ class PuyaPyLanguageServer(LanguageServer):
         assert isinstance(source, str)
         return source.splitlines()
 
-    def _parse_and_log(self, puyapy_options: PuyaPyOptions) -> Sequence[Log]:
+    async def _parse_and_log(self, puyapy_options: PuyaPyOptions) -> Sequence[Log]:
+        awst = None
         with logging_context() as log_ctx, log_exceptions():
             with _time_it("mypy parsing"):
                 try:
@@ -135,25 +154,24 @@ class PuyaPyLanguageServer(LanguageServer):
                 parse_result = self._filter_parse_results(log_ctx, parse_result)
             with _time_it("awst building"):
                 awst, compilation_targets = transform_ast(parse_result)
-            # if no errors, then attempt to lower further
-            if not log_ctx.num_errors:
+        logs = list(log_ctx.logs)
+        # if no errors, then attempt to lower further
+        if awst is not None:
+            with _time_it("puya analyse"):
                 awst_lookup = {n.id: n for n in awst}
-                compilation_set = {
-                    target_id: determine_out_dir(loc.file.parent, puyapy_options)
-                    for target_id, loc in (
-                        (t, awst_lookup[t].source_location) for t in compilation_targets
-                    )
-                    if loc.file
-                }
-                with _time_it("teal compilation"):
-                    awst_to_teal(
-                        log_ctx,
-                        puyapy_options,
-                        compilation_set,
-                        parse_result.source_provider,
-                        awst,
-                    )
-        return log_ctx.logs
+                params = AnalyseParams(
+                    awst=awst,
+                    compilation_set={
+                        target_id: determine_out_dir(loc.file.parent, puyapy_options)
+                        for target_id, loc in (
+                            (t, awst_lookup[t].source_location) for t in compilation_targets
+                        )
+                        if loc.file
+                    },
+                )
+                response = await self._puyad.protocol.send_request_async("analyse", params)  # type: ignore[no-untyped-call]
+                logs.extend(response.logs)
+        return logs
 
     def _discover_algopy_paths(self, root_path: Path) -> list[Path]:
         """Discover all algopy paths in the workspace"""
@@ -188,13 +206,13 @@ async def _queue_diagnostics(ls: PuyaPyLanguageServer, _params: _HasTextDocument
     if ls.current_refresh_token is token:
         # note: this runs on the main thread and will block further messages until it is complete
         #       currently this desirable to provide a consistent state
-        _refresh_diagnostics(ls)
+        await _refresh_diagnostics(ls)
 
 
-def _refresh_diagnostics(ls: PuyaPyLanguageServer) -> None:
+async def _refresh_diagnostics(ls: PuyaPyLanguageServer) -> None:
     """Refresh all diagnostics when a document changes"""
     with _time_it("parsing workspace"):
-        ls.parse_all()
+        await ls.parse_all()
 
     # currently publishes for all documents, ideally only publishes for documents that have changes
     for uri, (doc_version, diagnostics) in ls.diagnostics.items():
