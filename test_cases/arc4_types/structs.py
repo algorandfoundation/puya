@@ -53,7 +53,9 @@ class Arc4StructsTypeContract(Contract):
 
         immutable = FrozenAndImmutable(arc4.UInt64(12), arc4.UInt64(34))
         no_copy = immutable
+        immutable_copy = immutable.copy()
         assert no_copy == immutable
+        assert immutable_copy == immutable
 
         immutable2 = immutable._replace(two=arc4.UInt64(123))
         assert immutable2.two == 123
