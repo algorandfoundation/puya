@@ -1,0 +1,104 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 2 1
+    // regression_tests/issue_434.py:4
+    // class Issue434(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@6
+    pushbytes 0xd3ad7a55 // method "method(uint64)void"
+    txna ApplicationArgs 0
+    match main_method_route@3
+
+main_after_if_else@10:
+    // regression_tests/issue_434.py:4
+    // class Issue434(ARC4Contract):
+    pushint 0 // 0
+    return
+
+main_method_route@3:
+    // regression_tests/issue_434.py:5-6
+    // # ref: https://github.com/algorandfoundation/puya/issues/434
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // regression_tests/issue_434.py:4
+    // class Issue434(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // regression_tests/issue_434.py:5-6
+    // # ref: https://github.com/algorandfoundation/puya/issues/434
+    // @arc4.abimethod
+    callsub method
+    intc_1 // 1
+    return
+
+main_bare_routing@6:
+    // regression_tests/issue_434.py:4
+    // class Issue434(ARC4Contract):
+    txn OnCompletion
+    bnz main_after_if_else@10
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_1 // 1
+    return
+
+
+// test_cases.regression_tests.issue_434.Issue434.method(c: uint64) -> void:
+method:
+    // regression_tests/issue_434.py:5-7
+    // # ref: https://github.com/algorandfoundation/puya/issues/434
+    // @arc4.abimethod
+    // def method(self, c: UInt64) -> None:
+    proto 1 0
+
+method_while_top@1:
+    // regression_tests/issue_434.py:8
+    // while Global.opcode_budget() > 350:
+    global OpcodeBudget
+    pushint 350 // 350
+    >
+    bz method_after_while@3
+    // regression_tests/issue_434.py:9
+    // assert op.sha3_256(Txn.sender.bytes) != Txn.sender.bytes
+    txn Sender
+    sha3_256
+    txn Sender
+    !=
+    assert
+    b method_while_top@1
+
+method_after_while@3:
+    // regression_tests/issue_434.py:11
+    // if c > 0:
+    frame_dig -1
+    bz method_else_body@5
+    // regression_tests/issue_434.py:12
+    // x = c + 2
+    frame_dig -1
+    intc_0 // 2
+    +
+
+method_after_if_else@6:
+    // regression_tests/issue_434.py:16
+    // assert x - 2 == c
+    intc_0 // 2
+    -
+    frame_dig -1
+    ==
+    assert
+    retsub
+
+method_else_body@5:
+    // regression_tests/issue_434.py:14
+    // x = c + 2
+    frame_dig -1
+    intc_0 // 2
+    +
+    b method_after_if_else@6
