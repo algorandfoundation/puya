@@ -19,10 +19,11 @@ import mypy.nodes
 import mypy.options
 import mypy.types
 import mypy.util
+from mypy.util import hash_digest
 
 from puya import log
 from puya.awst.nodes import MethodDocumentation
-from puya.parse import SourceLocation
+from puya.parse import DictSourceProvider, SourceLocation, SourceProvider
 from puya.utils import coalesce, make_path_relative_to_cwd
 
 if typing.TYPE_CHECKING:
@@ -32,7 +33,6 @@ logger = log.get_logger(__name__)
 _PUYAPY_SRC_ROOT = Path(__file__).parent
 _PUYA_SRC_ROOT = _PUYAPY_SRC_ROOT.parent / "puya"
 TYPESHED_PATH = _PUYAPY_SRC_ROOT / "_typeshed"
-_MYPY_FSCACHE = mypy.fscache.FileSystemCache()
 _MYPY_SEVERITY_TO_LOG_LEVEL = {
     "error": log.LogLevel.error,
     "warning": log.LogLevel.warning,
@@ -80,8 +80,8 @@ class ParseResult:
     roots (nodes on which no other nodes depend)."""
 
     @cached_property
-    def sources_by_path(self) -> Mapping[Path, Sequence[str] | None]:
-        return {s.path: s.lines for s in self.ordered_modules.values()}
+    def source_provider(self) -> SourceProvider:
+        return DictSourceProvider({s.path: s.lines for s in self.ordered_modules.values()})
 
     @cached_property
     def explicit_source_paths(self) -> Set[Path]:
@@ -93,22 +93,28 @@ class ParseResult:
 
 
 def parse_and_typecheck(
-    paths: Sequence[Path], mypy_options: mypy.options.Options
+    paths: Sequence[Path],
+    mypy_options: mypy.options.Options,
+    *,
+    source_provider: SourceProvider | None = None,
 ) -> tuple[mypy.build.BuildManager, dict[str, SourceModule]]:
     """Generate the ASTs from the build sources, and all imported modules (recursively)"""
 
     # ensure we have the absolute, canonical paths to the files
     resolved_input_paths = {p.resolve() for p in paths}
+    fscache = (
+        _FileSystemCache(source_provider) if source_provider else mypy.fscache.FileSystemCache()
+    )
     # creates a list of BuildSource objects from the contract Paths
     mypy_build_sources = mypy.find_sources.create_source_list(
         paths=[str(p) for p in resolved_input_paths],
         options=mypy_options,
-        fscache=_MYPY_FSCACHE,
+        fscache=fscache,
     )
     build_source_paths = {
         Path(m.path).resolve() for m in mypy_build_sources if m.path and not m.followed
     }
-    result = _mypy_build(mypy_build_sources, mypy_options, _MYPY_FSCACHE)
+    result = _mypy_build(mypy_build_sources, mypy_options, fscache)
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
     result.manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
@@ -133,8 +139,8 @@ def parse_and_typecheck(
                 # nothing and is only in the graph as a reference
                 pass
             else:
-                _check_encoding(_MYPY_FSCACHE, module_path)
-                lines = mypy.util.read_py_file(str(module_path), _MYPY_FSCACHE.read)
+                _check_encoding(fscache, module_path)
+                lines = mypy.util.read_py_file(str(module_path), fscache.read)
                 if module_path in resolved_input_paths:
                     discovery_mechanism = SourceDiscoveryMechanism.explicit_file
                 elif module_path in build_source_paths:
@@ -150,6 +156,22 @@ def parse_and_typecheck(
                 )
 
     return result.manager, ordered_modules
+
+
+class _FileSystemCache(mypy.fscache.FileSystemCache):
+    def __init__(self, source_provider: SourceProvider) -> None:
+        super().__init__()
+        self._source_provider = source_provider
+
+    def read(self, fn: str) -> bytes:
+        # attempt to read from source provider first
+        lines = self._source_provider.get_source(Path(fn))
+        if lines is not None:
+            data = "\n".join(lines).encode("utf-8")
+            self.stat_or_none(fn)
+            self.read_cache[fn] = data
+            self.hash_cache[fn] = hash_digest(data)
+        return super().read(fn)
 
 
 def _check_encoding(mypy_fscache: mypy.fscache.FileSystemCache, module_path: Path) -> None:

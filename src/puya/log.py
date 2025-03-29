@@ -17,7 +17,7 @@ from pathlib import Path
 import attrs
 import structlog
 
-from puya.parse import SourceLocation
+from puya.parse import SourceLocation, SourceProvider
 
 
 class LogFormat(StrEnum):
@@ -55,7 +55,7 @@ class Log:
 @attrs.define
 class LoggingContext:
     logs: list[Log] = attrs.field(factory=list)
-    sources_by_path: Mapping[Path, Sequence[str] | None] | None = None
+    source_provider: SourceProvider | None = None
 
     def _log_level_counts(self) -> Mapping[LogLevel, int]:
         return Counter(log.level for log in self.logs)
@@ -66,11 +66,13 @@ class LoggingContext:
         return sum(count for level, count in level_counts.items() if level >= LogLevel.error)
 
     def exit_if_errors(self) -> None:
+        from puya.errors import ErrorExitCode, PuyaExitError
+
         level_counts = self._log_level_counts()
         if level_counts[LogLevel.critical]:
-            sys.exit(2)
-        elif level_counts[LogLevel.error]:
-            sys.exit(1)
+            raise PuyaExitError(ErrorExitCode.internal)
+        if level_counts[LogLevel.error]:
+            raise PuyaExitError(ErrorExitCode.code)
 
 
 _current_ctx: ContextVar[LoggingContext] = ContextVar("current_ctx")
@@ -269,6 +271,7 @@ def configure_logging(
     min_log_level: LogLevel = LogLevel.notset,
     cache_logger: bool = True,
     log_format: LogFormat = LogFormat.default,
+    file: typing.TextIO | None = None,
     reconfigure_stdio: bool = True,
 ) -> None:
     if reconfigure_stdio:
@@ -315,7 +318,7 @@ def configure_logging(
     structlog.configure(
         processors=processors,
         context_class=dict,
-        logger_factory=structlog.PrintLoggerFactory(),
+        logger_factory=structlog.PrintLoggerFactory(file=file),
         cache_logger_on_first_use=cache_logger,
     )
 
@@ -402,10 +405,10 @@ class _Logger:
             level >= LogLevel.error
             and location
             and log_ctx
-            and log_ctx.sources_by_path
+            and log_ctx.source_provider
             and location.file
         ):
-            file_source = log_ctx.sources_by_path.get(location.file)
+            file_source = log_ctx.source_provider.get_source(location.file)
             if file_source is not None:
                 kwargs["related_lines"] = _get_pretty_source(file_source, location)
         self._logger.log(level, event, *args, location=location, **kwargs)

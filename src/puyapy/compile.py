@@ -24,6 +24,7 @@ from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.compilation_artifacts import CompilationArtifact, CompiledContract
 from puya.compile import awst_to_teal
 from puya.errors import log_exceptions
+from puya.parse import SourceProvider
 from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import make_path_relative_to_cwd
 from puyapy.awst_build.arc4_client_gen import write_arc4_client
@@ -46,7 +47,7 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
         logger.debug(puyapy_options)
         try:
             parse_result = parse_with_mypy(puyapy_options.paths)
-            log_ctx.sources_by_path = parse_result.sources_by_path
+            log_ctx.source_provider = parse_result.source_provider
             log_ctx.exit_if_errors()
             awst, compilation_targets = transform_ast(parse_result)
         except mypy.errors.CompileError:
@@ -76,7 +77,7 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
             if loc.file
         }
         teal = awst_to_teal(
-            log_ctx, puyapy_options, compilation_set, parse_result.sources_by_path, awst
+            log_ctx, puyapy_options, compilation_set, parse_result.source_provider, awst
         )
         log_ctx.exit_if_errors()
         if puyapy_options.output_client:
@@ -107,17 +108,21 @@ def write_arc4_clients(
                 write_arc4_client(contract, contract_out_dir)
 
 
-def parse_with_mypy(paths: Sequence[Path]) -> ParseResult:
-    mypy_options = get_mypy_options()
-
-    _, ordered_modules = parse_and_typecheck(paths, mypy_options)
+def parse_with_mypy(
+    paths: Sequence[Path],
+    *,
+    source_provider: SourceProvider | None = None,
+    prefix: Path | None = None,
+) -> ParseResult:
+    mypy_options = get_mypy_options(prefix)
+    _, ordered_modules = parse_and_typecheck(paths, mypy_options, source_provider=source_provider)
     return ParseResult(
         mypy_options=mypy_options,
         ordered_modules=ordered_modules,
     )
 
 
-def get_mypy_options() -> mypy.options.Options:
+def get_mypy_options(prefix: Path | None = None) -> mypy.options.Options:
     mypy_opts = mypy.options.Options()
 
     # improve mypy parsing performance by using a cut-down typeshed
@@ -125,7 +130,7 @@ def get_mypy_options() -> mypy.options.Options:
     mypy_opts.abs_custom_typeshed_dir = str(TYPESHED_PATH.resolve())
 
     # set python_executable so third-party packages can be found
-    mypy_opts.python_executable = _get_python_executable()
+    mypy_opts.python_executable = get_python_executable(prefix)
 
     mypy_opts.preserve_asts = True
     mypy_opts.include_docstrings = True
@@ -155,12 +160,13 @@ def get_mypy_options() -> mypy.options.Options:
     mypy_opts.disallow_any_explicit = True
 
     mypy_opts.pretty = True  # show source in output
+    mypy_opts.raise_exceptions = True  # prevent mypy from exiting
 
     return mypy_opts
 
 
-def _get_python_executable() -> str | None:
-    prefix = _get_prefix()
+def get_python_executable(prefix_: Path | None = None) -> str | None:
+    prefix = str(prefix_) if prefix_ else _get_prefix()
     if not prefix:
         logger.warning("Could not determine python prefix or algopy version")
         return None
