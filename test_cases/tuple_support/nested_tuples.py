@@ -1,6 +1,21 @@
 import typing
 
-from algopy import ARC4Contract, Bytes, String, UInt64, arc4, op, subroutine
+from algopy import (
+    ARC4Contract,
+    BoxMap,
+    Bytes,
+    ImmutableArray,
+    String,
+    UInt64,
+    arc4,
+    op,
+    subroutine,
+)
+
+
+class SimpleTup(typing.NamedTuple):
+    a: UInt64
+    b: UInt64
 
 
 class Child(typing.NamedTuple):
@@ -15,9 +30,35 @@ class Parent(typing.NamedTuple):
     child: Child
 
 
+class ParentWithList(typing.NamedTuple):
+    parent: Parent
+    children: ImmutableArray[Child]
+
+
 class NestedTuples(ARC4Contract):
     def __init__(self) -> None:
         self.build_nested_call_count = UInt64(0)
+        self.box = BoxMap(SimpleTup, SimpleTup)
+
+    @arc4.abimethod()
+    def store_tuple(self, pwl: ParentWithList) -> None:
+        self.pwl = pwl
+
+    @arc4.abimethod()
+    def load_tuple(self) -> ParentWithList:
+        return self.pwl
+
+    @arc4.abimethod()
+    def store_tuple_in_box(self, key: SimpleTup) -> None:
+        self.box[key] = key._replace(b=key.b + 1)
+
+    @arc4.abimethod()
+    def is_tuple_in_box(self, key: SimpleTup) -> bool:
+        return key in self.box
+
+    @arc4.abimethod()
+    def load_tuple_from_box(self, key: SimpleTup) -> SimpleTup:
+        return self.box[key]
 
     @arc4.abimethod()
     def run_tests(self) -> bool:
