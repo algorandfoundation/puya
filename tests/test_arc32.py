@@ -1602,6 +1602,13 @@ def test_nested_tuples(
 
     # create
     app_client.create()
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=200_000,
+        ),
+    )
 
     app_client.call("run_tests")
 
@@ -1616,6 +1623,31 @@ def test_nested_tuples(
 
     response = app_client.call("nested_named_tuple_params", args=(1, 2, (3, b"4", "5")))
     assert response.return_value == [1, 2, [3, [52], "5"]]
+
+    parent_with_list = (
+        (123, 456, (789, b"abc", "def")),
+        [(234, b"bcd", "efg")],
+    )
+    response = app_client.call("store_tuple", pwl=parent_with_list)
+    assert response.confirmed_round, "expected store tuple to succeed"
+
+    response = app_client.call("load_tuple")
+    assert response.return_value == _map_native_to_algosdk(
+        parent_with_list
+    ), "expected load to match stored value"
+
+    st = (123, 456)
+    box_key = b"box" + b"".join(v.to_bytes(length=8) for v in st)
+
+    with_box: algokit_utils.OnCompleteCallParametersDict = {"boxes": [(0, box_key)]}
+    response = app_client.call("store_tuple_in_box", with_box, key=st)
+    assert response.confirmed_round, "expected store tuple in box to succeed"
+
+    response = app_client.call("is_tuple_in_box", with_box, key=st)
+    assert response.return_value, "expected tuple to be in box"
+
+    response = app_client.call("load_tuple_from_box", with_box, key=st)
+    assert response.return_value == [st[0], st[1] + 1], "expected tuple to load from box"
 
 
 def test_named_tuples(
@@ -2225,3 +2257,18 @@ def _get_box_state(
         and sc.get("key") == key_b64  # matching key
     )
     return base64.b64decode(sc["new-value"]["bytes"])
+
+
+def _map_native_to_algosdk(value: object) -> object:
+    # algosdk decoding represents some types differently than their equivalent unencoded types
+    # handle those conversions here
+    if isinstance(value, str):
+        # explicitly return strings unmodified before doing sequence conversions
+        return value
+    if isinstance(value, bytes):
+        # bytes are a sequence of ints
+        return list(value)
+    if isinstance(value, Sequence):
+        # convert tuples to list, as well as recursing into any sequence elements
+        return [_map_native_to_algosdk(v) for v in value]
+    return value
