@@ -95,10 +95,18 @@ def _translate_state(
             "AVMString" if state.key.encoding == awst_nodes.BytesEncoding.utf8 else "AVMBytes"
         )
         is_map = False
+    if state.kind == awst_nodes.AppStorageKind.box:
+        avm_uint64_supported = False
+    else:
+        typing.assert_type(
+            state.kind,
+            typing.Literal[
+                awst_nodes.AppStorageKind.app_global, awst_nodes.AppStorageKind.account_local
+            ],
+        )
+        avm_uint64_supported = True
     arc56_value_type = _get_arc56_type(
-        state.storage_wtype,
-        state.source_location,
-        avm_uint64_supported=state.kind != awst_nodes.AppStorageKind.box,
+        state.storage_wtype, state.source_location, avm_uint64_supported=avm_uint64_supported
     )
     return models.ContractState(
         name=state.member_name,
