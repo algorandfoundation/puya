@@ -38,21 +38,12 @@ def log_exceptions(fallback_location: SourceLocation | None = None) -> Iterator[
         for code_error in code_errors.exceptions:
             assert isinstance(code_error, CodeError)
             logger.error(code_error.msg, location=code_error.location or fallback_location)  # noqa: TRY400
-    except* InternalError as internal_errors:
-        for internal_error in internal_errors.exceptions:
-            assert isinstance(internal_error, InternalError)
-            _log_traceback()
-            logger.critical(
-                internal_error.msg, location=internal_error.location or fallback_location
-            )
-            sys.exit(ErrorExitCode.internal)
     except* Exception as ex_group:
         for ex in ex_group.exceptions:
-            _log_traceback()
-            logger.critical(f"{type(ex).__name__}: {ex}", location=fallback_location)
-            sys.exit(ErrorExitCode.internal)
-
-
-def _log_traceback() -> None:
-    traceback_lines = traceback.format_exc()
-    logger.debug(traceback_lines.rstrip("\n"))
+            traceback_lines = "".join(traceback.format_exception(ex))
+            logger.debug(traceback_lines.rstrip("\n"))
+            if isinstance(ex, InternalError):
+                logger.critical(ex.msg, location=ex.location or fallback_location)
+            else:
+                logger.critical(f"{type(ex).__name__}: {ex}", location=fallback_location)
+        sys.exit(ErrorExitCode.internal)
