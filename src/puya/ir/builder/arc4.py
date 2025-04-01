@@ -455,8 +455,6 @@ def _get_arc4_codec(native_type: wtypes.WType) -> ARC4Codec | None:
             return UInt64Codec()
         case wtypes.bool_wtype:
             return BoolCodec()
-        # a Puya string is just a bytes array that is typed differently to prevent
-        # ASCII assumptions being made
         case wtypes.bytes_wtype:
             return BytesCodec()
         case wtypes.string_wtype:
