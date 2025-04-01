@@ -1,7 +1,7 @@
 import contextlib
 import typing
 from collections import Counter
-from collections.abc import Iterable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from operator import itemgetter
 
 import attrs
@@ -241,7 +241,7 @@ def _extract_arc4_methods_and_type_refs(
     methods = dict[awst_nodes.ContractMethod, models.ARC4Method]()
 
     # aggregate errors for the contract so that the user doesn't get incremental errors
-    with _ARC4TypeMapper.collect_errors() as type_mapper:
+    with _collect_arc4_type_mapping_errors() as type_mapper:
         for method_name in unique(m.member_name for m in contract.methods):
             m = contract.resolve_contract_method(method_name)
             assert m is not None  # shouldn't logically be possible
@@ -266,26 +266,36 @@ def _extract_arc4_methods_and_type_refs(
     return methods, type_refs
 
 
-@attrs.frozen
-class _ARC4TypeMapper:
-    errors: list[CodeError] = attrs.field(factory=list)
+_ARC4TypeMapper = Callable[
+    [typing.Literal["argument", "return"], wtypes.WType, SourceLocation], str
+]
 
-    @classmethod
-    @contextlib.contextmanager
-    def collect_errors(cls) -> Iterator[typing.Self]:
-        collector = cls()
-        yield collector
-        if collector.errors:
-            raise ExceptionGroup("code errors", collector.errors)
 
-    def map(
-        self, kind: typing.Literal["argument", "return"], wtype: wtypes.WType, loc: SourceLocation
+@contextlib.contextmanager
+def _collect_arc4_type_mapping_errors() -> Iterator[_ARC4TypeMapper]:
+    errors = list[Exception]()
+
+    def _map(
+        kind: typing.Literal["argument", "return"], wtype: wtypes.WType, loc: SourceLocation
     ) -> str:
         try:
             return wtype_to_arc4(kind, wtype, loc)
+        # collect CodeErrors from this function, let any other errors propagate
         except CodeError as ex:
-            self.errors.append(ex)
+            errors.append(ex)
             return ""
+
+    try:
+        yield _map
+    except Exception as ex:
+        # if another exception occurs other than a CodeError in `wtype_to_arc4`,
+        # ensure that neither it nor any gathered exceptions are discarded
+        if errors:
+            errors.append(ex)
+        else:
+            raise
+    if errors:
+        raise ExceptionGroup("ARC-4 type mapping errors", errors)
 
 
 def _extract_structs(
@@ -321,7 +331,7 @@ def _abi_method_metadata(
     args = [
         models.ARC4MethodArg(
             name=a.name,
-            type_=type_mapper.map("argument", a.wtype, a.source_location),
+            type_=type_mapper("argument", a.wtype, a.source_location),
             struct=_get_arc4_struct_name(a.wtype),
             desc=m.documentation.args.get(a.name),
             client_default=default_args[a],
@@ -330,7 +340,7 @@ def _abi_method_metadata(
     ]
     returns = models.ARC4Returns(
         desc=m.documentation.returns,
-        type_=type_mapper.map("return", m.return_type, m.source_location),
+        type_=type_mapper("return", m.return_type, m.source_location),
         struct=_get_arc4_struct_name(m.return_type),
     )
     return models.ARC4ABIMethod(
