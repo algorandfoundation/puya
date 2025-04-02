@@ -9,6 +9,7 @@ from puya.awst import (
 )
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
+from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, mem
 from puya.ir.builder._tuple_util import build_tuple_registers
@@ -19,6 +20,7 @@ from puya.ir.builder._utils import (
     get_implicit_return_is_original,
 )
 from puya.ir.context import IRFunctionBuildContext
+from puya.ir.models import ValueTuple
 from puya.ir.types_ import PrimitiveIRType, get_wtype_arity, wtype_to_ir_type
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
@@ -116,9 +118,23 @@ def handle_assignment(
         ):
             _ = wtypes.persistable_stack_type(wtype, field_location)  # double check
             key_value = context.visitor.visit_and_materialise_single(awst_key)
-            (mat_value,) = context.visitor.materialise_value_provider(
+            mat_values = context.visitor.materialise_value_provider(
                 value, description="new_state_value"
             )
+            if len(mat_values) == 1:
+                (mat_value,) = mat_values
+            else:
+                (mat_value,) = context.visitor.materialise_value_provider(
+                    arc4.encode_value_provider(
+                        context,
+                        ValueTuple(values=mat_values, source_location=assignment_location),
+                        target.wtype,
+                        wtype_to_arc4_wtype(target.wtype, loc=assignment_location),
+                        assignment_location,
+                    ),
+                    description="new_state_value_enc",
+                )
+
             context.block_builder.add(
                 ir.Intrinsic(
                     op=AVMOp.app_global_put,
@@ -126,7 +142,7 @@ def handle_assignment(
                     source_location=assignment_location,
                 )
             )
-            return [mat_value]
+            return mat_values
         case awst_nodes.AppAccountStateExpression(
             key=awst_key, account=account_expr, wtype=wtype, source_location=field_location
         ):

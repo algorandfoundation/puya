@@ -1,0 +1,30 @@
+#pragma version 10
+#pragma typetrack false
+
+// test_cases.native_tuples_in_state.contracts.TuplesInGlobalState.__algopy_entrypoint_with_init() -> uint64:
+main:
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // native_tuples_in_state/contracts.py:6
+    // self.bare_state = (UInt64(1), UInt64(2))
+    pushbytess "bare_state" 0x00000000000000010000000000000002 // "bare_state", 0x00000000000000010000000000000002
+    app_global_put
+
+main_after_if_else@2:
+    // native_tuples_in_state/contracts.py:4
+    // class TuplesInGlobalState(ARC4Contract):
+    txn NumAppArgs
+    bnz main_after_if_else@6
+    txn OnCompletion
+    bnz main_after_if_else@6
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    pushint 1 // 1
+    return
+
+main_after_if_else@6:
+    // native_tuples_in_state/contracts.py:4
+    // class TuplesInGlobalState(ARC4Contract):
+    pushint 0 // 0
+    return

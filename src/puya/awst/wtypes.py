@@ -522,6 +522,16 @@ def validate_persistable(wtype: WType, location: SourceLocation) -> bool:
 
 
 def _storage_type_or_error(wtype: WType) -> str | typing.Literal[AVMType.uint64, AVMType.bytes]:
+    if isinstance(wtype, WTuple):
+        # Native tuples should be storable as long as all members are storable
+        # Might be better to use wtype to arc4 type logic but this exists at a lower level
+        # currently
+        incompatible = next(
+            (st for st in (_storage_type_or_error(t) for t in wtype.types) if isinstance(st, str)),
+            None,
+        )
+        return incompatible or AVMType.bytes
+
     if wtype.ephemeral:
         return "ephemeral types (such as transaction related types) are not suitable for storage"
     if wtype.scalar_type is None:

@@ -5,7 +5,10 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.wtypes import WTuple
+from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
+from puya.ir.builder import arc4
 from puya.ir.builder._utils import OpFactory, assert_value, assign_targets, mktemp
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import Intrinsic, UInt64Constant, Value, ValueProvider, ValueTuple
@@ -24,7 +27,17 @@ def visit_app_state_expression(
         error_message=expr.exists_assertion_message or "state exists",
         source_location=expr.source_location,
     )
-    return maybe_value
+    if not isinstance(expr.wtype, WTuple):
+        return maybe_value
+
+    arc4_tuple = wtype_to_arc4_wtype(expr.wtype, loc=expr.source_location)
+    return arc4.decode_arc4_value(
+        context,
+        maybe_value,
+        arc4_wtype=arc4_tuple,
+        target_wtype=expr.wtype,
+        loc=expr.source_location,
+    )
 
 
 def visit_app_account_state_expression(
