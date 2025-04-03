@@ -1,14 +1,13 @@
-import os
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 from pathlib import Path
 
 import attrs
 import mypy.nodes
+import mypy.options
 import mypy.types
-from mypy.options import NEW_GENERIC_SYNTAX
 
-from puyapy.compile import _get_python_executable
-from puyapy.parse import SourceModule, parse_and_typecheck
+from puyapy.compile import get_mypy_options
+from puyapy.parse import parse_and_typecheck
 
 
 @attrs.define
@@ -329,56 +328,19 @@ def write_file(ts_types: list[TsType], path: Path) -> None:
     path.write_text("\n".join(print_types(ts_types)), encoding="utf-8")
 
 
-def get_mypy_options() -> mypy.options.Options:
-    mypy_opts = mypy.options.Options()
+def _get_mypy_options() -> mypy.options.Options:
+    mypy_opts = get_mypy_options(custom_typeshed_path=None)
 
-    # set python_executable so third-party packages can be found
-    mypy_opts.python_executable = _get_python_executable()
-
-    mypy_opts.preserve_asts = True
-    mypy_opts.include_docstrings = True
-    # next two options disable caching entirely.
-    # slows things down but prevents intermittent failures.
-    mypy_opts.incremental = False
-    mypy_opts.cache_dir = os.devnull
-
-    # strict mode flags, need to review these and all others too
-    mypy_opts.disallow_any_generics = True
-    mypy_opts.disallow_subclassing_any = True
-    mypy_opts.disallow_untyped_calls = True
-    mypy_opts.disallow_untyped_defs = True
-    mypy_opts.disallow_incomplete_defs = True
-    mypy_opts.check_untyped_defs = True
-    mypy_opts.disallow_untyped_decorators = True
-    mypy_opts.warn_redundant_casts = True
-    mypy_opts.warn_unused_ignores = True
-    mypy_opts.warn_return_any = True
-    mypy_opts.strict_equality = True
-    mypy_opts.strict_concatenate = True
-
-    # disallow use of any
+    # allow use of any
     mypy_opts.disallow_any_unimported = False
     mypy_opts.disallow_any_expr = False
     mypy_opts.disallow_any_decorated = False
     mypy_opts.disallow_any_explicit = False
 
-    mypy_opts.pretty = True  # show source in output
+    # Enable new generic syntax
+    mypy_opts.enable_incomplete_feature += [mypy.options.NEW_GENERIC_SYNTAX]
 
     return mypy_opts
-
-
-def parse_with_mypy(paths: Sequence[Path]) -> dict[str, SourceModule]:
-    mypy_options = get_mypy_options()
-
-    # Enable new generic syntax
-    mypy_options.enable_incomplete_feature += [NEW_GENERIC_SYNTAX]
-    # this generates the ASTs from the build sources, and all imported modules (recursively)
-    (manager, ordered_modules) = parse_and_typecheck(paths, mypy_options)
-    # Sometimes when we call back into mypy, there might be errors.
-    # We don't want to crash when that happens.
-    manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
-
-    return ordered_modules
 
 
 def generate_file(*, out_path: Path, puya_path: Path) -> None:
@@ -390,7 +352,7 @@ def generate_file(*, out_path: Path, puya_path: Path) -> None:
 
     ts_types = list[TsType]()
 
-    ordered_modules = parse_with_mypy(paths)
+    _, ordered_modules = parse_and_typecheck(paths, _get_mypy_options())
     for module in ordered_modules.values():
         if module.path not in (nodes_path, txn_fields_path):
             continue
