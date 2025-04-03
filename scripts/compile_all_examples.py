@@ -192,7 +192,6 @@ def _stabilise_logs(stdout: str) -> list[str]:
             (
                 "debug: Skipping algopy stub ",
                 "debug: Skipping typeshed stub ",
-                "warning: Skipping stub: ",
                 "debug: Skipping stdlib stub ",
                 "debug: Building AWST for ",
                 "debug: Discovered user module ",
