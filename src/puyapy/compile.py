@@ -30,7 +30,7 @@ from puyapy.awst_build.arc4_client_gen import write_arc4_client
 from puyapy.awst_build.main import transform_ast
 from puyapy.client_gen import parse_arc56
 from puyapy.options import PuyaPyOptions
-from puyapy.parse import TYPESHED_PATH, ParseResult, parse_and_typecheck
+from puyapy.parse import ParseResult, parse_and_typecheck
 
 # this should contain the lowest version number that this compiler does NOT support
 # i.e. the next minor version after what is defined in stubs/pyproject.toml:tool.poetry.version
@@ -117,12 +117,18 @@ def parse_with_mypy(paths: Sequence[Path]) -> ParseResult:
     )
 
 
-def get_mypy_options() -> mypy.options.Options:
+_CUSTOM_TYPESHED_PATH = Path(__file__).parent / "_typeshed"
+
+
+def get_mypy_options(
+    custom_typeshed_path: Path | None = _CUSTOM_TYPESHED_PATH,
+) -> mypy.options.Options:
     mypy_opts = mypy.options.Options()
 
     # improve mypy parsing performance by using a cut-down typeshed
-    mypy_opts.custom_typeshed_dir = str(TYPESHED_PATH)
-    mypy_opts.abs_custom_typeshed_dir = str(TYPESHED_PATH.resolve())
+    if custom_typeshed_path is not None:
+        mypy_opts.custom_typeshed_dir = str(custom_typeshed_path)
+        mypy_opts.abs_custom_typeshed_dir = str(custom_typeshed_path.resolve())
 
     # set python_executable so third-party packages can be found
     mypy_opts.python_executable = _get_python_executable()
