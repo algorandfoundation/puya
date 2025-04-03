@@ -14,10 +14,10 @@ from puya.context import try_get_source
 from puya.errors import CodeError, InternalError, log_exceptions
 from puya.parse import SourceLocation
 from puya.program_refs import ContractReference
-from puya.utils import attrs_extend, unique
+from puya.utils import attrs_extend, coalesce, unique
 from puyapy.awst_build import pytypes
 from puyapy.models import ConstantValue, ContractFragmentBase
-from puyapy.parse import ParseResult, source_location_from_mypy
+from puyapy.parse import ParseResult
 
 logger = log.get_logger(__name__)
 
@@ -85,7 +85,7 @@ class ASTConversionModuleContext(ASTConversionContext):
                 module_path = self._parse_result.ordered_modules[module_name].path
             except KeyError as ex:
                 raise CodeError(f"could not find module '{module_name}'") from ex
-        loc = source_location_from_mypy(file=module_path, node=node)
+        loc = _source_location_from_mypy(file=module_path, node=node)
         # if not at start of file, try and expand to preceding comment lines,
         if loc.line > 1:
             prior_code = try_get_source(
@@ -162,7 +162,7 @@ def type_to_pytype(
     loc = (
         source_location
         if mypy_type.line is None or mypy_type.line < 1
-        else source_location_from_mypy(source_location.file, mypy_type)
+        else _source_location_from_mypy(source_location.file, mypy_type)
     )
     proper_type_or_alias: mypy.types.ProperType | mypy.types.TypeAliasType
     if isinstance(mypy_type, mypy.types.TypeAliasType):
@@ -330,3 +330,97 @@ def _type_of_any_to_error_message(type_of_any: int, source_location: SourceLocat
             logger.debug(f"Unknown TypeOfAny value: {type_of_any}", location=source_location)
             msg = "Any type is not supported"
     return msg
+
+
+def _source_location_from_mypy(file: Path | None, node: mypy.nodes.Context) -> SourceLocation:
+    assert node.line is not None
+    assert node.line >= 1
+
+    match node:
+        case (
+            mypy.nodes.FuncDef(body=body)
+            | mypy.nodes.Decorator(func=mypy.nodes.FuncDef(body=body))
+        ):
+            # end_line of a function node includes the entire body
+            # try to get just the signature
+            end_line = node.line
+            # no body means the end_line is ok to use
+            if body is None:
+                end_line = max(end_line, node.end_line or node.line)
+            # if there is a body, attempt to use the first line before the body as the end
+            else:
+                end_line = max(end_line, body.line - 1)
+            return SourceLocation(
+                file=file,
+                line=node.line,
+                end_line=end_line,
+            )
+        case mypy.nodes.ClassDef(decorators=class_decorators, defs=class_body):
+            line = node.line
+            for dec in class_decorators:
+                line = min(dec.line, line)
+            end_line = max(line, class_body.line - 1)
+            return SourceLocation(
+                file=file,
+                line=line,
+                end_line=end_line,
+            )
+        case mypy.nodes.WhileStmt(body=compound_body) | mypy.nodes.ForStmt(body=compound_body):
+            return SourceLocation(
+                file=file,
+                line=node.line,
+                end_line=compound_body.line - 1,
+            )
+        case mypy.nodes.IfStmt(body=[*bodies], else_body=else_body):
+            body_start: int | None = None
+            if else_body is not None:
+                bodies.append(else_body)
+            for body in bodies:
+                if body_start is None:
+                    body_start = body.line
+                else:
+                    body_start = min(body_start, body.line)
+            if body_start is None:
+                # this shouldn't happen, there should be at least one body in one branch,
+                # but this serves okay as a fallback
+                end_line = node.end_line or node.line
+            else:
+                end_line = body_start - 1
+            return SourceLocation(
+                file=file,
+                line=node.line,
+                end_line=end_line,
+            )
+        case mypy.types.Type():
+            # mypy types seem to not have an end_column specified, which ends up implying to
+            # end of line, so instead make end_column end after column so it is just a
+            # single character reference
+
+            if node.column < 0:
+                typ_column: int | None = None
+                typ_end_column: int | None = None
+            else:
+                typ_column = node.column
+                typ_end_column = coalesce(node.end_column, typ_column + 1)
+            return SourceLocation(
+                file=file,
+                line=node.line,
+                end_line=(
+                    node.end_line
+                    if (node.end_line is not None and node.end_line >= 1)
+                    else node.line
+                ),
+                column=typ_column,
+                end_column=typ_end_column,
+            )
+    return SourceLocation(
+        file=file,
+        line=node.line,
+        end_line=(
+            node.end_line if (node.end_line is not None and node.end_line >= 1) else node.line
+        ),
+        column=node.column if (node.column is not None and node.column >= 0) else 0,
+        end_column=(
+            node.end_column if (node.end_column is not None and node.end_column >= 0) else None
+        ),
+    )

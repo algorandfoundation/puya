@@ -23,7 +23,7 @@ import mypy.util
 from puya import log
 from puya.awst.nodes import MethodDocumentation
 from puya.parse import SourceLocation
-from puya.utils import coalesce, make_path_relative_to_cwd
+from puya.utils import make_path_relative_to_cwd
 
 if typing.TYPE_CHECKING:
     from collections.abc import Mapping, Sequence, Set
@@ -285,99 +285,5 @@ def parse_docstring(docstring_raw: str | None) -> MethodDocumentation:
             _join_single_new_line(docstring.returns.description)
             if docstring.returns and docstring.returns.description
             else None
-        ),
-    )
-
-
-def source_location_from_mypy(file: Path | None, node: mypy.nodes.Context) -> SourceLocation:
-    assert node.line is not None
-    assert node.line >= 1
-
-    match node:
-        case (
-            mypy.nodes.FuncDef(body=body)
-            | mypy.nodes.Decorator(func=mypy.nodes.FuncDef(body=body))
-        ):
-            # end_line of a function node includes the entire body
-            # try to get just the signature
-            end_line = node.line
-            # no body means the end_line is ok to use
-            if body is None:
-                end_line = max(end_line, node.end_line or node.line)
-            # if there is a body, attempt to use the first line before the body as the end
-            else:
-                end_line = max(end_line, body.line - 1)
-            return SourceLocation(
-                file=file,
-                line=node.line,
-                end_line=end_line,
-            )
-        case mypy.nodes.ClassDef(decorators=class_decorators, defs=class_body):
-            line = node.line
-            for dec in class_decorators:
-                line = min(dec.line, line)
-            end_line = max(line, class_body.line - 1)
-            return SourceLocation(
-                file=file,
-                line=line,
-                end_line=end_line,
-            )
-        case mypy.nodes.WhileStmt(body=compound_body) | mypy.nodes.ForStmt(body=compound_body):
-            return SourceLocation(
-                file=file,
-                line=node.line,
-                end_line=compound_body.line - 1,
-            )
-        case mypy.nodes.IfStmt(body=[*bodies], else_body=else_body):
-            body_start: int | None = None
-            if else_body is not None:
-                bodies.append(else_body)
-            for body in bodies:
-                if body_start is None:
-                    body_start = body.line
-                else:
-                    body_start = min(body_start, body.line)
-            if body_start is None:
-                # this shouldn't happen, there should be at least one body in one branch,
-                # but this serves okay as a fallback
-                end_line = node.end_line or node.line
-            else:
-                end_line = body_start - 1
-            return SourceLocation(
-                file=file,
-                line=node.line,
-                end_line=end_line,
-            )
-        case mypy.types.Type():
-            # mypy types seem to not have an end_column specified, which ends up implying to
-            # end of line, so instead make end_column end after column so it is just a
-            # single character reference
-
-            if node.column < 0:
-                typ_column: int | None = None
-                typ_end_column: int | None = None
-            else:
-                typ_column = node.column
-                typ_end_column = coalesce(node.end_column, typ_column + 1)
-            return SourceLocation(
-                file=file,
-                line=node.line,
-                end_line=(
-                    node.end_line
-                    if (node.end_line is not None and node.end_line >= 1)
-                    else node.line
-                ),
-                column=typ_column,
-                end_column=typ_end_column,
-            )
-    return SourceLocation(
-        file=file,
-        line=node.line,
-        end_line=(
-            node.end_line if (node.end_line is not None and node.end_line >= 1) else node.line
-        ),
-        column=node.column if (node.column is not None and node.column >= 0) else 0,
-        end_column=(
-            node.end_column if (node.end_column is not None and node.end_column >= 0) else None
         ),
     )
