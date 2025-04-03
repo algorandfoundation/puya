@@ -6,8 +6,7 @@ import mypy.nodes
 import mypy.options
 import mypy.types
 
-from puyapy.compile import get_mypy_options
-from puyapy.parse import parse_and_typecheck
+from puyapy.parse import get_mypy_options, parse_and_typecheck
 
 
 @attrs.define
