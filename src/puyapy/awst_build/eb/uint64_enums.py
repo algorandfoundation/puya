@@ -2,12 +2,11 @@ import enum
 import typing
 from collections.abc import Mapping, Sequence
 
-import mypy.nodes
-
 from puya.avm import OnCompletionAction, TransactionType
 from puya.awst.nodes import UInt64Constant
 from puya.errors import CodeError
 from puya.parse import SourceLocation
+from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
@@ -34,7 +33,7 @@ class _UInt64EnumTypeBuilder(TypeBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:

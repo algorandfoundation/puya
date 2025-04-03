@@ -1,8 +1,6 @@
 import typing
 from collections.abc import Sequence
 
-import mypy.nodes
-
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -13,6 +11,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.parse import SourceLocation
+from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
@@ -51,7 +50,7 @@ class AssetTypeBuilder(TypeBuilder[pytypes.RuntimeType]):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -86,7 +85,7 @@ class AssetHoldingExpressionBuilder(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:

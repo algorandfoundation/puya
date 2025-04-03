@@ -1,13 +1,12 @@
 import typing
 from collections.abc import Mapping, Sequence
 
-import mypy.nodes
-
 from puya.awst.nodes import CompiledContract, CompiledLogicSig, Expression
 from puya.awst.txn_fields import TxnField
 from puya.log import get_logger
 from puya.parse import SourceLocation
 from puya.program_refs import LogicSigReference
+from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
@@ -55,7 +54,7 @@ class CompileContractFunctionBuilder(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -108,7 +107,7 @@ class CompileLogicSigFunctionBuilder(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:

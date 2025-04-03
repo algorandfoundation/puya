@@ -5,6 +5,7 @@ from collections.abc import Iterator, Mapping, Sequence, Set
 from functools import cached_property
 
 import attrs
+from mypy.nodes import ArgKind as ArgKind  # noqa: PLC0414
 
 from puya import log
 from puya.avm import OnCompletionAction

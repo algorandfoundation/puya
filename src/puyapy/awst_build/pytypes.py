@@ -19,12 +19,11 @@ from puya.utils import lazy_setdefault, unique
 from puyapy.awst_build import constants
 
 if typing.TYPE_CHECKING:
-    from mypy.nodes import ArgKind
-
     from puyapy.awst_build.intrinsic_models import (
         OpMappingWithOverloads,
         PropertyOpMapping,
     )
+    from puyapy.models import ArgKind
 
 logger = log.get_logger(__name__)
 

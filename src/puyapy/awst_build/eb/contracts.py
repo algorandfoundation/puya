@@ -2,7 +2,6 @@ import typing
 from collections.abc import Sequence
 
 import attrs
-import mypy.nodes
 
 from puya import log
 from puya.awst.nodes import (
@@ -13,6 +12,7 @@ from puya.awst.nodes import (
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
+from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb._utils import constant_bool_and_error
 from puyapy.awst_build.eb.factories import builder_for_instance
@@ -48,7 +48,7 @@ class ContractTypeExpressionBuilder(TypeBuilder[pytypes.ContractType]):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -64,7 +64,7 @@ class ContractTypeExpressionBuilder(TypeBuilder[pytypes.ContractType]):
         func_type = attrs.evolve(
             sym_type,
             args=[
-                pytypes.FuncArg(type=self.produces(), name=None, kind=mypy.nodes.ArgKind.ARG_POS),
+                pytypes.FuncArg(type=self.produces(), name=None, kind=models.ArgKind.ARG_POS),
                 *sym_type.args,
             ],
         )

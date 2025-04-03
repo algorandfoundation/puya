@@ -3,7 +3,6 @@ import typing
 from collections.abc import Sequence
 
 import attrs
-import mypy.nodes
 
 from puya import log
 from puya.awst import (
@@ -12,6 +11,7 @@ from puya.awst import (
 )
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
+from puyapy import models
 from puyapy.awst_build import arc4_utils, pytypes
 from puyapy.awst_build.arc4_utils import pytype_to_arc4_pytype, split_tuple_types
 from puyapy.awst_build.eb import _expect as expect
@@ -206,7 +206,7 @@ def _implicit_arc4_conversion(
         return target_type_builder.call(
             args=conversion_args,
             arg_names=[None] * len(conversion_args),
-            arg_kinds=[mypy.nodes.ARG_POS] * len(conversion_args),
+            arg_kinds=[models.ArgKind.ARG_POS] * len(conversion_args),
             location=instance.source_location,
         )
     encoded = awst_nodes.ARC4Encode(

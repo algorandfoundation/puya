@@ -1,8 +1,6 @@
 import typing
 from collections.abc import Sequence
 
-import mypy.nodes
-
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -16,6 +14,7 @@ from puya.awst.nodes import (
     ReinterpretCast,
 )
 from puya.parse import SourceLocation
+from puyapy import models
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder
@@ -63,7 +62,7 @@ class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType]):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
