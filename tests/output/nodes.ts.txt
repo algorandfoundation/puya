@@ -1378,6 +1378,13 @@ export class ARC4ABIMethodConfig{
   readonly readonly: boolean
   readonly defaultArgs: Map<string, ABIMethodArgMemberDefault | ABIMethodArgConstantDefault>
 }
+export type Constant = 
+    | IntegerConstant
+    | DecimalConstant
+    | BoolConstant
+    | BytesConstant
+    | AddressConstant
+    | MethodConstant
 export type LValue = 
     | VarExpression
     | FieldExpression
@@ -1385,13 +1392,12 @@ export type LValue =
     | TupleExpression
     | AppStateExpression
     | AppAccountStateExpression
-export type Constant = 
-  | IntegerConstant
-  | BoolConstant
-  | BytesConstant
-  | StringConstant
-export type AWST = Contract | LogicSignature | Subroutine
+    | BoxValueExpression
 export type ARC4MethodConfig = ARC4BareMethodConfig | ARC4ABIMethodConfig
+export type AWST = 
+    | Subroutine
+    | LogicSignature
+    | Contract
 export const concreteNodes = {
   expressionStatement: ExpressionStatement,
   block: Block,
@@ -1493,6 +1499,22 @@ export const concreteNodes = {
   uInt64Constant: IntegerConstant,
   bigUIntConstant: IntegerConstant,
 } as const
+export interface StatementVisitor<T> {
+  visitExpressionStatement(statement: ExpressionStatement): T
+  visitBlock(statement: Block): T
+  visitGoto(statement: Goto): T
+  visitIfElse(statement: IfElse): T
+  visitSwitch(statement: Switch): T
+  visitWhileLoop(statement: WhileLoop): T
+  visitLoopExit(statement: LoopExit): T
+  visitLoopContinue(statement: LoopContinue): T
+  visitReturnStatement(statement: ReturnStatement): T
+  visitAssignmentStatement(statement: AssignmentStatement): T
+  visitUInt64AugmentedAssignment(statement: UInt64AugmentedAssignment): T
+  visitBigUIntAugmentedAssignment(statement: BigUIntAugmentedAssignment): T
+  visitBytesAugmentedAssignment(statement: BytesAugmentedAssignment): T
+  visitForInLoop(statement: ForInLoop): T
+}
 export interface ExpressionVisitor<T> {
   visitAssertExpression(expression: AssertExpression): T
   visitIntegerConstant(expression: IntegerConstant): T
@@ -1560,28 +1582,12 @@ export interface ExpressionVisitor<T> {
   visitCompiledLogicSig(expression: CompiledLogicSig): T
   visitARC4Router(expression: ARC4Router): T
 }
-export interface StatementVisitor<T> {
-  visitExpressionStatement(statement: ExpressionStatement): T
-  visitBlock(statement: Block): T
-  visitGoto(statement: Goto): T
-  visitIfElse(statement: IfElse): T
-  visitSwitch(statement: Switch): T
-  visitWhileLoop(statement: WhileLoop): T
-  visitLoopExit(statement: LoopExit): T
-  visitLoopContinue(statement: LoopContinue): T
-  visitReturnStatement(statement: ReturnStatement): T
-  visitAssignmentStatement(statement: AssignmentStatement): T
-  visitUInt64AugmentedAssignment(statement: UInt64AugmentedAssignment): T
-  visitBigUIntAugmentedAssignment(statement: BigUIntAugmentedAssignment): T
-  visitBytesAugmentedAssignment(statement: BytesAugmentedAssignment): T
-  visitForInLoop(statement: ForInLoop): T
-}
-export interface ContractMemberNodeVisitor<T> {
-  visitContractMethod(contractMemberNode: ContractMethod): T
-  visitAppStorageDefinition(contractMemberNode: AppStorageDefinition): T
-}
 export interface RootNodeVisitor<T> {
   visitSubroutine(rootNode: Subroutine): T
   visitLogicSignature(rootNode: LogicSignature): T
   visitContract(rootNode: Contract): T
+}
+export interface ContractMemberNodeVisitor<T> {
+  visitContractMethod(contractMemberNode: ContractMethod): T
+  visitAppStorageDefinition(contractMemberNode: AppStorageDefinition): T
 }

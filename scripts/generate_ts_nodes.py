@@ -1,51 +1,279 @@
-from collections.abc import Iterable
+import abc
+import collections.abc
+import decimal
+import enum
+import inspect
+import types
+import typing
+from collections import defaultdict
+from collections.abc import Iterator, Mapping
 from pathlib import Path
 
 import attrs
-import mypy.nodes
-import mypy.options
-import mypy.types
+import immutabledict
 
-from puyapy.parse import get_mypy_options, parse_and_typecheck
+from puya import avm, parse, program_refs, utils
+from puya.awst import (
+    nodes as awst_nodes,
+    txn_fields,
+    wtypes,
+)
+
+_VCS_ROOT = Path(__file__).parent.parent
+
+_DEFAULT_OUT_PATH = _VCS_ROOT / "tests" / "output" / "nodes.ts.txt"
+
+_EXPORT_UNIONS = {
+    awst_nodes.Lvalue: "LValue",
+    awst_nodes.CompileTimeConstantExpression: "Constant",
+    awst_nodes.ARC4MethodConfig: "ARC4MethodConfig",
+}
+
+_SIMPLE_TYPE_NAME_MAPPINGS: typing.Final[Mapping[type, str]] = {
+    type(None): "null",
+    str: "string",
+    int: "bigint",
+    bool: "boolean",
+    bytes: "Uint8Array",
+    decimal.Decimal: "string",
+    awst_nodes.Function: "_Function",
+    **{
+        t: t.__name__
+        for t in (
+            txn_fields.TxnField,
+            parse.SourceLocation,
+            program_refs.ContractReference,
+            program_refs.LogicSigReference,
+            avm.OnCompletionAction,
+        )
+    },
+}
+
+_MODULE_QUALIFICATIONS = {
+    wtypes.WType.__module__: "wtypes",
+    awst_nodes.Node.__module__: None,
+}
 
 
-@attrs.define
+def generate_file(*, out_path: Path = _DEFAULT_OUT_PATH) -> None:
+    ts_data = list[TsData]()
+    after_imports = False
+    for module_member_name, module_value in vars(awst_nodes).items():
+        # we start once we encounter the base Node type, anything before that is from imports
+        if module_value is awst_nodes.Node:
+            after_imports = True
+        if module_member_name.startswith("_") or not after_imports:
+            pass
+        elif isinstance(module_value, types.UnionType):
+            name_to_use = _EXPORT_UNIONS.get(module_value)
+            if name_to_use is not None:
+                ts_data.append(TsTypeUnion.build(name_to_use, module_value))
+        elif isinstance(module_value, type):
+            klass = module_value
+            if issubclass(klass, enum.Enum):
+                ts_data.append(TsEnum.build(klass))
+            else:
+                try:
+                    attrs_fields = attrs.fields(klass)  # type: ignore[arg-type]
+                except attrs.exceptions.NotAnAttrsClassError:
+                    pass
+                else:
+                    ts_data.append(TsType.build(klass, attrs_fields))
+
+    lines = print_types(ts_data)
+    out_text = (
+        "\n".join(lines)
+        .replace("ContractMemberVisitor", "ContractMemberNodeVisitor")
+        .replace("contractMember:", "contractMemberNode:")
+    )
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(out_text, encoding="utf-8")
+
+
+@attrs.frozen
 class TsType:
     name: str
-    base_types: list[str] = attrs.field(factory=list)
-    fields: dict[str, str] = attrs.field(factory=dict)
+    base_types: list[str]
+    fields: dict[str, str]
+    is_abstract: bool
+    visitor_type: str | None
+
+    @classmethod
+    def build(cls, klass: type, attrs_fields: tuple[attrs.Attribute, ...]) -> typing.Self:  # type: ignore[type-arg]
+        cls_name = convert_type_annotation(klass)
+        # Use this instead of attrs_field.type because this does str eval.
+        # Can't just use this though as it can include things like properties
+        klass_annotations = inspect.get_annotations(klass, eval_str=True)
+        attrs_members = {}
+        for attrs_field in attrs_fields:
+            try:
+                field_annotation = klass_annotations[attrs_field.name]
+            except KeyError:
+                pass
+            else:
+                member_name_camel = to_lower_camel_case(attrs_field.name)
+                attrs_members[member_name_camel] = convert_type_annotation(field_annotation)
+        bases = [b for b in klass.__bases__ if b is not object]
+        try:
+            bases.remove(abc.ABC)
+        except ValueError:
+            is_abstract = klass is awst_nodes.Node
+        else:
+            is_abstract = True
+
+        accept_method = getattr(klass, "accept", None)
+        if accept_method is None:
+            visitor_type = None
+        else:
+            accept_annotations = inspect.get_annotations(accept_method)
+            accept_annotations.pop("return")
+            (accept_arg_type,) = accept_annotations.values()
+            visitor_type = typing.get_origin(accept_arg_type).__name__
+
+        return cls(
+            name=cls_name,
+            is_abstract=is_abstract,
+            base_types=[convert_type_annotation(b) for b in bases],
+            fields=attrs_members,
+            visitor_type=visitor_type,
+        )
+
+    def render(self) -> Iterator[str]:
+        abstract_kw = " abstract " if self.is_abstract else " "
+        bases = self.base_types
+        if len(bases) == 1:
+            extends = f" extends {bases[0]} "
+        elif len(bases) > 1:
+            extends = f" extends classes({",".join(bases)}) "
+        else:
+            extends = ""
+        yield f"export{abstract_kw}class {self.name}{extends}{{"
+
+        yield f"  constructor(props: Props<{self.name}>) {{"
+        if len(bases) == 1:
+            yield "    super(props)"
+        elif len(bases) > 1:
+            yield "    super("
+            yield ", ".join("[props]" for _ in bases)
+            yield ")"
+        for field_name in self.fields:
+            yield f"    this.{field_name} = props.{field_name}"
+        yield "  }"
+
+        for field_name, field_type in self.fields.items():
+            if self.name == awst_nodes.SingleEvaluation.__name__ and field_name == "id":
+                yield f"  readonly {field_name}: symbol"
+            else:
+                yield f"  readonly {field_name}: {field_type}"
+
+        visitor_type_name = self.visitor_type
+        if visitor_type_name is not None:
+            if self.is_abstract:
+                yield f"  abstract accept<T>(visitor: {visitor_type_name}<T>): T"
+            else:
+                yield f"  accept<T>(visitor: {visitor_type_name}<T>): T {{"
+                yield f"     return visitor.visit{self.name}(this)"
+                yield "   }"
+        yield "}"
 
 
-def safe_name(name: str) -> str:
-    match name:
-        case "Function":
-            return "_Function"
-        case _:
-            return name
+@attrs.frozen
+class TsEnum:
+    name: str
+    values: dict[str, int | str]
+
+    @classmethod
+    def build(cls, klass: type[enum.Enum]) -> typing.Self:
+        cls_name = convert_type_annotation(klass)
+        enum_values = {}
+        for member_name, enum_member in klass._member_map_.items():
+            member_name_camel = to_lower_camel_case(member_name)
+            if isinstance(enum_member.value, int | str):
+                enum_value = enum_member.value
+            else:
+                assert klass is awst_nodes.PuyaLibFunction
+                enum_value = member_name
+            enum_values[member_name_camel] = enum_value
+        return cls(name=cls_name, values=enum_values)
+
+    def render(self) -> Iterator[str]:
+        yield f"export enum {self.name} {{"
+        for field, value in self.values.items():
+            if isinstance(value, str):
+                value_str = f'"{value}"'
+            else:
+                value_str = str(value)
+            yield f"  {field} = {value_str},"
+        yield "}"
 
 
-def base_type_name(x: mypy.nodes.Expression) -> str:
-    match x:
-        case mypy.nodes.NameExpr(name=name):
-            return safe_name(name)
-        case mypy.nodes.MemberExpr(
-            expr=mypy.nodes.NameExpr(fullname="puya.awst.nodes.enum"), name=name
-        ):
-            return safe_name(name)
-        case mypy.nodes.MemberExpr(
-            expr=mypy.nodes.NameExpr(fullname="puya.awst.txn_fields.enum"), name=name
-        ):
-            return safe_name(name)
-        case mypy.nodes.MemberExpr(expr=mypy.nodes.NameExpr(name="enum"), name=name):
-            return name
-        case _:
-            raise ValueError("Unexpected value")
+@attrs.frozen
+class TsTypeUnion:
+    name: str
+    members: tuple[str, ...]
+
+    @classmethod
+    def build(cls, name: str, value: types.UnionType) -> typing.Self:
+        return cls(
+            name=name,
+            members=tuple(convert_type_annotation(um) for um in value.__args__),
+        )
+
+    def render(self) -> Iterator[str]:
+        lhs = f"export type {self.name} = "
+        if len(self.members) < 3:
+            yield f"{lhs}{' | '.join(self.members)}"
+        else:
+            yield lhs
+            for member in self.members:
+                yield f"    | {member}"
+
+
+TsData = TsType | TsEnum | TsTypeUnion
+
+
+def convert_type_annotation(
+    t: type | types.UnionType | types.GenericAlias | typing.NewType,
+) -> str:
+    if isinstance(t, type):
+        try:
+            return _SIMPLE_TYPE_NAME_MAPPINGS[t]
+        except KeyError:
+            pass
+        mapped_module_name = _MODULE_QUALIFICATIONS[t.__module__]
+        if mapped_module_name is None:
+            return t.__name__
+        return ".".join((mapped_module_name, t.__name__))
+    if isinstance(t, typing.NewType):
+        return convert_type_annotation(t.__supertype__)
+
+    origin = typing.get_origin(t)
+    if origin is not None:
+        args = typing.get_args(t)
+        mapped_args = tuple(map(convert_type_annotation, args))
+        match origin, mapped_args:
+            case (collections.abc.Sequence, (element_type,)):
+                return f"Array<{element_type}>"
+            case ((collections.abc.Mapping | immutabledict.immutabledict), (key_type, value_type)):
+                return f"Map<{key_type}, {value_type}>"
+            case ((collections.abc.Set | utils.StableSet), (element_type,)):
+                return f"Set<{element_type}>"
+            case ((typing.Union | types.UnionType), _):
+                return " | ".join(mapped_args)
+    raise ValueError(f"unhandled type annotation: {t!r}")
 
 
 def capitalize_first(x: str) -> str:
-    if len(x) == 0:
+    if not x:
         return x
     return x[0].upper() + x[1:]
+
+
+def lowercase_first(s: str) -> str:
+    if not s:
+        return s
+    return s[0].lower() + s[1:]
 
 
 def to_camel_case(snake_str: str) -> str:
@@ -56,230 +284,10 @@ def to_lower_camel_case(snake_str: str) -> str:
     # We capitalize the first letter of each component except the first one
     # with the 'capitalize' method and join them together.
     camel_string = to_camel_case(snake_str)
-    return camel_string[0].lower() + camel_string[1:]
+    return lowercase_first(camel_string)
 
 
-def extract_type_name(_t: mypy.types.Type) -> str:
-    match _t:
-        case mypy.types.TypeAliasType(alias=mypy.nodes.TypeAlias(target=target)):
-            return extract_type_name(target)
-        case mypy.types.UnionType(items=items):
-            return " | ".join(
-                extract_type_name(t) for t in items if extract_type_name(t) != "Range"
-            )
-        case mypy.types.NoneType():
-            return "null"
-
-        case mypy.types.TypeType(item=item):
-            return extract_type_name(item)
-        case mypy.types.Instance(type=type, args=args):
-            if type.fullname == "typing.Sequence":
-                return f"Array<{extract_type_name(args[0])}>"
-            if type.fullname == "typing.Mapping":
-                return f"Map<{extract_type_name(args[0])}, {extract_type_name(args[1])}>"
-            if type.fullname == "immutabledict.immutabledict":
-                return f"Map<{extract_type_name(args[0])}, {extract_type_name(args[1])}>"
-            if type.fullname == "builtins.tuple":
-                return "[" + ", ".join(extract_type_name(t) for t in args) + "]"
-            if type.fullname == "puya.utils.StableSet":
-                return f"Set<{extract_type_name(args[0])}>"
-            if type.fullname == "typing.AbstractSet":
-                return f"Set<{extract_type_name(args[0])}>"
-            if type.fullname == "builtins.str":
-                return "string"
-            if type.fullname == "builtins.int":
-                return "bigint"
-            if type.fullname == "builtins.bool":
-                return "boolean"
-            if type.fullname == "builtins.bytes":
-                return "Uint8Array"
-            if type.fullname == "_decimal.Decimal":
-                return "string"
-            if type.fullname == "puya.awst.nodes.Label":
-                return "string"
-            if type.fullname.startswith("puya.awst.wtypes"):
-                return f"wtypes.{type.fullname[17:]}"
-            if type.fullname.startswith("puya."):
-                module_name = ".".join(type.fullname.split(".")[:-1])
-                return type.fullname[len(module_name) + 1 :]
-
-            return type.fullname
-        case _:
-            raise ValueError("AAARGH")
-
-
-def visit_class(c: mypy.nodes.ClassDef) -> TsType:
-    type_instance = TsType(safe_name(c.name))
-    type_instance.base_types.extend(base_type_name(n) for n in c.base_type_exprs)
-    # Special case: Treat this enum as a string enum
-    if c.fullname == "puya.awst.nodes.PuyaLibFunction":
-        type_instance.base_types.append("StrEnum")
-    is_str_enum = "StrEnum" in type_instance.base_types
-    enum_auto = 1
-    for x in c.defs.body:
-        match x:
-            case mypy.nodes.AssignmentStmt(
-                lvalues=[
-                    mypy.nodes.NameExpr(
-                        name=member_name,
-                    )
-                ],
-                rvalue=mypy.nodes.StrExpr(value=enum_value),
-            ) if enum_value and is_str_enum:
-                member_name_camel = to_lower_camel_case(member_name)
-                type_instance.fields[member_name_camel] = enum_value
-            case mypy.nodes.AssignmentStmt(
-                lvalues=[
-                    mypy.nodes.NameExpr(
-                        name=member_name,
-                        node=mypy.nodes.Var(
-                            type=mypy.types.Instance(
-                                type=mypy.nodes.TypeInfo(fullname="enum.auto")
-                            ),
-                        ),
-                    )
-                ]
-            ):
-                member_name_camel = to_lower_camel_case(member_name)
-                type_instance.fields[member_name_camel] = (
-                    member_name if is_str_enum else f"{enum_auto}"
-                )
-                enum_auto += 1
-            case mypy.nodes.AssignmentStmt(
-                lvalues=[
-                    mypy.nodes.NameExpr(
-                        name=member_name,
-                    )
-                ]
-            ) if is_str_enum:
-                member_name_camel = to_lower_camel_case(member_name)
-                type_instance.fields[member_name_camel] = member_name
-            case mypy.nodes.AssignmentStmt(
-                lvalues=[
-                    mypy.nodes.NameExpr(
-                        name=member_name,
-                        node=mypy.nodes.Var(
-                            type=member_type,
-                        ),
-                    )
-                ]
-            ) if member_type:
-                # if member_name == "methods" and c.name == "Contract":
-                #     continue
-                member_name_camel = to_lower_camel_case(member_name)
-                type_instance.fields[member_name_camel] = extract_type_name(member_type)
-            case mypy.nodes.FuncDef():
-                pass
-            case _:
-                pass
-
-    return type_instance
-
-
-def print_str_enum(ts_type: TsType) -> Iterable[str]:
-    yield f"export enum {ts_type.name} {{"
-    for field, value in ts_type.fields.items():
-        enum_value = field if value == "enum" else value
-        yield f'  {field} = "{enum_value}",'
-    yield "}"
-
-
-def print_num_enum(ts_type: TsType) -> Iterable[str]:
-    yield f"export enum {ts_type.name} {{"
-    for field in ts_type.fields:
-        yield f"  {field} = {ts_type.fields[field]},"
-    yield "}"
-
-
-def get_visitor_type(ts_type: TsType, ts_types: list[TsType]) -> str | None:
-    match ts_type.name:
-        case "Expression" | "Statement" | "RootNode" | "ContractMemberNode":
-            return ts_type.name
-
-    base_types = (t for t in ts_types if t.name in ts_type.base_types)
-    base_visitor_types = (get_visitor_type(t, ts_types) for t in base_types)
-
-    return next((t for t in base_visitor_types if t), None)
-
-
-def print_visitor(ts_types: list[TsType], name: str) -> Iterable[str]:
-    yield f"export interface {name}Visitor<T> {{"
-    for ts_type in ts_types:
-        if "ABC" in ts_type.base_types or ts_type.name == "Node":
-            continue
-
-        if get_visitor_type(ts_type, ts_types) == name:
-            yield f"  visit{ts_type.name}({name[0].lower()}{name[1:]}: {ts_type.name}): T"
-
-    yield "}"
-
-
-def print_concrete_type_map(ts_types: list[TsType]) -> Iterable[str]:
-    yield "export const concreteNodes = {"
-    for ts_type in ts_types:
-        if "StrEnum" in ts_type.base_types:
-            continue
-        if "Enum" in ts_type.base_types:
-            continue
-        if "ABC" in ts_type.base_types or ts_type.name == "Node":
-            continue
-        yield f"  {ts_type.name[0].lower()}{ts_type.name[1:]}: {ts_type.name},"
-
-    # Special cases
-    yield "  uInt64Constant: IntegerConstant,"
-    yield "  bigUIntConstant: IntegerConstant,"
-    yield "} as const"
-
-
-def print_type(ts_type: TsType, ts_types: list[TsType]) -> Iterable[str]:
-    if "StrEnum" in ts_type.base_types:
-        yield from print_str_enum(ts_type)
-        return
-    if "Enum" in ts_type.base_types:
-        yield from print_num_enum(ts_type)
-        return
-    is_abstract = "ABC" in ts_type.base_types or ts_type.name == "Node"
-    visitor_type = get_visitor_type(ts_type, ts_types)
-
-    abstract_kw = " abstract " if is_abstract else " "
-    bases = [b for b in ts_type.base_types if b != "ABC"]
-    if len(bases) == 1:
-        extends = f" extends {bases[0]} "
-    elif len(bases) > 1:
-        extends = f" extends classes({",".join(bases)}) "
-    else:
-        extends = ""
-    yield f"export{abstract_kw}class {ts_type.name}{extends}{{"
-
-    yield f"  constructor(props: Props<{ts_type.name}>) {{"
-    if len(bases) == 1:
-        yield "    super(props)"
-    elif len(bases) > 1:
-        yield "    super("
-        yield ", ".join("[props]" for _ in bases)
-        yield ")"
-    for field_name in ts_type.fields:
-        yield f"    this.{field_name} = props.{field_name}"
-    yield "  }"
-
-    for field_name, field_type in ts_type.fields.items():
-        if field_name == "id" and ts_type.name == "SingleEvaluation":
-            yield f"  readonly {field_name}: symbol"
-        elif "undefined" in field_type:
-            yield f"  readonly {field_name}?: {field_type}"
-        else:
-            yield f"  readonly {field_name}: {field_type}"
-    if not is_abstract and visitor_type:
-        yield f"  accept<T>(visitor: {visitor_type}Visitor<T>): T {{"
-        yield f"     return visitor.visit{ts_type.name}(this)"
-        yield "   }"
-    elif is_abstract and visitor_type:
-        yield f"  abstract accept<T>(visitor: {visitor_type}Visitor<T>): T"
-
-    yield "}"
-
-
-def print_types(ts_types: list[TsType]) -> Iterable[str]:
+def print_types(ts_data: list[TsData]) -> Iterator[str]:
     yield "/* AUTOGENERATED FILE - DO NOT EDIT (see puya/scripts/generate_ts_nodes.py) */"
     yield "import { classes } from 'polytype'"
     yield "import type { Props } from '../typescript-helpers'"
@@ -291,78 +299,50 @@ def print_types(ts_types: list[TsType]) -> Iterable[str]:
     yield "import type { TxnField } from './txn-fields'"
     yield "import type { wtypes } from './wtypes'"
 
-    for t in ts_types:
-        if t.name == "TxnField":
-            continue
-        yield from print_type(t, ts_types)
+    ts_types = []
+    visitor_to_visitable = defaultdict[str, list[TsType]](list)
+    unions = []
+    root_node_types = []
+    for t in ts_data:
+        if isinstance(t, TsTypeUnion):
+            unions.append(t)
+        elif isinstance(t, TsEnum):
+            yield from t.render()
+        else:
+            ts_types.append(t)
+            if t.visitor_type and not t.is_abstract:
+                visitor_to_visitable[t.visitor_type].append(t)
+            if awst_nodes.RootNode.__name__ in t.base_types:
+                root_node_types.append(t)
+            yield from t.render()
 
-    yield "export type LValue = "
-    yield "    | VarExpression"
-    yield "    | FieldExpression"
-    yield "    | IndexExpression"
-    yield "    | TupleExpression"
-    yield "    | AppStateExpression"
-    yield "    | AppAccountStateExpression"
+    unions.append(
+        TsTypeUnion(
+            name="AWST",
+            members=tuple(t.name for t in root_node_types),
+        )
+    )
+    for tu in unions:
+        yield from tu.render()
 
-    yield "export type Constant = "
-    yield "  | IntegerConstant"
-    yield "  | BoolConstant"
-    yield "  | BytesConstant"
-    yield "  | StringConstant"
+    # Concrete type map
+    yield "export const concreteNodes = {"
+    for ts_type in ts_types:
+        if not ts_type.is_abstract:
+            yield f"  {lowercase_first(ts_type.name)}: {ts_type.name},"
+    # Special cases
+    yield "  uInt64Constant: IntegerConstant,"
+    yield "  bigUIntConstant: IntegerConstant,"
+    yield "} as const"
 
-    yield "export type AWST = Contract | LogicSignature | Subroutine"
-    yield "export type ARC4MethodConfig = ARC4BareMethodConfig | ARC4ABIMethodConfig"
-
-    yield from print_concrete_type_map(ts_types)
-
-    yield from print_visitor(ts_types, "Expression")
-    yield from print_visitor(ts_types, "Statement")
-    yield from print_visitor(ts_types, "ContractMemberNode")
-    yield from print_visitor(ts_types, "RootNode")
-
-
-def write_file(ts_types: list[TsType], path: Path) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    path.write_text("\n".join(print_types(ts_types)), encoding="utf-8")
-
-
-def _get_mypy_options() -> mypy.options.Options:
-    mypy_opts = get_mypy_options(custom_typeshed_path=None)
-
-    # allow use of any
-    mypy_opts.disallow_any_unimported = False
-    mypy_opts.disallow_any_expr = False
-    mypy_opts.disallow_any_decorated = False
-    mypy_opts.disallow_any_explicit = False
-
-    # Enable new generic syntax
-    mypy_opts.enable_incomplete_feature += [mypy.options.NEW_GENERIC_SYNTAX]
-
-    return mypy_opts
+    # Visitors
+    for visitor_base_name, visitables in visitor_to_visitable.items():
+        yield f"export interface {visitor_base_name}<T> {{"
+        arg_name = lowercase_first(visitor_base_name).removesuffix("Visitor")
+        for ts_type in visitables:
+            yield f"  visit{ts_type.name}({arg_name}: {ts_type.name}): T"
+        yield "}"
 
 
-def generate_file(*, out_path: Path, puya_path: Path) -> None:
-    nodes_path = puya_path / "awst/nodes.py"
-    txn_fields_path = puya_path / "awst/txn_fields.py"
-    paths = [nodes_path, txn_fields_path]
-
-    ignored_types = ("ContinueStatement", "BreakStatement")
-
-    ts_types = list[TsType]()
-
-    _, ordered_modules = parse_and_typecheck(paths, _get_mypy_options())
-    for module in ordered_modules.values():
-        if module.path not in (nodes_path, txn_fields_path):
-            continue
-        for statement in module.node.defs:
-            match statement:
-                case mypy.nodes.ClassDef() as cdef:
-                    if cdef.name.startswith("_"):
-                        continue
-                    ts_type = visit_class(cdef)
-                    if ts_type.name in ignored_types:
-                        continue
-                    ts_types.append(ts_type)
-
-    write_file(ts_types, out_path)
+if __name__ == "__main__":
+    generate_file()
