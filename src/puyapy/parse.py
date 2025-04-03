@@ -9,7 +9,6 @@ from functools import cached_property
 from pathlib import Path
 
 import attrs
-import docstring_parser
 import mypy.build
 import mypy.errors
 import mypy.find_sources
@@ -21,7 +20,6 @@ import mypy.types
 import mypy.util
 
 from puya import log
-from puya.awst.nodes import MethodDocumentation
 from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd
 
@@ -259,31 +257,3 @@ def _try_parse_log_parts(
         location = SourceLocation(file=Path(path_str).resolve(), line=line)
     level = _MYPY_SEVERITY_TO_LOG_LEVEL[severity_str]
     return log.Log(message=msg, level=level, location=location)
-
-
-def _join_single_new_line(doc: str) -> str:
-    return doc.strip().replace("\n", " ")
-
-
-def parse_docstring(docstring_raw: str | None) -> MethodDocumentation:
-    if docstring_raw is None:
-        return MethodDocumentation()
-    docstring = docstring_parser.parse(docstring_raw)
-    method_desc = "\n".join(
-        _join_single_new_line(line)
-        for lines in filter(None, (docstring.short_description, docstring.long_description))
-        for line in lines.split("\n\n")
-    )
-    return MethodDocumentation(
-        description=method_desc if method_desc else None,
-        args={
-            p.arg_name: _join_single_new_line(p.description)
-            for p in docstring.params
-            if p.description
-        },
-        returns=(
-            _join_single_new_line(docstring.returns.description)
-            if docstring.returns and docstring.returns.description
-            else None
-        ),
-    )

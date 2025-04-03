@@ -3,6 +3,7 @@ import typing
 from collections.abc import Callable, Sequence
 
 import attrs
+import docstring_parser
 import mypy.nodes
 import mypy.patterns
 import mypy.types
@@ -33,6 +34,7 @@ from puya.awst.nodes import (
     LoopContinue,
     LoopExit,
     Lvalue,
+    MethodDocumentation,
     ReturnStatement,
     Statement,
     Subroutine,
@@ -84,7 +86,6 @@ from puyapy.awst_build.utils import (
     require_callable_type,
 )
 from puyapy.models import ContractFragmentBase
-from puyapy.parse import parse_docstring
 
 logger = log.get_logger(__name__)
 
@@ -629,7 +630,7 @@ class FunctionASTConverter(
         translated_body = self.visit_block(func_def.body)
         # build result
         self.result: Subroutine | ContractMethod
-        documentation = parse_docstring(func_def.docstring)
+        documentation = _parse_docstring(func_def.docstring)
         if contract_method_info is None:
             self.result = Subroutine(
                 id=func_def.fullname,
@@ -1295,3 +1296,31 @@ def is_self_member(
 
 def require_instance_builder(builder_or_literal: NodeBuilder) -> InstanceBuilder:
     return expect.instance_builder(builder_or_literal, default=expect.default_raise)
+
+
+def _parse_docstring(docstring_raw: str | None) -> MethodDocumentation:
+    if docstring_raw is None:
+        return MethodDocumentation()
+    docstring = docstring_parser.parse(docstring_raw)
+    method_desc = "\n".join(
+        _join_single_new_line(line)
+        for lines in filter(None, (docstring.short_description, docstring.long_description))
+        for line in lines.split("\n\n")
+    )
+    return MethodDocumentation(
+        description=method_desc if method_desc else None,
+        args={
+            p.arg_name: _join_single_new_line(p.description)
+            for p in docstring.params
+            if p.description
+        },
+        returns=(
+            _join_single_new_line(docstring.returns.description)
+            if docstring.returns and docstring.returns.description
+            else None
+        ),
+    )
+
+
+def _join_single_new_line(doc: str) -> str:
+    return doc.strip().replace("\n", " ")
