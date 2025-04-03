@@ -23,7 +23,6 @@ from puya.utils import make_path_relative_to_cwd
 
 logger = log.get_logger(__name__)
 
-TYPESHED_PATH = Path(__file__).parent / "_typeshed"
 
 _MYPY_SEVERITY_TO_LOG_LEVEL = {
     "error": log.LogLevel.error,
@@ -45,6 +44,7 @@ class SourceModule:
     path: Path
     lines: Sequence[str] | None
     discovery_mechanism: SourceDiscoveryMechanism
+    is_typeshed_file: bool
 
 
 @attrs.frozen
@@ -127,6 +127,7 @@ def parse_and_typecheck(
                     path=module_path,
                     lines=lines,
                     discovery_mechanism=discovery_mechanism,
+                    is_typeshed_file=module.is_typeshed_file(mypy_options),
                 )
 
     return result.manager, ordered_modules
