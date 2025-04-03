@@ -1,12 +1,11 @@
 import typing
 from collections.abc import Sequence
 
-import mypy.nodes
-
 from puya import log
 from puya.awst.nodes import ARC4Decode, ARC4Encode, Expression, TupleItemExpression
 from puya.errors import CodeError
 from puya.parse import SourceLocation
+from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import GenericTypeBuilder
@@ -31,7 +30,7 @@ class ARC4TupleGenericTypeBuilder(GenericTypeBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -56,7 +55,7 @@ class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.ARC4TupleType]):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:

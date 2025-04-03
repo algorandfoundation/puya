@@ -2,7 +2,6 @@ import typing
 from collections.abc import Iterable, Mapping, Sequence, Set
 
 import attrs
-import mypy.nodes
 
 from puya import log
 from puya.avm import OnCompletionAction, TransactionType
@@ -29,6 +28,7 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.program_refs import ContractReference
 from puya.utils import StableSet
+from puyapy import models
 from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
@@ -108,7 +108,7 @@ class ARC4ClientTypeBuilder(TypeBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -135,7 +135,7 @@ class ARC4ClientMethodExpressionBuilder(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -149,7 +149,7 @@ class ABICallGenericTypeBuilder(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -166,7 +166,7 @@ class ABICallTypeBuilder(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -192,7 +192,7 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:

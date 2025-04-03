@@ -1,11 +1,10 @@
 import typing
 from collections.abc import Sequence
 
-import mypy.nodes
-
 from puya.awst import wtypes
 from puya.awst.nodes import BoxValueExpression, Expression, IntrinsicCall, Not, StateExists
 from puya.parse import SourceLocation
+from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
@@ -39,7 +38,7 @@ class BoxRefTypeBuilder(TypeBuilder[pytypes.StorageProxyType]):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -197,7 +196,7 @@ class _IntrinsicMethod(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -234,7 +233,7 @@ class _Create(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -261,7 +260,7 @@ class _Put(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:

@@ -2,8 +2,6 @@ import abc
 import typing
 from collections.abc import Sequence
 
-import mypy.nodes
-
 from puya.awst.nodes import (
     BoxValueExpression,
     ExpressionStatement,
@@ -13,6 +11,7 @@ from puya.awst.nodes import (
     Statement,
 )
 from puya.parse import SourceLocation
+from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
@@ -37,7 +36,7 @@ class BoxGetExpressionBuilder(_BoxKeyExpressionIntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -56,7 +55,7 @@ class BoxMaybeExpressionBuilder(_BoxKeyExpressionIntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:

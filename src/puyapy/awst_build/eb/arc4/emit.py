@@ -1,11 +1,10 @@
 import typing
 from collections.abc import Sequence
 
-import mypy.nodes
-
 from puya import log
 from puya.awst.nodes import Emit
 from puya.parse import SourceLocation
+from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.arc4_utils import pytype_to_arc4
 from puyapy.awst_build.eb import _expect as expect
@@ -23,7 +22,7 @@ class EmitBuilder(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -58,7 +57,7 @@ class EmitBuilder(FunctionBuilder):
                 event_arg_eb = ARC4StructTypeBuilder(struct_type, location).call(
                     args=arc4_args,
                     arg_names=[None] * len(arc4_args),
-                    arg_kinds=[mypy.nodes.ARG_POS] * len(arc4_args),
+                    arg_kinds=[models.ArgKind.ARG_POS] * len(arc4_args),
                     location=location,
                 )
         event_name = struct_type.name.split(".")[-1]

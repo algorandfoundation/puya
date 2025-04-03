@@ -1,8 +1,6 @@
 import typing
 from collections.abc import Sequence
 
-import mypy.nodes
-
 from puya import log
 from puya.awst.nodes import (
     CallArg,
@@ -13,6 +11,7 @@ from puya.awst.nodes import (
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puya.program_refs import ContractReference
+from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
@@ -37,7 +36,7 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -63,15 +62,15 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
                 raise InternalError("argument marked as named has no name", location)
             arg_map_name = typ_arg.name or str(idx)
             match typ_arg.kind:
-                case mypy.nodes.ARG_POS:
+                case models.ArgKind.ARG_POS:
                     required_positional_names.append(arg_map_name)
-                case mypy.nodes.ARG_OPT:
+                case models.ArgKind.ARG_OPT:
                     optional_positional_names.append(arg_map_name)
-                case mypy.nodes.ARG_NAMED:
+                case models.ArgKind.ARG_NAMED:
                     required_kw_only.append(arg_map_name)
-                case mypy.nodes.ARG_NAMED_OPT:
+                case models.ArgKind.ARG_NAMED_OPT:
                     optional_kw_only.append(arg_map_name)
-                case mypy.nodes.ARG_STAR | mypy.nodes.ARG_STAR2:
+                case models.ArgKind.ARG_STAR | models.ArgKind.ARG_STAR2:
                     logger.error(
                         "functions with variadic arguments are not supported", location=location
                     )

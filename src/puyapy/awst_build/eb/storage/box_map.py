@@ -2,8 +2,6 @@ import abc
 import typing
 from collections.abc import Callable, Sequence
 
-import mypy.nodes
-
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -15,6 +13,7 @@ from puya.awst.nodes import (
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
+from puyapy import models
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
@@ -52,7 +51,7 @@ class BoxMapTypeBuilder(TypeBuilder[pytypes.StorageMapProxyType]):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -64,7 +63,7 @@ class BoxMapGenericTypeExpressionBuilder(GenericTypeBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -232,7 +231,7 @@ class _Length(_MethodBase):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -259,7 +258,7 @@ class _Get(_MethodBase):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -289,7 +288,7 @@ class _Maybe(_MethodBase):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:

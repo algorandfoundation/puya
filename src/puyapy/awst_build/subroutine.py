@@ -45,6 +45,7 @@ from puya.awst.nodes import (
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puya.program_refs import ContractReference, LogicSigReference
+from puyapy import models
 from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyExpressionVisitor, BaseMyPyStatementVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
@@ -1244,7 +1245,7 @@ class FunctionASTConverter(
                         if not has_error:
                             case_value_builder = class_builder.call(
                                 args=cls_args,
-                                arg_kinds=[mypy.nodes.ARG_POS] * len(cls_args),
+                                arg_kinds=[models.ArgKind.ARG_POS] * len(cls_args),
                                 arg_names=[None] * len(cls_args),
                                 location=pattern_loc,
                             )

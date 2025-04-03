@@ -1,12 +1,11 @@
 import typing
 from collections.abc import Sequence
 
-import mypy.nodes
-
 from puya import log
 from puya.awst.nodes import TemplateVar
 from puya.errors import CodeError
 from puya.parse import SourceLocation
+from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
@@ -23,7 +22,7 @@ class GenericTemplateVariableExpressionBuilder(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
@@ -40,7 +39,7 @@ class TemplateVariableExpressionBuilder(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
