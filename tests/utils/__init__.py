@@ -14,9 +14,9 @@ from puya.parse import SourceLocation
 from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import pushd
 from puyapy.awst_build.main import transform_ast
-from puyapy.compile import determine_out_dir, output_awst, parse_with_mypy, write_arc4_clients
+from puyapy.compile import determine_out_dir, output_awst, write_arc4_clients
 from puyapy.options import PuyaPyOptions
-from puyapy.parse import ParseResult, SourceDiscoveryMechanism
+from puyapy.parse import ParseResult, SourceDiscoveryMechanism, parse_python
 from puyapy.template import parse_template_key_value
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 
@@ -57,7 +57,7 @@ def get_awst_cache(root_dir: Path) -> _CompileCache:
     # optimisation and debug levels, which is currently true.
     # if this were to no longer be true, this test speedup strategy would need to be revisited
     with pushd(root_dir), logging_context() as log_ctx:
-        parse_result = parse_with_mypy([root_dir])
+        parse_result = parse_python([root_dir])
         awst, compilation_set = transform_ast(parse_result)
     return _CompileCache(parse_result, awst, compilation_set, log_ctx.logs)
 
