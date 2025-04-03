@@ -40,22 +40,6 @@ _MYPY_SEVERITY_TO_LOG_LEVEL = {
 }
 
 
-@attrs.frozen
-class EmbeddedSource:
-    path: Path
-    mypy_module_name: str
-    puya_module_name: str
-
-    @classmethod
-    def from_path(cls, filename: str, *, module_override: str | None = None) -> typing.Self:
-        path = _PUYA_SRC_ROOT / "lib_embedded" / filename
-        return cls(
-            path=path,
-            mypy_module_name=path.stem,
-            puya_module_name=module_override or path.stem,
-        )
-
-
 class SourceDiscoveryMechanism(enum.Enum):
     explicit_file = enum.auto()
     explicit_directory_walk = enum.auto()
