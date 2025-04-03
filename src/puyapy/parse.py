@@ -1,10 +1,8 @@
-from __future__ import annotations
-
 import codecs
 import enum
 import os
 import re
-import typing
+from collections.abc import Mapping, Sequence, Set
 from functools import cached_property
 from pathlib import Path
 
@@ -23,14 +21,10 @@ from puya import log
 from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd
 
-if typing.TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence, Set
-
 logger = log.get_logger(__name__)
-_PUYAPY_SRC_ROOT = Path(__file__).parent
-_PUYA_SRC_ROOT = _PUYAPY_SRC_ROOT.parent / "puya"
-TYPESHED_PATH = _PUYAPY_SRC_ROOT / "_typeshed"
-_MYPY_FSCACHE = mypy.fscache.FileSystemCache()
+
+TYPESHED_PATH = Path(__file__).parent / "_typeshed"
+
 _MYPY_SEVERITY_TO_LOG_LEVEL = {
     "error": log.LogLevel.error,
     "warning": log.LogLevel.warning,
@@ -75,7 +69,11 @@ class ParseResult:
 
 
 def parse_and_typecheck(
-    paths: Sequence[Path], mypy_options: mypy.options.Options
+    paths: Sequence[Path],
+    mypy_options: mypy.options.Options,
+    *,
+    # equivalent to a module-level singleton default, but at least it's self-contained here
+    fs_cache: mypy.fscache.FileSystemCache = mypy.fscache.FileSystemCache(),  # noqa: B008
 ) -> tuple[mypy.build.BuildManager, dict[str, SourceModule]]:
     """Generate the ASTs from the build sources, and all imported modules (recursively)"""
 
@@ -85,12 +83,12 @@ def parse_and_typecheck(
     mypy_build_sources = mypy.find_sources.create_source_list(
         paths=[str(p) for p in resolved_input_paths],
         options=mypy_options,
-        fscache=_MYPY_FSCACHE,
+        fscache=fs_cache,
     )
     build_source_paths = {
         Path(m.path).resolve() for m in mypy_build_sources if m.path and not m.followed
     }
-    result = _mypy_build(mypy_build_sources, mypy_options, _MYPY_FSCACHE)
+    result = _mypy_build(mypy_build_sources, mypy_options, fs_cache)
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
     result.manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
@@ -115,8 +113,8 @@ def parse_and_typecheck(
                 # nothing and is only in the graph as a reference
                 pass
             else:
-                _check_encoding(_MYPY_FSCACHE, module_path)
-                lines = mypy.util.read_py_file(str(module_path), _MYPY_FSCACHE.read)
+                _check_encoding(fs_cache, module_path)
+                lines = mypy.util.read_py_file(str(module_path), fs_cache.read)
                 if module_path in resolved_input_paths:
                     discovery_mechanism = SourceDiscoveryMechanism.explicit_file
                 elif module_path in build_source_paths:
