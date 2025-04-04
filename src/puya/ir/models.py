@@ -705,7 +705,7 @@ class Intrinsic(Op, ValueProvider):
         ):
             logger.error(
                 (
-                    f"Incompatible {context} types on Intrinsic"
+                    f"incompatible {context} types on Intrinsic"
                     f"({self.op} {' '.join(map(str, self.immediates))}): "
                     f" received = ({', '.join(map(str, source_types))}),"
                     f" expected = ({', '.join(map(str, target_types))})"

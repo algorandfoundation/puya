@@ -5,6 +5,7 @@ from collections.abc import Sequence
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    ARC4Encode,
     BinaryBooleanOperator,
     BooleanBinaryOperation,
     Expression,
@@ -23,6 +24,7 @@ from puya.parse import SourceLocation
 from puya.utils import clamp, positive_index
 from puyapy import models
 from puyapy.awst_build import pytypes
+from puyapy.awst_build.arc4_utils import pytype_to_arc4_pytype
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import (
     FunctionBuilder,
@@ -298,7 +300,22 @@ class TupleExpressionBuilder(
 
     @typing.override
     def to_bytes(self, location: SourceLocation) -> Expression:
-        raise CodeError(f"cannot serialize {self.pytype}", location)
+        # TODO: move out of front-end
+        #       currently here so that Tuple types can be used in Box Maps as keys
+        def on_error(_: pytypes.PyType) -> pytypes.PyType:
+            return pytypes.NeverType
+
+        arc4_pytype = pytype_to_arc4_pytype(self.pytype, on_error, encode_resource_types=True)
+        if arc4_pytype is pytypes.NeverType:
+            logger.error(f"cannot serialize {self.pytype}")
+            return dummy_value(pytypes.BytesType, location).resolve()
+        arc4_wtype = arc4_pytype.checked_wtype(location)
+        assert isinstance(arc4_wtype, wtypes.ARC4Type)
+        return ARC4Encode(
+            value=self.resolve(),
+            wtype=arc4_wtype,
+            source_location=location,
+        )
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:

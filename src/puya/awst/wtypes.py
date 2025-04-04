@@ -524,6 +524,9 @@ def validate_persistable(wtype: WType, location: SourceLocation) -> bool:
 def _storage_type_or_error(wtype: WType) -> str | typing.Literal[AVMType.uint64, AVMType.bytes]:
     if wtype.ephemeral:
         return "ephemeral types (such as transaction related types) are not suitable for storage"
+    if isinstance(wtype, WTuple):
+        # TODO: introduce storage_type?
+        return AVMType.bytes
     if wtype.scalar_type is None:
         return "type is not suitable for storage"
     return wtype.scalar_type

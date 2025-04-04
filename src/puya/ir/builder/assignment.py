@@ -7,8 +7,10 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.wtypes import WTuple
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
+from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, mem
 from puya.ir.builder._tuple_util import build_tuple_registers
@@ -19,6 +21,7 @@ from puya.ir.builder._utils import (
     get_implicit_return_is_original,
 )
 from puya.ir.context import IRFunctionBuildContext
+from puya.ir.models import Value, ValueProvider
 from puya.ir.types_ import PrimitiveIRType, get_wtype_arity, wtype_to_ir_type
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
@@ -116,8 +119,8 @@ def handle_assignment(
         ):
             _ = wtypes.persistable_stack_type(wtype, field_location)  # double check
             key_value = context.visitor.visit_and_materialise_single(awst_key)
-            (mat_value,) = context.visitor.materialise_value_provider(
-                value, description="new_state_value"
+            mat_value, ass_value, _ = _maybe_encode_storage_value(
+                context, value, wtype, field_location
             )
             context.block_builder.add(
                 ir.Intrinsic(
@@ -126,15 +129,15 @@ def handle_assignment(
                     source_location=assignment_location,
                 )
             )
-            return [mat_value]
+            return ass_value
         case awst_nodes.AppAccountStateExpression(
             key=awst_key, account=account_expr, wtype=wtype, source_location=field_location
         ):
             _ = wtypes.persistable_stack_type(wtype, field_location)  # double check
             account = context.visitor.visit_and_materialise_single(account_expr)
             key_value = context.visitor.visit_and_materialise_single(awst_key)
-            (mat_value,) = context.visitor.materialise_value_provider(
-                value, description="new_state_value"
+            mat_value, ass_value, _ = _maybe_encode_storage_value(
+                context, value, wtype, field_location
             )
             context.block_builder.add(
                 ir.Intrinsic(
@@ -143,18 +146,18 @@ def handle_assignment(
                     source_location=assignment_location,
                 )
             )
-            return [mat_value]
+            return ass_value
         case awst_nodes.BoxValueExpression(
             key=awst_key, wtype=wtype, source_location=field_location
         ):
             scalar_type = wtypes.persistable_stack_type(wtype, field_location)  # double check
             key_value = context.visitor.visit_and_materialise_single(awst_key)
-            (mat_value,) = context.visitor.materialise_value_provider(
-                value, description="new_box_value"
+            mat_value, ass_value, encoded_wtype = _maybe_encode_storage_value(
+                context, value, wtype, field_location
             )
             if scalar_type == AVMType.bytes:
                 serialized_value = mat_value
-                if wtype_to_ir_type(wtype).num_bytes is None:
+                if wtype_to_ir_type(encoded_wtype).num_bytes is None:
                     context.block_builder.add(
                         ir.Intrinsic(
                             op=AVMOp.box_del, args=[key_value], source_location=assignment_location
@@ -166,7 +169,7 @@ def handle_assignment(
                     temp_description="new_box_value",
                     source=ir.Intrinsic(
                         op=AVMOp.itob,
-                        args=[mat_value],
+                        args=ass_value,
                         source_location=assignment_location,
                     ),
                     source_location=assignment_location,
@@ -180,7 +183,7 @@ def handle_assignment(
                     source_location=assignment_location,
                 )
             )
-            return [mat_value]
+            return ass_value
         case awst_nodes.IndexExpression() as ix_expr:
             if isinstance(ix_expr.base.wtype, wtypes.ReferenceArray):
                 array_slot = context.visitor.visit_and_materialise_single(
@@ -249,6 +252,26 @@ def handle_assignment(
             raise CodeError(
                 "expression is not valid as an assignment target", target.source_location
             )
+
+
+def _maybe_encode_storage_value(
+    context: IRFunctionBuildContext, value: ValueProvider, wtype: wtypes.WType, loc: SourceLocation
+) -> tuple[Value, list[Value], wtypes.WType]:
+    if isinstance(wtype, WTuple):
+        arc4_wtype = wtype_to_arc4_wtype(wtype, loc)
+        mat_value = arc4.encode_value_provider(
+            context, value, wtype, arc4_wtype=arc4_wtype, loc=loc
+        )
+        (mat_value,) = context.visitor.materialise_value_provider(
+            mat_value, description="new_state_value"
+        )
+        ass_value = context.visitor.materialise_value_provider(value, "materialized_values")
+        return mat_value, ass_value, arc4_wtype
+    else:
+        (mat_value,) = context.visitor.materialise_value_provider(
+            value, description="new_state_value"
+        )
+        return mat_value, [mat_value], wtype
 
 
 def _handle_maybe_implicit_return_assignment(
