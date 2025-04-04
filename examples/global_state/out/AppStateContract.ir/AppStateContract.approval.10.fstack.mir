@@ -53,8 +53,8 @@ subroutine main:
         // assert self.global_int_full
         int 0                                                                       0
         byte "global_int_full"                                                      0,"global_int_full"
-        app_global_get_ex                                                           maybe_value%1#0,maybe_exists%1#0
-        l-store maybe_exists%1#0 1                                                  maybe_exists%1#0,maybe_value%1#0
+        app_global_get_ex                                                           _%0#0,maybe_exists%1#0
+        l-store maybe_exists%1#0 1                                                  maybe_exists%1#0,_%0#0
         pop 1                                                                       maybe_exists%1#0
         l-load maybe_exists%1#0 0                                                   maybe_exists%1#0
         assert
@@ -62,18 +62,18 @@ subroutine main:
         // assert self.global_int_full.value == 55
         int 0                                                                       0
         byte "global_int_full"                                                      0,"global_int_full"
-        app_global_get_ex                                                           maybe_value%2#0,maybe_exists%2#0
-        assert // check self.global_int_full exists                                 maybe_value%2#0
-        l-load maybe_value%2#0 0                                                    maybe_value%2#0
-        int 55                                                                      maybe_value%2#0,55
+        app_global_get_ex                                                           maybe_value%1#0,maybe_exists%2#0
+        assert // check self.global_int_full exists                                 maybe_value%1#0
+        l-load maybe_value%1#0 0                                                    maybe_value%1#0
+        int 55                                                                      maybe_value%1#0,55
         ==                                                                          tmp%1#1
         assert
         // global_state/contract.py:36
         // assert not self.global_int_no_default
         int 0                                                                       0
         byte "global_int_no_default"                                                0,"global_int_no_default"
-        app_global_get_ex                                                           maybe_value%3#0,maybe_exists%3#0
-        l-store maybe_exists%3#0 1                                                  maybe_exists%3#0,maybe_value%3#0
+        app_global_get_ex                                                           _%1#0,maybe_exists%3#0
+        l-store maybe_exists%3#0 1                                                  maybe_exists%3#0,_%1#0
         pop 1                                                                       maybe_exists%3#0
         l-load maybe_exists%3#0 0                                                   maybe_exists%3#0
         !                                                                           tmp%2#0
@@ -117,18 +117,18 @@ subroutine main:
         // assert self.global_bytes_simplified == b"Hello"
         int 0                                                                       0
         byte "global_bytes_simplified"                                              0,"global_bytes_simplified"
-        app_global_get_ex                                                           maybe_value%5#0,maybe_exists%5#0
-        assert // check self.global_bytes_simplified exists                         maybe_value%5#0
-        l-load maybe_value%5#0 0                                                    maybe_value%5#0
-        byte 0x48656c6c6f                                                           maybe_value%5#0,0x48656c6c6f
+        app_global_get_ex                                                           maybe_value%3#0,maybe_exists%5#0
+        assert // check self.global_bytes_simplified exists                         maybe_value%3#0
+        l-load maybe_value%3#0 0                                                    maybe_value%3#0
+        byte 0x48656c6c6f                                                           maybe_value%3#0,0x48656c6c6f
         ==                                                                          tmp%6#0
         assert
         // global_state/contract.py:44
         // assert self.global_bytes_full
         int 0                                                                       0
         byte "global_bytes_full"                                                    0,"global_bytes_full"
-        app_global_get_ex                                                           maybe_value%6#0,maybe_exists%6#0
-        l-store maybe_exists%6#0 1                                                  maybe_exists%6#0,maybe_value%6#0
+        app_global_get_ex                                                           _%2#0,maybe_exists%6#0
+        l-store maybe_exists%6#0 1                                                  maybe_exists%6#0,_%2#0
         pop 1                                                                       maybe_exists%6#0
         l-load maybe_exists%6#0 0                                                   maybe_exists%6#0
         assert
@@ -136,20 +136,20 @@ subroutine main:
         // assert self.global_bytes_full.value == b"Hello"
         int 0                                                                       0
         byte "global_bytes_full"                                                    0,"global_bytes_full"
-        app_global_get_ex                                                           maybe_value%7#0,maybe_exists%7#0
-        assert // check self.global_bytes_full exists                               maybe_value%7#0
-        l-load maybe_value%7#0 0                                                    maybe_value%7#0
-        byte 0x48656c6c6f                                                           maybe_value%7#0,0x48656c6c6f
+        app_global_get_ex                                                           maybe_value%4#0,maybe_exists%7#0
+        assert // check self.global_bytes_full exists                               maybe_value%4#0
+        l-load maybe_value%4#0 0                                                    maybe_value%4#0
+        byte 0x48656c6c6f                                                           maybe_value%4#0,0x48656c6c6f
         ==                                                                          tmp%7#0
         assert
         // global_state/contract.py:46
         // assert self.global_bytes_full.get(Bytes(b"default")) == b"Hello"
         int 0                                                                       0
         byte "global_bytes_full"                                                    0,"global_bytes_full"
-        app_global_get_ex                                                           maybe_value%8#0,maybe_exists%8#0
-        byte 0x64656661756c74                                                       maybe_value%8#0,maybe_exists%8#0,0x64656661756c74
-        l-load maybe_value%8#0 2                                                    maybe_exists%8#0,0x64656661756c74,maybe_value%8#0
-        l-load maybe_exists%8#0 2                                                   0x64656661756c74,maybe_value%8#0,maybe_exists%8#0
+        app_global_get_ex                                                           maybe_value%5#0,maybe_exists%8#0
+        byte 0x64656661756c74                                                       maybe_value%5#0,maybe_exists%8#0,0x64656661756c74
+        l-load maybe_value%5#0 2                                                    maybe_exists%8#0,0x64656661756c74,maybe_value%5#0
+        l-load maybe_exists%8#0 2                                                   0x64656661756c74,maybe_value%5#0,maybe_exists%8#0
         select                                                                      state_get%0#0
         byte 0x48656c6c6f                                                           state_get%0#0,0x48656c6c6f
         ==                                                                          tmp%8#0
@@ -158,8 +158,8 @@ subroutine main:
         // assert not self.global_bytes_no_default
         int 0                                                                       0
         byte "global_bytes_no_default"                                              0,"global_bytes_no_default"
-        app_global_get_ex                                                           maybe_value%9#0,maybe_exists%9#0
-        l-store maybe_exists%9#0 1                                                  maybe_exists%9#0,maybe_value%9#0
+        app_global_get_ex                                                           _%3#0,maybe_exists%9#0
+        l-store maybe_exists%9#0 1                                                  maybe_exists%9#0,_%3#0
         pop 1                                                                       maybe_exists%9#0
         l-load maybe_exists%9#0 0                                                   maybe_exists%9#0
         !                                                                           tmp%9#0
@@ -219,10 +219,10 @@ subroutine main:
         // assert self.global_bytes_no_default.get(Bytes(b"default")) == b"default"
         int 0                                                                       0
         byte "global_bytes_no_default"                                              0,"global_bytes_no_default"
-        app_global_get_ex                                                           maybe_value%12#0,maybe_exists%12#0
-        byte 0x64656661756c74                                                       maybe_value%12#0,maybe_exists%12#0,0x64656661756c74
-        l-load maybe_value%12#0 2                                                   maybe_exists%12#0,0x64656661756c74,maybe_value%12#0
-        l-load maybe_exists%12#0 2                                                  0x64656661756c74,maybe_value%12#0,maybe_exists%12#0
+        app_global_get_ex                                                           maybe_value%8#0,maybe_exists%12#0
+        byte 0x64656661756c74                                                       maybe_value%8#0,maybe_exists%12#0,0x64656661756c74
+        l-load maybe_value%8#0 2                                                    maybe_exists%12#0,0x64656661756c74,maybe_value%8#0
+        l-load maybe_exists%12#0 2                                                  0x64656661756c74,maybe_value%8#0,maybe_exists%12#0
         select                                                                      state_get%1#0
         byte 0x64656661756c74                                                       state_get%1#0,0x64656661756c74
         ==                                                                          tmp%14#0
@@ -231,8 +231,8 @@ subroutine main:
         // assert self.global_bool_full
         int 0                                                                       0
         byte "global_bool_full"                                                     0,"global_bool_full"
-        app_global_get_ex                                                           maybe_value%13#0,maybe_exists%13#0
-        l-store maybe_exists%13#0 1                                                 maybe_exists%13#0,maybe_value%13#0
+        app_global_get_ex                                                           _%4#0,maybe_exists%13#0
+        l-store maybe_exists%13#0 1                                                 maybe_exists%13#0,_%4#0
         pop 1                                                                       maybe_exists%13#0
         l-load maybe_exists%13#0 0                                                  maybe_exists%13#0
         assert
@@ -240,8 +240,8 @@ subroutine main:
         // assert not self.global_bool_no_default
         int 0                                                                       0
         byte "global_bool_no_default"                                               0,"global_bool_no_default"
-        app_global_get_ex                                                           maybe_value%14#0,maybe_exists%14#0
-        l-store maybe_exists%14#0 1                                                 maybe_exists%14#0,maybe_value%14#0
+        app_global_get_ex                                                           _%5#0,maybe_exists%14#0
+        l-store maybe_exists%14#0 1                                                 maybe_exists%14#0,_%5#0
         pop 1                                                                       maybe_exists%14#0
         l-load maybe_exists%14#0 0                                                  maybe_exists%14#0
         !                                                                           tmp%15#0
@@ -255,26 +255,26 @@ subroutine main:
         // assert not self.global_bool_full.value
         int 0                                                                       0
         byte "global_bool_full"                                                     0,"global_bool_full"
-        app_global_get_ex                                                           maybe_value%15#0,maybe_exists%15#0
-        assert // check self.global_bool_full exists                                maybe_value%15#0
-        l-load maybe_value%15#0 0                                                   maybe_value%15#0
+        app_global_get_ex                                                           maybe_value%9#0,maybe_exists%15#0
+        assert // check self.global_bool_full exists                                maybe_value%9#0
+        l-load maybe_value%9#0 0                                                    maybe_value%9#0
         !                                                                           tmp%16#0
         assert
         // global_state/contract.py:67
         // assert self.global_bool_simplified
         int 0                                                                       0
         byte "global_bool_simplified"                                               0,"global_bool_simplified"
-        app_global_get_ex                                                           maybe_value%16#0,maybe_exists%16#0
-        assert // check self.global_bool_simplified exists                          maybe_value%16#0
-        l-load maybe_value%16#0 0                                                   maybe_value%16#0
+        app_global_get_ex                                                           maybe_value%10#0,maybe_exists%16#0
+        assert // check self.global_bool_simplified exists                          maybe_value%10#0
+        l-load maybe_value%10#0 0                                                   maybe_value%10#0
         assert
         // global_state/contract.py:68
         // assert self.global_bool_no_default.value
         int 0                                                                       0
         byte "global_bool_no_default"                                               0,"global_bool_no_default"
-        app_global_get_ex                                                           maybe_value%17#0,maybe_exists%17#0
-        assert // check self.global_bool_no_default exists                          maybe_value%17#0
-        l-load maybe_value%17#0 0                                                   maybe_value%17#0
+        app_global_get_ex                                                           maybe_value%11#0,maybe_exists%17#0
+        assert // check self.global_bool_no_default exists                          maybe_value%11#0
+        l-load maybe_value%11#0 0                                                   maybe_value%11#0
         assert
         // global_state/contract.py:81
         // return state.value + 1

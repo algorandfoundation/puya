@@ -77,8 +77,8 @@ subroutine test_cases.everything.contract.Everything.__puya_arc4_router__() -> b
 subroutine test_cases.everything.contract.Everything.create() -> void:
     block@0: // L41
         test_cases.everything.contract.Everything._check_ban_list()
-        let new_state_value%0#0: bytes[32] = (txn Sender)
-        (app_global_put "creator" new_state_value%0#0)
+        let materialized_values%0#0: bytes[32] = (txn Sender)
+        (app_global_put "creator" materialized_values%0#0)
         (app_global_put "counter" 0u)
         return 
 
@@ -94,8 +94,8 @@ subroutine test_cases.everything.contract.Everything.register(name: bytes) -> vo
     block@2: // if_body_L53
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%1#0) // check self.counter exists
-        let new_state_value%0#0: uint64 = (+ maybe_value%1#0 1u)
-        (app_global_put "counter" new_state_value%0#0)
+        let materialized_values%0#0: uint64 = (+ maybe_value%1#0 1u)
+        (app_global_put "counter" materialized_values%0#0)
         goto block@4
     block@4: // after_if_else_L50
         (app_local_put 0u "name" name#0)
@@ -141,8 +141,8 @@ subroutine test_cases.everything.contract.Everything.close_out() -> void:
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%0#0) // check self.counter exists
         let tmp%0#0: uint64 = test_cases.everything.contract.positive_one()
-        let new_state_value%0#0: uint64 = (- maybe_value%0#0 tmp%0#0)
-        (app_global_put "counter" new_state_value%0#0)
+        let materialized_values%0#0: uint64 = (- maybe_value%0#0 tmp%0#0)
+        (app_global_put "counter" materialized_values%0#0)
         return 
 
 subroutine test_cases.everything.contract.Everything._check_ban_list() -> void:

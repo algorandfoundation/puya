@@ -31,15 +31,15 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         let concat_result%2#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%2#0, l_head_and_tail%2#0, 1u, 0x00020000000000000001000a000362617a)
         (box_del "box")
         (box_put "box" concat_result%2#0)
-        let tmp%1#1: bytes[32] = (txn Sender)
-        let tmp%2#0: bytes = (concat "map" tmp%1#1)
-        let (maybe_value%3#1: bytes, maybe_exists%3#0: bool) = (box_get tmp%2#0)
+        let materialized_values%0#0: bytes[32] = (txn Sender)
+        let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
+        let (maybe_value%3#1: bytes, maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%3#0) // check self.map entry exists
         let l_count%3#0: uint64 = (extract_uint16 maybe_value%3#1 0u)
         let l_head_and_tail%3#0: bytes = ((extract 2 0) maybe_value%3#1)
         let concat_result%3#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%3#0, l_head_and_tail%3#0, 1u, 0x00020000000000000001000a000362617a)
-        (box_del tmp%2#0)
-        (box_put tmp%2#0 concat_result%3#0)
+        (box_del box_prefixed_key%0#0)
+        (box_put box_prefixed_key%0#0 concat_result%3#0)
         let test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0
         goto block@12
@@ -64,8 +64,8 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         let updated_data%0#0: bytes = (concat data_up_to_item%0#0 0x00086d6f646966696564)
         let updated_value%0#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%0#1, updated_data%0#0, 0u)
         (app_global_put "glob" updated_value%0#0)
-        let tmp%1#1: bytes[32] = (txn Sender)
-        let (maybe_value%1#1: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%1#1 0u "loc")
+        let tmp%1#2: bytes[32] = (txn Sender)
+        let (maybe_value%1#1: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%1#2 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
         let array_head_and_tail%1#0: bytes = ((extract 2 0) maybe_value%1#1)
         let item_offset%2#0: uint64 = (extract_uint16 array_head_and_tail%1#0 0u)
@@ -79,7 +79,7 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         let data_up_to_item%1#0: bytes = (extract3 tmp%2#0 0u item_offset%3#0)
         let updated_data%1#0: bytes = (concat data_up_to_item%1#0 0x00086d6f646966696564)
         let updated_value%1#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%1#1, updated_data%1#0, 0u)
-        (app_local_put tmp%1#1 "loc" updated_value%1#0)
+        (app_local_put tmp%1#2 "loc" updated_value%1#0)
         let (maybe_value%2#1: bytes, maybe_exists%2#0: bool) = (box_get "box")
         (assert maybe_exists%2#0) // check self.box exists
         let array_head_and_tail%2#0: bytes = ((extract 2 0) maybe_value%2#1)
@@ -96,9 +96,9 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         let updated_value%2#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%2#1, updated_data%2#0, 0u)
         (box_del "box")
         (box_put "box" updated_value%2#0)
-        let tmp%4#2: bytes[32] = (txn Sender)
-        let tmp%5#2: bytes = (concat "map" tmp%4#2)
-        let (maybe_value%3#1: bytes, maybe_exists%3#0: bool) = (box_get tmp%5#2)
+        let materialized_values%0#0: bytes[32] = (txn Sender)
+        let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
+        let (maybe_value%3#1: bytes, maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%3#0) // check self.map entry exists
         let array_head_and_tail%3#0: bytes = ((extract 2 0) maybe_value%3#1)
         let item_offset%6#0: uint64 = (extract_uint16 array_head_and_tail%3#0 0u)
@@ -107,13 +107,13 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         let end_of_array%3#0: uint64 = (len array_head_and_tail%3#0)
         let next_item_offset%3#0: uint64 = (extract_uint16 array_head_and_tail%3#0 2u)
         let end_offset%3#0: uint64 = (select end_of_array%3#0 next_item_offset%3#0 has_next%3#0)
-        let tmp%6#1: bytes = (substring3 array_head_and_tail%3#0 item_offset%6#0 end_offset%3#0)
-        let item_offset%7#0: uint64 = (extract_uint16 tmp%6#1 8u)
-        let data_up_to_item%3#0: bytes = (extract3 tmp%6#1 0u item_offset%7#0)
+        let tmp%4#1: bytes = (substring3 array_head_and_tail%3#0 item_offset%6#0 end_offset%3#0)
+        let item_offset%7#0: uint64 = (extract_uint16 tmp%4#1 8u)
+        let data_up_to_item%3#0: bytes = (extract3 tmp%4#1 0u item_offset%7#0)
         let updated_data%3#0: bytes = (concat data_up_to_item%3#0 0x00086d6f646966696564)
         let updated_value%3#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%3#1, updated_data%3#0, 0u)
-        (box_del tmp%5#2)
-        (box_put tmp%5#2 updated_value%3#0)
+        (box_del box_prefixed_key%0#0)
+        (box_put box_prefixed_key%0#0 updated_value%3#0)
         let test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0
         goto block@12
@@ -130,16 +130,16 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         (assert maybe_exists%1#0) // check self.loc exists for account
         let (a3#0: bytes, maybe_exists%2#0: bool) = (box_get "box")
         (assert maybe_exists%2#0) // check self.box exists
-        let tmp%1#1: bytes[32] = (txn Sender)
-        let tmp%2#0: bytes = (concat "map" tmp%1#1)
-        let (a4#0: bytes, maybe_exists%3#0: bool) = (box_get tmp%2#0)
+        let materialized_values%0#0: bytes[32] = (txn Sender)
+        let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
+        let (a4#0: bytes, maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%3#0) // check self.map entry exists
-        let tmp%3#1: bool = (== a1#0 a2#0)
-        (assert tmp%3#1) // expected local == global
-        let tmp%4#0: bool = (== a1#0 a3#0)
-        (assert tmp%4#0) // expected box == global
-        let tmp%5#1: bool = (== a1#0 a4#0)
-        (assert tmp%5#1) // expected map == global
+        let tmp%1#1: bool = (== a1#0 a2#0)
+        (assert tmp%1#1) // expected local == global
+        let tmp%2#1: bool = (== a1#0 a3#0)
+        (assert tmp%2#1) // expected box == global
+        let tmp%3#1: bool = (== a1#0 a4#0)
+        (assert tmp%3#1) // expected map == global
         let tmp%16#0: bytes = (concat 0x151f7c75 a1#0)
         (log tmp%16#0)
         let test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
@@ -156,10 +156,10 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         (box_put "box" 0x0000)
         let tmp%0#3: bytes[32] = (txn Sender)
         (app_local_put tmp%0#3 "loc" 0x0000)
-        let tmp%1#1: bytes[32] = (txn Sender)
-        let tmp%2#0: bytes = (concat "map" tmp%1#1)
-        (box_del tmp%2#0)
-        (box_put tmp%2#0 0x0000)
+        let materialized_values%0#0: bytes[32] = (txn Sender)
+        let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
+        (box_del box_prefixed_key%0#0)
+        (box_put box_prefixed_key%0#0 0x0000)
         let test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0
         goto block@12

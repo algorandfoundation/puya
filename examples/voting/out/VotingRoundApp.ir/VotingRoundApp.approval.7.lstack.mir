@@ -591,35 +591,35 @@ subroutine close:
         // assert not self.close_time, "Already closed"
         int 0                                                                                     0
         byte "close_time"                                                                         0,"close_time"
-        app_global_get_ex                                                                         maybe_value%0#0,maybe_exists%0#0
-        l-store maybe_exists%0#0 1                                                                maybe_exists%0#0,maybe_value%0#0
-        v-store maybe_value%0#0                                                                   maybe_exists%0#0
+        app_global_get_ex                                                                         _%0#0,maybe_exists%0#0
+        l-store maybe_exists%0#0 1                                                                maybe_exists%0#0,_%0#0
+        v-store _%0#0                                                                             maybe_exists%0#0
         l-load maybe_exists%0#0 0                                                                 maybe_exists%0#0
         !                                                                                         tmp%0#0
         l-load tmp%0#0 0                                                                          tmp%0#0
         assert // Already closed
         // voting/voting.py:114
         // self.close_time.value = Global.latest_timestamp
-        global LatestTimestamp                                                                    new_state_value%0#0
-        byte "close_time"                                                                         new_state_value%0#0,"close_time"
-        l-load new_state_value%0#0 1                                                              "close_time",new_state_value%0#0
+        global LatestTimestamp                                                                    materialized_values%0#0
+        byte "close_time"                                                                         materialized_values%0#0,"close_time"
+        l-load materialized_values%0#0 1                                                          "close_time",materialized_values%0#0
         app_global_put
         // voting/voting.py:119
         // + self.vote_id
         int 0                                                                                     0
         byte "vote_id"                                                                            0,"vote_id"
-        app_global_get_ex                                                                         maybe_value%1#0,maybe_exists%1#0
-        l-load maybe_exists%1#0 0                                                                 maybe_value%1#0,maybe_exists%1#0
-        assert // check self.vote_id exists                                                       maybe_value%1#0
+        app_global_get_ex                                                                         maybe_value%0#0,maybe_exists%1#0
+        l-load maybe_exists%1#0 0                                                                 maybe_value%0#0,maybe_exists%1#0
+        assert // check self.vote_id exists                                                       maybe_value%0#0
         // voting/voting.py:117-118
         // '{"standard":"arc69",'
         // '"description":"This is a voting result NFT for voting round with ID '
-        byte "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID " maybe_value%1#0,"{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID "
+        byte "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID " maybe_value%0#0,"{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID "
         // voting/voting.py:117-119
         // '{"standard":"arc69",'
         // '"description":"This is a voting result NFT for voting round with ID '
         // + self.vote_id
-        l-load maybe_value%1#0 1                                                                  "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID ",maybe_value%1#0
+        l-load maybe_value%0#0 1                                                                  "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID ",maybe_value%0#0
         concat                                                                                    tmp%1#0
         // voting/voting.py:117-120
         // '{"standard":"arc69",'
@@ -640,17 +640,17 @@ subroutine close:
         // + self.metadata_ipfs_cid
         int 0                                                                                     tmp%2#0,0
         byte "metadata_ipfs_cid"                                                                  tmp%2#0,0,"metadata_ipfs_cid"
-        app_global_get_ex                                                                         tmp%2#0,maybe_value%2#0,maybe_exists%2#0
-        l-load maybe_exists%2#0 0                                                                 tmp%2#0,maybe_value%2#0,maybe_exists%2#0
-        assert // check self.metadata_ipfs_cid exists                                             tmp%2#0,maybe_value%2#0
+        app_global_get_ex                                                                         tmp%2#0,maybe_value%1#0,maybe_exists%2#0
+        l-load maybe_exists%2#0 0                                                                 tmp%2#0,maybe_value%1#0,maybe_exists%2#0
+        assert // check self.metadata_ipfs_cid exists                                             tmp%2#0,maybe_value%1#0
         // voting/voting.py:117-121
         // '{"standard":"arc69",'
         // '"description":"This is a voting result NFT for voting round with ID '
         // + self.vote_id
         // + '.","properties":{"metadata":"ipfs://'
         // + self.metadata_ipfs_cid
-        l-load tmp%2#0 1                                                                          maybe_value%2#0,tmp%2#0
-        l-load maybe_value%2#0 1                                                                  tmp%2#0,maybe_value%2#0
+        l-load tmp%2#0 1                                                                          maybe_value%1#0,tmp%2#0
+        l-load maybe_value%1#0 1                                                                  tmp%2#0,maybe_value%1#0
         concat                                                                                    tmp%3#0
         // voting/voting.py:117-122
         // '{"standard":"arc69",'
@@ -675,9 +675,9 @@ subroutine close:
         // + self.vote_id
         int 0                                                                                     tmp%4#0,0
         byte "vote_id"                                                                            tmp%4#0,0,"vote_id"
-        app_global_get_ex                                                                         tmp%4#0,maybe_value%3#0,maybe_exists%3#0
-        l-load maybe_exists%3#0 0                                                                 tmp%4#0,maybe_value%3#0,maybe_exists%3#0
-        assert // check self.vote_id exists                                                       tmp%4#0,maybe_value%3#0
+        app_global_get_ex                                                                         tmp%4#0,maybe_value%2#0,maybe_exists%3#0
+        l-load maybe_exists%3#0 0                                                                 tmp%4#0,maybe_value%2#0,maybe_exists%3#0
+        assert // check self.vote_id exists                                                       tmp%4#0,maybe_value%2#0
         // voting/voting.py:117-123
         // '{"standard":"arc69",'
         // '"description":"This is a voting result NFT for voting round with ID '
@@ -686,8 +686,8 @@ subroutine close:
         // + self.metadata_ipfs_cid
         // + '","id":"'
         // + self.vote_id
-        l-load tmp%4#0 1                                                                          maybe_value%3#0,tmp%4#0
-        l-load maybe_value%3#0 1                                                                  tmp%4#0,maybe_value%3#0
+        l-load tmp%4#0 1                                                                          maybe_value%2#0,tmp%4#0
+        l-load maybe_value%2#0 1                                                                  tmp%4#0,maybe_value%2#0
         concat                                                                                    tmp%5#0
         // voting/voting.py:117-124
         // '{"standard":"arc69",'
@@ -716,10 +716,10 @@ subroutine close:
         // + itoa(self.quorum)
         int 0                                                                                     tmp%6#0,0
         byte "quorum"                                                                             tmp%6#0,0,"quorum"
-        app_global_get_ex                                                                         tmp%6#0,maybe_value%4#0,maybe_exists%4#0
-        l-load maybe_exists%4#0 0                                                                 tmp%6#0,maybe_value%4#0,maybe_exists%4#0
-        assert // check self.quorum exists                                                        tmp%6#0,maybe_value%4#0
-        l-load maybe_value%4#0 0                                                                  tmp%6#0,maybe_value%4#0
+        app_global_get_ex                                                                         tmp%6#0,maybe_value%3#0,maybe_exists%4#0
+        l-load maybe_exists%4#0 0                                                                 tmp%6#0,maybe_value%3#0,maybe_exists%4#0
+        assert // check self.quorum exists                                                        tmp%6#0,maybe_value%3#0
+        l-load maybe_value%3#0 0                                                                  tmp%6#0,maybe_value%3#0
         callsub itoa                                                                              tmp%6#0,tmp%7#0
         // voting/voting.py:117-125
         // '{"standard":"arc69",'
@@ -765,10 +765,10 @@ subroutine close:
         // + itoa(self.voter_count)
         int 0                                                                                     tmp%9#0,0
         byte "voter_count"                                                                        tmp%9#0,0,"voter_count"
-        app_global_get_ex                                                                         tmp%9#0,maybe_value%5#0,maybe_exists%5#0
-        l-load maybe_exists%5#0 0                                                                 tmp%9#0,maybe_value%5#0,maybe_exists%5#0
-        assert // check self.voter_count exists                                                   tmp%9#0,maybe_value%5#0
-        l-load maybe_value%5#0 0                                                                  tmp%9#0,maybe_value%5#0
+        app_global_get_ex                                                                         tmp%9#0,maybe_value%4#0,maybe_exists%5#0
+        l-load maybe_exists%5#0 0                                                                 tmp%9#0,maybe_value%4#0,maybe_exists%5#0
+        assert // check self.voter_count exists                                                   tmp%9#0,maybe_value%4#0
+        l-load maybe_value%4#0 0                                                                  tmp%9#0,maybe_value%4#0
         callsub itoa                                                                              tmp%9#0,tmp%10#0
         // voting/voting.py:117-127
         // '{"standard":"arc69",'
@@ -842,14 +842,14 @@ subroutine close:
         // for question_index, question_options in uenumerate(self.option_counts):
         int 0                                                                                     0
         byte "option_counts"                                                                      0,"option_counts"
-        app_global_get_ex                                                                         maybe_value%6#0,maybe_exists%6#0
-        l-store maybe_exists%6#0 1                                                                maybe_exists%6#0,maybe_value%6#0
-        l-store-copy maybe_value%6#0 1                                                            maybe_value%6#0,maybe_exists%6#0,maybe_value%6#0 (copy)
-        v-store maybe_value%6#0                                                                   maybe_value%6#0,maybe_exists%6#0
-        l-load maybe_exists%6#0 0                                                                 maybe_value%6#0,maybe_exists%6#0
-        assert // check self.option_counts exists                                                 maybe_value%6#0
-        l-load maybe_value%6#0 0                                                                  maybe_value%6#0
-        int 0                                                                                     maybe_value%6#0,0
+        app_global_get_ex                                                                         maybe_value%5#0,maybe_exists%6#0
+        l-store maybe_exists%6#0 1                                                                maybe_exists%6#0,maybe_value%5#0
+        l-store-copy maybe_value%5#0 1                                                            maybe_value%5#0,maybe_exists%6#0,maybe_value%5#0 (copy)
+        v-store maybe_value%5#0                                                                   maybe_value%5#0,maybe_exists%6#0
+        l-load maybe_exists%6#0 0                                                                 maybe_value%5#0,maybe_exists%6#0
+        assert // check self.option_counts exists                                                 maybe_value%5#0
+        l-load maybe_value%5#0 0                                                                  maybe_value%5#0
+        int 0                                                                                     maybe_value%5#0,0
         extract_uint16                                                                            array_length%0#0
         v-store array_length%0#0
         int 0                                                                                     0
@@ -870,7 +870,7 @@ subroutine close:
     close_for_body@2:
         // voting/voting.py:132
         // for question_index, question_options in uenumerate(self.option_counts):
-        v-load maybe_value%6#0                                                                    maybe_value%6#0
+        v-load maybe_value%5#0                                                                    maybe_value%5#0
         extract 2 0                                                                               array_head_and_tail%0#0
         l-store-copy array_head_and_tail%0#0 0                                                    array_head_and_tail%0#0,array_head_and_tail%0#0 (copy)
         v-store array_head_and_tail%0#0                                                           array_head_and_tail%0#0
@@ -1041,22 +1041,22 @@ subroutine close:
         // asset_name="[VOTE RESULT] " + self.vote_id,
         int 0                                                                                     note#0,inner_txn_params%0%%param_Fee_idx_0#0,0
         byte "vote_id"                                                                            note#0,inner_txn_params%0%%param_Fee_idx_0#0,0,"vote_id"
-        app_global_get_ex                                                                         note#0,inner_txn_params%0%%param_Fee_idx_0#0,maybe_value%7#0,maybe_exists%7#0
-        l-load maybe_exists%7#0 0                                                                 note#0,inner_txn_params%0%%param_Fee_idx_0#0,maybe_value%7#0,maybe_exists%7#0
-        assert // check self.vote_id exists                                                       note#0,inner_txn_params%0%%param_Fee_idx_0#0,maybe_value%7#0
-        byte "[VOTE RESULT] "                                                                     note#0,inner_txn_params%0%%param_Fee_idx_0#0,maybe_value%7#0,"[VOTE RESULT] "
-        l-load maybe_value%7#0 1                                                                  note#0,inner_txn_params%0%%param_Fee_idx_0#0,"[VOTE RESULT] ",maybe_value%7#0
+        app_global_get_ex                                                                         note#0,inner_txn_params%0%%param_Fee_idx_0#0,maybe_value%6#0,maybe_exists%7#0
+        l-load maybe_exists%7#0 0                                                                 note#0,inner_txn_params%0%%param_Fee_idx_0#0,maybe_value%6#0,maybe_exists%7#0
+        assert // check self.vote_id exists                                                       note#0,inner_txn_params%0%%param_Fee_idx_0#0,maybe_value%6#0
+        byte "[VOTE RESULT] "                                                                     note#0,inner_txn_params%0%%param_Fee_idx_0#0,maybe_value%6#0,"[VOTE RESULT] "
+        l-load maybe_value%6#0 1                                                                  note#0,inner_txn_params%0%%param_Fee_idx_0#0,"[VOTE RESULT] ",maybe_value%6#0
         concat                                                                                    note#0,inner_txn_params%0%%param_Fee_idx_0#0,inner_txn_params%0%%param_ConfigAssetName_idx_0#0
         // voting/voting.py:152
         // url=self.nft_image_url,
         int 0                                                                                     note#0,inner_txn_params%0%%param_Fee_idx_0#0,inner_txn_params%0%%param_ConfigAssetName_idx_0#0,0
         byte "nft_image_url"                                                                      note#0,inner_txn_params%0%%param_Fee_idx_0#0,inner_txn_params%0%%param_ConfigAssetName_idx_0#0,0,"nft_image_url"
-        app_global_get_ex                                                                         note#0,inner_txn_params%0%%param_Fee_idx_0#0,inner_txn_params%0%%param_ConfigAssetName_idx_0#0,maybe_value%8#0,maybe_exists%8#0
-        l-load maybe_exists%8#0 0                                                                 note#0,inner_txn_params%0%%param_Fee_idx_0#0,inner_txn_params%0%%param_ConfigAssetName_idx_0#0,maybe_value%8#0,maybe_exists%8#0
-        assert // check self.nft_image_url exists                                                 note#0,inner_txn_params%0%%param_Fee_idx_0#0,inner_txn_params%0%%param_ConfigAssetName_idx_0#0,maybe_value%8#0
-        l-load note#0 3                                                                           inner_txn_params%0%%param_Fee_idx_0#0,inner_txn_params%0%%param_ConfigAssetName_idx_0#0,maybe_value%8#0,note#0
-        itxn_field Note                                                                           inner_txn_params%0%%param_Fee_idx_0#0,inner_txn_params%0%%param_ConfigAssetName_idx_0#0,maybe_value%8#0
-        l-load maybe_value%8#0 0                                                                  inner_txn_params%0%%param_Fee_idx_0#0,inner_txn_params%0%%param_ConfigAssetName_idx_0#0,maybe_value%8#0
+        app_global_get_ex                                                                         note#0,inner_txn_params%0%%param_Fee_idx_0#0,inner_txn_params%0%%param_ConfigAssetName_idx_0#0,maybe_value%7#0,maybe_exists%8#0
+        l-load maybe_exists%8#0 0                                                                 note#0,inner_txn_params%0%%param_Fee_idx_0#0,inner_txn_params%0%%param_ConfigAssetName_idx_0#0,maybe_value%7#0,maybe_exists%8#0
+        assert // check self.nft_image_url exists                                                 note#0,inner_txn_params%0%%param_Fee_idx_0#0,inner_txn_params%0%%param_ConfigAssetName_idx_0#0,maybe_value%7#0
+        l-load note#0 3                                                                           inner_txn_params%0%%param_Fee_idx_0#0,inner_txn_params%0%%param_ConfigAssetName_idx_0#0,maybe_value%7#0,note#0
+        itxn_field Note                                                                           inner_txn_params%0%%param_Fee_idx_0#0,inner_txn_params%0%%param_ConfigAssetName_idx_0#0,maybe_value%7#0
+        l-load maybe_value%7#0 0                                                                  inner_txn_params%0%%param_Fee_idx_0#0,inner_txn_params%0%%param_ConfigAssetName_idx_0#0,maybe_value%7#0
         itxn_field ConfigAssetURL                                                                 inner_txn_params%0%%param_Fee_idx_0#0,inner_txn_params%0%%param_ConfigAssetName_idx_0#0
         // voting/voting.py:151
         // unit_name="VOTERSLT",
@@ -1108,10 +1108,10 @@ subroutine close:
         // )
         // .submit()
         // .created_asset.id
-        itxn CreatedAssetID                                                                       new_state_value%1#0
+        itxn CreatedAssetID                                                                       materialized_values%1#0
         // voting/voting.py:145
         // self.nft_asset_id = (
-        byte "nft_asset_id"                                                                       new_state_value%1#0,"nft_asset_id"
+        byte "nft_asset_id"                                                                       materialized_values%1#0,"nft_asset_id"
         // voting/voting.py:145-158
         // self.nft_asset_id = (
         //     itxn.AssetConfig(
@@ -1127,7 +1127,7 @@ subroutine close:
         //     .submit()
         //     .created_asset.id
         // )
-        l-load new_state_value%1#0 1                                                              "nft_asset_id",new_state_value%1#0
+        l-load materialized_values%1#0 1                                                          "nft_asset_id",materialized_values%1#0
         app_global_put
         retsub
 
@@ -1148,11 +1148,11 @@ subroutine get_preconditions:
         itob                                                                                      (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0
         // voting/voting.py:215
         // return Txn.sender in self.votes_by_account
-        txn Sender                                                                                (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,tmp%0#0
-        l-load tmp%0#0 0                                                                          (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,tmp%0#0
-        box_len                                                                                   (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,maybe_value%0#0,maybe_exists%0#0
-        l-store maybe_exists%0#0 1                                                                (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,maybe_exists%0#0,maybe_value%0#0
-        v-store maybe_value%0#0                                                                   (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,maybe_exists%0#0
+        txn Sender                                                                                (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,materialized_values%0#0
+        l-load materialized_values%0#0 0                                                          (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,materialized_values%0#0
+        box_len                                                                                   (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,_%0#0,maybe_exists%0#0
+        l-store maybe_exists%0#0 1                                                                (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,maybe_exists%0#0,_%0#0
+        v-store _%0#0                                                                             (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,maybe_exists%0#0
         // voting/voting.py:165
         // has_already_voted=arc4.UInt64(self.already_voted()),
         l-load maybe_exists%0#0 0                                                                 (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,maybe_exists%0#0
@@ -1203,11 +1203,11 @@ subroutine vote:
         assert // Voting not open                                                                 (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
         // voting/voting.py:215
         // return Txn.sender in self.votes_by_account
-        txn Sender                                                                                (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | tmp%0#3
-        l-load tmp%0#3 0                                                                          (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | tmp%0#3
-        box_len                                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | maybe_value%0#1,maybe_exists%0#0
-        l-store maybe_exists%0#0 1                                                                (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | maybe_exists%0#0,maybe_value%0#1
-        v-store maybe_value%0#1                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | maybe_exists%0#0
+        txn Sender                                                                                (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | materialized_values%0#0
+        l-load materialized_values%0#0 0                                                          (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | materialized_values%0#0
+        box_len                                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | _%0#0,maybe_exists%0#0
+        l-store maybe_exists%0#0 1                                                                (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | maybe_exists%0#0,_%0#0
+        v-store _%0#0                                                                             (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | maybe_exists%0#0
         // voting/voting.py:180
         // assert not self.already_voted(), "Already voted"
         l-load maybe_exists%0#0 0                                                                 (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | maybe_exists%0#0
@@ -1362,12 +1362,12 @@ subroutine vote:
         v-store cumulative_offset#0                                                               (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0
         // voting/voting.py:202
         // self.votes_by_account[Txn.sender] = answer_ids.copy()
-        txn Sender                                                                                (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,tmp%20#0
-        l-load-copy tmp%20#0 0                                                                    (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,tmp%20#0,tmp%20#0 (copy)
-        box_del                                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,tmp%20#0,{box_del}
-        pop 1                                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,tmp%20#0
-        l-load tmp%20#0 0                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,tmp%20#0
-        p-load answer_ids#0                                                                       (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,tmp%20#0,answer_ids#0 (copy)
+        txn Sender                                                                                (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,materialized_values%0#0
+        l-load-copy materialized_values%0#0 0                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,materialized_values%0#0,materialized_values%0#0 (copy)
+        box_del                                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,materialized_values%0#0,{box_del}
+        pop 1                                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,materialized_values%0#0
+        l-load materialized_values%0#0 0                                                          (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,materialized_values%0#0
+        p-load answer_ids#0                                                                       (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,materialized_values%0#0,answer_ids#0 (copy)
         box_put                                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0
         // voting/voting.py:203
         // self.voter_count += 1
@@ -1378,9 +1378,9 @@ subroutine vote:
         assert // check self.voter_count exists                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,maybe_value%2#0
         l-load maybe_value%2#0 0                                                                  (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,maybe_value%2#0
         int 1                                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,maybe_value%2#0,1
-        +                                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,new_state_value%0#0
-        byte "voter_count"                                                                        (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,new_state_value%0#0,"voter_count"
-        l-load new_state_value%0#0 1                                                              (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,"voter_count",new_state_value%0#0
+        +                                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,materialized_values%1#0
+        byte "voter_count"                                                                        (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,materialized_values%1#0,"voter_count"
+        l-load materialized_values%1#0 1                                                          (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,"voter_count",materialized_values%1#0
         app_global_put                                                                            (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0
         // voting/voting.py:195
         // for question_index in urange(questions_count):
@@ -1416,9 +1416,9 @@ subroutine voting_open:
         // and not self.close_time
         int 0                                                                                     0
         byte "close_time"                                                                         0,"close_time"
-        app_global_get_ex                                                                         maybe_value%1#0,maybe_exists%1#0
-        l-store maybe_exists%1#0 1                                                                maybe_exists%1#0,maybe_value%1#0
-        v-store maybe_value%1#0                                                                   maybe_exists%1#0
+        app_global_get_ex                                                                         _%0#0,maybe_exists%1#0
+        l-store maybe_exists%1#0 1                                                                maybe_exists%1#0,_%0#0
+        v-store _%0#0                                                                             maybe_exists%1#0
         l-load maybe_exists%1#0 0                                                                 maybe_exists%1#0
         bz voting_open_and_contd@2 ; b voting_open_bool_false@5
 
@@ -1427,14 +1427,14 @@ subroutine voting_open:
         // and self.start_time <= Global.latest_timestamp <= self.end_time
         int 0                                                                                     0
         byte "start_time"                                                                         0,"start_time"
-        app_global_get_ex                                                                         maybe_value%2#0,maybe_exists%2#0
-        l-load maybe_exists%2#0 0                                                                 maybe_value%2#0,maybe_exists%2#0
-        assert // check self.start_time exists                                                    maybe_value%2#0
-        global LatestTimestamp                                                                    maybe_value%2#0,awst_tmp%0#0
-        l-store-copy awst_tmp%0#0 0                                                               maybe_value%2#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
-        v-store awst_tmp%0#0                                                                      maybe_value%2#0,awst_tmp%0#0
-        l-load maybe_value%2#0 1                                                                  awst_tmp%0#0,maybe_value%2#0
-        l-load awst_tmp%0#0 1                                                                     maybe_value%2#0,awst_tmp%0#0
+        app_global_get_ex                                                                         maybe_value%1#0,maybe_exists%2#0
+        l-load maybe_exists%2#0 0                                                                 maybe_value%1#0,maybe_exists%2#0
+        assert // check self.start_time exists                                                    maybe_value%1#0
+        global LatestTimestamp                                                                    maybe_value%1#0,awst_tmp%0#0
+        l-store-copy awst_tmp%0#0 0                                                               maybe_value%1#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
+        v-store awst_tmp%0#0                                                                      maybe_value%1#0,awst_tmp%0#0
+        l-load maybe_value%1#0 1                                                                  awst_tmp%0#0,maybe_value%1#0
+        l-load awst_tmp%0#0 1                                                                     maybe_value%1#0,awst_tmp%0#0
         <=                                                                                        tmp%0#0
         l-load tmp%0#0 0                                                                          tmp%0#0
         bz voting_open_bool_false@5 ; b voting_open_and_contd@3
@@ -1444,11 +1444,11 @@ subroutine voting_open:
         // and self.start_time <= Global.latest_timestamp <= self.end_time
         int 0                                                                                     0
         byte "end_time"                                                                           0,"end_time"
-        app_global_get_ex                                                                         maybe_value%3#0,maybe_exists%3#0
-        l-load maybe_exists%3#0 0                                                                 maybe_value%3#0,maybe_exists%3#0
-        assert // check self.end_time exists                                                      maybe_value%3#0
-        v-load awst_tmp%0#0                                                                       maybe_value%3#0,awst_tmp%0#0
-        l-load maybe_value%3#0 1                                                                  awst_tmp%0#0,maybe_value%3#0
+        app_global_get_ex                                                                         maybe_value%2#0,maybe_exists%3#0
+        l-load maybe_exists%3#0 0                                                                 maybe_value%2#0,maybe_exists%3#0
+        assert // check self.end_time exists                                                      maybe_value%2#0
+        v-load awst_tmp%0#0                                                                       maybe_value%2#0,awst_tmp%0#0
+        l-load maybe_value%2#0 1                                                                  awst_tmp%0#0,maybe_value%2#0
         <=                                                                                        tmp%1#0
         l-load tmp%1#0 0                                                                          tmp%1#0
         bz voting_open_bool_false@5 ; b voting_open_bool_true@4
