@@ -1,4 +1,18 @@
 # CHANGELOG
+## v4.7.0 (2025-04-04)
+
+### Feature
+
+* optimize `sha256` op when used with a constant ([`1916193`](https://github.com/algorandfoundation/puya/commit/19161936e2b9f4ede48d61a95590a4ea536993ed))
+
+* allow reference types to be used in ARC-4 methods when part of native arrays, tuples or as return types ([`f1597e8`](https://github.com/algorandfoundation/puya/commit/f1597e80fb94dd0febd9d41fcafa16613ce2590c))
+
+### Fix
+
+* use correct member name for default argument error ([`bd507d3`](https://github.com/algorandfoundation/puya/commit/bd507d3c271eb2668e8f425baf8f45a5e4da2860))
+
+* fix ARC-56 storage type information for uint64 and account types ([`c9bd5b9`](https://github.com/algorandfoundation/puya/commit/c9bd5b9bd12c4226a5951fbdbe97acb0ce40fb79))
+
 ## v4.6.1 (2025-03-28)
 
 ### Fix
