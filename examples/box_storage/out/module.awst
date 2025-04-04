@@ -152,38 +152,38 @@ contract BoxContract
     key_0: uint64 = 0u
     key_1: uint64 = 1u
     value: string = 'Hmmmmm'
-    Box[concat('', itob(key_0))]: string = value
-    assert(checked_maybe(box_len(concat('', itob(key_0)))) == len(reinterpret_cast<bytes>(value)))
-    assert(checked_maybe(box_len(concat('', itob(key_0)))) == len(reinterpret_cast<bytes>(value)))
-    assert(STATE_GET(Box[concat('', itob(key_1))], default='default') == 'default')
-    (value, exists): tuple<string,bool> = STATE_GET_EX(Box[concat('', itob(key_1))])
+    Box[BoxMapKey(prefix='', key=key_0)]: string = value
+    assert(checked_maybe(box_len(BoxMapKey(prefix='', key=key_0))) == len(reinterpret_cast<bytes>(value)))
+    assert(checked_maybe(box_len(BoxMapKey(prefix='', key=key_0))) == len(reinterpret_cast<bytes>(value)))
+    assert(STATE_GET(Box[BoxMapKey(prefix='', key=key_1)], default='default') == 'default')
+    (value, exists): tuple<string,bool> = STATE_GET_EX(Box[BoxMapKey(prefix='', key=key_1)])
     assert(!(exists))
-    assert(STATE_EXISTS(Box[concat('', itob(key_0))]))
+    assert(STATE_EXISTS(Box[BoxMapKey(prefix='', key=key_0)]))
     assert(reinterpret_cast<bytes>('') == hex<"">)
     tmp_box_map: box_key = hex<"">
-    Box[concat(tmp_box_map, itob(key_1))]: string = 'hello'
+    Box[BoxMapKey(prefix=tmp_box_map, key=key_1)]: string = 'hello'
     assert(examples.box_storage.contract.get_box_map_value_from_key_plus_1(tmp_box_map, 0u) == 'hello')
-    STATE_DELETE(Box[concat(tmp_box_map, itob(key_1))])
+    STATE_DELETE(Box[BoxMapKey(prefix=tmp_box_map, key=key_1)])
   }
   
   abimethod examples.box_storage.contract.BoxContract.box_map_set(key: uint64, value: string): void
   {
-    Box[concat('', itob(key))]: string = value
+    Box[BoxMapKey(prefix='', key=key)]: string = value
   }
   
   abimethod examples.box_storage.contract.BoxContract.box_map_get(key: uint64): string
   {
-    return Box[concat('', itob(key))]
+    return Box[BoxMapKey(prefix='', key=key)]
   }
   
   abimethod examples.box_storage.contract.BoxContract.box_map_del(key: uint64): void
   {
-    STATE_DELETE(Box[concat('', itob(key))])
+    STATE_DELETE(Box[BoxMapKey(prefix='', key=key)])
   }
   
   abimethod examples.box_storage.contract.BoxContract.box_map_exists(key: uint64): bool
   {
-    return STATE_EXISTS(Box[concat('', itob(key))])
+    return STATE_EXISTS(Box[BoxMapKey(prefix='', key=key)])
   }
   
   baremethod examples.box_storage.contract.BoxContract.__algopy_default_create(): void
@@ -208,5 +208,5 @@ subroutine get_box_ref_length(ref: box_key): uint64
 
 subroutine get_box_map_value_from_key_plus_1(box_map: box_key, key: uint64): string
 {
-  return Box[concat(box_map, itob(key + 1u))]
+  return Box[BoxMapKey(prefix=box_map, key=key + 1u)]
 }

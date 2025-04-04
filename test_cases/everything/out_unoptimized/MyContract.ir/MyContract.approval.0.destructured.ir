@@ -46,8 +46,8 @@ subroutine test_cases.everything.contract.Everything.register(name: bytes) -> vo
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%1#0) // check self.counter exists
         let tmp%2#0: uint64 = test_cases.everything.my_base.multiplicative_identity()
-        let new_state_value%0#0: uint64 = (+ maybe_value%1#0 tmp%2#0)
-        (app_global_put "counter" new_state_value%0#0)
+        let materialized_values%0#0: uint64 = (+ maybe_value%1#0 tmp%2#0)
+        (app_global_put "counter" materialized_values%0#0)
         goto block@3
     block@3: // after_if_else_L52
         goto block@4
@@ -108,8 +108,8 @@ subroutine test_cases.everything.contract.Everything._remove_sender() -> void:
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%0#0) // check self.counter exists
         let tmp%0#0: uint64 = test_cases.everything.contract.positive_one()
-        let new_state_value%0#0: uint64 = (- maybe_value%0#0 tmp%0#0)
-        (app_global_put "counter" new_state_value%0#0)
+        let materialized_values%0#0: uint64 = (- maybe_value%0#0 tmp%0#0)
+        (app_global_put "counter" materialized_values%0#0)
         return 
 
 subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
@@ -208,6 +208,6 @@ subroutine test_cases.everything.my_base.MyMiddleBase.calculate(a: bytes[8], b: 
 
 subroutine test_cases.everything.my_base.MyBase.remember_creator() -> void:
     block@0: // L7
-        let new_state_value%0#0: bytes[32] = (txn Sender)
-        (app_global_put "creator" new_state_value%0#0)
+        let materialized_values%0#0: bytes[32] = (txn Sender)
+        (app_global_put "creator" materialized_values%0#0)
         return 

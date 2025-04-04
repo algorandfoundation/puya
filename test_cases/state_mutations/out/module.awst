@@ -36,7 +36,7 @@ contract Contract
     GlobalState['glob']: arc4.dynamic_array<test_cases.state_mutations.contract.MyStruct> = new arc4.dynamic_array<test_cases.state_mutations.contract.MyStruct>()
     Box['box']: arc4.dynamic_array<test_cases.state_mutations.contract.MyStruct> = new arc4.dynamic_array<test_cases.state_mutations.contract.MyStruct>()
     LocalState['loc', txn<Sender>()]: arc4.dynamic_array<test_cases.state_mutations.contract.MyStruct> = new arc4.dynamic_array<test_cases.state_mutations.contract.MyStruct>()
-    Box[concat('map', reinterpret_cast<bytes>(txn<Sender>()))]: arc4.dynamic_array<test_cases.state_mutations.contract.MyStruct> = new arc4.dynamic_array<test_cases.state_mutations.contract.MyStruct>()
+    Box[BoxMapKey(prefix='map', key=txn<Sender>())]: arc4.dynamic_array<test_cases.state_mutations.contract.MyStruct> = new arc4.dynamic_array<test_cases.state_mutations.contract.MyStruct>()
   }
   
   abimethod test_cases.state_mutations.contract.Contract.append(): void
@@ -45,7 +45,7 @@ contract Contract
     GlobalState['glob'].extend((struct.copy()))
     LocalState['loc', txn<Sender>()].extend((struct.copy()))
     Box['box'].extend((struct.copy()))
-    Box[concat('map', reinterpret_cast<bytes>(txn<Sender>()))].extend((struct.copy()))
+    Box[BoxMapKey(prefix='map', key=txn<Sender>())].extend((struct.copy()))
   }
   
   abimethod test_cases.state_mutations.contract.Contract.modify(): void
@@ -53,7 +53,7 @@ contract Contract
     GlobalState['glob'][0u].baz: arc4.dynamic_array<arc4.uint8> = 'modified'
     LocalState['loc', txn<Sender>()][0u].baz: arc4.dynamic_array<arc4.uint8> = 'modified'
     Box['box'][0u].baz: arc4.dynamic_array<arc4.uint8> = 'modified'
-    Box[concat('map', reinterpret_cast<bytes>(txn<Sender>()))][0u].baz: arc4.dynamic_array<arc4.uint8> = 'modified'
+    Box[BoxMapKey(prefix='map', key=txn<Sender>())][0u].baz: arc4.dynamic_array<arc4.uint8> = 'modified'
   }
   
   abimethod test_cases.state_mutations.contract.Contract.get(): arc4.dynamic_array<test_cases.state_mutations.contract.MyStruct>
@@ -61,7 +61,7 @@ contract Contract
     a1: arc4.dynamic_array<test_cases.state_mutations.contract.MyStruct> = GlobalState['glob'].copy()
     a2: arc4.dynamic_array<test_cases.state_mutations.contract.MyStruct> = LocalState['loc', txn<Sender>()].copy()
     a3: arc4.dynamic_array<test_cases.state_mutations.contract.MyStruct> = Box['box'].copy()
-    a4: arc4.dynamic_array<test_cases.state_mutations.contract.MyStruct> = Box[concat('map', reinterpret_cast<bytes>(txn<Sender>()))].copy()
+    a4: arc4.dynamic_array<test_cases.state_mutations.contract.MyStruct> = Box[BoxMapKey(prefix='map', key=txn<Sender>())].copy()
     assert(a1 == a2, comment="expected local == global")
     assert(a1 == a3, comment="expected box == global")
     assert(a1 == a4, comment="expected map == global")
