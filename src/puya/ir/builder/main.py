@@ -882,6 +882,24 @@ class FunctionIRBuilder(
     ) -> TExpression:
         return storage.visit_app_account_state_expression(self.context, expr)
 
+    def visit_box_prefixed_key_expression(
+        self, expr: awst_nodes.BoxPrefixedKeyExpression
+    ) -> TExpression:
+        factory = OpFactory(self.context, expr.source_location)
+        prefix = self.context.visitor.visit_and_materialise_single(
+            expr.prefix, temp_description="box_key_prefix"
+        )
+        key_expr = expr.key
+        key_vp = self.context.visitor.visit_expr(key_expr)
+        encode_result = storage.encode_for_storage(
+            self.context, key_vp, key_expr.wtype, key_expr.source_location
+        )
+        key = encode_result.storage_value
+        # box keys must be bytes
+        if key.ir_type.maybe_avm_type == AVMType.uint64:
+            key = factory.itob(key, "box_key_bytes")
+        return factory.concat(prefix, key, "box_prefixed_key")
+
     def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> TExpression:
         return storage.visit_box_value(self.context, expr)
 

@@ -283,6 +283,11 @@ class ExpressionVisitor[T](ABC):
     ) -> T: ...
 
     @abstractmethod
+    def visit_box_prefixed_key_expression(
+        self, expr: puya.awst.nodes.BoxPrefixedKeyExpression
+    ) -> T: ...
+
+    @abstractmethod
     def visit_box_value_expression(self, expr: puya.awst.nodes.BoxValueExpression) -> T: ...
 
     @abstractmethod

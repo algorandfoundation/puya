@@ -5,6 +5,7 @@ from collections.abc import Callable, Sequence
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    BoxPrefixedKeyExpression,
     BoxValueExpression,
     Expression,
     StateExists,
@@ -14,7 +15,7 @@ from puya.awst.nodes import (
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puyapy import models
-from puyapy.awst_build import intrinsic_factory, pytypes
+from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
@@ -133,17 +134,16 @@ class BoxMapProxyExpressionBuilder(
     def _build_box_value(
         self, key: InstanceBuilder, location: SourceLocation
     ) -> BoxValueExpression:
-        key_data = key.to_bytes(location)
-        key_prefix = self.resolve()
-        full_key = intrinsic_factory.concat(
-            key_prefix, key_data, location, result_type=wtypes.box_key
-        )
         if self._member_name:
             exists_assertion_message = f"check self.{self._member_name} entry exists"
         else:
             exists_assertion_message = "check BoxMap entry exists"
         return BoxValueExpression(
-            key=full_key,
+            key=BoxPrefixedKeyExpression(
+                prefix=self.resolve(),
+                key=key.resolve(),
+                source_location=location,
+            ),
             wtype=self.pytype.content_wtype,
             exists_assertion_message=exists_assertion_message,
             source_location=location,
