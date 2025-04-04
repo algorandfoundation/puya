@@ -1,4 +1,5 @@
 import base64
+import hashlib
 import math
 import random
 from collections.abc import Sequence
@@ -2091,6 +2092,22 @@ def test_nested_immutable(
         3,
         6,
     ]
+
+
+@pytest.mark.parametrize("opt_level", [0, 1, 2])
+def test_intrinsic_optimizations(
+    algod_client: AlgodClient, account: algokit_utils.Account, opt_level: int
+) -> None:
+    example = TEST_CASES_DIR / "intrinsics" / "optimizations.py"
+
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(example, optimization_level=opt_level)
+    )
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    response = app_client.call("sha256")
+    assert bytes(response.return_value) == hashlib.sha256(b"Hello World").digest()
 
 
 def _get_immutable_array_app(

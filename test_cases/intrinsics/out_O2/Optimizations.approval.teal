@@ -1,0 +1,44 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    txn NumAppArgs
+    bz main_bare_routing@6
+    pushbytes 0x86db3e46 // method "sha256()byte[]"
+    txna ApplicationArgs 0
+    match main_sha256_route@3
+
+main_after_if_else@10:
+    pushint 0 // 0
+    return
+
+main_sha256_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytes 0x48656c6c6f20576f726c64
+    sha256
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    pushint 1 // 1
+    return
+
+main_bare_routing@6:
+    txn OnCompletion
+    bnz main_after_if_else@10
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    pushint 1 // 1
+    return
