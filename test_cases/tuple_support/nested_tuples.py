@@ -75,7 +75,7 @@ class NestedTuples(ARC4Contract):
         return self.box[key]
 
     @arc4.abimethod()
-    def mutate_tuple(self) -> TupleWithMutable:
+    def mutate_local_tuple(self) -> TupleWithMutable:
         twm = TupleWithMutable(
             arr=arc4.DynamicArray(arc4.UInt64(0)),
             child=Child(
@@ -88,8 +88,16 @@ class NestedTuples(ARC4Contract):
         twm.arr.append(arc4.UInt64(2))
         for i in urange(3):
             assert twm.arr[i] == i
-        # self.twm.arr.append(arc4.UInt64(1))
+        # TODO: support this?
+        #       see below method for work around
+        #       self.twm.arr.append(arc4.UInt64(1))
         return twm
+
+    @arc4.abimethod()
+    def mutate_tuple_in_storage_currently_supported_method(self) -> None:
+        arr2 = self.twm.arr.copy()
+        arr2.append(arc4.UInt64(1))
+        self.twm = self.twm._replace(arr=arr2.copy())
 
     @arc4.abimethod()
     def run_tests(self) -> bool:

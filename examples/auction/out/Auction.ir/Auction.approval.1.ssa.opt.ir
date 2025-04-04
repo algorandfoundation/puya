@@ -7,8 +7,8 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         (app_global_put "previous_bid" 0u)
         (app_global_put "asa_amount" 0u)
         (app_global_put "asa" 0u)
-        let new_state_value%0#0: bytes[32] = (global ZeroAddress)
-        (app_global_put "previous_bidder" new_state_value%0#0)
+        let materialized_values%0#0: bytes[32] = (global ZeroAddress)
+        (app_global_put "previous_bidder" materialized_values%0#0)
         goto block@2
     block@2: // after_if_else_L1
         let tmp%0#1: bool = examples.auction.contract.Auction.__puya_arc4_router__()
@@ -140,11 +140,11 @@ subroutine examples.auction.contract.Auction.start_auction(starting_price: uint6
         let tmp%5#0: bytes[32] = (global CurrentApplicationAddress)
         let tmp%6#0: bool = (== tmp%4#0 tmp%5#0)
         (assert tmp%6#0) // axfer must transfer to this app
-        let new_state_value%0#0: uint64 = ((gtxns AssetAmount) axfer#0)
-        (app_global_put "asa_amount" new_state_value%0#0)
+        let materialized_values%0#0: uint64 = ((gtxns AssetAmount) axfer#0)
+        (app_global_put "asa_amount" materialized_values%0#0)
         let tmp%7#0: uint64 = (global LatestTimestamp)
-        let new_state_value%1#0: uint64 = (+ tmp%7#0 length#0)
-        (app_global_put "auction_end" new_state_value%1#0)
+        let materialized_values%1#0: uint64 = (+ tmp%7#0 length#0)
+        (app_global_put "auction_end" materialized_values%1#0)
         (app_global_put "previous_bid" starting_price#0)
         return 
 
@@ -195,8 +195,8 @@ subroutine examples.auction.contract.Auction.claim_bids() -> void:
         ((itxn_field Fee) 0u)
         itxn_submit
         let tmp%3#0: bytes[32] = (txn Sender)
-        let new_state_value%0#0: uint64 = (- original_amount#0 amount#2)
-        (app_local_put tmp%3#0 "claim" new_state_value%0#0)
+        let materialized_values%0#0: uint64 = (- original_amount#0 amount#2)
+        (app_local_put tmp%3#0 "claim" materialized_values%0#0)
         return 
 
 subroutine examples.auction.contract.Auction.claim_asset(asset: uint64) -> void:

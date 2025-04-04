@@ -372,15 +372,15 @@ subroutine opt_in:
         app_local_put
         // state_mutations/contract.py:34
         // self.map[Txn.sender] = MyArray()
-        txn Sender                                                                           tmp%1#0
-        byte "map"                                                                           tmp%1#0,"map"
-        l-load tmp%1#0 1                                                                     "map",tmp%1#0
-        concat                                                                               tmp%2#0
-        l-load-copy tmp%2#0 0                                                                tmp%2#0,tmp%2#0 (copy)
-        box_del                                                                              tmp%2#0,{box_del}
-        pop 1                                                                                tmp%2#0
-        l-load tmp%2#0 0                                                                     tmp%2#0
-        byte 0x0000                                                                          tmp%2#0,0x0000
+        txn Sender                                                                           materialized_values%0#0
+        byte "map"                                                                           materialized_values%0#0,"map"
+        l-load materialized_values%0#0 1                                                     "map",materialized_values%0#0
+        concat                                                                               box_prefixed_key%0#0
+        l-load-copy box_prefixed_key%0#0 0                                                   box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
+        box_del                                                                              box_prefixed_key%0#0,{box_del}
+        pop 1                                                                                box_prefixed_key%0#0
+        l-load box_prefixed_key%0#0 0                                                        box_prefixed_key%0#0
+        byte 0x0000                                                                          box_prefixed_key%0#0,0x0000
         box_put
         retsub
 
@@ -455,29 +455,29 @@ subroutine append:
         box_put
         // state_mutations/contract.py:42
         // self.map[Txn.sender].append(struct.copy())
-        txn Sender                                                                           tmp%1#0
-        byte "map"                                                                           tmp%1#0,"map"
-        l-load tmp%1#0 1                                                                     "map",tmp%1#0
-        concat                                                                               tmp%2#0
-        l-load-copy tmp%2#0 0                                                                tmp%2#0,tmp%2#0 (copy)
-        box_get                                                                              tmp%2#0,maybe_value%3#0,maybe_exists%3#0
-        l-load maybe_exists%3#0 0                                                            tmp%2#0,maybe_value%3#0,maybe_exists%3#0
-        assert // check self.map entry exists                                                tmp%2#0,maybe_value%3#0
-        l-load-copy maybe_value%3#0 0                                                        tmp%2#0,maybe_value%3#0,maybe_value%3#0 (copy)
-        int 0                                                                                tmp%2#0,maybe_value%3#0,maybe_value%3#0 (copy),0
-        extract_uint16                                                                       tmp%2#0,maybe_value%3#0,l_count%3#0
-        l-load maybe_value%3#0 1                                                             tmp%2#0,l_count%3#0,maybe_value%3#0
-        extract 2 0                                                                          tmp%2#0,l_count%3#0,l_head_and_tail%3#0
-        l-load l_count%3#0 1                                                                 tmp%2#0,l_head_and_tail%3#0,l_count%3#0
-        l-load l_head_and_tail%3#0 1                                                         tmp%2#0,l_count%3#0,l_head_and_tail%3#0
-        int 1                                                                                tmp%2#0,l_count%3#0,l_head_and_tail%3#0,1
-        byte 0x00020000000000000001000a000362617a                                            tmp%2#0,l_count%3#0,l_head_and_tail%3#0,1,0x00020000000000000001000a000362617a
-        callsub dynamic_array_concat_dynamic_element                                         tmp%2#0,concat_result%3#0
-        l-load-copy tmp%2#0 1                                                                tmp%2#0,concat_result%3#0,tmp%2#0 (copy)
-        box_del                                                                              tmp%2#0,concat_result%3#0,{box_del}
-        pop 1                                                                                tmp%2#0,concat_result%3#0
-        l-load tmp%2#0 1                                                                     concat_result%3#0,tmp%2#0
-        l-load concat_result%3#0 1                                                           tmp%2#0,concat_result%3#0
+        txn Sender                                                                           materialized_values%0#0
+        byte "map"                                                                           materialized_values%0#0,"map"
+        l-load materialized_values%0#0 1                                                     "map",materialized_values%0#0
+        concat                                                                               box_prefixed_key%0#0
+        l-load-copy box_prefixed_key%0#0 0                                                   box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
+        box_get                                                                              box_prefixed_key%0#0,maybe_value%3#0,maybe_exists%3#0
+        l-load maybe_exists%3#0 0                                                            box_prefixed_key%0#0,maybe_value%3#0,maybe_exists%3#0
+        assert // check self.map entry exists                                                box_prefixed_key%0#0,maybe_value%3#0
+        l-load-copy maybe_value%3#0 0                                                        box_prefixed_key%0#0,maybe_value%3#0,maybe_value%3#0 (copy)
+        int 0                                                                                box_prefixed_key%0#0,maybe_value%3#0,maybe_value%3#0 (copy),0
+        extract_uint16                                                                       box_prefixed_key%0#0,maybe_value%3#0,l_count%3#0
+        l-load maybe_value%3#0 1                                                             box_prefixed_key%0#0,l_count%3#0,maybe_value%3#0
+        extract 2 0                                                                          box_prefixed_key%0#0,l_count%3#0,l_head_and_tail%3#0
+        l-load l_count%3#0 1                                                                 box_prefixed_key%0#0,l_head_and_tail%3#0,l_count%3#0
+        l-load l_head_and_tail%3#0 1                                                         box_prefixed_key%0#0,l_count%3#0,l_head_and_tail%3#0
+        int 1                                                                                box_prefixed_key%0#0,l_count%3#0,l_head_and_tail%3#0,1
+        byte 0x00020000000000000001000a000362617a                                            box_prefixed_key%0#0,l_count%3#0,l_head_and_tail%3#0,1,0x00020000000000000001000a000362617a
+        callsub dynamic_array_concat_dynamic_element                                         box_prefixed_key%0#0,concat_result%3#0
+        l-load-copy box_prefixed_key%0#0 1                                                   box_prefixed_key%0#0,concat_result%3#0,box_prefixed_key%0#0 (copy)
+        box_del                                                                              box_prefixed_key%0#0,concat_result%3#0,{box_del}
+        pop 1                                                                                box_prefixed_key%0#0,concat_result%3#0
+        l-load box_prefixed_key%0#0 1                                                        concat_result%3#0,box_prefixed_key%0#0
+        l-load concat_result%3#0 1                                                           box_prefixed_key%0#0,concat_result%3#0
         box_put
         retsub
 
@@ -636,57 +636,57 @@ subroutine modify:
         box_put
         // state_mutations/contract.py:49
         // self.map[Txn.sender][0].baz = arc4.String("modified")
-        txn Sender                                                                           tmp%4#0
-        byte "map"                                                                           tmp%4#0,"map"
-        l-load tmp%4#0 1                                                                     "map",tmp%4#0
-        concat                                                                               tmp%5#0
-        l-load-copy tmp%5#0 0                                                                tmp%5#0,tmp%5#0 (copy)
-        box_get                                                                              tmp%5#0,maybe_value%3#0,maybe_exists%3#0
-        l-load maybe_exists%3#0 0                                                            tmp%5#0,maybe_value%3#0,maybe_exists%3#0
-        assert // check self.map entry exists                                                tmp%5#0,maybe_value%3#0
-        l-load-copy maybe_value%3#0 0                                                        tmp%5#0,maybe_value%3#0,maybe_value%3#0 (copy)
-        extract 2 0                                                                          tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0
-        l-load-copy array_head_and_tail%3#0 0                                                tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,array_head_and_tail%3#0 (copy)
-        int 0                                                                                tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,array_head_and_tail%3#0 (copy),0
-        extract_uint16                                                                       tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0
-        l-load-copy maybe_value%3#0 2                                                        tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,maybe_value%3#0 (copy)
-        int 0                                                                                tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,maybe_value%3#0 (copy),0
-        extract_uint16                                                                       tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,array_length%3#0
-        l-load array_length%3#0 0                                                            tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,array_length%3#0
-        int 1                                                                                tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,array_length%3#0,1
-        - // on error: Index access is out of bounds                                         tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,has_next%3#0
-        l-load-copy array_head_and_tail%3#0 2                                                tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,has_next%3#0,array_head_and_tail%3#0 (copy)
-        len                                                                                  tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,has_next%3#0,end_of_array%3#0
-        l-load-copy array_head_and_tail%3#0 3                                                tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,has_next%3#0,end_of_array%3#0,array_head_and_tail%3#0 (copy)
-        int 2                                                                                tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,has_next%3#0,end_of_array%3#0,array_head_and_tail%3#0 (copy),2
-        extract_uint16                                                                       tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,has_next%3#0,end_of_array%3#0,next_item_offset%3#0
-        l-load end_of_array%3#0 1                                                            tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,has_next%3#0,next_item_offset%3#0,end_of_array%3#0
-        l-load next_item_offset%3#0 1                                                        tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,has_next%3#0,end_of_array%3#0,next_item_offset%3#0
-        l-load has_next%3#0 2                                                                tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,end_of_array%3#0,next_item_offset%3#0,has_next%3#0
-        select                                                                               tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,end_offset%3#0
-        l-load array_head_and_tail%3#0 2                                                     tmp%5#0,maybe_value%3#0,item_offset%6#0,end_offset%3#0,array_head_and_tail%3#0
-        l-load item_offset%6#0 2                                                             tmp%5#0,maybe_value%3#0,end_offset%3#0,array_head_and_tail%3#0,item_offset%6#0
-        l-load end_offset%3#0 2                                                              tmp%5#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,end_offset%3#0
-        substring3                                                                           tmp%5#0,maybe_value%3#0,tmp%6#0
-        l-load-copy tmp%6#0 0                                                                tmp%5#0,maybe_value%3#0,tmp%6#0,tmp%6#0 (copy)
-        int 8                                                                                tmp%5#0,maybe_value%3#0,tmp%6#0,tmp%6#0 (copy),8
-        extract_uint16                                                                       tmp%5#0,maybe_value%3#0,tmp%6#0,item_offset%7#0
-        l-load tmp%6#0 1                                                                     tmp%5#0,maybe_value%3#0,item_offset%7#0,tmp%6#0
-        int 0                                                                                tmp%5#0,maybe_value%3#0,item_offset%7#0,tmp%6#0,0
-        l-load item_offset%7#0 2                                                             tmp%5#0,maybe_value%3#0,tmp%6#0,0,item_offset%7#0
-        extract3                                                                             tmp%5#0,maybe_value%3#0,data_up_to_item%3#0
-        l-load data_up_to_item%3#0 0                                                         tmp%5#0,maybe_value%3#0,data_up_to_item%3#0
-        byte 0x00086d6f646966696564                                                          tmp%5#0,maybe_value%3#0,data_up_to_item%3#0,0x00086d6f646966696564
-        concat                                                                               tmp%5#0,maybe_value%3#0,updated_data%3#0
-        l-load maybe_value%3#0 1                                                             tmp%5#0,updated_data%3#0,maybe_value%3#0
-        l-load updated_data%3#0 1                                                            tmp%5#0,maybe_value%3#0,updated_data%3#0
-        int 0                                                                                tmp%5#0,maybe_value%3#0,updated_data%3#0,0
-        callsub dynamic_array_replace_dynamic_element                                        tmp%5#0,updated_value%3#0
-        l-load-copy tmp%5#0 1                                                                tmp%5#0,updated_value%3#0,tmp%5#0 (copy)
-        box_del                                                                              tmp%5#0,updated_value%3#0,{box_del}
-        pop 1                                                                                tmp%5#0,updated_value%3#0
-        l-load tmp%5#0 1                                                                     updated_value%3#0,tmp%5#0
-        l-load updated_value%3#0 1                                                           tmp%5#0,updated_value%3#0
+        txn Sender                                                                           materialized_values%0#0
+        byte "map"                                                                           materialized_values%0#0,"map"
+        l-load materialized_values%0#0 1                                                     "map",materialized_values%0#0
+        concat                                                                               box_prefixed_key%0#0
+        l-load-copy box_prefixed_key%0#0 0                                                   box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
+        box_get                                                                              box_prefixed_key%0#0,maybe_value%3#0,maybe_exists%3#0
+        l-load maybe_exists%3#0 0                                                            box_prefixed_key%0#0,maybe_value%3#0,maybe_exists%3#0
+        assert // check self.map entry exists                                                box_prefixed_key%0#0,maybe_value%3#0
+        l-load-copy maybe_value%3#0 0                                                        box_prefixed_key%0#0,maybe_value%3#0,maybe_value%3#0 (copy)
+        extract 2 0                                                                          box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0
+        l-load-copy array_head_and_tail%3#0 0                                                box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,array_head_and_tail%3#0 (copy)
+        int 0                                                                                box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,array_head_and_tail%3#0 (copy),0
+        extract_uint16                                                                       box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0
+        l-load-copy maybe_value%3#0 2                                                        box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,maybe_value%3#0 (copy)
+        int 0                                                                                box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,maybe_value%3#0 (copy),0
+        extract_uint16                                                                       box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,array_length%3#0
+        l-load array_length%3#0 0                                                            box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,array_length%3#0
+        int 1                                                                                box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,array_length%3#0,1
+        - // on error: Index access is out of bounds                                         box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,has_next%3#0
+        l-load-copy array_head_and_tail%3#0 2                                                box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,has_next%3#0,array_head_and_tail%3#0 (copy)
+        len                                                                                  box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,has_next%3#0,end_of_array%3#0
+        l-load-copy array_head_and_tail%3#0 3                                                box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,has_next%3#0,end_of_array%3#0,array_head_and_tail%3#0 (copy)
+        int 2                                                                                box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,has_next%3#0,end_of_array%3#0,array_head_and_tail%3#0 (copy),2
+        extract_uint16                                                                       box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,has_next%3#0,end_of_array%3#0,next_item_offset%3#0
+        l-load end_of_array%3#0 1                                                            box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,has_next%3#0,next_item_offset%3#0,end_of_array%3#0
+        l-load next_item_offset%3#0 1                                                        box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,has_next%3#0,end_of_array%3#0,next_item_offset%3#0
+        l-load has_next%3#0 2                                                                box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,end_of_array%3#0,next_item_offset%3#0,has_next%3#0
+        select                                                                               box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,end_offset%3#0
+        l-load array_head_and_tail%3#0 2                                                     box_prefixed_key%0#0,maybe_value%3#0,item_offset%6#0,end_offset%3#0,array_head_and_tail%3#0
+        l-load item_offset%6#0 2                                                             box_prefixed_key%0#0,maybe_value%3#0,end_offset%3#0,array_head_and_tail%3#0,item_offset%6#0
+        l-load end_offset%3#0 2                                                              box_prefixed_key%0#0,maybe_value%3#0,array_head_and_tail%3#0,item_offset%6#0,end_offset%3#0
+        substring3                                                                           box_prefixed_key%0#0,maybe_value%3#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                                box_prefixed_key%0#0,maybe_value%3#0,tmp%4#0,tmp%4#0 (copy)
+        int 8                                                                                box_prefixed_key%0#0,maybe_value%3#0,tmp%4#0,tmp%4#0 (copy),8
+        extract_uint16                                                                       box_prefixed_key%0#0,maybe_value%3#0,tmp%4#0,item_offset%7#0
+        l-load tmp%4#0 1                                                                     box_prefixed_key%0#0,maybe_value%3#0,item_offset%7#0,tmp%4#0
+        int 0                                                                                box_prefixed_key%0#0,maybe_value%3#0,item_offset%7#0,tmp%4#0,0
+        l-load item_offset%7#0 2                                                             box_prefixed_key%0#0,maybe_value%3#0,tmp%4#0,0,item_offset%7#0
+        extract3                                                                             box_prefixed_key%0#0,maybe_value%3#0,data_up_to_item%3#0
+        l-load data_up_to_item%3#0 0                                                         box_prefixed_key%0#0,maybe_value%3#0,data_up_to_item%3#0
+        byte 0x00086d6f646966696564                                                          box_prefixed_key%0#0,maybe_value%3#0,data_up_to_item%3#0,0x00086d6f646966696564
+        concat                                                                               box_prefixed_key%0#0,maybe_value%3#0,updated_data%3#0
+        l-load maybe_value%3#0 1                                                             box_prefixed_key%0#0,updated_data%3#0,maybe_value%3#0
+        l-load updated_data%3#0 1                                                            box_prefixed_key%0#0,maybe_value%3#0,updated_data%3#0
+        int 0                                                                                box_prefixed_key%0#0,maybe_value%3#0,updated_data%3#0,0
+        callsub dynamic_array_replace_dynamic_element                                        box_prefixed_key%0#0,updated_value%3#0
+        l-load-copy box_prefixed_key%0#0 1                                                   box_prefixed_key%0#0,updated_value%3#0,box_prefixed_key%0#0 (copy)
+        box_del                                                                              box_prefixed_key%0#0,updated_value%3#0,{box_del}
+        pop 1                                                                                box_prefixed_key%0#0,updated_value%3#0
+        l-load box_prefixed_key%0#0 1                                                        updated_value%3#0,box_prefixed_key%0#0
+        l-load updated_value%3#0 1                                                           box_prefixed_key%0#0,updated_value%3#0
         box_put
         retsub
 
@@ -718,11 +718,11 @@ subroutine get:
         assert // check self.box exists                                                      a1#0,a2#0,a3#0
         // state_mutations/contract.py:56
         // a4 = self.map[Txn.sender].copy()
-        txn Sender                                                                           a1#0,a2#0,a3#0,tmp%1#0
-        byte "map"                                                                           a1#0,a2#0,a3#0,tmp%1#0,"map"
-        l-load tmp%1#0 1                                                                     a1#0,a2#0,a3#0,"map",tmp%1#0
-        concat                                                                               a1#0,a2#0,a3#0,tmp%2#0
-        l-load tmp%2#0 0                                                                     a1#0,a2#0,a3#0,tmp%2#0
+        txn Sender                                                                           a1#0,a2#0,a3#0,materialized_values%0#0
+        byte "map"                                                                           a1#0,a2#0,a3#0,materialized_values%0#0,"map"
+        l-load materialized_values%0#0 1                                                     a1#0,a2#0,a3#0,"map",materialized_values%0#0
+        concat                                                                               a1#0,a2#0,a3#0,box_prefixed_key%0#0
+        l-load box_prefixed_key%0#0 0                                                        a1#0,a2#0,a3#0,box_prefixed_key%0#0
         box_get                                                                              a1#0,a2#0,a3#0,a4#0,maybe_exists%3#0
         l-load maybe_exists%3#0 0                                                            a1#0,a2#0,a3#0,a4#0,maybe_exists%3#0
         assert // check self.map entry exists                                                a1#0,a2#0,a3#0,a4#0
@@ -730,22 +730,22 @@ subroutine get:
         // assert a1 == a2, "expected local == global"
         l-load-copy a1#0 3                                                                   a1#0,a2#0,a3#0,a4#0,a1#0 (copy)
         l-load a2#0 3                                                                        a1#0,a3#0,a4#0,a1#0 (copy),a2#0
-        ==                                                                                   a1#0,a3#0,a4#0,tmp%3#0
-        l-load tmp%3#0 0                                                                     a1#0,a3#0,a4#0,tmp%3#0
+        ==                                                                                   a1#0,a3#0,a4#0,tmp%1#0
+        l-load tmp%1#0 0                                                                     a1#0,a3#0,a4#0,tmp%1#0
         assert // expected local == global                                                   a1#0,a3#0,a4#0
         // state_mutations/contract.py:59
         // assert a1 == a3, "expected box == global"
         l-load-copy a1#0 2                                                                   a1#0,a3#0,a4#0,a1#0 (copy)
         l-load a3#0 2                                                                        a1#0,a4#0,a1#0 (copy),a3#0
-        ==                                                                                   a1#0,a4#0,tmp%4#0
-        l-load tmp%4#0 0                                                                     a1#0,a4#0,tmp%4#0
+        ==                                                                                   a1#0,a4#0,tmp%2#0
+        l-load tmp%2#0 0                                                                     a1#0,a4#0,tmp%2#0
         assert // expected box == global                                                     a1#0,a4#0
         // state_mutations/contract.py:60
         // assert a1 == a4, "expected map == global"
         l-load-copy a1#0 1                                                                   a1#0,a4#0,a1#0 (copy)
         l-load a4#0 1                                                                        a1#0,a1#0 (copy),a4#0
-        ==                                                                                   a1#0,tmp%5#0
-        l-load tmp%5#0 0                                                                     a1#0,tmp%5#0
+        ==                                                                                   a1#0,tmp%3#0
+        l-load tmp%3#0 0                                                                     a1#0,tmp%3#0
         assert // expected map == global                                                     a1#0
         // state_mutations/contract.py:61
         // return a1

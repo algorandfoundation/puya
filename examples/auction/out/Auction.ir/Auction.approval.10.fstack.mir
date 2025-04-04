@@ -28,9 +28,9 @@ subroutine main:
         app_global_put
         // auction/contract.py:22
         // self.previous_bidder = Account()
-        global ZeroAddress                                                                   new_state_value%0#0
-        byte "previous_bidder"                                                               new_state_value%0#0,"previous_bidder"
-        l-load new_state_value%0#0 1                                                         "previous_bidder",new_state_value%0#0
+        global ZeroAddress                                                                   materialized_values%0#0
+        byte "previous_bidder"                                                               materialized_values%0#0,"previous_bidder"
+        l-load materialized_values%0#0 1                                                     "previous_bidder",materialized_values%0#0
         app_global_put
         b main_after_if_else@2
 
@@ -291,17 +291,17 @@ subroutine start_auction:
         // auction/contract.py:58
         // self.asa_amount = axfer.asset_amount
         p-load axfer#0                                                                       (𝕡) starting_price#0,length#0,axfer#0 | axfer#0 (copy)
-        gtxns AssetAmount                                                                    (𝕡) starting_price#0,length#0,axfer#0 | new_state_value%0#0
-        byte "asa_amount"                                                                    (𝕡) starting_price#0,length#0,axfer#0 | new_state_value%0#0,"asa_amount"
-        l-load new_state_value%0#0 1                                                         (𝕡) starting_price#0,length#0,axfer#0 | "asa_amount",new_state_value%0#0
+        gtxns AssetAmount                                                                    (𝕡) starting_price#0,length#0,axfer#0 | materialized_values%0#0
+        byte "asa_amount"                                                                    (𝕡) starting_price#0,length#0,axfer#0 | materialized_values%0#0,"asa_amount"
+        l-load materialized_values%0#0 1                                                     (𝕡) starting_price#0,length#0,axfer#0 | "asa_amount",materialized_values%0#0
         app_global_put                                                                       (𝕡) starting_price#0,length#0,axfer#0 |
         // auction/contract.py:59
         // self.auction_end = Global.latest_timestamp + length
         global LatestTimestamp                                                               (𝕡) starting_price#0,length#0,axfer#0 | tmp%7#0
         p-load length#0                                                                      (𝕡) starting_price#0,length#0,axfer#0 | tmp%7#0,length#0 (copy)
-        +                                                                                    (𝕡) starting_price#0,length#0,axfer#0 | new_state_value%1#0
-        byte "auction_end"                                                                   (𝕡) starting_price#0,length#0,axfer#0 | new_state_value%1#0,"auction_end"
-        l-load new_state_value%1#0 1                                                         (𝕡) starting_price#0,length#0,axfer#0 | "auction_end",new_state_value%1#0
+        +                                                                                    (𝕡) starting_price#0,length#0,axfer#0 | materialized_values%1#0
+        byte "auction_end"                                                                   (𝕡) starting_price#0,length#0,axfer#0 | materialized_values%1#0,"auction_end"
+        l-load materialized_values%1#0 1                                                     (𝕡) starting_price#0,length#0,axfer#0 | "auction_end",materialized_values%1#0
         app_global_put                                                                       (𝕡) starting_price#0,length#0,axfer#0 |
         // auction/contract.py:60
         // self.previous_bid = starting_price
@@ -438,10 +438,10 @@ subroutine claim_bids:
         txn Sender                                                                           (𝕗) original_amount#0,amount#1 | amount#1,tmp%3#0
         f-load original_amount#0                                                             (𝕗) original_amount#0,amount#1 | amount#1,tmp%3#0,original_amount#0
         l-load amount#1 2                                                                    (𝕗) original_amount#0,amount#1 | tmp%3#0,original_amount#0,amount#1
-        -                                                                                    (𝕗) original_amount#0,amount#1 | tmp%3#0,new_state_value%0#0
-        l-load tmp%3#0 1                                                                     (𝕗) original_amount#0,amount#1 | new_state_value%0#0,tmp%3#0
-        byte "claim"                                                                         (𝕗) original_amount#0,amount#1 | new_state_value%0#0,tmp%3#0,"claim"
-        l-load new_state_value%0#0 2                                                         (𝕗) original_amount#0,amount#1 | tmp%3#0,"claim",new_state_value%0#0
+        -                                                                                    (𝕗) original_amount#0,amount#1 | tmp%3#0,materialized_values%0#0
+        l-load tmp%3#0 1                                                                     (𝕗) original_amount#0,amount#1 | materialized_values%0#0,tmp%3#0
+        byte "claim"                                                                         (𝕗) original_amount#0,amount#1 | materialized_values%0#0,tmp%3#0,"claim"
+        l-load materialized_values%0#0 2                                                     (𝕗) original_amount#0,amount#1 | tmp%3#0,"claim",materialized_values%0#0
         app_local_put                                                                        (𝕗) original_amount#0,amount#1 |
         retsub
 
