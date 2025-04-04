@@ -902,6 +902,22 @@ class AppAccountStateExpression(Expression):
 
 
 @attrs.frozen
+class BoxPrefixedKeyExpression(Expression):
+    """
+    Adds a prefix to a box key.
+
+    Can be used to ensure a globally unique key for all possible keys in a Box Map
+    """
+
+    prefix: Expression
+    key: Expression
+    wtype: wtypes.WType = attrs.field(default=wtypes.box_key, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_box_prefixed_key_expression(self)
+
+
+@attrs.frozen
 class BoxValueExpression(Expression):
     key: Expression = attrs.field(validator=expression_has_wtype(wtypes.box_key))
     exists_assertion_message: str | None
