@@ -10,9 +10,10 @@ from puya.awst import (
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, mem
+from puya.ir.builder import arc4, mem, storage
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import (
+    OpFactory,
     assign,
     assign_targets,
     assign_temp,
@@ -22,7 +23,6 @@ from puya.ir.context import IRFunctionBuildContext
 from puya.ir.types_ import (
     PrimitiveIRType,
     get_wtype_arity,
-    persistable_stack_type,
     wtype_to_ir_type,
 )
 from puya.ir.utils import format_tuple_index
@@ -68,7 +68,7 @@ def handle_assignment(
             and is_nested_update  # is a reassignment due to a nested update
             and var_type.scalar_type is not None  # only updating a scalar value
         ):
-            base_name = _get_tuple_var_name(target)
+            base_name = _get_tuple_var_name(target, assignment_location)
             return _handle_maybe_implicit_return_assignment(
                 context,
                 base_name=base_name,
@@ -120,73 +120,59 @@ def handle_assignment(
         case awst_nodes.AppStateExpression(
             key=awst_key, wtype=wtype, source_location=field_location
         ):
-            _ = persistable_stack_type(wtype, field_location)  # double check
             key_value = context.visitor.visit_and_materialise_single(awst_key)
-            (mat_value,) = context.visitor.materialise_value_provider(
-                value, description="new_state_value"
-            )
+            encode_result = storage.encode_for_storage(context, value, wtype, field_location)
             context.block_builder.add(
                 ir.Intrinsic(
                     op=AVMOp.app_global_put,
-                    args=[key_value, mat_value],
+                    args=[key_value, encode_result.storage_value],
                     source_location=assignment_location,
                 )
             )
-            return [mat_value]
+            return encode_result.values
         case awst_nodes.AppAccountStateExpression(
             key=awst_key, account=account_expr, wtype=wtype, source_location=field_location
         ):
-            _ = persistable_stack_type(wtype, field_location)  # double check
             account = context.visitor.visit_and_materialise_single(account_expr)
             key_value = context.visitor.visit_and_materialise_single(awst_key)
-            (mat_value,) = context.visitor.materialise_value_provider(
-                value, description="new_state_value"
-            )
+            encode_result = storage.encode_for_storage(context, value, wtype, field_location)
             context.block_builder.add(
                 ir.Intrinsic(
                     op=AVMOp.app_local_put,
-                    args=[account, key_value, mat_value],
+                    args=[account, key_value, encode_result.storage_value],
                     source_location=assignment_location,
                 )
             )
-            return [mat_value]
+            return encode_result.values
         case awst_nodes.BoxValueExpression(
             key=awst_key, wtype=wtype, source_location=field_location
         ):
-            scalar_type = persistable_stack_type(wtype, field_location)  # double check
+            factory = OpFactory(context, assignment_location)
             key_value = context.visitor.visit_and_materialise_single(awst_key)
-            (mat_value,) = context.visitor.materialise_value_provider(
-                value, description="new_box_value"
-            )
+            encode_result = storage.encode_for_storage(context, value, wtype, field_location)
+            storage_value = encode_result.storage_value
+            scalar_type = encode_result.scalar_type
+            # del box first if size is dynamic
             if scalar_type == AVMType.bytes:
-                serialized_value = mat_value
-                if wtype_to_ir_type(wtype).num_bytes is None:
+                if wtype_to_ir_type(encode_result.storage_wtype).num_bytes is None:
                     context.block_builder.add(
                         ir.Intrinsic(
                             op=AVMOp.box_del, args=[key_value], source_location=assignment_location
                         )
                     )
+            # boxes can only store bytes
             elif scalar_type == AVMType.uint64:
-                serialized_value = assign_temp(
-                    context=context,
-                    temp_description="new_box_value",
-                    source=ir.Intrinsic(
-                        op=AVMOp.itob,
-                        args=[mat_value],
-                        source_location=assignment_location,
-                    ),
-                    source_location=assignment_location,
-                )
+                storage_value = factory.itob(storage_value, "new_box_value")
             else:
                 typing.assert_never(scalar_type)
             context.block_builder.add(
                 ir.Intrinsic(
                     op=AVMOp.box_put,
-                    args=[key_value, serialized_value],
+                    args=[key_value, storage_value],
                     source_location=assignment_location,
                 )
             )
-            return [mat_value]
+            return encode_result.values
         case awst_nodes.IndexExpression() as ix_expr:
             if isinstance(ix_expr.base.wtype, wtypes.ReferenceArray):
                 array_slot = context.visitor.visit_and_materialise_single(
@@ -291,7 +277,9 @@ def _handle_maybe_implicit_return_assignment(
     return registers
 
 
-def _get_tuple_var_name(expr: awst_nodes.TupleItemExpression | awst_nodes.FieldExpression) -> str:
+def _get_tuple_var_name(
+    expr: awst_nodes.TupleItemExpression | awst_nodes.FieldExpression, ass_loc: SourceLocation
+) -> str:
     if isinstance(expr.base.wtype, wtypes.WTuple):
         if isinstance(expr, awst_nodes.TupleItemExpression):
             name_or_index: str | int = expr.index
@@ -300,12 +288,16 @@ def _get_tuple_var_name(expr: awst_nodes.TupleItemExpression | awst_nodes.FieldE
             name_or_index = expr.name
         if isinstance(expr.base, awst_nodes.FieldExpression):
             return format_tuple_index(
-                expr.base.wtype, _get_tuple_var_name(expr.base), name_or_index
+                expr.base.wtype, _get_tuple_var_name(expr.base, ass_loc), name_or_index
             )
         if isinstance(expr.base, awst_nodes.TupleItemExpression):
             return format_tuple_index(
-                expr.base.wtype, _get_tuple_var_name(expr.base), name_or_index
+                expr.base.wtype, _get_tuple_var_name(expr.base, ass_loc), name_or_index
             )
         if isinstance(expr.base, awst_nodes.VarExpression):
             return format_tuple_index(expr.base.wtype, expr.base.name, name_or_index)
+        if isinstance(expr.base, awst_nodes.StorageExpression):
+            raise CodeError(
+                "updating mutable elements within a tuple in storage is not supported", ass_loc
+            )
     raise CodeError("invalid assignment target", expr.base.source_location)

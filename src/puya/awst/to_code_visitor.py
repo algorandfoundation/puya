@@ -105,6 +105,10 @@ class ToCodeVisitor(
         return f"LocalState[{expr.key.accept(self)}, {expr.account.accept(self)}]"
 
     @typing.override
+    def visit_box_prefixed_key_expression(self, expr: nodes.BoxPrefixedKeyExpression) -> str:
+        return f"BoxMapKey(prefix={expr.prefix.accept(self)}, key={expr.key.accept(self)})"
+
+    @typing.override
     def visit_box_value_expression(self, expr: nodes.BoxValueExpression) -> str:
         return f"Box[{expr.key.accept(self)}]"
 
