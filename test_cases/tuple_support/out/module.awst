@@ -241,6 +241,10 @@ contract NestedTuples
   )
   globals {
     ['build_nested_call_count']: uint64
+    ['pwl']: test_cases.tuple_support.nested_tuples.ParentWithList
+  }
+  boxes {
+    ['box']: test_cases.tuple_support.nested_tuples.SimpleTup => test_cases.tuple_support.nested_tuples.SimpleTup
   }
   
   subroutine test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_with_init(): bool
@@ -259,6 +263,31 @@ contract NestedTuples
   subroutine test_cases.tuple_support.nested_tuples.NestedTuples.__init__(): void
   {
     GlobalState['build_nested_call_count']: uint64 = 0u
+  }
+  
+  abimethod test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple(pwl: test_cases.tuple_support.nested_tuples.ParentWithList): void
+  {
+    GlobalState['pwl']: test_cases.tuple_support.nested_tuples.ParentWithList = pwl
+  }
+  
+  abimethod test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple(): test_cases.tuple_support.nested_tuples.ParentWithList
+  {
+    return GlobalState['pwl']
+  }
+  
+  abimethod test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple_in_box(key: test_cases.tuple_support.nested_tuples.SimpleTup): void
+  {
+    Box[concat('box', arc4_encode(key, test_cases.tuple_support.nested_tuples.SimpleTup))]: test_cases.tuple_support.nested_tuples.SimpleTup = (a=key[0], b=key.b + 1u)
+  }
+  
+  abimethod test_cases.tuple_support.nested_tuples.NestedTuples.is_tuple_in_box(key: test_cases.tuple_support.nested_tuples.SimpleTup): bool
+  {
+    return STATE_EXISTS(Box[concat('box', arc4_encode(key, test_cases.tuple_support.nested_tuples.SimpleTup))])
+  }
+  
+  abimethod test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_box(key: test_cases.tuple_support.nested_tuples.SimpleTup): test_cases.tuple_support.nested_tuples.SimpleTup
+  {
+    return Box[concat('box', arc4_encode(key, test_cases.tuple_support.nested_tuples.SimpleTup))]
   }
   
   abimethod test_cases.tuple_support.nested_tuples.NestedTuples.run_tests(): bool

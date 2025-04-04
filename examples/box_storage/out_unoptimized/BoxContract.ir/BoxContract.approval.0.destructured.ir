@@ -45,9 +45,9 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: byt
         (box_put "b" copy%0#0)
         (box_del 0x424f585f43)
         (box_put 0x424f585f43 c#0)
-        let new_box_value%1#0: bytes = ((extract 2 0) b#0)
+        let new_state_value%0#0: bytes = ((extract 2 0) b#0)
         (box_del "box_d")
-        (box_put "box_d" new_box_value%1#0)
+        (box_put "box_d" new_state_value%0#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "b")
         (assert maybe_exists%0#0) // check self.box_b exists
         let copy%1#0: bytes = maybe_value%0#0
@@ -61,9 +61,9 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: byt
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "box_a")
         let maybe_value_converted%0#0: uint64 = (btoi maybe_value%2#0)
         (assert maybe_exists%2#0) // check self.box_a exists
-        let new_box_value%2#0: uint64 = (+ maybe_value_converted%0#0 3u)
-        let new_box_value%3#0: bytes[8] = (itob new_box_value%2#0)
-        (box_put "box_a" new_box_value%3#0)
+        let new_state_value%1#0: uint64 = (+ maybe_value_converted%0#0 3u)
+        let new_box_value%1#0: bytes[8] = (itob new_state_value%1#0)
+        (box_put "box_a" new_box_value%1#0)
         let (value%0#0: uint64, check%0#0: bool) = (box_len "box_a")
         (assert check%0#0) // check self.box_a exists
         let tmp%3#0: bool = (== value%0#0 8u)
