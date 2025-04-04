@@ -1,5 +1,6 @@
 import base64
 import contextlib
+import hashlib
 import math
 import operator
 import typing
@@ -129,10 +130,13 @@ COMPILE_TIME_CONSTANT_OPS = frozenset(
         "sumhash512",  # AVM 11
     ]
 )
-_CONSTANT_EVALUABLE: typing.Final[frozenset[str]] = COMPILE_TIME_CONSTANT_OPS - {
+_CONSTANT_TOO_BIG_TO_EXPAND = {
     AVMOp.itob.code,
     AVMOp.bzero.code,
 }
+_CONSTANT_EVALUABLE: typing.Final[frozenset[str]] = (
+    COMPILE_TIME_CONSTANT_OPS - _CONSTANT_TOO_BIG_TO_EXPAND
+)
 
 
 def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subroutine) -> bool:
@@ -783,6 +787,8 @@ def _get_byte_constant(
                 return _eval_itob(itob_arg, byte_arg_defn.source_location)
             case models.Intrinsic(op=AVMOp.bzero, args=[models.UInt64Constant(value=bzero_arg)]):
                 return _eval_bzero(bzero_arg, byte_arg_defn.source_location)
+            case models.Intrinsic(op=AVMOp.sha256, args=[models.BytesConstant(value=sha256_arg)]):
+                return _eval_sha256(sha256_arg, byte_arg_defn.source_location)
             case models.Intrinsic(op=AVMOp.global_, immediates=["ZeroAddress"]):
                 return models.BytesConstant(
                     value=_decode_address(algo_constants.ZERO_ADDRESS),
@@ -829,6 +835,14 @@ def _eval_bzero(arg: int, loc: SourceLocation | None) -> models.BytesConstant | 
             source_location=loc,
         )
     return None
+
+
+def _eval_sha256(arg: bytes, loc: SourceLocation | None) -> models.BytesConstant:
+    return models.BytesConstant(
+        value=hashlib.sha256(arg).digest(),
+        encoding=AVMBytesEncoding.base16,
+        source_location=loc,
+    )
 
 
 def _try_simplify_uint64_unary_op(
@@ -887,6 +901,8 @@ def _try_simplify_bytes_unary_op(
             elif intrinsic.op is AVMOp.btoi:
                 converted = int.from_bytes(byte_const.value, byteorder="big", signed=False)
                 return models.UInt64Constant(value=converted, source_location=op_loc)
+            elif intrinsic.op is AVMOp.sha256:
+                return _eval_sha256(byte_const.value, op_loc)
             elif intrinsic.op is AVMOp.len_:
                 length = len(byte_const.value)
                 return models.UInt64Constant(value=length, source_location=op_loc)

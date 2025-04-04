@@ -11,13 +11,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
-        let to_encode%0#0: bytes = test_cases.intrinsics.optimizations.Optimizations.sha256()
-        let length%0#0: uint64 = (len to_encode%0#0)
-        let as_bytes%0#0: bytes[8] = (itob length%0#0)
-        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 to_encode%0#0)
-        let tmp%7#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
-        (log tmp%7#0)
+        let length%0#0: uint64 = 32u
+        let as_bytes%0#0: bytes[8] = (itob 32u)
+        let length_uint16%0#0: bytes = 0x0020
+        let encoded_value%0#0: bytes = 0x0020a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e
+        let tmp%7#0: bytes = 0x151f7c750020a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e
+        (log 0x151f7c750020a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e)
         let test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0: bool = 1u
         goto block@11
     block@6: // bare_routing_L4
@@ -34,9 +33,4 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto block@11
     block@11: // after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router___L1
         let tmp%0#0: bool = φ(test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 <- block@3, test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#1 <- block@7, test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#2 <- block@10)
-        return tmp%0#0
-
-subroutine test_cases.intrinsics.optimizations.Optimizations.sha256() -> bytes:
-    block@0: // L5
-        let tmp%0#0: bytes = (sha256 0x48656c6c6f20576f726c64)
         return tmp%0#0
