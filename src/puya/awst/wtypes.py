@@ -68,16 +68,32 @@ asset_wtype: typing.Final = WType(
     scalar_type=AVMType.uint64,
     immutable=True,
 )
-
+asset_ref_wtype: typing.Final = WType(
+    name="asset_ref",
+    scalar_type=AVMType.uint64,
+    ephemeral=True,
+    immutable=True,
+)
 account_wtype: typing.Final = WType(
     name="account",
     scalar_type=AVMType.bytes,
     immutable=True,
 )
-
+account_ref_wtype: typing.Final = WType(
+    name="account_ref",
+    scalar_type=AVMType.uint64,
+    ephemeral=True,
+    immutable=True,
+)
 application_wtype: typing.Final = WType(
     name="application",
     scalar_type=AVMType.uint64,
+    immutable=True,
+)
+application_ref_wtype: typing.Final = WType(
+    name="application_ref",
+    scalar_type=AVMType.uint64,
+    ephemeral=True,
     immutable=True,
 )
 

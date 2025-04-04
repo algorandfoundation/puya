@@ -3,6 +3,7 @@ import typing
 
 from algopy import UInt64, urange
 
+
 @typing.final
 class StateTotals:
     """
@@ -31,6 +32,18 @@ class StateTotals:
         at once.
         """
 
+
+class ReferenceArgBehaviour:
+    from_foreign_field: ReferenceArgBehaviour = ...
+    """Input value will be a uint8 value referencing an item in the relevant foreign_* array"""
+
+    direct: ReferenceArgBehaviour = ...
+    """
+    Input value will be uint64 or bytes[32], directly interpreted as an Asset/Application
+    ID or Account address
+    """
+
+
 class Contract(abc.ABC):
     """Base class for an Algorand Smart Contract"""
 
@@ -41,6 +54,7 @@ class Contract(abc.ABC):
         scratch_slots: urange | tuple[int | urange, ...] | list[int | urange] = ...,
         state_totals: StateTotals = ...,
         avm_version: int = ...,
+        reference_arg_mapping: ReferenceArgBehaviour = ...,
     ):
         """
         When declaring a Contract subclass, options and configuration are passed in
