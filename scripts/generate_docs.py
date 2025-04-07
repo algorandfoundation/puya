@@ -439,6 +439,7 @@ class DocStub(MyNodeVisitor):
         module = modules[module_id]
         stub = cls(read_source=read_source, file=module, modules=modules)
         stub.visit(module.mypy_file)
+        stub._add_all_symbols(module.mypy_file.fullname)  # noqa: SLF001
         stub._remove_inlined_symbols()  # noqa: SLF001
         return stub
 
@@ -481,7 +482,6 @@ class DocStub(MyNodeVisitor):
     def visit_mypy_file(self, o: mypy.nodes.MypyFile) -> None:
         for stmt in o.defs:
             self.visit(stmt)
-        self._add_all_symbols(o.fullname)
 
     @typing.override
     def visit_import_from(self, o: mypy.nodes.ImportFrom) -> None:
