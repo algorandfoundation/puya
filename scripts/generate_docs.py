@@ -34,7 +34,7 @@ def main() -> None:
 
 
 def generate_doc_stubs() -> None:
-    manager = parse_and_typecheck([STUBS_DIR], get_mypy_options())
+    manager = parse_and_typecheck([STUBS_DIR])
 
     # parse and output reformatted __init__.pyi
     stub = DocStub.process_module(manager, "algopy")
@@ -49,10 +49,17 @@ def generate_doc_stubs() -> None:
         output_combined_stub(stub, STUBS_DOC_DIR / f"{other_stub_name}.pyi")
 
 
-def parse_and_typecheck(
-    paths: list[Path], mypy_options: mypy.options.Options
-) -> mypy.build.BuildManager:
+def parse_and_typecheck(paths: list[Path]) -> mypy.build.BuildManager:
     """Generate the ASTs from the build sources, and all imported modules (recursively)"""
+
+    mypy_options = mypy.options.Options()
+
+    mypy_options.preserve_asts = True
+    mypy_options.include_docstrings = True
+    # next two options disable caching entirely.
+    # slows things down but prevents intermittent failures.
+    mypy_options.incremental = False
+    mypy_options.cache_dir = os.devnull
 
     fscache = mypy.fscache.FileSystemCache()
     # ensure we have the absolute, canonical paths to the files
@@ -77,19 +84,6 @@ def parse_and_typecheck(
     result.manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
 
     return result.manager
-
-
-def get_mypy_options() -> mypy.options.Options:
-    mypy_opts = mypy.options.Options()
-
-    mypy_opts.preserve_asts = True
-    mypy_opts.include_docstrings = True
-    # next two options disable caching entirely.
-    # slows things down but prevents intermittent failures.
-    mypy_opts.incremental = False
-    mypy_opts.cache_dir = os.devnull
-
-    return mypy_opts
 
 
 @attrs.define
