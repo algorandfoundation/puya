@@ -387,7 +387,7 @@ class ModuleImports:
 
 
 @attrs.define
-class ImportCollector(MyNodeVisitor):
+class ImportCollector(ast.NodeVisitor):
     collected_imports: dict[str, ModuleImports]
 
     def get_imports(self, module_id: str) -> ModuleImports:
@@ -398,28 +398,26 @@ class ImportCollector(MyNodeVisitor):
         return imports
 
     @typing.override
-    def visit_mypy_file(self, o: mypy.nodes.MypyFile) -> None:
-        for stmt in o.defs:
-            self.visit(stmt)
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        assert node.module is not None
+        assert node.level in (0, None)
+        imports = self.get_imports(node.module)
+        for alias in node.names:
+            if alias.name != "*":
+                imports.from_imports[alias.name] = alias.asname
 
     @typing.override
-    def visit_import_from(self, o: mypy.nodes.ImportFrom) -> None:
-        imports = self.get_imports(o.id)
-        for name, name_as in o.names:
-            imports.from_imports[name] = name_as
-
-    @typing.override
-    def visit_import(self, o: mypy.nodes.Import) -> None:
-        for name, name_as in o.ids:
-            if name != (name_as or name):
+    def visit_Import(self, node: ast.Import) -> None:
+        for alias in node.names:
+            if alias.asname not in (None, alias.name):
                 raise Exception("Aliasing symbols in stubs is not supported")
 
-            imports = self.get_imports(name)
+            imports = self.get_imports(alias.name)
             imports.import_module = True
 
 
 @attrs.define
-class DocStub(MyNodeVisitor):
+class DocStub(ast.NodeVisitor):
     read_source: Callable[[str], list[str] | None]
     file: _PyFile
     modules: Mapping[str, _PyFile]
@@ -438,8 +436,8 @@ class DocStub(MyNodeVisitor):
     ) -> typing.Self:
         module = modules[module_id]
         stub = cls(read_source=read_source, file=module, modules=modules)
-        stub.visit(module.mypy_file)
-        stub._add_all_symbols(module.mypy_file.fullname)  # noqa: SLF001
+        stub.visit(module.module)
+        stub._add_all_symbols(module.module_name)  # noqa: SLF001
         stub._remove_inlined_symbols()  # noqa: SLF001
         return stub
 
@@ -455,11 +453,11 @@ class DocStub(MyNodeVisitor):
                 inlined_protocols=self.inlined_protocols,
             )
             collector.visit(file.mypy_file)
-            self._collect_imports(file.mypy_file)
+            self._collect_imports(file.module)
             return collector
 
-    def _collect_imports(self, o: mypy.nodes.Node) -> None:
-        ImportCollector(self.collected_imports).visit(o)
+    def _collect_imports(self, node: ast.AST) -> None:
+        ImportCollector(self.collected_imports).visit(node)
         self._remove_inlined_symbols()
 
     def _remove_inlined_symbols(self) -> None:
@@ -479,32 +477,20 @@ class DocStub(MyNodeVisitor):
                         print(f"Symbol/import collision: from {module} import {name} as {name_as}")
 
     @typing.override
-    def visit_mypy_file(self, o: mypy.nodes.MypyFile) -> None:
-        for stmt in o.defs:
-            self.visit(stmt)
-
-    @typing.override
-    def visit_import_from(self, o: mypy.nodes.ImportFrom) -> None:
-        if not _should_inline_module(o.id):
-            self._collect_imports(o)
-            return
-        module = self._get_module(o.id)
-        name_mapping = dict(o.names)
-        for name in module.symbols:
-            try:
-                name_as = name_mapping[name]
-            except KeyError:
-                continue
-            if name != (name_as or name):
-                raise Exception("Aliasing symbols in stubs is not supported")
-            self.add_symbol(module, name)
-
-    @typing.override
-    def visit_import_all(self, o: mypy.nodes.ImportAll) -> None:
-        if _should_inline_module(o.id):
-            self._add_all_symbols(o.id)
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        assert node.module is not None
+        assert node.level in (0, None)
+        if not _should_inline_module(node.module):
+            self._collect_imports(node)
         else:
-            self._collect_imports(o)
+            for alias in node.names:
+                if alias.asname not in (None, alias.name):
+                    raise Exception("Aliasing symbols in stubs is not supported")
+                if alias.name == "*":
+                    self._add_all_symbols(node.module)
+                else:
+                    module = self._get_module(node.module)
+                    self.add_symbol(module, alias.name)
 
     def _add_all_symbols(self, module_id: str) -> None:
         module = self._get_module(module_id)
@@ -512,8 +498,8 @@ class DocStub(MyNodeVisitor):
             self.add_symbol(module, sym)
 
     @typing.override
-    def visit_import(self, o: mypy.nodes.Import) -> None:
-        self._collect_imports(o)
+    def visit_Import(self, node: ast.Import) -> None:
+        self._collect_imports(node)
 
     def add_symbol(self, module: SymbolCollector, name: str) -> None:
         lines = module.symbols[name]
