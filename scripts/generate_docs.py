@@ -86,13 +86,6 @@ def parse_and_typecheck(paths: list[Path]) -> mypy.build.BuildManager:
     return result.manager
 
 
-@attrs.define
-class ModuleImports:
-    from_imports: dict[str, str | None] = attrs.field(factory=dict)
-    import_all: bool = False
-    import_module: bool = False
-
-
 def output_combined_stub(stubs: "DocStub", output: Path) -> None:
     # remove algopy imports that have been inlined
     lines = ["# ruff: noqa: A001, E501, F403, PYI021, PYI034, W291"]
@@ -123,13 +116,6 @@ def output_combined_stub(stubs: "DocStub", output: Path) -> None:
 
     subprocess.run(["ruff", "format", str(output)], check=True, cwd=VCS_ROOT)
     subprocess.run(["ruff", "check", "--fix", str(output)], check=True, cwd=VCS_ROOT)
-
-
-@attrs.define(kw_only=True)
-class ClassBases:
-    klass: mypy.nodes.ClassDef
-    bases: list[mypy.nodes.Expression]
-    protocol_bases: list[tuple[mypy.nodes.MypyFile, mypy.nodes.ClassDef]]
 
 
 class MyNodeVisitor:
@@ -182,6 +168,13 @@ class MyNodeVisitor:
 
     def visit_expression_stmt(self, o: mypy.nodes.ExpressionStmt) -> None:
         pass
+
+
+@attrs.define(kw_only=True)
+class ClassBases:
+    klass: mypy.nodes.ClassDef
+    bases: list[mypy.nodes.Expression]
+    protocol_bases: list[tuple[mypy.nodes.MypyFile, mypy.nodes.ClassDef]]
 
 
 @attrs.define
@@ -333,6 +326,13 @@ def _get_documented_overload(o: mypy.nodes.OverloadedFuncDef) -> mypy.nodes.Func
         ):
             best_overload = func_def
     return best_overload
+
+
+@attrs.define
+class ModuleImports:
+    from_imports: dict[str, str | None] = attrs.field(factory=dict)
+    import_all: bool = False
+    import_module: bool = False
 
 
 @attrs.define
