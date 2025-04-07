@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import ast
+import functools
 import subprocess
 import symtable as st
 import sys
@@ -21,10 +22,12 @@ from puya import log
 logger = log.get_logger(__name__)
 
 VCS_ROOT = Path(__file__).parent.parent.resolve()
-SRC_DIR = VCS_ROOT / "src"
-DOCS_DIR = VCS_ROOT / "docs"
-STUBS_DIR = VCS_ROOT / "stubs" / "algopy-stubs"
-STUBS_DOC_DIR = DOCS_DIR / "algopy-stubs"
+
+BASE_DIR = VCS_ROOT / "stubs"
+MODULE_NAME = "algopy"
+PACKAGE_ROOT = BASE_DIR / f"{MODULE_NAME}-stubs"
+
+STUBS_DOC_DIR = VCS_ROOT / "docs" / f"{MODULE_NAME}-stubs"
 
 
 def main() -> None:
@@ -36,10 +39,17 @@ def main() -> None:
 
 
 def generate_doc_stubs() -> None:
-    manager = parse_and_typecheck()
+    stub_files = _read_stub_files()
+
+    modules = parse_and_typecheck(stub_files)
+
+    @functools.cache
+    def read_source(p: str) -> list[str]:
+        (found,) = (sf for sf in stub_files.values() if str(sf.path) == p)
+        return found.text.splitlines()
 
     # parse and output reformatted __init__.pyi
-    stub = DocStub.process_module(manager, "algopy")
+    stub = DocStub.process_module(modules, read_source, "algopy")
     algopy_direct_imports = stub.collected_imports["algopy"]
     # remove any algopy imports that are now defined in __init__.py itself
     output_combined_stub(stub, STUBS_DOC_DIR / "__init__.pyi")
@@ -47,14 +57,12 @@ def generate_doc_stubs() -> None:
     # remaining imports from algopy are other public modules
     # parse and output them too
     for other_stub_name in algopy_direct_imports.from_imports:
-        stub = DocStub.process_module(manager, f"algopy.{other_stub_name}")
+        stub = DocStub.process_module(modules, read_source, f"algopy.{other_stub_name}")
         output_combined_stub(stub, STUBS_DOC_DIR / f"{other_stub_name}.pyi")
 
 
-def parse_and_typecheck() -> mypy.build.BuildManager:
+def parse_and_typecheck(stub_files: "Mapping[str, _PyFile]") -> dict[str, mypy.nodes.MypyFile]:
     """Generate the ASTs from the build sources, and all imported modules (recursively)"""
-
-    stub_files = _read_stub_files()
 
     mypy_options = mypy.options.Options()
     mypy_options.preserve_asts = True
@@ -76,11 +84,8 @@ def parse_and_typecheck() -> mypy.build.BuildManager:
         for msg in result.errors:
             print(msg, file=sys.stderr)
         raise RuntimeError("parsing failed")
-    # Sometimes when we call back into mypy, there might be errors.
-    # We don't want to crash when that happens.
-    result.manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
 
-    return result.manager
+    return result.manager.modules
 
 
 @attrs.frozen
@@ -95,20 +100,18 @@ class _PyFile:
     @classmethod
     def from_path(cls, p: Path) -> typing.Self:
         p = p.resolve()
-        assert p.parent == STUBS_DIR
-        base_dir = STUBS_DIR.parent
-        package_name = STUBS_DIR.name.removesuffix("-stubs")
+        assert p.parent == PACKAGE_ROOT
         if p.stem == "__init__":
-            module_name = package_name
+            module_name = MODULE_NAME
         else:
-            module_name = ".".join((package_name, p.stem))
+            module_name = ".".join((MODULE_NAME, p.stem))
 
         text = p.read_text("utf8")
         module = ast.parse(text, filename=p.name, mode="exec", type_comments=True)
         symtable = st.symtable(text, filename=p.name, compile_type="exec")
         return cls(
             path=p,
-            base_dir=base_dir,
+            base_dir=BASE_DIR,
             module_name=module_name,
             text=text,
             module=module,
@@ -118,13 +121,14 @@ class _PyFile:
 
 def _read_stub_files() -> Mapping[str, _PyFile]:
     result = {}
-    for p in STUBS_DIR.iterdir():
-        assert isinstance(p, Path)
+    for p in PACKAGE_ROOT.iterdir():
         if p.is_dir():
             if not p.name.startswith("."):
                 raise RuntimeError("directories not handled")
         elif p.is_file() and p.suffix == ".pyi":
-            result[p.name] = _PyFile.from_path(p)
+            pf = _PyFile.from_path(p)
+            assert pf.module_name not in result
+            result[pf.module_name] = pf
     return result
 
 
@@ -423,11 +427,13 @@ class DocStub(MyNodeVisitor):
     collected_symbols: dict[str, str] = attrs.field(factory=dict)
 
     @classmethod
-    def process_module(cls, manager: mypy.build.BuildManager, module_id: str) -> typing.Self:
-        read_source = manager.errors.read_source
-        assert read_source
-        modules = manager.modules
-        module: mypy.nodes.MypyFile = modules[module_id]
+    def process_module(
+        cls,
+        modules: dict[str, mypy.nodes.MypyFile],
+        read_source: Callable[[str], list[str] | None],
+        module_id: str,
+    ) -> typing.Self:
+        module = modules[module_id]
         stub = cls(read_source=read_source, file=module, modules=modules)
         stub.visit(module)
         stub._remove_inlined_symbols()  # noqa: SLF001
