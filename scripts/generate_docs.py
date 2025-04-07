@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
-# HACK: ensure we import from puyapy first so the _vendor directory gets added
-# to the path before attempting to import anything from mypy
-from puyapy.parse import get_mypy_options, parse_and_typecheck  # noqa: I001
 
+import os
 import subprocess
+import sys
 import typing
 from collections.abc import Callable
 from pathlib import Path
 
 import attrs
 import mypy.build
+import mypy.find_sources
+import mypy.fscache
 import mypy.nodes
-from mypy.visitor import NodeVisitor
+import mypy.options
 
-from puya.log import configure_stdio
+from puya import log
+
+logger = log.get_logger(__name__)
 
 VCS_ROOT = Path(__file__).parent.parent
 SRC_DIR = VCS_ROOT / "src"
@@ -23,7 +26,7 @@ STUBS_DOC_DIR = DOCS_DIR / "algopy-stubs"
 
 
 def main() -> None:
-    configure_stdio()
+    log.configure_stdio()
     generate_doc_stubs()
     subprocess.run(
         ["sphinx-build", ".", "_build", "-W", "--keep-going", "-n", "-E"], check=True, cwd=DOCS_DIR
@@ -31,8 +34,8 @@ def main() -> None:
 
 
 def generate_doc_stubs() -> None:
-    # parse algorand-python stubs
-    manager, _ = parse_and_typecheck([STUBS_DIR], get_mypy_options())
+    manager = parse_and_typecheck([STUBS_DIR], get_mypy_options())
+
     # parse and output reformatted __init__.pyi
     stub = DocStub.process_module(manager, "algopy")
     algopy_direct_imports = stub.collected_imports["algopy"]
@@ -44,6 +47,56 @@ def generate_doc_stubs() -> None:
     for other_stub_name in algopy_direct_imports.from_imports:
         stub = DocStub.process_module(manager, f"algopy.{other_stub_name}")
         output_combined_stub(stub, STUBS_DOC_DIR / f"{other_stub_name}.pyi")
+
+
+def parse_and_typecheck(
+    paths: list[Path], mypy_options: mypy.options.Options
+) -> mypy.build.BuildManager:
+    """Generate the ASTs from the build sources, and all imported modules (recursively)"""
+
+    fscache = mypy.fscache.FileSystemCache()
+    # ensure we have the absolute, canonical paths to the files
+    resolved_input_paths = {p.resolve() for p in paths}
+    # creates a list of BuildSource objects from the contract Paths
+    mypy_build_sources = mypy.find_sources.create_source_list(
+        paths=[str(p) for p in resolved_input_paths],
+        options=mypy_options,
+        fscache=fscache,
+    )
+    result = mypy.build.build(
+        sources=mypy_build_sources,
+        options=mypy_options,
+        fscache=fscache,
+    )
+    if result.errors:
+        for msg in result.errors:
+            print(msg, file=sys.stderr)
+        raise RuntimeError("parsing failed")
+    # Sometimes when we call back into mypy, there might be errors.
+    # We don't want to crash when that happens.
+    result.manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
+
+    return result.manager
+
+
+def get_mypy_options() -> mypy.options.Options:
+    mypy_opts = mypy.options.Options()
+
+    mypy_opts.preserve_asts = True
+    mypy_opts.include_docstrings = True
+    # next two options disable caching entirely.
+    # slows things down but prevents intermittent failures.
+    mypy_opts.incremental = False
+    mypy_opts.cache_dir = os.devnull
+
+    return mypy_opts
+
+
+@attrs.define
+class ModuleImports:
+    from_imports: dict[str, str | None] = attrs.field(factory=dict)
+    import_all: bool = False
+    import_module: bool = False
 
 
 def output_combined_stub(stubs: "DocStub", output: Path) -> None:
@@ -72,7 +125,7 @@ def output_combined_stub(stubs: "DocStub", output: Path) -> None:
 
     # output and linting
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text("\n".join(lines), encoding="utf8")
+    output.write_text("\n".join(lines))
 
     subprocess.run(["ruff", "format", str(output)], check=True, cwd=VCS_ROOT)
     subprocess.run(["ruff", "check", "--fix", str(output)], check=True, cwd=VCS_ROOT)
@@ -85,8 +138,60 @@ class ClassBases:
     protocol_bases: list[tuple[mypy.nodes.MypyFile, mypy.nodes.ClassDef]]
 
 
+class MyNodeVisitor:
+    def visit(self, o: mypy.nodes.Node) -> None:
+        match o:
+            case mypy.nodes.MypyFile():
+                self.visit_mypy_file(o)
+            case mypy.nodes.ImportFrom():
+                self.visit_import_from(o)
+            case mypy.nodes.Import():
+                self.visit_import(o)
+            case mypy.nodes.ImportAll():
+                self.visit_import_all(o)
+            case mypy.nodes.ClassDef():
+                self.visit_class_def(o)
+            case mypy.nodes.FuncDef():
+                self.visit_func_def(o)
+            case mypy.nodes.OverloadedFuncDef():
+                self.visit_overloaded_func_def(o)
+            case mypy.nodes.AssignmentStmt():
+                self.visit_assignment_stmt(o)
+            case mypy.nodes.ExpressionStmt():
+                self.visit_expression_stmt(o)
+            case _:
+                raise RuntimeError(f"unsupported node type: {type(o).__name__}")
+
+    def visit_mypy_file(self, o: mypy.nodes.MypyFile) -> None:
+        pass
+
+    def visit_import_from(self, o: mypy.nodes.ImportFrom) -> None:
+        pass
+
+    def visit_import(self, o: mypy.nodes.Import) -> None:
+        pass
+
+    def visit_import_all(self, o: mypy.nodes.ImportAll) -> None:
+        pass
+
+    def visit_class_def(self, o: mypy.nodes.ClassDef) -> None:
+        pass
+
+    def visit_func_def(self, o: mypy.nodes.FuncDef) -> None:
+        pass
+
+    def visit_overloaded_func_def(self, o: mypy.nodes.OverloadedFuncDef) -> None:
+        pass
+
+    def visit_assignment_stmt(self, o: mypy.nodes.AssignmentStmt) -> None:
+        pass
+
+    def visit_expression_stmt(self, o: mypy.nodes.ExpressionStmt) -> None:
+        pass
+
+
 @attrs.define
-class SymbolCollector(NodeVisitor[None]):
+class SymbolCollector(MyNodeVisitor):
     file: mypy.nodes.MypyFile
     read_source: Callable[[str], list[str] | None]
     all_classes: dict[str, tuple[mypy.nodes.MypyFile, mypy.nodes.ClassDef]]
@@ -118,9 +223,10 @@ class SymbolCollector(NodeVisitor[None]):
             lines[0] = lines[0][columns[0] :]
         return "\n".join(lines)
 
+    @typing.override
     def visit_mypy_file(self, o: mypy.nodes.MypyFile) -> None:
         for stmt in o.defs:
-            stmt.accept(self)
+            self.visit(stmt)
             self.last_stmt = stmt
 
     def _get_bases(self, klass: mypy.nodes.ClassDef) -> ClassBases:
@@ -151,6 +257,7 @@ class SymbolCollector(NodeVisitor[None]):
             )
         return "\n".join(src)
 
+    @typing.override
     def visit_class_def(self, o: mypy.nodes.ClassDef) -> None:
         self.all_classes[o.fullname] = self.file, o
         class_bases = self._get_bases(o)
@@ -159,9 +266,11 @@ class SymbolCollector(NodeVisitor[None]):
         else:
             self.symbols[o.name] = self.get_src(o)
 
+    @typing.override
     def visit_func_def(self, o: mypy.nodes.FuncDef) -> None:
         self.symbols[o.name] = self.get_src(o)
 
+    @typing.override
     def visit_overloaded_func_def(self, o: mypy.nodes.OverloadedFuncDef) -> None:
         line = o.line
         end_line = o.end_line or o.line
@@ -178,6 +287,7 @@ class SymbolCollector(NodeVisitor[None]):
 
         self.symbols[o.name] = src
 
+    @typing.override
     def visit_assignment_stmt(self, o: mypy.nodes.AssignmentStmt) -> None:
         try:
             (lvalue,) = o.lvalues
@@ -192,6 +302,7 @@ class SymbolCollector(NodeVisitor[None]):
             loc.column = lvalue.end_column
         self.symbols[lvalue.name] = self.get_src(loc)
 
+    @typing.override
     def visit_expression_stmt(self, o: mypy.nodes.ExpressionStmt) -> None:
         if isinstance(o.expr, mypy.nodes.StrExpr) and isinstance(
             self.last_stmt, mypy.nodes.AssignmentStmt
@@ -231,14 +342,7 @@ def _get_documented_overload(o: mypy.nodes.OverloadedFuncDef) -> mypy.nodes.Func
 
 
 @attrs.define
-class ModuleImports:
-    from_imports: dict[str, str | None] = attrs.field(factory=dict)
-    import_all: bool = False
-    import_module: bool = False
-
-
-@attrs.define
-class ImportCollector(NodeVisitor[None]):
+class ImportCollector(MyNodeVisitor):
     collected_imports: dict[str, ModuleImports]
 
     def get_imports(self, module_id: str) -> ModuleImports:
@@ -248,15 +352,18 @@ class ImportCollector(NodeVisitor[None]):
             imports = self.collected_imports[module_id] = ModuleImports()
         return imports
 
+    @typing.override
     def visit_mypy_file(self, o: mypy.nodes.MypyFile) -> None:
         for stmt in o.defs:
-            stmt.accept(self)
+            self.visit(stmt)
 
+    @typing.override
     def visit_import_from(self, o: mypy.nodes.ImportFrom) -> None:
         imports = self.get_imports(o.id)
         for name, name_as in o.names:
             imports.from_imports[name] = name_as
 
+    @typing.override
     def visit_import(self, o: mypy.nodes.Import) -> None:
         for name, name_as in o.ids:
             if name != (name_as or name):
@@ -267,7 +374,7 @@ class ImportCollector(NodeVisitor[None]):
 
 
 @attrs.define
-class DocStub(NodeVisitor[None]):
+class DocStub(MyNodeVisitor):
     read_source: Callable[[str], list[str] | None]
     file: mypy.nodes.MypyFile
     modules: dict[str, mypy.nodes.MypyFile]
@@ -286,7 +393,7 @@ class DocStub(NodeVisitor[None]):
         modules = manager.modules
         module: mypy.nodes.MypyFile = modules[module_id]
         stub = cls(read_source=read_source, file=module, modules=modules)
-        module.accept(stub)
+        stub.visit(module)
         stub._remove_inlined_symbols()  # noqa: SLF001
         return stub
 
@@ -301,12 +408,12 @@ class DocStub(NodeVisitor[None]):
                 all_classes=self.all_classes,
                 inlined_protocols=self.inlined_protocols,
             )
-            file.accept(collector)
+            collector.visit(file)
             self._collect_imports(file)
             return collector
 
     def _collect_imports(self, o: mypy.nodes.Node) -> None:
-        o.accept(ImportCollector(self.collected_imports))
+        ImportCollector(self.collected_imports).visit(o)
         self._remove_inlined_symbols()
 
     def _remove_inlined_symbols(self) -> None:
@@ -325,11 +432,13 @@ class DocStub(NodeVisitor[None]):
                     else:
                         print(f"Symbol/import collision: from {module} import {name} as {name_as}")
 
+    @typing.override
     def visit_mypy_file(self, o: mypy.nodes.MypyFile) -> None:
         for stmt in o.defs:
-            stmt.accept(self)
+            self.visit(stmt)
         self._add_all_symbols(o.fullname)
 
+    @typing.override
     def visit_import_from(self, o: mypy.nodes.ImportFrom) -> None:
         if not _should_inline_module(o.id):
             self._collect_imports(o)
@@ -345,6 +454,7 @@ class DocStub(NodeVisitor[None]):
                 raise Exception("Aliasing symbols in stubs is not supported")
             self.add_symbol(module, name)
 
+    @typing.override
     def visit_import_all(self, o: mypy.nodes.ImportAll) -> None:
         if _should_inline_module(o.id):
             self._add_all_symbols(o.id)
@@ -356,6 +466,7 @@ class DocStub(NodeVisitor[None]):
         for sym in module.symbols:
             self.add_symbol(module, sym)
 
+    @typing.override
     def visit_import(self, o: mypy.nodes.Import) -> None:
         self._collect_imports(o)
 
