@@ -41,7 +41,7 @@ def main() -> None:
 def generate_doc_stubs() -> None:
     stub_files = _read_stub_files()
 
-    modules = parse_and_typecheck(stub_files)
+    stub_files = parse_and_typecheck(stub_files)
 
     @functools.cache
     def read_source(p: str) -> list[str]:
@@ -50,11 +50,11 @@ def generate_doc_stubs() -> None:
 
     for sf in stub_files.values():
         if sf.module_name == MODULE_NAME or (not sf.path.stem.startswith("_")):
-            stub = DocStub.process_module(modules, read_source, sf.module_name)
+            stub = DocStub.process_module(stub_files, read_source, sf.module_name)
             output_combined_stub(stub, STUBS_DOC_DIR / sf.path.name)
 
 
-def parse_and_typecheck(stub_files: "Mapping[str, _PyFile]") -> dict[str, mypy.nodes.MypyFile]:
+def parse_and_typecheck(stub_files: "Mapping[str, _PyFile]") -> "Mapping[str, _PyFile]":
     """Generate the ASTs from the build sources, and all imported modules (recursively)"""
 
     mypy_options = mypy.options.Options()
@@ -78,7 +78,10 @@ def parse_and_typecheck(stub_files: "Mapping[str, _PyFile]") -> dict[str, mypy.n
             print(msg, file=sys.stderr)
         raise RuntimeError("parsing failed")
 
-    return result.manager.modules
+    return {
+        k: attrs.evolve(v, mypy_file=result.manager.modules[v.module_name])
+        for k, v in stub_files.items()
+    }
 
 
 @attrs.frozen
@@ -89,6 +92,12 @@ class _PyFile:
     text: str
     module: ast.Module
     symtable: st.SymbolTable
+    _mypy_file: mypy.nodes.MypyFile | None = None
+
+    @property
+    def mypy_file(self) -> mypy.nodes.MypyFile:
+        assert self._mypy_file is not None
+        return self._mypy_file
 
     @classmethod
     def from_path(cls, p: Path) -> typing.Self:
@@ -213,14 +222,14 @@ class MyNodeVisitor:
 class ClassBases:
     klass: mypy.nodes.ClassDef
     bases: list[mypy.nodes.Expression]
-    protocol_bases: list[tuple[mypy.nodes.MypyFile, mypy.nodes.ClassDef]]
+    protocol_bases: list[tuple[_PyFile, mypy.nodes.ClassDef]]
 
 
 @attrs.define
 class SymbolCollector(MyNodeVisitor):
-    file: mypy.nodes.MypyFile
+    file: _PyFile
     read_source: Callable[[str], list[str] | None]
-    all_classes: dict[str, tuple[mypy.nodes.MypyFile, mypy.nodes.ClassDef]]
+    all_classes: dict[str, tuple[_PyFile, mypy.nodes.ClassDef]]
     inlined_protocols: dict[str, set[str]]
     symbols: dict[str, str] = attrs.field(factory=dict)
     last_stmt: mypy.nodes.Statement | None = None
@@ -240,7 +249,7 @@ class SymbolCollector(MyNodeVisitor):
         path: str | None = None,
         columns: tuple[int, int] | None = None,
     ) -> str:
-        src = self.read_source(path or self.file.path)
+        src = self.read_source(path or str(self.file.path))
         if not src:
             raise Exception("Could not get src")
         lines = src[line - 1 : end_line]
@@ -257,7 +266,7 @@ class SymbolCollector(MyNodeVisitor):
 
     def _get_bases(self, klass: mypy.nodes.ClassDef) -> ClassBases:
         bases = list[mypy.nodes.Expression]()
-        inline = list[tuple[mypy.nodes.MypyFile, mypy.nodes.ClassDef]]()
+        inline = list[tuple[_PyFile, mypy.nodes.ClassDef]]()
         for base in klass.base_type_exprs:
             if (
                 isinstance(base, mypy.nodes.NameExpr)
@@ -277,9 +286,12 @@ class SymbolCollector(MyNodeVisitor):
         src = [f"{klass_str}:"]
         src.extend(self.get_src(member) for member in klass.klass.defs.body)
         for base_class_file, base_class in klass.protocol_bases:
-            self.inlined_protocols.setdefault(base_class_file.fullname, set()).add(base_class.name)
+            self.inlined_protocols.setdefault(base_class_file.module_name, set()).add(
+                base_class.name
+            )
             src.extend(
-                self.get_src(member, path=base_class_file.path) for member in base_class.defs.body
+                self.get_src(member, path=str(base_class_file.path))
+                for member in base_class.defs.body
             )
         return "\n".join(src)
 
@@ -409,12 +421,10 @@ class ImportCollector(MyNodeVisitor):
 @attrs.define
 class DocStub(MyNodeVisitor):
     read_source: Callable[[str], list[str] | None]
-    file: mypy.nodes.MypyFile
-    modules: dict[str, mypy.nodes.MypyFile]
+    file: _PyFile
+    modules: Mapping[str, _PyFile]
     parsed_modules: dict[str, SymbolCollector] = attrs.field(factory=dict)
-    all_classes: dict[str, tuple[mypy.nodes.MypyFile, mypy.nodes.ClassDef]] = attrs.field(
-        factory=dict
-    )
+    all_classes: dict[str, tuple[_PyFile, mypy.nodes.ClassDef]] = attrs.field(factory=dict)
     collected_imports: dict[str, ModuleImports] = attrs.field(factory=dict)
     inlined_protocols: dict[str, set[str]] = attrs.field(factory=dict)
     collected_symbols: dict[str, str] = attrs.field(factory=dict)
@@ -422,13 +432,13 @@ class DocStub(MyNodeVisitor):
     @classmethod
     def process_module(
         cls,
-        modules: dict[str, mypy.nodes.MypyFile],
+        modules: Mapping[str, _PyFile],
         read_source: Callable[[str], list[str] | None],
         module_id: str,
     ) -> typing.Self:
         module = modules[module_id]
         stub = cls(read_source=read_source, file=module, modules=modules)
-        stub.visit(module)
+        stub.visit(module.mypy_file)
         stub._remove_inlined_symbols()  # noqa: SLF001
         return stub
 
@@ -443,8 +453,8 @@ class DocStub(MyNodeVisitor):
                 all_classes=self.all_classes,
                 inlined_protocols=self.inlined_protocols,
             )
-            collector.visit(file)
-            self._collect_imports(file)
+            collector.visit(file.mypy_file)
+            self._collect_imports(file.mypy_file)
             return collector
 
     def _collect_imports(self, o: mypy.nodes.Node) -> None:
