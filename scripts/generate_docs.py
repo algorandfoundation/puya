@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 
-import os
+import ast
 import subprocess
+import symtable as st
 import sys
 import typing
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from pathlib import Path
 
 import attrs
 import mypy.build
 import mypy.find_sources
 import mypy.fscache
+import mypy.modulefinder
 import mypy.nodes
 import mypy.options
 
@@ -18,7 +20,7 @@ from puya import log
 
 logger = log.get_logger(__name__)
 
-VCS_ROOT = Path(__file__).parent.parent
+VCS_ROOT = Path(__file__).parent.parent.resolve()
 SRC_DIR = VCS_ROOT / "src"
 DOCS_DIR = VCS_ROOT / "docs"
 STUBS_DIR = VCS_ROOT / "stubs" / "algopy-stubs"
@@ -34,7 +36,7 @@ def main() -> None:
 
 
 def generate_doc_stubs() -> None:
-    manager = parse_and_typecheck([STUBS_DIR])
+    manager = parse_and_typecheck()
 
     # parse and output reformatted __init__.pyi
     stub = DocStub.process_module(manager, "algopy")
@@ -49,31 +51,26 @@ def generate_doc_stubs() -> None:
         output_combined_stub(stub, STUBS_DOC_DIR / f"{other_stub_name}.pyi")
 
 
-def parse_and_typecheck(paths: list[Path]) -> mypy.build.BuildManager:
+def parse_and_typecheck() -> mypy.build.BuildManager:
     """Generate the ASTs from the build sources, and all imported modules (recursively)"""
 
-    mypy_options = mypy.options.Options()
+    stub_files = _read_stub_files()
 
+    mypy_options = mypy.options.Options()
     mypy_options.preserve_asts = True
     mypy_options.include_docstrings = True
-    # next two options disable caching entirely.
-    # slows things down but prevents intermittent failures.
-    mypy_options.incremental = False
-    mypy_options.cache_dir = os.devnull
 
-    fscache = mypy.fscache.FileSystemCache()
-    # ensure we have the absolute, canonical paths to the files
-    resolved_input_paths = {p.resolve() for p in paths}
-    # creates a list of BuildSource objects from the contract Paths
-    mypy_build_sources = mypy.find_sources.create_source_list(
-        paths=[str(p) for p in resolved_input_paths],
-        options=mypy_options,
-        fscache=fscache,
-    )
     result = mypy.build.build(
-        sources=mypy_build_sources,
+        sources=[
+            mypy.modulefinder.BuildSource(
+                path=str(sf.path),
+                module=sf.module_name,
+                text=sf.text,
+                base_dir=str(sf.base_dir),
+            )
+            for sf in stub_files.values()
+        ],
         options=mypy_options,
-        fscache=fscache,
     )
     if result.errors:
         for msg in result.errors:
@@ -84,6 +81,51 @@ def parse_and_typecheck(paths: list[Path]) -> mypy.build.BuildManager:
     result.manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
 
     return result.manager
+
+
+@attrs.frozen
+class _PyFile:
+    path: Path
+    base_dir: Path
+    module_name: str
+    text: str
+    module: ast.Module
+    symtable: st.SymbolTable
+
+    @classmethod
+    def from_path(cls, p: Path) -> typing.Self:
+        p = p.resolve()
+        assert p.parent == STUBS_DIR
+        base_dir = STUBS_DIR.parent
+        package_name = STUBS_DIR.name.removesuffix("-stubs")
+        if p.stem == "__init__":
+            module_name = package_name
+        else:
+            module_name = ".".join((package_name, p.stem))
+
+        text = p.read_text("utf8")
+        module = ast.parse(text, filename=p.name, mode="exec", type_comments=True)
+        symtable = st.symtable(text, filename=p.name, compile_type="exec")
+        return cls(
+            path=p,
+            base_dir=base_dir,
+            module_name=module_name,
+            text=text,
+            module=module,
+            symtable=symtable,
+        )
+
+
+def _read_stub_files() -> Mapping[str, _PyFile]:
+    result = {}
+    for p in STUBS_DIR.iterdir():
+        assert isinstance(p, Path)
+        if p.is_dir():
+            if not p.name.startswith("."):
+                raise RuntimeError("directories not handled")
+        elif p.is_file() and p.suffix == ".pyi":
+            result[p.name] = _PyFile.from_path(p)
+    return result
 
 
 def output_combined_stub(stubs: "DocStub", output: Path) -> None:
