@@ -1,45 +1,38 @@
 #!/usr/bin/env python3
+# HACK: ensure we import from puyapy first so the _vendor directory gets added
+# to the path before attempting to import anything from mypy
+from puyapy.parse import get_mypy_options, parse_and_typecheck  # noqa: I001
+
 import subprocess
-import sys
 import typing
 from collections.abc import Callable
 from pathlib import Path
-
-from puya.log import configure_stdio
-
-sys.path.insert(0, str(Path(__file__).parent.parent / "src" / "puyapy" / "_vendor"))
-
 
 import attrs
 import mypy.build
 import mypy.nodes
 from mypy.visitor import NodeVisitor
 
-from puyapy.parse import get_mypy_options, parse_and_typecheck
+from puya.log import configure_stdio
 
-SCRIPTS_DIR = Path(__file__).parent
-VCS_ROOT = SCRIPTS_DIR.parent
+VCS_ROOT = Path(__file__).parent.parent
 SRC_DIR = VCS_ROOT / "src"
 DOCS_DIR = VCS_ROOT / "docs"
 STUBS_DIR = VCS_ROOT / "stubs" / "algopy-stubs"
 STUBS_DOC_DIR = DOCS_DIR / "algopy-stubs"
 
 
-@attrs.define
-class ModuleImports:
-    from_imports: dict[str, str | None] = attrs.field(factory=dict)
-    import_all: bool = False
-    import_module: bool = False
-
-
 def main() -> None:
     configure_stdio()
+    generate_doc_stubs()
+    subprocess.run(
+        ["sphinx-build", ".", "_build", "-W", "--keep-going", "-n", "-E"], check=True, cwd=DOCS_DIR
+    )
+
+
+def generate_doc_stubs() -> None:
+    # parse algorand-python stubs
     manager, _ = parse_and_typecheck([STUBS_DIR], get_mypy_options())
-    output_doc_stubs(manager)
-    run_sphinx()
-
-
-def output_doc_stubs(manager: mypy.build.BuildManager) -> None:
     # parse and output reformatted __init__.pyi
     stub = DocStub.process_module(manager, "algopy")
     algopy_direct_imports = stub.collected_imports["algopy"]
@@ -83,12 +76,6 @@ def output_combined_stub(stubs: "DocStub", output: Path) -> None:
 
     subprocess.run(["ruff", "format", str(output)], check=True, cwd=VCS_ROOT)
     subprocess.run(["ruff", "check", "--fix", str(output)], check=True, cwd=VCS_ROOT)
-
-
-def run_sphinx() -> None:
-    subprocess.run(
-        ["sphinx-build", ".", "_build", "-W", "--keep-going", "-n", "-E"], check=True, cwd=DOCS_DIR
-    )
 
 
 @attrs.define(kw_only=True)
@@ -241,6 +228,13 @@ def _get_documented_overload(o: mypy.nodes.OverloadedFuncDef) -> mypy.nodes.Func
         ):
             best_overload = func_def
     return best_overload
+
+
+@attrs.define
+class ModuleImports:
+    from_imports: dict[str, str | None] = attrs.field(factory=dict)
+    import_all: bool = False
+    import_module: bool = False
 
 
 @attrs.define
