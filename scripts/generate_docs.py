@@ -520,7 +520,7 @@ def _name_as(name: str, name_as: str | None) -> str:
 
 
 def _should_inline_module(module_id: str) -> bool:
-    return module_id.startswith("algopy._")
+    return module_id.startswith(f"{MODULE_NAME}._")
 
 
 if __name__ == "__main__":
