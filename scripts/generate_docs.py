@@ -4,18 +4,11 @@ import ast
 import functools
 import subprocess
 import symtable as st
-import sys
 import typing
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 
 import attrs
-import mypy.build
-import mypy.find_sources
-import mypy.fscache
-import mypy.modulefinder
-import mypy.nodes
-import mypy.options
 
 from puya import log
 
@@ -27,7 +20,8 @@ BASE_DIR = VCS_ROOT / "stubs"
 MODULE_NAME = "algopy"
 PACKAGE_ROOT = BASE_DIR / f"{MODULE_NAME}-stubs"
 
-STUBS_DOC_DIR = VCS_ROOT / "docs" / f"{MODULE_NAME}-stubs"
+DOCS_DIR = VCS_ROOT / "docs"
+STUBS_DOC_DIR = DOCS_DIR / f"{MODULE_NAME}-stubs"
 
 
 def main() -> None:
@@ -41,8 +35,6 @@ def main() -> None:
 def generate_doc_stubs() -> None:
     stub_files = _read_stub_files()
 
-    stub_files = parse_and_typecheck(stub_files)
-
     @functools.cache
     def read_source(p: str) -> list[str]:
         (found,) = (sf for sf in stub_files.values() if str(sf.path) == p)
@@ -54,36 +46,6 @@ def generate_doc_stubs() -> None:
             output_combined_stub(stub, STUBS_DOC_DIR / sf.path.name)
 
 
-def parse_and_typecheck(stub_files: "Mapping[str, _PyFile]") -> "Mapping[str, _PyFile]":
-    """Generate the ASTs from the build sources, and all imported modules (recursively)"""
-
-    mypy_options = mypy.options.Options()
-    mypy_options.preserve_asts = True
-    mypy_options.include_docstrings = True
-
-    result = mypy.build.build(
-        sources=[
-            mypy.modulefinder.BuildSource(
-                path=str(sf.path),
-                module=sf.module_name,
-                text=sf.text,
-                base_dir=str(sf.base_dir),
-            )
-            for sf in stub_files.values()
-        ],
-        options=mypy_options,
-    )
-    if result.errors:
-        for msg in result.errors:
-            print(msg, file=sys.stderr)
-        raise RuntimeError("parsing failed")
-
-    return {
-        k: attrs.evolve(v, mypy_file=result.manager.modules[v.module_name])
-        for k, v in stub_files.items()
-    }
-
-
 @attrs.frozen
 class _PyFile:
     path: Path
@@ -92,12 +54,6 @@ class _PyFile:
     text: str
     module: ast.Module
     symtable: st.SymbolTable
-    _mypy_file: mypy.nodes.MypyFile | None = None
-
-    @property
-    def mypy_file(self) -> mypy.nodes.MypyFile:
-        assert self._mypy_file is not None
-        return self._mypy_file
 
     @classmethod
     def from_path(cls, p: Path) -> typing.Self:
@@ -166,81 +122,66 @@ def output_combined_stub(stubs: "DocStub", output: Path) -> None:
     subprocess.run(["ruff", "check", "--fix", str(output)], check=True, cwd=VCS_ROOT)
 
 
-class MyNodeVisitor:
-    def visit(self, o: mypy.nodes.Node) -> None:
-        match o:
-            case mypy.nodes.MypyFile():
-                self.visit_mypy_file(o)
-            case mypy.nodes.ImportFrom():
-                self.visit_import_from(o)
-            case mypy.nodes.Import():
-                self.visit_import(o)
-            case mypy.nodes.ImportAll():
-                self.visit_import_all(o)
-            case mypy.nodes.ClassDef():
-                self.visit_class_def(o)
-            case mypy.nodes.FuncDef():
-                self.visit_func_def(o)
-            case mypy.nodes.OverloadedFuncDef():
-                self.visit_overloaded_func_def(o)
-            case mypy.nodes.AssignmentStmt():
-                self.visit_assignment_stmt(o)
-            case mypy.nodes.ExpressionStmt():
-                self.visit_expression_stmt(o)
-            case _:
-                raise RuntimeError(f"unsupported node type: {type(o).__name__}")
-
-    def visit_mypy_file(self, o: mypy.nodes.MypyFile) -> None:
-        pass
-
-    def visit_import_from(self, o: mypy.nodes.ImportFrom) -> None:
-        pass
-
-    def visit_import(self, o: mypy.nodes.Import) -> None:
-        pass
-
-    def visit_import_all(self, o: mypy.nodes.ImportAll) -> None:
-        pass
-
-    def visit_class_def(self, o: mypy.nodes.ClassDef) -> None:
-        pass
-
-    def visit_func_def(self, o: mypy.nodes.FuncDef) -> None:
-        pass
-
-    def visit_overloaded_func_def(self, o: mypy.nodes.OverloadedFuncDef) -> None:
-        pass
-
-    def visit_assignment_stmt(self, o: mypy.nodes.AssignmentStmt) -> None:
-        pass
-
-    def visit_expression_stmt(self, o: mypy.nodes.ExpressionStmt) -> None:
-        pass
-
-
 @attrs.define(kw_only=True)
 class ClassBases:
-    klass: mypy.nodes.ClassDef
-    bases: list[mypy.nodes.Expression]
-    protocol_bases: list[tuple[_PyFile, mypy.nodes.ClassDef]]
+    klass: ast.ClassDef
+    bases: list[ast.expr]
+    protocol_bases: list[tuple[_PyFile, ast.ClassDef]]
 
 
 @attrs.define
-class SymbolCollector(MyNodeVisitor):
+class SymbolCollector(ast.NodeVisitor):
     file: _PyFile
     read_source: Callable[[str], list[str] | None]
-    all_classes: dict[str, tuple[_PyFile, mypy.nodes.ClassDef]]
+    all_classes: dict[str, tuple[_PyFile, ast.ClassDef]]
     inlined_protocols: dict[str, set[str]]
     symbols: dict[str, str] = attrs.field(factory=dict)
-    last_stmt: mypy.nodes.Statement | None = None
+    last_stmt: ast.stmt | None = None
+    _overloads: dict[str, list[ast.FunctionDef]] = attrs.field(factory=dict)
+
+    def get_node_src(
+        self,
+        node: ast.AST,
+        *,
+        path: str | None = None,
+        entire_lines: bool = True,
+        include_decorators: bool = True,
+    ) -> str:
+        # TODO: add | ast.ClassDef
+        if isinstance(node, ast.FunctionDef) and include_decorators:
+            assert entire_lines
+            if node.decorator_list:
+                lineno = node.decorator_list[0].lineno
+            else:
+                lineno = node.lineno
+        else:
+            maybe_lineno = getattr(node, "lineno", None)
+            assert isinstance(maybe_lineno, int)
+            lineno = maybe_lineno
+        return self.get_src(
+            path=path,
+            entire_lines=entire_lines,
+            lineno=lineno,
+            end_lineno=getattr(node, "end_lineno", None),
+            col_offset=getattr(node, "col_offset", None),
+            end_col_offset=getattr(node, "end_col_offset", None),
+        )
 
     def get_src(
-        self, node: mypy.nodes.Context, *, path: str | None = None, entire_lines: bool = True
+        self,
+        *,
+        lineno: int,
+        end_lineno: int | None,
+        col_offset: int | None,
+        end_col_offset: int | None,
+        path: str | None = None,
+        entire_lines: bool = True,
     ) -> str:
         columns: tuple[int, int] | None = None
-        if node.end_column and not entire_lines:
-            columns = (node.column, node.end_column)
-        return self.get_src_from_lines(node.line, node.end_line or node.line, path, columns)
+        if not entire_lines and end_col_offset is not None:
+            assert col_offset is not None
+            columns = (col_offset, end_col_offset)
+        return self.get_src_from_lines(lineno, end_lineno or lineno, path, columns)
 
     def get_src_from_lines(
         self,
@@ -259,124 +200,150 @@ class SymbolCollector(MyNodeVisitor):
         return "\n".join(lines)
 
     @typing.override
-    def visit_mypy_file(self, o: mypy.nodes.MypyFile) -> None:
-        for stmt in o.defs:
+    def visit_Module(self, node: ast.Module) -> None:
+        for stmt in node.body:
             self.visit(stmt)
             self.last_stmt = stmt
+        for name, overload_list in self._overloads.items():
+            self._visit_overload(name, overload_list)
 
-    def _get_bases(self, klass: mypy.nodes.ClassDef) -> ClassBases:
-        bases = list[mypy.nodes.Expression]()
-        inline = list[tuple[_PyFile, mypy.nodes.ClassDef]]()
-        for base in klass.base_type_exprs:
-            if (
-                isinstance(base, mypy.nodes.NameExpr)
-                and _should_inline_module(base.fullname)
-                and self._is_protocol(base.fullname)
-            ):
-                inline.append(self.all_classes[base.fullname])
-            else:
-                bases.append(base)
+    def _get_bases(self, klass: ast.ClassDef) -> ClassBases:
+        bases = list[ast.expr]()
+        inline = list[tuple[_PyFile, ast.ClassDef]]()
+        for base in klass.bases:
+            match base:
+                case ast.Name(id=name) if name == "BytesBacked" or name.endswith("Protocol"):
+                    inline.append(self.all_classes[name])
+                case ast.Attribute(value=ast.Name(id="typing"), attr="Protocol"):
+                    pass
+                case _:
+                    bases.append(base)
         return ClassBases(klass=klass, bases=bases, protocol_bases=inline)
 
     def _get_inlined_class(self, klass: ClassBases) -> str:
         # TODO: what about class keywords
         klass_str = f"class {klass.klass.name}"
         if klass.bases:
-            klass_str += f"({', '.join(self.get_src(b, entire_lines=False) for b in klass.bases)})"
+            klass_str += (
+                f"({', '.join(self.get_node_src(b, entire_lines=False) for b in klass.bases)})"
+            )
         src = [f"{klass_str}:"]
-        src.extend(self.get_src(member) for member in klass.klass.defs.body)
+        src.extend(self.get_node_src(member) for member in klass.klass.body)
         for base_class_file, base_class in klass.protocol_bases:
             self.inlined_protocols.setdefault(base_class_file.module_name, set()).add(
                 base_class.name
             )
             src.extend(
-                self.get_src(member, path=str(base_class_file.path))
-                for member in base_class.defs.body
+                self.get_node_src(member, path=str(base_class_file.path))
+                for member in base_class.body
             )
         return "\n".join(src)
 
     @typing.override
-    def visit_class_def(self, o: mypy.nodes.ClassDef) -> None:
-        self.all_classes[o.fullname] = self.file, o
-        class_bases = self._get_bases(o)
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        assert node.name not in self.all_classes
+        self.all_classes[node.name] = self.file, node
+        class_bases = self._get_bases(node)
         if class_bases.protocol_bases:
-            self.symbols[o.name] = self._get_inlined_class(class_bases)
+            self.symbols[node.name] = self._get_inlined_class(class_bases)
         else:
-            self.symbols[o.name] = self.get_src(o)
+            self.symbols[node.name] = self.get_node_src(node)
 
     @typing.override
-    def visit_func_def(self, o: mypy.nodes.FuncDef) -> None:
-        self.symbols[o.name] = self.get_src(o)
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        for dec in node.decorator_list:
+            match dec:
+                case ast.Attribute(value=ast.Name(id="typing"), attr="overload"):
+                    self.symbols.setdefault(node.name, "")
+                    self._overloads.setdefault(node.name, []).append(node)
+                    return
+        assert node.name not in self._overloads
+        self.symbols[node.name] = self.get_node_src(node)
 
-    @typing.override
-    def visit_overloaded_func_def(self, o: mypy.nodes.OverloadedFuncDef) -> None:
-        line = o.line
-        end_line = o.end_line or o.line
-        for item in o.items:
-            end_line = max(end_line, item.end_line or item.line)
+    def _visit_overload(self, name: str, overload_list: list[ast.FunctionDef]) -> None:
+        line = min(o.decorator_list[0].lineno for o in overload_list)
+        end_line = max(o.end_lineno for o in overload_list if o.end_lineno is not None)
         overloaded_src = self.get_src_from_lines(line, end_line)
-        best_sig = _get_documented_overload(o)
+        best_sig = _get_best_overload(overload_list)
 
         if not best_sig:
             src = overloaded_src
         else:
-            best_sig_src = self.get_src(best_sig)
+            best_sig_src = self.get_node_src(best_sig, include_decorators=False)
             src = f"{overloaded_src}\n{best_sig_src}"
 
-        self.symbols[o.name] = src
+        assert self.symbols[name] == ""
+        self.symbols[name] = src
 
     @typing.override
-    def visit_assignment_stmt(self, o: mypy.nodes.AssignmentStmt) -> None:
-        try:
-            (lvalue,) = o.lvalues
-        except ValueError as ex:
-            raise ValueError(f"Multi assignments are not supported: {o}") from ex
-        if not isinstance(lvalue, mypy.nodes.NameExpr):
+    def visit_Assign(self, node: ast.Assign) -> None:
+        lvalue = _get_lvalue(node)
+        if not isinstance(lvalue, ast.Name):
             raise TypeError(f"Multi assignments are not supported: {lvalue}")
         # find actual rvalue src location by taking the entire statement and subtracting the lvalue
-        loc = mypy.nodes.Context()
-        loc.set_line(o)
-        if lvalue.end_column:
-            loc.column = lvalue.end_column
-        self.symbols[lvalue.name] = self.get_src(loc)
+        self.symbols[lvalue.id] = self.get_src(
+            lineno=node.lineno,
+            end_lineno=node.end_lineno,
+            col_offset=lvalue.end_col_offset or node.col_offset,
+            end_col_offset=node.end_col_offset,
+        )
 
     @typing.override
-    def visit_expression_stmt(self, o: mypy.nodes.ExpressionStmt) -> None:
-        if isinstance(o.expr, mypy.nodes.StrExpr) and isinstance(
-            self.last_stmt, mypy.nodes.AssignmentStmt
-        ):
-            (lvalue,) = self.last_stmt.lvalues
-            if isinstance(lvalue, mypy.nodes.NameExpr):
-                self.symbols[lvalue.name] += "\n" + self.get_src(o.expr)
+    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
+        lvalue = node.target
+        if not isinstance(lvalue, ast.Name):
+            raise TypeError(f"Multi assignments are not supported: {lvalue}")
+        # find actual rvalue src location by taking the entire statement and subtracting the lvalue
+        self.symbols[lvalue.id] = self.get_src(
+            lineno=node.lineno,
+            end_lineno=node.end_lineno,
+            col_offset=lvalue.end_col_offset or node.col_offset,
+            end_col_offset=node.end_col_offset,
+        )
 
-    def _is_protocol(self, fullname: str) -> bool:
+    @typing.override
+    def visit_Expr(self, node: ast.Expr) -> None:
+        if (
+            isinstance(node.value, ast.Constant)
+            and isinstance(node.value.value, str)
+            and isinstance(self.last_stmt, ast.Assign | ast.AnnAssign)
+        ):
+            lvalue = _get_lvalue(self.last_stmt)
+            if isinstance(lvalue, ast.Name):
+                self.symbols[lvalue.id] += "\n" + self.get_node_src(node.value)
+
+
+def _get_best_overload(overloads: Sequence[ast.FunctionDef]) -> ast.FunctionDef | None:
+    # this is good enough until a more complex case arises
+    sorted_overloads = sorted(overloads, key=lambda f: _count_arguments(f.args), reverse=True)
+    for func_def in sorted_overloads:
+        docstring = ast.get_docstring(func_def)
+        if docstring is not None:
+            return func_def
+    return sorted_overloads[0]
+
+
+def _get_lvalue(node: ast.Assign | ast.AnnAssign) -> ast.expr:
+    if isinstance(node, ast.AnnAssign):
+        return node.target
+    else:
         try:
-            klass = self.all_classes[fullname]
-        except KeyError:
-            return False
-        info: mypy.nodes.TypeInfo = klass[1].info
-        return info.is_protocol
+            (lvalue,) = node.targets
+        except ValueError as ex:
+            raise ValueError(f"Multi assignments are not supported: {node}") from ex
+        return lvalue
 
 
-def _get_documented_overload(o: mypy.nodes.OverloadedFuncDef) -> mypy.nodes.FuncDef | None:
-    best_overload: mypy.nodes.FuncDef | None = None
-    for overload in o.items:
-        match overload:
-            case mypy.nodes.Decorator(func=func_def):
-                pass
-            case mypy.nodes.FuncDef() as func_def:
-                pass
-            case _:
-                raise Exception("Only function overloads supported")
-
-        docstring = func_def.docstring
-
-        # this is good enough until a more complex case arises
-        if docstring and (
-            not best_overload or len(func_def.arguments) > len(best_overload.arguments)
-        ):
-            best_overload = func_def
-    return best_overload
+def _count_arguments(args: ast.arguments) -> int:
+    positional = len(args.posonlyargs)
+    regular = len(args.args)
+    keyword = len(args.kwonlyargs)
+    result = positional + regular + keyword
+    if args.vararg is not None:
+        result += 1
+    if args.kwarg:
+        result += 1
+    return result
 
 
 @attrs.define
@@ -422,7 +389,7 @@ class DocStub(ast.NodeVisitor):
     file: _PyFile
     modules: Mapping[str, _PyFile]
     parsed_modules: dict[str, SymbolCollector] = attrs.field(factory=dict)
-    all_classes: dict[str, tuple[_PyFile, mypy.nodes.ClassDef]] = attrs.field(factory=dict)
+    all_classes: dict[str, tuple[_PyFile, ast.ClassDef]] = attrs.field(factory=dict)
     collected_imports: dict[str, ModuleImports] = attrs.field(factory=dict)
     inlined_protocols: dict[str, set[str]] = attrs.field(factory=dict)
     collected_symbols: dict[str, str] = attrs.field(factory=dict)
@@ -452,7 +419,7 @@ class DocStub(ast.NodeVisitor):
                 all_classes=self.all_classes,
                 inlined_protocols=self.inlined_protocols,
             )
-            collector.visit(file.mypy_file)
+            collector.visit(file.module)
             self._collect_imports(file.module)
             return collector
 
