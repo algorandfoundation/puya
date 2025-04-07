@@ -1,0 +1,549 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Storing data on-chain" href="lg-storage.html" /><link rel="prev" title="Error handling and assertions" href="lg-errors.html" />
+
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
+        <title>Data structures - Algorand Python documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=31ede017" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Algorand Python  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">Algorand Python  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="language-guide.html">Language Guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Language Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="lg-structure.html">Program structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-types.html">Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-control.html">Control flow structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-modules.html">Module level constructs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-builtins.html">Python builtins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-errors.html">Error handling and assertions</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Data structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-storage.html">Storing data on-chain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-logs.html">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-ops.html">AVM operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-opcode-budget.html">Opcode budgets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-arc4.html">ARC-4: Application Binary Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-arc28.html">ARC-28: Structured event logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-calling-apps.html">Calling other applications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-compile.html">Compiling to AVM bytecode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-unsupported-python-features.html">Unsupported Python features</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="principles.html">Principles &amp; Background</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api-algopy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">algopy</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api-algopy.arc4.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">algopy.arc4</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api-algopy.gtxn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">algopy.gtxn</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api-algopy.itxn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">algopy.itxn</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api-algopy.op.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">algopy.op</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compiler.html">PuyaPy compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references/algopy_testing.html">Algorand Python Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references/avm_debugger.html">Breakpoint debugging</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/lg-data-structures.md.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="data-structures">
+<h1>Data structures<a class="headerlink" href="#data-structures" title="Link to this heading">¶</a></h1>
+<p>In terms of data structures, Algorand Python currently provides support for
+<a class="reference external" href="https://en.wikipedia.org/wiki/Composite_data_type">composite</a> data types and arrays.</p>
+<p>In a restricted and costly computing environment such as a blockchain application, making the
+correct choice for data structures is crucial.</p>
+<p>All ARC-4 data types are supported, and initially were the only choice of data structures in
+Algorand Python 1.0, other than statically sized native Python tuples. However, ARC-4 encoding
+is not an efficient encoding for mutations, additionally they were restricted in that they could
+only contain other ARC-4 types.</p>
+<p>As of Algorand Python 2.7, two new array types were introduced <a class="reference internal" href="api-algopy.html#algopy.Array" title="algopy.Array"><span class="xref myst py py-class"><code class="docutils literal notranslate"><span class="pre">algopy.Array</span></code></span></a>, a mutable array type
+that supports statically sized native and ARC-4 elements and <a class="reference internal" href="api-algopy.html#algopy.ImmutableArray" title="algopy.ImmutableArray"><span class="xref myst py py-class"><code class="docutils literal notranslate"><span class="pre">algopy.ImmutableArray</span></code></span></a> that has
+an immutable API and supports dynamically sized native and ARC-4 elements.</p>
+<section id="mutability-vs-immutability">
+<h2>Mutability vs Immutability<a class="headerlink" href="#mutability-vs-immutability" title="Link to this heading">¶</a></h2>
+<p>A value with an immutable type cannot be modified. Some examples are <a class="reference internal" href="api-algopy.html#algopy.UInt64" title="algopy.UInt64"><span class="xref myst py py-class"><code class="docutils literal notranslate"><span class="pre">UInt64</span></code></span></a>, <a class="reference internal" href="api-algopy.html#algopy.Bytes" title="algopy.Bytes"><span class="xref myst py py-class"><code class="docutils literal notranslate"><span class="pre">Bytes</span></code></span></a>, <code class="docutils literal notranslate"><span class="pre">tuple</span></code> and <code class="docutils literal notranslate"><span class="pre">typing.NamedTuple</span></code>.</p>
+<p>Aggregate immutable types such as <code class="docutils literal notranslate"><span class="pre">tuple</span></code> or <code class="docutils literal notranslate"><span class="pre">ImmutableArray</span></code> provide a way to produce modified values,
+this is done by returning a copy of the original value with the specified changes applied
+e.g.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">typing</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">algopy</span>
+
+<span class="c1"># update a named tuple with _replace</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyTuple</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="n">foo</span><span class="p">:</span> <span class="n">algopy</span><span class="o">.</span><span class="n">UInt64</span>
+    <span class="n">bar</span><span class="p">:</span> <span class="n">algopy</span><span class="o">.</span><span class="n">String</span>
+    
+<span class="n">tup1</span> <span class="o">=</span> <span class="n">MyTuple</span><span class="p">(</span><span class="n">foo</span><span class="o">=</span><span class="n">algopy</span><span class="o">.</span><span class="n">UInt64</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span> <span class="n">bar</span><span class="o">=</span><span class="n">algopy</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="s2">&quot;Hello&quot;</span><span class="p">))</span>
+<span class="c1"># this does not modify tup1</span>
+<span class="n">tup2</span> <span class="o">=</span> <span class="n">tup1</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">foo</span><span class="o">=</span><span class="n">algopy</span><span class="o">.</span><span class="n">UInt64</span><span class="p">(</span><span class="mi">34</span><span class="p">))</span>
+
+<span class="k">assert</span> <span class="n">tup1</span><span class="o">.</span><span class="n">foo</span> <span class="o">!=</span> <span class="n">tup2</span><span class="o">.</span><span class="n">foo</span>
+
+<span class="c1"># update immutable array by appending and reassigning</span>
+<span class="n">arr</span> <span class="o">=</span> <span class="n">algopy</span><span class="o">.</span><span class="n">ImmutableArray</span><span class="p">[</span><span class="n">MyTuple</span><span class="p">]()</span>
+<span class="n">arr</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tup1</span><span class="p">)</span>
+<span class="n">arr</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tup2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Mutable types allow direct modification of a value and all references to this value are able to observe the change
+e.g.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">algopy</span>
+
+<span class="c1"># both my_arr and my_arr2 both point to the same array</span>
+<span class="n">my_arr</span> <span class="o">=</span> <span class="n">algopy</span><span class="o">.</span><span class="n">Array</span><span class="p">[</span><span class="n">algopy</span><span class="o">.</span><span class="n">UInt64</span><span class="p">]()</span>
+<span class="n">my_arr2</span> <span class="o">=</span> <span class="n">my_arr</span>
+
+<span class="n">my_arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">algopy</span><span class="o">.</span><span class="n">UInt64</span><span class="p">(</span><span class="mi">12</span><span class="p">))</span>
+<span class="k">assert</span> <span class="n">my_arr</span><span class="o">.</span><span class="n">length</span> <span class="o">==</span> <span class="mi">1</span>
+<span class="k">assert</span> <span class="n">my_arr2</span><span class="o">.</span><span class="n">length</span> <span class="o">==</span> <span class="mi">1</span>
+
+<span class="n">my_arr2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">algopy</span><span class="o">.</span><span class="n">UInt64</span><span class="p">(</span><span class="mi">34</span><span class="p">))</span>
+<span class="k">assert</span> <span class="n">my_arr2</span><span class="o">.</span><span class="n">length</span> <span class="o">==</span> <span class="mi">2</span>
+<span class="k">assert</span> <span class="n">my_arr</span><span class="o">.</span><span class="n">length</span> <span class="o">==</span> <span class="mi">2</span>
+</pre></div>
+</div>
+</section>
+<section id="static-size-vs-dynamic-size">
+<h2>Static size vs Dynamic size<a class="headerlink" href="#static-size-vs-dynamic-size" title="Link to this heading">¶</a></h2>
+<p>A static sized type is a type where its total size in memory is determinable at compile time, for example
+<code class="docutils literal notranslate"><span class="pre">UInt64</span></code> is always 8 bytes of memory. Aggregate types such as <code class="docutils literal notranslate"><span class="pre">tuple</span></code>, <code class="docutils literal notranslate"><span class="pre">typing.NamedTuple</span></code>,
+<code class="docutils literal notranslate"><span class="pre">arc4.Struct</span></code> and <code class="docutils literal notranslate"><span class="pre">arc4.Tuple</span></code> are static size if all their members are also static size
+e.g.
+<code class="docutils literal notranslate"><span class="pre">tuple[UInt64,</span> <span class="pre">UInt64]</span></code> is static size as it contains two static sized members.</p>
+<p>Any type where its size is not statically defined is dynamically sized e.g. <code class="docutils literal notranslate"><span class="pre">Bytes</span></code>,
+<code class="docutils literal notranslate"><span class="pre">String</span></code>, <code class="docutils literal notranslate"><span class="pre">tuple[UInt64,</span> <span class="pre">String]</span></code> and <code class="docutils literal notranslate"><span class="pre">Array[UInt64]</span></code> are all dynamically sized.</p>
+</section>
+<section id="algorand-python-composite-types">
+<h2>Algorand Python composite types<a class="headerlink" href="#algorand-python-composite-types" title="Link to this heading">¶</a></h2>
+<section id="tuple">
+<h3><code class="docutils literal notranslate"><span class="pre">tuple</span></code><a class="headerlink" href="#tuple" title="Link to this heading">¶</a></h3>
+<p>This is a regular python tuple</p>
+<ul class="simple">
+<li><p>Immutable</p></li>
+<li><p>Members can be of any type</p></li>
+<li><p>Most useful as an anonymous type</p></li>
+<li><p>Each member is stored on the stack</p></li>
+</ul>
+</section>
+<section id="typing-namedtuple">
+<h3><code class="docutils literal notranslate"><span class="pre">typing.NamedTuple</span></code><a class="headerlink" href="#typing-namedtuple" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Immutable</p></li>
+<li><p>Members can be of any type</p></li>
+<li><p>Members are described by a field name and type</p></li>
+<li><p>Modified copies can be made using <code class="docutils literal notranslate"><span class="pre">._replace</span></code></p></li>
+<li><p>Each member is stored on the stack</p></li>
+</ul>
+</section>
+<section id="arc4-tuple">
+<h3><code class="docutils literal notranslate"><span class="pre">arc4.Tuple</span></code><a class="headerlink" href="#arc4-tuple" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Can only contain other ARC-4 types</p></li>
+<li><p>Can be immutable if all members are also immutable</p></li>
+<li><p>Requires <a class="reference internal" href="api-algopy.arc4.html#algopy.arc4.Tuple.copy" title="algopy.arc4.Tuple.copy"><span class="xref myst py py-meth"><code class="docutils literal notranslate"><span class="pre">.copy()</span></code></span></a> when mutable and creating additional references</p></li>
+<li><p>Encoded as a single ARC-4 value on the stack</p></li>
+</ul>
+</section>
+<section id="arc4-struct">
+<h3><code class="docutils literal notranslate"><span class="pre">arc4.Struct</span></code><a class="headerlink" href="#arc4-struct" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Can only contain other ARC-4 types</p></li>
+<li><p>Members are described by a field name and type</p></li>
+<li><p>Can be immutable if using the <code class="docutils literal notranslate"><span class="pre">frozen</span></code> class option and all members are also immutable</p></li>
+<li><p>Requires <a class="reference internal" href="api-algopy.arc4.html#algopy.arc4.Struct.copy" title="algopy.arc4.Struct.copy"><span class="xref myst py py-meth"><code class="docutils literal notranslate"><span class="pre">.copy()</span></code></span></a> when mutable and creating additional references</p></li>
+<li><p>Encoded as a single ARC-4 value on the stack</p></li>
+</ul>
+</section>
+</section>
+<section id="algorand-python-array-types">
+<h2>Algorand Python array types<a class="headerlink" href="#algorand-python-array-types" title="Link to this heading">¶</a></h2>
+<section id="algopy-array">
+<h3><code class="docutils literal notranslate"><span class="pre">algopy.Array</span></code><a class="headerlink" href="#algopy-array" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Mutable, all references see modifications</p></li>
+<li><p>Only supports static size immutable types.
+Note: Supporting mutable elements would have the potential to quickly exhaust scratch slots in a
+program so for this reason this type is limited to immutable elements only</p></li>
+<li><p>May use scratch slots to store the data</p></li>
+<li><p>Cannot be put in storage or used in ABI method signatures</p></li>
+<li><p>An immutable copy can be made for storage or returning from a contract by using the <a class="reference internal" href="api-algopy.html#algopy.Array.freeze" title="algopy.Array.freeze"><span class="xref myst py py-meth"><code class="docutils literal notranslate"><span class="pre">freeze</span></code></span></a> method e.g.</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">algopy</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SomeContract</span><span class="p">(</span><span class="n">algopy</span><span class="o">.</span><span class="n">arc4</span><span class="o">.</span><span class="n">ARC4Contract</span><span class="p">):</span>
+    <span class="nd">@algopy</span><span class="o">.</span><span class="n">arc4</span><span class="o">.</span><span class="n">abimethod</span><span class="p">()</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_array</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">algopy</span><span class="o">.</span><span class="n">ImmutableArray</span><span class="p">[</span><span class="n">algopy</span><span class="o">.</span><span class="n">UInt64</span><span class="p">]:</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">algopy</span><span class="o">.</span><span class="n">Array</span><span class="p">[</span><span class="n">algopy</span><span class="o">.</span><span class="n">UInt64</span><span class="p">]()</span>
+        <span class="c1"># modify arr as required</span>
+        <span class="o">...</span>
+    
+        <span class="c1"># return immutable copy</span>
+        <span class="k">return</span> <span class="n">arr</span><span class="o">.</span><span class="n">freeze</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="algopy-immutablearray">
+<h3><code class="docutils literal notranslate"><span class="pre">algopy.ImmutableArray</span></code><a class="headerlink" href="#algopy-immutablearray" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Immutable</p></li>
+<li><p>Modifications are done by reassigning a modified copy of the original array</p></li>
+<li><p>Supports all immutable types</p></li>
+<li><p>Most efficient with static sized immutable types</p></li>
+<li><p>Can be put in storage or used in ABI method signatures</p></li>
+<li><p>Can be used to extend an <code class="docutils literal notranslate"><span class="pre">algopy.Array</span></code> to do modifications e.g.</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">algopy</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SomeContract</span><span class="p">(</span><span class="n">algopy</span><span class="o">.</span><span class="n">arc4</span><span class="o">.</span><span class="n">ARC4Contract</span><span class="p">):</span>
+
+    <span class="nd">@algopy</span><span class="o">.</span><span class="n">arc4</span><span class="o">.</span><span class="n">abimethod</span><span class="p">()</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">modify_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">imm_array</span><span class="p">:</span> <span class="n">algopy</span><span class="o">.</span><span class="n">ImmutableArray</span><span class="p">[</span><span class="n">algopy</span><span class="o">.</span><span class="n">UInt64</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mutable_arr</span> <span class="o">=</span> <span class="n">algopy</span><span class="o">.</span><span class="n">Array</span><span class="p">[</span><span class="n">algopy</span><span class="o">.</span><span class="n">UInt64</span><span class="p">]()</span>
+        <span class="n">mutable_arr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">imm_array</span><span class="p">)</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="algopy-arc4-dynamicarray-algopy-arc4-staticarray">
+<h3><code class="docutils literal notranslate"><span class="pre">algopy.arc4.DynamicArray</span></code> / <code class="docutils literal notranslate"><span class="pre">algopy.arc4.StaticArray</span></code><a class="headerlink" href="#algopy-arc4-dynamicarray-algopy-arc4-staticarray" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Supports only ARC-4 elements</p></li>
+<li><p>Elements often require conversion to native types</p></li>
+<li><p>Efficient for reading</p></li>
+<li><p>Requires <a class="reference internal" href="api-algopy.arc4.html#algopy.arc4.DynamicArray" title="algopy.arc4.DynamicArray"><span class="xref myst py py-class"><code class="docutils literal notranslate"><span class="pre">.copy()</span></code></span></a> if making additional references to the array</p></li>
+</ul>
+</section>
+</section>
+<section id="recommendations">
+<h2>Recommendations<a class="headerlink" href="#recommendations" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Prefer immutable structures such as <code class="docutils literal notranslate"><span class="pre">tuple</span></code> or <code class="docutils literal notranslate"><span class="pre">typing.NamedTuple</span></code> for aggregate types as these support all types and do not require <code class="docutils literal notranslate"><span class="pre">.copy()</span></code></p></li>
+<li><p>If a function needs just a few values on a tuple it is more efficient to just pass those members rather than the whole tuple</p></li>
+<li><p>Prefer static sized types rather than dynamically sized types in arrays as they are more efficient in terms of op budgets</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">algopy.Array</span></code> when doing many mutations e.g. appending in a loop</p></li>
+<li><p>Use <a class="reference internal" href="api-algopy.html#algopy.Array.freeze" title="algopy.Array.freeze"><span class="xref myst py py-meth"><code class="docutils literal notranslate"><span class="pre">algopy.Array.freeze</span></code></span></a> to convert an array to <code class="docutils literal notranslate"><span class="pre">algopy.ImmutableArray</span></code> for storage</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">algopy.ImmutableArray</span></code> can be used in storage and ABI methods, and will be viewed externally (i.e. in ARC-56 definitions) as the equivalent ARC-4 encoded type</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">algopy.ImmutableArray</span></code> can be converted to <code class="docutils literal notranslate"><span class="pre">algopy.Array</span></code> by extending a new <code class="docutils literal notranslate"><span class="pre">algopy.Array</span></code> with an <code class="docutils literal notranslate"><span class="pre">algopy.ImmutableArray</span></code></p></li>
+</ul>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="lg-storage.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Storing data on-chain</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="lg-errors.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Error handling and assertions</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, Algorand Foundation
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Data structures</a><ul>
+<li><a class="reference internal" href="#mutability-vs-immutability">Mutability vs Immutability</a></li>
+<li><a class="reference internal" href="#static-size-vs-dynamic-size">Static size vs Dynamic size</a></li>
+<li><a class="reference internal" href="#algorand-python-composite-types">Algorand Python composite types</a><ul>
+<li><a class="reference internal" href="#tuple"><code class="docutils literal notranslate"><span class="pre">tuple</span></code></a></li>
+<li><a class="reference internal" href="#typing-namedtuple"><code class="docutils literal notranslate"><span class="pre">typing.NamedTuple</span></code></a></li>
+<li><a class="reference internal" href="#arc4-tuple"><code class="docutils literal notranslate"><span class="pre">arc4.Tuple</span></code></a></li>
+<li><a class="reference internal" href="#arc4-struct"><code class="docutils literal notranslate"><span class="pre">arc4.Struct</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#algorand-python-array-types">Algorand Python array types</a><ul>
+<li><a class="reference internal" href="#algopy-array"><code class="docutils literal notranslate"><span class="pre">algopy.Array</span></code></a></li>
+<li><a class="reference internal" href="#algopy-immutablearray"><code class="docutils literal notranslate"><span class="pre">algopy.ImmutableArray</span></code></a></li>
+<li><a class="reference internal" href="#algopy-arc4-dynamicarray-algopy-arc4-staticarray"><code class="docutils literal notranslate"><span class="pre">algopy.arc4.DynamicArray</span></code> / <code class="docutils literal notranslate"><span class="pre">algopy.arc4.StaticArray</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#recommendations">Recommendations</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    </body>
+</html>

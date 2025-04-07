@@ -1,0 +1,563 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="API Reference" href="api.html" /><link rel="prev" title="Unsupported Python features" href="lg-unsupported-python-features.html" />
+
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
+        <title>Principles &amp; Background - Algorand Python documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=31ede017" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Algorand Python  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">Algorand Python  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="language-guide.html">Language Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Language Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="lg-structure.html">Program structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-types.html">Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-control.html">Control flow structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-modules.html">Module level constructs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-builtins.html">Python builtins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-errors.html">Error handling and assertions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-data-structures.html">Data structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-storage.html">Storing data on-chain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-logs.html">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-ops.html">AVM operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-opcode-budget.html">Opcode budgets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-arc4.html">ARC-4: Application Binary Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-arc28.html">ARC-28: Structured event logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-calling-apps.html">Calling other applications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-compile.html">Compiling to AVM bytecode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lg-unsupported-python-features.html">Unsupported Python features</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Principles &amp; Background</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api-algopy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">algopy</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api-algopy.arc4.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">algopy.arc4</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api-algopy.gtxn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">algopy.gtxn</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api-algopy.itxn.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">algopy.itxn</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api-algopy.op.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">algopy.op</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compiler.html">PuyaPy compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references/algopy_testing.html">Algorand Python Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references/avm_debugger.html">Breakpoint debugging</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/principles.md.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="principles-background">
+<h1>Principles &amp; Background<a class="headerlink" href="#principles-background" title="Link to this heading">¶</a></h1>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading">¶</a></h2>
+<p><strong>Smart contracts</strong> on the Algorand blockchain run on the Algorand Virtual Machine (<a class="reference external" href="https://dev.algorand.co/concepts/smart-contracts/avm">AVM</a>).
+This is a stack based virtual machine, which executes AVM bytecode as part of an <a class="reference external" href="https://dev.algorand.co/concepts/transactions/types/#application-call-transaction">Application Call transaction</a>.
+The official mechanism for generating this bytecode is by submitting TEAL (Transaction Execution Approval Language) to
+an Algorand Node to compile.</p>
+<p><strong>Smart signatures</strong> have the same basis in the AVM and TEAL, but have a different execution model, one not involving
+Application Call transactions. Our focus will primarily be on smart contracts, since they are strictly more powerful
+in terms of available AVM functions.</p>
+<p>TEAL is a <a class="reference external" href="https://en.wikipedia.org/wiki/Non-structured_programming">non-structured</a>
+<a class="reference external" href="https://en.wikipedia.org/wiki/Procedural_programming#Imperative_programming">imperative language</a>
+(albeit one with support for procedure calls that can isolate stack changes since v8 with <code class="docutils literal notranslate"><span class="pre">proto</span></code>). Writing TEAL is very
+similar to writing assembly code. It goes without saying that this is a particularly common or well-practiced model for
+programming these days.</p>
+<p>As it stands today, developers wanting to write smart contracts specifically for Algorand have the option of writing
+TEAL directly, or using some other mechanism of generating TEAL such as the officially supported <a class="reference external" href="https://pyteal.readthedocs.io/en/stable/">PyTEAL</a>
+or the community supported <a class="reference external" href="https://tealish.tinyman.org/en/latest/">tealish</a>.</p>
+<p>PyTEAL follows a <a class="reference external" href="https://en.wikipedia.org/wiki/Automatic_programming#Generative_programming">generative programming</a> paradigm,
+which is a form of metaprogramming. Naturally, writing programs to generate programs presents an additional hurdle for
+developers looking to pick up smart contract development. Tooling support for this is also suboptimal, for example, many
+classes of errors resulting from the interaction between the procedural elements of the Python language and the PyTEAL
+expression-building framework go unnoticed until the point of TEAL generation, or worse go completely unnoticed, and even
+when PyTEAL can/does provide an error it can be difficult to understand.</p>
+<p>Tealish provides a higher level procedural language, bearing a passing resemblance to Python, than compiles down to TEAL.
+However, it’s still lower level than most developers are used to.
+For example, the expression <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">+</span> <span class="pre">2</span> <span class="pre">+</span> <span class="pre">3</span></code>is <a class="reference external" href="https://tealish.tinyman.org/en/latest/language.html#math-logic">not valid in tealish</a>.
+Another difference vs a higher level language such as Python is that <a class="reference external" href="https://tealish.tinyman.org/en/latest/language.html#functions">functions can only be declared after the program
+entry point logic</a>.
+In essence, tealish abstracts away many difficulties with writing plain TEAL,
+but it is still essentially more of a transpiler than a compiler.
+Furthermore, whilst appearing to have syntax inspired by Python, it both adds and removes many fundamental syntax elements,
+presenting an additional learning curve to developers looking to learn blockchain development on Algorand.
+Being a bespoke language also means it has a much smaller ecosystem of tooling built around it compared to languages like
+Python or JavaScript.</p>
+<p>To most developers, the Python programming language needs no introduction. First released in 1991, it’s popularity has
+grown steadily over the decades, and as of June 2023 it is consistently ranked as either the most popular langauge,
+or second most popular following JavaScript:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://octoverse.github.com/2022/top-programming-languages">GitHub 2022</a></p></li>
+<li><p><a class="reference external" href="https://stackoverflow.blog/2023/06/13/developer-survey-results-are-in/">StackOverflow 2023</a></p></li>
+<li><p><a class="reference external" href="https://www.tiobe.com/tiobe-index/">Tiobe</a></p></li>
+<li><p><a class="reference external" href="https://pypl.github.io/PYPL.html">PYPL</a></p></li>
+</ul>
+<p>The AlgoKit project is an Algorand Foundation initiative to improve the developer experience on Algorand. Within this
+broad remit, two of the key <a class="reference external" href="https://github.com/algorandfoundation/algokit-cli/blob/main/docs/algokit.md#guiding-principles">principles</a>
+are to “meet developers where they are” and “leverage existing ecosystem”.
+Building a compiler that allows developers to write smart contracts using an idiomatic subset of a high level language
+such as Python would make great strides towards both of these goals.</p>
+<p>Wyvern was the original internal code name for just such a compiler (now called Puya), one that will transform Python code into valid TEAL
+smart contracts. In line with the principle of meeting developers where they are, and recognising the popularity of
+JavaScript and TypeScript, a parallel initiative to build a TypeScript to TEAL compiler is <a class="reference external" href="https://tealscript.netlify.app">also underway</a>.</p>
+</section>
+<section id="principles">
+<h2>Principles<a class="headerlink" href="#principles" title="Link to this heading">¶</a></h2>
+<p>The principles listed here should form the basis of our decision-making, both in the design and implementation.</p>
+<section id="least-surprise">
+<h3>Least surprise<a class="headerlink" href="#least-surprise" title="Link to this heading">¶</a></h3>
+<p>Our primary objective is to assist developers in creating accurate smart contracts right from the
+start. The often immutable nature of these contracts - although not always the case - and the
+substantial financial value they frequently safeguard, underlines the importance of this goal.</p>
+<p>This principle ensures that the code behaves as anticipated by the developer. Specifically, if
+you’re a Python developer writing Python smart contract code, you can expect the code to behave
+identically to its execution in a standard Python environment.</p>
+<p>Furthermore, we believe in promoting explicitness and correctness in contract code and its
+associated typing. This approach reduces potential errors and enhances the overall integrity of our
+smart contracts. Our commitment is to provide a user-friendly platform that aligns with the
+developer’s intuition and experience, ultimately simplifying their work and minimizing the
+potential for mistakes.</p>
+</section>
+<section id="inherited-from-algokit">
+<h3>Inherited from AlgoKit<a class="headerlink" href="#inherited-from-algokit" title="Link to this heading">¶</a></h3>
+<p>As a part of the AlgoKit project, the principles outlined <a class="reference external" href="https://github.com/algorandfoundation/algokit-cli/blob/main/docs/algokit.md#guiding-principles">there</a>
+also apply - to the extent that this project is just one component of AlgoKit.</p>
+<section id="leverage-existing-ecosystem">
+<h4>“Leverage existing ecosystem”<a class="headerlink" href="#leverage-existing-ecosystem" title="Link to this heading">¶</a></h4>
+<blockquote>
+<div><p>AlgoKit functionality gets into the hands of Algorand developers quickly by building on top of the
+existing ecosystem wherever possible and aligned to these principles.</p>
+</div></blockquote>
+<p>In order to leverage as much existing Python tooling as possible, we should strive to maintain the highest level of
+compatibility with the Python language (and the reference implementation: CPython).</p>
+</section>
+<section id="meet-developers-where-they-are">
+<h4>“Meet developers where they are”<a class="headerlink" href="#meet-developers-where-they-are" title="Link to this heading">¶</a></h4>
+<blockquote>
+<div><p>Make Blockchain development mainstream by giving all developers an idiomatic development experience in the operating
+system, IDE and language they are comfortable with so they can dive in quickly and have less they need to learn before
+being productive.</p>
+</div></blockquote>
+<p>Python is a very idiomatic language. We should embrace accepted patterns and practices as much as possible,
+such as those listed in <a class="reference external" href="https://peps.python.org/pep-0020/">PEP-20</a> (aka “The Zen of Python”).</p>
+</section>
+<section id="extensible">
+<h4>“Extensible”<a class="headerlink" href="#extensible" title="Link to this heading">¶</a></h4>
+<blockquote>
+<div><p>Be extensible for community contribution rather than stifling innovation, bottle-necking all changes through the
+Algorand Foundation and preventing the opportunity for other ecosystems being represented (e.g. Go, Rust, etc.).
+This helps make developers feel welcome and is part of the developer experience, plus it makes it easier to add
+features sustainably</p>
+</div></blockquote>
+<p>One way to support this principle in the broader AlgoKit context is by building in a mechanism for reusing
+common code between smart contracts, to allow the community to build their own Python packages.</p>
+</section>
+<section id="sustainable">
+<h4>“Sustainable”<a class="headerlink" href="#sustainable" title="Link to this heading">¶</a></h4>
+<blockquote>
+<div><p>AlgoKit should be built in a flexible fashion with long-term maintenance in mind. Updates to latest patches in
+dependencies, Algorand protocol development updates, and community contributions and feedback will all feed in to the
+evolution of the software.</p>
+</div></blockquote>
+<p>Taking this principle further, ensuring the compiler is well-designed (e.g. frontend backend separation,
+with a well-thought-out IR) will help with maintaining and improving the implementation over time. For example,
+adding in new TEAL language features will be easier, same for implementing new optimisation strategies.</p>
+<p>Looking to the future, best practices for smart contract development are rapidly evolving. We shouldn’t tie the
+implementation too tightly to a current standard such as ARC-4 - although in that specific example, we would still
+aim for first class support, but it shouldn’t be assumed as the only way to write smart contracts.</p>
+</section>
+<section id="modular-components">
+<h4>“Modular components”<a class="headerlink" href="#modular-components" title="Link to this heading">¶</a></h4>
+<blockquote>
+<div><p>Solution components should be modular and loosely coupled to facilitate efficient parallel development by small,
+effective teams, reduced architectural complexity and allowing developers to pick and choose the specific tools and
+capabilities they want to use based on their needs and what they are comfortable with.</p>
+</div></blockquote>
+<p>We will focus on the language and compiler design itself.</p>
+<p>An example of a very useful feature, that is strongly related but could be implemented separately instead,
+is the ability to run the users code in a unit-testing context, without compilation+deployment first.
+This would require implementing in Python some level of simulation of Algorand Nodes / AVM behaviour.</p>
+</section>
+<section id="secure-by-default">
+<h4>“Secure by default”<a class="headerlink" href="#secure-by-default" title="Link to this heading">¶</a></h4>
+<blockquote>
+<div><p>Include defaults, patterns and tooling that help developers write secure code and reduce the likelihood of security
+incidents in the Algorand ecosystem. This solution should help Algorand be the most secure Blockchain ecosystem.</p>
+</div></blockquote>
+<p>Enforcing security (which is multi-faceted) at a compiler level is difficult, and is some cases impossible.
+The best application of this principle here is to support auditing, which is important and nuanced enough to be
+listed below as a separate principle.</p>
+</section>
+<section id="cohesive-developer-tool-suite-seamless-onramp">
+<h4>“Cohesive developer tool suite” + “Seamless onramp”<a class="headerlink" href="#cohesive-developer-tool-suite-seamless-onramp" title="Link to this heading">¶</a></h4>
+<blockquote>
+<div><p>Cohesive developer tool suite: Using AlgoKit should feel professional and cohesive, like it was designed to work
+together, for the developer; not against them. Developers are guided towards delivering end-to-end, high quality
+outcomes on MainNet so they and Algorand are more likely to be successful.</p>
+</div></blockquote>
+<blockquote>
+<div><p>Seamless onramp: New developers have a seamless experience to get started and they are guided into a pit of success
+with best practices, supported by great training collateral; you should be able to go from nothing to debugging code
+in 5 minutes.</p>
+</div></blockquote>
+<p>These principles relate more to AlgoKit as a whole, so we can respect them by considering the impacts of our decisions
+there more broadly.</p>
+</section>
+</section>
+<section id="abstraction-without-obfuscation">
+<h3>Abstraction without obfuscation<a class="headerlink" href="#abstraction-without-obfuscation" title="Link to this heading">¶</a></h3>
+<p>Algorand Python is a high level language, with support for things such as branching logic, operator precedence, etc.,
+and not a set of “macros” for generating TEAL. As such, developers will not be able to directly influence specific TEAL
+output, if this is desirable a language such as <a class="reference external" href="https://tealish.tinyman.org">Tealish</a> is more appropriate.</p>
+<p>Whilst this will abstract away certain aspects of the underlying TEAL language, there are certain AVM concerns
+(such as op code budgets) that should not be abstracted away. That said, we should strive to generate code this is
+cost-effective and unsurprising. Python mechanisms such as dynamic (runtime) dispatch, and also many of its builtin
+functions on types such as <code class="docutils literal notranslate"><span class="pre">str</span></code> that are taken for granted, would require large amounts of ops compared to the
+Python code it represents.</p>
+</section>
+<section id="support-auditing">
+<h3>Support auditing<a class="headerlink" href="#support-auditing" title="Link to this heading">¶</a></h3>
+<p>Auditing is a critical part of the security process for deploying smart contracts. We want to support this function,
+and can do so in two ways:</p>
+<ol class="arabic simple">
+<li><p>By ensuring the same Python code as input generates identical output each time the compiler
+is run regardless of the system it’s running on. This is what might be termed <a class="reference external" href="https://github.com/algorandfoundation/algokit-cli/blob/main/docs/articles/output_stability.md">Output stability</a>.
+Ensuring a consistent output regardless of the system it’s run on (assuming the same compiler version), means that
+auditing the lower level (ie TEAL) code is possible.</p></li>
+<li><p>Although auditing the TEAL code should be possible, being able to easily identify and relate it back to the higher level
+code can make auditing the contract logic simpler and easier.</p></li>
+</ol>
+</section>
+<section id="revolution-not-evolution">
+<h3>Revolution, not evolution<a class="headerlink" href="#revolution-not-evolution" title="Link to this heading">¶</a></h3>
+<p>This is a new and groundbreaking way of developing for Algorand, and not a continuation of the PyTEAL/Beaker approach.
+By allowing developers to write procedural code, as opposed to constructing an expression tree,
+we can (among other things) significantly reduce the barrier to entry for developing smart contracts for the Algorand platform.</p>
+<p>Since the programming paradigm will be fundamentally different, providing a smooth migration experience from PyTEAL
+to this new world is not an intended goal, and shouldn’t be a factor in our decisions. For example, it is not a goal of
+this project to produce a step-by-step “migrating from PyTEAL” document, as it is not a requirement for users to
+switch to this new paradigm in the short to medium term - support for PyTEAL should continue in parallel.</p>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="api.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">API Reference</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="lg-unsupported-python-features.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Unsupported Python features</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, Algorand Foundation
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Principles &amp; Background</a><ul>
+<li><a class="reference internal" href="#background">Background</a></li>
+<li><a class="reference internal" href="#principles">Principles</a><ul>
+<li><a class="reference internal" href="#least-surprise">Least surprise</a></li>
+<li><a class="reference internal" href="#inherited-from-algokit">Inherited from AlgoKit</a><ul>
+<li><a class="reference internal" href="#leverage-existing-ecosystem">“Leverage existing ecosystem”</a></li>
+<li><a class="reference internal" href="#meet-developers-where-they-are">“Meet developers where they are”</a></li>
+<li><a class="reference internal" href="#extensible">“Extensible”</a></li>
+<li><a class="reference internal" href="#sustainable">“Sustainable”</a></li>
+<li><a class="reference internal" href="#modular-components">“Modular components”</a></li>
+<li><a class="reference internal" href="#secure-by-default">“Secure by default”</a></li>
+<li><a class="reference internal" href="#cohesive-developer-tool-suite-seamless-onramp">“Cohesive developer tool suite” + “Seamless onramp”</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#abstraction-without-obfuscation">Abstraction without obfuscation</a></li>
+<li><a class="reference internal" href="#support-auditing">Support auditing</a></li>
+<li><a class="reference internal" href="#revolution-not-evolution">Revolution, not evolution</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    </body>
+</html>
