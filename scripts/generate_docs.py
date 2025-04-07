@@ -48,17 +48,10 @@ def generate_doc_stubs() -> None:
         (found,) = (sf for sf in stub_files.values() if str(sf.path) == p)
         return found.text.splitlines()
 
-    # parse and output reformatted __init__.pyi
-    stub = DocStub.process_module(modules, read_source, "algopy")
-    algopy_direct_imports = stub.collected_imports["algopy"]
-    # remove any algopy imports that are now defined in __init__.py itself
-    output_combined_stub(stub, STUBS_DOC_DIR / "__init__.pyi")
-
-    # remaining imports from algopy are other public modules
-    # parse and output them too
-    for other_stub_name in algopy_direct_imports.from_imports:
-        stub = DocStub.process_module(modules, read_source, f"algopy.{other_stub_name}")
-        output_combined_stub(stub, STUBS_DOC_DIR / f"{other_stub_name}.pyi")
+    for sf in stub_files.values():
+        if sf.module_name == MODULE_NAME or (not sf.path.stem.startswith("_")):
+            stub = DocStub.process_module(modules, read_source, sf.module_name)
+            output_combined_stub(stub, STUBS_DOC_DIR / sf.path.name)
 
 
 def parse_and_typecheck(stub_files: "Mapping[str, _PyFile]") -> dict[str, mypy.nodes.MypyFile]:
