@@ -340,7 +340,6 @@ def _count_arguments(args: ast.arguments) -> int:
 @attrs.define
 class ModuleImports:
     from_imports: dict[str, str | None] = attrs.field(factory=dict)
-    import_all: bool = False
     import_module: bool = False
 
 
