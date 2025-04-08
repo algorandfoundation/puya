@@ -278,20 +278,14 @@ class SymbolCollector(ast.NodeVisitor):
 
     @typing.override
     def visit_Assign(self, node: ast.Assign) -> None:
-        lvalue = _get_lvalue(node)
-        if not isinstance(lvalue, ast.Name):
-            raise TypeError(f"Multi assignments are not supported: {lvalue}")
-        # find actual rvalue src location by taking the entire statement and subtracting the lvalue
-        self.symbols[lvalue.id] = self.get_src(
-            lineno=node.lineno,
-            end_lineno=node.end_lineno,
-            col_offset=lvalue.end_col_offset or node.col_offset,
-            end_col_offset=node.end_col_offset,
-        )
+        self._visit_assign(node)
 
     @typing.override
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
-        lvalue = node.target
+        self._visit_assign(node)
+
+    def _visit_assign(self, node: ast.Assign | ast.AnnAssign) -> None:
+        lvalue = _get_lvalue(node)
         if not isinstance(lvalue, ast.Name):
             raise TypeError(f"Multi assignments are not supported: {lvalue}")
         # find actual rvalue src location by taking the entire statement and subtracting the lvalue
