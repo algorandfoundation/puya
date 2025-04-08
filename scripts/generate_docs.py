@@ -4,11 +4,13 @@ import ast
 import functools
 import subprocess
 import symtable as st
+import sys
 import typing
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 
 import attrs
+from sphinx.cmd.build import main as sphinx_build
 
 from puya import log
 
@@ -24,11 +26,11 @@ DOCS_DIR = VCS_ROOT / "docs"
 STUBS_DOC_DIR = DOCS_DIR / f"{MODULE_NAME}-stubs"
 
 
-def main() -> None:
+def main() -> int:
     log.configure_stdio()
     generate_doc_stubs()
-    subprocess.run(
-        ["sphinx-build", ".", "_build", "-W", "--keep-going", "-n", "-E"], check=True, cwd=DOCS_DIR
+    return sphinx_build(
+        [str(DOCS_DIR), str(DOCS_DIR / "_build"), "-W", "--keep-going", "-n", "-E"]
     )
 
 
@@ -487,4 +489,4 @@ def _should_inline_module(module_id: str) -> bool:
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
