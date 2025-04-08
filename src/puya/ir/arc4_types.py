@@ -32,6 +32,21 @@ class ARC4EncodedWTypeConverterVisitor(WTypeVisitor[wtypes.ARC4Type | None]):
                 return None
 
     @typing.override
+    def visit_bytes_type(self, wtype: wtypes.BytesWType) -> wtypes.ARC4Type | None:
+        if wtype.length is not None:
+            return wtypes.ARC4StaticArray(
+                element_type=wtypes.arc4_byte_alias,
+                immutable=True,
+                source_location=None,
+                array_size=wtype.length,
+            )
+        return wtypes.ARC4DynamicArray(
+            element_type=wtypes.arc4_byte_alias,
+            immutable=True,
+            source_location=None,
+        )
+
+    @typing.override
     def visit_enumeration_type(self, wtype: wtypes.WEnumeration) -> None:
         return None
 

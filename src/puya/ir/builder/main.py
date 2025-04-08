@@ -757,7 +757,7 @@ class FunctionIRBuilder(
         sliceable_type = expr.base.wtype
         if isinstance(sliceable_type, wtypes.WTuple):
             return self._visit_tuple_slice(expr, sliceable_type)
-        elif sliceable_type == wtypes.bytes_wtype:
+        elif isinstance(sliceable_type, wtypes.BytesWType):
             return visit_bytes_intersection_slice_expression(self.context, expr)
         elif isinstance(sliceable_type, wtypes.StackArray):
             if expr.begin_index is not None or expr.end_index != -1:
@@ -781,7 +781,7 @@ class FunctionIRBuilder(
         """Slices an enumerable type."""
         if isinstance(expr.base.wtype, wtypes.WTuple):
             return self._visit_tuple_slice(expr, expr.base.wtype)
-        elif expr.base.wtype == wtypes.bytes_wtype:
+        elif isinstance(expr.base.wtype, wtypes.BytesWType):
             return visit_bytes_slice_expression(self.context, expr)
         else:
             raise InternalError(
@@ -810,7 +810,7 @@ class FunctionIRBuilder(
         base = self.visit_and_materialise_single(expr.base)
 
         indexable_wtype = expr.base.wtype
-        if indexable_wtype == wtypes.bytes_wtype:
+        if isinstance(indexable_wtype, wtypes.BytesWType):
             # note: the below works because Bytes is immutable, so this index expression
             # can never appear as an assignment target
             if isinstance(index, UInt64Constant) and index.value <= 255:

@@ -185,6 +185,7 @@ def log_arc4_result(
         source_location=location,
         left=abi_log_prefix,
         op=awst_nodes.BytesBinaryOperator.add,
+        wtype=wtypes.bytes_wtype,
         right=awst_nodes.ReinterpretCast(
             expr=result_expression,
             wtype=wtypes.bytes_wtype,

@@ -157,7 +157,7 @@ def wtype_is_one_of(*one_of_these: WType | type[WType]) -> _WTypeIsOneOf:
 wtype_is_uint64 = expression_has_wtype(wtypes.uint64_wtype)
 wtype_is_biguint = expression_has_wtype(wtypes.biguint_wtype)
 wtype_is_bool = expression_has_wtype(wtypes.bool_wtype)
-wtype_is_bytes = expression_has_wtype(wtypes.bytes_wtype)
+wtype_is_bytes = expression_has_wtype(wtypes.BytesWType)
 
 Label = typing.NewType("Label", str)
 
@@ -347,7 +347,7 @@ class _WTypeIsBackedBy:
         if value.scalar_type != self.backed_by:
             raise InternalError(
                 f"{type(inst).__name__}.{attr.name}: set to {value},"
-                f" which is not backed by {value.scalar_type}, not {self.backed_by.name}"
+                f" which is backed by {value.scalar_type}, not {self.backed_by.name}"
             )
 
     def __repr__(self) -> str:
@@ -405,8 +405,8 @@ class TemplateVar(Expression):
 
 @attrs.frozen
 class MethodConstant(Expression):
-    wtype: WType = attrs.field(default=wtypes.bytes_wtype, init=False)
     value: str
+    wtype: WType = attrs.field(default=wtypes.bytes_wtype)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_method_constant(self)
@@ -825,7 +825,7 @@ class FieldExpression(Expression):
 class IndexExpression(Expression):
     base: Expression = attrs.field(
         validator=expression_has_wtype(
-            wtypes.bytes_wtype,
+            wtypes.BytesWType,
             wtypes.ARC4Array,
             wtypes.NativeArray,
             # NOTE: tuples (native or arc4) use TupleItemExpression instead
@@ -845,7 +845,7 @@ class SliceExpression(Expression):
 
     base: Expression = attrs.field(
         validator=expression_has_wtype(
-            wtypes.bytes_wtype,
+            wtypes.BytesWType,
             wtypes.WTuple,
         )
     )
@@ -865,7 +865,7 @@ class IntersectionSliceExpression(Expression):
 
     base: Expression = attrs.field(
         validator=expression_has_wtype(
-            wtypes.bytes_wtype,
+            wtypes.BytesWType,
             wtypes.WTuple,
             wtypes.StackArray,
         )
@@ -1163,7 +1163,7 @@ class NumericComparisonExpression(Expression):
 
 
 bytes_comparable = expression_has_wtype(
-    wtypes.bytes_wtype,
+    wtypes.BytesWType,
     wtypes.account_wtype,
     wtypes.string_wtype,
     wtypes.ARC4Type,
@@ -1372,7 +1372,11 @@ class BigUIntPostfixUnaryOperation(Expression):
 class BytesUnaryOperation(Expression):
     op: BytesUnaryOperator
     expr: Expression = attrs.field(validator=[wtype_is_bytes])
-    wtype: WType = attrs.field(default=wtypes.bytes_wtype, init=False)
+    wtype: WType = attrs.field(init=False)
+
+    @wtype.default
+    def _wtype_factory(self) -> wtypes.WType:
+        return self.expr.wtype
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bytes_unary_operation(self)
@@ -1403,26 +1407,54 @@ class BigUIntBinaryOperation(Expression):
 @attrs.frozen
 class BytesBinaryOperation(Expression):
     left: Expression = attrs.field(
-        validator=[expression_has_wtype(wtypes.bytes_wtype, wtypes.string_wtype)]
+        validator=[expression_has_wtype(wtypes.BytesWType, wtypes.string_wtype)]
     )
     op: BytesBinaryOperator
     right: Expression = attrs.field(
-        validator=[expression_has_wtype(wtypes.bytes_wtype, wtypes.string_wtype)]
+        validator=[expression_has_wtype(wtypes.BytesWType, wtypes.string_wtype)]
     )
-    wtype: WType = attrs.field(init=False)
+    wtype: WType = attrs.field()
 
-    @right.validator
-    def _check_right(self, _attribute: object, right: Expression) -> None:
-        if right.wtype != self.left.wtype:
+    @wtype.validator
+    def _check_wtype(self, _attribute: object, wtype: wtypes.WType) -> None:
+        expected_types: list[wtypes.WType] = []
+        match (self.left.wtype, self.right.wtype):
+            case (
+                wtypes.BytesWType(length=int(left_l)),
+                wtypes.BytesWType(length=int(right_l)),
+            ):
+                if self.op == BytesBinaryOperator.add:
+                    expected_types = [
+                        wtypes.bytes_wtype,
+                        wtypes.BytesWType(length=left_l + right_l),
+                    ]
+                else:
+                    expected_types = [
+                        wtypes.bytes_wtype,
+                        wtypes.BytesWType(length=max(left_l, right_l)),
+                    ]
+            case (
+                wtypes.BytesWType(),
+                wtypes.BytesWType(),
+            ):
+                expected_types = [wtypes.bytes_wtype]
+            case (wtypes.string_wtype, wtypes.string_wtype):
+                expected_types = [wtypes.string_wtype]
+            case (lhs, rhs):
+                raise CodeError(
+                    f"Bytes operation on unsupported types, lhs is {lhs}, rhs is {rhs}",
+                    self.source_location,
+                )
+        if wtype not in expected_types:
+            expected_str = (
+                str(expected_types[0])
+                if len(expected_types) == 1
+                else "one of " + ", ".join(str(t) for t in expected_types)
+            )
             raise CodeError(
-                f"Bytes operation on differing types,"
-                f" lhs is {self.left.wtype}, rhs is {self.right.wtype}",
+                f"invalid type for bytes operation, expected {expected_str}" f", received {wtype}",
                 self.source_location,
             )
-
-    @wtype.default
-    def _wtype_factory(self) -> wtypes.WType:
-        return self.left.wtype
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bytes_binary_operation(self)
@@ -1478,13 +1510,13 @@ class BigUIntAugmentedAssignment(Statement):
 class BytesAugmentedAssignment(Statement):
     target: Lvalue = attrs.field(
         validator=[
-            expression_has_wtype(wtypes.bytes_wtype, wtypes.string_wtype, wtypes.arc4_string_alias)
+            expression_has_wtype(wtypes.BytesWType, wtypes.string_wtype, wtypes.arc4_string_alias)
         ]
     )
     op: BytesBinaryOperator
     value: Expression = attrs.field(
         validator=[
-            expression_has_wtype(wtypes.bytes_wtype, wtypes.string_wtype, wtypes.arc4_string_alias)
+            expression_has_wtype(wtypes.BytesWType, wtypes.string_wtype, wtypes.arc4_string_alias)
         ]
     )
 
