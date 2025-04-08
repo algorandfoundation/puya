@@ -5,6 +5,7 @@ import re
 import shutil
 import subprocess
 import sysconfig
+import typing
 from collections.abc import Mapping, Sequence, Set
 from functools import cached_property
 from importlib import metadata
@@ -18,6 +19,7 @@ import mypy.modulefinder
 import mypy.nodes
 import mypy.options
 import mypy.util
+from mypy.util import hash_digest
 from packaging import version
 
 from puya import log
@@ -54,6 +56,18 @@ class SourceModule:
     is_typeshed_file: bool
 
 
+class SourceProvider(typing.Protocol):
+    def get_source(self, path: Path) -> Sequence[str] | None: ...
+
+
+class DictSourceProvider:
+    def __init__(self, sources_by_path: Mapping[Path, Sequence[str] | None]):
+        self._sources_by_path = sources_by_path
+
+    def get_source(self, path: Path) -> Sequence[str] | None:
+        return self._sources_by_path.get(path)
+
+
 @attrs.frozen
 class ParseResult:
     mypy_options: mypy.options.Options
@@ -75,10 +89,14 @@ class ParseResult:
         }
 
 
-def parse_python(paths: Sequence[Path]) -> ParseResult:
-    mypy_options = get_mypy_options()
+def parse_python(
+    paths: Sequence[Path],
+    python_executable: str | None = None,
+    source_provider: SourceProvider | None = None,
+) -> ParseResult:
+    mypy_options = get_mypy_options(python_executable=python_executable)
 
-    _, ordered_modules = parse_and_typecheck(paths, mypy_options)
+    _, ordered_modules = parse_and_typecheck(paths, mypy_options, source_provider=source_provider)
     return ParseResult(
         mypy_options=mypy_options,
         ordered_modules=ordered_modules,
@@ -89,14 +107,13 @@ def parse_and_typecheck(
     paths: Sequence[Path],
     mypy_options: mypy.options.Options,
     *,
-    # equivalent to a module-level singleton default, but at least it's self-contained here
-    fs_cache: mypy.fscache.FileSystemCache = mypy.fscache.FileSystemCache(),  # noqa: B008
+    source_provider: SourceProvider | None = None,
 ) -> tuple[mypy.build.BuildManager, dict[str, SourceModule]]:
     """Generate the ASTs from the build sources, and all imported modules (recursively)"""
 
     # ensure we have the absolute, canonical paths to the files
     resolved_input_paths = {p.resolve() for p in paths}
-    fscache = (
+    fs_cache = (
         _FileSystemCache(source_provider) if source_provider else mypy.fscache.FileSystemCache()
     )
     # creates a list of BuildSource objects from the contract Paths
@@ -299,6 +316,7 @@ _CUSTOM_TYPESHED_PATH = Path(__file__).parent / "_typeshed"
 
 def get_mypy_options(
     custom_typeshed_path: Path | None = _CUSTOM_TYPESHED_PATH,
+    python_executable: str | None = None,
 ) -> mypy.options.Options:
     mypy_opts = mypy.options.Options()
 
@@ -308,7 +326,9 @@ def get_mypy_options(
         mypy_opts.abs_custom_typeshed_dir = str(custom_typeshed_path.resolve())
 
     # set python_executable so third-party packages can be found
-    mypy_opts.python_executable = _get_python_executable()
+    mypy_opts.python_executable = (
+        get_python_executable(_get_prefix()) if python_executable is None else python_executable
+    )
 
     mypy_opts.preserve_asts = True
     mypy_opts.include_docstrings = True
@@ -342,8 +362,7 @@ def get_mypy_options(
     return mypy_opts
 
 
-def _get_python_executable() -> str | None:
-    prefix = _get_prefix()
+def get_python_executable(prefix: str | None) -> str | None:
     if not prefix:
         logger.warning("Could not determine python prefix or algopy version")
         return None

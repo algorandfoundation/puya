@@ -16,10 +16,10 @@ from puya.errors import log_exceptions
 from puya.log import Log, LoggingContext, LogLevel, get_logger, logging_context
 from puya.parse import SourceLocation
 from puyapy.awst_build.main import transform_ast
-from puyapy.compile import determine_out_dir, get_python_executable, parse_with_mypy
+from puyapy.compile import determine_out_dir
 from puyapy.lsp import constants
 from puyapy.options import PuyaPyOptions
-from puyapy.parse import ParseResult
+from puyapy.parse import ParseResult, get_python_executable, parse_python
 
 logger = get_logger(__name__)
 
@@ -33,6 +33,7 @@ class PuyaPyLanguageServer(LanguageServer):
         logger.debug(f"Server location: {__file__}")
         self.diagnostics = dict[str, tuple[int | None, list[types.Diagnostic]]]()
         self.analysis_prefix: Path | None = None
+        self.python_executable: str | None = None
         self.current_refresh_token = object()
 
     def parse_all(self) -> None:
@@ -42,9 +43,8 @@ class PuyaPyLanguageServer(LanguageServer):
             paths=self._discover_algopy_paths(Path(self.workspace.root_path)),
             # don't need optimization for analysis
             optimization_level=0,
-            prefix=self.analysis_prefix,
         )
-        logs = self._parse_and_log(options)
+        logs = self._parse_and_log(options, self.python_executable)
 
         # need to include existing documents in diagnostics in case all errors are cleared
         diagnostics: dict[str, tuple[int | None, list[types.Diagnostic]]] = {
@@ -118,12 +118,16 @@ class PuyaPyLanguageServer(LanguageServer):
         assert isinstance(source, str)
         return source.splitlines()
 
-    def _parse_and_log(self, puyapy_options: PuyaPyOptions) -> Sequence[Log]:
+    def _parse_and_log(
+        self, puyapy_options: PuyaPyOptions, python_executable: str | None
+    ) -> Sequence[Log]:
         with logging_context() as log_ctx, log_exceptions():
             with _time_it("mypy parsing"):
                 try:
-                    parse_result = parse_with_mypy(
-                        puyapy_options.paths, prefix=puyapy_options.prefix, source_provider=self
+                    parse_result = parse_python(
+                        puyapy_options.paths,
+                        python_executable=python_executable,
+                        source_provider=self,
                     )
                 except Exception as ex:
                     logger.debug(f"internal mypy error: {ex}")
@@ -234,8 +238,8 @@ def _initialization(ls: PuyaPyLanguageServer, params: types.InitializeParams) ->
     # by calling get_search_dirs here on initialization the deadlock issue is avoided
     from mypy.modulefinder import get_search_dirs
 
-    python_exe = get_python_executable(analysis_prefix)
-    get_search_dirs(python_exe)
+    ls.python_executable = get_python_executable(analysis_prefix)
+    get_search_dirs(ls.python_executable)
 
 
 @server.feature(
