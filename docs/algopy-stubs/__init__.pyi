@@ -26,7 +26,6 @@ __all__ = [
     "Txn",
     "UInt64",
     "Bytes",
-    "BytesBacked",
     "String",
     "BigUInt",
     "ImmutableArray",
@@ -320,17 +319,6 @@ class Bytes(Reversible[Bytes]):
     def __contains__(self, other: Bytes | bytes) -> bool:
         """Test whether another Bytes is a substring of this one.
         Note this is expensive due to a lack of AVM support."""
-
-class BytesBacked(typing.Protocol):
-    """Represents a type that is a single bytes value"""
-
-    @classmethod
-    def from_bytes(cls, value: Bytes | bytes, /) -> typing.Self:
-        """Construct an instance from the underlying bytes (no validation)"""
-
-    @property
-    def bytes(self) -> Bytes:
-        """Get the underlying Bytes"""
 
 class String(Container[String]):
     """A UTF-8 encoded string.
@@ -1683,9 +1671,7 @@ class OpUpFeeSource(UInt64):
     Any: OpUpFeeSource = ...
     """First the excess will be used, remaining fees will be taken from the app account"""
 
-def ensure_budget(
-    required_budget: UInt64 | int, fee_source: OpUpFeeSource = ...
-) -> None:
+def ensure_budget(required_budget: UInt64 | int, fee_source: OpUpFeeSource = ...) -> None:
     """Ensure the available op code budget is greater than or equal to required_budget"""
 
 def log(*args: object, sep: String | str | Bytes | bytes = "") -> None:

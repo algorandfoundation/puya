@@ -214,7 +214,9 @@ class SymbolCollector(ast.NodeVisitor):
         inline = list[tuple[_PyFile, ast.ClassDef]]()
         for base in klass.bases:
             match base:
-                case ast.Name(id=name) if name == "BytesBacked" or name.endswith("Protocol"):
+                case ast.Name(id=name) if (
+                    name == "BytesBacked" or (name[0] == "_" and name.endswith("Protocol"))
+                ):
                     inline.append(self.all_classes[name])
                 case ast.Attribute(value=ast.Name(id="typing"), attr="Protocol"):
                     pass
@@ -397,15 +399,15 @@ class DocStub(ast.NodeVisitor):
         for sym in module.symbols:
             self._add_symbol(module, sym)
         for module_name, imports in self.collected_imports.items():
-            inlined_protocols = self.inlined_protocols.get(module_name, ())
             if imports.import_module and module_name in self.collected_symbols:
                 raise RuntimeError(f"symbol/import collision: {module_name}")
+            inlined_protocols = self.inlined_protocols.get(module_name, ())
+            for name in inlined_protocols:
+                logger.debug(f"removed inlined protocol: {name}")
+                imports.from_imports.pop(name, None)
+                del self.collected_symbols[name]
             for name, name_as in list(imports.from_imports.items()):
-                if name in inlined_protocols:
-                    logger.debug(f"removed inlined protocol: {name}")
-                    del imports.from_imports[name]
-                    del self.collected_symbols[name]
-                elif name in self.collected_symbols:
+                if name in self.collected_symbols:
                     assert (
                         name_as is None
                     ), f"symbol/import collision: from {module_name} import {name} as {name_as}"
@@ -438,6 +440,7 @@ class DocStub(ast.NodeVisitor):
             return self.parsed_modules[module_id]
         except KeyError:
             file = self.modules[module_id]
+            logger.info(f"collecting symbols from {module_id}")
             self.parsed_modules[module_id] = collector = SymbolCollector(
                 file=file,
                 modules=self.modules,
