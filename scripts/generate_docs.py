@@ -27,20 +27,28 @@ STUBS_DOC_DIR = DOCS_DIR / f"{MODULE_NAME}-stubs"
 
 
 def main() -> int:
-    log.configure_stdio()
+    log.configure_logging()
     generate_doc_stubs()
+    logger.info("building docs with sphinx")
     return sphinx_build(
         [str(DOCS_DIR), str(DOCS_DIR / "_build"), "-W", "--keep-going", "-n", "-E"]
     )
 
 
 def generate_doc_stubs() -> None:
+    logger.info("parsing stub files")
     stub_files = _read_stub_files()
 
+    STUBS_DOC_DIR.mkdir(parents=True, exist_ok=True)
     for sf in stub_files.values():
-        if sf.module_name == MODULE_NAME or (not sf.path.stem.startswith("_")):
+        if "._" not in sf.module_name:
+            logger.info(f"processing {sf.module_name}")
             stub = DocStub.process_module(stub_files, sf.module_name)
             output_combined_stub(stub, STUBS_DOC_DIR / sf.path.name)
+
+    logger.info("linting and formatting")
+    subprocess.run(["ruff", "format", str(STUBS_DOC_DIR)], check=True, cwd=VCS_ROOT)
+    subprocess.run(["ruff", "check", "--fix", str(STUBS_DOC_DIR)], check=True, cwd=VCS_ROOT)
 
 
 @attrs.frozen
@@ -78,8 +86,7 @@ def _read_stub_files() -> Mapping[str, _PyFile]:
     result = {}
     for p in PACKAGE_ROOT.iterdir():
         if p.is_dir():
-            if not p.name.startswith("."):
-                raise RuntimeError("directories not handled")
+            assert p.name.startswith("."), "directories not handled"
         elif p.is_file() and p.suffix == ".pyi":
             pf = _PyFile.from_path(p)
             assert pf.module_name not in result
@@ -108,11 +115,7 @@ def output_combined_stub(stubs: "DocStub", output: Path) -> None:
     lines.extend(stubs.collected_symbols.values())
 
     # output and linting
-    output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text("\n".join(lines))
-
-    subprocess.run(["ruff", "format", str(output)], check=True, cwd=VCS_ROOT)
-    subprocess.run(["ruff", "check", "--fix", str(output)], check=True, cwd=VCS_ROOT)
 
 
 def _name_as(name: str, name_as: str | None) -> str:
@@ -284,8 +287,7 @@ class SymbolCollector(ast.NodeVisitor):
 
     def _visit_assign(self, node: ast.Assign | ast.AnnAssign) -> None:
         lvalue = _get_lvalue(node)
-        if not isinstance(lvalue, ast.Name):
-            raise TypeError(f"Multi assignments are not supported: {lvalue}")
+        assert isinstance(lvalue, ast.Name), f"unsupported assignment target: {lvalue}"
         # find actual rvalue src location by taking the entire statement and subtracting the lvalue
         self.symbols[lvalue.id] = self.get_src(
             lineno=node.lineno,
@@ -320,10 +322,8 @@ def _get_lvalue(node: ast.Assign | ast.AnnAssign) -> ast.expr:
     if isinstance(node, ast.AnnAssign):
         return node.target
     else:
-        try:
-            (lvalue,) = node.targets
-        except ValueError as ex:
-            raise ValueError(f"Multi assignments are not supported: {node}") from ex
+        assert len(node.targets) == 1, "chained assignments are not supported"
+        (lvalue,) = node.targets
         return lvalue
 
 
@@ -363,9 +363,7 @@ class ImportCollector(ast.NodeVisitor):
     @typing.override
     def visit_Import(self, node: ast.Import) -> None:
         for alias in node.names:
-            if alias.asname not in (None, alias.name):
-                raise Exception("Aliasing symbols in stubs is not supported")
-
+            assert alias.asname in (None, alias.name), "import renaming not supported"
             imports = self.collected_imports[alias.name]
             imports.import_module = True
 
@@ -401,19 +399,17 @@ class DocStub(ast.NodeVisitor):
         for module_name, imports in self.collected_imports.items():
             inlined_protocols = self.inlined_protocols.get(module_name, ())
             if imports.import_module and module_name in self.collected_symbols:
-                raise Exception(f"Symbol/import collision: {module_name}")
+                raise RuntimeError(f"symbol/import collision: {module_name}")
             for name, name_as in list(imports.from_imports.items()):
                 if name in inlined_protocols:
-                    print(f"Removed inlined protocol: {name}")
+                    logger.debug(f"removed inlined protocol: {name}")
                     del imports.from_imports[name]
                     del self.collected_symbols[name]
                 elif name in self.collected_symbols:
-                    if name_as is None:
-                        del imports.from_imports[name]
-                    else:
-                        print(
-                            f"Symbol/import collision: from {module_name} import {name} as {name_as}"
-                        )
+                    assert (
+                        name_as is None
+                    ), f"symbol/import collision: from {module_name} import {name} as {name_as}"
+                    del imports.from_imports[name]
 
     @typing.override
     def visit_Import(self, node: ast.Import) -> None:
@@ -429,8 +425,7 @@ class DocStub(ast.NodeVisitor):
             module = self._get_module(node.module)
             symbols_to_add = list[str]()
             for alias in node.names:
-                if alias.asname not in (None, alias.name):
-                    raise Exception("Aliasing symbols in stubs is not supported")
+                assert alias.asname in (None, alias.name), "import renaming not supported"
                 if alias.name == "*":
                     symbols_to_add = list(module.symbols)
                     break
@@ -456,7 +451,7 @@ class DocStub(ast.NodeVisitor):
     def _add_symbol(self, module: SymbolCollector, name: str) -> None:
         lines = module.symbols[name]
         if self.collected_symbols.setdefault(name, lines) != lines:
-            raise Exception(f"Duplicate definitions are not supported: {name}\n{lines}")
+            raise RuntimeError(f"duplicate definitions are not supported: {name}\n{lines}")
 
 
 if __name__ == "__main__":
