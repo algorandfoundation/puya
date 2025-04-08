@@ -357,7 +357,7 @@ class ImportCollector(ast.NodeVisitor):
     @typing.override
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         assert node.module is not None
-        assert node.level in (0, None)
+        assert node.level == 0
         imports = self.get_imports(node.module)
         for alias in node.names:
             if alias.name != "*":
@@ -430,7 +430,7 @@ class DocStub(ast.NodeVisitor):
     @typing.override
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         assert node.module is not None
-        assert node.level in (0, None)
+        assert node.level == 0
         if not _should_inline_module(node.module):
             self._collect_imports(node)
         else:
