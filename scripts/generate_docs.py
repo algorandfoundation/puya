@@ -136,7 +136,7 @@ class SymbolCollector(ast.NodeVisitor):
     file: _PyFile
     modules: Mapping[str, _PyFile]
     all_classes: dict[str, tuple[_PyFile, ast.ClassDef]]
-    inlined_protocols: dict[str, set[str]]
+    inlined_protocols: set[str]
     symbols: dict[str, str] = attrs.field(factory=dict)
     last_stmt: ast.stmt | None = None
     _overloads: dict[str, list[ast.FunctionDef]] = attrs.field(factory=dict)
@@ -234,9 +234,7 @@ class SymbolCollector(ast.NodeVisitor):
         src = [f"{klass_str}:"]
         src.extend(self.get_node_src(member) for member in klass.klass.body)
         for base_class_file, base_class in klass.protocol_bases:
-            self.inlined_protocols.setdefault(base_class_file.module_name, set()).add(
-                base_class.name
-            )
+            self.inlined_protocols.add(base_class.name)
             src.extend(
                 self.get_node_src(member, module_name=base_class_file.module_name)
                 for member in base_class.body
@@ -377,7 +375,7 @@ class DocStub(ast.NodeVisitor):
     parsed_modules: dict[str, SymbolCollector] = attrs.field(factory=dict)
     all_classes: dict[str, tuple[_PyFile, ast.ClassDef]] = attrs.field(factory=dict)
     _import_collector: ImportCollector = attrs.field(init=False, factory=ImportCollector)
-    inlined_protocols: dict[str, set[str]] = attrs.field(factory=dict)
+    inlined_protocols: set[str] = attrs.field(factory=set)
     collected_symbols: dict[str, str] = attrs.field(factory=dict)
 
     @property
@@ -398,16 +396,16 @@ class DocStub(ast.NodeVisitor):
         module = self._get_module(self.file.module_name)
         for sym in module.symbols:
             self._add_symbol(module, sym)
+        for name in self.inlined_protocols:
+            logger.debug(f"removed inlined protocol: {name}")
+            del self.collected_symbols[name]
         for module_name, imports in self.collected_imports.items():
             if imports.import_module and module_name in self.collected_symbols:
                 raise RuntimeError(f"symbol/import collision: {module_name}")
-            inlined_protocols = self.inlined_protocols.get(module_name, ())
-            for name in inlined_protocols:
-                logger.debug(f"removed inlined protocol: {name}")
-                imports.from_imports.pop(name, None)
-                del self.collected_symbols[name]
             for name, name_as in list(imports.from_imports.items()):
-                if name in self.collected_symbols:
+                if name in self.inlined_protocols:
+                    del imports.from_imports[name]
+                elif name in self.collected_symbols:
                     assert (
                         name_as is None
                     ), f"symbol/import collision: from {module_name} import {name} as {name_as}"
