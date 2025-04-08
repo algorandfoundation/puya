@@ -5,6 +5,7 @@ import subprocess
 import symtable as st
 import sys
 import typing
+from collections import defaultdict
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
@@ -343,22 +344,17 @@ class ModuleImports:
     import_module: bool = False
 
 
-@attrs.define
+@attrs.frozen
 class ImportCollector(ast.NodeVisitor):
-    collected_imports: dict[str, ModuleImports]
-
-    def get_imports(self, module_id: str) -> ModuleImports:
-        try:
-            imports = self.collected_imports[module_id]
-        except KeyError:
-            imports = self.collected_imports[module_id] = ModuleImports()
-        return imports
+    collected_imports: defaultdict[str, ModuleImports] = attrs.field(
+        init=False, factory=lambda: defaultdict(lambda: ModuleImports())
+    )
 
     @typing.override
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         assert node.module is not None
         assert node.level == 0
-        imports = self.get_imports(node.module)
+        imports = self.collected_imports[node.module]
         for alias in node.names:
             if alias.name != "*":
                 imports.from_imports[alias.name] = alias.asname
@@ -369,7 +365,7 @@ class ImportCollector(ast.NodeVisitor):
             if alias.asname not in (None, alias.name):
                 raise Exception("Aliasing symbols in stubs is not supported")
 
-            imports = self.get_imports(alias.name)
+            imports = self.collected_imports[alias.name]
             imports.import_module = True
 
 
@@ -379,18 +375,67 @@ class DocStub(ast.NodeVisitor):
     modules: Mapping[str, _PyFile]
     parsed_modules: dict[str, SymbolCollector] = attrs.field(factory=dict)
     all_classes: dict[str, tuple[_PyFile, ast.ClassDef]] = attrs.field(factory=dict)
-    collected_imports: dict[str, ModuleImports] = attrs.field(factory=dict)
+    _import_collector: ImportCollector = attrs.field(init=False, factory=ImportCollector)
     inlined_protocols: dict[str, set[str]] = attrs.field(factory=dict)
     collected_symbols: dict[str, str] = attrs.field(factory=dict)
+
+    @property
+    def collected_imports(self) -> Mapping[str, ModuleImports]:
+        return self._import_collector.collected_imports
 
     @classmethod
     def process_module(cls, modules: Mapping[str, _PyFile], module_id: str) -> typing.Self:
         module = modules[module_id]
         stub = cls(file=module, modules=modules)
         stub.visit(module.module)
-        stub._add_all_symbols(module.module_name)  # noqa: SLF001
-        stub._remove_inlined_symbols()  # noqa: SLF001
         return stub
+
+    @typing.override
+    def visit_Module(self, node: ast.Module) -> None:
+        assert node is self.file.module
+        super().generic_visit(node)
+        module = self._get_module(self.file.module_name)
+        for sym in module.symbols:
+            self._add_symbol(module, sym)
+        for module_name, imports in self.collected_imports.items():
+            inlined_protocols = self.inlined_protocols.get(module_name, ())
+            if imports.import_module and module_name in self.collected_symbols:
+                raise Exception(f"Symbol/import collision: {module_name}")
+            for name, name_as in list(imports.from_imports.items()):
+                if name in inlined_protocols:
+                    print(f"Removed inlined protocol: {name}")
+                    del imports.from_imports[name]
+                    del self.collected_symbols[name]
+                elif name in self.collected_symbols:
+                    if name_as is None:
+                        del imports.from_imports[name]
+                    else:
+                        print(
+                            f"Symbol/import collision: from {module_name} import {name} as {name_as}"
+                        )
+
+    @typing.override
+    def visit_Import(self, node: ast.Import) -> None:
+        self._import_collector.visit(node)
+
+    @typing.override
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        assert node.module is not None
+        assert node.level == 0
+        if not _should_inline_module(node.module):
+            self._import_collector.visit(node)
+        else:
+            module = self._get_module(node.module)
+            symbols_to_add = list[str]()
+            for alias in node.names:
+                if alias.asname not in (None, alias.name):
+                    raise Exception("Aliasing symbols in stubs is not supported")
+                if alias.name == "*":
+                    symbols_to_add = list(module.symbols)
+                    break
+                symbols_to_add.append(alias.name)
+            for symbol in symbols_to_add:
+                self._add_symbol(module, symbol)
 
     def _get_module(self, module_id: str) -> SymbolCollector:
         try:
@@ -404,60 +449,13 @@ class DocStub(ast.NodeVisitor):
                 inlined_protocols=self.inlined_protocols,
             )
             collector.visit(file.module)
-            self._collect_imports(file.module)
+            self._import_collector.visit(file.module)
             return collector
 
-    def _collect_imports(self, node: ast.AST) -> None:
-        ImportCollector(self.collected_imports).visit(node)
-        self._remove_inlined_symbols()
-
-    def _remove_inlined_symbols(self) -> None:
-        for module, imports in self.collected_imports.items():
-            inlined_protocols = self.inlined_protocols.get(module, ())
-            if imports.import_module and module in self.collected_symbols:
-                raise Exception(f"Symbol/import collision: {module}")
-            for name, name_as in list(imports.from_imports.items()):
-                if name in inlined_protocols:
-                    print(f"Removed inlined protocol: {name}")
-                    del imports.from_imports[name]
-                    del self.collected_symbols[name]
-                elif name in self.collected_symbols:
-                    if name_as is None:
-                        del imports.from_imports[name]
-                    else:
-                        print(f"Symbol/import collision: from {module} import {name} as {name_as}")
-
-    @typing.override
-    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
-        assert node.module is not None
-        assert node.level == 0
-        if not _should_inline_module(node.module):
-            self._collect_imports(node)
-        else:
-            for alias in node.names:
-                if alias.asname not in (None, alias.name):
-                    raise Exception("Aliasing symbols in stubs is not supported")
-                if alias.name == "*":
-                    self._add_all_symbols(node.module)
-                else:
-                    module = self._get_module(node.module)
-                    self.add_symbol(module, alias.name)
-
-    def _add_all_symbols(self, module_id: str) -> None:
-        module = self._get_module(module_id)
-        for sym in module.symbols:
-            self.add_symbol(module, sym)
-
-    @typing.override
-    def visit_Import(self, node: ast.Import) -> None:
-        self._collect_imports(node)
-
-    def add_symbol(self, module: SymbolCollector, name: str) -> None:
+    def _add_symbol(self, module: SymbolCollector, name: str) -> None:
         lines = module.symbols[name]
-        existing = self.collected_symbols.get(name)
-        if existing is not None and existing != lines:
+        if self.collected_symbols.setdefault(name, lines) != lines:
             raise Exception(f"Duplicate definitions are not supported: {name}\n{lines}")
-        self.collected_symbols[name] = lines
 
 
 def _name_as(name: str, name_as: str | None) -> str:
