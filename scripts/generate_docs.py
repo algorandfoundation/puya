@@ -101,12 +101,8 @@ def output_combined_stub(stubs: "DocStub", output: Path) -> None:
     lines.extend(["", ""])
 
     # assemble __all__
-    lines.append("__all__ = [")
-    for symbol in (*rexported, *stubs.collected_symbols):
-        if symbol.startswith("_"):
-            continue
-        lines.append(f'    "{symbol}",')
-    lines.append("]")
+    all_values = [symbol for symbol in (*rexported, *stubs.collected_symbols) if symbol[0] != "_"]
+    lines.append(f"__all__ = {all_values}")
 
     # assemble symbols
     lines.extend(stubs.collected_symbols.values())
