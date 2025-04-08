@@ -119,6 +119,12 @@ def output_combined_stub(stubs: "DocStub", output: Path) -> None:
     subprocess.run(["ruff", "check", "--fix", str(output)], check=True, cwd=VCS_ROOT)
 
 
+def _name_as(name: str, name_as: str | None) -> str:
+    if name_as is None:
+        return name
+    return f"{name} as {name_as}"
+
+
 @attrs.define(kw_only=True)
 class ClassBases:
     klass: ast.ClassDef
@@ -421,7 +427,7 @@ class DocStub(ast.NodeVisitor):
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         assert node.module is not None
         assert node.level == 0
-        if not _should_inline_module(node.module):
+        if not node.module.startswith(f"{MODULE_NAME}._"):
             self._import_collector.visit(node)
         else:
             module = self._get_module(node.module)
@@ -455,16 +461,6 @@ class DocStub(ast.NodeVisitor):
         lines = module.symbols[name]
         if self.collected_symbols.setdefault(name, lines) != lines:
             raise Exception(f"Duplicate definitions are not supported: {name}\n{lines}")
-
-
-def _name_as(name: str, name_as: str | None) -> str:
-    if name_as is None:
-        return name
-    return f"{name} as {name_as}"
-
-
-def _should_inline_module(module_id: str) -> bool:
-    return module_id.startswith(f"{MODULE_NAME}._")
 
 
 if __name__ == "__main__":
