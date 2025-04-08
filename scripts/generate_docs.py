@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
 import ast
-import functools
 import subprocess
 import symtable as st
 import sys
 import typing
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 import attrs
@@ -37,14 +36,9 @@ def main() -> int:
 def generate_doc_stubs() -> None:
     stub_files = _read_stub_files()
 
-    @functools.cache
-    def read_source(p: str) -> list[str]:
-        (found,) = (sf for sf in stub_files.values() if str(sf.path) == p)
-        return found.text.splitlines()
-
     for sf in stub_files.values():
         if sf.module_name == MODULE_NAME or (not sf.path.stem.startswith("_")):
-            stub = DocStub.process_module(stub_files, read_source, sf.module_name)
+            stub = DocStub.process_module(stub_files, sf.module_name)
             output_combined_stub(stub, STUBS_DOC_DIR / sf.path.name)
 
 
@@ -134,7 +128,7 @@ class ClassBases:
 @attrs.define
 class SymbolCollector(ast.NodeVisitor):
     file: _PyFile
-    read_source: Callable[[str], list[str] | None]
+    modules: Mapping[str, _PyFile]
     all_classes: dict[str, tuple[_PyFile, ast.ClassDef]]
     inlined_protocols: dict[str, set[str]]
     symbols: dict[str, str] = attrs.field(factory=dict)
@@ -145,7 +139,7 @@ class SymbolCollector(ast.NodeVisitor):
         self,
         node: ast.AST,
         *,
-        path: str | None = None,
+        module_name: str | None = None,
         entire_lines: bool = True,
         include_decorators: bool = True,
     ) -> str:
@@ -160,7 +154,7 @@ class SymbolCollector(ast.NodeVisitor):
             assert isinstance(maybe_lineno, int)
             lineno = maybe_lineno
         return self.get_src(
-            path=path,
+            module_name=module_name,
             entire_lines=entire_lines,
             lineno=lineno,
             end_lineno=getattr(node, "end_lineno", None),
@@ -175,25 +169,26 @@ class SymbolCollector(ast.NodeVisitor):
         end_lineno: int | None,
         col_offset: int | None,
         end_col_offset: int | None,
-        path: str | None = None,
+        module_name: str | None = None,
         entire_lines: bool = True,
     ) -> str:
         columns: tuple[int, int] | None = None
         if not entire_lines and end_col_offset is not None:
             assert col_offset is not None
             columns = (col_offset, end_col_offset)
-        return self.get_src_from_lines(lineno, end_lineno or lineno, path, columns)
+        return self.get_src_from_lines(lineno, end_lineno or lineno, module_name, columns)
 
     def get_src_from_lines(
         self,
         line: int,
         end_line: int,
-        path: str | None = None,
+        module_name: str | None = None,
         columns: tuple[int, int] | None = None,
     ) -> str:
-        src = self.read_source(path or str(self.file.path))
-        if not src:
-            raise Exception("Could not get src")
+        if module_name is None:
+            src = self.file.text.splitlines()
+        else:
+            src = self.modules[module_name].text.splitlines()
         lines = src[line - 1 : end_line]
         if columns:
             lines[-1] = lines[-1][: columns[1]]
@@ -235,7 +230,7 @@ class SymbolCollector(ast.NodeVisitor):
                 base_class.name
             )
             src.extend(
-                self.get_node_src(member, path=str(base_class_file.path))
+                self.get_node_src(member, module_name=base_class_file.module_name)
                 for member in base_class.body
             )
         return "\n".join(src)
@@ -380,7 +375,6 @@ class ImportCollector(ast.NodeVisitor):
 
 @attrs.define
 class DocStub(ast.NodeVisitor):
-    read_source: Callable[[str], list[str] | None]
     file: _PyFile
     modules: Mapping[str, _PyFile]
     parsed_modules: dict[str, SymbolCollector] = attrs.field(factory=dict)
@@ -390,14 +384,9 @@ class DocStub(ast.NodeVisitor):
     collected_symbols: dict[str, str] = attrs.field(factory=dict)
 
     @classmethod
-    def process_module(
-        cls,
-        modules: Mapping[str, _PyFile],
-        read_source: Callable[[str], list[str] | None],
-        module_id: str,
-    ) -> typing.Self:
+    def process_module(cls, modules: Mapping[str, _PyFile], module_id: str) -> typing.Self:
         module = modules[module_id]
-        stub = cls(read_source=read_source, file=module, modules=modules)
+        stub = cls(file=module, modules=modules)
         stub.visit(module.module)
         stub._add_all_symbols(module.module_name)  # noqa: SLF001
         stub._remove_inlined_symbols()  # noqa: SLF001
@@ -410,7 +399,7 @@ class DocStub(ast.NodeVisitor):
             file = self.modules[module_id]
             self.parsed_modules[module_id] = collector = SymbolCollector(
                 file=file,
-                read_source=self.read_source,
+                modules=self.modules,
                 all_classes=self.all_classes,
                 inlined_protocols=self.inlined_protocols,
             )
