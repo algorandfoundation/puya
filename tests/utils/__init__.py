@@ -10,7 +10,7 @@ from puya.compilation_artifacts import CompilationArtifact
 from puya.compile import awst_to_teal
 from puya.errors import CodeError
 from puya.log import Log, LogLevel, logging_context
-from puya.parse import SourceLocation
+from puya.parse import DictSourceProvider, SourceLocation
 from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import pushd
 from puyapy.awst_build.main import transform_ast
@@ -173,7 +173,11 @@ def compile_src_from_options(options: PuyaPyOptions) -> CompilationResult:
 
             try:
                 teal = awst_to_teal(
-                    log_ctx, options, narrow_compilation_set, narrow_sources_by_path, narrowed_awst
+                    log_ctx,
+                    options,
+                    narrow_compilation_set,
+                    DictSourceProvider(narrow_sources_by_path),
+                    narrowed_awst,
                 )
             except SystemExit as ex:
                 raise CodeError(_get_log_errors(log_ctx.logs)) from ex

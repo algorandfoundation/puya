@@ -185,7 +185,7 @@ def _optimize_subroutine(
     dummy_program_provider = _NoCompiledProgramProvider(location)
     pass_context = IROptimizationContext(
         compilation_set=ctx.compilation_set,
-        sources_by_path=ctx.sources_by_path,
+        source_provider=ctx.source_provider,
         options=options,
         compiled_program_provider=dummy_program_provider,
         output_path_provider=None,
