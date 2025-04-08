@@ -590,6 +590,7 @@ class Array(Reversible[_T]):
     def __bool__(self) -> bool:
         """Returns `True` if not an empty array"""
 
+@typing.final
 class OnCompleteAction(UInt64):
     """On Completion actions available in an application call transaction"""
 
@@ -618,6 +619,7 @@ class OnCompleteAction(UInt64):
     delete the AppParams for the application from the creator's balance
     record"""
 
+@typing.final
 class TransactionType(UInt64):
     """The different transaction types available in a transaction"""
 
@@ -767,6 +769,7 @@ class Account:
     def bytes(self) -> Bytes:
         """Get the underlying Bytes"""
 
+@typing.final
 class Asset:
     """An Asset on the Algorand network."""
 
@@ -912,6 +915,7 @@ class Asset:
         ```
         """
 
+@typing.final
 class Application:
     """An Application on the Algorand network."""
 
@@ -1015,6 +1019,7 @@ class Application:
 _TKey = typing.TypeVar("_TKey")
 _TValue = typing.TypeVar("_TValue")
 
+@typing.final
 class Box(typing.Generic[_TValue]):
     """
     Box abstracts the reading and writing of a single value to a single box.
@@ -1068,6 +1073,7 @@ class Box(typing.Generic[_TValue]):
         Get the length of this Box. Fails if the box does not exist
         """
 
+@typing.final
 class BoxRef:
     """
     BoxRef abstracts the reading and writing of boxes containing raw binary data. The size is
@@ -1168,6 +1174,7 @@ class BoxRef:
         Get the length of this Box. Fails if the box does not exist
         """
 
+@typing.final
 class BoxMap(typing.Generic[_TKey, _TValue]):
     """
     BoxMap abstracts the reading and writing of a set of boxes using a common key and content type.
@@ -1238,6 +1245,7 @@ class BoxMap(typing.Generic[_TKey, _TValue]):
         :arg key: The key of the box to get
         """
 
+@typing.final
 class CompiledContract(typing.NamedTuple):
     """
     Provides compiled programs and state allocation values for a Contract.
@@ -1286,6 +1294,7 @@ class CompiledContract(typing.NamedTuple):
     when calling compile_contract
     """
 
+@typing.final
 class CompiledLogicSig(typing.NamedTuple):
     """
     Provides account for a Logic Signature.
@@ -1343,7 +1352,7 @@ def compile_logicsig(
     :param template_vars_prefix: Prefix to add to provided template vars,
                                  defaults to the prefix supplied on command line (which defaults to TMPL_)
     """
-
+@typing.final
 class StateTotals:
     """
     Options class to manually define the total amount of global and local state contract will use,
@@ -1469,6 +1478,7 @@ def subroutine(
 
 _TState = typing.TypeVar("_TState")
 
+@typing.final
 class LocalState(typing.Generic[_TState]):
     """Local state associated with the application and an account"""
 
@@ -1543,6 +1553,7 @@ class LocalState(typing.Generic[_TState]):
         ```
         """
 
+@typing.final
 class GlobalState(typing.Generic[_TState]):
     """Global state associated with the application, the key will be the name of the member, this
     is assigned to
@@ -1629,6 +1640,7 @@ class GlobalState(typing.Generic[_TState]):
         ```
         """
 
+@typing.final
 class urange(Reversible[UInt64]):  # noqa: N801
     """Produces a sequence of UInt64 from start (inclusive) to stop (exclusive) by step.
 
@@ -1646,6 +1658,7 @@ class urange(Reversible[UInt64]):  # noqa: N801
     def __iter__(self) -> Iterator[UInt64]: ...
     def __reversed__(self) -> Iterator[UInt64]: ...
 
+@typing.final
 class uenumerate(Reversible[tuple[UInt64, _T]]):  # noqa: N801
     """Yields pairs containing a count (from zero) and a value yielded by the iterable argument.
 
@@ -1659,6 +1672,7 @@ class uenumerate(Reversible[tuple[UInt64, _T]]):  # noqa: N801
     def __iter__(self) -> Iterator[tuple[UInt64, _T]]: ...
     def __reversed__(self) -> Iterator[tuple[UInt64, _T]]: ...
 
+@typing.final
 class OpUpFeeSource(UInt64):
     """Defines the source of fees for the OpUp utility."""
 
@@ -1692,6 +1706,7 @@ class _TemplateVarGeneric(typing.Protocol):
 TemplateVar: _TemplateVarGeneric = ...
 """Template variables can be used to represent a placeholder for a deploy-time provided value."""
 
+@typing.final
 class LogicSig:
     """A logic signature"""
 

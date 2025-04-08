@@ -149,8 +149,7 @@ class SymbolCollector(ast.NodeVisitor):
         entire_lines: bool = True,
         include_decorators: bool = True,
     ) -> str:
-        # TODO: add | ast.ClassDef
-        if isinstance(node, ast.FunctionDef) and include_decorators:
+        if isinstance(node, ast.FunctionDef | ast.ClassDef) and include_decorators:
             assert entire_lines
             if node.decorator_list:
                 lineno = node.decorator_list[0].lineno

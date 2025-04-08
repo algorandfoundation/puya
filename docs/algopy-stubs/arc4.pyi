@@ -541,6 +541,9 @@ class Tuple(_ABIEncoded, tuple[typing.Unpack[_TTuple]]):
     def copy(self) -> typing.Self:
         """Create a copy of this tuple"""
 
+@typing.dataclass_transform(
+    eq_default=False, order_default=False, kw_only_default=False, field_specifiers=()
+)
 class _StructMeta(type):
     def __new__(
         cls,
