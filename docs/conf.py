@@ -23,7 +23,7 @@ extensions = [
 ]
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "architecture-decisions/*.md"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "architecture/**.md"]
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
