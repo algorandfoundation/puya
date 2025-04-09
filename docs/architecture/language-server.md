@@ -27,86 +27,107 @@ sequenceDiagram
   LS -->>- LC: diagnostics
 ```
 
-## Python 'Frontend' Implementation
+## Algorand Python Language Server
+
+The Python implementation of the Puya language server directly interacts with the Puya compiler components in the same Python process.
 
 ```mermaid
 flowchart TB
-    subgraph IDE["IDE"]
-        Dev["Developer"]
+    subgraph "VSCode IDE"
+        Developer["Developer"]
+        VSCodeExt["VSCode Extension"]
     end
     
-    subgraph "Python Process (same runtime)"
-        subgraph "puyapy LSP Implementation"
-            PLC["Python Language Client"]
-            PLS["PuyaPyLanguageServer\n(pygls)"]
-            Parser["Python Parser\n(mypy-based)"]
+    subgraph "Python Process"
+        PuyaPyLSP["PuyaPy Language Server (puyapy.lsp)"]
+        
+        subgraph "PuyaPy Frontend"
+            PyParser["Python Parser"]
+            AWSBuilder["AWST Builder (transform_ast)"]
         end
         
-        subgraph "puya Core Compiler"
-            AWSTB["AWST Builder"]
-            TEAL["TEAL Generator"]
+        subgraph "Puya Core Compiler"
+            AWSTProcF["AWST Processor"]
+            TealCompiler["TEAL Compiler (awst_to_teal)"]
+            LogContext["Logging Context"]
         end
     end
     
-    Dev -->|edit code| IDE
-    IDE -->|document changes| PLC
-    PLC -->|notify changes| PLS
-    PLS -->|parse Python code| Parser
-    Parser -->|AST| AWSTB
-    AWSTB -->|generate AWST| PLS
-    PLS -->|pass AWST| TEAL
-    TEAL -->|validate & compile| PLS
-    PLS -->|diagnostics| PLC
-    PLC -->|display errors| IDE
+    Developer -->|keystroke| VSCodeExt
+    VSCodeExt -->|stdio/tcp| PuyaPyLSP
     
-    class IDE ide
-    class PLC,PLS,Parser puyapy
-    class AWSTB,TEAL core
+    PuyaPyLSP -->|document changes| PyParser
+    PyParser -->|Python AST| AWSBuilder
+    AWSBuilder -->|AWST nodes| AWSTProcF
+    AWSTProcF -->|processed AWST| TealCompiler
+    
+    LogContext -.->|diagnostics| PuyaPyLSP
+    AWSTProcF -->|validation results| LogContext
+    TealCompiler -->|compilation results| LogContext
+    
+    PuyaPyLSP -->|diagnostics| VSCodeExt
+    VSCodeExt -->|diagnostics| Developer
+    
+    class Developer,VSCodeExt vscode
+    class PuyaPyLSP pyProcess
+    class PyParser,AWSBuilder frontend
+    class AWSTProcF,TealCompiler,LogContext coreComp
 ```
 
-## TypeScript 'Frontend' Implementation
+## Algorand TypeScript Language Server
+
+The TypeScript implementation runs the Puya service as a separate process and communicates with it via JSON-RPC over stdin/stdout.
 
 ```mermaid
 flowchart TB
-    subgraph IDE["IDE"]
-        Dev["Developer"]
+    subgraph "VSCode IDE"
+        Developer["Developer"]
+        VSCodeExt["VSCode Extension"]
     end
     
-    subgraph "TypeScript Process"
-        subgraph "puya-ts Implementation"
-            TLC["TS Language Client"]
-            TLS["TS Language Server"]
-            PSTS["PuyaService\n(TypeScript)"]
+    subgraph "NodeJS Process"
+        PuyaTsLSP["PuyaTS Language Server"]
+        PuyaServiceClient["Puya Service Client"]
+        
+        subgraph "PuyaTs Frontend"
+            TsParser["TypeScript Parser"]
+            TsAWSTBuilder["AWST Builder (buildAwst)"]
         end
     end
     
     subgraph "Python Process (subprocess)"
-        subgraph "puya Backend Service"
-            PS["Puya Service\n(JSON-RPC Server)"]
-        end
+        PuyaService["Puya Service (puya serve)"]
         
-        subgraph "puya Core Compiler"
-            AWSTB["AWST Engine"]
-            TEAL["TEAL Generator"]
+        subgraph "Puya Core Compiler"
+            AWST["AWST Processor"]
+            TealCompiler["TEAL Compiler (awst_to_teal)"]
+            LogContext["Logging Context"]
         end
     end
     
-    Dev -->|edit code| IDE
-    IDE -->|document changes| TLC
-    TLC -->|notify changes| TLS
-    TLS -->|parse & preprocess| PSTS
-    PSTS -->|spawn subprocess| PS
-    PS -->|initialize JSON-RPC| TLS
-    TLS -->|send AWST via RPC| PS
-    PS -->|compile AWST| AWSTB
-    AWSTB -->|generate AWST| TEAL
-    TEAL -->|validate & compile| PS
-    PS -->|diagnostics via RPC| TLS
-    TLS -->|diagnostics| TLC
-    TLC -->|display errors| IDE
+    Developer -->|keystroke| VSCodeExt
+    VSCodeExt -->|stdio/tcp| PuyaTsLSP
     
-    class IDE ide
-    class TLC,TLS,PSTS tsImpl
-    class PS pyService
-    class AWSTB,TEAL core
+    PuyaTsLSP -->|document changes| TsParser
+    TsParser -->|TypeScript AST| TsAWSTBuilder
+    TsAWSTBuilder -->|AWST nodes| PuyaServiceClient
+    PuyaServiceClient -->|downloads puya binary, starts & manages| PuyaService
+    
+    PuyaServiceClient -->|JSON-RPC: serialized AWST| PuyaService
+    PuyaService -->|deserialized AWST| AWST
+    AWST -->|processed AWST| TealCompiler
+    TealCompiler -->|compilation results| LogContext
+    AWST -->|validation results| LogContext
+    
+    LogContext -.->|diagnostics| PuyaService
+    PuyaService -->|JSON-RPC: diagnostics| PuyaServiceClient
+    PuyaServiceClient -->|diagnostics| PuyaTsLSP
+    PuyaTsLSP -->|diagnostics| VSCodeExt
+    VSCodeExt -->|diagnostics| Developer
+    
+    class Developer,VSCodeExt vscode
+    class PuyaTsLSP,PuyaServiceClient nodeProc
+    class TsParser,TsAWSTBuilder frontend
+    class PuyaService pyProc
+    class AWST,TealCompiler,LogContext coreComp
 ```
