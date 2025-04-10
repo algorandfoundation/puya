@@ -37,8 +37,7 @@ contract BoxContract
     Box[hex<"424F585F43">]: arc4.dynamic_array<arc4.uint8> = c
     Box['box_d']: bytes = arc4_decode(b, bytes)
     box_create('box_large', size_of(examples.box_storage.contract.LargeStruct))
-    box_large_ref: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('box_large'))
-    box_replace(box_large_ref, size_of(arc4.static_array<arc4.uint8, 1024>) * 4u, reinterpret_cast<bytes>(42_arc4u64))
+    box_replace('box_large', size_of(arc4.static_array<arc4.uint8, 1024>) * 4u, reinterpret_cast<bytes>(42_arc4u64))
     b_value: arc4.dynamic_array<arc4.uint8> = Box['b'].copy()
     assert(Box['b'].length == b_value.length, comment="direct reference should match copy")
     Box['box_a'] += 3u
@@ -153,7 +152,9 @@ contract BoxContract
     key_1: uint64 = 1u
     value: string = 'Hmmmmm'
     Box[BoxMapKey(prefix='', key=key_0)]: string = value
+    box_0: box_key = BoxMapKey(prefix='', key=key_0)
     assert(checked_maybe(box_len(BoxMapKey(prefix='', key=key_0))) == len(reinterpret_cast<bytes>(value)))
+    assert(checked_maybe(box_len(BoxMapKey(prefix='', key=key_0))) == checked_maybe(box_len(box_0)))
     assert(checked_maybe(box_len(BoxMapKey(prefix='', key=key_0))) == len(reinterpret_cast<bytes>(value)))
     assert(STATE_GET(Box[BoxMapKey(prefix='', key=key_1)], default='default') == 'default')
     (value, exists): tuple<string,bool> = STATE_GET_EX(Box[BoxMapKey(prefix='', key=key_1)])
