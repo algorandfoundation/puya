@@ -62,6 +62,16 @@ myst_enable_extensions = [
 # -- Options for autoapi ---
 autoapi_dirs = ["./algopy"]
 autoapi_file_patterns = ["*.pyi"]
+autoapi_options = [
+    "members",
+    "undoc-members",
+    #    "private-members",
+    "inherited-members",
+    # "show-inheritance",
+    "show-module-summary",
+    "special-members",
+    "imported-members",
+]
 # autoapi_member_order = "groupwise"
 # autoapi_add_toctree_entry = False
 

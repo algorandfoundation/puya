@@ -32,7 +32,13 @@ def main() -> int:
     if build_dir.exists():
         shutil.rmtree(build_dir)
     log.configure_logging()
-    generate_doc_stubs()
+    # generate_doc_stubs()
+    if STUBS_DOC_DIR.exists():
+        shutil.rmtree(STUBS_DOC_DIR)
+    STUBS_DOC_DIR.mkdir()
+    for fp in PACKAGE_ROOT.glob("*.pyi"):
+        (STUBS_DOC_DIR / fp.name).write_text(fp.read_text("utf8"), "utf8")
+
     logger.info("building docs with sphinx")
     result = sphinx_build([str(DOCS_DIR), str(build_dir), "-W", "--keep-going", "-n", "-E"])
     subprocess.run(f"git add {build_dir}", shell=True, check=False)
@@ -111,9 +117,9 @@ def output_combined_stub(stubs: "DocStub", output: Path) -> None:
             lines.append(f"from {module} import {from_imports}")
     lines.extend(["", ""])
 
-    # assemble __all__
-    all_values = [symbol for symbol in (*rexported, *stubs.collected_symbols) if symbol[0] != "_"]
-    lines.append(f"__all__ = {all_values}")
+    # # assemble __all__
+    # all_values = [symbol for symbol in (*rexported, *stubs.collected_symbols) if symbol[0] != "_"]
+    # lines.append(f"__all__ = {all_values}")
 
     # assemble symbols
     lines.extend(stubs.collected_symbols.values())

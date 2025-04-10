@@ -1,42 +1,11 @@
-# ruff: noqa: A001, E501, F403, PYI021, PYI034, W291
 import typing
 from collections.abc import Callable, Iterable, Mapping, Reversible, Sequence
 
 import algopy
 
-__all__ = [
-    "ARC4Contract",
-    "abimethod",
-    "baremethod",
-    "arc4_signature",
-    "String",
-    "UIntN",
-    "BigUIntN",
-    "UFixedNxM",
-    "BigUFixedNxM",
-    "Byte",
-    "UInt8",
-    "UInt16",
-    "UInt32",
-    "UInt64",
-    "UInt128",
-    "UInt256",
-    "UInt512",
-    "Bool",
-    "StaticArray",
-    "DynamicArray",
-    "Address",
-    "DynamicBytes",
-    "Tuple",
-    "Struct",
-    "ARC4Client",
-    "abi_call",
-    "arc4_create",
-    "arc4_update",
-    "emit",
-]
 _P = typing.ParamSpec("_P")
 _R = typing.TypeVar("_R")
+
 _ReadOnlyNoArgsMethod: typing.TypeAlias = Callable[..., typing.Any]  # type: ignore[misc]
 
 class ARC4Contract(algopy.Contract):
@@ -51,6 +20,7 @@ class ARC4Contract(algopy.Contract):
     def approval_program(self) -> bool: ...
     def clear_state_program(self) -> algopy.UInt64 | bool: ...
 
+# if we use type aliasing here for Callable[_P, _R], mypy thinks it involves Any...
 @typing.overload
 def abimethod(fn: Callable[_P, _R], /) -> Callable[_P, _R]: ...
 @typing.overload
@@ -234,16 +204,22 @@ class Byte(UIntN[typing.Literal[8]]):
 
 UInt8: typing.TypeAlias = UIntN[typing.Literal[8]]
 """An ARC-4 UInt8"""
+
 UInt16: typing.TypeAlias = UIntN[typing.Literal[16]]
 """An ARC-4 UInt16"""
+
 UInt32: typing.TypeAlias = UIntN[typing.Literal[32]]
 """An ARC-4 UInt32"""
+
 UInt64: typing.TypeAlias = UIntN[typing.Literal[64]]
 """An ARC-4 UInt64"""
+
 UInt128: typing.TypeAlias = BigUIntN[typing.Literal[128]]
 """An ARC-4 UInt128"""
+
 UInt256: typing.TypeAlias = BigUIntN[typing.Literal[256]]
 """An ARC-4 UInt256"""
+
 UInt512: typing.TypeAlias = BigUIntN[typing.Literal[512]]
 """An ARC-4 UInt512"""
 
