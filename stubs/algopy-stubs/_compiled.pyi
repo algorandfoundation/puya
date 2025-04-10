@@ -1,5 +1,6 @@
-from collections.abc import Mapping
 import typing
+from collections.abc import Mapping
+
 from algopy import (
     Account,
     Bytes,
@@ -95,7 +96,7 @@ def compile_contract(
                           key should be without the prefix, must evaluate to a compile time constant
                           and match the type of the template var declaration
     :param template_vars_prefix: Prefix to add to provided template vars,
-                   defaults to the prefix supplied on command line (which defaults to TMPL_)
+                   defaults to the prefix supplied on command line (which defaults to ``"TMPL_"``)
     """
 
 def compile_logicsig(
@@ -113,5 +114,5 @@ def compile_logicsig(
                           key should be without the prefix, must evaluate to a compile time constant
                           and match the type of the template var declaration
     :param template_vars_prefix: Prefix to add to provided template vars,
-                                 defaults to the prefix supplied on command line (which defaults to TMPL_)
+                                 defaults to the prefix supplied on command line (which defaults to ``"TMPL_"``)
     """

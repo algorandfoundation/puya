@@ -4,17 +4,9 @@ import typing
 from collections.abc import Callable, Container, Iterable, Iterator, Mapping, Reversible
 
 import algopy
-from algopy import (
-    arc4 as arc4,
-    gtxn as gtxn,
-    itxn as itxn,
-    op as op,
-)
-from algopy.arc4 import ARC4Contract as ARC4Contract
-from algopy.op import (
-    Global as Global,
-    Txn as Txn,
-)
+from algopy import arc4, gtxn, itxn, op
+from algopy.arc4 import ARC4Contract
+from algopy.op import Global, Txn
 
 __all__ = [
     "arc4",
@@ -488,15 +480,14 @@ class ImmutableArray(Reversible[_T]):
     An immutable array that supports fixed and dynamically sized immutable elements.
     Modifications are done by returning a new copy of the array with the modifications applied.
 
-    Example:
-    ```python
-    arr = ImmutableArray[UInt64]()
+    Example: ::
 
-    arr = arr.append(UInt64(42))
-    element = arr[0]
-    assert element == 42
-    arr = arr.pop()
-    ```
+        arr = ImmutableArray[UInt64]()
+
+        arr = arr.append(UInt64(42))
+        element = arr[0]
+        assert element == 42
+        arr = arr.pop()
     """
 
     def __init__(self, *items: _T):
@@ -650,104 +641,91 @@ class Account:
     def balance(self) -> UInt64:
         """Account balance in microalgos
 
-        ```{note}
-        Account must be an available resource
-        ```
+        .. note::
+            Account must be an available resource
         """
     @property
     def min_balance(self) -> UInt64:
         """Minimum required balance for account, in microalgos
 
-        ```{note}
-        Account must be an available resource
-        ```
+        .. note::
+            Account must be an available resource
         """
     @property
     def auth_address(self) -> Account:
         """Address the account is rekeyed to
 
-        ```{note}
-        Account must be an available resource
-        ```
+        .. note::
+            Account must be an available resource
         """
     @property
     def total_num_uint(self) -> UInt64:
         """The total number of uint64 values allocated by this account in Global and Local States.
 
-        ```{note}
-        Account must be an available resource
-        ```
+        .. note::
+            Account must be an available resource
         """
     @property
     def total_num_byte_slice(self) -> UInt64:
         """The total number of byte array values allocated by this account in Global and Local States.
 
-        ```{note}
-        Account must be an available resource
-        ```
+        .. note::
+            Account must be an available resource
         """
     @property
     def total_extra_app_pages(self) -> UInt64:
         """The number of extra app code pages used by this account.
 
-        ```{note}
-        Account must be an available resource
-        ```
+        .. note::
+            Account must be an available resource
         """
     @property
     def total_apps_created(self) -> UInt64:
         """The number of existing apps created by this account.
 
-        ```{note}
-        Account must be an available resource
-        ```
+        .. note::
+            Account must be an available resource
         """
     @property
     def total_apps_opted_in(self) -> UInt64:
         """The number of apps this account is opted into.
 
-        ```{note}
-        Account must be an available resource
-        ```
+        .. note::
+            Account must be an available resource
         """
     @property
     def total_assets_created(self) -> UInt64:
         """The number of existing ASAs created by this account.
 
-        ```{note}
-        Account must be an available resource
-        ```
+        .. note::
+            Account must be an available resource
         """
     @property
     def total_assets(self) -> UInt64:
         """The numbers of ASAs held by this account (including ASAs this account created).
 
-        ```{note}
-        Account must be an available resource
-        ```
+        .. note::
+            Account must be an available resource
         """
     @property
     def total_boxes(self) -> UInt64:
         """The number of existing boxes created by this account's app.
 
-        ```{note}
-        Account must be an available resource
-        ```
+        .. note::
+            Account must be an available resource
         """
     @property
     def total_box_bytes(self) -> UInt64:
         """The total number of bytes used by this account's app's box keys and values.
 
-        ```{note}
-        Account must be an available resource
-        ```
+        .. note::
+            Account must be an available resource
         """
     def is_opted_in(self, asset_or_app: Asset | Application, /) -> bool:
         """Returns true if this account is opted in to the specified Asset or Application.
 
-        ```{note}
-        Account and Asset/Application must be an available resource
-        ```
+        .. note::
+            Account and Asset/Application must be an available resource
         """
     """Represents a type that is a single bytes value"""
     @classmethod
@@ -773,6 +751,7 @@ class Asset:
 
     def __ne__(self, other: Asset) -> bool:  # type: ignore[override]
         """Asset equality is determined by the equality of an Asset's id"""
+
     # truthiness
     def __bool__(self) -> bool:
         """Returns `True` if `asset_id` is not `0`"""
@@ -781,126 +760,112 @@ class Asset:
     def total(self) -> UInt64:
         """Total number of units of this asset
 
-        ```{note}
-        Asset must be an available resource
-        ```
+        .. note::
+            Asset must be an available resource
         """
 
     @property
     def decimals(self) -> UInt64:
         """See AssetParams.Decimals
 
-        ```{note}
-        Asset must be an available resource
-        ```
+        .. note::
+            Asset must be an available resource
         """
 
     @property
     def default_frozen(self) -> bool:
         """Frozen by default or not
 
-        ```{note}
-        Asset must be an available resource
-        ```
+        .. note::
+            Asset must be an available resource
         """
 
     @property
     def unit_name(self) -> Bytes:
         """Asset unit name
 
-        ```{note}
-        Asset must be an available resource
-        ```
+        .. note::
+            Asset must be an available resource
         """
 
     @property
     def name(self) -> Bytes:
         """Asset name
 
-        ```{note}
-        Asset must be an available resource
-        ```
+        .. note::
+            Asset must be an available resource
         """
 
     @property
     def url(self) -> Bytes:
         """URL with additional info about the asset
 
-        ```{note}
-        Asset must be an available resource
-        ```
+        .. note::
+            Asset must be an available resource
         """
 
     @property
     def metadata_hash(self) -> Bytes:
         """Arbitrary commitment
 
-        ```{note}
-        Asset must be an available resource
-        ```
+        .. note::
+            Asset must be an available resource
         """
 
     @property
     def manager(self) -> Account:
         """Manager address
 
-        ```{note}
-        Asset must be an available resource
-        ```
+        .. note::
+            Asset must be an available resource
         """
 
     @property
     def reserve(self) -> Account:
         """Reserve address
 
-        ```{note}
-        Asset must be an available resource
-        ```
+        .. note::
+            Asset must be an available resource
         """
 
     @property
     def freeze(self) -> Account:
         """Freeze address
 
-        ```{note}
-        Asset must be an available resource
-        ```
+        .. note::
+            Asset must be an available resource
         """
 
     @property
     def clawback(self) -> Account:
         """Clawback address
 
-        ```{note}
-        Asset must be an available resource
-        ```
+        .. note::
+            Asset must be an available resource
         """
 
     @property
     def creator(self) -> Account:
         """Creator address
 
-        ```{note}
-        Asset must be an available resource
-        ```
+        .. note::
+            Asset must be an available resource
         """
 
     def balance(self, account: Account, /) -> UInt64:
         """Amount of the asset unit held by this account. Fails if the account has not
         opted in to the asset.
 
-        ```{note}
-        Asset and supplied Account must be an available resource
-        ```
+        .. note::
+            Asset and supplied Account must be an available resource
         """
 
     def frozen(self, account: Account, /) -> bool:
         """Is the asset frozen or not. Fails if the account has not
         opted in to the asset.
 
-        ```{note}
-        Asset and supplied Account must be an available resource
-        ```
+        .. note::
+            Asset and supplied Account must be an available resource
         """
 
 @typing.final
@@ -919,6 +884,7 @@ class Application:
 
     def __ne__(self, other: Application) -> bool:  # type: ignore[override]
         """Application equality is determined by the equality of an Application's id"""
+
     # truthiness
     def __bool__(self) -> bool:
         """Returns `True` if `application_id` is not `0`"""
@@ -927,81 +893,72 @@ class Application:
     def approval_program(self) -> Bytes:
         """Bytecode of Approval Program
 
-        ```{note}
-        Application must be an available resource
-        ```
+        .. note::
+            Application must be an available resource
         """
 
     @property
     def clear_state_program(self) -> Bytes:
         """Bytecode of Clear State Program
 
-        ```{note}
-        Application must be an available resource
-        ```
+        .. note::
+            Application must be an available resource
         """
 
     @property
     def global_num_uint(self) -> UInt64:
         """Number of uint64 values allowed in Global State
 
-        ```{note}
-        Application must be an available resource
-        ```
+        .. note::
+            Application must be an available resource
         """
 
     @property
     def global_num_bytes(self) -> UInt64:
         """Number of byte array values allowed in Global State
 
-        ```{note}
-        Application must be an available resource
-        ```
+        .. note::
+            Application must be an available resource
         """
 
     @property
     def local_num_uint(self) -> UInt64:
         """Number of uint64 values allowed in Local State
 
-        ```{note}
-        Application must be an available resource
-        ```
+        .. note::
+            Application must be an available resource
         """
 
     @property
     def local_num_bytes(self) -> UInt64:
         """Number of byte array values allowed in Local State
 
-        ```{note}
-        Application must be an available resource
-        ```
+        .. note::
+            Application must be an available resource
         """
 
     @property
     def extra_program_pages(self) -> UInt64:
         """Number of Extra Program Pages of code space
 
-        ```{note}
-        Application must be an available resource
-        ```
+        .. note::
+            Application must be an available resource
         """
 
     @property
     def creator(self) -> Account:
         """Creator address
 
-        ```{note}
-        Application must be an available resource
-        ```
+        .. note::
+            Application must be an available resource
         """
 
     @property
     def address(self) -> Account:
         """Address for which this application has authority
 
-        ```{note}
-        Application must be an available resource
-        ```
+        .. note::
+            Application must be an available resource
         """
 
 _TKey = typing.TypeVar("_TKey")
@@ -1320,7 +1277,7 @@ def compile_contract(
                           key should be without the prefix, must evaluate to a compile time constant
                           and match the type of the template var declaration
     :param template_vars_prefix: Prefix to add to provided template vars,
-                   defaults to the prefix supplied on command line (which defaults to TMPL_)
+                   defaults to the prefix supplied on command line (which defaults to ``"TMPL_"``)
     """
 
 def compile_logicsig(
@@ -1338,7 +1295,7 @@ def compile_logicsig(
                           key should be without the prefix, must evaluate to a compile time constant
                           and match the type of the template var declaration
     :param template_vars_prefix: Prefix to add to provided template vars,
-                                 defaults to the prefix supplied on command line (which defaults to TMPL_)
+                                 defaults to the prefix supplied on command line (which defaults to ``"TMPL_"``)
     """
 @typing.final
 class StateTotals:
@@ -1381,12 +1338,10 @@ class Contract(abc.ABC):
     ):
         """
         When declaring a Contract subclass, options and configuration are passed in
-        the base class list:
+        the base class list: ::
 
-        ```python
-        class MyContract(algopy.Contract, name="CustomName"):
-            ...
-        ```
+            class MyContract(algopy.Contract, name="CustomName"):
+                ...
 
         :param name:
          Will affect the output TEAL file name if there are multiple non-abstract contracts
@@ -1452,18 +1407,6 @@ def subroutine(
     never be inlined.
     """
 
-def subroutine(
-    *, inline: bool | typing.Literal["auto"] = "auto"
-) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
-    """
-    Decorator to indicate functions or methods that can be called by a Smart Contract
-
-    Inlining can be controlled with the decorator argument `inline`.
-    When unspecified it defaults to auto, which allows the optimizer to decide whether to inline
-    or not. Setting `inline=True` forces inlining, and `inline=False` ensures the function will
-    never be inlined.
-    """
-
 _TState = typing.TypeVar("_TState")
 
 @typing.final
@@ -1480,9 +1423,9 @@ class LocalState(typing.Generic[_TState]):
     ) -> None:
         """Declare the local state key and it's associated type
 
-        ```python
-        self.names = LocalState(algopy.Bytes)
-        ```
+        ::
+
+            self.names = LocalState(algopy.Bytes)
         """
 
     @property
@@ -1492,53 +1435,53 @@ class LocalState(typing.Generic[_TState]):
     def __getitem__(self, account: Account | UInt64 | int) -> _TState:
         """Data can be accessed by an `Account` reference or foreign account index
 
-        ```python
-        account_name = self.names[account]
-        ```
+        ::
+
+            account_name = self.names[account]
         """
 
     def __setitem__(self, account: Account | UInt64 | int, value: _TState) -> None:
         """Data can be stored by using an `Account` reference or foreign account index
 
-        ```python
-        self.names[account] = account_name
-        ```
+        ::
+
+            self.names[account] = account_name
         """
 
     def __delitem__(self, account: Account | UInt64 | int) -> None:
         """Data can be removed by using an `Account` reference or foreign account index
 
-        ```python
-        del self.names[account]
-        ```
+        ::
+
+            del self.names[account]
         """
 
     def __contains__(self, account: Account | UInt64 | int) -> bool:
         """Can test if data exists by using an `Account` reference or foreign account index
 
-        ```python
-        assert account in self.names
-        ```
+        ::
+
+            assert account in self.names
         """
 
     def get(self, account: Account | UInt64 | int, default: _TState) -> _TState:
         """Can retrieve value using an `Account` reference or foreign account index,
         and a fallback default value.
 
-        ```python
-        name = self.names.get(account, Bytes(b"no name")
-        ```
+        ::
+
+            name = self.names.get(account, Bytes(b"no name")
         """
 
     def maybe(self, account: Account | UInt64 | int) -> tuple[_TState, bool]:
         """Can retrieve value, and a bool indicating if the value was present
         using an `Account` reference or foreign account index.
 
-        ```python
-        name, name_exists = self.names.maybe(account)
-        if not name_exists:
-            name = Bytes(b"no name")
-        ```
+        ::
+
+            name, name_exists = self.names.maybe(account)
+            if not name_exists:
+                name = Bytes(b"no name")
         """
 
 @typing.final
@@ -1546,12 +1489,11 @@ class GlobalState(typing.Generic[_TState]):
     """Global state associated with the application, the key will be the name of the member, this
     is assigned to
 
-    ```{note}
-    The `GlobalState` class provides a richer API that in addition to storing and retrieving
-    values, can test if a value is set or unset it. However if this extra functionality is not
-    needed then it is simpler to just store the data without the GlobalState proxy
-    e.g. `self.some_variable = UInt64(0)`
-    ```
+    .. note::
+        The `GlobalState` class provides a richer API that in addition to storing and retrieving
+        values, can test if a value is set or unset it. However if this extra functionality is not
+        needed then it is simpler to just store the data without the GlobalState proxy
+        e.g. `self.some_variable = UInt64(0)`
     """
 
     @typing.overload
@@ -1584,27 +1526,27 @@ class GlobalState(typing.Generic[_TState]):
     def value(self) -> _TState:
         """Returns the value or and error if the value is not set
 
-        ```python
-        name = self.name.value
-        ```
+        ::
+
+            name = self.name.value
         """
 
     @value.setter
     def value(self, value: _TState) -> None:
         """Sets the value
 
-        ```python
-        self.name.value = Bytes(b"Alice")
-        ```
+        ::
+
+            self.name.value = Bytes(b"Alice")
         """
 
     @value.deleter
     def value(self) -> None:
         """Removes the value
 
-        ```python
-        del self.name.value
-        ```
+        ::
+
+            del self.name.value
         """
 
     def __bool__(self) -> bool:
@@ -1613,19 +1555,19 @@ class GlobalState(typing.Generic[_TState]):
     def get(self, default: _TState) -> _TState:
         """Returns the value or `default` if no value is set
 
-        ```python
-        name = self.name.get(Bytes(b"no name")
-        ```
+        ::
+
+            name = self.name.get(Bytes(b"no name")
         """
 
     def maybe(self) -> tuple[_TState, bool]:
         """Returns the value, and a bool
 
-        ```python
-        name, name_exists = self.name.maybe()
-        if not name_exists:
-            name = Bytes(b"no name")
-        ```
+        ::
+
+            name, name_exists = self.name.maybe()
+            if not name_exists:
+                name = Bytes(b"no name")
         """
 
 @typing.final
@@ -1699,14 +1641,6 @@ class LogicSig:
 @typing.overload
 def logicsig(sub: Callable[[], bool | UInt64], /) -> LogicSig: ...
 @typing.overload
-def logicsig(
-    *,
-    name: str = ...,
-    avm_version: int = ...,
-    scratch_slots: urange | tuple[int | urange, ...] | list[int | urange] = (),
-) -> Callable[[Callable[[], bool | UInt64]], LogicSig]:
-    """Decorator to indicate a function is a logic signature"""
-
 def logicsig(
     *,
     name: str = ...,

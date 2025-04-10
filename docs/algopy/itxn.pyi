@@ -1038,26 +1038,3 @@ def submit_txns(
     """Submits a group of up to 16 inner transactions parameters
 
     :returns: A tuple of the resulting inner transactions"""
-
-def submit_txns(
-    _t1: _InnerTransaction[_T1],
-    _t2: _InnerTransaction[_T2],
-    _t3: _InnerTransaction[_T3],
-    _t4: _InnerTransaction[_T4],
-    _t5: _InnerTransaction[_T5],
-    _t6: _InnerTransaction[_T6],
-    _t7: _InnerTransaction[_T7],
-    _t8: _InnerTransaction[_T8],
-    _t9: _InnerTransaction[_T9],
-    _t10: _InnerTransaction[_T10],
-    _t11: _InnerTransaction[_T11],
-    _t12: _InnerTransaction[_T12],
-    _t13: _InnerTransaction[_T13],
-    _t14: _InnerTransaction[_T14],
-    _t15: _InnerTransaction[_T15],
-    _t16: _InnerTransaction[_T16],
-    /,
-) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8, _T9, _T10, _T11, _T12, _T13, _T14, _T15, _T16]:
-    """Submits a group of up to 16 inner transactions parameters
-
-    :returns: A tuple of the resulting inner transactions"""

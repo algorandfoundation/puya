@@ -19,7 +19,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx_copybutton",
     "myst_parser",
-    "autodoc2",
+    "autoapi.extension",
 ]
 
 templates_path = ["_templates"]
@@ -58,27 +58,33 @@ myst_enable_extensions = [
     "fieldlist",
 ]
 
-# -- Options for autodoc2 ---
-autodoc2_packages = [
-    {
-        "path": "./algopy-stubs",
-        "module": "algopy",
-        "auto_mode": False,
-    },
-]
-autodoc2_docstring_parser_regexes = [
-    # this will render all docstrings as Markdown
-    (r".*", "myst"),
-]
-autodoc2_hidden_objects = [
-    "undoc",
-]
-autodoc2_hidden_regexes = [
-    r".*\.__subclasshook__",  # inherited from Protocol
-]
-autodoc2_class_inheritance = False
-autodoc2_module_all_regexes = [r"algopy.*"]
-autodoc2_render_plugin = "myst"
-autodoc2_sort_names = True
-autodoc2_index_template = None
-autodoc2_docstrings = "all"
+
+# -- Options for autoapi ---
+autoapi_dirs = ["./algopy"]
+autoapi_file_patterns = ["*.pyi"]
+# autoapi_member_order = "groupwise"
+# autoapi_add_toctree_entry = False
+
+# autodoc2_packages = [
+#     {
+#         "path": "./algopy-stubs",
+#         "module": "algopy",
+#         "auto_mode": False,
+#     },
+# ]
+# autodoc2_docstring_parser_regexes = [
+#     # this will render all docstrings as Markdown
+#     (r".*", "myst"),
+# ]
+# autodoc2_hidden_objects = [
+#     "undoc",
+# ]
+# autodoc2_hidden_regexes = [
+#     r".*\.__subclasshook__",  # inherited from Protocol
+# ]
+# autodoc2_class_inheritance = False
+# autodoc2_module_all_regexes = [r"algopy.*"]
+# autodoc2_render_plugin = "myst"
+# autodoc2_sort_names = True
+# autodoc2_index_template = None
+# autodoc2_docstrings = "all"

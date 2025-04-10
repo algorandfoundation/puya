@@ -570,29 +570,28 @@ class _ABICallProtocolType(typing.Protocol):
 
 abi_call: _ABICallProtocolType = ...
 """
-Provides a typesafe way of calling ARC-4 methods via an inner transaction
+Provides a typesafe way of calling ARC-4 methods via an inner transaction ::
 
-```python
-def abi_call(
-    self,
-    method: Callable[..., _TABIResult_co] | str,
-    /,
-    *args: object,
-    app_id: algopy.Application | algopy.UInt64 | int = ...,
-    on_completion: algopy.OnCompleteAction = ...,
-    approval_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
-    clear_state_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
-    global_num_uint: UInt64 | int = ...,
-    global_num_bytes: UInt64 | int = ...,
-    local_num_uint: UInt64 | int = ...,
-    local_num_bytes: UInt64 | int = ...,
-    extra_program_pages: UInt64 | int = ...,
-    fee: algopy.UInt64 | int = 0,
-    sender: algopy.Account | str = ...,
-    note: algopy.Bytes | algopy.String | bytes | str = ...,
-    rekey_to: algopy.Account | str = ...,
-) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]: ...
-```
+    def abi_call(
+        self,
+        method: Callable[..., _TABIResult_co] | str,
+        /,
+        *args: object,
+        app_id: algopy.Application | algopy.UInt64 | int = ...,
+        on_completion: algopy.OnCompleteAction = ...,
+        approval_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
+        clear_state_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
+        global_num_uint: UInt64 | int = ...,
+        global_num_bytes: UInt64 | int = ...,
+        local_num_uint: UInt64 | int = ...,
+        local_num_bytes: UInt64 | int = ...,
+        extra_program_pages: UInt64 | int = ...,
+        fee: algopy.UInt64 | int = 0,
+        sender: algopy.Account | str = ...,
+        note: algopy.Bytes | algopy.String | bytes | str = ...,
+        rekey_to: algopy.Account | str = ...,
+    ) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]: ...
+
 PARAMETERS:  
 
 **method:** The name, method selector or Algorand Python method to call  
@@ -617,23 +616,22 @@ then the result is a tuple containing the ABI result and the inner transaction o
 If no return type is specified, or the method does not have a return value then the result
 is the inner transaction of the call.  
 
-Examples:
-```
-# can reference another algopy contract method
-result, txn = abi_call(HelloWorldContract.hello, arc4.String("World"), app=...)
-assert result == "Hello, World"
+Examples: ::
 
-# can reference a method selector
-result, txn = abi_call[arc4.String]("hello(string)string", arc4.String("Algo"), app=...)
-assert result == "Hello, Algo"
+    # can reference another algopy contract method
+    result, txn = abi_call(HelloWorldContract.hello, arc4.String("World"), app=...)
+    assert result == "Hello, World"
 
-# can reference a method name, the method selector is inferred from arguments and return type
-result, txn = abi_call[arc4.String]("hello", "There", app=...)
-assert result == "Hello, There"
+    # can reference a method selector
+    result, txn = abi_call[arc4.String]("hello(string)string", arc4.String("Algo"), app=...)
+    assert result == "Hello, Algo"
 
-# calling a method without a return value
-txn = abi_call(HelloWorldContract.no_return, arc4.String("World"), app=...)
-```
+    # can reference a method name, the method selector is inferred from arguments and return type
+    result, txn = abi_call[arc4.String]("hello", "There", app=...)
+    assert result == "Hello, There"
+
+    # calling a method without a return value
+    txn = abi_call(HelloWorldContract.no_return, arc4.String("World"), app=...)
 """
 
 @typing.overload
@@ -727,23 +725,20 @@ def emit(event: str | Struct, /, *args: object) -> None:
         * If event is just a name, the event signature will be inferred from the name and following arguments
 
     :param args: When event is a signature or name, args will be used as the event data.
-    They will all be encoded as single ARC-4 Tuple
+        They will all be encoded as single ARC-4 Tuple
 
-    Example:
-    ```
-    from algopy import ARC4Contract, arc4
+    Example: ::
 
+        from algopy import ARC4Contract, arc4
 
-    class Swapped(arc4.Struct):
-        a: arc4.UInt64
-        b: arc4.UInt64
+        class Swapped(arc4.Struct):
+            a: arc4.UInt64
+            b: arc4.UInt64
 
-
-    class EventEmitter(ARC4Contract):
-        @arc4.abimethod
-        def emit_swapped(self, a: arc4.UInt64, b: arc4.UInt64) -> None:
-            arc4.emit(Swapped(b, a))
-            arc4.emit("Swapped(uint64,uint64)", b, a)
-            arc4.emit("Swapped", b, a)
-    ```
+        class EventEmitter(ARC4Contract):
+            @arc4.abimethod
+            def emit_swapped(self, a: arc4.UInt64, b: arc4.UInt64) -> None:
+                arc4.emit(Swapped(b, a))
+                arc4.emit("Swapped(uint64,uint64)", b, a)
+                arc4.emit("Swapped", b, a)
     """

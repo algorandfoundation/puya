@@ -971,8 +971,8 @@ class AVMOp(enum.StrEnum):
     that only signs base64 strings.
 
 
-     Decodes A using the base64 encoding E. Specify the encoding with an immediate arg either as
-    URL and Filename Safe (`URLEncoding`) or Standard (`StdEncoding`). See [RFC 4648 sections 4 and
+    Decodes A using the base64 encoding E. Specify the encoding with an immediate arg either as URL
+    and Filename Safe (`URLEncoding`) or Standard (`StdEncoding`). See [RFC 4648 sections 4 and
     5](https://rfc-editor.org/rfc/rfc4648.html#section-4). It is assumed that the encoding ends
     with the exact number of `=` padding characters as required by the RFC. When padding occurs,
     any unused pad bits in the encoding must be set to zero or the decoding will fail. The special

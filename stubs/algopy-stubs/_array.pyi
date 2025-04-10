@@ -10,15 +10,14 @@ class ImmutableArray(Reversible[_T]):
     An immutable array that supports fixed and dynamically sized immutable elements.
     Modifications are done by returning a new copy of the array with the modifications applied.
 
-    Example:
-    ```python
-    arr = ImmutableArray[UInt64]()
+    Example: ::
 
-    arr = arr.append(UInt64(42))
-    element = arr[0]
-    assert element == 42
-    arr = arr.pop()
-    ```
+        arr = ImmutableArray[UInt64]()
+
+        arr = arr.append(UInt64(42))
+        element = arr[0]
+        assert element == 42
+        arr = arr.pop()
     """
 
     def __init__(self, *items: _T):

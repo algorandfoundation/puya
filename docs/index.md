@@ -57,7 +57,6 @@ hidden: true
 
 language-guide
 principles
-api
 compiler
 references/algopy_testing
 references/avm_debugger

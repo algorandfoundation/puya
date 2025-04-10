@@ -44,12 +44,10 @@ class Contract(abc.ABC):
     ):
         """
         When declaring a Contract subclass, options and configuration are passed in
-        the base class list:
+        the base class list: ::
 
-        ```python
-        class MyContract(algopy.Contract, name="CustomName"):
-            ...
-        ```
+            class MyContract(algopy.Contract, name="CustomName"):
+                ...
 
         :param name:
          Will affect the output TEAL file name if there are multiple non-abstract contracts

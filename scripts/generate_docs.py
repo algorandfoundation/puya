@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import ast
+import shutil
 import subprocess
 import symtable as st
 import sys
@@ -23,16 +24,19 @@ MODULE_NAME = "algopy"
 PACKAGE_ROOT = BASE_DIR / f"{MODULE_NAME}-stubs"
 
 DOCS_DIR = VCS_ROOT / "docs"
-STUBS_DOC_DIR = DOCS_DIR / f"{MODULE_NAME}-stubs"
+STUBS_DOC_DIR = DOCS_DIR / f"{MODULE_NAME}"
 
 
 def main() -> int:
+    build_dir = DOCS_DIR / "_build"
+    if build_dir.exists():
+        shutil.rmtree(build_dir)
     log.configure_logging()
     generate_doc_stubs()
     logger.info("building docs with sphinx")
-    return sphinx_build(
-        [str(DOCS_DIR), str(DOCS_DIR / "_build"), "-W", "--keep-going", "-n", "-E"]
-    )
+    result = sphinx_build([str(DOCS_DIR), str(build_dir), "-W", "--keep-going", "-n", "-E"])
+    subprocess.run(f"git add {build_dir}", shell=True, check=False)
+    return result
 
 
 def generate_doc_stubs() -> None:
@@ -119,7 +123,7 @@ def output_combined_stub(stubs: "DocStub", output: Path) -> None:
 
 
 def _name_as(name: str, name_as: str | None) -> str:
-    if name_as is None:
+    if name_as in (name, None):
         return name
     return f"{name} as {name_as}"
 
@@ -265,14 +269,12 @@ class SymbolCollector(ast.NodeVisitor):
     def _visit_overload(self, name: str, overload_list: list[ast.FunctionDef]) -> None:
         line = min(o.decorator_list[0].lineno for o in overload_list)
         end_line = max(o.end_lineno for o in overload_list if o.end_lineno is not None)
-        overloaded_src = self.get_src_from_lines(line, end_line)
-        best_sig = _get_best_overload(overload_list)
-
-        if not best_sig:
-            src = overloaded_src
-        else:
-            best_sig_src = self.get_node_src(best_sig, include_decorators=False)
-            src = f"{overloaded_src}\n{best_sig_src}"
+        src = self.get_src_from_lines(line, end_line)
+        #
+        # best_sig = _get_best_overload(overload_list)
+        # if best_sig:
+        #     best_sig_src = self.get_node_src(best_sig, include_decorators=False)
+        #     src += f"\n{best_sig_src}"
 
         assert self.symbols[name] == ""
         self.symbols[name] = src
@@ -393,7 +395,7 @@ class DocStub(ast.NodeVisitor):
     def visit_Module(self, node: ast.Module) -> None:
         assert node is self.file.module
         super().generic_visit(node)
-        module = self._get_module(self.file.module_name)
+        module = self._collect_symbols(self.file.module_name)
         for sym in module.symbols:
             self._add_symbol(module, sym)
         for name in self.inlined_protocols:
@@ -422,18 +424,18 @@ class DocStub(ast.NodeVisitor):
         if not node.module.startswith(f"{MODULE_NAME}._"):
             self._import_collector.visit(node)
         else:
-            module = self._get_module(node.module)
+            parsed_module = self._collect_symbols(node.module)
             symbols_to_add = list[str]()
             for alias in node.names:
                 assert alias.asname in (None, alias.name), "import renaming not supported"
                 if alias.name == "*":
-                    symbols_to_add = list(module.symbols)
+                    symbols_to_add = list(parsed_module.symbols)
                     break
                 symbols_to_add.append(alias.name)
             for symbol in symbols_to_add:
-                self._add_symbol(module, symbol)
+                self._add_symbol(parsed_module, symbol)
 
-    def _get_module(self, module_id: str) -> SymbolCollector:
+    def _collect_symbols(self, module_id: str) -> SymbolCollector:
         try:
             return self.parsed_modules[module_id]
         except KeyError:

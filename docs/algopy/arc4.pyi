@@ -86,67 +86,11 @@ def abimethod(
 
     """
 
-def abimethod(
-    *,
-    name: str = ...,
-    create: typing.Literal["allow", "require", "disallow"] = "disallow",
-    allow_actions: Sequence[
-        algopy.OnCompleteAction
-        | typing.Literal[
-            "NoOp",
-            "OptIn",
-            "CloseOut",
-            # ClearState has its own program, so is not considered as part of ARC-4 routing
-            "UpdateApplication",
-            "DeleteApplication",
-        ]
-    ] = ("NoOp",),
-    readonly: bool = False,
-    default_args: Mapping[str, str | _ReadOnlyNoArgsMethod | object] = ...,
-) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
-    """Decorator that indicates a method is an ARC-4 ABI method.
-
-    :arg name: Name component of the ABI method selector. Defaults to using the function name.
-    :arg create: Controls the validation of the Application ID. "require" means it must be zero,
-                 "disallow" requires it must be non-zero, and "allow" disables the validation.
-    :arg allow_actions: A sequence of allowed On-Completion Actions to validate against.
-    :arg readonly: If True, then this method can be used via dry-run / simulate.
-    :arg default_args: Default argument sources for clients to use. For dynamic defaults, this can
-                       be the name of, or reference to a method member, or the name of a storage
-                       member. For static defaults, this can be any expression which evaluates to
-                       a compile time constant of the exact same type as the parameter.
-
-    """
-
 _TARC4Contract = typing.TypeVar("_TARC4Contract", bound=ARC4Contract)
 
 @typing.overload
 def baremethod(fn: Callable[[_TARC4Contract], None], /) -> Callable[[_TARC4Contract], None]: ...
 @typing.overload
-def baremethod(
-    *,
-    create: typing.Literal["allow", "require", "disallow"] = "disallow",
-    allow_actions: Sequence[
-        algopy.OnCompleteAction
-        | typing.Literal[
-            "NoOp",
-            "OptIn",
-            "CloseOut",
-            # ClearState has its own program, so is not considered as part of ARC-4 routing
-            "UpdateApplication",
-            "DeleteApplication",
-        ]
-    ] = ...,
-) -> Callable[[Callable[[_TARC4Contract], None]], Callable[[_TARC4Contract], None]]:
-    """Decorator that indicates a method is an ARC-4 bare method.
-
-    There can be only one bare method on a contract for each given On-Completion Action.
-
-    :arg create: Controls the validation of the Application ID. "require" means it must be zero,
-                 "disallow" requires it must be non-zero, and "allow" disables the validation.
-    :arg allow_actions: Which On-Completion Action(s) to handle.
-    """
-
 def baremethod(
     *,
     create: typing.Literal["allow", "require", "disallow"] = "disallow",
@@ -650,29 +594,28 @@ class _ABICallProtocolType(typing.Protocol):
 
 abi_call: _ABICallProtocolType = ...
 """
-Provides a typesafe way of calling ARC-4 methods via an inner transaction
+Provides a typesafe way of calling ARC-4 methods via an inner transaction ::
 
-```python
-def abi_call(
-    self,
-    method: Callable[..., _TABIResult_co] | str,
-    /,
-    *args: object,
-    app_id: algopy.Application | algopy.UInt64 | int = ...,
-    on_completion: algopy.OnCompleteAction = ...,
-    approval_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
-    clear_state_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
-    global_num_uint: UInt64 | int = ...,
-    global_num_bytes: UInt64 | int = ...,
-    local_num_uint: UInt64 | int = ...,
-    local_num_bytes: UInt64 | int = ...,
-    extra_program_pages: UInt64 | int = ...,
-    fee: algopy.UInt64 | int = 0,
-    sender: algopy.Account | str = ...,
-    note: algopy.Bytes | algopy.String | bytes | str = ...,
-    rekey_to: algopy.Account | str = ...,
-) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]: ...
-```
+    def abi_call(
+        self,
+        method: Callable[..., _TABIResult_co] | str,
+        /,
+        *args: object,
+        app_id: algopy.Application | algopy.UInt64 | int = ...,
+        on_completion: algopy.OnCompleteAction = ...,
+        approval_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
+        clear_state_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
+        global_num_uint: UInt64 | int = ...,
+        global_num_bytes: UInt64 | int = ...,
+        local_num_uint: UInt64 | int = ...,
+        local_num_bytes: UInt64 | int = ...,
+        extra_program_pages: UInt64 | int = ...,
+        fee: algopy.UInt64 | int = 0,
+        sender: algopy.Account | str = ...,
+        note: algopy.Bytes | algopy.String | bytes | str = ...,
+        rekey_to: algopy.Account | str = ...,
+    ) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]: ...
+
 PARAMETERS:  
 
 **method:** The name, method selector or Algorand Python method to call  
@@ -697,23 +640,22 @@ then the result is a tuple containing the ABI result and the inner transaction o
 If no return type is specified, or the method does not have a return value then the result
 is the inner transaction of the call.  
 
-Examples:
-```
-# can reference another algopy contract method
-result, txn = abi_call(HelloWorldContract.hello, arc4.String("World"), app=...)
-assert result == "Hello, World"
+Examples: ::
 
-# can reference a method selector
-result, txn = abi_call[arc4.String]("hello(string)string", arc4.String("Algo"), app=...)
-assert result == "Hello, Algo"
+    # can reference another algopy contract method
+    result, txn = abi_call(HelloWorldContract.hello, arc4.String("World"), app=...)
+    assert result == "Hello, World"
 
-# can reference a method name, the method selector is inferred from arguments and return type
-result, txn = abi_call[arc4.String]("hello", "There", app=...)
-assert result == "Hello, There"
+    # can reference a method selector
+    result, txn = abi_call[arc4.String]("hello(string)string", arc4.String("Algo"), app=...)
+    assert result == "Hello, Algo"
 
-# calling a method without a return value
-txn = abi_call(HelloWorldContract.no_return, arc4.String("World"), app=...)
-```
+    # can reference a method name, the method selector is inferred from arguments and return type
+    result, txn = abi_call[arc4.String]("hello", "There", app=...)
+    assert result == "Hello, There"
+
+    # calling a method without a return value
+    txn = abi_call(HelloWorldContract.no_return, arc4.String("World"), app=...)
 """
 
 @typing.overload
@@ -729,32 +671,6 @@ def arc4_create(  # type: ignore[overload-overlap]
     rekey_to: algopy.Account | str = ...,
 ) -> algopy.itxn.ApplicationCallInnerTransaction: ...
 @typing.overload
-def arc4_create(
-    method: Callable[_P, _TABIResult_co],
-    /,
-    *args: object,
-    compiled: algopy.CompiledContract = ...,
-    on_completion: algopy.OnCompleteAction = ...,
-    fee: algopy.UInt64 | int = 0,
-    sender: algopy.Account | str = ...,
-    note: algopy.Bytes | bytes | str = ...,
-    rekey_to: algopy.Account | str = ...,
-) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]:
-    """
-    Provides a typesafe and convenient way of creating an ARC4Contract via an inner transaction
-
-    :param method: An ARC-4 create method (ABI or bare), or an ARC4Contract with a single create method
-    :param args: ABI args for chosen method
-    :param compiled: If supplied will be used to specify transaction parameters required for creation,
-                     can be omitted if template variables are not used
-    :param on_completion: OnCompleteAction value for the transaction
-                          If not specified will be inferred from Algorand Python method where possible
-    :param fee: The fee to pay for the transaction, defaults to 0
-    :param sender: The sender address for the transaction
-    :param note: Note to include with the transaction
-    :param rekey_to: Account to rekey to
-    """
-
 def arc4_create(
     method: Callable[_P, _TABIResult_co],
     /,
@@ -819,31 +735,6 @@ def arc4_update(
     :param rekey_to: Account to rekey to
     """
 
-def arc4_update(
-    method: Callable[_P, _TABIResult_co],
-    /,
-    *args: object,
-    app_id: algopy.Application | algopy.UInt64 | int,
-    compiled: algopy.CompiledContract = ...,
-    fee: algopy.UInt64 | int = 0,
-    sender: algopy.Account | str = ...,
-    note: algopy.Bytes | bytes | str = ...,
-    rekey_to: algopy.Account | str = ...,
-) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]:
-    """
-    Provides a typesafe and convenient way of updating an ARC4Contract via an inner transaction
-
-    :param method: An ARC-4 update method (ABI or bare), or an ARC4Contract with a single update method
-    :param args: ABI args for chosen method
-    :param app_id: Application to update
-    :param compiled: If supplied will be used to specify transaction parameters required for updating,
-                     can be omitted if template variables are not used
-    :param fee: The fee to pay for the transaction, defaults to 0
-    :param sender: The sender address for the transaction
-    :param note: Note to include with the transaction
-    :param rekey_to: Account to rekey to
-    """
-
 @typing.overload
 def emit(event: Struct, /) -> None: ...
 @typing.overload
@@ -858,53 +749,20 @@ def emit(event: str | Struct, /, *args: object) -> None:
         * If event is just a name, the event signature will be inferred from the name and following arguments
 
     :param args: When event is a signature or name, args will be used as the event data.
-    They will all be encoded as single ARC-4 Tuple
+        They will all be encoded as single ARC-4 Tuple
 
-    Example:
-    ```
-    from algopy import ARC4Contract, arc4
+    Example: ::
 
+        from algopy import ARC4Contract, arc4
 
-    class Swapped(arc4.Struct):
-        a: arc4.UInt64
-        b: arc4.UInt64
+        class Swapped(arc4.Struct):
+            a: arc4.UInt64
+            b: arc4.UInt64
 
-
-    class EventEmitter(ARC4Contract):
-        @arc4.abimethod
-        def emit_swapped(self, a: arc4.UInt64, b: arc4.UInt64) -> None:
-            arc4.emit(Swapped(b, a))
-            arc4.emit("Swapped(uint64,uint64)", b, a)
-            arc4.emit("Swapped", b, a)
-    ```
-    """
-
-def emit(event: str | Struct, /, *args: object) -> None:
-    """Emit an ARC-28 event for the provided event signature or name, and provided args.
-
-    :param event: Either an ARC-4 Struct, an event name, or event signature.
-        * If event is an ARC-4 Struct, the event signature will be determined from the Struct name and fields
-        * If event is a signature, then the following args will be typed checked to ensure they match.
-        * If event is just a name, the event signature will be inferred from the name and following arguments
-
-    :param args: When event is a signature or name, args will be used as the event data.
-    They will all be encoded as single ARC-4 Tuple
-
-    Example:
-    ```
-    from algopy import ARC4Contract, arc4
-
-
-    class Swapped(arc4.Struct):
-        a: arc4.UInt64
-        b: arc4.UInt64
-
-
-    class EventEmitter(ARC4Contract):
-        @arc4.abimethod
-        def emit_swapped(self, a: arc4.UInt64, b: arc4.UInt64) -> None:
-            arc4.emit(Swapped(b, a))
-            arc4.emit("Swapped(uint64,uint64)", b, a)
-            arc4.emit("Swapped", b, a)
-    ```
+        class EventEmitter(ARC4Contract):
+            @arc4.abimethod
+            def emit_swapped(self, a: arc4.UInt64, b: arc4.UInt64) -> None:
+                arc4.emit(Swapped(b, a))
+                arc4.emit("Swapped(uint64,uint64)", b, a)
+                arc4.emit("Swapped", b, a)
     """

@@ -525,7 +525,7 @@ def transform_doc(op: Operation) -> list[str]:
     doc_extra = op.get("DocExtra")
     if doc_extra:
         doc.extend(doc_extra.splitlines())
-    return doc
+    return [ln.lstrip() for ln in doc]
 
 
 def get_immediate_encoded_size(immediate: Immediate) -> int:
