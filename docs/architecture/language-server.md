@@ -20,7 +20,7 @@ sequenceDiagram
   IDE ->> LC: documentChanged
   LC ->>+ LS: documentChanged
   LS ->>+ PF: compile(project)
-  PF -->> LS: diagnostics
+  PF -->> LS: diagnostics (from parsing/AWST building errors)
   PF -->>- LS: awst
   LS ->>+ PB: compile(awst)
   PB -->>- LS: diagnostics
@@ -44,12 +44,13 @@ flowchart TB
         subgraph "PuyaPy Frontend"
             PyParser["Python Parser"]
             AWSBuilder["AWST Builder (transform_ast)"]
+            FrontendLogCtx["Frontend Logging Context"]
         end
         
         subgraph "Puya Core Compiler"
             AWSTProcF["AWST Processor"]
             TealCompiler["TEAL Compiler (awst_to_teal)"]
-            LogContext["Logging Context"]
+            CompilerLogCtx["Compiler Logging Context"]
         end
     end
     
@@ -61,17 +62,21 @@ flowchart TB
     AWSBuilder -->|AWST nodes| AWSTProcF
     AWSTProcF -->|processed AWST| TealCompiler
     
-    LogContext -.->|diagnostics| PuyaPyLSP
-    AWSTProcF -->|validation results| LogContext
-    TealCompiler -->|compilation results| LogContext
+    FrontendLogCtx -.->|diagnostics| PuyaPyLSP
+    PyParser -->|parsing results| FrontendLogCtx
+    AWSBuilder -->|building results| FrontendLogCtx
+    
+    CompilerLogCtx -.->|diagnostics| PuyaPyLSP
+    AWSTProcF -->|validation results| CompilerLogCtx
+    TealCompiler -->|compilation results| CompilerLogCtx
     
     PuyaPyLSP -->|diagnostics| VSCodeExt
     VSCodeExt -->|diagnostics| Developer
     
     class Developer,VSCodeExt vscode
     class PuyaPyLSP pyProcess
-    class PyParser,AWSBuilder frontend
-    class AWSTProcF,TealCompiler,LogContext coreComp
+    class PyParser,AWSBuilder,FrontendLogCtx frontend
+    class AWSTProcF,TealCompiler,CompilerLogCtx coreComp
 ```
 
 ## Algorand TypeScript Language Server
@@ -92,6 +97,7 @@ flowchart TB
         subgraph "PuyaTs Frontend"
             TsParser["TypeScript Parser"]
             TsAWSTBuilder["AWST Builder (buildAwst)"]
+            FrontendLogCtx["Frontend Logging Context"]
         end
     end
     
@@ -101,7 +107,7 @@ flowchart TB
         subgraph "Puya Core Compiler"
             AWST["AWST Processor"]
             TealCompiler["TEAL Compiler (awst_to_teal)"]
-            LogContext["Logging Context"]
+            CompilerLogCtx["Compiler Logging Context"]
         end
     end
     
@@ -111,23 +117,28 @@ flowchart TB
     PuyaTsLSP -->|document changes| TsParser
     TsParser -->|TypeScript AST| TsAWSTBuilder
     TsAWSTBuilder -->|AWST nodes| PuyaServiceClient
+    
+    FrontendLogCtx -.->|diagnostics| PuyaTsLSP
+    TsParser -->|parsing results| FrontendLogCtx
+    TsAWSTBuilder -->|building results| FrontendLogCtx
+    
     PuyaServiceClient -->|downloads puya binary, starts & manages| PuyaService
     
     PuyaServiceClient -->|JSON-RPC: serialized AWST| PuyaService
     PuyaService -->|deserialized AWST| AWST
     AWST -->|processed AWST| TealCompiler
-    TealCompiler -->|compilation results| LogContext
-    AWST -->|validation results| LogContext
+    TealCompiler -->|compilation results| CompilerLogCtx
+    AWST -->|validation results| CompilerLogCtx
     
-    LogContext -.->|diagnostics| PuyaService
+    CompilerLogCtx -.->|diagnostics| PuyaService
     PuyaService -->|JSON-RPC: diagnostics| PuyaServiceClient
     PuyaServiceClient -->|diagnostics| PuyaTsLSP
     PuyaTsLSP -->|diagnostics| VSCodeExt
     VSCodeExt -->|diagnostics| Developer
     
     class Developer,VSCodeExt vscode
-    class PuyaTsLSP,PuyaServiceClient nodeProc
+    class PuyaTsLSP,PuyaServiceClient,FrontendLogCtx nodeProc
     class TsParser,TsAWSTBuilder frontend
     class PuyaService pyProc
-    class AWST,TealCompiler,LogContext coreComp
+    class AWST,TealCompiler,CompilerLogCtx coreComp
 ```
