@@ -428,6 +428,9 @@ class ToCodeVisitor(
         result += ")"
         return result
 
+    def visit_size_of(self, call: nodes.SizeOf) -> str:
+        return f"size_of({call.size_wtype.name})"
+
     @typing.override
     def visit_puya_lib_call(self, expr: nodes.PuyaLibCall) -> str:
         result = expr.func.value.id

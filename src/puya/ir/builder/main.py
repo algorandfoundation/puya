@@ -15,7 +15,7 @@ from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst.txn_fields import TxnField
 from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
-from puya.ir.arc4_types import effective_array_encoding
+from puya.ir.arc4_types import effective_array_encoding, wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, arrays, flow_control, mem, storage
 from puya.ir.builder._tuple_util import get_tuple_item_values
@@ -185,6 +185,18 @@ class FunctionIRBuilder(
         return arc4.encode_value_provider(
             self.context, value, expr.value.wtype, expr.wtype, expr.source_location
         )
+
+    def visit_size_of(self, size_of: awst_nodes.SizeOf) -> TExpression:
+        wtype = size_of.size_wtype
+        if isinstance(wtype, wtypes.WTuple):
+            wtype = wtype_to_arc4_wtype(wtype, size_of.source_location)
+        ir_type = wtype_to_ir_type(wtype)
+        if ir_type.num_bytes is None:
+            logger.error(
+                f"{size_of.size_wtype} is dynamically sized", location=size_of.source_location
+            )
+        num_bytes = ir_type.num_bytes or 0
+        return UInt64Constant(value=num_bytes, source_location=size_of.source_location)
 
     def visit_compiled_contract(self, expr: awst_nodes.CompiledContract) -> TExpression:
         prefix = self.context.options.template_vars_prefix if expr.prefix is None else expr.prefix

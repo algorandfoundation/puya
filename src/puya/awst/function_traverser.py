@@ -141,6 +141,10 @@ class FunctionTraverser(
             arg.accept(self)
 
     @typing.override
+    def visit_size_of(self, call: awst_nodes.SizeOf) -> None:
+        pass
+
+    @typing.override
     def visit_puya_lib_call(self, call: awst_nodes.PuyaLibCall) -> None:
         for arg in call.args:
             arg.value.accept(self)
