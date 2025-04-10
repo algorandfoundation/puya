@@ -22,6 +22,18 @@ class Box(typing.Generic[_TValue]):
         of the box
         """
 
+    def create(self, *, size: UInt64 | int = ...) -> bool:
+        """
+        Creates the box with the specified size setting all bits to zero.
+        If size is not specified and the type is a fixed size, then the storage size of the type
+        will be used.
+        Fails if the box already exists with a different size.
+        Fails if the specified size is greater than the max box size (32,768)
+        Fails if size is omitted and the type is not fixed size.
+
+        Returns True if the box was created, False if the box already existed
+        """
+
     @property
     def key(self) -> Bytes:
         """Provides access to the raw storage key"""

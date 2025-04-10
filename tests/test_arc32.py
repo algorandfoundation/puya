@@ -1452,15 +1452,18 @@ def _params_with_boxes(
 
 def test_box(box_client: algokit_utils.ApplicationClient) -> None:
     box_c = b"BOX_C"
-    transaction_parameters = _params_with_boxes("box_a", "b", box_c, "box_d")
+    transaction_parameters = _params_with_boxes(
+        "box_a", "b", box_c, "box_d", "box_large", additional_refs=3
+    )
 
-    (a_exist, b_exist, c_exist) = box_client.call(
+    (a_exist, b_exist, c_exist, large_exist) = box_client.call(
         call_abi_method="boxes_exist",
         transaction_parameters=transaction_parameters,
     ).return_value
     assert not a_exist
     assert not b_exist
     assert not c_exist
+    assert not large_exist
 
     box_client.call(
         call_abi_method="set_boxes",
@@ -1470,32 +1473,34 @@ def test_box(box_client: algokit_utils.ApplicationClient) -> None:
         transaction_parameters=transaction_parameters,
     )
 
-    (a_exist, b_exist, c_exist) = box_client.call(
+    (a_exist, b_exist, c_exist, large_exist) = box_client.call(
         call_abi_method="boxes_exist",
         transaction_parameters=transaction_parameters,
     ).return_value
     assert a_exist
     assert b_exist
     assert c_exist
+    assert large_exist
 
     box_client.call("check_keys", transaction_parameters=transaction_parameters)
 
-    (a, b, c) = box_client.call(
+    (a, b, c, large) = box_client.call(
         call_abi_method="read_boxes",
         transaction_parameters=transaction_parameters,
     ).return_value
 
-    assert (a, bytes(b), c) == (59, b"Hello", "World")
+    assert (a, bytes(b), c, large) == (59, b"Hello", "World", 42)
 
     box_client.call("delete_boxes", transaction_parameters=transaction_parameters)
 
-    (a_exist, b_exist, c_exist) = box_client.call(
+    (a_exist, b_exist, c_exist, large_exist) = box_client.call(
         call_abi_method="boxes_exist",
         transaction_parameters=transaction_parameters,
     ).return_value
     assert not a_exist
     assert not b_exist
     assert not c_exist
+    assert not large_exist
 
     box_client.call(
         call_abi_method="slice_box",

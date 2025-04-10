@@ -3,12 +3,24 @@ from collections.abc import Sequence
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import BoxValueExpression, Expression, Not, StateExists
+from puya.awst.nodes import (
+    BoxValueExpression,
+    Expression,
+    IntrinsicCall,
+    Not,
+    SizeOf,
+    StateExists,
+)
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.eb._base import GenericTypeBuilder, NotIterableInstanceExpressionBuilder
+from puyapy.awst_build.eb import _expect as expect
+from puyapy.awst_build.eb._base import (
+    FunctionBuilder,
+    GenericTypeBuilder,
+    NotIterableInstanceExpressionBuilder,
+)
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
 from puyapy.awst_build.eb.interface import (
@@ -138,6 +150,11 @@ class BoxProxyExpressionBuilder(
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
+            case "create":
+                return _Create(
+                    box_proxy=self.resolve(),
+                    content_type=self.pytype.content,
+                )
             case "value":
                 return self._get_value(location)
             case "get":
@@ -177,3 +194,35 @@ class _BoxProxyExpressionBuilderFromConstructor(
     @property
     def args(self) -> StorageProxyConstructorArgs:
         return self._args
+
+
+class _Create(FunctionBuilder):
+    def __init__(self, *, content_type: pytypes.PyType, box_proxy: Expression) -> None:
+        super().__init__(box_proxy.source_location)
+        self.content_type = content_type
+        self.box_proxy = box_proxy
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[models.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        arg = expect.at_most_one_arg_of_type(args, [pytypes.UInt64Type], location)
+        if arg is not None:
+            size = arg.resolve()
+        else:
+            size = SizeOf(
+                size_wtype=self.content_type.checked_wtype(location),
+                source_location=location,
+            )
+        return BoolExpressionBuilder(
+            IntrinsicCall(
+                op_code="box_create",
+                stack_args=[self.box_proxy, size],
+                wtype=wtypes.bool_wtype,
+                source_location=location,
+            )
+        )

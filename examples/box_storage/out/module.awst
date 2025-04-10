@@ -10,6 +10,7 @@ contract BoxContract
     ['box_d']: bytes
     ['']: uint64 => string
     ['box_ref']: bytes
+    ['box_large']: examples.box_storage.contract.LargeStruct
   }
   
   subroutine examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init(): bool
@@ -35,6 +36,9 @@ contract BoxContract
     Box['b']: arc4.dynamic_array<arc4.uint8> = b.copy()
     Box[hex<"424F585F43">]: arc4.dynamic_array<arc4.uint8> = c
     Box['box_d']: bytes = arc4_decode(b, bytes)
+    box_create('box_large', size_of(examples.box_storage.contract.LargeStruct))
+    box_large_ref: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('box_large'))
+    box_replace(box_large_ref, size_of(arc4.static_array<arc4.uint8, 1024>) * 4u, reinterpret_cast<bytes>(42_arc4u64))
     b_value: arc4.dynamic_array<arc4.uint8> = Box['b'].copy()
     assert(Box['b'].length == b_value.length, comment="direct reference should match copy")
     Box['box_a'] += 3u
@@ -51,6 +55,7 @@ contract BoxContract
     assert(box_extract('box_d', 0u, SINGLE_EVAL(id=2, source=box_len('box_d')[0]) - select(SINGLE_EVAL(id=2), 1u, 1u < SINGLE_EVAL(id=2)) - 0u) == arc4_decode(b, bytes)[:-1])
     assert(box_extract('box_d', 0u, select(SINGLE_EVAL(id=3, source=box_len('box_d')[0]), 5u, 5u < SINGLE_EVAL(id=3)) - 0u) == arc4_decode(b, bytes)[:5])
     assert(box_extract('box_d', 0u, select(SINGLE_EVAL(id=4, source=box_len('box_d')[0]), 2u, 2u < SINGLE_EVAL(id=4)) - 0u) == arc4_decode(b, bytes)[:2u])
+    assert(checked_maybe(box_len('box_large')) == size_of(examples.box_storage.contract.LargeStruct))
   }
   
   abimethod examples.box_storage.contract.BoxContract.check_keys(): void
@@ -58,6 +63,7 @@ contract BoxContract
     assert(reinterpret_cast<bytes>('box_a') == hex<"626F785F61">, comment="box a key ok")
     assert(reinterpret_cast<bytes>('b') == hex<"62">, comment="box b key ok")
     assert(reinterpret_cast<bytes>(hex<"424F585F43">) == hex<"424F585F43">, comment="box c key ok")
+    assert(reinterpret_cast<bytes>('box_large') == hex<"626F785F6C61726765">, comment="box large key ok")
   }
   
   abimethod examples.box_storage.contract.BoxContract.delete_boxes(): void
@@ -71,16 +77,19 @@ contract BoxContract
     (a, a_exists): tuple<uint64,bool> = STATE_GET_EX(Box['box_a'])
     assert(!(a_exists))
     assert(a == 0u)
+    STATE_DELETE(Box['box_large'])
   }
   
-  abimethod examples.box_storage.contract.BoxContract.read_boxes(): tuple<uint64,bytes,arc4.dynamic_array<arc4.uint8>>
+  abimethod examples.box_storage.contract.BoxContract.read_boxes(): tuple<uint64,bytes,arc4.dynamic_array<arc4.uint8>,uint64>
   {
-    return (examples.box_storage.contract.get_box_value_plus_1('box_a') - 1u, arc4_decode(Box['b'], bytes), Box[hex<"424F585F43">])
+    large_box_ref: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('box_large'))
+    large_e: arc4.uint64 = reinterpret_cast<arc4.uint64>(box_extract(large_box_ref, size_of(arc4.static_array<arc4.uint8, 1024>) * 4u, 8u))
+    return (examples.box_storage.contract.get_box_value_plus_1('box_a') - 1u, arc4_decode(Box['b'], bytes), Box[hex<"424F585F43">], arc4_decode(large_e, uint64))
   }
   
-  abimethod examples.box_storage.contract.BoxContract.boxes_exist(): tuple<bool,bool,bool>
+  abimethod examples.box_storage.contract.BoxContract.boxes_exist(): tuple<bool,bool,bool,bool>
   {
-    return (STATE_EXISTS(Box['box_a']), STATE_EXISTS(Box['b']), STATE_EXISTS(Box[hex<"424F585F43">]))
+    return (STATE_EXISTS(Box['box_a']), STATE_EXISTS(Box['b']), STATE_EXISTS(Box[hex<"424F585F43">]), STATE_EXISTS(Box['box_large']))
   }
   
   abimethod examples.box_storage.contract.BoxContract.slice_box(): void

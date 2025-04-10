@@ -4,7 +4,7 @@
 // examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 2 5
-    bytecblock 0x424f585f43 0x 0x626c6f62 "box_d" "box_a" "b" 0x00 0x64 0x68656c6c6f "0" 0x151f7c75 0x3432 "box_ref" "Hmmmmm" 0x00023432 "default"
+    bytecblock 0x424f585f43 0x 0x626c6f62 "box_d" "box_a" "b" "box_large" 0x00 0x64 0x68656c6c6f "0" 0x151f7c75 0x3432 "box_ref" "Hmmmmm" 0x00023432 "default"
 
 main_block@0:
     txn ApplicationID
@@ -20,13 +20,13 @@ main_after_if_else@2:
 
 // examples.box_storage.contract.get_box_value_plus_1(box: bytes) -> uint64:
 get_box_value_plus_1:
-    // box_storage/contract.py:179-180
+    // box_storage/contract.py:221-222
     // @subroutine
     // def get_box_value_plus_1(box: Box[UInt64]) -> UInt64:
     proto 1 1
 
 get_box_value_plus_1_block@0:
-    // box_storage/contract.py:181
+    // box_storage/contract.py:223
     // return box.value + 1
     frame_dig -1
     box_get
@@ -41,13 +41,13 @@ get_box_value_plus_1_block@0:
 
 // examples.box_storage.contract.get_box_ref_length(ref: bytes) -> uint64:
 get_box_ref_length:
-    // box_storage/contract.py:184-185
+    // box_storage/contract.py:226-227
     // @subroutine
     // def get_box_ref_length(ref: BoxRef) -> UInt64:
     proto 1 1
 
 get_box_ref_length_block@0:
-    // box_storage/contract.py:186
+    // box_storage/contract.py:228
     // return ref.length
     frame_dig -1
     box_len
@@ -57,13 +57,13 @@ get_box_ref_length_block@0:
 
 // examples.box_storage.contract.get_box_map_value_from_key_plus_1(box_map: bytes, key: uint64) -> bytes:
 get_box_map_value_from_key_plus_1:
-    // box_storage/contract.py:189-190
+    // box_storage/contract.py:231-232
     // @subroutine
     // def get_box_map_value_from_key_plus_1(box_map: BoxMap[UInt64, String], key: UInt64) -> String:
     proto 2 1
 
 get_box_map_value_from_key_plus_1_block@0:
-    // box_storage/contract.py:191
+    // box_storage/contract.py:233
     // return box_map[key + 1]
     frame_dig -1
     intc_1 // 1
@@ -86,20 +86,20 @@ __init___block@0:
 
 // examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: bytes, c: bytes) -> void:
 set_boxes:
-    // box_storage/contract.py:17-18
+    // box_storage/contract.py:41-42
     // @arc4.abimethod
     // def set_boxes(self, a: UInt64, b: arc4.DynamicBytes, c: arc4.String) -> None:
     proto 3 0
 
 set_boxes_block@0:
-    // box_storage/contract.py:19
+    // box_storage/contract.py:43
     // self.box_a.value = a
     frame_dig -3
     itob
     bytec 4 // "box_a"
     swap
     box_put
-    // box_storage/contract.py:20
+    // box_storage/contract.py:44
     // self.box_b.value = b.copy()
     frame_dig -2
     bytec 5 // "b"
@@ -108,7 +108,7 @@ set_boxes_block@0:
     bytec 5 // "b"
     swap
     box_put
-    // box_storage/contract.py:21
+    // box_storage/contract.py:45
     // self.box_c.value = c
     bytec_0 // 0x424f585f43
     box_del
@@ -116,7 +116,7 @@ set_boxes_block@0:
     bytec_0 // 0x424f585f43
     frame_dig -1
     box_put
-    // box_storage/contract.py:22
+    // box_storage/contract.py:46
     // self.box_d.value = b.native
     frame_dig -2
     extract 2 0
@@ -126,12 +126,33 @@ set_boxes_block@0:
     bytec_3 // "box_d"
     swap
     box_put
-    // box_storage/contract.py:24
+    // box_storage/contract.py:47
+    // self.box_large.create()
+    bytec 6 // "box_large"
+    pushint 6152 // 6152
+    box_create
+    pop
+    // box_storage/contract.py:51
+    // box_large_ref.replace(size_of(Bytes1024) * 4, arc4.UInt64(42).bytes)
+    pushint 1024 // 1024
+    pushint 4 // 4
+    *
+    // box_storage/contract.py:48-50
+    // # TODO: support direct mutation of large structs in boxes
+    // # self.box_large.value.e = arc4.UInt64(42)
+    // box_large_ref = BoxRef(key=self.box_large.key)
+    bytec 6 // "box_large"
+    // box_storage/contract.py:51
+    // box_large_ref.replace(size_of(Bytes1024) * 4, arc4.UInt64(42).bytes)
+    swap
+    pushbytes 0x000000000000002a
+    box_replace
+    // box_storage/contract.py:53
     // b_value = self.box_b.value.copy()
     bytec 5 // "b"
     box_get
     assert // check self.box_b exists
-    // box_storage/contract.py:25
+    // box_storage/contract.py:54
     // assert self.box_b.value.length == b_value.length, "direct reference should match copy"
     bytec 5 // "b"
     box_get
@@ -143,7 +164,7 @@ set_boxes_block@0:
     extract_uint16
     ==
     assert // direct reference should match copy
-    // box_storage/contract.py:27
+    // box_storage/contract.py:56
     // self.box_a.value += 3
     bytec 4 // "box_a"
     box_get
@@ -157,7 +178,7 @@ set_boxes_block@0:
     bytec 4 // "box_a"
     swap
     box_put
-    // box_storage/contract.py:29-30
+    // box_storage/contract.py:58-59
     // # test .length
     // assert self.box_a.length == 8
     bytec 4 // "box_a"
@@ -166,7 +187,7 @@ set_boxes_block@0:
     pushint 8 // 8
     ==
     assert
-    // box_storage/contract.py:31
+    // box_storage/contract.py:60
     // assert self.box_b.length == b.bytes.length
     bytec 5 // "b"
     box_len
@@ -175,7 +196,7 @@ set_boxes_block@0:
     len
     ==
     assert
-    // box_storage/contract.py:32
+    // box_storage/contract.py:61
     // assert self.box_c.length == c.bytes.length
     bytec_0 // 0x424f585f43
     box_len
@@ -184,7 +205,7 @@ set_boxes_block@0:
     len
     ==
     assert
-    // box_storage/contract.py:33
+    // box_storage/contract.py:62
     // assert self.box_d.length == b.native.length
     bytec_3 // "box_d"
     box_len
@@ -194,7 +215,7 @@ set_boxes_block@0:
     len
     ==
     assert
-    // box_storage/contract.py:35-36
+    // box_storage/contract.py:64-65
     // # test .value.bytes
     // assert self.box_c.value.bytes[0] == c.bytes[0]
     bytec_0 // 0x424f585f43
@@ -205,7 +226,7 @@ set_boxes_block@0:
     extract 0 1
     ==
     assert
-    // box_storage/contract.py:37
+    // box_storage/contract.py:66
     // assert self.box_c.value.bytes[-1] == c.bytes[-1]
     bytec_0 // 0x424f585f43
     box_len
@@ -226,7 +247,7 @@ set_boxes_block@0:
     extract3
     ==
     assert
-    // box_storage/contract.py:38
+    // box_storage/contract.py:67
     // assert self.box_c.value.bytes[:-1] == c.bytes[:-1]
     bytec_0 // 0x424f585f43
     box_len
@@ -262,7 +283,7 @@ set_boxes_block@0:
     substring3
     ==
     assert
-    // box_storage/contract.py:39
+    // box_storage/contract.py:68
     // assert self.box_c.value.bytes[:2] == c.bytes[:2]
     bytec_0 // 0x424f585f43
     box_len
@@ -295,7 +316,7 @@ set_boxes_block@0:
     substring3
     ==
     assert
-    // box_storage/contract.py:41-42
+    // box_storage/contract.py:70-71
     // # test .value with Bytes type
     // assert self.box_d.value[0] == b.native[0]
     bytec_3 // "box_d"
@@ -307,7 +328,7 @@ set_boxes_block@0:
     extract 0 1
     ==
     assert
-    // box_storage/contract.py:43
+    // box_storage/contract.py:72
     // assert self.box_d.value[-1] == b.native[-1]
     bytec_3 // "box_d"
     box_len
@@ -328,7 +349,7 @@ set_boxes_block@0:
     extract3
     ==
     assert
-    // box_storage/contract.py:44
+    // box_storage/contract.py:73
     // assert self.box_d.value[:-1] == b.native[:-1]
     bytec_3 // "box_d"
     box_len
@@ -366,7 +387,7 @@ set_boxes_block@0:
     substring3
     ==
     assert
-    // box_storage/contract.py:45
+    // box_storage/contract.py:74
     // assert self.box_d.value[:5] == b.native[:5]
     bytec_3 // "box_d"
     box_len
@@ -401,7 +422,7 @@ set_boxes_block@0:
     substring3
     ==
     assert
-    // box_storage/contract.py:46
+    // box_storage/contract.py:75
     // assert self.box_d.value[: UInt64(2)] == b.native[: UInt64(2)]
     bytec_3 // "box_d"
     box_len
@@ -436,6 +457,14 @@ set_boxes_block@0:
     substring3
     ==
     assert
+    // box_storage/contract.py:77
+    // assert self.box_large.length == size_of(LargeStruct)
+    bytec 6 // "box_large"
+    box_len
+    assert // check self.box_large exists
+    pushint 6152 // 6152
+    ==
+    assert
     retsub
 
 
@@ -443,24 +472,30 @@ set_boxes_block@0:
 check_keys:
 
 check_keys_block@0:
-    // box_storage/contract.py:50
+    // box_storage/contract.py:81
     // assert self.box_a.key == b"box_a", "box a key ok"
     bytec 4 // "box_a"
     dup
     ==
     assert // box a key ok
-    // box_storage/contract.py:51
+    // box_storage/contract.py:82
     // assert self.box_b.key == b"b", "box b key ok"
     bytec 5 // "b"
     dup
     ==
     assert // box b key ok
-    // box_storage/contract.py:52
+    // box_storage/contract.py:83
     // assert self.box_c.key == b"BOX_C", "box c key ok"
     bytec_0 // 0x424f585f43
     dup
     ==
     assert // box c key ok
+    // box_storage/contract.py:84
+    // assert self.box_large.key == b"box_large", "box large key ok"
+    bytec 6 // "box_large"
+    dup
+    ==
+    assert // box large key ok
     retsub
 
 
@@ -468,22 +503,22 @@ check_keys_block@0:
 delete_boxes:
 
 delete_boxes_block@0:
-    // box_storage/contract.py:56
+    // box_storage/contract.py:88
     // del self.box_a.value
     bytec 4 // "box_a"
     box_del
     pop
-    // box_storage/contract.py:57
+    // box_storage/contract.py:89
     // del self.box_b.value
     bytec 5 // "b"
     box_del
     pop
-    // box_storage/contract.py:58
+    // box_storage/contract.py:90
     // del self.box_c.value
     bytec_0 // 0x424f585f43
     box_del
     pop
-    // box_storage/contract.py:59
+    // box_storage/contract.py:91
     // assert self.box_a.get(default=UInt64(42)) == 42
     bytec 4 // "box_a"
     box_get
@@ -496,13 +531,13 @@ delete_boxes_block@0:
     pushint 42 // 42
     ==
     assert
-    // box_storage/contract.py:60
+    // box_storage/contract.py:92
     // assert self.box_b.get(default=arc4.DynamicBytes(b"42")).native == b"42"
-    bytec 11 // 0x3432
+    bytec 12 // 0x3432
     len
     itob
     extract 6 2
-    bytec 11 // 0x3432
+    bytec 12 // 0x3432
     concat
     bytec 5 // "b"
     box_get
@@ -512,69 +547,105 @@ delete_boxes_block@0:
     uncover 2
     select
     extract 2 0
-    bytec 11 // 0x3432
+    bytec 12 // 0x3432
     ==
     assert
-    // box_storage/contract.py:61
+    // box_storage/contract.py:93
     // assert self.box_c.get(default=arc4.String("42")) == "42"
     bytec_0 // 0x424f585f43
     box_get
     swap
-    bytec 14 // 0x00023432
+    bytec 15 // 0x00023432
     swap
     uncover 2
     select
-    bytec 14 // 0x00023432
+    bytec 15 // 0x00023432
     ==
     assert
-    // box_storage/contract.py:62
+    // box_storage/contract.py:94
     // a, a_exists = self.box_a.maybe()
     bytec 4 // "box_a"
     box_get
     swap
     btoi
     swap
-    // box_storage/contract.py:63
+    // box_storage/contract.py:95
     // assert not a_exists
     !
     assert
-    // box_storage/contract.py:64
+    // box_storage/contract.py:96
     // assert a == 0
     intc_0 // 0
     ==
     assert
+    // box_storage/contract.py:97
+    // del self.box_large.value
+    bytec 6 // "box_large"
+    box_del
+    pop
     retsub
 
 
-// examples.box_storage.contract.BoxContract.read_boxes() -> uint64, bytes, bytes:
+// examples.box_storage.contract.BoxContract.read_boxes() -> uint64, bytes, bytes, uint64:
 read_boxes:
 
 read_boxes_block@0:
-    // box_storage/contract.py:68
-    // return get_box_value_plus_1(self.box_a) - 1, self.box_b.value.native, self.box_c.value
+    // box_storage/contract.py:104
+    // large_e = arc4.UInt64.from_bytes(large_box_ref.extract(size_of(Bytes1024) * 4, 8))
+    pushint 1024 // 1024
+    pushint 4 // 4
+    *
+    // box_storage/contract.py:101-103
+    // # TODO: support direct reading of large structs in boxes
+    // # large_e = self.box_large.value.e
+    // large_box_ref = BoxRef(key=self.box_large.key)
+    bytec 6 // "box_large"
+    // box_storage/contract.py:104
+    // large_e = arc4.UInt64.from_bytes(large_box_ref.extract(size_of(Bytes1024) * 4, 8))
+    swap
+    pushint 8 // 8
+    box_extract
+    // box_storage/contract.py:106
+    // get_box_value_plus_1(self.box_a) - 1,
     bytec 4 // "box_a"
     callsub get_box_value_plus_1
     intc_1 // 1
     -
+    // box_storage/contract.py:107
+    // self.box_b.value.native,
     bytec 5 // "b"
     box_get
     assert // check self.box_b exists
     extract 2 0
+    // box_storage/contract.py:108
+    // self.box_c.value,
     bytec_0 // 0x424f585f43
     box_get
     assert // check self.box_c exists
-    uncover 2
-    uncover 2
-    uncover 2
+    // box_storage/contract.py:109
+    // large_e.native,
+    uncover 3
+    btoi
+    // box_storage/contract.py:105-110
+    // return (
+    //     get_box_value_plus_1(self.box_a) - 1,
+    //     self.box_b.value.native,
+    //     self.box_c.value,
+    //     large_e.native,
+    // )
+    uncover 3
+    uncover 3
+    uncover 3
+    uncover 3
     retsub
 
 
-// examples.box_storage.contract.BoxContract.boxes_exist() -> uint64, uint64, uint64:
+// examples.box_storage.contract.BoxContract.boxes_exist() -> uint64, uint64, uint64, uint64:
 boxes_exist:
 
 boxes_exist_block@0:
-    // box_storage/contract.py:72
-    // return bool(self.box_a), bool(self.box_b), bool(self.box_c)
+    // box_storage/contract.py:114
+    // return bool(self.box_a), bool(self.box_b), bool(self.box_c), bool(self.box_large)
     bytec 4 // "box_a"
     box_len
     bury 1
@@ -584,9 +655,13 @@ boxes_exist_block@0:
     bytec_0 // 0x424f585f43
     box_len
     bury 1
-    uncover 2
-    uncover 2
-    uncover 2
+    bytec 6 // "box_large"
+    box_len
+    bury 1
+    uncover 3
+    uncover 3
+    uncover 3
+    uncover 3
     retsub
 
 
@@ -594,24 +669,24 @@ boxes_exist_block@0:
 slice_box:
 
 slice_box_block@0:
-    // box_storage/contract.py:76
+    // box_storage/contract.py:118
     // box_0 = Box(Bytes, key=String("0"))
-    bytec 9 // "0"
-    // box_storage/contract.py:77
+    bytec 10 // "0"
+    // box_storage/contract.py:119
     // box_0.value = Bytes(b"Testing testing 123")
     box_del
     pop
-    // box_storage/contract.py:76
+    // box_storage/contract.py:118
     // box_0 = Box(Bytes, key=String("0"))
-    bytec 9 // "0"
-    // box_storage/contract.py:77
+    bytec 10 // "0"
+    // box_storage/contract.py:119
     // box_0.value = Bytes(b"Testing testing 123")
     pushbytes 0x54657374696e672074657374696e6720313233
     box_put
-    // box_storage/contract.py:76
+    // box_storage/contract.py:118
     // box_0 = Box(Bytes, key=String("0"))
-    bytec 9 // "0"
-    // box_storage/contract.py:78
+    bytec 10 // "0"
+    // box_storage/contract.py:120
     // assert box_0.value[0:7] == b"Testing"
     box_len
     pop
@@ -633,10 +708,10 @@ slice_box_block@0:
     select
     dig 1
     -
-    // box_storage/contract.py:76
+    // box_storage/contract.py:118
     // box_0 = Box(Bytes, key=String("0"))
-    bytec 9 // "0"
-    // box_storage/contract.py:78
+    bytec 10 // "0"
+    // box_storage/contract.py:120
     // assert box_0.value[0:7] == b"Testing"
     uncover 2
     uncover 2
@@ -644,7 +719,7 @@ slice_box_block@0:
     pushbytes 0x54657374696e67
     ==
     assert
-    // box_storage/contract.py:80
+    // box_storage/contract.py:122
     // self.box_c.value = arc4.String("Hello")
     bytec_0 // 0x424f585f43
     box_del
@@ -652,7 +727,7 @@ slice_box_block@0:
     bytec_0 // 0x424f585f43
     pushbytes 0x000548656c6c6f
     box_put
-    // box_storage/contract.py:81
+    // box_storage/contract.py:123
     // assert self.box_c.value.bytes[2:10] == b"Hello"
     bytec_0 // 0x424f585f43
     box_len
@@ -689,10 +764,10 @@ slice_box_block@0:
 arc4_box:
 
 arc4_box_block@0:
-    // box_storage/contract.py:86
+    // box_storage/contract.py:128
     // box_d.value = StaticInts(arc4.UInt8(0), arc4.UInt8(1), arc4.UInt8(2), arc4.UInt8(3))
     bytec_1 // 0x
-    bytec 6 // 0x00
+    bytec 7 // 0x00
     concat
     pushbytes 0x01
     concat
@@ -703,17 +778,17 @@ arc4_box_block@0:
     bytec_1 // 0x
     swap
     concat
-    // box_storage/contract.py:85
+    // box_storage/contract.py:127
     // box_d = Box(StaticInts, key=Bytes(b"d"))
-    bytec 7 // 0x64
-    // box_storage/contract.py:86
+    bytec 8 // 0x64
+    // box_storage/contract.py:128
     // box_d.value = StaticInts(arc4.UInt8(0), arc4.UInt8(1), arc4.UInt8(2), arc4.UInt8(3))
     swap
     box_put
-    // box_storage/contract.py:85
+    // box_storage/contract.py:127
     // box_d = Box(StaticInts, key=Bytes(b"d"))
-    bytec 7 // 0x64
-    // box_storage/contract.py:88
+    bytec 8 // 0x64
+    // box_storage/contract.py:130
     // assert box_d.value[0] == 0
     box_get
     assert // check Box exists
@@ -722,13 +797,13 @@ arc4_box_block@0:
     *
     intc_1 // 1
     extract3 // on error: Index access is out of bounds
-    bytec 6 // 0x00
+    bytec 7 // 0x00
     b==
     assert
-    // box_storage/contract.py:85
+    // box_storage/contract.py:127
     // box_d = Box(StaticInts, key=Bytes(b"d"))
-    bytec 7 // 0x64
-    // box_storage/contract.py:89
+    bytec 8 // 0x64
+    // box_storage/contract.py:131
     // assert box_d.value[1] == 1
     box_get
     assert // check Box exists
@@ -740,10 +815,10 @@ arc4_box_block@0:
     pushbytes 0x01
     b==
     assert
-    // box_storage/contract.py:85
+    // box_storage/contract.py:127
     // box_d = Box(StaticInts, key=Bytes(b"d"))
-    bytec 7 // 0x64
-    // box_storage/contract.py:90
+    bytec 8 // 0x64
+    // box_storage/contract.py:132
     // assert box_d.value[2] == 2
     box_get
     assert // check Box exists
@@ -755,10 +830,10 @@ arc4_box_block@0:
     pushbytes 0x02
     b==
     assert
-    // box_storage/contract.py:85
+    // box_storage/contract.py:127
     // box_d = Box(StaticInts, key=Bytes(b"d"))
-    bytec 7 // 0x64
-    // box_storage/contract.py:91
+    bytec 8 // 0x64
+    // box_storage/contract.py:133
     // assert box_d.value[3] == 3
     box_get
     assert // check Box exists
@@ -777,169 +852,169 @@ arc4_box_block@0:
 test_box_ref:
 
 test_box_ref_block@0:
-    // box_storage/contract.py:95-96
+    // box_storage/contract.py:137-138
     // # init ref, with valid key types
     // box_ref = BoxRef(key="blob")
     bytec_2 // "blob"
-    // box_storage/contract.py:97
+    // box_storage/contract.py:139
     // assert not box_ref, "no data"
     box_len
     bury 1
     !
     assert // no data
-    // box_storage/contract.py:98
+    // box_storage/contract.py:140
     // box_ref = BoxRef(key=b"blob")
     bytec_2 // 0x626c6f62
-    // box_storage/contract.py:99
+    // box_storage/contract.py:141
     // assert not box_ref, "no data"
     box_len
     bury 1
     !
     assert // no data
-    // box_storage/contract.py:100
+    // box_storage/contract.py:142
     // box_ref = BoxRef(key=Bytes(b"blob"))
     bytec_2 // 0x626c6f62
-    // box_storage/contract.py:101
+    // box_storage/contract.py:143
     // assert not box_ref, "no data"
     box_len
     bury 1
     !
     assert // no data
-    // box_storage/contract.py:102
+    // box_storage/contract.py:144
     // box_ref = BoxRef(key=String("blob"))
     bytec_2 // "blob"
-    // box_storage/contract.py:103
+    // box_storage/contract.py:145
     // assert not box_ref, "no data"
     box_len
     bury 1
     !
     assert // no data
-    // box_storage/contract.py:102
+    // box_storage/contract.py:144
     // box_ref = BoxRef(key=String("blob"))
     bytec_2 // "blob"
-    // box_storage/contract.py:105-106
+    // box_storage/contract.py:147-148
     // # create
     // assert box_ref.create(size=32)
     pushint 32 // 32
     box_create
     assert
-    // box_storage/contract.py:102
+    // box_storage/contract.py:144
     // box_ref = BoxRef(key=String("blob"))
     bytec_2 // "blob"
-    // box_storage/contract.py:107
+    // box_storage/contract.py:149
     // assert box_ref, "has data"
     box_len
     bury 1
     assert // has data
-    // box_storage/contract.py:109-110
+    // box_storage/contract.py:151-152
     // # manipulate data
     // sender_bytes = Txn.sender.bytes
     txn Sender
-    // box_storage/contract.py:111
+    // box_storage/contract.py:153
     // app_address = Global.current_application_address.bytes
     global CurrentApplicationAddress
     swap
-    // box_storage/contract.py:102
+    // box_storage/contract.py:144
     // box_ref = BoxRef(key=String("blob"))
     bytec_2 // "blob"
-    // box_storage/contract.py:113
+    // box_storage/contract.py:155
     // box_ref.replace(0, sender_bytes)
     intc_0 // 0
     dig 2
     box_replace
-    // box_storage/contract.py:102
+    // box_storage/contract.py:144
     // box_ref = BoxRef(key=String("blob"))
     bytec_2 // "blob"
-    // box_storage/contract.py:114
+    // box_storage/contract.py:156
     // box_ref.resize(8000)
     pushint 8000 // 8000
     box_resize
-    // box_storage/contract.py:102
+    // box_storage/contract.py:144
     // box_ref = BoxRef(key=String("blob"))
     bytec_2 // "blob"
-    // box_storage/contract.py:115
+    // box_storage/contract.py:157
     // box_ref.splice(0, 0, app_address)
     intc_0 // 0
     dup
     dig 4
     box_splice
-    // box_storage/contract.py:102
+    // box_storage/contract.py:144
     // box_ref = BoxRef(key=String("blob"))
     bytec_2 // "blob"
-    // box_storage/contract.py:116
+    // box_storage/contract.py:158
     // box_ref.replace(64, value_3)
     pushint 64 // 64
-    // box_storage/contract.py:112
+    // box_storage/contract.py:154
     // value_3 = Bytes(b"hello")
-    bytec 8 // 0x68656c6c6f
-    // box_storage/contract.py:116
+    bytec 9 // 0x68656c6c6f
+    // box_storage/contract.py:158
     // box_ref.replace(64, value_3)
     box_replace
-    // box_storage/contract.py:112
+    // box_storage/contract.py:154
     // value_3 = Bytes(b"hello")
-    bytec 8 // 0x68656c6c6f
-    // box_storage/contract.py:117
+    bytec 9 // 0x68656c6c6f
+    // box_storage/contract.py:159
     // prefix = box_ref.extract(0, 32 * 2 + value_3.length)
     len
     pushint 64 // 64
     +
-    // box_storage/contract.py:102
+    // box_storage/contract.py:144
     // box_ref = BoxRef(key=String("blob"))
     bytec_2 // "blob"
-    // box_storage/contract.py:117
+    // box_storage/contract.py:159
     // prefix = box_ref.extract(0, 32 * 2 + value_3.length)
     intc_0 // 0
     uncover 2
     box_extract
-    // box_storage/contract.py:118
+    // box_storage/contract.py:160
     // assert prefix == app_address + sender_bytes + value_3
     dig 2
     dig 2
     concat
-    // box_storage/contract.py:112
+    // box_storage/contract.py:154
     // value_3 = Bytes(b"hello")
-    bytec 8 // 0x68656c6c6f
-    // box_storage/contract.py:118
+    bytec 9 // 0x68656c6c6f
+    // box_storage/contract.py:160
     // assert prefix == app_address + sender_bytes + value_3
     concat
     ==
     assert
-    // box_storage/contract.py:102
+    // box_storage/contract.py:144
     // box_ref = BoxRef(key=String("blob"))
     bytec_2 // "blob"
-    // box_storage/contract.py:120-121
+    // box_storage/contract.py:162-163
     // # delete
     // assert box_ref.delete()
     box_del
     assert
-    // box_storage/contract.py:102
+    // box_storage/contract.py:144
     // box_ref = BoxRef(key=String("blob"))
     bytec_2 // "blob"
-    // box_storage/contract.py:122
+    // box_storage/contract.py:164
     // assert box_ref.key == b"blob"
     dup
     ==
     assert
-    // box_storage/contract.py:102
+    // box_storage/contract.py:144
     // box_ref = BoxRef(key=String("blob"))
     bytec_2 // "blob"
-    // box_storage/contract.py:124-125
+    // box_storage/contract.py:166-167
     // # query
     // value, exists = box_ref.maybe()
     box_get
-    // box_storage/contract.py:126
+    // box_storage/contract.py:168
     // assert not exists
     !
     assert
-    // box_storage/contract.py:127
+    // box_storage/contract.py:169
     // assert value == b""
     bytec_1 // 0x
     ==
     assert
-    // box_storage/contract.py:102
+    // box_storage/contract.py:144
     // box_ref = BoxRef(key=String("blob"))
     bytec_2 // "blob"
-    // box_storage/contract.py:128
+    // box_storage/contract.py:170
     // assert box_ref.get(default=sender_bytes) == sender_bytes
     box_get
     swap
@@ -950,62 +1025,62 @@ test_box_ref_block@0:
     dig 1
     ==
     assert
-    // box_storage/contract.py:130-131
+    // box_storage/contract.py:172-173
     // # update
     // box_ref.put(sender_bytes + app_address)
     swap
     concat
-    // box_storage/contract.py:102
+    // box_storage/contract.py:144
     // box_ref = BoxRef(key=String("blob"))
     bytec_2 // "blob"
-    // box_storage/contract.py:130-131
+    // box_storage/contract.py:172-173
     // # update
     // box_ref.put(sender_bytes + app_address)
     swap
     box_put
-    // box_storage/contract.py:102
+    // box_storage/contract.py:144
     // box_ref = BoxRef(key=String("blob"))
     bytec_2 // "blob"
-    // box_storage/contract.py:132
+    // box_storage/contract.py:174
     // assert box_ref, "Blob exists"
     box_len
     bury 1
     assert // Blob exists
-    // box_storage/contract.py:102
+    // box_storage/contract.py:144
     // box_ref = BoxRef(key=String("blob"))
     bytec_2 // "blob"
-    // box_storage/contract.py:133
+    // box_storage/contract.py:175
     // assert box_ref.length == 64
     box_len
     assert // check BoxRef exists
     pushint 64 // 64
     ==
     assert
-    // box_storage/contract.py:102
+    // box_storage/contract.py:144
     // box_ref = BoxRef(key=String("blob"))
     bytec_2 // "blob"
-    // box_storage/contract.py:134
+    // box_storage/contract.py:176
     // assert get_box_ref_length(box_ref) == 64
     callsub get_box_ref_length
     pushint 64 // 64
     ==
     assert
-    // box_storage/contract.py:136-137
+    // box_storage/contract.py:178-179
     // # instance box ref
     // self.box_ref.create(size=UInt64(32))
-    bytec 12 // "box_ref"
+    bytec 13 // "box_ref"
     pushint 32 // 32
     box_create
     pop
-    // box_storage/contract.py:138
+    // box_storage/contract.py:180
     // assert self.box_ref, "has data"
-    bytec 12 // "box_ref"
+    bytec 13 // "box_ref"
     box_len
     bury 1
     assert // has data
-    // box_storage/contract.py:139
+    // box_storage/contract.py:181
     // self.box_ref.delete()
-    bytec 12 // "box_ref"
+    bytec 13 // "box_ref"
     box_del
     pop
     retsub
@@ -1015,10 +1090,10 @@ test_box_ref_block@0:
 box_map_test:
 
 box_map_test_block@0:
-    // box_storage/contract.py:143
+    // box_storage/contract.py:185
     // key_0 = UInt64(0)
     intc_0 // 0
-    // box_storage/contract.py:146
+    // box_storage/contract.py:188
     // self.box_map[key_0] = value
     itob
     bytec_1 // ""
@@ -1027,16 +1102,16 @@ box_map_test_block@0:
     dup
     box_del
     pop
-    // box_storage/contract.py:145
+    // box_storage/contract.py:187
     // value = String("Hmmmmm")
-    bytec 13 // "Hmmmmm"
-    // box_storage/contract.py:146
+    bytec 14 // "Hmmmmm"
+    // box_storage/contract.py:188
     // self.box_map[key_0] = value
     box_put
-    // box_storage/contract.py:143
+    // box_storage/contract.py:185
     // key_0 = UInt64(0)
     intc_0 // 0
-    // box_storage/contract.py:147
+    // box_storage/contract.py:189
     // assert self.box_map[key_0].bytes.length == value.bytes.length
     itob
     bytec_1 // ""
@@ -1044,18 +1119,18 @@ box_map_test_block@0:
     concat
     box_len
     assert // check self.box_map entry exists
-    // box_storage/contract.py:145
+    // box_storage/contract.py:187
     // value = String("Hmmmmm")
-    bytec 13 // "Hmmmmm"
-    // box_storage/contract.py:147
+    bytec 14 // "Hmmmmm"
+    // box_storage/contract.py:189
     // assert self.box_map[key_0].bytes.length == value.bytes.length
     len
     ==
     assert
-    // box_storage/contract.py:143
+    // box_storage/contract.py:185
     // key_0 = UInt64(0)
     intc_0 // 0
-    // box_storage/contract.py:148
+    // box_storage/contract.py:190
     // assert self.box_map.length(key_0) == value.bytes.length
     itob
     bytec_1 // ""
@@ -1063,18 +1138,18 @@ box_map_test_block@0:
     concat
     box_len
     assert // check self.box_map entry exists
-    // box_storage/contract.py:145
+    // box_storage/contract.py:187
     // value = String("Hmmmmm")
-    bytec 13 // "Hmmmmm"
-    // box_storage/contract.py:148
+    bytec 14 // "Hmmmmm"
+    // box_storage/contract.py:190
     // assert self.box_map.length(key_0) == value.bytes.length
     len
     ==
     assert
-    // box_storage/contract.py:144
+    // box_storage/contract.py:186
     // key_1 = UInt64(1)
     intc_1 // 1
-    // box_storage/contract.py:150
+    // box_storage/contract.py:192
     // assert self.box_map.get(key_1, default=String("default")) == String("default")
     itob
     bytec_1 // ""
@@ -1082,17 +1157,17 @@ box_map_test_block@0:
     concat
     box_get
     swap
-    bytec 15 // "default"
+    bytec 16 // "default"
     swap
     uncover 2
     select
-    bytec 15 // "default"
+    bytec 16 // "default"
     ==
     assert
-    // box_storage/contract.py:144
+    // box_storage/contract.py:186
     // key_1 = UInt64(1)
     intc_1 // 1
-    // box_storage/contract.py:151
+    // box_storage/contract.py:193
     // value, exists = self.box_map.maybe(key_1)
     itob
     bytec_1 // ""
@@ -1100,14 +1175,14 @@ box_map_test_block@0:
     concat
     box_get
     bury 1
-    // box_storage/contract.py:152
+    // box_storage/contract.py:194
     // assert not exists
     !
     assert
-    // box_storage/contract.py:143
+    // box_storage/contract.py:185
     // key_0 = UInt64(0)
     intc_0 // 0
-    // box_storage/contract.py:153
+    // box_storage/contract.py:195
     // assert key_0 in self.box_map
     itob
     bytec_1 // ""
@@ -1116,53 +1191,53 @@ box_map_test_block@0:
     box_len
     bury 1
     assert
-    // box_storage/contract.py:154
+    // box_storage/contract.py:196
     // assert self.box_map.key_prefix == b""
     bytec_1 // ""
     dup
     ==
     assert
-    // box_storage/contract.py:144
+    // box_storage/contract.py:186
     // key_1 = UInt64(1)
     intc_1 // 1
-    // box_storage/contract.py:158
+    // box_storage/contract.py:200
     // tmp_box_map[key_1] = String("hello")
     itob
-    // box_storage/contract.py:156-157
+    // box_storage/contract.py:198-199
     // # test box map not assigned to the class and passed to subroutine
     // tmp_box_map = BoxMap(UInt64, String, key_prefix=Bytes())
     bytec_1 // 0x
-    // box_storage/contract.py:158
+    // box_storage/contract.py:200
     // tmp_box_map[key_1] = String("hello")
     swap
     concat
     dup
     box_del
     pop
-    bytec 8 // "hello"
+    bytec 9 // "hello"
     box_put
-    // box_storage/contract.py:156-157
+    // box_storage/contract.py:198-199
     // # test box map not assigned to the class and passed to subroutine
     // tmp_box_map = BoxMap(UInt64, String, key_prefix=Bytes())
     bytec_1 // 0x
-    // box_storage/contract.py:159
+    // box_storage/contract.py:201
     // assert get_box_map_value_from_key_plus_1(tmp_box_map, UInt64(0)) == "hello"
     intc_0 // 0
     callsub get_box_map_value_from_key_plus_1
-    bytec 8 // "hello"
+    bytec 9 // "hello"
     ==
     assert
-    // box_storage/contract.py:144
+    // box_storage/contract.py:186
     // key_1 = UInt64(1)
     intc_1 // 1
-    // box_storage/contract.py:160
+    // box_storage/contract.py:202
     // del tmp_box_map[key_1]
     itob
-    // box_storage/contract.py:156-157
+    // box_storage/contract.py:198-199
     // # test box map not assigned to the class and passed to subroutine
     // tmp_box_map = BoxMap(UInt64, String, key_prefix=Bytes())
     bytec_1 // 0x
-    // box_storage/contract.py:160
+    // box_storage/contract.py:202
     // del tmp_box_map[key_1]
     swap
     concat
@@ -1173,13 +1248,13 @@ box_map_test_block@0:
 
 // examples.box_storage.contract.BoxContract.box_map_set(key: uint64, value: bytes) -> void:
 box_map_set:
-    // box_storage/contract.py:162-163
+    // box_storage/contract.py:204-205
     // @arc4.abimethod
     // def box_map_set(self, key: UInt64, value: String) -> None:
     proto 2 0
 
 box_map_set_block@0:
-    // box_storage/contract.py:164
+    // box_storage/contract.py:206
     // self.box_map[key] = value
     frame_dig -2
     itob
@@ -1196,13 +1271,13 @@ box_map_set_block@0:
 
 // examples.box_storage.contract.BoxContract.box_map_get(key: uint64) -> bytes:
 box_map_get:
-    // box_storage/contract.py:166-167
+    // box_storage/contract.py:208-209
     // @arc4.abimethod
     // def box_map_get(self, key: UInt64) -> String:
     proto 1 1
 
 box_map_get_block@0:
-    // box_storage/contract.py:168
+    // box_storage/contract.py:210
     // return self.box_map[key]
     frame_dig -1
     itob
@@ -1216,13 +1291,13 @@ box_map_get_block@0:
 
 // examples.box_storage.contract.BoxContract.box_map_del(key: uint64) -> void:
 box_map_del:
-    // box_storage/contract.py:170-171
+    // box_storage/contract.py:212-213
     // @arc4.abimethod
     // def box_map_del(self, key: UInt64) -> None:
     proto 1 0
 
 box_map_del_block@0:
-    // box_storage/contract.py:172
+    // box_storage/contract.py:214
     // del self.box_map[key]
     frame_dig -1
     itob
@@ -1236,13 +1311,13 @@ box_map_del_block@0:
 
 // examples.box_storage.contract.BoxContract.box_map_exists(key: uint64) -> uint64:
 box_map_exists:
-    // box_storage/contract.py:174-175
+    // box_storage/contract.py:216-217
     // @arc4.abimethod
     // def box_map_exists(self, key: UInt64) -> bool:
     proto 1 1
 
 box_map_exists_block@0:
-    // box_storage/contract.py:176
+    // box_storage/contract.py:218
     // return key in self.box_map
     frame_dig -1
     itob
@@ -1260,7 +1335,7 @@ approval_program:
 approval_program_block@0:
 
 approval_program_block@1:
-    // box_storage/contract.py:8
+    // box_storage/contract.py:31
     // class BoxContract(arc4.ARC4Contract):
     txn NumAppArgs
     intc_0 // 0
@@ -1268,14 +1343,14 @@ approval_program_block@1:
     bz approval_program_bare_routing@18
 
 approval_program_abi_routing@2:
-    // box_storage/contract.py:8
+    // box_storage/contract.py:31
     // class BoxContract(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x7d37296e // method "set_boxes(uint64,byte[],string)void"
     pushbytes 0x33325d3d // method "check_keys()void"
     pushbytes 0xd566c632 // method "delete_boxes()void"
-    pushbytes 0xfbda9ba0 // method "read_boxes()(uint64,byte[],string)"
-    pushbytes 0xe5a3ed52 // method "boxes_exist()(bool,bool,bool)"
+    pushbytes 0xa6174812 // method "read_boxes()(uint64,byte[],string,uint64)"
+    pushbytes 0xf13dd937 // method "boxes_exist()(bool,bool,bool,bool)"
     pushbytes 0x04ef4971 // method "slice_box()void"
     pushbytes 0x23ecb32c // method "arc4_box()void"
     pushbytes 0xeef75816 // method "test_box_ref()void"
@@ -1292,7 +1367,7 @@ approval_program_switch_case_default@16:
 approval_program_switch_case_next@17:
 
 approval_program_after_if_else@24:
-    // box_storage/contract.py:8
+    // box_storage/contract.py:31
     // class BoxContract(arc4.ARC4Contract):
     intc_0 // 0
 
@@ -1300,7 +1375,7 @@ approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_
     retsub
 
 approval_program_box_map_exists_route@15:
-    // box_storage/contract.py:174
+    // box_storage/contract.py:216
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -1310,18 +1385,18 @@ approval_program_box_map_exists_route@15:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    // box_storage/contract.py:8
+    // box_storage/contract.py:31
     // class BoxContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
-    // box_storage/contract.py:174
+    // box_storage/contract.py:216
     // @arc4.abimethod
     callsub box_map_exists
-    bytec 6 // 0x00
+    bytec 7 // 0x00
     intc_0 // 0
     uncover 2
     setbit
-    bytec 10 // 0x151f7c75
+    bytec 11 // 0x151f7c75
     swap
     concat
     log
@@ -1329,7 +1404,7 @@ approval_program_box_map_exists_route@15:
     b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@25
 
 approval_program_box_map_del_route@14:
-    // box_storage/contract.py:170
+    // box_storage/contract.py:212
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -1339,18 +1414,18 @@ approval_program_box_map_del_route@14:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    // box_storage/contract.py:8
+    // box_storage/contract.py:31
     // class BoxContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
-    // box_storage/contract.py:170
+    // box_storage/contract.py:212
     // @arc4.abimethod
     callsub box_map_del
     intc_1 // 1
     b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@25
 
 approval_program_box_map_get_route@13:
-    // box_storage/contract.py:166
+    // box_storage/contract.py:208
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -1360,11 +1435,11 @@ approval_program_box_map_get_route@13:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    // box_storage/contract.py:8
+    // box_storage/contract.py:31
     // class BoxContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
-    // box_storage/contract.py:166
+    // box_storage/contract.py:208
     // @arc4.abimethod
     callsub box_map_get
     dup
@@ -1373,7 +1448,7 @@ approval_program_box_map_get_route@13:
     extract 6 2
     swap
     concat
-    bytec 10 // 0x151f7c75
+    bytec 11 // 0x151f7c75
     swap
     concat
     log
@@ -1381,7 +1456,7 @@ approval_program_box_map_get_route@13:
     b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@25
 
 approval_program_box_map_set_route@12:
-    // box_storage/contract.py:162
+    // box_storage/contract.py:204
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -1391,20 +1466,20 @@ approval_program_box_map_set_route@12:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    // box_storage/contract.py:8
+    // box_storage/contract.py:31
     // class BoxContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
     extract 2 0
-    // box_storage/contract.py:162
+    // box_storage/contract.py:204
     // @arc4.abimethod
     callsub box_map_set
     intc_1 // 1
     b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@25
 
 approval_program_box_map_test_route@11:
-    // box_storage/contract.py:141
+    // box_storage/contract.py:183
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -1419,7 +1494,7 @@ approval_program_box_map_test_route@11:
     b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@25
 
 approval_program_test_box_ref_route@10:
-    // box_storage/contract.py:93
+    // box_storage/contract.py:135
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -1434,7 +1509,7 @@ approval_program_test_box_ref_route@10:
     b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@25
 
 approval_program_arc4_box_route@9:
-    // box_storage/contract.py:83
+    // box_storage/contract.py:125
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -1449,7 +1524,7 @@ approval_program_arc4_box_route@9:
     b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@25
 
 approval_program_slice_box_route@8:
-    // box_storage/contract.py:74
+    // box_storage/contract.py:116
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -1464,7 +1539,7 @@ approval_program_slice_box_route@8:
     b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@25
 
 approval_program_boxes_exist_route@7:
-    // box_storage/contract.py:70
+    // box_storage/contract.py:112
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -1475,22 +1550,29 @@ approval_program_boxes_exist_route@7:
     !=
     assert // can only call when not creating
     callsub boxes_exist
+    cover 3
     cover 2
     swap
-    bytec 6 // 0x00
+    bytec 7 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    cover 2
+    bytec 7 // 0x00
     intc_0 // 0
     uncover 2
     setbit
     swap
-    bytec 6 // 0x00
+    bytec 7 // 0x00
     intc_0 // 0
     uncover 2
     setbit
-    bytec 6 // 0x00
-    intc_0 // 0
-    uncover 4
-    setbit
     cover 2
+    bytec 7 // 0x00
+    intc_0 // 0
+    uncover 5
+    setbit
+    cover 3
     bytec_1 // 0x
     uncover 2
     concat
@@ -1508,7 +1590,14 @@ approval_program_boxes_exist_route@7:
     intc_2 // 2
     uncover 2
     setbit
-    bytec 10 // 0x151f7c75
+    swap
+    intc_0 // 0
+    getbit
+    swap
+    pushint 3 // 3
+    uncover 2
+    setbit
+    bytec 11 // 0x151f7c75
     swap
     concat
     log
@@ -1516,7 +1605,7 @@ approval_program_boxes_exist_route@7:
     b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@25
 
 approval_program_read_boxes_route@6:
-    // box_storage/contract.py:66
+    // box_storage/contract.py:99
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -1527,7 +1616,8 @@ approval_program_read_boxes_route@6:
     !=
     assert // can only call when not creating
     callsub read_boxes
-    cover 2
+    cover 3
+    cover 3
     swap
     itob
     swap
@@ -1538,25 +1628,30 @@ approval_program_read_boxes_route@6:
     swap
     concat
     swap
+    uncover 2
+    itob
+    cover 2
     bytec_1 // 0x
     swap
     concat
-    pushint 12 // 12
+    pushint 20 // 20
     itob
     extract 6 2
     concat
     dig 1
     len
-    pushint 12 // 12
+    pushint 20 // 20
     +
     itob
     extract 6 2
     concat
-    swap
+    uncover 2
     concat
     swap
     concat
-    bytec 10 // 0x151f7c75
+    swap
+    concat
+    bytec 11 // 0x151f7c75
     swap
     concat
     log
@@ -1564,7 +1659,7 @@ approval_program_read_boxes_route@6:
     b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@25
 
 approval_program_delete_boxes_route@5:
-    // box_storage/contract.py:54
+    // box_storage/contract.py:86
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -1579,7 +1674,7 @@ approval_program_delete_boxes_route@5:
     b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@25
 
 approval_program_check_keys_route@4:
-    // box_storage/contract.py:48
+    // box_storage/contract.py:79
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -1594,7 +1689,7 @@ approval_program_check_keys_route@4:
     b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@25
 
 approval_program_set_boxes_route@3:
-    // box_storage/contract.py:17
+    // box_storage/contract.py:41
     // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
@@ -1604,13 +1699,13 @@ approval_program_set_boxes_route@3:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    // box_storage/contract.py:8
+    // box_storage/contract.py:31
     // class BoxContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
     txna ApplicationArgs 3
-    // box_storage/contract.py:17
+    // box_storage/contract.py:41
     // @arc4.abimethod
     uncover 2
     uncover 2
@@ -1620,7 +1715,7 @@ approval_program_set_boxes_route@3:
     b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router__@25
 
 approval_program_bare_routing@18:
-    // box_storage/contract.py:8
+    // box_storage/contract.py:31
     // class BoxContract(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // 0
