@@ -120,7 +120,11 @@ class PrimitiveIRType(IRType, enum.StrEnum):
                 raise InternalError(f"could not determine AVM type for {self.name}")
 
     @property
-    def num_bytes(self) -> None:
+    def num_bytes(self) -> int | None:
+        # a primitive bool is just a uint64 alias
+        # encoded bools can have different sizes
+        if self in (PrimitiveIRType.uint64, PrimitiveIRType.bool):
+            return 8
         return None
 
     def __repr__(self) -> str:

@@ -805,6 +805,10 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
         return self._empty_actions_from_wtype(expr)
 
     @typing.override
+    def visit_size_of(self, expr: awst_nodes.SizeOf) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
     def visit_numeric_comparison_expression(
         self, expr: awst_nodes.NumericComparisonExpression
     ) -> list[_SourceAction]:

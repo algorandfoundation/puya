@@ -1,0 +1,75 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#0: bool = test_cases.size_of.contract.MyContract.__puya_arc4_router__()
+        return tmp%0#0
+
+subroutine test_cases.size_of.contract.MyContract.__puya_arc4_router__() -> bool:
+    block@0: // L11
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#0 0u)
+        goto tmp%1#0 ? block@1 : block@5
+    block@1: // abi_routing_L11
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "test()void" => block@2, * => block@3}
+    block@2: // test_route_L12
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (== tmp%3#0 NoOp)
+        (assert tmp%4#0) // OnCompletion is not NoOp
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%6#0: bool = (!= tmp%5#0 0u)
+        (assert tmp%6#0) // can only call when not creating
+        test_cases.size_of.contract.MyContract.test()
+        return 1u
+    block@3: // switch_case_default_L11
+        goto block@4
+    block@4: // switch_case_next_L11
+        goto block@9
+    block@5: // bare_routing_L11
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        switch tmp%7#0 {0u => block@6, * => block@7}
+    block@6: // __algopy_default_create_L1
+        let tmp%8#0: uint64 = (txn ApplicationID)
+        let tmp%9#0: bool = (== tmp%8#0 0u)
+        (assert tmp%9#0) // can only call when creating
+        test_cases.size_of.contract.MyContract.__algopy_default_create()
+        return 1u
+    block@7: // switch_case_default_L11
+        goto block@8
+    block@8: // switch_case_next_L11
+        goto block@9
+    block@9: // after_if_else_L11
+        return 0u
+
+subroutine test_cases.size_of.contract.MyContract.test() -> void:
+    block@0: // L12
+        let tmp%0#0: bool = (== 8u 8u)
+        (assert tmp%0#0)
+        let tmp%1#0: bool = (== 8u 8u)
+        (assert tmp%1#0)
+        let tmp%2#0: bool = (== 32u 32u)
+        (assert tmp%2#0)
+        let tmp%3#0: bool = (== 32u 32u)
+        (assert tmp%3#0)
+        let tmp%4#0: bool = (== 8u 8u)
+        (assert tmp%4#0)
+        let tmp%5#0: bool = (== 8u 8u)
+        (assert tmp%5#0)
+        let tmp%6#0: bool = (== 8u 8u)
+        (assert tmp%6#0)
+        let tmp%7#0: bool = (== 1u 1u)
+        (assert tmp%7#0)
+        let tmp%8#0: bool = (== 1u 1u)
+        (assert tmp%8#0)
+        let tmp%9#0: bool = (== 2u 2u)
+        (assert tmp%9#0)
+        let tmp%10#0: bool = (== 9u 9u)
+        (assert tmp%10#0)
+        let tmp%11#0: bool = (== 7u 7u)
+        (assert tmp%11#0)
+        let tmp%12#0: bool = (== 2u 2u)
+        (assert tmp%12#0)
+        return 
+
+subroutine test_cases.size_of.contract.MyContract.__algopy_default_create() -> void:
+    block@0: // L1
+        return 
