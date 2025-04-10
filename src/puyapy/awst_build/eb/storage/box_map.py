@@ -29,6 +29,7 @@ from puyapy.awst_build.eb.interface import (
     StorageProxyConstructorResult,
     TypeBuilder,
 )
+from puyapy.awst_build.eb.storage import BoxProxyExpressionBuilder
 from puyapy.awst_build.eb.storage._common import BoxValueExpressionBuilder
 from puyapy.awst_build.eb.storage._storage import (
     StorageProxyDefinitionBuilder,
@@ -129,6 +130,15 @@ class BoxMapProxyExpressionBuilder(
         self._member_name = member_name
         super().__init__(typ, expr)
 
+    def _build_box_map_key(
+        self, key: InstanceBuilder, location: SourceLocation
+    ) -> BoxPrefixedKeyExpression:
+        return BoxPrefixedKeyExpression(
+            prefix=self.resolve(),
+            key=key.resolve(),
+            source_location=location,
+        )
+
     def _build_box_value(
         self, key: InstanceBuilder, location: SourceLocation
     ) -> BoxValueExpression:
@@ -137,11 +147,7 @@ class BoxMapProxyExpressionBuilder(
         else:
             exists_assertion_message = "check BoxMap entry exists"
         return BoxValueExpression(
-            key=BoxPrefixedKeyExpression(
-                prefix=self.resolve(),
-                key=key.resolve(),
-                source_location=location,
-            ),
+            key=self._build_box_map_key(key, location),
             wtype=self.pytype.content_wtype,
             exists_assertion_message=exists_assertion_message,
             source_location=location,
@@ -156,6 +162,8 @@ class BoxMapProxyExpressionBuilder(
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
+            case "box":
+                return _Box(location, self._build_box_map_key, self.pytype)
             case "length":
                 return _Length(location, self._build_box_value, self.pytype)
             case "maybe":
@@ -210,6 +218,7 @@ class _BoxMapProxyExpressionBuilderFromConstructor(
 
 
 BoxValueBuilder = Callable[[InstanceBuilder, SourceLocation], BoxValueExpression]
+BoxKeyBuilder = Callable[[InstanceBuilder, SourceLocation], BoxPrefixedKeyExpression]
 
 
 class _MethodBase(FunctionBuilder, abc.ABC):
@@ -222,6 +231,43 @@ class _MethodBase(FunctionBuilder, abc.ABC):
         super().__init__(location)
         self.build_box_value = box_value_builder
         self.box_type = box_type
+
+
+class _Box(FunctionBuilder):
+    def __init__(
+        self,
+        location: SourceLocation,
+        box_key_builder: BoxKeyBuilder,
+        box_map_type: pytypes.StorageMapProxyType,
+    ) -> None:
+        super().__init__(location)
+        self.build_box_key = box_key_builder
+        self.box_map_type = box_map_type
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[models.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        key_arg_name = "key"
+        args_map, any_missing = get_arg_mapping(
+            required_positional_names=[key_arg_name],
+            args=args,
+            arg_names=arg_names,
+            call_location=location,
+            raise_on_missing=False,
+        )
+        box_type = pytypes.GenericBoxType.parameterise([self.box_map_type.content], location)
+        if any_missing:
+            return dummy_value(box_type, location)
+        key_arg = expect.argument_of_type_else_dummy(
+            args_map[key_arg_name], self.box_map_type.key, resolve_literal=True
+        )
+        key = self.build_box_key(key_arg, location)
+        return BoxProxyExpressionBuilder(key, box_type)
 
 
 class _Length(_MethodBase):

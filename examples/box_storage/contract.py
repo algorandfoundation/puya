@@ -47,8 +47,7 @@ class BoxContract(arc4.ARC4Contract):
         self.box_large.create()
         # TODO: support direct mutation of large structs in boxes
         # self.box_large.value.e = arc4.UInt64(42)
-        box_large_ref = BoxRef(key=self.box_large.key)
-        box_large_ref.replace(size_of(Bytes1024) * 4, arc4.UInt64(42).bytes)
+        self.box_large.ref.replace(size_of(Bytes1024) * 4, arc4.UInt64(42).bytes)
 
         b_value = self.box_b.value.copy()
         assert self.box_b.value.length == b_value.length, "direct reference should match copy"
@@ -186,7 +185,10 @@ class BoxContract(arc4.ARC4Contract):
         key_1 = UInt64(1)
         value = String("Hmmmmm")
         self.box_map[key_0] = value
+        box_0 = self.box_map.box(key_0)
+
         assert self.box_map[key_0].bytes.length == value.bytes.length
+        assert self.box_map[key_0].bytes.length == box_0.length
         assert self.box_map.length(key_0) == value.bytes.length
 
         assert self.box_map.get(key_1, default=String("default")) == String("default")

@@ -71,6 +71,10 @@ class Box(typing.Generic[_TValue]):
         Get the length of this Box. Fails if the box does not exist
         """
 
+    @property
+    def ref(self) -> BoxRef:
+        """Provides a BoxRef for this box"""
+
 @typing.final
 class BoxRef:
     """
@@ -241,4 +245,9 @@ class BoxMap(typing.Generic[_TKey, _TValue]):
         Get the length of an item in this BoxMap. Fails if the box does not exist
 
         :arg key: The key of the box to get
+        """
+
+    def box(self, key: _TKey) -> Box[_TValue]:
+        """
+        Returns a Box holding the box value at key
         """
