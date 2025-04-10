@@ -1,8 +1,31 @@
 import typing
 
-from algopy import Box, BoxMap, BoxRef, Bytes, Global, String, Txn, UInt64, arc4, subroutine
+from algopy import (
+    Box,
+    BoxMap,
+    BoxRef,
+    Bytes,
+    Global,
+    String,
+    Txn,
+    UInt64,
+    arc4,
+    size_of,
+    subroutine,
+)
 
 StaticInts: typing.TypeAlias = arc4.StaticArray[arc4.UInt8, typing.Literal[4]]
+Bytes1024 = arc4.StaticArray[arc4.Byte, typing.Literal[1024]]
+
+
+class LargeStruct(arc4.Struct):
+    a: Bytes1024
+    b: Bytes1024
+    c: Bytes1024
+    d: Bytes1024
+    e: arc4.UInt64
+    f: Bytes1024
+    g: Bytes1024
 
 
 class BoxContract(arc4.ARC4Contract):
@@ -13,6 +36,7 @@ class BoxContract(arc4.ARC4Contract):
         self.box_d = Box(Bytes)
         self.box_map = BoxMap(UInt64, String, key_prefix="")
         self.box_ref = BoxRef()
+        self.box_large = Box(LargeStruct)
 
     @arc4.abimethod
     def set_boxes(self, a: UInt64, b: arc4.DynamicBytes, c: arc4.String) -> None:
@@ -20,6 +44,11 @@ class BoxContract(arc4.ARC4Contract):
         self.box_b.value = b.copy()
         self.box_c.value = c
         self.box_d.value = b.native
+        self.box_large.create()
+        # TODO: support direct mutation of large structs in boxes
+        # self.box_large.value.e = arc4.UInt64(42)
+        box_large_ref = BoxRef(key=self.box_large.key)
+        box_large_ref.replace(size_of(Bytes1024) * 4, arc4.UInt64(42).bytes)
 
         b_value = self.box_b.value.copy()
         assert self.box_b.value.length == b_value.length, "direct reference should match copy"
@@ -45,11 +74,14 @@ class BoxContract(arc4.ARC4Contract):
         assert self.box_d.value[:5] == b.native[:5]
         assert self.box_d.value[: UInt64(2)] == b.native[: UInt64(2)]
 
+        assert self.box_large.length == size_of(LargeStruct)
+
     @arc4.abimethod
     def check_keys(self) -> None:
         assert self.box_a.key == b"box_a", "box a key ok"
         assert self.box_b.key == b"b", "box b key ok"
         assert self.box_c.key == b"BOX_C", "box c key ok"
+        assert self.box_large.key == b"box_large", "box large key ok"
 
     @arc4.abimethod
     def delete_boxes(self) -> None:
@@ -62,14 +94,24 @@ class BoxContract(arc4.ARC4Contract):
         a, a_exists = self.box_a.maybe()
         assert not a_exists
         assert a == 0
+        del self.box_large.value
 
     @arc4.abimethod
-    def read_boxes(self) -> tuple[UInt64, Bytes, arc4.String]:
-        return get_box_value_plus_1(self.box_a) - 1, self.box_b.value.native, self.box_c.value
+    def read_boxes(self) -> tuple[UInt64, Bytes, arc4.String, UInt64]:
+        # TODO: support direct reading of large structs in boxes
+        # large_e = self.box_large.value.e
+        large_box_ref = BoxRef(key=self.box_large.key)
+        large_e = arc4.UInt64.from_bytes(large_box_ref.extract(size_of(Bytes1024) * 4, 8))
+        return (
+            get_box_value_plus_1(self.box_a) - 1,
+            self.box_b.value.native,
+            self.box_c.value,
+            large_e.native,
+        )
 
     @arc4.abimethod
-    def boxes_exist(self) -> tuple[bool, bool, bool]:
-        return bool(self.box_a), bool(self.box_b), bool(self.box_c)
+    def boxes_exist(self) -> tuple[bool, bool, bool, bool]:
+        return bool(self.box_a), bool(self.box_b), bool(self.box_c), bool(self.box_large)
 
     @arc4.abimethod
     def slice_box(self) -> None:

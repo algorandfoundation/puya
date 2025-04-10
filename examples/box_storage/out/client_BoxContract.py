@@ -28,12 +28,12 @@ class BoxContract(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def read_boxes(
         self,
-    ) -> algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.DynamicBytes, algopy.arc4.String]: ...
+    ) -> algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.DynamicBytes, algopy.arc4.String, algopy.arc4.UIntN[typing.Literal[64]]]: ...
 
     @algopy.arc4.abimethod
     def boxes_exist(
         self,
-    ) -> algopy.arc4.Tuple[algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool]: ...
+    ) -> algopy.arc4.Tuple[algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool]: ...
 
     @algopy.arc4.abimethod
     def slice_box(
