@@ -60,22 +60,22 @@ from algopy import *
 
 class MyContract(ARC4Contract):
     def __init__(self) -> None:
-        self.foo = GlobalState(  ## E: ephemeral types (such as transaction related types) are not suitable for storage
+        self.foo = GlobalState( ## E: type is not suitable for storage
             itxn.InnerTransactionResult
         )
-        self.foo_box = Box(  ## E: ephemeral types (such as transaction related types) are not suitable for storage
+        self.foo_box = Box( ## E: type is not suitable for storage
             itxn.InnerTransactionResult
         )
-        self.foo_box_map = BoxMap(  ## E: ephemeral types (such as transaction related types) are not suitable for storage
+        self.foo_box_map = BoxMap( ## E: type is not suitable for storage
             itxn.InnerTransactionResult, String
         )
-        self.box_foo_map = BoxMap(  ## E: ephemeral types (such as transaction related types) are not suitable for storage
+        self.box_foo_map = BoxMap( ## E: type is not suitable for storage
             String, itxn.InnerTransactionResult
         )
 
     @arc4.abimethod()
     def non_local_fields(self) -> None:
-        self.fields = itxn.InnerTransaction(  ## E: ephemeral types (such as transaction related types) are not suitable for storage
+        self.fields = itxn.InnerTransaction( ## E: type is not suitable for storage
             type=TransactionType.Payment
         )
         txn = self.fields.submit()
@@ -83,7 +83,7 @@ class MyContract(ARC4Contract):
     @arc4.abimethod()
     def non_local_itxn(self) -> None:
         fields = itxn.InnerTransaction(type=TransactionType.Payment)
-        self.txn = (  ## E: ephemeral types (such as transaction related types) are not suitable for storage
+        self.txn = ( ## E: type is not suitable for storage
             fields.submit()
         )
 

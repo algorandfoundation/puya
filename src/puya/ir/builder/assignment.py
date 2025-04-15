@@ -19,7 +19,12 @@ from puya.ir.builder._utils import (
     get_implicit_return_is_original,
 )
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.types_ import PrimitiveIRType, get_wtype_arity, wtype_to_ir_type
+from puya.ir.types_ import (
+    PrimitiveIRType,
+    get_wtype_arity,
+    persistable_stack_type,
+    wtype_to_ir_type,
+)
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
@@ -115,7 +120,7 @@ def handle_assignment(
         case awst_nodes.AppStateExpression(
             key=awst_key, wtype=wtype, source_location=field_location
         ):
-            _ = wtypes.persistable_stack_type(wtype, field_location)  # double check
+            _ = persistable_stack_type(wtype, field_location)  # double check
             key_value = context.visitor.visit_and_materialise_single(awst_key)
             (mat_value,) = context.visitor.materialise_value_provider(
                 value, description="new_state_value"
@@ -131,7 +136,7 @@ def handle_assignment(
         case awst_nodes.AppAccountStateExpression(
             key=awst_key, account=account_expr, wtype=wtype, source_location=field_location
         ):
-            _ = wtypes.persistable_stack_type(wtype, field_location)  # double check
+            _ = persistable_stack_type(wtype, field_location)  # double check
             account = context.visitor.visit_and_materialise_single(account_expr)
             key_value = context.visitor.visit_and_materialise_single(awst_key)
             (mat_value,) = context.visitor.materialise_value_provider(
@@ -148,7 +153,7 @@ def handle_assignment(
         case awst_nodes.BoxValueExpression(
             key=awst_key, wtype=wtype, source_location=field_location
         ):
-            scalar_type = wtypes.persistable_stack_type(wtype, field_location)  # double check
+            scalar_type = persistable_stack_type(wtype, field_location)  # double check
             key_value = context.visitor.visit_and_materialise_single(awst_key)
             (mat_value,) = context.visitor.materialise_value_provider(
                 value, description="new_box_value"
