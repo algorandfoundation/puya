@@ -579,28 +579,8 @@ arc4_address_alias: typing.Final = ARC4StaticArray(
 # endregion
 
 
-def persistable_stack_type(
-    wtype: WType, location: SourceLocation
-) -> typing.Literal[AVMType.uint64, AVMType.bytes]:
-    match _storage_type_or_error(wtype):
-        case str(error):
-            raise CodeError(error, location=location)
-        case result:
-            return result
-
-
 def validate_persistable(wtype: WType, location: SourceLocation) -> bool:
-    match _storage_type_or_error(wtype):
-        case str(error):
-            logger.error(error, location=location)
-            return False
-        case _:
-            return True
-
-
-def _storage_type_or_error(wtype: WType) -> str | typing.Literal[AVMType.uint64, AVMType.bytes]:
-    if wtype.ephemeral:
-        return "ephemeral types (such as transaction related types) are not suitable for storage"
-    if wtype.scalar_type is None:
-        return "type is not suitable for storage"
-    return wtype.scalar_type
+    if not wtype.value_type or wtype.ephemeral:
+        logger.error("type is not suitable for storage", location=location)
+        return False
+    return True
