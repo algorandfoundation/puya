@@ -1073,7 +1073,7 @@ def _make_gtxn_type(kind: TransactionType | None) -> GroupTransactionType:
     return GroupTransactionType(
         name=stub_name,
         transaction_type=kind,
-        wtype=wtypes.WGroupTransaction.from_type(kind),
+        wtype=wtypes.WGroupTransaction(kind),
         bases=[GroupTransactionBaseType],
         mro=[GroupTransactionBaseType],
     )
@@ -1088,7 +1088,7 @@ def _make_itxn_fieldset_type(kind: TransactionType | None) -> InnerTransactionFi
     return InnerTransactionFieldsetType(
         name=stub_name,
         transaction_type=kind,
-        wtype=wtypes.WInnerTransactionFields.from_type(kind),
+        wtype=wtypes.WInnerTransactionFields(kind),
     )
 
 
@@ -1101,7 +1101,7 @@ def _make_itxn_result_type(kind: TransactionType | None) -> InnerTransactionResu
     return InnerTransactionResultType(
         name=stub_name,
         transaction_type=kind,
-        wtype=wtypes.WInnerTransaction.from_type(kind),
+        wtype=wtypes.WInnerTransaction(kind),
     )
 
 

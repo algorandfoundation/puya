@@ -1,4 +1,5 @@
 import abc
+import enum
 import typing
 from collections.abc import Iterable, Mapping
 from functools import cached_property
@@ -15,147 +16,214 @@ from puya.utils import unique
 logger = log.get_logger(__name__)
 
 
+@attrs.frozen
+class _TypeSemanticsData:
+    # these are internal details that shouldn't be exposed via (de-)serialization,
+    # and shouldn't be referenced from the puyapy front-end either
+    scalar_type: typing.Literal[AVMType.uint64, AVMType.bytes, None]
+    ephemeral: bool
+    value_type: bool
+
+
+@enum.unique
+class _TypeSemantics(enum.Enum):
+    persistable_uint64 = _TypeSemanticsData(
+        scalar_type=AVMType.uint64,
+        ephemeral=False,
+        value_type=True,
+    )
+    persistable_bytes = _TypeSemanticsData(
+        scalar_type=AVMType.bytes,
+        ephemeral=False,
+        value_type=True,
+    )
+    persistable_aggregate = _TypeSemanticsData(
+        scalar_type=None,
+        ephemeral=False,
+        value_type=True,
+    )
+    ephemeral_uint64 = _TypeSemanticsData(
+        scalar_type=AVMType.uint64,
+        ephemeral=True,
+        value_type=True,
+    )
+    ephemeral_aggregate = _TypeSemanticsData(
+        scalar_type=None,
+        ephemeral=True,
+        value_type=True,
+    )
+    static_type = _TypeSemanticsData(
+        scalar_type=None,
+        ephemeral=False,
+        value_type=False,
+    )
+
+
 @attrs.frozen(kw_only=True)
 class WType:
     name: str
-    scalar_type: typing.Literal[AVMType.uint64, AVMType.bytes, None]
-    "the (unbound) AVM stack type, if any"
-    ephemeral: bool = False
-    """ephemeral types are not suitable for naive storage / persistence,
-     even if their underlying type is a simple stack value"""
-    immutable: bool
+    # immutable is defined as a validated field as a way of locking down the value without
+    # breaking current serialization, it is not part of _TypeSemantics as there are some
+    # limited cases where this value is controlled by user type definitions which
+    # are handled explicitly by subclasses
+    immutable: bool = attrs.field(default=True, validator=attrs.validators.in_([True]))
+    """
+    Does this type have immutable semantics, if False and a stack based value
+    then this will force a copy when aliasing the value.
+    """
+    _type_semantics: _TypeSemantics = attrs.field(init=False)
+
+    _type_semantics_registry: typing.ClassVar[dict[str, _TypeSemantics]] = {}
+
+    @classmethod
+    def register_basic_type(cls, name: str, semantics: _TypeSemantics) -> "WType":
+        assert (
+            name not in cls._type_semantics_registry
+        ), f"double registration of basic WType {name!r}"
+        assert cls is WType, "stahp what r u doin"
+        cls._type_semantics_registry[name] = semantics
+        return cls(name=name)
+
+    @property
+    def scalar_type(self) -> typing.Literal[AVMType.uint64, AVMType.bytes, None]:
+        """the (unbounded) AVM stack type, if any"""
+        return self._type_semantics.value.scalar_type
+
+    @property
+    def ephemeral(self) -> bool:
+        """ephemeral types are not suitable for naive storage / persistence,
+        even if their underlying type is a simple stack value"""
+        return self._type_semantics.value.ephemeral
+
+    @property
+    def value_type(self) -> bool:
+        """True if a value type, False if a static type that has no value at runtime"""
+        return self._type_semantics.value.value_type
+
+    @_type_semantics.default
+    def _type_semantics_factory(self) -> _TypeSemantics:
+        return self._type_semantics_registry[self.name]
+
+    def __attrs_post_init__(self) -> None:
+        if not self.value_type and self.scalar_type is not None:
+            raise InternalError("if a type has a scalar type it should be a value type")
 
     def __str__(self) -> str:
         return self.name
 
 
-void_wtype: typing.Final = WType(
+# region Basic WTypes
+void_wtype: typing.Final = WType.register_basic_type(
     name="void",
-    scalar_type=None,
-    immutable=True,
+    semantics=_TypeSemantics.static_type,
 )
-
-bool_wtype: typing.Final = WType(
+bool_wtype: typing.Final = WType.register_basic_type(
     name="bool",
-    scalar_type=AVMType.uint64,
-    immutable=True,
+    semantics=_TypeSemantics.persistable_uint64,
 )
-
-uint64_wtype: typing.Final = WType(
+uint64_wtype: typing.Final = WType.register_basic_type(
     name="uint64",
-    scalar_type=AVMType.uint64,
-    immutable=True,
+    semantics=_TypeSemantics.persistable_uint64,
 )
-
-biguint_wtype: typing.Final = WType(
+biguint_wtype: typing.Final = WType.register_basic_type(
     name="biguint",
-    scalar_type=AVMType.bytes,
-    immutable=True,
+    semantics=_TypeSemantics.persistable_bytes,
 )
-
-bytes_wtype: typing.Final = WType(
+bytes_wtype: typing.Final = WType.register_basic_type(
     name="bytes",
-    scalar_type=AVMType.bytes,
-    immutable=True,
+    semantics=_TypeSemantics.persistable_bytes,
 )
-string_wtype: typing.Final = WType(
+string_wtype: typing.Final = WType.register_basic_type(
     name="string",
-    scalar_type=AVMType.bytes,
-    immutable=True,
+    semantics=_TypeSemantics.persistable_bytes,
 )
-asset_wtype: typing.Final = WType(
+asset_wtype: typing.Final = WType.register_basic_type(
     name="asset",
-    scalar_type=AVMType.uint64,
-    immutable=True,
+    semantics=_TypeSemantics.persistable_uint64,
 )
-
-account_wtype: typing.Final = WType(
+account_wtype: typing.Final = WType.register_basic_type(
     name="account",
-    scalar_type=AVMType.bytes,
-    immutable=True,
+    semantics=_TypeSemantics.persistable_bytes,
 )
-
-application_wtype: typing.Final = WType(
+application_wtype: typing.Final = WType.register_basic_type(
     name="application",
-    scalar_type=AVMType.uint64,
-    immutable=True,
+    semantics=_TypeSemantics.persistable_uint64,
 )
-
-state_key: typing.Final = WType(
+state_key: typing.Final = WType.register_basic_type(
     name="state_key",
-    scalar_type=AVMType.bytes,
-    immutable=True,
+    semantics=_TypeSemantics.persistable_bytes,
 )
-box_key: typing.Final = WType(
+box_key: typing.Final = WType.register_basic_type(
     name="box_key",
-    scalar_type=AVMType.bytes,
-    immutable=True,
+    semantics=_TypeSemantics.persistable_bytes,
 )
-
-uint64_range_wtype: typing.Final = WType(
+uint64_range_wtype: typing.Final = WType.register_basic_type(
     name="uint64_range",
-    scalar_type=None,
-    immutable=True,
+    semantics=_TypeSemantics.static_type,
 )
+# endregion
 
 
 @attrs.frozen
 class WEnumeration(WType):
     sequence_type: WType
     name: str = attrs.field(init=False)
-    immutable: bool = attrs.field(default=True, init=False)
-    scalar_type: None = attrs.field(default=None, init=False)
-    ephemeral: bool = attrs.field(default=False, init=False)
+    _type_semantics: _TypeSemantics = attrs.field(default=_TypeSemantics.static_type, init=False)
 
     @name.default
     def _name_factory(self) -> str:
         return f"enumerate_{self.sequence_type.name}"
 
 
+@typing.final
 @attrs.frozen
-class _TransactionRelatedWType(WType):
+class WGroupTransaction(WType):
     transaction_type: TransactionType | None
-    ephemeral: bool = attrs.field(default=True, init=False)
-    immutable: bool = attrs.field(default=True, init=False)
+    name: str = attrs.field()
+    _type_semantics: _TypeSemantics = attrs.field(
+        default=_TypeSemantics.ephemeral_uint64, init=False
+    )
 
-
-@typing.final
-@attrs.frozen
-class WGroupTransaction(_TransactionRelatedWType):
-    scalar_type: typing.Literal[AVMType.uint64] = attrs.field(default=AVMType.uint64, init=False)
-
-    @classmethod
-    def from_type(cls, transaction_type: TransactionType | None) -> "WGroupTransaction":
+    @name.default
+    def _name(self) -> str:
         name = "group_transaction"
-        if transaction_type:
-            name = f"{name}_{transaction_type.name}"
-        return cls(name=name, transaction_type=transaction_type)
+        if self.transaction_type:
+            name = f"{name}_{self.transaction_type.name}"
+        return name
 
 
 @typing.final
 @attrs.frozen
-class WInnerTransactionFields(_TransactionRelatedWType):
-    scalar_type: None = attrs.field(default=None, init=False)
+class WInnerTransactionFields(WType):
+    transaction_type: TransactionType | None
+    name: str = attrs.field()
+    _type_semantics: _TypeSemantics = attrs.field(
+        default=_TypeSemantics.ephemeral_aggregate, init=False
+    )
 
-    @classmethod
-    def from_type(cls, transaction_type: TransactionType | None) -> "WInnerTransactionFields":
+    @name.default
+    def _name(self) -> str:
         name = "inner_transaction_fields"
-        if transaction_type:
-            name = f"{name}_{transaction_type.name}"
-        return cls(name=name, transaction_type=transaction_type)
+        if self.transaction_type:
+            name = f"{name}_{self.transaction_type.name}"
+        return name
 
 
 @typing.final
 @attrs.frozen
-class WInnerTransaction(_TransactionRelatedWType):
-    scalar_type: None = attrs.field(default=None, init=False)
+class WInnerTransaction(WType):
+    transaction_type: TransactionType | None
+    name: str = attrs.field()
+    _type_semantics: _TypeSemantics = attrs.field(
+        default=_TypeSemantics.ephemeral_aggregate, init=False
+    )
 
-    @classmethod
-    def from_type(cls, transaction_type: TransactionType | None) -> "WInnerTransaction":
+    @name.default
+    def _name(self) -> str:
         name = "inner_transaction"
-        if transaction_type:
-            name = f"{name}_{transaction_type.name}"
-        return cls(name=name, transaction_type=transaction_type)
+        if self.transaction_type:
+            name = f"{name}_{self.transaction_type.name}"
+        return name
 
 
 @typing.final
@@ -164,9 +232,11 @@ class WStructType(WType):
     fields: immutabledict[str, WType] = attrs.field(converter=immutabledict)
     frozen: bool
     immutable: bool = attrs.field(init=False)
-    scalar_type: None = attrs.field(default=None, init=False)
     source_location: SourceLocation | None = attrs.field(eq=False)
     desc: str | None = None
+    _type_semantics: _TypeSemantics = attrs.field(
+        default=_TypeSemantics.persistable_aggregate, init=False
+    )
 
     @immutable.default
     def _immutable(self) -> bool:
@@ -199,7 +269,9 @@ class NativeArray(WType, abc.ABC):
 class StackArray(NativeArray):
     name: str = attrs.field(init=False)
     immutable: bool = attrs.field(default=True, init=False)
-    scalar_type: typing.Literal[AVMType.bytes] = attrs.field(default=AVMType.bytes, init=False)
+    _type_semantics: _TypeSemantics = attrs.field(
+        default=_TypeSemantics.persistable_bytes, init=False
+    )
 
     @name.default
     def _name(self) -> str:
@@ -211,7 +283,9 @@ class StackArray(NativeArray):
 class ReferenceArray(NativeArray):
     name: str = attrs.field(init=False)
     immutable: bool = attrs.field(default=False, init=False)
-    scalar_type: None = attrs.field(default=None, init=False)
+    _type_semantics: _TypeSemantics = attrs.field(
+        default=_TypeSemantics.ephemeral_aggregate, init=False
+    )
 
     @name.default
     def _name(self) -> str:
@@ -223,11 +297,13 @@ class ReferenceArray(NativeArray):
 class WTuple(WType):
     types: tuple[WType, ...] = attrs.field(converter=tuple[WType, ...])
     source_location: SourceLocation | None = attrs.field(default=None)
-    scalar_type: None = attrs.field(default=None, init=False)
     immutable: bool = attrs.field(default=True, init=False)
     name: str = attrs.field(kw_only=True)
     names: tuple[str, ...] | None = attrs.field(default=None)
     desc: str | None = None
+    _type_semantics: _TypeSemantics = attrs.field(
+        default=_TypeSemantics.persistable_aggregate, init=False
+    )
 
     def __eq__(self, other: object) -> bool:
         # this custom equality check ensures that
@@ -280,14 +356,15 @@ class WTuple(WType):
 
 @attrs.frozen(kw_only=True)
 class ARC4Type(WType):
-    scalar_type: typing.Literal[AVMType.bytes] = attrs.field(default=AVMType.bytes, init=False)
     arc4_name: str = attrs.field(eq=False)  # exclude from equality in case of aliasing
+    _type_semantics: _TypeSemantics = attrs.field(
+        default=_TypeSemantics.persistable_bytes, init=False
+    )
 
 
 arc4_bool_wtype: typing.Final = ARC4Type(
     name="arc4.bool",
     arc4_name="bool",
-    immutable=True,
 )
 
 
@@ -480,19 +557,18 @@ class ARC4Struct(ARC4Type):
         return tuple(self.fields.values())
 
 
+# region ARC4 aliases
 arc4_byte_alias: typing.Final = ARC4UIntN(
     n=8,
     arc4_name="byte",
     source_location=None,
 )
-
 arc4_string_alias: typing.Final = ARC4DynamicArray(
     arc4_name="string",
     element_type=arc4_byte_alias,
     immutable=True,
     source_location=None,
 )
-
 arc4_address_alias: typing.Final = ARC4StaticArray(
     arc4_name="address",
     element_type=arc4_byte_alias,
@@ -500,6 +576,7 @@ arc4_address_alias: typing.Final = ARC4StaticArray(
     immutable=True,
     source_location=None,
 )
+# endregion
 
 
 def persistable_stack_type(

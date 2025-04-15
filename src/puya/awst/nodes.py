@@ -788,7 +788,7 @@ class SubmitInnerTransaction(Expression):
         for expr in self.itxns:
             if not isinstance(expr.wtype, wtypes.WInnerTransactionFields):
                 raise CodeError("invalid expression type for submit", expr.source_location)
-            txn_types.append(wtypes.WInnerTransaction.from_type(expr.wtype.transaction_type))
+            txn_types.append(wtypes.WInnerTransaction(expr.wtype.transaction_type))
         try:
             (single_txn,) = txn_types
         except ValueError:
