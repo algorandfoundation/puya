@@ -22,6 +22,7 @@ from puya.ir.arc4_types import (
     wtype_to_arc4_wtype,
 )
 from puya.ir.context import IRBuildContext
+from puya.ir.types_ import persistable_stack_type
 from puya.parse import SourceLocation
 from puya.utils import StableSet, set_add, unique
 
@@ -80,7 +81,7 @@ def build_contract_metadata(
 def _translate_state(
     state: awst_nodes.AppStorageDefinition,
 ) -> models.ContractState:
-    storage_type = wtypes.persistable_stack_type(state.storage_wtype, state.source_location)
+    storage_type = persistable_stack_type(state.storage_wtype, state.source_location)
     if state.key_wtype is not None:
         if state.kind is not awst_nodes.AppStorageKind.box:
             raise InternalError(
@@ -432,7 +433,7 @@ def _get_arc56_type(
         return wtype.arc4_name
     if wtype == wtypes.string_wtype:
         return "AVMString"
-    storage_type = wtypes.persistable_stack_type(wtype, loc)
+    storage_type = persistable_stack_type(wtype, loc)
     match storage_type:
         case AVMType.uint64:
             if avm_uint64_supported:
