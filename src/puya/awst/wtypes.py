@@ -13,149 +13,131 @@ from puya.parse import SourceLocation
 from puya.utils import unique
 
 logger = log.get_logger(__name__)
+_NOT_SET: typing.Any = object()
+
+
+# _TypeSemantics is used to define some semantics for WTypes without breaking current serialization
+# by continuing to allow these values as parameters and then validating they are correct.
+# Definitions can be found after the WType class definitions
+@attrs.frozen
+class _TypeSemantics:
+    scalar_type: typing.Literal[AVMType.uint64, AVMType.bytes, None]
+    # TODO: once front ends are no longer using this value, invert it's meaning and name it
+    #       something like storable
+    ephemeral: bool
+    value_type: bool
+
+
+def _type_semantics_field() -> typing.Any:  # noqa: ANN401
+    def converter(value: object, wtype: "WType", field: attrs.Attribute) -> object:  # type: ignore[type-arg]
+        """
+        Validates field matches defined type semantics value, or falls back to defined value
+        if not set.
+        """
+        try:
+            type_data = _TYPE_SEMANTICS[wtype.name]
+        # may raise AttributeError if type isn't fully constructed
+        except (KeyError, AttributeError):
+            try:
+                type_data = _TYPE_SEMANTICS[type(wtype)]
+            except KeyError:
+                raise InternalError(f"no _TypeSemantics defined for {wtype}") from None
+        expected_value = getattr(type_data, field.name)
+        # using a sentinel value as a work-around so None can be used as an explicit value
+        if value is _NOT_SET:
+            value = expected_value
+        elif value != expected_value:
+            raise InternalError(f"invalid {field.name} value for {wtype=}")
+        return value
+
+    return attrs.field(
+        default=_NOT_SET,
+        converter=attrs.Converter(  # type: ignore[call-overload]
+            converter,
+            takes_self=True,
+            takes_field=True,
+        ),
+    )
 
 
 @attrs.frozen(kw_only=True)
 class WType:
     name: str
-    scalar_type: typing.Literal[AVMType.uint64, AVMType.bytes, None]
-    "the (unbound) AVM stack type, if any"
-    ephemeral: bool = False
+    scalar_type: typing.Literal[AVMType.uint64, AVMType.bytes, None] = _type_semantics_field()
+    "the (unbounded) AVM stack type, if any"
+    ephemeral: bool = _type_semantics_field()
     """ephemeral types are not suitable for naive storage / persistence,
      even if their underlying type is a simple stack value"""
-    immutable: bool
+    value_type: bool = _type_semantics_field()
+    """True if a value type, False if a static type that has no value at runtime"""
+    immutable: bool = attrs.field(default=True, validator=attrs.validators.in_([True]))
+    """
+    Does this type have immutable semantics, if False and a stack based value
+    then this will force a copy when aliasing the value.
+    """
+    # immutable is defined as a validated field as a way of locking down the value without
+    # breaking current serialization, it is not part of _TypeSemantics as there are some
+    # limited cases where this value is controlled by user type definitions which
+    # are handled explicitly by subclasses
+
+    def __attrs_post_init__(self) -> None:
+        if not self.value_type and self.scalar_type is not None:
+            raise InternalError("if a type has a scalar type it should be a value type")
 
     def __str__(self) -> str:
         return self.name
-
-
-void_wtype: typing.Final = WType(
-    name="void",
-    scalar_type=None,
-    immutable=True,
-)
-
-bool_wtype: typing.Final = WType(
-    name="bool",
-    scalar_type=AVMType.uint64,
-    immutable=True,
-)
-
-uint64_wtype: typing.Final = WType(
-    name="uint64",
-    scalar_type=AVMType.uint64,
-    immutable=True,
-)
-
-biguint_wtype: typing.Final = WType(
-    name="biguint",
-    scalar_type=AVMType.bytes,
-    immutable=True,
-)
-
-bytes_wtype: typing.Final = WType(
-    name="bytes",
-    scalar_type=AVMType.bytes,
-    immutable=True,
-)
-string_wtype: typing.Final = WType(
-    name="string",
-    scalar_type=AVMType.bytes,
-    immutable=True,
-)
-asset_wtype: typing.Final = WType(
-    name="asset",
-    scalar_type=AVMType.uint64,
-    immutable=True,
-)
-
-account_wtype: typing.Final = WType(
-    name="account",
-    scalar_type=AVMType.bytes,
-    immutable=True,
-)
-
-application_wtype: typing.Final = WType(
-    name="application",
-    scalar_type=AVMType.uint64,
-    immutable=True,
-)
-
-state_key: typing.Final = WType(
-    name="state_key",
-    scalar_type=AVMType.bytes,
-    immutable=True,
-)
-box_key: typing.Final = WType(
-    name="box_key",
-    scalar_type=AVMType.bytes,
-    immutable=True,
-)
-
-uint64_range_wtype: typing.Final = WType(
-    name="uint64_range",
-    scalar_type=None,
-    immutable=True,
-)
 
 
 @attrs.frozen
 class WEnumeration(WType):
     sequence_type: WType
     name: str = attrs.field(init=False)
-    immutable: bool = attrs.field(default=True, init=False)
-    scalar_type: None = attrs.field(default=None, init=False)
-    ephemeral: bool = attrs.field(default=False, init=False)
 
     @name.default
     def _name_factory(self) -> str:
         return f"enumerate_{self.sequence_type.name}"
 
 
+@typing.final
 @attrs.frozen
-class _TransactionRelatedWType(WType):
+class WGroupTransaction(WType):
     transaction_type: TransactionType | None
-    ephemeral: bool = attrs.field(default=True, init=False)
-    immutable: bool = attrs.field(default=True, init=False)
+    name: str = attrs.field()
 
-
-@typing.final
-@attrs.frozen
-class WGroupTransaction(_TransactionRelatedWType):
-    scalar_type: typing.Literal[AVMType.uint64] = attrs.field(default=AVMType.uint64, init=False)
-
-    @classmethod
-    def from_type(cls, transaction_type: TransactionType | None) -> "WGroupTransaction":
+    @name.default
+    def _name(self) -> str:
         name = "group_transaction"
-        if transaction_type:
-            name = f"{name}_{transaction_type.name}"
-        return cls(name=name, transaction_type=transaction_type)
+        if self.transaction_type:
+            name = f"{name}_{self.transaction_type.name}"
+        return name
 
 
 @typing.final
 @attrs.frozen
-class WInnerTransactionFields(_TransactionRelatedWType):
-    scalar_type: None = attrs.field(default=None, init=False)
+class WInnerTransactionFields(WType):
+    transaction_type: TransactionType | None
+    name: str = attrs.field()
 
-    @classmethod
-    def from_type(cls, transaction_type: TransactionType | None) -> "WInnerTransactionFields":
+    @name.default
+    def _name(self) -> str:
         name = "inner_transaction_fields"
-        if transaction_type:
-            name = f"{name}_{transaction_type.name}"
-        return cls(name=name, transaction_type=transaction_type)
+        if self.transaction_type:
+            name = f"{name}_{self.transaction_type.name}"
+        return name
 
 
 @typing.final
 @attrs.frozen
-class WInnerTransaction(_TransactionRelatedWType):
-    scalar_type: None = attrs.field(default=None, init=False)
+class WInnerTransaction(WType):
+    transaction_type: TransactionType | None
+    name: str = attrs.field()
 
-    @classmethod
-    def from_type(cls, transaction_type: TransactionType | None) -> "WInnerTransaction":
+    @name.default
+    def _name(self) -> str:
         name = "inner_transaction"
-        if transaction_type:
-            name = f"{name}_{transaction_type.name}"
-        return cls(name=name, transaction_type=transaction_type)
+        if self.transaction_type:
+            name = f"{name}_{self.transaction_type.name}"
+        return name
 
 
 @typing.final
@@ -164,7 +146,6 @@ class WStructType(WType):
     fields: immutabledict[str, WType] = attrs.field(converter=immutabledict)
     frozen: bool
     immutable: bool = attrs.field(init=False)
-    scalar_type: None = attrs.field(default=None, init=False)
     source_location: SourceLocation | None = attrs.field(eq=False)
     desc: str | None = None
 
@@ -199,7 +180,6 @@ class NativeArray(WType, abc.ABC):
 class StackArray(NativeArray):
     name: str = attrs.field(init=False)
     immutable: bool = attrs.field(default=True, init=False)
-    scalar_type: typing.Literal[AVMType.bytes] = attrs.field(default=AVMType.bytes, init=False)
 
     @name.default
     def _name(self) -> str:
@@ -211,7 +191,6 @@ class StackArray(NativeArray):
 class ReferenceArray(NativeArray):
     name: str = attrs.field(init=False)
     immutable: bool = attrs.field(default=False, init=False)
-    scalar_type: None = attrs.field(default=None, init=False)
 
     @name.default
     def _name(self) -> str:
@@ -223,7 +202,6 @@ class ReferenceArray(NativeArray):
 class WTuple(WType):
     types: tuple[WType, ...] = attrs.field(converter=tuple[WType, ...])
     source_location: SourceLocation | None = attrs.field(default=None)
-    scalar_type: None = attrs.field(default=None, init=False)
     immutable: bool = attrs.field(default=True, init=False)
     name: str = attrs.field(kw_only=True)
     names: tuple[str, ...] | None = attrs.field(default=None)
@@ -280,15 +258,7 @@ class WTuple(WType):
 
 @attrs.frozen(kw_only=True)
 class ARC4Type(WType):
-    scalar_type: typing.Literal[AVMType.bytes] = attrs.field(default=AVMType.bytes, init=False)
     arc4_name: str = attrs.field(eq=False)  # exclude from equality in case of aliasing
-
-
-arc4_bool_wtype: typing.Final = ARC4Type(
-    name="arc4.bool",
-    arc4_name="bool",
-    immutable=True,
-)
 
 
 @typing.final
@@ -480,19 +450,96 @@ class ARC4Struct(ARC4Type):
         return tuple(self.fields.values())
 
 
+_persistable_uint64 = _TypeSemantics(
+    scalar_type=AVMType.uint64,
+    ephemeral=False,
+    value_type=True,
+)
+_persistable_bytes = _TypeSemantics(
+    scalar_type=AVMType.bytes,
+    ephemeral=False,
+    value_type=True,
+)
+_persistable_aggregate = _TypeSemantics(
+    scalar_type=None,
+    ephemeral=False,
+    value_type=True,
+)
+_ephemeral_uint64 = _TypeSemantics(
+    scalar_type=AVMType.uint64,
+    ephemeral=True,
+    value_type=True,
+)
+_ephemeral_aggregate = _TypeSemantics(
+    scalar_type=None,
+    ephemeral=True,
+    value_type=True,
+)
+_static_type = _TypeSemantics(
+    scalar_type=None,
+    ephemeral=False,
+    value_type=False,
+)
+_TYPE_SEMANTICS: immutabledict[type | str, _TypeSemantics] = immutabledict(
+    {
+        "bool": _persistable_uint64,
+        "uint64": _persistable_uint64,
+        "asset": _persistable_uint64,
+        "application": _persistable_uint64,
+        "biguint": _persistable_bytes,
+        "bytes": _persistable_bytes,
+        "string": _persistable_bytes,
+        "account": _persistable_bytes,
+        "state_key": _persistable_bytes,
+        "box_key": _persistable_bytes,
+        ARC4Type: _persistable_bytes,
+        ARC4UIntN: _persistable_bytes,
+        ARC4UFixedNxM: _persistable_bytes,
+        ARC4Tuple: _persistable_bytes,
+        ARC4StaticArray: _persistable_bytes,
+        ARC4DynamicArray: _persistable_bytes,
+        ARC4Struct: _persistable_bytes,
+        StackArray: _persistable_bytes,
+        WGroupTransaction: _ephemeral_uint64,
+        WTuple: _persistable_aggregate,
+        WStructType: _persistable_aggregate,
+        WInnerTransactionFields: _ephemeral_aggregate,
+        WInnerTransaction: _ephemeral_aggregate,
+        ReferenceArray: _ephemeral_aggregate,
+        "void": _static_type,
+        "uint64_range": _static_type,
+        WEnumeration: _static_type,
+    }
+)
+
+
+void_wtype: typing.Final = WType(name="void")
+bool_wtype: typing.Final = WType(name="bool")
+uint64_wtype: typing.Final = WType(name="uint64")
+biguint_wtype: typing.Final = WType(name="biguint")
+bytes_wtype: typing.Final = WType(name="bytes")
+string_wtype: typing.Final = WType(name="string")
+asset_wtype: typing.Final = WType(name="asset")
+account_wtype: typing.Final = WType(name="account")
+application_wtype: typing.Final = WType(name="application")
+state_key: typing.Final = WType(name="state_key")
+box_key: typing.Final = WType(name="box_key")
+uint64_range_wtype: typing.Final = WType(name="uint64_range")
+arc4_bool_wtype: typing.Final = ARC4Type(
+    name="arc4.bool",
+    arc4_name="bool",
+)
 arc4_byte_alias: typing.Final = ARC4UIntN(
     n=8,
     arc4_name="byte",
     source_location=None,
 )
-
 arc4_string_alias: typing.Final = ARC4DynamicArray(
     arc4_name="string",
     element_type=arc4_byte_alias,
     immutable=True,
     source_location=None,
 )
-
 arc4_address_alias: typing.Final = ARC4StaticArray(
     arc4_name="address",
     element_type=arc4_byte_alias,
