@@ -9,7 +9,7 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import OpFactory, assert_value, assign_targets, mktemp
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import Intrinsic, UInt64Constant, Value, ValueProvider, ValueTuple
-from puya.ir.types_ import PrimitiveIRType, wtype_to_ir_type
+from puya.ir.types_ import PrimitiveIRType, persistable_stack_type, wtype_to_ir_type
 from puya.parse import SourceLocation
 
 
@@ -160,7 +160,7 @@ def _build_state_get_ex(
             op = AVMOp.box_len
         else:
             op = AVMOp.box_get
-            match wtypes.persistable_stack_type(expr.wtype, source_location):
+            match persistable_stack_type(expr.wtype, source_location):
                 case AVMType.uint64:
                     get_ex_value_ir_type = PrimitiveIRType.bytes
                     convert_op = AVMOp.btoi
