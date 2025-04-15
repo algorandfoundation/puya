@@ -1,4 +1,7 @@
 # CHANGELOG
+<!--scriv-insert-here-->
+<!--scriv-end-here-->
+
 ## v4.7.0 (2025-04-04)
 
 ### Feature

@@ -4,6 +4,22 @@ on:
   pull_request:
 
 jobs:
+  check-change-log-fragment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Python venv
+        uses: ./.github/actions/setup-python-venv
+        with:
+          poetry_install_args: "--with cicd --with doc"
+
+      - name: Check new change log fragment was added
+        run: test -n "$(git diff --name-only --diff-filter=A HEAD^1 HEAD -- changelog.d/*.md)"
+
   check-python:
     runs-on: "ubuntu-latest"
     steps:
