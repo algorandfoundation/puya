@@ -314,13 +314,18 @@ gen_puya_lib.script = "scripts.generate_puya_lib:main()"
 gen = ["gen_lang_spec", "gen_stubs", "gen_avm_ops", "gen_assemble_ops", "gen_puya_lib"]
 compile_all.script = "scripts.compile_all_examples:main()"
 
+[tool.poe.tasks.next_version]
+cmd="semantic-release version --print-tag"
+# setting a default value for GITHUB_TOKEN allows the command to be run locally
+# but in the CD pipeline it will be overridden
+env.GITHUB_TOKEN.default = "na"
+
 [tool.poe.tasks.coverage]
 cmd = "pytest --cov --cov-report xml --cov-report term"
 env = { COVERAGE_CORE = "sysmon" }
 
 [tool.scriv]
-version="command: semantic-release version --print-tag"
+version="command: poe -q next_version"
 format = "md"
 md_header_level=2
 entry_title_template="{% if version %}{{ version }}{% endif %} ({{ date.strftime('%Y-%m-%d') }})"
-categories=["build", "chore", "ci", "docs", "feat", "fix", "perf", "style", "refactor", "test"]
