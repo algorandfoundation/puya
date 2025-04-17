@@ -10,12 +10,21 @@ class Child(algopy.arc4.Struct):
     b: algopy.arc4.DynamicBytes
     c: algopy.arc4.String
 
+class TupleWithMutable(algopy.arc4.Struct):
+    arr: algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[64]]]
+    child: Child
+
 class Parent(algopy.arc4.Struct):
     foo: algopy.arc4.UIntN[typing.Literal[64]]
     foo_arc: algopy.arc4.UIntN[typing.Literal[64]]
     child: Child
 
 class NestedTuples(algopy.arc4.ARC4Client, typing.Protocol):
+    @algopy.arc4.abimethod
+    def mutate_tuple(
+        self,
+    ) -> TupleWithMutable: ...
+
     @algopy.arc4.abimethod
     def run_tests(
         self,

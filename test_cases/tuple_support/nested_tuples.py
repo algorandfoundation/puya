@@ -1,6 +1,15 @@
 import typing
 
-from algopy import ARC4Contract, Bytes, String, UInt64, arc4, op, subroutine
+from algopy import (
+    ARC4Contract,
+    Bytes,
+    String,
+    UInt64,
+    arc4,
+    op,
+    subroutine,
+    urange,
+)
 
 
 class Child(typing.NamedTuple):
@@ -15,9 +24,30 @@ class Parent(typing.NamedTuple):
     child: Child
 
 
+class TupleWithMutable(typing.NamedTuple):
+    arr: arc4.DynamicArray[arc4.UInt64]
+    child: Child
+
+
 class NestedTuples(ARC4Contract):
     def __init__(self) -> None:
         self.build_nested_call_count = UInt64(0)
+
+    @arc4.abimethod()
+    def mutate_tuple(self) -> TupleWithMutable:
+        twm = TupleWithMutable(
+            arr=arc4.DynamicArray(arc4.UInt64(0)),
+            child=Child(
+                a=UInt64(),
+                b=Bytes(),
+                c=String(),
+            ),
+        )
+        twm[0].append(arc4.UInt64(1))
+        twm.arr.append(arc4.UInt64(2))
+        for i in urange(3):
+            assert twm.arr[i] == i
+        return twm
 
     @arc4.abimethod()
     def run_tests(self) -> bool:

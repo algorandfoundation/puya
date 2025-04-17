@@ -261,6 +261,17 @@ contract NestedTuples
     GlobalState['build_nested_call_count']: uint64 = 0u
   }
   
+  abimethod test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple(): test_cases.tuple_support.nested_tuples.TupleWithMutable
+  {
+    twm: test_cases.tuple_support.nested_tuples.TupleWithMutable = (arr=new arc4.dynamic_array<arc4.uint64>(0_arc4u64), child=(a=0u, b=hex<"">, c=''))
+    twm[0].extend((1_arc4u64))
+    twm.arr.extend((2_arc4u64))
+    for i in range(0u, 3u, 1u) {
+      assert(reinterpret_cast<biguint>(twm.arr[i]) == itob(i))
+    }
+    return twm
+  }
+  
   abimethod test_cases.tuple_support.nested_tuples.NestedTuples.run_tests(): bool
   {
     x: tuple<string,string> = ('Hi', 'There')

@@ -55,14 +55,15 @@ def handle_assignment(
         # special case: a nested update can cause a tuple item to be re-assigned
         # TODO: refactor this so that this special case is handled where it originates
         case (
-            awst_nodes.TupleItemExpression(wtype=var_type, source_location=var_loc) as ti_expr
+            awst_nodes.TupleItemExpression(wtype=var_type, source_location=var_loc)
+            | awst_nodes.FieldExpression(wtype=var_type, source_location=var_loc)
         ) if (
             # including assumptions in condition, so assignment will error if they are not true
             not var_type.immutable  # mutable arc4 type
             and is_nested_update  # is a reassignment due to a nested update
             and var_type.scalar_type is not None  # only updating a scalar value
         ):
-            base_name = _get_tuple_var_name(ti_expr)
+            base_name = _get_tuple_var_name(target)
             return _handle_maybe_implicit_return_assignment(
                 context,
                 base_name=base_name,
@@ -285,10 +286,21 @@ def _handle_maybe_implicit_return_assignment(
     return registers
 
 
-def _get_tuple_var_name(expr: awst_nodes.TupleItemExpression) -> str:
+def _get_tuple_var_name(expr: awst_nodes.TupleItemExpression | awst_nodes.FieldExpression) -> str:
     if isinstance(expr.base.wtype, wtypes.WTuple):
+        if isinstance(expr, awst_nodes.TupleItemExpression):
+            name_or_index: str | int = expr.index
+        else:
+            typing.assert_type(expr, awst_nodes.FieldExpression)
+            name_or_index = expr.name
+        if isinstance(expr.base, awst_nodes.FieldExpression):
+            return format_tuple_index(
+                expr.base.wtype, _get_tuple_var_name(expr.base), name_or_index
+            )
         if isinstance(expr.base, awst_nodes.TupleItemExpression):
-            return format_tuple_index(expr.base.wtype, _get_tuple_var_name(expr.base), expr.index)
+            return format_tuple_index(
+                expr.base.wtype, _get_tuple_var_name(expr.base), name_or_index
+            )
         if isinstance(expr.base, awst_nodes.VarExpression):
-            return format_tuple_index(expr.base.wtype, expr.base.name, expr.index)
+            return format_tuple_index(expr.base.wtype, expr.base.name, name_or_index)
     raise CodeError("invalid assignment target", expr.base.source_location)
