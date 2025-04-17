@@ -1,0 +1,128 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1
+
+main_block@0:
+
+main_block@1:
+    // regression_tests/jira_241.py:4
+    // class Jira241(ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main_bare_routing@7
+
+main_abi_routing@2:
+    // regression_tests/jira_241.py:4
+    // class Jira241(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x1e3e4374 // method "oh_no(bool)void"
+    pushbytes 0xd7a938c9 // method "oh_yes(bool)void"
+    uncover 2
+    match main_oh_no_route@3 main_oh_yes_route@4
+
+main_switch_case_default@5:
+
+main_switch_case_next@6:
+
+main_after_if_else@11:
+    // regression_tests/jira_241.py:4
+    // class Jira241(ARC4Contract):
+    intc_0 // 0
+
+main_after_inlined_test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__@12:
+    return
+
+main_oh_yes_route@4:
+    // regression_tests/jira_241.py:9
+    // @arc4.abimethod(default_args={"wrong_size": True})
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // regression_tests/jira_241.py:4
+    // class Jira241(ARC4Contract):
+    txna ApplicationArgs 1
+    intc_0 // 0
+    getbit
+    // regression_tests/jira_241.py:9
+    // @arc4.abimethod(default_args={"wrong_size": True})
+    callsub oh_yes
+    intc_1 // 1
+    b main_after_inlined_test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__@12
+
+main_oh_no_route@3:
+    // regression_tests/jira_241.py:5
+    // @arc4.abimethod(default_args={"wrong_size": False})
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // regression_tests/jira_241.py:4
+    // class Jira241(ARC4Contract):
+    txna ApplicationArgs 1
+    intc_0 // 0
+    getbit
+    // regression_tests/jira_241.py:5
+    // @arc4.abimethod(default_args={"wrong_size": False})
+    callsub oh_no
+    intc_1 // 1
+    b main_after_inlined_test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__@12
+
+main_bare_routing@7:
+    // regression_tests/jira_241.py:4
+    // class Jira241(ARC4Contract):
+    txn OnCompletion
+    intc_0 // 0
+    swap
+    match main___algopy_default_create@8
+
+main_switch_case_default@9:
+
+main_switch_case_next@10:
+    b main_after_if_else@11
+
+main___algopy_default_create@8:
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    assert // can only call when creating
+
+main_block@13:
+
+main_after_inlined_test_cases.regression_tests.jira_241.Jira241.__algopy_default_create@14:
+    intc_1 // 1
+    b main_after_inlined_test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__@12
+
+
+// test_cases.regression_tests.jira_241.Jira241.oh_no(wrong_size: uint64) -> void:
+oh_no:
+    // regression_tests/jira_241.py:5-6
+    // @arc4.abimethod(default_args={"wrong_size": False})
+    // def oh_no(self, wrong_size: bool) -> None:
+    proto 1 0
+
+oh_no_block@0:
+    retsub
+
+
+// test_cases.regression_tests.jira_241.Jira241.oh_yes(wrong_size: uint64) -> void:
+oh_yes:
+    // regression_tests/jira_241.py:9-10
+    // @arc4.abimethod(default_args={"wrong_size": True})
+    // def oh_yes(self, wrong_size: bool) -> None:
+    proto 1 0
+
+oh_yes_block@0:
+    retsub

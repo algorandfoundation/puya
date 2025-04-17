@@ -1,0 +1,60 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#1 0u)
+        goto tmp%0#1 ? block@2 : block@7
+    block@2: // abi_routing_L4
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "oh_no(bool)void" => block@3, method "oh_yes(bool)void" => block@4, * => block@11}
+    block@3: // oh_no_route_L5
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (! tmp%3#0)
+        (assert tmp%4#0) // OnCompletion is not NoOp
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%6#0: bool = (!= tmp%5#0 0u)
+        (assert tmp%5#0) // can only call when not creating
+        let reinterpret_bytes[1]%0#0: bytes[1] = (txna ApplicationArgs 1)
+        let tmp%7#0: bool = (getbit reinterpret_bytes[1]%0#0 0u)
+        test_cases.regression_tests.jira_241.Jira241.oh_no(tmp%7#0)
+        let test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__%0#0: bool = 1u
+        goto block@12
+    block@4: // oh_yes_route_L9
+        let tmp%8#0: uint64 = (txn OnCompletion)
+        let tmp%9#0: bool = (! tmp%8#0)
+        (assert tmp%9#0) // OnCompletion is not NoOp
+        let tmp%10#0: uint64 = (txn ApplicationID)
+        let tmp%11#0: bool = (!= tmp%10#0 0u)
+        (assert tmp%10#0) // can only call when not creating
+        let reinterpret_bytes[1]%1#0: bytes[1] = (txna ApplicationArgs 1)
+        let tmp%12#0: bool = (getbit reinterpret_bytes[1]%1#0 0u)
+        test_cases.regression_tests.jira_241.Jira241.oh_yes(tmp%12#0)
+        let test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__%0#1: bool = 1u
+        goto block@12
+    block@7: // bare_routing_L4
+        let tmp%13#0: uint64 = (txn OnCompletion)
+        goto tmp%13#0 ? block@11 : block@8
+    block@8: // __algopy_default_create_L1
+        let tmp%14#0: uint64 = (txn ApplicationID)
+        let tmp%15#0: bool = (! tmp%14#0)
+        (assert tmp%15#0) // can only call when creating
+        test_cases.regression_tests.jira_241.Jira241.__algopy_default_create()
+        let test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__%0#2: bool = 1u
+        goto block@12
+    block@11: // after_if_else_L4
+        let test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__%0#3: bool = 0u
+        goto block@12
+    block@12: // after_inlined_test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router___L1
+        let tmp%0#0: bool = φ(test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__%0#0 <- block@3, test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__%0#1 <- block@4, test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__%0#2 <- block@8, test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__%0#3 <- block@11)
+        return tmp%0#0
+
+subroutine test_cases.regression_tests.jira_241.Jira241.oh_no(wrong_size: bool) -> void:
+    block@0: // L5
+        return 
+
+subroutine test_cases.regression_tests.jira_241.Jira241.oh_yes(wrong_size: bool) -> void:
+    block@0: // L9
+        return 
+
+subroutine test_cases.regression_tests.jira_241.Jira241.__algopy_default_create() -> void:
+    block@0: // L1
+        return 
