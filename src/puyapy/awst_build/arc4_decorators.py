@@ -231,6 +231,8 @@ class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
         elif self.arg_name == _CLIENT_DEFAULTS:
             if isinstance(o.node, mypy.nodes.Decorator):
                 return o.name  # assume abimethod
+            if o.fullname in ("builtins.True", "builtins.False"):
+                return _parse_expression(self.context, o)
         return self._resolve_constant_reference(o)
 
     @typing.override
