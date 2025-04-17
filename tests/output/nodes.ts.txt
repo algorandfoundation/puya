@@ -348,6 +348,18 @@ export class ArrayReplace extends Expression {
      return visitor.visitArrayReplace(this)
    }
 }
+export class SizeOf extends Expression {
+  constructor(props: Props<SizeOf>) {
+    super(props)
+    this.sizeWtype = props.sizeWtype
+    this.wtype = props.wtype
+  }
+  readonly sizeWtype: wtypes.WType
+  readonly wtype: wtypes.WType
+  accept<T>(visitor: ExpressionVisitor<T>): T {
+     return visitor.visitSizeOf(this)
+   }
+}
 export class IntrinsicCall extends Expression {
   constructor(props: Props<IntrinsicCall>) {
     super(props)
@@ -1425,6 +1437,7 @@ export const concreteNodes = {
   arrayExtend: ArrayExtend,
   arrayPop: ArrayPop,
   arrayReplace: ArrayReplace,
+  sizeOf: SizeOf,
   intrinsicCall: IntrinsicCall,
   createInnerTransaction: CreateInnerTransaction,
   updateInnerTransaction: UpdateInnerTransaction,
@@ -1533,6 +1546,7 @@ export interface ExpressionVisitor<T> {
   visitArrayExtend(expression: ArrayExtend): T
   visitArrayPop(expression: ArrayPop): T
   visitArrayReplace(expression: ArrayReplace): T
+  visitSizeOf(expression: SizeOf): T
   visitIntrinsicCall(expression: IntrinsicCall): T
   visitCreateInnerTransaction(expression: CreateInnerTransaction): T
   visitUpdateInnerTransaction(expression: UpdateInnerTransaction): T
