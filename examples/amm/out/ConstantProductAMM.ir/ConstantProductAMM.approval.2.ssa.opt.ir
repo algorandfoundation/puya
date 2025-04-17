@@ -5,8 +5,8 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
     block@1: // call __init___L1
         (app_global_put "asset_a" 0u)
         (app_global_put "asset_b" 0u)
-        let new_state_value%0#0: bytes[32] = (txn Sender)
-        (app_global_put "governor" new_state_value%0#0)
+        let materialized_values%0#0: bytes[32] = (txn Sender)
+        (app_global_put "governor" materialized_values%0#0)
         (app_global_put "pool_token" 0u)
         (app_global_put "ratio" 0u)
         goto block@2
@@ -425,8 +425,8 @@ subroutine examples.amm.contract.ConstantProductAMM._update_ratio() -> void:
         let a_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
         let b_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
         let tmp%0#0: uint64 = (* a_balance#0 1000u)
-        let new_state_value%0#0: uint64 = (/ tmp%0#0 b_balance#0)
-        (app_global_put "ratio" new_state_value%0#0)
+        let materialized_values%0#0: uint64 = (/ tmp%0#0 b_balance#0)
+        (app_global_put "ratio" materialized_values%0#0)
         return 
 
 subroutine examples.amm.contract.ConstantProductAMM._check_is_governor() -> void:

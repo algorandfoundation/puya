@@ -774,7 +774,7 @@ class SubmitInnerTransaction(Expression):
         for expr in self.itxns:
             if not isinstance(expr.wtype, wtypes.WInnerTransactionFields):
                 raise CodeError("invalid expression type for submit", expr.source_location)
-            txn_types.append(wtypes.WInnerTransaction.from_type(expr.wtype.transaction_type))
+            txn_types.append(wtypes.WInnerTransaction(expr.wtype.transaction_type))
         try:
             (single_txn,) = txn_types
         except ValueError:
@@ -885,6 +885,22 @@ class AppAccountStateExpression(Expression):
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_app_account_state_expression(self)
+
+
+@attrs.frozen
+class BoxPrefixedKeyExpression(Expression):
+    """
+    Adds a prefix to a box key.
+
+    Can be used to ensure a globally unique key for all possible keys in a Box Map
+    """
+
+    prefix: Expression
+    key: Expression
+    wtype: wtypes.WType = attrs.field(default=wtypes.box_key, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_box_prefixed_key_expression(self)
 
 
 @attrs.frozen
