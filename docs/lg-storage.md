@@ -23,7 +23,7 @@ This is represented in Algorand Python by either:
 1. Assigning any [Algorand Python typed](./lg-types.md) value to an instance variable (e.g. `self.value = UInt64(3)`).
     - Use this approach if you just require a terse API for getting and setting a state value
 2. Using an instance of `GlobalState`, which gives [some extra features](./api-algopy.md#algopy.GlobalState) to understand
-   and control the value and the metadata of it (which propagates to the ARC-32 app spec file)
+   and control the value and the metadata of it (which propagates to the ARC-32/ARC-56 app spec file)
     - Use this approach if you need to:
         - Omit a default/initial value
         - Delete the stored value
@@ -48,7 +48,7 @@ error_if_not_set = self.global_int_no_default.value
 ```
 
 These values can be assigned anywhere you have access to `self` i.e. any instance methods/subroutines. The information about
-global storage is automatically included in the ARC-32 app spec file and thus will automatically appear within
+global storage is automatically included in the ARC-32/ARC-56 app spec file and thus will automatically appear within
 any [generated typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients).
 
 ## Local storage
@@ -89,7 +89,7 @@ def delete_data(self, for_account: Account) -> None:
 ```
 
 These values can be assigned anywhere you have access to `self` i.e. any instance methods/subroutines. The information about
-local storage is automatically included in the ARC-32 app spec file and thus will automatically appear within
+local storage is automatically included in the ARC-32/ARC-56 app spec file and thus will automatically appear within
 any [generated typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients).
 
 ## Box storage

@@ -290,12 +290,14 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
         flags = [
             "-O0",
             "--no-output-arc32",
+            "--no-output-arc56",
         ]
         out_suffix = SUFFIX_O0
     elif optimization_level == 2:
         flags = [
             "-O2",
             "--no-output-arc32",
+            "--no-output-arc56",
             "-g0",
         ]
         out_suffix = SUFFIX_O2
@@ -309,7 +311,6 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
             "--output-memory-ir",
             "--output-client",
             "--output-source-map",
-            "--output-arc56",
         ]
         out_suffix = SUFFIX_O1
     result = checked_compile(p, flags=flags, out_suffix=out_suffix)
