@@ -32,11 +32,10 @@ T = typing.TypeVar("T")
 class Node:
     """
     The base class for all AWST nodes
-
-    source_location: Details which source code was responsible for outputting this node
     """
 
     source_location: SourceLocation
+    """Details which source code was responsible for outputting this node"""
 
 
 @attrs.frozen
@@ -53,11 +52,10 @@ class Statement(Node, ABC):
 class Expression(Node, ABC):
     """
     The base class for all Expression nodes
-
-    wtype: The type of value this expression represents, if evaluated
     """
 
     wtype: WType
+    """The type of value this expression represents, if evaluated"""
 
     @abstractmethod
     def accept(self, visitor: ExpressionVisitor[T]) -> T: ...
@@ -67,12 +65,12 @@ class Expression(Node, ABC):
 class ExpressionStatement(Statement):
     """
     Wrapper for expressions which are used where a statement is expected
-
-    expr: The expression to be evaluated as a statement
     """
 
     expr: Expression
+    """The expression to be evaluated as a statement"""
     source_location: SourceLocation = attrs.field(init=False)
+    """Details which source code was responsible for outputting this node"""
 
     @source_location.default
     def _source_location(self) -> SourceLocation:
@@ -189,17 +187,17 @@ class Block(Statement):
     """
     A (non-basic) block used to group statements. Can contain nested blocks, loops, and branching
     structures. No lexical scoping is offered or implied by this block.
-
-    body: A sequence of statements which represent this block
-    comment: An optional comment of what this block represents. Only influences
-                 non-functional output
-    label: An optional label for this block allowing goto statements to jump to this block.
-           Must be unique per subroutine.
     """
 
     body: Sequence[Statement] = attrs.field(converter=tuple[Statement, ...])
+    """A sequence of statements which represent this block"""
     label: Label | None = None
+    """
+    An optional label for this block allowing goto statements to jump to this block.
+    Must be unique per subroutine.
+    """
     comment: str | None = None
+    """An optional comment of what this block represents. Only influences non-functional output"""
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_block(self)
@@ -209,11 +207,10 @@ class Block(Statement):
 class Goto(Statement):
     """
     Branch unconditionally to the block with the specified label.
-
-    target: The label of a block within the same subroutine
     """
 
     target: Label
+    """The label of a block within the same subroutine"""
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_goto(self)
@@ -222,18 +219,16 @@ class Goto(Statement):
 @attrs.frozen
 class IfElse(Statement):
     """
-    A stand c-like if-then-else statement. Execution will continue to the following statement after
-    an if_branch or else_branch has been executed unless those branches contain a control op which
-    leads elsewhere (eg. return/break/continue)
-
-    condition: A boolean condition to be evaluated
-    if_branch: The block to execute if the condition is true
-    else_branch: The block to execute if the condition is false
+    A standard C-like if-then-else statement. Control flow resumes at the next statement, unless
+    interrupted e.g. with a `Goto` node.
     """
 
     condition: Expression = attrs.field(validator=[wtype_is_bool])
+    """A boolean condition to be evaluated"""
     if_branch: Block
+    '""The block to execute if the condition is true'
     else_branch: Block | None
+    """The block to execute if the condition is false"""
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_if_else(self)
@@ -242,22 +237,22 @@ class IfElse(Statement):
 @attrs.frozen
 class Switch(Statement):
     """
-    Evaluates `value` and the `key` expression of all cases.
-    Execute the block associated with the case whose expression matches value.
-    If no case matches, and default_case is provided - execute default case.
-    Execution will continue to the following statement after a case block has been executed.
+    Compare an expression against a set of possible values, and if a match is found, execute the
+    corresponding block. Otherwise, execute the default block (if supplied). Control flow resumes
+    at the next statement, unless interrupted e.g. with a Goto node.
 
-    NOTE: There is no case block fall-through, execution will implicitly break to after this
-          statement after a case block has been executed.
+    NOTE: Evaluates `value` and the `key` expression of all cases.
 
-    value: A subject to be compared to each case clause
-    cases: A mapping of case clause expressions to blocks which should be executed upon a match
-    default_case: An optional block to execute if no case clauses are matched
+    NOTE: There is no case block fall-through, control flow resumes at the next statement once a
+           matching case block has been executed.
     """
 
     value: Expression
+    """A subject to be compared to each case clause"""
     cases: Mapping[Expression, Block] = attrs.field(converter=immutabledict)
+    """A mapping of case clause expressions to blocks which should be executed upon a match"""
     default_case: Block | None
+    """An optional block to execute if no case clauses are matched"""
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_switch(self)
@@ -266,17 +261,15 @@ class Switch(Statement):
 @attrs.frozen
 class WhileLoop(Statement):
     """
-    A pre-checked loop construct.
-    Evaluates `condition` and executes `loop_body` if the condition is true or execute the
-    statement which follows this one if it is false. After `loop_body` has been executed, check
+    Evaluates `condition` and executes `loop_body` if the condition is true, else control flow
+    continues at the next statement. After `loop_body` has been executed, check
     the condition again and repeat.
-
-    condition: An expression to be evaluated before each loop iteration
-    loop_body: The block to execute if the condition is true
     """
 
     condition: Expression = attrs.field(validator=[wtype_is_bool])
+    """An expression to be evaluated before each loop iteration"""
     loop_body: Block
+    """The block to execute if the condition is true"""
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_while_loop(self)
@@ -285,7 +278,11 @@ class WhileLoop(Statement):
 @attrs.frozen
 class LoopExit(Statement):
     """
-    Goto the statement immediately following the current innermost loop construct
+    Goto the statement immediately following the current innermost loop construct.
+
+    Akin to a break statement, but only applicable to loops. Languages which allow breaking
+    from other statements (eg. switch statements or blocks), or breaking to a labelled statement,
+    should make use of the `Goto` node.
     """
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
@@ -297,6 +294,9 @@ class LoopContinue(Statement):
     """
     Goto the end of the loop_body of the current innermost loop construct and continue to the next
     iteration of the loop.
+
+    Languages which allow continuing a labelled loop statement (ie. not just the innermost loop)
+    should make use of the `Goto` node.
     """
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
@@ -308,10 +308,11 @@ class ReturnStatement(Statement):
     """
     Return from the current subroutine with an optional value.
 
-    value: The value (if any) to be returned
+    Non-void return types should always include a value.
     """
 
     value: Expression | None
+    """The value (if any) to be returned"""
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_return_statement(self)
@@ -323,12 +324,14 @@ class AssertExpression(Expression):
     Asserts the `condition` is true and errors with `error_message` if it is not. If no condition
     is provided, the assertion will always fail.
 
-    condition: The condition (if any) to be checked
-    error_message: An error message to be associated with the assertion failure
+    The error message must be a compile time constant (if provided) as it will be output as a teal
+    comment. This mechanism relies on the calling client to extract the message from this comment.
     """
 
     condition: Expression | None
+    """The condition (if any) to be checked"""
     error_message: str | None
+    """An error message to be associated with the assertion failure"""
     wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -343,9 +346,6 @@ class IntegerConstant(Expression):
     readability if this constant value represents one of teal's named integer constants
 
     See: https://developer.algorand.org/docs/get-details/dapps/avm/teal/specification/#named-integer-constants
-
-    value: Any integer value that is valid for the given wtype
-    teal_alias: Teal's alias of this constant value, if applicable
     """
 
     wtype: WType = attrs.field(
@@ -358,7 +358,9 @@ class IntegerConstant(Expression):
         ]
     )
     value: int = attrs.field()
+    """Any integer value that is valid for the given wtype"""
     teal_alias: str | None = None
+    """Teal's alias of this constant value, if applicable"""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_integer_constant(self)
@@ -419,8 +421,8 @@ class BoolConstant(Expression):
 @enum.unique
 class BytesEncoding(enum.StrEnum):
     """
-    Captures the source encoding of a bytes constant so that an appropriate encoding
-    can be used to produce a human-readable value in code output.
+    Captures the source encoding of a bytes constant so that the original encoding can be used
+    when outputting the bytes value.
     """
 
     unknown = enum.auto()
@@ -462,16 +464,18 @@ wtype_is_uint64_backed: typing.Final = _WTypeIsBackedBy(backed_by=AVMType.uint64
 @attrs.frozen(kw_only=True)
 class BytesConstant(Expression):
     """
-    A compile-time bytes constant. Actual type could be any expression which is backed by the
-    bytes type.
+    A compile-time bytes constant.
 
-    value: The bytes value
-    encoding: The encoding used to represent this bytes value in the source material.
+    The wtype is allowed to be anything which is ultimately backed by a single stack-value of
+    byteslice, but front ends should prefer to use a more strongly typed node where possible,
+    e.g. for a `bigint`, use an `IntegerConstant`.
     """
 
     wtype: WType = attrs.field(default=wtypes.bytes_wtype, validator=wtype_is_bytes_backed)
     value: bytes = attrs.field()
+    """The bytes value"""
     encoding: BytesEncoding = attrs.field()
+    """The encoding used to represent this bytes value in the source material."""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bytes_constant(self)
@@ -516,13 +520,13 @@ class VoidConstant(Expression):
 @attrs.frozen
 class TemplateVar(Expression):
     """
-    An expression whose value will be substituted with a constant value prior to deployment.
-
-    name: A unique identifier for this template variable
+    A placeholder expression for a constant value which is not known at compile time, and must be
+    substituted prior to deployment.
     """
 
     wtype: WType
     name: str
+    """A unique identifier for this template variable"""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_template_var(self)
@@ -534,12 +538,11 @@ class MethodConstant(Expression):
     An expression whose value is the first 4 bytes of the sha512/256 hash of `value` when
     interpreted as utf-8 bytes. Assuming `value` is an ARC4 method _signature_, the value of this
     expression will be the ARC4 method _selector_.
-
-    value: An ARC4 method signature. eg. my_method(int,string)bytes
     """
 
     wtype: WType = attrs.field(default=wtypes.bytes_wtype, init=False)
     value: str
+    """An ARC4 method signature. eg. my_method(int,string)bytes"""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_method_constant(self)
@@ -550,8 +553,6 @@ class AddressConstant(Expression):
     """
     An expression whose value is the 32 byte _public key_ of the 58 character Algorand Address
     specified by `value`.
-
-    value: A 58 character base-32 encoded Algorand Address
     """
 
     wtype: WType = attrs.field(
@@ -559,6 +560,7 @@ class AddressConstant(Expression):
         validator=wtype_is_one_of(wtypes.account_wtype, wtypes.arc4_address_alias),
     )
     value: str
+    """A 58 character base-32 encoded Algorand Address"""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_address_constant(self)
@@ -566,6 +568,10 @@ class AddressConstant(Expression):
 
 @attrs.frozen
 class ARC4Encode(Expression):
+    """
+    Encode a native puya value to its ARC4 encoded equivalent
+    """
+
     value: Expression
     wtype: wtypes.ARC4Type = attrs.field()
 
@@ -575,6 +581,10 @@ class ARC4Encode(Expression):
 
 @attrs.frozen
 class ARC4Decode(Expression):
+    """
+    Decode an ARC4 encoded value to its native puya equivalent
+    """
+
     value: Expression = attrs.field(validator=expression_has_wtype(wtypes.ARC4Type))
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -725,6 +735,10 @@ CompileTimeConstantExpression: typing.TypeAlias = (
 
 @attrs.define
 class IntrinsicCall(Expression):
+    """
+    Invoke a teal opcode with the provided immediates and stack args and return the result (if any)
+    """
+
     op_code: str
     immediates: Sequence[str | int] = attrs.field(default=(), converter=tuple[str | int, ...])
     stack_args: Sequence[Expression] = attrs.field(default=(), converter=tuple[Expression, ...])
@@ -735,6 +749,12 @@ class IntrinsicCall(Expression):
 
 @attrs.define
 class CreateInnerTransaction(Expression):
+    """
+    Create an InnerTransactionFields object with the specified fields. This object can be updated
+    with UpdateInnerTransaction, or submitted with SubmitInnerTransaction.
+
+    """
+
     wtype: wtypes.WInnerTransactionFields
     fields: Mapping[TxnField, Expression] = attrs.field(converter=immutabledict)
 
@@ -750,6 +770,10 @@ class CreateInnerTransaction(Expression):
 
 @attrs.define
 class UpdateInnerTransaction(Expression):
+    """
+    Updates an existing InnerTransactionFields object with the specified fields
+    """
+
     itxn: Expression = attrs.field(validator=expression_has_wtype(wtypes.WInnerTransactionFields))
     fields: Mapping[TxnField, Expression] = attrs.field(converter=immutabledict)
     wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
@@ -766,6 +790,11 @@ class UpdateInnerTransaction(Expression):
 
 @attrs.frozen
 class GroupTransactionReference(Expression):
+    """
+    A reference (by group index) to another transaction in the group. If the wtype identifies a
+    specific transaction type, this will be asserted to match when the node is evaluated.
+    """
+
     index: Expression = attrs.field(validator=wtype_is_uint64)
     wtype: wtypes.WGroupTransaction
 
@@ -819,6 +848,10 @@ class CheckedMaybe(Expression):
 
 @attrs.frozen
 class TupleExpression(Expression):
+    """
+    Defines a new tuple with the specified items
+    """
+
     items: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
     wtype: wtypes.WTuple = attrs.field()
 
@@ -872,6 +905,14 @@ class TupleItemExpression(Expression):
 
 @attrs.frozen
 class VarExpression(Expression):
+    """
+    Defines a local variable (subroutine scoped) which can be assigned to as the target of an
+    assignment expression, or read when used as an expression anywhere that is not an assignment
+    target.
+
+    A variable should not be read before it is assigned (this will be a compile error)
+    """
+
     name: str
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -880,6 +921,10 @@ class VarExpression(Expression):
 
 @attrs.frozen(kw_only=True)
 class InnerTransactionField(Expression):
+    """
+    Read a single field from a submitted InnerTransaction.
+    """
+
     itxn: Expression = attrs.field(validator=expression_has_wtype(wtypes.WInnerTransaction))
     field: TxnField
     array_index: Expression | None = None
@@ -905,6 +950,11 @@ class InnerTransactionField(Expression):
 
 @attrs.frozen
 class SubmitInnerTransaction(Expression):
+    """
+    Submit a sequence of InnerTransactionFields objects and return a sequence of InnerTransaction
+    results expressions.
+    """
+
     itxns: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
     wtype: WType = attrs.field(init=False)
 
@@ -928,6 +978,10 @@ class SubmitInnerTransaction(Expression):
 
 @attrs.frozen
 class FieldExpression(Expression):
+    """
+    Access the field of a base expression which has logical fields.
+    """
+
     base: Expression = attrs.field(
         validator=expression_has_wtype(wtypes.WStructType, wtypes.ARC4Struct, wtypes.WTuple)
     )
@@ -949,6 +1003,10 @@ class FieldExpression(Expression):
 
 @attrs.frozen
 class IndexExpression(Expression):
+    """
+    Access an item by index of a base expression which is indexable
+    """
+
     base: Expression = attrs.field(
         validator=expression_has_wtype(
             wtypes.bytes_wtype,
@@ -966,6 +1024,8 @@ class IndexExpression(Expression):
 @attrs.frozen
 class SliceExpression(Expression):
     """
+    Return a slice of a base expression which is indexable.
+
     Errors if begin or end indices are out of bounds
     """
 
@@ -986,6 +1046,8 @@ class SliceExpression(Expression):
 @attrs.frozen
 class IntersectionSliceExpression(Expression):
     """
+    Return a slice of a base expression which is indexable.
+
     Returns the intersection of the slice indexes and the base
     """
 
@@ -1202,11 +1264,19 @@ class AssignmentExpression(Expression):
 
 
 class EqualityComparison(enum.StrEnum):
+    """
+    Equality operators for non-orderable data types
+    """
+
     eq = "=="
     ne = "!="
 
 
 class NumericComparison(enum.StrEnum):
+    """
+    Equality operators for orderable data types
+    """
+
     eq = "=="  # 😩 why can't Python have enum inheritance
     ne = "!="
     lt = "<"
@@ -1263,6 +1333,14 @@ bytes_comparable = expression_has_wtype(
 
 @attrs.frozen
 class BytesComparisonExpression(Expression):
+    """
+    Compare two bytes values. Expressions must be of the same wtype and that wtype must be
+    considered comparable (see bytes_comparable above)
+
+    Note: An example of a bytes based value which is not comparable by this node is the biguint
+         type which should use NumericComparisonExpression.
+    """
+
     wtype: WType = attrs.field(default=wtypes.bool_wtype, init=False)
 
     lhs: Expression = attrs.field(validator=[bytes_comparable])
@@ -1283,21 +1361,46 @@ class BytesComparisonExpression(Expression):
 
 @attrs.frozen
 class SubroutineID:
+    """
+    Identifies a free subroutine
+
+    target: The fully qualified name of a subroutine
+    """
+
     target: str
 
 
 @attrs.frozen(kw_only=True)
 class InstanceMethodTarget:
+    """
+    Identifies a method on the current contract
+
+    member_name: The local name of the instance method
+    """
+
     member_name: str
 
 
 @attrs.frozen(kw_only=True)
 class InstanceSuperMethodTarget:
+    """
+    Identifies a method on ANY of the current contract's base types. Resolved using
+    the contract's method_resolution_order
+    member_name: The local name of the instance method
+    """
+
     member_name: str
 
 
 @attrs.frozen(kw_only=True)
 class ContractMethodTarget:
+    """
+    Identifies a method on a SPECIFIC contract in the current contract's method_resolution_order.
+
+    cref: The target contract's identifier
+    member_name: The local name of the instance method
+    """
+
     cref: ContractReference
     member_name: str
 
@@ -1309,12 +1412,23 @@ SubroutineTarget = (
 
 @attrs.frozen
 class CallArg:
-    name: str | None  # if None, then passed positionally
+    """
+    Defines an argument being passed to a subroutine call.
+    """
+
+    name: str | None
+    """The name of the parameter this arg is for, or None if positional"""
     value: Expression
+    """The argument value"""
 
 
 @attrs.frozen
 class SubroutineCallExpression(Expression):
+    """
+    Invokes the target subroutine/method with the provided args and returns that subroutine's
+    return value (if any).
+    """
+
     target: SubroutineTarget
     args: Sequence[CallArg] = attrs.field(converter=tuple[CallArg, ...])
 
@@ -1344,6 +1458,10 @@ class PuyaLibFunction(enum.Enum):
 
 @attrs.define
 class PuyaLibCall(Expression):
+    """
+    Invoke a puya library function with the provided args and return that function's return value
+    """
+
     func: PuyaLibFunction
     args: Sequence[CallArg] = attrs.field(default=(), converter=tuple[CallArg, ...])
     wtype: wtypes.WType = attrs.field(init=False)
@@ -1365,6 +1483,10 @@ class PuyaLibCall(Expression):
 
 @enum.unique
 class UInt64BinaryOperator(enum.StrEnum):
+    """
+    Binary operators compatible with the uint64 type.
+    """
+
     add = "+"
     sub = "-"
     mult = "*"
@@ -1383,6 +1505,10 @@ class UInt64BinaryOperator(enum.StrEnum):
 
 @enum.unique
 class BigUIntBinaryOperator(enum.StrEnum):
+    """
+    Binary operators compatible with the biguint type.
+    """
+
     add = "+"
     sub = "-"
     mult = "*"
@@ -1401,6 +1527,10 @@ class BigUIntBinaryOperator(enum.StrEnum):
 
 @enum.unique
 class BytesBinaryOperator(enum.StrEnum):
+    """
+    Binary operators compatible with the bytes type
+    """
+
     add = "+"
     bit_or = "|"
     bit_xor = "^"
@@ -1409,22 +1539,39 @@ class BytesBinaryOperator(enum.StrEnum):
 
 @enum.unique
 class BytesUnaryOperator(enum.StrEnum):
+    """
+    Prefix unary operators compatible with the bytes type
+    """
+
     bit_invert = "~"
 
 
 @enum.unique
 class UInt64UnaryOperator(enum.StrEnum):
+    """
+    Prefix unary operators compatible with the uint64 type
+    """
+
     bit_invert = "~"
 
 
 @enum.unique
 class UInt64PostfixUnaryOperator(enum.StrEnum):
+    """
+    Postfix unary operators compatible with the uint64 type
+    """
+
     increment = "++"
     decrement = "--"
 
 
 @attrs.frozen
 class UInt64UnaryOperation(Expression):
+    """
+    Applies the specified prefix unary operator to the provided
+    uint64 expression and returns the resulting value
+    """
+
     op: UInt64UnaryOperator
     expr: Expression = attrs.field(validator=[wtype_is_uint64])
     wtype: WType = attrs.field(default=wtypes.uint64_wtype, init=False)
@@ -1435,6 +1582,11 @@ class UInt64UnaryOperation(Expression):
 
 @attrs.frozen
 class UInt64PostfixUnaryOperation(Expression):
+    """
+    Applies the specified postfix unary operator to the provided
+    uint64 Lvalue and returns the original target value
+    """
+
     op: UInt64PostfixUnaryOperator
     target: Lvalue = attrs.field(validator=[wtype_is_uint64])
     wtype: WType = attrs.field(default=wtypes.uint64_wtype, init=False)
@@ -1445,12 +1597,21 @@ class UInt64PostfixUnaryOperation(Expression):
 
 @enum.unique
 class BigUIntPostfixUnaryOperator(enum.StrEnum):
+    """
+    Postfix unary operators compatible with the biguint type
+    """
+
     increment = "++"
     decrement = "--"
 
 
 @attrs.frozen
 class BigUIntPostfixUnaryOperation(Expression):
+    """
+    Applies the specified postfix unary operator to the provided
+    biguint Lvalue and returns the original target value
+    """
+
     op: BigUIntPostfixUnaryOperator
     target: Expression = attrs.field(validator=[wtype_is_biguint])
     wtype: WType = attrs.field(default=wtypes.biguint_wtype, init=False)
@@ -1461,6 +1622,11 @@ class BigUIntPostfixUnaryOperation(Expression):
 
 @attrs.frozen
 class BytesUnaryOperation(Expression):
+    """
+    Applies the specified prefix unary operator to the provided
+    bytes expression and returns the resulting value
+    """
+
     op: BytesUnaryOperator
     expr: Expression = attrs.field(validator=[wtype_is_bytes])
     wtype: WType = attrs.field(default=wtypes.bytes_wtype, init=False)
@@ -1471,6 +1637,11 @@ class BytesUnaryOperation(Expression):
 
 @attrs.frozen
 class UInt64BinaryOperation(Expression):
+    """
+    Applies the specified binary operator to the provided
+    uint64 expressions and returns the resulting value
+    """
+
     left: Expression = attrs.field(validator=[wtype_is_uint64])
     op: UInt64BinaryOperator
     right: Expression = attrs.field(validator=[wtype_is_uint64])
@@ -1482,6 +1653,11 @@ class UInt64BinaryOperation(Expression):
 
 @attrs.frozen
 class BigUIntBinaryOperation(Expression):
+    """
+    Applies the specified binary operator to the provided
+    uint64 expressions and returns the resulting value
+    """
+
     left: Expression = attrs.field(validator=[wtype_is_biguint])
     op: BigUIntBinaryOperator
     right: Expression = attrs.field(validator=[wtype_is_biguint])
@@ -1493,6 +1669,11 @@ class BigUIntBinaryOperation(Expression):
 
 @attrs.frozen
 class BytesBinaryOperation(Expression):
+    """
+    Applies the specified binary operator to the provided
+    bytes expressions and returns the resulting value
+    """
+
     left: Expression = attrs.field(
         validator=[expression_has_wtype(wtypes.bytes_wtype, wtypes.string_wtype)]
     )
@@ -1521,12 +1702,21 @@ class BytesBinaryOperation(Expression):
 
 @enum.unique
 class BinaryBooleanOperator(enum.StrEnum):
+    """
+    Binary operators compatible with boolean values
+    """
+
     and_ = "and"
     or_ = "or"
 
 
 @attrs.frozen
 class BooleanBinaryOperation(Expression):
+    """
+    Applies the specified binary operator to the provided
+    boolean expressions and returns the resulting value
+    """
+
     left: Expression = attrs.field(validator=[wtype_is_bool])
     op: BinaryBooleanOperator
     right: Expression = attrs.field(validator=[wtype_is_bool])
@@ -1538,6 +1728,11 @@ class BooleanBinaryOperation(Expression):
 
 @attrs.frozen
 class Not(Expression):
+    """
+    Applies a boolean NOT operator to the provided boolean expression
+    and returns the resulting value.
+    """
+
     expr: Expression = attrs.field(validator=[wtype_is_bool])
     wtype: WType = attrs.field(default=wtypes.bool_wtype, init=False)
 
@@ -1547,6 +1742,11 @@ class Not(Expression):
 
 @attrs.frozen
 class UInt64AugmentedAssignment(Statement):
+    """
+    Applies the specified binary operator to target and value and assigns the result to
+    target.
+    """
+
     target: Lvalue = attrs.field(validator=[wtype_is_uint64])
     op: UInt64BinaryOperator
     value: Expression = attrs.field(validator=[wtype_is_uint64])
@@ -1557,6 +1757,11 @@ class UInt64AugmentedAssignment(Statement):
 
 @attrs.frozen
 class BigUIntAugmentedAssignment(Statement):
+    """
+    Applies the specified binary operator to target and value and assigns the result to
+    target.
+    """
+
     target: Lvalue = attrs.field(validator=[wtype_is_biguint])
     op: BigUIntBinaryOperator
     value: Expression = attrs.field(validator=[wtype_is_biguint])
@@ -1567,6 +1772,11 @@ class BigUIntAugmentedAssignment(Statement):
 
 @attrs.frozen
 class BytesAugmentedAssignment(Statement):
+    """
+    Applies the specified binary operator to target and value and assigns the result to
+    target.
+    """
+
     target: Lvalue = attrs.field(
         validator=[
             expression_has_wtype(wtypes.bytes_wtype, wtypes.string_wtype, wtypes.arc4_string_alias)
@@ -1594,6 +1804,10 @@ class BytesAugmentedAssignment(Statement):
 
 @attrs.frozen
 class Emit(Expression):
+    """
+    Emits an ARC-28 log event using the provided signature, and the serialization of the value
+    """
+
     signature: str
     value: Expression = attrs.field(validator=expression_has_wtype(wtypes.ARC4Struct))
     wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
@@ -1604,6 +1818,15 @@ class Emit(Expression):
 
 @attrs.frozen
 class Range(Expression):
+    """
+    Produces a lazy-sequence which can be used in a ForInLoop.
+
+    The sequence of values is inclusive of `start` and exclusive of `stop`. Step is the size of the
+    steps within the range.
+
+    eg. range(0,4,2) emits [0, 2]
+    """
+
     wtype: WType = attrs.field(default=wtypes.uint64_range_wtype, init=False)
     start: Expression = attrs.field(validator=[wtype_is_uint64])
     stop: Expression = attrs.field(validator=[wtype_is_uint64])
@@ -1615,7 +1838,15 @@ class Range(Expression):
 
 @attrs.frozen
 class Enumeration(Expression):
+    """
+    Returns a lazy-sequence which can be used in a ForInLoop. The sequence contains a
+    tuple of each item in expr and its index in the sequence.
+
+    The first value in the tuple is the index, the second value in the tuple is the item.
+    """
+
     expr: Expression
+    """Any iterable expression"""
     wtype: wtypes.WEnumeration = attrs.field(init=False)
 
     @wtype.default
@@ -1628,7 +1859,13 @@ class Enumeration(Expression):
 
 @attrs.frozen
 class Reversed(Expression):
+    """
+    Returns a lazy-sequence which can be used in a ForInLoop. The sequence contains all
+    items from expr, but in reversed order.
+    """
+
     expr: Expression
+    """Any iterable expression"""
     wtype: WType = attrs.field(init=False)
 
     @wtype.default
@@ -1641,9 +1878,17 @@ class Reversed(Expression):
 
 @attrs.frozen
 class ForInLoop(Statement):
+    """
+    A loop construct which assigns the items Lvalue for each iterable item in sequence and
+    evaluates loop_body.
+    """
+
     sequence: Expression
-    items: Lvalue  # item variable(s)
+    """Any iterable expression"""
+    items: Lvalue
+    """An lvalue expression which will be assigned before each iteration of the loop"""
     loop_body: Block
+    """A block to be executed on each iteration of the loop"""
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_for_in_loop(self)
