@@ -584,6 +584,20 @@ CompileTimeConstantExpression: typing.TypeAlias = (
 
 
 @attrs.define
+class SizeOf(Expression):
+    """
+    Returns the number of bytes required for size_wtype when put in storage.
+    Emits an error if type is dynamically sized
+    """
+
+    size_wtype: wtypes.WType
+    wtype: wtypes.WType = attrs.field(default=wtypes.uint64_wtype, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_size_of(self)
+
+
+@attrs.define
 class IntrinsicCall(Expression):
     op_code: str
     immediates: Sequence[str | int] = attrs.field(default=(), converter=tuple[str | int, ...])
