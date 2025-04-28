@@ -30,13 +30,13 @@ Alternatively, if you want to start from scratch you can do the following:
     algokit compile py contract.py
     ```
 7. You should now have `HelloWorldContract.approval.teal` and `HelloWorldContract.clear.teal` on the file system!
-8. We generally recommend using ARC-32 and [generated typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients) to have the most optimal deployment and consumption experience; to do this you need to ask PuyaPy to output an ARC-32 compatible app spec file:
+8. We generally recommend using ARC-56 and [generated typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients) to have the most optimal deployment and consumption experience; PuyaPy produces an ARC-56 compatible app spec file by default:
     ```shell
-    algokit compile py contract.py --output-arc32 --no-output-teal
+    algokit compile py contract.py --no-output-teal
     ```
-9. You should now have `HelloWorldContract.arc32.json`, which can be generated into a client e.g. using AlgoKit CLI:
+9. You should now have `HelloWorldContract.arc56.json`, which can be generated into a client e.g. using AlgoKit CLI:
     ```shell
-    algokit generate client HelloWorldContract.arc32.json --output client.py
+    algokit generate client HelloWorldContract.arc56.json --output client.py
     ```
 10. From here you can dive into the [examples](https://github.com/algorandfoundation/puya/tree/main/examples) or look at the [documentation](https://algorandfoundation.github.io/puya/).
 

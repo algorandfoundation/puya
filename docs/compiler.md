@@ -2,7 +2,7 @@
 
 The PuyaPy compiler is a multi-stage, optimising compiler that takes Algorand Python and prepares it for execution on the AVM. PuyaPy ensures the resulting AVM bytecode execution semantics that match the given Python code. PuyaPy produces output that is directly compatible with [AlgoKit typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients) to make deployment and calling easy (among other formats).
 
-The PuyaPy compiler is based on the [Puya compiler architecture](https://github.com/algorandfoundation/puya/blob/main/ARCHITECTURE.md), 
+The PuyaPy compiler is based on the [Puya compiler architecture](https://github.com/algorandfoundation/puya/blob/main/ARCHITECTURE.md),
 which allows for multiple frontend languages to leverage the majority of the compiler logic so adding new frontend languages for execution on Algorand is relatively easy.
 
 ## Compiler installation
@@ -72,7 +72,7 @@ The options available for the compile can be seen by executing `puyapy -h` or `a
 
 ```
 puyapy [-h] [--version] [-O {0,1,2}]
-    [--output-teal | --no-output-teal] [--output-arc32 | --no-output-arc32]
+    [--output-teal | --no-output-teal] [--output-arc32 | --no-output-arc32] [--output-arc56 | --no-output-arc56]
     [--output-client | --no-output-client] [--out-dir OUT_DIR]
     [--log-level {notset,debug,info,warning,error,critical}] [-g {0,1,2}] [--output-awst | --no-output-awst]
     [--output-ssa-ir | --no-output-ssa-ir] [--output-optimization-ir | --no-output-optimization-ir]
@@ -85,20 +85,20 @@ puyapy [-h] [--version] [-O {0,1,2}]
 ### Options
 
 | Option                                                   | Description                                                                                                                                                           | Default                 |
-|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------|
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
 | `-h`, `--help`                                           | Show the help message and exit                                                                                                                                        | N/A                     |
 | `--version`                                              | Show program's version number and exit                                                                                                                                | N/A                     |
 | `-O {0,1,2}` <br />`--optimization-level {0,1,2}`        | Set optimization level of output TEAL / AVM bytecode                                                                                                                  | `1`                     |
 | `--output-teal`, `--no-output-teal`                      | Output TEAL                                                                                                                                                           | `True`                  |
 | `--output-arc32`, `--no-output-arc32`                    | Output {contract}.arc32.json ARC-32 app spec file if the contract is an ARC-4 contract                                                                                | `True`                  |
-| `--output-arc56`, `--no-output-arc56`                    | Output {contract}.arc56.json ARC-56 app spec file if the contract is an ARC-4 contract                                                                                | `False`                 |
-| `--output-client`, `--no-output-client`                  | Output Algorand Python contract client for typed ARC-4 ABI calls                                                                                                       | `False`                 |
+| `--output-arc56`, `--no-output-arc56`                    | Output {contract}.arc56.json ARC-56 app spec file if the contract is an ARC-4 contract                                                                                | `True`                  |
+| `--output-client`, `--no-output-client`                  | Output Algorand Python contract client for typed ARC-4 ABI calls                                                                                                      | `False`                 |
 | `--output-bytecode`, `--no-output-bytecode`              | Output AVM bytecode                                                                                                                                                   | `False`                 |
 | `--out-dir OUT_DIR`                                      | The path for outputting artefacts                                                                                                                                     | Same folder as contract |
 | `--log-level {notset,debug,info,warning,error,critical}` | Minimum level to log to console                                                                                                                                       | `info`                  |
 | `-g {0,1,2}`, `--debug-level {0,1,2}`                    | Output debug information level<br /> `0` = No debug annotations <br /> `1` = Output debug annotations <br /> `2` = Reserved for future use, currently the same as `1` | `1`                     |
 | `--template-var`                                         | Allows specifying template values. Can be used multiple times, see below for examples                                                                                 | N/A                     |
-| `--template-vars-prefix`                                 | Prefix to use for template variables                                                                                                                                  | "TMPL_"                 |
+| `--template-vars-prefix`                                 | Prefix to use for template variables                                                                                                                                  | "TMPL\_"                |
 
 ### Defining template values
 
@@ -109,13 +109,13 @@ Additionally, Algorand Python functions that create AVM bytecode, such as [compi
 
 The table below illustrates how different variables and values can be defined:
 
-| Variable Type                     | Example Algorand Python                          | Value definition example |
-|--------------------------|-------------------------------------------|--------------------------|
+| Variable Type            | Example Algorand Python                   | Value definition example |
+| ------------------------ | ----------------------------------------- | ------------------------ |
 | [UInt64](#algopy.UInt64) | `algopy.TemplateVar[UInt64]("SOME_INT")`  | `SOME_INT=1234`          |
 | [Bytes](#algopy.Bytes)   | `algopy.TemplateVar[Bytes]("SOME_BYTES")` | `SOME_BYTES=0x1A2B`      |
 | [String](#algopy.String) | `algopy.TemplateVar[String]("SOME_STR")`  | `SOME_STR="hello"`       |
 
-All template values specified via the command line are prefixed with "TMPL_" by default. 
+All template values specified via the command line are prefixed with "TMPL\_" by default.
 The default prefix can be modified using the `--template-vars-prefix` option.
 
 ### Advanced options

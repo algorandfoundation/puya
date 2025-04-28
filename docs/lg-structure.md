@@ -138,11 +138,11 @@ base class [per the API documentation](./api-algopy.md#algopy.Contract).
 Namely you can pass in:
 
 -   `name` - Which will affect the output TEAL file name if there are multiple non-abstract contracts
-    in the same file and will also be used as the contract name in the ARC-32 application.json instead of the class name.
+    in the same file and will also be used as the contract name in the ARC-32/ARC-56 application.json instead of the class name.
 -   `scratch_slots` - Which allows you to mark a slot ID or range of slot IDs as "off limits" to Puya
     so you can manually use them.
 -   `state_totals` - Which allows defining what values should be used for global and local uint and bytes storage values
-    when creating a contract and will appear in ARC-32 app spec.
+    when creating a contract and will appear in ARC-32/ARC-56 app spec.
 
 Full example:
 

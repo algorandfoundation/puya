@@ -29,6 +29,7 @@ def run_puyapy(args: list[str | Path], *, check: bool = True) -> subprocess.Comp
             "--no-output-source-map",
             "--no-output-client",
             "--no-output-arc32",
+            "--no-output-arc56",
             *map(str, args),
         ],
         check=check,
