@@ -24,7 +24,7 @@ def log(*args: object, sep: String | str | Bytes | bytes = "") -> None:
     Literal `str` values will be encoded as UTF8.
     """
 
-def size_of(typ: type | object, /) -> UInt64:
+def size_of(type_or_expression: type | object, /) -> UInt64:
     """
     Returns the number of bytes required to store the provided type object
     or the type of provided expression
