@@ -326,3 +326,40 @@ contract VRFVerifier
   {
   }
 }
+
+contract ConstBigIntToIntOverflow
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1(upper_bound: uint64): uint64
+  {
+    lower_bound: uint64 = 0u
+    abs_bound: uint64 = 0u
+    if (upper_bound != 0u) {
+      abs_bound: uint64 = btoi(reinterpret_cast<bytes>(18446744073709551616n b- itob(lower_bound)))
+    }
+    return abs_bound
+  }
+  
+  abimethod test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound2(): uint64
+  {
+    abs_bound: uint64 = btoi(reinterpret_cast<bytes>(18446744073709551616n b- 0n))
+    return abs_bound
+  }
+  
+  baremethod test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.__algopy_default_create(): void
+  {
+  }
+}
