@@ -1,0 +1,115 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 1 0
+    bytecblock 0x151f7c75 0x010000000000000000
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@7
+    pushbytess 0x58db7ce9 0xc95c01ca // method "get_abs_bound1(uint64)uint64", method "get_abs_bound2()uint64"
+    txna ApplicationArgs 0
+    match main_get_abs_bound1_route@3 main_get_abs_bound2_route@4
+
+main_after_if_else@11:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    intc_1 // 0
+    return
+
+main_get_abs_bound2_route@4:
+    // regression_tests/biguint_opt.py:17
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub get_abs_bound2
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_get_abs_bound1_route@3:
+    // regression_tests/biguint_opt.py:5
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // regression_tests/biguint_opt.py:5
+    // @arc4.abimethod()
+    callsub get_abs_bound1
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_bare_routing@7:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    txn OnCompletion
+    bnz main_after_if_else@11
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return
+
+
+// test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1(upper_bound: uint64) -> uint64:
+get_abs_bound1:
+    // regression_tests/biguint_opt.py:5-6
+    // @arc4.abimethod()
+    // def get_abs_bound1(self, upper_bound: UInt64) -> UInt64:
+    proto 1 1
+    // regression_tests/biguint_opt.py:7
+    // abs_bound = lower_bound = UInt64(0)
+    intc_1 // 0
+    // regression_tests/biguint_opt.py:8
+    // if upper_bound:
+    frame_dig -1
+    bz get_abs_bound1_after_if_else@2
+    // regression_tests/biguint_opt.py:9-13
+    // # if upper bound is truthy, then this will error at run time
+    // # but optimizer should not replace this op in this case since it is guarded
+    // # TODO: it would be nice if the optimizer could just replace this failure
+    // #       with an err, but that would require terminating the block as part of optimizing
+    // abs_bound = op.btoi((BigUInt(1 << 64) - lower_bound).bytes)
+    bytec_1 // 0x010000000000000000
+    btoi
+    frame_bury 0
+
+get_abs_bound1_after_if_else@2:
+    // regression_tests/biguint_opt.py:15
+    // return abs_bound
+    frame_dig 0
+    swap
+    retsub
+
+
+// test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound2() -> uint64:
+get_abs_bound2:
+    // regression_tests/biguint_opt.py:19-21
+    // # this variant resulted in the optimization bug appearing in the router after inlining
+    // # this function
+    // abs_bound = op.btoi((BigUInt(1 << 64) - 0).bytes)
+    bytec_1 // 0x010000000000000000
+    btoi
+    // regression_tests/biguint_opt.py:23
+    // return abs_bound
+    retsub

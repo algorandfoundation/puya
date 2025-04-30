@@ -898,7 +898,10 @@ def _try_simplify_bytes_unary_op(
                 return models.BytesConstant(
                     value=inverted, encoding=byte_const.encoding, source_location=op_loc
                 )
-            elif intrinsic.op is AVMOp.btoi:
+            elif (
+                intrinsic.op is AVMOp.btoi
+                and len(byte_const.value) <= 8  # don't produce invalid values when optimizing
+            ):
                 converted = int.from_bytes(byte_const.value, byteorder="big", signed=False)
                 return models.UInt64Constant(value=converted, source_location=op_loc)
             elif intrinsic.op is AVMOp.sha256:

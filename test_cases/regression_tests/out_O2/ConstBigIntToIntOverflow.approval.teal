@@ -1,0 +1,67 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 1 0
+    bytecblock 0x010000000000000000 0x151f7c75
+    pushbytes ""
+    txn NumAppArgs
+    bz main_bare_routing@7
+    pushbytess 0x58db7ce9 0xc95c01ca // method "get_abs_bound1(uint64)uint64", method "get_abs_bound2()uint64"
+    txna ApplicationArgs 0
+    match main_get_abs_bound1_route@3 main_get_abs_bound2_route@4
+
+main_after_if_else@11:
+    intc_1 // 0
+    return
+
+main_get_abs_bound2_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    bytec_0 // 0x010000000000000000
+    btoi
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_get_abs_bound1_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    intc_1 // 0
+    bury 2
+    bz main_after_if_else@19
+    bytec_0 // 0x010000000000000000
+    btoi
+    bury 1
+
+main_after_if_else@19:
+    dup
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_bare_routing@7:
+    txn OnCompletion
+    bnz main_after_if_else@11
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return
