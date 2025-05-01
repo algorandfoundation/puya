@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 
 from puya.avm import AVMType
 from puya.awst import (
@@ -35,12 +35,14 @@ from puya.ir.types_ import (
     wtype_to_ir_types,
 )
 from puya.parse import SourceLocation
+from puya.utils import coalesce
 
 
 def visit_app_state_expression(
     context: IRFunctionBuildContext, expr: awst_nodes.AppStateExpression
 ) -> ValueProvider:
-    maybe_value, exists = _build_state_get_ex(context, expr, expr.source_location)
+    key = context.visitor.visit_and_materialise_single(expr.key)
+    maybe_value, exists = _build_state_get_ex(context, expr, key, expr.source_location)
     # TODO: add specific (unsafe) optimisation flag to allow skipping this check
     assert_value(
         context,
@@ -54,7 +56,8 @@ def visit_app_state_expression(
 def visit_app_account_state_expression(
     context: IRFunctionBuildContext, expr: awst_nodes.AppAccountStateExpression
 ) -> ValueProvider:
-    maybe_value, exists = _build_state_get_ex(context, expr, expr.source_location)
+    key = context.visitor.visit_and_materialise_single(expr.key)
+    maybe_value, exists = _build_state_get_ex(context, expr, key, expr.source_location)
     # TODO: add specific (unsafe) optimisation flag to allow skipping this check
     assert_value(
         context,
@@ -68,7 +71,8 @@ def visit_app_account_state_expression(
 def visit_box_value(
     context: IRFunctionBuildContext, expr: awst_nodes.BoxValueExpression
 ) -> ValueProvider:
-    maybe_value, exists = _build_state_get_ex(context, expr, expr.source_location)
+    key = context.visitor.visit_and_materialise_single(expr.key)
+    maybe_value, exists = _build_state_get_ex(context, expr, key, expr.source_location)
     # TODO: add specific (unsafe) optimisation flag to allow skipping this check
     assert_value(
         context,
@@ -120,20 +124,23 @@ def visit_state_exists(
 def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) -> ValueProvider:
     intrinsic_factory = OpFactory(context, expr.source_location)
     value_wtype = expr.wtype
-    if isinstance(value_wtype, wtypes.WTuple):
-        default_vp = context.visitor.visit_expr(expr.default)
-        maybe_value_vp, exists = _build_state_get_ex(context, expr.field, expr.source_location)
-        return _conditional_value_provider(
+    # ensure we visit key before default value
+    key = context.visitor.visit_and_materialise_single(expr.field.key)
+    if value_wtype.scalar_type is None:
+        default_decoded_values = context.visitor.visit_and_materialise(expr.default)
+        maybe_value_vp, _exists = _build_state_get_ex(
             context,
-            condition=exists,
-            wtype=expr.wtype,
-            true_factory=lambda: maybe_value_vp,
-            false_factory=lambda: default_vp,
-            loc=expr.source_location,
+            expr.field,
+            key,
+            expr.source_location,
+            default_decoded_values=default_decoded_values,
         )
+        return maybe_value_vp
     else:
         default = context.visitor.visit_and_materialise_single(expr.default)
-        maybe_value_vp, exists = _build_state_get_ex(context, expr.field, expr.source_location)
+        maybe_value_vp, exists = _build_state_get_ex(
+            context, expr.field, key, expr.source_location
+        )
         (maybe_value,) = context.visitor.materialise_value_provider(maybe_value_vp, "value")
         return intrinsic_factory.select(
             condition=exists,
@@ -147,7 +154,8 @@ def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) 
 def visit_state_get_ex(
     context: IRFunctionBuildContext, expr: awst_nodes.StateGetEx
 ) -> ValueProvider:
-    maybe_value_vp, exists = _build_state_get_ex(context, expr.field, expr.source_location)
+    key = context.visitor.visit_and_materialise_single(expr.field.key)
+    maybe_value_vp, exists = _build_state_get_ex(context, expr.field, key, expr.source_location)
     maybe_values = context.visitor.materialise_value_provider(maybe_value_vp, "maybe_value")
     return ValueTuple(
         values=[*maybe_values, exists],
@@ -201,11 +209,13 @@ def visit_state_delete(
 def _build_state_get_ex(
     context: IRFunctionBuildContext,
     expr: awst_nodes.StorageExpression,
+    key: Value,
     loc: SourceLocation,
+    *,
+    default_decoded_values: Sequence[Value] | None = None,
 ) -> tuple[ValueProvider, Value]:
-    key = context.visitor.visit_and_materialise_single(expr.key)
     native_wtype = expr.wtype
-    if isinstance(expr.wtype, wtypes.WTuple):
+    if isinstance(native_wtype, wtypes.WTuple):
         storage_wtype: wtypes.WType = wtype_to_arc4_wtype(native_wtype, loc)
     else:
         storage_wtype = native_wtype
@@ -237,7 +247,7 @@ def _build_state_get_ex(
         )
         # boxes can only store bytes, so uint64 are stored as their bytes encoded value
         # so need to btoi them when loading
-        match persistable_stack_type(expr.wtype, loc):
+        match persistable_stack_type(native_wtype, loc):
             case AVMType.uint64:
                 requires_btoi = True
             case AVMType.bytes:
@@ -255,7 +265,11 @@ def _build_state_get_ex(
         # but since the default value of a non-existent box is an empty bytes
         # this still works
         native_values: ValueProvider = factory.btoi(storage_value, "maybe_value_converted")
-    elif native_wtype != storage_wtype:
+        assert default_decoded_values is None
+    elif native_wtype == storage_wtype:
+        native_values = storage_value
+        assert default_decoded_values is None
+    else:
         # TODO: hmmmm
         assert isinstance(storage_wtype, wtypes.ARC4Type), "expected ARC4Type"
 
@@ -267,16 +281,17 @@ def _build_state_get_ex(
                 context, storage_value, storage_wtype, native_wtype, loc
             ),
             false_factory=lambda: ValueTuple(
-                values=[
-                    Undefined(ir_type=ir_type, source_location=loc)
-                    for ir_type in wtype_to_ir_types(native_wtype, loc)
-                ],
+                values=coalesce(
+                    default_decoded_values,
+                    [
+                        Undefined(ir_type=ir_type, source_location=loc)
+                        for ir_type in wtype_to_ir_types(native_wtype, loc)
+                    ],
+                ),
                 source_location=loc,
             ),
             loc=loc,
         )
-    else:
-        native_values = storage_value
     return native_values, did_exist
 
 
