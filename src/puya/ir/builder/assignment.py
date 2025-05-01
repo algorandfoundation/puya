@@ -2,7 +2,6 @@ import typing
 from collections.abc import Sequence
 
 from puya import log
-from puya.avm import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -13,7 +12,6 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, mem, storage
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import (
-    OpFactory,
     assign,
     assign_targets,
     assign_temp,
@@ -23,7 +21,6 @@ from puya.ir.context import IRFunctionBuildContext
 from puya.ir.types_ import (
     PrimitiveIRType,
     get_wtype_arity,
-    wtype_to_ir_type,
 )
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
@@ -121,11 +118,13 @@ def handle_assignment(
             key=awst_key, wtype=wtype, source_location=field_location
         ):
             key_value = context.visitor.visit_and_materialise_single(awst_key)
-            encode_result = storage.encode_for_storage(context, value, wtype, field_location)
+            encode_result = storage.encode_for_storage(
+                context, awst_nodes.AppStorageKind.app_global, value, wtype, field_location
+            )
             context.block_builder.add(
                 ir.Intrinsic(
                     op=AVMOp.app_global_put,
-                    args=[key_value, encode_result.storage_value],
+                    args=[key_value, encode_result.encoded],
                     source_location=assignment_location,
                 )
             )
@@ -135,11 +134,13 @@ def handle_assignment(
         ):
             account = context.visitor.visit_and_materialise_single(account_expr)
             key_value = context.visitor.visit_and_materialise_single(awst_key)
-            encode_result = storage.encode_for_storage(context, value, wtype, field_location)
+            encode_result = storage.encode_for_storage(
+                context, awst_nodes.AppStorageKind.account_local, value, wtype, field_location
+            )
             context.block_builder.add(
                 ir.Intrinsic(
                     op=AVMOp.app_local_put,
-                    args=[account, key_value, encode_result.storage_value],
+                    args=[account, key_value, encode_result.encoded],
                     source_location=assignment_location,
                 )
             )
@@ -147,28 +148,21 @@ def handle_assignment(
         case awst_nodes.BoxValueExpression(
             key=awst_key, wtype=wtype, source_location=field_location
         ):
-            factory = OpFactory(context, assignment_location)
             key_value = context.visitor.visit_and_materialise_single(awst_key)
-            encode_result = storage.encode_for_storage(context, value, wtype, field_location)
-            storage_value = encode_result.storage_value
-            scalar_type = encode_result.scalar_type
+            encode_result = storage.encode_for_storage(
+                context, awst_nodes.AppStorageKind.box, value, wtype, field_location
+            )
             # del box first if size is dynamic
-            if scalar_type == AVMType.bytes:
-                if wtype_to_ir_type(encode_result.storage_wtype).num_bytes is None:
-                    context.block_builder.add(
-                        ir.Intrinsic(
-                            op=AVMOp.box_del, args=[key_value], source_location=assignment_location
-                        )
+            if encode_result.encoded_ir_type.num_bytes is None:
+                context.block_builder.add(
+                    ir.Intrinsic(
+                        op=AVMOp.box_del, args=[key_value], source_location=assignment_location
                     )
-            # boxes can only store bytes
-            elif scalar_type == AVMType.uint64:
-                storage_value = factory.itob(storage_value, "new_box_value")
-            else:
-                typing.assert_never(scalar_type)
+                )
             context.block_builder.add(
                 ir.Intrinsic(
                     op=AVMOp.box_put,
-                    args=[key_value, storage_value],
+                    args=[key_value, encode_result.encoded],
                     source_location=assignment_location,
                 )
             )
