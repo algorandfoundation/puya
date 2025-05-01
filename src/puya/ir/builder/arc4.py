@@ -53,7 +53,7 @@ from puya.ir.types_ import (
     PrimitiveIRType,
     get_wtype_arity,
     wtype_to_encoded_ir_type,
-    wtype_to_ir_type,
+    wtype_to_ir_types,
 )
 from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.utils import bits_to_bytes, unique
@@ -518,13 +518,15 @@ def encode_value_provider(
 
 
 def undefined_value(typ: wtypes.WType, loc: SourceLocation) -> ValueProvider:
-    if not isinstance(typ, wtypes.WTuple):
-        ir_type = wtype_to_ir_type(typ, loc)
-        return Undefined(ir_type=ir_type, source_location=loc)
-    else:
-        ir_types = [wtype_to_ir_type(it, loc) for it in typ.types]
-        values = [Undefined(ir_type=ir_type, source_location=loc) for ir_type in ir_types]
+    values = [
+        Undefined(ir_type=ir_type, source_location=loc) for ir_type in wtype_to_ir_types(typ, loc)
+    ]
+    try:
+        (value,) = values
+    except ValueError:
         return ValueTuple(values=values, source_location=loc)
+    else:
+        return value
 
 
 def _encode_arc4_tuple_items(
