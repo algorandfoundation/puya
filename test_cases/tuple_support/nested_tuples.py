@@ -8,6 +8,7 @@ from algopy import (
     String,
     UInt64,
     arc4,
+    log,
     op,
     subroutine,
     urange,
@@ -73,6 +74,10 @@ class NestedTuples(ARC4Contract):
     @arc4.abimethod()
     def load_tuple_from_box(self, key: SimpleTup) -> SimpleTup:
         return self.box[key]
+
+    @arc4.abimethod()
+    def load_tuple_from_box_or_default(self, key: SimpleTup) -> SimpleTup:
+        return self.box.get(key, default=simple_tup(UInt64(4), UInt64(2)))
 
     @arc4.abimethod()
     def mutate_local_tuple(self) -> TupleWithMutable:
@@ -156,6 +161,12 @@ class NestedTuples(ARC4Contract):
         result = self.build_nested() or self.build_nested()
         assert result[0][0] == "hi"
         assert self.build_nested_call_count == 1
+
+
+@subroutine(inline=False)
+def simple_tup(a: UInt64, b: UInt64) -> SimpleTup:
+    log("I'm just a simple tup")
+    return SimpleTup(a, b)
 
 
 @subroutine
