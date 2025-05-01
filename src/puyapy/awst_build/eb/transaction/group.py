@@ -77,7 +77,6 @@ class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
         self, field: TxnField, typ: pytypes.RuntimeType, location: SourceLocation
     ) -> InstanceBuilder:
         assert not field.is_array
-        assert typ.wtype.scalar_type == field.avm_type
         expr = IntrinsicCall(  # TODO: use (+rename) InnerTransactionField
             op_code="gtxns",
             immediates=[field.immediate],
@@ -97,7 +96,6 @@ class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
     ) -> InstanceBuilder:
         assert field.is_array
         assert pytypes.UInt64Type <= index.pytype
-        assert typ.wtype.scalar_type == field.avm_type
         expr = IntrinsicCall(
             op_code="gtxnsas",
             immediates=[field.immediate],
