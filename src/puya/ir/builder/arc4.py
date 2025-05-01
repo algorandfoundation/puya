@@ -485,7 +485,7 @@ def decode_arc4_value(
         f"unsupported ARC-4 decode operation from type {arc4_wtype.arc4_name}",
         location=loc,
     )
-    return _undefined_value(target_wtype, loc)
+    return undefined_value(target_wtype, loc)
 
 
 def encode_arc4_struct(
@@ -514,10 +514,10 @@ def encode_value_provider(
     logger.error(
         f"unsupported ARC-4 encode operation to type {arc4_wtype.arc4_name}", location=loc
     )
-    return _undefined_value(arc4_wtype, loc)
+    return undefined_value(arc4_wtype, loc)
 
 
-def _undefined_value(typ: wtypes.WType, loc: SourceLocation) -> ValueProvider:
+def undefined_value(typ: wtypes.WType, loc: SourceLocation) -> ValueProvider:
     if not isinstance(typ, wtypes.WTuple):
         ir_type = wtype_to_ir_type(typ, loc)
         return Undefined(ir_type=ir_type, source_location=loc)
@@ -589,7 +589,7 @@ def _encode_arc4_values_as_array(
             logger.error(
                 f"expected {wtype.array_size} elements, got {len(elements)}", location=loc
             )
-            return _undefined_value(wtype, loc)
+            return undefined_value(wtype, loc)
         len_prefix = b""
     else:
         raise InternalError("unhandled ARC-4 Array type", loc)
