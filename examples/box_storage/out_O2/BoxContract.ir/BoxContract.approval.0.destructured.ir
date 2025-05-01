@@ -15,8 +15,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let a#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
         let b#0: bytes = (txna ApplicationArgs 2)
         let c#0: bytes = (txna ApplicationArgs 3)
-        let new_box_value%0#0: bytes[8] = (itob a#0)
-        (box_put "box_a" new_box_value%0#0)
+        let encoded_value%0#1: bytes[8] = (itob a#0)
+        (box_put "box_a" encoded_value%0#1)
         (box_del "b")
         (box_put "b" b#0)
         (box_del 0x424f585f43)
@@ -38,8 +38,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let maybe_value_converted%0#0: uint64 = (btoi maybe_value%2#0)
         (assert maybe_exists%2#0) // check self.box_a exists
         let materialized_values%1#0: uint64 = (+ maybe_value_converted%0#0 3u)
-        let new_box_value%1#0: bytes[8] = (itob materialized_values%1#0)
-        (box_put "box_a" new_box_value%1#0)
+        let encoded_value%1#2: bytes[8] = (itob materialized_values%1#0)
+        (box_put "box_a" encoded_value%1#2)
         let (value%0#0: uint64, check%0#0: bool) = (box_len "box_a")
         (assert check%0#0) // check self.box_a exists
         let tmp%4#0: bool = (== value%0#0 8u)
@@ -371,34 +371,34 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert tmp%41#0) // OnCompletion is not NoOp
         let tmp%42#0: uint64 = (txn ApplicationID)
         (assert tmp%42#0) // can only call when not creating
-        let box_key_bytes%0#0: bytes[8] = (itob 0u)
-        (box_del box_key_bytes%0#0)
-        (box_put box_key_bytes%0#0 "Hmmmmm")
-        let (value%0#0: uint64, check%0#0: bool) = (box_len box_key_bytes%0#0)
+        let encoded_value%0#1: bytes[8] = (itob 0u)
+        (box_del encoded_value%0#1)
+        (box_put encoded_value%0#1 "Hmmmmm")
+        let (value%0#0: uint64, check%0#0: bool) = (box_len encoded_value%0#1)
         (assert check%0#0) // check self.box_map entry exists
         let tmp%1#1: bool = (== value%0#0 6u)
         (assert tmp%1#1)
-        let (value%1#0: uint64, check%1#0: bool) = (box_len box_key_bytes%0#0)
+        let (value%1#0: uint64, check%1#0: bool) = (box_len encoded_value%0#1)
         (assert check%1#0) // check self.box_map entry exists
         let tmp%3#1: bool = (== value%1#0 6u)
         (assert tmp%3#1)
-        let box_key_bytes%3#0: bytes[8] = (itob 1u)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_key_bytes%3#0)
+        let encoded_value%3#0: bytes[8] = (itob 1u)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get encoded_value%3#0)
         let state_get%0#0: bytes = (select "default" maybe_value%0#0 maybe_exists%0#0)
         let tmp%4#0: bool = (== state_get%0#0 "default")
         (assert tmp%4#0)
-        let (value#0: bytes, exists#0: bool) = (box_get box_key_bytes%3#0)
+        let (value#0: bytes, exists#0: bool) = (box_get encoded_value%3#0)
         let tmp%5#1: bool = (! exists#0)
         (assert tmp%5#1)
-        let (_%0#0: uint64, maybe_exists%2#0: bool) = (box_len box_key_bytes%0#0)
+        let (_%0#0: uint64, maybe_exists%2#0: bool) = (box_len encoded_value%0#1)
         (assert maybe_exists%2#0)
-        (box_del box_key_bytes%3#0)
-        (box_put box_key_bytes%3#0 "hello")
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_key_bytes%3#0)
+        (box_del encoded_value%3#0)
+        (box_put encoded_value%3#0 "hello")
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get encoded_value%3#0)
         (assert maybe_exists%0#0) // check BoxMap entry exists
         let tmp%8#1: bool = (== maybe_value%0#0 "hello")
         (assert tmp%8#1)
-        (box_del box_key_bytes%3#0)
+        (box_del encoded_value%3#0)
         let examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         goto block@21
@@ -412,9 +412,9 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let key#0: uint64 = (btoi reinterpret_bytes[8]%1#0)
         let tmp%49#0: bytes = (txna ApplicationArgs 2)
         let value#0: bytes = ((extract 2 0) tmp%49#0)
-        let box_key_bytes%0#0: bytes[8] = (itob key#0)
-        (box_del box_key_bytes%0#0)
-        (box_put box_key_bytes%0#0 value#0)
+        let encoded_value%0#1: bytes[8] = (itob key#0)
+        (box_del encoded_value%0#1)
+        (box_put encoded_value%0#1 value#0)
         let examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         goto block@21
@@ -426,8 +426,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert tmp%53#0) // can only call when not creating
         let reinterpret_bytes[8]%2#0: bytes[8] = (txna ApplicationArgs 1)
         let key#0: uint64 = (btoi reinterpret_bytes[8]%2#0)
-        let box_key_bytes%0#0: bytes[8] = (itob key#0)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_key_bytes%0#0)
+        let encoded_value%0#1: bytes[8] = (itob key#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get encoded_value%0#1)
         (assert maybe_exists%0#0) // check self.box_map entry exists
         let length%1#0: uint64 = (len maybe_value%0#0)
         let as_bytes%3#0: bytes[8] = (itob length%1#0)
@@ -446,8 +446,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert tmp%59#0) // can only call when not creating
         let reinterpret_bytes[8]%3#0: bytes[8] = (txna ApplicationArgs 1)
         let key#0: uint64 = (btoi reinterpret_bytes[8]%3#0)
-        let box_key_bytes%0#0: bytes[8] = (itob key#0)
-        (box_del box_key_bytes%0#0)
+        let encoded_value%0#1: bytes[8] = (itob key#0)
+        (box_del encoded_value%0#1)
         let examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         goto block@21
@@ -459,8 +459,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert tmp%64#0) // can only call when not creating
         let reinterpret_bytes[8]%4#0: bytes[8] = (txna ApplicationArgs 1)
         let key#0: uint64 = (btoi reinterpret_bytes[8]%4#0)
-        let box_key_bytes%0#0: bytes[8] = (itob key#0)
-        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len box_key_bytes%0#0)
+        let encoded_value%0#1: bytes[8] = (itob key#0)
+        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len encoded_value%0#1)
         let encoded_bool%4#0: bytes[1] = (setbit 0x00 0u maybe_exists%0#0)
         let tmp%67#0: bytes = (concat 0x151f7c75 encoded_bool%4#0)
         (log tmp%67#0)

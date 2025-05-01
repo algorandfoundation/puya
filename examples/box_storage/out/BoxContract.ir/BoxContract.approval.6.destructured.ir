@@ -205,8 +205,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
 
 subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: bytes, c: bytes) -> void:
     block@0: // L41
-        let new_box_value%0#0: bytes[8] = (itob a#0)
-        (box_put "box_a" new_box_value%0#0)
+        let encoded_value%0#0: bytes[8] = (itob a#0)
+        (box_put "box_a" encoded_value%0#0)
         (box_del "b")
         (box_put "b" b#0)
         (box_del 0x424f585f43)
@@ -228,8 +228,8 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: byt
         let maybe_value_converted%0#0: uint64 = (btoi maybe_value%2#0)
         (assert maybe_exists%2#0) // check self.box_a exists
         let materialized_values%1#0: uint64 = (+ maybe_value_converted%0#0 3u)
-        let new_box_value%1#0: bytes[8] = (itob materialized_values%1#0)
-        (box_put "box_a" new_box_value%1#0)
+        let encoded_value%1#0: bytes[8] = (itob materialized_values%1#0)
+        (box_put "box_a" encoded_value%1#0)
         let (value%0#0: uint64, check%0#0: bool) = (box_len "box_a")
         (assert check%0#0) // check self.box_a exists
         let tmp%4#0: bool = (== value%0#0 8u)
@@ -488,58 +488,58 @@ subroutine examples.box_storage.contract.BoxContract.test_box_ref() -> void:
 
 subroutine examples.box_storage.contract.BoxContract.box_map_test() -> void:
     block@0: // L183
-        let box_key_bytes%0#0: bytes[8] = (itob 0u)
-        (box_del box_key_bytes%0#0)
-        (box_put box_key_bytes%0#0 "Hmmmmm")
-        let (value%0#0: uint64, check%0#0: bool) = (box_len box_key_bytes%0#0)
+        let encoded_value%0#0: bytes[8] = (itob 0u)
+        (box_del encoded_value%0#0)
+        (box_put encoded_value%0#0 "Hmmmmm")
+        let (value%0#0: uint64, check%0#0: bool) = (box_len encoded_value%0#0)
         (assert check%0#0) // check self.box_map entry exists
         let tmp%1#0: bool = (== value%0#0 6u)
         (assert tmp%1#0)
-        let (value%1#0: uint64, check%1#0: bool) = (box_len box_key_bytes%0#0)
+        let (value%1#0: uint64, check%1#0: bool) = (box_len encoded_value%0#0)
         (assert check%1#0) // check self.box_map entry exists
         let tmp%3#0: bool = (== value%1#0 6u)
         (assert tmp%3#0)
-        let box_key_bytes%3#0: bytes[8] = (itob 1u)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_key_bytes%3#0)
+        let encoded_value%3#0: bytes[8] = (itob 1u)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get encoded_value%3#0)
         let state_get%0#0: bytes = (select "default" maybe_value%0#0 maybe_exists%0#0)
         let tmp%4#0: bool = (== state_get%0#0 "default")
         (assert tmp%4#0)
-        let (value#1: bytes, exists#0: bool) = (box_get box_key_bytes%3#0)
+        let (value#1: bytes, exists#0: bool) = (box_get encoded_value%3#0)
         let tmp%5#0: bool = (! exists#0)
         (assert tmp%5#0)
-        let (_%0#0: uint64, maybe_exists%2#0: bool) = (box_len box_key_bytes%0#0)
+        let (_%0#0: uint64, maybe_exists%2#0: bool) = (box_len encoded_value%0#0)
         (assert maybe_exists%2#0)
-        (box_del box_key_bytes%3#0)
-        (box_put box_key_bytes%3#0 "hello")
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_key_bytes%3#0)
+        (box_del encoded_value%3#0)
+        (box_put encoded_value%3#0 "hello")
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get encoded_value%3#0)
         (assert maybe_exists%0#0) // check BoxMap entry exists
         let tmp%8#0: bool = (== maybe_value%0#0 "hello")
         (assert tmp%8#0)
-        (box_del box_key_bytes%3#0)
+        (box_del encoded_value%3#0)
         return 
 
 subroutine examples.box_storage.contract.BoxContract.box_map_set(key: uint64, value: bytes) -> void:
     block@0: // L204
-        let box_key_bytes%0#0: bytes[8] = (itob key#0)
-        (box_del box_key_bytes%0#0)
-        (box_put box_key_bytes%0#0 value#0)
+        let encoded_value%0#0: bytes[8] = (itob key#0)
+        (box_del encoded_value%0#0)
+        (box_put encoded_value%0#0 value#0)
         return 
 
 subroutine examples.box_storage.contract.BoxContract.box_map_get(key: uint64) -> bytes:
     block@0: // L208
-        let box_key_bytes%0#0: bytes[8] = (itob key#0)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_key_bytes%0#0)
+        let encoded_value%0#0: bytes[8] = (itob key#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get encoded_value%0#0)
         (assert maybe_exists%0#0) // check self.box_map entry exists
         return maybe_value%0#0
 
 subroutine examples.box_storage.contract.BoxContract.box_map_del(key: uint64) -> void:
     block@0: // L212
-        let box_key_bytes%0#0: bytes[8] = (itob key#0)
-        (box_del box_key_bytes%0#0)
+        let encoded_value%0#0: bytes[8] = (itob key#0)
+        (box_del encoded_value%0#0)
         return 
 
 subroutine examples.box_storage.contract.BoxContract.box_map_exists(key: uint64) -> bool:
     block@0: // L216
-        let box_key_bytes%0#0: bytes[8] = (itob key#0)
-        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len box_key_bytes%0#0)
+        let encoded_value%0#0: bytes[8] = (itob key#0)
+        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len encoded_value%0#0)
         return maybe_exists%0#0

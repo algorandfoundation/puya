@@ -892,12 +892,13 @@ class FunctionIRBuilder(
         key_expr = expr.key
         key_vp = self.context.visitor.visit_expr(key_expr)
         encode_result = storage.encode_for_storage(
-            self.context, key_vp, key_expr.wtype, key_expr.source_location
+            self.context,
+            awst_nodes.AppStorageKind.box,
+            key_vp,
+            key_expr.wtype,
+            key_expr.source_location,
         )
-        key = encode_result.storage_value
-        # box keys must be bytes
-        if key.ir_type.maybe_avm_type == AVMType.uint64:
-            key = factory.itob(key, "box_key_bytes")
+        key = encode_result.encoded
         return factory.concat(prefix, key, "box_prefixed_key")
 
     def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> TExpression:

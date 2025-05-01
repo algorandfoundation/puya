@@ -28,6 +28,7 @@ from puya.ir.models import (
     ValueTuple,
 )
 from puya.ir.types_ import (
+    IRType,
     PrimitiveIRType,
     persistable_stack_type,
     wtype_to_ir_type,
@@ -338,15 +339,14 @@ def _conditional_value_provider(
 class _EncodeForStorageResult(typing.NamedTuple):
     values: list[Value]
     """Materialized values of ValueProvider"""
-    storage_value: Value
+    encoded: Value
     """Encoded Value for storage"""
-    storage_wtype: wtypes.WType
-    """WType of encoded value"""
-    scalar_type: typing.Literal[AVMType.uint64, AVMType.bytes]
+    encoded_ir_type: IRType
 
 
 def encode_for_storage(
     context: IRFunctionBuildContext,
+    kind: awst_nodes.AppStorageKind,
     value: ValueProvider,
     expr_wtype: wtypes.WType,
     loc: SourceLocation,
@@ -355,21 +355,29 @@ def encode_for_storage(
     materialized_values = context.visitor.materialise_value_provider(value, "materialized_values")
     # TODO: also add explicit check for ImmutableArray?
     if not isinstance(expr_wtype, wtypes.WTuple):
-        (storage_value,) = materialized_values
-        storage_wtype = expr_wtype
+        (encoded,) = materialized_values
+        encoded_wtype = expr_wtype
     else:
-        storage_wtype = wtype_to_arc4_wtype(expr_wtype, loc)
+        encoded_wtype = wtype_to_arc4_wtype(expr_wtype, loc)
         encoded_vp = arc4.encode_value_provider(
-            context, value, expr_wtype, arc4_wtype=storage_wtype, loc=loc
+            context, value, expr_wtype, arc4_wtype=encoded_wtype, loc=loc
         )
-        (storage_value,) = context.visitor.materialise_value_provider(
-            encoded_vp, description="storage_value"
+        (encoded,) = context.visitor.materialise_value_provider(
+            encoded_vp, description="encoded_value"
         )
-
     # ensure encoding implementation is consistent with metadata
     scalar_type = persistable_stack_type(expr_wtype, loc)
 
-    if scalar_type != storage_value.ir_type.avm_type:  # double check
+    if scalar_type != encoded.ir_type.avm_type:  # double check
         raise InternalError("inconsistent storage types", loc)
 
-    return _EncodeForStorageResult(materialized_values, storage_value, storage_wtype, scalar_type)
+    if kind is awst_nodes.AppStorageKind.box and scalar_type == AVMType.uint64:
+        factory = OpFactory(context, loc)
+        encoded = factory.itob(encoded, "encoded_value")
+        encoded_ir_type = encoded.ir_type
+    else:
+        # we use the IRType of the original expression, not the value's IRType,
+        # since it could be "narrowed" there (e.g. if the value is a constant)
+        encoded_ir_type = wtype_to_ir_type(encoded_wtype, loc)
+
+    return _EncodeForStorageResult(materialized_values, encoded, encoded_ir_type)
