@@ -274,11 +274,24 @@ class Base2(ARC4Contract):
             self.foo_p = GlobalState(UInt64(2)) ## E: redefinition of foo_p
 
 
-## case: void_state
+## case: void_state_decl
 from algopy import *
 
 class Con(Contract):
     x: None ## E: type is not suitable for storage
+
+    def approval_program(self) -> bool:
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+
+## case: void_state
+from algopy import *
+
+class Con(Contract):
+    x: None
 
     def approval_program(self) -> bool:
         self.x = log(b"")  # type: ignore[func-returns-value] ## E: None indicates an empty return and cannot be assigned
@@ -287,6 +300,7 @@ class Con(Contract):
     def clear_state_program(self) -> bool:
         assert self.x ## E: expression is always False
         return True
+
 
 ## case: subtyping
 import typing

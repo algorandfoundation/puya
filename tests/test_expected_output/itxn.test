@@ -63,6 +63,9 @@ class MyContract(ARC4Contract):
         self.foo = GlobalState( ## E: type is not suitable for storage
             itxn.InnerTransactionResult
         )
+        self.foo_local = LocalState( ## E: type is not suitable for storage
+            itxn.InnerTransactionResult
+        )
         self.foo_box = Box( ## E: type is not suitable for storage
             itxn.InnerTransactionResult
         )
@@ -86,6 +89,26 @@ class MyContract(ARC4Contract):
         self.txn = ( ## E: type is not suitable for storage
             fields.submit()
         )
+
+@subroutine
+def foo(gs: GlobalState[itxn.InnerTransactionResult]) -> None:
+    assert gs ## E: type is not suitable for storage
+
+@subroutine
+def foo_local(ls: LocalState[itxn.InnerTransactionResult]) -> None:
+    assert Txn.sender in ls ## E: type is not suitable for storage
+
+@subroutine
+def foo_box(bs: Box[itxn.InnerTransactionResult]) -> None:
+    assert bs ## E: type is not suitable for storage
+
+@subroutine
+def foo_box_map(bm: BoxMap[itxn.Payment, String]) -> None:
+    assert itxn.Payment(receiver=Txn.sender) in bm ## E: type is not suitable for storage
+
+@subroutine
+def box_foo_map(bm: BoxMap[String, itxn.InnerTransactionResult]) -> None:
+    assert String("🦄💩") in bm ## E: type is not suitable for storage
 
 
 ## case: test_inner_txn_param_cant_be_aliased
