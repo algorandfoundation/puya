@@ -577,10 +577,3 @@ arc4_address_alias: typing.Final = ARC4StaticArray(
     source_location=None,
 )
 # endregion
-
-
-def validate_persistable(wtype: WType, location: SourceLocation) -> bool:
-    if not wtype.value_type or wtype.ephemeral:
-        logger.error("type is not suitable for storage", location=location)
-        return False
-    return True

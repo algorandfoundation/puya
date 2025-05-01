@@ -106,8 +106,6 @@ def _init(
             " - suggest to remove the explicit type annotation, it shouldn't be required",
             location=location,
         )
-    # the type of the key is not retained in the AWST, so to
-    wtypes.validate_persistable(result_type.key_wtype, location)
 
     typed_args = parse_storage_proxy_constructor_args(
         arg_mapping,

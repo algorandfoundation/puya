@@ -689,7 +689,6 @@ def _build_symbols_and_state(
         if pytyp and not isinstance(pytyp, pytypes.FuncType):
             definition = None
             if isinstance(pytyp, pytypes.StorageProxyType):
-                wtypes.validate_persistable(pytyp.content_wtype, node_loc)
                 match pytyp.generic:
                     case pytypes.GenericLocalStateType:
                         kind = awst_nodes.AppStorageKind.account_local
@@ -702,14 +701,11 @@ def _build_symbols_and_state(
                     case _:
                         raise InternalError(f"unhandled StorageProxyType: {pytyp}", node_loc)
             elif isinstance(pytyp, pytypes.StorageMapProxyType):
-                wtypes.validate_persistable(pytyp.key_wtype, node_loc)
-                wtypes.validate_persistable(pytyp.content_wtype, node_loc)
                 if pytyp.generic != pytypes.GenericBoxMapType:
                     raise InternalError(f"unhandled StorageMapProxyType: {pytyp}", node_loc)
                 kind = awst_nodes.AppStorageKind.box
             else:  # global state, direct
                 wtype = pytyp.checked_wtype(node_loc)
-                wtypes.validate_persistable(wtype, node_loc)
                 key = awst_nodes.BytesConstant(
                     value=name.encode("utf8"),
                     encoding=awst_nodes.BytesEncoding.utf8,
