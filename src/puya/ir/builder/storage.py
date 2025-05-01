@@ -22,7 +22,6 @@ from puya.ir.models import (
     ConditionalBranch,
     Intrinsic,
     UInt64Constant,
-    Undefined,
     Value,
     ValueProvider,
     ValueTuple,
@@ -32,10 +31,8 @@ from puya.ir.types_ import (
     PrimitiveIRType,
     persistable_stack_type,
     wtype_to_ir_type,
-    wtype_to_ir_types,
 )
 from puya.parse import SourceLocation
-from puya.utils import coalesce
 
 
 def visit_app_state_expression(
@@ -272,6 +269,10 @@ def _build_state_get_ex(
     else:
         # TODO: hmmmm
         assert isinstance(storage_wtype, wtypes.ARC4Type), "expected ARC4Type"
+        if default_decoded_values is None:
+            false_vp = arc4.undefined_value(native_wtype, loc)
+        else:
+            false_vp = ValueTuple(values=default_decoded_values, source_location=loc)
 
         native_values = _conditional_value_provider(
             context,
@@ -280,16 +281,7 @@ def _build_state_get_ex(
             true_factory=lambda: arc4.decode_arc4_value(
                 context, storage_value, storage_wtype, native_wtype, loc
             ),
-            false_factory=lambda: ValueTuple(
-                values=coalesce(
-                    default_decoded_values,
-                    [
-                        Undefined(ir_type=ir_type, source_location=loc)
-                        for ir_type in wtype_to_ir_types(native_wtype, loc)
-                    ],
-                ),
-                source_location=loc,
-            ),
+            false_factory=lambda: false_vp,
             loc=loc,
         )
     return native_values, did_exist
