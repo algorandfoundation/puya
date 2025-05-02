@@ -34,7 +34,7 @@ def make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Subr
             source_location=arg.source_location,
         )
     ]
-    returns = wtype_to_ir_types(func.return_type)
+    returns = wtype_to_ir_types(func.return_type, func.source_location)
     return Subroutine(
         id=func.full_name,
         short_name=func.short_name,
@@ -47,7 +47,7 @@ def make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Subr
 
 
 def _expand_tuple_parameters(
-    name: str, typ: wtypes.WType, *, allow_implicits: bool, source_location: SourceLocation | None
+    name: str, typ: wtypes.WType, *, allow_implicits: bool, source_location: SourceLocation
 ) -> Iterator[Parameter]:
     if isinstance(typ, wtypes.WTuple):
         for item_idx, item_type in enumerate(typ.types):

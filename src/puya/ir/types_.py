@@ -299,8 +299,25 @@ def bytes_enc_to_avm_bytes_enc(bytes_encoding: BytesEncoding) -> AVMBytesEncodin
         raise InternalError(f"Unhandled BytesEncoding: {bytes_encoding}") from ex
 
 
+@typing.overload
+def wtype_to_ir_type(
+    expr: awst_nodes.Expression,
+    /,
+    source_location: SourceLocation | None = None,
+) -> IRType: ...
+
+
+@typing.overload
+def wtype_to_ir_type(
+    wtype: wtypes.WType,
+    /,
+    source_location: SourceLocation,
+) -> IRType: ...
+
+
 def wtype_to_ir_type(
     expr_or_wtype: wtypes.WType | awst_nodes.Expression,
+    /,
     source_location: SourceLocation | None = None,
 ) -> IRType:
     if isinstance(expr_or_wtype, awst_nodes.Expression):
@@ -309,6 +326,8 @@ def wtype_to_ir_type(
         )
     else:
         wtype = expr_or_wtype
+        # static type analysis + typing.overload's above should prevent this
+        assert source_location is not None, "unexpected empty SourceLocation"
     match wtype:
         case wtypes.bool_wtype:
             return PrimitiveIRType.bool
@@ -358,7 +377,7 @@ def wtype_to_ir_type(
             return PrimitiveIRType.bytes
         case None:
             raise CodeError(
-                f"unsupported nested/compound wtype encountered: {wtype}", source_location
+                f"unsupported nested/compound type encountered: {wtype}", source_location
             )
         case _:
             typing.assert_never(wtype.scalar_type)
@@ -368,7 +387,7 @@ def wtype_to_encoded_ir_type(
     wtype: wtypes.WType,
     *,
     require_static_size: bool,
-    loc: SourceLocation | None,
+    loc: SourceLocation,
 ) -> IRType:
     """
     Return the array encoded IRType of a WType
@@ -439,14 +458,14 @@ def sum_wtypes_arity(types: Sequence[wtypes.WType]) -> int:
     return sum(map(get_wtype_arity, types))
 
 
-def wtype_to_ir_types(
-    expr_or_wtype: wtypes.WType | awst_nodes.Expression,
-    source_location: SourceLocation | None = None,
-) -> list[IRType]:
-    if isinstance(expr_or_wtype, awst_nodes.Expression):
-        wtype = expr_or_wtype.wtype
-    else:
-        wtype = expr_or_wtype
+def wtype_to_ir_types(wtype: wtypes.WType, source_location: SourceLocation) -> list[IRType]:
+    """
+    Similar to wtype_to_ir_type, except:
+      - tuples will be expanded (recursively, if nested)
+      - void will be treated as "empty"
+
+    Generally only useful in converting return types, use in other cases demands caution.
+    """
     if wtype == wtypes.void_wtype:
         return []
     elif isinstance(wtype, wtypes.WTuple):
