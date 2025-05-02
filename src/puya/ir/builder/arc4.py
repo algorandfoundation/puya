@@ -518,15 +518,20 @@ def encode_value_provider(
 
 
 def undefined_value(typ: wtypes.WType, loc: SourceLocation) -> ValueProvider:
+    """For a given WType, produce an "undefined" ValueProvider of the correct arity.
+
+    It is invalid to request an "undefined" value of type void
+    """
     values = [
         Undefined(ir_type=ir_type, source_location=loc) for ir_type in wtype_to_ir_types(typ, loc)
     ]
-    try:
-        (value,) = values
-    except ValueError:
-        return ValueTuple(values=values, source_location=loc)
-    else:
-        return value
+    match values:
+        case []:
+            raise InternalError("unexpected void type", loc)
+        case [value]:
+            return value
+        case _:
+            return ValueTuple(values=values, source_location=loc)
 
 
 def _encode_arc4_tuple_items(
