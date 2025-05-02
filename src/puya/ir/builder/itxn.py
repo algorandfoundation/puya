@@ -3,10 +3,10 @@ from collections.abc import Mapping, Sequence
 
 import attrs
 
-import puya.awst.txn_fields
 from puya import log
 from puya.awst import (
     nodes as awst_nodes,
+    txn_fields,
     wtypes,
 )
 from puya.awst.to_code_visitor import ToCodeVisitor
@@ -43,13 +43,20 @@ from puya.utils import StableSet, positive_index
 
 logger = log.get_logger(__name__)
 
-_INNER_TRANSACTION_NON_ARRAY_FIELDS = [f for f in puya.awst.txn_fields.TxnField if not f.is_array]
+_INNER_TRANSACTION_NON_ARRAY_FIELDS = [f for f in txn_fields.TxnField if not f.is_array]
+_FIELD_IR_TYPES = {
+    # fake source location is okay here, because this is executed as part of module initialization,
+    # any types without a valid mapping (which there really shouldn't be) will cause errors
+    # immediately on compiler startup rather than during compilation.
+    f: wtype_to_ir_type(f.wtype, SourceLocation(file=None, line=1))
+    for f in txn_fields.TxnField
+}
 
 
 @attrs.frozen(kw_only=True)
 class CreateInnerTransactionFieldData:
     var_name: str
-    field: puya.awst.txn_fields.TxnField
+    field: txn_fields.TxnField
     field_counts: set[int] = attrs.field(factory=set)
     """The observed number of values for this field
     For non-array fields this will be either 0 or 1
@@ -69,13 +76,11 @@ class CreateInnerTransactionFieldData:
 @attrs.frozen(kw_only=True)
 class CreateInnerTransactionData:
     var_name: str
-    fields: dict[puya.awst.txn_fields.TxnField, CreateInnerTransactionFieldData] = attrs.field(
+    fields: dict[txn_fields.TxnField, CreateInnerTransactionFieldData] = attrs.field(
         factory=dict, init=False
     )
 
-    def get_or_add_field_data(
-        self, field: puya.awst.txn_fields.TxnField
-    ) -> CreateInnerTransactionFieldData:
+    def get_or_add_field_data(self, field: txn_fields.TxnField) -> CreateInnerTransactionFieldData:
         try:
             field_data = self.fields[field]
         except KeyError:
@@ -389,7 +394,7 @@ class InnerTransactionBuilder:
                     field=field.immediate,
                     group_index=target,
                     is_last_in_group=is_last_in_group,
-                    type=wtype_to_ir_type(field.wtype, None),
+                    type=_FIELD_IR_TYPES[field],
                     array_index=None,
                     source_location=None,
                 ),
@@ -406,7 +411,7 @@ class InnerTransactionBuilder:
             assign(
                 context=self.context,
                 source=self.context.ssa.read_variable(
-                    src_field, wtype_to_ir_type(field.wtype, None), active_block
+                    src_field, _FIELD_IR_TYPES[field], active_block
                 ),
                 name=dest_field,
                 register_location=None,
@@ -420,7 +425,7 @@ class InnerTransactionBuilder:
         idx_to: int,
     ) -> None:
         field = field_data.field
-        field_ir_type = wtype_to_ir_type(field.wtype, None)
+        field_ir_type = _FIELD_IR_TYPES[field]
         for idx in range(idx_from, idx_to):
             field_value = self.ssa.read_variable(
                 field_data.get_value_register_name(idx),
@@ -458,7 +463,7 @@ class InnerTransactionBuilder:
     def _set_inner_transaction_fields(
         self,
         var_name: str,
-        inner_txn_fields: Mapping[puya.awst.txn_fields.TxnField, awst_nodes.Expression],
+        inner_txn_fields: Mapping[txn_fields.TxnField, awst_nodes.Expression],
         var_loc: SourceLocation,
         *,
         update: bool = False,
@@ -481,7 +486,7 @@ class InnerTransactionBuilder:
         fields = StableSet.from_iter(inner_txn_fields)
         if not update:
             # add missing fields to end
-            for field in puya.awst.txn_fields.TxnField:
+            for field in txn_fields.TxnField:
                 if field.is_inner_param and field not in fields:
                     fields.add(field)
         for field in fields:
@@ -523,7 +528,7 @@ class InnerTransactionBuilder:
         dest_params_data = self._inner_txn_fields_data.setdefault(
             dest_var_name, CreateInnerTransactionData(var_name=dest_var_name)
         )
-        for field in puya.awst.txn_fields.TxnField:
+        for field in txn_fields.TxnField:
             if not field.is_inner_param:
                 continue
             src_field_data = src_params_data.get_or_add_field_data(field)
@@ -536,7 +541,7 @@ class InnerTransactionBuilder:
                     context=self.context,
                     source=self.ssa.read_variable(
                         src_field_register,
-                        wtype_to_ir_type(field.wtype, None),
+                        _FIELD_IR_TYPES[field],
                         self.block_builder.active_block,
                     ),
                     name=dest_field_register,

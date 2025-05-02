@@ -190,7 +190,7 @@ class FunctionIRBuilder(
         wtype = size_of.size_wtype
         if isinstance(wtype, wtypes.WTuple):
             wtype = wtype_to_arc4_wtype(wtype, size_of.source_location)
-        ir_type = wtype_to_ir_type(wtype)
+        ir_type = wtype_to_ir_type(wtype, size_of.source_location)
         if ir_type.num_bytes is None:
             logger.error(
                 f"{size_of.size_wtype} is dynamically sized", location=size_of.source_location
@@ -534,21 +534,31 @@ class FunctionIRBuilder(
         )
         return value
 
-    def _expand_tuple_var(self, name: str, wtype: wtypes.WTuple) -> Iterator[Value]:
+    def _expand_tuple_var(
+        self, name: str, wtype: wtypes.WTuple, *, default_source_location: SourceLocation
+    ) -> Iterator[Value]:
         for idx, wt in enumerate(wtype.types):
             item_name = format_tuple_index(wtype, name, idx)
             if isinstance(wt, wtypes.WTuple):
-                yield from self._expand_tuple_var(item_name, wt)
+                yield from self._expand_tuple_var(
+                    item_name, wt, default_source_location=default_source_location
+                )
             else:
                 yield self.context.ssa.read_variable(
                     variable=item_name,
-                    ir_type=wtype_to_ir_type(wt, wtype.source_location),
+                    ir_type=wtype_to_ir_type(wt, wtype.source_location or default_source_location),
                     block=self.context.block_builder.active_block,
                 )
 
     def visit_var_expression(self, expr: awst_nodes.VarExpression) -> TExpression:
         if isinstance(expr.wtype, wtypes.WTuple):
-            values = tuple(self._expand_tuple_var(expr.name, expr.wtype))
+            values = tuple(
+                self._expand_tuple_var(
+                    expr.name,
+                    expr.wtype,
+                    default_source_location=expr.source_location,
+                )
+            )
             return ValueTuple(values=values, source_location=expr.source_location)
         ir_type = wtype_to_ir_type(expr)
         variable = self.context.ssa.read_variable(
@@ -611,7 +621,7 @@ class FunctionIRBuilder(
                     source_location=call.source_location,
                     args=args,
                     immediates=list(call.immediates),
-                    types=wtype_to_ir_types(call.wtype),
+                    types=wtype_to_ir_types(call.wtype, call.source_location),
                 )
 
     def visit_group_transaction_reference(
