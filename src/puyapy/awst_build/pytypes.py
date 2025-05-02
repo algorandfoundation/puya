@@ -336,7 +336,7 @@ class TupleType(TupleLikeType):
             match i.wtype:
                 case wtypes.WType() as wtype:
                     item_wtypes.append(wtype)
-                case ErrorMessage() as err:
+                case str(err):
                     return err
                 case other:
                     typing.assert_never(other)
