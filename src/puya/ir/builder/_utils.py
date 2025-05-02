@@ -4,7 +4,10 @@ from collections.abc import Sequence
 import attrs
 
 from puya.avm import AVMType
-from puya.awst import nodes as awst_nodes
+from puya.awst import (
+    nodes as awst_nodes,
+    wtypes,
+)
 from puya.errors import InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.models import (
@@ -13,11 +16,19 @@ from puya.ir.models import (
     Intrinsic,
     Register,
     UInt64Constant,
+    Undefined,
     Value,
     ValueProvider,
+    ValueTuple,
 )
 from puya.ir.register_context import IRRegisterContext
-from puya.ir.types_ import AVMBytesEncoding, IRType, PrimitiveIRType, SizedBytesType
+from puya.ir.types_ import (
+    AVMBytesEncoding,
+    IRType,
+    PrimitiveIRType,
+    SizedBytesType,
+    wtype_to_ir_types,
+)
 from puya.parse import SourceLocation
 
 
@@ -517,3 +528,20 @@ class OpFactory:
             source_location=self.source_location,
         )
         return result
+
+
+def undefined_value(typ: wtypes.WType, loc: SourceLocation) -> ValueProvider:
+    """For a given WType, produce an "undefined" ValueProvider of the correct arity.
+
+    It is invalid to request an "undefined" value of type void
+    """
+    values = [
+        Undefined(ir_type=ir_type, source_location=loc) for ir_type in wtype_to_ir_types(typ, loc)
+    ]
+    match values:
+        case []:
+            raise InternalError("unexpected void type", loc)
+        case [value]:
+            return value
+        case _:
+            return ValueTuple(values=values, source_location=loc)

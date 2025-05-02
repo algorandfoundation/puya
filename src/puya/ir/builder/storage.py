@@ -16,6 +16,7 @@ from puya.ir.builder._utils import (
     assert_value,
     assign_targets,
     new_register_version,
+    undefined_value,
 )
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
@@ -270,7 +271,7 @@ def _build_state_get_ex(
         # TODO: hmmmm
         assert isinstance(storage_wtype, wtypes.ARC4Type), "expected ARC4Type"
         if default_decoded_values is None:
-            false_vp = arc4.undefined_value(native_wtype, loc)
+            false_vp = undefined_value(native_wtype, loc)
         else:
             false_vp = ValueTuple(values=default_decoded_values, source_location=loc)
 

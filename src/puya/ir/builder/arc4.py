@@ -28,6 +28,7 @@ from puya.ir.builder._utils import (
     assign_temp,
     convert_constants,
     mktemp,
+    undefined_value,
 )
 from puya.ir.builder.arrays import (
     ArrayIterator,
@@ -43,7 +44,6 @@ from puya.ir.models import (
     InvokeSubroutine,
     Register,
     UInt64Constant,
-    Undefined,
     Value,
     ValueProvider,
     ValueTuple,
@@ -53,7 +53,6 @@ from puya.ir.types_ import (
     PrimitiveIRType,
     get_wtype_arity,
     wtype_to_encoded_ir_type,
-    wtype_to_ir_types,
 )
 from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.utils import bits_to_bytes, unique
@@ -515,23 +514,6 @@ def encode_value_provider(
         f"unsupported ARC-4 encode operation to type {arc4_wtype.arc4_name}", location=loc
     )
     return undefined_value(arc4_wtype, loc)
-
-
-def undefined_value(typ: wtypes.WType, loc: SourceLocation) -> ValueProvider:
-    """For a given WType, produce an "undefined" ValueProvider of the correct arity.
-
-    It is invalid to request an "undefined" value of type void
-    """
-    values = [
-        Undefined(ir_type=ir_type, source_location=loc) for ir_type in wtype_to_ir_types(typ, loc)
-    ]
-    match values:
-        case []:
-            raise InternalError("unexpected void type", loc)
-        case [value]:
-            return value
-        case _:
-            return ValueTuple(values=values, source_location=loc)
 
 
 def _encode_arc4_tuple_items(
