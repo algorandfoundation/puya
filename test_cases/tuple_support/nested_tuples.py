@@ -1,11 +1,14 @@
 import typing
 
 from algopy import (
+    Account,
     ARC4Contract,
     BoxMap,
     Bytes,
     ImmutableArray,
+    LocalState,
     String,
+    Txn,
     UInt64,
     arc4,
     log,
@@ -76,8 +79,18 @@ class NestedTuples(ARC4Contract):
         return self.box[key]
 
     @arc4.abimethod()
+    def maybe_load_tuple_from_box(self, key: SimpleTup) -> tuple[SimpleTup, bool]:
+        maybe_value, exists = self.box.maybe(key)
+        return maybe_value, exists
+
+    @arc4.abimethod()
     def load_tuple_from_box_or_default(self, key: SimpleTup) -> SimpleTup:
         return self.box.get(key, default=simple_tup(UInt64(4), UInt64(2)))
+
+    @arc4.abimethod()
+    def load_tuple_from_local_state_or_default(self, key: String) -> SimpleTup:
+        local = LocalState(SimpleTup, key=echo(key))
+        return local.get(get_sender_inefficiently(), default=simple_tup(UInt64(4), UInt64(2)))
 
     @arc4.abimethod()
     def mutate_local_tuple(self) -> TupleWithMutable:
@@ -164,9 +177,21 @@ class NestedTuples(ARC4Contract):
 
 
 @subroutine(inline=False)
+def get_sender_inefficiently() -> Account:
+    log("Order is important")
+    return Txn.sender
+
+
+@subroutine(inline=False)
 def simple_tup(a: UInt64, b: UInt64) -> SimpleTup:
     log("I'm just a simple tup")
     return SimpleTup(a, b)
+
+
+@subroutine(inline=False)
+def echo(s: String) -> String:
+    log("Is there an echo in here?")
+    return s
 
 
 @subroutine
