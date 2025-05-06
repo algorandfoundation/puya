@@ -878,11 +878,22 @@ class IntersectionSliceExpression(Expression):
         return visitor.visit_intersection_slice_expression(self)
 
 
+@enum.unique
+class AppStorageKind(enum.Enum):
+    app_global = enum.auto()
+    account_local = enum.auto()
+    box = enum.auto()
+
+
 @attrs.frozen
 class AppStateExpression(Expression):
     key: Expression = attrs.field(validator=expression_has_wtype(wtypes.state_key))
     exists_assertion_message: str | None
     """TEAL comment that will be emitted in a checked-read scenario"""
+
+    @property
+    def storage_kind(self) -> AppStorageKind:
+        return AppStorageKind.app_global
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_app_state_expression(self)
@@ -896,6 +907,10 @@ class AppAccountStateExpression(Expression):
     account: Expression = attrs.field(
         validator=expression_has_wtype(wtypes.account_wtype, wtypes.uint64_wtype)
     )
+
+    @property
+    def storage_kind(self) -> AppStorageKind:
+        return AppStorageKind.account_local
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_app_account_state_expression(self)
@@ -922,6 +937,10 @@ class BoxValueExpression(Expression):
     key: Expression = attrs.field(validator=expression_has_wtype(wtypes.box_key))
     exists_assertion_message: str | None
     """TEAL comment that will be emitted in a checked-read scenario"""
+
+    @property
+    def storage_kind(self) -> AppStorageKind:
+        return AppStorageKind.box
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_box_value_expression(self)
@@ -1718,13 +1737,6 @@ class ContractMethod(Function, ContractMemberNode):
 
     def accept(self, visitor: ContractMemberVisitor[T]) -> T:
         return visitor.visit_contract_method(self)
-
-
-@enum.unique
-class AppStorageKind(enum.Enum):
-    app_global = enum.auto()
-    account_local = enum.auto()
-    box = enum.auto()
 
 
 @attrs.frozen
