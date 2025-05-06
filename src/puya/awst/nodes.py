@@ -1561,8 +1561,10 @@ class ForInLoop(Statement):
 @attrs.frozen
 class StateGet(Expression):
     """
-    Get value or default if unset - note that for get without a default,
+    Get value or default if unset - note that a get without a default,
     can just use the underlying StateExpression
+
+    Order of evaluation: field, default
     """
 
     field: StorageExpression

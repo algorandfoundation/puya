@@ -10,11 +10,11 @@ main test_cases.state_proxies.contract.StateProxyContract.__algopy_entrypoint_wi
         goto block@2
     block@2: // after_if_else_L1
         let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@6
-    block@4: // abi_routing_L12
+        goto tmp%0#2 ? block@4 : block@10
+    block@4: // abi_routing_L17
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create()void" => block@5, * => block@6}
-    block@5: // create_route_L25
+        switch tmp%2#0 {method "create()void" => block@5, method "clear()void" => block@6, method "order_of_eval_global()void" => block@7, method "order_of_eval_local()void" => block@8, method "order_of_eval_box()void" => block@9, * => block@10}
+    block@5: // create_route_L31
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 OptIn)
         (assert tmp%4#0) // OnCompletion is not OptIn
@@ -22,16 +22,95 @@ main test_cases.state_proxies.contract.StateProxyContract.__algopy_entrypoint_wi
         let tmp%6#0: bool = (! tmp%5#0)
         (assert tmp%6#0) // can only call when creating
         (app_global_put "g1" 1u)
-        let tmp%0#4: bytes[32] = (txn Sender)
-        (app_local_put tmp%0#4 "l1" 2u)
-        let tmp%1#3: bytes[32] = (txn Sender)
-        (app_local_put tmp%1#3 0x6c32 3u)
+        let tmp%0#5: bytes[32] = (txn Sender)
+        (app_local_put tmp%0#5 "l1" 2u)
+        let tmp%1#6: bytes[32] = (txn Sender)
+        (app_local_put tmp%1#6 0x6c32 3u)
         let test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0
-        goto block@7
-    block@6: // after_if_else_L12
+        goto block@11
+    block@6: // clear_route_L37
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        (assert tmp%8#0) // OnCompletion is not NoOp
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        (assert tmp%9#0) // can only call when not creating
+        (app_global_del "g1")
+        let tmp%0#5: bytes[32] = (txn Sender)
+        (app_local_del tmp%0#5 "l1")
+        let tmp%1#6: bytes[32] = (txn Sender)
+        (app_local_del tmp%1#6 0x6c32)
+        let materialized_values%0#0: bytes = test_cases.state_proxies.contract.get_key()
+        let box_prefixed_key%0#0: bytes = (concat "box_map" materialized_values%0#0)
+        (box_del box_prefixed_key%0#0)
+        let test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0
+        goto block@11
+    block@7: // order_of_eval_global_route_L44
+        let tmp%11#0: uint64 = (txn OnCompletion)
+        let tmp%12#0: bool = (! tmp%11#0)
+        (assert tmp%12#0) // OnCompletion is not NoOp
+        let tmp%13#0: uint64 = (txn ApplicationID)
+        (assert tmp%13#0) // can only call when not creating
+        let tmp%0#2: uint64 = test_cases.state_proxies.contract.default_value()
+        let (maybe_value%0#1: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "g1")
+        let val#0: uint64 = (select tmp%0#2 maybe_value%0#1 maybe_exists%0#0)
+        let tmp%1#3: bool = (== val#0 42u)
+        (assert tmp%1#3)
+        let test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0
+        goto block@11
+    block@8: // order_of_eval_local_route_L49
+        let tmp%15#0: uint64 = (txn OnCompletion)
+        let tmp%16#0: bool = (! tmp%15#0)
+        (assert tmp%16#0) // OnCompletion is not NoOp
+        let tmp%17#0: uint64 = (txn ApplicationID)
+        (assert tmp%17#0) // can only call when not creating
+        let tmp%0#5: bytes[32] = test_cases.state_proxies.contract.get_account()
+        let tmp%1#4: uint64 = test_cases.state_proxies.contract.default_value()
+        let (maybe_value%0#1: uint64, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#5 0u "l1")
+        let val#0: uint64 = (select tmp%1#4 maybe_value%0#1 maybe_exists%0#0)
+        let tmp%2#1: bool = (== val#0 42u)
+        (assert tmp%2#1)
+        let test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0
+        goto block@11
+    block@9: // order_of_eval_box_route_L54
+        let tmp%19#0: uint64 = (txn OnCompletion)
+        let tmp%20#0: bool = (! tmp%19#0)
+        (assert tmp%20#0) // OnCompletion is not NoOp
+        let tmp%21#0: uint64 = (txn ApplicationID)
+        (assert tmp%21#0) // can only call when not creating
+        let materialized_values%0#0: bytes = test_cases.state_proxies.contract.get_key()
+        let box_prefixed_key%0#0: bytes = (concat "box_map" materialized_values%0#0)
+        let tmp%0#2: uint64 = test_cases.state_proxies.contract.default_value()
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
+        let maybe_value_converted%0#0: uint64 = (btoi maybe_value%0#0)
+        let val#0: uint64 = (select tmp%0#2 maybe_value_converted%0#0 maybe_exists%0#0)
+        let tmp%1#3: bool = (== val#0 42u)
+        (assert tmp%1#3)
+        let test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0
+        goto block@11
+    block@10: // after_if_else_L17
         let test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0: bool = 0u
         let tmp%0#0: bool = test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0
-        goto block@7
-    block@7: // after_inlined_test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router___L1
+        goto block@11
+    block@11: // after_inlined_test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router___L1
         return tmp%0#0
+
+subroutine test_cases.state_proxies.contract.get_key() -> bytes:
+    block@0: // L60
+        (log "key")
+        return 0x626f78
+
+subroutine test_cases.state_proxies.contract.get_account() -> bytes[32]:
+    block@0: // L66
+        (log "account")
+        let tmp%0#0: bytes[32] = (txn Sender)
+        return tmp%0#0
+
+subroutine test_cases.state_proxies.contract.default_value() -> uint64:
+    block@0: // L72
+        (log "default")
+        return 42u
