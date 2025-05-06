@@ -292,6 +292,11 @@ contract NestedTuples
     return Box[BoxMapKey(prefix='box', key=key)]
   }
   
+  abimethod test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_box_or_default(key: test_cases.tuple_support.nested_tuples.SimpleTup): test_cases.tuple_support.nested_tuples.SimpleTup
+  {
+    return STATE_GET(Box[BoxMapKey(prefix='box', key=key)], default=test_cases.tuple_support.nested_tuples.simple_tup(4u, 2u))
+  }
+  
   abimethod test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tuple(): test_cases.tuple_support.nested_tuples.TupleWithMutable
   {
     twm: test_cases.tuple_support.nested_tuples.TupleWithMutable = (arr=new arc4.dynamic_array<arc4.uint64>(0_arc4u64), child=(a=0u, b=hex<"">, c=''))
@@ -375,6 +380,12 @@ contract NestedTuples
   {
     return arc4_router()
   }
+}
+
+subroutine simple_tup(a: uint64, b: uint64): test_cases.tuple_support.nested_tuples.SimpleTup
+{
+  log("I'm just a simple tup")
+  return (a=a, b=b)
 }
 
 subroutine test_rearrange(_a: string, args: tuple<uint64,uint64,tuple<uint64,tuple<string,string>>>, _b: string): tuple<string,uint64,tuple<uint64,uint64,tuple<string>>>

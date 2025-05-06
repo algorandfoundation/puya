@@ -9,8 +9,13 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         let tmp%1#0: bool = algopy.arc4.ARC4Contract.approval_program()
         return tmp%1#0
 
+subroutine test_cases.tuple_support.nested_tuples.simple_tup(a: uint64, b: uint64) -> <uint64, uint64>:
+    block@0: // L166
+        (log "I'm just a simple tup")
+        return a#0 b#0
+
 subroutine test_cases.tuple_support.nested_tuples.test_rearrange(_a: bytes, args.0: uint64, args.1: uint64, args.2.0: uint64, args.2.1.0: bytes, args.2.1.1: bytes, _b: bytes) -> <bytes, uint64, uint64, uint64, bytes>:
-    block@0: // L161
+    block@0: // L172
         let a#0: uint64 = args.0#0
         let b#0: uint64 = args.1#0
         let c#0: uint64 = args.2.0#0
@@ -19,13 +24,13 @@ subroutine test_cases.tuple_support.nested_tuples.test_rearrange(_a: bytes, args
         return d#0 a#0 b#0 c#0 e#0
 
 subroutine test_cases.tuple_support.nested_tuples.test_swap(args.0: bytes, args.1: bytes) -> <bytes, bytes>:
-    block@0: // L170
+    block@0: // L181
         let a#0: bytes = args.0#0
         let b#0: bytes = args.1#0
         return b#0 a#0
 
 subroutine test_cases.tuple_support.nested_tuples.test_intrinsics(num1: uint64, num2: uint64) -> void:
-    block@0: // L176
+    block@0: // L187
         let (tmp%0#0: uint64, tmp%1#0: uint64) = (addw num1#0 num2#0)
         let nt.1.0#0: uint64 = tmp%0#0
         let nt.1.1#0: uint64 = tmp%1#0
@@ -53,7 +58,7 @@ subroutine test_cases.tuple_support.nested_tuples.test_intrinsics(num1: uint64, 
         return 
 
 subroutine test_cases.tuple_support.nested_tuples.test_nested_slicing() -> void:
-    block@0: // L189
+    block@0: // L200
         let tmp%0#0: bool = (== 4u 4u)
         (assert tmp%0#0)
         let tmp%1#0: bool = (== 2u 2u)
@@ -67,7 +72,7 @@ subroutine test_cases.tuple_support.nested_tuples.test_nested_slicing() -> void:
         return 
 
 subroutine test_cases.tuple_support.nested_tuples.test_nested_singles(one: uint64, reassign: bool) -> void:
-    block@0: // L211
+    block@0: // L222
         let s.0.0#0: uint64 = 0u
         let s.1.0#0: uint64 = one#0
         let s.2.0#0: uint64 = 2u
@@ -85,12 +90,12 @@ subroutine test_cases.tuple_support.nested_tuples.test_nested_singles(one: uint6
         (assert tmp%5#0)
         let t.0#0: uint64 = s.1.0#0
         goto reassign#0 ? block@1 : block@2
-    block@1: // if_body_L226
+    block@1: // if_body_L237
         let s.0.0#0: uint64 = 3u
         let s.1.0#0: uint64 = 4u
         let s.2.0#0: uint64 = 5u
         goto block@2
-    block@2: // after_if_else_L225
+    block@2: // after_if_else_L236
         let select%0#0: uint64 = (select 0u 3u reassign#0)
         let tmp%6#0: bool = (== s.0.0#0 select%0#0)
         (assert tmp%6#0)
@@ -111,7 +116,7 @@ subroutine test_cases.tuple_support.nested_tuples.test_nested_singles(one: uint6
         return 
 
 subroutine test_cases.tuple_support.nested_tuples.test_nested_mutation() -> void:
-    block@0: // L242
+    block@0: // L253
         let result%0#0: bytes = (concat 0x 0x0000000000000000)
         let array_data%0#0: bytes = (concat 0x0001 result%0#0)
         let x.0.0#0: bytes = array_data%0#0
@@ -132,69 +137,69 @@ subroutine test_cases.tuple_support.nested_tuples.test_nested_mutation() -> void
         return 
 
 subroutine test_cases.tuple_support.nested_tuples.test_nested_iteration() -> void:
-    block@0: // L255
+    block@0: // L266
         let total#0: uint64 = 0u
         let loop_counter%0#0: uint64 = 0u
         let t.0#0: uint64 = 1u
         let t.1#0: uint64 = 2u
         goto block@1
-    block@1: // for_body_L262
+    block@1: // for_body_L273
         let a#0: uint64 = t.0#0
         let b#0: uint64 = t.1#0
         let tmp%0#0: uint64 = (+ a#0 b#0)
         let total#0: uint64 = (+ total#0 tmp%0#0)
         goto block@2
-    block@2: // for_footer_L261
+    block@2: // for_footer_L272
         goto_nth [block@3, block@4, block@5][loop_counter%0#0] else goto block@6
-    block@3: // for_header_1_L261
+    block@3: // for_header_1_L272
         let loop_counter%0#0: uint64 = 1u
         let t.0#0: uint64 = 2u
         let t.1#0: uint64 = 1u
         goto block@1
-    block@4: // for_header_2_L261
+    block@4: // for_header_2_L272
         let loop_counter%0#0: uint64 = 2u
         let t.0#0: uint64 = 1u
         let t.1#0: uint64 = 1u
         goto block@1
-    block@5: // for_header_3_L261
+    block@5: // for_header_3_L272
         let loop_counter%0#0: uint64 = 3u
         let t.0#0: uint64 = 2u
         let t.1#0: uint64 = 2u
         goto block@1
-    block@6: // after_for_L261
+    block@6: // after_for_L272
         let loop_counter%1#0: uint64 = 0u
         let a#0: uint64 = 1u
         let b#0: uint64 = 2u
         goto block@7
-    block@7: // for_body_L266
+    block@7: // for_body_L277
         let tmp%1#0: uint64 = (+ a#0 b#0)
         let total#0: uint64 = (+ total#0 tmp%1#0)
         goto block@8
-    block@8: // for_footer_L265
+    block@8: // for_footer_L276
         goto_nth [block@9, block@10, block@11][loop_counter%1#0] else goto block@12
-    block@9: // for_header_1_L265
+    block@9: // for_header_1_L276
         let loop_counter%1#0: uint64 = 1u
         let a#0: uint64 = 2u
         let b#0: uint64 = 1u
         goto block@7
-    block@10: // for_header_2_L265
+    block@10: // for_header_2_L276
         let loop_counter%1#0: uint64 = 2u
         let a#0: uint64 = 1u
         let b#0: uint64 = 1u
         goto block@7
-    block@11: // for_header_3_L265
+    block@11: // for_header_3_L276
         let loop_counter%1#0: uint64 = 3u
         let a#0: uint64 = 2u
         let b#0: uint64 = 2u
         goto block@7
-    block@12: // after_for_L265
+    block@12: // after_for_L276
         let tmp%2#0: uint64 = (/ total#0 8u)
         let tmp%3#0: bool = (== tmp%2#0 3u)
         (assert tmp%3#0)
         return 
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.__init__() -> void:
-    block@0: // L45
+    block@0: // L46
         (app_global_put "build_nested_call_count" 0u)
         let array_data%0#0: bytes = (concat 0x0000 0x)
         let val_as_bytes%0#0: bytes[8] = (itob 0u)
@@ -231,7 +236,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.__init__() -> voi
         return 
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple(pwl.parent.foo: uint64, pwl.parent.foo_arc: bytes[8], pwl.parent.child.a: uint64, pwl.parent.child.b: bytes, pwl.parent.child.c: bytes, pwl.children: (encoded_uint64,bytes,bytes)[]) -> void:
-    block@0: // L57
+    block@0: // L58
         let val_as_bytes%0#0: bytes[8] = (itob pwl.parent.foo#0)
         let val_as_bytes%1#0: bytes[8] = (itob pwl.parent.child.a#0)
         let length%0#0: uint64 = (len pwl.parent.child.b#0)
@@ -273,10 +278,10 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple(pwl.p
         return 
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple() -> <uint64, bytes[8], uint64, bytes, bytes, (encoded_uint64,bytes,bytes)[]>:
-    block@0: // L61
+    block@0: // L62
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "pwl")
         goto maybe_exists%0#0 ? block@1 : block@2
-    block@1: // ternary_true_L63
+    block@1: // ternary_true_L64
         let item_start_offset%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
         let item_end_offset%0#0: uint64 = (extract_uint16 maybe_value%0#0 2u)
         let item0%0#0: bytes = (substring3 maybe_value%0#0 item_start_offset%0#0 item_end_offset%0#0)
@@ -306,7 +311,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple() -> <
         let ternary_result%0.parent.child.c#0: bytes = item2%2#0
         let ternary_result%0.children#0: (encoded_uint64,bytes,bytes)[] = item1%3#0
         goto block@3
-    block@2: // ternary_false_L63
+    block@2: // ternary_false_L64
         let ternary_result%0.parent.foo#0: uint64 = undefined
         let ternary_result%0.parent.foo_arc#0: bytes[8] = undefined
         let ternary_result%0.parent.child.a#0: uint64 = undefined
@@ -314,12 +319,12 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple() -> <
         let ternary_result%0.parent.child.c#0: bytes = undefined
         let ternary_result%0.children#0: (encoded_uint64,bytes,bytes)[] = undefined
         goto block@3
-    block@3: // ternary_merge_L63
+    block@3: // ternary_merge_L64
         (assert maybe_exists%0#0) // check self.pwl exists
         return ternary_result%0.parent.foo#0 ternary_result%0.parent.foo_arc#0 ternary_result%0.parent.child.a#0 ternary_result%0.parent.child.b#0 ternary_result%0.parent.child.c#0 ternary_result%0.children#0
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple_in_box(key.a: uint64, key.b: uint64) -> void:
-    block@0: // L65
+    block@0: // L66
         let tmp%0#0: uint64 = (+ key.b#0 1u)
         let val_as_bytes%0#0: bytes[8] = (itob key.a#0)
         let val_as_bytes%1#0: bytes[8] = (itob key.b#0)
@@ -334,7 +339,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple_in_bo
         return 
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.is_tuple_in_box(key.a: uint64, key.b: uint64) -> bool:
-    block@0: // L69
+    block@0: // L70
         let val_as_bytes%0#0: bytes[8] = (itob key.a#0)
         let val_as_bytes%1#0: bytes[8] = (itob key.b#0)
         let encoded_tuple_buffer%1#0: bytes = (concat 0x val_as_bytes%0#0)
@@ -344,7 +349,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.is_tuple_in_box(k
         return maybe_exists%0#0
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_box(key.a: uint64, key.b: uint64) -> <uint64, uint64>:
-    block@0: // L73
+    block@0: // L74
         let val_as_bytes%0#0: bytes[8] = (itob key.a#0)
         let val_as_bytes%1#0: bytes[8] = (itob key.b#0)
         let encoded_tuple_buffer%1#0: bytes = (concat 0x val_as_bytes%0#0)
@@ -352,7 +357,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_b
         let box_prefixed_key%0#0: bytes = (concat "box" encoded_tuple_buffer%2#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
         goto maybe_exists%0#0 ? block@1 : block@2
-    block@1: // ternary_true_L75
+    block@1: // ternary_true_L76
         let item0%0#0: bytes = (extract3 maybe_value%0#0 0u 8u) // on error: Index access is out of bounds
         let item0%1#0: uint64 = (btoi item0%0#0)
         let item1%0#0: bytes = (extract3 maybe_value%0#0 8u 8u) // on error: Index access is out of bounds
@@ -360,16 +365,41 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_b
         let ternary_result%0.a#0: uint64 = item0%1#0
         let ternary_result%0.b#0: uint64 = item1%1#0
         goto block@3
-    block@2: // ternary_false_L75
+    block@2: // ternary_false_L76
         let ternary_result%0.a#0: uint64 = undefined
         let ternary_result%0.b#0: uint64 = undefined
         goto block@3
-    block@3: // ternary_merge_L75
+    block@3: // ternary_merge_L76
         (assert maybe_exists%0#0) // check self.box entry exists
         return ternary_result%0.a#0 ternary_result%0.b#0
 
+subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_box_or_default(key.a: uint64, key.b: uint64) -> <uint64, uint64>:
+    block@0: // L78
+        let val_as_bytes%0#0: bytes[8] = (itob key.a#0)
+        let val_as_bytes%1#0: bytes[8] = (itob key.b#0)
+        let encoded_tuple_buffer%1#0: bytes = (concat 0x val_as_bytes%0#0)
+        let encoded_tuple_buffer%2#0: bytes = (concat encoded_tuple_buffer%1#0 val_as_bytes%1#0)
+        let box_prefixed_key%0#0: bytes = (concat "box" encoded_tuple_buffer%2#0)
+        let (tmp%0#0: uint64, tmp%1#0: uint64) = test_cases.tuple_support.nested_tuples.simple_tup(4u, 2u)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
+        goto maybe_exists%0#0 ? block@1 : block@2
+    block@1: // ternary_true_L80
+        let item0%0#0: bytes = (extract3 maybe_value%0#0 0u 8u) // on error: Index access is out of bounds
+        let item0%1#0: uint64 = (btoi item0%0#0)
+        let item1%0#0: bytes = (extract3 maybe_value%0#0 8u 8u) // on error: Index access is out of bounds
+        let item1%1#0: uint64 = (btoi item1%0#0)
+        let ternary_result%0.a#0: uint64 = item0%1#0
+        let ternary_result%0.b#0: uint64 = item1%1#0
+        goto block@3
+    block@2: // ternary_false_L80
+        let ternary_result%0.a#0: uint64 = tmp%0#0
+        let ternary_result%0.b#0: uint64 = tmp%1#0
+        goto block@3
+    block@3: // ternary_merge_L80
+        return ternary_result%0.a#0 ternary_result%0.b#0
+
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tuple() -> <bytes, uint64, bytes, bytes>:
-    block@0: // L77
+    block@0: // L82
         let result%0#0: bytes = (concat 0x 0x0000000000000000)
         let array_data%0#0: bytes = (concat 0x0001 result%0#0)
         let twm.arr#0: bytes = array_data%0#0
@@ -398,10 +428,10 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L89
+    block@1: // for_header_L94
         let continue_looping%0#0: bool = (< i#0 3u)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L90
+    block@2: // for_body_L95
         let array_head_and_tail%0#0: bytes = ((extract 2 0) twm.arr#0)
         let item_offset%0#0: uint64 = (* i#0 8u)
         let reinterpret_biguint%0#0: biguint = (extract3 array_head_and_tail%0#0 item_offset%0#0 8u) // on error: Index access is out of bounds
@@ -409,26 +439,26 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         let tmp%1#0: bool = (b== reinterpret_biguint%0#0 tmp%0#0)
         (assert tmp%1#0)
         goto block@3
-    block@3: // for_footer_L89
+    block@3: // for_footer_L94
         let i#0: uint64 = (+ i#0 1u)
         goto block@1
-    block@4: // after_for_L89
+    block@4: // after_for_L94
         return twm.arr#0 0u 0x ""
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_storage_currently_supported_method() -> void:
-    block@0: // L96
+    block@0: // L101
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "twm")
         goto maybe_exists%0#0 ? block@1 : block@2
-    block@1: // ternary_true_L98
+    block@1: // ternary_true_L103
         let item_start_offset%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
         let item_end_offset%0#0: uint64 = (extract_uint16 maybe_value%0#0 2u)
         let item0%0#0: bytes = (substring3 maybe_value%0#0 item_start_offset%0#0 item_end_offset%0#0)
         let ternary_result%0.arr#0: bytes = item0%0#0
         goto block@3
-    block@2: // ternary_false_L98
+    block@2: // ternary_false_L103
         let ternary_result%0.arr#0: bytes = undefined
         goto block@3
-    block@3: // ternary_merge_L98
+    block@3: // ternary_merge_L103
         (assert maybe_exists%0#0) // check self.twm exists
         let copy%0#0: bytes = ternary_result%0.arr#0
         let arr2#0: bytes = copy%0#0
@@ -446,7 +476,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_s
         let copy%1#0: bytes = arr2#0
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "twm")
         goto maybe_exists%1#0 ? block@4 : block@5
-    block@4: // ternary_true_L100
+    block@4: // ternary_true_L105
         let item_start_offset%5#0: uint64 = (extract_uint16 maybe_value%1#0 2u)
         let item_end_offset%5#0: uint64 = (len maybe_value%1#0)
         let item1%3#0: bytes = (substring3 maybe_value%1#0 item_start_offset%5#0 item_end_offset%5#0)
@@ -464,12 +494,12 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_s
         let ternary_result%1.child.b#0: bytes = item1%5#0
         let ternary_result%1.child.c#0: bytes = item2%3#0
         goto block@6
-    block@5: // ternary_false_L100
+    block@5: // ternary_false_L105
         let ternary_result%1.child.a#0: uint64 = undefined
         let ternary_result%1.child.b#0: bytes = undefined
         let ternary_result%1.child.c#0: bytes = undefined
         goto block@6
-    block@6: // ternary_merge_L100
+    block@6: // ternary_merge_L105
         (assert maybe_exists%1#0) // check self.twm exists
         let val_as_bytes%0#0: bytes[8] = (itob ternary_result%1.child.a#0)
         let length%0#0: uint64 = (len ternary_result%1.child.b#0)
@@ -505,7 +535,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_s
         return 
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.run_tests() -> bool:
-    block@0: // L102
+    block@0: // L107
         let (awst_tmp%0#0: bytes, awst_tmp%1#0: bytes) = test_cases.tuple_support.nested_tuples.test_swap("Hi", "There")
         let tmp%0#0: bool = (== awst_tmp%0#0 "There")
         let tmp%1#0: bool = (== awst_tmp%1#0 "Hi")
@@ -545,21 +575,21 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.run_tests() -> bo
         return 1u
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_params(args.0: bytes, args.1.0: bytes, args.1.1.0: uint64) -> <bytes, bytes, uint64>:
-    block@0: // L131
+    block@0: // L136
         let s#0: bytes = args.0#0
         let b#0: bytes = args.1.0#0
         let u#0: uint64 = args.1.1.0#0
         return b#0 s#0 u#0
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.named_tuple(args.a: uint64, args.b: bytes, args.c: bytes) -> <uint64, bytes, bytes>:
-    block@0: // L138
+    block@0: // L143
         let a#0: uint64 = args.a#0
         let b#0: bytes = args.b#0
         let c#0: bytes = args.c#0
         return a#0 b#0 c#0
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tuple_params(args.foo: uint64, args.foo_arc: bytes[8], args.child.a: uint64, args.child.b: bytes, args.child.c: bytes) -> <uint64, bytes[8], uint64, bytes, bytes>:
-    block@0: // L143
+    block@0: // L148
         let foo#0: uint64 = args.foo#0
         let foo_arc#0: bytes[8] = args.foo_arc#0
         let a#0: uint64 = args.child.a#0
@@ -568,7 +598,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tupl
         return foo#0 foo_arc#0 a#0 b#0 c#0
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.build_nested() -> <bytes, uint64, bytes>:
-    block@0: // L148
+    block@0: // L153
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "build_nested_call_count")
         (assert maybe_exists%0#0) // check self.build_nested_call_count exists
         let materialized_values%0#0: uint64 = (+ maybe_value%0#0 1u)
@@ -576,7 +606,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.build_nested() ->
         return "hi" 1u 0x686d6d6d
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.test_single_evaluation_nested() -> void:
-    block@0: // L153
+    block@0: // L158
         (app_global_put "build_nested_call_count" 0u)
         let (awst_tmp%0#0: bytes, awst_tmp%1#0: uint64, awst_tmp%2#0: bytes) = test_cases.tuple_support.nested_tuples.NestedTuples.build_nested()
         let tmp%0#0: bool = (== awst_tmp%0#0 awst_tmp%0#0)
@@ -585,13 +615,13 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.test_single_evalu
         let tmp%3#0: bool = (== awst_tmp%2#0 awst_tmp%2#0)
         let tmp%4#0: bool = (|| tmp%2#0 tmp%3#0)
         goto tmp%4#0 ? block@1 : block@2
-    block@1: // ternary_true_L156
+    block@1: // ternary_true_L161
         let ternary_result%0.0.0#0: bytes = awst_tmp%0#0
         goto block@3
-    block@2: // ternary_false_L156
+    block@2: // ternary_false_L161
         let (ternary_result%0.0.0#0: bytes, ternary_result%0.0.1#1: uint64, ternary_result%0.1#1: bytes) = test_cases.tuple_support.nested_tuples.NestedTuples.build_nested()
         goto block@3
-    block@3: // ternary_merge_L156
+    block@3: // ternary_merge_L161
         let result.0.0#0: bytes = ternary_result%0.0.0#0
         let tmp%5#0: bool = (== result.0.0#0 "hi")
         (assert tmp%5#0)
@@ -604,14 +634,14 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.test_single_evalu
 subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@0: // L1
         goto block@1
-    block@1: // L44
+    block@1: // L45
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@16
-    block@2: // abi_routing_L44
+        goto tmp%1#0 ? block@2 : block@17
+    block@2: // abi_routing_L45
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "store_tuple(((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[]))void" => block@3, method "load_tuple()((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[])" => block@4, method "store_tuple_in_box((uint64,uint64))void" => block@5, method "is_tuple_in_box((uint64,uint64))bool" => block@6, method "load_tuple_from_box((uint64,uint64))(uint64,uint64)" => block@7, method "mutate_local_tuple()(uint64[],(uint64,byte[],string))" => block@8, method "mutate_tuple_in_storage_currently_supported_method()void" => block@9, method "run_tests()bool" => block@10, method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))" => block@11, method "named_tuple((uint64,byte[],string))(uint64,byte[],string)" => block@12, method "nested_named_tuple_params((uint64,uint64,(uint64,byte[],string)))(uint64,uint64,(uint64,byte[],string))" => block@13, * => block@14}
-    block@3: // store_tuple_route_L57
+        switch tmp%2#0 {method "store_tuple(((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[]))void" => block@3, method "load_tuple()((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[])" => block@4, method "store_tuple_in_box((uint64,uint64))void" => block@5, method "is_tuple_in_box((uint64,uint64))bool" => block@6, method "load_tuple_from_box((uint64,uint64))(uint64,uint64)" => block@7, method "load_tuple_from_box_or_default((uint64,uint64))(uint64,uint64)" => block@8, method "mutate_local_tuple()(uint64[],(uint64,byte[],string))" => block@9, method "mutate_tuple_in_storage_currently_supported_method()void" => block@10, method "run_tests()bool" => block@11, method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))" => block@12, method "named_tuple((uint64,byte[],string))(uint64,byte[],string)" => block@13, method "nested_named_tuple_params((uint64,uint64,(uint64,byte[],string)))(uint64,uint64,(uint64,byte[],string))" => block@14, * => block@15}
+    block@3: // store_tuple_route_L58
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
         (assert tmp%4#0) // OnCompletion is not NoOp
@@ -644,8 +674,8 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple(item0%2#0, item1%0#0, item0%4#0, item1%2#0, item2%2#0, item1%3#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@23
-    block@4: // load_tuple_route_L61
+        goto block@24
+    block@4: // load_tuple_route_L62
         let tmp%8#0: uint64 = (txn OnCompletion)
         let tmp%9#0: bool = (== tmp%8#0 NoOp)
         (assert tmp%9#0) // OnCompletion is not NoOp
@@ -694,8 +724,8 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         (log tmp%12#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@23
-    block@5: // store_tuple_in_box_route_L65
+        goto block@24
+    block@5: // store_tuple_in_box_route_L66
         let tmp%13#0: uint64 = (txn OnCompletion)
         let tmp%14#0: bool = (== tmp%13#0 NoOp)
         (assert tmp%14#0) // OnCompletion is not NoOp
@@ -710,8 +740,8 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple_in_box(item0%6#0, item1%5#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@23
-    block@6: // is_tuple_in_box_route_L69
+        goto block@24
+    block@6: // is_tuple_in_box_route_L70
         let tmp%17#0: uint64 = (txn OnCompletion)
         let tmp%18#0: bool = (== tmp%17#0 NoOp)
         (assert tmp%18#0) // OnCompletion is not NoOp
@@ -729,8 +759,8 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         (log tmp%21#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@23
-    block@7: // load_tuple_from_box_route_L73
+        goto block@24
+    block@7: // load_tuple_from_box_route_L74
         let tmp%22#0: uint64 = (txn OnCompletion)
         let tmp%23#0: bool = (== tmp%22#0 NoOp)
         (assert tmp%23#0) // OnCompletion is not NoOp
@@ -751,253 +781,275 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         (log tmp%26#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@23
-    block@8: // mutate_local_tuple_route_L77
+        goto block@24
+    block@8: // load_tuple_from_box_or_default_route_L78
         let tmp%27#0: uint64 = (txn OnCompletion)
         let tmp%28#0: bool = (== tmp%27#0 NoOp)
         (assert tmp%28#0) // OnCompletion is not NoOp
         let tmp%29#0: uint64 = (txn ApplicationID)
         let tmp%30#0: bool = (!= tmp%29#0 0u)
         (assert tmp%30#0) // can only call when not creating
-        let (elements_to_encode%8#0: bytes, elements_to_encode%9#0: uint64, elements_to_encode%10#0: bytes, elements_to_encode%11#0: bytes) = test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tuple()
-        let val_as_bytes%4#0: bytes[8] = (itob elements_to_encode%9#0)
-        let length%2#0: uint64 = (len elements_to_encode%10#0)
-        let as_bytes%7#0: bytes[8] = (itob length%2#0)
-        let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%7#0)
-        let encoded_value%2#0: bytes = (concat length_uint16%2#0 elements_to_encode%10#0)
-        let length%3#0: uint64 = (len elements_to_encode%11#0)
-        let as_bytes%8#0: bytes[8] = (itob length%3#0)
-        let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%8#0)
-        let encoded_value%3#0: bytes = (concat length_uint16%3#0 elements_to_encode%11#0)
+        let reinterpret_bytes[16]%3#0: bytes[16] = (txna ApplicationArgs 1)
+        let item0%11#0: bytes = (extract3 reinterpret_bytes[16]%3#0 0u 8u) // on error: Index access is out of bounds
+        let item0%12#0: uint64 = (btoi item0%11#0)
+        let item1%10#0: bytes = (extract3 reinterpret_bytes[16]%3#0 8u 8u) // on error: Index access is out of bounds
+        let item1%11#0: uint64 = (btoi item1%10#0)
+        let (elements_to_encode%8#0: uint64, elements_to_encode%9#0: uint64) = test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_box_or_default(item0%12#0, item1%11#0)
+        let val_as_bytes%4#0: bytes[8] = (itob elements_to_encode%8#0)
+        let val_as_bytes%5#0: bytes[8] = (itob elements_to_encode%9#0)
         let encoded_tuple_buffer%20#0: bytes = (concat 0x val_as_bytes%4#0)
-        let as_bytes%9#0: bytes[8] = (itob 12u)
-        let offset_as_uint16%5#0: bytes = ((extract 6 2) as_bytes%9#0)
-        let encoded_tuple_buffer%21#0: bytes = (concat encoded_tuple_buffer%20#0 offset_as_uint16%5#0)
-        let data_length%5#0: uint64 = (len encoded_value%2#0)
-        let current_tail_offset%10#0: uint64 = (+ 12u data_length%5#0)
-        let as_bytes%10#0: bytes[8] = (itob current_tail_offset%10#0)
-        let offset_as_uint16%6#0: bytes = ((extract 6 2) as_bytes%10#0)
-        let encoded_tuple_buffer%22#0: bytes = (concat encoded_tuple_buffer%21#0 offset_as_uint16%6#0)
-        let encoded_tuple_buffer%23#0: bytes = (concat encoded_tuple_buffer%22#0 encoded_value%2#0)
-        let encoded_tuple_buffer%24#0: bytes = (concat encoded_tuple_buffer%23#0 encoded_value%3#0)
-        let as_bytes%11#0: bytes[8] = (itob 4u)
-        let offset_as_uint16%7#0: bytes = ((extract 6 2) as_bytes%11#0)
-        let encoded_tuple_buffer%26#0: bytes = (concat 0x offset_as_uint16%7#0)
-        let data_length%7#0: uint64 = (len elements_to_encode%8#0)
-        let current_tail_offset%13#0: uint64 = (+ 4u data_length%7#0)
-        let as_bytes%12#0: bytes[8] = (itob current_tail_offset%13#0)
-        let offset_as_uint16%8#0: bytes = ((extract 6 2) as_bytes%12#0)
-        let encoded_tuple_buffer%27#0: bytes = (concat encoded_tuple_buffer%26#0 offset_as_uint16%8#0)
-        let encoded_tuple_buffer%28#0: bytes = (concat encoded_tuple_buffer%27#0 elements_to_encode%8#0)
-        let encoded_tuple_buffer%29#0: bytes = (concat encoded_tuple_buffer%28#0 encoded_tuple_buffer%24#0)
-        let tmp%31#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%29#0)
+        let encoded_tuple_buffer%21#0: bytes = (concat encoded_tuple_buffer%20#0 val_as_bytes%5#0)
+        let tmp%31#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%21#0)
         (log tmp%31#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@23
-    block@9: // mutate_tuple_in_storage_currently_supported_method_route_L96
+        goto block@24
+    block@9: // mutate_local_tuple_route_L82
         let tmp%32#0: uint64 = (txn OnCompletion)
         let tmp%33#0: bool = (== tmp%32#0 NoOp)
         (assert tmp%33#0) // OnCompletion is not NoOp
         let tmp%34#0: uint64 = (txn ApplicationID)
         let tmp%35#0: bool = (!= tmp%34#0 0u)
         (assert tmp%35#0) // can only call when not creating
+        let (elements_to_encode%10#0: bytes, elements_to_encode%11#0: uint64, elements_to_encode%12#0: bytes, elements_to_encode%13#0: bytes) = test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tuple()
+        let val_as_bytes%6#0: bytes[8] = (itob elements_to_encode%11#0)
+        let length%2#0: uint64 = (len elements_to_encode%12#0)
+        let as_bytes%7#0: bytes[8] = (itob length%2#0)
+        let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%7#0)
+        let encoded_value%2#0: bytes = (concat length_uint16%2#0 elements_to_encode%12#0)
+        let length%3#0: uint64 = (len elements_to_encode%13#0)
+        let as_bytes%8#0: bytes[8] = (itob length%3#0)
+        let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%8#0)
+        let encoded_value%3#0: bytes = (concat length_uint16%3#0 elements_to_encode%13#0)
+        let encoded_tuple_buffer%23#0: bytes = (concat 0x val_as_bytes%6#0)
+        let as_bytes%9#0: bytes[8] = (itob 12u)
+        let offset_as_uint16%5#0: bytes = ((extract 6 2) as_bytes%9#0)
+        let encoded_tuple_buffer%24#0: bytes = (concat encoded_tuple_buffer%23#0 offset_as_uint16%5#0)
+        let data_length%5#0: uint64 = (len encoded_value%2#0)
+        let current_tail_offset%11#0: uint64 = (+ 12u data_length%5#0)
+        let as_bytes%10#0: bytes[8] = (itob current_tail_offset%11#0)
+        let offset_as_uint16%6#0: bytes = ((extract 6 2) as_bytes%10#0)
+        let encoded_tuple_buffer%25#0: bytes = (concat encoded_tuple_buffer%24#0 offset_as_uint16%6#0)
+        let encoded_tuple_buffer%26#0: bytes = (concat encoded_tuple_buffer%25#0 encoded_value%2#0)
+        let encoded_tuple_buffer%27#0: bytes = (concat encoded_tuple_buffer%26#0 encoded_value%3#0)
+        let as_bytes%11#0: bytes[8] = (itob 4u)
+        let offset_as_uint16%7#0: bytes = ((extract 6 2) as_bytes%11#0)
+        let encoded_tuple_buffer%29#0: bytes = (concat 0x offset_as_uint16%7#0)
+        let data_length%7#0: uint64 = (len elements_to_encode%10#0)
+        let current_tail_offset%14#0: uint64 = (+ 4u data_length%7#0)
+        let as_bytes%12#0: bytes[8] = (itob current_tail_offset%14#0)
+        let offset_as_uint16%8#0: bytes = ((extract 6 2) as_bytes%12#0)
+        let encoded_tuple_buffer%30#0: bytes = (concat encoded_tuple_buffer%29#0 offset_as_uint16%8#0)
+        let encoded_tuple_buffer%31#0: bytes = (concat encoded_tuple_buffer%30#0 elements_to_encode%10#0)
+        let encoded_tuple_buffer%32#0: bytes = (concat encoded_tuple_buffer%31#0 encoded_tuple_buffer%27#0)
+        let tmp%36#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%32#0)
+        (log tmp%36#0)
+        let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
+        goto block@24
+    block@10: // mutate_tuple_in_storage_currently_supported_method_route_L101
+        let tmp%37#0: uint64 = (txn OnCompletion)
+        let tmp%38#0: bool = (== tmp%37#0 NoOp)
+        (assert tmp%38#0) // OnCompletion is not NoOp
+        let tmp%39#0: uint64 = (txn ApplicationID)
+        let tmp%40#0: bool = (!= tmp%39#0 0u)
+        (assert tmp%40#0) // can only call when not creating
         test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_storage_currently_supported_method()
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@23
-    block@10: // run_tests_route_L102
-        let tmp%36#0: uint64 = (txn OnCompletion)
-        let tmp%37#0: bool = (== tmp%36#0 NoOp)
-        (assert tmp%37#0) // OnCompletion is not NoOp
-        let tmp%38#0: uint64 = (txn ApplicationID)
-        let tmp%39#0: bool = (!= tmp%38#0 0u)
-        (assert tmp%39#0) // can only call when not creating
-        let to_encode%1#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.run_tests()
-        let encoded_bool%1#0: bytes[1] = (setbit 0x00 0u to_encode%1#0)
-        let tmp%40#0: bytes = (concat 0x151f7c75 encoded_bool%1#0)
-        (log tmp%40#0)
-        let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@23
-    block@11: // nested_tuple_params_route_L131
+        goto block@24
+    block@11: // run_tests_route_L107
         let tmp%41#0: uint64 = (txn OnCompletion)
         let tmp%42#0: bool = (== tmp%41#0 NoOp)
         (assert tmp%42#0) // OnCompletion is not NoOp
         let tmp%43#0: uint64 = (txn ApplicationID)
         let tmp%44#0: bool = (!= tmp%43#0 0u)
         (assert tmp%44#0) // can only call when not creating
-        let tmp%45#0: bytes = (txna ApplicationArgs 1)
-        let item_start_offset%5#0: uint64 = (extract_uint16 tmp%45#0 0u)
-        let item_end_offset%5#0: uint64 = (extract_uint16 tmp%45#0 2u)
-        let item0%11#0: bytes = (substring3 tmp%45#0 item_start_offset%5#0 item_end_offset%5#0)
-        let item0%12#0: bytes = ((extract 2 0) item0%11#0)
-        let item_start_offset%6#0: uint64 = (extract_uint16 tmp%45#0 2u)
-        let item_end_offset%6#0: uint64 = (len tmp%45#0)
-        let item1%10#0: bytes = (substring3 tmp%45#0 item_start_offset%6#0 item_end_offset%6#0)
-        let item_start_offset%7#0: uint64 = (extract_uint16 item1%10#0 0u)
-        let item_end_offset%7#0: uint64 = (len item1%10#0)
-        let item0%13#0: bytes = (substring3 item1%10#0 item_start_offset%7#0 item_end_offset%7#0)
+        let to_encode%1#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.run_tests()
+        let encoded_bool%1#0: bytes[1] = (setbit 0x00 0u to_encode%1#0)
+        let tmp%45#0: bytes = (concat 0x151f7c75 encoded_bool%1#0)
+        (log tmp%45#0)
+        let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
+        goto block@24
+    block@12: // nested_tuple_params_route_L136
+        let tmp%46#0: uint64 = (txn OnCompletion)
+        let tmp%47#0: bool = (== tmp%46#0 NoOp)
+        (assert tmp%47#0) // OnCompletion is not NoOp
+        let tmp%48#0: uint64 = (txn ApplicationID)
+        let tmp%49#0: bool = (!= tmp%48#0 0u)
+        (assert tmp%49#0) // can only call when not creating
+        let tmp%50#0: bytes = (txna ApplicationArgs 1)
+        let item_start_offset%5#0: uint64 = (extract_uint16 tmp%50#0 0u)
+        let item_end_offset%5#0: uint64 = (extract_uint16 tmp%50#0 2u)
+        let item0%13#0: bytes = (substring3 tmp%50#0 item_start_offset%5#0 item_end_offset%5#0)
         let item0%14#0: bytes = ((extract 2 0) item0%13#0)
-        let item1%11#0: bytes = (extract3 item1%10#0 2u 8u) // on error: Index access is out of bounds
-        let item0%15#0: bytes = (extract3 item1%11#0 0u 8u) // on error: Index access is out of bounds
-        let item0%16#0: uint64 = (btoi item0%15#0)
-        let (elements_to_encode%12#0: bytes, elements_to_encode%13#0: bytes, elements_to_encode%14#0: uint64) = test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_params(item0%12#0, item0%14#0, item0%16#0)
-        let length%4#0: uint64 = (len elements_to_encode%12#0)
+        let item_start_offset%6#0: uint64 = (extract_uint16 tmp%50#0 2u)
+        let item_end_offset%6#0: uint64 = (len tmp%50#0)
+        let item1%12#0: bytes = (substring3 tmp%50#0 item_start_offset%6#0 item_end_offset%6#0)
+        let item_start_offset%7#0: uint64 = (extract_uint16 item1%12#0 0u)
+        let item_end_offset%7#0: uint64 = (len item1%12#0)
+        let item0%15#0: bytes = (substring3 item1%12#0 item_start_offset%7#0 item_end_offset%7#0)
+        let item0%16#0: bytes = ((extract 2 0) item0%15#0)
+        let item1%13#0: bytes = (extract3 item1%12#0 2u 8u) // on error: Index access is out of bounds
+        let item0%17#0: bytes = (extract3 item1%13#0 0u 8u) // on error: Index access is out of bounds
+        let item0%18#0: uint64 = (btoi item0%17#0)
+        let (elements_to_encode%14#0: bytes, elements_to_encode%15#0: bytes, elements_to_encode%16#0: uint64) = test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_params(item0%14#0, item0%16#0, item0%18#0)
+        let length%4#0: uint64 = (len elements_to_encode%14#0)
         let as_bytes%13#0: bytes[8] = (itob length%4#0)
         let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%13#0)
-        let encoded_value%4#0: bytes = (concat length_uint16%4#0 elements_to_encode%12#0)
-        let length%5#0: uint64 = (len elements_to_encode%13#0)
+        let encoded_value%4#0: bytes = (concat length_uint16%4#0 elements_to_encode%14#0)
+        let length%5#0: uint64 = (len elements_to_encode%15#0)
         let as_bytes%14#0: bytes[8] = (itob length%5#0)
         let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%14#0)
-        let encoded_value%5#0: bytes = (concat length_uint16%5#0 elements_to_encode%13#0)
-        let val_as_bytes%5#0: bytes[8] = (itob elements_to_encode%14#0)
+        let encoded_value%5#0: bytes = (concat length_uint16%5#0 elements_to_encode%15#0)
+        let val_as_bytes%7#0: bytes[8] = (itob elements_to_encode%16#0)
         let as_bytes%15#0: bytes[8] = (itob 10u)
         let offset_as_uint16%9#0: bytes = ((extract 6 2) as_bytes%15#0)
-        let encoded_tuple_buffer%31#0: bytes = (concat 0x offset_as_uint16%9#0)
-        let encoded_tuple_buffer%32#0: bytes = (concat encoded_tuple_buffer%31#0 val_as_bytes%5#0)
-        let encoded_tuple_buffer%33#0: bytes = (concat encoded_tuple_buffer%32#0 encoded_value%5#0)
+        let encoded_tuple_buffer%34#0: bytes = (concat 0x offset_as_uint16%9#0)
+        let encoded_tuple_buffer%35#0: bytes = (concat encoded_tuple_buffer%34#0 val_as_bytes%7#0)
+        let encoded_tuple_buffer%36#0: bytes = (concat encoded_tuple_buffer%35#0 encoded_value%5#0)
         let as_bytes%16#0: bytes[8] = (itob 4u)
         let offset_as_uint16%10#0: bytes = ((extract 6 2) as_bytes%16#0)
-        let encoded_tuple_buffer%35#0: bytes = (concat 0x offset_as_uint16%10#0)
+        let encoded_tuple_buffer%38#0: bytes = (concat 0x offset_as_uint16%10#0)
         let data_length%10#0: uint64 = (len encoded_value%4#0)
-        let current_tail_offset%18#0: uint64 = (+ 4u data_length%10#0)
-        let as_bytes%17#0: bytes[8] = (itob current_tail_offset%18#0)
+        let current_tail_offset%19#0: uint64 = (+ 4u data_length%10#0)
+        let as_bytes%17#0: bytes[8] = (itob current_tail_offset%19#0)
         let offset_as_uint16%11#0: bytes = ((extract 6 2) as_bytes%17#0)
-        let encoded_tuple_buffer%36#0: bytes = (concat encoded_tuple_buffer%35#0 offset_as_uint16%11#0)
-        let encoded_tuple_buffer%37#0: bytes = (concat encoded_tuple_buffer%36#0 encoded_value%4#0)
-        let encoded_tuple_buffer%38#0: bytes = (concat encoded_tuple_buffer%37#0 encoded_tuple_buffer%33#0)
-        let tmp%46#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%38#0)
-        (log tmp%46#0)
+        let encoded_tuple_buffer%39#0: bytes = (concat encoded_tuple_buffer%38#0 offset_as_uint16%11#0)
+        let encoded_tuple_buffer%40#0: bytes = (concat encoded_tuple_buffer%39#0 encoded_value%4#0)
+        let encoded_tuple_buffer%41#0: bytes = (concat encoded_tuple_buffer%40#0 encoded_tuple_buffer%36#0)
+        let tmp%51#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%41#0)
+        (log tmp%51#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@23
-    block@12: // named_tuple_route_L138
-        let tmp%47#0: uint64 = (txn OnCompletion)
-        let tmp%48#0: bool = (== tmp%47#0 NoOp)
-        (assert tmp%48#0) // OnCompletion is not NoOp
-        let tmp%49#0: uint64 = (txn ApplicationID)
-        let tmp%50#0: bool = (!= tmp%49#0 0u)
-        (assert tmp%50#0) // can only call when not creating
-        let tmp%51#0: bytes = (txna ApplicationArgs 1)
-        let item0%17#0: bytes = (extract3 tmp%51#0 0u 8u) // on error: Index access is out of bounds
-        let item0%18#0: uint64 = (btoi item0%17#0)
-        let item_start_offset%8#0: uint64 = (extract_uint16 tmp%51#0 8u)
-        let item_end_offset%8#0: uint64 = (extract_uint16 tmp%51#0 10u)
-        let item1%12#0: bytes = (substring3 tmp%51#0 item_start_offset%8#0 item_end_offset%8#0)
-        let item1%13#0: bytes = ((extract 2 0) item1%12#0)
-        let item_start_offset%9#0: uint64 = (extract_uint16 tmp%51#0 10u)
-        let item_end_offset%9#0: uint64 = (len tmp%51#0)
-        let item2%3#0: bytes = (substring3 tmp%51#0 item_start_offset%9#0 item_end_offset%9#0)
+        goto block@24
+    block@13: // named_tuple_route_L143
+        let tmp%52#0: uint64 = (txn OnCompletion)
+        let tmp%53#0: bool = (== tmp%52#0 NoOp)
+        (assert tmp%53#0) // OnCompletion is not NoOp
+        let tmp%54#0: uint64 = (txn ApplicationID)
+        let tmp%55#0: bool = (!= tmp%54#0 0u)
+        (assert tmp%55#0) // can only call when not creating
+        let tmp%56#0: bytes = (txna ApplicationArgs 1)
+        let item0%19#0: bytes = (extract3 tmp%56#0 0u 8u) // on error: Index access is out of bounds
+        let item0%20#0: uint64 = (btoi item0%19#0)
+        let item_start_offset%8#0: uint64 = (extract_uint16 tmp%56#0 8u)
+        let item_end_offset%8#0: uint64 = (extract_uint16 tmp%56#0 10u)
+        let item1%14#0: bytes = (substring3 tmp%56#0 item_start_offset%8#0 item_end_offset%8#0)
+        let item1%15#0: bytes = ((extract 2 0) item1%14#0)
+        let item_start_offset%9#0: uint64 = (extract_uint16 tmp%56#0 10u)
+        let item_end_offset%9#0: uint64 = (len tmp%56#0)
+        let item2%3#0: bytes = (substring3 tmp%56#0 item_start_offset%9#0 item_end_offset%9#0)
         let item2%4#0: bytes = ((extract 2 0) item2%3#0)
-        let (elements_to_encode%15#0: uint64, elements_to_encode%16#0: bytes, elements_to_encode%17#0: bytes) = test_cases.tuple_support.nested_tuples.NestedTuples.named_tuple(item0%18#0, item1%13#0, item2%4#0)
-        let val_as_bytes%6#0: bytes[8] = (itob elements_to_encode%15#0)
-        let length%6#0: uint64 = (len elements_to_encode%16#0)
+        let (elements_to_encode%17#0: uint64, elements_to_encode%18#0: bytes, elements_to_encode%19#0: bytes) = test_cases.tuple_support.nested_tuples.NestedTuples.named_tuple(item0%20#0, item1%15#0, item2%4#0)
+        let val_as_bytes%8#0: bytes[8] = (itob elements_to_encode%17#0)
+        let length%6#0: uint64 = (len elements_to_encode%18#0)
         let as_bytes%18#0: bytes[8] = (itob length%6#0)
         let length_uint16%6#0: bytes = ((extract 6 2) as_bytes%18#0)
-        let encoded_value%6#0: bytes = (concat length_uint16%6#0 elements_to_encode%16#0)
-        let length%7#0: uint64 = (len elements_to_encode%17#0)
+        let encoded_value%6#0: bytes = (concat length_uint16%6#0 elements_to_encode%18#0)
+        let length%7#0: uint64 = (len elements_to_encode%19#0)
         let as_bytes%19#0: bytes[8] = (itob length%7#0)
         let length_uint16%7#0: bytes = ((extract 6 2) as_bytes%19#0)
-        let encoded_value%7#0: bytes = (concat length_uint16%7#0 elements_to_encode%17#0)
-        let encoded_tuple_buffer%40#0: bytes = (concat 0x val_as_bytes%6#0)
+        let encoded_value%7#0: bytes = (concat length_uint16%7#0 elements_to_encode%19#0)
+        let encoded_tuple_buffer%43#0: bytes = (concat 0x val_as_bytes%8#0)
         let as_bytes%20#0: bytes[8] = (itob 12u)
         let offset_as_uint16%12#0: bytes = ((extract 6 2) as_bytes%20#0)
-        let encoded_tuple_buffer%41#0: bytes = (concat encoded_tuple_buffer%40#0 offset_as_uint16%12#0)
+        let encoded_tuple_buffer%44#0: bytes = (concat encoded_tuple_buffer%43#0 offset_as_uint16%12#0)
         let data_length%12#0: uint64 = (len encoded_value%6#0)
-        let current_tail_offset%21#0: uint64 = (+ 12u data_length%12#0)
-        let as_bytes%21#0: bytes[8] = (itob current_tail_offset%21#0)
+        let current_tail_offset%22#0: uint64 = (+ 12u data_length%12#0)
+        let as_bytes%21#0: bytes[8] = (itob current_tail_offset%22#0)
         let offset_as_uint16%13#0: bytes = ((extract 6 2) as_bytes%21#0)
-        let encoded_tuple_buffer%42#0: bytes = (concat encoded_tuple_buffer%41#0 offset_as_uint16%13#0)
-        let encoded_tuple_buffer%43#0: bytes = (concat encoded_tuple_buffer%42#0 encoded_value%6#0)
-        let encoded_tuple_buffer%44#0: bytes = (concat encoded_tuple_buffer%43#0 encoded_value%7#0)
-        let tmp%52#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%44#0)
-        (log tmp%52#0)
+        let encoded_tuple_buffer%45#0: bytes = (concat encoded_tuple_buffer%44#0 offset_as_uint16%13#0)
+        let encoded_tuple_buffer%46#0: bytes = (concat encoded_tuple_buffer%45#0 encoded_value%6#0)
+        let encoded_tuple_buffer%47#0: bytes = (concat encoded_tuple_buffer%46#0 encoded_value%7#0)
+        let tmp%57#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%47#0)
+        (log tmp%57#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@23
-    block@13: // nested_named_tuple_params_route_L143
-        let tmp%53#0: uint64 = (txn OnCompletion)
-        let tmp%54#0: bool = (== tmp%53#0 NoOp)
-        (assert tmp%54#0) // OnCompletion is not NoOp
-        let tmp%55#0: uint64 = (txn ApplicationID)
-        let tmp%56#0: bool = (!= tmp%55#0 0u)
-        (assert tmp%56#0) // can only call when not creating
-        let tmp%57#0: bytes = (txna ApplicationArgs 1)
-        let item0%19#0: bytes = (extract3 tmp%57#0 0u 8u) // on error: Index access is out of bounds
-        let item0%20#0: uint64 = (btoi item0%19#0)
-        let item1%14#0: bytes = (extract3 tmp%57#0 8u 8u) // on error: Index access is out of bounds
-        let item_start_offset%10#0: uint64 = (extract_uint16 tmp%57#0 16u)
-        let item_end_offset%10#0: uint64 = (len tmp%57#0)
-        let item2%5#0: bytes = (substring3 tmp%57#0 item_start_offset%10#0 item_end_offset%10#0)
-        let item0%21#0: bytes = (extract3 item2%5#0 0u 8u) // on error: Index access is out of bounds
+        goto block@24
+    block@14: // nested_named_tuple_params_route_L148
+        let tmp%58#0: uint64 = (txn OnCompletion)
+        let tmp%59#0: bool = (== tmp%58#0 NoOp)
+        (assert tmp%59#0) // OnCompletion is not NoOp
+        let tmp%60#0: uint64 = (txn ApplicationID)
+        let tmp%61#0: bool = (!= tmp%60#0 0u)
+        (assert tmp%61#0) // can only call when not creating
+        let tmp%62#0: bytes = (txna ApplicationArgs 1)
+        let item0%21#0: bytes = (extract3 tmp%62#0 0u 8u) // on error: Index access is out of bounds
         let item0%22#0: uint64 = (btoi item0%21#0)
+        let item1%16#0: bytes = (extract3 tmp%62#0 8u 8u) // on error: Index access is out of bounds
+        let item_start_offset%10#0: uint64 = (extract_uint16 tmp%62#0 16u)
+        let item_end_offset%10#0: uint64 = (len tmp%62#0)
+        let item2%5#0: bytes = (substring3 tmp%62#0 item_start_offset%10#0 item_end_offset%10#0)
+        let item0%23#0: bytes = (extract3 item2%5#0 0u 8u) // on error: Index access is out of bounds
+        let item0%24#0: uint64 = (btoi item0%23#0)
         let item_start_offset%11#0: uint64 = (extract_uint16 item2%5#0 8u)
         let item_end_offset%11#0: uint64 = (extract_uint16 item2%5#0 10u)
-        let item1%15#0: bytes = (substring3 item2%5#0 item_start_offset%11#0 item_end_offset%11#0)
-        let item1%16#0: bytes = ((extract 2 0) item1%15#0)
+        let item1%17#0: bytes = (substring3 item2%5#0 item_start_offset%11#0 item_end_offset%11#0)
+        let item1%18#0: bytes = ((extract 2 0) item1%17#0)
         let item_start_offset%12#0: uint64 = (extract_uint16 item2%5#0 10u)
         let item_end_offset%12#0: uint64 = (len item2%5#0)
         let item2%6#0: bytes = (substring3 item2%5#0 item_start_offset%12#0 item_end_offset%12#0)
         let item2%7#0: bytes = ((extract 2 0) item2%6#0)
-        let (elements_to_encode%18#0: uint64, elements_to_encode%19#0: bytes[8], elements_to_encode%20#0: uint64, elements_to_encode%21#0: bytes, elements_to_encode%22#0: bytes) = test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tuple_params(item0%20#0, item1%14#0, item0%22#0, item1%16#0, item2%7#0)
-        let val_as_bytes%7#0: bytes[8] = (itob elements_to_encode%18#0)
-        let val_as_bytes%8#0: bytes[8] = (itob elements_to_encode%20#0)
-        let length%8#0: uint64 = (len elements_to_encode%21#0)
+        let (elements_to_encode%20#0: uint64, elements_to_encode%21#0: bytes[8], elements_to_encode%22#0: uint64, elements_to_encode%23#0: bytes, elements_to_encode%24#0: bytes) = test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tuple_params(item0%22#0, item1%16#0, item0%24#0, item1%18#0, item2%7#0)
+        let val_as_bytes%9#0: bytes[8] = (itob elements_to_encode%20#0)
+        let val_as_bytes%10#0: bytes[8] = (itob elements_to_encode%22#0)
+        let length%8#0: uint64 = (len elements_to_encode%23#0)
         let as_bytes%22#0: bytes[8] = (itob length%8#0)
         let length_uint16%8#0: bytes = ((extract 6 2) as_bytes%22#0)
-        let encoded_value%8#0: bytes = (concat length_uint16%8#0 elements_to_encode%21#0)
-        let length%9#0: uint64 = (len elements_to_encode%22#0)
+        let encoded_value%8#0: bytes = (concat length_uint16%8#0 elements_to_encode%23#0)
+        let length%9#0: uint64 = (len elements_to_encode%24#0)
         let as_bytes%23#0: bytes[8] = (itob length%9#0)
         let length_uint16%9#0: bytes = ((extract 6 2) as_bytes%23#0)
-        let encoded_value%9#0: bytes = (concat length_uint16%9#0 elements_to_encode%22#0)
-        let encoded_tuple_buffer%46#0: bytes = (concat 0x val_as_bytes%8#0)
+        let encoded_value%9#0: bytes = (concat length_uint16%9#0 elements_to_encode%24#0)
+        let encoded_tuple_buffer%49#0: bytes = (concat 0x val_as_bytes%10#0)
         let as_bytes%24#0: bytes[8] = (itob 12u)
         let offset_as_uint16%14#0: bytes = ((extract 6 2) as_bytes%24#0)
-        let encoded_tuple_buffer%47#0: bytes = (concat encoded_tuple_buffer%46#0 offset_as_uint16%14#0)
+        let encoded_tuple_buffer%50#0: bytes = (concat encoded_tuple_buffer%49#0 offset_as_uint16%14#0)
         let data_length%14#0: uint64 = (len encoded_value%8#0)
-        let current_tail_offset%24#0: uint64 = (+ 12u data_length%14#0)
-        let as_bytes%25#0: bytes[8] = (itob current_tail_offset%24#0)
+        let current_tail_offset%25#0: uint64 = (+ 12u data_length%14#0)
+        let as_bytes%25#0: bytes[8] = (itob current_tail_offset%25#0)
         let offset_as_uint16%15#0: bytes = ((extract 6 2) as_bytes%25#0)
-        let encoded_tuple_buffer%48#0: bytes = (concat encoded_tuple_buffer%47#0 offset_as_uint16%15#0)
-        let encoded_tuple_buffer%49#0: bytes = (concat encoded_tuple_buffer%48#0 encoded_value%8#0)
-        let encoded_tuple_buffer%50#0: bytes = (concat encoded_tuple_buffer%49#0 encoded_value%9#0)
-        let encoded_tuple_buffer%52#0: bytes = (concat 0x val_as_bytes%7#0)
-        let encoded_tuple_buffer%53#0: bytes = (concat encoded_tuple_buffer%52#0 elements_to_encode%19#0)
+        let encoded_tuple_buffer%51#0: bytes = (concat encoded_tuple_buffer%50#0 offset_as_uint16%15#0)
+        let encoded_tuple_buffer%52#0: bytes = (concat encoded_tuple_buffer%51#0 encoded_value%8#0)
+        let encoded_tuple_buffer%53#0: bytes = (concat encoded_tuple_buffer%52#0 encoded_value%9#0)
+        let encoded_tuple_buffer%55#0: bytes = (concat 0x val_as_bytes%9#0)
+        let encoded_tuple_buffer%56#0: bytes = (concat encoded_tuple_buffer%55#0 elements_to_encode%21#0)
         let as_bytes%26#0: bytes[8] = (itob 18u)
         let offset_as_uint16%16#0: bytes = ((extract 6 2) as_bytes%26#0)
-        let encoded_tuple_buffer%54#0: bytes = (concat encoded_tuple_buffer%53#0 offset_as_uint16%16#0)
-        let encoded_tuple_buffer%55#0: bytes = (concat encoded_tuple_buffer%54#0 encoded_tuple_buffer%50#0)
-        let tmp%58#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%55#0)
-        (log tmp%58#0)
+        let encoded_tuple_buffer%57#0: bytes = (concat encoded_tuple_buffer%56#0 offset_as_uint16%16#0)
+        let encoded_tuple_buffer%58#0: bytes = (concat encoded_tuple_buffer%57#0 encoded_tuple_buffer%53#0)
+        let tmp%63#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%58#0)
+        (log tmp%63#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
+        goto block@24
+    block@15: // switch_case_default_L45
+        goto block@16
+    block@16: // switch_case_next_L45
         goto block@23
-    block@14: // switch_case_default_L44
-        goto block@15
-    block@15: // switch_case_next_L44
-        goto block@22
-    block@16: // bare_routing_L44
-        let tmp%59#0: uint64 = (txn OnCompletion)
-        switch tmp%59#0 {0u => block@17, * => block@20}
-    block@17: // __algopy_default_create_L1
-        let tmp%60#0: uint64 = (txn ApplicationID)
-        let tmp%61#0: bool = (== tmp%60#0 0u)
-        (assert tmp%61#0) // can only call when creating
-        goto block@18
-    block@18: // L1
+    block@17: // bare_routing_L45
+        let tmp%64#0: uint64 = (txn OnCompletion)
+        switch tmp%64#0 {0u => block@18, * => block@21}
+    block@18: // __algopy_default_create_L1
+        let tmp%65#0: uint64 = (txn ApplicationID)
+        let tmp%66#0: bool = (== tmp%65#0 0u)
+        (assert tmp%66#0) // can only call when creating
         goto block@19
-    block@19: // after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_default_create_L1
+    block@19: // L1
+        goto block@20
+    block@20: // after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_default_create_L1
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@23
-    block@20: // switch_case_default_L44
-        goto block@21
-    block@21: // switch_case_next_L44
+        goto block@24
+    block@21: // switch_case_default_L45
         goto block@22
-    block@22: // after_if_else_L44
+    block@22: // switch_case_next_L45
+        goto block@23
+    block@23: // after_if_else_L45
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 0u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@23
-    block@23: // after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router___L1
+        goto block@24
+    block@24: // after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router___L1
         return tmp%0#0

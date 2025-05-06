@@ -58,6 +58,12 @@ class NestedTuples(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> SimpleTup: ...
 
     @algopy.arc4.abimethod
+    def load_tuple_from_box_or_default(
+        self,
+        key: SimpleTup,
+    ) -> SimpleTup: ...
+
+    @algopy.arc4.abimethod
     def mutate_local_tuple(
         self,
     ) -> TupleWithMutable: ...
