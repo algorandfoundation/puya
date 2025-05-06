@@ -292,9 +292,21 @@ contract NestedTuples
     return Box[BoxMapKey(prefix='box', key=key)]
   }
   
+  abimethod test_cases.tuple_support.nested_tuples.NestedTuples.maybe_load_tuple_from_box(key: test_cases.tuple_support.nested_tuples.SimpleTup): tuple<test_cases.tuple_support.nested_tuples.SimpleTup,bool>
+  {
+    (maybe_value, exists): tuple<test_cases.tuple_support.nested_tuples.SimpleTup,bool> = STATE_GET_EX(Box[BoxMapKey(prefix='box', key=key)])
+    return (maybe_value, exists)
+  }
+  
   abimethod test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_box_or_default(key: test_cases.tuple_support.nested_tuples.SimpleTup): test_cases.tuple_support.nested_tuples.SimpleTup
   {
     return STATE_GET(Box[BoxMapKey(prefix='box', key=key)], default=test_cases.tuple_support.nested_tuples.simple_tup(4u, 2u))
+  }
+  
+  abimethod test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_local_state_or_default(key: string): test_cases.tuple_support.nested_tuples.SimpleTup
+  {
+    local: state_key = reinterpret_cast<state_key>(reinterpret_cast<bytes>(test_cases.tuple_support.nested_tuples.echo(key)))
+    return STATE_GET(LocalState[local, test_cases.tuple_support.nested_tuples.get_sender_inefficiently()], default=test_cases.tuple_support.nested_tuples.simple_tup(4u, 2u))
   }
   
   abimethod test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tuple(): test_cases.tuple_support.nested_tuples.TupleWithMutable
@@ -382,10 +394,22 @@ contract NestedTuples
   }
 }
 
+subroutine get_sender_inefficiently(): account
+{
+  log('Order is important')
+  return txn<Sender>()
+}
+
 subroutine simple_tup(a: uint64, b: uint64): test_cases.tuple_support.nested_tuples.SimpleTup
 {
   log("I'm just a simple tup")
   return (a=a, b=b)
+}
+
+subroutine echo(s: string): string
+{
+  log('Is there an echo in here?')
+  return s
 }
 
 subroutine test_rearrange(_a: string, args: tuple<uint64,uint64,tuple<uint64,tuple<string,string>>>, _b: string): tuple<string,uint64,tuple<uint64,uint64,tuple<string>>>

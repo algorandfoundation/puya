@@ -58,9 +58,21 @@ class NestedTuples(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> SimpleTup: ...
 
     @algopy.arc4.abimethod
+    def maybe_load_tuple_from_box(
+        self,
+        key: SimpleTup,
+    ) -> algopy.arc4.Tuple[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]]], algopy.arc4.Bool]: ...
+
+    @algopy.arc4.abimethod
     def load_tuple_from_box_or_default(
         self,
         key: SimpleTup,
+    ) -> SimpleTup: ...
+
+    @algopy.arc4.abimethod
+    def load_tuple_from_local_state_or_default(
+        self,
+        key: algopy.arc4.String,
     ) -> SimpleTup: ...
 
     @algopy.arc4.abimethod
