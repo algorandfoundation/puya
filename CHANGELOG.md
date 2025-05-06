@@ -5,6 +5,32 @@ Changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 <!--scriv-insert-here-->
+
+<a id='changelog-v4.8.0'></a>
+## v4.8.0 (2025-05-06)
+
+### Added
+
+Support storing native `tuple` and `typing.NamedTuple` in global, local and box storage
+
+- Added `algopy.size_of` which given a type returns the number of bytes required to put the value in storage
+
+- Added `algopy.Box.create` for initializing boxes to a specified size
+
+### Changed
+
+-   output ARC56 app spec, in addition to ARC32 app spec by default when compiling
+
+### Fixed
+
+- Support modifications of mutable types (e.g. ARC-4 arrays) within a named tuple
+
+-   fix `Unresolved module constant: builtins.False` compile error being thrown for using literal boolean values as `default_args`
+    ```
+    @arc4.abimethod(default_args={"a": False})
+    ```
+
+- Prevent `btoi` optimizations that would result in an invalid value
 <!--scriv-end-here-->
 
 ## v4.7.0 (2025-04-04)
