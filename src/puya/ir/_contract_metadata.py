@@ -17,10 +17,7 @@ from puya.awst import (
 from puya.awst.function_traverser import FunctionTraverser
 from puya.errors import CodeError, InternalError
 from puya.ir._arc4_default_args import convert_default_args
-from puya.ir.arc4_types import (
-    wtype_to_arc4,
-    wtype_to_arc4_wtype,
-)
+from puya.ir.arc4_types import wtype_to_arc4, wtype_to_arc4_wtype
 from puya.ir.builder.storage import get_storage_codec
 from puya.ir.context import IRBuildContext
 from puya.parse import SourceLocation

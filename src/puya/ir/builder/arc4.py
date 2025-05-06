@@ -15,10 +15,7 @@ from puya.ir.arc4 import (
     is_arc4_dynamic_size,
     is_arc4_static_size,
 )
-from puya.ir.arc4_types import (
-    is_equivalent_effective_array_encoding,
-    maybe_wtype_to_arc4_wtype,
-)
+from puya.ir.arc4_types import is_equivalent_effective_array_encoding, maybe_wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import (
     OpFactory,

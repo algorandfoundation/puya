@@ -16,10 +16,7 @@ from puya.awst import (
 from puya.context import CompiledProgramProvider
 from puya.errors import CodeError
 from puya.ir._utils import make_subroutine
-from puya.ir.arc4_types import (
-    maybe_wtype_to_arc4_wtype,
-    wtype_to_arc4,
-)
+from puya.ir.arc4_types import maybe_wtype_to_arc4_wtype, wtype_to_arc4
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
 from puya.ir.optimize.context import IROptimizationContext
