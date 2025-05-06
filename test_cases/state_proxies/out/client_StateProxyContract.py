@@ -11,3 +11,23 @@ class StateProxyContract(algopy.arc4.ARC4Client, typing.Protocol):
     def create(
         self,
     ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def clear(
+        self,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def order_of_eval_global(
+        self,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def order_of_eval_local(
+        self,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def order_of_eval_box(
+        self,
+    ) -> None: ...

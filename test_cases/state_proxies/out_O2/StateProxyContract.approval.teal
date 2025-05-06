@@ -3,7 +3,8 @@
 
 // test_cases.state_proxies.contract.StateProxyContract.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 0
+    intcblock 1 0 42
+    bytecblock "l1" "g1" "box_map" 0x6c32
     txn ApplicationID
     bnz main_after_if_else@2
     pushbytes 0x6732
@@ -17,13 +18,95 @@ main:
 
 main_after_if_else@2:
     txn NumAppArgs
-    bz main_after_if_else@6
-    pushbytes 0x4c5c61ba // method "create()void"
+    bz main_after_if_else@10
+    pushbytess 0x4c5c61ba 0x44977246 0xbd8868b9 0xd0e289b0 0x74445702 // method "create()void", method "clear()void", method "order_of_eval_global()void", method "order_of_eval_local()void", method "order_of_eval_box()void"
     txna ApplicationArgs 0
-    match main_create_route@5
+    match main_create_route@5 main_clear_route@6 main_order_of_eval_global_route@7 main_order_of_eval_local_route@8 main_order_of_eval_box_route@9
 
-main_after_if_else@6:
+main_after_if_else@10:
     intc_1 // 0
+    return
+
+main_order_of_eval_box_route@9:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub get_key
+    bytec_2 // "box_map"
+    swap
+    concat
+    callsub default_value
+    swap
+    box_get
+    swap
+    btoi
+    swap
+    select
+    intc_2 // 42
+    ==
+    assert
+    intc_0 // 1
+    return
+
+main_order_of_eval_local_route@8:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub get_account
+    callsub default_value
+    swap
+    intc_1 // 0
+    bytec_0 // "l1"
+    app_local_get_ex
+    select
+    intc_2 // 42
+    ==
+    assert
+    intc_0 // 1
+    return
+
+main_order_of_eval_global_route@7:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub default_value
+    intc_1 // 0
+    bytec_1 // "g1"
+    app_global_get_ex
+    select
+    intc_2 // 42
+    ==
+    assert
+    intc_0 // 1
+    return
+
+main_clear_route@6:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    bytec_1 // "g1"
+    app_global_del
+    txn Sender
+    bytec_0 // "l1"
+    app_local_del
+    txn Sender
+    bytec_3 // 0x6c32
+    app_local_del
+    callsub get_key
+    bytec_2 // "box_map"
+    swap
+    concat
+    box_del
+    pop
+    intc_0 // 1
     return
 
 main_create_route@5:
@@ -34,16 +117,40 @@ main_create_route@5:
     txn ApplicationID
     !
     assert // can only call when creating
-    pushbytes "g1"
+    bytec_1 // "g1"
     intc_0 // 1
     app_global_put
     txn Sender
-    pushbytes "l1"
+    bytec_0 // "l1"
     pushint 2 // 2
     app_local_put
     txn Sender
-    pushbytes 0x6c32
+    bytec_3 // 0x6c32
     pushint 3 // 3
     app_local_put
     intc_0 // 1
     return
+
+
+// test_cases.state_proxies.contract.get_key() -> bytes:
+get_key:
+    pushbytes "key"
+    log
+    pushbytes 0x626f78
+    retsub
+
+
+// test_cases.state_proxies.contract.get_account() -> bytes:
+get_account:
+    pushbytes "account"
+    log
+    txn Sender
+    retsub
+
+
+// test_cases.state_proxies.contract.default_value() -> uint64:
+default_value:
+    pushbytes "default"
+    log
+    intc_2 // 42
+    retsub

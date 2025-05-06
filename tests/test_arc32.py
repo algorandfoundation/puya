@@ -830,6 +830,28 @@ def test_state_proxies(algod_client: AlgodClient, account: algokit_utils.Account
     assert app_client.get_global_state() == {"g1": 1, "g2": 0, "funky": 123}
     assert app_client.get_local_state(account.address) == {"l1": 2, "l2": 3}
 
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=100_000,
+        ),
+    )
+    with_box = algokit_utils.OnCompleteCallParameters(boxes=[(0, "box_mapbox")])
+    app_client.call("clear", transaction_parameters=with_box)
+
+    response = app_client.call("order_of_eval_global")
+    logs = [base64.b64decode(log) for log in response.tx_info["logs"]]
+    assert logs == [b"default"]
+
+    response = app_client.call("order_of_eval_local")
+    logs = [base64.b64decode(log) for log in response.tx_info["logs"]]
+    assert logs == [b"account", b"default"]
+
+    response = app_client.call("order_of_eval_box", transaction_parameters=with_box)
+    logs = [base64.b64decode(log) for log in response.tx_info["logs"]]
+    assert logs == [b"key", b"default"]
+
 
 def test_template_variables(
     algod_client: AlgodClient,

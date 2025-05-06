@@ -11,6 +11,9 @@ contract StateProxyContract
     ['l1']: uint64
     [hex<"6C32">]: uint64
   }
+  boxes {
+    ['box_map']: bytes => uint64
+  }
   
   subroutine test_cases.state_proxies.contract.StateProxyContract.__algopy_entrypoint_with_init(): bool
   {
@@ -39,8 +42,52 @@ contract StateProxyContract
     LocalState[hex<"6C32">, txn<Sender>()]: uint64 = 3u
   }
   
+  abimethod test_cases.state_proxies.contract.StateProxyContract.clear(): void
+  {
+    STATE_DELETE(GlobalState['g1'])
+    STATE_DELETE(LocalState['l1', txn<Sender>()])
+    STATE_DELETE(LocalState[hex<"6C32">, txn<Sender>()])
+    STATE_DELETE(Box[BoxMapKey(prefix='box_map', key=test_cases.state_proxies.contract.get_key())])
+  }
+  
+  abimethod test_cases.state_proxies.contract.StateProxyContract.order_of_eval_global(): void
+  {
+    val: uint64 = STATE_GET(GlobalState['g1'], default=test_cases.state_proxies.contract.default_value())
+    assert(val == 42u)
+  }
+  
+  abimethod test_cases.state_proxies.contract.StateProxyContract.order_of_eval_local(): void
+  {
+    val: uint64 = STATE_GET(LocalState['l1', test_cases.state_proxies.contract.get_account()], default=test_cases.state_proxies.contract.default_value())
+    assert(val == 42u)
+  }
+  
+  abimethod test_cases.state_proxies.contract.StateProxyContract.order_of_eval_box(): void
+  {
+    val: uint64 = STATE_GET(Box[BoxMapKey(prefix='box_map', key=test_cases.state_proxies.contract.get_key())], default=test_cases.state_proxies.contract.default_value())
+    assert(val == 42u)
+  }
+  
   subroutine algopy.arc4.ARC4Contract.approval_program(): bool
   {
     return arc4_router()
   }
+}
+
+subroutine get_key(): bytes
+{
+  log('key')
+  return hex<"626F78">
+}
+
+subroutine get_account(): account
+{
+  log('account')
+  return txn<Sender>()
+}
+
+subroutine default_value(): uint64
+{
+  log('default')
+  return 42u
 }
