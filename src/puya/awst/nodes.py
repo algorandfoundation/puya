@@ -1342,7 +1342,7 @@ class BigUIntPostfixUnaryOperator(enum.StrEnum):
 @attrs.frozen
 class BigUIntPostfixUnaryOperation(Expression):
     op: BigUIntPostfixUnaryOperator
-    target: Expression = attrs.field(validator=[wtype_is_biguint])
+    target: Lvalue = attrs.field(validator=[wtype_is_biguint])
     wtype: WType = attrs.field(default=wtypes.biguint_wtype, init=False)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
