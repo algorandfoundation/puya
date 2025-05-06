@@ -11,10 +11,7 @@ from puya.awst import (
 )
 from puya.errors import InternalError
 from puya.ir.arc4 import get_arc4_static_bit_size, is_arc4_static_size
-from puya.ir.arc4_types import (
-    effective_array_encoding,
-    maybe_wtype_to_arc4_wtype,
-)
+from puya.ir.arc4_types import effective_array_encoding, maybe_wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4
 from puya.ir.builder._tuple_util import build_tuple_registers

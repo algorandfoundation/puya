@@ -18,10 +18,7 @@ from puya.ir.builder._utils import (
     get_implicit_return_is_original,
 )
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.types_ import (
-    PrimitiveIRType,
-    get_wtype_arity,
-)
+from puya.ir.types_ import PrimitiveIRType, get_wtype_arity
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 

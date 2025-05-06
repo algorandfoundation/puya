@@ -13,10 +13,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import CodeError
-from puya.ir.arc4_types import (
-    is_equivalent_effective_array_encoding,
-    wtype_to_arc4_wtype,
-)
+from puya.ir.arc4_types import is_equivalent_effective_array_encoding, wtype_to_arc4_wtype
 from puya.parse import SourceLocation
 from puya.utils import set_add
 
