@@ -4,17 +4,17 @@
 // test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 2 8
-    bytecblock 0x151f7c75 0x 0x000c "build_nested_call_count" 0x0004 "box" "twm" 0x0012 0x00 "pwl"
+    bytecblock 0x151f7c75 0x000c "build_nested_call_count" 0x0004 "box" "twm" 0x0012 0x00 "pwl"
     txn ApplicationID
     bnz main_after_if_else@2
     // tuple_support/nested_tuples.py:50
     // self.build_nested_call_count = UInt64(0)
-    bytec_3 // "build_nested_call_count"
+    bytec_2 // "build_nested_call_count"
     intc_0 // 0
     app_global_put
     // tuple_support/nested_tuples.py:52
     // self.twm = TupleWithMutable(
-    bytec 6 // "twm"
+    bytec 5 // "twm"
     pushbytes 0x0004000600000000000000000000000c000e00000000
     // tuple_support/nested_tuples.py:52-59
     // self.twm = TupleWithMutable(
@@ -106,7 +106,7 @@ main_nested_named_tuple_params_route@18:
     uncover 4
     concat
     uncover 2
-    bytec_2 // 0x000c
+    bytec_1 // 0x000c
     concat
     dig 2
     len
@@ -122,7 +122,7 @@ main_nested_named_tuple_params_route@18:
     swap
     uncover 2
     concat
-    bytec 7 // 0x0012
+    bytec 6 // 0x0012
     concat
     swap
     concat
@@ -182,7 +182,7 @@ main_named_tuple_route@17:
     uncover 3
     concat
     uncover 2
-    bytec_2 // 0x000c
+    bytec_1 // 0x000c
     concat
     dig 2
     len
@@ -270,7 +270,7 @@ main_nested_tuple_params_route@16:
     +
     itob
     extract 6 2
-    bytec 4 // 0x0004
+    bytec_3 // 0x0004
     swap
     concat
     uncover 2
@@ -293,7 +293,7 @@ main_run_tests_route@15:
     txn ApplicationID
     assert // can only call when not creating
     callsub run_tests
-    bytec 8 // 0x00
+    bytec 7 // 0x00
     intc_0 // 0
     uncover 2
     setbit
@@ -340,7 +340,7 @@ main_mutate_local_tuple_route@13:
     uncover 3
     concat
     uncover 2
-    bytec_2 // 0x000c
+    bytec_1 // 0x000c
     concat
     dig 2
     len
@@ -359,7 +359,7 @@ main_mutate_local_tuple_route@13:
     +
     itob
     extract 6 2
-    bytec 4 // 0x0004
+    bytec_3 // 0x0004
     swap
     concat
     uncover 2
@@ -457,7 +457,7 @@ main_maybe_load_tuple_from_box_route@10:
     uncover 2
     itob
     concat
-    bytec 8 // 0x00
+    bytec 7 // 0x00
     intc_0 // 0
     uncover 3
     setbit
@@ -521,7 +521,7 @@ main_is_tuple_in_box_route@8:
     // tuple_support/nested_tuples.py:73
     // @arc4.abimethod()
     callsub is_tuple_in_box
-    bytec 8 // 0x00
+    bytec 7 // 0x00
     intc_0 // 0
     uncover 2
     setbit
@@ -581,7 +581,7 @@ main_load_tuple_route@6:
     uncover 5
     concat
     uncover 2
-    bytec_2 // 0x000c
+    bytec_1 // 0x000c
     concat
     dig 2
     len
@@ -597,7 +597,7 @@ main_load_tuple_route@6:
     swap
     uncover 3
     concat
-    bytec 7 // 0x0012
+    bytec 6 // 0x0012
     concat
     swap
     concat
@@ -607,7 +607,7 @@ main_load_tuple_route@6:
     +
     itob
     extract 6 2
-    bytec 4 // 0x0004
+    bytec_3 // 0x0004
     swap
     concat
     swap
@@ -865,7 +865,7 @@ store_tuple:
     frame_dig -2
     concat
     uncover 2
-    bytec_2 // 0x000c
+    bytec_1 // 0x000c
     concat
     dig 2
     len
@@ -881,7 +881,7 @@ store_tuple:
     swap
     frame_dig -5
     concat
-    bytec 7 // 0x0012
+    bytec 6 // 0x0012
     concat
     swap
     concat
@@ -893,14 +893,14 @@ store_tuple:
     +
     itob
     extract 6 2
-    bytec 4 // 0x0004
+    bytec_3 // 0x0004
     swap
     concat
     swap
     concat
     frame_dig -1
     concat
-    bytec 9 // "pwl"
+    bytec 8 // "pwl"
     swap
     app_global_put
     retsub
@@ -908,24 +908,12 @@ store_tuple:
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple() -> uint64, bytes, uint64, bytes, bytes, bytes:
 load_tuple:
-    // tuple_support/nested_tuples.py:65-66
-    // @arc4.abimethod()
-    // def load_tuple(self) -> ParentWithList:
-    proto 0 6
-    intc_0 // 0
-    dupn 2
-    bytec_1 // ""
-    dup
     // tuple_support/nested_tuples.py:67
     // return self.pwl
     intc_0 // 0
-    bytec 9 // "pwl"
+    bytec 8 // "pwl"
     app_global_get_ex
-    dup
-    uncover 2
-    swap
-    bz load_tuple_ternary_false@2
-    frame_dig 6
+    assert // check self.pwl exists
     dup
     intc_0 // 0
     extract_uint16
@@ -976,47 +964,7 @@ load_tuple:
     uncover 7
     uncover 2
     substring3
-    frame_bury 0
-    frame_bury 2
-    frame_bury 1
-    frame_bury 3
-    swap
-    frame_bury 4
-
-load_tuple_ternary_merge@3:
-    // tuple_support/nested_tuples.py:67
-    // return self.pwl
-    frame_dig 5
-    assert // check self.pwl exists
-    frame_dig 4
-    swap
-    frame_dig 3
-    frame_dig 1
-    frame_dig 2
-    frame_dig 0
-    frame_bury 5
-    frame_bury 4
-    frame_bury 3
-    frame_bury 2
-    frame_bury 1
-    frame_bury 0
     retsub
-
-load_tuple_ternary_false@2:
-    // tuple_support/nested_tuples.py:67
-    // return self.pwl
-    bytec_1 // ""
-    frame_bury 4
-    intc_0 // 0
-    bytec_1 // ""
-    frame_bury 3
-    intc_0 // 0
-    frame_bury 1
-    intc_0 // 0
-    frame_bury 2
-    intc_0 // 0
-    frame_bury 0
-    b load_tuple_ternary_merge@3
 
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple_in_box(key.a: uint64, key.b: uint64) -> void:
@@ -1041,7 +989,7 @@ store_tuple_in_box:
     dig 1
     swap
     concat
-    bytec 5 // "box"
+    bytec 4 // "box"
     swap
     concat
     uncover 2
@@ -1068,7 +1016,7 @@ is_tuple_in_box:
     // tuple_support/nested_tuples.py:75
     // return key in self.box
     concat
-    bytec 5 // "box"
+    bytec 4 // "box"
     swap
     concat
     box_len
@@ -1082,7 +1030,6 @@ load_tuple_from_box:
     // @arc4.abimethod()
     // def load_tuple_from_box(self, key: SimpleTup) -> SimpleTup:
     proto 2 2
-    bytec_1 // ""
     // tuple_support/nested_tuples.py:78
     // def load_tuple_from_box(self, key: SimpleTup) -> SimpleTup:
     frame_dig -2
@@ -1092,39 +1039,18 @@ load_tuple_from_box:
     // tuple_support/nested_tuples.py:79
     // return self.box[key]
     concat
-    bytec 5 // "box"
+    bytec 4 // "box"
     swap
     concat
     box_get
-    dup
-    uncover 2
-    swap
-    bz load_tuple_from_box_ternary_false@2
-    frame_dig 2
+    assert // check self.box entry exists
     dup
     intc_0 // 0
     extract_uint64
     swap
     intc_3 // 8
     extract_uint64
-    swap
-    frame_bury 0
-
-load_tuple_from_box_ternary_merge@3:
-    // tuple_support/nested_tuples.py:79
-    // return self.box[key]
-    frame_dig 1
-    assert // check self.box entry exists
-    frame_bury 1
     retsub
-
-load_tuple_from_box_ternary_false@2:
-    // tuple_support/nested_tuples.py:79
-    // return self.box[key]
-    bytec_1 // ""
-    frame_bury 0
-    bytec_1 // ""
-    b load_tuple_from_box_ternary_merge@3
 
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.maybe_load_tuple_from_box(key.a: uint64, key.b: uint64) -> uint64, uint64, uint64:
@@ -1142,7 +1068,7 @@ maybe_load_tuple_from_box:
     // tuple_support/nested_tuples.py:83
     // maybe_value, exists = self.box.maybe(key)
     concat
-    bytec 5 // "box"
+    bytec 4 // "box"
     swap
     concat
     box_get
@@ -1169,7 +1095,7 @@ maybe_load_tuple_from_box_ternary_merge@3:
 maybe_load_tuple_from_box_ternary_false@2:
     // tuple_support/nested_tuples.py:83
     // maybe_value, exists = self.box.maybe(key)
-    bytec_1 // ""
+    pushbytes ""
     dup
     b maybe_load_tuple_from_box_ternary_merge@3
 
@@ -1189,7 +1115,7 @@ load_tuple_from_box_or_default:
     // tuple_support/nested_tuples.py:88
     // return self.box.get(key, default=simple_tup(UInt64(4), UInt64(2)))
     concat
-    bytec 5 // "box"
+    bytec 4 // "box"
     swap
     concat
     pushint 4 // 4
@@ -1232,12 +1158,12 @@ load_tuple_from_local_state_or_default:
     callsub echo
     // tuple_support/nested_tuples.py:93
     // return local.get(get_sender_inefficiently(), default=simple_tup(UInt64(4), UInt64(2)))
+    callsub get_sender_inefficiently
     pushint 4 // 4
     intc_2 // 2
     callsub simple_tup
+    cover 3
     cover 2
-    swap
-    callsub get_sender_inefficiently
     intc_0 // 0
     uncover 2
     app_local_get_ex
@@ -1310,7 +1236,7 @@ mutate_local_tuple_after_for@4:
     intc_0 // 0
     // tuple_support/nested_tuples.py:101
     // b=Bytes(),
-    bytec_1 // 0x
+    pushbytes 0x
     // tuple_support/nested_tuples.py:102
     // c=String(),
     dup
@@ -1325,24 +1251,12 @@ mutate_local_tuple_after_for@4:
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_storage_currently_supported_method() -> void:
 mutate_tuple_in_storage_currently_supported_method:
-    // tuple_support/nested_tuples.py:114-115
-    // @arc4.abimethod()
-    // def mutate_tuple_in_storage_currently_supported_method(self) -> None:
-    proto 0 0
-    intc_0 // 0
-    dupn 2
-    bytec_1 // ""
-    dup
     // tuple_support/nested_tuples.py:116
     // arr2 = self.twm.arr.copy()
     intc_0 // 0
-    bytec 6 // "twm"
+    bytec 5 // "twm"
     app_global_get_ex
-    dup
-    uncover 2
-    swap
-    bz mutate_tuple_in_storage_currently_supported_method_ternary_false@2
-    frame_dig 6
+    assert // check self.twm exists
     dup
     intc_0 // 0
     extract_uint16
@@ -1350,16 +1264,8 @@ mutate_tuple_in_storage_currently_supported_method:
     intc_2 // 2
     extract_uint16
     substring3
-    frame_bury 0
-
-mutate_tuple_in_storage_currently_supported_method_ternary_merge@3:
-    // tuple_support/nested_tuples.py:116
-    // arr2 = self.twm.arr.copy()
-    frame_dig 5
-    assert // check self.twm exists
     // tuple_support/nested_tuples.py:117
     // arr2.append(arc4.UInt64(1))
-    frame_dig 0
     extract 2 0
     pushbytes 0x0000000000000001
     concat
@@ -1371,18 +1277,12 @@ mutate_tuple_in_storage_currently_supported_method_ternary_merge@3:
     extract 6 2
     swap
     concat
-    frame_bury 0
     // tuple_support/nested_tuples.py:118
     // self.twm = self.twm._replace(arr=arr2.copy())
     intc_0 // 0
-    bytec 6 // "twm"
+    bytec 5 // "twm"
     app_global_get_ex
-    dup
-    cover 2
-    frame_bury 3
-    frame_bury 1
-    bz mutate_tuple_in_storage_currently_supported_method_ternary_false@5
-    frame_dig 1
+    assert // check self.twm exists
     dup
     intc_2 // 2
     extract_uint16
@@ -1410,33 +1310,22 @@ mutate_tuple_in_storage_currently_supported_method_ternary_merge@3:
     uncover 2
     substring3
     extract 2 0
-    cover 2
-    frame_bury 2
-    frame_bury 4
-
-mutate_tuple_in_storage_currently_supported_method_ternary_merge@6:
-    // tuple_support/nested_tuples.py:118
-    // self.twm = self.twm._replace(arr=arr2.copy())
-    frame_dig 3
-    assert // check self.twm exists
-    frame_dig 4
+    uncover 2
     itob
-    frame_dig 2
-    dup
+    dig 2
     len
     itob
     extract 6 2
-    swap
+    uncover 3
     concat
-    uncover 2
-    dup
+    dig 2
     len
     itob
     extract 6 2
-    swap
+    uncover 3
     concat
     uncover 2
-    bytec_2 // 0x000c
+    bytec_1 // 0x000c
     concat
     dig 2
     len
@@ -1449,41 +1338,23 @@ mutate_tuple_in_storage_currently_supported_method_ternary_merge@6:
     concat
     swap
     concat
-    frame_dig 0
-    dup
+    dig 1
     len
     pushint 4 // 4
     +
     itob
     extract 6 2
-    bytec 4 // 0x0004
+    bytec_3 // 0x0004
     swap
+    concat
+    uncover 2
     concat
     swap
     concat
-    swap
-    concat
-    bytec 6 // "twm"
+    bytec 5 // "twm"
     swap
     app_global_put
     retsub
-
-mutate_tuple_in_storage_currently_supported_method_ternary_false@5:
-    // tuple_support/nested_tuples.py:118
-    // self.twm = self.twm._replace(arr=arr2.copy())
-    bytec_1 // ""
-    frame_bury 4
-    intc_0 // 0
-    frame_bury 2
-    intc_0 // 0
-    b mutate_tuple_in_storage_currently_supported_method_ternary_merge@6
-
-mutate_tuple_in_storage_currently_supported_method_ternary_false@2:
-    // tuple_support/nested_tuples.py:116
-    // arr2 = self.twm.arr.copy()
-    intc_0 // 0
-    frame_bury 0
-    b mutate_tuple_in_storage_currently_supported_method_ternary_merge@3
 
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.run_tests() -> uint64:
@@ -1492,7 +1363,7 @@ run_tests:
     // @arc4.abimethod()
     // def run_tests(self) -> bool:
     proto 0 1
-    bytec_1 // ""
+    pushbytes ""
     // tuple_support/nested_tuples.py:136
     // test_intrinsics(UInt64(1), UInt64(2))
     intc_1 // 1
@@ -1586,24 +1457,24 @@ run_tests_for_body@17:
     assert
     // tuple_support/nested_tuples.py:173
     // self.build_nested_call_count = UInt64(0)
-    bytec_3 // "build_nested_call_count"
+    bytec_2 // "build_nested_call_count"
     intc_0 // 0
     app_global_put
     // tuple_support/nested_tuples.py:168
     // self.build_nested_call_count += 1
     intc_0 // 0
-    bytec_3 // "build_nested_call_count"
+    bytec_2 // "build_nested_call_count"
     app_global_get_ex
     assert // check self.build_nested_call_count exists
     intc_1 // 1
     +
-    bytec_3 // "build_nested_call_count"
+    bytec_2 // "build_nested_call_count"
     swap
     app_global_put
     // tuple_support/nested_tuples.py:176
     // assert self.build_nested_call_count == 1
     intc_0 // 0
-    bytec_3 // "build_nested_call_count"
+    bytec_2 // "build_nested_call_count"
     app_global_get_ex
     assert // check self.build_nested_call_count exists
     intc_1 // 1

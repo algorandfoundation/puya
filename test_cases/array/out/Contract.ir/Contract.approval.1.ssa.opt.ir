@@ -362,9 +362,9 @@ subroutine test_cases.array.uint64.Contract.test_array() -> void:
         let extended%1#1: encoded_uint64[] = slot_contents%1#1.concat(encoded%1#1)
         let slot_contents%23#0: encoded_uint64[] = extended%1#1
         let tmp%41#0: uint64 = slot_contents%23#0[0u]
+        let materialized_values%0#0: uint64 = (+ tmp%41#0 2u)
         let slot_contents%24#0: encoded_uint64[] = extended%1#1
-        let new_box_value%0#0: uint64 = (+ tmp%41#0 2u)
-        let updated_array%0#0: encoded_uint64[] = slot_contents%24#0[0u] = new_box_value%0#0
+        let updated_array%0#0: encoded_uint64[] = slot_contents%24#0[0u] = materialized_values%0#0
         write(arr#0, updated_array%0#0)
         let slot_contents%25#0: encoded_uint64[] = updated_array%0#0
         let tmp%42#0: uint64 = slot_contents%25#0.length
@@ -601,12 +601,12 @@ subroutine test_cases.array.uint64.Contract.test_array_evaluation_order() -> voi
         let tmp%17#0: uint64 = slot_contents%10#0.length
         let tmp%18#0: uint64 = (- tmp%17#0 1u)
         let slot_contents%11#0: encoded_uint64[] = slot_contents%10#0
+        let materialized_values%0#0: uint64 = slot_contents%11#0[tmp%18#0]
         let tmp%19#0: encoded_uint64[]* = test_cases.array.uint64.append_length_and_return(arr#0)
         let slot_contents%12#0: encoded_uint64[] = read(tmp%19#0)
         let index%0#0: uint64 = slot_contents%12#0[0u]
         let slot_contents%13#0: encoded_uint64[] = read(arr#0)
-        let new_box_value%0#0: uint64 = slot_contents%11#0[tmp%18#0]
-        let updated_array%0#0: encoded_uint64[] = slot_contents%13#0[index%0#0] = new_box_value%0#0
+        let updated_array%0#0: encoded_uint64[] = slot_contents%13#0[index%0#0] = materialized_values%0#0
         write(arr#0, updated_array%0#0)
         let slot_contents%14#0: encoded_uint64[] = updated_array%0#0
         let tmp%20#0: uint64 = slot_contents%14#0.length

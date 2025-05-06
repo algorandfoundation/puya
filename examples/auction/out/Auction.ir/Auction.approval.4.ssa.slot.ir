@@ -175,7 +175,7 @@ subroutine examples.auction.contract.Auction.claim_bids() -> void:
         let (original_amount#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#0 0u "claim")
         (assert maybe_exists%0#0) // check self.claimable_amount exists for account
         let tmp%1#0: bytes[32] = (txn Sender)
-        let (maybe_value%1#0: bytes[32], maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
         (assert maybe_exists%1#0) // check self.previous_bidder exists
         let tmp%2#0: bool = (== tmp%1#0 maybe_value%1#0)
         goto tmp%2#0 ? block@1 : block@2
@@ -193,8 +193,8 @@ subroutine examples.auction.contract.Auction.claim_bids() -> void:
         ((itxn_field TypeEnum) pay)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let tmp%3#0: bytes[32] = (txn Sender)
         let materialized_values%0#0: uint64 = (- original_amount#0 amount#2)
+        let tmp%3#0: bytes[32] = (txn Sender)
         (app_local_put tmp%3#0 "claim" materialized_values%0#0)
         return 
 
@@ -206,9 +206,9 @@ subroutine examples.auction.contract.Auction.claim_asset(asset: uint64) -> void:
         let tmp%1#0: bool = (> tmp%0#0 maybe_value%0#0)
         (assert tmp%1#0) // auction has not ended
         itxn_begin
-        let (maybe_value%1#0: bytes[32], maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
         (assert maybe_exists%1#0) // check self.previous_bidder exists
-        let (maybe_value%2#0: bytes[32], maybe_exists%2#0: bool) = (app_global_get_ex 0u "previous_bidder")
+        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "previous_bidder")
         (assert maybe_exists%2#0) // check self.previous_bidder exists
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "asa_amount")
         (assert maybe_exists%3#0) // check self.asa_amount exists

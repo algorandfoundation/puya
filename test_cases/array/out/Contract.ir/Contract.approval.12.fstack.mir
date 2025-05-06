@@ -772,7 +772,7 @@ subroutine test_array:
         int 0                                                                                                                        (𝕗) arr#0,expected#0,_i#0 | arr#0,array%array_contents%5#1,array%value%8#1,0
         extract_uint64                                                                                                               (𝕗) arr#0,expected#0,_i#0 | arr#0,array%array_contents%5#1,array%sub_item%22#1
         int 2                                                                                                                        (𝕗) arr#0,expected#0,_i#0 | arr#0,array%array_contents%5#1,array%sub_item%22#1,2
-        +                                                                                                                            (𝕗) arr#0,expected#0,_i#0 | arr#0,array%array_contents%5#1,new_box_value%0#0
+        +                                                                                                                            (𝕗) arr#0,expected#0,_i#0 | arr#0,array%array_contents%5#1,materialized_values%0#0
         itob                                                                                                                         (𝕗) arr#0,expected#0,_i#0 | arr#0,array%array_contents%5#1,array%sub_item%23#1
         l-load array%array_contents%5#1 1                                                                                            (𝕗) arr#0,expected#0,_i#0 | arr#0,array%sub_item%23#1,array%array_contents%5#1
         l-load array%sub_item%23#1 1                                                                                                 (𝕗) arr#0,expected#0,_i#0 | arr#0,array%array_contents%5#1,array%sub_item%23#1
@@ -1268,27 +1268,26 @@ subroutine test_array_evaluation_order:
         /                                                                                                                            arr#0,slot_contents%10#0,array%array_len%1#1
         int 1                                                                                                                        arr#0,slot_contents%10#0,array%array_len%1#1,1
         -                                                                                                                            arr#0,slot_contents%10#0,tmp%18#0
-        l-load-copy arr#0 2                                                                                                          arr#0,slot_contents%10#0,tmp%18#0,arr#0 (copy)
-        callsub append_length_and_return                                                                                             arr#0,slot_contents%10#0,tmp%18#0,tmp%19#0
-        loads                                                                                                                        arr#0,slot_contents%10#0,tmp%18#0,slot_contents%12#0
-        extract 0 8                                                                                                                  arr#0,slot_contents%10#0,tmp%18#0,array%value%6#1
-        int 0                                                                                                                        arr#0,slot_contents%10#0,tmp%18#0,array%value%6#1,0
-        extract_uint64                                                                                                               arr#0,slot_contents%10#0,tmp%18#0,array%sub_item%14#1
-        l-load-copy arr#0 3                                                                                                          arr#0,slot_contents%10#0,tmp%18#0,array%sub_item%14#1,arr#0 (copy)
-        loads                                                                                                                        arr#0,slot_contents%10#0,tmp%18#0,array%sub_item%14#1,slot_contents%13#0
-        l-load tmp%18#0 2                                                                                                            arr#0,slot_contents%10#0,array%sub_item%14#1,slot_contents%13#0,tmp%18#0
-        int 8                                                                                                                        arr#0,slot_contents%10#0,array%sub_item%14#1,slot_contents%13#0,tmp%18#0,8
-        *                                                                                                                            arr#0,slot_contents%10#0,array%sub_item%14#1,slot_contents%13#0,array%bytes_index%7#1
-        l-load slot_contents%10#0 3                                                                                                  arr#0,array%sub_item%14#1,slot_contents%13#0,array%bytes_index%7#1,slot_contents%10#0
-        l-load array%bytes_index%7#1 1                                                                                               arr#0,array%sub_item%14#1,slot_contents%13#0,slot_contents%10#0,array%bytes_index%7#1
-        int 8                                                                                                                        arr#0,array%sub_item%14#1,slot_contents%13#0,slot_contents%10#0,array%bytes_index%7#1,8
-        extract3                                                                                                                     arr#0,array%sub_item%14#1,slot_contents%13#0,array%value%7#1
-        int 0                                                                                                                        arr#0,array%sub_item%14#1,slot_contents%13#0,array%value%7#1,0
-        extract_uint64                                                                                                               arr#0,array%sub_item%14#1,slot_contents%13#0,array%sub_item%16#1
-        l-load array%sub_item%14#1 2                                                                                                 arr#0,slot_contents%13#0,array%sub_item%16#1,array%sub_item%14#1
-        int 8                                                                                                                        arr#0,slot_contents%13#0,array%sub_item%16#1,array%sub_item%14#1,8
-        *                                                                                                                            arr#0,slot_contents%13#0,array%sub_item%16#1,array%bytes_index%8#1
-        l-load array%sub_item%16#1 1                                                                                                 arr#0,slot_contents%13#0,array%bytes_index%8#1,array%sub_item%16#1
+        int 8                                                                                                                        arr#0,slot_contents%10#0,tmp%18#0,8
+        *                                                                                                                            arr#0,slot_contents%10#0,array%bytes_index%6#1
+        l-load slot_contents%10#0 1                                                                                                  arr#0,array%bytes_index%6#1,slot_contents%10#0
+        l-load array%bytes_index%6#1 1                                                                                               arr#0,slot_contents%10#0,array%bytes_index%6#1
+        int 8                                                                                                                        arr#0,slot_contents%10#0,array%bytes_index%6#1,8
+        extract3                                                                                                                     arr#0,array%value%6#1
+        int 0                                                                                                                        arr#0,array%value%6#1,0
+        extract_uint64                                                                                                               arr#0,array%sub_item%14#1
+        l-load-copy arr#0 1                                                                                                          arr#0,array%sub_item%14#1,arr#0 (copy)
+        callsub append_length_and_return                                                                                             arr#0,array%sub_item%14#1,tmp%19#0
+        loads                                                                                                                        arr#0,array%sub_item%14#1,slot_contents%12#0
+        extract 0 8                                                                                                                  arr#0,array%sub_item%14#1,array%value%7#1
+        int 0                                                                                                                        arr#0,array%sub_item%14#1,array%value%7#1,0
+        extract_uint64                                                                                                               arr#0,array%sub_item%14#1,array%sub_item%16#1
+        l-load-copy arr#0 2                                                                                                          arr#0,array%sub_item%14#1,array%sub_item%16#1,arr#0 (copy)
+        loads                                                                                                                        arr#0,array%sub_item%14#1,array%sub_item%16#1,slot_contents%13#0
+        l-load array%sub_item%16#1 1                                                                                                 arr#0,array%sub_item%14#1,slot_contents%13#0,array%sub_item%16#1
+        int 8                                                                                                                        arr#0,array%sub_item%14#1,slot_contents%13#0,array%sub_item%16#1,8
+        *                                                                                                                            arr#0,array%sub_item%14#1,slot_contents%13#0,array%bytes_index%8#1
+        l-load array%sub_item%14#1 2                                                                                                 arr#0,slot_contents%13#0,array%bytes_index%8#1,array%sub_item%14#1
         itob                                                                                                                         arr#0,slot_contents%13#0,array%bytes_index%8#1,array%sub_item%17#1
         l-load slot_contents%13#0 2                                                                                                  arr#0,array%bytes_index%8#1,array%sub_item%17#1,slot_contents%13#0
         l-load array%bytes_index%8#1 2                                                                                               arr#0,array%sub_item%17#1,slot_contents%13#0,array%bytes_index%8#1

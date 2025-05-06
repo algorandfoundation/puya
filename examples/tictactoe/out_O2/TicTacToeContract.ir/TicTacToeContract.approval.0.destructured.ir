@@ -43,7 +43,7 @@ main examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_ini
         goto block@13
     block@13: // bool_merge_L33
         (assert and_result%0#0) // Move must be in range
-        let (maybe_value%0#2: bytes[9], maybe_exists%2#0: bool) = (app_global_get_ex 0u "game")
+        let (maybe_value%0#2: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%2#0) // check self.game exists
         let item_offset%0#0: uint64 = (* move.1#0 3u)
         let tmp%2#0: bytes = (extract3 maybe_value%0#2 item_offset%0#0 3u) // on error: Index access is out of bounds
@@ -108,7 +108,7 @@ main examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_ini
         goto tmp%1#1 ? block@17 : block@18
     block@17: // if_body_L51
         let tmp%3#1: bytes[32] = (txn Sender)
-        let (maybe_value%1#0: bytes[32], maybe_exists%2#0: bool) = (app_global_get_ex 0u "host")
+        let (maybe_value%1#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "host")
         (assert maybe_exists%2#0) // check self.host exists
         let tmp%4#0: bool = (== tmp%3#1 maybe_value%1#0)
         (assert tmp%4#0) // It is the host's turn
@@ -117,8 +117,8 @@ main examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_ini
     block@18: // else_body_L54
         let tmp%5#1: bytes[32] = (txn Sender)
         let tmp%6#1: bytes[32] = (global ZeroAddress)
-        let (maybe_value%2#0: bytes[32], maybe_exists%3#0: bool) = (app_global_get_ex 0u "challenger")
-        let state_get%0#0: bytes[32] = (select tmp%6#1 maybe_value%2#0 maybe_exists%3#0)
+        let (maybe_value%2#0: bytes, maybe_exists%3#0: bool) = (app_global_get_ex 0u "challenger")
+        let state_get%0#0: bytes = (select tmp%6#1 maybe_value%2#0 maybe_exists%3#0)
         let tmp%7#1: bool = (== tmp%5#1 state_get%0#0)
         (assert tmp%7#1) // It is the challenger's turn
         let player#0: bytes[1] = 0x02
@@ -150,14 +150,14 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: byte
         goto block@4
     block@4: // bool_merge_L63
         (assert and_result%0#0) // Move must be in range
-        let (maybe_value%0#0: bytes[9], maybe_exists%0#0: bool) = (app_global_get_ex 0u "game")
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%0#0) // check self.game exists
         let item_offset%0#0: uint64 = (* move.1#0 3u)
         let tmp%2#0: bytes = (extract3 maybe_value%0#0 item_offset%0#0 3u) // on error: Index access is out of bounds
         let reinterpret_biguint%0#0: biguint = (extract3 tmp%2#0 move.0#0 1u) // on error: Index access is out of bounds
         let tmp%3#0: bool = (b== reinterpret_biguint%0#0 0x00)
         (assert tmp%3#0) // Square is already taken
-        let (maybe_value%1#0: bytes[9], maybe_exists%1#0: bool) = (app_global_get_ex 0u "game")
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%1#0) // check self.game exists
         let tmp%4#0: bytes = (extract3 maybe_value%1#0 item_offset%0#0 3u) // on error: Index access is out of bounds
         (assert tmp%0#0) // Index access is out of bounds
