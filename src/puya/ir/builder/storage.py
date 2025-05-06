@@ -116,6 +116,10 @@ def _build_get_ex_op(
     expr: awst_nodes.StorageExpression,
     key: Value,
 ) -> ValueProvider:
+    # note: result_type is intentionally using PrimitiveIRType rather than
+    # the IRType of the storage expression. As it is not safe to assume what is in storage
+    # is actually the type described by the expression, for example the box may have been
+    # created larger than the static type implies
     match encoded_avm_type:
         case AVMType.uint64:
             result_type = PrimitiveIRType.uint64
