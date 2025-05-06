@@ -451,8 +451,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple(pwl.p
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple() -> <uint64, bytes[8], uint64, bytes, bytes, (encoded_uint64,bytes,bytes)[]>:
     block@0: // L65
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "pwl")
-        goto maybe_exists%0#0 ? block@1 : block@2
-    block@1: // ternary_true_L67
+        (assert maybe_exists%0#0) // check self.pwl exists
         let item_start_offset%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
         let item_end_offset%0#0: uint64 = (extract_uint16 maybe_value%0#0 2u)
         let item0%0#0: bytes = (substring3 maybe_value%0#0 item_start_offset%0#0 item_end_offset%0#0)
@@ -471,24 +470,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple() -> <
         let item2%2#0: bytes = ((extract 2 0) item2%1#0)
         let item_end_offset%4#0: uint64 = (len maybe_value%0#0)
         let item1%3#0: bytes = (substring3 maybe_value%0#0 item_end_offset%0#0 item_end_offset%4#0)
-        goto block@3
-    block@2: // ternary_false_L67
-        let ternary_result%0.parent.foo#1: uint64 = undefined
-        let ternary_result%0.parent.foo_arc#1: bytes[8] = undefined
-        let ternary_result%0.parent.child.a#1: uint64 = undefined
-        let ternary_result%0.parent.child.b#1: bytes = undefined
-        let ternary_result%0.parent.child.c#1: bytes = undefined
-        let ternary_result%0.children#1: (encoded_uint64,bytes,bytes)[] = undefined
-        goto block@3
-    block@3: // ternary_merge_L67
-        let ternary_result%0.parent.foo#2: uint64 = φ(item0%2#0 <- block@1, ternary_result%0.parent.foo#1 <- block@2)
-        let ternary_result%0.parent.foo_arc#2: bytes[8] = φ(item1%0#0 <- block@1, ternary_result%0.parent.foo_arc#1 <- block@2)
-        let ternary_result%0.parent.child.a#2: uint64 = φ(item0%4#0 <- block@1, ternary_result%0.parent.child.a#1 <- block@2)
-        let ternary_result%0.parent.child.b#2: bytes = φ(item1%2#0 <- block@1, ternary_result%0.parent.child.b#1 <- block@2)
-        let ternary_result%0.parent.child.c#2: bytes = φ(item2%2#0 <- block@1, ternary_result%0.parent.child.c#1 <- block@2)
-        let ternary_result%0.children#2: (encoded_uint64,bytes,bytes)[] = φ(item1%3#0 <- block@1, ternary_result%0.children#1 <- block@2)
-        (assert maybe_exists%0#0) // check self.pwl exists
-        return ternary_result%0.parent.foo#2 ternary_result%0.parent.foo_arc#2 ternary_result%0.parent.child.a#2 ternary_result%0.parent.child.b#2 ternary_result%0.parent.child.c#2 ternary_result%0.children#2
+        return item0%2#0 item1%0#0 item0%4#0 item1%2#0 item2%2#0 item1%3#0
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple_in_box(key.a: uint64, key.b: uint64) -> void:
     block@0: // L69
@@ -518,20 +500,10 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_b
         let encoded_tuple_buffer%2#0: bytes = (concat val_as_bytes%0#0 val_as_bytes%1#0)
         let box_prefixed_key%0#0: bytes = (concat "box" encoded_tuple_buffer%2#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
-        goto maybe_exists%0#0 ? block@1 : block@2
-    block@1: // ternary_true_L79
+        (assert maybe_exists%0#0) // check self.box entry exists
         let item0%1#0: uint64 = (extract_uint64 maybe_value%0#0 0u)
         let item1%1#0: uint64 = (extract_uint64 maybe_value%0#0 8u)
-        goto block@3
-    block@2: // ternary_false_L79
-        let ternary_result%0.a#1: uint64 = undefined
-        let ternary_result%0.b#1: uint64 = undefined
-        goto block@3
-    block@3: // ternary_merge_L79
-        let ternary_result%0.a#2: uint64 = φ(item0%1#0 <- block@1, ternary_result%0.a#1 <- block@2)
-        let ternary_result%0.b#2: uint64 = φ(item1%1#0 <- block@1, ternary_result%0.b#1 <- block@2)
-        (assert maybe_exists%0#0) // check self.box entry exists
-        return ternary_result%0.a#2 ternary_result%0.b#2
+        return item0%1#0 item1%1#0
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.maybe_load_tuple_from_box(key.a: uint64, key.b: uint64) -> <uint64, uint64, bool>:
     block@0: // L81
@@ -577,9 +549,9 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_b
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_local_state_or_default(key: bytes) -> <uint64, uint64>:
     block@0: // L90
         let local#0: bytes = test_cases.tuple_support.nested_tuples.echo(key#0)
-        let (tmp%0#0: uint64, tmp%1#0: uint64) = test_cases.tuple_support.nested_tuples.simple_tup(4u, 2u)
-        let tmp%2#0: bytes[32] = test_cases.tuple_support.nested_tuples.get_sender_inefficiently()
-        let (maybe_value%0#0: bytes[16], maybe_exists%0#0: bool) = (app_local_get_ex tmp%2#0 0u local#0)
+        let tmp%0#0: bytes[32] = test_cases.tuple_support.nested_tuples.get_sender_inefficiently()
+        let (tmp%1#0: uint64, tmp%2#0: uint64) = test_cases.tuple_support.nested_tuples.simple_tup(4u, 2u)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#0 0u local#0)
         goto maybe_exists%0#0 ? block@1 : block@2
     block@1: // ternary_true_L93
         let item0%1#0: uint64 = (extract_uint64 maybe_value%0#0 0u)
@@ -588,29 +560,12 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_l
     block@2: // ternary_false_L93
         goto block@3
     block@3: // ternary_merge_L93
-        let ternary_result%0.a#2: uint64 = φ(item0%1#0 <- block@1, tmp%0#0 <- block@2)
-        let ternary_result%0.b#2: uint64 = φ(item1%1#0 <- block@1, tmp%1#0 <- block@2)
+        let ternary_result%0.a#2: uint64 = φ(item0%1#0 <- block@1, tmp%1#0 <- block@2)
+        let ternary_result%0.b#2: uint64 = φ(item1%1#0 <- block@1, tmp%2#0 <- block@2)
         return ternary_result%0.a#2 ternary_result%0.b#2
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tuple() -> <bytes, uint64, bytes, bytes>:
     block@0: // L95
-        let array%encoded%0#1: bytes[8][] = 0x0000000000000001
-        let array%data%0#1: bytes[8][] = 0x0000000000000001
-        let concatenated%0#0: bytes = 0x00000000000000000000000000000001
-        let byte_len%0#0: uint64 = 16u
-        let len_%0#0: uint64 = 2u
-        let as_bytes%0#0: bytes[8] = (itob 2u)
-        let len_16_bit%0#0: bytes = 0x0002
-        let twm.arr#1: bytes = 0x000200000000000000000000000000000001
-        let expr_value_trimmed%1#0: bytes = 0x00000000000000000000000000000001
-        let array%encoded%1#1: bytes[8][] = 0x0000000000000002
-        let array%data%1#1: bytes[8][] = 0x0000000000000002
-        let concatenated%1#0: bytes = 0x000000000000000000000000000000010000000000000002
-        let byte_len%1#0: uint64 = 24u
-        let len_%1#0: uint64 = 3u
-        let as_bytes%1#0: bytes[8] = (itob 3u)
-        let len_16_bit%1#0: bytes = 0x0003
-        let twm.arr#2: bytes = 0x0003000000000000000000000000000000010000000000000002
         let i#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L107
@@ -618,7 +573,6 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         let continue_looping%0#0: bool = (< i#1 3u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L108
-        let array_head_and_tail%0#0: bytes = 0x000000000000000000000000000000010000000000000002
         let item_offset%0#0: uint64 = (* i#1 8u)
         let reinterpret_biguint%0#0: biguint = (extract3 0x000000000000000000000000000000010000000000000002 item_offset%0#0 8u) // on error: Index access is out of bounds
         let tmp%0#0: biguint = (itob i#1)
@@ -632,21 +586,11 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_storage_currently_supported_method() -> void:
     block@0: // L114
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "twm")
-        goto maybe_exists%0#0 ? block@1 : block@2
-    block@1: // ternary_true_L116
+        (assert maybe_exists%0#0) // check self.twm exists
         let item_start_offset%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
         let item_end_offset%0#0: uint64 = (extract_uint16 maybe_value%0#0 2u)
-        let item0%0#0: bytes = (substring3 maybe_value%0#0 item_start_offset%0#0 item_end_offset%0#0)
-        goto block@3
-    block@2: // ternary_false_L116
-        let ternary_result%0.arr#1: bytes = undefined
-        goto block@3
-    block@3: // ternary_merge_L116
-        let arr2#0: bytes = φ(item0%0#0 <- block@1, ternary_result%0.arr#1 <- block@2)
-        (assert maybe_exists%0#0) // check self.twm exists
+        let arr2#0: bytes = (substring3 maybe_value%0#0 item_start_offset%0#0 item_end_offset%0#0)
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) arr2#0)
-        let array%encoded%0#1: bytes[8][] = 0x0000000000000001
-        let array%data%0#1: bytes[8][] = 0x0000000000000001
         let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 0x0000000000000001)
         let byte_len%0#0: uint64 = (len concatenated%0#0)
         let len_%0#0: uint64 = (/ byte_len%0#0 8u)
@@ -654,8 +598,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_s
         let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let arr2#1: bytes = (concat len_16_bit%0#0 concatenated%0#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "twm")
-        goto maybe_exists%1#0 ? block@4 : block@5
-    block@4: // ternary_true_L118
+        (assert maybe_exists%1#0) // check self.twm exists
         let item_end_offset%4#0: uint64 = (extract_uint16 maybe_value%1#0 2u)
         let item_end_offset%5#0: uint64 = (len maybe_value%1#0)
         let item1%3#0: bytes = (substring3 maybe_value%1#0 item_end_offset%4#0 item_end_offset%5#0)
@@ -667,26 +610,15 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_s
         let item_end_offset%7#0: uint64 = (len item1%3#0)
         let item2%2#0: bytes = (substring3 item1%3#0 item_end_offset%6#0 item_end_offset%7#0)
         let item2%3#0: bytes = ((extract 2 0) item2%2#0)
-        goto block@6
-    block@5: // ternary_false_L118
-        let ternary_result%1.child.a#1: uint64 = undefined
-        let ternary_result%1.child.b#1: bytes = undefined
-        let ternary_result%1.child.c#1: bytes = undefined
-        goto block@6
-    block@6: // ternary_merge_L118
-        let ternary_result%1.child.a#2: uint64 = φ(item0%5#0 <- block@4, ternary_result%1.child.a#1 <- block@5)
-        let ternary_result%1.child.b#2: bytes = φ(item1%5#0 <- block@4, ternary_result%1.child.b#1 <- block@5)
-        let ternary_result%1.child.c#2: bytes = φ(item2%3#0 <- block@4, ternary_result%1.child.c#1 <- block@5)
-        (assert maybe_exists%1#0) // check self.twm exists
-        let val_as_bytes%0#0: bytes[8] = (itob ternary_result%1.child.a#2)
-        let length%0#0: uint64 = (len ternary_result%1.child.b#2)
+        let val_as_bytes%0#0: bytes[8] = (itob item0%5#0)
+        let length%0#0: uint64 = (len item1%5#0)
         let as_bytes%1#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 ternary_result%1.child.b#2)
-        let length%1#0: uint64 = (len ternary_result%1.child.c#2)
+        let encoded_value%0#0: bytes = (concat length_uint16%0#0 item1%5#0)
+        let length%1#0: uint64 = (len item2%3#0)
         let as_bytes%2#0: bytes[8] = (itob length%1#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%2#0)
-        let encoded_value%1#0: bytes = (concat length_uint16%1#0 ternary_result%1.child.c#2)
+        let encoded_value%1#0: bytes = (concat length_uint16%1#0 item2%3#0)
         let encoded_tuple_buffer%2#0: bytes = (concat val_as_bytes%0#0 0x000c)
         let data_length%0#0: uint64 = (len encoded_value%0#0)
         let current_tail_offset%1#0: uint64 = (+ 12u data_length%0#0)
@@ -716,16 +648,6 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.run_tests() -> bo
         (assert tmp%6#1)
         test_cases.tuple_support.nested_tuples.test_nested_singles(1u, 1u)
         test_cases.tuple_support.nested_tuples.test_nested_singles(1u, 0u)
-        let array%encoded%0#1: bytes[8][] = 0x0000000000000001
-        let array%data%0#1: bytes[8][] = 0x0000000000000001
-        let concatenated%0#0: bytes = 0x00000000000000000000000000000001
-        let byte_len%0#0: uint64 = 16u
-        let len_%0#0: uint64 = 2u
-        let as_bytes%0#0: bytes[8] = (itob 2u)
-        let len_16_bit%0#0: bytes = 0x0002
-        let x.0.0#1: bytes = 0x000200000000000000000000000000000001
-        let tmp%0#2: uint64 = 2u
-        let tmp%1#2: bool = 1u
         let total#0: uint64 = 0u
         let loop_counter%0#0: uint64 = 0u
         let t.0#0: uint64 = 1u

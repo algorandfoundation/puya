@@ -783,14 +783,6 @@ store_tuple_block@0:
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple() -> uint64, bytes, uint64, bytes, bytes, bytes:
 load_tuple:
-    // tuple_support/nested_tuples.py:65-66
-    // @arc4.abimethod()
-    // def load_tuple(self) -> ParentWithList:
-    proto 0 6
-    intc_0 // 0
-    dupn 2
-    bytec_0 // ""
-    dup
 
 load_tuple_block@0:
     // tuple_support/nested_tuples.py:67
@@ -798,16 +790,7 @@ load_tuple_block@0:
     intc_0 // 0
     bytec 11 // "pwl"
     app_global_get_ex
-    dup
-    cover 2
-    cover 2
-    swap
-    bz load_tuple_ternary_false@2
-
-load_tuple_ternary_true@1:
-    // tuple_support/nested_tuples.py:67
-    // return self.pwl
-    frame_dig 6
+    assert // check self.pwl exists
     dup
     intc_0 // 0
     extract_uint16
@@ -882,49 +865,12 @@ load_tuple_ternary_true@1:
     uncover 3
     substring3
     uncover 5
-    frame_bury 4
-    uncover 3
-    frame_bury 3
-    uncover 2
-    frame_bury 1
-    swap
-    frame_bury 2
-    frame_bury 0
-
-load_tuple_ternary_merge@3:
-    // tuple_support/nested_tuples.py:67
-    // return self.pwl
-    frame_dig 5
-    assert // check self.pwl exists
-    frame_dig 4
-    swap
-    frame_dig 3
-    frame_dig 1
-    frame_dig 2
-    frame_dig 0
-    frame_bury 5
-    frame_bury 4
-    frame_bury 3
-    frame_bury 2
-    frame_bury 1
-    frame_bury 0
+    uncover 5
+    uncover 5
+    uncover 5
+    uncover 5
+    uncover 5
     retsub
-
-load_tuple_ternary_false@2:
-    // tuple_support/nested_tuples.py:67
-    // return self.pwl
-    bytec_0 // ""
-    frame_bury 4
-    intc_0 // 0
-    bytec_0 // ""
-    frame_bury 3
-    intc_0 // 0
-    frame_bury 1
-    intc_0 // 0
-    frame_bury 2
-    intc_0 // 0
-    frame_bury 0
-    b load_tuple_ternary_merge@3
 
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple_in_box(key.a: uint64, key.b: uint64) -> void:
@@ -1011,7 +957,6 @@ load_tuple_from_box:
     // @arc4.abimethod()
     // def load_tuple_from_box(self, key: SimpleTup) -> SimpleTup:
     proto 2 2
-    bytec_0 // ""
 
 load_tuple_from_box_block@0:
     // tuple_support/nested_tuples.py:78
@@ -1032,16 +977,7 @@ load_tuple_from_box_block@0:
     swap
     concat
     box_get
-    dup
-    cover 2
-    cover 2
-    swap
-    bz load_tuple_from_box_ternary_false@2
-
-load_tuple_from_box_ternary_true@1:
-    // tuple_support/nested_tuples.py:79
-    // return self.box[key]
-    frame_dig 2
+    assert // check self.box entry exists
     dup
     intc_0 // 0
     intc_1 // 8
@@ -1052,27 +988,7 @@ load_tuple_from_box_ternary_true@1:
     dup
     extract3 // on error: Index access is out of bounds
     btoi
-    swap
-    frame_bury 0
-
-load_tuple_from_box_ternary_merge@3:
-    // tuple_support/nested_tuples.py:79
-    // return self.box[key]
-    frame_dig 1
-    assert // check self.box entry exists
-    frame_dig 0
-    swap
-    frame_bury 1
-    frame_bury 0
     retsub
-
-load_tuple_from_box_ternary_false@2:
-    // tuple_support/nested_tuples.py:79
-    // return self.box[key]
-    bytec_0 // ""
-    frame_bury 0
-    bytec_0 // ""
-    b load_tuple_from_box_ternary_merge@3
 
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.maybe_load_tuple_from_box(key.a: uint64, key.b: uint64) -> uint64, uint64, uint64:
@@ -1234,12 +1150,12 @@ load_tuple_from_local_state_or_default_block@0:
     callsub echo
     // tuple_support/nested_tuples.py:93
     // return local.get(get_sender_inefficiently(), default=simple_tup(UInt64(4), UInt64(2)))
+    callsub get_sender_inefficiently
     pushint 4 // 4
     intc_3 // 2
     callsub simple_tup
+    cover 3
     cover 2
-    swap
-    callsub get_sender_inefficiently
     intc_0 // 0
     uncover 2
     app_local_get_ex
@@ -1400,14 +1316,6 @@ mutate_local_tuple_after_for@4:
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_storage_currently_supported_method() -> void:
 mutate_tuple_in_storage_currently_supported_method:
-    // tuple_support/nested_tuples.py:114-115
-    // @arc4.abimethod()
-    // def mutate_tuple_in_storage_currently_supported_method(self) -> None:
-    proto 0 0
-    intc_0 // 0
-    dupn 2
-    bytec_0 // ""
-    dup
 
 mutate_tuple_in_storage_currently_supported_method_block@0:
     // tuple_support/nested_tuples.py:116
@@ -1415,16 +1323,7 @@ mutate_tuple_in_storage_currently_supported_method_block@0:
     intc_0 // 0
     bytec 6 // "twm"
     app_global_get_ex
-    dup
-    cover 2
-    cover 2
-    swap
-    bz mutate_tuple_in_storage_currently_supported_method_ternary_false@2
-
-mutate_tuple_in_storage_currently_supported_method_ternary_true@1:
-    // tuple_support/nested_tuples.py:116
-    // arr2 = self.twm.arr.copy()
-    frame_dig 6
+    assert // check self.twm exists
     dup
     intc_0 // 0
     extract_uint16
@@ -1436,12 +1335,6 @@ mutate_tuple_in_storage_currently_supported_method_ternary_true@1:
     uncover 2
     uncover 2
     substring3
-
-mutate_tuple_in_storage_currently_supported_method_ternary_merge@3:
-    // tuple_support/nested_tuples.py:116
-    // arr2 = self.twm.arr.copy()
-    frame_dig 5
-    assert // check self.twm exists
     // tuple_support/nested_tuples.py:117
     // arr2.append(arc4.UInt64(1))
     extract 2 0
@@ -1462,20 +1355,10 @@ mutate_tuple_in_storage_currently_supported_method_ternary_merge@3:
     concat
     // tuple_support/nested_tuples.py:118
     // self.twm = self.twm._replace(arr=arr2.copy())
-    frame_bury 0
     intc_0 // 0
     bytec 6 // "twm"
     app_global_get_ex
-    dup
-    cover 2
-    frame_bury 3
-    frame_bury 1
-    bz mutate_tuple_in_storage_currently_supported_method_ternary_false@5
-
-mutate_tuple_in_storage_currently_supported_method_ternary_true@4:
-    // tuple_support/nested_tuples.py:118
-    // self.twm = self.twm._replace(arr=arr2.copy())
-    frame_dig 1
+    assert // check self.twm exists
     dup
     intc_3 // 2
     extract_uint16
@@ -1517,26 +1400,15 @@ mutate_tuple_in_storage_currently_supported_method_ternary_true@4:
     substring3
     extract 2 0
     uncover 2
-    frame_bury 4
-    swap
-    frame_bury 2
-
-mutate_tuple_in_storage_currently_supported_method_ternary_merge@6:
-    // tuple_support/nested_tuples.py:118
-    // self.twm = self.twm._replace(arr=arr2.copy())
-    frame_dig 3
-    assert // check self.twm exists
-    frame_dig 4
     itob
-    frame_dig 2
-    dup
+    cover 2
+    dig 1
     len
     itob
     extract 6 2
-    swap
-    concat
-    swap
     uncover 2
+    concat
+    cover 2
     dup
     len
     itob
@@ -1568,16 +1440,14 @@ mutate_tuple_in_storage_currently_supported_method_ternary_merge@6:
     bytec_0 // 0x
     swap
     concat
-    frame_dig 0
-    dup
-    cover 2
+    dig 2
     len
     pushint 4 // 4
     +
     itob
     extract 6 2
     concat
-    swap
+    uncover 2
     concat
     swap
     concat
@@ -1585,22 +1455,6 @@ mutate_tuple_in_storage_currently_supported_method_ternary_merge@6:
     swap
     app_global_put
     retsub
-
-mutate_tuple_in_storage_currently_supported_method_ternary_false@5:
-    // tuple_support/nested_tuples.py:118
-    // self.twm = self.twm._replace(arr=arr2.copy())
-    bytec_0 // ""
-    frame_bury 4
-    intc_0 // 0
-    frame_bury 2
-    intc_0 // 0
-    b mutate_tuple_in_storage_currently_supported_method_ternary_merge@6
-
-mutate_tuple_in_storage_currently_supported_method_ternary_false@2:
-    // tuple_support/nested_tuples.py:116
-    // arr2 = self.twm.arr.copy()
-    intc_0 // 0
-    b mutate_tuple_in_storage_currently_supported_method_ternary_merge@3
 
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.run_tests() -> uint64:

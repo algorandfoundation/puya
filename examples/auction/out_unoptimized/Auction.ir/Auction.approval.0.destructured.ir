@@ -88,8 +88,8 @@ subroutine examples.auction.contract.Auction.bid(pay: uint64) -> void:
         (app_global_put "previous_bid" materialized_values%0#0)
         let materialized_values%1#0: bytes[32] = ((gtxns Sender) pay#0)
         (app_global_put "previous_bidder" materialized_values%1#0)
-        let tmp%7#0: bytes[32] = (txn Sender)
         let materialized_values%2#0: uint64 = ((gtxns Amount) pay#0)
+        let tmp%7#0: bytes[32] = (txn Sender)
         (app_local_put tmp%7#0 "claim" materialized_values%2#0)
         return 
 
@@ -101,7 +101,7 @@ subroutine examples.auction.contract.Auction.claim_bids() -> void:
         let original_amount#0: uint64 = maybe_value%0#0
         let amount#0: uint64 = maybe_value%0#0
         let tmp%1#0: bytes[32] = (txn Sender)
-        let (maybe_value%1#0: bytes[32], maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
         (assert maybe_exists%1#0) // check self.previous_bidder exists
         let tmp%2#0: bool = (== tmp%1#0 maybe_value%1#0)
         let amount#5: uint64 = amount#0
@@ -124,8 +124,8 @@ subroutine examples.auction.contract.Auction.claim_bids() -> void:
         goto block@3
     block@3: // next_txn_L90
         itxn_submit
-        let tmp%3#0: bytes[32] = (txn Sender)
         let materialized_values%0#0: uint64 = (- original_amount#0 amount#0)
+        let tmp%3#0: bytes[32] = (txn Sender)
         (app_local_put tmp%3#0 "claim" materialized_values%0#0)
         return 
 
@@ -138,12 +138,12 @@ subroutine examples.auction.contract.Auction.claim_asset(asset: uint64) -> void:
         (assert tmp%1#0) // auction has not ended
         itxn_begin
         let inner_txn_params%0%%param_XferAsset_idx_0#0: uint64 = asset#0
-        let (maybe_value%1#0: bytes[32], maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
         (assert maybe_exists%1#0) // check self.previous_bidder exists
-        let inner_txn_params%0%%param_AssetCloseTo_idx_0#0: bytes[32] = maybe_value%1#0
-        let (maybe_value%2#0: bytes[32], maybe_exists%2#0: bool) = (app_global_get_ex 0u "previous_bidder")
+        let inner_txn_params%0%%param_AssetCloseTo_idx_0#0: bytes = maybe_value%1#0
+        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "previous_bidder")
         (assert maybe_exists%2#0) // check self.previous_bidder exists
-        let inner_txn_params%0%%param_AssetReceiver_idx_0#0: bytes[32] = maybe_value%2#0
+        let inner_txn_params%0%%param_AssetReceiver_idx_0#0: bytes = maybe_value%2#0
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "asa_amount")
         (assert maybe_exists%3#0) // check self.asa_amount exists
         let inner_txn_params%0%%param_AssetAmount_idx_0#0: uint64 = maybe_value%3#0
