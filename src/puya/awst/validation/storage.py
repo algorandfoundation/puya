@@ -26,7 +26,7 @@ class StorageTypesValidator(AWSTTraverser):
 
     def __init__(self) -> None:
         super().__init__()
-        self._seen_keys = defaultdict[AppStorageKind, set[bytes]](set)
+        self._seen_keys = defaultdict[AppStorageKind, set[bytes | str]](set)
 
     @typing.override
     def visit_app_storage_definition(self, defn: awst_nodes.AppStorageDefinition) -> None:
@@ -59,8 +59,9 @@ class StorageTypesValidator(AWSTTraverser):
         _validate_persistable(expr.prefix.wtype, expr.prefix.source_location)
 
     def _validate_usage(self, expr: awst_nodes.StorageExpression, kind: AppStorageKind) -> None:
-        if isinstance(expr.key, awst_nodes.BytesConstant) and not set_add(
-            self._seen_keys[kind], expr.key.value
+        key = _unwrap_reinterpret_casts(expr.key)
+        if isinstance(key, awst_nodes.BytesConstant | awst_nodes.StringConstant) and not set_add(
+            self._seen_keys[kind], key.value
         ):
             return
         _validate_persistable(expr.wtype, expr.source_location)
@@ -71,3 +72,9 @@ def _validate_persistable(wtype: wtypes.WType, location: SourceLocation) -> bool
         logger.error("type is not suitable for storage", location=location)
         return False
     return True
+
+
+def _unwrap_reinterpret_casts(expr: awst_nodes.Expression) -> awst_nodes.Expression:
+    if isinstance(expr, awst_nodes.ReinterpretCast):
+        return expr.expr
+    return expr
