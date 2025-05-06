@@ -506,3 +506,10 @@ class NestedTuples(ARC4Contract):
     @arc4.abimethod()
     def mutate_local(self) -> None:
         self.loc[Txn.sender].arr.append(arc4.UInt64(1)) ## E: updating mutable elements within a tuple in storage is not supported
+
+
+## case: tuple_with_non_persistable_elements_cannot_be_persisted
+from algopy import *
+
+class No(ARC4Contract):
+    forbidden: tuple[UInt64, tuple[Bytes, gtxn.Transaction]] ## E: type is not suitable for storage
