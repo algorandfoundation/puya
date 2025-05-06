@@ -21,8 +21,8 @@ from puya.ir.arc4_types import (
     wtype_to_arc4,
     wtype_to_arc4_wtype,
 )
+from puya.ir.builder.storage import get_storage_codec
 from puya.ir.context import IRBuildContext
-from puya.ir.types_ import persistable_stack_type
 from puya.parse import SourceLocation
 from puya.utils import StableSet, set_add, unique
 
@@ -78,10 +78,11 @@ def build_contract_metadata(
     return metadata, arc4_method_data
 
 
-def _translate_state(
-    state: awst_nodes.AppStorageDefinition,
-) -> models.ContractState:
-    storage_type = persistable_stack_type(state.storage_wtype, state.source_location)
+def _translate_state(state: awst_nodes.AppStorageDefinition) -> models.ContractState:
+    # assert, because it should have been validated by StorageTypeValidator at AWST level
+    assert state.storage_wtype.persistable, f"non-persistable contract member: {state.member_name}"
+    storage_codec = get_storage_codec(state.storage_wtype, state.kind, state.source_location)
+    storage_type = storage_codec.encoded_avm_type
     if state.key_wtype is not None:
         if state.kind is not awst_nodes.AppStorageKind.box:
             raise InternalError(
@@ -433,12 +434,11 @@ def _get_arc56_type(
         return wtype.arc4_name
     if wtype == wtypes.string_wtype:
         return "AVMString"
-    storage_type = persistable_stack_type(wtype, loc)
-    match storage_type:
+    match wtype.scalar_type:
         case AVMType.uint64:
             if avm_uint64_supported:
                 return "AVMUint64"
             else:
                 return "uint64"
-        case AVMType.bytes:
+        case AVMType.bytes | None:
             return "AVMBytes"

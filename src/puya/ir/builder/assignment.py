@@ -117,66 +117,70 @@ def handle_assignment(
         case awst_nodes.AppStateExpression(
             key=awst_key, wtype=wtype, source_location=field_location
         ):
+            source = context.visitor.materialise_value_provider(value, "materialized_values")
             key_value = context.visitor.visit_and_materialise_single(awst_key)
-            encode_result = storage.encode_for_storage(
-                context, awst_nodes.AppStorageKind.app_global, value, wtype, field_location
+            codec = storage.get_storage_codec(
+                wtype, awst_nodes.AppStorageKind.app_global, field_location
             )
+            encode_result = codec.encode(context, source, field_location)
             context.block_builder.add(
                 ir.Intrinsic(
                     op=AVMOp.app_global_put,
-                    args=[key_value, encode_result.encoded],
+                    args=[key_value, encode_result],
                     source_location=assignment_location,
                 )
             )
-            return encode_result.values
+            return source
         case awst_nodes.AppAccountStateExpression(
             key=awst_key, account=account_expr, wtype=wtype, source_location=field_location
         ):
-            account = context.visitor.visit_and_materialise_single(account_expr)
+            source = context.visitor.materialise_value_provider(value, "materialized_values")
             key_value = context.visitor.visit_and_materialise_single(awst_key)
-            encode_result = storage.encode_for_storage(
-                context, awst_nodes.AppStorageKind.account_local, value, wtype, field_location
+            account = context.visitor.visit_and_materialise_single(account_expr)
+            codec = storage.get_storage_codec(
+                wtype, awst_nodes.AppStorageKind.account_local, field_location
             )
+            encode_result = codec.encode(context, source, field_location)
             context.block_builder.add(
                 ir.Intrinsic(
                     op=AVMOp.app_local_put,
-                    args=[account, key_value, encode_result.encoded],
+                    args=[account, key_value, encode_result],
                     source_location=assignment_location,
                 )
             )
-            return encode_result.values
+            return source
         case awst_nodes.BoxValueExpression(
             key=awst_key, wtype=wtype, source_location=field_location
         ):
+            source = context.visitor.materialise_value_provider(value, "materialized_values")
             key_value = context.visitor.visit_and_materialise_single(awst_key)
-            encode_result = storage.encode_for_storage(
-                context, awst_nodes.AppStorageKind.box, value, wtype, field_location
-            )
+            codec = storage.get_storage_codec(wtype, awst_nodes.AppStorageKind.box, field_location)
             # del box first if size is dynamic
-            if encode_result.encoded_ir_type.num_bytes is None:
+            if codec.encoded_ir_type.num_bytes is None:
                 context.block_builder.add(
                     ir.Intrinsic(
                         op=AVMOp.box_del, args=[key_value], source_location=assignment_location
                     )
                 )
+            encode_result = codec.encode(context, source, field_location)
             context.block_builder.add(
                 ir.Intrinsic(
                     op=AVMOp.box_put,
-                    args=[key_value, encode_result.encoded],
+                    args=[key_value, encode_result],
                     source_location=assignment_location,
                 )
             )
-            return encode_result.values
+            return source
         case awst_nodes.IndexExpression() as ix_expr:
             if isinstance(ix_expr.base.wtype, wtypes.ReferenceArray):
+                values = context.visitor.materialise_value_provider(
+                    value, description="materialized_values"
+                )
                 array_slot = context.visitor.visit_and_materialise_single(
                     ix_expr.base, "array_slot"
                 )
                 index = context.visitor.visit_and_materialise_single(ix_expr.index, "index")
                 array = mem.read_slot(context, array_slot, ix_expr.source_location)
-                values = context.visitor.materialise_value_provider(
-                    value, description="new_box_value"
-                )
                 element: ir.ValueTuple | ir.Value
                 try:
                     (element,) = values

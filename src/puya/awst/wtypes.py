@@ -16,46 +16,71 @@ from puya.utils import unique
 logger = log.get_logger(__name__)
 
 
+@enum.unique
+class _ValueType(enum.Enum):
+    uint64 = enum.auto()
+    bytes = enum.auto()
+    aggregate = enum.auto()
+    none = enum.auto()
+
+    @property
+    def avm_type(self) -> typing.Literal[AVMType.uint64, AVMType.bytes, None]:
+        match self:
+            case _ValueType.uint64:
+                return AVMType.uint64
+            case _ValueType.bytes:
+                return AVMType.bytes
+            case _ValueType.aggregate | _ValueType.none:
+                return None
+
+    @property
+    def is_aggregate(self) -> bool:
+        return self is _ValueType.aggregate
+
+
 @attrs.frozen
 class _TypeSemanticsData:
     # these are internal details that shouldn't be exposed via (de-)serialization,
     # and shouldn't be referenced from the puyapy front-end either
-    scalar_type: typing.Literal[AVMType.uint64, AVMType.bytes, None]
-    ephemeral: bool
-    value_type: bool
+    value_type: _ValueType
+    persistable: bool | None
+
+    def __attrs_post_init__(self) -> None:
+        if self.value_type is _ValueType.none:
+            assert self.persistable is False
+        if self.persistable is None:
+            assert self.value_type is _ValueType.aggregate
 
 
 @enum.unique
 class _TypeSemantics(enum.Enum):
     persistable_uint64 = _TypeSemanticsData(
-        scalar_type=AVMType.uint64,
-        ephemeral=False,
-        value_type=True,
+        value_type=_ValueType.uint64,
+        persistable=True,
     )
     persistable_bytes = _TypeSemanticsData(
-        scalar_type=AVMType.bytes,
-        ephemeral=False,
-        value_type=True,
+        value_type=_ValueType.bytes,
+        persistable=True,
     )
     persistable_aggregate = _TypeSemanticsData(
-        scalar_type=None,
-        ephemeral=False,
-        value_type=True,
+        value_type=_ValueType.aggregate,
+        persistable=True,
+    )
+    maybe_persistable_aggregate = _TypeSemanticsData(
+        value_type=_ValueType.aggregate,
+        persistable=None,
     )
     ephemeral_uint64 = _TypeSemanticsData(
-        scalar_type=AVMType.uint64,
-        ephemeral=True,
-        value_type=True,
+        value_type=_ValueType.uint64,
+        persistable=False,
     )
     ephemeral_aggregate = _TypeSemanticsData(
-        scalar_type=None,
-        ephemeral=True,
-        value_type=True,
+        value_type=_ValueType.aggregate,
+        persistable=False,
     )
     static_type = _TypeSemanticsData(
-        scalar_type=None,
-        ephemeral=False,
-        value_type=False,
+        value_type=_ValueType.none,
+        persistable=False,
     )
 
 
@@ -80,33 +105,27 @@ class WType:
         assert (
             name not in cls._type_semantics_registry
         ), f"double registration of basic WType {name!r}"
-        assert cls is WType, "stahp what r u doin"
+        assert cls is WType, "register_basic_type should only be called via WType"
         cls._type_semantics_registry[name] = semantics
         return cls(name=name)
 
     @property
     def scalar_type(self) -> typing.Literal[AVMType.uint64, AVMType.bytes, None]:
         """the (unbounded) AVM stack type, if any"""
-        return self._type_semantics.value.scalar_type
+        return self._type_semantics.value.value_type.avm_type
 
     @property
-    def ephemeral(self) -> bool:
-        """ephemeral types are not suitable for naive storage / persistence,
-        even if their underlying type is a simple stack value"""
-        return self._type_semantics.value.ephemeral
-
-    @property
-    def value_type(self) -> bool:
-        """True if a value type, False if a static type that has no value at runtime"""
-        return self._type_semantics.value.value_type
+    def persistable(self) -> bool:
+        result = self._type_semantics.value.persistable
+        if result is None:
+            raise InternalError(
+                "maybe-persistable aggregate types must implement property override"
+            )
+        return result
 
     @_type_semantics.default
     def _type_semantics_factory(self) -> _TypeSemantics:
         return self._type_semantics_registry[self.name]
-
-    def __attrs_post_init__(self) -> None:
-        if not self.value_type and self.scalar_type is not None:
-            raise InternalError("if a type has a scalar type it should be a value type")
 
     def __str__(self) -> str:
         return self.name
@@ -302,8 +321,13 @@ class WTuple(WType):
     names: tuple[str, ...] | None = attrs.field(default=None)
     desc: str | None = None
     _type_semantics: _TypeSemantics = attrs.field(
-        default=_TypeSemantics.persistable_aggregate, init=False
+        default=_TypeSemantics.maybe_persistable_aggregate, init=False
     )
+
+    @property
+    @typing.override
+    def persistable(self) -> bool:
+        return all(t.persistable for t in self.types)
 
     def __eq__(self, other: object) -> bool:
         # this custom equality check ensures that

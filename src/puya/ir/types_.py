@@ -362,7 +362,7 @@ def wtype_to_ir_type(
             return SlotType(array_type)
         case wtypes.ARC4Type() as arc4_wtype if is_arc4_static_size(arc4_wtype):
             return SizedBytesType(bits_to_bytes(get_arc4_static_bit_size(arc4_wtype)))
-        case wtypes.arc4_address_alias | wtypes.account_wtype:
+        case wtypes.account_wtype:
             return SizedBytesType(num_bytes=32)
         case wtypes.void_wtype:
             raise InternalError("can't translate void wtype to irtype", source_location)
@@ -476,13 +476,3 @@ def wtype_to_ir_types(wtype: wtypes.WType, source_location: SourceLocation) -> l
         ]
     else:
         return [wtype_to_ir_type(wtype, source_location)]
-
-
-def persistable_stack_type(
-    wtype: wtypes.WType, location: SourceLocation
-) -> typing.Literal[AVMType.uint64, AVMType.bytes]:
-    if not wtype.value_type or wtype.ephemeral:
-        raise CodeError("type is not suitable for storage", location=location)
-    # non scalar types will be serialized to bytes
-    persistable_type = wtype.scalar_type or AVMType.bytes
-    return persistable_type
