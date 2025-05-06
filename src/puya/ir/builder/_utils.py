@@ -298,7 +298,7 @@ class OpFactory:
         true: Value | int | bytes,
         condition: Value,
         temp_desc: str,
-        ir_type: IRType | None = None,
+        ir_type: IRType,
     ) -> Register:
         result = assign_intrinsic_op(
             self.context,

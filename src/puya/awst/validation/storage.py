@@ -68,7 +68,7 @@ class StorageTypesValidator(AWSTTraverser):
 
 
 def _validate_persistable(wtype: wtypes.WType, location: SourceLocation) -> bool:
-    if not wtype.value_type or wtype.ephemeral:
+    if not wtype.persistable:
         logger.error("type is not suitable for storage", location=location)
         return False
     return True

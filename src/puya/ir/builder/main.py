@@ -899,16 +899,13 @@ class FunctionIRBuilder(
         prefix = self.context.visitor.visit_and_materialise_single(
             expr.prefix, temp_description="box_key_prefix"
         )
-        key_expr = expr.key
-        key_vp = self.context.visitor.visit_expr(key_expr)
-        encode_result = storage.encode_for_storage(
-            self.context,
-            awst_nodes.AppStorageKind.box,
-            key_vp,
-            key_expr.wtype,
-            key_expr.source_location,
+        key_source = self.context.visitor.visit_and_materialise(
+            expr.key, temp_description="materialized_values"
         )
-        key = encode_result.encoded
+        codec = storage.get_storage_codec(
+            expr.key.wtype, awst_nodes.AppStorageKind.box, expr.key.source_location
+        )
+        key = codec.encode(self.context, key_source, expr.key.source_location)
         return factory.concat(prefix, key, "box_prefixed_key")
 
     def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> TExpression:
@@ -924,7 +921,7 @@ class FunctionIRBuilder(
         return storage.visit_state_get(self.context, expr)
 
     def visit_state_exists(self, expr: awst_nodes.StateExists) -> TExpression:
-        return storage.visit_state_exists(self.context, expr)
+        return storage.visit_state_exists(self.context, expr.field, expr.source_location)
 
     def visit_new_array(self, expr: awst_nodes.NewArray) -> TExpression:
         # delegate for ARC-4 arrays
