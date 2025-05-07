@@ -1,0 +1,150 @@
+import typing
+
+from algopy import (
+    Account,
+    Asset,
+    Box,
+    BoxMap,
+    Bytes,
+    FixedArray,
+    GlobalState,
+    LocalState,
+    NativeArray,
+    String,
+    Struct,
+    Txn,
+    UInt64,
+    arc4,
+    subroutine,
+)
+
+BigBytes = FixedArray[arc4.Byte, typing.Literal[2048]]
+
+
+class FixedStruct(Struct, frozen=True, kw_only=True):
+    a: UInt64
+    b: UInt64
+
+
+class Payment(Struct):
+    receiver: Account
+    asset: Asset
+    amt: UInt64
+
+
+class NamedTup(typing.NamedTuple):
+    a: UInt64
+    b: UInt64
+
+
+class NestedStruct(Struct):
+    fixed_a: FixedStruct
+    fixed_b: FixedStruct
+    tup: NamedTup
+
+
+class LargeFixedStruct(Struct):
+    fixed_a: FixedStruct
+    big_bytes: BigBytes
+    # TODO: add c once boxes support mutating values > 4k
+    # c: BigBytes
+
+
+class DynamicStruct(Struct):
+    a: UInt64
+    b: UInt64
+    c: Bytes
+    d: String
+    e: NativeArray[arc4.Byte]
+
+
+class Contract(arc4.ARC4Contract):
+    def __init__(self) -> None:
+        # storage
+        self.nested = NestedStruct(
+            FixedStruct(a=Txn.num_app_args, b=Txn.num_app_args),
+            FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
+            NamedTup(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
+        )
+        self.nested_proxy = GlobalState(NestedStruct, key=b"p", description="some documentation")
+        self.nested_local = LocalState(NestedStruct, key=b"l")
+        self.box = Box(LargeFixedStruct)
+        self.box_map = BoxMap(UInt64, LargeFixedStruct)
+
+        self.dyn = DynamicStruct(
+            a=Txn.num_app_args,
+            b=Txn.num_app_args,
+            c=Bytes(),
+            d=String(),
+            e=NativeArray[arc4.Byte](),
+        )
+
+        self.num_payments = UInt64(0)
+        self.payments = FixedArray[Payment, typing.Literal[8]]()
+
+    @arc4.abimethod()
+    def add_payment(self, pay: Payment) -> None:
+        assert self.num_payments < self.payments.length, "too many payments"
+        self.payments[self.num_payments] = pay.copy()
+        self.num_payments += 1
+
+    @arc4.abimethod()
+    def increment_payment(self, index: UInt64, amt: UInt64) -> None:
+        assert index < self.num_payments, "invalid payment index"
+        self.payments[index].amt += amt
+
+    @arc4.abimethod()
+    def create_storage(self, box_key: UInt64) -> None:
+        self.nested_proxy.value = self.nested.copy()
+        self.nested_local[Txn.sender] = self.nested.copy()
+        assert self.box.create(), "expected box to not exist"
+        self.box_map[box_key].fixed_a = self.nested.fixed_a.copy()
+
+    @arc4.abimethod()
+    def delete_storage(self, box_key: UInt64) -> None:
+        del self.nested_proxy.value
+        del self.nested_local[Txn.sender]
+        del self.box.value
+        del self.box_map[box_key]
+
+    # TODO: add FixedArray and NativeArray args
+
+    @arc4.abimethod()
+    def struct_arg(self, box_key: UInt64, a: FixedStruct) -> None:
+        self.nested.fixed_a = a
+        self.nested_proxy.value.fixed_a = a
+        self.nested_local[Txn.sender].fixed_a = a
+        self.box.value.fixed_a = a
+        self.box_map[box_key].fixed_a = a
+
+    # TODO: query other storage types?
+
+    @arc4.abimethod()
+    def struct_return(self) -> FixedStruct:
+        return self.nested.fixed_a
+
+    @arc4.abimethod()
+    def tup_return(self) -> NamedTup:
+        return self.nested.tup
+
+    @arc4.abimethod()
+    def calculate_sum(self) -> UInt64:
+        fixed_a = self.nested.fixed_a
+        fixed_b = self.nested.fixed_b
+        result = add(fixed_a) + add(fixed_b)
+        if result < 100:
+            c, d = self.nested.tup
+            result += c
+            result += d
+        return result
+
+
+@subroutine()
+def add(val: FixedStruct) -> UInt64:
+    return val.a + val.b
+
+
+@subroutine()
+def get_big_bytes() -> BigBytes:
+    # note: this requires using size_of node to initially array to zeros of the correct size
+    return BigBytes()
