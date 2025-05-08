@@ -925,6 +925,26 @@ class IntersectionSliceExpression(Expression):
 
     begin_index: Expression | int | None
     end_index: Expression | int | None
+    wtype: WType = attrs.field()
+
+    @wtype.validator
+    def _wtype_validator(self, _attr: object, wtype: WType) -> None:
+        match self.base.wtype, wtype:
+            case wtypes.BytesWType(), wtypes.bytes_wtype:
+                # note: could allow sized bytes results, but only if begin and end are constants
+                # AND input was also sized
+                pass
+            case wtypes.WTuple(), wtypes.WTuple():
+                pass
+            case wtypes.StackArray(element_type=input_element_type), wtypes.StackArray(
+                element_type=output_element_type
+            ) if input_element_type == output_element_type:
+                pass
+            case _:
+                raise InternalError(
+                    f"invalid result type {wtype} for slicing of {self.base.wtype}",
+                    self.source_location,
+                )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_intersection_slice_expression(self)
