@@ -360,9 +360,14 @@ wtype_is_uint64_backed: typing.Final = _WTypeIsBackedBy(backed_by=AVMType.uint64
 
 @attrs.frozen(kw_only=True)
 class BytesConstant(Expression):
-    wtype: WType = attrs.field(default=wtypes.bytes_wtype, validator=wtype_is_bytes_backed)
     value: bytes = attrs.field()
+    wtype: WType = attrs.field(default=wtypes.bytes_wtype, validator=wtype_is_bytes_backed)
     encoding: BytesEncoding = attrs.field()
+
+    @wtype.validator
+    def _wtype_length_validator(self, _attr: object, wtype: WType) -> None:
+        if isinstance(wtype, wtypes.BytesWType) and wtype.length not in (None, len(self.value)):
+            raise InternalError("invalid size for type of bytes constant", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bytes_constant(self)
