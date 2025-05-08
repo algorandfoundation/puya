@@ -189,12 +189,12 @@ export enum BytesEncoding {
 export class BytesConstant extends Expression {
   constructor(props: Props<BytesConstant>) {
     super(props)
-    this.wtype = props.wtype
     this.value = props.value
+    this.wtype = props.wtype
     this.encoding = props.encoding
   }
-  readonly wtype: wtypes.WType
   readonly value: Uint8Array
+  readonly wtype: wtypes.WType
   readonly encoding: BytesEncoding
   accept<T>(visitor: ExpressionVisitor<T>): T {
      return visitor.visitBytesConstant(this)
@@ -509,9 +509,11 @@ export class IndexExpression extends Expression {
     super(props)
     this.base = props.base
     this.index = props.index
+    this.wtype = props.wtype
   }
   readonly base: Expression
   readonly index: Expression
+  readonly wtype: wtypes.WType
   accept<T>(visitor: ExpressionVisitor<T>): T {
      return visitor.visitIndexExpression(this)
    }
@@ -522,10 +524,12 @@ export class SliceExpression extends Expression {
     this.base = props.base
     this.beginIndex = props.beginIndex
     this.endIndex = props.endIndex
+    this.wtype = props.wtype
   }
   readonly base: Expression
   readonly beginIndex: Expression | null
   readonly endIndex: Expression | null
+  readonly wtype: wtypes.WType
   accept<T>(visitor: ExpressionVisitor<T>): T {
      return visitor.visitSliceExpression(this)
    }
@@ -536,10 +540,12 @@ export class IntersectionSliceExpression extends Expression {
     this.base = props.base
     this.beginIndex = props.beginIndex
     this.endIndex = props.endIndex
+    this.wtype = props.wtype
   }
   readonly base: Expression
   readonly beginIndex: Expression | bigint | null
   readonly endIndex: Expression | bigint | null
+  readonly wtype: wtypes.WType
   accept<T>(visitor: ExpressionVisitor<T>): T {
      return visitor.visitIntersectionSliceExpression(this)
    }
