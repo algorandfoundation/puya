@@ -155,7 +155,6 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
         result_expr = IndexExpression(
             base=self.resolve(),
             index=index.resolve(),
-            wtype=self.pytype.items_wtype,
             source_location=location,
         )
         return builder_for_instance(self.pytype.items, result_expr)

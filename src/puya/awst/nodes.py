@@ -835,6 +835,40 @@ class IndexExpression(Expression):
         )
     )
     index: Expression = attrs.field(validator=expression_has_wtype(wtypes.uint64_wtype))
+    wtype: WType = attrs.field()
+
+    @wtype.default
+    def _wtype_factory(self) -> WType:
+        match self.base.wtype:
+            case wtypes.BytesWType():
+                return wtypes.BytesWType(length=1)
+            case wtypes.ARC4Array(element_type=element_type):
+                return element_type
+            case wtypes.NativeArray(element_type=element_type):
+                return element_type
+            case _:
+                raise InternalError(
+                    f"unexpected wtype of indexable: {self.base.wtype}", self.source_location
+                )
+
+    @wtype.validator
+    def _validate_wtype(self, _attr: object, wtype: WType) -> None:
+        match self.base.wtype, wtype:
+            case wtypes.BytesWType(), wtypes.BytesWType(length=1 | None):
+                pass
+            case wtypes.ARC4Array(
+                element_type=array_element_type
+            ), _ if array_element_type == wtype:
+                pass
+            case wtypes.NativeArray(
+                element_type=array_element_type
+            ), _ if array_element_type == wtype:
+                pass
+            case _:
+                raise InternalError(
+                    f"invalid result type {wtype} for indexing of {self.base.wtype}",
+                    self.source_location,
+                )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_index_expression(self)
