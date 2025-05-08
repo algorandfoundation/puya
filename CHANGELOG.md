@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v4.8.1'></a>
+## v4.8.1 (2025-05-08)
+
+### Fixed
+
+- Updated supported Algorand Python stubs to 2.8
+
 <a id='changelog-v4.8.0'></a>
 ## v4.8.0 (2025-05-06)
 
