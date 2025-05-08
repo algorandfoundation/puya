@@ -110,7 +110,6 @@ class StaticArrayExpressionBuilder(_ARC4ArrayExpressionBuilder, StaticSizedColle
                 IndexExpression(
                     base=base,
                     index=UInt64Constant(value=idx, source_location=self.source_location),
-                    wtype=self.pytype.items_wtype,
                     source_location=self.source_location,
                 ),
             )
