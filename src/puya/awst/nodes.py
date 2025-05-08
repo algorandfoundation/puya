@@ -1251,7 +1251,15 @@ class BytesComparisonExpression(Expression):
     rhs: Expression = attrs.field(validator=[bytes_comparable])
 
     def __attrs_post_init__(self) -> None:
-        if self.lhs.wtype != self.rhs.wtype:
+        lhs_wtype = self.lhs.wtype
+        rhs_wtype = self.rhs.wtype
+        if not (
+            lhs_wtype == rhs_wtype
+            or (
+                isinstance(lhs_wtype, wtypes.BytesWType)
+                and isinstance(rhs_wtype, wtypes.BytesWType)
+            )
+        ):
             raise InternalError(
                 "bytes comparison between different wtypes:"
                 f" {self.lhs.wtype} and {self.rhs.wtype}",
