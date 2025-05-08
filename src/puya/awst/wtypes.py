@@ -138,7 +138,7 @@ class WType:
 
 @attrs.frozen(kw_only=True)
 class BytesWType(WType):
-    length: int | None = attrs.field()
+    length: int | None = attrs.field(validator=attrs.validators.optional(attrs.validators.ge(0)))
     name: str = attrs.field(init=False, eq=False)
     _type_semantics: _TypeSemantics = attrs.field(
         default=_TypeSemantics.persistable_bytes, init=False
