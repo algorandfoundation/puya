@@ -147,7 +147,6 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
             BytesBinaryOperation(
                 left=lhs,
                 op=BytesBinaryOperator.add,
-                wtype=lhs.wtype,
                 right=rhs,
                 source_location=location,
             )

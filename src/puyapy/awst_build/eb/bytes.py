@@ -273,11 +273,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder[pytypes.RuntimeType]):
         if reverse:
             (lhs, rhs) = (rhs, lhs)
         bin_op_expr = BytesBinaryOperation(
-            source_location=location,
-            left=lhs,
-            right=rhs,
-            op=bytes_op,
-            wtype=lhs.wtype,
+            source_location=location, left=lhs, right=rhs, op=bytes_op
         )
         return BytesExpressionBuilder(bin_op_expr)
 
