@@ -1379,7 +1379,11 @@ class BytesUnaryOperation(Expression):
 
     @wtype.default
     def _wtype_factory(self) -> wtypes.WType:
-        return self.expr.wtype
+        match self.op:
+            case BytesUnaryOperator.bit_invert:
+                return self.expr.wtype
+            case unexpected:
+                typing.assert_never(unexpected)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bytes_unary_operation(self)
