@@ -1497,48 +1497,70 @@ class BytesBinaryOperation(Expression):
     right: Expression = attrs.field(
         validator=[expression_has_wtype(wtypes.BytesWType, wtypes.string_wtype)]
     )
-    wtype: WType = attrs.field()
+    wtype: WType = attrs.field(validator=wtype_is_one_of(wtypes.BytesWType, wtypes.string_wtype))
+
+    @right.validator
+    def _check_right(self, _attribute: object, right: Expression) -> None:
+        left_wtype = self.left.wtype
+        right_wype = right.wtype
+        if not (
+            left_wtype == right_wype
+            or (
+                isinstance(left_wtype, wtypes.BytesWType)
+                and isinstance(right_wype, wtypes.BytesWType)
+            )
+        ):
+            raise CodeError("incompatible operand types", self.source_location)
+
+    @wtype.default
+    def _wtype_default(self) -> WType:
+        # default to unsized bytes
+        if isinstance(self.left.wtype, wtypes.BytesWType):
+            return wtypes.bytes_wtype
+        return self.left.wtype
 
     @wtype.validator
-    def _check_wtype(self, _attribute: object, wtype: wtypes.WType) -> None:
-        expected_types: list[wtypes.WType] = []
-        match (self.left.wtype, self.right.wtype):
+    def _check_wtype(self, _attribute: object, result_wtype: WType) -> None:
+        match self.left.wtype, self.right.wtype, result_wtype:
+            case wtypes.string_wtype, wtypes.string_wtype, wtypes.string_wtype:
+                pass
             case (
-                wtypes.BytesWType(length=int(left_l)),
-                wtypes.BytesWType(length=int(right_l)),
+                wtypes.BytesWType(length=left_length),
+                wtypes.BytesWType(length=right_length),
+                wtypes.BytesWType(length=result_length),
             ):
-                if self.op == BytesBinaryOperator.add:
-                    expected_types = [
-                        wtypes.bytes_wtype,
-                        wtypes.BytesWType(length=left_l + right_l),
-                    ]
+                # unsized result is always valid
+                if result_length is None:
+                    pass
+                # if written as `None in (left_length, right_length)` then mypy doesn't narrow type
+                elif left_length is None or right_length is None:
+                    raise InternalError(
+                        "sized bytes result type is invalid when either operand is unsized",
+                        self.source_location,
+                    )
                 else:
-                    expected_types = [
-                        wtypes.bytes_wtype,
-                        wtypes.BytesWType(length=max(left_l, right_l)),
-                    ]
-            case (
-                wtypes.BytesWType(),
-                wtypes.BytesWType(),
-            ):
-                expected_types = [wtypes.bytes_wtype]
-            case (wtypes.string_wtype, wtypes.string_wtype):
-                expected_types = [wtypes.string_wtype]
-            case (lhs, rhs):
-                raise CodeError(
-                    f"Bytes operation on unsupported types, lhs is {lhs}, rhs is {rhs}",
-                    self.source_location,
+                    match self.op:
+                        case BytesBinaryOperator.add:
+                            expected_size = left_length + right_length
+                        case (
+                            BytesBinaryOperator.bit_and
+                            | BytesBinaryOperator.bit_or
+                            | BytesBinaryOperator.bit_xor
+                        ):
+                            expected_size = max(left_length, right_length)
+                        case unexpected:
+                            typing.assert_never(unexpected)
+
+                    if result_length != expected_size:
+                        raise InternalError(
+                            f"wrong length for sized bytes result, expected {expected_size},"
+                            f" got {result_length}",
+                            self.source_location,
+                        )
+            case _:
+                raise InternalError(
+                    "invalid result type of binary operation", self.source_location
                 )
-        if wtype not in expected_types:
-            expected_str = (
-                str(expected_types[0])
-                if len(expected_types) == 1
-                else "one of " + ", ".join(str(t) for t in expected_types)
-            )
-            raise CodeError(
-                f"invalid type for bytes operation, expected {expected_str}" f", received {wtype}",
-                self.source_location,
-            )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bytes_binary_operation(self)
