@@ -16,7 +16,7 @@ from puya.awst import (
 from puya.context import CompiledProgramProvider
 from puya.errors import CodeError
 from puya.ir._utils import make_subroutine
-from puya.ir.arc4_types import maybe_wtype_to_arc4_wtype, wtype_to_arc4
+from puya.ir.arc4_types import get_arc4_name, maybe_wtype_to_arc4_wtype, wtype_to_arc4
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
 from puya.ir.optimize.context import IROptimizationContext
@@ -130,14 +130,16 @@ def _compile_arc4_default_constant(
         return None
 
     if isinstance(expr.wtype, wtypes.ARC4Type):
-        arc4_type_name = expr.wtype.arc4_name
+        arc4_wtype = expr.wtype
     else:
         arc4_type = maybe_wtype_to_arc4_wtype(expr.wtype)
         if arc4_type is None:
             logger.error("unsupported type for argument default", location=location)
             return None
         expr = awst_nodes.ARC4Encode(value=expr, wtype=arc4_type, source_location=location)
-        arc4_type_name = arc4_type.arc4_name
+        arc4_wtype = arc4_type
+
+    arc4_type_name = get_arc4_name(arc4_wtype, use_alias=True)
 
     fake_name = f"#default:{param.name}"
     awst_subroutine = awst_nodes.Subroutine(

@@ -121,6 +121,8 @@ _ARC4_PYTYPE_MAPPING = {
     "byte": pytypes.ARC4ByteType,
     "byte[]": pytypes.ARC4DynamicBytesType,
 }
+_PYTYPE_ARC4_MAPPING = {v: k for k, v in _ARC4_PYTYPE_MAPPING.items()}
+assert len(_ARC4_PYTYPE_MAPPING) == len(_PYTYPE_ARC4_MAPPING)
 
 
 def arc4_to_pytype(typ: str, location: SourceLocation | None = None) -> pytypes.PyType:
@@ -170,6 +172,10 @@ def pytype_to_arc4(
 
     arc4_pytype = pytype_to_arc4_pytype(typ, on_error, encode_resource_types=encode_resource_types)
     match arc4_pytype:
+        case pytypes.PyType(wtype=wtypes.ARC4Type(arc4_alias=str(arc4_alias))):
+            return arc4_alias
+        case known_arc4_pytype if known_arc4_pytype in _PYTYPE_ARC4_MAPPING:
+            return _PYTYPE_ARC4_MAPPING[known_arc4_pytype]
         case pytypes.NoneType:
             return "void"
         case pytypes.AssetType:
@@ -180,10 +186,39 @@ def pytype_to_arc4(
             return "application"
         case pytypes.TransactionRelatedType(transaction_type=transaction_type):
             return transaction_type.name if transaction_type else "txn"
-    wtype = arc4_pytype.wtype
-    if not isinstance(wtype, wtypes.ARC4Type):
-        raise CodeError(f"not an ARC-4 type or native equivalent: {wtype}", loc)
-    return wtype.arc4_name
+        case pytypes.ARC4UIntNType(bits=n):
+            return f"uint{n}"
+        case pytypes.ARC4UFixedNxMType(bits=n, precision=m):
+            return f"ufixed{n}x{m}"
+        case pytypes.ArrayType(
+            generic=pytypes.GenericARC4StaticArrayType
+            | pytypes.GenericARC4DynamicArrayType,
+            items=item_pytype,
+            size=array_length,
+        ):
+            # TODO: what should encode_resource_types be?
+            item_arc4_name = pytype_to_arc4(
+                item_pytype, encode_resource_types=encode_resource_types, loc=loc
+            )
+            length_str = str(array_length) if array_length is not None else ""
+            return f"{item_arc4_name}[{length_str}]"
+        case pytypes.ARC4TupleType(items=arc4_tuple_items):
+            # TODO: what should encode_resource_types be?
+            item_arc4_names = [
+                pytype_to_arc4(it, encode_resource_types=encode_resource_types, loc=loc)
+                for it in arc4_tuple_items
+            ]
+            return f"({','.join(item_arc4_names)})"
+        case pytypes.StructType(
+            fields=arc4_struct_fields
+        ) if pytypes.ARC4StructBaseType < arc4_pytype:
+            item_arc4_names = [
+                pytype_to_arc4(it, encode_resource_types=encode_resource_types, loc=loc)
+                for it in arc4_struct_fields.values()
+            ]
+            return f"({','.join(item_arc4_names)})"
+        case _:
+            raise CodeError(f"not an ARC-4 type or native equivalent: {typ}", loc)
 
 
 def split_tuple_types(types: str) -> Iterable[str]:

@@ -15,7 +15,11 @@ from puya.ir.arc4 import (
     is_arc4_dynamic_size,
     is_arc4_static_size,
 )
-from puya.ir.arc4_types import is_equivalent_effective_array_encoding, maybe_wtype_to_arc4_wtype
+from puya.ir.arc4_types import (
+    get_arc4_name,
+    is_equivalent_effective_array_encoding,
+    maybe_wtype_to_arc4_wtype,
+)
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import (
     OpFactory,
@@ -313,7 +317,7 @@ class BytesCodec(ScalarCodec):
         target_type: wtypes.ARC4Type,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        if _is_named_type(target_type, expected=wtypes.arc4_string_alias):
+        if _is_known_alias(target_type, expected=wtypes.arc4_string_alias):
             return None
         factory = OpFactory(context, loc)
         length = factory.len(value, "length")
@@ -337,7 +341,7 @@ class BytesCodec(ScalarCodec):
         source_type: wtypes.ARC4Type,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        if _is_named_type(source_type, expected=wtypes.arc4_string_alias):
+        if _is_known_alias(source_type, expected=wtypes.arc4_string_alias):
             return None
         match source_type:
             case wtypes.ARC4DynamicArray(element_type=wtypes.ARC4UIntN(n=8)):
@@ -359,7 +363,7 @@ class StringCodec(ScalarCodec):
         loc: SourceLocation,
     ) -> ValueProvider | None:
         typing.assert_type(wtypes.arc4_string_alias, wtypes.ARC4DynamicArray)
-        if _is_named_type(target_type, expected=wtypes.arc4_string_alias):
+        if _is_known_alias(target_type, expected=wtypes.arc4_string_alias):
             factory = OpFactory(context, loc)
             length = factory.len(value, "length")
             length_uint16 = factory.as_u16_bytes(length, "length_uint16")
@@ -375,7 +379,7 @@ class StringCodec(ScalarCodec):
         loc: SourceLocation,
     ) -> ValueProvider | None:
         typing.assert_type(wtypes.arc4_string_alias, wtypes.ARC4DynamicArray)
-        if _is_named_type(source_type, expected=wtypes.arc4_string_alias):
+        if _is_known_alias(source_type, expected=wtypes.arc4_string_alias):
             return Intrinsic(
                 op=AVMOp.extract, immediates=[2, 0], args=[value], source_location=loc
             )
@@ -391,7 +395,7 @@ class AccountCodec(ARC4Codec):
         target_type: wtypes.ARC4Type,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        if _is_named_type(target_type, expected=wtypes.arc4_address_alias):
+        if _is_known_alias(target_type, expected=wtypes.arc4_address_alias):
             return value_provider
         return None
 
@@ -403,7 +407,7 @@ class AccountCodec(ARC4Codec):
         source_type: wtypes.ARC4Type,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        if _is_named_type(source_type, expected=wtypes.arc4_address_alias):
+        if _is_known_alias(source_type, expected=wtypes.arc4_address_alias):
             return value
         return None
 
@@ -437,10 +441,10 @@ class StackArrayCodec(ARC4Codec):
         return None
 
 
-def _is_named_type(wtype: wtypes.ARC4Type, *, expected: wtypes.ARC4Type) -> bool:
+def _is_known_alias(wtype: wtypes.ARC4Type, *, expected: wtypes.ARC4Type) -> bool:
     # why? because arc4_name is not considered for structural equality, for reasons...
     # and we can't use `is` because of JSON inputs...
-    return wtype == expected and wtype.arc4_name == expected.arc4_name
+    return wtype == expected and wtype.arc4_alias == expected.arc4_alias
 
 
 def _get_arc4_codec(native_type: wtypes.WType) -> ARC4Codec | None:
@@ -477,8 +481,9 @@ def decode_arc4_value(
         result = codec.decode(context, value, arc4_wtype, loc)
         if result is not None:
             return result
+    arc4_wtype_arc4_name = get_arc4_name(arc4_wtype, use_alias=True)
     logger.error(
-        f"unsupported ARC-4 decode operation from type {arc4_wtype.arc4_name}",
+        f"unsupported ARC-4 decode operation from type {arc4_wtype_arc4_name}",
         location=loc,
     )
     return undefined_value(target_wtype, loc)
@@ -507,8 +512,9 @@ def encode_value_provider(
         result = codec.encode(context, value_provider, arc4_wtype, loc)
         if result is not None:
             return result
+    arc4_wtype_arc4_name = get_arc4_name(arc4_wtype, use_alias=True)
     logger.error(
-        f"unsupported ARC-4 encode operation to type {arc4_wtype.arc4_name}", location=loc
+        f"unsupported ARC-4 encode operation to type {arc4_wtype_arc4_name}", location=loc
     )
     return undefined_value(arc4_wtype, loc)
 

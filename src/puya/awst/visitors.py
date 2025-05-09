@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 
 if t.TYPE_CHECKING:
     import puya.awst.nodes
+    import puya.awst.wtypes
 
 
 class StatementVisitor[T](ABC):
@@ -308,3 +309,57 @@ class ExpressionVisitor[T](ABC):
 
     @abstractmethod
     def visit_emit(self, emit: puya.awst.nodes.Emit) -> T: ...
+
+
+class ARC4WTypeVisitor[T](ABC):
+    @abstractmethod
+    def visit_basic_arc4_type(self, wtype: puya.awst.wtypes.ARC4Type) -> T: ...
+
+    @abstractmethod
+    def visit_arc4_uint(self, wtype: puya.awst.wtypes.ARC4UIntN) -> T: ...
+
+    @abstractmethod
+    def visit_arc4_ufixed(self, wtype: puya.awst.wtypes.ARC4UFixedNxM) -> T: ...
+
+    @abstractmethod
+    def visit_arc4_tuple(self, wtype: puya.awst.wtypes.ARC4Tuple) -> T: ...
+
+    @abstractmethod
+    def visit_arc4_dynamic_array(self, wtype: puya.awst.wtypes.ARC4DynamicArray) -> T: ...
+
+    @abstractmethod
+    def visit_arc4_static_array(self, wtype: puya.awst.wtypes.ARC4StaticArray) -> T: ...
+
+    @abstractmethod
+    def visit_arc4_struct(self, wtype: puya.awst.wtypes.ARC4Struct) -> T: ...
+
+
+class WTypeVisitor[T](ARC4WTypeVisitor[T]):
+    @abstractmethod
+    def visit_basic_type(self, wtype: puya.awst.wtypes.WType) -> T: ...
+
+    @abstractmethod
+    def visit_enumeration_type(self, wtype: puya.awst.wtypes.WEnumeration) -> T: ...
+
+    @abstractmethod
+    def visit_group_transaction_type(self, wtype: puya.awst.wtypes.WGroupTransaction) -> T: ...
+
+    @abstractmethod
+    def visit_inner_transaction_type(self, wtype: puya.awst.wtypes.WInnerTransaction) -> T: ...
+
+    @abstractmethod
+    def visit_inner_transaction_fields_type(
+        self, wtype: puya.awst.wtypes.WInnerTransactionFields
+    ) -> T: ...
+
+    @abstractmethod
+    def visit_struct_type(self, wtype: puya.awst.wtypes.WStructType) -> T: ...
+
+    @abstractmethod
+    def visit_stack_array(self, wtype: puya.awst.wtypes.StackArray) -> T: ...
+
+    @abstractmethod
+    def visit_reference_array(self, wtype: puya.awst.wtypes.ReferenceArray) -> T: ...
+
+    @abstractmethod
+    def visit_tuple_type(self, wtype: puya.awst.wtypes.WTuple) -> T: ...

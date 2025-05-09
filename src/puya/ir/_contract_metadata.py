@@ -17,7 +17,11 @@ from puya.awst import (
 from puya.awst.function_traverser import FunctionTraverser
 from puya.errors import CodeError, InternalError
 from puya.ir._arc4_default_args import convert_default_args
-from puya.ir.arc4_types import wtype_to_arc4, wtype_to_arc4_wtype
+from puya.ir.arc4_types import (
+    get_arc4_name,
+    wtype_to_arc4,
+    wtype_to_arc4_wtype,
+)
 from puya.ir.builder.storage import get_storage_codec
 from puya.ir.context import IRBuildContext
 from puya.parse import SourceLocation
@@ -371,7 +375,7 @@ def _wtype_to_struct(s: wtypes.ARC4Struct | wtypes.WTuple) -> models.ARC4Struct:
         fields.append(
             models.ARC4StructField(
                 name=field_name,
-                type=field_wtype.arc4_name,
+                type=get_arc4_name(field_wtype, use_alias=True),
                 struct=_get_arc4_struct_name(field_wtype),
             )
         )
@@ -428,7 +432,7 @@ def _get_arc56_type(
     if isinstance(wtype, wtypes.ARC4Struct):
         return wtype.name
     if isinstance(wtype, wtypes.ARC4Type):
-        return wtype.arc4_name
+        return get_arc4_name(wtype, use_alias=True)
     if wtype == wtypes.string_wtype:
         return "AVMString"
     match wtype.scalar_type:

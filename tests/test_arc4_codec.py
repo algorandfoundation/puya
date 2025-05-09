@@ -4,6 +4,7 @@ import pytest
 from puya.awst import nodes, wtypes
 from puya.context import CompileContext
 from puya.errors import log_exceptions
+from puya.ir.arc4_types import get_arc4_name
 from puya.ir.main import awst_to_ir
 from puya.log import LogLevel, logging_context
 from puya.options import PuyaOptions
@@ -12,7 +13,7 @@ from puya.parse import SourceLocation
 
 def _arc4_name_or_str(wtype: wtypes.WType) -> str:
     if isinstance(wtype, wtypes.ARC4Type):
-        return wtype.arc4_name
+        return get_arc4_name(wtype, use_alias=True)
     else:
         return str(wtype)
 
@@ -61,7 +62,9 @@ def test_supported_decodes(arc4_type: wtypes.ARC4Type, target_type: wtypes.WType
 def test_unsupported_decodes(arc4_type: wtypes.ARC4Type, target_type: wtypes.WType) -> None:
     func = _build_decode_function(arc4_type, target_type)
     errors = _get_ir_build_errors(func)
-    assert errors == [f"unsupported ARC-4 decode operation from type {arc4_type.arc4_name}"]
+    assert errors == [
+        f"unsupported ARC-4 decode operation from type {_arc4_name_or_str(arc4_type)}"
+    ]
 
 
 def _get_ir_build_errors(func: nodes.Subroutine) -> list[str]:
