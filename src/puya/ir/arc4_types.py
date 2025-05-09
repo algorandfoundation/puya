@@ -57,10 +57,6 @@ class ARC4EncodedWTypeConverterVisitor(WTypeVisitor[wtypes.ARC4Type | None]):
         return None
 
     @typing.override
-    def visit_struct_type(self, wtype: wtypes.WStructType) -> typing.Never:
-        raise NotImplementedError
-
-    @typing.override
     def visit_stack_array(self, wtype: wtypes.StackArray) -> wtypes.ARC4Type | None:
         arc4_element_type = wtype.element_type.accept(self)
         if arc4_element_type is None:
