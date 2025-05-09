@@ -61,6 +61,7 @@ from puya.ir.models import (
     SubroutineReturn,
     TemplateVar,
     UInt64Constant,
+    Undefined,
     Value,
     ValueProvider,
     ValueTuple,
@@ -1136,14 +1137,19 @@ class FunctionIRBuilder(
                         self.context.block_builder.active_block,
                     )
                 )
-        return_types = [r.ir_type for r in result]
-        if [t.avm_type for t in return_types] != [
-            t.avm_type for t in self.context.subroutine.returns
+        actual_return_types = [r.ir_type for r in result]
+        expected_return_types = self.context.subroutine.returns
+        if [t.avm_type for t in actual_return_types] != [
+            t.avm_type for t in expected_return_types
         ]:
-            raise CodeError(
-                f"invalid return type {return_types}, expected {self.context.subroutine.returns}",
-                statement.source_location,
+            logger.error(
+                f"invalid return type {actual_return_types}, expected {expected_return_types}",
+                location=statement.source_location,
             )
+            result = [
+                Undefined(ir_type=ir_type, source_location=statement.source_location)
+                for ir_type in expected_return_types
+            ]
         self.context.block_builder.terminate(
             SubroutineReturn(
                 source_location=statement.source_location,
