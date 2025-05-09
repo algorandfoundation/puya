@@ -214,9 +214,7 @@ def handle_assignment(
                     assignment_location,
                 )
         case awst_nodes.FieldExpression() as field_expr:
-            if isinstance(field_expr.base.wtype, wtypes.WStructType):
-                raise NotImplementedError
-            elif isinstance(field_expr.base.wtype, wtypes.ARC4Struct):  # noqa: RET506
+            if isinstance(field_expr.base.wtype, wtypes.ARC4Struct):
                 return (
                     arc4.handle_arc4_assign(
                         context,
