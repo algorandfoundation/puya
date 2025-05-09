@@ -288,35 +288,6 @@ class WInnerTransaction(_WTypeInstance):
         return visitor.visit_inner_transaction_type(self)
 
 
-@typing.final
-@attrs.frozen
-class WStructType(_WTypeInstance):
-    fields: immutabledict[str, WType] = attrs.field(converter=immutabledict)
-    frozen: bool
-    immutable: bool = attrs.field(init=False)
-    source_location: SourceLocation | None = attrs.field(eq=False)
-    desc: str | None = None
-    _type_semantics: _TypeSemantics = attrs.field(
-        default=_TypeSemantics.persistable_aggregate, init=False
-    )
-
-    @immutable.default
-    def _immutable(self) -> bool:
-        # TODO: determine correct behaviour when implementing native structs
-        raise NotImplementedError
-
-    @fields.validator
-    def _fields_validator(self, _: object, fields: immutabledict[str, WType]) -> None:
-        if not fields:
-            raise CodeError("struct needs fields", self.source_location)
-        if void_wtype in fields.values():
-            raise CodeError("struct should not contain void types", self.source_location)
-
-    @typing.override
-    def accept[T](self, visitor: WTypeVisitor[T]) -> T:
-        return visitor.visit_struct_type(self)
-
-
 @attrs.frozen
 class NativeArray(WType, abc.ABC):
     element_type: WType = attrs.field()
