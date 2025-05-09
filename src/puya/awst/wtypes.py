@@ -355,7 +355,10 @@ class WTuple(WType):
 
 @attrs.frozen(kw_only=True)
 class ARC4Type(WType):
-    arc4_name: str = attrs.field(eq=False)  # exclude from equality in case of aliasing
+    # is now alias
+    arc4_name: str | None = attrs.field(
+        default=None, eq=False
+    )  # exclude from equality in case of aliasing
     _type_semantics: _TypeSemantics = attrs.field(
         default=_TypeSemantics.persistable_bytes, init=False
     )
@@ -372,7 +375,6 @@ arc4_bool_wtype: typing.Final = ARC4Type(
 class ARC4UIntN(ARC4Type):
     immutable: bool = attrs.field(default=True, init=False)
     n: int = attrs.field()
-    arc4_name: str = attrs.field(eq=False)
     name: str = attrs.field(init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
 
@@ -383,13 +385,9 @@ class ARC4UIntN(ARC4Type):
         if not (8 <= n <= 512):
             raise CodeError("Bit size must be between 8 and 512 inclusive", self.source_location)
 
-    @arc4_name.default
-    def _arc4_name(self) -> str:
-        return f"uint{self.n}"
-
     @name.default
     def _name(self) -> str:
-        return f"arc4.{self._arc4_name()}"
+        return f"arc4.uint{self.n}"
 
 
 @typing.final
@@ -398,17 +396,12 @@ class ARC4UFixedNxM(ARC4Type):
     n: int = attrs.field()
     m: int = attrs.field()
     immutable: bool = attrs.field(default=True, init=False)
-    arc4_name: str = attrs.field(init=False, eq=False)
     name: str = attrs.field(init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
 
-    @arc4_name.default
-    def _arc4_name(self) -> str:
-        return f"ufixed{self.n}x{self.m}"
-
     @name.default
     def _name(self) -> str:
-        return f"arc4.{self.arc4_name}"
+        return f"arc4.ufixed{self.n}x{self.m}"
 
     @n.validator
     def _n_validator(self, _attribute: object, n: int) -> None:
@@ -450,16 +443,11 @@ class ARC4Tuple(ARC4Type):
         converter=attrs.Converter(_required_arc4_wtypes, takes_self=True)  # type: ignore[misc]
     )
     name: str = attrs.field(init=False)
-    arc4_name: str = attrs.field(init=False, eq=False)
     immutable: bool = attrs.field(init=False)
 
     @name.default
     def _name(self) -> str:
         return f"arc4.tuple<{','.join(t.name for t in self.types)}>"
-
-    @arc4_name.default
-    def _arc4_name(self) -> str:
-        return f"({','.join(item.arc4_name for item in self.types)})"
 
     @immutable.default
     def _immutable(self) -> bool:
@@ -486,15 +474,10 @@ class ARC4Array(ARC4Type):
 @attrs.frozen(kw_only=True)
 class ARC4DynamicArray(ARC4Array):
     name: str = attrs.field(init=False)
-    arc4_name: str = attrs.field(eq=False)
 
     @name.default
     def _name(self) -> str:
         return f"arc4.dynamic_array<{self.element_type.name}>"
-
-    @arc4_name.default
-    def _arc4_name(self) -> str:
-        return f"{self.element_type.arc4_name}[]"
 
 
 @typing.final
@@ -502,15 +485,10 @@ class ARC4DynamicArray(ARC4Array):
 class ARC4StaticArray(ARC4Array):
     array_size: int = attrs.field(validator=attrs.validators.ge(0))
     name: str = attrs.field(init=False)
-    arc4_name: str = attrs.field(eq=False)
 
     @name.default
     def _name(self) -> str:
         return f"arc4.static_array<{self.element_type.name}, {self.array_size}>"
-
-    @arc4_name.default
-    def _arc4_name(self) -> str:
-        return f"{self.element_type.arc4_name}[{self.array_size}]"
 
 
 def _require_arc4_fields(fields: Mapping[str, WType]) -> immutabledict[str, ARC4Type]:
@@ -536,16 +514,11 @@ class ARC4Struct(ARC4Type):
     frozen: bool
     immutable: bool = attrs.field(init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
-    arc4_name: str = attrs.field(init=False, eq=False)
     desc: str | None = None
 
     @immutable.default
     def _immutable(self) -> bool:
         return self.frozen and all(typ.immutable for typ in self.fields.values())
-
-    @arc4_name.default
-    def _arc4_name(self) -> str:
-        return f"({','.join(item.arc4_name for item in self.types)})"
 
     @cached_property
     def names(self) -> tuple[str, ...]:
