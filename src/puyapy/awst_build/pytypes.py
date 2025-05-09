@@ -872,7 +872,10 @@ GenericImmutableArrayType: typing.Final = _GenericType(
     name="algopy._array.ImmutableArray",
     parameterise=_make_array_parameterise(wtypes.StackArray),
 )
-
+GenericNativeArrayType: typing.Final = _GenericType(
+    name="algopy._native.NativeArray",
+    parameterise=_make_array_parameterise(wtypes.ARC4DynamicArray),
+)
 GenericARC4DynamicArrayType: typing.Final = _GenericType(
     name="algopy.arc4.DynamicArray",
     parameterise=_make_array_parameterise(wtypes.ARC4DynamicArray),
@@ -920,6 +923,10 @@ def _parameterise_arc4_static_array(
     )
 
 
+GenericFixedArrayType: typing.Final = _GenericType(
+    name="algopy._native.FixedArray",
+    parameterise=_parameterise_arc4_static_array,
+)
 GenericARC4StaticArrayType: typing.Final = _GenericType(
     name="algopy.arc4.StaticArray",
     parameterise=_parameterise_arc4_static_array,
