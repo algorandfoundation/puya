@@ -475,7 +475,7 @@ class StructType(RuntimeType):
         converter=immutabledict, validator=[attrs.validators.min_len(1)]
     )
     frozen: bool
-    wtype: wtypes.ARC4Struct | wtypes.WStructType
+    wtype: wtypes.ARC4Struct
     source_location: SourceLocation | None = attrs.field(eq=False)
     generic: None = None
     desc: str | None = None
@@ -501,11 +501,8 @@ class StructType(RuntimeType):
         field_wtypes = {
             name: field_typ.checked_wtype(source_location) for name, field_typ in fields.items()
         }  # TODO: this is a bit of a kludge
-        wtype_cls: type[wtypes.ARC4Struct | wtypes.WStructType]
-        if base is ARC4StructBaseType:
+        if base in (ARC4StructBaseType, StructBaseType):
             wtype_cls = wtypes.ARC4Struct
-        elif base is StructBaseType:
-            wtype_cls = wtypes.WStructType
         else:
             raise InternalError(f"Unknown struct base type: {base}", source_location)
         wtype = wtype_cls(
