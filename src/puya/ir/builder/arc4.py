@@ -498,11 +498,17 @@ def encode_arc4_struct(
 ) -> ValueProvider:
     assert expr.wtype == wtype
     elements = [
-        context.visitor.visit_and_materialise_single(expr.values[field_name])
+        element
         for field_name in expr.wtype.fields
+        for element in context.visitor.visit_and_materialise(expr.values[field_name])
     ]
     arc4_types = [wtype_to_arc4_wtype(t, expr.source_location) for t in wtype.types]
-    return _encode_arc4_values_as_tuple(context, elements, arc4_types, expr.source_location)
+    encoded_elements = _encode_arc4_tuple_items(
+        context, elements, wtype.types, arc4_types, expr.source_location
+    )
+    return _encode_arc4_values_as_tuple(
+        context, encoded_elements, arc4_types, expr.source_location
+    )
 
 
 def encode_value_provider(
