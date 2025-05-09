@@ -130,14 +130,14 @@ def _compile_arc4_default_constant(
         return None
 
     if isinstance(expr.wtype, wtypes.ARC4Type):
-        arc4_type_name = expr.wtype.arc4_name
+        arc4_type_name = wtype_to_arc4("argument", expr.wtype, location)
     else:
         arc4_type = maybe_wtype_to_arc4_wtype(expr.wtype)
         if arc4_type is None:
             logger.error("unsupported type for argument default", location=location)
             return None
         expr = awst_nodes.ARC4Encode(value=expr, wtype=arc4_type, source_location=location)
-        arc4_type_name = arc4_type.arc4_name
+        arc4_type_name = wtype_to_arc4("argument", arc4_type, location)
 
     fake_name = f"#default:{param.name}"
     awst_subroutine = awst_nodes.Subroutine(
