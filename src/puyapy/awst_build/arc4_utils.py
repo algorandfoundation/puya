@@ -183,7 +183,10 @@ def pytype_to_arc4(
     wtype = arc4_pytype.wtype
     if not isinstance(wtype, wtypes.ARC4Type):
         raise CodeError(f"not an ARC-4 type or native equivalent: {wtype}", loc)
-    return wtype.arc4_name
+    # TODO: bad, don't do this
+    from puya.ir.arc4_types import wtype_to_arc4
+
+    return wtype_to_arc4("argument", wtype, loc or SourceLocation(file=None, line=1))
 
 
 def split_tuple_types(types: str) -> Iterable[str]:
