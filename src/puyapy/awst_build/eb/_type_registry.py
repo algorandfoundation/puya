@@ -159,7 +159,7 @@ PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
 
 PYTYPE_BASE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromPyTypeAndSourceFactory] = {
     pytypes.ARC4StructBaseType: arc4.ARC4StructTypeBuilder,
-    pytypes.StructBaseType: struct.StructSubclassExpressionBuilder,
+    pytypes.StructBaseType: struct.StructTypeBuilder,
     pytypes.NamedTupleBaseType: tuple_.NamedTupleTypeBuilder,
 }
 
