@@ -1251,7 +1251,7 @@ ARC4ContractBaseType: typing.Final[PyType] = _BaseType(
 )
 ARC4ClientBaseType: typing.Final[PyType] = _BaseType(name="algopy.arc4.ARC4Client")
 ARC4StructBaseType: typing.Final[PyType] = _BaseType(name="algopy.arc4.Struct")
-StructBaseType: typing.Final[PyType] = _BaseType(name="algopy._struct.Struct")
+StructBaseType: typing.Final[PyType] = _BaseType(name="algopy._native.Struct")
 
 
 @typing.final
