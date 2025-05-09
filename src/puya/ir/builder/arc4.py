@@ -688,13 +688,20 @@ def arc4_tuple_index(
     wtype: wtypes.ARC4Tuple | wtypes.ARC4Struct,
     source_location: SourceLocation,
 ) -> ValueProvider:
-    return _read_nth_item_of_arc4_heterogeneous_container(
+    item_wtype = wtype.types[index]
+    result = _read_nth_item_of_arc4_heterogeneous_container(
         context,
         array_head_and_tail=base,
         index=index,
         tuple_type=wtype,
         source_location=source_location,
     )
+    encoded_wtype = wtype_to_arc4_wtype(item_wtype, source_location)
+    if item_wtype != encoded_wtype:
+        factory = OpFactory(context, source_location)
+        encoded = factory.assign(result, "encoded")
+        result = decode_arc4_value(context, encoded, encoded_wtype, item_wtype, source_location)
+    return result
 
 
 def build_for_in_array(
@@ -1302,12 +1309,22 @@ def _arc4_replace_tuple_item(
     factory = OpFactory(context, source_location)
     base = context.visitor.visit_and_materialise_single(base_expr)
     value = factory.assign(value, "assigned_value")
-    element_type = wtype_to_arc4_wtype(wtype.types[index_int], source_location)
+    element_type = wtype.types[index_int]
+    arc4_element_type = wtype_to_arc4_wtype(element_type, source_location)
     header_up_to_item = get_arc4_tuple_head_size(
         wtype.types[0:index_int],
         round_end_result=element_type != wtypes.arc4_bool_wtype,
     )
-    if element_type == wtypes.arc4_bool_wtype:
+    if element_type != arc4_element_type:
+        value_vp = encode_value_provider(
+            context,
+            value,
+            element_type,
+            arc4_element_type,
+            source_location,
+        )
+        value = factory.assign(value_vp, "encoded")
+    if arc4_element_type == wtypes.arc4_bool_wtype:
         # Use Set bit
         is_true = factory.get_bit(value, 0, "is_true")
         return factory.set_bit(
@@ -1316,7 +1333,7 @@ def _arc4_replace_tuple_item(
             bit=is_true,
             temp_desc="updated_data",
         )
-    elif is_arc4_static_size(element_type):
+    elif is_arc4_static_size(arc4_element_type):
         return factory.replace(
             base,
             header_up_to_item // 8,
