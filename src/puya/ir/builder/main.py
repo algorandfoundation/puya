@@ -1412,9 +1412,10 @@ class FunctionIRBuilder(
         try:
             (value,) = values
         except ValueError as ex:
+            expr_str = expr.accept(ToCodeVisitor())
             raise InternalError(
                 "visit_and_materialise_single should not be used when"
-                f" an expression could be multi-valued, expression was: {expr}",
+                f" an expression could be multi-valued, expression was: {expr_str}",
                 expr.source_location,
             ) from ex
         return value
