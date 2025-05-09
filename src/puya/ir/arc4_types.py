@@ -16,8 +16,21 @@ def wtype_to_arc4(
     as an argument
     """
     match wtype:
-        case wtypes.ARC4Type(arc4_name=arc4_name):
+        case wtypes.ARC4Type(arc4_name=arc4_name) if arc4_name is not None:
             return arc4_name
+        case wtypes.ARC4UIntN(n=n):
+            return f"uint{n}"
+        case wtypes.ARC4UFixedNxM(n=n, m=m):
+            return f"ufixed{n}x{m}"
+        case wtypes.ARC4StaticArray(element_type=element_type, array_size=array_size):
+            return f"{wtype_to_arc4(kind, element_type, loc)}[{array_size}]"
+        case wtypes.ARC4DynamicArray(element_type=element_type):
+            return f"{wtype_to_arc4(kind, element_type, loc)}[]"
+        case wtypes.ARC4Struct(types=types) | wtypes.ARC4Tuple(types=types):
+            inner = ",".join(wtype_to_arc4(kind, t, loc) for t in types)
+            return f"({inner})"
+        case wtypes.ARC4Type():
+            raise NotImplementedError
         case (
             wtypes.asset_wtype
             | wtypes.account_wtype
@@ -31,7 +44,7 @@ def wtype_to_arc4(
     maybe_arc4_wtype = maybe_wtype_to_arc4_wtype(wtype)
     if maybe_arc4_wtype is None:
         raise CodeError(f"unsupported {kind} type for an ARC-4 method", loc)
-    return maybe_arc4_wtype.arc4_name
+    return wtype_to_arc4(kind, maybe_arc4_wtype, loc)
 
 
 def maybe_wtype_to_arc4_wtype(wtype: wtypes.WType) -> wtypes.ARC4Type | None:

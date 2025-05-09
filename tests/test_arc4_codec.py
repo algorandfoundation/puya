@@ -4,6 +4,7 @@ import pytest
 from puya.awst import nodes, wtypes
 from puya.context import CompileContext
 from puya.errors import log_exceptions
+from puya.ir.arc4_types import wtype_to_arc4
 from puya.ir.main import awst_to_ir
 from puya.log import LogLevel, logging_context
 from puya.options import PuyaOptions
@@ -12,7 +13,7 @@ from puya.parse import SourceLocation
 
 def _arc4_name_or_str(wtype: wtypes.WType) -> str:
     if isinstance(wtype, wtypes.ARC4Type):
-        return wtype.arc4_name
+        return wtype_to_arc4("argument", wtype, SourceLocation(file=None, line=1))
     else:
         return str(wtype)
 

@@ -366,12 +366,13 @@ def _wtype_to_struct(s: wtypes.ARC4Struct | wtypes.WTuple) -> models.ARC4Struct:
     fields = []
     assert s.fields
     for field_name, field_wtype in s.fields.items():
+        loc = s.source_location or SourceLocation(file=None, line=1)
         if not isinstance(field_wtype, wtypes.ARC4Type):
-            field_wtype = wtype_to_arc4_wtype(field_wtype, None)
+            field_wtype = wtype_to_arc4_wtype(field_wtype, loc)
         fields.append(
             models.ARC4StructField(
                 name=field_name,
-                type=field_wtype.arc4_name,
+                type=wtype_to_arc4("argument", field_wtype, loc),
                 struct=_get_arc4_struct_name(field_wtype),
             )
         )
@@ -428,7 +429,7 @@ def _get_arc56_type(
     if isinstance(wtype, wtypes.ARC4Struct):
         return wtype.name
     if isinstance(wtype, wtypes.ARC4Type):
-        return wtype.arc4_name
+        return wtype_to_arc4("argument", wtype, loc)
     if wtype == wtypes.string_wtype:
         return "AVMString"
     match wtype.scalar_type:

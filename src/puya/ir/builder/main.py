@@ -61,6 +61,7 @@ from puya.ir.models import (
     SubroutineReturn,
     TemplateVar,
     UInt64Constant,
+    Undefined,
     Value,
     ValueProvider,
     ValueTuple,
@@ -722,8 +723,6 @@ class FunctionIRBuilder(
             )
 
     def visit_field_expression(self, expr: awst_nodes.FieldExpression) -> TExpression:
-        if isinstance(expr.base.wtype, wtypes.WStructType):
-            raise NotImplementedError
         if isinstance(expr.base.wtype, wtypes.WTuple):
             index = expr.base.wtype.name_to_index(expr.name, expr.source_location)
             tup = self.visit_and_materialise(expr.base)
@@ -768,7 +767,10 @@ class FunctionIRBuilder(
             arc4_array_type = effective_array_encoding(sliceable_type, expr.base.source_location)
             array = self.context.visitor.visit_and_materialise_single(expr.base)
             _, data = arc4.invoke_arc4_array_pop(
-                self.context, arc4_array_type.element_type, array, expr.source_location
+                self.context,
+                wtype_to_arc4_wtype(arc4_array_type.element_type, expr.source_location),
+                array,
+                expr.source_location,
             )
             return data
         else:
@@ -845,7 +847,7 @@ class FunctionIRBuilder(
             return arc4.maybe_decode_arc4_value_provider(
                 self.context,
                 encoded_read_vp,
-                arc4_array_type.element_type,
+                wtype_to_arc4_wtype(arc4_array_type.element_type, expr.source_location),
                 indexable_wtype.element_type,
                 expr.source_location,
                 temp_description="arc4_item",
@@ -1127,14 +1129,19 @@ class FunctionIRBuilder(
                         self.context.block_builder.active_block,
                     )
                 )
-        return_types = [r.ir_type for r in result]
-        if [t.avm_type for t in return_types] != [
-            t.avm_type for t in self.context.subroutine.returns
+        actual_return_types = [r.ir_type for r in result]
+        expected_return_types = self.context.subroutine.returns
+        if [t.avm_type for t in actual_return_types] != [
+            t.avm_type for t in expected_return_types
         ]:
-            raise CodeError(
-                f"invalid return type {return_types}, expected {self.context.subroutine.returns}",
-                statement.source_location,
+            logger.error(
+                f"invalid return type {actual_return_types}, expected {expected_return_types}",
+                location=statement.source_location,
             )
+            result = [
+                Undefined(ir_type=ir_type, source_location=statement.source_location)
+                for ir_type in expected_return_types
+            ]
         self.context.block_builder.terminate(
             SubroutineReturn(
                 source_location=statement.source_location,
@@ -1251,8 +1258,6 @@ class FunctionIRBuilder(
 
     def visit_new_struct(self, expr: awst_nodes.NewStruct) -> TExpression:
         match expr.wtype:
-            case wtypes.WStructType():
-                raise NotImplementedError
             case wtypes.ARC4Struct() as arc4_struct_wtype:
                 return arc4.encode_arc4_struct(self.context, expr, arc4_struct_wtype)
             case _:
@@ -1287,7 +1292,7 @@ class FunctionIRBuilder(
                 self.context,
                 value,
                 expr.value.wtype,
-                arc4_wtype.element_type,
+                wtype_to_arc4_wtype(arc4_wtype.element_type, expr.source_location),
                 expr.source_location,
             )
         return arc4.arc4_replace_array_item(
@@ -1405,9 +1410,10 @@ class FunctionIRBuilder(
         try:
             (value,) = values
         except ValueError as ex:
+            expr_str = expr.accept(ToCodeVisitor())
             raise InternalError(
                 "visit_and_materialise_single should not be used when"
-                f" an expression could be multi-valued, expression was: {expr}",
+                f" an expression could be multi-valued, expression was: {expr_str}",
                 expr.source_location,
             ) from ex
         return value
