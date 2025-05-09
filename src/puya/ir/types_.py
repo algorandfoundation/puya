@@ -333,6 +333,8 @@ def wtype_to_ir_type(
             return PrimitiveIRType.bool
         case wtypes.biguint_wtype:
             return PrimitiveIRType.biguint
+        case wtypes.BytesWType(length=l):
+            return PrimitiveIRType.bytes if l is None else SizedBytesType(l)
         case wtypes.WInnerTransaction():
             return PrimitiveIRType.itxn_group_idx
         case wtypes.WInnerTransactionFields():

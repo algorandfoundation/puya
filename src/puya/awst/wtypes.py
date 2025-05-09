@@ -148,10 +148,6 @@ biguint_wtype: typing.Final = WType.register_basic_type(
     name="biguint",
     semantics=_TypeSemantics.persistable_bytes,
 )
-bytes_wtype: typing.Final = WType.register_basic_type(
-    name="bytes",
-    semantics=_TypeSemantics.persistable_bytes,
-)
 string_wtype: typing.Final = WType.register_basic_type(
     name="string",
     semantics=_TypeSemantics.persistable_bytes,
@@ -181,6 +177,23 @@ uint64_range_wtype: typing.Final = WType.register_basic_type(
     semantics=_TypeSemantics.static_type,
 )
 # endregion
+
+
+@attrs.frozen(kw_only=True)
+class BytesWType(WType):
+    length: int | None = attrs.field(validator=attrs.validators.optional(attrs.validators.ge(0)))
+    name: str = attrs.field(init=False, eq=False)
+    _type_semantics: _TypeSemantics = attrs.field(
+        default=_TypeSemantics.persistable_bytes, init=False
+    )
+    immutable: bool = attrs.field(default=True, init=False)
+
+    @name.default
+    def _name_factory(self) -> str:
+        return "bytes" if self.length is None else f"bytes[{self.length}]"
+
+
+bytes_wtype: typing.Final = BytesWType(length=None)
 
 
 @attrs.frozen

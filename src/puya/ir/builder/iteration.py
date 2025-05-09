@@ -146,7 +146,7 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                     reverse_index=reverse_index,
                     reverse_items=reverse_items,
                 )
-        case wtypes.bytes_wtype:
+        case wtypes.BytesWType():
             bytes_value = context.visitor.visit_and_materialise_single(sequence)
             byte_length = assign_temp(
                 context,

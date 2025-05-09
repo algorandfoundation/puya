@@ -50,7 +50,14 @@ def maybe_wtype_to_arc4_wtype(wtype: wtypes.WType) -> wtypes.ARC4Type | None:
             return wtypes.ARC4UIntN(n=64, source_location=None)
         case wtypes.biguint_wtype:
             return wtypes.ARC4UIntN(n=512, source_location=None)
-        case wtypes.bytes_wtype:
+        case wtypes.BytesWType(length=length):
+            if length is not None:
+                return wtypes.ARC4StaticArray(
+                    element_type=wtypes.arc4_byte_alias,
+                    immutable=True,
+                    source_location=None,
+                    array_size=length,
+                )
             return wtypes.ARC4DynamicArray(
                 element_type=wtypes.arc4_byte_alias,
                 immutable=True,
