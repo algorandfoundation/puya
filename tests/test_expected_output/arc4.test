@@ -802,3 +802,15 @@ class ReferenceReturn(arc4.ARC4Contract):
     @arc4.abimethod ## E: unsupported return type for an ARC-4 method
     def txn(self) -> gtxn.Transaction:
         return gtxn.Transaction(1)
+
+
+## case: invalid_arc4_type_in_abi_call
+from algopy import *
+
+@subroutine
+def caller() -> None:
+    arc4.abi_call( ## E: algopy.itxn.PaymentInnerTransaction is not an ARC-4 type and no implicit ARC-4 conversion possible
+        "foo",
+        itxn.Payment(receiver=Txn.sender).submit(),
+        app_id=1234,
+    )
