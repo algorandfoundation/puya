@@ -730,8 +730,6 @@ class FunctionIRBuilder(
             )
 
     def visit_field_expression(self, expr: awst_nodes.FieldExpression) -> TExpression:
-        if isinstance(expr.base.wtype, wtypes.WStructType):
-            raise NotImplementedError
         if isinstance(expr.base.wtype, wtypes.WTuple):
             index = expr.base.wtype.name_to_index(expr.name, expr.source_location)
             tup = self.visit_and_materialise(expr.base)
@@ -1259,8 +1257,6 @@ class FunctionIRBuilder(
 
     def visit_new_struct(self, expr: awst_nodes.NewStruct) -> TExpression:
         match expr.wtype:
-            case wtypes.WStructType():
-                raise NotImplementedError
             case wtypes.ARC4Struct() as arc4_struct_wtype:
                 return arc4.encode_arc4_struct(self.context, expr, arc4_struct_wtype)
             case _:
