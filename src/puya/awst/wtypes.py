@@ -9,6 +9,7 @@ from immutabledict import immutabledict
 
 from puya import log
 from puya.avm import AVMType, TransactionType
+from puya.awst.visitors import ARC4WTypeVisitor, WTypeVisitor
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import unique
@@ -130,6 +131,10 @@ class WType:
     def __str__(self) -> str:
         return self.name
 
+    def accept[T](self, visitor: WTypeVisitor[T]) -> T:
+        assert type(self) is WType
+        return visitor.visit_basic_type(self)
+
 
 # region Basic WTypes
 void_wtype: typing.Final = WType.register_basic_type(
@@ -183,8 +188,14 @@ uint64_range_wtype: typing.Final = WType.register_basic_type(
 # endregion
 
 
+class _WTypeInstance(WType, abc.ABC):
+    @typing.override
+    @abc.abstractmethod
+    def accept[T](self, visitor: WTypeVisitor[T]) -> T: ...
+
+
 @attrs.frozen
-class WEnumeration(WType):
+class WEnumeration(_WTypeInstance):
     sequence_type: WType
     name: str = attrs.field(init=False)
     _type_semantics: _TypeSemantics = attrs.field(default=_TypeSemantics.static_type, init=False)
@@ -193,10 +204,14 @@ class WEnumeration(WType):
     def _name_factory(self) -> str:
         return f"enumerate_{self.sequence_type.name}"
 
+    @typing.override
+    def accept[T](self, visitor: WTypeVisitor[T]) -> T:
+        return visitor.visit_enumeration_type(self)
+
 
 @typing.final
 @attrs.frozen
-class WGroupTransaction(WType):
+class WGroupTransaction(_WTypeInstance):
     transaction_type: TransactionType | None
     name: str = attrs.field()
     _type_semantics: _TypeSemantics = attrs.field(
@@ -210,10 +225,14 @@ class WGroupTransaction(WType):
             name = f"{name}_{self.transaction_type.name}"
         return name
 
+    @typing.override
+    def accept[T](self, visitor: WTypeVisitor[T]) -> T:
+        return visitor.visit_group_transaction_type(self)
+
 
 @typing.final
 @attrs.frozen
-class WInnerTransactionFields(WType):
+class WInnerTransactionFields(_WTypeInstance):
     transaction_type: TransactionType | None
     name: str = attrs.field()
     _type_semantics: _TypeSemantics = attrs.field(
@@ -227,10 +246,14 @@ class WInnerTransactionFields(WType):
             name = f"{name}_{self.transaction_type.name}"
         return name
 
+    @typing.override
+    def accept[T](self, visitor: WTypeVisitor[T]) -> T:
+        return visitor.visit_inner_transaction_fields_type(self)
+
 
 @typing.final
 @attrs.frozen
-class WInnerTransaction(WType):
+class WInnerTransaction(_WTypeInstance):
     transaction_type: TransactionType | None
     name: str = attrs.field()
     _type_semantics: _TypeSemantics = attrs.field(
@@ -244,10 +267,14 @@ class WInnerTransaction(WType):
             name = f"{name}_{self.transaction_type.name}"
         return name
 
+    @typing.override
+    def accept[T](self, visitor: WTypeVisitor[T]) -> T:
+        return visitor.visit_inner_transaction_type(self)
+
 
 @typing.final
 @attrs.frozen
-class WStructType(WType):
+class WStructType(_WTypeInstance):
     fields: immutabledict[str, WType] = attrs.field(converter=immutabledict)
     frozen: bool
     immutable: bool = attrs.field(init=False)
@@ -268,6 +295,10 @@ class WStructType(WType):
             raise CodeError("struct needs fields", self.source_location)
         if void_wtype in fields.values():
             raise CodeError("struct should not contain void types", self.source_location)
+
+    @typing.override
+    def accept[T](self, visitor: WTypeVisitor[T]) -> T:
+        return visitor.visit_struct_type(self)
 
 
 @attrs.frozen
@@ -296,6 +327,10 @@ class StackArray(NativeArray):
     def _name(self) -> str:
         return f"stack_array<{self.element_type.name}>"
 
+    @typing.override
+    def accept[T](self, visitor: WTypeVisitor[T]) -> T:
+        return visitor.visit_stack_array(self)
+
 
 @typing.final
 @attrs.frozen
@@ -310,10 +345,14 @@ class ReferenceArray(NativeArray):
     def _name(self) -> str:
         return f"ref_array<{self.element_type.name}>"
 
+    @typing.override
+    def accept[T](self, visitor: WTypeVisitor[T]) -> T:
+        return visitor.visit_reference_array(self)
+
 
 @typing.final
 @attrs.frozen(eq=False)
-class WTuple(WType):
+class WTuple(_WTypeInstance):
     types: tuple[WType, ...] = attrs.field(converter=tuple[WType, ...])
     source_location: SourceLocation | None = attrs.field(default=None)
     immutable: bool = attrs.field(default=True, init=False)
@@ -377,27 +416,39 @@ class WTuple(WType):
         except ValueError:
             raise CodeError(f"{name} is not a member of {self.name}") from None
 
+    @typing.override
+    def accept[T](self, visitor: WTypeVisitor[T]) -> T:
+        return visitor.visit_tuple_type(self)
+
 
 @attrs.frozen(kw_only=True)
-class ARC4Type(WType):
-    arc4_name: str = attrs.field(eq=False)  # exclude from equality in case of aliasing
+class ARC4Type(_WTypeInstance):
+    arc4_alias: str | None = attrs.field(default=None, eq=False, alias="arc4_name")
     _type_semantics: _TypeSemantics = attrs.field(
         default=_TypeSemantics.persistable_bytes, init=False
     )
 
+    @typing.override
+    def accept[T](self, visitor: ARC4WTypeVisitor[T]) -> T:
+        return visitor.visit_basic_arc4_type(self)
+
 
 arc4_bool_wtype: typing.Final = ARC4Type(
     name="arc4.bool",
-    arc4_name="bool",
 )
+
+
+class _ARC4WTypeInstance(ARC4Type, abc.ABC):
+    @typing.override
+    @abc.abstractmethod
+    def accept[T](self, visitor: ARC4WTypeVisitor[T]) -> T: ...
 
 
 @typing.final
 @attrs.frozen(kw_only=True)
-class ARC4UIntN(ARC4Type):
+class ARC4UIntN(_ARC4WTypeInstance):
     immutable: bool = attrs.field(default=True, init=False)
     n: int = attrs.field()
-    arc4_name: str = attrs.field(eq=False)
     name: str = attrs.field(init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
 
@@ -408,32 +459,27 @@ class ARC4UIntN(ARC4Type):
         if not (8 <= n <= 512):
             raise CodeError("Bit size must be between 8 and 512 inclusive", self.source_location)
 
-    @arc4_name.default
-    def _arc4_name(self) -> str:
-        return f"uint{self.n}"
-
     @name.default
     def _name(self) -> str:
-        return f"arc4.{self._arc4_name()}"
+        return f"arc4.uint{self.n}"
+
+    @typing.override
+    def accept[T](self, visitor: ARC4WTypeVisitor[T]) -> T:
+        return visitor.visit_arc4_uint(self)
 
 
 @typing.final
 @attrs.frozen(kw_only=True)
-class ARC4UFixedNxM(ARC4Type):
+class ARC4UFixedNxM(_ARC4WTypeInstance):
     n: int = attrs.field()
     m: int = attrs.field()
     immutable: bool = attrs.field(default=True, init=False)
-    arc4_name: str = attrs.field(init=False, eq=False)
     name: str = attrs.field(init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
 
-    @arc4_name.default
-    def _arc4_name(self) -> str:
-        return f"ufixed{self.n}x{self.m}"
-
     @name.default
     def _name(self) -> str:
-        return f"arc4.{self.arc4_name}"
+        return f"arc4.ufixed{self.n}x{self.m}"
 
     @n.validator
     def _n_validator(self, _attribute: object, n: int) -> None:
@@ -446,6 +492,10 @@ class ARC4UFixedNxM(ARC4Type):
     def _m_validator(self, _attribute: object, m: int) -> None:
         if not (1 <= m <= 160):
             raise CodeError("Precision must be between 1 and 160 inclusive", self.source_location)
+
+    @typing.override
+    def accept[T](self, visitor: ARC4WTypeVisitor[T]) -> T:
+        return visitor.visit_arc4_ufixed(self)
 
 
 def _required_arc4_wtypes(
@@ -469,26 +519,26 @@ def _required_arc4_wtypes(
 
 @typing.final
 @attrs.frozen(kw_only=True)
-class ARC4Tuple(ARC4Type):
+class ARC4Tuple(_ARC4WTypeInstance):
+    arc4_alias: None = attrs.field(default=None, init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
     types: tuple[ARC4Type, ...] = attrs.field(
         converter=attrs.Converter(_required_arc4_wtypes, takes_self=True)  # type: ignore[misc]
     )
     name: str = attrs.field(init=False)
-    arc4_name: str = attrs.field(init=False, eq=False)
     immutable: bool = attrs.field(init=False)
 
     @name.default
     def _name(self) -> str:
         return f"arc4.tuple<{','.join(t.name for t in self.types)}>"
 
-    @arc4_name.default
-    def _arc4_name(self) -> str:
-        return f"({','.join(item.arc4_name for item in self.types)})"
-
     @immutable.default
     def _immutable(self) -> bool:
         return all(typ.immutable for typ in self.types)
+
+    @typing.override
+    def accept[T](self, visitor: ARC4WTypeVisitor[T]) -> T:
+        return visitor.visit_arc4_tuple(self)
 
 
 def _array_requires_arc4_type(wtype: WType, arr: attrs.AttrsInstance) -> ARC4Type:
@@ -499,7 +549,7 @@ def _array_requires_arc4_type(wtype: WType, arr: attrs.AttrsInstance) -> ARC4Typ
 
 
 @attrs.frozen(kw_only=True)
-class ARC4Array(ARC4Type):
+class ARC4Array(_ARC4WTypeInstance, abc.ABC):
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
     element_type: ARC4Type = attrs.field(
         converter=attrs.Converter(_array_requires_arc4_type, takes_self=True)  # type: ignore[misc]
@@ -511,15 +561,14 @@ class ARC4Array(ARC4Type):
 @attrs.frozen(kw_only=True)
 class ARC4DynamicArray(ARC4Array):
     name: str = attrs.field(init=False)
-    arc4_name: str = attrs.field(eq=False)
 
     @name.default
     def _name(self) -> str:
         return f"arc4.dynamic_array<{self.element_type.name}>"
 
-    @arc4_name.default
-    def _arc4_name(self) -> str:
-        return f"{self.element_type.arc4_name}[]"
+    @typing.override
+    def accept[T](self, visitor: ARC4WTypeVisitor[T]) -> T:
+        return visitor.visit_arc4_dynamic_array(self)
 
 
 @typing.final
@@ -527,15 +576,14 @@ class ARC4DynamicArray(ARC4Array):
 class ARC4StaticArray(ARC4Array):
     array_size: int = attrs.field(validator=attrs.validators.ge(0))
     name: str = attrs.field(init=False)
-    arc4_name: str = attrs.field(eq=False)
 
     @name.default
     def _name(self) -> str:
         return f"arc4.static_array<{self.element_type.name}, {self.array_size}>"
 
-    @arc4_name.default
-    def _arc4_name(self) -> str:
-        return f"{self.element_type.arc4_name}[{self.array_size}]"
+    @typing.override
+    def accept[T](self, visitor: ARC4WTypeVisitor[T]) -> T:
+        return visitor.visit_arc4_static_array(self)
 
 
 def _require_arc4_fields(fields: Mapping[str, WType]) -> immutabledict[str, ARC4Type]:
@@ -556,21 +604,17 @@ def _require_arc4_fields(fields: Mapping[str, WType]) -> immutabledict[str, ARC4
 
 @typing.final
 @attrs.frozen(kw_only=True)
-class ARC4Struct(ARC4Type):
+class ARC4Struct(_ARC4WTypeInstance):
+    arc4_alias: None = attrs.field(default=None, init=False)
     fields: immutabledict[str, ARC4Type] = attrs.field(converter=_require_arc4_fields)
     frozen: bool
     immutable: bool = attrs.field(init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
-    arc4_name: str = attrs.field(init=False, eq=False)
     desc: str | None = None
 
     @immutable.default
     def _immutable(self) -> bool:
         return self.frozen and all(typ.immutable for typ in self.fields.values())
-
-    @arc4_name.default
-    def _arc4_name(self) -> str:
-        return f"({','.join(item.arc4_name for item in self.types)})"
 
     @cached_property
     def names(self) -> tuple[str, ...]:
@@ -579,6 +623,10 @@ class ARC4Struct(ARC4Type):
     @cached_property
     def types(self) -> tuple[ARC4Type, ...]:
         return tuple(self.fields.values())
+
+    @typing.override
+    def accept[T](self, visitor: ARC4WTypeVisitor[T]) -> T:
+        return visitor.visit_arc4_struct(self)
 
 
 # region ARC4 aliases
