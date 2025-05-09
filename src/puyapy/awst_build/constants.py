@@ -1,6 +1,5 @@
 ARC4_CONTRACT_BASE = "algopy.arc4.ARC4Contract"
 CONTRACT_BASE = "algopy._contract.Contract"
-STRUCT_META = "algopy._struct._StructMeta"
 SUBROUTINE_HINT = "algopy._hints.subroutine"
 LOGICSIG_DECORATOR = "algopy._logic_sig.logicsig"
 LOGICSIG_DECORATOR_ALIAS = "algopy.logicsig"
