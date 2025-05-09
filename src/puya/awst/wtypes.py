@@ -1,7 +1,7 @@
 import abc
 import enum
 import typing
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
 from functools import cached_property
 
 import attrs
@@ -416,32 +416,11 @@ class ARC4UFixedNxM(ARC4Type):
             raise CodeError("Precision must be between 1 and 160 inclusive", self.source_location)
 
 
-def _required_arc4_wtypes(
-    wtypes: Iterable[WType], tup: attrs.AttrsInstance
-) -> tuple[ARC4Type, ...]:
-    invalid_elements = [idx for idx, wtype in enumerate(wtypes) if not isinstance(wtype, ARC4Type)]
-    if invalid_elements:
-        *head, tail = map(str, invalid_elements)
-        if head:
-            invalid_elements_desc = f"{', '.join(head)} and {tail}"
-        else:
-            invalid_elements_desc = tail
-        raise CodeError(
-            f"ARC-4 tuples can only contain ARC-4 types but elements {invalid_elements_desc}"
-            " are not ARC-4 types",
-            tup.source_location,  # type: ignore[attr-defined]
-        )
-
-    return tuple(wtypes)  # type: ignore[arg-type]
-
-
 @typing.final
 @attrs.frozen(kw_only=True)
 class ARC4Tuple(ARC4Type):
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
-    types: tuple[ARC4Type, ...] = attrs.field(
-        converter=attrs.Converter(_required_arc4_wtypes, takes_self=True)  # type: ignore[misc]
-    )
+    types: tuple[WType, ...] = attrs.field(converter=tuple[WType, ...])
     name: str = attrs.field(init=False)
     immutable: bool = attrs.field(init=False)
 
@@ -454,19 +433,10 @@ class ARC4Tuple(ARC4Type):
         return all(typ.immutable for typ in self.types)
 
 
-def _array_requires_arc4_type(wtype: WType, arr: attrs.AttrsInstance) -> ARC4Type:
-    assert isinstance(arr, ARC4Array)
-    if not isinstance(wtype, ARC4Type):
-        raise CodeError("ARC-4 arrays can only contain ARC-4 elements", arr.source_location)
-    return wtype
-
-
 @attrs.frozen(kw_only=True)
 class ARC4Array(ARC4Type):
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
-    element_type: ARC4Type = attrs.field(
-        converter=attrs.Converter(_array_requires_arc4_type, takes_self=True)  # type: ignore[misc]
-    )
+    element_type: WType
     immutable: bool = False
 
 
@@ -510,7 +480,7 @@ def _require_arc4_fields(fields: Mapping[str, WType]) -> immutabledict[str, ARC4
 @typing.final
 @attrs.frozen(kw_only=True)
 class ARC4Struct(ARC4Type):
-    fields: immutabledict[str, ARC4Type] = attrs.field(converter=_require_arc4_fields)
+    fields: immutabledict[str, WType] = attrs.field(converter=immutabledict[str, WType])
     frozen: bool
     immutable: bool = attrs.field(init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
@@ -525,7 +495,7 @@ class ARC4Struct(ARC4Type):
         return tuple(self.fields.keys())
 
     @cached_property
-    def types(self) -> tuple[ARC4Type, ...]:
+    def types(self) -> tuple[WType, ...]:
         return tuple(self.fields.values())
 
 
