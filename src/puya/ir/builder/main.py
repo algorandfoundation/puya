@@ -774,7 +774,10 @@ class FunctionIRBuilder(
             arc4_array_type = effective_array_encoding(sliceable_type, expr.base.source_location)
             array = self.context.visitor.visit_and_materialise_single(expr.base)
             _, data = arc4.invoke_arc4_array_pop(
-                self.context, arc4_array_type.element_type, array, expr.source_location
+                self.context,
+                wtype_to_arc4_wtype(arc4_array_type.element_type, expr.source_location),
+                array,
+                expr.source_location,
             )
             return data
         else:
@@ -851,7 +854,7 @@ class FunctionIRBuilder(
             return arc4.maybe_decode_arc4_value_provider(
                 self.context,
                 encoded_read_vp,
-                arc4_array_type.element_type,
+                wtype_to_arc4_wtype(arc4_array_type.element_type, expr.source_location),
                 indexable_wtype.element_type,
                 expr.source_location,
                 temp_description="arc4_item",
@@ -1291,7 +1294,7 @@ class FunctionIRBuilder(
                 self.context,
                 value,
                 expr.value.wtype,
-                arc4_wtype.element_type,
+                wtype_to_arc4_wtype(arc4_wtype.element_type, expr.source_location),
                 expr.source_location,
             )
         return arc4.arc4_replace_array_item(

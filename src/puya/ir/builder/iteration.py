@@ -6,7 +6,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import CodeError, InternalError
-from puya.ir.arc4_types import effective_array_encoding
+from puya.ir.arc4_types import effective_array_encoding, wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, arrays
 from puya.ir.builder._tuple_util import build_tuple_registers, get_tuple_item_values
@@ -199,7 +199,9 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
             )
         case wtypes.StackArray(element_type=element_type) as array_wtype:
             arc4_encoding_wtype = effective_array_encoding(array_wtype, sequence.source_location)
-            arc4_element_type = arc4_encoding_wtype.element_type
+            arc4_element_type = wtype_to_arc4_wtype(
+                arc4_encoding_wtype.element_type, sequence.source_location
+            )
             iterator = arc4.build_for_in_array(
                 context,
                 arc4_encoding_wtype,

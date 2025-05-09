@@ -1,7 +1,5 @@
 import typing
 
-import attrs
-
 from puya.awst import wtypes
 from puya.awst.visitors import ARC4WTypeVisitor, WTypeVisitor
 from puya.errors import CodeError, InternalError
@@ -112,9 +110,16 @@ class ARC4EncodedWTypeConverterVisitor(WTypeVisitor[wtypes.ARC4Type | None]):
         return wtype
 
 
-@attrs.frozen
 class ARC4NameWTypeVisitor(ARC4WTypeVisitor[str]):
-    _use_alias: bool = False
+    def __init__(self, *, use_alias: bool = False):
+        self._use_alias = use_alias
+        self._arc4_converter = ARC4EncodedWTypeConverterVisitor()
+
+    def _wtype_arc4_name(self, wtype: wtypes.WType) -> str:
+        arc4_wtype = wtype.accept(self._arc4_converter)
+        if arc4_wtype is None:
+            raise InternalError(f"unencodable ARC-4 type member on {wtype}")
+        return arc4_wtype.accept(self)
 
     @typing.override
     def visit_basic_arc4_type(self, wtype: wtypes.ARC4Type) -> str:
@@ -141,27 +146,27 @@ class ARC4NameWTypeVisitor(ARC4WTypeVisitor[str]):
     @typing.override
     def visit_arc4_tuple(self, wtype: wtypes.ARC4Tuple) -> str:
         typing.assert_type(wtype.arc4_alias, None)
-        item_arc4_names = [t.accept(self) for t in wtype.types]
+        item_arc4_names = [self._wtype_arc4_name(t) for t in wtype.types]
         return f"({','.join(item_arc4_names)})"
 
     @typing.override
     def visit_arc4_dynamic_array(self, wtype: wtypes.ARC4DynamicArray) -> str:
         if self._use_alias and wtype.arc4_alias is not None:
             return wtype.arc4_alias
-        element_arc4_name = wtype.element_type.accept(self)
+        element_arc4_name = self._wtype_arc4_name(wtype.element_type)
         return f"{element_arc4_name}[]"
 
     @typing.override
     def visit_arc4_static_array(self, wtype: wtypes.ARC4StaticArray) -> str:
         if self._use_alias and wtype.arc4_alias is not None:
             return wtype.arc4_alias
-        element_arc4_name = wtype.element_type.accept(self)
+        element_arc4_name = self._wtype_arc4_name(wtype.element_type)
         return f"{element_arc4_name}[{wtype.array_size}]"
 
     @typing.override
     def visit_arc4_struct(self, wtype: wtypes.ARC4Struct) -> str:
         typing.assert_type(wtype.arc4_alias, None)
-        item_arc4_names = [t.accept(self) for t in wtype.types]
+        item_arc4_names = [self._wtype_arc4_name(t) for t in wtype.types]
         return f"({','.join(item_arc4_names)})"
 
 
