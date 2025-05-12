@@ -50,15 +50,21 @@ class NativeArrayGenericTypeBuilder(GenericTypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        if not args:
+        arg = expect.at_most_one_arg(args, location)
+        if not arg:
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
-        element_type = expect.instance_builder(args[0], default=expect.default_raise).pytype
+        # TODO: check arg type is sequence like not just iterable
+        element_type = arg.iterable_item_type()
         typ = pytypes.GenericARC4DynamicArrayType.parameterise([element_type], location)
-        values = tuple(expect.argument_of_type_else_dummy(a, element_type).resolve() for a in args)
-        wtype = typ.wtype
+        wtype = typ.checked_wtype(location)
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
         return NativeArrayExpressionBuilder(
-            NewArray(values=values, wtype=wtype, source_location=location), typ
+            ArrayConcat(
+                left=NewArray(values=(), wtype=wtype, source_location=location),
+                right=arg.resolve(),
+                source_location=location,
+            ),
+            typ,
         )
 
 
