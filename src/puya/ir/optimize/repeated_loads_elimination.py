@@ -89,6 +89,80 @@ def _optimise_global_read_write(block: models.BasicBlock) -> bool:
     return modified
 
 
+def _optimise_local_read_write(block: models.BasicBlock) -> bool:
+    modified = False
+    read_results = dict[
+        tuple[models.Value, models.Value], tuple[models.Value, models.Value | None]
+    ]()
+    last_write: models.Intrinsic | None = None
+    for op in block.ops:
+        match op:
+            case models.Assignment(
+                targets=[value, exists],
+                source=models.Intrinsic(
+                    op=AVMOp.app_local_get_ex, args=[account, models.UInt64Constant(value=0), key]
+                ),
+            ):
+                last_write = None  # doing a read resets
+                existing_value, existing_exists = read_results.setdefault(
+                    (account, key), (value, exists)
+                )
+                if existing_exists and (value, exists) != (existing_value, existing_exists):
+                    logger.debug(
+                        f"removing repeated app_local_get_ex for key: {key}",
+                        location=op.source_location,
+                    )
+                    op.source = models.ValueTuple(
+                        values=(existing_value, existing_exists), source_location=None
+                    )
+                    modified = True
+            case models.Assignment(
+                targets=[value],
+                source=models.Intrinsic(op=AVMOp.app_local_get, args=[account, key]),
+            ):
+                last_write = None  # doing a read resets
+                existing_read = read_results.setdefault((account, key), (value, None))
+                if value != existing_read[0]:
+                    logger.debug(
+                        f"removing repeated app_local_get for: {account=}, {key=}",
+                        location=op.source_location,
+                    )
+                    op.source = existing_read[0]
+                    modified = True
+            case models.Intrinsic(op=AVMOp.app_local_put, args=[account, key, value]) as write:
+                # update cache with new value.
+                # this is conservative to naively avoid the problem when multiple
+                # values point to the same slot
+                read_results = {
+                    (account, key): (
+                        value,
+                        models.UInt64Constant(
+                            value=1, ir_type=PrimitiveIRType.bool, source_location=None
+                        ),
+                    )
+                }
+                # remove last_write if it is overwritten with another write, and there
+                # are no intervening reads (last_write is None if there are reads)
+                if last_write and ((account, key) == tuple(last_write.args[:2])):
+                    logger.debug(
+                        f"removing repeated app_local_put for: {account=}, {key=}",
+                        location=op.source_location,
+                    )
+                    block.ops.remove(last_write)
+                    modified = True
+                last_write = write
+            # be conservative and treat any subroutine call or delete as a barrier to this
+            # particular optimisation
+            case (
+                models.InvokeSubroutine()
+                | models.Assignment(source=models.InvokeSubroutine())
+                | models.Intrinsic(op=AVMOp.app_local_del)
+            ):
+                last_write = None
+                read_results = {}
+    return modified
+
+
 def _optimise_slot_read_write(block: models.BasicBlock) -> bool:
     modified = False
     slot_read_results = dict[models.Value, models.Value]()
