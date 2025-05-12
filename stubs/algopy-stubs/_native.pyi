@@ -11,7 +11,10 @@ class FixedArray(
 ):
     """A fixed length Array of the specified type and length"""
 
+    @typing.overload
     def __init__(self) -> None: ...
+    @typing.overload
+    def __init__(self, values: Iterable[_TArrayItem]) -> None: ...
     def __iter__(self) -> typing.Iterator[_TArrayItem]:
         """Returns an iterator for the items in the array"""
 
@@ -37,7 +40,10 @@ class FixedArray(
 class NativeArray(typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
     """A dynamically sized Array of the specified type"""
 
+    @typing.overload
     def __init__(self) -> None: ...
+    @typing.overload
+    def __init__(self, values: Iterable[_TArrayItem]) -> None: ...
     def __iter__(self) -> typing.Iterator[_TArrayItem]:
         """Returns an iterator for the items in the array"""
 
@@ -74,14 +80,14 @@ class NativeArray(typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
 
 @typing.dataclass_transform()
 class Struct:
+    """Base class for Struct types"""
+
     def __init_subclass__(
         cls,
         *,
         frozen: bool = False,
         kw_only: bool = False,
     ): ...
-
-    """Base class for Struct types"""
     def copy(self) -> typing.Self:
         """Create a copy of this struct"""
 

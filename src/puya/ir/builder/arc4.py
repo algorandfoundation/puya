@@ -576,7 +576,18 @@ def encode_arc4_exprs_as_array(
     values: Sequence[awst_nodes.Expression],
     loc: SourceLocation,
 ) -> ValueProvider:
-    elements = [context.visitor.visit_and_materialise_single(value) for value in values]
+    elements = [
+        element for value in values for element in context.visitor.visit_and_materialise(value)
+    ]
+    arc4_element_type = wtype_to_arc4_wtype(wtype.element_type, loc)
+    if wtype.element_type != arc4_element_type:
+        elements = _encode_n_items_as_arc4_items(
+            context,
+            elements,
+            source_wtype=wtype.element_type,
+            target_wtype=arc4_element_type,
+            loc=loc,
+        )
     return _encode_arc4_values_as_array(context, wtype, elements, loc)
 
 
@@ -997,7 +1008,7 @@ def _encode_n_items_as_arc4_items(
     source_wtype: wtypes.WType,
     target_wtype: wtypes.ARC4Type,
     loc: SourceLocation,
-) -> Sequence[Value]:
+) -> list[Value]:
     source_types = (
         source_wtype.types if isinstance(source_wtype, wtypes.WTuple) else (source_wtype,)
     )
@@ -1612,6 +1623,8 @@ def arc4_replace_array_item(
     source_location: SourceLocation,
 ) -> Value:
     assert type(wtype) in (wtypes.ARC4StaticArray, wtypes.ARC4DynamicArray)
+
+    factory = OpFactory(context, source_location)
     base = context.visitor.visit_and_materialise_single(base_expr)
 
     value = assign_temp(
@@ -1627,11 +1640,15 @@ def arc4_replace_array_item(
             args=args,
             source_location=source_location,
         )
-        return assign_temp(
-            context, invoke, temp_description="updated_value", source_location=source_location
-        )
+        return factory.assign(invoke, "updated_value")
 
     arc4_element_type = wtype_to_arc4_wtype(wtype.element_type, source_location)
+    if wtype.element_type != arc4_element_type:
+        encoded_vp = encode_value_provider(
+            context, value, wtype.element_type, arc4_element_type, source_location
+        )
+        value = factory.assign(encoded_vp, "encoded")
+
     if _is_byte_length_header(arc4_element_type):
         if isinstance(wtype, wtypes.ARC4StaticArray):
             return updated_result(
