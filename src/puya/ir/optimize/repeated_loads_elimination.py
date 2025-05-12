@@ -1,20 +1,95 @@
 from puya import log
 from puya.context import CompileContext
 from puya.ir import models
+from puya.ir.avm_ops import AVMOp
+from puya.ir.types_ import PrimitiveIRType
 
 logger = log.get_logger(__name__)
 
 
-def redundant_slot_op_elimination(_: CompileContext, subroutine: models.Subroutine) -> bool:
+def constant_reads_and_unobserved_writes_elimination(
+    _: CompileContext, subroutine: models.Subroutine
+) -> bool:
     any_modified = False
     # TODO: consider dominator blocks
     for block in subroutine.body:
-        while _optimise_block(block):
+        while _optimise_global_read_write(block):
+            any_modified = True
+        while _optimise_slot_read_write(block):
             any_modified = True
     return any_modified
 
 
-def _optimise_block(block: models.BasicBlock) -> bool:
+def _optimise_global_read_write(block: models.BasicBlock) -> bool:
+    modified = False
+    read_results = dict[models.Value, tuple[models.Value, models.Value | None]]()
+    last_write: models.Intrinsic | None = None
+    for op in block.ops:
+        match op:
+            case models.Assignment(
+                targets=[value, exists],
+                source=models.Intrinsic(
+                    op=AVMOp.app_global_get_ex, args=[models.UInt64Constant(value=0), key]
+                ),
+            ):
+                last_write = None  # doing a read resets
+                existing_value, existing_exists = read_results.setdefault(key, (value, exists))
+                if existing_exists and (value, exists) != (existing_value, existing_exists):
+                    logger.debug(
+                        f"removing repeated app_global_get_ex for key: {key}",
+                        location=op.source_location,
+                    )
+                    op.source = models.ValueTuple(
+                        values=(existing_value, existing_exists), source_location=None
+                    )
+                    modified = True
+            case models.Assignment(
+                targets=[value], source=models.Intrinsic(op=AVMOp.app_global_get, args=[key])
+            ):
+                last_write = None  # doing a read resets
+                existing_read = read_results.setdefault(key, (value, None))
+                if value != existing_read[0]:
+                    logger.debug(
+                        f"removing repeated app_global_get for key: {key}",
+                        location=op.source_location,
+                    )
+                    op.source = existing_read[0]
+                    modified = True
+            case models.Intrinsic(op=AVMOp.app_global_put, args=[key, value]) as write:
+                # update cache with new value.
+                # this is conservative to naively avoid the problem when multiple
+                # values point to the same slot
+                read_results = {
+                    key: (
+                        value,
+                        models.UInt64Constant(
+                            value=1, ir_type=PrimitiveIRType.bool, source_location=None
+                        ),
+                    )
+                }
+                # remove last_write if it is overwritten with another write, and there
+                # are no intervening reads
+                if last_write and (key == last_write.args[0]):
+                    logger.debug(
+                        f"removing repeated app_global_put for key: {key}",
+                        location=op.source_location,
+                    )
+                    block.ops.remove(last_write)
+                    modified = True
+                last_write = write
+            # be conservative and treat any subroutine call or delete as a barrier to this
+            # particular optimisation
+            case (
+                models.InvokeSubroutine()
+                | models.Assignment(source=models.InvokeSubroutine())
+                | models.Intrinsic(op=AVMOp.app_global_del)
+            ):
+                last_write = None
+                read_results = {}
+    return modified
+
+
+def _optimise_slot_read_write(block: models.BasicBlock) -> bool:
     modified = False
     slot_read_results = dict[models.Value, models.Value]()
     last_write: models.WriteSlot | None = None

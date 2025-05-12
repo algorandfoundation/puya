@@ -161,6 +161,7 @@ def visit_state_exists(
     context: IRFunctionBuildContext, field: awst_nodes.StorageExpression, loc: SourceLocation
 ) -> ValueProvider:
     key = context.visitor.visit_and_materialise_single(field.key)
+    result_type = _get_storage_codec_for_node(field).encoded_ir_type
     if isinstance(field, awst_nodes.AppStateExpression):
         op = AVMOp.app_global_get_ex
         args = [UInt64Constant(value=0, source_location=loc), key]
@@ -171,12 +172,11 @@ def visit_state_exists(
     else:
         typing.assert_type(field, awst_nodes.BoxValueExpression)
         # use box_len for existence check, in case len(value) is > 4096
+        result_type = PrimitiveIRType.uint64
         op = AVMOp.box_len
         args = [key]
 
-    # for global and local storage first return type could actually be uint64 or bytes
-    # but we discard that value so just use uint64 for simplicity
-    ir_types = [PrimitiveIRType.uint64, PrimitiveIRType.bool]
+    ir_types = [result_type, PrimitiveIRType.bool]
     get_ex = Intrinsic(op=op, args=args, types=ir_types, source_location=loc)
     _, maybe_exists = context.visitor.materialise_value_provider(get_ex, ("_", "maybe_exists"))
     return maybe_exists
