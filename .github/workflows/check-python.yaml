@@ -12,13 +12,29 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Setup Python venv
-        uses: ./.github/actions/setup-python-venv
-        with:
-          poetry_install_args: "--with cicd --with doc"
+      - name: Check for changelog fragment
+        id: check_changelog
+        run: |
+          if [[ -n "$(git diff --name-only --diff-filter=A HEAD^1 HEAD -- changelog.d/*.md)" ]]; then
+            echo "has_changelog=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changelog=false" >> $GITHUB_OUTPUT
+          fi
 
-      - name: Check new change log fragment was added
-        run: test -n "$(git diff --name-only --diff-filter=A HEAD^1 HEAD -- changelog.d/*.md)"
+      - name: Delete existing comment if changelog fragment was added
+        if: steps.check_changelog.outputs.has_changelog == 'true'
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          comment-tag: no_changelog_fragment_detected
+          mode: delete
+
+      - name: Create or update comment if no changelog fragment
+        if: steps.check_changelog.outputs.has_changelog == 'false'
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          comment-tag: no_changelog_fragment_detected
+          mode: upsert
+          message: ⚠️ No changelog fragment detected
 
   check-python:
     runs-on: "ubuntu-latest"
