@@ -4,14 +4,14 @@
 // test_cases.inner_transactions.contract.MyContract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 6 5 3 1000
-    bytecblock 0x098101 0x09361a00b08101 "name" 0x31 0x32 0x756e6974 0x33 0x34 0x35 0x41535431 0x41535432 0x41535433 0x3130 0x3131 0x3132 0x3133 0x3134 0x3135 0x3136 0x77697468206172677320706172616d20736574 0x3432 0x337264
+    bytecblock 0x098101 0x09361a00b08101 0x31 0x32 0x41535432 0x756e6974 0x33 0x34 0x35 0x41535431 0x41535433 "name" 0x3130 0x3131 0x3132 0x3133 0x3134 0x3135 0x3136 0x77697468206172677320706172616d20736574 0x3432 0x337264
     intc_0 // 0
     dupn 3
     pushbytes ""
     dupn 2
     txn ApplicationID
     bnz main_after_if_else@2
-    bytec_2 // "name"
+    bytec 11 // "name"
     pushbytes 0x
     app_global_put
 
@@ -37,7 +37,7 @@ main_switch_case_3@8:
     itxn_begin
     intc_3 // 3
     itxn_field ExtraProgramPages
-    bytec_3 // 0x31
+    bytec_2 // 0x31
     itxn_field ApplicationArgs
     intc_2 // DeleteApplication
     itxn_field OnCompletion
@@ -112,7 +112,7 @@ main_switch_case_3@8:
 
 main_switch_case_2@7:
     itxn_begin
-    bytec_3 // 0x31
+    bytec_2 // 0x31
     itxn_field ApplicationArgs
     intc_2 // DeleteApplication
     itxn_field OnCompletion
@@ -129,7 +129,7 @@ main_switch_case_2@7:
     itxn_field ClearStateProgramPages
     bytec_1 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    bytec 4 // 0x32
+    bytec_3 // 0x32
     itxn_field ApplicationArgs
     intc_2 // DeleteApplication
     itxn_field OnCompletion
@@ -321,11 +321,11 @@ main_switch_case_2@7:
     itxn_field Fee
     itxn_submit
     gitxna 0 Logs 0
-    bytec_3 // 0x31
+    bytec_2 // 0x31
     ==
     assert
     gitxna 1 Logs 0
-    bytec 4 // 0x32
+    bytec_3 // 0x32
     ==
     assert
     gitxna 2 Logs 0
@@ -393,9 +393,9 @@ main_switch_case_1@6:
     bury 1
     txn NumAppArgs
     bz main_else_body@18
-    bytec_3 // 0x31
+    bytec_2 // 0x31
     bury 7
-    bytec 4 // 0x32
+    bytec_3 // 0x32
     bury 6
     pushint 2 // 2
     bury 3
@@ -438,11 +438,11 @@ main_next_field@23:
     itxn Note
     bury 4
     itxna ApplicationArgs 0
-    bytec_3 // 0x31
+    bytec_2 // 0x31
     ==
     assert // correct args used 1
     itxna ApplicationArgs 1
-    bytec 4 // 0x32
+    bytec_3 // 0x32
     ==
     assert // correct args used 2
     txn NumAppArgs
@@ -488,17 +488,10 @@ main_else_body@18:
     b main_after_if_else@19
 
 main_switch_case_0@5:
-    bytec_2 // "name"
-    bytec 9 // 0x41535431
-    app_global_put
-    intc_0 // 0
-    bytec_2 // "name"
-    app_global_get_ex
-    assert // check self.name exists
     global CurrentApplicationAddress
     dup
-    bytec_2 // "name"
-    bytec 10 // 0x41535432
+    bytec 11 // "name"
+    bytec 4 // 0x41535432
     app_global_put
     itxn_begin
     dup
@@ -509,7 +502,7 @@ main_switch_case_0@5:
     itxn_field ConfigAssetDecimals
     bytec 5 // 0x756e6974
     itxn_field ConfigAssetUnitName
-    uncover 2
+    bytec 9 // 0x41535431
     itxn_field ConfigAssetName
     intc 4 // 1000
     itxn_field ConfigAssetTotal
@@ -520,19 +513,16 @@ main_switch_case_0@5:
     itxn_submit
     itxn ConfigAssetName
     itxn CreatedAssetID
-    intc_0 // 0
-    bytec_2 // "name"
-    app_global_get_ex
-    assert // check self.name exists
     itxn_begin
-    dig 3
+    dig 2
     itxn_field ConfigAssetReserve
-    dig 4
+    dig 3
     itxn_field ConfigAssetManager
     intc_3 // 3
     itxn_field ConfigAssetDecimals
     bytec 5 // 0x756e6974
     itxn_field ConfigAssetUnitName
+    bytec 4 // 0x41535432
     itxn_field ConfigAssetName
     intc 4 // 1000
     itxn_field ConfigAssetTotal
@@ -548,7 +538,7 @@ main_switch_case_0@5:
     ==
     assert // asset1_txn is correct
     swap
-    bytec 10 // 0x41535432
+    bytec 4 // 0x41535432
     ==
     assert // asset2_txn is correct
     swap
@@ -559,7 +549,7 @@ main_switch_case_0@5:
     assert // created asset 1 is correct
     asset_params_get AssetName
     assert // asset exists
-    bytec 10 // 0x41535432
+    bytec 4 // 0x41535432
     ==
     assert // created asset 2 is correct
     itxn_begin
@@ -580,7 +570,7 @@ main_switch_case_0@5:
     itxn_field ConfigAssetDecimals
     bytec 5 // 0x756e6974
     itxn_field ConfigAssetUnitName
-    bytec 11 // 0x41535433
+    bytec 10 // 0x41535433
     itxn_field ConfigAssetName
     intc 4 // 1000
     itxn_field ConfigAssetTotal
@@ -592,7 +582,7 @@ main_switch_case_0@5:
     itxn ConfigAssetName
     gitxn 0 CreatedApplicationID
     assert // created app
-    bytec 11 // 0x41535433
+    bytec 10 // 0x41535433
     ==
     assert // asset3_txn is correct
     itxn_begin
@@ -615,7 +605,7 @@ main_switch_case_0@5:
     itxn_field ConfigAssetDecimals
     bytec 5 // 0x756e6974
     itxn_field ConfigAssetUnitName
-    bytec 11 // 0x41535433
+    bytec 10 // 0x41535433
     itxn_field ConfigAssetName
     intc 4 // 1000
     itxn_field ConfigAssetTotal

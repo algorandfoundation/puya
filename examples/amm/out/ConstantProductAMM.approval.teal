@@ -386,10 +386,7 @@ bootstrap:
     concat
     pushbytes 0x2d
     concat
-    intc_0 // 0
-    bytec_1 // "asset_b"
-    app_global_get_ex
-    assert // check self.asset_b exists
+    frame_dig -1
     asset_params_get AssetUnitName
     assert // asset exists
     concat
@@ -537,14 +534,11 @@ mint:
     bytec_2 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
+    dup
     assert // bootstrap method needs to be called first
     // amm/contract.py:113-114
     // # well-formed mint
     // assert pool_asset == self.pool_token, "asset pool incorrect"
-    intc_0 // 0
-    bytec_2 // "pool_token"
-    app_global_get_ex
-    assert // check self.pool_token exists
     frame_dig -3
     ==
     assert // asset pool incorrect
@@ -555,6 +549,7 @@ mint:
     app_global_get_ex
     assert // check self.asset_a exists
     frame_dig -2
+    dig 1
     ==
     assert // asset a incorrect
     // amm/contract.py:116
@@ -564,6 +559,7 @@ mint:
     app_global_get_ex
     assert // check self.asset_b exists
     frame_dig -1
+    dig 1
     ==
     assert // asset b incorrect
     // amm/contract.py:117
@@ -596,17 +592,16 @@ mint:
     // assert a_xfer.xfer_asset == self.asset_a, "asset a incorrect"
     frame_dig -5
     gtxns XferAsset
-    intc_0 // 0
-    bytec_0 // "asset_a"
-    app_global_get_ex
-    assert // check self.asset_a exists
+    uncover 2
     ==
     assert // asset a incorrect
     // amm/contract.py:125
     // assert a_xfer.asset_amount > 0, "amount minimum not met"
     frame_dig -5
     gtxns AssetAmount
-    dupn 2
+    dup
+    cover 2
+    dup
     assert // amount minimum not met
     // amm/contract.py:129
     // b_xfer.asset_receiver == Global.current_application_address
@@ -624,10 +619,7 @@ mint:
     // assert b_xfer.xfer_asset == self.asset_b, "asset b incorrect"
     frame_dig -4
     gtxns XferAsset
-    intc_0 // 0
-    bytec_1 // "asset_b"
-    app_global_get_ex
-    assert // check self.asset_b exists
+    uncover 2
     ==
     assert // asset b incorrect
     // amm/contract.py:132
@@ -791,14 +783,12 @@ burn:
     bytec_2 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
+    dup
     assert // bootstrap method needs to be called first
     // amm/contract.py:172
     // assert pool_asset == self.pool_token, "asset pool incorrect"
-    intc_0 // 0
-    bytec_2 // "pool_token"
-    app_global_get_ex
-    assert // check self.pool_token exists
     frame_dig -3
+    dig 1
     ==
     assert // asset pool incorrect
     // amm/contract.py:173
@@ -840,10 +830,7 @@ burn:
     // assert pool_xfer.xfer_asset == self.pool_token, "asset pool incorrect"
     frame_dig -4
     gtxns XferAsset
-    intc_0 // 0
-    bytec_2 // "pool_token"
-    app_global_get_ex
-    assert // check self.pool_token exists
+    uncover 2
     ==
     assert // asset pool incorrect
     // amm/contract.py:181
@@ -942,6 +929,7 @@ swap:
     app_global_get_ex
     assert // check self.asset_a exists
     frame_dig -2
+    dig 1
     ==
     assert // asset a incorrect
     // amm/contract.py:226
@@ -951,6 +939,7 @@ swap:
     app_global_get_ex
     assert // check self.asset_b exists
     frame_dig -1
+    dig 1
     ==
     assert // asset b incorrect
     // amm/contract.py:228
@@ -958,6 +947,7 @@ swap:
     frame_dig -3
     gtxns AssetAmount
     dup
+    cover 3
     assert // amount minimum not met
     // amm/contract.py:229
     // assert swap_xfer.sender == Txn.sender, "sender invalid"
@@ -966,18 +956,6 @@ swap:
     txn Sender
     ==
     assert // sender invalid
-    // amm/contract.py:232
-    // case self.asset_a:
-    intc_0 // 0
-    bytec_0 // "asset_a"
-    app_global_get_ex
-    assert // check self.asset_a exists
-    // amm/contract.py:236
-    // case self.asset_b:
-    intc_0 // 0
-    bytec_1 // "asset_b"
-    app_global_get_ex
-    assert // check self.asset_b exists
     // amm/contract.py:231
     // match swap_xfer.xfer_asset:
     frame_dig -3

@@ -4,7 +4,7 @@
 // examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 3 8
-    bytecblock "game" "turns" "winner" "challenger" 0x01 0x02 "host"
+    bytecblock "turns" "game" "winner" "challenger" 0x01 0x02 "host"
     pushbytes ""
     dupn 2
     txn NumAppArgs
@@ -42,7 +42,7 @@ main_play_route@16:
     !
     assert // Game is already finished
     intc_0 // 0
-    bytec_1 // "turns"
+    bytec_0 // "turns"
     app_global_get_ex
     assert // check self.turns exists
     pushint 2 // 2
@@ -84,7 +84,7 @@ main_whose_turn_route@15:
     txn ApplicationID
     assert // can only call when not creating
     intc_0 // 0
-    bytec_1 // "turns"
+    bytec_0 // "turns"
     app_global_get_ex
     assert // check self.turns exists
     pushint 2 // 2
@@ -167,7 +167,7 @@ main_after_if_else@9:
     app_global_put
     pushint 9 // 9
     bzero
-    bytec_0 // "game"
+    bytec_1 // "game"
     swap
     app_global_put
     dig 2
@@ -185,7 +185,7 @@ main_after_if_else@9:
 main_bool_merge@13:
     assert // Move must be in range
     intc_0 // 0
-    bytec_0 // "game"
+    bytec_1 // "game"
     app_global_get_ex
     assert // check self.game exists
     dig 2
@@ -206,10 +206,10 @@ main_bool_merge@13:
     <
     assert // Index access is out of bounds
     replace3
-    bytec_0 // "game"
+    bytec_1 // "game"
     swap
     app_global_put
-    bytec_1 // "turns"
+    bytec_0 // "turns"
     intc_0 // 0
     app_global_put
     intc_1 // 1
@@ -240,30 +240,22 @@ make_move:
 make_move_bool_merge@4:
     assert // Move must be in range
     intc_0 // 0
-    bytec_0 // "game"
+    bytec_1 // "game"
     app_global_get_ex
     assert // check self.game exists
     frame_dig -1
     intc_2 // 3
     *
-    swap
-    dig 1
+    dup2
     intc_2 // 3
     extract3 // on error: Index access is out of bounds
+    dup
     frame_dig -2
     intc_1 // 1
     extract3 // on error: Index access is out of bounds
     pushbytes 0x00
     b==
     assert // Square is already taken
-    intc_0 // 0
-    bytec_0 // "game"
-    app_global_get_ex
-    assert // check self.game exists
-    dup
-    dig 2
-    intc_2 // 3
-    extract3 // on error: Index access is out of bounds
     frame_dig 6
     assert // Index access is out of bounds
     frame_dig -2
@@ -273,23 +265,24 @@ make_move_bool_merge@4:
     intc_2 // 3
     <
     assert // Index access is out of bounds
+    uncover 2
     dig 2
-    swap
+    uncover 2
     replace3
-    bytec_0 // "game"
+    bytec_1 // "game"
     swap
     app_global_put
     intc_0 // 0
-    bytec_1 // "turns"
+    bytec_0 // "turns"
     app_global_get_ex
     assert // check self.turns exists
     intc_1 // 1
     +
-    bytec_1 // "turns"
+    bytec_0 // "turns"
     swap
     app_global_put
     intc_0 // 0
-    bytec_0 // "game"
+    bytec_1 // "game"
     app_global_get_ex
     swap
     dup
@@ -329,7 +322,7 @@ make_move_after_if_else@9:
 
 make_move_else_body@6:
     intc_0 // 0
-    bytec_1 // "turns"
+    bytec_0 // "turns"
     app_global_get_ex
     assert // check self.turns exists
     pushint 9 // 9

@@ -4,7 +4,7 @@
 // examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 10 8
-    bytecblock "is_bootstrapped" "voter_count" "vote_id" "option_counts" "V" "close_time" 0x068101 0x30313233343536373839 "snapshot_public_key" "metadata_ipfs_cid" "start_time" "end_time" "quorum" "nft_image_url" "total_options"
+    bytecblock "is_bootstrapped" "voter_count" "option_counts" "V" "vote_id" "close_time" 0x068101 0x30313233343536373839 "snapshot_public_key" "metadata_ipfs_cid" "start_time" "end_time" "quorum" "nft_image_url" "total_options"
     txn ApplicationID
     bnz main_after_if_else@2
     // voting/voting.py:51
@@ -280,7 +280,7 @@ create:
     assert // End time should be in the future
     // voting/voting.py:73
     // self.vote_id = vote_id
-    bytec_2 // "vote_id"
+    bytec 4 // "vote_id"
     frame_dig -8
     app_global_put
     // voting/voting.py:74
@@ -363,7 +363,7 @@ create_after_for@5:
     assert // Can't have more than 128 vote options
     // voting/voting.py:227
     // self.option_counts = option_counts.copy()
-    bytec_3 // "option_counts"
+    bytec_2 // "option_counts"
     frame_dig -3
     app_global_put
     // voting/voting.py:228
@@ -457,7 +457,7 @@ bootstrap:
     assert // Payment must be for the exact min balance requirement
     // voting/voting.py:108
     // assert self.tally_box.create(size=tally_box_size)
-    bytec 4 // "V"
+    bytec_3 // "V"
     swap
     box_create
     assert
@@ -495,7 +495,7 @@ close:
     // voting/voting.py:119
     // + self.vote_id
     intc_0 // 0
-    bytec_2 // "vote_id"
+    bytec 4 // "vote_id"
     app_global_get_ex
     assert // check self.vote_id exists
     // voting/voting.py:117-118
@@ -506,7 +506,7 @@ close:
     // '{"standard":"arc69",'
     // '"description":"This is a voting result NFT for voting round with ID '
     // + self.vote_id
-    swap
+    dig 1
     concat
     // voting/voting.py:120
     // + '.","properties":{"metadata":"ipfs://'
@@ -541,12 +541,6 @@ close:
     // + self.metadata_ipfs_cid
     // + '","id":"'
     concat
-    // voting/voting.py:123
-    // + self.vote_id
-    intc_0 // 0
-    bytec_2 // "vote_id"
-    app_global_get_ex
-    assert // check self.vote_id exists
     // voting/voting.py:117-123
     // '{"standard":"arc69",'
     // '"description":"This is a voting result NFT for voting round with ID '
@@ -555,6 +549,7 @@ close:
     // + self.metadata_ipfs_cid
     // + '","id":"'
     // + self.vote_id
+    swap
     concat
     // voting/voting.py:124
     // + '","quorum":'
@@ -645,7 +640,7 @@ close:
     // voting/voting.py:132
     // for question_index, question_options in uenumerate(self.option_counts):
     dup
-    bytec_3 // "option_counts"
+    bytec_2 // "option_counts"
     app_global_get_ex
     swap
     dup
@@ -737,7 +732,7 @@ close_after_if_else@9:
     frame_dig 1
     // voting/voting.py:241
     // return op.btoi(self.tally_box.extract(index, VOTE_COUNT_BYTES))
-    bytec 4 // "V"
+    bytec_3 // "V"
     frame_dig 7
     dup
     cover 3
@@ -808,7 +803,7 @@ close_after_for@14:
     // voting/voting.py:150
     // asset_name="[VOTE RESULT] " + self.vote_id,
     intc_0 // 0
-    bytec_2 // "vote_id"
+    bytec 4 // "vote_id"
     app_global_get_ex
     assert // check self.vote_id exists
     pushbytes "[VOTE RESULT] "
@@ -976,7 +971,7 @@ vote:
     // voting/voting.py:181
     // questions_count = self.option_counts.length
     intc_0 // 0
-    bytec_3 // "option_counts"
+    bytec_2 // "option_counts"
     app_global_get_ex
     assert // check self.option_counts exists
     intc_0 // 0
@@ -1056,7 +1051,7 @@ vote_for_header@1:
     // voting/voting.py:198
     // options_count = self.option_counts[question_index].native
     intc_0 // 0
-    bytec_3 // "option_counts"
+    bytec_2 // "option_counts"
     app_global_get_ex
     assert // check self.option_counts exists
     extract 2 0
@@ -1076,7 +1071,7 @@ vote_for_header@1:
     +
     // voting/voting.py:241
     // return op.btoi(self.tally_box.extract(index, VOTE_COUNT_BYTES))
-    bytec 4 // "V"
+    bytec_3 // "V"
     dig 1
     intc_3 // 8
     box_extract
@@ -1086,7 +1081,7 @@ vote_for_header@1:
     intc_1 // 1
     +
     itob
-    bytec 4 // "V"
+    bytec_3 // "V"
     cover 2
     box_replace
     // voting/voting.py:201
