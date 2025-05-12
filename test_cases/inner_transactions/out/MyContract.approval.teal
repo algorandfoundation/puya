@@ -4,7 +4,7 @@
 // test_cases.inner_transactions.contract.MyContract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 6 5 3 1000
-    bytecblock 0x098101 0x09361a00b08101 "name" 0x31 0x32 0x756e6974 0x33 0x34 0x35 0x41535431 0x41535432 0x41535433 0x3130 0x3131 0x3132 0x3133 0x3134 0x3135 0x3136 0x77697468206172677320706172616d20736574 0x3432 0x337264
+    bytecblock 0x098101 0x09361a00b08101 0x31 0x32 0x41535432 0x756e6974 0x33 0x34 0x35 0x41535431 0x41535433 "name" 0x3130 0x3131 0x3132 0x3133 0x3134 0x3135 0x3136 0x77697468206172677320706172616d20736574 0x3432 0x337264
     intc_0 // 0
     dupn 3
     pushbytes ""
@@ -13,7 +13,7 @@ main:
     bnz main_after_if_else@2
     // inner_transactions/contract.py:24
     // self.name = Bytes(b"")
-    bytec_2 // "name"
+    bytec 11 // "name"
     pushbytes 0x
     app_global_put
 
@@ -85,7 +85,7 @@ main_switch_case_3@8:
     itxn_field ExtraProgramPages
     // inner_transactions/contract.py:242
     // app_args=(Bytes(b"1"),),
-    bytec_3 // 0x31
+    bytec_2 // 0x31
     itxn_field ApplicationArgs
     // inner_transactions/contract.py:241
     // on_completion=OnCompleteAction.DeleteApplication,
@@ -215,7 +215,7 @@ main_switch_case_2@7:
     itxn_begin
     // inner_transactions/contract.py:126
     // app_args=(Bytes(b"1"),),
-    bytec_3 // 0x31
+    bytec_2 // 0x31
     itxn_field ApplicationArgs
     // inner_transactions/contract.py:125
     // on_completion=OnCompleteAction.DeleteApplication,
@@ -248,7 +248,7 @@ main_switch_case_2@7:
     itxn_field ApprovalProgramPages
     // inner_transactions/contract.py:130
     // app_p_2.set(app_args=(Bytes(b"2"),))
-    bytec 4 // 0x32
+    bytec_3 // 0x32
     itxn_field ApplicationArgs
     // inner_transactions/contract.py:125
     // on_completion=OnCompleteAction.DeleteApplication,
@@ -633,13 +633,13 @@ main_switch_case_2@7:
     // inner_transactions/contract.py:209
     // assert app1.logs(0) == b"1"
     gitxna 0 Logs 0
-    bytec_3 // 0x31
+    bytec_2 // 0x31
     ==
     assert
     // inner_transactions/contract.py:210
     // assert app2.logs(0) == b"2"
     gitxna 1 Logs 0
-    bytec 4 // 0x32
+    bytec_3 // 0x32
     ==
     assert
     // inner_transactions/contract.py:211
@@ -739,9 +739,9 @@ main_switch_case_1@6:
     bz main_else_body@18
     // inner_transactions/contract.py:91
     // args = Bytes(b"1"), Bytes(b"2")
-    bytec_3 // 0x31
+    bytec_2 // 0x31
     bury 7
-    bytec 4 // 0x32
+    bytec_3 // 0x32
     bury 6
     // inner_transactions/contract.py:95
     // app_args=args,
@@ -804,13 +804,13 @@ main_next_field@23:
     // inner_transactions/contract.py:107
     // assert create_app_txn.app_args(0) == b"1", "correct args used 1"
     itxna ApplicationArgs 0
-    bytec_3 // 0x31
+    bytec_2 // 0x31
     ==
     assert // correct args used 1
     // inner_transactions/contract.py:108
     // assert create_app_txn.app_args(1) == b"2", "correct args used 2"
     itxna ApplicationArgs 1
-    bytec 4 // 0x32
+    bytec_3 // 0x32
     ==
     assert // correct args used 2
     // inner_transactions/contract.py:110
@@ -892,17 +892,6 @@ main_else_body@18:
     b main_after_if_else@19
 
 main_switch_case_0@5:
-    // inner_transactions/contract.py:44
-    // self.name = Bytes(b"AST1")
-    bytec_2 // "name"
-    bytec 9 // 0x41535431
-    app_global_put
-    // inner_transactions/contract.py:47
-    // asset_name=self.name,
-    intc_0 // 0
-    bytec_2 // "name"
-    app_global_get_ex
-    assert // check self.name exists
     // inner_transactions/contract.py:50
     // manager=op.Global.current_application_address,
     global CurrentApplicationAddress
@@ -911,8 +900,8 @@ main_switch_case_0@5:
     dup
     // inner_transactions/contract.py:53
     // self.name = Bytes(b"AST2")
-    bytec_2 // "name"
-    bytec 10 // 0x41535432
+    bytec 11 // "name"
+    bytec 4 // 0x41535432
     app_global_put
     // inner_transactions/contract.py:54
     // asset1_txn = asset_params.submit()
@@ -929,7 +918,9 @@ main_switch_case_0@5:
     // unit_name=b"unit",
     bytec 5 // 0x756e6974
     itxn_field ConfigAssetUnitName
-    uncover 2
+    // inner_transactions/contract.py:44
+    // self.name = Bytes(b"AST1")
+    bytec 9 // 0x41535431
     itxn_field ConfigAssetName
     // inner_transactions/contract.py:46
     // total=1000,
@@ -946,18 +937,12 @@ main_switch_case_0@5:
     itxn_submit
     itxn ConfigAssetName
     itxn CreatedAssetID
-    // inner_transactions/contract.py:57
-    // asset_name=self.name,
-    intc_0 // 0
-    bytec_2 // "name"
-    app_global_get_ex
-    assert // check self.name exists
     // inner_transactions/contract.py:60
     // asset2_txn = asset_params.submit()
     itxn_begin
-    dig 3
+    dig 2
     itxn_field ConfigAssetReserve
-    dig 4
+    dig 3
     itxn_field ConfigAssetManager
     // inner_transactions/contract.py:49
     // decimals=3,
@@ -967,6 +952,9 @@ main_switch_case_0@5:
     // unit_name=b"unit",
     bytec 5 // 0x756e6974
     itxn_field ConfigAssetUnitName
+    // inner_transactions/contract.py:53
+    // self.name = Bytes(b"AST2")
+    bytec 4 // 0x41535432
     itxn_field ConfigAssetName
     // inner_transactions/contract.py:46
     // total=1000,
@@ -992,7 +980,7 @@ main_switch_case_0@5:
     // inner_transactions/contract.py:63
     // assert asset2_txn.asset_name == b"AST2", "asset2_txn is correct"
     swap
-    bytec 10 // 0x41535432
+    bytec 4 // 0x41535432
     ==
     assert // asset2_txn is correct
     // inner_transactions/contract.py:65
@@ -1007,7 +995,7 @@ main_switch_case_0@5:
     // assert asset2_txn.created_asset.name == b"AST2", "created asset 2 is correct"
     asset_params_get AssetName
     assert // asset exists
-    bytec 10 // 0x41535432
+    bytec 4 // 0x41535432
     ==
     assert // created asset 2 is correct
     // inner_transactions/contract.py:78
@@ -1046,7 +1034,7 @@ main_switch_case_0@5:
     itxn_field ConfigAssetUnitName
     // inner_transactions/contract.py:75
     // asset_name=Bytes(b"AST3"),
-    bytec 11 // 0x41535433
+    bytec 10 // 0x41535433
     itxn_field ConfigAssetName
     // inner_transactions/contract.py:46
     // total=1000,
@@ -1068,7 +1056,7 @@ main_switch_case_0@5:
     assert // created app
     // inner_transactions/contract.py:81
     // assert asset3_txn.asset_name == b"AST3", "asset3_txn is correct"
-    bytec 11 // 0x41535433
+    bytec 10 // 0x41535433
     ==
     assert // asset3_txn is correct
     // inner_transactions/contract.py:85-86
@@ -1115,7 +1103,7 @@ main_switch_case_0@5:
     itxn_field ConfigAssetUnitName
     // inner_transactions/contract.py:75
     // asset_name=Bytes(b"AST3"),
-    bytec 11 // 0x41535433
+    bytec 10 // 0x41535433
     itxn_field ConfigAssetName
     // inner_transactions/contract.py:46
     // total=1000,

@@ -461,7 +461,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.xtra() -> <uint64, ui
         let materialized_values%0#0: uint64 = (+ maybe_value%0#0 1u)
         (app_global_put "count" materialized_values%0#0)
         let tmp%0#0: uint64 = (txn NumAppArgs)
-        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "count")
+        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (materialized_values%0#0, 1u)
         (assert maybe_exists%1#0) // check self.count exists
         let tmp%1#0: bytes[32] = (txn Sender)
         let tmp%2#0: bytes[16] = test_cases.array.static_size.StaticSizeContract.more()
@@ -476,9 +476,9 @@ subroutine test_cases.array.static_size.StaticSizeContract.more() -> bytes[16]:
         (assert maybe_exists%0#0) // check self.count exists
         let to_encode%0#0: uint64 = (+ maybe_value%0#0 1u)
         let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
-        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "count")
+        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
         (assert maybe_exists%1#0) // check self.count exists
-        let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "count")
+        let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
         (assert maybe_exists%2#0) // check self.count exists
         let to_encode%1#0: uint64 = (* maybe_value%1#0 maybe_value%2#0)
         let val_as_bytes%1#0: bytes[8] = (itob to_encode%1#0)

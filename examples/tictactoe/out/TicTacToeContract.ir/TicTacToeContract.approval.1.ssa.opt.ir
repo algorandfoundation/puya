@@ -72,10 +72,10 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint6
         let reinterpret_bool%0#0: bool = (txn ApplicationID)
         goto reinterpret_bool%0#0 ? block@1 : block@4
     block@1: // if_body_L25
-        let (_%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
+        let (_%0#0: bytes[32], maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
         goto maybe_exists%0#0 ? block@2 : block@3
     block@2: // if_body_L26
-        let (_%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "winner")
+        let (_%1#0: bytes[1], maybe_exists%1#0: bool) = (app_global_get_ex 0u "winner")
         (assert maybe_exists%1#0) // Game isn't over
         goto block@3
     block@3: // after_if_else_L25
@@ -116,7 +116,7 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint6
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.join_game(move.0: uint64, move.1: uint64) -> void:
     block@0: // L37
-        let (_%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
+        let (_%0#0: bytes[32], maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
         let tmp%0#0: bool = (! maybe_exists%0#0)
         (assert tmp%0#0) // Host already has a challenger
         let materialized_values%0#0: bytes[32] = (txn Sender)
@@ -135,7 +135,7 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.whose_turn() -> bytes[
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.play(move.0: uint64, move.1: uint64) -> void:
     block@0: // L47
-        let (_%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "winner")
+        let (_%0#0: bytes[1], maybe_exists%0#0: bool) = (app_global_get_ex 0u "winner")
         let tmp%0#0: bool = (! maybe_exists%0#0)
         (assert tmp%0#0) // Game is already finished
         let (maybe_value%0#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "turns")
@@ -188,7 +188,7 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: byte
         let reinterpret_biguint%0#0: biguint = (extract3 tmp%2#0 move.0#0 1u) // on error: Index access is out of bounds
         let tmp%3#0: bool = (b== reinterpret_biguint%0#0 0x00)
         (assert tmp%3#0) // Square is already taken
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "game")
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
         (assert maybe_exists%1#0) // check self.game exists
         let tmp%4#0: bytes = (extract3 maybe_value%1#0 item_offset%0#0 3u) // on error: Index access is out of bounds
         (assert tmp%0#0) // Index access is out of bounds

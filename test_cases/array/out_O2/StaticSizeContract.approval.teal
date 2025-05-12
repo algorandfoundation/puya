@@ -4,14 +4,14 @@
 // test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 8 16 144
-    bytecblock "count" 0x151f7c75 0x 0x00 0x0000
+    bytecblock 0x151f7c75 "count" 0x 0x00 0x0000
     intc_0 // 0
     dupn 5
     bytec_2 // ""
     dupn 14
     txn ApplicationID
     bnz main_after_if_else@2
-    bytec_0 // "count"
+    bytec_1 // "count"
     intc_0 // 0
     app_global_put
 
@@ -106,7 +106,7 @@ main_test_arc4_bool_route@33:
     cover 2
     intc_2 // 8
     callsub dynamic_array_concat_bits
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -158,7 +158,7 @@ main_for_header@30:
 main_after_for@32:
     dup
     itob
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -256,7 +256,7 @@ main_after_for@28:
     extract 6 2
     swap
     concat
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -348,7 +348,7 @@ main_after_if_else@18:
 main_after_for@19:
     dig 11
     itob
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -367,7 +367,7 @@ main_test_extend_from_arc4_tuple_route@10:
     pushbytes 0x0002
     swap
     concat
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -426,7 +426,7 @@ main_test_extend_from_tuple_route@9:
     uncover 2
     ==
     assert
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -445,7 +445,7 @@ main_test_array_route@5:
     txna ApplicationArgs 3
     txna ApplicationArgs 4
     btoi
-    bytec_0 // "count"
+    bytec_1 // "count"
     intc_0 // 0
     app_global_put
     callsub xtra
@@ -680,7 +680,7 @@ main_else_body@42:
 main_after_for@47:
     dig 4
     itob
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -789,46 +789,39 @@ dynamic_array_concat_bits_after_while@5:
 // test_cases.array.static_size.StaticSizeContract.xtra() -> uint64, uint64, bytes, bytes, bytes:
 xtra:
     intc_0 // 0
-    bytec_0 // "count"
+    bytec_1 // "count"
     app_global_get_ex
     assert // check self.count exists
     intc_1 // 1
     +
-    bytec_0 // "count"
-    swap
+    bytec_1 // "count"
+    dig 1
     app_global_put
     txn NumAppArgs
-    intc_0 // 0
-    bytec_0 // "count"
-    app_global_get_ex
-    assert // check self.count exists
     txn Sender
     callsub more
     intc_0 // 0
-    bytec_0 // "count"
+    bytec_1 // "count"
     app_global_get_ex
     assert // check self.count exists
     itob
+    uncover 3
+    cover 4
     retsub
 
 
 // test_cases.array.static_size.StaticSizeContract.more() -> bytes:
 more:
     intc_0 // 0
-    bytec_0 // "count"
+    bytec_1 // "count"
     app_global_get_ex
     assert // check self.count exists
+    dup
     intc_1 // 1
     +
     itob
-    intc_0 // 0
-    bytec_0 // "count"
-    app_global_get_ex
-    assert // check self.count exists
-    intc_0 // 0
-    bytec_0 // "count"
-    app_global_get_ex
-    assert // check self.count exists
+    dig 1
+    uncover 2
     *
     itob
     concat

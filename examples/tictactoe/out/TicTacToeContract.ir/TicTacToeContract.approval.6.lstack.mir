@@ -462,44 +462,35 @@ subroutine make_move:
         p-load move.1#0                                                                        (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,move.1#0 (copy)
         int 3                                                                                  (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,move.1#0 (copy),3
         *                                                                                      (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0
-        l-load maybe_value%0#0 1                                                               (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%0#0
-        l-load-copy item_offset%0#0 1                                                          (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%0#0,item_offset%0#0 (copy)
-        int 3                                                                                  (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%0#0,item_offset%0#0 (copy),3
-        extract3 // on error: Index access is out of bounds                                    (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,tmp%2#0
-        l-load tmp%2#0 0                                                                       (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,tmp%2#0
-        p-load move.0#0                                                                        (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,tmp%2#0,move.0#0 (copy)
-        int 1                                                                                  (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,tmp%2#0,move.0#0 (copy),1
-        extract3 // on error: Index access is out of bounds                                    (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,reinterpret_biguint%0#0
-        l-load reinterpret_biguint%0#0 0                                                       (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,reinterpret_biguint%0#0
-        byte 0x00                                                                              (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,reinterpret_biguint%0#0,0x00
-        b==                                                                                    (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,tmp%3#0
-        l-load tmp%3#0 0                                                                       (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,tmp%3#0
-        assert // Square is already taken                                                      (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0
+        l-load-copy maybe_value%0#0 1                                                          (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,maybe_value%0#0 (copy)
+        l-load-copy item_offset%0#0 1                                                          (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,maybe_value%0#0 (copy),item_offset%0#0 (copy)
+        int 3                                                                                  (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,maybe_value%0#0 (copy),item_offset%0#0 (copy),3
+        extract3 // on error: Index access is out of bounds                                    (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                  (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,tmp%2#0,tmp%2#0 (copy)
+        p-load move.0#0                                                                        (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,tmp%2#0,tmp%2#0 (copy),move.0#0 (copy)
+        int 1                                                                                  (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,tmp%2#0,tmp%2#0 (copy),move.0#0 (copy),1
+        extract3 // on error: Index access is out of bounds                                    (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,tmp%2#0,reinterpret_biguint%0#0
+        l-load reinterpret_biguint%0#0 0                                                       (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,tmp%2#0,reinterpret_biguint%0#0
+        byte 0x00                                                                              (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,tmp%2#0,reinterpret_biguint%0#0,0x00
+        b==                                                                                    (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,tmp%2#0,tmp%3#0
+        l-load tmp%3#0 0                                                                       (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,tmp%2#0,tmp%3#0
+        assert // Square is already taken                                                      (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,tmp%2#0
         // tictactoe/tictactoe.py:65
         // self.game[row][column] = player
-        int 0                                                                                  (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,0
-        byte "game"                                                                            (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,0,"game"
-        app_global_get_ex                                                                      (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,maybe_exists%1#0
-        l-load maybe_exists%1#0 0                                                              (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,maybe_exists%1#0
-        assert // check self.game exists                                                       (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0
-        l-load-copy maybe_value%1#0 0                                                          (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,maybe_value%1#0 (copy)
-        l-load-copy item_offset%0#0 2                                                          (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,maybe_value%1#0 (copy),item_offset%0#0 (copy)
-        int 3                                                                                  (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,maybe_value%1#0 (copy),item_offset%0#0 (copy),3
-        extract3 // on error: Index access is out of bounds                                    (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,tmp%4#0
-        v-load tmp%0#0                                                                         (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,tmp%4#0,tmp%0#0
-        assert // Index access is out of bounds                                                (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,tmp%4#0
-        l-load tmp%4#0 0                                                                       (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,tmp%4#0
-        p-load move.0#0                                                                        (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,tmp%4#0,move.0#0 (copy)
-        p-load player#0                                                                        (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,tmp%4#0,move.0#0 (copy),player#0 (copy)
-        replace3                                                                               (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,updated_target%0#0
-        p-load move.1#0                                                                        (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,updated_target%0#0,move.1#0 (copy)
-        int 3                                                                                  (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,updated_target%0#0,move.1#0 (copy),3
-        <                                                                                      (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,updated_target%0#0,index_is_in_bounds%1#0
-        l-load index_is_in_bounds%1#0 0                                                        (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,updated_target%0#0,index_is_in_bounds%1#0
-        assert // Index access is out of bounds                                                (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,updated_target%0#0
-        l-load maybe_value%1#0 1                                                               (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,updated_target%0#0,maybe_value%1#0
-        l-load-copy item_offset%0#0 2                                                          (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,updated_target%0#0,maybe_value%1#0,item_offset%0#0 (copy)
-        l-load updated_target%0#0 2                                                            (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%1#0,item_offset%0#0 (copy),updated_target%0#0
+        v-load tmp%0#0                                                                         (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,tmp%2#0,tmp%0#0
+        assert // Index access is out of bounds                                                (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,tmp%2#0
+        l-load tmp%2#0 0                                                                       (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,tmp%2#0
+        p-load move.0#0                                                                        (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,tmp%2#0,move.0#0 (copy)
+        p-load player#0                                                                        (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,tmp%2#0,move.0#0 (copy),player#0 (copy)
+        replace3                                                                               (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,updated_target%0#0
+        p-load move.1#0                                                                        (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,updated_target%0#0,move.1#0 (copy)
+        int 3                                                                                  (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,updated_target%0#0,move.1#0 (copy),3
+        <                                                                                      (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,updated_target%0#0,index_is_in_bounds%1#0
+        l-load index_is_in_bounds%1#0 0                                                        (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,updated_target%0#0,index_is_in_bounds%1#0
+        assert // Index access is out of bounds                                                (𝕡) player#0,move.0#0,move.1#0 | maybe_value%0#0,item_offset%0#0,updated_target%0#0
+        l-load maybe_value%0#0 2                                                               (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,updated_target%0#0,maybe_value%0#0
+        l-load-copy item_offset%0#0 2                                                          (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,updated_target%0#0,maybe_value%0#0,item_offset%0#0 (copy)
+        l-load updated_target%0#0 2                                                            (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,maybe_value%0#0,item_offset%0#0 (copy),updated_target%0#0
         replace3                                                                               (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,updated_target%1#0
         byte "game"                                                                            (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,updated_target%1#0,"game"
         l-load updated_target%1#0 1                                                            (𝕡) player#0,move.0#0,move.1#0 | item_offset%0#0,"game",updated_target%1#0

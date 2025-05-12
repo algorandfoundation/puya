@@ -174,17 +174,12 @@ subroutine bootstrap:
         //     .submit()
         //     .created_app
         // )
-        l-load materialized_values%0#0 1                                                  "hello_app",materialized_values%0#0
-        app_global_put
+        l-load-copy materialized_values%0#0 1                                             materialized_values%0#0,"hello_app",materialized_values%0#0 (copy)
+        app_global_put                                                                    materialized_values%0#0
         // inner_transactions/c2c.py:21
         // return self.hello_app.id
-        int 0                                                                             0
-        byte "hello_app"                                                                  0,"hello_app"
-        app_global_get_ex                                                                 maybe_value%1#0,maybe_exists%1#0
-        l-load maybe_exists%1#0 0                                                         maybe_value%1#0,maybe_exists%1#0
-        assert // check self.hello_app exists                                             maybe_value%1#0
-        l-load maybe_value%1#0 0                                                          maybe_value%1#0
-        retsub                                                                            maybe_value%1#0
+        l-load materialized_values%0#0 0                                                  materialized_values%0#0
+        retsub                                                                            materialized_values%0#0
 
 
 // test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) -> void:
