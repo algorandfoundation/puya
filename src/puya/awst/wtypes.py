@@ -510,8 +510,16 @@ class ARC4Tuple(_ARC4WTypeInstance):
 @attrs.frozen(kw_only=True)
 class ARC4Array(_ARC4WTypeInstance, abc.ABC):
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
-    element_type: WType
+    element_type: WType = attrs.field()
     immutable: bool = False
+
+    @element_type.validator
+    def _element_type_validator(self, _attribute: object, value: WType) -> None:
+        if not value.persistable:
+            from puya.awst.src_loc_visitor import WTypeSourceLocationVisitor
+
+            loc = self.accept(WTypeSourceLocationVisitor())
+            raise CodeError("arrays can only contain persistable elements", loc)
 
 
 @typing.final
@@ -543,22 +551,6 @@ class ARC4StaticArray(ARC4Array):
         return visitor.visit_arc4_static_array(self)
 
 
-def _require_arc4_fields(fields: Mapping[str, WType]) -> immutabledict[str, ARC4Type]:
-    if not fields:
-        raise CodeError("arc4.Struct needs at least one element")
-    non_arc4_fields = [
-        field_name
-        for field_name, field_type in fields.items()
-        if not isinstance(field_type, ARC4Type)
-    ]
-    if non_arc4_fields:
-        raise CodeError(
-            "invalid ARC-4 Struct declaration,"
-            f" the following fields are not ARC-4 encoded types: {', '.join(non_arc4_fields)}",
-        )
-    return immutabledict(fields)
-
-
 @typing.final
 @attrs.frozen(kw_only=True)
 class ARC4Struct(_ARC4WTypeInstance):
@@ -568,6 +560,19 @@ class ARC4Struct(_ARC4WTypeInstance):
     immutable: bool = attrs.field(init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
     desc: str | None = None
+
+    @fields.validator
+    def _fields_validator(self, _attribute: object, value: immutabledict[str, WType]) -> None:
+        if not value:
+            raise CodeError("arc4.Struct needs at least one element")
+        unpersistable = [
+            field_name for field_name, field_type in value.items() if not field_type.persistable
+        ]
+        if unpersistable:
+            raise CodeError(
+                "invalid ARC-4 Struct declaration,"
+                f" the following fields are not persistable: {', '.join(unpersistable)}",
+            )
 
     @immutable.default
     def _immutable(self) -> bool:
