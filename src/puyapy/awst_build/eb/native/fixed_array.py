@@ -4,11 +4,11 @@ from collections.abc import Sequence
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    ARC4Encode,
+    Copy,
     Expression,
     IndexExpression,
-    IntrinsicCall,
     NewArray,
-    SizeOf,
     UInt64Constant,
 )
 from puya.errors import CodeError
@@ -20,7 +20,7 @@ from puyapy.awst_build.eb._base import GenericTypeBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puyapy.awst_build.eb._utils import constant_bool_and_error
 from puyapy.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder
-from puyapy.awst_build.eb.factories import builder_for_instance
+from puyapy.awst_build.eb.factories import builder_for_instance, builder_for_type
 from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
     NodeBuilder,
@@ -46,19 +46,28 @@ class FixedArrayGenericTypeBuilder(GenericTypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        if not args:
+        arg = expect.at_most_one_arg(args, location)
+        if not arg:
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
-        element_type = expect.instance_builder(args[0], default=expect.default_raise).pytype
-        array_size = len(args)
-        typ = pytypes.GenericARC4StaticArrayType.parameterise(
-            [element_type, pytypes.TypingLiteralType(value=array_size, source_location=None)],
-            location,
-        )
-        values = tuple(expect.argument_of_type_else_dummy(a, element_type).resolve() for a in args)
-        wtype = typ.wtype
+        # TODO: check arg type is sequence like not just iterable
+        element_type = arg.iterable_item_type()
+        if isinstance(arg.pytype, pytypes.ArrayType) and arg.pytype.size is not None:
+            size = arg.pytype.size
+        elif isinstance(arg.pytype, pytypes.TupleType):
+            size = len(arg.pytype.items)
+        else:
+            raise CodeError("FixedArray requires a length type parameter", location)
+        size_literal = pytypes.TypingLiteralType(value=size, source_location=None)
+        typ = pytypes.GenericFixedArrayType.parameterise([element_type, size_literal], location)
+        wtype = typ.checked_wtype(location)
         assert isinstance(wtype, wtypes.ARC4StaticArray)
         return FixedArrayExpressionBuilder(
-            NewArray(values=values, wtype=wtype, source_location=location), typ
+            ARC4Encode(
+                value=arg.resolve(),
+                wtype=wtype,
+                source_location=location,
+            ),
+            typ,
         )
 
 
@@ -81,27 +90,39 @@ class FixedArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         typ = self.produces()
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4StaticArray)
-        if not args:
-            new_array: Expression = IntrinsicCall(
-                op_code="bzero",
-                stack_args=[SizeOf(source_location=location, size_wtype=wtype)],
+        assert typ.size is not None
+        arg = expect.at_most_one_arg(args, location)
+        # TODO: check arg type is sequence like not just iterable
+
+        if not arg:
+            default_elements = [
+                builder_for_type(typ.items, location)
+                .call(
+                    [],
+                    arg_kinds=[],
+                    arg_names=[],
+                    location=location,
+                )
+                .resolve()
+                for _ in range(typ.size)
+            ]
+            new_array: Expression = NewArray(
+                values=default_elements,
                 wtype=wtype,
+                source_location=location,
+            )
+        elif arg.pytype == typ:
+            new_array = Copy(
+                value=arg.resolve(),
                 source_location=location,
             )
         else:
-            n_args = expect.exactly_n_args_of_type_else_dummy(
-                args, typ.items, location, self._size
-            )
-            new_array = NewArray(
-                values=tuple(arg.resolve() for arg in n_args),
+            new_array = ARC4Encode(
+                value=arg.resolve(),
                 wtype=wtype,
                 source_location=location,
             )
-
-        return FixedArrayExpressionBuilder(
-            new_array,
-            typ,
-        )
+        return FixedArrayExpressionBuilder(new_array, typ)
 
 
 class FixedArrayExpressionBuilder(_ARC4ArrayExpressionBuilder, StaticSizedCollectionBuilder):
