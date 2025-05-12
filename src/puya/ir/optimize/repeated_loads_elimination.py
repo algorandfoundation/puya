@@ -40,5 +40,6 @@ def _optimise_block(block: models.BasicBlock) -> bool:
             # be conservative and treat any subroutine call as a barrier to this
             # particular optimisation
             case models.InvokeSubroutine() | models.Assignment(source=models.InvokeSubroutine()):
+                last_write = None
                 slot_read_results = {}
     return modified
