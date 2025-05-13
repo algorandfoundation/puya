@@ -10,8 +10,13 @@ from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import GenericTypeBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puyapy.awst_build.eb._utils import compare_bytes, constant_bool_and_error, dummy_value
-from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder, CopyBuilder
+from puyapy.awst_build.eb._utils import (
+    CopyBuilder,
+    compare_bytes,
+    constant_bool_and_error,
+    dummy_value,
+)
+from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
