@@ -1,0 +1,971 @@
+#pragma version 10
+#pragma typetrack false
+
+// test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 0 1 8 16
+    bytecblock 0x "nested" "num_payments" "payments" 0x70 0x6c "box" "box_map" 0x151f7c75
+
+main_block@0:
+    txn ApplicationID
+    bnz main_after_if_else@2
+
+main_call___init__@1:
+    callsub __init__
+
+main_after_if_else@2:
+    callsub approval_program
+    return
+
+
+// test_cases.mutable_native_types.contract.add(val: bytes) -> uint64:
+add:
+    // mutable_native_types/contract.py:161-162
+    // @subroutine()
+    // def add(val: FixedStruct) -> UInt64:
+    proto 1 1
+
+add_block@0:
+    // mutable_native_types/contract.py:163
+    // return val.a + val.b
+    frame_dig -1
+    intc_0 // 0
+    intc_2 // 8
+    extract3 // on error: Index access is out of bounds
+    btoi
+    frame_dig -1
+    intc_2 // 8
+    dup
+    extract3 // on error: Index access is out of bounds
+    btoi
+    +
+    retsub
+
+
+// test_cases.mutable_native_types.contract.Contract.__init__() -> void:
+__init__:
+
+__init___block@0:
+    // mutable_native_types/contract.py:69
+    // FixedStruct(a=Txn.num_app_args, b=Txn.num_app_args),
+    txn NumAppArgs
+    dup
+    swap
+    itob
+    swap
+    itob
+    swap
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    concat
+    // mutable_native_types/contract.py:70
+    // FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
+    txn NumAppArgs
+    intc_1 // 1
+    +
+    txn NumAppArgs
+    intc_1 // 1
+    +
+    swap
+    itob
+    swap
+    itob
+    swap
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    concat
+    // mutable_native_types/contract.py:71
+    // NamedTup(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
+    txn NumAppArgs
+    intc_1 // 1
+    +
+    txn NumAppArgs
+    intc_1 // 1
+    +
+    swap
+    itob
+    swap
+    itob
+    swap
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    concat
+    // mutable_native_types/contract.py:67-72
+    // # storage
+    // self.nested = NestedStruct(
+    //     FixedStruct(a=Txn.num_app_args, b=Txn.num_app_args),
+    //     FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
+    //     NamedTup(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
+    // )
+    bytec_0 // 0x
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    // mutable_native_types/contract.py:67-68
+    // # storage
+    // self.nested = NestedStruct(
+    bytec_1 // "nested"
+    // mutable_native_types/contract.py:67-72
+    // # storage
+    // self.nested = NestedStruct(
+    //     FixedStruct(a=Txn.num_app_args, b=Txn.num_app_args),
+    //     FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
+    //     NamedTup(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
+    // )
+    swap
+    app_global_put
+    // mutable_native_types/contract.py:79
+    // a=Txn.num_app_args,
+    txn NumAppArgs
+    // mutable_native_types/contract.py:80
+    // b=Txn.num_app_args,
+    dup
+    swap
+    // mutable_native_types/contract.py:83
+    // e=NativeArray[arc4.Byte](),
+    pushbytes 0x0000
+    bytec_0 // 0x
+    concat
+    cover 2
+    // mutable_native_types/contract.py:79
+    // a=Txn.num_app_args,
+    itob
+    swap
+    // mutable_native_types/contract.py:80
+    // b=Txn.num_app_args,
+    itob
+    swap
+    // mutable_native_types/contract.py:81
+    // c=Bytes(),
+    bytec_0 // 0x
+    len
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    concat
+    cover 2
+    // mutable_native_types/contract.py:82
+    // d=String(),
+    bytec_0 // ""
+    len
+    itob
+    extract 6 2
+    bytec_0 // ""
+    concat
+    cover 3
+    // mutable_native_types/contract.py:78-84
+    // self.dyn = DynamicStruct(
+    //     a=Txn.num_app_args,
+    //     b=Txn.num_app_args,
+    //     c=Bytes(),
+    //     d=String(),
+    //     e=NativeArray[arc4.Byte](),
+    // )
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    concat
+    pushint 22 // 22
+    itob
+    extract 6 2
+    concat
+    dig 1
+    len
+    pushint 22 // 22
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    swap
+    dig 3
+    len
+    +
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    // mutable_native_types/contract.py:78
+    // self.dyn = DynamicStruct(
+    pushbytes "dyn"
+    // mutable_native_types/contract.py:78-84
+    // self.dyn = DynamicStruct(
+    //     a=Txn.num_app_args,
+    //     b=Txn.num_app_args,
+    //     c=Bytes(),
+    //     d=String(),
+    //     e=NativeArray[arc4.Byte](),
+    // )
+    swap
+    app_global_put
+    // mutable_native_types/contract.py:86
+    // self.num_payments = UInt64(0)
+    bytec_2 // "num_payments"
+    intc_0 // 0
+    app_global_put
+    // mutable_native_types/contract.py:87
+    // self.payments = zero_bytes(FixedArray[Payment, typing.Literal[8]])
+    pushint 384 // 384
+    bzero
+    bytec_3 // "payments"
+    swap
+    app_global_put
+    retsub
+
+
+// test_cases.mutable_native_types.contract.Contract.fixed_initialize() -> void:
+fixed_initialize:
+
+fixed_initialize_block@0:
+    // mutable_native_types/contract.py:91
+    // arr_3 = zero_bytes(FixedUInt64Of3)
+    pushint 24 // 24
+    bzero
+    // mutable_native_types/contract.py:92
+    // arr_3[0] = UInt64(0)
+    intc_0 // 0
+    itob
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
+    // mutable_native_types/contract.py:93
+    // arr_3[1] = UInt64(1)
+    intc_1 // 1
+    itob
+    swap
+    intc_2 // 8
+    uncover 2
+    replace3
+    // mutable_native_types/contract.py:94
+    // arr_3[2] = UInt64(2)
+    pushint 2 // 2
+    itob
+    swap
+    intc_3 // 16
+    uncover 2
+    replace3
+    // mutable_native_types/contract.py:97
+    // (UInt64(0), UInt64(1), UInt64(2)),
+    intc_0 // 0
+    itob
+    intc_1 // 1
+    itob
+    swap
+    pushint 2 // 2
+    itob
+    cover 2
+    // mutable_native_types/contract.py:96-98
+    // arr_3_from_tuple = FixedUInt64Of3(
+    //     (UInt64(0), UInt64(1), UInt64(2)),
+    // )
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    bytec_0 // 0x
+    swap
+    concat
+    // mutable_native_types/contract.py:99
+    // assert arr_3 == arr_3_from_tuple, "should be the same"
+    dig 1
+    ==
+    assert // should be the same
+    // mutable_native_types/contract.py:101
+    // arr_3_from_fixed = FixedUInt64Of3(arr_3.copy())
+    dup
+    // mutable_native_types/contract.py:102
+    // assert arr_3 == arr_3_from_fixed, "should be the same"
+    ==
+    assert // should be the same
+    retsub
+
+
+// test_cases.mutable_native_types.contract.Contract.add_payment(pay: bytes) -> void:
+add_payment:
+    // mutable_native_types/contract.py:104-105
+    // @arc4.abimethod()
+    // def add_payment(self, pay: Payment) -> None:
+    proto 1 0
+
+add_payment_block@0:
+    // mutable_native_types/contract.py:106
+    // assert self.num_payments < self.payments.length, "too many payments"
+    intc_0 // 0
+    bytec_2 // "num_payments"
+    app_global_get_ex
+    assert // check self.num_payments exists
+    intc_2 // 8
+    <
+    assert // too many payments
+    // mutable_native_types/contract.py:107
+    // self.payments[self.num_payments] = pay.copy()
+    frame_dig -1
+    intc_0 // 0
+    bytec_3 // "payments"
+    app_global_get_ex
+    swap
+    cover 2
+    assert // check self.payments exists
+    intc_0 // 0
+    bytec_2 // "num_payments"
+    app_global_get_ex
+    assert // check self.num_payments exists
+    dup
+    intc_2 // 8
+    <
+    assert // Index access is out of bounds
+    pushint 48 // 48
+    *
+    uncover 2
+    swap
+    uncover 2
+    replace3
+    bytec_3 // "payments"
+    swap
+    app_global_put
+    // mutable_native_types/contract.py:108
+    // self.num_payments += 1
+    intc_0 // 0
+    bytec_2 // "num_payments"
+    app_global_get_ex
+    assert // check self.num_payments exists
+    intc_1 // 1
+    +
+    bytec_2 // "num_payments"
+    swap
+    app_global_put
+    retsub
+
+
+// test_cases.mutable_native_types.contract.Contract.increment_payment(index: uint64, amt: uint64) -> void:
+increment_payment:
+    // mutable_native_types/contract.py:110-111
+    // @arc4.abimethod()
+    // def increment_payment(self, index: UInt64, amt: UInt64) -> None:
+    proto 2 0
+
+increment_payment_block@0:
+    // mutable_native_types/contract.py:112
+    // assert index < self.num_payments, "invalid payment index"
+    intc_0 // 0
+    bytec_2 // "num_payments"
+    app_global_get_ex
+    assert // check self.num_payments exists
+    frame_dig -2
+    >
+    assert // invalid payment index
+    // mutable_native_types/contract.py:113
+    // self.payments[index].amt += amt
+    intc_0 // 0
+    bytec_3 // "payments"
+    app_global_get_ex
+    assert // check self.payments exists
+    dup
+    frame_dig -2
+    pushint 48 // 48
+    *
+    pushint 48 // 48
+    extract3 // on error: Index access is out of bounds
+    dup
+    pushint 40 // 40
+    intc_2 // 8
+    extract3 // on error: Index access is out of bounds
+    btoi
+    frame_dig -1
+    +
+    itob
+    swap
+    pushint 40 // 40
+    uncover 2
+    replace3
+    frame_dig -2
+    intc_2 // 8
+    <
+    assert // Index access is out of bounds
+    frame_dig -2
+    pushint 48 // 48
+    *
+    uncover 2
+    swap
+    uncover 2
+    replace3
+    bytec_3 // "payments"
+    swap
+    app_global_put
+    retsub
+
+
+// test_cases.mutable_native_types.contract.Contract.create_storage(box_key: uint64) -> void:
+create_storage:
+    // mutable_native_types/contract.py:115-116
+    // @arc4.abimethod()
+    // def create_storage(self, box_key: UInt64) -> None:
+    proto 1 0
+
+create_storage_block@0:
+    // mutable_native_types/contract.py:117
+    // self.nested_proxy.value = self.nested.copy()
+    intc_0 // 0
+    bytec_1 // "nested"
+    app_global_get_ex
+    assert // check self.nested exists
+    bytec 4 // 0x70
+    swap
+    app_global_put
+    // mutable_native_types/contract.py:118
+    // self.nested_local[Txn.sender] = self.nested.copy()
+    intc_0 // 0
+    bytec_1 // "nested"
+    app_global_get_ex
+    assert // check self.nested exists
+    txn Sender
+    bytec 5 // 0x6c
+    uncover 2
+    app_local_put
+    // mutable_native_types/contract.py:119
+    // assert self.box.create(), "expected box to not exist"
+    bytec 6 // "box"
+    pushint 2064 // 2064
+    box_create
+    assert // expected box to not exist
+    // mutable_native_types/contract.py:120
+    // self.box_map[box_key].fixed_a = self.nested.fixed_a.copy()
+    intc_0 // 0
+    bytec_1 // "nested"
+    app_global_get_ex
+    assert // check self.nested exists
+    intc_0 // 0
+    intc_3 // 16
+    extract3 // on error: Index access is out of bounds
+    frame_dig -1
+    itob
+    bytec 7 // "box_map"
+    swap
+    concat
+    dup
+    box_get
+    assert // check self.box_map entry exists
+    uncover 2
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
+    box_put
+    retsub
+
+
+// test_cases.mutable_native_types.contract.Contract.delete_storage(box_key: uint64) -> void:
+delete_storage:
+    // mutable_native_types/contract.py:122-123
+    // @arc4.abimethod()
+    // def delete_storage(self, box_key: UInt64) -> None:
+    proto 1 0
+
+delete_storage_block@0:
+    // mutable_native_types/contract.py:124
+    // del self.nested_proxy.value
+    bytec 4 // 0x70
+    app_global_del
+    // mutable_native_types/contract.py:125
+    // del self.nested_local[Txn.sender]
+    txn Sender
+    bytec 5 // 0x6c
+    app_local_del
+    // mutable_native_types/contract.py:126
+    // del self.box.value
+    bytec 6 // "box"
+    box_del
+    pop
+    // mutable_native_types/contract.py:127
+    // del self.box_map[box_key]
+    frame_dig -1
+    itob
+    bytec 7 // "box_map"
+    swap
+    concat
+    box_del
+    pop
+    retsub
+
+
+// test_cases.mutable_native_types.contract.Contract.struct_arg(box_key: uint64, a: bytes) -> void:
+struct_arg:
+    // mutable_native_types/contract.py:131-132
+    // @arc4.abimethod()
+    // def struct_arg(self, box_key: UInt64, a: FixedStruct) -> None:
+    proto 2 0
+
+struct_arg_block@0:
+    // mutable_native_types/contract.py:133
+    // self.nested.fixed_a = a
+    intc_0 // 0
+    bytec_1 // "nested"
+    app_global_get_ex
+    assert // check self.nested exists
+    frame_dig -1
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
+    bytec_1 // "nested"
+    swap
+    app_global_put
+    // mutable_native_types/contract.py:134
+    // self.nested_proxy.value.fixed_a = a
+    intc_0 // 0
+    bytec 4 // 0x70
+    app_global_get_ex
+    assert // check self.nested_proxy exists
+    frame_dig -1
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
+    bytec 4 // 0x70
+    swap
+    app_global_put
+    // mutable_native_types/contract.py:135
+    // self.nested_local[Txn.sender].fixed_a = a
+    txn Sender
+    dup
+    intc_0 // 0
+    bytec 5 // 0x6c
+    app_local_get_ex
+    assert // check self.nested_local exists for account
+    frame_dig -1
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
+    swap
+    bytec 5 // 0x6c
+    uncover 2
+    app_local_put
+    // mutable_native_types/contract.py:136
+    // self.box.value.fixed_a = a
+    bytec 6 // "box"
+    box_get
+    assert // check self.box exists
+    frame_dig -1
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
+    bytec 6 // "box"
+    swap
+    box_put
+    // mutable_native_types/contract.py:137
+    // self.box_map[box_key].fixed_a = a
+    frame_dig -2
+    itob
+    bytec 7 // "box_map"
+    swap
+    concat
+    dup
+    box_get
+    assert // check self.box_map entry exists
+    frame_dig -1
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
+    box_put
+    retsub
+
+
+// test_cases.mutable_native_types.contract.Contract.struct_return() -> bytes:
+struct_return:
+
+struct_return_block@0:
+    // mutable_native_types/contract.py:143
+    // return self.nested.fixed_a
+    intc_0 // 0
+    bytec_1 // "nested"
+    app_global_get_ex
+    assert // check self.nested exists
+    intc_0 // 0
+    intc_3 // 16
+    extract3 // on error: Index access is out of bounds
+    retsub
+
+
+// test_cases.mutable_native_types.contract.Contract.tup_return() -> uint64, uint64:
+tup_return:
+
+tup_return_block@0:
+    // mutable_native_types/contract.py:147
+    // return self.nested.tup
+    intc_0 // 0
+    bytec_1 // "nested"
+    app_global_get_ex
+    assert // check self.nested exists
+    pushint 32 // 32
+    intc_3 // 16
+    extract3 // on error: Index access is out of bounds
+    dup
+    intc_0 // 0
+    intc_2 // 8
+    extract3 // on error: Index access is out of bounds
+    btoi
+    swap
+    intc_2 // 8
+    dup
+    extract3 // on error: Index access is out of bounds
+    btoi
+    retsub
+
+
+// test_cases.mutable_native_types.contract.Contract.calculate_sum() -> uint64:
+calculate_sum:
+    // mutable_native_types/contract.py:149-150
+    // @arc4.abimethod()
+    // def calculate_sum(self) -> UInt64:
+    proto 0 1
+
+calculate_sum_block@0:
+    // mutable_native_types/contract.py:151
+    // fixed_a = self.nested.fixed_a
+    intc_0 // 0
+    bytec_1 // "nested"
+    app_global_get_ex
+    assert // check self.nested exists
+    intc_0 // 0
+    intc_3 // 16
+    extract3 // on error: Index access is out of bounds
+    // mutable_native_types/contract.py:152
+    // fixed_b = self.nested.fixed_b
+    intc_0 // 0
+    bytec_1 // "nested"
+    app_global_get_ex
+    assert // check self.nested exists
+    intc_3 // 16
+    dup
+    extract3 // on error: Index access is out of bounds
+    // mutable_native_types/contract.py:153
+    // result = add(fixed_a) + add(fixed_b)
+    swap
+    callsub add
+    swap
+    callsub add
+    +
+    dupn 2
+    // mutable_native_types/contract.py:154
+    // if result < 100:
+    pushint 100 // 100
+    <
+    bz calculate_sum_after_if_else@2
+
+calculate_sum_if_body@1:
+    // mutable_native_types/contract.py:155
+    // c, d = self.nested.tup
+    intc_0 // 0
+    bytec_1 // "nested"
+    app_global_get_ex
+    assert // check self.nested exists
+    pushint 32 // 32
+    intc_3 // 16
+    extract3 // on error: Index access is out of bounds
+    dup
+    intc_0 // 0
+    intc_2 // 8
+    extract3 // on error: Index access is out of bounds
+    btoi
+    swap
+    intc_2 // 8
+    dup
+    extract3 // on error: Index access is out of bounds
+    btoi
+    swap
+    // mutable_native_types/contract.py:156
+    // result += c
+    frame_dig 0
+    +
+    // mutable_native_types/contract.py:157
+    // result += d
+    +
+    frame_bury 1
+
+calculate_sum_after_if_else@2:
+    frame_dig 1
+    // mutable_native_types/contract.py:158
+    // return result
+    frame_bury 0
+    retsub
+
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+approval_program:
+
+approval_program_block@0:
+
+approval_program_block@1:
+    // mutable_native_types/contract.py:65
+    // class Contract(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz approval_program_bare_routing@14
+
+approval_program_abi_routing@2:
+    // mutable_native_types/contract.py:65
+    // class Contract(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xd1276f81 // method "fixed_initialize()void"
+    pushbytes 0x0d2ab4c0 // method "add_payment((address,uint64,uint64))void"
+    pushbytes 0xe8b5d56c // method "increment_payment(uint64,uint64)void"
+    pushbytes 0x875901e5 // method "create_storage(uint64)void"
+    pushbytes 0xaf05f48f // method "delete_storage(uint64)void"
+    pushbytes 0xe8d71c8c // method "struct_arg(uint64,(uint64,uint64))void"
+    pushbytes 0x01aaa39c // method "struct_return()(uint64,uint64)"
+    pushbytes 0x8313dee7 // method "tup_return()(uint64,uint64)"
+    pushbytes 0x2ca849c1 // method "calculate_sum()uint64"
+    uncover 9
+    match approval_program_fixed_initialize_route@3 approval_program_add_payment_route@4 approval_program_increment_payment_route@5 approval_program_create_storage_route@6 approval_program_delete_storage_route@7 approval_program_struct_arg_route@8 approval_program_struct_return_route@9 approval_program_tup_return_route@10 approval_program_calculate_sum_route@11
+
+approval_program_switch_case_default@12:
+
+approval_program_switch_case_next@13:
+
+approval_program_after_if_else@20:
+    // mutable_native_types/contract.py:65
+    // class Contract(arc4.ARC4Contract):
+    intc_0 // 0
+
+approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@21:
+    retsub
+
+approval_program_calculate_sum_route@11:
+    // mutable_native_types/contract.py:149
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub calculate_sum
+    itob
+    bytec 8 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@21
+
+approval_program_tup_return_route@10:
+    // mutable_native_types/contract.py:145
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub tup_return
+    swap
+    itob
+    swap
+    itob
+    swap
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    concat
+    bytec 8 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@21
+
+approval_program_struct_return_route@9:
+    // mutable_native_types/contract.py:141
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub struct_return
+    bytec 8 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@21
+
+approval_program_struct_arg_route@8:
+    // mutable_native_types/contract.py:131
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // mutable_native_types/contract.py:65
+    // class Contract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    // mutable_native_types/contract.py:131
+    // @arc4.abimethod()
+    callsub struct_arg
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@21
+
+approval_program_delete_storage_route@7:
+    // mutable_native_types/contract.py:122
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // mutable_native_types/contract.py:65
+    // class Contract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // mutable_native_types/contract.py:122
+    // @arc4.abimethod()
+    callsub delete_storage
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@21
+
+approval_program_create_storage_route@6:
+    // mutable_native_types/contract.py:115
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // mutable_native_types/contract.py:65
+    // class Contract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // mutable_native_types/contract.py:115
+    // @arc4.abimethod()
+    callsub create_storage
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@21
+
+approval_program_increment_payment_route@5:
+    // mutable_native_types/contract.py:110
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // mutable_native_types/contract.py:65
+    // class Contract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    btoi
+    // mutable_native_types/contract.py:110
+    // @arc4.abimethod()
+    callsub increment_payment
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@21
+
+approval_program_add_payment_route@4:
+    // mutable_native_types/contract.py:104
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // mutable_native_types/contract.py:65
+    // class Contract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    // mutable_native_types/contract.py:104
+    // @arc4.abimethod()
+    callsub add_payment
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@21
+
+approval_program_fixed_initialize_route@3:
+    // mutable_native_types/contract.py:89
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub fixed_initialize
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@21
+
+approval_program_bare_routing@14:
+    // mutable_native_types/contract.py:65
+    // class Contract(arc4.ARC4Contract):
+    txn OnCompletion
+    intc_0 // 0
+    swap
+    match approval_program___algopy_default_create@15
+
+approval_program_switch_case_default@18:
+
+approval_program_switch_case_next@19:
+    b approval_program_after_if_else@20
+
+approval_program___algopy_default_create@15:
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    assert // can only call when creating
+
+approval_program_block@16:
+
+approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__algopy_default_create@17:
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@21
