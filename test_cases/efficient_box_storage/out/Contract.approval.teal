@@ -130,14 +130,13 @@ update_box:
     // # should be able to update box without reading onto stack
     // self.box.value.address = arc4.Address(Txn.sender)
     bytec_0 // "b"
-    box_get
+    box_len
+    bury 1
     assert // check self.box exists
+    bytec_0 // "b"
     pushint 2048 // 2048
     txn Sender
-    replace3
-    bytec_0 // "b"
-    swap
-    box_put
+    box_replace
     retsub
 
 
@@ -150,11 +149,13 @@ append:
     // efficient_box_storage/contract.py:38
     // index = self.box.value.numbers.count.native
     bytec_0 // "b"
-    box_get
+    box_len
+    bury 1
     assert // check self.box exists
+    bytec_0 // "b"
     intc_1 // 2080
     intc_3 // 1025
-    extract3 // on error: Index access is out of bounds
+    box_extract
     intc 4 // 1024
     getbyte
     // efficient_box_storage/contract.py:39
@@ -162,32 +163,27 @@ append:
     frame_dig -1
     itob
     bytec_0 // "b"
-    box_get
-    assert // check self.box exists
-    dup
     intc_1 // 2080
     intc_3 // 1025
-    extract3 // on error: Index access is out of bounds
+    box_extract
     dup
     intc_2 // 0
     intc 4 // 1024
     extract3 // on error: Index access is out of bounds
-    dig 4
+    dig 3
     pushint 128 // 128
     <
     assert // Index access is out of bounds
-    dig 4
+    dig 3
     pushint 8 // 8
     *
-    uncover 4
+    uncover 3
     replace3
     replace2 0
-    intc_1 // 2080
-    swap
-    replace3
     bytec_0 // "b"
-    swap
-    box_put
+    intc_1 // 2080
+    uncover 2
+    box_replace
     // efficient_box_storage/contract.py:40
     // self.box.value.numbers.count = arc4.UInt8(index + 1)
     intc_0 // 1
@@ -200,21 +196,16 @@ append:
     assert // overflow
     extract 7 1
     bytec_0 // "b"
-    box_get
-    assert // check self.box exists
-    dup
     intc_1 // 2080
     intc_3 // 1025
-    extract3 // on error: Index access is out of bounds
+    box_extract
     intc 4 // 1024
-    uncover 3
-    replace3
-    intc_1 // 2080
-    swap
+    uncover 2
     replace3
     bytec_0 // "b"
-    swap
-    box_put
+    intc_1 // 2080
+    uncover 2
+    box_replace
     retsub
 
 

@@ -77,42 +77,39 @@ main_append_route@7:
     txna ApplicationArgs 1
     btoi
     bytec_0 // "b"
-    box_get
+    box_len
+    bury 1
     assert // check self.box exists
+    bytec_0 // "b"
     intc_1 // 2080
     intc_3 // 1025
-    extract3 // on error: Index access is out of bounds
+    box_extract
     intc 4 // 1024
     getbyte
     swap
     itob
     bytec_0 // "b"
-    box_get
-    assert // check self.box exists
-    dup
     intc_1 // 2080
     intc_3 // 1025
-    extract3 // on error: Index access is out of bounds
+    box_extract
     dup
     intc_2 // 0
     intc 4 // 1024
     extract3 // on error: Index access is out of bounds
-    dig 4
+    dig 3
     pushint 128 // 128
     <
     assert // Index access is out of bounds
-    dig 4
+    dig 3
     pushint 8 // 8
     *
-    uncover 4
+    uncover 3
     replace3
     replace2 0
-    intc_1 // 2080
-    swap
-    replace3
     bytec_0 // "b"
-    swap
-    box_put
+    intc_1 // 2080
+    uncover 2
+    box_replace
     intc_0 // 1
     +
     itob
@@ -123,21 +120,16 @@ main_append_route@7:
     assert // overflow
     extract 7 1
     bytec_0 // "b"
-    box_get
-    assert // check self.box exists
-    dup
     intc_1 // 2080
     intc_3 // 1025
-    extract3 // on error: Index access is out of bounds
+    box_extract
     intc 4 // 1024
-    uncover 3
-    replace3
-    intc_1 // 2080
-    swap
+    uncover 2
     replace3
     bytec_0 // "b"
-    swap
-    box_put
+    intc_1 // 2080
+    uncover 2
+    box_replace
     intc_0 // 1
     return
 
@@ -148,14 +140,13 @@ main_update_box_route@6:
     txn ApplicationID
     assert // can only call when not creating
     bytec_0 // "b"
-    box_get
+    box_len
+    bury 1
     assert // check self.box exists
+    bytec_0 // "b"
     pushint 2048 // 2048
     txn Sender
-    replace3
-    bytec_0 // "b"
-    swap
-    box_put
+    box_replace
     intc_0 // 1
     return
 
