@@ -16,11 +16,10 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import GenericTypeBuilder
-from puyapy.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
+from puyapy.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
 from puyapy.awst_build.eb._utils import constant_bool_and_error
 from puyapy.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder
-from puyapy.awst_build.eb.factories import builder_for_instance, builder_for_type
+from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
     NodeBuilder,
@@ -78,7 +77,14 @@ class FixedArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
         assert typ.generic == pytypes.GenericFixedArrayType
         assert typ.size is not None
         self._size = typ.size
+        self._array_type = typ
         super().__init__(typ, location)
+
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        if name == "full":
+            return _Full(self._array_type, self._size, location)
+        return super().member_access(name, location)
 
     @typing.override
     def call(
@@ -92,28 +98,11 @@ class FixedArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4StaticArray)
         assert typ.size is not None
-        arg = expect.at_most_one_arg(args, location)
+        arg = expect.exactly_one_arg(args, location, default=expect.default_dummy_value(typ))
         # TODO: check arg type is sequence like not just iterable
 
-        if not arg:
-            default_elements = [
-                builder_for_type(typ.items, location)
-                .call(
-                    [],
-                    arg_kinds=[],
-                    arg_names=[],
-                    location=location,
-                )
-                .resolve()
-                for _ in range(typ.size)
-            ]
-            new_array: Expression = NewArray(
-                values=default_elements,
-                wtype=wtype,
-                source_location=location,
-            )
-        elif arg.pytype == typ:
-            new_array = Copy(
+        if arg.pytype == typ:
+            new_array: Expression = Copy(
                 value=arg.resolve(),
                 source_location=location,
             )
@@ -126,6 +115,7 @@ class FixedArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
         return FixedArrayExpressionBuilder(new_array, typ)
 
 
+# TODO: consider if depending on _ARC4ArrayExpressionBuilder is appropriate here
 class FixedArrayExpressionBuilder(_ARC4ArrayExpressionBuilder, StaticSizedCollectionBuilder):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ArrayType)
@@ -157,3 +147,32 @@ class FixedArrayExpressionBuilder(_ARC4ArrayExpressionBuilder, StaticSizedCollec
             )
             for idx in range(self._size)
         ]
+
+
+class _Full(FunctionBuilder):
+    def __init__(self, array_type: pytypes.ArrayType, size: int, location: SourceLocation):
+        super().__init__(location=location)
+        self._array_type = array_type
+        self._size = size
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[models.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        arg = expect.exactly_one_arg_of_type_else_dummy(args, self._array_type.items, location)
+        arg = arg.single_eval()
+        wtype = self._array_type.checked_wtype(location)
+        assert isinstance(wtype, wtypes.ARC4StaticArray), "expected ARC4StaticArray"
+
+        new_array: Expression = NewArray(
+            values=[
+                Copy(value=arg.resolve(), source_location=location) for _ in range(self._size)
+            ],
+            wtype=wtype,
+            source_location=location,
+        )
+        return builder_for_instance(self._array_type, new_array)
