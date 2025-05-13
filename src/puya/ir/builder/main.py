@@ -1306,7 +1306,7 @@ class FunctionIRBuilder(
             base_expr=expr.base,
             index_value_expr=expr.index,
             wtype=arc4_wtype,
-            value=arc4_value,
+            value_vp=arc4_value,
             source_location=expr.source_location,
         )
 
