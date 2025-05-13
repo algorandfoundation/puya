@@ -21,14 +21,18 @@ from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
-from puyapy.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puyapy.awst_build.eb._utils import (
     dummy_statement,
     dummy_value,
 )
 from puyapy.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder, arc4_bool_bytes
 from puyapy.awst_build.eb.factories import builder_for_instance
-from puyapy.awst_build.eb.interface import BuilderBinaryOp, InstanceBuilder, NodeBuilder
+from puyapy.awst_build.eb.interface import (
+    BuilderBinaryOp,
+    InstanceBuilder,
+    NodeBuilder,
+    TypeBuilder,
+)
 from puyapy.awst_build.eb.none import NoneExpressionBuilder
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 
@@ -68,7 +72,7 @@ class NativeArrayGenericTypeBuilder(GenericTypeBuilder):
         )
 
 
-class NativeArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
+class NativeArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericNativeArrayType
@@ -92,6 +96,7 @@ class NativeArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         )
 
 
+# TODO: consider if depending on _ARC4ArrayExpressionBuilder is appropriate here
 class NativeArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ArrayType)
