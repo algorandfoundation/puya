@@ -169,10 +169,10 @@ def handle_assignment(
             )
             return source
         case awst_nodes.IndexExpression() as ix_expr:
+            values = context.visitor.materialise_value_provider(
+                value, description="materialized_values"
+            )
             if isinstance(ix_expr.base.wtype, wtypes.ReferenceArray):
-                values = context.visitor.materialise_value_provider(
-                    value, description="materialized_values"
-                )
                 array_slot = context.visitor.visit_and_materialise_single(
                     ix_expr.base, "array_slot"
                 )
@@ -198,15 +198,14 @@ def handle_assignment(
                 mem.write_slot(context, array_slot, updated_array, ix_expr.source_location)
                 return values
             elif isinstance(ix_expr.base.wtype, wtypes.ARC4Type):
-                return (
-                    arc4.handle_arc4_assign(
-                        context,
-                        target=ix_expr,
-                        value=value,
-                        is_nested_update=is_nested_update,
-                        source_location=assignment_location,
-                    ),
+                arc4.handle_arc4_assign(
+                    context,
+                    target=ix_expr,
+                    value=value,
+                    is_nested_update=is_nested_update,
+                    source_location=assignment_location,
                 )
+                return values
             else:
                 raise InternalError(
                     f"Indexed assignment operation IR lowering"
