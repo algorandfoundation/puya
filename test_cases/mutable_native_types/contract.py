@@ -16,9 +16,13 @@ from algopy import (
     UInt64,
     arc4,
     subroutine,
+    zero_bytes,
 )
 
 BigBytes = FixedArray[arc4.Byte, typing.Literal[2048]]
+
+
+FixedUInt64Of3 = FixedArray[UInt64, typing.Literal[3]]
 
 
 class FixedStruct(Struct, frozen=True, kw_only=True):
@@ -80,7 +84,22 @@ class Contract(arc4.ARC4Contract):
         )
 
         self.num_payments = UInt64(0)
-        self.payments = FixedArray[Payment, typing.Literal[8]]()
+        self.payments = zero_bytes(FixedArray[Payment, typing.Literal[8]])
+
+    @arc4.abimethod()
+    def fixed_initialize(self) -> None:
+        arr_3 = zero_bytes(FixedUInt64Of3)
+        arr_3[0] = UInt64(0)
+        arr_3[1] = UInt64(1)
+        arr_3[2] = UInt64(2)
+
+        arr_3_from_tuple = FixedUInt64Of3(
+            (UInt64(0), UInt64(1), UInt64(2)),
+        )
+        assert arr_3 == arr_3_from_tuple, "should be the same"
+
+        arr_3_from_fixed = FixedUInt64Of3(arr_3.copy())
+        assert arr_3 == arr_3_from_fixed, "should be the same"
 
     @arc4.abimethod()
     def add_payment(self, pay: Payment) -> None:
@@ -142,9 +161,3 @@ class Contract(arc4.ARC4Contract):
 @subroutine()
 def add(val: FixedStruct) -> UInt64:
     return val.a + val.b
-
-
-@subroutine()
-def get_big_bytes() -> BigBytes:
-    # note: this requires using size_of node to initially array to zeros of the correct size
-    return BigBytes()
