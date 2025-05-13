@@ -772,7 +772,7 @@ def handle_arc4_assign(
                 base_expr=base_expr,
                 index_value_expr=index_value,
                 wtype=array_wtype,
-                value=value,
+                value_vp=value,
                 source_location=source_location,
             )
             return handle_arc4_assign(
@@ -1623,7 +1623,7 @@ def arc4_replace_array_item(
     base_expr: awst_nodes.Expression,
     index_value_expr: awst_nodes.Expression,
     wtype: wtypes.ARC4Array,
-    value: ValueProvider,
+    value_vp: ValueProvider,
     source_location: SourceLocation,
 ) -> Value:
     assert type(wtype) in (wtypes.ARC4StaticArray, wtypes.ARC4DynamicArray)
@@ -1631,9 +1631,15 @@ def arc4_replace_array_item(
     factory = OpFactory(context, source_location)
     base = context.visitor.visit_and_materialise_single(base_expr)
 
-    value = assign_temp(
-        context, value, temp_description="assigned_value", source_location=source_location
-    )
+    element_type = wtype.element_type
+    arc4_element_type = wtype_to_arc4_wtype(element_type, source_location)
+    if element_type != arc4_element_type:
+        encoded_vp = encode_value_provider(
+            context, value_vp, wtype.element_type, arc4_element_type, source_location
+        )
+        value: Value = factory.assign(encoded_vp, "encoded")
+    else:
+        (value,) = context.visitor.materialise_value_provider(value_vp, "assigned_value")
 
     index = context.visitor.visit_and_materialise_single(index_value_expr)
 
@@ -1645,13 +1651,6 @@ def arc4_replace_array_item(
             source_location=source_location,
         )
         return factory.assign(invoke, "updated_value")
-
-    arc4_element_type = wtype_to_arc4_wtype(wtype.element_type, source_location)
-    if wtype.element_type != arc4_element_type:
-        encoded_vp = encode_value_provider(
-            context, value, wtype.element_type, arc4_element_type, source_location
-        )
-        value = factory.assign(encoded_vp, "encoded")
 
     if _is_byte_length_header(arc4_element_type):
         if isinstance(wtype, wtypes.ARC4StaticArray):
