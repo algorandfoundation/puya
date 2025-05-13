@@ -41,6 +41,7 @@ CallableBuilderFromSourceFactory = Callable[[SourceLocation], CallableBuilder]
 
 FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
     "algopy.arc4.arc4_signature": intrinsics.Arc4SignatureBuilder,
+    "algopy._native.zero_bytes": native.ZeroBytesBuilder,
     "algopy._util.ensure_budget": ensure_budget.EnsureBudgetBuilder,
     "algopy._util.log": log.LogBuilder,
     "algopy._util.size_of": size_of.SizeOfBuilder,
