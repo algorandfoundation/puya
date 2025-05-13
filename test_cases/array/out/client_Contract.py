@@ -57,3 +57,8 @@ class Contract(algopy.arc4.ARC4Client, typing.Protocol):
     def test_quicksort(
         self,
     ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_unobserved_write(
+        self,
+    ) -> None: ...

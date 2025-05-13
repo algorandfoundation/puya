@@ -10,15 +10,27 @@ main:
     // array/uint64.py:4
     // class Contract(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@15
-    pushbytess 0xa33be873 0xe0c378e9 0x366f509d 0x58351a50 0xfa99e984 0xa20e440f 0x179ac3f9 0xf17f6f0a 0x845e1b4e 0x7621cfd1 // method "test_array()void", method "test_array_extend()void", method "test_array_multiple_append()void", method "overhead()void", method "test_array_too_long()void", method "test_array_copy_and_extend()void", method "test_array_evaluation_order()void", method "test_allocations(uint64)void", method "test_iteration()void", method "test_quicksort()void"
+    bz main_bare_routing@16
+    pushbytess 0xa33be873 0xe0c378e9 0x366f509d 0x58351a50 0xfa99e984 0xa20e440f 0x179ac3f9 0xf17f6f0a 0x845e1b4e 0x7621cfd1 0x5661a67c // method "test_array()void", method "test_array_extend()void", method "test_array_multiple_append()void", method "overhead()void", method "test_array_too_long()void", method "test_array_copy_and_extend()void", method "test_array_evaluation_order()void", method "test_allocations(uint64)void", method "test_iteration()void", method "test_quicksort()void", method "test_unobserved_write()void"
     txna ApplicationArgs 0
-    match main_test_array_route@3 main_test_array_extend_route@4 main_test_array_multiple_append_route@5 main_overhead_route@6 main_test_array_too_long_route@7 main_test_array_copy_and_extend_route@8 main_test_array_evaluation_order_route@9 main_test_allocations_route@10 main_test_iteration_route@11 main_test_quicksort_route@12
+    match main_test_array_route@3 main_test_array_extend_route@4 main_test_array_multiple_append_route@5 main_overhead_route@6 main_test_array_too_long_route@7 main_test_array_copy_and_extend_route@8 main_test_array_evaluation_order_route@9 main_test_allocations_route@10 main_test_iteration_route@11 main_test_quicksort_route@12 main_test_unobserved_write_route@13
 
-main_after_if_else@19:
+main_after_if_else@20:
     // array/uint64.py:4
     // class Contract(arc4.ARC4Contract):
     intc_1 // 0
+    return
+
+main_test_unobserved_write_route@13:
+    // array/uint64.py:173
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub test_unobserved_write
+    intc_2 // 1
     return
 
 main_test_quicksort_route@12:
@@ -146,11 +158,11 @@ main_test_array_route@3:
     intc_2 // 1
     return
 
-main_bare_routing@15:
+main_bare_routing@16:
     // array/uint64.py:4
     // class Contract(arc4.ARC4Contract):
     txn OnCompletion
-    bnz main_after_if_else@19
+    bnz main_after_if_else@20
     txn ApplicationID
     !
     assert // can only call when creating
@@ -160,13 +172,13 @@ main_bare_routing@15:
 
 // test_cases.array.uint64.quicksort_window(arr: uint64, window_left: uint64, window_right: uint64) -> void:
 quicksort_window:
-    // array/uint64.py:174-175
+    // array/uint64.py:183-184
     // @subroutine
     // def quicksort_window(arr: Array[UInt64], window_left: UInt64, window_right: UInt64) -> None:
     proto 3 0
     bytec_0 // ""
     dupn 2
-    // array/uint64.py:178
+    // array/uint64.py:187
     // pivot = arr[(window_left + window_right) // 2]
     frame_dig -2
     frame_dig -1
@@ -186,7 +198,7 @@ quicksort_window:
     frame_dig -2
 
 quicksort_window_while_top@3:
-    // array/uint64.py:182-183
+    // array/uint64.py:191-192
     // # move left of window towards pivot
     // while arr[left] < pivot:
     frame_dig -3
@@ -203,7 +215,7 @@ quicksort_window_while_top@3:
     frame_dig 3
     <
     bz quicksort_window_while_top@6
-    // array/uint64.py:184
+    // array/uint64.py:193
     // left += 1
     frame_dig 5
     intc_2 // 1
@@ -212,7 +224,7 @@ quicksort_window_while_top@3:
     b quicksort_window_while_top@3
 
 quicksort_window_while_top@6:
-    // array/uint64.py:185-186
+    // array/uint64.py:194-195
     // # move right of window towards pivot
     // while pivot < arr[right]:
     frame_dig -3
@@ -229,12 +241,12 @@ quicksort_window_while_top@6:
     frame_dig 3
     >
     bz quicksort_window_after_while@10
-    // array/uint64.py:187-188
+    // array/uint64.py:196-197
     // # break out of loop if right would go negative
     // if not right:
     frame_dig 4
     bz quicksort_window_after_while@22
-    // array/uint64.py:190
+    // array/uint64.py:199
     // right -= 1
     frame_dig 4
     intc_2 // 1
@@ -243,14 +255,14 @@ quicksort_window_while_top@6:
     b quicksort_window_while_top@6
 
 quicksort_window_after_while@22:
-    // array/uint64.py:218-219
+    // array/uint64.py:227-228
     // # sort left half of window
     // if window_left < right:
     frame_dig -2
     frame_dig 4
     <
     bz quicksort_window_after_if_else@24
-    // array/uint64.py:220
+    // array/uint64.py:229
     // quicksort_window(arr, window_left, right)
     frame_dig -3
     frame_dig -2
@@ -258,14 +270,14 @@ quicksort_window_after_while@22:
     callsub quicksort_window
 
 quicksort_window_after_if_else@24:
-    // array/uint64.py:221-222
+    // array/uint64.py:230-231
     // # sort right half of window
     // if left < window_right:
     frame_dig 5
     frame_dig -1
     <
     bz quicksort_window_after_if_else@26
-    // array/uint64.py:223
+    // array/uint64.py:232
     // quicksort_window(arr, left, window_right)
     frame_dig -3
     frame_dig 5
@@ -276,14 +288,14 @@ quicksort_window_after_if_else@26:
     retsub
 
 quicksort_window_after_while@10:
-    // array/uint64.py:192-193
+    // array/uint64.py:201-202
     // # if window isn't empty then swap values and move window in
     // if left < right:
     frame_dig 5
     frame_dig 4
     <
     bz quicksort_window_after_if_else@16
-    // array/uint64.py:194
+    // array/uint64.py:203
     // arr[left], arr[right] = arr[right], arr[left]
     frame_dig -3
     loads
@@ -317,25 +329,25 @@ quicksort_window_after_while@10:
     frame_dig -3
     swap
     stores
-    // array/uint64.py:195
+    // array/uint64.py:204
     // left += 1
     frame_dig 5
     intc_2 // 1
     +
     frame_bury 5
-    // array/uint64.py:196-197
+    // array/uint64.py:205-206
     // # break out of loop if right would go negative
     // if not right:
     frame_dig 4
     bz quicksort_window_after_while@22
-    // array/uint64.py:199
+    // array/uint64.py:208
     // right -= 1
     frame_dig 4
     intc_2 // 1
     -
     dup
     frame_bury 4
-    // array/uint64.py:200-201
+    // array/uint64.py:209-210
     // # explicit continue to avoid hitting outer break
     // if left <= right:
     frame_dig 5
@@ -344,14 +356,14 @@ quicksort_window_after_while@10:
     b quicksort_window_after_while@22
 
 quicksort_window_after_if_else@16:
-    // array/uint64.py:206-207
+    // array/uint64.py:215-216
     // # if window is just one item, don't bother swapping, but still adjust window
     // if left == right:
     frame_dig 5
     frame_dig 4
     ==
     bz quicksort_window_after_while@22
-    // array/uint64.py:208
+    // array/uint64.py:217
     // left += 1
     frame_dig 5
     intc_2 // 1
@@ -360,11 +372,11 @@ quicksort_window_after_if_else@16:
     frame_dig 4
     dup
     frame_bury 2
-    // array/uint64.py:209-210
+    // array/uint64.py:218-219
     // # don't decrement right if it would go negative
     // if right:
     bz quicksort_window_after_if_else@19
-    // array/uint64.py:211
+    // array/uint64.py:220
     // right -= 1
     frame_dig 4
     intc_2 // 1
@@ -374,31 +386,106 @@ quicksort_window_after_if_else@16:
 quicksort_window_after_if_else@19:
     frame_dig 2
     frame_bury 4
-    // array/uint64.py:212-214
+    // array/uint64.py:221-223
     // # loop always ends in this scenario
     // # and an explict break consumes fewer ops
     // break
     b quicksort_window_after_while@22
 
 
+// test_cases.array.uint64.create_array() -> uint64:
+create_array:
+    // array/uint64.py:235-236
+    // @subroutine(inline=False)
+    // def create_array() -> Array[UInt64]:
+    proto 0 1
+    // array/uint64.py:237
+    // arr = Array[UInt64]()
+    callsub _puya_lib.mem.new_slot
+    dup
+    bytec_0 // 0x
+    stores
+    // array/uint64.py:238
+    // for i in urange(5):
+    intc_1 // 0
+
+create_array_for_header@1:
+    // array/uint64.py:238
+    // for i in urange(5):
+    frame_dig 1
+    intc_3 // 5
+    <
+    bz create_array_after_for@4
+    // array/uint64.py:239
+    // arr.append(i)
+    frame_dig 1
+    dup
+    itob
+    frame_dig 0
+    dup
+    cover 2
+    loads
+    swap
+    concat // on error: max array length exceeded
+    stores
+    // array/uint64.py:238
+    // for i in urange(5):
+    intc_2 // 1
+    +
+    frame_bury 1
+    b create_array_for_header@1
+
+create_array_after_for@4:
+    // array/uint64.py:240
+    // return arr
+    retsub
+
+
+// test_cases.array.uint64.assert_last_is_zero(arr: uint64) -> void:
+assert_last_is_zero:
+    // array/uint64.py:243-244
+    // @subroutine(inline=False)
+    // def assert_last_is_zero(arr: Array[UInt64]) -> None:
+    proto 1 0
+    // array/uint64.py:245
+    // assert arr[arr.length - 1] == 0
+    frame_dig -1
+    loads
+    dup
+    len
+    intc_0 // 8
+    /
+    intc_2 // 1
+    -
+    intc_0 // 8
+    *
+    intc_0 // 8
+    extract3
+    intc_1 // 0
+    extract_uint64
+    !
+    assert
+    retsub
+
+
 // test_cases.array.uint64.add_x(arr: uint64, x: uint64) -> void:
 add_x:
-    // array/uint64.py:233-234
+    // array/uint64.py:255-256
     // @subroutine
     // def add_x(arr: Array[UInt64], x: UInt64) -> None:
     proto 2 0
-    // array/uint64.py:235
+    // array/uint64.py:257
     // for i in urange(x):
     intc_1 // 0
 
 add_x_for_header@1:
-    // array/uint64.py:235
+    // array/uint64.py:257
     // for i in urange(x):
     frame_dig 0
     frame_dig -1
     <
     bz add_x_after_for@4
-    // array/uint64.py:236
+    // array/uint64.py:258
     // arr.append(i)
     frame_dig 0
     dup
@@ -410,7 +497,7 @@ add_x_for_header@1:
     frame_dig -2
     swap
     stores
-    // array/uint64.py:235
+    // array/uint64.py:257
     // for i in urange(x):
     intc_2 // 1
     +
@@ -423,11 +510,11 @@ add_x_after_for@4:
 
 // test_cases.array.uint64.append_length_and_return(arr: uint64) -> uint64:
 append_length_and_return:
-    // array/uint64.py:247-248
+    // array/uint64.py:269-270
     // @subroutine
     // def append_length_and_return(arr: Array[UInt64]) -> Array[UInt64]:
     proto 1 1
-    // array/uint64.py:249
+    // array/uint64.py:271
     // arr.append(arr.length)
     frame_dig -1
     loads
@@ -440,7 +527,7 @@ append_length_and_return:
     frame_dig -1
     swap
     stores
-    // array/uint64.py:250
+    // array/uint64.py:272
     // return arr
     frame_dig -1
     retsub
@@ -495,22 +582,22 @@ test_array:
     // array/uint64.py:18
     // pop_x(arr, x=UInt64(3), expected=UInt64(4))
     pushint 4 // 4
-    // array/uint64.py:241
+    // array/uint64.py:263
     // for _i in urange(x):
     intc_1 // 0
 
 test_array_for_header@2:
-    // array/uint64.py:241
+    // array/uint64.py:263
     // for _i in urange(x):
     frame_dig 2
     // array/uint64.py:18
     // pop_x(arr, x=UInt64(3), expected=UInt64(4))
     pushint 3 // 3
-    // array/uint64.py:241
+    // array/uint64.py:263
     // for _i in urange(x):
     <
     bz test_array_after_for@4
-    // array/uint64.py:242
+    // array/uint64.py:264
     // popped = arr.pop()
     frame_dig 0
     dup
@@ -537,19 +624,19 @@ test_array_for_header@2:
     extract_uint64
     cover 2
     stores
-    // array/uint64.py:243
+    // array/uint64.py:265
     // assert popped == expected
     frame_dig 1
     dup
     cover 2
     ==
     assert
-    // array/uint64.py:244
+    // array/uint64.py:266
     // expected -= 1
     intc_2 // 1
     -
     frame_bury 1
-    // array/uint64.py:241
+    // array/uint64.py:263
     // for _i in urange(x):
     frame_dig 2
     intc_2 // 1
@@ -688,12 +775,12 @@ test_array_after_for@4:
     pushint 44 // 44
     ==
     assert
-    // array/uint64.py:228
+    // array/uint64.py:250
     // arr.append(UInt64(99))
     pushint 99 // 99
     itob
     concat // on error: max array length exceeded
-    // array/uint64.py:229
+    // array/uint64.py:251
     // arr2.append(UInt64(100))
     pushint 100 // 100
     itob
@@ -1653,6 +1740,63 @@ test_quicksort_for_header@5:
     b test_quicksort_for_header@5
 
 test_quicksort_after_for@8:
+    retsub
+
+
+// test_cases.array.uint64.Contract.test_unobserved_write() -> void:
+test_unobserved_write:
+    // array/uint64.py:175
+    // arr = create_array()
+    callsub create_array
+    // array/uint64.py:176
+    // last = arr.length - 1
+    dup
+    loads
+    dup
+    len
+    intc_0 // 8
+    /
+    intc_2 // 1
+    -
+    // array/uint64.py:177
+    // arr[last] = UInt64(0)  # write
+    intc_0 // 8
+    *
+    intc_1 // 0
+    itob
+    uncover 2
+    dig 2
+    uncover 2
+    replace3
+    dig 2
+    swap
+    stores
+    // array/uint64.py:178
+    // assert_last_is_zero(arr)
+    dig 1
+    callsub assert_last_is_zero
+    // array/uint64.py:179
+    // arr[last] = UInt64(1)  # write
+    dig 1
+    loads
+    intc_2 // 1
+    itob
+    dig 2
+    swap
+    replace3
+    uncover 2
+    dig 1
+    stores
+    // array/uint64.py:180
+    // assert arr[last] == 1
+    swap
+    intc_0 // 8
+    extract3
+    intc_1 // 0
+    extract_uint64
+    intc_2 // 1
+    ==
+    assert
     retsub
 
 
