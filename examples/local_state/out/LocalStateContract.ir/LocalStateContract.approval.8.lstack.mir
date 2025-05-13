@@ -5,12 +5,15 @@ subroutine main:
         // local_state/local_state_contract.py:21
         // if Txn.application_id == 0:
         txn ApplicationID                                                                                tmp%0#1
+        l-load tmp%0#1 0                                                                                 tmp%0#1
         bz main_if_body@4 ; b main_after_if_else@5
 
     main_if_body@4:
         // local_state/local_state_contract.py:22
         // return True
-        int 1                                                                                            examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
+        int 1                                                                                            1
+        l-store examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0 0 examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
+        l-load examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0 0 examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
         v-store tmp%1#0
         b main_after_inlined_examples.local_state.local_state_contract.LocalStateContract.approval_program@30 
 
@@ -29,12 +32,15 @@ subroutine main:
         v-load awst_tmp%0#0                                                                              awst_tmp%0#0
         int OptIn                                                                                        awst_tmp%0#0,OptIn
         ==                                                                                               tmp%3#0
+        l-load tmp%3#0 0                                                                                 tmp%3#0
         bz main_if_body@7 ; b main_after_if_else@8
 
     main_if_body@7:
         // local_state/local_state_contract.py:24
         // return False
-        int 0                                                                                            examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
+        int 0                                                                                            0
+        l-store examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0 0 examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
+        l-load examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0 0 examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
         v-store tmp%1#0
         b main_after_inlined_examples.local_state.local_state_contract.LocalStateContract.approval_program@30 
 
@@ -42,12 +48,15 @@ subroutine main:
         // local_state/local_state_contract.py:25
         // if Txn.num_app_args == 0:
         txn NumAppArgs                                                                                   tmp%4#0
+        l-load tmp%4#0 0                                                                                 tmp%4#0
         bz main_if_body@9 ; b main_after_if_else@10
 
     main_if_body@9:
         // local_state/local_state_contract.py:26
         // return False
-        int 0                                                                                            examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
+        int 0                                                                                            0
+        l-store examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0 0 examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
+        l-load examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0 0 examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
         v-store tmp%1#0
         b main_after_inlined_examples.local_state.local_state_contract.LocalStateContract.approval_program@30 
 
@@ -59,8 +68,10 @@ subroutine main:
         // local_state/local_state_contract.py:29
         // if Txn.num_app_args == 1:
         txn NumAppArgs                                                                                   tmp%6#0
+        l-load tmp%6#0 0                                                                                 tmp%6#0
         int 1                                                                                            tmp%6#0,1
         ==                                                                                               tmp%7#0
+        l-load tmp%7#0 0                                                                                 tmp%7#0
         bz main_else_body@21 ; b main_if_body@11
 
     main_if_body@11:
@@ -69,6 +80,7 @@ subroutine main:
         v-load method#0                                                                                  method#0
         byte 0x6765745f67756172616e746565645f64617461                                                    method#0,0x6765745f67756172616e746565645f64617461
         ==                                                                                               tmp%8#0
+        l-load tmp%8#0 0                                                                                 tmp%8#0
         bz main_else_body@13 ; b main_if_body@12
 
     main_if_body@12:
@@ -81,30 +93,8 @@ subroutine main:
         int 0                                                                                            for_account#0,for_account#0 (copy),0
         byte "local"                                                                                     for_account#0,for_account#0 (copy),0,"local"
         app_local_get_ex                                                                                 for_account#0,result#0,maybe_exists%0#0
+        l-load maybe_exists%0#0 0                                                                        for_account#0,result#0,maybe_exists%0#0
         assert // check self.local exists for account                                                    for_account#0,result#0
-        // local_state/local_state_contract.py:58
-        // assert result.length == get_local_state_length(self.local, for_account)
-        l-load-copy result#0 0                                                                           for_account#0,result#0,result#0 (copy)
-        len                                                                                              for_account#0,result#0,tmp%0#1
-        // local_state/local_state_contract.py:86
-        // return state[account].length
-        l-load-copy for_account#0 2                                                                      for_account#0,result#0,tmp%0#1,for_account#0 (copy)
-        int 0                                                                                            for_account#0,result#0,tmp%0#1,for_account#0 (copy),0
-        // local_state/local_state_contract.py:58
-        // assert result.length == get_local_state_length(self.local, for_account)
-        byte "local"                                                                                     for_account#0,result#0,tmp%0#1,for_account#0 (copy),0,"local"
-        // local_state/local_state_contract.py:86
-        // return state[account].length
-        app_local_get_ex                                                                                 for_account#0,result#0,tmp%0#1,maybe_value%0#0,maybe_exists%0#0
-        assert // check LocalState exists for account                                                    for_account#0,result#0,tmp%0#1,maybe_value%0#0
-        l-load maybe_value%0#0 0                                                                         for_account#0,result#0,tmp%0#1,maybe_value%0#0
-        len                                                                                              for_account#0,result#0,tmp%0#1,tmp%0#3
-        // local_state/local_state_contract.py:58
-        // assert result.length == get_local_state_length(self.local, for_account)
-        l-load tmp%0#1 1                                                                                 for_account#0,result#0,tmp%0#3,tmp%0#1
-        l-load tmp%0#3 1                                                                                 for_account#0,result#0,tmp%0#1,tmp%0#3
-        ==                                                                                               for_account#0,result#0,tmp%2#1
-        assert                                                                                           for_account#0,result#0
         // local_state/local_state_contract.py:91
         // return account in LocalState(Bytes, key=key)
         l-load-copy for_account#0 1                                                                      for_account#0,result#0,for_account#0 (copy)
@@ -116,7 +106,7 @@ subroutine main:
         // return account in LocalState(Bytes, key=key)
         app_local_get_ex                                                                                 for_account#0,result#0,_%0#0,maybe_exists%0#0
         l-store maybe_exists%0#0 1                                                                       for_account#0,result#0,maybe_exists%0#0,_%0#0
-        pop 1                                                                                            for_account#0,result#0,maybe_exists%0#0
+        v-store _%0#0                                                                                    for_account#0,result#0,maybe_exists%0#0
         // local_state/local_state_contract.py:60
         // assert local_bytes_exists(for_account, Bytes(b"local"))
         l-load maybe_exists%0#0 0                                                                        for_account#0,result#0,maybe_exists%0#0
@@ -131,12 +121,14 @@ subroutine main:
         // local_state/local_state_contract.py:96
         // return LocalState(Bytes, key=key)[account]
         app_local_get_ex                                                                                 result#0,maybe_value%0#0,maybe_exists%0#0
+        l-load maybe_exists%0#0 0                                                                        result#0,maybe_value%0#0,maybe_exists%0#0
         assert // check LocalState exists for account                                                    result#0,maybe_value%0#0
         // local_state/local_state_contract.py:61
         // assert read_local_bytes(for_account, String("local")) == result
         l-load maybe_value%0#0 0                                                                         result#0,maybe_value%0#0
         l-load-copy result#0 1                                                                           result#0,maybe_value%0#0,result#0 (copy)
         ==                                                                                               result#0,tmp%5#1
+        l-load tmp%5#1 0                                                                                 result#0,tmp%5#1
         assert                                                                                           result#0
         // local_state/local_state_contract.py:31
         // log(self.get_guaranteed_data(Txn.sender))
@@ -150,6 +142,7 @@ subroutine main:
         v-load method#0                                                                                  method#0
         byte 0x6765745f646174615f6f725f617373657274                                                      method#0,0x6765745f646174615f6f725f617373657274
         ==                                                                                               tmp%11#0
+        l-load tmp%11#0 0                                                                                tmp%11#0
         bz main_else_body@15 ; b main_if_body@14
 
     main_if_body@14:
@@ -158,11 +151,13 @@ subroutine main:
         txn Sender                                                                                       for_account#0
         // local_state/local_state_contract.py:71
         // result, exists = self.local.maybe(for_account)
+        l-load for_account#0 0                                                                           for_account#0
         int 0                                                                                            for_account#0,0
         byte "local"                                                                                     for_account#0,0,"local"
         app_local_get_ex                                                                                 result#0,exists#0
         // local_state/local_state_contract.py:72
         // assert exists, "no data for account"
+        l-load exists#0 0                                                                                result#0,exists#0
         assert // no data for account                                                                    result#0
         // local_state/local_state_contract.py:33
         // log(self.get_data_or_assert(Txn.sender))
@@ -176,6 +171,7 @@ subroutine main:
         v-load method#0                                                                                  method#0
         byte 0x64656c6574655f64617461                                                                    method#0,0x64656c6574655f64617461
         ==                                                                                               tmp%14#0
+        l-load tmp%14#0 0                                                                                tmp%14#0
         bz main_else_body@17 ; b main_if_body@16
 
     main_if_body@16:
@@ -184,6 +180,7 @@ subroutine main:
         txn Sender                                                                                       for_account#0
         // local_state/local_state_contract.py:81
         // del self.local[for_account]
+        l-load for_account#0 0                                                                           for_account#0
         byte "local"                                                                                     for_account#0,"local"
         app_local_del
         // local_state/local_state_contract.py:36
@@ -195,14 +192,18 @@ subroutine main:
     main_else_body@17:
         // local_state/local_state_contract.py:38
         // return False
-        int 0                                                                                            examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
+        int 0                                                                                            0
+        l-store examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0 0 examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
+        l-load examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0 0 examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
         v-store tmp%1#0
         b main_after_inlined_examples.local_state.local_state_contract.LocalStateContract.approval_program@30 
 
     main_after_if_else@20:
         // local_state/local_state_contract.py:39
         // return True
-        int 1                                                                                            examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
+        int 1                                                                                            1
+        l-store examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0 0 examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
+        l-load examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0 0 examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
         v-store tmp%1#0
         b main_after_inlined_examples.local_state.local_state_contract.LocalStateContract.approval_program@30 
 
@@ -210,8 +211,10 @@ subroutine main:
         // local_state/local_state_contract.py:40
         // elif Txn.num_app_args == 2:
         txn NumAppArgs                                                                                   tmp%16#0
+        l-load tmp%16#0 0                                                                                tmp%16#0
         int 2                                                                                            tmp%16#0,2
         ==                                                                                               tmp%17#0
+        l-load tmp%17#0 0                                                                                tmp%17#0
         bz main_else_body@29 ; b main_if_body@22
 
     main_if_body@22:
@@ -220,6 +223,7 @@ subroutine main:
         v-load method#0                                                                                  method#0
         byte 0x7365745f64617461                                                                          method#0,0x7365745f64617461
         ==                                                                                               tmp%18#0
+        l-load tmp%18#0 0                                                                                tmp%18#0
         bz main_else_body@24 ; b main_if_body@23
 
     main_if_body@23:
@@ -241,6 +245,7 @@ subroutine main:
         v-load method#0                                                                                  method#0
         byte 0x6765745f646174615f776974685f64656661756c74                                                method#0,0x6765745f646174615f776974685f64656661756c74
         ==                                                                                               tmp%21#0
+        l-load tmp%21#0 0                                                                                tmp%21#0
         bz main_else_body@26 ; b main_if_body@25
 
     main_if_body@25:
@@ -260,27 +265,34 @@ subroutine main:
         select                                                                                           state_get%0#0
         // local_state/local_state_contract.py:44
         // log(self.get_data_with_default(Txn.sender, Txn.application_args(1)))
+        l-load state_get%0#0 0                                                                           state_get%0#0
         log
         b main_after_if_else@28
 
     main_else_body@26:
         // local_state/local_state_contract.py:46
         // return False
-        int 0                                                                                            examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
+        int 0                                                                                            0
+        l-store examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0 0 examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
+        l-load examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0 0 examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
         v-store tmp%1#0
         b main_after_inlined_examples.local_state.local_state_contract.LocalStateContract.approval_program@30 
 
     main_after_if_else@28:
         // local_state/local_state_contract.py:47
         // return True
-        int 1                                                                                            examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
+        int 1                                                                                            1
+        l-store examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0 0 examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
+        l-load examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0 0 examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
         v-store tmp%1#0
         b main_after_inlined_examples.local_state.local_state_contract.LocalStateContract.approval_program@30 
 
     main_else_body@29:
         // local_state/local_state_contract.py:49
         // return False
-        int 0                                                                                            examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
+        int 0                                                                                            0
+        l-store examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0 0 examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
+        l-load examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0 0 examples.local_state.local_state_contract.LocalStateContract.approval_program%0#0
         v-store tmp%1#0
         b main_after_inlined_examples.local_state.local_state_contract.LocalStateContract.approval_program@30 
 
