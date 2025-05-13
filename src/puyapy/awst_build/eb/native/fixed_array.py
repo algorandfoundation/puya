@@ -25,6 +25,7 @@ from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
     NodeBuilder,
     StaticSizedCollectionBuilder,
+    TypeBuilder,
 )
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 
@@ -71,7 +72,7 @@ class FixedArrayGenericTypeBuilder(GenericTypeBuilder):
         )
 
 
-class FixedArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
+class FixedArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericFixedArrayType
