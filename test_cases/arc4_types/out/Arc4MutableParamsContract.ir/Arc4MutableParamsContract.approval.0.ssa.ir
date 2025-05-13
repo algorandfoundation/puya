@@ -33,8 +33,7 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutati
         let my_array_copy#0: bytes[4] = copy%0#0
         let copy%1#0: bytes = my_struct#0
         let my_struct_copy#0: bytes = copy%1#0
-        let assigned_value%0#0: bytes[1] = 0x05
-        let updated_target%0#0: bytes = (replace3 my_array#0 2u assigned_value%0#0)
+        let updated_target%0#0: bytes = (replace3 my_array#0 2u 0x05)
         let my_array#1: bytes[4] = updated_target%0#0
         let array_head_and_tail%0#0: bytes[4] = my_array_copy#0
         let item_offset%0#0: uint64 = (* 2u 1u)
@@ -218,24 +217,23 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_
         let array%out#0: bytes[4] = array#0
         let struct%is_original#0: bool = 1u
         let struct%out#0: bytes = struct#0
-        let assigned_value%0#0: bytes[1] = 0x05
-        let updated_target%0#0: bytes = (replace3 array#0 1u assigned_value%0#0)
+        let updated_target%0#0: bytes = (replace3 array#0 1u 0x05)
         let array#1: bytes[4] = updated_target%0#0
         goto array%is_original#0 ? block@1 : block@2
     block@1: // if_body_L1
         let array%out#1: bytes[4] = array#1
         goto block@2
     block@2: // after_if_else_L1
-        let assigned_value%1#0: bytes[9] = 0x000741415252474821
+        let assigned_value%0#0: bytes[9] = 0x000741415252474821
         let item_offset%0#0: uint64 = (extract_uint16 struct#0 2u)
         let data_up_to_item%0#0: bytes = (extract3 struct#0 0u item_offset%0#0)
         let next_item_offset%0#0: uint64 = (extract_uint16 struct#0 4u)
         let total_data_length%0#0: uint64 = (len struct#0)
         let data_beyond_item%0#0: bytes = (substring3 struct#0 next_item_offset%0#0 total_data_length%0#0)
-        let updated_data%0#0: bytes = (concat data_up_to_item%0#0 assigned_value%1#0)
+        let updated_data%0#0: bytes = (concat data_up_to_item%0#0 assigned_value%0#0)
         let updated_data%1#0: bytes = (concat updated_data%0#0 data_beyond_item%0#0)
         let item_length%0#0: uint64 = (- next_item_offset%0#0 item_offset%0#0)
-        let new_value_length%0#0: uint64 = (len assigned_value%1#0)
+        let new_value_length%0#0: uint64 = (len assigned_value%0#0)
         let tail_offset%0#0: uint64 = (extract_uint16 updated_data%1#0 4u)
         let tail_offset%1#0: uint64 = (+ tail_offset%0#0 new_value_length%0#0)
         let tail_offset%2#0: uint64 = (- tail_offset%1#0 item_length%0#0)
@@ -256,8 +254,7 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_
         let array%out#0: bytes[4] = array#0
         let copy%0#0: bytes[4] = array#0
         let copy#0: bytes[4] = copy%0#0
-        let assigned_value%0#0: bytes[1] = 0x0a
-        let updated_target%0#0: bytes = (replace3 array#0 0u assigned_value%0#0)
+        let updated_target%0#0: bytes = (replace3 array#0 0u 0x0a)
         let array#1: bytes[4] = updated_target%0#0
         goto array%is_original#0 ? block@1 : block@2
     block@1: // if_body_L1
@@ -279,8 +276,7 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%0#0: bool = (<= bitlen%0#0 8u)
         (assert no_overflow%0#0) // overflow
         let uint8%0#0: bytes = (extract3 val_as_bytes%0#0 7u 1u)
-        let assigned_value%0#0: bytes = uint8%0#0
-        let updated_target%0#0: bytes = (replace3 arrays.0#0 0u assigned_value%0#0)
+        let updated_target%0#0: bytes = (replace3 arrays.0#0 0u uint8%0#0)
         let arrays.0#1: bytes[4] = updated_target%0#0
         goto arrays.0%is_original#0 ? block@1 : block@2
     block@1: // if_body_L1
@@ -294,8 +290,7 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%1#0: bool = (<= bitlen%1#0 8u)
         (assert no_overflow%1#0) // overflow
         let uint8%1#0: bytes = (extract3 val_as_bytes%1#0 7u 1u)
-        let assigned_value%1#0: bytes = uint8%1#0
-        let updated_target%1#0: bytes = (replace3 arrays.1#0 0u assigned_value%1#0)
+        let updated_target%1#0: bytes = (replace3 arrays.1#0 0u uint8%1#0)
         let arrays.1#2: bytes[4] = updated_target%1#0
         goto arrays.1%is_original#0 ? block@3 : block@4
     block@3: // if_body_L1
@@ -309,8 +304,7 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%2#0: bool = (<= bitlen%2#0 8u)
         (assert no_overflow%2#0) // overflow
         let uint8%2#0: bytes = (extract3 val_as_bytes%2#0 7u 1u)
-        let assigned_value%2#0: bytes = uint8%2#0
-        let updated_target%2#0: bytes = (replace3 arrays.2#0 0u assigned_value%2#0)
+        let updated_target%2#0: bytes = (replace3 arrays.2#0 0u uint8%2#0)
         let arrays.2#3: bytes[4] = updated_target%2#0
         goto arrays.2%is_original#0 ? block@5 : block@6
     block@5: // if_body_L1
@@ -344,8 +338,7 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%3#0: bool = (<= bitlen%3#0 8u)
         (assert no_overflow%3#0) // overflow
         let uint8%3#0: bytes = (extract3 val_as_bytes%3#0 7u 1u)
-        let assigned_value%3#0: bytes = uint8%3#0
-        let updated_target%3#0: bytes = (replace3 arrays.0#1 1u assigned_value%3#0)
+        let updated_target%3#0: bytes = (replace3 arrays.0#1 1u uint8%3#0)
         let arrays.0#5: bytes[4] = updated_target%3#0
         goto arrays.0%is_original#0 ? block@7 : block@8
     block@7: // if_body_L1
@@ -359,8 +352,7 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%4#0: bool = (<= bitlen%4#0 8u)
         (assert no_overflow%4#0) // overflow
         let uint8%4#0: bytes = (extract3 val_as_bytes%4#0 7u 1u)
-        let assigned_value%4#0: bytes = uint8%4#0
-        let updated_target%4#0: bytes = (replace3 arrays.1#2 1u assigned_value%4#0)
+        let updated_target%4#0: bytes = (replace3 arrays.1#2 1u uint8%4#0)
         let arrays.1#6: bytes[4] = updated_target%4#0
         goto arrays.1%is_original#0 ? block@9 : block@10
     block@9: // if_body_L1
@@ -374,8 +366,7 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%5#0: bool = (<= bitlen%5#0 8u)
         (assert no_overflow%5#0) // overflow
         let uint8%5#0: bytes = (extract3 val_as_bytes%5#0 7u 1u)
-        let assigned_value%5#0: bytes = uint8%5#0
-        let updated_target%5#0: bytes = (replace3 arrays.2#3 1u assigned_value%5#0)
+        let updated_target%5#0: bytes = (replace3 arrays.2#3 1u uint8%5#0)
         let arrays.2#7: bytes[4] = updated_target%5#0
         goto arrays.2%is_original#0 ? block@11 : block@12
     block@11: // if_body_L1
@@ -427,8 +418,7 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%6#0: bool = (<= bitlen%6#0 8u)
         (assert no_overflow%6#0) // overflow
         let uint8%6#0: bytes = (extract3 val_as_bytes%6#0 7u 1u)
-        let assigned_value%6#0: bytes = uint8%6#0
-        let updated_target%6#0: bytes = (replace3 arrays.0#10 1u assigned_value%6#0)
+        let updated_target%6#0: bytes = (replace3 arrays.0#10 1u uint8%6#0)
         let arrays.0#14: bytes[4] = updated_target%6#0
         goto arrays.0%is_original#5 ? block@21 : block@22
     block@21: // if_body_L1
@@ -442,8 +432,7 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%7#0: bool = (<= bitlen%7#0 8u)
         (assert no_overflow%7#0) // overflow
         let uint8%7#0: bytes = (extract3 val_as_bytes%7#0 7u 1u)
-        let assigned_value%7#0: bytes = uint8%7#0
-        let updated_target%7#0: bytes = (replace3 arrays.1#11 1u assigned_value%7#0)
+        let updated_target%7#0: bytes = (replace3 arrays.1#11 1u uint8%7#0)
         let arrays.1#15: bytes[4] = updated_target%7#0
         goto arrays.1%is_original#8 ? block@23 : block@24
     block@23: // if_body_L1
@@ -457,8 +446,7 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%8#0: bool = (<= bitlen%8#0 8u)
         (assert no_overflow%8#0) // overflow
         let uint8%8#0: bytes = (extract3 val_as_bytes%8#0 7u 1u)
-        let assigned_value%8#0: bytes = uint8%8#0
-        let updated_target%8#0: bytes = (replace3 arrays.2#12 1u assigned_value%8#0)
+        let updated_target%8#0: bytes = (replace3 arrays.2#12 1u uint8%8#0)
         let arrays.2#16: bytes[4] = updated_target%8#0
         goto arrays.2%is_original#11 ? block@25 : block@26
     block@25: // if_body_L1
