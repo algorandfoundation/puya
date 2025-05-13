@@ -25,7 +25,6 @@ The fragment file is deleted by the CD pipeline once it is integrated into [CHAN
    1. Run `algokit localnet start`
    1. Use your IDEs built-in run/debug setup to run tests (via pytest)
 
-
 ## Local development tips
 
 `poetry` is used for virtual environment and dependency management.
