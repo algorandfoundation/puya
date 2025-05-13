@@ -8,9 +8,10 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
-from puyapy.awst_build.eb._bytes_backed import (
-    BytesBackedInstanceExpressionBuilder,
+from puyapy.awst_build.eb._base import (
+    FunctionBuilder,
+    InstanceExpressionBuilder,
+    NotIterableInstanceExpressionBuilder,
 )
 from puyapy.awst_build.eb._utils import compare_bytes, constant_bool_and_error, dummy_value
 from puyapy.awst_build.eb.arc4._base import CopyBuilder
@@ -64,12 +65,18 @@ class StructTypeBuilder(TypeBuilder[pytypes.StructType]):
 
 class StructExpressionBuilder(
     NotIterableInstanceExpressionBuilder[pytypes.StructType],
-    BytesBackedInstanceExpressionBuilder[pytypes.StructType],
+    InstanceExpressionBuilder[pytypes.StructType],
 ):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.StructType)
         super().__init__(typ, expr)
 
+    @typing.override
+    @typing.final
+    def to_bytes(self, location: SourceLocation) -> Expression:
+        return self.resolve()
+
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case field_name if field := self.pytype.fields.get(field_name):
