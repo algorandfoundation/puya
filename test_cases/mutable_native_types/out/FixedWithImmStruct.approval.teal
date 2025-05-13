@@ -1,0 +1,210 @@
+#pragma version 10
+#pragma typetrack false
+
+// test_cases.mutable_native_types.fixed_with_immutable_struct.FixedWithImmStruct.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 0 1 16 8
+    bytecblock "tup_bag" 0x151f7c75
+    // mutable_native_types/fixed_with_immutable_struct.py:22
+    // class FixedWithImmStruct(arc4.ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@9
+    pushbytess 0xa67ea2ab 0x028840ea 0xf75cee9d 0x880b5534 // method "create_box()void", method "num_tups()uint64", method "add_tup((uint64,uint64))void", method "get_tup(uint64)(uint64,uint64)"
+    txna ApplicationArgs 0
+    match main_create_box_route@5 main_num_tups_route@6 main_add_tup_route@7 main_get_tup_route@8
+
+main_after_if_else@11:
+    // mutable_native_types/fixed_with_immutable_struct.py:22
+    // class FixedWithImmStruct(arc4.ARC4Contract):
+    intc_0 // 0
+    return
+
+main_get_tup_route@8:
+    // mutable_native_types/fixed_with_immutable_struct.py:40
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // mutable_native_types/fixed_with_immutable_struct.py:22
+    // class FixedWithImmStruct(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // mutable_native_types/fixed_with_immutable_struct.py:40
+    // @arc4.abimethod()
+    callsub get_tup
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_add_tup_route@7:
+    // mutable_native_types/fixed_with_immutable_struct.py:34
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // mutable_native_types/fixed_with_immutable_struct.py:22
+    // class FixedWithImmStruct(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    // mutable_native_types/fixed_with_immutable_struct.py:34
+    // @arc4.abimethod()
+    callsub add_tup
+    intc_1 // 1
+    return
+
+main_num_tups_route@6:
+    // mutable_native_types/fixed_with_immutable_struct.py:30
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub num_tups
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_create_box_route@5:
+    // mutable_native_types/fixed_with_immutable_struct.py:26
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub create_box
+    intc_1 // 1
+    return
+
+main_bare_routing@9:
+    // mutable_native_types/fixed_with_immutable_struct.py:22
+    // class FixedWithImmStruct(arc4.ARC4Contract):
+    txn OnCompletion
+    bnz main_after_if_else@11
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_1 // 1
+    return
+
+
+// test_cases.mutable_native_types.fixed_with_immutable_struct.FixedWithImmStruct.create_box() -> void:
+create_box:
+    // mutable_native_types/fixed_with_immutable_struct.py:28
+    // self.tup_bag.create()
+    bytec_0 // "tup_bag"
+    pushint 136 // 136
+    box_create
+    pop
+    retsub
+
+
+// test_cases.mutable_native_types.fixed_with_immutable_struct.FixedWithImmStruct.num_tups() -> uint64:
+num_tups:
+    // mutable_native_types/fixed_with_immutable_struct.py:32
+    // return self.tup_bag.value.count
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_0 // 0
+    extract_uint64
+    retsub
+
+
+// test_cases.mutable_native_types.fixed_with_immutable_struct.FixedWithImmStruct.add_tup(tup: bytes) -> void:
+add_tup:
+    // mutable_native_types/fixed_with_immutable_struct.py:34-35
+    // @arc4.abimethod()
+    // def add_tup(self, tup: NamedTup) -> None:
+    proto 1 0
+    // mutable_native_types/fixed_with_immutable_struct.py:36
+    // assert self.tup_bag.value.count < self.tup_bag.value.items.length, "too many tups"
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_0 // 0
+    extract_uint64
+    intc_3 // 8
+    <
+    assert // too many tups
+    // mutable_native_types/fixed_with_immutable_struct.py:37
+    // self.tup_bag.value.items[self.tup_bag.value.count] = tup
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    dup
+    extract 8 128 // on error: Index access is out of bounds
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_0 // 0
+    extract_uint64
+    dup
+    intc_3 // 8
+    <
+    assert // Index access is out of bounds
+    intc_2 // 16
+    *
+    frame_dig -1
+    replace3
+    replace2 8
+    bytec_0 // "tup_bag"
+    swap
+    box_put
+    // mutable_native_types/fixed_with_immutable_struct.py:38
+    // self.tup_bag.value.count += 1
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    dup
+    intc_0 // 0
+    extract_uint64
+    intc_1 // 1
+    +
+    itob
+    replace2 0
+    bytec_0 // "tup_bag"
+    swap
+    box_put
+    retsub
+
+
+// test_cases.mutable_native_types.fixed_with_immutable_struct.FixedWithImmStruct.get_tup(index: uint64) -> bytes:
+get_tup:
+    // mutable_native_types/fixed_with_immutable_struct.py:40-41
+    // @arc4.abimethod()
+    // def get_tup(self, index: UInt64) -> NamedTup:
+    proto 1 1
+    // mutable_native_types/fixed_with_immutable_struct.py:42
+    // assert index < self.tup_bag.value.count, "index out of bounds"
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_0 // 0
+    extract_uint64
+    frame_dig -1
+    >
+    assert // index out of bounds
+    // mutable_native_types/fixed_with_immutable_struct.py:43
+    // return self.tup_bag.value.items[index]
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    extract 8 128 // on error: Index access is out of bounds
+    frame_dig -1
+    intc_2 // 16
+    *
+    intc_2 // 16
+    extract3 // on error: Index access is out of bounds
+    retsub
