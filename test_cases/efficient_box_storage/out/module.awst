@@ -1,0 +1,66 @@
+contract Contract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  boxes {
+    ['b']: test_cases.efficient_box_storage.contract.LargeStruct
+  }
+  
+  subroutine test_cases.efficient_box_storage.contract.Contract.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.efficient_box_storage.contract.Contract.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.efficient_box_storage.contract.Contract.create_box(): void
+  {
+    assert(box_create('b', size_of(test_cases.efficient_box_storage.contract.LargeStruct)), comment="expected box to be created")
+  }
+  
+  abimethod test_cases.efficient_box_storage.contract.Contract.update_box(): void
+  {
+    Box['b'].address: arc4.static_array<arc4.uint8, 32> = reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(txn<Sender>())
+  }
+  
+  abimethod test_cases.efficient_box_storage.contract.Contract.append(value: uint64): void
+  {
+    index: uint64 = arc4_decode(Box['b'].numbers.count, uint64)
+    Box['b'].numbers.values[index]: arc4.uint64 = arc4_encode(value, arc4.uint64)
+    Box['b'].numbers.count: arc4.uint8 = arc4_encode(index + 1u, arc4.uint8)
+  }
+  
+  abimethod test_cases.efficient_box_storage.contract.Contract.box_len(): uint64
+  {
+    return checked_maybe(box_len('b'))
+  }
+  
+  abimethod test_cases.efficient_box_storage.contract.Contract.box_exists_len(): tuple<bool,uint64>
+  {
+    if (STATE_EXISTS(Box['b'])) {
+      return (true, checked_maybe(box_len('b')))
+    } else {
+      return (false, 0u)
+    }
+  }
+  
+  baremethod test_cases.efficient_box_storage.contract.Contract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+}

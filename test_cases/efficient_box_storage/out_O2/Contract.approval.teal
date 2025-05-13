@@ -1,0 +1,182 @@
+#pragma version 10
+#pragma typetrack false
+
+// test_cases.efficient_box_storage.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 1 2080 0 1025 1024
+    bytecblock "b" 0x151f7c75
+    txn NumAppArgs
+    bz main_bare_routing@13
+    pushbytess 0xa67ea2ab 0xed8fb9b7 0x3428ffea 0xf4d9181a 0x7e9aad65 // method "create_box()void", method "update_box()void", method "append(uint64)void", method "box_len()uint64", method "box_exists_len()(bool,uint64)"
+    txna ApplicationArgs 0
+    match main_create_box_route@5 main_update_box_route@6 main_append_route@7 main_box_len_route@8 main_box_exists_len_route@9
+
+main_after_if_else@15:
+    intc_2 // 0
+    return
+
+main_box_exists_len_route@9:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    bytec_0 // "b"
+    box_len
+    bury 1
+    bz main_else_body@11
+    bytec_0 // "b"
+    box_len
+    assert // check self.box exists
+    intc_0 // 1
+    swap
+
+main_after_inlined_test_cases.efficient_box_storage.contract.Contract.box_exists_len@12:
+    pushbytes 0x00
+    intc_2 // 0
+    uncover 3
+    setbit
+    swap
+    itob
+    concat
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_else_body@11:
+    intc_2 // 0
+    dup
+    b main_after_inlined_test_cases.efficient_box_storage.contract.Contract.box_exists_len@12
+
+main_box_len_route@8:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    bytec_0 // "b"
+    box_len
+    assert // check self.box exists
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_append_route@7:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    bytec_0 // "b"
+    box_get
+    assert // check self.box exists
+    intc_1 // 2080
+    intc_3 // 1025
+    extract3 // on error: Index access is out of bounds
+    intc 4 // 1024
+    getbyte
+    swap
+    itob
+    bytec_0 // "b"
+    box_get
+    assert // check self.box exists
+    dup
+    intc_1 // 2080
+    intc_3 // 1025
+    extract3 // on error: Index access is out of bounds
+    dup
+    intc_2 // 0
+    intc 4 // 1024
+    extract3 // on error: Index access is out of bounds
+    dig 4
+    pushint 128 // 128
+    <
+    assert // Index access is out of bounds
+    dig 4
+    pushint 8 // 8
+    *
+    uncover 4
+    replace3
+    replace2 0
+    intc_1 // 2080
+    swap
+    replace3
+    bytec_0 // "b"
+    swap
+    box_put
+    intc_0 // 1
+    +
+    itob
+    dup
+    bitlen
+    pushint 8 // 8
+    <=
+    assert // overflow
+    extract 7 1
+    bytec_0 // "b"
+    box_get
+    assert // check self.box exists
+    dup
+    intc_1 // 2080
+    intc_3 // 1025
+    extract3 // on error: Index access is out of bounds
+    intc 4 // 1024
+    uncover 3
+    replace3
+    intc_1 // 2080
+    swap
+    replace3
+    bytec_0 // "b"
+    swap
+    box_put
+    intc_0 // 1
+    return
+
+main_update_box_route@6:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    bytec_0 // "b"
+    box_get
+    assert // check self.box exists
+    pushint 2048 // 2048
+    txn Sender
+    replace3
+    bytec_0 // "b"
+    swap
+    box_put
+    intc_0 // 1
+    return
+
+main_create_box_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    bytec_0 // "b"
+    pushint 4129 // 4129
+    box_create
+    assert // expected box to be created
+    intc_0 // 1
+    return
+
+main_bare_routing@13:
+    txn OnCompletion
+    bnz main_after_if_else@15
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return

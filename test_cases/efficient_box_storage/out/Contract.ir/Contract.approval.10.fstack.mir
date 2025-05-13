@@ -1,0 +1,292 @@
+// Op                                                                                              Stack (out)
+// test_cases.efficient_box_storage.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
+subroutine main:
+    main_block@0:
+        // efficient_box_storage/contract.py:23
+        // class Contract(arc4.ARC4Contract):
+        txn NumAppArgs                                                                             tmp%0#2
+        bz main_bare_routing@10 ; b main_abi_routing@4
+
+    main_abi_routing@4:
+        // efficient_box_storage/contract.py:23
+        // class Contract(arc4.ARC4Contract):
+        txna ApplicationArgs 0                                                                     tmp%2#0
+        method create_box()void                                                                    tmp%2#0,Method(create_box()void)
+        method update_box()void                                                                    tmp%2#0,Method(create_box()void),Method(update_box()void)
+        method append(uint64)void                                                                  tmp%2#0,Method(create_box()void),Method(update_box()void),Method(append(uint64)void)
+        method box_len()uint64                                                                     tmp%2#0,Method(create_box()void),Method(update_box()void),Method(append(uint64)void),Method(box_len()uint64)
+        method box_exists_len()(bool,uint64)                                                       tmp%2#0,Method(create_box()void),Method(update_box()void),Method(append(uint64)void),Method(box_len()uint64),Method(box_exists_len()(bool,uint64))
+        l-load tmp%2#0 5                                                                           Method(create_box()void),Method(update_box()void),Method(append(uint64)void),Method(box_len()uint64),Method(box_exists_len()(bool,uint64)),tmp%2#0
+        match main_create_box_route@5 main_update_box_route@6 main_append_route@7 main_box_len_route@8 main_box_exists_len_route@9 ; b main_after_if_else@12 
+
+    main_create_box_route@5:
+        // efficient_box_storage/contract.py:27
+        // @arc4.abimethod()
+        txn OnCompletion                                                                           tmp%3#0
+        !                                                                                          tmp%4#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                          tmp%5#0
+        assert // can only call when not creating
+        callsub create_box
+        int 1                                                                                      tmp%0#1
+        x-store tmp%0#1                                                                            (𝕏) tmp%0#1 |
+        b main_after_inlined_test_cases.efficient_box_storage.contract.Contract.__puya_arc4_router__@13 (𝕏) tmp%0#1 | 
+
+    main_update_box_route@6:
+        // efficient_box_storage/contract.py:31
+        // @arc4.abimethod()
+        txn OnCompletion                                                                           tmp%7#0
+        !                                                                                          tmp%8#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                          tmp%9#0
+        assert // can only call when not creating
+        callsub update_box
+        int 1                                                                                      tmp%0#1
+        x-store tmp%0#1                                                                            (𝕏) tmp%0#1 |
+        b main_after_inlined_test_cases.efficient_box_storage.contract.Contract.__puya_arc4_router__@13 (𝕏) tmp%0#1 | 
+
+    main_append_route@7:
+        // efficient_box_storage/contract.py:36
+        // @arc4.abimethod()
+        txn OnCompletion                                                                           tmp%11#0
+        !                                                                                          tmp%12#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                          tmp%13#0
+        assert // can only call when not creating
+        // efficient_box_storage/contract.py:23
+        // class Contract(arc4.ARC4Contract):
+        txna ApplicationArgs 1                                                                     reinterpret_bytes[8]%0#0
+        btoi                                                                                       tmp%15#0
+        // efficient_box_storage/contract.py:36
+        // @arc4.abimethod()
+        callsub append
+        int 1                                                                                      tmp%0#1
+        x-store tmp%0#1                                                                            (𝕏) tmp%0#1 |
+        b main_after_inlined_test_cases.efficient_box_storage.contract.Contract.__puya_arc4_router__@13 (𝕏) tmp%0#1 | 
+
+    main_box_len_route@8:
+        // efficient_box_storage/contract.py:42
+        // @arc4.abimethod()
+        txn OnCompletion                                                                           tmp%16#0
+        !                                                                                          tmp%17#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                          tmp%18#0
+        assert // can only call when not creating
+        callsub box_len                                                                            to_encode%0#0
+        itob                                                                                       val_as_bytes%0#0
+        byte 0x151f7c75                                                                            val_as_bytes%0#0,0x151f7c75
+        l-load val_as_bytes%0#0 1                                                                  0x151f7c75,val_as_bytes%0#0
+        concat                                                                                     tmp%20#0
+        log
+        int 1                                                                                      tmp%0#1
+        x-store tmp%0#1                                                                            (𝕏) tmp%0#1 |
+        b main_after_inlined_test_cases.efficient_box_storage.contract.Contract.__puya_arc4_router__@13 (𝕏) tmp%0#1 | 
+
+    main_box_exists_len_route@9:
+        // efficient_box_storage/contract.py:46
+        // @arc4.abimethod()
+        txn OnCompletion                                                                           tmp%21#0
+        !                                                                                          tmp%22#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                          tmp%23#0
+        assert // can only call when not creating
+        callsub box_exists_len                                                                     elements_to_encode%0#0,elements_to_encode%1#0
+        byte 0x00                                                                                  elements_to_encode%0#0,elements_to_encode%1#0,0x00
+        int 0                                                                                      elements_to_encode%0#0,elements_to_encode%1#0,0x00,0
+        l-load elements_to_encode%0#0 3                                                            elements_to_encode%1#0,0x00,0,elements_to_encode%0#0
+        setbit                                                                                     elements_to_encode%1#0,encoded_bool%0#0
+        l-load elements_to_encode%1#0 1                                                            encoded_bool%0#0,elements_to_encode%1#0
+        itob                                                                                       encoded_bool%0#0,val_as_bytes%1#0
+        l-load encoded_bool%0#0 1                                                                  val_as_bytes%1#0,encoded_bool%0#0
+        l-load val_as_bytes%1#0 1                                                                  encoded_bool%0#0,val_as_bytes%1#0
+        concat                                                                                     encoded_tuple_buffer%2#0
+        byte 0x151f7c75                                                                            encoded_tuple_buffer%2#0,0x151f7c75
+        l-load encoded_tuple_buffer%2#0 1                                                          0x151f7c75,encoded_tuple_buffer%2#0
+        concat                                                                                     tmp%25#0
+        log
+        int 1                                                                                      tmp%0#1
+        x-store tmp%0#1                                                                            (𝕏) tmp%0#1 |
+        b main_after_inlined_test_cases.efficient_box_storage.contract.Contract.__puya_arc4_router__@13 (𝕏) tmp%0#1 | 
+
+    main_bare_routing@10:
+        // efficient_box_storage/contract.py:23
+        // class Contract(arc4.ARC4Contract):
+        txn OnCompletion                                                                           tmp%26#0
+        bz main___algopy_default_create@11 ; b main_after_if_else@12
+
+    main___algopy_default_create@11:
+        txn ApplicationID                                                                          tmp%27#0
+        !                                                                                          tmp%28#0
+        assert // can only call when creating
+        int 1                                                                                      tmp%0#1
+        x-store tmp%0#1                                                                            (𝕏) tmp%0#1 |
+        b main_after_inlined_test_cases.efficient_box_storage.contract.Contract.__puya_arc4_router__@13 (𝕏) tmp%0#1 | 
+
+    main_after_if_else@12:
+        // efficient_box_storage/contract.py:23
+        // class Contract(arc4.ARC4Contract):
+        int 0                                                                                      tmp%0#1
+        x-store tmp%0#1                                                                            (𝕏) tmp%0#1 |
+        b main_after_inlined_test_cases.efficient_box_storage.contract.Contract.__puya_arc4_router__@13 (𝕏) tmp%0#1 | 
+
+    main_after_inlined_test_cases.efficient_box_storage.contract.Contract.__puya_arc4_router__@13: (𝕏) tmp%0#1 |
+        x-load tmp%0#1                                                                             tmp%0#1
+        return
+
+
+// test_cases.efficient_box_storage.contract.Contract.create_box() -> void:
+subroutine create_box:
+    create_box_block@0:
+        // efficient_box_storage/contract.py:29
+        // assert self.box.create(), "expected box to be created"
+        byte "b"                                                                                   "b"
+        int 4129                                                                                   "b",4129
+        box_create                                                                                 tmp%0#0
+        assert // expected box to be created
+        retsub
+
+
+// test_cases.efficient_box_storage.contract.Contract.update_box() -> void:
+subroutine update_box:
+    update_box_block@0:
+        // efficient_box_storage/contract.py:34
+        // self.box.value.address = arc4.Address(Txn.sender)
+        byte "b"                                                                                   "b"
+        box_get                                                                                    maybe_value%0#0,maybe_exists%0#0
+        assert // check self.box exists                                                            maybe_value%0#0
+        txn Sender                                                                                 maybe_value%0#0,assigned_value%0#0
+        l-load maybe_value%0#0 1                                                                   assigned_value%0#0,maybe_value%0#0
+        int 2048                                                                                   assigned_value%0#0,maybe_value%0#0,2048
+        l-load assigned_value%0#0 2                                                                maybe_value%0#0,2048,assigned_value%0#0
+        replace3                                                                                   updated_data%0#0
+        byte "b"                                                                                   updated_data%0#0,"b"
+        l-load updated_data%0#0 1                                                                  "b",updated_data%0#0
+        box_put
+        retsub
+
+
+// test_cases.efficient_box_storage.contract.Contract.append(value: uint64) -> void:
+subroutine append:
+    append_block@0:                                                                                (𝕡) value#0 |
+        // efficient_box_storage/contract.py:38
+        // index = self.box.value.numbers.count.native
+        byte "b"                                                                                   (𝕡) value#0 | "b"
+        box_get                                                                                    (𝕡) value#0 | maybe_value%0#0,maybe_exists%0#0
+        assert // check self.box exists                                                            (𝕡) value#0 | maybe_value%0#0
+        l-load maybe_value%0#0 0                                                                   (𝕡) value#0 | maybe_value%0#0
+        int 2080                                                                                   (𝕡) value#0 | maybe_value%0#0,2080
+        int 1025                                                                                   (𝕡) value#0 | maybe_value%0#0,2080,1025
+        extract3 // on error: Index access is out of bounds                                        (𝕡) value#0 | tmp%0#0
+        int 1024                                                                                   (𝕡) value#0 | tmp%0#0,1024
+        getbyte                                                                                    (𝕡) value#0 | index#0
+        // efficient_box_storage/contract.py:39
+        // self.box.value.numbers.values[index] = arc4.UInt64(value)
+        p-load value#0                                                                             (𝕡) value#0 | index#0,value#0 (copy)
+        itob                                                                                       (𝕡) value#0 | index#0,val_as_bytes%0#0
+        byte "b"                                                                                   (𝕡) value#0 | index#0,val_as_bytes%0#0,"b"
+        box_get                                                                                    (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,maybe_exists%1#0
+        assert // check self.box exists                                                            (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0
+        l-load-copy maybe_value%1#0 0                                                              (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,maybe_value%1#0 (copy)
+        int 2080                                                                                   (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,maybe_value%1#0 (copy),2080
+        int 1025                                                                                   (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,maybe_value%1#0 (copy),2080,1025
+        extract3 // on error: Index access is out of bounds                                        (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                      (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,tmp%2#0,tmp%2#0 (copy)
+        int 0                                                                                      (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,tmp%2#0,tmp%2#0 (copy),0
+        int 1024                                                                                   (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,tmp%2#0,tmp%2#0 (copy),0,1024
+        extract3 // on error: Index access is out of bounds                                        (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,tmp%2#0,tmp%3#0
+        l-load-copy index#0 4                                                                      (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,tmp%2#0,tmp%3#0,index#0 (copy)
+        int 128                                                                                    (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,tmp%2#0,tmp%3#0,index#0 (copy),128
+        <                                                                                          (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,tmp%2#0,tmp%3#0,index_is_in_bounds%0#0
+        assert // Index access is out of bounds                                                    (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,tmp%2#0,tmp%3#0
+        l-load-copy index#0 4                                                                      (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,tmp%2#0,tmp%3#0,index#0 (copy)
+        int 8                                                                                      (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,tmp%2#0,tmp%3#0,index#0 (copy),8
+        *                                                                                          (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,tmp%2#0,tmp%3#0,write_offset%0#0
+        l-load tmp%3#0 1                                                                           (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,tmp%2#0,write_offset%0#0,tmp%3#0
+        l-load write_offset%0#0 1                                                                  (𝕡) value#0 | index#0,val_as_bytes%0#0,maybe_value%1#0,tmp%2#0,tmp%3#0,write_offset%0#0
+        l-load val_as_bytes%0#0 4                                                                  (𝕡) value#0 | index#0,maybe_value%1#0,tmp%2#0,tmp%3#0,write_offset%0#0,val_as_bytes%0#0
+        replace3                                                                                   (𝕡) value#0 | index#0,maybe_value%1#0,tmp%2#0,updated_target%0#0
+        l-load tmp%2#0 1                                                                           (𝕡) value#0 | index#0,maybe_value%1#0,updated_target%0#0,tmp%2#0
+        l-load updated_target%0#0 1                                                                (𝕡) value#0 | index#0,maybe_value%1#0,tmp%2#0,updated_target%0#0
+        replace2 0                                                                                 (𝕡) value#0 | index#0,maybe_value%1#0,updated_data%0#0
+        l-load maybe_value%1#0 1                                                                   (𝕡) value#0 | index#0,updated_data%0#0,maybe_value%1#0
+        int 2080                                                                                   (𝕡) value#0 | index#0,updated_data%0#0,maybe_value%1#0,2080
+        l-load updated_data%0#0 2                                                                  (𝕡) value#0 | index#0,maybe_value%1#0,2080,updated_data%0#0
+        replace3                                                                                   (𝕡) value#0 | index#0,updated_data%1#0
+        byte "b"                                                                                   (𝕡) value#0 | index#0,updated_data%1#0,"b"
+        l-load updated_data%1#0 1                                                                  (𝕡) value#0 | index#0,"b",updated_data%1#0
+        box_put                                                                                    (𝕡) value#0 | index#0
+        // efficient_box_storage/contract.py:40
+        // self.box.value.numbers.count = arc4.UInt8(index + 1)
+        l-load index#0 0                                                                           (𝕡) value#0 | index#0
+        int 1                                                                                      (𝕡) value#0 | index#0,1
+        +                                                                                          (𝕡) value#0 | to_encode%0#0
+        itob                                                                                       (𝕡) value#0 | val_as_bytes%1#0
+        l-load-copy val_as_bytes%1#0 0                                                             (𝕡) value#0 | val_as_bytes%1#0,val_as_bytes%1#0 (copy)
+        bitlen                                                                                     (𝕡) value#0 | val_as_bytes%1#0,bitlen%0#0
+        int 8                                                                                      (𝕡) value#0 | val_as_bytes%1#0,bitlen%0#0,8
+        <=                                                                                         (𝕡) value#0 | val_as_bytes%1#0,no_overflow%0#0
+        assert // overflow                                                                         (𝕡) value#0 | val_as_bytes%1#0
+        l-load val_as_bytes%1#0 0                                                                  (𝕡) value#0 | val_as_bytes%1#0
+        extract 7 1                                                                                (𝕡) value#0 | uint8%0#0
+        byte "b"                                                                                   (𝕡) value#0 | uint8%0#0,"b"
+        box_get                                                                                    (𝕡) value#0 | uint8%0#0,maybe_value%2#0,maybe_exists%2#0
+        assert // check self.box exists                                                            (𝕡) value#0 | uint8%0#0,maybe_value%2#0
+        l-load-copy maybe_value%2#0 0                                                              (𝕡) value#0 | uint8%0#0,maybe_value%2#0,maybe_value%2#0 (copy)
+        int 2080                                                                                   (𝕡) value#0 | uint8%0#0,maybe_value%2#0,maybe_value%2#0 (copy),2080
+        int 1025                                                                                   (𝕡) value#0 | uint8%0#0,maybe_value%2#0,maybe_value%2#0 (copy),2080,1025
+        extract3 // on error: Index access is out of bounds                                        (𝕡) value#0 | uint8%0#0,maybe_value%2#0,tmp%4#0
+        int 1024                                                                                   (𝕡) value#0 | uint8%0#0,maybe_value%2#0,tmp%4#0,1024
+        l-load uint8%0#0 3                                                                         (𝕡) value#0 | maybe_value%2#0,tmp%4#0,1024,uint8%0#0
+        replace3                                                                                   (𝕡) value#0 | maybe_value%2#0,updated_data%2#0
+        l-load maybe_value%2#0 1                                                                   (𝕡) value#0 | updated_data%2#0,maybe_value%2#0
+        int 2080                                                                                   (𝕡) value#0 | updated_data%2#0,maybe_value%2#0,2080
+        l-load updated_data%2#0 2                                                                  (𝕡) value#0 | maybe_value%2#0,2080,updated_data%2#0
+        replace3                                                                                   (𝕡) value#0 | updated_data%3#0
+        byte "b"                                                                                   (𝕡) value#0 | updated_data%3#0,"b"
+        l-load updated_data%3#0 1                                                                  (𝕡) value#0 | "b",updated_data%3#0
+        box_put                                                                                    (𝕡) value#0 |
+        retsub
+
+
+// test_cases.efficient_box_storage.contract.Contract.box_len() -> uint64:
+subroutine box_len:
+    box_len_block@0:
+        // efficient_box_storage/contract.py:44
+        // return self.box.length
+        byte "b"                                                                                   "b"
+        box_len                                                                                    value%0#0,check%0#0
+        assert // check self.box exists                                                            value%0#0
+        l-load value%0#0 0                                                                         value%0#0
+        retsub                                                                                     value%0#0
+
+
+// test_cases.efficient_box_storage.contract.Contract.box_exists_len() -> uint64, uint64:
+subroutine box_exists_len:
+    box_exists_len_block@0:
+        // efficient_box_storage/contract.py:48
+        // if self.box:
+        byte "b"                                                                                   "b"
+        box_len                                                                                    _%0#0,maybe_exists%0#0
+        l-store maybe_exists%0#0 1                                                                 maybe_exists%0#0,_%0#0
+        pop 1                                                                                      maybe_exists%0#0
+        l-load maybe_exists%0#0 0                                                                  maybe_exists%0#0
+        bz box_exists_len_else_body@2 ; b box_exists_len_if_body@1
+
+    box_exists_len_if_body@1:
+        // efficient_box_storage/contract.py:49
+        // return True, self.box.length
+        byte "b"                                                                                   "b"
+        box_len                                                                                    value%0#0,check%0#0
+        assert // check self.box exists                                                            value%0#0
+        int 1                                                                                      value%0#0,1
+        l-load value%0#0 1                                                                         1,value%0#0
+        retsub                                                                                     1,value%0#0
+
+    box_exists_len_else_body@2:
+        // efficient_box_storage/contract.py:51
+        // return False, UInt64()
+        int 0                                                                                      0
+        int 0                                                                                      0,0
+        retsub                                                                                     0,0
+
+

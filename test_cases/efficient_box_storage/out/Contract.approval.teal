@@ -1,0 +1,253 @@
+#pragma version 10
+#pragma typetrack false
+
+// test_cases.efficient_box_storage.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 1 2080 0 1025 1024
+    bytecblock "b" 0x151f7c75
+    // efficient_box_storage/contract.py:23
+    // class Contract(arc4.ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@10
+    pushbytess 0xa67ea2ab 0xed8fb9b7 0x3428ffea 0xf4d9181a 0x7e9aad65 // method "create_box()void", method "update_box()void", method "append(uint64)void", method "box_len()uint64", method "box_exists_len()(bool,uint64)"
+    txna ApplicationArgs 0
+    match main_create_box_route@5 main_update_box_route@6 main_append_route@7 main_box_len_route@8 main_box_exists_len_route@9
+
+main_after_if_else@12:
+    // efficient_box_storage/contract.py:23
+    // class Contract(arc4.ARC4Contract):
+    intc_2 // 0
+    return
+
+main_box_exists_len_route@9:
+    // efficient_box_storage/contract.py:46
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub box_exists_len
+    pushbytes 0x00
+    intc_2 // 0
+    uncover 3
+    setbit
+    swap
+    itob
+    concat
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_box_len_route@8:
+    // efficient_box_storage/contract.py:42
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub box_len
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_append_route@7:
+    // efficient_box_storage/contract.py:36
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // efficient_box_storage/contract.py:23
+    // class Contract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // efficient_box_storage/contract.py:36
+    // @arc4.abimethod()
+    callsub append
+    intc_0 // 1
+    return
+
+main_update_box_route@6:
+    // efficient_box_storage/contract.py:31
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub update_box
+    intc_0 // 1
+    return
+
+main_create_box_route@5:
+    // efficient_box_storage/contract.py:27
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub create_box
+    intc_0 // 1
+    return
+
+main_bare_routing@10:
+    // efficient_box_storage/contract.py:23
+    // class Contract(arc4.ARC4Contract):
+    txn OnCompletion
+    bnz main_after_if_else@12
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return
+
+
+// test_cases.efficient_box_storage.contract.Contract.create_box() -> void:
+create_box:
+    // efficient_box_storage/contract.py:29
+    // assert self.box.create(), "expected box to be created"
+    bytec_0 // "b"
+    pushint 4129 // 4129
+    box_create
+    assert // expected box to be created
+    retsub
+
+
+// test_cases.efficient_box_storage.contract.Contract.update_box() -> void:
+update_box:
+    // efficient_box_storage/contract.py:33-34
+    // # should be able to update box without reading onto stack
+    // self.box.value.address = arc4.Address(Txn.sender)
+    bytec_0 // "b"
+    box_get
+    assert // check self.box exists
+    pushint 2048 // 2048
+    txn Sender
+    replace3
+    bytec_0 // "b"
+    swap
+    box_put
+    retsub
+
+
+// test_cases.efficient_box_storage.contract.Contract.append(value: uint64) -> void:
+append:
+    // efficient_box_storage/contract.py:36-37
+    // @arc4.abimethod()
+    // def append(self, value: UInt64) -> None:
+    proto 1 0
+    // efficient_box_storage/contract.py:38
+    // index = self.box.value.numbers.count.native
+    bytec_0 // "b"
+    box_get
+    assert // check self.box exists
+    intc_1 // 2080
+    intc_3 // 1025
+    extract3 // on error: Index access is out of bounds
+    intc 4 // 1024
+    getbyte
+    // efficient_box_storage/contract.py:39
+    // self.box.value.numbers.values[index] = arc4.UInt64(value)
+    frame_dig -1
+    itob
+    bytec_0 // "b"
+    box_get
+    assert // check self.box exists
+    dup
+    intc_1 // 2080
+    intc_3 // 1025
+    extract3 // on error: Index access is out of bounds
+    dup
+    intc_2 // 0
+    intc 4 // 1024
+    extract3 // on error: Index access is out of bounds
+    dig 4
+    pushint 128 // 128
+    <
+    assert // Index access is out of bounds
+    dig 4
+    pushint 8 // 8
+    *
+    uncover 4
+    replace3
+    replace2 0
+    intc_1 // 2080
+    swap
+    replace3
+    bytec_0 // "b"
+    swap
+    box_put
+    // efficient_box_storage/contract.py:40
+    // self.box.value.numbers.count = arc4.UInt8(index + 1)
+    intc_0 // 1
+    +
+    itob
+    dup
+    bitlen
+    pushint 8 // 8
+    <=
+    assert // overflow
+    extract 7 1
+    bytec_0 // "b"
+    box_get
+    assert // check self.box exists
+    dup
+    intc_1 // 2080
+    intc_3 // 1025
+    extract3 // on error: Index access is out of bounds
+    intc 4 // 1024
+    uncover 3
+    replace3
+    intc_1 // 2080
+    swap
+    replace3
+    bytec_0 // "b"
+    swap
+    box_put
+    retsub
+
+
+// test_cases.efficient_box_storage.contract.Contract.box_len() -> uint64:
+box_len:
+    // efficient_box_storage/contract.py:44
+    // return self.box.length
+    bytec_0 // "b"
+    box_len
+    assert // check self.box exists
+    retsub
+
+
+// test_cases.efficient_box_storage.contract.Contract.box_exists_len() -> uint64, uint64:
+box_exists_len:
+    // efficient_box_storage/contract.py:48
+    // if self.box:
+    bytec_0 // "b"
+    box_len
+    bury 1
+    bz box_exists_len_else_body@2
+    // efficient_box_storage/contract.py:49
+    // return True, self.box.length
+    bytec_0 // "b"
+    box_len
+    assert // check self.box exists
+    intc_0 // 1
+    swap
+    retsub
+
+box_exists_len_else_body@2:
+    // efficient_box_storage/contract.py:51
+    // return False, UInt64()
+    intc_2 // 0
+    dup
+    retsub

@@ -1,0 +1,147 @@
+main test_cases.efficient_box_storage.contract.Contract.__algopy_entrypoint_with_init:
+    block@0: // L1
+        let tmp%0#0: bool = (txn ApplicationID)
+        goto block@2
+    block@2: // after_if_else_L1
+        let tmp%0#1: bool = test_cases.efficient_box_storage.contract.Contract.__puya_arc4_router__()
+        return tmp%0#1
+
+subroutine test_cases.efficient_box_storage.contract.Contract.__puya_arc4_router__() -> bool:
+    block@0: // L23
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#0 0u)
+        goto tmp%0#0 ? block@1 : block@9
+    block@1: // abi_routing_L23
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "create_box()void" => block@2, method "update_box()void" => block@3, method "append(uint64)void" => block@4, method "box_len()uint64" => block@5, method "box_exists_len()(bool,uint64)" => block@6, * => block@13}
+    block@2: // create_box_route_L27
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (! tmp%3#0)
+        (assert tmp%4#0) // OnCompletion is not NoOp
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%6#0: bool = (!= tmp%5#0 0u)
+        (assert tmp%5#0) // can only call when not creating
+        test_cases.efficient_box_storage.contract.Contract.create_box()
+        return 1u
+    block@3: // update_box_route_L31
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        (assert tmp%8#0) // OnCompletion is not NoOp
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (!= tmp%9#0 0u)
+        (assert tmp%9#0) // can only call when not creating
+        test_cases.efficient_box_storage.contract.Contract.update_box()
+        return 1u
+    block@4: // append_route_L36
+        let tmp%11#0: uint64 = (txn OnCompletion)
+        let tmp%12#0: bool = (! tmp%11#0)
+        (assert tmp%12#0) // OnCompletion is not NoOp
+        let tmp%13#0: uint64 = (txn ApplicationID)
+        let tmp%14#0: bool = (!= tmp%13#0 0u)
+        (assert tmp%13#0) // can only call when not creating
+        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 1)
+        let tmp%15#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
+        test_cases.efficient_box_storage.contract.Contract.append(tmp%15#0)
+        return 1u
+    block@5: // box_len_route_L42
+        let tmp%16#0: uint64 = (txn OnCompletion)
+        let tmp%17#0: bool = (! tmp%16#0)
+        (assert tmp%17#0) // OnCompletion is not NoOp
+        let tmp%18#0: uint64 = (txn ApplicationID)
+        let tmp%19#0: bool = (!= tmp%18#0 0u)
+        (assert tmp%18#0) // can only call when not creating
+        let to_encode%0#0: uint64 = test_cases.efficient_box_storage.contract.Contract.box_len()
+        let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
+        let tmp%20#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
+        (log tmp%20#0)
+        return 1u
+    block@6: // box_exists_len_route_L46
+        let tmp%21#0: uint64 = (txn OnCompletion)
+        let tmp%22#0: bool = (! tmp%21#0)
+        (assert tmp%22#0) // OnCompletion is not NoOp
+        let tmp%23#0: uint64 = (txn ApplicationID)
+        let tmp%24#0: bool = (!= tmp%23#0 0u)
+        (assert tmp%23#0) // can only call when not creating
+        let (elements_to_encode%0#0: bool, elements_to_encode%1#0: uint64) = test_cases.efficient_box_storage.contract.Contract.box_exists_len()
+        let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u elements_to_encode%0#0)
+        let val_as_bytes%1#0: bytes[8] = (itob elements_to_encode%1#0)
+        let encoded_tuple_buffer%1#0: bytes = encoded_bool%0#0
+        let encoded_tuple_buffer%2#0: bytes = (concat encoded_bool%0#0 val_as_bytes%1#0)
+        let tmp%25#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%2#0)
+        (log tmp%25#0)
+        return 1u
+    block@9: // bare_routing_L23
+        let tmp%26#0: uint64 = (txn OnCompletion)
+        goto tmp%26#0 ? block@13 : block@10
+    block@10: // __algopy_default_create_L1
+        let tmp%27#0: uint64 = (txn ApplicationID)
+        let tmp%28#0: bool = (! tmp%27#0)
+        (assert tmp%28#0) // can only call when creating
+        return 1u
+    block@13: // after_if_else_L23
+        return 0u
+
+subroutine test_cases.efficient_box_storage.contract.Contract.create_box() -> void:
+    block@0: // L27
+        let tmp%0#0: bool = (box_create "b" 4129u)
+        (assert tmp%0#0) // expected box to be created
+        return 
+
+subroutine test_cases.efficient_box_storage.contract.Contract.update_box() -> void:
+    block@0: // L31
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "b")
+        (assert maybe_exists%0#0) // check self.box exists
+        let assigned_value%0#0: bytes[32] = (txn Sender)
+        let updated_data%0#0: bytes = (replace3 maybe_value%0#0 2048u assigned_value%0#0)
+        (box_put "b" updated_data%0#0)
+        return 
+
+subroutine test_cases.efficient_box_storage.contract.Contract.append(value: uint64) -> void:
+    block@0: // L36
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "b")
+        (assert maybe_exists%0#0) // check self.box exists
+        let tmp%0#0: bytes = (extract3 maybe_value%0#0 2080u 1025u) // on error: Index access is out of bounds
+        let tmp%1#0: bytes = (extract3 tmp%0#0 1024u 1u) // on error: Index access is out of bounds
+        let index#0: uint64 = (getbyte tmp%0#0 1024u)
+        let val_as_bytes%0#0: bytes[8] = (itob value#0)
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "b")
+        (assert maybe_exists%1#0) // check self.box exists
+        let tmp%2#0: bytes = (extract3 maybe_value%1#0 2080u 1025u) // on error: Index access is out of bounds
+        let tmp%3#0: bytes = (extract3 tmp%2#0 0u 1024u) // on error: Index access is out of bounds
+        let index_is_in_bounds%0#0: bool = (< index#0 128u)
+        (assert index_is_in_bounds%0#0) // Index access is out of bounds
+        let write_offset%0#0: uint64 = (* index#0 8u)
+        let updated_target%0#0: bytes = (replace3 tmp%3#0 write_offset%0#0 val_as_bytes%0#0)
+        let updated_data%0#0: bytes = ((replace2 0) tmp%2#0 updated_target%0#0)
+        let updated_data%1#0: bytes = (replace3 maybe_value%1#0 2080u updated_data%0#0)
+        (box_put "b" updated_data%1#0)
+        let to_encode%0#0: uint64 = (+ index#0 1u)
+        let val_as_bytes%1#0: bytes[8] = (itob to_encode%0#0)
+        let bitlen%0#0: uint64 = (bitlen val_as_bytes%1#0)
+        let no_overflow%0#0: bool = (<= bitlen%0#0 8u)
+        (assert no_overflow%0#0) // overflow
+        let uint8%0#0: bytes = ((extract 7 1) val_as_bytes%1#0)
+        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "b")
+        (assert maybe_exists%2#0) // check self.box exists
+        let tmp%4#0: bytes = (extract3 maybe_value%2#0 2080u 1025u) // on error: Index access is out of bounds
+        let updated_data%2#0: bytes = (replace3 tmp%4#0 1024u uint8%0#0)
+        let updated_data%3#0: bytes = (replace3 maybe_value%2#0 2080u updated_data%2#0)
+        (box_put "b" updated_data%3#0)
+        return 
+
+subroutine test_cases.efficient_box_storage.contract.Contract.box_len() -> uint64:
+    block@0: // L42
+        let (value%0#0: uint64, check%0#0: bool) = (box_len "b")
+        (assert check%0#0) // check self.box exists
+        return value%0#0
+
+subroutine test_cases.efficient_box_storage.contract.Contract.box_exists_len() -> <bool, uint64>:
+    block@0: // L46
+        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len "b")
+        goto maybe_exists%0#0 ? block@1 : block@2
+    block@1: // if_body_L49
+        let (value%0#0: uint64, check%0#0: bool) = (box_len "b")
+        (assert check%0#0) // check self.box exists
+        return 1u value%0#0
+    block@2: // else_body_L51
+        return 0u 0u
