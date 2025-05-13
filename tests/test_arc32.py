@@ -2175,9 +2175,11 @@ def test_intrinsic_optimizations(
     [
         "FixedWithTups",
         "FixedWithImmStruct",
-    ]
+    ],
 )
-def test_fixed_array(algod_client: AlgodClient, contract_name: str, account: algokit_utils.Account) -> None:
+def test_fixed_array(
+    algod_client: AlgodClient, contract_name: str, account: algokit_utils.Account
+) -> None:
     app_spec = algokit_utils.ApplicationSpecification.from_json(
         compile_arc32(
             TEST_CASES_DIR / "mutable_native_types",
