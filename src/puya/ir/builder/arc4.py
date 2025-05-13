@@ -692,6 +692,7 @@ def arc4_array_index(
         )
 
 
+
 def arc4_tuple_index(
     context: IRFunctionBuildContext,
     base: Value,
