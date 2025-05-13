@@ -286,8 +286,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dy
         let as_bytes%0#0: bytes[8] = (itob len_%0#0)
         let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let concat_result%2#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
-        let assigned_value%0#0: bytes = concat_result%2#0
-        let updated_value%0#0: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(array_of_array#0, assigned_value%0#0, 0u)
+        let updated_value%0#0: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(array_of_array#0, concat_result%2#0, 0u)
         let array_of_array#0: bytes = updated_value%0#0
         let tmp%4#0: bool = (== array_of_array#0 0x00020004000800020aff000110)
         (assert tmp%4#0)
@@ -305,8 +304,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dy
         let index_is_in_bounds%2#0: bool = (< 1u array_length%2#0)
         (assert index_is_in_bounds%2#0) // Index access is out of bounds
         let updated_target%0#0: bytes = (replace3 tmp%5#0 3u 0x00)
-        let assigned_value%2#0: bytes = updated_target%0#0
-        let updated_value%1#0: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(array_of_array#0, assigned_value%2#0, 0u)
+        let updated_value%1#0: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(array_of_array#0, updated_target%0#0, 0u)
         let array_of_array#0: bytes = updated_value%1#0
         let tmp%6#0: bool = (== array_of_array#0 0x00020004000800020a00000110)
         (assert tmp%6#0)
@@ -329,8 +327,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_st
         let result%6#0: bytes = (concat 0x 0xff)
         let result%7#0: bytes = (concat result%6#0 0xfe)
         let array_data%3#0: bytes = (concat 0x result%7#0)
-        let assigned_value%0#0: bytes = array_data%3#0
-        let updated_target%0#0: bytes = (replace3 array_of_array#0 0u assigned_value%0#0)
+        let updated_target%0#0: bytes = (replace3 array_of_array#0 0u array_data%3#0)
         let array_of_array#0: bytes[4] = updated_target%0#0
         let tmp%1#0: bool = (== array_of_array#0 0xfffe4080)
         (assert tmp%1#0)
@@ -338,8 +335,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_st
         let item_offset%0#0: uint64 = (* 1u 2u)
         let tmp%2#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 2u) // on error: Index access is out of bounds
         let updated_target%1#0: bytes = (replace3 tmp%2#0 0u 0x01)
-        let assigned_value%2#0: bytes = updated_target%1#0
-        let updated_target%2#0: bytes = (replace3 array_of_array#0 2u assigned_value%2#0)
+        let updated_target%2#0: bytes = (replace3 array_of_array#0 2u updated_target%1#0)
         let array_of_array#0: bytes[4] = updated_target%2#0
         let tmp%3#0: bool = (== array_of_array#0 0xfffe0180)
         (assert tmp%3#0)
@@ -374,11 +370,10 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign() ->
         let array_data%2#0: bytes = (concat 0x0002 array_head_and_tail%1#0)
         let dynamic_bool_array#0: bytes = array_data%2#0
         let encoded_bool%2#0: bytes[1] = (setbit 0x00 0u 0u)
-        let assigned_value%2#0: bytes[1] = encoded_bool%2#0
         let array_length%1#0: uint64 = (extract_uint16 dynamic_bool_array#0 0u)
         let index_is_in_bounds%1#0: bool = (< 0u array_length%1#0)
         (assert index_is_in_bounds%1#0) // Index access is out of bounds
-        let is_true%1#0: uint64 = (getbit assigned_value%2#0 0u)
+        let is_true%1#0: uint64 = (getbit encoded_bool%2#0 0u)
         let updated_target%2#0: bytes = (setbit dynamic_bool_array#0 16u is_true%1#0)
         let dynamic_bool_array#0: bytes = updated_target%2#0
         let tmp%2#0: bool = (== dynamic_bool_array#0 0x000200)
@@ -391,8 +386,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign() ->
         let array_data%3#0: bytes = (concat 0x array_head_and_tail%3#0)
         let static_bool_array#0: bytes[1] = array_data%3#0
         let encoded_bool%5#0: bytes[1] = (setbit 0x00 0u 0u)
-        let assigned_value%3#0: bytes[1] = encoded_bool%5#0
-        let is_true%3#0: uint64 = (getbit assigned_value%3#0 0u)
+        let is_true%3#0: uint64 = (getbit encoded_bool%5#0 0u)
         let updated_target%3#0: bytes[1] = (setbit static_bool_array#0 1u is_true%3#0)
         let static_bool_array#0: bytes[1] = updated_target%3#0
         let tmp%3#0: bool = (== static_bool_array#0 0x80)
