@@ -36,6 +36,7 @@ suppress_warnings = [
 ]
 nitpick_ignore = [
     ("py:class", "algopy.arc4.AllowedOnCompletes"),
+    ("py:class", "algopy.zero_bytes.T"),  # ignore warning about type parameter
 ]
 nitpick_ignore_regex = [
     ("py:class", r"algopy.*\._.*"),
