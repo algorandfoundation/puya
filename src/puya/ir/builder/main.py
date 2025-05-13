@@ -152,15 +152,6 @@ class FunctionIRBuilder(
         # will effectively be a copy. We assign the copy to a new register in case it is
         # mutated.
         match expr.value.wtype:
-            case wtypes.ARC4Type():
-                # Arc4 encoded types are value types
-                original_value = self.visit_and_materialise_single(expr.value)
-                return assign_temp(
-                    temp_description="copy",
-                    source=original_value,
-                    source_location=expr.source_location,
-                    context=self.context,
-                )
             case wtypes.ReferenceArray():
                 loc = expr.source_location
                 original_slot = self.visit_and_materialise_single(expr.value)
@@ -168,10 +159,17 @@ class FunctionIRBuilder(
                 value = mem.read_slot(self.context, original_slot, loc)
                 mem.write_slot(self.context, new_slot, value, loc)
                 return new_slot
-
-        raise InternalError(
-            f"Invalid source wtype for Copy {expr.value.wtype}", expr.source_location
-        )
+            case _:
+                original_value_vp = self.visit_expr(expr.value)
+                original_value = self.materialise_value_provider_as_value_or_tuple(
+                    original_value_vp, "tmp"
+                )
+                return assign_temp(
+                    temp_description="copy",
+                    source=original_value,
+                    source_location=expr.source_location,
+                    context=self.context,
+                )
 
     def visit_arc4_decode(self, expr: awst_nodes.ARC4Decode) -> TExpression:
         value = self.visit_and_materialise_single(expr.value)
@@ -1482,29 +1480,24 @@ class FunctionIRBuilder(
         if materialise_as is None or not (source and source.types):
             result = source
         else:
-            values = self.materialise_value_provider(source, description=materialise_as)
-            if len(values) == 1:
-                (result,) = values
-            else:
-                result = ValueTuple(values=values, source_location=expr.source_location)
+            result = self.materialise_value_provider_as_value_or_tuple(
+                source, description=materialise_as
+            )
         self._visited_exprs[expr_id] = result
         return result
 
-    def materialise_value_provider(
+    def materialise_value_provider_as_value_or_tuple(
         self, provider: ValueProvider, description: str | Sequence[str]
-    ) -> list[Value]:
+    ) -> Value | ValueTuple:
         """
-        Given a ValueProvider with arity of N, return a Value sequence of length N.
+        Given a ValueProvider with arity of N
+        return a Value if N = 1, else a ValueTuple of length N.
 
-        Anything which is already a Value is passed through without change.
-
+        Anything which is already a Value or ValueTuple is passed through without change.
         Otherwise, the result is assigned to a temporary register, which is returned
         """
-        if isinstance(provider, Value):
-            return [provider]
-
-        if isinstance(provider, ValueTuple):
-            return list(provider.values)
+        if isinstance(provider, Value | ValueTuple):
+            return provider
 
         ir_types = provider.types
         if not ir_types:
@@ -1527,7 +1520,24 @@ class FunctionIRBuilder(
             # TODO: should this be the source location of the site forcing materialisation?
             assignment_location=provider.source_location,
         )
-        return list[Value](targets)
+        try:
+            (value,) = targets
+        except ValueError:
+            return ValueTuple(values=targets, source_location=provider.source_location)
+        else:
+            return value
+
+    def materialise_value_provider(
+        self, provider: ValueProvider, description: str | Sequence[str]
+    ) -> list[Value]:
+        """
+        Given a ValueProvider with arity of N, return a Value sequence of length N.
+        """
+        value_or_tuple = self.materialise_value_provider_as_value_or_tuple(provider, description)
+        if isinstance(value_or_tuple, Value):
+            return [value_or_tuple]
+        else:
+            return list(value_or_tuple.values)
 
 
 def create_uint64_binary_op(

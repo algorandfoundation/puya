@@ -98,6 +98,11 @@ class Contract(arc4.ARC4Contract):
         )
         assert arr_3 == arr_3_from_tuple, "should be the same"
 
+        arr_3_from_full = FixedUInt64Of3.full(UInt64(1))
+        assert arr_3_from_full[0] == 1
+        assert arr_3_from_full[1] == 1
+        assert arr_3_from_full[2] == 1
+
         arr_3_from_fixed = FixedUInt64Of3(arr_3.copy())
         assert arr_3 == arr_3_from_fixed, "should be the same"
 

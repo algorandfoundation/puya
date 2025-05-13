@@ -12,6 +12,10 @@ class FixedArray(
     """A fixed length Array of the specified type and length"""
 
     def __init__(self, values: Iterable[_TArrayItem]) -> None: ...
+    @classmethod
+    def full(cls, item: _TArrayItem) -> typing.Self:
+        """Initializes a new array, filled with copies of the specified value"""
+
     def __iter__(self) -> typing.Iterator[_TArrayItem]:
         """Returns an iterator for the items in the array"""
 
