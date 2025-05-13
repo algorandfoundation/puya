@@ -1902,6 +1902,7 @@ def test_array_uint64(
         simulate_call(app_client, "test_array_too_long")
 
     simulate_call(app_client, "test_quicksort")
+    simulate_call(app_client, "test_unobserved_write")
 
 
 @pytest.mark.parametrize("optimization_level", [0, 1])
