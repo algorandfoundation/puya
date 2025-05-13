@@ -403,7 +403,7 @@ subroutine set_boxes:
         // box_storage/contract.py:52
         // b_value = self.box_b.value.copy()
         byte "b"                                                                                (𝕡) a#0,b#0,c#0 | materialized_values%0#0,"b"
-        box_get                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0,b_value#0,maybe_exists%0#0
+        box_len                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0,b_value#0,maybe_exists%0#0
         l-store maybe_exists%0#0 1                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,maybe_exists%0#0,b_value#0
         pop 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,maybe_exists%0#0
         l-load maybe_exists%0#0 0                                                               (𝕡) a#0,b#0,c#0 | materialized_values%0#0,maybe_exists%0#0
@@ -1264,14 +1264,20 @@ subroutine box_map_test:
         // assert self.box_map.get(key_1, default=String("default")) == String("default")
         itob                                                                                    box_0#0,encoded_value%5#0
         l-load-copy encoded_value%5#0 0                                                         box_0#0,encoded_value%5#0,encoded_value%5#0 (copy)
-        box_get                                                                                 box_0#0,encoded_value%5#0,value#1,exists#0
-        byte "default"                                                                          box_0#0,encoded_value%5#0,value#1,exists#0,"default"
-        l-load value#1 2                                                                        box_0#0,encoded_value%5#0,exists#0,"default",value#1
-        l-load-copy exists#0 2                                                                  box_0#0,encoded_value%5#0,exists#0,"default",value#1,exists#0 (copy)
-        select                                                                                  box_0#0,encoded_value%5#0,exists#0,state_get%0#0
-        byte "default"                                                                          box_0#0,encoded_value%5#0,exists#0,state_get%0#0,"default"
-        ==                                                                                      box_0#0,encoded_value%5#0,exists#0,tmp%5#0
-        assert                                                                                  box_0#0,encoded_value%5#0,exists#0
+        box_get                                                                                 box_0#0,encoded_value%5#0,maybe_value%0#0,maybe_exists%0#0
+        byte "default"                                                                          box_0#0,encoded_value%5#0,maybe_value%0#0,maybe_exists%0#0,"default"
+        l-load maybe_value%0#0 2                                                                box_0#0,encoded_value%5#0,maybe_exists%0#0,"default",maybe_value%0#0
+        l-load maybe_exists%0#0 2                                                               box_0#0,encoded_value%5#0,"default",maybe_value%0#0,maybe_exists%0#0
+        select                                                                                  box_0#0,encoded_value%5#0,state_get%0#0
+        byte "default"                                                                          box_0#0,encoded_value%5#0,state_get%0#0,"default"
+        ==                                                                                      box_0#0,encoded_value%5#0,tmp%5#0
+        assert                                                                                  box_0#0,encoded_value%5#0
+        // box_storage/contract.py:195
+        // value, exists = self.box_map.maybe(key_1)
+        l-load-copy encoded_value%5#0 0                                                         box_0#0,encoded_value%5#0,encoded_value%5#0 (copy)
+        box_len                                                                                 box_0#0,encoded_value%5#0,value#1,exists#0
+        l-store exists#0 1                                                                      box_0#0,encoded_value%5#0,exists#0,value#1
+        pop 1                                                                                   box_0#0,encoded_value%5#0,exists#0
         // box_storage/contract.py:196
         // assert not exists
         l-load exists#0 0                                                                       box_0#0,encoded_value%5#0,exists#0

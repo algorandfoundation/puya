@@ -202,7 +202,7 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: byt
         (box_put "box_d" materialized_values%0#0)
         (box_create "box_large" 6152u)
         (box_replace "box_large" 4096u 0x000000000000002a)
-        let (b_value#0: bytes, maybe_exists%0#0: bool) = (box_get "b")
+        let (b_value#0: uint64, maybe_exists%0#0: bool) = (box_len "b")
         (assert maybe_exists%0#0) // check self.box_b exists
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "box_a")
         (assert maybe_exists%2#0) // check self.box_a exists
@@ -463,10 +463,11 @@ subroutine examples.box_storage.contract.BoxContract.box_map_test() -> void:
         let tmp%4#0: bool = (== value%3#0 6u)
         (assert tmp%4#0)
         let encoded_value%5#0: bytes[8] = (itob 1u)
-        let (value#1: bytes, exists#0: bool) = (box_get encoded_value%5#0)
-        let state_get%0#0: bytes = (select "default" value#1 exists#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get encoded_value%5#0)
+        let state_get%0#0: bytes = (select "default" maybe_value%0#0 maybe_exists%0#0)
         let tmp%5#0: bool = (== state_get%0#0 "default")
         (assert tmp%5#0)
+        let (value#1: uint64, exists#0: bool) = (box_len encoded_value%5#0)
         let tmp%6#0: bool = (! exists#0)
         (assert tmp%6#0)
         let (_%0#0: uint64, maybe_exists%2#0: bool) = (box_len box_0#0)

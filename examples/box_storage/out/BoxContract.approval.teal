@@ -363,7 +363,7 @@ set_boxes:
     // box_storage/contract.py:52
     // b_value = self.box_b.value.copy()
     bytec 4 // "b"
-    box_get
+    box_len
     bury 1
     assert // check self.box_b exists
     // box_storage/contract.py:55
@@ -1144,12 +1144,16 @@ box_map_test:
     dup
     box_get
     bytec 12 // "default"
-    uncover 2
-    dig 2
+    cover 2
     select
     bytec 12 // "default"
     ==
     assert
+    // box_storage/contract.py:195
+    // value, exists = self.box_map.maybe(key_1)
+    dup
+    box_len
+    bury 1
     // box_storage/contract.py:196
     // assert not exists
     !
