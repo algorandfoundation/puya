@@ -232,18 +232,15 @@ subroutine test_cases.mutable_native_types.contract.Contract.__init__() -> void:
 subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize() -> void:
     block@0: // L89
         let arr_3#0: bytes[24] = (bzero 24u)
-        let assigned_value%0#0: uint64 = 0u
-        let val_as_bytes%0#0: bytes[8] = (itob assigned_value%0#0)
+        let val_as_bytes%0#0: bytes[8] = (itob 0u)
         let encoded%0#0: bytes[8] = val_as_bytes%0#0
         let updated_target%0#0: bytes = (replace3 arr_3#0 0u encoded%0#0)
         let arr_3#1: bytes[24] = updated_target%0#0
-        let assigned_value%1#0: uint64 = 1u
-        let val_as_bytes%1#0: bytes[8] = (itob assigned_value%1#0)
+        let val_as_bytes%1#0: bytes[8] = (itob 1u)
         let encoded%1#0: bytes[8] = val_as_bytes%1#0
         let updated_target%1#0: bytes = (replace3 arr_3#1 8u encoded%1#0)
         let arr_3#2: bytes[24] = updated_target%1#0
-        let assigned_value%2#0: uint64 = 2u
-        let val_as_bytes%2#0: bytes[8] = (itob assigned_value%2#0)
+        let val_as_bytes%2#0: bytes[8] = (itob 2u)
         let encoded%2#0: bytes[8] = val_as_bytes%2#0
         let updated_target%2#0: bytes = (replace3 arr_3#2 16u encoded%2#0)
         let arr_3#3: bytes[24] = updated_target%2#0
@@ -302,14 +299,13 @@ subroutine test_cases.mutable_native_types.contract.Contract.add_payment(pay: by
         let copy%0#0: bytes[48] = pay#0
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "payments")
         (assert maybe_exists%1#0) // check self.payments exists
-        let assigned_value%0#0: bytes[48] = copy%0#0
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%2#0) // check self.num_payments exists
         let array_length%0#0: uint64 = 8u
         let index_is_in_bounds%0#0: bool = (< maybe_value%2#0 array_length%0#0)
         (assert index_is_in_bounds%0#0) // Index access is out of bounds
         let write_offset%0#0: uint64 = (* maybe_value%2#0 48u)
-        let updated_target%0#0: bytes = (replace3 maybe_value%1#0 write_offset%0#0 assigned_value%0#0)
+        let updated_target%0#0: bytes = (replace3 maybe_value%1#0 write_offset%0#0 copy%0#0)
         (app_global_put "payments" updated_target%0#0)
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%3#0) // check self.num_payments exists
@@ -334,12 +330,11 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment(i
         let val_as_bytes%0#0: bytes[8] = (itob assigned_value%0#0)
         let encoded%1#0: bytes[8] = val_as_bytes%0#0
         let updated_data%0#0: bytes = (replace3 tmp%1#0 40u encoded%1#0)
-        let assigned_value%1#0: bytes = updated_data%0#0
         let array_length%0#0: uint64 = 8u
         let index_is_in_bounds%0#0: bool = (< index#0 array_length%0#0)
         (assert index_is_in_bounds%0#0) // Index access is out of bounds
         let write_offset%0#0: uint64 = (* index#0 48u)
-        let updated_target%0#0: bytes = (replace3 maybe_value%1#0 write_offset%0#0 assigned_value%1#0)
+        let updated_target%0#0: bytes = (replace3 maybe_value%1#0 write_offset%0#0 updated_data%0#0)
         (app_global_put "payments" updated_target%0#0)
         return 
 
