@@ -208,6 +208,16 @@ contract Contract
     }
   }
   
+  abimethod test_cases.array.uint64.Contract.test_unobserved_write(): void
+  {
+    arr: ref_array<uint64> = test_cases.array.uint64.create_array()
+    last: uint64 = arr.length - 1u
+    arr[last]: uint64 = 0u
+    test_cases.array.uint64.assert_last_is_zero(arr)
+    arr[last]: uint64 = 1u
+    assert(arr[last] == 1u)
+  }
+  
   baremethod test_cases.array.uint64.Contract.__algopy_default_create(): void
   {
   }
@@ -224,7 +234,7 @@ subroutine quicksort_window(arr: ref_array<uint64>, window_left: uint64, window_
     }
     while (pivot < arr[right]) {
       if (right == 0u) {
-        goto after_loop_L186
+        goto after_loop_L195
       }
       right -= 1u
     }
@@ -247,7 +257,7 @@ subroutine quicksort_window(arr: ref_array<uint64>, window_left: uint64, window_
       }
       break
     }
-    after_loop_L186:
+    after_loop_L195:
     break
   }
   if (window_left < right) {
@@ -256,6 +266,20 @@ subroutine quicksort_window(arr: ref_array<uint64>, window_left: uint64, window_
   if (left < window_right) {
     test_cases.array.uint64.quicksort_window(arr, left, window_right)
   }
+}
+
+subroutine create_array(): ref_array<uint64>
+{
+  arr: ref_array<uint64> = new ref_array<uint64>()
+  for i in range(0u, 5u, 1u) {
+    arr.extend((i))
+  }
+  return arr
+}
+
+subroutine assert_last_is_zero(arr: ref_array<uint64>): void
+{
+  assert(arr[arr.length - 1u] == 0u)
 }
 
 subroutine return_ref(arr: ref_array<uint64>, arr2: ref_array<uint64>): ref_array<uint64>
