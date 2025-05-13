@@ -647,14 +647,15 @@ def arc4_array_index(
         context, array_wtype, array, source_location
     )
     array_head_and_tail = factory.assign(array_head_and_tail_vp, "array_head_and_tail")
-    item_wtype = wtype_to_arc4_wtype(array_wtype.element_type, source_location)
+    item_wtype = array_wtype.element_type
+    arc4_item_wtype = wtype_to_arc4_wtype(item_wtype, source_location)
 
-    if is_arc4_dynamic_size(item_wtype):
-        inner_element_size = _maybe_get_inner_element_size(item_wtype)
+    if is_arc4_dynamic_size(arc4_item_wtype):
+        inner_element_size = _maybe_get_inner_element_size(arc4_item_wtype)
         if inner_element_size is not None:
             if assert_bounds:
                 _assert_index_in_bounds(context, index, array_length_vp, source_location)
-            return _read_dynamic_item_using_length_from_arc4_container(
+            item = _read_dynamic_item_using_length_from_arc4_container(
                 context,
                 array_head_and_tail=array_head_and_tail,
                 inner_element_size=inner_element_size,
@@ -663,34 +664,37 @@ def arc4_array_index(
             )
         else:
             # no _assert_index_in_bounds here as end offset calculation implicitly checks
-            return _read_dynamic_item_using_end_offset_from_arc4_container(
+            item = _read_dynamic_item_using_end_offset_from_arc4_container(
                 context,
                 array_length_vp=array_length_vp,
                 array_head_and_tail=array_head_and_tail,
                 index=index,
                 source_location=source_location,
             )
-    if item_wtype == wtypes.arc4_bool_wtype:
+    elif arc4_item_wtype == wtypes.arc4_bool_wtype:
         if assert_bounds:
             # this catches the edge case of bit arrays that are not a multiple of 8
             # e.g. reading index 6 & 7 of an array that has a length of 6
             _assert_index_in_bounds(context, index, array_length_vp, source_location)
-        return _read_nth_bool_from_arc4_container(
+        item = _read_nth_bool_from_arc4_container(
             context,
             data=array_head_and_tail,
             index=index,
             source_location=source_location,
         )
     else:
-        item_bit_size = get_arc4_static_bit_size(item_wtype)
+        item_bit_size = get_arc4_static_bit_size(arc4_item_wtype)
         # no _assert_index_in_bounds here as static items will error on read if past end of array
-        return _read_static_item_from_arc4_container(
+        item = _read_static_item_from_arc4_container(
             data=array_head_and_tail,
             offset=factory.mul(index, item_bit_size // 8, "item_offset"),
-            item_wtype=item_wtype,
+            item_wtype=arc4_item_wtype,
             source_location=source_location,
         )
-
+    if item_wtype != arc4_item_wtype:
+        item = factory.assign(item, "encoded")
+        return decode_arc4_value(context, item, arc4_item_wtype, item_wtype, source_location)
+    return item
 
 
 def arc4_tuple_index(
