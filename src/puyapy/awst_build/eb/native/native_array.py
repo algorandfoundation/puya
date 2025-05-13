@@ -25,7 +25,7 @@ from puyapy.awst_build.eb._utils import (
     dummy_statement,
     dummy_value,
 )
-from puyapy.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder, arc4_bool_bytes
+from puyapy.awst_build.eb.arc4._base import arc4_bool_bytes
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -33,6 +33,7 @@ from puyapy.awst_build.eb.interface import (
     NodeBuilder,
     TypeBuilder,
 )
+from puyapy.awst_build.eb.native._base import _ArrayExpressionBuilder
 from puyapy.awst_build.eb.none import NoneExpressionBuilder
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 
@@ -96,8 +97,7 @@ class NativeArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
         )
 
 
-# TODO: consider if depending on _ARC4ArrayExpressionBuilder is appropriate here
-class NativeArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
+class NativeArrayExpressionBuilder(_ArrayExpressionBuilder):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ArrayType)
         super().__init__(typ, expr)
