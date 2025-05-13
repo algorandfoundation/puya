@@ -14,6 +14,18 @@ Ensure to describe the changes made in a [scriv fragment file](https://scriv.rea
 
 The fragment file is deleted by the CD pipeline once it is integrated into [CHANGELOG.md](./CHANGELOG.md) file as part of CD process.
 
+## Getting Started
+
+1. Clone the repository locally. PyCharm is the recommended IDE, though VSCode has been reported to work
+1. Ensure dependencies are installed: Python (>3.12), Poetry (>2), algokit-cli
+1. Ensure your IDE is configured to use an interpreter (Poetry environment)
+1. Run `poetry install` in a terminal (you may need to open a new terminal after to pick up dev dependencies)
+1. Run `poe compile_all`
+1. Optionally debug individual tests
+   1. Run `algokit localnet start`
+   1. Use your IDEs built-in run/debug setup to run tests (via pytest)
+
+
 ## Local development tips
 
 `poetry` is used for virtual environment and dependency management.
