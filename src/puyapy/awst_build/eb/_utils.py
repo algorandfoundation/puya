@@ -1,7 +1,11 @@
+import typing
+from collections.abc import Sequence
+
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     BytesComparisonExpression,
+    Copy,
     EqualityComparison,
     Expression,
     ExpressionStatement,
@@ -10,7 +14,10 @@ from puya.awst.nodes import (
     VarExpression,
 )
 from puya.parse import SourceLocation
+from puyapy import models
 from puyapy.awst_build import pytypes
+from puyapy.awst_build.eb import _expect as expect
+from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -18,6 +25,7 @@ from puyapy.awst_build.eb.interface import (
     BuilderUnaryOp,
     InstanceBuilder,
     LiteralBuilder,
+    NodeBuilder,
 )
 
 logger = log.get_logger(__name__)
@@ -126,3 +134,22 @@ def cast_to_bytes(expr: Expression, location: SourceLocation | None = None) -> R
     return ReinterpretCast(
         expr=expr, wtype=wtypes.bytes_wtype, source_location=location or expr.source_location
     )
+
+
+class CopyBuilder(FunctionBuilder):
+    def __init__(self, expr: Expression, location: SourceLocation, typ: pytypes.PyType):
+        super().__init__(location)
+        self._typ = typ
+        self.expr = expr
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[models.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        expect.no_args(args, location)
+        expr_result = Copy(value=self.expr, source_location=location)
+        return builder_for_instance(self._typ, expr_result)

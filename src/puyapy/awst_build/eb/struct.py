@@ -13,8 +13,12 @@ from puyapy.awst_build.eb._base import (
     InstanceExpressionBuilder,
     NotIterableInstanceExpressionBuilder,
 )
-from puyapy.awst_build.eb._utils import compare_bytes, constant_bool_and_error, dummy_value
-from puyapy.awst_build.eb.arc4._base import CopyBuilder
+from puyapy.awst_build.eb._utils import (
+    CopyBuilder,
+    compare_bytes,
+    constant_bool_and_error,
+    dummy_value,
+)
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
