@@ -15,6 +15,8 @@ def constant_reads_and_unobserved_writes_elimination(
     for block in subroutine.body:
         while _optimise_global_read_write(block):
             any_modified = True
+        while _optimise_local_read_write(block):
+            any_modified = True
         while _optimise_box_read_write(block):
             any_modified = True
         while _optimise_slot_read_write(block):
