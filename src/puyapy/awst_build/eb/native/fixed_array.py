@@ -18,7 +18,6 @@ from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
 from puyapy.awst_build.eb._utils import constant_bool_and_error
-from puyapy.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
@@ -26,6 +25,7 @@ from puyapy.awst_build.eb.interface import (
     StaticSizedCollectionBuilder,
     TypeBuilder,
 )
+from puyapy.awst_build.eb.native._base import _ArrayExpressionBuilder
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 
 __all__ = [
@@ -115,8 +115,7 @@ class FixedArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
         return FixedArrayExpressionBuilder(new_array, typ)
 
 
-# TODO: consider if depending on _ARC4ArrayExpressionBuilder is appropriate here
-class FixedArrayExpressionBuilder(_ARC4ArrayExpressionBuilder, StaticSizedCollectionBuilder):
+class FixedArrayExpressionBuilder(_ArrayExpressionBuilder, StaticSizedCollectionBuilder):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ArrayType)
         size = typ.size
