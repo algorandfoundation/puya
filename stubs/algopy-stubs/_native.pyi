@@ -11,9 +11,6 @@ class FixedArray(
 ):
     """A fixed length Array of the specified type and length"""
 
-    @typing.overload
-    def __init__(self) -> None: ...
-    @typing.overload
     def __init__(self, values: Iterable[_TArrayItem]) -> None: ...
     def __iter__(self) -> typing.Iterator[_TArrayItem]:
         """Returns an iterator for the items in the array"""
@@ -92,6 +89,15 @@ class Struct:
         """Create a copy of this struct"""
 
     def _replace(self, **kwargs: typing.Any) -> typing.Self:  # type: ignore[misc]
-        """Return a new instance of the struct replacing specified fields with new values.
+        """
+        Return a new instance of the struct replacing specified fields with new values.
 
-        Note that any mutable fields must be explicitly copied to avoid aliasing."""
+        Note that any mutable fields must be explicitly copied to avoid aliasing.
+        """
+
+def zero_bytes[T](typ: type[T]) -> T:
+    """
+    Initializes a new value of the specified type, based on it's zero bytes representation.
+
+    Only works for fixed size types that are bytes encoded.
+    """
