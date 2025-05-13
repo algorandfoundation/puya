@@ -94,6 +94,13 @@ class _SlotGatherer(IRTraverser):
         # registers involved in phis are considered dynamic
         self.dynamic_registers.add(arg.value)
 
+    def visit_subroutine_return(self, retsub: models.SubroutineReturn) -> None:
+        super().visit_subroutine_return(retsub)
+        for value in retsub.result:
+            # registers that leave a subroutine are non local
+            if isinstance(value, models.Register):
+                self.non_local_registers.add(value)
+
     def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:
         super().visit_invoke_subroutine(callsub)
         # registers passed to other subroutines are non local
