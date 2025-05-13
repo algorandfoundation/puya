@@ -2169,6 +2169,45 @@ def test_intrinsic_optimizations(
     assert bytes(response.return_value) == hashlib.sha256(b"Hello World").digest()
 
 
+def test_efficient_box(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+    example = TEST_CASES_DIR / "efficient_box_storage"
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address, min_spending_balance_micro_algos=2_000_000
+        ),
+    )
+
+    txn_box_refs: algokit_utils.OnCompleteCallParametersDict = {"boxes": [(0, b"b")] * 5}
+
+    exists_response = app_client.call("box_exists_len", transaction_parameters=txn_box_refs)
+    exists, size = exists_response.return_value
+    assert not exists, "expected box to not exist"
+    assert size == 0, "expected size to be zero"
+    app_client.call(
+        "create_box",
+        transaction_parameters=txn_box_refs,
+    )
+    exists_response = app_client.call("box_exists_len", transaction_parameters=txn_box_refs)
+    exists, size = exists_response.return_value
+    assert exists, "expected box to exist"
+    assert size > 0, "expected size to non zero"
+    app_client.call(
+        "update_box",
+        transaction_parameters=txn_box_refs,
+    )
+    response = app_client.call(
+        "box_len",
+        transaction_parameters=txn_box_refs,
+    )
+    expected_size = 1024 + 1024 + 32 + (8 * 128 + 1) + 1024
+    assert response.return_value == expected_size
+
+
 def _get_immutable_array_app(
     algod_client: AlgodClient,
     optimization_level: int,
