@@ -2170,6 +2170,58 @@ def test_intrinsic_optimizations(
     assert bytes(response.return_value) == hashlib.sha256(b"Hello World").digest()
 
 
+@pytest.mark.parametrize(
+    "contract_name",
+    [
+        "FixedWithTups",
+        "FixedWithImmStruct",
+    ]
+)
+def test_fixed_array(algod_client: AlgodClient, contract_name: str, account: algokit_utils.Account) -> None:
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(
+            TEST_CASES_DIR / "mutable_native_types",
+            contract_name=contract_name,
+        )
+    )
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    # ensure app meets minimum balance requirements
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=400_000,
+        ),
+    )
+
+    txn_params = algokit_utils.OnCompleteCallParameters(boxes=[(0, "tup_bag")])
+
+    app_client.call("create_box", transaction_parameters=txn_params)
+
+    response = app_client.call("num_tups", transaction_parameters=txn_params)
+    assert response.return_value == 0
+
+    for i in range(8):
+        app_client.call("add_tup", tup=(i + 1, i + 2), transaction_parameters=txn_params)
+
+        response = app_client.call("num_tups", transaction_parameters=txn_params)
+        assert response.return_value == i + 1
+
+    with pytest.raises(algokit_utils.LogicError, match="too many tups"):
+        app_client.call("add_tup", tup=(1, 2), transaction_parameters=txn_params)
+
+    response = app_client.call("get_tup", index=0, transaction_parameters=txn_params)
+    assert response.return_value == [1, 2]
+
+    response = app_client.call("get_tup", index=7, transaction_parameters=txn_params)
+    assert response.return_value == [8, 9]
+
+    with pytest.raises(algokit_utils.LogicError, match="index out of bounds"):
+        app_client.call("get_tup", index=8, transaction_parameters=txn_params)
+
+
 def _get_immutable_array_app(
     algod_client: AlgodClient,
     optimization_level: int,
