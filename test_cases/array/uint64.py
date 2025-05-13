@@ -170,6 +170,15 @@ class Contract(arc4.ARC4Contract):
             assert value >= last, "array is not sorted"
             last = value
 
+    @arc4.abimethod()
+    def test_unobserved_write(self) -> None:
+        arr = create_array()
+        last = arr.length - 1
+        arr[last] = UInt64(0)  # write
+        assert_last_is_zero(arr)
+        arr[last] = UInt64(1)  # write
+        assert arr[last] == 1
+
 
 @subroutine
 def quicksort_window(arr: Array[UInt64], window_left: UInt64, window_right: UInt64) -> None:
@@ -221,6 +230,19 @@ def quicksort_window(arr: Array[UInt64], window_left: UInt64, window_right: UInt
     # sort right half of window
     if left < window_right:
         quicksort_window(arr, left, window_right)
+
+
+@subroutine(inline=False)
+def create_array() -> Array[UInt64]:
+    arr = Array[UInt64]()
+    for i in urange(5):
+        arr.append(i)
+    return arr
+
+
+@subroutine(inline=False)
+def assert_last_is_zero(arr: Array[UInt64]) -> None:
+    assert arr[arr.length - 1] == 0
 
 
 @subroutine
