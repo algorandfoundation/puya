@@ -10,7 +10,6 @@ from puya.awst.nodes import (
     BytesConstant,
     BytesEncoding,
     CheckedMaybe,
-    Copy,
     Expression,
     IndexExpression,
 )
@@ -25,6 +24,7 @@ from puyapy.awst_build.eb._bytes_backed import (
     BytesBackedTypeBuilder,
 )
 from puyapy.awst_build.eb._utils import (
+    CopyBuilder,
     compare_bytes,
     compare_expr_bytes,
     dummy_value,
@@ -92,25 +92,6 @@ class ARC4FromLogBuilder(FunctionBuilder):
         arg = expect.exactly_one_arg_of_type_else_dummy(args, pytypes.BytesType, location)
         result_expr = self.abi_expr_from_log(self.typ, arg, location)
         return builder_for_instance(self.typ, result_expr)
-
-
-class CopyBuilder(FunctionBuilder):
-    def __init__(self, expr: Expression, location: SourceLocation, typ: pytypes.PyType):
-        super().__init__(location)
-        self._typ = typ
-        self.expr = expr
-
-    @typing.override
-    def call(
-        self,
-        args: Sequence[NodeBuilder],
-        arg_kinds: list[models.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> InstanceBuilder:
-        expect.no_args(args, location)
-        expr_result = Copy(value=self.expr, source_location=location)
-        return builder_for_instance(self._typ, expr_result)
 
 
 def arc4_bool_bytes(
