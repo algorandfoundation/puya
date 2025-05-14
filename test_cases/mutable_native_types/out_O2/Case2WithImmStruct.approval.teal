@@ -86,6 +86,7 @@ main_set_b_route@25:
     txna ApplicationArgs 1
     btoi
     bury 5
+    callsub _check_owner
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
@@ -153,6 +154,7 @@ main_set_a_route@21:
     txna ApplicationArgs 1
     btoi
     bury 7
+    callsub _check_owner
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
@@ -400,9 +402,26 @@ main_create_box_route@5:
     txn ApplicationID
     assert // can only call when not creating
     bytec_0 // "tup_bag"
-    pushint 136 // 136
+    pushint 176 // 176
     box_create
-    assert // box already existed
+    assert // box already exists
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    txn Sender
+    replace2 136
+    bytec_0 // "tup_bag"
+    swap
+    box_put
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    global CurrentApplicationID
+    itob
+    replace2 168
+    bytec_0 // "tup_bag"
+    swap
+    box_put
     intc_2 // 1
     return
 
@@ -419,6 +438,7 @@ main_bare_routing@30:
 // test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup(tup: bytes) -> void:
 add_tup:
     proto 1 0
+    callsub _check_owner
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
@@ -462,4 +482,24 @@ add_tup:
     bytec_0 // "tup_bag"
     swap
     box_put
+    retsub
+
+
+// test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner() -> void:
+_check_owner:
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    extract 136 32 // on error: Index access is out of bounds
+    txn Sender
+    ==
+    assert // sender not authorized
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    pushint 168 // 168
+    extract_uint64
+    global CurrentApplicationID
+    ==
+    assert // this error should be impossible
     retsub

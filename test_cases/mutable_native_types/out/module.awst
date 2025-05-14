@@ -159,7 +159,9 @@ contract Case3WithStruct
   
   abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.create_box(): void
   {
-    assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.case3_with_mutable_struct.TupBag)), comment="box already existed")
+    assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.case3_with_mutable_struct.TupBag)), comment="box already exists")
+    Box['tup_bag'].owner: account = txn<Sender>()
+    Box['tup_bag'].app: application = global<CurrentApplicationID>()
   }
   
   abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.num_tups(): uint64
@@ -169,6 +171,7 @@ contract Case3WithStruct
   
   abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(tup: test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup): void
   {
+    this::_check_owner()
     assert(Box['tup_bag'].count < 8u, comment="too many tups")
     Box['tup_bag'].items[Box['tup_bag'].count]: test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup = tup.copy()
     Box['tup_bag'].count += 1u
@@ -207,6 +210,7 @@ contract Case3WithStruct
   
   abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_a(a: uint64): void
   {
+    this::_check_owner()
     for i in range(0u, Box['tup_bag'].count, 1u) {
       Box['tup_bag'].items[i].a: uint64 = a
     }
@@ -214,6 +218,7 @@ contract Case3WithStruct
   
   abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_b(b: uint64): void
   {
+    this::_check_owner()
     for i in range(0u, Box['tup_bag'].count, 1u) {
       Box['tup_bag'].items[i].b: uint64 = b
     }
@@ -224,6 +229,12 @@ contract Case3WithStruct
     assert(Box['tup_bag'].count >= start + 3u, comment="not enough items")
     items: arc4.static_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup, 8> = Box['tup_bag'].items.copy()
     return arc4_encode((items[start].copy(), items[start + 1u].copy(), items[start + 2u].copy()), arc4.static_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup, 3>)
+  }
+  
+  subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct._check_owner(): void
+  {
+    assert(Box['tup_bag'].owner == txn<Sender>(), comment="sender not authorized")
+    assert(Box['tup_bag'].app == global<CurrentApplicationID>(), comment="this error should be impossible")
   }
   
   baremethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_default_create(): void
@@ -264,7 +275,9 @@ contract Case2WithImmStruct
   
   abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.create_box(): void
   {
-    assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.case2_with_immutable_struct.TupBag)), comment="box already existed")
+    assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.case2_with_immutable_struct.TupBag)), comment="box already exists")
+    Box['tup_bag'].owner: account = txn<Sender>()
+    Box['tup_bag'].app: application = global<CurrentApplicationID>()
   }
   
   abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.num_tups(): uint64
@@ -274,6 +287,7 @@ contract Case2WithImmStruct
   
   abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup(tup: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup): void
   {
+    this::_check_owner()
     assert(Box['tup_bag'].count < 8u, comment="too many tups")
     Box['tup_bag'].items[Box['tup_bag'].count]: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup = tup
     Box['tup_bag'].count += 1u
@@ -312,6 +326,7 @@ contract Case2WithImmStruct
   
   abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_a(a: uint64): void
   {
+    this::_check_owner()
     for i in range(0u, Box['tup_bag'].count, 1u) {
       tup: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup = Box['tup_bag'].items[i]
       Box['tup_bag'].items[i]: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup = new test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup(a=a, b=tup.b)
@@ -320,6 +335,7 @@ contract Case2WithImmStruct
   
   abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b(b: uint64): void
   {
+    this::_check_owner()
     for i in range(0u, Box['tup_bag'].count, 1u) {
       tup: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup = Box['tup_bag'].items[i]
       Box['tup_bag'].items[i]: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup = new test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup(a=tup.a, b=b)
@@ -331,6 +347,12 @@ contract Case2WithImmStruct
     assert(Box['tup_bag'].count >= start + 3u, comment="not enough items")
     items: arc4.static_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup, 8> = Box['tup_bag'].items.copy()
     return arc4_encode((items[start], items[start + 1u], items[start + 2u]), arc4.static_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup, 3>)
+  }
+  
+  subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner(): void
+  {
+    assert(Box['tup_bag'].owner == txn<Sender>(), comment="sender not authorized")
+    assert(Box['tup_bag'].app == global<CurrentApplicationID>(), comment="this error should be impossible")
   }
   
   baremethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__algopy_default_create(): void
@@ -371,7 +393,9 @@ contract Case1WithTups
   
   abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_box(): void
   {
-    assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.case1_with_tups.TupBag)), comment="box already existed")
+    assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.case1_with_tups.TupBag)), comment="box already exists")
+    Box['tup_bag'].owner: account = txn<Sender>()
+    Box['tup_bag'].app: application = global<CurrentApplicationID>()
   }
   
   abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tups(): uint64
@@ -381,6 +405,7 @@ contract Case1WithTups
   
   abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup: test_cases.mutable_native_types.case1_with_tups.NamedTup): void
   {
+    this::_check_owner()
     assert(Box['tup_bag'].count < 8u, comment="too many tups")
     Box['tup_bag'].items[Box['tup_bag'].count]: test_cases.mutable_native_types.case1_with_tups.NamedTup = tup
     Box['tup_bag'].count += 1u
@@ -419,6 +444,7 @@ contract Case1WithTups
   
   abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a: uint64): void
   {
+    this::_check_owner()
     for i in range(0u, Box['tup_bag'].count, 1u) {
       tup: test_cases.mutable_native_types.case1_with_tups.NamedTup = Box['tup_bag'].items[i]
       Box['tup_bag'].items[i]: test_cases.mutable_native_types.case1_with_tups.NamedTup = (a=a, b=tup[1])
@@ -427,6 +453,7 @@ contract Case1WithTups
   
   abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b: uint64): void
   {
+    this::_check_owner()
     for i in range(0u, Box['tup_bag'].count, 1u) {
       tup: test_cases.mutable_native_types.case1_with_tups.NamedTup = Box['tup_bag'].items[i]
       Box['tup_bag'].items[i]: test_cases.mutable_native_types.case1_with_tups.NamedTup = (a=tup[0], b=b)
@@ -438,6 +465,12 @@ contract Case1WithTups
     assert(Box['tup_bag'].count >= start + 3u, comment="not enough items")
     items: arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 8> = Box['tup_bag'].items.copy()
     return arc4_encode((items[start], items[start + 1u], items[start + 2u]), arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 3>)
+  }
+  
+  subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner(): void
+  {
+    assert(Box['tup_bag'].owner == txn<Sender>(), comment="sender not authorized")
+    assert(Box['tup_bag'].app == global<CurrentApplicationID>(), comment="this error should be impossible")
   }
   
   baremethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_default_create(): void
