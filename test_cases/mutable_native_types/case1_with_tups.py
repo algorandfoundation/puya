@@ -11,7 +11,7 @@ from algopy import (
 )
 
 
-class NamedTup(Struct, frozen=True):
+class NamedTup(typing.NamedTuple):
     a: UInt64
     b: UInt64
 
@@ -21,7 +21,7 @@ class TupBag(Struct):
     items: FixedArray[NamedTup, typing.Literal[8]]
 
 
-class FixedWithImmStruct(arc4.ARC4Contract):
+class Case1WithTups(arc4.ARC4Contract):
     def __init__(self) -> None:
         self.tup_bag = Box(TupBag)
 
@@ -74,3 +74,16 @@ class FixedWithImmStruct(arc4.ARC4Contract):
         for i in urange(self.tup_bag.value.count):
             tup = self.tup_bag.value.items[i]
             self.tup_bag.value.items[i] = tup._replace(b=b)
+
+    @arc4.abimethod()
+    def get_3_tups(self, start: UInt64) -> FixedArray[NamedTup, typing.Literal[3]]:
+        assert self.tup_bag.value.count >= start + 3, "not enough items"
+        items = self.tup_bag.value.items.copy()
+
+        return FixedArray[NamedTup, typing.Literal[3]](
+            (
+                items[start],
+                items[start + 1],
+                items[start + 2],
+            )
+        )
