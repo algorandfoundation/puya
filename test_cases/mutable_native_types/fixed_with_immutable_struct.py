@@ -3,9 +3,11 @@ import typing
 from algopy import (
     Box,
     FixedArray,
+    NativeArray,
     Struct,
     UInt64,
     arc4,
+    urange,
 )
 
 
@@ -25,7 +27,7 @@ class FixedWithImmStruct(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def create_box(self) -> None:
-        self.tup_bag.create()
+        assert self.tup_bag.create(), "box already existed"
 
     @arc4.abimethod()
     def num_tups(self) -> UInt64:
@@ -41,3 +43,34 @@ class FixedWithImmStruct(arc4.ARC4Contract):
     def get_tup(self, index: UInt64) -> NamedTup:
         assert index < self.tup_bag.value.count, "index out of bounds"
         return self.tup_bag.value.items[index]
+
+    @arc4.abimethod()
+    def sum(self) -> UInt64:
+        total = UInt64()
+        for i in urange(self.tup_bag.value.count):
+            tup = self.tup_bag.value.items[i]
+            total += tup.a
+            total += tup.b
+        return total
+
+    @arc4.abimethod()
+    def add_many_tups(self, tups: NativeArray[NamedTup]) -> None:
+        for tup in tups:
+            self.add_tup(tup)
+
+    @arc4.abimethod()
+    def add_fixed_tups(self, tups: FixedArray[NamedTup, typing.Literal[3]]) -> None:
+        for tup in tups:
+            self.add_tup(tup)
+
+    @arc4.abimethod()
+    def set_a(self, a: UInt64) -> None:
+        for i in urange(self.tup_bag.value.count):
+            tup = self.tup_bag.value.items[i]
+            self.tup_bag.value.items[i] = tup._replace(a=a)
+
+    @arc4.abimethod()
+    def set_b(self, b: UInt64) -> None:
+        for i in urange(self.tup_bag.value.count):
+            tup = self.tup_bag.value.items[i]
+            self.tup_bag.value.items[i] = tup._replace(b=b)
