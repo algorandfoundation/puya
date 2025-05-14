@@ -12,6 +12,7 @@ import pytest
 from algokit_utils import ApplicationClient, LogicError, OnCompleteCallParametersDict
 from algosdk import abi, constants, transaction
 from algosdk.atomic_transaction_composer import (
+    AccountTransactionSigner,
     AtomicTransactionComposer,
     SimulateAtomicTransactionResponse,
     TransactionWithSigner,
@@ -2167,6 +2168,124 @@ def test_intrinsic_optimizations(
 
     response = app_client.call("sha256")
     assert bytes(response.return_value) == hashlib.sha256(b"Hello World").digest()
+
+
+@pytest.fixture(scope="session")
+def unauthorized(algod_client: AlgodClient) -> algokit_utils.Account:
+    unauthorized = algokit_utils.Account.new_account()
+    # ensure unauthorized has some funds
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=unauthorized,
+            min_spending_balance_micro_algos=10_000,
+        ),
+    )
+    return unauthorized
+
+
+@pytest.mark.parametrize(
+    "contract_name",
+    [
+        "Case1WithTups",
+        "Case2WithImmStruct",
+        "Case3WithStruct",
+    ],
+)
+def test_mutable_native_types(
+    algod_client: AlgodClient,
+    contract_name: str,
+    account: algokit_utils.Account,
+    unauthorized: algokit_utils.Account,
+) -> None:
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(
+            TEST_CASES_DIR / "mutable_native_types",
+            contract_name=contract_name,
+        )
+    )
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    # ensure app meets minimum balance requirements
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=400_000,
+        ),
+    )
+
+    boxes = [(0, "tup_bag")]
+    txn_params = algokit_utils.OnCompleteCallParameters(boxes=boxes)
+
+    app_client.call("create_box", transaction_parameters=txn_params)
+
+    response = app_client.call("num_tups", transaction_parameters=txn_params)
+    assert response.return_value == 0
+
+    fixed_array_size = 8
+    tups = [[i + 1, i + 2] for i in range(fixed_array_size)]
+    app_client.call("add_tup", tup=tups[0], transaction_parameters=txn_params)
+    response = app_client.call("num_tups", transaction_parameters=txn_params)
+    assert response.return_value == 1
+
+    with pytest.raises(LogicError, match="sender not authorized"):
+        app_client.call(
+            "add_tup",
+            tup=tups[0],
+            transaction_parameters=algokit_utils.OnCompleteCallParameters(
+                boxes=boxes,
+                sender=unauthorized.address,
+                signer=AccountTransactionSigner(unauthorized.private_key),
+            ),
+        )
+
+    with pytest.raises(LogicError, match="not enough items"):
+        app_client.call("get_3_tups", start=0, transaction_parameters=txn_params)
+
+    app_client.call("add_fixed_tups", tups=tups[1:4], transaction_parameters=txn_params)
+    response = app_client.call("num_tups", transaction_parameters=txn_params)
+    assert response.return_value == 4
+
+    response = app_client.call("get_3_tups", start=0, transaction_parameters=txn_params)
+    assert response.return_value == [[i + 1, i + 2] for i in range(3)]
+
+    app_client.call("add_many_tups", tups=tups[4:], transaction_parameters=txn_params)
+    response = app_client.call("num_tups", transaction_parameters=txn_params)
+    assert response.return_value == fixed_array_size
+
+    response = app_client.call("get_all_tups", transaction_parameters=txn_params)
+    assert response.return_value == [[i + 1, i + 2] for i in range(fixed_array_size)]
+
+    with pytest.raises(LogicError, match="not enough items"):
+        app_client.call("get_3_tups", start=6, transaction_parameters=txn_params)
+
+    with pytest.raises(algokit_utils.LogicError, match="too many tups"):
+        app_client.call("add_tup", tup=(1, 2), transaction_parameters=txn_params)
+
+    for i in range(8):
+        response = app_client.call("get_tup", index=i, transaction_parameters=txn_params)
+        assert response.return_value == tups[i]
+
+    with pytest.raises(algokit_utils.LogicError, match="index out of bounds"):
+        app_client.call("get_tup", index=8, transaction_parameters=txn_params)
+
+    response = app_client.call("sum", transaction_parameters=txn_params)
+    assert response.return_value == sum(i + 1 + i + 2 for i in range(fixed_array_size))
+
+    app_client.call("set_a", a=1, transaction_parameters=txn_params)
+
+    response = app_client.call("sum", transaction_parameters=txn_params)
+    assert response.return_value == sum(1 + i + 2 for i in range(fixed_array_size))
+
+    app_client.call("set_b", b=1, transaction_parameters=txn_params)
+
+    response = app_client.call("sum", transaction_parameters=txn_params)
+    assert response.return_value == sum(1 + 1 for _ in range(fixed_array_size))
+
+    response = app_client.call("get_3_tups", start=5, transaction_parameters=txn_params)
+    assert response.return_value == [[1, 1] for _ in range(3)]
 
 
 def _get_immutable_array_app(

@@ -1,7 +1,7 @@
 import abc
 import enum
 import typing
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
 from functools import cached_property
 
 import attrs
@@ -272,35 +272,6 @@ class WInnerTransaction(_WTypeInstance):
         return visitor.visit_inner_transaction_type(self)
 
 
-@typing.final
-@attrs.frozen
-class WStructType(_WTypeInstance):
-    fields: immutabledict[str, WType] = attrs.field(converter=immutabledict)
-    frozen: bool
-    immutable: bool = attrs.field(init=False)
-    source_location: SourceLocation | None = attrs.field(eq=False)
-    desc: str | None = None
-    _type_semantics: _TypeSemantics = attrs.field(
-        default=_TypeSemantics.persistable_aggregate, init=False
-    )
-
-    @immutable.default
-    def _immutable(self) -> bool:
-        # TODO: determine correct behaviour when implementing native structs
-        raise NotImplementedError
-
-    @fields.validator
-    def _fields_validator(self, _: object, fields: immutabledict[str, WType]) -> None:
-        if not fields:
-            raise CodeError("struct needs fields", self.source_location)
-        if void_wtype in fields.values():
-            raise CodeError("struct should not contain void types", self.source_location)
-
-    @typing.override
-    def accept[T](self, visitor: WTypeVisitor[T]) -> T:
-        return visitor.visit_struct_type(self)
-
-
 @attrs.frozen
 class NativeArray(WType, abc.ABC):
     element_type: WType = attrs.field()
@@ -498,33 +469,12 @@ class ARC4UFixedNxM(_ARC4WTypeInstance):
         return visitor.visit_arc4_ufixed(self)
 
 
-def _required_arc4_wtypes(
-    wtypes: Iterable[WType], tup: attrs.AttrsInstance
-) -> tuple[ARC4Type, ...]:
-    invalid_elements = [idx for idx, wtype in enumerate(wtypes) if not isinstance(wtype, ARC4Type)]
-    if invalid_elements:
-        *head, tail = map(str, invalid_elements)
-        if head:
-            invalid_elements_desc = f"{', '.join(head)} and {tail}"
-        else:
-            invalid_elements_desc = tail
-        raise CodeError(
-            f"ARC-4 tuples can only contain ARC-4 types but elements {invalid_elements_desc}"
-            " are not ARC-4 types",
-            tup.source_location,  # type: ignore[attr-defined]
-        )
-
-    return tuple(wtypes)  # type: ignore[arg-type]
-
-
 @typing.final
 @attrs.frozen(kw_only=True)
 class ARC4Tuple(_ARC4WTypeInstance):
     arc4_alias: None = attrs.field(default=None, init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
-    types: tuple[ARC4Type, ...] = attrs.field(
-        converter=attrs.Converter(_required_arc4_wtypes, takes_self=True)  # type: ignore[misc]
-    )
+    types: tuple[WType, ...] = attrs.field(converter=tuple[WType, ...])
     name: str = attrs.field(init=False)
     immutable: bool = attrs.field(init=False)
 
@@ -541,20 +491,19 @@ class ARC4Tuple(_ARC4WTypeInstance):
         return visitor.visit_arc4_tuple(self)
 
 
-def _array_requires_arc4_type(wtype: WType, arr: attrs.AttrsInstance) -> ARC4Type:
-    assert isinstance(arr, ARC4Array)
-    if not isinstance(wtype, ARC4Type):
-        raise CodeError("ARC-4 arrays can only contain ARC-4 elements", arr.source_location)
-    return wtype
-
-
 @attrs.frozen(kw_only=True)
 class ARC4Array(_ARC4WTypeInstance, abc.ABC):
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
-    element_type: ARC4Type = attrs.field(
-        converter=attrs.Converter(_array_requires_arc4_type, takes_self=True)  # type: ignore[misc]
-    )
+    element_type: WType = attrs.field()
     immutable: bool = False
+
+    @element_type.validator
+    def _element_type_validator(self, _attribute: object, value: WType) -> None:
+        if not value.persistable:
+            from puya.awst.src_loc_visitor import WTypeSourceLocationVisitor
+
+            loc = self.accept(WTypeSourceLocationVisitor())
+            raise CodeError("arrays can only contain persistable elements", loc)
 
 
 @typing.final
@@ -586,31 +535,28 @@ class ARC4StaticArray(ARC4Array):
         return visitor.visit_arc4_static_array(self)
 
 
-def _require_arc4_fields(fields: Mapping[str, WType]) -> immutabledict[str, ARC4Type]:
-    if not fields:
-        raise CodeError("arc4.Struct needs at least one element")
-    non_arc4_fields = [
-        field_name
-        for field_name, field_type in fields.items()
-        if not isinstance(field_type, ARC4Type)
-    ]
-    if non_arc4_fields:
-        raise CodeError(
-            "invalid ARC-4 Struct declaration,"
-            f" the following fields are not ARC-4 encoded types: {', '.join(non_arc4_fields)}",
-        )
-    return immutabledict(fields)
-
-
 @typing.final
 @attrs.frozen(kw_only=True)
 class ARC4Struct(_ARC4WTypeInstance):
     arc4_alias: None = attrs.field(default=None, init=False)
-    fields: immutabledict[str, ARC4Type] = attrs.field(converter=_require_arc4_fields)
+    fields: immutabledict[str, WType] = attrs.field(converter=immutabledict[str, WType])
     frozen: bool
     immutable: bool = attrs.field(init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
     desc: str | None = None
+
+    @fields.validator
+    def _fields_validator(self, _attribute: object, value: immutabledict[str, WType]) -> None:
+        if not value:
+            raise CodeError("arc4.Struct needs at least one element")
+        unpersistable = [
+            field_name for field_name, field_type in value.items() if not field_type.persistable
+        ]
+        if unpersistable:
+            raise CodeError(
+                "invalid ARC-4 Struct declaration,"
+                f" the following fields are not persistable: {', '.join(unpersistable)}",
+            )
 
     @immutable.default
     def _immutable(self) -> bool:
@@ -621,7 +567,7 @@ class ARC4Struct(_ARC4WTypeInstance):
         return tuple(self.fields.keys())
 
     @cached_property
-    def types(self) -> tuple[ARC4Type, ...]:
+    def types(self) -> tuple[WType, ...]:
         return tuple(self.fields.values())
 
     @typing.override
