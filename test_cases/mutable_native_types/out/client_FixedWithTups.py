@@ -31,3 +31,32 @@ class FixedWithTups(algopy.arc4.ARC4Client, typing.Protocol):
         self,
         index: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> NamedTup: ...
+
+    @algopy.arc4.abimethod
+    def sum(
+        self,
+    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
+
+    @algopy.arc4.abimethod
+    def add_many_tups(
+        self,
+        tups: algopy.arc4.DynamicArray[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]]]],
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def add_fixed_tups(
+        self,
+        tups: algopy.arc4.StaticArray[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]]], typing.Literal[3]],
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def set_a(
+        self,
+        a: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def set_b(
+        self,
+        b: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> None: ...
