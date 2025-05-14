@@ -100,6 +100,15 @@ class Case1WithTups(arc4.ARC4Contract):
             )
         )
 
+    @arc4.abimethod()
+    def get_all_tups(self) -> NativeArray[NamedTup]:
+        result = NativeArray[NamedTup]()
+        items = self.tup_bag.value.items.copy()
+        # TODO: improve this once slicing is supported
+        for i in urange(self.tup_bag.value.count):
+            result.append(items[i])
+        return result
+
     @subroutine
     def _check_owner(self) -> None:
         assert self.tup_bag.value.owner == Txn.sender, "sender not authorized"
