@@ -1,10 +1,10 @@
 import typing
 
 from algopy import (
+    Array as NativeArray,
     Bytes,
     FixedArray,
     GlobalState,
-    NativeArray,
     String,
     Struct,
     Txn,

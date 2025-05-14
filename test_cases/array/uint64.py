@@ -1,4 +1,13 @@
-from algopy import Array, Txn, UInt64, arc4, op, subroutine, uenumerate, urange
+from algopy import (
+    ReferenceArray as Array,
+    Txn,
+    UInt64,
+    arc4,
+    op,
+    subroutine,
+    uenumerate,
+    urange,
+)
 
 
 class Contract(arc4.ARC4Contract):

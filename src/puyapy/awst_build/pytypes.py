@@ -860,12 +860,13 @@ def _make_array_parameterise(
 
 
 GenericArrayType: typing.Final = _GenericType(
-    name="algopy._array.Array",
+    name="algopy._array.ReferenceArray",
     parameterise=_make_array_parameterise(wtypes.ReferenceArray),
 )
 
+# TODO: move _native Array into _array stub
 GenericNativeArrayType: typing.Final = _GenericType(
-    name="algopy._native.NativeArray",
+    name="algopy._native.Array",
     parameterise=_make_array_parameterise(wtypes.ARC4DynamicArray),
 )
 GenericARC4DynamicArrayType: typing.Final = _GenericType(
@@ -1283,6 +1284,7 @@ ARC4ContractBaseType: typing.Final[PyType] = _BaseType(
 )
 ARC4ClientBaseType: typing.Final[PyType] = _BaseType(name="algopy.arc4.ARC4Client")
 ARC4StructBaseType: typing.Final[PyType] = _BaseType(name="algopy.arc4.Struct")
+# TODO: move _native Struct into _struct stub
 StructBaseType: typing.Final[PyType] = _BaseType(name="algopy._native.Struct")
 
 
