@@ -774,11 +774,114 @@ get_3_tups_block@0:
     retsub
 
 
+// test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all_tups() -> bytes:
+get_all_tups:
+    // mutable_native_types/case1_with_tups.py:103-104
+    // @arc4.abimethod()
+    // def get_all_tups(self) -> NativeArray[NamedTup]:
+    proto 0 1
+
+get_all_tups_block@0:
+    // mutable_native_types/case1_with_tups.py:105
+    // result = NativeArray[NamedTup]()
+    pushbytes 0x0000
+    bytec_1 // 0x
+    concat
+    // mutable_native_types/case1_with_tups.py:106
+    // items = self.tup_bag.value.items.copy()
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_1 // 8
+    intc 4 // 128
+    extract3 // on error: Index access is out of bounds
+    // mutable_native_types/case1_with_tups.py:107-108
+    // # TODO: improve this once slicing is supported
+    // for i in urange(self.tup_bag.value.count):
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_0 // 0
+    intc_1 // 8
+    extract3 // on error: Index access is out of bounds
+    btoi
+    intc_3 // 1
+    assert // Step cannot be zero
+    intc_0 // 0
+
+get_all_tups_for_header@1:
+    // mutable_native_types/case1_with_tups.py:107-108
+    // # TODO: improve this once slicing is supported
+    // for i in urange(self.tup_bag.value.count):
+    frame_dig 3
+    frame_dig 2
+    <
+    bz get_all_tups_after_for@4
+
+get_all_tups_for_body@2:
+    // mutable_native_types/case1_with_tups.py:109
+    // result.append(items[i])
+    frame_dig 0
+    extract 2 0
+    frame_dig 1
+    frame_dig 3
+    intc_2 // 16
+    *
+    intc_2 // 16
+    extract3 // on error: Index access is out of bounds
+    dup
+    intc_0 // 0
+    intc_1 // 8
+    extract3 // on error: Index access is out of bounds
+    btoi
+    swap
+    intc_1 // 8
+    dup
+    extract3 // on error: Index access is out of bounds
+    btoi
+    swap
+    itob
+    bytec_1 // 0x
+    swap
+    concat
+    swap
+    itob
+    concat
+    bytec_1 // 0x
+    swap
+    concat
+    concat
+    dup
+    len
+    intc_2 // 16
+    /
+    itob
+    extract 6 2
+    swap
+    concat
+    frame_bury 0
+
+get_all_tups_for_footer@3:
+    // mutable_native_types/case1_with_tups.py:107-108
+    // # TODO: improve this once slicing is supported
+    // for i in urange(self.tup_bag.value.count):
+    frame_dig 3
+    intc_3 // 1
+    +
+    frame_bury 3
+    b get_all_tups_for_header@1
+
+get_all_tups_after_for@4:
+    // mutable_native_types/case1_with_tups.py:110
+    // return result
+    retsub
+
+
 // test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner() -> void:
 _check_owner:
 
 _check_owner_block@0:
-    // mutable_native_types/case1_with_tups.py:105
+    // mutable_native_types/case1_with_tups.py:114
     // assert self.tup_bag.value.owner == Txn.sender, "sender not authorized"
     bytec_0 // "tup_bag"
     box_get
@@ -789,7 +892,7 @@ _check_owner_block@0:
     txn Sender
     ==
     assert // sender not authorized
-    // mutable_native_types/case1_with_tups.py:107
+    // mutable_native_types/case1_with_tups.py:116
     // self.tup_bag.value.app == Global.current_application_id
     bytec_0 // "tup_bag"
     box_get
@@ -800,7 +903,7 @@ _check_owner_block@0:
     btoi
     global CurrentApplicationID
     ==
-    // mutable_native_types/case1_with_tups.py:106-108
+    // mutable_native_types/case1_with_tups.py:115-117
     // assert (
     //     self.tup_bag.value.app == Global.current_application_id
     // ), "this error should be impossible"
@@ -819,7 +922,7 @@ approval_program_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz approval_program_bare_routing@15
+    bz approval_program_bare_routing@16
 
 approval_program_abi_routing@2:
     // mutable_native_types/case1_with_tups.py:31
@@ -835,20 +938,40 @@ approval_program_abi_routing@2:
     pushbytes 0x3447847f // method "set_a(uint64)void"
     pushbytes 0x2ba64852 // method "set_b(uint64)void"
     pushbytes 0xabc9be78 // method "get_3_tups(uint64)(uint64,uint64)[3]"
-    uncover 10
-    match approval_program_create_box_route@3 approval_program_num_tups_route@4 approval_program_add_tup_route@5 approval_program_get_tup_route@6 approval_program_sum_route@7 approval_program_add_many_tups_route@8 approval_program_add_fixed_tups_route@9 approval_program_set_a_route@10 approval_program_set_b_route@11 approval_program_get_3_tups_route@12
+    pushbytes 0x73457a19 // method "get_all_tups()(uint64,uint64)[]"
+    uncover 11
+    match approval_program_create_box_route@3 approval_program_num_tups_route@4 approval_program_add_tup_route@5 approval_program_get_tup_route@6 approval_program_sum_route@7 approval_program_add_many_tups_route@8 approval_program_add_fixed_tups_route@9 approval_program_set_a_route@10 approval_program_set_b_route@11 approval_program_get_3_tups_route@12 approval_program_get_all_tups_route@13
 
-approval_program_switch_case_default@13:
+approval_program_switch_case_default@14:
 
-approval_program_switch_case_next@14:
+approval_program_switch_case_next@15:
 
-approval_program_after_if_else@21:
+approval_program_after_if_else@22:
     // mutable_native_types/case1_with_tups.py:31
     // class Case1WithTups(arc4.ARC4Contract):
     intc_0 // 0
 
-approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@22:
+approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23:
     retsub
+
+approval_program_get_all_tups_route@13:
+    // mutable_native_types/case1_with_tups.py:103
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub get_all_tups
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_3 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_get_3_tups_route@12:
     // mutable_native_types/case1_with_tups.py:90
@@ -873,7 +996,7 @@ approval_program_get_3_tups_route@12:
     concat
     log
     intc_3 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_set_b_route@11:
     // mutable_native_types/case1_with_tups.py:83
@@ -894,7 +1017,7 @@ approval_program_set_b_route@11:
     // @arc4.abimethod()
     callsub set_b
     intc_3 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_set_a_route@10:
     // mutable_native_types/case1_with_tups.py:76
@@ -915,7 +1038,7 @@ approval_program_set_a_route@10:
     // @arc4.abimethod()
     callsub set_a
     intc_3 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_add_fixed_tups_route@9:
     // mutable_native_types/case1_with_tups.py:71
@@ -935,7 +1058,7 @@ approval_program_add_fixed_tups_route@9:
     // @arc4.abimethod()
     callsub add_fixed_tups
     intc_3 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_add_many_tups_route@8:
     // mutable_native_types/case1_with_tups.py:66
@@ -955,7 +1078,7 @@ approval_program_add_many_tups_route@8:
     // @arc4.abimethod()
     callsub add_many_tups
     intc_3 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_sum_route@7:
     // mutable_native_types/case1_with_tups.py:57
@@ -975,7 +1098,7 @@ approval_program_sum_route@7:
     concat
     log
     intc_3 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_get_tup_route@6:
     // mutable_native_types/case1_with_tups.py:52
@@ -1010,7 +1133,7 @@ approval_program_get_tup_route@6:
     concat
     log
     intc_3 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_add_tup_route@5:
     // mutable_native_types/case1_with_tups.py:45
@@ -1040,7 +1163,7 @@ approval_program_add_tup_route@5:
     // @arc4.abimethod()
     callsub add_tup
     intc_3 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_num_tups_route@4:
     // mutable_native_types/case1_with_tups.py:41
@@ -1060,7 +1183,7 @@ approval_program_num_tups_route@4:
     concat
     log
     intc_3 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_create_box_route@3:
     // mutable_native_types/case1_with_tups.py:35
@@ -1075,29 +1198,29 @@ approval_program_create_box_route@3:
     assert // can only call when not creating
     callsub create_box
     intc_3 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
-approval_program_bare_routing@15:
+approval_program_bare_routing@16:
     // mutable_native_types/case1_with_tups.py:31
     // class Case1WithTups(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match approval_program___algopy_default_create@16
+    match approval_program___algopy_default_create@17
 
-approval_program_switch_case_default@19:
+approval_program_switch_case_default@20:
 
-approval_program_switch_case_next@20:
-    b approval_program_after_if_else@21
+approval_program_switch_case_next@21:
+    b approval_program_after_if_else@22
 
-approval_program___algopy_default_create@16:
+approval_program___algopy_default_create@17:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
 
-approval_program_block@17:
+approval_program_block@18:
 
-approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_default_create@18:
+approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_default_create@19:
     intc_3 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
