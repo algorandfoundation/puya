@@ -1,301 +1,3 @@
-contract FixedWithTups
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-  )
-  boxes {
-    ['tup_bag']: test_cases.mutable_native_types.fixed_with_tups.TupBag
-  }
-  
-  subroutine test_cases.mutable_native_types.fixed_with_tups.FixedWithTups.__algopy_entrypoint_with_init(): bool
-  {
-    if (!(txn<ApplicationID>())) {
-      this::__init__()
-    }
-    return this::approval_program()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine test_cases.mutable_native_types.fixed_with_tups.FixedWithTups.__init__(): void
-  {
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_tups.FixedWithTups.create_box(): void
-  {
-    assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.fixed_with_tups.TupBag)), comment="box already existed")
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_tups.FixedWithTups.num_tups(): uint64
-  {
-    return Box['tup_bag'].count
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_tups.FixedWithTups.add_tup(tup: test_cases.mutable_native_types.fixed_with_tups.NamedTup): void
-  {
-    assert(Box['tup_bag'].count < 8u, comment="too many tups")
-    Box['tup_bag'].items[Box['tup_bag'].count]: test_cases.mutable_native_types.fixed_with_tups.NamedTup = tup
-    Box['tup_bag'].count += 1u
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_tups.FixedWithTups.get_tup(index: uint64): test_cases.mutable_native_types.fixed_with_tups.NamedTup
-  {
-    assert(index < Box['tup_bag'].count, comment="index out of bounds")
-    return Box['tup_bag'].items[index]
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_tups.FixedWithTups.sum(): uint64
-  {
-    total: uint64 = 0u
-    for i in range(0u, Box['tup_bag'].count, 1u) {
-      tup: test_cases.mutable_native_types.fixed_with_tups.NamedTup = Box['tup_bag'].items[i]
-      total += tup.a
-      total += tup.b
-    }
-    return total
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_tups.FixedWithTups.add_many_tups(tups: arc4.dynamic_array<test_cases.mutable_native_types.fixed_with_tups.NamedTup>): void
-  {
-    for tup in tups {
-      this::add_tup(tup)
-    }
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_tups.FixedWithTups.add_fixed_tups(tups: arc4.static_array<test_cases.mutable_native_types.fixed_with_tups.NamedTup, 3>): void
-  {
-    for tup in tups {
-      this::add_tup(tup)
-    }
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_tups.FixedWithTups.set_a(a: uint64): void
-  {
-    for i in range(0u, Box['tup_bag'].count, 1u) {
-      tup: test_cases.mutable_native_types.fixed_with_tups.NamedTup = Box['tup_bag'].items[i]
-      Box['tup_bag'].items[i]: test_cases.mutable_native_types.fixed_with_tups.NamedTup = (a=a, b=tup[1])
-    }
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_tups.FixedWithTups.set_b(b: uint64): void
-  {
-    for i in range(0u, Box['tup_bag'].count, 1u) {
-      tup: test_cases.mutable_native_types.fixed_with_tups.NamedTup = Box['tup_bag'].items[i]
-      Box['tup_bag'].items[i]: test_cases.mutable_native_types.fixed_with_tups.NamedTup = (a=tup[0], b=b)
-    }
-  }
-  
-  baremethod test_cases.mutable_native_types.fixed_with_tups.FixedWithTups.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-}
-
-contract FixedWithStruct
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-  )
-  boxes {
-    ['tup_bag']: test_cases.mutable_native_types.fixed_with_mutable_struct.TupBag
-  }
-  
-  subroutine test_cases.mutable_native_types.fixed_with_mutable_struct.FixedWithStruct.__algopy_entrypoint_with_init(): bool
-  {
-    if (!(txn<ApplicationID>())) {
-      this::__init__()
-    }
-    return this::approval_program()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine test_cases.mutable_native_types.fixed_with_mutable_struct.FixedWithStruct.__init__(): void
-  {
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_mutable_struct.FixedWithStruct.create_box(): void
-  {
-    assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.fixed_with_mutable_struct.TupBag)), comment="box already existed")
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_mutable_struct.FixedWithStruct.num_tups(): uint64
-  {
-    return Box['tup_bag'].count
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_mutable_struct.FixedWithStruct.add_tup(tup: test_cases.mutable_native_types.fixed_with_mutable_struct.NamedTup): void
-  {
-    assert(Box['tup_bag'].count < 8u, comment="too many tups")
-    Box['tup_bag'].items[Box['tup_bag'].count]: test_cases.mutable_native_types.fixed_with_mutable_struct.NamedTup = tup.copy()
-    Box['tup_bag'].count += 1u
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_mutable_struct.FixedWithStruct.get_tup(index: uint64): test_cases.mutable_native_types.fixed_with_mutable_struct.NamedTup
-  {
-    assert(index < Box['tup_bag'].count, comment="index out of bounds")
-    return Box['tup_bag'].items[index]
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_mutable_struct.FixedWithStruct.sum(): uint64
-  {
-    total: uint64 = 0u
-    for i in range(0u, Box['tup_bag'].count, 1u) {
-      tup: test_cases.mutable_native_types.fixed_with_mutable_struct.NamedTup = Box['tup_bag'].items[i].copy()
-      total += tup.a
-      total += tup.b
-    }
-    return total
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_mutable_struct.FixedWithStruct.add_many_tups(tups: arc4.dynamic_array<test_cases.mutable_native_types.fixed_with_mutable_struct.NamedTup>): void
-  {
-    for i in range(0u, tups.length, 1u) {
-      this::add_tup(tups[i].copy())
-    }
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_mutable_struct.FixedWithStruct.add_fixed_tups(tups: arc4.static_array<test_cases.mutable_native_types.fixed_with_mutable_struct.NamedTup, 3>): void
-  {
-    for i in range(0u, 3u, 1u) {
-      this::add_tup(tups[i].copy())
-    }
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_mutable_struct.FixedWithStruct.set_a(a: uint64): void
-  {
-    for i in range(0u, Box['tup_bag'].count, 1u) {
-      Box['tup_bag'].items[i].a: uint64 = a
-    }
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_mutable_struct.FixedWithStruct.set_b(b: uint64): void
-  {
-    for i in range(0u, Box['tup_bag'].count, 1u) {
-      Box['tup_bag'].items[i].b: uint64 = b
-    }
-  }
-  
-  baremethod test_cases.mutable_native_types.fixed_with_mutable_struct.FixedWithStruct.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-}
-
-contract FixedWithImmStruct
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-  )
-  boxes {
-    ['tup_bag']: test_cases.mutable_native_types.fixed_with_immutable_struct.TupBag
-  }
-  
-  subroutine test_cases.mutable_native_types.fixed_with_immutable_struct.FixedWithImmStruct.__algopy_entrypoint_with_init(): bool
-  {
-    if (!(txn<ApplicationID>())) {
-      this::__init__()
-    }
-    return this::approval_program()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine test_cases.mutable_native_types.fixed_with_immutable_struct.FixedWithImmStruct.__init__(): void
-  {
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_immutable_struct.FixedWithImmStruct.create_box(): void
-  {
-    assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.fixed_with_immutable_struct.TupBag)), comment="box already existed")
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_immutable_struct.FixedWithImmStruct.num_tups(): uint64
-  {
-    return Box['tup_bag'].count
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_immutable_struct.FixedWithImmStruct.add_tup(tup: test_cases.mutable_native_types.fixed_with_immutable_struct.NamedTup): void
-  {
-    assert(Box['tup_bag'].count < 8u, comment="too many tups")
-    Box['tup_bag'].items[Box['tup_bag'].count]: test_cases.mutable_native_types.fixed_with_immutable_struct.NamedTup = tup
-    Box['tup_bag'].count += 1u
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_immutable_struct.FixedWithImmStruct.get_tup(index: uint64): test_cases.mutable_native_types.fixed_with_immutable_struct.NamedTup
-  {
-    assert(index < Box['tup_bag'].count, comment="index out of bounds")
-    return Box['tup_bag'].items[index]
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_immutable_struct.FixedWithImmStruct.sum(): uint64
-  {
-    total: uint64 = 0u
-    for i in range(0u, Box['tup_bag'].count, 1u) {
-      tup: test_cases.mutable_native_types.fixed_with_immutable_struct.NamedTup = Box['tup_bag'].items[i]
-      total += tup.a
-      total += tup.b
-    }
-    return total
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_immutable_struct.FixedWithImmStruct.add_many_tups(tups: arc4.dynamic_array<test_cases.mutable_native_types.fixed_with_immutable_struct.NamedTup>): void
-  {
-    for tup in tups {
-      this::add_tup(tup)
-    }
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_immutable_struct.FixedWithImmStruct.add_fixed_tups(tups: arc4.static_array<test_cases.mutable_native_types.fixed_with_immutable_struct.NamedTup, 3>): void
-  {
-    for tup in tups {
-      this::add_tup(tup)
-    }
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_immutable_struct.FixedWithImmStruct.set_a(a: uint64): void
-  {
-    for i in range(0u, Box['tup_bag'].count, 1u) {
-      tup: test_cases.mutable_native_types.fixed_with_immutable_struct.NamedTup = Box['tup_bag'].items[i]
-      Box['tup_bag'].items[i]: test_cases.mutable_native_types.fixed_with_immutable_struct.NamedTup = new test_cases.mutable_native_types.fixed_with_immutable_struct.NamedTup(a=a, b=tup.b)
-    }
-  }
-  
-  abimethod test_cases.mutable_native_types.fixed_with_immutable_struct.FixedWithImmStruct.set_b(b: uint64): void
-  {
-    for i in range(0u, Box['tup_bag'].count, 1u) {
-      tup: test_cases.mutable_native_types.fixed_with_immutable_struct.NamedTup = Box['tup_bag'].items[i]
-      Box['tup_bag'].items[i]: test_cases.mutable_native_types.fixed_with_immutable_struct.NamedTup = new test_cases.mutable_native_types.fixed_with_immutable_struct.NamedTup(a=tup.a, b=b)
-    }
-  }
-  
-  baremethod test_cases.mutable_native_types.fixed_with_immutable_struct.FixedWithImmStruct.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-}
-
 contract Contract
 {
   method_resolution_order: (
@@ -427,4 +129,323 @@ contract Contract
 subroutine add(val: test_cases.mutable_native_types.contract.FixedStruct): uint64
 {
   return val.a + val.b
+}
+
+contract Case3WithStruct
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  boxes {
+    ['tup_bag']: test_cases.mutable_native_types.case3_with_mutable_struct.TupBag
+  }
+  
+  subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.create_box(): void
+  {
+    assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.case3_with_mutable_struct.TupBag)), comment="box already existed")
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.num_tups(): uint64
+  {
+    return Box['tup_bag'].count
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(tup: test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup): void
+  {
+    assert(Box['tup_bag'].count < 8u, comment="too many tups")
+    Box['tup_bag'].items[Box['tup_bag'].count]: test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup = tup.copy()
+    Box['tup_bag'].count += 1u
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_tup(index: uint64): test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup
+  {
+    assert(index < Box['tup_bag'].count, comment="index out of bounds")
+    return Box['tup_bag'].items[index]
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.sum(): uint64
+  {
+    total: uint64 = 0u
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      tup: test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup = Box['tup_bag'].items[i].copy()
+      total += tup.a
+      total += tup.b
+    }
+    return total
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_many_tups(tups: arc4.dynamic_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup>): void
+  {
+    for i in range(0u, tups.length, 1u) {
+      this::add_tup(tups[i].copy())
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_fixed_tups(tups: arc4.static_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup, 3>): void
+  {
+    for i in range(0u, 3u, 1u) {
+      this::add_tup(tups[i].copy())
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_a(a: uint64): void
+  {
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      Box['tup_bag'].items[i].a: uint64 = a
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_b(b: uint64): void
+  {
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      Box['tup_bag'].items[i].b: uint64 = b
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_3_tups(start: uint64): arc4.static_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup, 3>
+  {
+    assert(Box['tup_bag'].count >= start + 3u, comment="not enough items")
+    items: arc4.static_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup, 8> = Box['tup_bag'].items.copy()
+    return arc4_encode((items[start].copy(), items[start + 1u].copy(), items[start + 2u].copy()), arc4.static_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup, 3>)
+  }
+  
+  baremethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+}
+
+contract Case2WithImmStruct
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  boxes {
+    ['tup_bag']: test_cases.mutable_native_types.case2_with_immutable_struct.TupBag
+  }
+  
+  subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.create_box(): void
+  {
+    assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.case2_with_immutable_struct.TupBag)), comment="box already existed")
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.num_tups(): uint64
+  {
+    return Box['tup_bag'].count
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup(tup: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup): void
+  {
+    assert(Box['tup_bag'].count < 8u, comment="too many tups")
+    Box['tup_bag'].items[Box['tup_bag'].count]: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup = tup
+    Box['tup_bag'].count += 1u
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_tup(index: uint64): test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup
+  {
+    assert(index < Box['tup_bag'].count, comment="index out of bounds")
+    return Box['tup_bag'].items[index]
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.sum(): uint64
+  {
+    total: uint64 = 0u
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      tup: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup = Box['tup_bag'].items[i]
+      total += tup.a
+      total += tup.b
+    }
+    return total
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_many_tups(tups: arc4.dynamic_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup>): void
+  {
+    for tup in tups {
+      this::add_tup(tup)
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_fixed_tups(tups: arc4.static_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup, 3>): void
+  {
+    for tup in tups {
+      this::add_tup(tup)
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_a(a: uint64): void
+  {
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      tup: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup = Box['tup_bag'].items[i]
+      Box['tup_bag'].items[i]: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup = new test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup(a=a, b=tup.b)
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b(b: uint64): void
+  {
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      tup: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup = Box['tup_bag'].items[i]
+      Box['tup_bag'].items[i]: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup = new test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup(a=tup.a, b=b)
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_3_tups(start: uint64): arc4.static_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup, 3>
+  {
+    assert(Box['tup_bag'].count >= start + 3u, comment="not enough items")
+    items: arc4.static_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup, 8> = Box['tup_bag'].items.copy()
+    return arc4_encode((items[start], items[start + 1u], items[start + 2u]), arc4.static_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup, 3>)
+  }
+  
+  baremethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+}
+
+contract Case1WithTups
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  boxes {
+    ['tup_bag']: test_cases.mutable_native_types.case1_with_tups.TupBag
+  }
+  
+  subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_box(): void
+  {
+    assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.case1_with_tups.TupBag)), comment="box already existed")
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tups(): uint64
+  {
+    return Box['tup_bag'].count
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup: test_cases.mutable_native_types.case1_with_tups.NamedTup): void
+  {
+    assert(Box['tup_bag'].count < 8u, comment="too many tups")
+    Box['tup_bag'].items[Box['tup_bag'].count]: test_cases.mutable_native_types.case1_with_tups.NamedTup = tup
+    Box['tup_bag'].count += 1u
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup(index: uint64): test_cases.mutable_native_types.case1_with_tups.NamedTup
+  {
+    assert(index < Box['tup_bag'].count, comment="index out of bounds")
+    return Box['tup_bag'].items[index]
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum(): uint64
+  {
+    total: uint64 = 0u
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      tup: test_cases.mutable_native_types.case1_with_tups.NamedTup = Box['tup_bag'].items[i]
+      total += tup.a
+      total += tup.b
+    }
+    return total
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_many_tups(tups: arc4.dynamic_array<test_cases.mutable_native_types.case1_with_tups.NamedTup>): void
+  {
+    for tup in tups {
+      this::add_tup(tup)
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_fixed_tups(tups: arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 3>): void
+  {
+    for tup in tups {
+      this::add_tup(tup)
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a: uint64): void
+  {
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      tup: test_cases.mutable_native_types.case1_with_tups.NamedTup = Box['tup_bag'].items[i]
+      Box['tup_bag'].items[i]: test_cases.mutable_native_types.case1_with_tups.NamedTup = (a=a, b=tup[1])
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b: uint64): void
+  {
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      tup: test_cases.mutable_native_types.case1_with_tups.NamedTup = Box['tup_bag'].items[i]
+      Box['tup_bag'].items[i]: test_cases.mutable_native_types.case1_with_tups.NamedTup = (a=tup[0], b=b)
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_tups(start: uint64): arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 3>
+  {
+    assert(Box['tup_bag'].count >= start + 3u, comment="not enough items")
+    items: arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 8> = Box['tup_bag'].items.copy()
+    return arc4_encode((items[start], items[start + 1u], items[start + 2u]), arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 3>)
+  }
+  
+  baremethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
 }
