@@ -863,13 +863,17 @@ def dynamic_array_concat_and_convert(
 
     # check right is a valid type to concat
     right_wtype = iter_expr.wtype
-    element_type, right_native_type = _get_arc4_element_type(iter_expr)
+    right_encoded_element_type, right_element_type = _get_arc4_element_type(iter_expr)
+    encoded_element_type = wtype_to_arc4_wtype(array_wtype.element_type, source_location)
 
-    if array_wtype.element_type != element_type:
+    if encoded_element_type != right_encoded_element_type:
         raise CodeError("unsupported element type for concatenation", iter_expr.source_location)
 
-    if is_arc4_static_size(element_type) and element_type != wtypes.arc4_bool_wtype:
-        element_size = get_arc4_static_bit_size(element_type)
+    if (
+        is_arc4_static_size(encoded_element_type)
+        and encoded_element_type != wtypes.arc4_bool_wtype
+    ):
+        element_size = get_arc4_static_bit_size(encoded_element_type)
         return _concat_dynamic_array_fixed_size(
             context,
             left=array_expr,
@@ -879,9 +883,9 @@ def dynamic_array_concat_and_convert(
         )
 
     left = context.visitor.visit_and_materialise_single(array_expr)
-    if element_type == wtypes.arc4_bool_wtype:
+    if encoded_element_type == wtypes.arc4_bool_wtype:
         (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
-            context, iter_expr, element_type, right_native_type, source_location
+            context, iter_expr, encoded_element_type, right_element_type, source_location
         )
         if isinstance(right_wtype, wtypes.WTuple | wtypes.ReferenceArray):
             # each bit is in its own byte
@@ -896,15 +900,20 @@ def dynamic_array_concat_and_convert(
             r_length,
             UInt64Constant(value=read_step, source_location=source_location),
         ]
-    elif _is_byte_length_header(element_type):
+    elif _is_byte_length_header(encoded_element_type):
         (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
-            context, iter_expr, element_type, right_native_type, source_location
+            context, iter_expr, right_encoded_element_type, right_element_type, source_location
         )
         invoke_name = "dynamic_array_concat_byte_length_head"
         invoke_args = [left, r_data, r_length]
-    elif is_arc4_dynamic_size(element_type):
+    elif is_arc4_dynamic_size(encoded_element_type):
         r_count_vp, r_head_and_tail_vp = _extract_dynamic_element_count_head_and_tail(
-            context, element_type, iter_expr, right_native_type, right_wtype, source_location
+            context,
+            right_encoded_element_type,
+            iter_expr,
+            right_element_type,
+            right_wtype,
+            source_location,
         )
         invoke_name = "dynamic_array_concat_dynamic_element"
         invoke_args = list(
