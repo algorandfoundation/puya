@@ -2173,9 +2173,9 @@ def test_intrinsic_optimizations(
 @pytest.mark.parametrize(
     "contract_name",
     [
-        "FixedWithTups",
-        "FixedWithStruct",
-        "FixedWithImmStruct",
+        "Case1WithTups",
+        "Case2WithImmStruct",
+        "Case3WithStruct",
     ],
 )
 def test_fixed_array(
@@ -2212,13 +2212,22 @@ def test_fixed_array(
     response = app_client.call("num_tups", transaction_parameters=txn_params)
     assert response.return_value == 1
 
+    with pytest.raises(LogicError, match="not enough items"):
+        app_client.call("get_3_tups", start=0, transaction_parameters=txn_params)
+
     app_client.call("add_fixed_tups", tups=tups[1:4], transaction_parameters=txn_params)
     response = app_client.call("num_tups", transaction_parameters=txn_params)
     assert response.return_value == 4
 
+    response = app_client.call("get_3_tups", start=0, transaction_parameters=txn_params)
+    assert response.return_value == [[i + 1, i + 2] for i in range(3)]
+
     app_client.call("add_many_tups", tups=tups[4:], transaction_parameters=txn_params)
     response = app_client.call("num_tups", transaction_parameters=txn_params)
     assert response.return_value == fixed_array_size
+
+    with pytest.raises(LogicError, match="not enough items"):
+        app_client.call("get_3_tups", start=6, transaction_parameters=txn_params)
 
     with pytest.raises(algokit_utils.LogicError, match="too many tups"):
         app_client.call("add_tup", tup=(1, 2), transaction_parameters=txn_params)
@@ -2241,7 +2250,10 @@ def test_fixed_array(
     app_client.call("set_b", b=1, transaction_parameters=txn_params)
 
     response = app_client.call("sum", transaction_parameters=txn_params)
-    assert response.return_value == sum(1 + 1 for i in range(fixed_array_size))
+    assert response.return_value == sum(1 + 1 for _ in range(fixed_array_size))
+
+    response = app_client.call("get_3_tups", start=5, transaction_parameters=txn_params)
+    assert response.return_value == [[1, 1] for _ in range(3)]
 
 
 def _get_immutable_array_app(
