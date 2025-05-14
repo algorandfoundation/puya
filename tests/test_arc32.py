@@ -12,6 +12,7 @@ import pytest
 from algokit_utils import ApplicationClient, LogicError, OnCompleteCallParametersDict
 from algosdk import abi, constants, transaction
 from algosdk.atomic_transaction_composer import (
+    AccountTransactionSigner,
     AtomicTransactionComposer,
     SimulateAtomicTransactionResponse,
     TransactionWithSigner,
@@ -2170,6 +2171,20 @@ def test_intrinsic_optimizations(
     assert bytes(response.return_value) == hashlib.sha256(b"Hello World").digest()
 
 
+@pytest.fixture(scope="session")
+def unauthorized(algod_client: AlgodClient) -> algokit_utils.Account:
+    unauthorized = algokit_utils.Account.new_account()
+    # ensure unauthorized has some funds
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=unauthorized,
+            min_spending_balance_micro_algos=10_000,
+        ),
+    )
+    return unauthorized
+
+
 @pytest.mark.parametrize(
     "contract_name",
     [
@@ -2178,8 +2193,11 @@ def test_intrinsic_optimizations(
         "Case3WithStruct",
     ],
 )
-def test_fixed_array(
-    algod_client: AlgodClient, contract_name: str, account: algokit_utils.Account
+def test_mutable_native_types(
+    algod_client: AlgodClient,
+    contract_name: str,
+    account: algokit_utils.Account,
+    unauthorized: algokit_utils.Account,
 ) -> None:
     app_spec = algokit_utils.ApplicationSpecification.from_json(
         compile_arc32(
@@ -2199,7 +2217,8 @@ def test_fixed_array(
         ),
     )
 
-    txn_params = algokit_utils.OnCompleteCallParameters(boxes=[(0, "tup_bag")])
+    boxes = [(0, "tup_bag")]
+    txn_params = algokit_utils.OnCompleteCallParameters(boxes=boxes)
 
     app_client.call("create_box", transaction_parameters=txn_params)
 
@@ -2211,6 +2230,17 @@ def test_fixed_array(
     app_client.call("add_tup", tup=tups[0], transaction_parameters=txn_params)
     response = app_client.call("num_tups", transaction_parameters=txn_params)
     assert response.return_value == 1
+
+    with pytest.raises(LogicError, match="sender not authorized"):
+        app_client.call(
+            "add_tup",
+            tup=tups[0],
+            transaction_parameters=algokit_utils.OnCompleteCallParameters(
+                boxes=boxes,
+                sender=unauthorized.address,
+                signer=AccountTransactionSigner(unauthorized.private_key),
+            ),
+        )
 
     with pytest.raises(LogicError, match="not enough items"):
         app_client.call("get_3_tups", start=0, transaction_parameters=txn_params)

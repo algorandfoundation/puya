@@ -1,12 +1,17 @@
 import typing
 
 from algopy import (
+    Account,
+    Application,
     Box,
     FixedArray,
+    Global,
     NativeArray,
     Struct,
+    Txn,
     UInt64,
     arc4,
+    subroutine,
     urange,
 )
 
@@ -19,6 +24,8 @@ class NamedTup(typing.NamedTuple):
 class TupBag(Struct):
     count: UInt64
     items: FixedArray[NamedTup, typing.Literal[8]]
+    owner: Account
+    app: Application
 
 
 class Case1WithTups(arc4.ARC4Contract):
@@ -27,7 +34,9 @@ class Case1WithTups(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def create_box(self) -> None:
-        assert self.tup_bag.create(), "box already existed"
+        assert self.tup_bag.create(), "box already exists"
+        self.tup_bag.value.owner = Txn.sender
+        self.tup_bag.value.app = Global.current_application_id
 
     @arc4.abimethod()
     def num_tups(self) -> UInt64:
@@ -35,6 +44,7 @@ class Case1WithTups(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def add_tup(self, tup: NamedTup) -> None:
+        self._check_owner()
         assert self.tup_bag.value.count < self.tup_bag.value.items.length, "too many tups"
         self.tup_bag.value.items[self.tup_bag.value.count] = tup
         self.tup_bag.value.count += 1
@@ -65,12 +75,14 @@ class Case1WithTups(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def set_a(self, a: UInt64) -> None:
+        self._check_owner()
         for i in urange(self.tup_bag.value.count):
             tup = self.tup_bag.value.items[i]
             self.tup_bag.value.items[i] = tup._replace(a=a)
 
     @arc4.abimethod()
     def set_b(self, b: UInt64) -> None:
+        self._check_owner()
         for i in urange(self.tup_bag.value.count):
             tup = self.tup_bag.value.items[i]
             self.tup_bag.value.items[i] = tup._replace(b=b)
@@ -87,3 +99,10 @@ class Case1WithTups(arc4.ARC4Contract):
                 items[start + 2],
             )
         )
+
+    @subroutine
+    def _check_owner(self) -> None:
+        assert self.tup_bag.value.owner == Txn.sender, "sender not authorized"
+        assert (
+            self.tup_bag.value.app == Global.current_application_id
+        ), "this error should be impossible"
