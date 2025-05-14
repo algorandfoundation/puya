@@ -2174,6 +2174,7 @@ def test_intrinsic_optimizations(
     "contract_name",
     [
         "FixedWithTups",
+        "FixedWithStruct",
         "FixedWithImmStruct",
     ],
 )
@@ -2205,23 +2206,42 @@ def test_fixed_array(
     response = app_client.call("num_tups", transaction_parameters=txn_params)
     assert response.return_value == 0
 
-    for i in range(8):
-        app_client.call("add_tup", tup=(i + 1, i + 2), transaction_parameters=txn_params)
+    fixed_array_size = 8
+    tups = [[i + 1, i + 2] for i in range(fixed_array_size)]
+    app_client.call("add_tup", tup=tups[0], transaction_parameters=txn_params)
+    response = app_client.call("num_tups", transaction_parameters=txn_params)
+    assert response.return_value == 1
 
-        response = app_client.call("num_tups", transaction_parameters=txn_params)
-        assert response.return_value == i + 1
+    app_client.call("add_fixed_tups", tups=tups[1:4], transaction_parameters=txn_params)
+    response = app_client.call("num_tups", transaction_parameters=txn_params)
+    assert response.return_value == 4
+
+    app_client.call("add_many_tups", tups=tups[4:], transaction_parameters=txn_params)
+    response = app_client.call("num_tups", transaction_parameters=txn_params)
+    assert response.return_value == fixed_array_size
 
     with pytest.raises(algokit_utils.LogicError, match="too many tups"):
         app_client.call("add_tup", tup=(1, 2), transaction_parameters=txn_params)
 
-    response = app_client.call("get_tup", index=0, transaction_parameters=txn_params)
-    assert response.return_value == [1, 2]
-
-    response = app_client.call("get_tup", index=7, transaction_parameters=txn_params)
-    assert response.return_value == [8, 9]
+    for i in range(8):
+        response = app_client.call("get_tup", index=i, transaction_parameters=txn_params)
+        assert response.return_value == tups[i]
 
     with pytest.raises(algokit_utils.LogicError, match="index out of bounds"):
         app_client.call("get_tup", index=8, transaction_parameters=txn_params)
+
+    response = app_client.call("sum", transaction_parameters=txn_params)
+    assert response.return_value == sum(i + 1 + i + 2 for i in range(fixed_array_size))
+
+    app_client.call("set_a", a=1, transaction_parameters=txn_params)
+
+    response = app_client.call("sum", transaction_parameters=txn_params)
+    assert response.return_value == sum(1 + i + 2 for i in range(fixed_array_size))
+
+    app_client.call("set_b", b=1, transaction_parameters=txn_params)
+
+    response = app_client.call("sum", transaction_parameters=txn_params)
+    assert response.return_value == sum(1 + 1 for i in range(fixed_array_size))
 
 
 def _get_immutable_array_app(
