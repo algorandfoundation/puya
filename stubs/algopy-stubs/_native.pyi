@@ -35,10 +35,7 @@ class FixedArray(
     def copy(self) -> typing.Self:
         """Create a copy of this array"""
 
-# TODO: breaking change
-# algopy.Array -> algopy.ReferenceArray
-# algopy.NativeArray -> algopy.Array
-class NativeArray(typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
+class Array(typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
     """A dynamically sized Array of the specified type"""
 
     @typing.overload
@@ -67,7 +64,7 @@ class NativeArray(typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
     def __setitem__(self, index: algopy.UInt64 | int, value: _TArrayItem) -> _TArrayItem:
         """Sets the item of the array at specified index to provided value"""
 
-    def __add__(self, other: Iterable[_TArrayItem]) -> NativeArray[_TArrayItem]:
+    def __add__(self, other: Iterable[_TArrayItem]) -> Array[_TArrayItem]:
         """Concat two arrays together, returning a new array"""
 
     def pop(self) -> _TArrayItem:

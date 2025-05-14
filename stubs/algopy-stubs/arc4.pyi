@@ -415,7 +415,7 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
 
     def to_native(
         self, element_type: type[_TNativeArrayItem], /
-    ) -> algopy.NativeArray[_TNativeArrayItem]:
+    ) -> algopy.Array[_TNativeArrayItem]:
         """TODO DOCUMENT ME"""
 
 class Address(StaticArray[Byte, typing.Literal[32]]):

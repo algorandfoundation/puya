@@ -3,10 +3,11 @@ import typing
 from algopy import (
     Account,
     Application,
+    # TODO: remove alias
+    Array as NativeArray,
     Box,
     FixedArray,
     Global,
-    NativeArray,
     Struct,
     Txn,
     UInt64,
