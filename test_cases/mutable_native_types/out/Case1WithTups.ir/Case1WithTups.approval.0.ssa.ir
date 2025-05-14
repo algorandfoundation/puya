@@ -13,10 +13,10 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_
     block@0: // L31
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@14
+        goto tmp%1#0 ? block@1 : block@15
     block@1: // abi_routing_L31
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create_box()void" => block@2, method "num_tups()uint64" => block@3, method "add_tup((uint64,uint64))void" => block@4, method "get_tup(uint64)(uint64,uint64)" => block@5, method "sum()uint64" => block@6, method "add_many_tups((uint64,uint64)[])void" => block@7, method "add_fixed_tups((uint64,uint64)[3])void" => block@8, method "set_a(uint64)void" => block@9, method "set_b(uint64)void" => block@10, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@11, * => block@12}
+        switch tmp%2#0 {method "create_box()void" => block@2, method "num_tups()uint64" => block@3, method "add_tup((uint64,uint64))void" => block@4, method "get_tup(uint64)(uint64,uint64)" => block@5, method "sum()uint64" => block@6, method "add_many_tups((uint64,uint64)[])void" => block@7, method "add_fixed_tups((uint64,uint64)[3])void" => block@8, method "set_a(uint64)void" => block@9, method "set_b(uint64)void" => block@10, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@11, method "get_all_tups()(uint64,uint64)[]" => block@12, * => block@13}
     block@2: // create_box_route_L35
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
@@ -138,24 +138,35 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_
         let tmp%52#0: bytes = (concat 0x151f7c75 tmp%51#0)
         (log tmp%52#0)
         return 1u
-    block@12: // switch_case_default_L31
-        goto block@13
-    block@13: // switch_case_next_L31
-        goto block@18
-    block@14: // bare_routing_L31
+    block@12: // get_all_tups_route_L103
         let tmp%53#0: uint64 = (txn OnCompletion)
-        switch tmp%53#0 {0u => block@15, * => block@16}
-    block@15: // __algopy_default_create_L1
-        let tmp%54#0: uint64 = (txn ApplicationID)
-        let tmp%55#0: bool = (== tmp%54#0 0u)
-        (assert tmp%55#0) // can only call when creating
+        let tmp%54#0: bool = (== tmp%53#0 NoOp)
+        (assert tmp%54#0) // OnCompletion is not NoOp
+        let tmp%55#0: uint64 = (txn ApplicationID)
+        let tmp%56#0: bool = (!= tmp%55#0 0u)
+        (assert tmp%56#0) // can only call when not creating
+        let tmp%57#0: bytes = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all_tups()
+        let tmp%58#0: bytes = (concat 0x151f7c75 tmp%57#0)
+        (log tmp%58#0)
+        return 1u
+    block@13: // switch_case_default_L31
+        goto block@14
+    block@14: // switch_case_next_L31
+        goto block@19
+    block@15: // bare_routing_L31
+        let tmp%59#0: uint64 = (txn OnCompletion)
+        switch tmp%59#0 {0u => block@16, * => block@17}
+    block@16: // __algopy_default_create_L1
+        let tmp%60#0: uint64 = (txn ApplicationID)
+        let tmp%61#0: bool = (== tmp%60#0 0u)
+        (assert tmp%61#0) // can only call when creating
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_default_create()
         return 1u
-    block@16: // switch_case_default_L31
-        goto block@17
-    block@17: // switch_case_next_L31
+    block@17: // switch_case_default_L31
         goto block@18
-    block@18: // after_if_else_L31
+    block@18: // switch_case_next_L31
+        goto block@19
+    block@19: // after_if_else_L31
         return 0u
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__init__() -> void:
@@ -504,8 +515,53 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_t
         let array_data%0#0: bytes = (concat 0x result%2#0)
         return array_data%0#0
 
-subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner() -> void:
+subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all_tups() -> bytes:
     block@0: // L103
+        let array_data%0#0: bytes = (concat 0x0000 0x)
+        let result#0: bytes = array_data%0#0
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
+        (assert maybe_exists%0#0) // check self.tup_bag exists
+        let tmp%0#0: bytes = (extract3 maybe_value%0#0 8u 128u) // on error: Index access is out of bounds
+        let copy%0#0: bytes = tmp%0#0
+        let items#0: bytes[128] = copy%0#0
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
+        (assert maybe_exists%1#0) // check self.tup_bag exists
+        let encoded%0#0: bytes = (extract3 maybe_value%1#0 0u 8u) // on error: Index access is out of bounds
+        let tmp%1#0: uint64 = (btoi encoded%0#0)
+        (assert 1u) // Step cannot be zero
+        let i#0: uint64 = 0u
+        goto block@1
+    block@1: // for_header_L108
+        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
+        let result#1: bytes = φ(result#0 <- block@0, result#2 <- block@3)
+        let continue_looping%0#0: bool = (< i#1 tmp%1#0)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L109
+        let expr_value_trimmed%0#0: bytes = ((extract 2 0) result#1)
+        let array_head_and_tail%0#0: bytes[128] = items#0
+        let item_offset%0#0: uint64 = (* i#1 16u)
+        let encoded%1#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 16u) // on error: Index access is out of bounds
+        let item0%0#0: bytes = (extract3 encoded%1#0 0u 8u) // on error: Index access is out of bounds
+        let item0%1#0: uint64 = (btoi item0%0#0)
+        let item1%0#0: bytes = (extract3 encoded%1#0 8u 8u) // on error: Index access is out of bounds
+        let item1%1#0: uint64 = (btoi item1%0#0)
+        let encoded%2#0: (encoded_uint64,encoded_uint64)[] = encode<(encoded_uint64,encoded_uint64)>(item0%1#0, item1%1#0)
+        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 encoded%2#0)
+        let byte_len%0#0: uint64 = (len concatenated%0#0)
+        let len_%0#0: uint64 = (/ byte_len%0#0 16u)
+        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
+        let result#2: bytes = concat_result%0#0
+        goto block@3
+    block@3: // for_footer_L108
+        let i#2: uint64 = (+ i#1 1u)
+        goto block@1
+    block@4: // after_for_L108
+        return result#1
+
+subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner() -> void:
+    block@0: // L112
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
         let encoded%0#0: bytes = (extract3 maybe_value%0#0 136u 32u) // on error: Index access is out of bounds

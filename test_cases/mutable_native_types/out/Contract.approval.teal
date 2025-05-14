@@ -349,6 +349,7 @@ add_payment:
     bytec_1 // "num_payments"
     app_global_get_ex
     assert // check self.num_payments exists
+    dup
     intc_2 // 8
     <
     assert // too many payments
@@ -358,14 +359,7 @@ add_payment:
     bytec_2 // "payments"
     app_global_get_ex
     assert // check self.payments exists
-    intc_0 // 0
-    bytec_1 // "num_payments"
-    app_global_get_ex
-    assert // check self.num_payments exists
-    dup
-    intc_2 // 8
-    <
-    assert // Index access is out of bounds
+    swap
     intc_3 // 48
     *
     frame_dig -1
@@ -455,7 +449,7 @@ create_storage:
     assert // check self.nested exists
     txn Sender
     bytec 4 // 0x6c
-    uncover 2
+    dig 2
     app_local_put
     // mutable_native_types/contract.py:124
     // assert self.box.create(), "expected box to not exist"
@@ -465,10 +459,6 @@ create_storage:
     assert // expected box to not exist
     // mutable_native_types/contract.py:125
     // self.box_map[box_key].fixed_a = self.nested.fixed_a.copy()
-    intc_0 // 0
-    bytec_0 // "nested"
-    app_global_get_ex
-    assert // check self.nested exists
     extract 0 16 // on error: Index access is out of bounds
     frame_dig -1
     itob
@@ -625,13 +615,11 @@ calculate_sum:
     bytec_0 // "nested"
     app_global_get_ex
     assert // check self.nested exists
+    dup
     extract 0 16 // on error: Index access is out of bounds
     // mutable_native_types/contract.py:157
     // fixed_b = self.nested.fixed_b
-    intc_0 // 0
-    bytec_0 // "nested"
-    app_global_get_ex
-    assert // check self.nested exists
+    swap
     extract 16 16 // on error: Index access is out of bounds
     // mutable_native_types/contract.py:168
     // return val.a + val.b

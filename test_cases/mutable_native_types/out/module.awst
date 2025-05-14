@@ -231,6 +231,16 @@ contract Case3WithStruct
     return arc4_encode((items[start].copy(), items[start + 1u].copy(), items[start + 2u].copy()), arc4.static_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup, 3>)
   }
   
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_all_tups(): arc4.dynamic_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup>
+  {
+    result: arc4.dynamic_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup> = new arc4.dynamic_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup>()
+    items: arc4.static_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup, 8> = Box['tup_bag'].items.copy()
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      result.extend((items[i].copy()))
+    }
+    return result
+  }
+  
   subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct._check_owner(): void
   {
     assert(Box['tup_bag'].owner == txn<Sender>(), comment="sender not authorized")
@@ -349,6 +359,16 @@ contract Case2WithImmStruct
     return arc4_encode((items[start], items[start + 1u], items[start + 2u]), arc4.static_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup, 3>)
   }
   
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_all_tups(): arc4.dynamic_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup>
+  {
+    result: arc4.dynamic_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup> = new arc4.dynamic_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup>()
+    items: arc4.static_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup, 8> = Box['tup_bag'].items.copy()
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      result.extend((items[i]))
+    }
+    return result
+  }
+  
   subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner(): void
   {
     assert(Box['tup_bag'].owner == txn<Sender>(), comment="sender not authorized")
@@ -465,6 +485,16 @@ contract Case1WithTups
     assert(Box['tup_bag'].count >= start + 3u, comment="not enough items")
     items: arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 8> = Box['tup_bag'].items.copy()
     return arc4_encode((items[start], items[start + 1u], items[start + 2u]), arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 3>)
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all_tups(): arc4.dynamic_array<test_cases.mutable_native_types.case1_with_tups.NamedTup>
+  {
+    result: arc4.dynamic_array<test_cases.mutable_native_types.case1_with_tups.NamedTup> = new arc4.dynamic_array<test_cases.mutable_native_types.case1_with_tups.NamedTup>()
+    items: arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 8> = Box['tup_bag'].items.copy()
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      result.extend((items[i]))
+    }
+    return result
   }
   
   subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner(): void

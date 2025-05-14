@@ -235,7 +235,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.add_payment(pay: by
         (assert tmp%0#0) // too many payments
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "payments")
         (assert maybe_exists%1#0) // check self.payments exists
-        let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "num_payments")
+        let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
         (assert maybe_exists%2#0) // check self.num_payments exists
         let index_is_in_bounds%0#0: bool = (< maybe_value%2#0 8u)
         (assert index_is_in_bounds%0#0) // Index access is out of bounds
@@ -280,7 +280,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage(box_
         (app_local_put tmp%0#0 0x6c maybe_value%1#0)
         let tmp%1#0: bool = (box_create "box" 2064u)
         (assert tmp%1#0) // expected box to not exist
-        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "nested")
+        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (maybe_value%1#0, maybe_exists%1#0)
         (assert maybe_exists%2#0) // check self.nested exists
         let tmp%2#0: bytes = ((extract 0 16) maybe_value%2#0) // on error: Index access is out of bounds
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
@@ -352,7 +352,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum() -> 
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
         let fixed_a#0: bytes[16] = ((extract 0 16) maybe_value%0#0) // on error: Index access is out of bounds
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "nested")
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
         (assert maybe_exists%1#0) // check self.nested exists
         let fixed_b#0: bytes[16] = ((extract 16 16) maybe_value%1#0) // on error: Index access is out of bounds
         let tmp%0#0: uint64 = test_cases.mutable_native_types.contract.add(fixed_a#0)

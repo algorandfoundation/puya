@@ -1,10 +1,10 @@
 main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entrypoint_with_init:
     block@0: // L1
         let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@30
+        goto tmp%0#2 ? block@4 : block@34
     block@4: // abi_routing_L31
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create_box()void" => block@5, method "num_tups()uint64" => block@6, method "add_tup((uint64,uint64))void" => block@7, method "get_tup(uint64)(uint64,uint64)" => block@8, method "sum()uint64" => block@9, method "add_many_tups((uint64,uint64)[])void" => block@13, method "add_fixed_tups((uint64,uint64)[3])void" => block@17, method "set_a(uint64)void" => block@21, method "set_b(uint64)void" => block@25, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@29, * => block@32}
+        switch tmp%2#0 {method "create_box()void" => block@5, method "num_tups()uint64" => block@6, method "add_tup((uint64,uint64))void" => block@7, method "get_tup(uint64)(uint64,uint64)" => block@8, method "sum()uint64" => block@9, method "add_many_tups((uint64,uint64)[])void" => block@13, method "add_fixed_tups((uint64,uint64)[3])void" => block@17, method "set_a(uint64)void" => block@21, method "set_b(uint64)void" => block@25, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@29, method "get_all_tups()(uint64,uint64)[]" => block@30, * => block@36}
     block@5: // create_box_route_L35
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (! tmp%3#0)
@@ -17,16 +17,13 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         (assert maybe_exists%0#0) // check self.tup_bag exists
         let assigned_value%0#2: bytes[32] = (txn Sender)
         let updated_data%0#0: bytes = ((replace2 136) maybe_value%0#0 assigned_value%0#2)
-        (box_put "tup_bag" updated_data%0#0)
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
         let assigned_value%1#0: uint64 = (global CurrentApplicationID)
         let val_as_bytes%0#0: bytes[8] = (itob assigned_value%1#0)
-        let updated_data%1#0: bytes = ((replace2 168) maybe_value%1#0 val_as_bytes%0#0)
+        let updated_data%1#0: bytes = ((replace2 168) updated_data%0#0 val_as_bytes%0#0)
         (box_put "tup_bag" updated_data%1#0)
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
-        goto block@33
+        goto block@37
     block@6: // num_tups_route_L41
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
@@ -41,7 +38,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         (log tmp%11#0)
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
-        goto block@33
+        goto block@37
     block@7: // add_tup_route_L45
         let tmp%12#0: uint64 = (txn OnCompletion)
         let tmp%13#0: bool = (! tmp%12#0)
@@ -54,7 +51,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(item0%1#0, item1%1#0)
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
-        goto block@33
+        goto block@37
     block@8: // get_tup_route_L52
         let tmp%16#0: uint64 = (txn OnCompletion)
         let tmp%17#0: bool = (! tmp%16#0)
@@ -66,11 +63,9 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
         let tmp%0#2: uint64 = (extract_uint64 maybe_value%0#0 0u)
-        let tmp%1#5: bool = (< index#0 tmp%0#2)
-        (assert tmp%1#5) // index out of bounds
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
-        let tmp%2#0: bytes = ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
+        let tmp%1#6: bool = (< index#0 tmp%0#2)
+        (assert tmp%1#6) // index out of bounds
+        let tmp%2#0: bytes = ((extract 8 128) maybe_value%0#0) // on error: Index access is out of bounds
         let item_offset%0#0: uint64 = (* index#0 16u)
         let encoded%1#0: bytes = (extract3 tmp%2#0 item_offset%0#0 16u) // on error: Index access is out of bounds
         let item0%1#0: uint64 = (extract_uint64 encoded%1#0 0u)
@@ -82,7 +77,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         (log tmp%21#0)
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
-        goto block@33
+        goto block@37
     block@9: // sum_route_L57
         let tmp%22#0: uint64 = (txn OnCompletion)
         let tmp%23#0: bool = (! tmp%22#0)
@@ -99,11 +94,11 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let continue_looping%0#0: bool = (< i#0 tmp%0#2)
         goto continue_looping%0#0 ? block@11 : block@12
     block@11: // for_body_L61
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
-        let tmp%1#2: bytes = ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
+        let (maybe_value%1#2: bytes, maybe_exists%1#2: bool) = (box_get "tup_bag")
+        (assert maybe_exists%1#2) // check self.tup_bag exists
+        let tmp%1#3: bytes = ((extract 8 128) maybe_value%1#2) // on error: Index access is out of bounds
         let item_offset%0#0: uint64 = (* i#0 16u)
-        let encoded%1#0: bytes = (extract3 tmp%1#2 item_offset%0#0 16u) // on error: Index access is out of bounds
+        let encoded%1#0: bytes = (extract3 tmp%1#3 item_offset%0#0 16u) // on error: Index access is out of bounds
         let tup.a#0: uint64 = (extract_uint64 encoded%1#0 0u)
         let tup.b#1: uint64 = (extract_uint64 encoded%1#0 8u)
         let total#0: uint64 = (+ total#0 tup.a#0)
@@ -116,33 +111,33 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         (log tmp%26#0)
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
-        goto block@33
+        goto block@37
     block@13: // add_many_tups_route_L66
         let tmp%27#0: uint64 = (txn OnCompletion)
         let tmp%28#0: bool = (! tmp%27#0)
         (assert tmp%28#0) // OnCompletion is not NoOp
         let tmp%29#0: uint64 = (txn ApplicationID)
         (assert tmp%29#0) // can only call when not creating
-        let tups#1: bytes = (txna ApplicationArgs 1)
-        let array_length%0#3: uint64 = (extract_uint16 tups#1 0u)
+        let tups#0: bytes[48] = (txna ApplicationArgs 1)
+        let array_length%0#3: uint64 = (extract_uint16 tups#0 0u)
         let item_index_internal%0#0: uint64 = 0u
         goto block@14
     block@14: // for_header_L68
         let continue_looping%0#0: bool = (< item_index_internal%0#0 array_length%0#3)
         goto continue_looping%0#0 ? block@15 : block@16
     block@15: // for_body_L69
-        let array_head_and_tail%0#4: bytes = ((extract 2 0) tups#1)
+        let array_head_and_tail%0#5: bytes = ((extract 2 0) tups#0)
         let item_offset%0#0: uint64 = (* item_index_internal%0#0 16u)
-        let encoded%0#3: bytes = (extract3 array_head_and_tail%0#4 item_offset%0#0 16u) // on error: Index access is out of bounds
-        let tup.a#0: uint64 = (extract_uint64 encoded%0#3 0u)
-        let tup.b#1: uint64 = (extract_uint64 encoded%0#3 8u)
+        let encoded%0#4: bytes = (extract3 array_head_and_tail%0#5 item_offset%0#0 16u) // on error: Index access is out of bounds
+        let tup.a#0: uint64 = (extract_uint64 encoded%0#4 0u)
+        let tup.b#1: uint64 = (extract_uint64 encoded%0#4 8u)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a#0, tup.b#1)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@14
     block@16: // after_for_L68
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
-        goto block@33
+        goto block@37
     block@17: // add_fixed_tups_route_L71
         let tmp%32#0: uint64 = (txn OnCompletion)
         let tmp%33#0: bool = (! tmp%32#0)
@@ -157,9 +152,9 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         goto continue_looping%0#0 ? block@19 : block@16
     block@19: // for_body_L74
         let item_offset%0#0: uint64 = (* item_index_internal%0#0 16u)
-        let encoded%0#3: bytes = (extract3 tups#0 item_offset%0#0 16u) // on error: Index access is out of bounds
-        let tup.a#0: uint64 = (extract_uint64 encoded%0#3 0u)
-        let tup.b#1: uint64 = (extract_uint64 encoded%0#3 8u)
+        let encoded%0#4: bytes = (extract3 tups#0 item_offset%0#0 16u) // on error: Index access is out of bounds
+        let tup.a#0: uint64 = (extract_uint64 encoded%0#4 0u)
+        let tup.b#1: uint64 = (extract_uint64 encoded%0#4 8u)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a#0, tup.b#1)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@18
@@ -181,22 +176,19 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let continue_looping%0#0: bool = (< i#0 tmp%0#2)
         goto continue_looping%0#0 ? block@23 : block@16
     block@23: // for_body_L80
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
-        let tmp%1#2: bytes = ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
+        let (maybe_value%1#2: bytes, maybe_exists%1#2: bool) = (box_get "tup_bag")
+        (assert maybe_exists%1#2) // check self.tup_bag exists
+        let tmp%1#3: bytes = ((extract 8 128) maybe_value%1#2) // on error: Index access is out of bounds
         let item_offset%0#0: uint64 = (* i#0 16u)
-        let encoded%1#0: bytes = (extract3 tmp%1#2 item_offset%0#0 16u) // on error: Index access is out of bounds
+        let encoded%1#0: bytes = (extract3 tmp%1#3 item_offset%0#0 16u) // on error: Index access is out of bounds
         let tup.b#1: uint64 = (extract_uint64 encoded%1#0 8u)
-        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "tup_bag")
-        (assert maybe_exists%2#0) // check self.tup_bag exists
-        let tmp%2#0: bytes = ((extract 8 128) maybe_value%2#0) // on error: Index access is out of bounds
         let val_as_bytes%0#0: bytes[8] = (itob a#0)
         let val_as_bytes%1#0: bytes[8] = (itob tup.b#1)
         let encoded_tuple_buffer%2#0: bytes = (concat val_as_bytes%0#0 val_as_bytes%1#0)
         let index_is_in_bounds%0#0: bool = (< i#0 8u)
         (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let updated_target%0#0: bytes = (replace3 tmp%2#0 item_offset%0#0 encoded_tuple_buffer%2#0)
-        let updated_data%0#0: bytes = ((replace2 8) maybe_value%2#0 updated_target%0#0)
+        let updated_target%0#0: bytes = (replace3 tmp%1#3 item_offset%0#0 encoded_tuple_buffer%2#0)
+        let updated_data%0#0: bytes = ((replace2 8) maybe_value%1#2 updated_target%0#0)
         (box_put "tup_bag" updated_data%0#0)
         let i#0: uint64 = (+ i#0 1u)
         goto block@22
@@ -218,22 +210,19 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let continue_looping%0#0: bool = (< i#0 tmp%0#2)
         goto continue_looping%0#0 ? block@27 : block@16
     block@27: // for_body_L87
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
-        let tmp%1#2: bytes = ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
+        let (maybe_value%1#2: bytes, maybe_exists%1#2: bool) = (box_get "tup_bag")
+        (assert maybe_exists%1#2) // check self.tup_bag exists
+        let tmp%1#3: bytes = ((extract 8 128) maybe_value%1#2) // on error: Index access is out of bounds
         let item_offset%0#0: uint64 = (* i#0 16u)
-        let encoded%1#0: bytes = (extract3 tmp%1#2 item_offset%0#0 16u) // on error: Index access is out of bounds
+        let encoded%1#0: bytes = (extract3 tmp%1#3 item_offset%0#0 16u) // on error: Index access is out of bounds
         let tup.a#0: uint64 = (extract_uint64 encoded%1#0 0u)
-        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "tup_bag")
-        (assert maybe_exists%2#0) // check self.tup_bag exists
-        let tmp%2#0: bytes = ((extract 8 128) maybe_value%2#0) // on error: Index access is out of bounds
         let val_as_bytes%0#0: bytes[8] = (itob tup.a#0)
         let val_as_bytes%1#0: bytes[8] = (itob b#0)
         let encoded_tuple_buffer%2#0: bytes = (concat val_as_bytes%0#0 val_as_bytes%1#0)
         let index_is_in_bounds%0#0: bool = (< i#0 8u)
         (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let updated_target%0#0: bytes = (replace3 tmp%2#0 item_offset%0#0 encoded_tuple_buffer%2#0)
-        let updated_data%0#0: bytes = ((replace2 8) maybe_value%2#0 updated_target%0#0)
+        let updated_target%0#0: bytes = (replace3 tmp%1#3 item_offset%0#0 encoded_tuple_buffer%2#0)
+        let updated_data%0#0: bytes = ((replace2 8) maybe_value%1#2 updated_target%0#0)
         (box_put "tup_bag" updated_data%0#0)
         let i#0: uint64 = (+ i#0 1u)
         goto block@26
@@ -251,18 +240,16 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let tmp%1#1: uint64 = (+ start#0 3u)
         let tmp%2#1: bool = (>= tmp%0#2 tmp%1#1)
         (assert tmp%2#1) // not enough items
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
-        let items#0: bytes[128] = ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
+        let items#0: bytes[128] = ((extract 8 128) maybe_value%0#0) // on error: Index access is out of bounds
         let item_offset%0#0: uint64 = (* start#0 16u)
         let encoded%1#0: bytes = (extract3 items#0 item_offset%0#0 16u) // on error: Index access is out of bounds
         let item0%1#0: uint64 = (extract_uint64 encoded%1#0 0u)
         let item1%1#0: uint64 = (extract_uint64 encoded%1#0 8u)
         let tmp%4#1: uint64 = (+ start#0 1u)
         let item_offset%1#0: uint64 = (* tmp%4#1 16u)
-        let encoded%2#0: bytes = (extract3 items#0 item_offset%1#0 16u) // on error: Index access is out of bounds
-        let item0%3#0: uint64 = (extract_uint64 encoded%2#0 0u)
-        let item1%3#0: uint64 = (extract_uint64 encoded%2#0 8u)
+        let encoded%2#1: bytes = (extract3 items#0 item_offset%1#0 16u) // on error: Index access is out of bounds
+        let item0%3#0: uint64 = (extract_uint64 encoded%2#1 0u)
+        let item1%3#0: uint64 = (extract_uint64 encoded%2#1 8u)
         let tmp%5#0: uint64 = (+ start#0 2u)
         let item_offset%2#0: uint64 = (* tmp%5#0 16u)
         let encoded%3#0: bytes = (extract3 items#0 item_offset%2#0 16u) // on error: Index access is out of bounds
@@ -283,22 +270,61 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         (log tmp%52#0)
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
-        goto block@33
-    block@30: // bare_routing_L31
+        goto block@37
+    block@30: // get_all_tups_route_L103
         let tmp%53#0: uint64 = (txn OnCompletion)
-        goto tmp%53#0 ? block@32 : block@31
-    block@31: // __algopy_default_create_L1
-        let tmp%54#0: uint64 = (txn ApplicationID)
-        let tmp%55#0: bool = (! tmp%54#0)
-        (assert tmp%55#0) // can only call when creating
+        let tmp%54#0: bool = (! tmp%53#0)
+        (assert tmp%54#0) // OnCompletion is not NoOp
+        let tmp%55#0: uint64 = (txn ApplicationID)
+        (assert tmp%55#0) // can only call when not creating
+        let result#0: bytes = 0x0000
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
+        (assert maybe_exists%0#0) // check self.tup_bag exists
+        let items#0: bytes[128] = ((extract 8 128) maybe_value%0#0) // on error: Index access is out of bounds
+        let tmp%1#1: uint64 = (extract_uint64 maybe_value%0#0 0u)
+        let i#0: uint64 = 0u
+        goto block@31
+    block@31: // for_header_L108
+        let continue_looping%0#0: bool = (< i#0 tmp%1#1)
+        goto continue_looping%0#0 ? block@32 : block@33
+    block@32: // for_body_L109
+        let expr_value_trimmed%0#0: bytes = ((extract 2 0) result#0)
+        let item_offset%0#0: uint64 = (* i#0 16u)
+        let encoded%1#0: bytes = (extract3 items#0 item_offset%0#0 16u) // on error: Index access is out of bounds
+        let item0%1#0: uint64 = (extract_uint64 encoded%1#0 0u)
+        let item1%1#0: uint64 = (extract_uint64 encoded%1#0 8u)
+        let array%sub_item%0#1: bytes[8] = (itob item0%1#0)
+        let array%sub_item%1#1: bytes[8] = (itob item1%1#0)
+        let array%encoded%1#1: (encoded_uint64,encoded_uint64)[] = (concat array%sub_item%0#1 array%sub_item%1#1)
+        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 array%encoded%1#1)
+        let byte_len%0#0: uint64 = (len concatenated%0#0)
+        let len_%0#0: uint64 = (/ byte_len%0#0 16u)
+        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let result#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
+        let i#0: uint64 = (+ i#0 1u)
+        goto block@31
+    block@33: // after_for_L108
+        let tmp%58#0: bytes = (concat 0x151f7c75 result#0)
+        (log tmp%58#0)
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
-        goto block@33
-    block@32: // after_if_else_L31
+        goto block@37
+    block@34: // bare_routing_L31
+        let tmp%59#0: uint64 = (txn OnCompletion)
+        goto tmp%59#0 ? block@36 : block@35
+    block@35: // __algopy_default_create_L1
+        let tmp%60#0: uint64 = (txn ApplicationID)
+        let tmp%61#0: bool = (! tmp%60#0)
+        (assert tmp%61#0) // can only call when creating
+        let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#1: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
+        goto block@37
+    block@36: // after_if_else_L31
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 0u
         let tmp%0#1: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
-        goto block@33
-    block@33: // after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router___L1
+        goto block@37
+    block@37: // after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router___L1
         return tmp%0#1
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a: uint64, tup.b: uint64) -> void:
@@ -309,41 +335,29 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
         let tmp%0#0: uint64 = (extract_uint64 maybe_value%0#0 0u)
         let tmp%1#0: bool = (< tmp%0#0 8u)
         (assert tmp%1#0) // too many tups
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
-        let tmp%2#0: bytes = ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
+        let tmp%2#0: bytes = ((extract 8 128) maybe_value%0#0) // on error: Index access is out of bounds
         let val_as_bytes%0#0: bytes[8] = (itob tup.a#0)
         let val_as_bytes%1#0: bytes[8] = (itob tup.b#0)
         let encoded_tuple_buffer%2#0: bytes = (concat val_as_bytes%0#0 val_as_bytes%1#0)
-        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "tup_bag")
-        (assert maybe_exists%2#0) // check self.tup_bag exists
-        let tmp%3#0: uint64 = (extract_uint64 maybe_value%2#0 0u)
-        let index_is_in_bounds%0#0: bool = (< tmp%3#0 8u)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let write_offset%0#0: uint64 = (* tmp%3#0 16u)
+        let write_offset%0#0: uint64 = (* tmp%0#0 16u)
         let updated_target%0#0: bytes = (replace3 tmp%2#0 write_offset%0#0 encoded_tuple_buffer%2#0)
-        let updated_data%0#0: bytes = ((replace2 8) maybe_value%1#0 updated_target%0#0)
-        (box_put "tup_bag" updated_data%0#0)
-        let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get "tup_bag")
-        (assert maybe_exists%3#0) // check self.tup_bag exists
-        let tmp%4#0: uint64 = (extract_uint64 maybe_value%3#0 0u)
+        let updated_data%0#0: bytes = ((replace2 8) maybe_value%0#0 updated_target%0#0)
+        let tmp%4#0: uint64 = (extract_uint64 updated_data%0#0 0u)
         let assigned_value%1#0: uint64 = (+ tmp%4#0 1u)
         let val_as_bytes%2#0: bytes[8] = (itob assigned_value%1#0)
-        let updated_data%1#0: bytes = ((replace2 0) maybe_value%3#0 val_as_bytes%2#0)
+        let updated_data%1#0: bytes = ((replace2 0) updated_data%0#0 val_as_bytes%2#0)
         (box_put "tup_bag" updated_data%1#0)
         return 
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner() -> void:
-    block@0: // L103
+    block@0: // L112
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
         let encoded%0#0: bytes = ((extract 136 32) maybe_value%0#0) // on error: Index access is out of bounds
         let tmp%0#0: bytes[32] = (txn Sender)
         let tmp%1#0: bool = (== encoded%0#0 tmp%0#0)
         (assert tmp%1#0) // sender not authorized
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
-        let tmp%2#0: uint64 = (extract_uint64 maybe_value%1#0 168u)
+        let tmp%2#0: uint64 = (extract_uint64 maybe_value%0#0 168u)
         let tmp%3#0: uint64 = (global CurrentApplicationID)
         let tmp%4#0: bool = (== tmp%2#0 tmp%3#0)
         (assert tmp%4#0) // this error should be impossible

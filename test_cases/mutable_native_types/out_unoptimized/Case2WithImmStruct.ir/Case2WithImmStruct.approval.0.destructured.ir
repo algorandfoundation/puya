@@ -279,8 +279,49 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let array_data%0#0: bytes = (concat 0x result%2#0)
         return array_data%0#0
 
-subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner() -> void:
+subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_all_tups() -> bytes:
     block@0: // L103
+        let array_data%0#0: bytes = (concat 0x0000 0x)
+        let result#0: bytes = array_data%0#0
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
+        (assert maybe_exists%0#0) // check self.tup_bag exists
+        let tmp%0#0: bytes = (extract3 maybe_value%0#0 8u 128u) // on error: Index access is out of bounds
+        let copy%0#0: bytes = tmp%0#0
+        let items#0: bytes[128] = copy%0#0
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
+        (assert maybe_exists%1#0) // check self.tup_bag exists
+        let encoded%0#0: bytes = (extract3 maybe_value%1#0 0u 8u) // on error: Index access is out of bounds
+        let tmp%1#0: uint64 = (btoi encoded%0#0)
+        (assert 1u) // Step cannot be zero
+        let i#0: uint64 = 0u
+        goto block@1
+    block@1: // for_header_L108
+        let continue_looping%0#0: bool = (< i#0 tmp%1#0)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L109
+        let expr_value_trimmed%0#0: bytes = ((extract 2 0) result#0)
+        let array_head_and_tail%0#0: bytes[128] = items#0
+        let item_offset%0#0: uint64 = (* i#0 16u)
+        let tmp%2#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 16u) // on error: Index access is out of bounds
+        let array%encoded%0#1: bytes[16][] = (concat 0x tmp%2#0)
+        let array%data%0#1: bytes[16][] = (concat 0x array%encoded%0#1)
+        let encoded%1#0: bytes[16][] = array%data%0#1
+        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 encoded%1#0)
+        let byte_len%0#0: uint64 = (len concatenated%0#0)
+        let len_%0#0: uint64 = (/ byte_len%0#0 16u)
+        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
+        let result#0: bytes = concat_result%0#0
+        goto block@3
+    block@3: // for_footer_L108
+        let i#0: uint64 = (+ i#0 1u)
+        goto block@1
+    block@4: // after_for_L108
+        return result#0
+
+subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner() -> void:
+    block@0: // L112
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
         let encoded%0#0: bytes = (extract3 maybe_value%0#0 136u 32u) // on error: Index access is out of bounds
@@ -302,10 +343,10 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@1: // L31
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@15
+        goto tmp%1#0 ? block@2 : block@16
     block@2: // abi_routing_L31
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create_box()void" => block@3, method "num_tups()uint64" => block@4, method "add_tup((uint64,uint64))void" => block@5, method "get_tup(uint64)(uint64,uint64)" => block@6, method "sum()uint64" => block@7, method "add_many_tups((uint64,uint64)[])void" => block@8, method "add_fixed_tups((uint64,uint64)[3])void" => block@9, method "set_a(uint64)void" => block@10, method "set_b(uint64)void" => block@11, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@12, * => block@13}
+        switch tmp%2#0 {method "create_box()void" => block@3, method "num_tups()uint64" => block@4, method "add_tup((uint64,uint64))void" => block@5, method "get_tup(uint64)(uint64,uint64)" => block@6, method "sum()uint64" => block@7, method "add_many_tups((uint64,uint64)[])void" => block@8, method "add_fixed_tups((uint64,uint64)[3])void" => block@9, method "set_a(uint64)void" => block@10, method "set_b(uint64)void" => block@11, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@12, method "get_all_tups()(uint64,uint64)[]" => block@13, * => block@14}
     block@3: // create_box_route_L35
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
@@ -316,7 +357,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.create_box()
         let test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0
-        goto block@22
+        goto block@23
     block@4: // num_tups_route_L41
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (== tmp%7#0 NoOp)
@@ -330,7 +371,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         (log tmp%11#0)
         let test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0
-        goto block@22
+        goto block@23
     block@5: // add_tup_route_L45
         let tmp%12#0: uint64 = (txn OnCompletion)
         let tmp%13#0: bool = (== tmp%12#0 NoOp)
@@ -342,7 +383,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup(reinterpret_bytes[16]%0#0)
         let test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0
-        goto block@22
+        goto block@23
     block@6: // get_tup_route_L52
         let tmp%16#0: uint64 = (txn OnCompletion)
         let tmp%17#0: bool = (== tmp%16#0 NoOp)
@@ -357,7 +398,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         (log tmp%22#0)
         let test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0
-        goto block@22
+        goto block@23
     block@7: // sum_route_L57
         let tmp%23#0: uint64 = (txn OnCompletion)
         let tmp%24#0: bool = (== tmp%23#0 NoOp)
@@ -371,7 +412,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         (log tmp%27#0)
         let test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0
-        goto block@22
+        goto block@23
     block@8: // add_many_tups_route_L66
         let tmp%28#0: uint64 = (txn OnCompletion)
         let tmp%29#0: bool = (== tmp%28#0 NoOp)
@@ -383,7 +424,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_many_tups(tmp%32#0)
         let test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0
-        goto block@22
+        goto block@23
     block@9: // add_fixed_tups_route_L71
         let tmp%33#0: uint64 = (txn OnCompletion)
         let tmp%34#0: bool = (== tmp%33#0 NoOp)
@@ -395,7 +436,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_fixed_tups(reinterpret_bytes[48]%0#0)
         let test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0
-        goto block@22
+        goto block@23
     block@10: // set_a_route_L76
         let tmp%37#0: uint64 = (txn OnCompletion)
         let tmp%38#0: bool = (== tmp%37#0 NoOp)
@@ -408,7 +449,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_a(tmp%41#0)
         let test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0
-        goto block@22
+        goto block@23
     block@11: // set_b_route_L83
         let tmp%42#0: uint64 = (txn OnCompletion)
         let tmp%43#0: bool = (== tmp%42#0 NoOp)
@@ -421,7 +462,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b(tmp%46#0)
         let test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0
-        goto block@22
+        goto block@23
     block@12: // get_3_tups_route_L90
         let tmp%47#0: uint64 = (txn OnCompletion)
         let tmp%48#0: bool = (== tmp%47#0 NoOp)
@@ -436,32 +477,45 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         (log tmp%53#0)
         let test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0
-        goto block@22
-    block@13: // switch_case_default_L31
-        goto block@14
-    block@14: // switch_case_next_L31
-        goto block@21
-    block@15: // bare_routing_L31
+        goto block@23
+    block@13: // get_all_tups_route_L103
         let tmp%54#0: uint64 = (txn OnCompletion)
-        switch tmp%54#0 {0u => block@16, * => block@19}
-    block@16: // __algopy_default_create_L1
-        let tmp%55#0: uint64 = (txn ApplicationID)
-        let tmp%56#0: bool = (== tmp%55#0 0u)
-        (assert tmp%56#0) // can only call when creating
-        goto block@17
-    block@17: // L1
-        goto block@18
-    block@18: // after_inlined_test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__algopy_default_create_L1
+        let tmp%55#0: bool = (== tmp%54#0 NoOp)
+        (assert tmp%55#0) // OnCompletion is not NoOp
+        let tmp%56#0: uint64 = (txn ApplicationID)
+        let tmp%57#0: bool = (!= tmp%56#0 0u)
+        (assert tmp%57#0) // can only call when not creating
+        let tmp%58#0: bytes = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_all_tups()
+        let tmp%59#0: bytes = (concat 0x151f7c75 tmp%58#0)
+        (log tmp%59#0)
         let test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0
+        goto block@23
+    block@14: // switch_case_default_L31
+        goto block@15
+    block@15: // switch_case_next_L31
         goto block@22
-    block@19: // switch_case_default_L31
-        goto block@20
-    block@20: // switch_case_next_L31
+    block@16: // bare_routing_L31
+        let tmp%60#0: uint64 = (txn OnCompletion)
+        switch tmp%60#0 {0u => block@17, * => block@20}
+    block@17: // __algopy_default_create_L1
+        let tmp%61#0: uint64 = (txn ApplicationID)
+        let tmp%62#0: bool = (== tmp%61#0 0u)
+        (assert tmp%62#0) // can only call when creating
+        goto block@18
+    block@18: // L1
+        goto block@19
+    block@19: // after_inlined_test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__algopy_default_create_L1
+        let test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0
+        goto block@23
+    block@20: // switch_case_default_L31
         goto block@21
-    block@21: // after_if_else_L31
+    block@21: // switch_case_next_L31
+        goto block@22
+    block@22: // after_if_else_L31
         let test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0: bool = 0u
         let tmp%0#0: bool = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0
-        goto block@22
-    block@22: // after_inlined_test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router___L1
+        goto block@23
+    block@23: // after_inlined_test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router___L1
         return tmp%0#0

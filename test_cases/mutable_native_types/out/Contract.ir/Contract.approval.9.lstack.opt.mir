@@ -392,26 +392,18 @@ subroutine add_payment:
         byte "num_payments"                                                                       (𝕡) pay#0 | 0,"num_payments"
         app_global_get_ex                                                                         (𝕡) pay#0 | maybe_value%0#0,maybe_exists%0#0
         assert // check self.num_payments exists                                                  (𝕡) pay#0 | maybe_value%0#0
-        l-load maybe_value%0#0 0                                                                  (𝕡) pay#0 | maybe_value%0#0
-        int 8                                                                                     (𝕡) pay#0 | maybe_value%0#0,8
-        <                                                                                         (𝕡) pay#0 | tmp%0#0
-        assert // too many payments                                                               (𝕡) pay#0 |
+        l-load-copy maybe_value%0#0 0                                                             (𝕡) pay#0 | maybe_value%0#0,maybe_value%0#0 (copy)
+        int 8                                                                                     (𝕡) pay#0 | maybe_value%0#0,maybe_value%0#0 (copy),8
+        <                                                                                         (𝕡) pay#0 | maybe_value%0#0,tmp%0#0
+        assert // too many payments                                                               (𝕡) pay#0 | maybe_value%0#0
         // mutable_native_types/contract.py:112
         // self.payments[self.num_payments] = pay.copy()
-        int 0                                                                                     (𝕡) pay#0 | 0
-        byte "payments"                                                                           (𝕡) pay#0 | 0,"payments"
-        app_global_get_ex                                                                         (𝕡) pay#0 | maybe_value%1#0,maybe_exists%1#0
-        assert // check self.payments exists                                                      (𝕡) pay#0 | maybe_value%1#0
-        int 0                                                                                     (𝕡) pay#0 | maybe_value%1#0,0
-        byte "num_payments"                                                                       (𝕡) pay#0 | maybe_value%1#0,0,"num_payments"
-        app_global_get_ex                                                                         (𝕡) pay#0 | maybe_value%1#0,maybe_value%2#0,maybe_exists%2#0
-        assert // check self.num_payments exists                                                  (𝕡) pay#0 | maybe_value%1#0,maybe_value%2#0
-        l-load-copy maybe_value%2#0 0                                                             (𝕡) pay#0 | maybe_value%1#0,maybe_value%2#0,maybe_value%2#0 (copy)
-        int 8                                                                                     (𝕡) pay#0 | maybe_value%1#0,maybe_value%2#0,maybe_value%2#0 (copy),8
-        <                                                                                         (𝕡) pay#0 | maybe_value%1#0,maybe_value%2#0,index_is_in_bounds%0#0
-        assert // Index access is out of bounds                                                   (𝕡) pay#0 | maybe_value%1#0,maybe_value%2#0
-        l-load maybe_value%2#0 0                                                                  (𝕡) pay#0 | maybe_value%1#0,maybe_value%2#0
-        int 48                                                                                    (𝕡) pay#0 | maybe_value%1#0,maybe_value%2#0,48
+        int 0                                                                                     (𝕡) pay#0 | maybe_value%0#0,0
+        byte "payments"                                                                           (𝕡) pay#0 | maybe_value%0#0,0,"payments"
+        app_global_get_ex                                                                         (𝕡) pay#0 | maybe_value%0#0,maybe_value%1#0,maybe_exists%1#0
+        assert // check self.payments exists                                                      (𝕡) pay#0 | maybe_value%0#0,maybe_value%1#0
+        l-load maybe_value%0#0 1                                                                  (𝕡) pay#0 | maybe_value%1#0,maybe_value%0#0
+        int 48                                                                                    (𝕡) pay#0 | maybe_value%1#0,maybe_value%0#0,48
         *                                                                                         (𝕡) pay#0 | maybe_value%1#0,write_offset%0#0
         l-load maybe_value%1#0 1                                                                  (𝕡) pay#0 | write_offset%0#0,maybe_value%1#0
         l-load write_offset%0#0 1                                                                 (𝕡) pay#0 | maybe_value%1#0,write_offset%0#0
@@ -504,21 +496,17 @@ subroutine create_storage:
         assert // check self.nested exists                                                        (𝕡) box_key#0 | maybe_value%1#0
         txn Sender                                                                                (𝕡) box_key#0 | maybe_value%1#0,tmp%0#0
         byte 0x6c                                                                                 (𝕡) box_key#0 | maybe_value%1#0,tmp%0#0,0x6c
-        l-load maybe_value%1#0 2                                                                  (𝕡) box_key#0 | tmp%0#0,0x6c,maybe_value%1#0
-        app_local_put                                                                             (𝕡) box_key#0 |
+        l-load-copy maybe_value%1#0 2                                                             (𝕡) box_key#0 | maybe_value%1#0,tmp%0#0,0x6c,maybe_value%1#0 (copy)
+        app_local_put                                                                             (𝕡) box_key#0 | maybe_value%1#0
         // mutable_native_types/contract.py:124
         // assert self.box.create(), "expected box to not exist"
-        byte "box"                                                                                (𝕡) box_key#0 | "box"
-        int 2064                                                                                  (𝕡) box_key#0 | "box",2064
-        box_create                                                                                (𝕡) box_key#0 | tmp%1#0
-        assert // expected box to not exist                                                       (𝕡) box_key#0 |
+        byte "box"                                                                                (𝕡) box_key#0 | maybe_value%1#0,"box"
+        int 2064                                                                                  (𝕡) box_key#0 | maybe_value%1#0,"box",2064
+        box_create                                                                                (𝕡) box_key#0 | maybe_value%1#0,tmp%1#0
+        assert // expected box to not exist                                                       (𝕡) box_key#0 | maybe_value%1#0
         // mutable_native_types/contract.py:125
         // self.box_map[box_key].fixed_a = self.nested.fixed_a.copy()
-        int 0                                                                                     (𝕡) box_key#0 | 0
-        byte "nested"                                                                             (𝕡) box_key#0 | 0,"nested"
-        app_global_get_ex                                                                         (𝕡) box_key#0 | maybe_value%2#0,maybe_exists%2#0
-        assert // check self.nested exists                                                        (𝕡) box_key#0 | maybe_value%2#0
-        l-load maybe_value%2#0 0                                                                  (𝕡) box_key#0 | maybe_value%2#0
+        l-load maybe_value%1#0 0                                                                  (𝕡) box_key#0 | maybe_value%1#0
         extract 0 16 // on error: Index access is out of bounds                                   (𝕡) box_key#0 | tmp%2#0
         p-load box_key#0                                                                          (𝕡) box_key#0 | tmp%2#0,box_key#0 (copy)
         itob                                                                                      (𝕡) box_key#0 | tmp%2#0,encoded_value%0#0
@@ -683,15 +671,11 @@ subroutine calculate_sum:
         byte "nested"                                                                             0,"nested"
         app_global_get_ex                                                                         maybe_value%0#0,maybe_exists%0#0
         assert // check self.nested exists                                                        maybe_value%0#0
-        l-load maybe_value%0#0 0                                                                  maybe_value%0#0
-        extract 0 16 // on error: Index access is out of bounds                                   fixed_a#0
+        l-load-copy maybe_value%0#0 0                                                             maybe_value%0#0,maybe_value%0#0 (copy)
+        extract 0 16 // on error: Index access is out of bounds                                   maybe_value%0#0,fixed_a#0
         // mutable_native_types/contract.py:157
         // fixed_b = self.nested.fixed_b
-        int 0                                                                                     fixed_a#0,0
-        byte "nested"                                                                             fixed_a#0,0,"nested"
-        app_global_get_ex                                                                         fixed_a#0,maybe_value%1#0,maybe_exists%1#0
-        assert // check self.nested exists                                                        fixed_a#0,maybe_value%1#0
-        l-load maybe_value%1#0 0                                                                  fixed_a#0,maybe_value%1#0
+        l-load maybe_value%0#0 1                                                                  fixed_a#0,maybe_value%0#0
         extract 16 16 // on error: Index access is out of bounds                                  fixed_a#0,fixed_b#0
         // mutable_native_types/contract.py:168
         // return val.a + val.b
