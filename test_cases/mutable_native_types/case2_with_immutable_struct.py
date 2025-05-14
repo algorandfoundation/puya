@@ -11,7 +11,7 @@ from algopy import (
 )
 
 
-class NamedTup(Struct):
+class NamedTup(Struct, frozen=True):
     a: UInt64
     b: UInt64
 
@@ -21,7 +21,7 @@ class TupBag(Struct):
     items: FixedArray[NamedTup, typing.Literal[8]]
 
 
-class FixedWithStruct(arc4.ARC4Contract):
+class Case2WithImmStruct(arc4.ARC4Contract):
     def __init__(self) -> None:
         self.tup_bag = Box(TupBag)
 
@@ -36,7 +36,7 @@ class FixedWithStruct(arc4.ARC4Contract):
     @arc4.abimethod()
     def add_tup(self, tup: NamedTup) -> None:
         assert self.tup_bag.value.count < self.tup_bag.value.items.length, "too many tups"
-        self.tup_bag.value.items[self.tup_bag.value.count] = tup.copy()
+        self.tup_bag.value.items[self.tup_bag.value.count] = tup
         self.tup_bag.value.count += 1
 
     @arc4.abimethod()
@@ -48,27 +48,42 @@ class FixedWithStruct(arc4.ARC4Contract):
     def sum(self) -> UInt64:
         total = UInt64()
         for i in urange(self.tup_bag.value.count):
-            tup = self.tup_bag.value.items[i].copy()
+            tup = self.tup_bag.value.items[i]
             total += tup.a
             total += tup.b
         return total
 
     @arc4.abimethod()
     def add_many_tups(self, tups: NativeArray[NamedTup]) -> None:
-        for i in urange(tups.length):
-            self.add_tup(tups[i].copy())
+        for tup in tups:
+            self.add_tup(tup)
 
     @arc4.abimethod()
     def add_fixed_tups(self, tups: FixedArray[NamedTup, typing.Literal[3]]) -> None:
-        for i in urange(tups.length):
-            self.add_tup(tups[i].copy())
+        for tup in tups:
+            self.add_tup(tup)
 
     @arc4.abimethod()
     def set_a(self, a: UInt64) -> None:
         for i in urange(self.tup_bag.value.count):
-            self.tup_bag.value.items[i].a = a
+            tup = self.tup_bag.value.items[i]
+            self.tup_bag.value.items[i] = tup._replace(a=a)
 
     @arc4.abimethod()
     def set_b(self, b: UInt64) -> None:
         for i in urange(self.tup_bag.value.count):
-            self.tup_bag.value.items[i].b = b
+            tup = self.tup_bag.value.items[i]
+            self.tup_bag.value.items[i] = tup._replace(b=b)
+
+    @arc4.abimethod()
+    def get_3_tups(self, start: UInt64) -> FixedArray[NamedTup, typing.Literal[3]]:
+        assert self.tup_bag.value.count >= start + 3, "not enough items"
+        items = self.tup_bag.value.items.copy()
+
+        return FixedArray[NamedTup, typing.Literal[3]](
+            (
+                items[start],
+                items[start + 1],
+                items[start + 2],
+            )
+        )
