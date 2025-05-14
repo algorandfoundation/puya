@@ -11,7 +11,7 @@ from algopy import (
 )
 
 
-class NamedTup(typing.NamedTuple):
+class NamedTup(Struct):
     a: UInt64
     b: UInt64
 
@@ -21,7 +21,7 @@ class TupBag(Struct):
     items: FixedArray[NamedTup, typing.Literal[8]]
 
 
-class FixedWithTups(arc4.ARC4Contract):
+class FixedWithStruct(arc4.ARC4Contract):
     def __init__(self) -> None:
         self.tup_bag = Box(TupBag)
 
@@ -36,7 +36,7 @@ class FixedWithTups(arc4.ARC4Contract):
     @arc4.abimethod()
     def add_tup(self, tup: NamedTup) -> None:
         assert self.tup_bag.value.count < self.tup_bag.value.items.length, "too many tups"
-        self.tup_bag.value.items[self.tup_bag.value.count] = tup
+        self.tup_bag.value.items[self.tup_bag.value.count] = tup.copy()
         self.tup_bag.value.count += 1
 
     @arc4.abimethod()
@@ -48,29 +48,27 @@ class FixedWithTups(arc4.ARC4Contract):
     def sum(self) -> UInt64:
         total = UInt64()
         for i in urange(self.tup_bag.value.count):
-            tup = self.tup_bag.value.items[i]
+            tup = self.tup_bag.value.items[i].copy()
             total += tup.a
             total += tup.b
         return total
 
     @arc4.abimethod()
     def add_many_tups(self, tups: NativeArray[NamedTup]) -> None:
-        for tup in tups:
-            self.add_tup(tup)
+        for i in urange(tups.length):
+            self.add_tup(tups[i].copy())
 
     @arc4.abimethod()
     def add_fixed_tups(self, tups: FixedArray[NamedTup, typing.Literal[3]]) -> None:
-        for tup in tups:
-            self.add_tup(tup)
+        for i in urange(tups.length):
+            self.add_tup(tups[i].copy())
 
     @arc4.abimethod()
     def set_a(self, a: UInt64) -> None:
         for i in urange(self.tup_bag.value.count):
-            tup = self.tup_bag.value.items[i]
-            self.tup_bag.value.items[i] = tup._replace(a=a)
+            self.tup_bag.value.items[i].a = a
 
     @arc4.abimethod()
     def set_b(self, b: UInt64) -> None:
         for i in urange(self.tup_bag.value.count):
-            tup = self.tup_bag.value.items[i]
-            self.tup_bag.value.items[i] = tup._replace(b=b)
+            self.tup_bag.value.items[i].b = b
