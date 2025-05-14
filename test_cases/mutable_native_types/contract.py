@@ -2,6 +2,8 @@ import typing
 
 from algopy import (
     Account,
+    # TODO: remove alias
+    Array as NativeArray,
     Asset,
     Box,
     BoxMap,
@@ -9,7 +11,6 @@ from algopy import (
     FixedArray,
     GlobalState,
     LocalState,
-    NativeArray,
     OnCompleteAction,
     String,
     Struct,

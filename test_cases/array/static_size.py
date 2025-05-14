@@ -2,10 +2,10 @@ import typing
 
 from algopy import (
     Account,
-    Array,
     BigUInt,
     Box,
     ImmutableArray,
+    ReferenceArray as Array,
     Txn,
     UInt64,
     arc4,
