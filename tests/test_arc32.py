@@ -2256,6 +2256,9 @@ def test_mutable_native_types(
     response = app_client.call("num_tups", transaction_parameters=txn_params)
     assert response.return_value == fixed_array_size
 
+    response = app_client.call("get_all_tups", transaction_parameters=txn_params)
+    assert response.return_value == [[i + 1, i + 2] for i in range(fixed_array_size)]
+
     with pytest.raises(LogicError, match="not enough items"):
         app_client.call("get_3_tups", start=6, transaction_parameters=txn_params)
 
