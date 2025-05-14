@@ -67,14 +67,10 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (assert maybe_exists%0#0) // check self.num_payments exists
         let tmp%0#0: bool = (< maybe_value%0#5 8u)
         (assert tmp%0#0) // too many payments
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "payments")
-        (assert maybe_exists%1#0) // check self.payments exists
-        let (maybe_value%2#3: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "num_payments")
-        (assert maybe_exists%2#0) // check self.num_payments exists
-        let index_is_in_bounds%0#0: bool = (< maybe_value%2#3 8u)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let write_offset%0#1: uint64 = (* maybe_value%2#3 48u)
-        let updated_target%0#0: bytes = (replace3 maybe_value%1#0 write_offset%0#1 pay#0)
+        let (maybe_value%1#1: bytes, maybe_exists%1#1: bool) = (app_global_get_ex 0u "payments")
+        (assert maybe_exists%1#1) // check self.payments exists
+        let write_offset%0#1: uint64 = (* maybe_value%0#5 48u)
+        let updated_target%0#0: bytes = (replace3 maybe_value%1#1 write_offset%0#1 pay#0)
         (app_global_put "payments" updated_target%0#0)
         let (maybe_value%3#2: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%3#0) // check self.num_payments exists
@@ -97,17 +93,17 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (assert maybe_exists%0#0) // check self.num_payments exists
         let tmp%0#0: bool = (< index#0 maybe_value%0#5)
         (assert tmp%0#0) // invalid payment index
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "payments")
-        (assert maybe_exists%1#0) // check self.payments exists
+        let (maybe_value%1#1: bytes, maybe_exists%1#1: bool) = (app_global_get_ex 0u "payments")
+        (assert maybe_exists%1#1) // check self.payments exists
         let item_offset%0#0: uint64 = (* index#0 48u)
-        let tmp%1#5: bytes = (extract3 maybe_value%1#0 item_offset%0#0 48u) // on error: Index access is out of bounds
+        let tmp%1#5: bytes = (extract3 maybe_value%1#1 item_offset%0#0 48u) // on error: Index access is out of bounds
         let tmp%2#0: uint64 = (extract_uint64 tmp%1#5 40u)
         let assigned_value%0#2: uint64 = (+ tmp%2#0 amt#0)
         let val_as_bytes%0#0: bytes[8] = (itob assigned_value%0#2)
         let updated_data%0#0: bytes = ((replace2 40) tmp%1#5 val_as_bytes%0#0)
         let index_is_in_bounds%0#0: bool = (< index#0 8u)
         (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let updated_target%0#0: bytes = (replace3 maybe_value%1#0 item_offset%0#0 updated_data%0#0)
+        let updated_target%0#0: bytes = (replace3 maybe_value%1#1 item_offset%0#0 updated_data%0#0)
         (app_global_put "payments" updated_target%0#0)
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
@@ -123,15 +119,13 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
         (app_global_put 0x70 maybe_value%0#0)
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "nested")
-        (assert maybe_exists%1#0) // check self.nested exists
-        let tmp%0#6: bytes[32] = (txn Sender)
-        (app_local_put tmp%0#6 0x6c maybe_value%1#0)
+        let (maybe_value%1#1: bytes, maybe_exists%1#1: bool) = (app_global_get_ex 0u "nested")
+        (assert maybe_exists%1#1) // check self.nested exists
+        let tmp%0#5: bytes = (txn Sender)
+        (app_local_put tmp%0#5 0x6c maybe_value%1#1)
         let tmp%1#4: bool = (box_create "box" 2064u)
         (assert tmp%1#4) // expected box to not exist
-        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "nested")
-        (assert maybe_exists%2#0) // check self.nested exists
-        let tmp%2#1: bytes = ((extract 0 16) maybe_value%2#0) // on error: Index access is out of bounds
+        let tmp%2#1: bytes = ((extract 0 16) maybe_value%1#1) // on error: Index access is out of bounds
         let encoded_value%0#1: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#1)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
@@ -150,8 +144,8 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let reinterpret_bytes[8]%3#0: bytes[8] = (txna ApplicationArgs 1)
         let box_key#0: uint64 = (btoi reinterpret_bytes[8]%3#0)
         (app_global_del 0x70)
-        let tmp%0#6: bytes[32] = (txn Sender)
-        (app_local_del tmp%0#6 0x6c)
+        let tmp%0#5: bytes = (txn Sender)
+        (app_local_del tmp%0#5 0x6c)
         (box_del "box")
         let encoded_value%0#1: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#1)
@@ -172,15 +166,15 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (assert maybe_exists%0#0) // check self.nested exists
         let updated_data%0#0: bytes = ((replace2 0) maybe_value%0#0 a#0)
         (app_global_put "nested" updated_data%0#0)
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u 0x70)
-        (assert maybe_exists%1#0) // check self.nested_proxy exists
-        let updated_data%1#0: bytes = ((replace2 0) maybe_value%1#0 a#0)
+        let (maybe_value%1#1: bytes, maybe_exists%1#1: bool) = (app_global_get_ex 0u 0x70)
+        (assert maybe_exists%1#1) // check self.nested_proxy exists
+        let updated_data%1#0: bytes = ((replace2 0) maybe_value%1#1 a#0)
         (app_global_put 0x70 updated_data%1#0)
-        let tmp%0#6: bytes[32] = (txn Sender)
-        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_local_get_ex tmp%0#6 0u 0x6c)
+        let tmp%0#5: bytes = (txn Sender)
+        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_local_get_ex tmp%0#5 0u 0x6c)
         (assert maybe_exists%2#0) // check self.nested_local exists for account
         let updated_data%2#0: bytes = ((replace2 0) maybe_value%2#0 a#0)
-        (app_local_put tmp%0#6 0x6c updated_data%2#0)
+        (app_local_put tmp%0#5 0x6c updated_data%2#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get "box")
         (assert maybe_exists%3#0) // check self.box exists
         let updated_data%3#0: bytes = ((replace2 0) maybe_value%3#0 a#0)
@@ -236,9 +230,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
         let fixed_a#0: bytes[16] = ((extract 0 16) maybe_value%0#0) // on error: Index access is out of bounds
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "nested")
-        (assert maybe_exists%1#0) // check self.nested exists
-        let fixed_b#0: bytes[16] = ((extract 16 16) maybe_value%1#0) // on error: Index access is out of bounds
+        let fixed_b#0: bytes[16] = ((extract 16 16) maybe_value%0#0) // on error: Index access is out of bounds
         let tmp%0#2: uint64 = (extract_uint64 fixed_a#0 0u)
         let tmp%1#1: uint64 = (extract_uint64 fixed_a#0 8u)
         let tmp%2#0: uint64 = (+ tmp%0#2 tmp%1#1)
