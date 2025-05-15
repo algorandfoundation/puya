@@ -606,12 +606,13 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_biguint_array(
         let tmp%2#0: uint64 = (txn NumAppArgs)
         let tmp%3#0: uint64 = (- tmp%2#0 1u)
         let tmp%4#0: biguint = (itob tmp%3#0)
-        let array%value_len%0#1: uint64 = (len tmp%4#0)
-        let array%len_ok%0#1: bool = (<= array%value_len%0#1 64u)
-        (assert array%len_ok%0#1) // value is bigger than 64 bytes
         let array%bzero%0#1: bytes = (bzero 64u)
         let array%sub_item%0#1: bytes[64] = (b| tmp%4#0 array%bzero%0#1)
-        let arr#1: bytes[64][] = (concat 0x0001 array%sub_item%0#1)
+        let byte_len%0#0: uint64 = (len array%sub_item%0#1)
+        let len_%0#0: uint64 = (/ byte_len%0#0 64u)
+        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let arr#1: bytes[64][] = (concat len_16_bit%0#0 array%sub_item%0#1)
         let tmp%5#0: uint64 = (extract_uint16 arr#1 0u)
         let tmp%6#0: bool = (== tmp%5#0 1u)
         (assert tmp%6#0)
@@ -631,9 +632,6 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_biguint_array(
     block@3: // for_body_L464
         let expr_value_trimmed%0#1: bytes = ((extract 2 0) arr#6)
         let tmp%0#1: biguint = (itob i#1)
-        let array%value_len%1#1: uint64 = (len tmp%0#1)
-        let array%len_ok%1#1: bool = (<= array%value_len%1#1 64u)
-        (assert array%len_ok%1#1) // value is bigger than 64 bytes
         let array%sub_item%1#1: bytes[64] = (b| tmp%0#1 array%bzero%0#1)
         let concatenated%0#1: bytes = (concat expr_value_trimmed%0#1 array%sub_item%1#1)
         let byte_len%0#1: uint64 = (len concatenated%0#1)

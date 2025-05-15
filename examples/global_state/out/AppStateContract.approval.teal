@@ -4,7 +4,7 @@
 // examples.global_state.contract.AppStateContract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 55 33
-    bytecblock 0x48656c6c6f "global_bytes_no_default" 0x676c6f62616c5f696e745f6e6f5f64656661756c74 "global_bool_full" 0x64656661756c74 "global_int_full" "global_int_simplified" "global_bytes_full" "global_bytes_simplified" "global_bool_simplified" 0x576f726c64 "global_bool_no_default"
+    bytecblock 0x48656c6c6f 0x676c6f62616c5f696e745f6e6f5f64656661756c74 "global_bytes_no_default" "global_bool_full" 0x64656661756c74 "global_int_full" "global_int_simplified" "global_bytes_full" "global_bytes_simplified" "global_bool_simplified" "global_bool_no_default"
     txn ApplicationID
     bnz main_after_if_else@2
     // global_state/contract.py:16
@@ -62,14 +62,14 @@ main_after_if_else@2:
     // global_state/contract.py:36
     // assert not self.global_int_no_default
     intc_0 // 0
-    bytec_2 // "global_int_no_default"
+    bytec_1 // "global_int_no_default"
     app_global_get_ex
     bury 1
     !
     assert
     // global_state/contract.py:37
     // self.global_int_no_default.value = UInt64(44)
-    bytec_2 // "global_int_no_default"
+    bytec_1 // "global_int_no_default"
     pushint 44 // 44
     app_global_put
     // global_state/contract.py:86
@@ -77,7 +77,7 @@ main_after_if_else@2:
     intc_0 // 0
     // global_state/contract.py:41
     // assert read_global_uint64(Bytes(b"global_int_no_default")) == 44
-    bytec_2 // 0x676c6f62616c5f696e745f6e6f5f64656661756c74
+    bytec_1 // 0x676c6f62616c5f696e745f6e6f5f64656661756c74
     // global_state/contract.py:86
     // return GlobalState(UInt64, key=key).value
     app_global_get_ex
@@ -120,39 +120,24 @@ main_after_if_else@2:
     // global_state/contract.py:47
     // assert not self.global_bytes_no_default
     intc_0 // 0
-    bytec_1 // "global_bytes_no_default"
+    bytec_2 // "global_bytes_no_default"
     app_global_get_ex
     bury 1
     !
     assert
     // global_state/contract.py:48
     // self.global_bytes_no_default.value = Bytes(b"World")
-    bytec_1 // "global_bytes_no_default"
-    bytec 10 // 0x576f726c64
+    bytec_2 // "global_bytes_no_default"
+    pushbytes 0x576f726c64
     app_global_put
-    // global_state/contract.py:91
-    // return GlobalState(Bytes, key=key).value
-    intc_0 // 0
-    // global_state/contract.py:52
-    // assert read_global_bytes(String("global_bytes_no_default")) == b"World"
-    bytec_1 // "global_bytes_no_default"
-    // global_state/contract.py:91
-    // return GlobalState(Bytes, key=key).value
-    app_global_get_ex
-    assert // check GlobalState exists
-    // global_state/contract.py:52
-    // assert read_global_bytes(String("global_bytes_no_default")) == b"World"
-    bytec 10 // 0x576f726c64
-    ==
-    assert
     // global_state/contract.py:53
     // del self.global_bytes_no_default.value
-    bytec_1 // "global_bytes_no_default"
+    bytec_2 // "global_bytes_no_default"
     app_global_del
     // global_state/contract.py:54
     // b_value, b_exists = self.global_bytes_no_default.maybe()
     intc_0 // 0
-    bytec_1 // "global_bytes_no_default"
+    bytec_2 // "global_bytes_no_default"
     app_global_get_ex
     // global_state/contract.py:55
     // assert not b_exists
@@ -178,14 +163,14 @@ main_after_if_else@2:
     // global_state/contract.py:61
     // assert not self.global_bool_no_default
     intc_0 // 0
-    bytec 11 // "global_bool_no_default"
+    bytec 10 // "global_bool_no_default"
     app_global_get_ex
     bury 1
     !
     assert
     // global_state/contract.py:63
     // self.global_bool_no_default.value = True
-    bytec 11 // "global_bool_no_default"
+    bytec 10 // "global_bool_no_default"
     intc_1 // 1
     app_global_put
     // global_state/contract.py:65-66
@@ -210,7 +195,7 @@ main_after_if_else@2:
     // global_state/contract.py:70-71
     // # test the proxy can be passed as an argument
     // assert get_global_state_plus_1(self.global_int_no_default) == 45
-    bytec_2 // "global_int_no_default"
+    bytec_1 // "global_int_no_default"
     // global_state/contract.py:81
     // return state.value + 1
     app_global_get_ex

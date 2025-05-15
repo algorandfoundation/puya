@@ -105,9 +105,9 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         (assert maybe_exists%0#0) // check self.auction_end exists
         let tmp%1#1: bool = (< tmp%0#2 maybe_value%0#0)
         (assert tmp%1#1) // auction has ended
-        let tmp%2#2: bytes[32] = ((gtxns Sender) pay#0)
+        let tmp%2#0: bytes = ((gtxns Sender) pay#0)
         let tmp%3#1: bytes[32] = (txn Sender)
-        let tmp%4#0: bool = (== tmp%2#2 tmp%3#1)
+        let tmp%4#0: bool = (== tmp%2#0 tmp%3#1)
         (assert tmp%4#0) // payment sender must match transaction sender
         let tmp%5#0: uint64 = ((gtxns Amount) pay#0)
         let (maybe_value%1#2: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bid")
@@ -115,7 +115,7 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         let tmp%6#1: bool = (> tmp%5#0 maybe_value%1#2)
         (assert tmp%6#1) // Bid must be higher than previous bid
         (app_global_put "previous_bid" tmp%5#0)
-        (app_global_put "previous_bidder" tmp%2#2)
+        (app_global_put "previous_bidder" tmp%2#0)
         let tmp%7#1: bytes[32] = (txn Sender)
         (app_local_put tmp%7#1 "claim" tmp%5#0)
         let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u

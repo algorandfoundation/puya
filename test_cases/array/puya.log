@@ -9162,9 +9162,6 @@ debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x some_more#0) to some_more#0
 debug: Simplified (concat 0x some_more#0) to some_more#0
 debug: Simplified (concat 0x some_more#0) // on error: max array length exceeded to some_more#0
-debug: Simplified (len some_more#0) to 32u
-debug: Simplified (/ 32u 16u) to 2u
-debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0002
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -9449,10 +9446,6 @@ debug: Found equivalence set: some_more#0, array%encoded%0#1, array%data%0#1, ar
 debug: selected some_more#0 from equivalence set
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable byte_len%0#0
-debug: Removing unused variable len_%0#0
-debug: Removing unused variable as_bytes%0#0
-debug: Removing unused variable len_16_bit%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -10447,8 +10440,16 @@ debug: Inserted test_extend_from_tuple_block@0.ops[19]: 'l-store-copy array%arra
 debug: Replaced test_extend_from_tuple_block@0.ops[47]: 'v-load array%array_len%0#1' with 'l-load array%array_len%0#1'
 debug: Inserted test_extend_from_tuple_block@0.ops[41]: 'l-store-copy last#0 2'
 debug: Replaced test_extend_from_tuple_block@0.ops[89]: 'v-load last#0' with 'l-load last#0'
-debug: Inserted test_extend_from_arc4_tuple_block@0.ops[5]: 'l-store-copy concat_result%0#0 0'
-debug: Replaced test_extend_from_arc4_tuple_block@0.ops[7]: 'v-load concat_result%0#0' with 'l-load concat_result%0#0'
+debug: Inserted test_extend_from_arc4_tuple_block@0.ops[4]: 'l-store-copy byte_len%0#0 0'
+debug: Replaced test_extend_from_arc4_tuple_block@0.ops[6]: 'v-load byte_len%0#0' with 'l-load byte_len%0#0'
+debug: Inserted test_extend_from_arc4_tuple_block@0.ops[9]: 'l-store-copy len_%0#0 0'
+debug: Replaced test_extend_from_arc4_tuple_block@0.ops[11]: 'v-load len_%0#0' with 'l-load len_%0#0'
+debug: Inserted test_extend_from_arc4_tuple_block@0.ops[13]: 'l-store-copy as_bytes%0#0 0'
+debug: Replaced test_extend_from_arc4_tuple_block@0.ops[15]: 'v-load as_bytes%0#0' with 'l-load as_bytes%0#0'
+debug: Inserted test_extend_from_arc4_tuple_block@0.ops[17]: 'l-store-copy len_16_bit%0#0 0'
+debug: Replaced test_extend_from_arc4_tuple_block@0.ops[19]: 'v-load len_16_bit%0#0' with 'l-load len_16_bit%0#0'
+debug: Inserted test_extend_from_arc4_tuple_block@0.ops[22]: 'l-store-copy concat_result%0#0 0'
+debug: Replaced test_extend_from_arc4_tuple_block@0.ops[24]: 'v-load concat_result%0#0' with 'l-load concat_result%0#0'
 debug: Inserted test_bool_array_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced test_bool_array_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
 debug: Inserted test_bool_array_for_body@2.ops[3]: 'l-store-copy tmp%3#0 0'
@@ -13762,11 +13763,12 @@ debug: Copy propagation made 5 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (len tmp%4#0) to 8u
+debug: Simplified (<= 8u 64u) to 1u
 debug: Simplified (concat 0x array%sub_item%0#1) to array%sub_item%0#1
 debug: Simplified (concat 0x array%sub_item%0#1) to array%sub_item%0#1
-debug: Simplified (len array%sub_item%0#1) to 64u
-debug: Simplified (/ 64u 64u) to 1u
-debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0001
+debug: Simplified (len tmp%0#1) to 8u
+debug: Simplified (<= 8u 64u) to 1u
 debug: Simplified (concat 0x array%sub_item%1#1) to array%sub_item%1#1
 debug: Simplified (concat 0x array%sub_item%1#1) to array%sub_item%1#1
 debug: Simplified (concat 0x array%sub_item%2#1) to array%sub_item%2#1
@@ -14489,10 +14491,10 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable byte_len%0#0
-debug: Removing unused variable len_%0#0
-debug: Removing unused variable as_bytes%0#0
-debug: Removing unused variable len_16_bit%0#0
+debug: Removing unused variable array%value_len%0#1
+debug: Removing unused variable array%len_ok%0#1
+debug: Removing unused variable array%value_len%1#1
+debug: Removing unused variable array%len_ok%1#1
 debug: Removing unused variable array%value_len%3#1
 debug: Removing unused variable array%len_ok%3#1
 debug: Removing unused variable array%sub_item%3#1
@@ -15710,9 +15712,13 @@ debug: Performing SSA IR destructuring for test_cases.array.immutable.ImmutableA
 debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in test_cases.array.immutable.ImmutableArrayContract.test_biguint_array using strategy RootOperandGrouping
+debug: Coalescing byte_len%0#0 with [byte_len%0#1]
+debug: Coalescing len_%0#0 with [len_%0#1]
+debug: Coalescing as_bytes%0#0 with [as_bytes%0#1]
+debug: Coalescing len_16_bit%0#0 with [len_16_bit%0#1]
 debug: Coalescing arr#1 with [arr#10, arr#6, arr#7, arr#3, arr#4]
 debug: Coalescing i#0 with [i#5, i#1, i#2]
-debug: Coalescing resulted in 27 replacement/s
+debug: Coalescing resulted in 35 replacement/s
 debug: Sequentializing parallel copies in test_cases.array.immutable.ImmutableArrayContract.test_biguint_array
 debug: loc: {i#0=i#0, arr#1=arr#1}
 debug: pred: {i#0=i#0, arr#1=arr#1}
@@ -17023,66 +17029,64 @@ debug: Inserted test_biguint_array_block@0.ops[1]: 'l-store-copy tmp%2#0 0'
 debug: Replaced test_biguint_array_block@0.ops[3]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
 debug: Inserted test_biguint_array_block@0.ops[6]: 'l-store-copy tmp%3#0 0'
 debug: Replaced test_biguint_array_block@0.ops[8]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
-debug: Inserted test_biguint_array_block@0.ops[10]: 'l-store-copy tmp%4#0 0'
-debug: Replaced test_biguint_array_block@0.ops[12]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
-debug: Inserted test_biguint_array_block@0.ops[14]: 'l-store-copy array%value_len%0#1 0'
-debug: Replaced test_biguint_array_block@0.ops[16]: 'v-load array%value_len%0#1' with 'l-load array%value_len%0#1'
-debug: Inserted test_biguint_array_block@0.ops[19]: 'l-store-copy array%len_ok%0#1 0'
-debug: Replaced test_biguint_array_block@0.ops[21]: 'v-load array%len_ok%0#1' with 'l-load array%len_ok%0#1'
-debug: Inserted test_biguint_array_block@0.ops[33]: 'l-store-copy arr#1 0'
-debug: Replaced test_biguint_array_block@0.ops[35]: 'v-load arr#1' with 'l-load arr#1'
-debug: Inserted test_biguint_array_block@0.ops[38]: 'l-store-copy tmp%5#0 0'
-debug: Replaced test_biguint_array_block@0.ops[40]: 'v-load tmp%5#0' with 'l-load tmp%5#0'
-debug: Inserted test_biguint_array_block@0.ops[43]: 'l-store-copy tmp%6#0 0'
-debug: Replaced test_biguint_array_block@0.ops[45]: 'v-load tmp%6#0' with 'l-load tmp%6#0'
-debug: Inserted test_biguint_array_block@0.ops[62]: 'l-store-copy arc4_item%0#0 0'
-debug: Replaced test_biguint_array_block@0.ops[64]: 'v-load arc4_item%0#0' with 'l-load arc4_item%0#0'
-debug: Inserted test_biguint_array_block@0.ops[67]: 'l-store-copy tmp%9#0 0'
-debug: Replaced test_biguint_array_block@0.ops[69]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
-debug: Inserted test_biguint_array_block@0.ops[25]: 'l-store-copy array%bzero%0#1 0'
-debug: Replaced test_biguint_array_block@0.ops[28]: 'v-load array%bzero%0#1' with 'l-load array%bzero%0#1'
-debug: Inserted test_biguint_array_block@0.ops[30]: 'l-store-copy array%sub_item%0#1 0'
-debug: Replaced test_biguint_array_block@0.ops[33]: 'v-load array%sub_item%0#1' with 'l-load array%sub_item%0#1'
-debug: Inserted test_biguint_array_block@0.ops[59]: 'l-store-copy item_offset%0#0 0'
-debug: Replaced test_biguint_array_block@0.ops[62]: 'v-load item_offset%0#0' with 'l-load item_offset%0#0'
-debug: Inserted test_biguint_array_block@0.ops[52]: 'l-store-copy tmp%8#0 0'
-debug: Replaced test_biguint_array_block@0.ops[57]: 'v-load tmp%8#0' with 'l-load tmp%8#0'
-debug: Inserted test_biguint_array_block@0.ops[56]: 'l-store-copy array_head_and_tail%0#0 1'
-debug: Replaced test_biguint_array_block@0.ops[63]: 'v-load array_head_and_tail%0#0' with 'l-load array_head_and_tail%0#0'
-debug: Inserted test_biguint_array_block@0.ops[43]: 'l-store-copy tmp%5#0 0'
-debug: Replaced test_biguint_array_block@0.ops[50]: 'v-load tmp%5#0' with 'l-load tmp%5#0'
-debug: Inserted test_biguint_array_block@0.ops[13]: 'l-store-copy tmp%4#0 0'
-debug: Replaced test_biguint_array_block@0.ops[28]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
+debug: Inserted test_biguint_array_block@0.ops[17]: 'l-store-copy array%sub_item%0#1 0'
+debug: Replaced test_biguint_array_block@0.ops[19]: 'v-load array%sub_item%0#1' with 'l-load array%sub_item%0#1'
+debug: Inserted test_biguint_array_block@0.ops[21]: 'l-store-copy byte_len%0#0 0'
+debug: Replaced test_biguint_array_block@0.ops[23]: 'v-load byte_len%0#0' with 'l-load byte_len%0#0'
+debug: Inserted test_biguint_array_block@0.ops[26]: 'l-store-copy len_%0#0 0'
+debug: Replaced test_biguint_array_block@0.ops[28]: 'v-load len_%0#0' with 'l-load len_%0#0'
+debug: Inserted test_biguint_array_block@0.ops[30]: 'l-store-copy as_bytes%0#0 0'
+debug: Replaced test_biguint_array_block@0.ops[32]: 'v-load as_bytes%0#0' with 'l-load as_bytes%0#0'
+debug: Inserted test_biguint_array_block@0.ops[34]: 'l-store-copy len_16_bit%0#0 0'
+debug: Replaced test_biguint_array_block@0.ops[36]: 'v-load len_16_bit%0#0' with 'l-load len_16_bit%0#0'
 debug: Inserted test_biguint_array_block@0.ops[39]: 'l-store-copy arr#1 0'
-debug: Replaced test_biguint_array_block@0.ops[57]: 'v-load arr#1' with 'l-load arr#1'
+debug: Replaced test_biguint_array_block@0.ops[41]: 'v-load arr#1' with 'l-load arr#1'
+debug: Inserted test_biguint_array_block@0.ops[44]: 'l-store-copy tmp%5#0 0'
+debug: Replaced test_biguint_array_block@0.ops[46]: 'v-load tmp%5#0' with 'l-load tmp%5#0'
+debug: Inserted test_biguint_array_block@0.ops[49]: 'l-store-copy tmp%6#0 0'
+debug: Replaced test_biguint_array_block@0.ops[51]: 'v-load tmp%6#0' with 'l-load tmp%6#0'
+debug: Inserted test_biguint_array_block@0.ops[68]: 'l-store-copy arc4_item%0#0 0'
+debug: Replaced test_biguint_array_block@0.ops[70]: 'v-load arc4_item%0#0' with 'l-load arc4_item%0#0'
+debug: Inserted test_biguint_array_block@0.ops[73]: 'l-store-copy tmp%9#0 0'
+debug: Replaced test_biguint_array_block@0.ops[75]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
+debug: Inserted test_biguint_array_block@0.ops[13]: 'l-store-copy array%bzero%0#1 0'
+debug: Replaced test_biguint_array_block@0.ops[16]: 'v-load array%bzero%0#1' with 'l-load array%bzero%0#1'
+debug: Inserted test_biguint_array_block@0.ops[64]: 'l-store-copy item_offset%0#0 0'
+debug: Replaced test_biguint_array_block@0.ops[67]: 'v-load item_offset%0#0' with 'l-load item_offset%0#0'
+debug: Inserted test_biguint_array_block@0.ops[10]: 'l-store-copy tmp%4#0 0'
+debug: Replaced test_biguint_array_block@0.ops[16]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
+debug: Inserted test_biguint_array_block@0.ops[58]: 'l-store-copy tmp%8#0 0'
+debug: Replaced test_biguint_array_block@0.ops[63]: 'v-load tmp%8#0' with 'l-load tmp%8#0'
+debug: Inserted test_biguint_array_block@0.ops[62]: 'l-store-copy array_head_and_tail%0#0 1'
+debug: Replaced test_biguint_array_block@0.ops[69]: 'v-load array_head_and_tail%0#0' with 'l-load array_head_and_tail%0#0'
+debug: Inserted test_biguint_array_block@0.ops[49]: 'l-store-copy tmp%5#0 0'
+debug: Replaced test_biguint_array_block@0.ops[56]: 'v-load tmp%5#0' with 'l-load tmp%5#0'
+debug: Inserted test_biguint_array_block@0.ops[22]: 'l-store-copy array%sub_item%0#1 0'
+debug: Replaced test_biguint_array_block@0.ops[40]: 'v-load array%sub_item%0#1' with 'l-load array%sub_item%0#1'
+debug: Inserted test_biguint_array_block@0.ops[45]: 'l-store-copy arr#1 0'
+debug: Replaced test_biguint_array_block@0.ops[63]: 'v-load arr#1' with 'l-load arr#1'
 debug: Inserted test_biguint_array_for_header@2.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced test_biguint_array_for_header@2.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
 debug: Inserted test_biguint_array_for_body@3.ops[5]: 'l-store-copy tmp%0#1 0'
 debug: Replaced test_biguint_array_for_body@3.ops[7]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
-debug: Inserted test_biguint_array_for_body@3.ops[9]: 'l-store-copy array%value_len%1#1 0'
-debug: Replaced test_biguint_array_for_body@3.ops[11]: 'v-load array%value_len%1#1' with 'l-load array%value_len%1#1'
-debug: Inserted test_biguint_array_for_body@3.ops[14]: 'l-store-copy array%len_ok%1#1 0'
-debug: Replaced test_biguint_array_for_body@3.ops[16]: 'v-load array%len_ok%1#1' with 'l-load array%len_ok%1#1'
-debug: Inserted test_biguint_array_for_body@3.ops[25]: 'l-store-copy concatenated%0#1 0'
-debug: Replaced test_biguint_array_for_body@3.ops[27]: 'v-load concatenated%0#1' with 'l-load concatenated%0#1'
-debug: Inserted test_biguint_array_for_body@3.ops[29]: 'l-store-copy byte_len%0#1 0'
-debug: Replaced test_biguint_array_for_body@3.ops[31]: 'v-load byte_len%0#1' with 'l-load byte_len%0#1'
-debug: Inserted test_biguint_array_for_body@3.ops[34]: 'l-store-copy len_%0#1 0'
-debug: Replaced test_biguint_array_for_body@3.ops[36]: 'v-load len_%0#1' with 'l-load len_%0#1'
-debug: Inserted test_biguint_array_for_body@3.ops[38]: 'l-store-copy as_bytes%0#1 0'
-debug: Replaced test_biguint_array_for_body@3.ops[40]: 'v-load as_bytes%0#1' with 'l-load as_bytes%0#1'
-debug: Inserted test_biguint_array_for_body@3.ops[42]: 'l-store-copy len_16_bit%0#1 0'
-debug: Replaced test_biguint_array_for_body@3.ops[44]: 'v-load len_16_bit%0#1' with 'l-load len_16_bit%0#1'
-debug: Inserted test_biguint_array_for_body@3.ops[21]: 'l-store-copy array%sub_item%1#1 0'
-debug: Replaced test_biguint_array_for_body@3.ops[24]: 'v-load array%sub_item%1#1' with 'l-load array%sub_item%1#1'
-debug: Inserted test_biguint_array_for_body@3.ops[8]: 'l-store-copy tmp%0#1 0'
-debug: Replaced test_biguint_array_for_body@3.ops[19]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
-debug: Inserted test_biguint_array_for_body@3.ops[30]: 'l-store-copy concatenated%0#1 0'
-debug: Replaced test_biguint_array_for_body@3.ops[48]: 'v-load concatenated%0#1' with 'l-load concatenated%0#1'
+debug: Inserted test_biguint_array_for_body@3.ops[14]: 'l-store-copy concatenated%0#1 0'
+debug: Replaced test_biguint_array_for_body@3.ops[16]: 'v-load concatenated%0#1' with 'l-load concatenated%0#1'
+debug: Inserted test_biguint_array_for_body@3.ops[18]: 'l-store-copy byte_len%0#0 0'
+debug: Replaced test_biguint_array_for_body@3.ops[20]: 'v-load byte_len%0#0' with 'l-load byte_len%0#0'
+debug: Inserted test_biguint_array_for_body@3.ops[23]: 'l-store-copy len_%0#0 0'
+debug: Replaced test_biguint_array_for_body@3.ops[25]: 'v-load len_%0#0' with 'l-load len_%0#0'
+debug: Inserted test_biguint_array_for_body@3.ops[27]: 'l-store-copy as_bytes%0#0 0'
+debug: Replaced test_biguint_array_for_body@3.ops[29]: 'v-load as_bytes%0#0' with 'l-load as_bytes%0#0'
+debug: Inserted test_biguint_array_for_body@3.ops[31]: 'l-store-copy len_16_bit%0#0 0'
+debug: Replaced test_biguint_array_for_body@3.ops[33]: 'v-load len_16_bit%0#0' with 'l-load len_16_bit%0#0'
+debug: Inserted test_biguint_array_for_body@3.ops[10]: 'l-store-copy array%sub_item%1#1 0'
+debug: Replaced test_biguint_array_for_body@3.ops[13]: 'v-load array%sub_item%1#1' with 'l-load array%sub_item%1#1'
 debug: Inserted test_biguint_array_for_body@3.ops[2]: 'l-store-copy expr_value_trimmed%0#1 0'
-debug: Replaced test_biguint_array_for_body@3.ops[25]: 'v-load expr_value_trimmed%0#1' with 'l-load expr_value_trimmed%0#1'
+debug: Replaced test_biguint_array_for_body@3.ops[13]: 'v-load expr_value_trimmed%0#1' with 'l-load expr_value_trimmed%0#1'
+debug: Inserted test_biguint_array_for_body@3.ops[19]: 'l-store-copy concatenated%0#1 0'
+debug: Replaced test_biguint_array_for_body@3.ops[37]: 'v-load concatenated%0#1' with 'l-load concatenated%0#1'
 debug: Inserted test_biguint_array_for_body@3.ops[5]: 'l-store-copy i#0 1'
-debug: Replaced test_biguint_array_for_body@3.ops[53]: 'v-load i#0' with 'l-load i#0'
+debug: Replaced test_biguint_array_for_body@3.ops[41]: 'v-load i#0' with 'l-load i#0'
 debug: Inserted test_biguint_array_after_for@4.ops[3]: 'l-store-copy tmp%10#0 0'
 debug: Replaced test_biguint_array_after_for@4.ops[5]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
 debug: Inserted test_biguint_array_after_for@4.ops[8]: 'l-store-copy tmp%11#0 0'
