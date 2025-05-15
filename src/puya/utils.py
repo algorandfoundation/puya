@@ -286,8 +286,12 @@ def normalise_path_to_str(path: Path) -> str:
     return str(path).replace("\\", "/")
 
 
+def biguint_bytes_length(value: int) -> int:
+    return math.ceil(value.bit_length() / 8.0)
+
+
 def biguint_bytes_eval(value: int) -> bytes:
-    byte_length = math.ceil(value.bit_length() / 8.0)
+    byte_length = biguint_bytes_length(value)
     assert byte_length <= 64, "Biguints must be 64 bytes or less"
     big_uint_bytes = value.to_bytes(byteorder="big", length=byte_length)
     return big_uint_bytes

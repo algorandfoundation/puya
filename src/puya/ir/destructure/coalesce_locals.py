@@ -8,7 +8,7 @@ import attrs
 from puya import log
 from puya.avm import AVMType
 from puya.ir import models
-from puya.ir.types_ import PrimitiveIRType
+from puya.ir.types_ import PrimitiveIRType, SlotType
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 from puya.ir.vla import VariableLifetimeAnalysis
 from puya.options import LocalsCoalescingStrategy
@@ -111,7 +111,16 @@ class RootOperandGrouping(CoalesceGroupStrategy):
     def get_group_key(self, reg: models.Register) -> object:
         if reg in self._isolate:
             return reg
-        return reg.name, reg.ir_type
+        ir_type = reg.ir_type
+        # preserve PrimitiveIRType, because this seems to provide a decent balance
+        # preserve SlotType because otherwise MIR will error
+        if not isinstance(ir_type, PrimitiveIRType | SlotType):
+            match ir_type.maybe_avm_type:
+                case AVMType.uint64:
+                    ir_type = PrimitiveIRType.uint64
+                case AVMType.bytes:
+                    ir_type = PrimitiveIRType.bytes
+        return reg.name, ir_type
 
     def determine_group_replacement(self, regs: Iterable[models.Register]) -> models.Register:
         return min(regs, key=lambda r: r.version)

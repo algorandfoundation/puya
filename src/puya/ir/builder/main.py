@@ -70,6 +70,7 @@ from puya.ir.types_ import (
     ArrayType,
     AVMBytesEncoding,
     PrimitiveIRType,
+    SizedBytesType,
     SlotType,
     bytes_enc_to_avm_bytes_enc,
     wtype_to_ir_type,
@@ -439,7 +440,6 @@ class FunctionIRBuilder(
                 return BytesConstant(
                     value=(ARC4_TRUE if expr.value else ARC4_FALSE),
                     encoding=AVMBytesEncoding.base16,
-                    ir_type=PrimitiveIRType.bytes,
                     source_location=expr.source_location,
                 )
             case _:
@@ -450,10 +450,13 @@ class FunctionIRBuilder(
     def visit_bytes_constant(self, expr: awst_nodes.BytesConstant) -> BytesConstant:
         if len(expr.value) > algo_constants.MAX_BYTES_LENGTH:
             raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
+        ir_type = wtype_to_ir_type(expr)
+        if ir_type is PrimitiveIRType.bytes:
+            ir_type = SizedBytesType(num_bytes=len(expr.value))
         return BytesConstant(
             value=expr.value,
             encoding=bytes_enc_to_avm_bytes_enc(expr.encoding),
-            ir_type=wtype_to_ir_type(expr),
+            ir_type=ir_type,
             source_location=expr.source_location,
         )
 
