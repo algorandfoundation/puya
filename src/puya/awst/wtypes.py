@@ -136,26 +136,6 @@ class WType:
         return visitor.visit_basic_type(self)
 
 
-@attrs.frozen(kw_only=True)
-class BytesWType(WType):
-    length: int | None = attrs.field(validator=attrs.validators.optional(attrs.validators.ge(0)))
-    name: str = attrs.field(init=False, eq=False)
-    _type_semantics: _TypeSemantics = attrs.field(
-        default=_TypeSemantics.persistable_bytes, init=False
-    )
-    immutable: bool = attrs.field(default=True, init=False)
-
-    @name.default
-    def _name_factory(self) -> str:
-        return "bytes" if self.length is None else f"bytes[{self.length}]"
-
-    def accept[T](self, visitor: WTypeVisitor[T]) -> T:
-        return visitor.visit_bytes_type(self)
-
-
-bytes_wtype: typing.Final = BytesWType(length=None)
-
-
 # region Basic WTypes
 void_wtype: typing.Final = WType.register_basic_type(
     name="void",
@@ -208,6 +188,26 @@ class _WTypeInstance(WType, abc.ABC):
     @typing.override
     @abc.abstractmethod
     def accept[T](self, visitor: WTypeVisitor[T]) -> T: ...
+
+
+@attrs.frozen(kw_only=True)
+class BytesWType(_WTypeInstance):
+    length: int | None = attrs.field(validator=attrs.validators.optional(attrs.validators.ge(0)))
+    name: str = attrs.field(init=False, eq=False)
+    _type_semantics: _TypeSemantics = attrs.field(
+        default=_TypeSemantics.persistable_bytes, init=False
+    )
+    immutable: bool = attrs.field(default=True, init=False)
+
+    @name.default
+    def _name_factory(self) -> str:
+        return "bytes" if self.length is None else f"bytes[{self.length}]"
+
+    def accept[T](self, visitor: WTypeVisitor[T]) -> T:
+        return visitor.visit_bytes_type(self)
+
+
+bytes_wtype: typing.Final = BytesWType(length=None)
 
 
 @attrs.frozen
