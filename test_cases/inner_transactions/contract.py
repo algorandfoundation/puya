@@ -223,6 +223,10 @@ class MyContract(Contract):
         assert app15.logs(0) == b"15"
         assert app16.logs(0) == b"16"
 
+        assert app1.txn_id != app2.txn_id
+        assert app3.txn_id.length == 32
+        assert app4.txn_id != b""
+
     @subroutine
     def test4(self) -> None:
         lots_of_bytes = op.bzero(2044)
