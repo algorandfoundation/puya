@@ -316,6 +316,10 @@ subroutine test_cases.inner_transactions.contract.MyContract.test3() -> void:
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
+        let app1.TxID#0: bytes[32] = (gitxn 0 TxID)
+        let app2.TxID#0: bytes[32] = (gitxn 1 TxID)
+        let app3.TxID#0: bytes[32] = (gitxn 2 TxID)
+        let app4.TxID#0: bytes[32] = (gitxn 3 TxID)
         let tmp%0#0: bytes = ((gitxnas 0 Logs) 0u)
         let tmp%1#0: bool = (== tmp%0#0 0x31)
         (assert tmp%1#0)
@@ -364,10 +368,16 @@ subroutine test_cases.inner_transactions.contract.MyContract.test3() -> void:
         let tmp%30#0: bytes = ((itxnas Logs) 0u)
         let tmp%31#0: bool = (== tmp%30#0 0x3136)
         (assert tmp%31#0)
+        let tmp%32#0: bool = (!= app1.TxID#0 app2.TxID#0)
+        (assert tmp%32#0)
+        let tmp%33#0: uint64 = 32u
+        let tmp%34#0: bool = 1u
+        let tmp%35#0: bool = (!= app4.TxID#0 0x)
+        (assert tmp%35#0)
         return 
 
 subroutine test_cases.inner_transactions.contract.MyContract.test4() -> void:
-    block@0: // L226
+    block@0: // L230
         let lots_of_bytes#0: bytes = (bzero 2044u)
         let tmp%0#0: bytes = (concat 0x80fc0f lots_of_bytes#0)
         let approval_2#0: bytes = (concat tmp%0#0 0x48)

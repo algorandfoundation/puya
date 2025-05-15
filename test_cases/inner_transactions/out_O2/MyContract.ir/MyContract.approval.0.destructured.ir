@@ -270,6 +270,9 @@ main test_cases.inner_transactions.contract.MyContract.__algopy_entrypoint_with_
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
+        let app1.TxID#0: bytes[32] = (gitxn 0 TxID)
+        let app2.TxID#0: bytes[32] = (gitxn 1 TxID)
+        let app4.TxID#0: bytes[32] = (gitxn 3 TxID)
         let tmp%0#2: bytes = (gitxna 0 Logs 0)
         let tmp%1#2: bool = (== tmp%0#2 0x31)
         (assert tmp%1#2)
@@ -318,6 +321,10 @@ main test_cases.inner_transactions.contract.MyContract.__algopy_entrypoint_with_
         let tmp%30#0: bytes = (itxna Logs 0)
         let tmp%31#0: bool = (== tmp%30#0 0x3136)
         (assert tmp%31#0)
+        let tmp%32#0: bool = (!= app1.TxID#0 app2.TxID#0)
+        (assert tmp%32#0)
+        let tmp%35#0: bool = (!= app4.TxID#0 0x)
+        (assert tmp%35#0)
         goto block@11
     block@8: // switch_case_3_L36
         let lots_of_bytes#0: bytes = (bzero 2044u)
