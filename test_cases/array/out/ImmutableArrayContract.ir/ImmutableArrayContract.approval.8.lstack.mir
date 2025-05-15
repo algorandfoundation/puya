@@ -1549,13 +1549,6 @@ subroutine test_biguint_array:
         -                                                                                         tmp%3#0
         l-load tmp%3#0 0                                                                          tmp%3#0
         itob                                                                                      tmp%4#0
-        l-load-copy tmp%4#0 0                                                                     tmp%4#0,tmp%4#0 (copy)
-        len                                                                                       tmp%4#0,array%value_len%0#1
-        l-load array%value_len%0#1 0                                                              tmp%4#0,array%value_len%0#1
-        int 64                                                                                    tmp%4#0,array%value_len%0#1,64
-        <=                                                                                        tmp%4#0,array%len_ok%0#1
-        l-load array%len_ok%0#1 0                                                                 tmp%4#0,array%len_ok%0#1
-        assert // value is bigger than 64 bytes                                                   tmp%4#0
         int 64                                                                                    tmp%4#0,64
         bzero                                                                                     tmp%4#0,array%bzero%0#1
         l-store-copy array%bzero%0#1 0                                                            tmp%4#0,array%bzero%0#1,array%bzero%0#1 (copy)
@@ -1563,8 +1556,17 @@ subroutine test_biguint_array:
         l-load tmp%4#0 1                                                                          array%bzero%0#1,tmp%4#0
         l-load array%bzero%0#1 1                                                                  tmp%4#0,array%bzero%0#1
         b|                                                                                        array%sub_item%0#1
-        byte 0x0001                                                                               array%sub_item%0#1,0x0001
-        l-load array%sub_item%0#1 1                                                               0x0001,array%sub_item%0#1
+        l-load-copy array%sub_item%0#1 0                                                          array%sub_item%0#1,array%sub_item%0#1 (copy)
+        len                                                                                       array%sub_item%0#1,byte_len%0#0
+        l-load byte_len%0#0 0                                                                     array%sub_item%0#1,byte_len%0#0
+        int 64                                                                                    array%sub_item%0#1,byte_len%0#0,64
+        /                                                                                         array%sub_item%0#1,len_%0#0
+        l-load len_%0#0 0                                                                         array%sub_item%0#1,len_%0#0
+        itob                                                                                      array%sub_item%0#1,as_bytes%0#0
+        l-load as_bytes%0#0 0                                                                     array%sub_item%0#1,as_bytes%0#0
+        extract 6 2                                                                               array%sub_item%0#1,len_16_bit%0#0
+        l-load len_16_bit%0#0 0                                                                   array%sub_item%0#1,len_16_bit%0#0
+        l-load array%sub_item%0#1 1                                                               len_16_bit%0#0,array%sub_item%0#1
         concat                                                                                    arr#1
         l-store-copy arr#1 0                                                                      arr#1,arr#1 (copy)
         v-store arr#1                                                                             arr#1
@@ -1624,13 +1626,6 @@ subroutine test_biguint_array:
         v-load i#0                                                                                expr_value_trimmed%0#1,i#0
         l-store-copy i#0 1                                                                        i#0,expr_value_trimmed%0#1,i#0 (copy)
         itob                                                                                      i#0,expr_value_trimmed%0#1,tmp%0#1
-        l-load-copy tmp%0#1 0                                                                     i#0,expr_value_trimmed%0#1,tmp%0#1,tmp%0#1 (copy)
-        len                                                                                       i#0,expr_value_trimmed%0#1,tmp%0#1,array%value_len%1#1
-        l-load array%value_len%1#1 0                                                              i#0,expr_value_trimmed%0#1,tmp%0#1,array%value_len%1#1
-        int 64                                                                                    i#0,expr_value_trimmed%0#1,tmp%0#1,array%value_len%1#1,64
-        <=                                                                                        i#0,expr_value_trimmed%0#1,tmp%0#1,array%len_ok%1#1
-        l-load array%len_ok%1#1 0                                                                 i#0,expr_value_trimmed%0#1,tmp%0#1,array%len_ok%1#1
-        assert // value is bigger than 64 bytes                                                   i#0,expr_value_trimmed%0#1,tmp%0#1
         l-load tmp%0#1 0                                                                          i#0,expr_value_trimmed%0#1,tmp%0#1
         v-load array%bzero%0#1                                                                    i#0,expr_value_trimmed%0#1,tmp%0#1,array%bzero%0#1
         b|                                                                                        i#0,expr_value_trimmed%0#1,array%sub_item%1#1
@@ -1638,16 +1633,16 @@ subroutine test_biguint_array:
         l-load array%sub_item%1#1 1                                                               i#0,expr_value_trimmed%0#1,array%sub_item%1#1
         concat                                                                                    i#0,concatenated%0#1
         l-load-copy concatenated%0#1 0                                                            i#0,concatenated%0#1,concatenated%0#1 (copy)
-        len                                                                                       i#0,concatenated%0#1,byte_len%0#1
-        l-load byte_len%0#1 0                                                                     i#0,concatenated%0#1,byte_len%0#1
-        int 64                                                                                    i#0,concatenated%0#1,byte_len%0#1,64
-        /                                                                                         i#0,concatenated%0#1,len_%0#1
-        l-load len_%0#1 0                                                                         i#0,concatenated%0#1,len_%0#1
-        itob                                                                                      i#0,concatenated%0#1,as_bytes%0#1
-        l-load as_bytes%0#1 0                                                                     i#0,concatenated%0#1,as_bytes%0#1
-        extract 6 2                                                                               i#0,concatenated%0#1,len_16_bit%0#1
-        l-load len_16_bit%0#1 0                                                                   i#0,concatenated%0#1,len_16_bit%0#1
-        l-load concatenated%0#1 1                                                                 i#0,len_16_bit%0#1,concatenated%0#1
+        len                                                                                       i#0,concatenated%0#1,byte_len%0#0
+        l-load byte_len%0#0 0                                                                     i#0,concatenated%0#1,byte_len%0#0
+        int 64                                                                                    i#0,concatenated%0#1,byte_len%0#0,64
+        /                                                                                         i#0,concatenated%0#1,len_%0#0
+        l-load len_%0#0 0                                                                         i#0,concatenated%0#1,len_%0#0
+        itob                                                                                      i#0,concatenated%0#1,as_bytes%0#0
+        l-load as_bytes%0#0 0                                                                     i#0,concatenated%0#1,as_bytes%0#0
+        extract 6 2                                                                               i#0,concatenated%0#1,len_16_bit%0#0
+        l-load len_16_bit%0#0 0                                                                   i#0,concatenated%0#1,len_16_bit%0#0
+        l-load concatenated%0#1 1                                                                 i#0,len_16_bit%0#0,concatenated%0#1
         concat                                                                                    i#0,arr#1
         v-store arr#1                                                                             i#0
         // array/immutable.py:463
