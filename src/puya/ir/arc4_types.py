@@ -20,19 +20,13 @@ class ARC4EncodedWTypeConverterVisitor(WTypeVisitor[wtypes.ARC4Type | None]):
                 return wtypes.ARC4UIntN(n=64, source_location=None)
             case wtypes.biguint_wtype:
                 return wtypes.ARC4UIntN(n=512, source_location=None)
-            case wtypes.bytes_wtype:
-                return wtypes.ARC4DynamicArray(
-                    element_type=wtypes.arc4_byte_alias,
-                    immutable=True,
-                    source_location=None,
-                )
             case wtypes.string_wtype:
                 return wtypes.arc4_string_alias
             case _:
                 return None
 
     @typing.override
-    def visit_bytes_type(self, wtype: wtypes.BytesWType) -> wtypes.ARC4Type | None:
+    def visit_bytes_type(self, wtype: wtypes.BytesWType) -> wtypes.ARC4Type:
         if wtype.length is not None:
             return wtypes.ARC4StaticArray(
                 element_type=wtypes.arc4_byte_alias,
