@@ -423,7 +423,7 @@ class WTuple(_WTypeInstance):
 
 @attrs.frozen(kw_only=True)
 class ARC4Type(_WTypeInstance):
-    arc4_alias: str | None = attrs.field(default=None, eq=False, alias="arc4_name")
+    arc4_alias: str | None = attrs.field(default=None, eq=False)
     _type_semantics: _TypeSemantics = attrs.field(
         default=_TypeSemantics.persistable_bytes, init=False
     )
@@ -632,17 +632,17 @@ class ARC4Struct(_ARC4WTypeInstance):
 # region ARC4 aliases
 arc4_byte_alias: typing.Final = ARC4UIntN(
     n=8,
-    arc4_name="byte",
+    arc4_alias="byte",
     source_location=None,
 )
 arc4_string_alias: typing.Final = ARC4DynamicArray(
-    arc4_name="string",
+    arc4_alias="string",
     element_type=arc4_byte_alias,
     immutable=True,
     source_location=None,
 )
 arc4_address_alias: typing.Final = ARC4StaticArray(
-    arc4_name="address",
+    arc4_alias="address",
     element_type=arc4_byte_alias,
     array_size=32,
     immutable=True,
