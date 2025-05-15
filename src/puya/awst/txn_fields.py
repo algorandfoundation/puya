@@ -19,6 +19,9 @@ class _TxnFieldData:
     is_inner_param: bool = attrs.field(default=True, kw_only=True)
 
 
+_Bytes32WType = wtypes.BytesWType(length=32)
+
+
 @enum.unique
 class TxnField(enum.Enum):
     def __init__(self, data: _TxnFieldData):
@@ -60,12 +63,12 @@ class TxnField(enum.Enum):
     FirstValidTime = _TxnFieldData(wtypes.uint64_wtype, is_inner_param=False)
     LastValid = _TxnFieldData(wtypes.uint64_wtype, is_inner_param=False)
     Note = _TxnFieldData(wtypes.bytes_wtype)
-    Lease = _TxnFieldData(wtypes.bytes_wtype, is_inner_param=False)
+    Lease = _TxnFieldData(_Bytes32WType, is_inner_param=False)
     Receiver = _TxnFieldData(wtypes.account_wtype)
     Amount = _TxnFieldData(wtypes.uint64_wtype)
     CloseRemainderTo = _TxnFieldData(wtypes.account_wtype)
-    VotePK = _TxnFieldData(wtypes.bytes_wtype)
-    SelectionPK = _TxnFieldData(wtypes.bytes_wtype)
+    VotePK = _TxnFieldData(_Bytes32WType)
+    SelectionPK = _TxnFieldData(_Bytes32WType)
     VoteFirst = _TxnFieldData(wtypes.uint64_wtype)
     VoteLast = _TxnFieldData(wtypes.uint64_wtype)
     VoteKeyDilution = _TxnFieldData(wtypes.uint64_wtype)
@@ -77,7 +80,7 @@ class TxnField(enum.Enum):
     AssetReceiver = _TxnFieldData(wtypes.account_wtype)
     AssetCloseTo = _TxnFieldData(wtypes.account_wtype)
     GroupIndex = _TxnFieldData(wtypes.uint64_wtype, is_inner_param=False)
-    TxID = _TxnFieldData(wtypes.bytes_wtype, is_inner_param=False)
+    TxID = _TxnFieldData(_Bytes32WType, is_inner_param=False)
     # v2
     ApplicationID = _TxnFieldData(wtypes.application_wtype)
     OnCompletion = _TxnFieldData(wtypes.uint64_wtype)
@@ -93,7 +96,7 @@ class TxnField(enum.Enum):
     ConfigAssetUnitName = _TxnFieldData(wtypes.bytes_wtype)
     ConfigAssetName = _TxnFieldData(wtypes.bytes_wtype)
     ConfigAssetURL = _TxnFieldData(wtypes.bytes_wtype)
-    ConfigAssetMetadataHash = _TxnFieldData(wtypes.bytes_wtype)
+    ConfigAssetMetadataHash = _TxnFieldData(_Bytes32WType)
     ConfigAssetManager = _TxnFieldData(wtypes.account_wtype)
     ConfigAssetReserve = _TxnFieldData(wtypes.account_wtype)
     ConfigAssetFreeze = _TxnFieldData(wtypes.account_wtype)
