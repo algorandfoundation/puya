@@ -8,7 +8,7 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import BaseTypeBuilder, FunctionBuilder
+from puyapy.awst_build.eb._base import FunctionBuilder, TypeBuilder
 from puyapy.awst_build.eb._literals import LiteralBuilderImpl
 from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.arc4._utils import ARC4Signature
@@ -74,7 +74,7 @@ class Arc4SignatureBuilder(FunctionBuilder):
         )
 
 
-class IntrinsicEnumTypeBuilder(BaseTypeBuilder[pytypes.IntrinsicEnumType]):
+class IntrinsicEnumTypeBuilder(TypeBuilder[pytypes.IntrinsicEnumType]):
     @typing.override
     def call(
         self,
@@ -94,7 +94,7 @@ class IntrinsicEnumTypeBuilder(BaseTypeBuilder[pytypes.IntrinsicEnumType]):
         return LiteralBuilderImpl(value=value, source_location=location)
 
 
-class IntrinsicNamespaceTypeBuilder(BaseTypeBuilder[pytypes.IntrinsicNamespaceType]):
+class IntrinsicNamespaceTypeBuilder(TypeBuilder[pytypes.IntrinsicNamespaceType]):
     @typing.override
     def call(
         self,

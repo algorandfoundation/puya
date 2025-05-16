@@ -9,7 +9,7 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import BaseTypeBuilder, FunctionBuilder, InstanceExpressionBuilder
+from puyapy.awst_build.eb._base import FunctionBuilder, InstanceExpressionBuilder, TypeBuilder
 from puyapy.awst_build.eb._utils import cast_to_bytes
 from puyapy.awst_build.eb.bytes import BytesExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
@@ -20,7 +20,7 @@ _TPyType_co = typing_extensions.TypeVar(
 )
 
 
-class BytesBackedTypeBuilder(BaseTypeBuilder[_TPyType_co], abc.ABC):
+class BytesBackedTypeBuilder(TypeBuilder[_TPyType_co], abc.ABC):
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         typ = self.produces()

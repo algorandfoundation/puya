@@ -14,7 +14,7 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.eb._base import BaseTypeBuilder
+from puyapy.awst_build.eb._base import TypeBuilder
 from puyapy.awst_build.eb._utils import constant_bool_and_error
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
@@ -34,7 +34,7 @@ from puyapy.models import ContractFragmentBase
 logger = log.get_logger(__name__)
 
 
-class ContractTypeExpressionBuilder(BaseTypeBuilder[pytypes.ContractType]):
+class ContractTypeExpressionBuilder(TypeBuilder[pytypes.ContractType]):
     def __init__(
         self,
         pytype: pytypes.ContractType,

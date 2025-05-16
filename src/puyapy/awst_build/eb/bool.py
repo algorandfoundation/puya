@@ -15,7 +15,7 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import BaseTypeBuilder, NotIterableInstanceExpressionBuilder
+from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder, TypeBuilder
 from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
@@ -26,7 +26,7 @@ from puyapy.awst_build.eb.interface import (
 logger = log.get_logger(__name__)
 
 
-class BoolTypeBuilder(BaseTypeBuilder):
+class BoolTypeBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.BoolType, location)
 

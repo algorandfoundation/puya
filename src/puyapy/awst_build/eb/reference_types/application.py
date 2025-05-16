@@ -8,7 +8,7 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import BaseTypeBuilder
+from puyapy.awst_build.eb._base import TypeBuilder
 from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
     LiteralBuilder,
@@ -19,7 +19,7 @@ from puyapy.awst_build.eb.reference_types._base import UInt64BackedReferenceValu
 logger = log.get_logger(__name__)
 
 
-class ApplicationTypeBuilder(BaseTypeBuilder):
+class ApplicationTypeBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.ApplicationType, location)
 

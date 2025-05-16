@@ -5,11 +5,11 @@ from puya.awst.nodes import Expression
 from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.eb._base import BaseTypeBuilder
+from puyapy.awst_build.eb._base import TypeBuilder
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 
 
-class StructSubclassExpressionBuilder(BaseTypeBuilder[pytypes.StructType]):
+class StructSubclassExpressionBuilder(TypeBuilder[pytypes.StructType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.StructType)
         assert pytypes.StructBaseType < typ

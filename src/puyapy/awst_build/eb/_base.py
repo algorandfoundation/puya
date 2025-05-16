@@ -29,12 +29,11 @@ from puyapy.awst_build.eb.interface import (
     LiteralBuilder,
     LiteralConverter,
     NodeBuilder,
-    TypeBuilder,
 )
 
 __all__ = [
     "FunctionBuilder",
-    "BaseTypeBuilder",
+    "TypeBuilder",
     "GenericTypeBuilder",
     "InstanceExpressionBuilder",
     "NotIterableInstanceExpressionBuilder",
@@ -69,7 +68,7 @@ class FunctionBuilder(CallableBuilder, abc.ABC):
         raise CodeError("function attribute access is not supported", location)
 
 
-class BaseTypeBuilder(TypeBuilder, typing.Generic[_TPyType_co], abc.ABC):
+class TypeBuilder(CallableBuilder, LiteralConverter, typing.Generic[_TPyType_co], abc.ABC):
     def __init__(self, pytype: _TPyType_co, location: SourceLocation):
         super().__init__(location)
         self._pytype = pytype

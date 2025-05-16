@@ -14,7 +14,7 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import BaseTypeBuilder, FunctionBuilder
+from puyapy.awst_build.eb._base import FunctionBuilder, TypeBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
@@ -26,7 +26,7 @@ from puyapy.awst_build.eb.reference_types._base import UInt64BackedReferenceValu
 logger = log.get_logger(__name__)
 
 
-class AssetTypeBuilder(BaseTypeBuilder[pytypes.RuntimeType]):
+class AssetTypeBuilder(TypeBuilder[pytypes.RuntimeType]):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.AssetType, location)
 

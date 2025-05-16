@@ -20,10 +20,10 @@ from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import (
-    BaseTypeBuilder,
     FunctionBuilder,
     GenericTypeBuilder,
     InstanceExpressionBuilder,
+    TypeBuilder,
 )
 from puyapy.awst_build.eb._utils import (
     dummy_value,
@@ -61,7 +61,7 @@ class ArrayGenericTypeBuilder(GenericTypeBuilder):
         )
 
 
-class ArrayTypeBuilder(BaseTypeBuilder[pytypes.ArrayType]):
+class ArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericArrayType

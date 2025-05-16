@@ -17,7 +17,7 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import BaseTypeBuilder, FunctionBuilder, GenericTypeBuilder
+from puyapy.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder, TypeBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
@@ -42,7 +42,7 @@ from puyapy.awst_build.utils import get_arg_mapping
 logger = log.get_logger(__name__)
 
 
-class BoxMapTypeBuilder(BaseTypeBuilder[pytypes.StorageMapProxyType]):
+class BoxMapTypeBuilder(TypeBuilder[pytypes.StorageMapProxyType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
         assert isinstance(typ, pytypes.StorageMapProxyType)
         assert typ.generic == pytypes.GenericBoxMapType

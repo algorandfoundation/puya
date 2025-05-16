@@ -8,9 +8,9 @@ from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import (
-    BaseTypeBuilder,
     FunctionBuilder,
     NotIterableInstanceExpressionBuilder,
+    TypeBuilder,
 )
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puyapy.awst_build.eb._utils import dummy_value
@@ -33,7 +33,7 @@ from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puyapy.awst_build.utils import get_arg_mapping
 
 
-class BoxRefTypeBuilder(BaseTypeBuilder[pytypes.StorageProxyType]):
+class BoxRefTypeBuilder(TypeBuilder[pytypes.StorageProxyType]):
     def __init__(self, location: SourceLocation) -> None:
         super().__init__(pytypes.BoxRefType, location)
 

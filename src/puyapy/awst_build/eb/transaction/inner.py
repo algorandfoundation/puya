@@ -8,14 +8,14 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import BaseTypeBuilder, FunctionBuilder
+from puyapy.awst_build.eb._base import FunctionBuilder, TypeBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puyapy.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puyapy.awst_build.eb.tuple import TupleExpressionBuilder
 
 
-class InnerTransactionTypeBuilder(BaseTypeBuilder[pytypes.InnerTransactionResultType]):
+class InnerTransactionTypeBuilder(TypeBuilder[pytypes.InnerTransactionResultType]):
     @typing.override
     def call(
         self,

@@ -289,10 +289,6 @@ class LiteralConverter(_Locatable, abc.ABC):
         """
 
 
-class TypeBuilder(CallableBuilder, LiteralConverter, abc.ABC):
-    pass
-
-
 @attrs.frozen(kw_only=True)
 class StorageProxyConstructorArgs:
     key: Expression | None
