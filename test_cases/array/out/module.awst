@@ -382,6 +382,9 @@ contract StaticSizeContract
       arr.extend((i % 2u == 0u))
     }
     assert(arr.length == length, comment="expected correct length")
+    arr2: ref_array<bool> = arr.copy()
+    arr2.extend(arr)
+    assert(arr2.length == length * 2u, comment="expected correct length")
     count: uint64 = 0u
     for val in arr {
       if (val) {
@@ -443,6 +446,15 @@ contract StaticSizeContract
     assert(len(reinterpret_cast<bytes>(dyn_arr)) == 3u, comment="expected 3 bytes")
     assert(arc4_decode(dyn_arr[0u], bool) == txn<Sender>() == txn<Receiver>(), comment="expected correct value at 0")
     assert(arc4_decode(dyn_arr[1u], bool) == txn<Sender>() != txn<Receiver>(), comment="expected correct value at 1")
+    arr2: ref_array<arc4.bool> = arr.copy()
+    for b in dyn_arr {
+      arr2.extend((b))
+    }
+    assert(arr2.length == 4u, comment="expected correct length")
+    assert(arc4_decode(arr2[0u], bool) == txn<Sender>() == txn<Receiver>(), comment="expected correct value at 0")
+    assert(arc4_decode(arr2[1u], bool) == txn<Sender>() != txn<Receiver>(), comment="expected correct value at 1")
+    assert(arc4_decode(arr2[2u], bool) == txn<Sender>() == txn<Receiver>(), comment="expected correct value at 2")
+    assert(arc4_decode(arr2[3u], bool) == txn<Sender>() != txn<Receiver>(), comment="expected correct value at 3")
     return new stack_array<arc4.bool>() + arr
   }
   
