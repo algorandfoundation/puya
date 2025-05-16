@@ -120,7 +120,7 @@ class TypeBuilder(CallableBuilder, LiteralConverter, typing.Generic[_TPyType_co]
         raise CodeError(f"unrecognised member {name!r} of type '{self._pytype}'", location)
 
 
-class GenericTypeBuilder(CallableBuilder, abc.ABC):  # TODO: can we fold this with TypeBuilder?
+class GenericTypeBuilder(CallableBuilder, abc.ABC):
     @typing.override
     @property
     def pytype(self) -> None:  # TODO, take this as an init argument
