@@ -18,6 +18,7 @@ from puya.ir.types_ import (
     ArrayType,
     AVMBytesEncoding,
     EncodedTupleType,
+    EncodedType,
     IRType,
     PrimitiveIRType,
     SizedBytesType,
@@ -541,6 +542,43 @@ class ArrayEncode(Op, ValueProvider):
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_array_encode(self)
+
+
+@attrs.define(eq=False)
+class ValueEncode(Op, ValueProvider):
+    """Encodes a sequence of values into an encoded value"""
+
+    values: Sequence[Value]
+    encoded_type: EncodedType
+
+    def _frozen_data(self) -> object:
+        return self.values, self.encoded_type
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (self.encoded_type,)
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_value_encode(self)
+
+
+@attrs.define(eq=False)
+class ValueDecode(Op, ValueProvider):
+    """Decodes a value into a sequence of values"""
+
+    value: Value
+    encoded_type: EncodedType
+    decoded_types: tuple[IRType, ...] = attrs.field(converter=tuple[IRType, ...])
+
+    def _frozen_data(self) -> object:
+        return self.value, self.encoded_type, self.decoded_types
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return self.decoded_types
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_value_decode(self)
 
 
 @attrs.define(eq=False)
