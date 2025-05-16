@@ -1,20 +1,22 @@
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 
 import attrs
 from immutabledict import immutabledict
 
 from puya import log
 from puya.awst.txn_fields import TxnField
+from puya.parse import SourceLocation
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb.bytes import BytesExpressionBuilder
 from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
+    LiteralConverter,
     NodeBuilder,
     StaticSizedCollectionBuilder,
 )
+from puyapy.awst_build.eb.string import StringTypeBuilder
 from puyapy.awst_build.eb.tuple import TupleLiteralBuilder
-from puyapy.awst_build.utils import resolve_literal
 
 logger = log.get_logger(__name__)
 
@@ -29,9 +31,9 @@ class PythonITxnArgument:
     additional_types: tuple[pytypes.PyType, ...] = ()
     """any extra types that are acceptable, will be carried through without validation
     (so don't put literals in here)"""
-    literal_overrides: Mapping[pytypes.LiteralOnlyType, pytypes.PyType] = attrs.field(
-        converter=immutabledict, factory=immutabledict
-    )
+    literal_overrides: Mapping[
+        pytypes.LiteralOnlyType, Callable[[SourceLocation], LiteralConverter]
+    ] = attrs.field(converter=immutabledict, factory=immutabledict)
     array_promote: bool = False
     """if the field is an array, accept individual arguments and convert to array format"""
     auto_serialize_bytes: bool = False
@@ -91,9 +93,9 @@ class PythonITxnArgument:
         if self.auto_serialize_bytes:
             return BytesExpressionBuilder(item.to_bytes(item.source_location))
 
-        override_literal_type = self.literal_overrides.get(item.pytype)  # type: ignore[call-overload]
-        if override_literal_type is not None:
-            item = resolve_literal(item, override_literal_type)
+        override_literal_converter = self.literal_overrides.get(item.pytype)  # type: ignore[call-overload]
+        if override_literal_converter is not None:
+            item = item.resolve_literal(override_literal_converter(item.source_location))
         return expect.argument_of_type_else_dummy(
             item, self.type, *self.additional_types, resolve_literal=True
         )
@@ -175,14 +177,14 @@ PYTHON_ITXN_ARGUMENTS = {
         field=TxnField.ConfigAssetUnitName,
         type=pytypes.BytesType,
         additional_types=(pytypes.StringType,),
-        literal_overrides={pytypes.StrLiteralType: pytypes.StringType},
+        literal_overrides={pytypes.StrLiteralType: StringTypeBuilder},
     ),
     # asset_name: String | Bytes | str | bytes = ...,
     "asset_name": PythonITxnArgument(
         field=TxnField.ConfigAssetName,
         type=pytypes.BytesType,
         additional_types=(pytypes.StringType,),
-        literal_overrides={pytypes.StrLiteralType: pytypes.StringType},
+        literal_overrides={pytypes.StrLiteralType: StringTypeBuilder},
     ),
     # decimals: UInt64 | int = ...,
     "decimals": PythonITxnArgument(
@@ -199,7 +201,7 @@ PYTHON_ITXN_ARGUMENTS = {
         field=TxnField.ConfigAssetURL,
         type=pytypes.BytesType,
         additional_types=(pytypes.StringType,),
-        literal_overrides={pytypes.StrLiteralType: pytypes.StringType},
+        literal_overrides={pytypes.StrLiteralType: StringTypeBuilder},
     ),
     # metadata_hash: Bytes | bytes = ...,
     "metadata_hash": PythonITxnArgument(
@@ -357,7 +359,7 @@ PYTHON_ITXN_ARGUMENTS = {
         field=TxnField.Note,
         type=pytypes.BytesType,
         additional_types=(pytypes.StringType,),
-        literal_overrides={pytypes.StrLiteralType: pytypes.StringType},
+        literal_overrides={pytypes.StrLiteralType: StringTypeBuilder},
     ),
     # rekey_to: Account | str = ...,
     "rekey_to": PythonITxnArgument(
