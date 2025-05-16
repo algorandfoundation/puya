@@ -3,7 +3,7 @@
 
 // test_cases.efficient_box_storage.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 0 2080 1024
+    intcblock 1 2080 0 1025 1024
     bytecblock "b" 0x151f7c75
     // efficient_box_storage/contract.py:23
     // class Contract(arc4.ARC4Contract):
@@ -16,7 +16,7 @@ main:
 main_after_if_else@12:
     // efficient_box_storage/contract.py:23
     // class Contract(arc4.ARC4Contract):
-    intc_1 // 0
+    intc_2 // 0
     return
 
 main_box_exists_len_route@9:
@@ -29,7 +29,7 @@ main_box_exists_len_route@9:
     assert // can only call when not creating
     callsub box_exists_len
     pushbytes 0x00
-    intc_1 // 0
+    intc_2 // 0
     uncover 3
     setbit
     swap
@@ -130,14 +130,13 @@ update_box:
     // # should be able to update box without reading onto stack
     // self.box.value.address = arc4.Address(Txn.sender)
     bytec_0 // "b"
-    box_get
+    box_len
+    bury 1
     assert // check self.box exists
+    bytec_0 // "b"
     pushint 2048 // 2048
     txn Sender
-    replace3
-    bytec_0 // "b"
-    swap
-    box_put
+    box_replace
     retsub
 
 
@@ -152,35 +151,40 @@ append:
     bytec_0 // "b"
     box_get
     assert // check self.box exists
-    dup
-    intc_2 // 2080
-    pushint 1025 // 1025
-    extract3 // on error: Index access is out of bounds
-    dup
-    intc_3 // 1024
+    bytec_0 // "b"
+    intc_1 // 2080
+    intc_3 // 1025
+    box_extract
+    intc 4 // 1024
     getbyte
     // efficient_box_storage/contract.py:39
     // self.box.value.numbers.values[index] = arc4.UInt64(value)
     frame_dig -1
     itob
-    dig 2
-    intc_1 // 0
-    intc_3 // 1024
+    // efficient_box_storage/contract.py:38
+    // index = self.box.value.numbers.count.native
+    bytec_0 // "b"
+    // efficient_box_storage/contract.py:39
+    // self.box.value.numbers.values[index] = arc4.UInt64(value)
+    intc_1 // 2080
+    intc_3 // 1025
+    box_extract
+    dup
+    intc_2 // 0
+    intc 4 // 1024
     extract3 // on error: Index access is out of bounds
-    dig 2
+    dig 3
     pushint 128 // 128
     <
     assert // Index access is out of bounds
-    dig 2
+    dig 3
     pushint 8 // 8
     *
-    uncover 2
+    uncover 3
     replace3
-    uncover 2
-    swap
     replace2 0
     uncover 2
-    intc_2 // 2080
+    intc_1 // 2080
     uncover 2
     replace3
     // efficient_box_storage/contract.py:40
@@ -196,13 +200,13 @@ append:
     assert // overflow
     extract 7 1
     dig 1
-    intc_2 // 2080
-    pushint 1025 // 1025
+    intc_1 // 2080
+    intc_3 // 1025
     extract3 // on error: Index access is out of bounds
-    intc_3 // 1024
+    intc 4 // 1024
     uncover 2
     replace3
-    intc_2 // 2080
+    intc_1 // 2080
     swap
     replace3
     bytec_0 // "b"
@@ -241,6 +245,6 @@ box_exists_len:
 box_exists_len_else_body@2:
     // efficient_box_storage/contract.py:51
     // return False, UInt64()
-    intc_1 // 0
+    intc_2 // 0
     dup
     retsub

@@ -4,7 +4,7 @@
 // examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0 2 5
-    bytecblock 0x424f585f43 0x626c6f62 "box_d" "box_a" "b" "box_large" 0x00 0x151f7c75 "0" 0x68656c6c6f "box_ref" 0x00023432 "default"
+    bytecblock 0x424f585f43 0x626c6f62 "box_d" "box_a" "b" "box_large" 0x00 0x151f7c75 "0" 0x68656c6c6f 0x00023432 "default" "box_ref"
     txn NumAppArgs
     bz main_bare_routing@18
     pushbytess 0x7d37296e 0x33325d3d 0xd566c632 0xa6174812 0xf13dd937 0x04ef4971 0x23ecb32c 0xeef75816 0xb532913a 0xc29f1669 0x9c888c09 0xe6f68506 0x8ee2c364 // method "set_boxes(uint64,byte[],string)void", method "check_keys()void", method "delete_boxes()void", method "read_boxes()(uint64,byte[],string,uint64)", method "boxes_exist()(bool,bool,bool,bool)", method "slice_box()void", method "arc4_box()void", method "test_box_ref()void", method "box_map_test()void", method "box_map_set(uint64,string)void", method "box_map_get(uint64)string", method "box_map_del(uint64)void", method "box_map_exists(uint64)bool"
@@ -111,21 +111,22 @@ main_box_map_test_route@13:
     box_put
     dup
     box_len
-    assert // check self.box_map entry exists
+    pop
     pushint 6 // 6
     ==
     assert
     dup
     box_len
-    assert // check self.box_map entry exists
-    dig 1
-    box_len
-    assert // check Box exists
-    ==
-    assert
+    pop
+    swap
     dup
     box_len
-    assert // check self.box_map entry exists
+    pop
+    uncover 2
+    ==
+    assert
+    box_len
+    pop
     pushint 6 // 6
     ==
     assert
@@ -133,20 +134,16 @@ main_box_map_test_route@13:
     itob
     dup
     box_get
-    bytec 12 // "default"
+    bytec 11 // "default"
     cover 2
     select
-    bytec 12 // "default"
+    bytec 11 // "default"
     ==
     assert
     dup
     box_len
     bury 1
     !
-    assert
-    swap
-    box_len
-    bury 1
     assert
     dup
     box_del
@@ -189,10 +186,6 @@ main_test_box_ref_route@12:
     pushint 32 // 32
     box_create
     assert
-    bytec_1 // "blob"
-    box_len
-    bury 1
-    assert // has data
     txn Sender
     global CurrentApplicationAddress
     bytec_1 // "blob"
@@ -246,29 +239,21 @@ main_test_box_ref_route@12:
     box_put
     bytec_1 // "blob"
     box_len
-    bury 1
-    assert // Blob exists
-    bytec_1 // "blob"
-    box_len
-    assert // check BoxRef exists
+    pop
     pushint 64 // 64
     ==
     assert
     bytec_1 // "blob"
     box_len
-    assert // check BoxRef exists
+    pop
     pushint 64 // 64
     ==
     assert
-    bytec 10 // "box_ref"
+    bytec 12 // "box_ref"
     pushint 32 // 32
     box_create
     pop
-    bytec 10 // "box_ref"
-    box_len
-    bury 1
-    assert // has data
-    bytec 10 // "box_ref"
+    bytec 12 // "box_ref"
     box_del
     pop
     intc_0 // 1
@@ -503,7 +488,7 @@ main_delete_boxes_route@7:
     assert
     bytec 4 // "b"
     box_get
-    bytec 11 // 0x00023432
+    bytec 10 // 0x00023432
     cover 2
     select
     extract 2 0
@@ -512,10 +497,10 @@ main_delete_boxes_route@7:
     assert
     bytec_0 // 0x424f585f43
     box_get
-    bytec 11 // 0x00023432
+    bytec 10 // 0x00023432
     cover 2
     select
-    bytec 11 // 0x00023432
+    bytec 10 // 0x00023432
     ==
     assert
     swap
@@ -597,13 +582,13 @@ main_set_boxes_route@5:
     box_put
     bytec_3 // "box_a"
     box_len
-    assert // check self.box_a exists
+    pop
     pushint 8 // 8
     ==
     assert
     bytec 4 // "b"
     box_len
-    assert // check self.box_b exists
+    pop
     dig 3
     len
     ==
@@ -619,7 +604,7 @@ main_set_boxes_route@5:
     assert
     bytec_2 // "box_d"
     box_len
-    assert // check self.box_d exists
+    pop
     dig 2
     len
     swap
@@ -820,7 +805,7 @@ main_set_boxes_route@5:
     assert
     bytec 5 // "box_large"
     box_len
-    assert // check self.box_large exists
+    pop
     pushint 6152 // 6152
     ==
     assert

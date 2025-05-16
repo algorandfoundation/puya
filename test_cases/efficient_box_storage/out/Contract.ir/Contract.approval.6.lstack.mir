@@ -191,17 +191,16 @@ subroutine update_box:
         // efficient_box_storage/contract.py:34
         // self.box.value.address = arc4.Address(Txn.sender)
         byte "b"                                                                                   "b"
-        box_get                                                                                    maybe_value%0#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                                  maybe_value%0#0,maybe_exists%0#0
-        assert // check self.box exists                                                            maybe_value%0#0
-        txn Sender                                                                                 maybe_value%0#0,assigned_value%0#0
-        l-load maybe_value%0#0 1                                                                   assigned_value%0#0,maybe_value%0#0
-        int 2048                                                                                   assigned_value%0#0,maybe_value%0#0,2048
-        l-load assigned_value%0#0 2                                                                maybe_value%0#0,2048,assigned_value%0#0
-        replace3                                                                                   updated_data%0#0
-        byte "b"                                                                                   updated_data%0#0,"b"
-        l-load updated_data%0#0 1                                                                  "b",updated_data%0#0
-        box_put
+        box_len                                                                                    maybe_value%0#0,maybe_exists%0#0
+        l-store maybe_exists%0#0 1                                                                 maybe_exists%0#0,maybe_value%0#0
+        v-store maybe_value%0#0                                                                    maybe_exists%0#0
+        l-load maybe_exists%0#0 0                                                                  maybe_exists%0#0
+        assert // check self.box exists
+        txn Sender                                                                                 assigned_value%0#0
+        byte "b"                                                                                   assigned_value%0#0,"b"
+        int 2048                                                                                   assigned_value%0#0,"b",2048
+        l-load assigned_value%0#0 2                                                                "b",2048,assigned_value%0#0
+        box_replace
         retsub
 
 
@@ -214,35 +213,43 @@ subroutine append:
         box_get                                                                                    (𝕡) value#0 | maybe_value%0#0,maybe_exists%0#0
         l-load maybe_exists%0#0 0                                                                  (𝕡) value#0 | maybe_value%0#0,maybe_exists%0#0
         assert // check self.box exists                                                            (𝕡) value#0 | maybe_value%0#0
-        l-load-copy maybe_value%0#0 0                                                              (𝕡) value#0 | maybe_value%0#0,maybe_value%0#0 (copy)
-        int 2080                                                                                   (𝕡) value#0 | maybe_value%0#0,maybe_value%0#0 (copy),2080
-        int 1025                                                                                   (𝕡) value#0 | maybe_value%0#0,maybe_value%0#0 (copy),2080,1025
-        extract3 // on error: Index access is out of bounds                                        (𝕡) value#0 | maybe_value%0#0,tmp%0#0
-        l-load-copy tmp%0#0 0                                                                      (𝕡) value#0 | maybe_value%0#0,tmp%0#0,tmp%0#0 (copy)
-        int 1024                                                                                   (𝕡) value#0 | maybe_value%0#0,tmp%0#0,tmp%0#0 (copy),1024
-        getbyte                                                                                    (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0
+        byte "b"                                                                                   (𝕡) value#0 | maybe_value%0#0,"b"
+        int 2080                                                                                   (𝕡) value#0 | maybe_value%0#0,"b",2080
+        int 1025                                                                                   (𝕡) value#0 | maybe_value%0#0,"b",2080,1025
+        box_extract                                                                                (𝕡) value#0 | maybe_value%0#0,tmp%0#0
+        l-load tmp%0#0 0                                                                           (𝕡) value#0 | maybe_value%0#0,tmp%0#0
+        int 1024                                                                                   (𝕡) value#0 | maybe_value%0#0,tmp%0#0,1024
+        getbyte                                                                                    (𝕡) value#0 | maybe_value%0#0,index#0
         // efficient_box_storage/contract.py:39
         // self.box.value.numbers.values[index] = arc4.UInt64(value)
-        p-load value#0                                                                             (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,value#0 (copy)
-        itob                                                                                       (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,val_as_bytes%0#0
-        l-load-copy tmp%0#0 2                                                                      (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,val_as_bytes%0#0,tmp%0#0 (copy)
-        int 0                                                                                      (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,val_as_bytes%0#0,tmp%0#0 (copy),0
-        int 1024                                                                                   (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,val_as_bytes%0#0,tmp%0#0 (copy),0,1024
-        extract3 // on error: Index access is out of bounds                                        (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,val_as_bytes%0#0,tmp%3#0
-        l-load-copy index#0 2                                                                      (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,val_as_bytes%0#0,tmp%3#0,index#0 (copy)
-        int 128                                                                                    (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,val_as_bytes%0#0,tmp%3#0,index#0 (copy),128
-        <                                                                                          (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,val_as_bytes%0#0,tmp%3#0,index_is_in_bounds%0#0
-        l-load index_is_in_bounds%0#0 0                                                            (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,val_as_bytes%0#0,tmp%3#0,index_is_in_bounds%0#0
-        assert // Index access is out of bounds                                                    (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,val_as_bytes%0#0,tmp%3#0
-        l-load-copy index#0 2                                                                      (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,val_as_bytes%0#0,tmp%3#0,index#0 (copy)
-        int 8                                                                                      (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,val_as_bytes%0#0,tmp%3#0,index#0 (copy),8
-        *                                                                                          (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,val_as_bytes%0#0,tmp%3#0,write_offset%0#0
-        l-load tmp%3#0 1                                                                           (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,val_as_bytes%0#0,write_offset%0#0,tmp%3#0
-        l-load write_offset%0#0 1                                                                  (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,val_as_bytes%0#0,tmp%3#0,write_offset%0#0
-        l-load val_as_bytes%0#0 2                                                                  (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,tmp%3#0,write_offset%0#0,val_as_bytes%0#0
-        replace3                                                                                   (𝕡) value#0 | maybe_value%0#0,tmp%0#0,index#0,updated_target%0#0
-        l-load tmp%0#0 2                                                                           (𝕡) value#0 | maybe_value%0#0,index#0,updated_target%0#0,tmp%0#0
-        l-load updated_target%0#0 1                                                                (𝕡) value#0 | maybe_value%0#0,index#0,tmp%0#0,updated_target%0#0
+        p-load value#0                                                                             (𝕡) value#0 | maybe_value%0#0,index#0,value#0 (copy)
+        itob                                                                                       (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0
+        // efficient_box_storage/contract.py:38
+        // index = self.box.value.numbers.count.native
+        byte "b"                                                                                   (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,"b"
+        // efficient_box_storage/contract.py:39
+        // self.box.value.numbers.values[index] = arc4.UInt64(value)
+        int 2080                                                                                   (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,"b",2080
+        int 1025                                                                                   (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,"b",2080,1025
+        box_extract                                                                                (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                      (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,tmp%2#0,tmp%2#0 (copy)
+        int 0                                                                                      (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,tmp%2#0,tmp%2#0 (copy),0
+        int 1024                                                                                   (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,tmp%2#0,tmp%2#0 (copy),0,1024
+        extract3 // on error: Index access is out of bounds                                        (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,tmp%2#0,tmp%3#0
+        l-load-copy index#0 3                                                                      (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,tmp%2#0,tmp%3#0,index#0 (copy)
+        int 128                                                                                    (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,tmp%2#0,tmp%3#0,index#0 (copy),128
+        <                                                                                          (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,tmp%2#0,tmp%3#0,index_is_in_bounds%0#0
+        l-load index_is_in_bounds%0#0 0                                                            (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,tmp%2#0,tmp%3#0,index_is_in_bounds%0#0
+        assert // Index access is out of bounds                                                    (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,tmp%2#0,tmp%3#0
+        l-load-copy index#0 3                                                                      (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,tmp%2#0,tmp%3#0,index#0 (copy)
+        int 8                                                                                      (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,tmp%2#0,tmp%3#0,index#0 (copy),8
+        *                                                                                          (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,tmp%2#0,tmp%3#0,write_offset%0#0
+        l-load tmp%3#0 1                                                                           (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,tmp%2#0,write_offset%0#0,tmp%3#0
+        l-load write_offset%0#0 1                                                                  (𝕡) value#0 | maybe_value%0#0,index#0,val_as_bytes%0#0,tmp%2#0,tmp%3#0,write_offset%0#0
+        l-load val_as_bytes%0#0 3                                                                  (𝕡) value#0 | maybe_value%0#0,index#0,tmp%2#0,tmp%3#0,write_offset%0#0,val_as_bytes%0#0
+        replace3                                                                                   (𝕡) value#0 | maybe_value%0#0,index#0,tmp%2#0,updated_target%0#0
+        l-load tmp%2#0 1                                                                           (𝕡) value#0 | maybe_value%0#0,index#0,updated_target%0#0,tmp%2#0
+        l-load updated_target%0#0 1                                                                (𝕡) value#0 | maybe_value%0#0,index#0,tmp%2#0,updated_target%0#0
         replace2 0                                                                                 (𝕡) value#0 | maybe_value%0#0,index#0,updated_data%0#0
         l-load maybe_value%0#0 2                                                                   (𝕡) value#0 | index#0,updated_data%0#0,maybe_value%0#0
         int 2080                                                                                   (𝕡) value#0 | index#0,updated_data%0#0,maybe_value%0#0,2080
