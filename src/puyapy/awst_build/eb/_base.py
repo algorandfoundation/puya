@@ -73,8 +73,8 @@ class TypeBuilder(CallableBuilder, LiteralConverter, typing.Generic[_TPyType_co]
         super().__init__(location)
         self._pytype = pytype
 
-    @typing.final
     @typing.override
+    @typing.final
     @property
     def pytype(self) -> pytypes.TypeType:
         return pytypes.TypeType(self._pytype)
@@ -83,6 +83,7 @@ class TypeBuilder(CallableBuilder, LiteralConverter, typing.Generic[_TPyType_co]
     def produces(self) -> _TPyType_co:
         return self._pytype
 
+    @typing.override
     @typing.final
     def convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
