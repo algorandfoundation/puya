@@ -531,6 +531,19 @@ class ArrayExtend(Expression):
                 self.source_location,
             )
 
+    @other.validator
+    def _other_validator(self, _attr: object, value: Expression) -> None:
+        array_wtype = self.base.wtype
+        if (
+            isinstance(array_wtype, wtypes.ReferenceArray)
+            and array_wtype.element_type in (wtypes.bool_wtype, wtypes.arc4_bool_wtype)
+            and not isinstance(value.wtype, wtypes.ReferenceArray | wtypes.WTuple)
+        ):
+            raise CodeError(
+                "extending a reference array with an ARC-4 encoded bool type is not supported",
+                self.source_location,
+            )
+
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_array_extend(self)
 

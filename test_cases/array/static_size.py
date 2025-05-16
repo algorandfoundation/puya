@@ -80,6 +80,11 @@ class StaticSizeContract(arc4.ARC4Contract):
         for i in urange(1, length + 1):
             arr.append(i % 2 == 0)
         assert arr.length == length, "expected correct length"
+
+        arr2 = arr.copy()
+        arr2.extend(arr)
+        assert arr2.length == length * 2, "expected correct length"
+
         count = UInt64(0)
         for val in arr:
             if val:
@@ -142,6 +147,18 @@ class StaticSizeContract(arc4.ARC4Contract):
         assert dyn_arr.bytes.length == 3, "expected 3 bytes"
         assert dyn_arr[0] == (Txn.sender == Txn.receiver), "expected correct value at 0"
         assert dyn_arr[1] == (Txn.sender != Txn.receiver), "expected correct value at 1"
+
+        arr2 = arr.copy()
+        # note: not supported currently
+        # arr2.extend(dyn_array)
+        for b in dyn_arr:
+            arr2.append(b)
+        assert arr2.length == 4, "expected correct length"
+        assert arr2[0] == (Txn.sender == Txn.receiver), "expected correct value at 0"
+        assert arr2[1] == (Txn.sender != Txn.receiver), "expected correct value at 1"
+        assert arr2[2] == (Txn.sender == Txn.receiver), "expected correct value at 2"
+        assert arr2[3] == (Txn.sender != Txn.receiver), "expected correct value at 3"
+
         return arr.freeze()
 
 
