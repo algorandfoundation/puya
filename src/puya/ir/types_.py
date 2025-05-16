@@ -2,6 +2,7 @@ import abc
 import enum
 import typing
 from collections.abc import Sequence
+from functools import cached_property
 
 import attrs
 
@@ -152,6 +153,135 @@ class ArrayType(IRType):
     @property
     def num_bytes(self) -> int | None:
         return None
+
+    def __str__(self) -> str:
+        return self.name
+
+
+@attrs.frozen(str=False)
+class Encoding(abc.ABC):
+    @property
+    @abc.abstractmethod
+    def name(self) -> str: ...
+
+    @property
+    @abc.abstractmethod
+    def num_bytes(self) -> int | None: ...
+
+    @cached_property
+    def is_dynamic(self) -> bool:
+        return self.num_bytes is None
+
+    @cached_property
+    def checked_num_bytes(self) -> int:
+        assert self.num_bytes is not None, "expected statically sized type"
+        return self.num_bytes
+
+    def __str__(self) -> str:
+        return self.name
+
+
+@attrs.frozen(str=False)
+class BoolEncoding(Encoding):
+    bit_packed: bool
+    num_bytes: int = attrs.field(default=1, init=False)
+
+    @cached_property
+    def name(self) -> str:
+        if self.bit_packed:
+            return "bool_packed"
+        else:
+            return "bool_uint8"
+
+
+@attrs.frozen(str=False)
+class UIntEncoding:
+    n: int
+
+    @cached_property
+    def num_bytes(self) -> int:
+        return self.n // 8
+
+    @cached_property
+    def name(self) -> str:
+        return f"uint{self.n}"
+
+
+@attrs.frozen(str=False)
+class TupleEncoding:
+    elements: Sequence[Encoding] = attrs.field(converter=tuple[Encoding, ...])
+
+    @cached_property
+    def num_bytes(self) -> int | None:
+        total_bits = 0
+        for element in self.elements:
+            if element.num_bytes is None:
+                return None
+            if isinstance(element, BoolEncoding) and element.bit_packed:
+                total_bits += 1
+            else:
+                # if not a bit packed bool, need to round up to byte boundary
+                total_bits = bits_to_bytes(total_bits) * 8
+                total_bits += element.num_bytes * 8
+
+        total_bits = bits_to_bytes(total_bits) * 8
+        return bits_to_bytes(total_bits)
+
+    @cached_property
+    def name(self) -> str:
+        inner = ",".join(e.name for e in self.elements)
+        return f"({inner})"
+
+
+@attrs.frozen(str=False)
+class ArrayEncoding:
+    element: Encoding
+    size: int | None
+    length_header: bool = attrs.field()
+
+    @length_header.validator
+    def _length_header_validator(self, _: object, value: bool) -> None:  # noqa: FBT001
+        if value and self.size is not None:
+            raise ValueError("length header not required for static arrays")
+
+    @cached_property
+    def num_bytes(self) -> int | None:
+        if self.size is None or self.element.num_bytes is None:
+            return None
+        if isinstance(self.element, BoolEncoding) and self.element.bit_packed:
+            return bits_to_bytes(self.size)
+        return self.size * self.element.num_bytes
+
+    @cached_property
+    def name(self) -> str:
+        element = self.element.name
+        size = "" if self.size is None else str(self.size)
+        array = f"{element}[{size}]"
+        if self.length_header:
+            return f"(len,{array})"
+        else:
+            return array
+
+
+@attrs.frozen(str=False, order=False)
+class EncodedType(IRType):
+    encoding: Encoding
+
+    @property
+    def name(self) -> str:
+        return self.encoding.name
+
+    @property
+    def avm_type(self) -> typing.Literal[AVMType.bytes]:
+        return AVMType.bytes
+
+    @property
+    def maybe_avm_type(self) -> typing.Literal[AVMType.bytes]:
+        return self.avm_type
+
+    @property
+    def num_bytes(self) -> int | None:
+        return self.encoding.num_bytes
 
     def __str__(self) -> str:
         return self.name
