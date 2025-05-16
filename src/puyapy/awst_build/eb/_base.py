@@ -102,11 +102,6 @@ class TypeBuilder(CallableBuilder, LiteralConverter, typing.Generic[_TPyType_co]
     def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
     ) -> InstanceBuilder | None:
-        """
-        If the type of `literal.value` is correct, return a new instance, otherwise return `None`.
-        If the value is out of range or otherwise invalid, an error is logged,
-        but an instance is still returned.
-        """
         return None
 
     @typing.override
