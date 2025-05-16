@@ -122,6 +122,12 @@ class IRVisitor[T](ABC):
     @abstractmethod
     def visit_template_var(self, deploy_var: puya.ir.models.TemplateVar) -> T: ...
 
+    @abstractmethod
+    def visit_value_encode(self, encode: puya.ir.models.ValueEncode) -> T: ...
+
+    @abstractmethod
+    def visit_value_decode(self, decode: puya.ir.models.ValueDecode) -> T: ...
+
 
 class IRTraverser(IRVisitor[None]):
     def visit_all_blocks(self, blocks: Iterable[puya.ir.models.BasicBlock]) -> None:
@@ -262,6 +268,13 @@ class IRTraverser(IRVisitor[None]):
         for v in tup.values:
             v.accept(self)
 
+    def visit_value_encode(self, encode: puya.ir.models.ValueEncode) -> None:
+        for v in encode.values:
+            v.accept(self)
+
+    def visit_value_decode(self, decode: puya.ir.models.ValueDecode) -> None:
+        decode.value.accept(self)
+
 
 class NoOpIRVisitor[T](IRVisitor[T | None]):
     def visit_assignment(self, ass: puya.ir.models.Assignment) -> T | None:
@@ -373,4 +386,10 @@ class NoOpIRVisitor[T](IRVisitor[T | None]):
         return None
 
     def visit_fail(self, fail: puya.ir.models.Fail) -> T | None:
+        return None
+
+    def visit_value_encode(self, encode: puya.ir.models.ValueEncode) -> T | None:
+        return None
+
+    def visit_value_decode(self, decode: puya.ir.models.ValueDecode) -> T | None:
         return None
