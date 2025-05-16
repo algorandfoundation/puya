@@ -268,56 +268,27 @@ class LiteralBuilder(InstanceBuilder, abc.ABC):
     ) -> LiteralBuilder: ...
 
 
-# TODO: separate interface from implementation
-class TypeBuilder(CallableBuilder, typing.Generic[_TPyType_co], abc.ABC):
-    def __init__(self, pytype: _TPyType_co, location: SourceLocation):
-        super().__init__(location)
-        self._pytype = pytype
-
-    @typing.final
-    @typing.override
-    @property
-    def pytype(self) -> pytypes.TypeType:
-        return pytypes.TypeType(self._pytype)
-
-    @typing.final
-    def produces(self) -> _TPyType_co:
-        return self._pytype
-
-    @typing.final
+class LiteralConverter(abc.ABC):
+    @abc.abstractmethod
     def convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder:
-        from puyapy.awst_build.eb._utils import dummy_value
+    ) -> InstanceBuilder: ...
 
-        result = self.try_convert_literal(literal, location)
-        if result is not None:
-            return result
-        logger.error(
-            f"can't covert literal to {self.produces()}", location=literal.source_location
-        )
-        return dummy_value(self.produces(), location)
-
+    @abc.abstractmethod
     def try_convert_literal(
-        self, literal: LiteralBuilder, location: SourceLocation
+        self,
+        literal: LiteralBuilder,
+        location: SourceLocation,
     ) -> InstanceBuilder | None:
         """
         If the type of `literal.value` is correct, return a new instance, otherwise return `None`.
         If the value is out of range or otherwise invalid, an error is logged,
         but an instance is still returned.
         """
-        return None
 
-    @typing.override
-    @typing.final
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        from puyapy.awst_build.eb._utils import constant_bool_and_error
 
-        return constant_bool_and_error(value=True, location=location, negate=negate)
-
-    @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        raise CodeError(f"unrecognised member {name!r} of type '{self._pytype}'", location)
+class TypeBuilder(CallableBuilder, LiteralConverter, abc.ABC):
+    pass
 
 
 @attrs.frozen(kw_only=True)

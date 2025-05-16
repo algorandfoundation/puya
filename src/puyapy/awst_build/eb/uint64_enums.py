@@ -8,11 +8,12 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
+from puyapy.awst_build.eb._base import BaseTypeBuilder
+from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 
 
-class _UInt64EnumTypeBuilder(TypeBuilder):
+class _UInt64EnumTypeBuilder(BaseTypeBuilder):
     enum_type: typing.ClassVar[pytypes.UInt64EnumType]
     enum_data: typing.ClassVar[Mapping[str, enum.IntEnum] | Mapping[str, int]]
 

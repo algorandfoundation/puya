@@ -7,12 +7,12 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder
+from puyapy.awst_build.eb._base import BaseTypeBuilder, NotIterableInstanceExpressionBuilder
 from puyapy.awst_build.eb._utils import constant_bool_and_error
-from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
+from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 
 
-class NoneTypeBuilder(TypeBuilder):
+class NoneTypeBuilder(BaseTypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.NoneType, location)
 

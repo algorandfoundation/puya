@@ -22,6 +22,7 @@ from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import (
+    BaseTypeBuilder,
     FunctionBuilder,
     GenericTypeBuilder,
     InstanceExpressionBuilder,
@@ -36,7 +37,6 @@ from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
     InstanceBuilder,
     NodeBuilder,
-    TypeBuilder,
 )
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 
@@ -61,7 +61,7 @@ class ImmutableArrayGenericTypeBuilder(GenericTypeBuilder):
         )
 
 
-class ImmutableArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
+class ImmutableArrayTypeBuilder(BaseTypeBuilder[pytypes.ArrayType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericImmutableArrayType

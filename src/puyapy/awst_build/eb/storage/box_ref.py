@@ -7,7 +7,11 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
+from puyapy.awst_build.eb._base import (
+    BaseTypeBuilder,
+    FunctionBuilder,
+    NotIterableInstanceExpressionBuilder,
+)
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
@@ -17,7 +21,6 @@ from puyapy.awst_build.eb.interface import (
     NodeBuilder,
     StorageProxyConstructorArgs,
     StorageProxyConstructorResult,
-    TypeBuilder,
 )
 from puyapy.awst_build.eb.none import NoneExpressionBuilder
 from puyapy.awst_build.eb.storage._common import BoxGetExpressionBuilder, BoxMaybeExpressionBuilder
@@ -30,7 +33,7 @@ from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puyapy.awst_build.utils import get_arg_mapping
 
 
-class BoxRefTypeBuilder(TypeBuilder[pytypes.StorageProxyType]):
+class BoxRefTypeBuilder(BaseTypeBuilder[pytypes.StorageProxyType]):
     def __init__(self, location: SourceLocation) -> None:
         super().__init__(pytypes.BoxRefType, location)
 

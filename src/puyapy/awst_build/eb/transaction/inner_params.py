@@ -17,9 +17,13 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
+from puyapy.awst_build.eb._base import (
+    BaseTypeBuilder,
+    FunctionBuilder,
+    NotIterableInstanceExpressionBuilder,
+)
 from puyapy.awst_build.eb._utils import constant_bool_and_error
-from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
+from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puyapy.awst_build.eb.none import NoneExpressionBuilder
 from puyapy.awst_build.eb.transaction.inner import InnerTransactionExpressionBuilder
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
@@ -27,7 +31,7 @@ from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 logger = log.get_logger(__name__)
 
 
-class InnerTxnParamsTypeBuilder(TypeBuilder[pytypes.InnerTransactionFieldsetType]):
+class InnerTxnParamsTypeBuilder(BaseTypeBuilder[pytypes.InnerTransactionFieldsetType]):
     @typing.override
     def call(
         self,

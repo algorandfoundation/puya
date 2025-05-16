@@ -19,7 +19,7 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import GenericTypeBuilder
+from puyapy.awst_build.eb._base import BaseTypeBuilder, GenericTypeBuilder
 from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -33,7 +33,7 @@ from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 logger = log.get_logger(__name__)
 
 
-class UnsignedRangeBuilder(TypeBuilder):
+class UnsignedRangeBuilder(BaseTypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.urangeType, location)
 

@@ -17,6 +17,7 @@ from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import (
+    BaseTypeBuilder,
     FunctionBuilder,
     GenericTypeBuilder,
     NotIterableInstanceExpressionBuilder,
@@ -28,7 +29,6 @@ from puyapy.awst_build.eb.interface import (
     NodeBuilder,
     StorageProxyConstructorArgs,
     StorageProxyConstructorResult,
-    TypeBuilder,
 )
 from puyapy.awst_build.eb.storage._common import (
     BoxGetExpressionBuilder,
@@ -47,7 +47,7 @@ from puyapy.awst_build.utils import get_arg_mapping
 logger = log.get_logger(__name__)
 
 
-class BoxTypeBuilder(TypeBuilder[pytypes.StorageProxyType]):
+class BoxTypeBuilder(BaseTypeBuilder[pytypes.StorageProxyType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericBoxType

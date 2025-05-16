@@ -31,7 +31,7 @@ from puya.utils import StableSet
 from puyapy import models
 from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import FunctionBuilder
+from puyapy.awst_build.eb._base import BaseTypeBuilder, FunctionBuilder
 from puyapy.awst_build.eb.arc4._base import ARC4FromLogBuilder
 from puyapy.awst_build.eb.arc4._utils import ARC4Signature, get_arc4_signature
 from puyapy.awst_build.eb.bytes import BytesExpressionBuilder
@@ -46,7 +46,6 @@ from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
     LiteralBuilder,
     NodeBuilder,
-    TypeBuilder,
 )
 from puyapy.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puyapy.awst_build.eb.transaction import InnerTransactionExpressionBuilder
@@ -96,7 +95,7 @@ _ARC4_UPDATE_TRANSACTION_FIELDS = [
 _COMPILED_KWARG = "compiled"
 
 
-class ARC4ClientTypeBuilder(TypeBuilder):
+class ARC4ClientTypeBuilder(BaseTypeBuilder):
     def __init__(
         self, typ: pytypes.PyType, source_location: SourceLocation, fragment: ContractFragmentBase
     ):

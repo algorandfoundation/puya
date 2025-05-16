@@ -6,10 +6,11 @@ from puya.parse import SourceLocation
 from puya.program_refs import LogicSigReference
 from puyapy import models
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
+from puyapy.awst_build.eb._base import BaseTypeBuilder
+from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 
 
-class LogicSigExpressionBuilder(TypeBuilder):
+class LogicSigExpressionBuilder(BaseTypeBuilder):
     def __init__(self, ref: LogicSigReference, location: SourceLocation):
         super().__init__(pytypes.LogicSigType, location)
         self.ref = ref

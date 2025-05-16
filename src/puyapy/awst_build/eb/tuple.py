@@ -25,6 +25,7 @@ from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import (
+    BaseTypeBuilder,
     FunctionBuilder,
     GenericTypeBuilder,
     InstanceExpressionBuilder,
@@ -65,7 +66,7 @@ class GenericTupleTypeBuilder(GenericTypeBuilder):
         return _init(args, location)
 
 
-class TupleTypeBuilder(TypeBuilder[pytypes.TupleType]):
+class TupleTypeBuilder(BaseTypeBuilder[pytypes.TupleType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.TupleType)
         assert typ.generic == pytypes.GenericTupleType
@@ -108,7 +109,7 @@ def _init(args: Sequence[NodeBuilder], location: SourceLocation) -> InstanceBuil
             raise CodeError("unhandled argument type", arg.source_location)
 
 
-class NamedTupleTypeBuilder(TypeBuilder[pytypes.NamedTupleType]):
+class NamedTupleTypeBuilder(BaseTypeBuilder[pytypes.NamedTupleType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.NamedTupleType)
         super().__init__(typ, location)
