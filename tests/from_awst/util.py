@@ -1,6 +1,9 @@
 import shutil
 from pathlib import Path
 
+import algokit_utils
+from algosdk.v2client.algod import AlgodClient
+
 from puya import log
 from puya.awst import (
     nodes as awst_nodes,
@@ -17,7 +20,13 @@ from tests.utils.git import check_for_diff
 logger = log.get_logger(__name__)
 
 
-def compile_contract(awst_path: Path, compilation_set: dict[str, Path]) -> None:
+def compile_contract(
+    *,
+    awst_path: Path,
+    compilation_set: dict[str, Path],
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+) -> dict[str, algokit_utils.ApplicationClient]:
     awst_json = awst_path.read_text("utf8").replace("%DIR%", str(awst_path).replace("\\", "\\\\"))
 
     out_dirs = unique(compilation_set.values())
@@ -50,3 +59,20 @@ def compile_contract(awst_path: Path, compilation_set: dict[str, Path]) -> None:
     for out_dir in out_dirs:
         diff = check_for_diff(out_dir, VCS_ROOT)
         assert not diff, f"Uncommitted changes were found:\n{diff}"
+
+    return {
+        contract_id: _make_client(
+            algod_client=algod_client, account=account, out_dir=out_dir, contract_id=contract_id
+        )
+        for contract_id, out_dir in compilation_set.items()
+    }
+
+
+def _make_client(
+    *, algod_client: AlgodClient, account: algokit_utils.Account, out_dir: Path, contract_id: str
+) -> algokit_utils.ApplicationClient:
+    contract_name = contract_id.split("::")[-1]
+    app_spec_json = (out_dir / f"{contract_name}.arc32.json").read_text("utf8")
+
+    app_spec = algokit_utils.ApplicationSpecification.from_json(app_spec_json)
+    return algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
