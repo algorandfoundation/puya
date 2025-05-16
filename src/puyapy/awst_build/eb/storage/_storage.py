@@ -22,10 +22,10 @@ from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
     BuilderUnaryOp,
     InstanceBuilder,
+    LiteralConverter,
     NodeBuilder,
     StorageProxyConstructorArgs,
     StorageProxyConstructorResult,
-    TypeBuilder,
 )
 
 logger = log.get_logger(__name__)
@@ -62,11 +62,11 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
         return self._assign_first(self.source_location)
 
     @typing.override
-    def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
+    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
         return self.try_resolve_literal(converter)
 
     @typing.override
-    def try_resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
+    def try_resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
         return self
 
     @typing.override

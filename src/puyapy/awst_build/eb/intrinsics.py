@@ -18,8 +18,8 @@ from puyapy.awst_build.eb.factories import builder_for_instance, builder_for_typ
 from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
     LiteralBuilder,
+    LiteralConverter,
     NodeBuilder,
-    TypeBuilder,
 )
 from puyapy.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puyapy.awst_build.intrinsic_models import (
@@ -205,7 +205,7 @@ def _map_call(
             ):
                 for allowed_type in allowed_pytypes:
                     type_builder = builder_for_type(allowed_type, arg_in.source_location)
-                    if isinstance(type_builder, TypeBuilder):
+                    if isinstance(type_builder, LiteralConverter):
                         converted = arg_in.try_resolve_literal(type_builder)
                         if converted is not None:
                             arg_in = converted

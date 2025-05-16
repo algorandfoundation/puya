@@ -19,7 +19,7 @@ from puyapy.awst_build.eb.interface import (
     BuilderUnaryOp,
     InstanceBuilder,
     LiteralBuilder,
-    TypeBuilder,
+    LiteralConverter,
 )
 from puyapy.awst_build.utils import fold_binary_expr, fold_unary_expr
 from puyapy.models import ConstantValue
@@ -60,11 +60,11 @@ class LiteralBuilderImpl(LiteralBuilder):
         raise CodeError("a Python literal is not valid at this location", self.source_location)
 
     @typing.override
-    def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
+    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
         return converter.convert_literal(literal=self, location=converter.source_location)
 
     @typing.override
-    def try_resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder | None:
+    def try_resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder | None:
         return converter.try_convert_literal(literal=self, location=converter.source_location)
 
     @typing.override

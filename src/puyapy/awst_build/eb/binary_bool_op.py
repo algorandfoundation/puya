@@ -17,8 +17,8 @@ from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
     BuilderUnaryOp,
     InstanceBuilder,
+    LiteralConverter,
     NodeBuilder,
-    TypeBuilder,
 )
 from puyapy.awst_build.utils import determine_base_type
 
@@ -81,13 +81,13 @@ class BinaryBoolOpBuilder(InstanceBuilder):
         return self._evolve_builders(left, right, recalculate_type=False)
 
     @typing.override
-    def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
+    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
         left = self._left.resolve_literal(converter)
         right = self._right.resolve_literal(converter)
         return self._evolve_builders(left, right)
 
     @typing.override
-    def try_resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder | None:
+    def try_resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder | None:
         left = self._left.try_resolve_literal(converter)
         right = self._right.try_resolve_literal(converter)
         if left is None or right is None:

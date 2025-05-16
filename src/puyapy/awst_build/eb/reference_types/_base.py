@@ -22,8 +22,8 @@ from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
+    LiteralConverter,
     NodeBuilder,
-    TypeBuilder,
 )
 
 
@@ -75,7 +75,7 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
         expr: Expression,
         *,
         typ: pytypes.PyType,
-        typ_literal_converter: Callable[[SourceLocation], TypeBuilder],
+        typ_literal_converter: Callable[[SourceLocation], LiteralConverter],
         native_access_member: str,
         field_mapping: Mapping[str, tuple[str, pytypes.RuntimeType]],
         field_op_code: str,

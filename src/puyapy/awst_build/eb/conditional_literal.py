@@ -18,8 +18,8 @@ from puyapy.awst_build.eb.interface import (
     BuilderUnaryOp,
     InstanceBuilder,
     LiteralBuilder,
+    LiteralConverter,
     NodeBuilder,
-    TypeBuilder,
 )
 
 
@@ -56,7 +56,7 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         )
 
     @typing.override
-    def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
+    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
         true_b = converter.convert_literal(
             literal=self._true_literal, location=converter.source_location
         )
@@ -66,7 +66,7 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         return self._resolve_literals(true_b, false_b)
 
     @typing.override
-    def try_resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder | None:
+    def try_resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder | None:
         true_b = converter.try_convert_literal(
             literal=self._true_literal, location=converter.source_location
         )

@@ -18,7 +18,11 @@ from puya.utils import unique
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb.factories import builder_for_type
-from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
+from puyapy.awst_build.eb.interface import (
+    InstanceBuilder,
+    LiteralConverter,
+    NodeBuilder,
+)
 from puyapy.models import ConstantValue
 
 logger = log.get_logger(__name__)
@@ -262,14 +266,14 @@ def maybe_resolve_literal(
         return operand
     if not (target_type <= operand.pytype):
         target_type_builder = builder_for_type(target_type, operand.source_location)
-        if isinstance(target_type_builder, TypeBuilder):
+        if isinstance(target_type_builder, LiteralConverter):
             return operand.resolve_literal(target_type_builder)
     return operand
 
 
 def resolve_literal(operand: InstanceBuilder, target_type: pytypes.PyType) -> InstanceBuilder:
     target_type_builder = builder_for_type(target_type, operand.source_location)
-    assert isinstance(target_type_builder, TypeBuilder)
+    assert isinstance(target_type_builder, LiteralConverter)
     return operand.resolve_literal(target_type_builder)
 
 

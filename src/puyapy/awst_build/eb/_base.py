@@ -27,6 +27,7 @@ from puyapy.awst_build.eb.interface import (
     CallableBuilder,
     InstanceBuilder,
     LiteralBuilder,
+    LiteralConverter,
     NodeBuilder,
     TypeBuilder,
 )
@@ -159,11 +160,11 @@ class InstanceExpressionBuilder(
         return self._pytype
 
     @typing.override
-    def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
+    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
         return self.try_resolve_literal(converter)
 
     @typing.override
-    def try_resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
+    def try_resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
         return self
 
     @typing.override

@@ -25,8 +25,8 @@ from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
     BuilderUnaryOp,
     InstanceBuilder,
+    LiteralConverter,
     NodeBuilder,
-    TypeBuilder,
 )
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 
@@ -124,11 +124,11 @@ class ReversedFunctionExpressionBuilder(GenericTypeBuilder):
 
 class _IterableOnlyBuilder(InstanceBuilder, abc.ABC):
     @typing.override
-    def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
+    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
         return self.try_resolve_literal(converter)
 
     @typing.override
-    def try_resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
+    def try_resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
         return self
 
     @typing.override

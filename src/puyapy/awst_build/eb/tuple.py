@@ -40,9 +40,9 @@ from puyapy.awst_build.eb.interface import (
     BuilderUnaryOp,
     InstanceBuilder,
     LiteralBuilder,
+    LiteralConverter,
     NodeBuilder,
     StaticSizedCollectionBuilder,
-    TypeBuilder,
 )
 from puyapy.awst_build.utils import determine_base_type, get_arg_mapping
 
@@ -195,11 +195,11 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType], StaticSizedCollect
         return self.resolve()
 
     @typing.override
-    def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
+    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
         return self.try_resolve_literal(converter)
 
     @typing.override
-    def try_resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
+    def try_resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
         # even though this may contain literals, it's not homogenous, so we can't really
         # resolve with a single converter currently...?
         return self

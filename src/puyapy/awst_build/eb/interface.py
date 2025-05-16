@@ -62,10 +62,12 @@ class BuilderBinaryOp(enum.StrEnum):
     bit_and = "&"
 
 
-class NodeBuilder(abc.ABC):
+class _Locatable:
     def __init__(self, location: SourceLocation):
         self.source_location: typing.Final = location
 
+
+class NodeBuilder(_Locatable, abc.ABC):
     @property
     @abc.abstractmethod
     def pytype(self) -> pytypes.PyType | None: ...
@@ -107,7 +109,7 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
         """Produce an expression for use as an intermediary"""
 
     @abc.abstractmethod
-    def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
+    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
         """For use prior to calling resolve(), when a known type is expected,
         and implicit conversion is possible without breaking semantic compatibility.
 
@@ -119,7 +121,7 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
         with literals)"""
 
     @abc.abstractmethod
-    def try_resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder | None:
+    def try_resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder | None:
         """Similar to resolve_literal, but in the case where a conversion is possible but the
         literal values are the wrong type, don't produce any errors and return None instead.
 
@@ -268,7 +270,7 @@ class LiteralBuilder(InstanceBuilder, abc.ABC):
     ) -> LiteralBuilder: ...
 
 
-class LiteralConverter(abc.ABC):
+class LiteralConverter(_Locatable, abc.ABC):
     @abc.abstractmethod
     def convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
