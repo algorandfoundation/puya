@@ -16,15 +16,14 @@ def test_compile_and_run(
     test_dir = Path(__file__).parent
     out_dir = test_dir / "out"
 
-    compile_contract(
+    clients = compile_contract(
+        algod_client=algod_client,
+        account=account,
         awst_path=FROM_AWST_DIR / "static_bytes" / "module.awst.json",
         compilation_set={"tests/approvals/static-bytes.algo.ts::StaticBytesAlgo": out_dir},
     )
 
-    app_spec_json = (out_dir / "StaticBytesAlgo.arc32.json").read_text("utf8")
-
-    app_spec = algokit_utils.ApplicationSpecification.from_json(app_spec_json)
-    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client = clients["tests/approvals/static-bytes.algo.ts::StaticBytesAlgo"]
 
     app_client.create()
 
