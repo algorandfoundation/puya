@@ -1,12 +1,14 @@
 from pathlib import Path
 
 import algokit_utils
+import pytest
 from algosdk.v2client.algod import AlgodClient
 
 from tests import FROM_AWST_DIR
 from tests.from_awst.util import compile_contract
 
 
+@pytest.mark.localnet
 def test_compile_and_run(
     algod_client: AlgodClient,
     account: algokit_utils.Account,
