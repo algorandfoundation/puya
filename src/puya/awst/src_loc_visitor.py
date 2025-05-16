@@ -10,6 +10,9 @@ class WTypeSourceLocationVisitor(WTypeVisitor[SourceLocation | None]):
     def visit_enumeration_type(self, _wtype: wtypes.WEnumeration) -> SourceLocation | None:
         return None
 
+    def visit_bytes_type(self, _wtype: wtypes.BytesWType) -> SourceLocation | None:
+        return None
+
     def visit_group_transaction_type(
         self, _wtype: wtypes.WGroupTransaction
     ) -> SourceLocation | None:
