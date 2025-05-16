@@ -124,6 +124,14 @@ class IRMutator(IRVisitor[t.Any]):
         encode.values = [value.accept(self) for value in encode.values]
         return encode
 
+    def visit_value_encode(self, encode: models.ValueEncode) -> models.ValueEncode:
+        encode.values = [value.accept(self) for value in encode.values]
+        return encode
+
+    def visit_value_decode(self, decode: models.ValueDecode) -> models.ValueDecode:
+        decode.value = decode.value.accept(self)
+        return decode
+
     def visit_array_pop(self, pop: models.ArrayPop) -> models.ArrayPop | models.ValueProvider:
         pop.array = pop.array.accept(self)
         return pop
