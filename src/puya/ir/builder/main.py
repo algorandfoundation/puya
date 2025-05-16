@@ -666,6 +666,11 @@ class FunctionIRBuilder(
             "statement has no effect, did you forget to submit?", location=call.source_location
         )
 
+    def visit_set_inner_transaction_fields(
+        self, node: awst_nodes.SetInnerTransactionFields
+    ) -> None:
+        self._itxn.handle_set_inner_transaction_fields(node)
+
     def visit_submit_inner_transaction(
         self, submit: awst_nodes.SubmitInnerTransaction
     ) -> TExpression:

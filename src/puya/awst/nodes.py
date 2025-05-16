@@ -786,6 +786,29 @@ class InnerTransactionField(Expression):
 
 
 @attrs.frozen
+class SetInnerTransactionFields(Expression):
+    """
+    Emits an `itxn_begin` or `itxn_next` plus the relevant `itxn_field` ops for each field
+    in each itxn of itxns.
+    """
+
+    itxns: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
+    """A sequence of inner transaction fields expressions"""
+    start_with_begin: bool = attrs.field()
+    """Use `itxn_begin` for the first itxn in itxns (else use `itxn_next`)"""
+    wtype: WType = attrs.field(init=False, default=wtypes.void_wtype)
+
+    @itxns.validator
+    def _check_itxns(self, _attribute: object, itxns: Sequence[Expression]) -> None:
+        for expr in itxns:
+            if not isinstance(expr.wtype, wtypes.WInnerTransactionFields):
+                raise CodeError("invalid expression type for set", expr.source_location)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_set_inner_transaction_fields(self)
+
+
+@attrs.frozen
 class SubmitInnerTransaction(Expression):
     itxns: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
     wtype: WType = attrs.field(init=False)

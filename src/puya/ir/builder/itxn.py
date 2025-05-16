@@ -19,6 +19,7 @@ from puya.ir.builder._utils import assign, assign_intrinsic_op
 from puya.ir.builder.blocks import BlocksBuilder
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
+    BasicBlock,
     ConditionalBranch,
     InnerTransactionField,
     Intrinsic,
@@ -283,6 +284,71 @@ class InnerTransactionBuilder:
             source_location=src_loc,
         )
 
+    def _emit_itxn_fields(
+        self, fields: awst_nodes.Expression, emit_loc: SourceLocation
+    ) -> BasicBlock:
+        param_var_name = self._resolve_inner_txn_params_var_name(fields)
+        next_txn = self.block_builder.mkblock(emit_loc, "next_txn")
+        param_data = self._inner_txn_fields_data[param_var_name]
+
+        # with the current implementation, reversing the order itxn_field is called
+        # results in less stack manipulations as most values are naturally in the
+        # required order when stack allocation occurs
+        for field, field_data in reversed(param_data.fields.items()):
+            field_value_counts = sorted(field_data.field_counts)
+            if not field_value_counts or field_value_counts == [0]:
+                # nothing to do
+                continue
+
+            min_num_values, *remaining_values = field_value_counts
+            # values 0 -> min_num_values do not need to test
+            # values min_num_values -> max_num_values need to check if they are set
+            next_field = self.block_builder.mkblock(emit_loc, "next_field")
+            self._set_field_values(field_data, 0, min_num_values)
+
+            if remaining_values:
+                last_num_values = min_num_values
+                for next_num_values in remaining_values:
+                    set_fields_blk = self.block_builder.mkblock(
+                        emit_loc,
+                        f"set_{field.immediate}_{last_num_values}_to_{next_num_values - 1}",
+                    )
+                    self.block_builder.terminate(
+                        ConditionalBranch(
+                            condition=self._get_is_field_count_gte(field_data, next_num_values),
+                            non_zero=set_fields_blk,
+                            zero=next_field,
+                            source_location=emit_loc,
+                        )
+                    )
+                    self.block_builder.activate_block(set_fields_blk)
+                    self._set_field_values(field_data, last_num_values, next_num_values)
+                    last_num_values = next_num_values
+
+                self.block_builder.goto(next_field)
+                self.block_builder.activate_block(next_field)
+        return next_txn
+
+    def handle_set_inner_transaction_fields(
+        self, node: awst_nodes.SetInnerTransactionFields
+    ) -> None:
+        for idx, itxn in enumerate(node.itxns):
+            if node.start_with_begin and idx == 0:
+                self.block_builder.add(
+                    Intrinsic(
+                        op=AVMOp.itxn_begin,
+                        source_location=node.source_location,
+                    )
+                )
+            else:
+                self.block_builder.add(
+                    Intrinsic(
+                        op=AVMOp.itxn_next,
+                        source_location=node.source_location,
+                    )
+                )
+            self._emit_itxn_fields(itxn, node.source_location)
+
     def handle_submit_inner_transaction(
         self, submit: awst_nodes.SubmitInnerTransaction
     ) -> Sequence[ITxnConstant]:
@@ -305,48 +371,7 @@ class InnerTransactionBuilder:
                         source_location=submit_var_loc,
                     )
                 )
-            param_var_name = self._resolve_inner_txn_params_var_name(param)
-            next_txn = self.block_builder.mkblock(submit_var_loc, "next_txn")
-            param_data = self._inner_txn_fields_data[param_var_name]
-
-            # with the current implementation, reversing the order itxn_field is called
-            # results in less stack manipulations as most values are naturally in the
-            # required order when stack allocation occurs
-            for field, field_data in reversed(param_data.fields.items()):
-                field_value_counts = sorted(field_data.field_counts)
-                if not field_value_counts or field_value_counts == [0]:
-                    # nothing to do
-                    continue
-
-                min_num_values, *remaining_values = field_value_counts
-                # values 0 -> min_num_values do not need to test
-                # values min_num_values -> max_num_values need to check if they are set
-                next_field = self.block_builder.mkblock(submit_var_loc, "next_field")
-                self._set_field_values(field_data, 0, min_num_values)
-
-                if remaining_values:
-                    last_num_values = min_num_values
-                    for next_num_values in remaining_values:
-                        set_fields_blk = self.block_builder.mkblock(
-                            submit_var_loc,
-                            f"set_{field.immediate}_{last_num_values}_to_{next_num_values - 1}",
-                        )
-                        self.block_builder.terminate(
-                            ConditionalBranch(
-                                condition=self._get_is_field_count_gte(
-                                    field_data, next_num_values
-                                ),
-                                non_zero=set_fields_blk,
-                                zero=next_field,
-                                source_location=submit_var_loc,
-                            )
-                        )
-                        self.block_builder.activate_block(set_fields_blk)
-                        self._set_field_values(field_data, last_num_values, next_num_values)
-                        last_num_values = next_num_values
-
-                    self.block_builder.goto(next_field)
-                    self.block_builder.activate_block(next_field)
+            next_txn = self._emit_itxn_fields(param, submit_var_loc)
 
             group_indexes.append(
                 ITxnConstant(
@@ -756,6 +781,12 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
         if PrimitiveIRType.itxn_group_idx in ir_types:
             logger.error("unsupported inner transaction expression", location=expr.source_location)
         return [None] * len(ir_types)
+
+    @typing.override
+    def visit_set_inner_transaction_fields(
+        self, expr: awst_nodes.SetInnerTransactionFields
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
 
     @typing.override
     def visit_state_delete(self, expr: awst_nodes.StateDelete) -> list[_SourceAction]:
