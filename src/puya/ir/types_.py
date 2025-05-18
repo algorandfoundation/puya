@@ -12,6 +12,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.nodes import BytesEncoding
+from puya.awst.visitors import WTypeVisitor
 from puya.errors import CodeError, InternalError
 from puya.ir.arc4 import get_arc4_static_bit_size, is_arc4_static_size
 from puya.parse import SourceLocation
@@ -166,6 +167,10 @@ class Encoding(abc.ABC):
 
     @property
     @abc.abstractmethod
+    def layout(self) -> str: ...
+
+    @property
+    @abc.abstractmethod
     def num_bytes(self) -> int | None: ...
 
     @cached_property
@@ -183,19 +188,23 @@ class Encoding(abc.ABC):
 
 @attrs.frozen(str=False)
 class BoolEncoding(Encoding):
-    bit_packed: bool
+    packable: bool
     num_bytes: int = attrs.field(default=1, init=False)
 
     @cached_property
     def name(self) -> str:
-        if self.bit_packed:
-            return "bool_packed"
+        if self.packable:
+            return "bool_bit"
         else:
-            return "bool_uint8"
+            return "bool"
+
+    @property
+    def layout(self) -> str:
+        return self.name
 
 
 @attrs.frozen(str=False)
-class UIntEncoding:
+class UIntEncoding(Encoding):
     n: int
 
     @cached_property
@@ -206,9 +215,13 @@ class UIntEncoding:
     def name(self) -> str:
         return f"uint{self.n}"
 
+    @property
+    def layout(self) -> str:
+        return self.name
+
 
 @attrs.frozen(str=False)
-class TupleEncoding:
+class TupleEncoding(Encoding):
     elements: Sequence[Encoding] = attrs.field(converter=tuple[Encoding, ...])
 
     @cached_property
@@ -217,7 +230,7 @@ class TupleEncoding:
         for element in self.elements:
             if element.num_bytes is None:
                 return None
-            if isinstance(element, BoolEncoding) and element.bit_packed:
+            if isinstance(element, BoolEncoding) and element.packable:
                 total_bits += 1
             else:
                 # if not a bit packed bool, need to round up to byte boundary
@@ -232,35 +245,79 @@ class TupleEncoding:
         inner = ",".join(e.name for e in self.elements)
         return f"({inner})"
 
+    @cached_property
+    def layout(self) -> str:
+        head = []
+        tail = []
+        for element in self.elements:
+            if element.is_dynamic:
+                head.append("offset")
+                tail.append(element.layout)
+            else:
+                head.append(element.layout)
+        inner = ",".join((*head, *tail))
+        return f"({inner})"
+
 
 @attrs.frozen(str=False)
-class ArrayEncoding:
+class ArrayEncoding(Encoding):
     element: Encoding
-    size: int | None
     length_header: bool = attrs.field()
-
-    @length_header.validator
-    def _length_header_validator(self, _: object, value: bool) -> None:  # noqa: FBT001
-        if value and self.size is not None:
-            raise ValueError("length header not required for static arrays")
 
     @cached_property
     def num_bytes(self) -> int | None:
-        if self.size is None or self.element.num_bytes is None:
-            return None
-        if isinstance(self.element, BoolEncoding) and self.element.bit_packed:
-            return bits_to_bytes(self.size)
-        return self.size * self.element.num_bytes
+        return None
 
     @cached_property
     def name(self) -> str:
-        element = self.element.name
-        size = "" if self.size is None else str(self.size)
-        array = f"{element}[{size}]"
         if self.length_header:
-            return f"(len,{array})"
+            return f"(len,{self.element.name})"
         else:
-            return array
+            return self.element.name
+
+    @cached_property
+    def layout(self) -> str:
+        layouts = []
+        # len header
+        if self.length_header:
+            layouts.append("len")
+
+        # head
+        if self.element.is_dynamic:
+            layouts.append("offset[]")
+
+        # tail
+        layouts.append(f"{self.element.layout}[]")
+        inner = ",".join(layouts)
+        return f"({inner})"
+
+@attrs.frozen(str=False)
+class FixedArrayEncoding(Encoding):
+    element: Encoding
+    size: int
+
+    @cached_property
+    def num_bytes(self) -> int | None:
+        if self.element.num_bytes is None:
+            return None
+        return self.element.num_bytes * self.size
+
+    @cached_property
+    def name(self) -> str:
+        return f"{self.element.name}[{self.size}]"
+
+    @cached_property
+    def layout(self) -> str:
+        layouts = []
+
+        # head
+        if self.element.is_dynamic:
+            layouts.append(f"offset[{self.size}]")
+
+        # tail
+        layouts.append(f"{self.element.layout}[{self.size}]")
+        inner = ",".join(layouts)
+        return f"({inner})"
 
 
 @attrs.frozen(str=False, order=False)
@@ -291,12 +348,14 @@ class EncodedType(IRType):
 class EncodedTupleType(IRType):
     """A HLL tuple type encoded to a single bytes value"""
 
+    encoding: Encoding
     elements: Sequence[IRType] = attrs.field(converter=tuple[IRType, ...])
 
     @property
     def name(self) -> str:
-        elements = ",".join(e.name for e in self.elements)
-        return f"({elements})"
+        # elements = ",".join(e.name for e in self.elements)
+        # return f"({elements})"
+        return self.encoding.layout
 
     @property
     def avm_type(self) -> typing.Literal[AVMType.bytes]:
@@ -515,6 +574,105 @@ def wtype_to_ir_type(
             typing.assert_never(wtype.scalar_type)
 
 
+class _WTypeToEncoding(WTypeVisitor[Encoding]):
+    def visit_basic_type(self, wtype: wtypes.WType) -> Encoding:
+        if wtype == wtypes.biguint_wtype:
+            return UIntEncoding(n=64)
+        elif wtype == wtypes.bool_wtype:
+            return BoolEncoding(packable=True)
+        elif wtype == wtypes.account_wtype:
+            return UIntEncoding(n=32)
+        if wtype.persistable:
+            if wtype.scalar_type == AVMType.bytes:
+                return wtypes.bytes_wtype.accept(self)
+            elif wtype.scalar_type == AVMType.uint64:
+                return UIntEncoding(n=64)
+        self._unencodable(wtype)
+
+    def visit_basic_arc4_type(self, wtype: wtypes.ARC4Type) -> Encoding:
+        if wtype == wtypes.arc4_bool_wtype:
+            return BoolEncoding(packable=True)
+        self._unencodable(wtype)
+
+    def visit_arc4_uint(self, wtype: wtypes.ARC4UIntN) -> Encoding:
+        return UIntEncoding(n=wtype.n)
+
+    def visit_arc4_ufixed(self, wtype: wtypes.ARC4UFixedNxM) -> Encoding:
+        return UIntEncoding(n=wtype.n)
+
+    def visit_bytes_type(self, wtype: wtypes.BytesWType) -> Encoding:
+        element = UIntEncoding(n=8)
+        if wtype.length is None:
+            return ArrayEncoding(element=element, length_header=True)
+        else:
+            return TupleEncoding(elements=[element] * wtype.length)
+
+    def visit_stack_array(self, wtype: wtypes.StackArray) -> Encoding:
+        return ArrayEncoding(element=wtype.element_type.accept(self), length_header=True)
+
+    def visit_reference_array(self, wtype: wtypes.ReferenceArray) -> Encoding:
+        element = wtype.accept(self)
+        # top level bools can't be bit packed, due to no length header
+        # only nested bools supported come from statically sized elements i.e.
+        # fixed arrays or tuples, which can support bit packed bools
+        if isinstance(element, BoolEncoding):
+            element = BoolEncoding(packable=False)
+        if element.is_dynamic:
+            raise InternalError("reference arrays can't have dynamic elements")
+        return ArrayEncoding(element=element, length_header=False)
+
+    def visit_arc4_dynamic_array(self, wtype: wtypes.ARC4DynamicArray) -> Encoding:
+        return ArrayEncoding(
+            element=wtype.element_type.accept(self),
+            length_header=True,
+        )
+
+    def visit_tuple_type(self, wtype: wtypes.WTuple) -> Encoding:
+        return self._tuple_or_fixed_array(wtype)
+
+    def visit_arc4_tuple(self, wtype: wtypes.ARC4Tuple) -> Encoding:
+        return self._tuple_or_fixed_array(wtype)
+
+    def visit_arc4_struct(self, wtype: wtypes.ARC4Struct) -> Encoding:
+        return self._tuple_or_fixed_array(wtype)
+
+    def _tuple_or_fixed_array(self, wtype: wtypes.WTuple | wtypes.ARC4Tuple | wtypes.ARC4Struct) -> Encoding:
+        try:
+            homogenous_type, = set(wtype.types)
+        except ValueError:
+            return TupleEncoding(elements=[t.accept(self) for t in wtype.types])
+        else:
+            # describe homogenous tuples as fixed arrays for consistency
+            return FixedArrayEncoding(
+                element=homogenous_type.accept(self),
+                size=len(wtype.types),
+            )
+
+    def visit_arc4_static_array(self, wtype: wtypes.ARC4StaticArray) -> Encoding:
+        return FixedArrayEncoding(
+            element=wtype.element_type.accept(self),
+            size=wtype.array_size,
+        )
+
+    def visit_enumeration_type(self, wtype: wtypes.WEnumeration) -> Encoding:
+        self._unencodable(wtype)
+
+    def visit_group_transaction_type(self, wtype: wtypes.WGroupTransaction) -> Encoding:
+        # technically it could be encoded..., just not persisted
+        self._unencodable(wtype)
+
+    def visit_inner_transaction_type(self, wtype: wtypes.WInnerTransaction) -> Encoding:
+        self._unencodable(wtype)
+
+    def visit_inner_transaction_fields_type(
+        self, wtype: wtypes.WInnerTransactionFields
+    ) -> Encoding:
+        self._unencodable(wtype)
+
+    def _unencodable(self, wtype: wtypes.WType) -> typing.Never:
+        raise InternalError(f"unencodable wtype: {wtype!s}")
+
+
 def wtype_to_encoded_ir_type(
     wtype: wtypes.WType,
     *,
@@ -529,7 +687,8 @@ def wtype_to_encoded_ir_type(
             elements=[
                 wtype_to_encoded_ir_type(e, require_static_size=require_static_size, loc=loc)
                 for e in wtype.types
-            ]
+            ],
+            encoding=wtype.accept(_WTypeToEncoding()),
         )
     # note: any types added here should also be handled when lowering ArrayEncode nodes
     elif wtype == wtypes.bool_wtype:
