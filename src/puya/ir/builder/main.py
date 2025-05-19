@@ -69,14 +69,18 @@ from puya.ir.models import (
     WriteSlot,
 )
 from puya.ir.types_ import (
+    AggregateIRType,
     ArrayEncoding,
     AVMBytesEncoding,
     EncodedType,
     PrimitiveIRType,
     SizedBytesType,
     SlotType,
+    TupleEncoding,
     bytes_enc_to_avm_bytes_enc,
+    wtype_to_encoding,
     wtype_to_ir_type,
+    wtype_to_ir_type_and_encoding,
     wtype_to_ir_types,
 )
 from puya.ir.utils import format_tuple_index
@@ -178,14 +182,20 @@ class FunctionIRBuilder(
         assert isinstance(
             expr.value.wtype, wtypes.ARC4Type
         ), f"ARC4Decode node should have value with ARC-4 type, got: {expr.value.wtype}"
-        return arc4.decode_arc4_value(
-            self.context, value, expr.value.wtype, expr.wtype, expr.source_location
+        ir_type = wtype_to_ir_type(
+            expr.wtype, source_location=expr.source_location, allow_aggregate=True
         )
+        encoding = wtype_to_encoding(expr.value.wtype)
+        return arc4.decode_arc4_value(self.context, value, encoding, ir_type, expr.source_location)
 
     def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> TExpression:
         value = self.visit_expr(expr.value)
+        ir_type = wtype_to_ir_type(
+            expr.value.wtype, source_location=expr.source_location, allow_aggregate=True
+        )
+        encoding = wtype_to_encoding(expr.wtype)
         return arc4.encode_value_provider(
-            self.context, value, expr.value.wtype, expr.wtype, expr.source_location
+            self.context, value, ir_type, encoding, expr.source_location
         )
 
     def visit_size_of(self, size_of: awst_nodes.SizeOf) -> TExpression:
@@ -716,11 +726,15 @@ class FunctionIRBuilder(
             )
         elif isinstance(expr.base.wtype, wtypes.ARC4Tuple):
             base = self.visit_and_materialise_single(expr.base)
+            tuple_ir_type, tuple_encoding = wtype_to_ir_type_and_encoding(
+                expr.base.wtype, expr.source_location
+            )
             return arc4.arc4_tuple_index(
                 self.context,
                 base=base,
                 index=expr.index,
-                wtype=expr.base.wtype,
+                tuple_encoding=tuple_encoding,
+                tuple_type=tuple_ir_type,
                 source_location=expr.source_location,
             )
         else:
@@ -744,11 +758,15 @@ class FunctionIRBuilder(
         if isinstance(expr.base.wtype, wtypes.ARC4Struct):
             base = self.visit_and_materialise_single(expr.base)
             index = expr.base.wtype.names.index(expr.name)
+            tuple_ir_type, tuple_encoding = wtype_to_ir_type_and_encoding(
+                expr.base.wtype, expr.source_location
+            )
             return arc4.arc4_tuple_index(
                 self.context,
                 base=base,
                 index=index,
-                wtype=expr.base.wtype,
+                tuple_encoding=tuple_encoding,
+                tuple_type=tuple_ir_type,
                 source_location=expr.source_location,
             )
         else:
@@ -848,19 +866,23 @@ class FunctionIRBuilder(
                 index=index,
                 source_location=expr.source_location,
             )
+            element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
+                indexable_wtype.element_type, expr.source_location
+            )
             encoded_item = factory.assign(read_index, "encoded_item")
 
             return ValueDecode(
                 value=encoded_item,
-                encoding=read_index.array_encoding.element,
-                types=wtype_to_ir_types(indexable_wtype.element_type, expr.source_location),
-                source_location=index.source_location,
+                encoding=element_encoding,
+                decoded_type=element_ir_type,
+                source_location=expr.source_location,
             )
-        elif isinstance(indexable_wtype, wtypes.StackArray):
-            arc4_array_type = effective_array_encoding(indexable_wtype, expr.base.source_location)
+        elif isinstance(indexable_wtype, wtypes.StackArray | wtypes.ARC4Array):
+            array_encoding = wtype_to_encoding(indexable_wtype)
+            assert isinstance(array_encoding, ArrayEncoding)
             encoded_read_vp = arc4.arc4_array_index(
                 self.context,
-                array_wtype=arc4_array_type,
+                encoding=array_encoding,
                 array=base,
                 index=index,
                 source_location=expr.source_location,
@@ -868,18 +890,14 @@ class FunctionIRBuilder(
             return arc4.maybe_decode_arc4_value_provider(
                 self.context,
                 encoded_read_vp,
-                wtype_to_arc4_wtype(arc4_array_type.element_type, expr.source_location),
-                indexable_wtype.element_type,
+                array_encoding.element,
+                wtype_to_ir_type(
+                    indexable_wtype.element_type,
+                    source_location=expr.source_location,
+                    allow_aggregate=True,
+                ),
                 expr.source_location,
                 temp_description="arc4_item",
-            )
-        elif isinstance(indexable_wtype, wtypes.ARC4Array):
-            return arc4.arc4_array_index(
-                self.context,
-                array_wtype=indexable_wtype,
-                array=base,
-                index=index,
-                source_location=expr.source_location,
             )
         else:
             raise InternalError(
@@ -1280,11 +1298,18 @@ class FunctionIRBuilder(
         handle_for_in_loop(self.context, statement)
 
     def visit_new_struct(self, expr: awst_nodes.NewStruct) -> TExpression:
-        match expr.wtype:
-            case wtypes.ARC4Struct() as arc4_struct_wtype:
-                return arc4.encode_arc4_struct(self.context, expr, arc4_struct_wtype)
-            case _:
-                typing.assert_never(expr.wtype)
+        elements = [
+            element
+            for field_name in expr.wtype.fields
+            for element in self.context.visitor.visit_and_materialise(expr.values[field_name])
+        ]
+        ir_type, encoding = wtype_to_ir_type_and_encoding(expr.wtype, expr.source_location)
+        assert isinstance(ir_type, AggregateIRType), "expected aggregate type"
+        assert isinstance(encoding, TupleEncoding), "expected tuple encoding"
+
+        return arc4.encode_arc4_struct(
+            self.context, elements, encoding, ir_type, expr.source_location
+        )
 
     def visit_array_pop(self, expr: awst_nodes.ArrayPop) -> TExpression:
         loc = expr.source_location
@@ -1309,24 +1334,19 @@ class FunctionIRBuilder(
             raise InternalError(f"Unsupported target for array pop: {expr.base.wtype}", loc)
 
     def visit_array_replace(self, expr: awst_nodes.ArrayReplace) -> TExpression:
-        arc4_wtype = effective_array_encoding(expr.wtype, expr.source_location)
         value = self.context.visitor.visit_expr(expr.value)
-        if arc4_wtype.element_type == expr.value.wtype:
-            arc4_value = value
-        else:
-            arc4_value = arc4.encode_value_provider(
-                self.context,
-                value,
-                expr.value.wtype,
-                wtype_to_arc4_wtype(arc4_wtype.element_type, expr.source_location),
-                expr.source_location,
-            )
+        array_encoding = wtype_to_encoding(expr.wtype)
+        assert isinstance(array_encoding, ArrayEncoding), "expected array encoding"
+        element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
+            expr.wtype.element_type, expr.source_location
+        )
         return arc4.arc4_replace_array_item(
             self.context,
             base_expr=expr.base,
             index_value_expr=expr.index,
-            wtype=arc4_wtype,
-            value_vp=arc4_value,
+            array_encoding=array_encoding,
+            element_ir_type=element_ir_type,
+            value_vp=value,
             source_location=expr.source_location,
         )
 
@@ -1388,16 +1408,13 @@ class FunctionIRBuilder(
 
     def visit_array_length(self, expr: awst_nodes.ArrayLength) -> TExpression:
         array_or_slot = self.context.visitor.visit_and_materialise_single(expr.array)
-        array_wtype = expr.array.wtype
-        match array_wtype:
-            case wtypes.ARC4Array():
-                return arc4.get_arc4_array_length(array_wtype, array_or_slot, expr.source_location)
-            case wtypes.StackArray() | wtypes.ReferenceArray():
-                return arrays.get_array_length(
-                    self.context, array_wtype, array_or_slot, expr.source_location
-                )
-            case _:
-                raise InternalError(f"Unexpected array type {array_wtype}", expr.source_location)
+        encoding = wtype_to_encoding(expr.array.wtype)
+        if isinstance(encoding, ArrayEncoding):
+            return arc4.get_arc4_array_length(
+                self.context, encoding, array_or_slot, expr.source_location
+            )
+        else:
+            raise InternalError(f"Unexpected array type {expr.array.wtype}", expr.source_location)
 
     def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> TExpression:
         root = self.context.root

@@ -10,7 +10,6 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import InternalError
-from puya.ir.arc4 import get_arc4_static_bit_size, is_arc4_static_size
 from puya.ir.arc4_types import effective_array_encoding, maybe_wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4
@@ -36,10 +35,10 @@ from puya.ir.types_ import (
     PrimitiveIRType,
     SizedBytesType,
     get_wtype_arity,
+    wtype_to_encoded_ir_type,
     wtype_to_ir_type,
 )
 from puya.parse import SourceLocation
-from puya.utils import bits_to_bytes
 
 logger = log.get_logger(__name__)
 
@@ -406,7 +405,7 @@ def get_storage_codec(
         arc4_wtype = maybe_wtype_to_arc4_wtype(declared_type)
         if arc4_wtype is None:
             raise InternalError("expected persistable tuple type to be ARC-4 encodable", loc)
-        return _ARC4StorageCodec(declared_type=declared_type, arc4_type=arc4_wtype)
+        return _ARC4StorageCodec(declared_type=declared_type, arc4_type=arc4_wtype, loc=loc)
 
     if declared_type.scalar_type is None:
         raise InternalError(f"unable to construct storage codec for type: {declared_type!r}", loc)
@@ -464,9 +463,13 @@ class _PassthroughStorageCodec(StorageCodec):
 class _ARC4StorageCodec(StorageCodec):
     """For when user / high-level types must be converted to ARC-4 for storage"""
 
-    def __init__(self, *, declared_type: wtypes.WType, arc4_type: wtypes.ARC4Type) -> None:
-        self._declared_type = declared_type
-        self._arc4_type = arc4_type
+    def __init__(
+        self, *, declared_type: wtypes.WType, arc4_type: wtypes.ARC4Type, loc: SourceLocation
+    ) -> None:
+        self._declared_type = wtype_to_ir_type(
+            declared_type, source_location=loc, allow_aggregate=True
+        )
+        self._encoded_type = wtype_to_encoded_ir_type(arc4_type)
 
     @typing.override
     def encode(
@@ -474,7 +477,7 @@ class _ARC4StorageCodec(StorageCodec):
     ) -> Value:
         value_tuple = ValueTuple(values=values, source_location=loc)
         encoded_vp = arc4.encode_value_provider(
-            context, value_tuple, self._declared_type, arc4_wtype=self._arc4_type, loc=loc
+            context, value_tuple, self._declared_type, self._encoded_type.encoding, loc
         )
         encoded, *rest = context.visitor.materialise_value_provider(
             encoded_vp, "encoded_for_storage"
@@ -486,12 +489,11 @@ class _ARC4StorageCodec(StorageCodec):
     def decode(
         self, context: IRFunctionBuildContext, value: Value, loc: SourceLocation
     ) -> ValueProvider:
-        return arc4.decode_arc4_value(context, value, self._arc4_type, self._declared_type, loc)
+        return arc4.decode_arc4_value(
+            context, value, self._encoded_type.encoding, self._declared_type, loc
+        )
 
     @cached_property
     @typing.override
     def encoded_ir_type(self) -> IRType:
-        if is_arc4_static_size(self._arc4_type):
-            num_bits = get_arc4_static_bit_size(self._arc4_type)
-            return SizedBytesType(bits_to_bytes(num_bits))
-        return PrimitiveIRType.bytes
+        return self._encoded_type
