@@ -22,8 +22,7 @@ from puya.ir.context import IRFunctionBuildContext
 from puya.ir.types_ import (
     PrimitiveIRType,
     get_wtype_arity,
-    wtype_to_encoded_ir_type,
-    wtype_to_ir_types,
+    wtype_to_ir_type_and_encoding,
 )
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
@@ -186,10 +185,13 @@ def handle_assignment(
                 )
                 index = context.visitor.visit_and_materialise_single(ix_expr.index, "index")
                 array = mem.read_slot(context, array_slot, ix_expr.source_location)
+                value_type, encoding = wtype_to_ir_type_and_encoding(
+                    elemment_wtype, ix_expr.source_location
+                )
                 value_encode = ir.ValueEncode(
                     values=values,
-                    value_types=wtype_to_ir_types(elemment_wtype, ix_expr.source_location),
-                    encoded_type=wtype_to_encoded_ir_type(elemment_wtype),
+                    value_type=value_type,
+                    encoding=encoding,
                     source_location=ix_expr.source_location,
                 )
                 encoded_element = factory.assign(value_encode, "encoded_element")
