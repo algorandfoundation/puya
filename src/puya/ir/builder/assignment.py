@@ -12,13 +12,19 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, mem, storage
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import (
+    OpFactory,
     assign,
     assign_targets,
     assign_temp,
     get_implicit_return_is_original,
 )
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.types_ import PrimitiveIRType, get_wtype_arity
+from puya.ir.types_ import (
+    PrimitiveIRType,
+    get_wtype_arity,
+    wtype_to_encoded_ir_type,
+    wtype_to_ir_types,
+)
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
@@ -50,6 +56,7 @@ def handle_assignment(
     *,
     is_nested_update: bool,
 ) -> Sequence[ir.Value]:
+    factory = OpFactory(context, assignment_location)
     match target:
         # special case: a nested update can cause a tuple item to be re-assigned
         # TODO: refactor this so that this special case is handled where it originates
@@ -173,25 +180,28 @@ def handle_assignment(
                 value, description="materialized_values"
             )
             if isinstance(ix_expr.base.wtype, wtypes.ReferenceArray):
+                elemment_wtype = ix_expr.base.wtype.element_type
                 array_slot = context.visitor.visit_and_materialise_single(
                     ix_expr.base, "array_slot"
                 )
                 index = context.visitor.visit_and_materialise_single(ix_expr.index, "index")
                 array = mem.read_slot(context, array_slot, ix_expr.source_location)
-                element: ir.ValueTuple | ir.Value
-                try:
-                    (element,) = values
-                except ValueError:
-                    element = ir.ValueTuple(values=values, source_location=value.source_location)
-                updated_array_vp = ir.ArrayWriteIndex(
+                value_encode = ir.ValueEncode(
+                    values=values,
+                    value_types=wtype_to_ir_types(elemment_wtype, ix_expr.source_location),
+                    encoded_type=wtype_to_encoded_ir_type(elemment_wtype),
+                    source_location=ix_expr.source_location,
+                )
+                encoded_element = factory.assign(value_encode, "encoded_element")
+                write_index = ir.ArrayWriteIndex(
                     array=array,
                     index=index,
-                    value=element,
+                    value=encoded_element,
                     source_location=ix_expr.source_location,
                 )
                 updated_array = assign_temp(
                     context,
-                    updated_array_vp,
+                    write_index,
                     temp_description="updated_array",
                     source_location=value.source_location,
                 )
