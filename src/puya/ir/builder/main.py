@@ -63,6 +63,7 @@ from puya.ir.models import (
     UInt64Constant,
     Undefined,
     Value,
+    ValueDecode,
     ValueProvider,
     ValueTuple,
     WriteSlot,
@@ -815,6 +816,7 @@ class FunctionIRBuilder(
         )
 
     def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> TExpression:
+        factory = OpFactory(self.context, expr.source_location)
         index = self.visit_and_materialise_single(expr.index)
         base = self.visit_and_materialise_single(expr.base)
 
@@ -841,11 +843,18 @@ class FunctionIRBuilder(
                 )
         elif isinstance(indexable_wtype, wtypes.ReferenceArray):
             slot = mem.read_slot(self.context, base, expr.base.source_location)
-            return ArrayReadIndex(
+            read_index = ArrayReadIndex(
                 array=slot,
-                types=wtype_to_ir_types(indexable_wtype.element_type, expr.source_location),
                 index=index,
                 source_location=expr.source_location,
+            )
+            encoded_item = factory.assign(read_index, "encoded_item")
+
+            return ValueDecode(
+                value=encoded_item,
+                encoding=read_index.array_encoding.element,
+                types=wtype_to_ir_types(indexable_wtype.element_type, expr.source_location),
+                source_location=index.source_location,
             )
         elif isinstance(indexable_wtype, wtypes.StackArray):
             arc4_array_type = effective_array_encoding(indexable_wtype, expr.base.source_location)
