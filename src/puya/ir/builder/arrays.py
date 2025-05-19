@@ -82,7 +82,7 @@ def get_array_encoded_items(
             try:
                 (element_type,) = set(types)
             except ValueError:
-                raise InternalError("expected homogenous tuple")
+                raise InternalError("expected homogenous tuple") from None
             element_ir_types = wtype_to_ir_types(element_type, items.source_location)
             element_encoding = wtype_to_encoded_ir_type(element_type)
             num_values_per_item = len(element_ir_types)
@@ -93,6 +93,7 @@ def get_array_encoded_items(
                 item_values = item_values[num_values_per_item:]
                 encoded_item_vp = ir.ValueEncode(
                     values=encode_items,
+                    value_types=element_ir_types,
                     encoded_type=element_encoding,
                     source_location=items.source_location,
                 )
@@ -136,26 +137,42 @@ def build_for_in_array(
     source_location: SourceLocation,
 ) -> ArrayIterator:
     # TODO: separate array ops from slot ops
+    factory = OpFactory(context, source_location)
 
     array_slot = context.visitor.visit_and_materialise_single(array_expr)
     array_loc = array_expr.source_location
     array_contents = read_slot(context, array_slot, array_loc)
     array_length_vp = ir.ArrayLength(array=array_contents, source_location=array_loc)
-    (array_length,) = context.visitor.materialise_value_provider(array_length_vp, "array_length")
+    array_length = factory.assign(array_length_vp, "array_length")
     array_wtype = array_expr.wtype
     assert isinstance(
         array_wtype, wtypes.StackArray | wtypes.ReferenceArray | wtypes.ARC4Array
     ), "expected array type"
+
+    array_ir_type = wtype_to_encoded_ir_type(array_wtype)
+    array_encoding = array_ir_type.encoding
+
     element_wtype = array_wtype.element_type
     element_ir_types = wtype_to_ir_types(element_wtype, source_location)
-    return ArrayIterator(
-        array_length=array_length,
-        get_value_at_index=lambda index: ir.ArrayReadIndex(
+
+    def _read_and_decode(index: ir.Value) -> ir.ValueProvider:
+        assert isinstance(array_encoding, ArrayEncoding), "expected array encoding"
+
+        read_item = ir.ArrayReadIndex(
             array=read_slot(context, array_slot, source_location),
             index=index,
+            source_location=source_location,
+        )
+        return ir.ValueDecode(
+            value=factory.assign(read_item, "read_item"),
+            encoding=array_encoding.element,
             types=element_ir_types,
             source_location=source_location,
-        ),
+        )
+
+    return ArrayIterator(
+        array_length=array_length,
+        get_value_at_index=_read_and_decode,
     )
 
 
@@ -165,20 +182,24 @@ def pop_array(
     array: ir.Value,
     loc: SourceLocation,
 ) -> tuple[ir.Value, ir.ValueProvider]:
-    pop = ir.ArrayPop(
-        array=array, source_location=loc, element_types=wtype_to_ir_types(element_wtype, loc)
+    pop = ir.ArrayPop(array=array, source_location=loc)
+    new_contents, encoded_item = context.visitor.materialise_value_provider(pop, "pop")
+    element_types = wtype_to_ir_types(element_wtype, loc)
+    popped_items_vp = ir.ValueDecode(
+        value=encoded_item,
+        encoding=pop.array_encoding.element,
+        types=element_types,
+        source_location=loc,
     )
-    array_type, *element_types = pop.types
 
-    new_contents = context.new_register(context.next_tmp_name("new_contents"), array_type, loc)
     popped_items = [
         context.new_register(context.next_tmp_name(f"popped_item.{idx}"), item_type, loc)
         for idx, item_type in enumerate(element_types)
     ]
     assign_targets(
         context,
-        source=pop,
-        targets=[new_contents, *popped_items],
+        source=popped_items_vp,
+        targets=popped_items,
         assignment_location=loc,
     )
     popped_item: ir.ValueProvider

@@ -96,49 +96,35 @@ class IRMutator(IRVisitor[t.Any]):
         write.value = write.value.accept(self)
         return write
 
-    def visit_array_read_index(
-        self, read: models.ArrayReadIndex
-    ) -> models.ArrayReadIndex | models.ValueProvider:
+    def visit_array_read_index(self, read: models.ArrayReadIndex) -> models.ValueProvider:
         read.array = read.array.accept(self)
         read.index = read.index.accept(self)
         return read
 
-    def visit_array_write_index(
-        self, write: models.ArrayWriteIndex
-    ) -> models.ArrayWriteIndex | models.ValueProvider:
+    def visit_array_write_index(self, write: models.ArrayWriteIndex) -> models.ValueProvider:
         write.array = write.array.accept(self)
         write.index = write.index.accept(self)
         write.value = write.value.accept(self)
         return write
 
-    def visit_array_concat(
-        self, concat: models.ArrayConcat
-    ) -> models.ArrayConcat | models.ValueProvider:
+    def visit_array_concat(self, concat: models.ArrayConcat) -> models.ValueProvider:
         concat.array = concat.array.accept(self)
         concat.other = concat.other.accept(self)
         return concat
 
-    def visit_array_encode(
-        self, encode: models.ArrayEncode
-    ) -> models.ArrayEncode | models.ValueProvider:
+    def visit_value_encode(self, encode: models.ValueEncode) -> models.ValueProvider:
         encode.values = [value.accept(self) for value in encode.values]
         return encode
 
-    def visit_value_encode(self, encode: models.ValueEncode) -> models.ValueEncode:
-        encode.values = [value.accept(self) for value in encode.values]
-        return encode
-
-    def visit_value_decode(self, decode: models.ValueDecode) -> models.ValueDecode:
+    def visit_value_decode(self, decode: models.ValueDecode) -> models.ValueProvider:
         decode.value = decode.value.accept(self)
         return decode
 
-    def visit_array_pop(self, pop: models.ArrayPop) -> models.ArrayPop | models.ValueProvider:
+    def visit_array_pop(self, pop: models.ArrayPop) -> models.ValueProvider:
         pop.array = pop.array.accept(self)
         return pop
 
-    def visit_array_length(
-        self, length: models.ArrayLength
-    ) -> models.ArrayLength | models.ValueProvider:
+    def visit_array_length(self, length: models.ArrayLength) -> models.ValueProvider:
         length.array = length.array.accept(self)
         return length
 
