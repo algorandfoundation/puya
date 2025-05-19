@@ -14,7 +14,6 @@ from puya.awst import (
 from puya.awst.nodes import BytesEncoding
 from puya.awst.visitors import WTypeVisitor
 from puya.errors import CodeError, InternalError
-from puya.ir.arc4 import get_arc4_static_bit_size, is_arc4_static_size
 from puya.parse import SourceLocation
 from puya.utils import bits_to_bytes
 
@@ -133,33 +132,6 @@ class PrimitiveIRType(IRType, enum.StrEnum):
         return f"{type(self).__name__}.{self.name}"
 
 
-# TODO: replace with EncodedType with an ArrayEncoding
-@attrs.frozen(str=False, order=False)
-class ArrayType(IRType):
-    """An array of values encoded to a bytes value"""
-
-    element: IRType
-
-    @property
-    def name(self) -> str:
-        return f"{self.element.name}[]"
-
-    @property
-    def avm_type(self) -> typing.Literal[AVMType.bytes]:
-        return AVMType.bytes
-
-    @property
-    def maybe_avm_type(self) -> typing.Literal[AVMType.bytes]:
-        return self.avm_type
-
-    @property
-    def num_bytes(self) -> int | None:
-        return None
-
-    def __str__(self) -> str:
-        return self.name
-
-
 # TODO: move encodings into their own file?
 @attrs.frozen(str=False)
 class Encoding(abc.ABC):
@@ -264,6 +236,10 @@ class TupleEncoding(Encoding):
 @attrs.frozen(str=False)
 class ArrayEncoding(Encoding):
     element: Encoding
+
+
+@attrs.frozen(str=False)
+class DynamicArrayEncoding(ArrayEncoding):
     length_header: bool = attrs.field()
 
     @cached_property
@@ -295,8 +271,7 @@ class ArrayEncoding(Encoding):
 
 
 @attrs.frozen(str=False)
-class FixedArrayEncoding(Encoding):
-    element: Encoding
+class FixedArrayEncoding(ArrayEncoding):
     size: int
 
     @cached_property
@@ -545,20 +520,13 @@ def wtype_to_ir_type(
             wtypes.WGroupTransaction | wtypes.WInnerTransaction | wtypes.WInnerTransactionFields,
         ):
             raise CodeError("unsupported array element type", source_location)
-        case wtypes.StackArray(element_type=element_wtype):
-            element_ir_type = wtype_to_encoded_ir_type(
-                element_wtype, require_static_size=False, loc=source_location
-            )
-            return ArrayType(element=element_ir_type)
-        case wtypes.ReferenceArray(element_type=element_wtype):
-            element_ir_type = wtype_to_encoded_ir_type(
-                element_wtype, require_static_size=True, loc=source_location
-            )
-            array_type = ArrayType(element=element_ir_type)
+        case wtypes.ReferenceArray():
+            array_type = wtype_to_encoded_ir_type(wtype)
             return SlotType(array_type)
-        case wtypes.ARC4Type() as arc4_wtype if is_arc4_static_size(arc4_wtype):
-            return SizedBytesType(bits_to_bytes(get_arc4_static_bit_size(arc4_wtype)))
+        case wtypes.ARC4Type() | wtypes.StackArray():
+            return wtype_to_encoded_ir_type(wtype)
         case wtypes.account_wtype:
+            # TODO: make this an encoded type?
             return SizedBytesType(num_bytes=32)
         case wtypes.void_wtype:
             raise InternalError("can't translate void wtype to irtype", source_location)
@@ -608,12 +576,12 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
     def visit_bytes_type(self, wtype: wtypes.BytesWType) -> Encoding:
         element = UIntEncoding(n=8)
         if wtype.length is None:
-            return ArrayEncoding(element=element, length_header=True)
+            return DynamicArrayEncoding(element=element, length_header=True)
         else:
             return TupleEncoding(elements=[element] * wtype.length)
 
     def visit_stack_array(self, wtype: wtypes.StackArray) -> Encoding:
-        return ArrayEncoding(element=wtype.element_type.accept(self), length_header=True)
+        return DynamicArrayEncoding(element=wtype.element_type.accept(self), length_header=True)
 
     def visit_reference_array(self, wtype: wtypes.ReferenceArray) -> Encoding:
         element = wtype.accept(self)
@@ -623,11 +591,12 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
         if isinstance(element, BoolEncoding):
             element = BoolEncoding(packable=False)
         if element.is_dynamic:
+            # TODO: is this actually a CodeError?
             raise InternalError("reference arrays can't have dynamic elements")
-        return ArrayEncoding(element=element, length_header=False)
+        return DynamicArrayEncoding(element=element, length_header=False)
 
     def visit_arc4_dynamic_array(self, wtype: wtypes.ARC4DynamicArray) -> Encoding:
-        return ArrayEncoding(
+        return DynamicArrayEncoding(
             element=wtype.element_type.accept(self),
             length_header=True,
         )
@@ -680,70 +649,12 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
         raise InternalError(f"unencodable wtype: {wtype!s}")
 
 
-def wtype_to_encoded_ir_type(
-    wtype: wtypes.WType,
-    *,
-    require_static_size: bool,
-    loc: SourceLocation,
-) -> IRType:
+def wtype_to_encoded_ir_type(wtype: wtypes.WType) -> EncodedType:
     """
-    Return the array encoded IRType of a WType
+    Return the encoded IRType of a WType
     """
-    if isinstance(wtype, wtypes.WTuple):
-        return EncodedTupleType(
-            elements=[
-                wtype_to_encoded_ir_type(e, require_static_size=require_static_size, loc=loc)
-                for e in wtype.types
-            ],
-            encoding=wtype.accept(_WTypeToEncoding()),
-        )
-    # note: any types added here should also be handled when lowering ArrayEncode nodes
-    elif wtype == wtypes.bool_wtype:
-        return EncodedUIntType(original_type=PrimitiveIRType.bool, num_bytes=1)
-    elif wtype.scalar_type == AVMType.uint64:
-        return EncodedUIntType(original_type=PrimitiveIRType.uint64, num_bytes=8)
-    elif wtype == wtypes.biguint_wtype:
-        return SizedBytesType(num_bytes=64)
-    else:
-        ir_type = wtype_to_ir_type(wtype, loc)
-        if ir_type.num_bytes is None and require_static_size:
-            raise CodeError("unsupported array element type", loc)
-        return ir_type
-
-
-# TODO: remove this, nodes should capture target ir_types for decoding
-def encoded_ir_type_to_ir_types(ir_type: IRType) -> Sequence[IRType]:
-    if isinstance(ir_type, EncodedTupleType):
-        return tuple(
-            t for element in ir_type.elements for t in encoded_ir_type_to_ir_types(element)
-        )
-    if isinstance(ir_type, EncodedUIntType):
-        ir_type = ir_type.original_type
-    return (ir_type,)
-
-
-# TODO: remove this, encoding should capture bool bit packing details
-def expand_encoded_type_and_group(ir_type: IRType) -> Sequence[tuple[IRType, int]]:
-    """
-    Returns a sequence of (type, group_id) values.
-    Where group_id is an int representing the original tuple they were part of.
-    Items from the same tuple will have the same id.
-
-    e.g.
-    bool,(bool,bool),(bool,bool),bool
-    will return
-    [(bool,1),(bool,2),(bool,2),(bool,3),(bool,3),(bool,1)]
-    """
-    group = idx = 0
-    result = [(ir_type, group)]
-    while idx < len(result):
-        typ = result[idx][0]
-        if isinstance(typ, EncodedTupleType):
-            group += 1
-            result[idx : idx + 1] = [(e, group) for e in typ.elements]
-        else:
-            idx += 1
-    return result
+    encoding = wtype.accept(_WTypeToEncoding())
+    return EncodedType(encoding)
 
 
 def get_wtype_arity(wtype: wtypes.WType) -> int:
