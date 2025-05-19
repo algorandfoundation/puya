@@ -133,6 +133,7 @@ class PrimitiveIRType(IRType, enum.StrEnum):
         return f"{type(self).__name__}.{self.name}"
 
 
+# TODO: replace with EncodedType with an ArrayEncoding
 @attrs.frozen(str=False, order=False)
 class ArrayType(IRType):
     """An array of values encoded to a bytes value"""
@@ -159,6 +160,7 @@ class ArrayType(IRType):
         return self.name
 
 
+# TODO: move encodings into their own file?
 @attrs.frozen(str=False)
 class Encoding(abc.ABC):
     @property
@@ -291,6 +293,7 @@ class ArrayEncoding(Encoding):
         inner = ",".join(layouts)
         return f"({inner})"
 
+
 @attrs.frozen(str=False)
 class FixedArrayEncoding(Encoding):
     element: Encoding
@@ -344,6 +347,7 @@ class EncodedType(IRType):
         return self.name
 
 
+# TODO: replace with EncodedType with a tuple encoding
 @attrs.frozen(str=False, order=False)
 class EncodedTupleType(IRType):
     """A HLL tuple type encoded to a single bytes value"""
@@ -435,6 +439,7 @@ class UnionType(IRType):
         return self.name
 
 
+# TODO: replace with EncodedType with a UInt encoding
 @attrs.frozen(str=False, order=False)
 class EncodedUIntType(IRType):
     """"""
@@ -636,9 +641,11 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
     def visit_arc4_struct(self, wtype: wtypes.ARC4Struct) -> Encoding:
         return self._tuple_or_fixed_array(wtype)
 
-    def _tuple_or_fixed_array(self, wtype: wtypes.WTuple | wtypes.ARC4Tuple | wtypes.ARC4Struct) -> Encoding:
+    def _tuple_or_fixed_array(
+        self, wtype: wtypes.WTuple | wtypes.ARC4Tuple | wtypes.ARC4Struct
+    ) -> Encoding:
         try:
-            homogenous_type, = set(wtype.types)
+            (homogenous_type,) = set(wtype.types)
         except ValueError:
             return TupleEncoding(elements=[t.accept(self) for t in wtype.types])
         else:
@@ -704,6 +711,7 @@ def wtype_to_encoded_ir_type(
         return ir_type
 
 
+# TODO: remove this, nodes should capture target ir_types for decoding
 def encoded_ir_type_to_ir_types(ir_type: IRType) -> Sequence[IRType]:
     if isinstance(ir_type, EncodedTupleType):
         return tuple(
@@ -714,6 +722,7 @@ def encoded_ir_type_to_ir_types(ir_type: IRType) -> Sequence[IRType]:
     return (ir_type,)
 
 
+# TODO: remove this, encoding should capture bool bit packing details
 def expand_encoded_type_and_group(ir_type: IRType) -> Sequence[tuple[IRType, int]]:
     """
     Returns a sequence of (type, group_id) values.
