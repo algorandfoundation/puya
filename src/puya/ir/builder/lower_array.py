@@ -1,7 +1,7 @@
 import itertools
 import typing
 from collections import defaultdict
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator
 
 import attrs
 
@@ -12,11 +12,12 @@ from puya.ir import (
     models as ir,
 )
 from puya.ir.avm_ops import AVMOp
+from puya.ir.builder import arc4
 from puya.ir.builder._utils import OpFactory, assign_intrinsic_op
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
     Encoding,
-    IRType, EncodedType,
+    IRType,
 )
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
@@ -57,22 +58,28 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
 
     @typing.override
     def visit_value_encode(self, encode: models.ValueEncode) -> models.ValueProvider:
-        return _encode_array_item(
+        if len(encode.values) == 1:
+            value_provider: models.ValueTuple | models.Value = encode.values[0]
+        else:
+            value_provider = models.ValueTuple(
+                values=encode.values, source_location=encode.source_location
+            )
+        return arc4.encode_value_provider(
             self,
-            encode.values,
-            types=encode.value_types,
-            target_encoding=encode.encoded_type.encoding,
+            value_provider,
+            value_type=encode.value_type,
+            encoding=encode.encoding,
             loc=encode.source_location,
         )
 
     @typing.override
-    def visit_value_decode(self, encode: models.ValueDecode) -> models.ValueProvider:
-        return _decode_array_item(
+    def visit_value_decode(self, decode: models.ValueDecode) -> models.ValueProvider:
+        return arc4.decode_arc4_value(
             self,
-            encode.value,
-            encode.encoding,
-            encode.types,
-            encode.source_location,
+            decode.value,
+            encoding=decode.encoding,
+            target_type=decode.decoded_type,
+            loc=decode.source_location,
         )
 
     @typing.override
@@ -205,121 +212,3 @@ def _get_element_size(encoding: Encoding, loc: SourceLocation | None) -> int:
     if encoding.num_bytes is None:
         raise CodeError("only immutable, static sized elements supported", loc)
     return encoding.num_bytes
-
-
-def _encode_array_item(
-    context: IRRegisterContext,
-    values: Sequence[ir.Value],
-    types: Sequence[IRType],
-    target_encoding: Encoding,
-    loc: SourceLocation | None,
-) -> ir.Value:
-    assert len(values) == len(types), "expected values and types to have the same arity"
-    match types:
-        case [EncodedType(encoding=value_encoding)] if value_encoding == target_encoding:
-            return values[0]
-        case _:
-            types_str = ",".join(str(t) for t in types)
-            raise CodeError(f"don't know how to encode ({types_str}) to {target_encoding}", loc)
-    """
-    factory = OpFactory(context, loc)
-    encoded_type = EncodedType(encoding=encoding)
-    encoded = factory.constant(b"", ir_type=encoded_type)
-    last_type_and_group = None
-    bit_packed_index = 0
-    encoded_length = 0
-    for value, (sub_type, tuple_group) in zip(
-        values, expand_encoded_type_and_group(element_type), strict=True
-    ):
-        if sub_type.num_bytes is None:
-            raise InternalError("expected fixed size element", loc)
-        value_type = value.ir_type
-        # bool values are encoded as a single ARC-4 Bool value, i.e. consecutive values are not
-        # bit-packed. This allows easier conversion from ReferenceArray encoding to ARC-4 encoding
-        # and also means the standard way of calculating array length
-        # len(array_bytes) / sizeof(EncodedElementType) continues to work
-        if value_type == PrimitiveIRType.bool:
-            # sequential bits in the same tuple are bit-packed
-            if last_type_and_group == (sub_type, tuple_group):
-                bit_packed_index += 1
-                bit_index = bit_packed_index % 8
-                if bit_index:
-                    bit_index += (encoded_length - 1) * 8
-                bytes_to_set = encoded if bit_index else ARC4_FALSE
-                value = factory.set_bit(
-                    value=bytes_to_set, index=bit_index, bit=value, temp_desc="sub_item"
-                )
-                # if bit_index is not 0, then just update encoded and continue
-                # as there is nothing to concat
-                if bit_index:
-                    encoded = value
-                    continue
-            else:
-                value = factory.select(
-                    false=ARC4_FALSE,
-                    true=ARC4_TRUE,
-                    condition=value,
-                    ir_type=PrimitiveIRType.bytes,
-                    temp_desc="encoded_bit",
-                )
-                bit_packed_index = 0
-        # uint64 values are encoded to their equivalent bytes
-        elif value_type.avm_type == AVMType.uint64:
-            value = factory.itob(value, "sub_item")
-            if sub_type.num_bytes != 8:
-                value = factory.extract3(
-                    value, 8 - sub_type.num_bytes, sub_type.num_bytes, "sub_item_truncated"
-                )
-        # biguint values are first padded to 64 bytes
-        elif value_type == PrimitiveIRType.biguint:
-            value = factory.to_fixed_size(value, num_bytes=64, temp_desc="sub_item")
-        # all other byte values should be the correct size already due to earlier check
-        elif value_type.avm_type == AVMType.bytes:
-            pass
-        else:
-            raise InternalError(f"unexpected element type for array encoding: {value_type}", loc)
-        encoded_length += sub_type.num_bytes
-        last_type_and_group = sub_type, tuple_group
-        encoded = factory.concat(encoded, value, "encoded", ir_type=array_type)
-    return encoded
-    """
-
-
-def _decode_array_item(
-    context: IRRegisterContext,
-    item_bytes: ir.Value,
-    encoding: Encoding,
-    types: Sequence[IRType],
-    loc: SourceLocation | None,
-) -> ir.ValueTuple | ir.Value:
-    raise CodeError(f"don't know how to decode {encoding} to {types}", loc)
-    """
-    factory = OpFactory(context, loc)
-    bit_offset = offset = 0
-    values = []
-    last_sub_typ = None
-    for encoded_sub_type, group_id in expand_encoded_type_and_group(element_type):
-        # special handling for bit-packed bools in aggregate types
-        (sub_type,) = encoded_ir_type_to_ir_types(encoded_sub_type)
-        if sub_type == PrimitiveIRType.bool and element_type != PrimitiveIRType.bool:
-            if last_sub_typ == (sub_type, group_id):
-                bit_offset += 1
-            sub_item = factory.get_bit(item_bytes, offset * 8 + bit_offset, "sub_item")
-        else:
-            sub_type_size = _get_element_size(encoded_sub_type, loc)
-            bit_offset = 0
-            sub_item = factory.extract3(item_bytes, offset, sub_type_size, "sub_item")
-            if sub_type.avm_type == AVMType.uint64:
-                sub_item = factory.btoi(sub_item, "sub_item")
-            offset += sub_type_size
-        # also increment offset if we reach the end of a bit-packed byte
-        if bit_offset % 8 == 7:
-            bit_offset = 0
-            offset += 1
-        last_sub_typ = sub_type, group_id
-        values.append(sub_item)
-    if len(values) == 1:
-        return values[0]
-    else:
-        return ir.ValueTuple(values=values, source_location=loc)
-    """

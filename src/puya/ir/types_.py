@@ -132,6 +132,32 @@ class PrimitiveIRType(IRType, enum.StrEnum):
         return f"{type(self).__name__}.{self.name}"
 
 
+@attrs.frozen(str=False, order=False)
+class AggregateIRType(IRType):
+    elements: Sequence[IRType] = attrs.field(converter=tuple[IRType, ...])
+    """Represents a type that is a combination of other types"""
+
+    @property
+    def name(self) -> str:
+        inner = ",".join(e.name for e in self.elements)
+        return f"({inner})"
+
+    @property
+    def avm_type(self) -> AVMType:
+        raise InternalError("aggregate types cannot be mapped to an AVM stack type")
+
+    @property
+    def maybe_avm_type(self) -> str:
+        return "aggregate"
+
+    @property
+    def num_bytes(self) -> int | None:
+        return None
+
+    def __str__(self) -> str:
+        return self.name
+
+
 # TODO: move encodings into their own file?
 @attrs.frozen(str=False)
 class Encoding(abc.ABC):
@@ -305,7 +331,7 @@ class EncodedType(IRType):
 
     @property
     def name(self) -> str:
-        return self.encoding.name
+        return f"Encoded({self.encoding.name})"
 
     @property
     def avm_type(self) -> typing.Literal[AVMType.bytes]:
@@ -318,41 +344,6 @@ class EncodedType(IRType):
     @property
     def num_bytes(self) -> int | None:
         return self.encoding.num_bytes
-
-    def __str__(self) -> str:
-        return self.name
-
-
-# TODO: replace with EncodedType with a tuple encoding
-@attrs.frozen(str=False, order=False)
-class EncodedTupleType(IRType):
-    """A HLL tuple type encoded to a single bytes value"""
-
-    encoding: Encoding
-    elements: Sequence[IRType] = attrs.field(converter=tuple[IRType, ...])
-
-    @property
-    def name(self) -> str:
-        # elements = ",".join(e.name for e in self.elements)
-        # return f"({elements})"
-        return self.encoding.layout
-
-    @property
-    def avm_type(self) -> typing.Literal[AVMType.bytes]:
-        return AVMType.bytes
-
-    @property
-    def maybe_avm_type(self) -> typing.Literal[AVMType.bytes]:
-        return self.avm_type
-
-    @property
-    def num_bytes(self) -> int | None:
-        total = 0
-        for element in self.elements:
-            if element.num_bytes is None:
-                return None
-            total += element.num_bytes
-        return total
 
     def __str__(self) -> str:
         return self.name
@@ -415,31 +406,6 @@ class UnionType(IRType):
         return self.name
 
 
-# TODO: replace with EncodedType with a UInt encoding
-@attrs.frozen(str=False, order=False)
-class EncodedUIntType(IRType):
-    """"""
-
-    original_type: IRType
-    num_bytes: int
-
-    @property
-    def name(self) -> str:
-        n = self.num_bytes * 8
-        return f"encoded_uint{n}"
-
-    @property
-    def avm_type(self) -> typing.Literal[AVMType.bytes]:
-        return AVMType.bytes
-
-    @property
-    def maybe_avm_type(self) -> typing.Literal[AVMType.bytes]:
-        return self.avm_type
-
-    def __str__(self) -> str:
-        return self.name
-
-
 @attrs.frozen(str=False, order=False)
 class SizedBytesType(IRType):
     """A bytes type with a static length"""
@@ -482,6 +448,7 @@ def wtype_to_ir_type(
     wtype: wtypes.WType,
     /,
     source_location: SourceLocation,
+    allow_aggregate: bool = False,
 ) -> IRType: ...
 
 
@@ -489,6 +456,7 @@ def wtype_to_ir_type(
     expr_or_wtype: wtypes.WType | awst_nodes.Expression,
     /,
     source_location: SourceLocation | None = None,
+    allow_aggregate: bool = False,
 ) -> IRType:
     if isinstance(expr_or_wtype, awst_nodes.Expression):
         return wtype_to_ir_type(
@@ -512,11 +480,15 @@ def wtype_to_ir_type(
         case wtypes.ReferenceArray():
             array_type = wtype_to_encoded_ir_type(wtype)
             return SlotType(array_type)
-        case wtypes.ARC4Type() | wtypes.StackArray():
+        case wtypes.ARC4Type() | wtypes.StackArray() | wtypes.account_wtype:
             return wtype_to_encoded_ir_type(wtype)
-        case wtypes.account_wtype:
-            # TODO: make this an encoded type?
-            return SizedBytesType(num_bytes=32)
+        case wtypes.WTuple(types=types) if allow_aggregate:
+            return AggregateIRType(
+                elements=[
+                    wtype_to_ir_type(t, allow_aggregate=True, source_location=source_location)
+                    for t in types
+                ]
+            )
         case wtypes.void_wtype:
             raise InternalError("can't translate void wtype to irtype", source_location)
         # case wtypes.state_key:
@@ -597,7 +569,7 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
         return self._tuple_or_fixed_array(wtype)
 
     def visit_arc4_struct(self, wtype: wtypes.ARC4Struct) -> Encoding:
-        return self._tuple_or_fixed_array(wtype)
+        return TupleEncoding(elements=[t.accept(self) for t in wtype.types])
 
     def _tuple_or_fixed_array(
         self, wtype: wtypes.WTuple | wtypes.ARC4Tuple | wtypes.ARC4Struct
@@ -638,12 +610,27 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
         raise InternalError(f"unencodable wtype: {wtype!s}")
 
 
+class IRTypeAndEncoding(typing.NamedTuple):
+    ir_type: IRType
+    encoding: Encoding
+
+
+def wtype_to_ir_type_and_encoding(wtype: wtypes.WType, loc: SourceLocation) -> IRTypeAndEncoding:
+    return IRTypeAndEncoding(
+        ir_type=wtype_to_ir_type(wtype, source_location=loc, allow_aggregate=True),
+        encoding=wtype.accept(_WTypeToEncoding()),
+    )
+
+
+def wtype_to_encoding(wtype: wtypes.WType) -> Encoding:
+    return wtype.accept(_WTypeToEncoding())
+
+
 def wtype_to_encoded_ir_type(wtype: wtypes.WType) -> EncodedType:
     """
     Return the encoded IRType of a WType
     """
-    encoding = wtype.accept(_WTypeToEncoding())
-    return EncodedType(encoding)
+    return EncodedType(wtype_to_encoding(wtype))
 
 
 def get_wtype_arity(wtype: wtypes.WType) -> int:
@@ -656,6 +643,18 @@ def get_wtype_arity(wtype: wtypes.WType) -> int:
 
 def sum_wtypes_arity(types: Sequence[wtypes.WType]) -> int:
     return sum(map(get_wtype_arity, types))
+
+
+def get_type_arity(ir_type: IRType) -> int:
+    """Returns the number of values this wtype represents on the stack"""
+    if isinstance(ir_type, AggregateIRType):
+        return sum_types_arity(ir_type.elements)
+    else:
+        return 1
+
+
+def sum_types_arity(types: Sequence[IRType]) -> int:
+    return sum(map(get_type_arity, types))
 
 
 def wtype_to_ir_types(wtype: wtypes.WType, source_location: SourceLocation) -> list[IRType]:
@@ -676,3 +675,15 @@ def wtype_to_ir_types(wtype: wtypes.WType, source_location: SourceLocation) -> l
         ]
     else:
         return [wtype_to_ir_type(wtype, source_location)]
+
+
+def ir_type_to_ir_types(ir_type: IRType) -> list[IRType]:
+    """
+    Linearizes any AggregateIRType to a sequence of IRTypes
+
+    Generally only useful in converting return types, use in other cases demands caution.
+    """
+    if isinstance(ir_type, AggregateIRType):
+        return [ir_type for typ in ir_type.elements for ir_type in ir_type_to_ir_types(typ)]
+    else:
+        return [ir_type]

@@ -15,9 +15,9 @@ from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.avm_ops_models import ImmediateKind, OpSignature, Variant
 from puya.ir.types_ import (
+    AggregateIRType,
     ArrayEncoding,
     AVMBytesEncoding,
-    EncodedTupleType,
     EncodedType,
     Encoding,
     FixedArrayEncoding,
@@ -25,7 +25,9 @@ from puya.ir.types_ import (
     PrimitiveIRType,
     SizedBytesType,
     SlotType,
+    TupleEncoding,
     UnionType,
+    ir_type_to_ir_types,
 )
 from puya.ir.visitor import IRVisitor
 from puya.parse import SourceLocation
@@ -432,14 +434,6 @@ class ArrayOp(typing.Protocol):
     def array(self) -> Value: ...
 
 
-def _expand_types(typ: IRType) -> Iterable[IRType]:
-    if isinstance(typ, EncodedTupleType):
-        for item in typ.elements:
-            yield from _expand_types(item)
-    else:
-        yield typ
-
-
 def _array_encoding(value: Value) -> ArrayEncoding:
     if not isinstance(value.ir_type, EncodedType):
         raise InternalError(f"expected EncodedType: {value.ir_type}", value.source_location)
@@ -523,25 +517,25 @@ class ArrayConcat(_ArrayOp):
 class ValueEncode(Op, ValueProvider):
     """Encodes a sequence of values into an encoded value"""
 
+    source_location: SourceLocation = attrs.field(eq=False)
     values: Sequence[Value]
-    value_types: Sequence[IRType] = attrs.field(converter=tuple[IRType, ...])
-    encoded_type: EncodedType
+    value_type: IRType = attrs.field()
+    encoding: Encoding
 
-    @value_types.validator
-    def _value_types(self, _attr: object, value_types: Sequence[IRType]) -> None:
-        if len(value_types) != len(self.values):
+    @value_type.validator
+    def _value_type_validator(self, _: object, value: IRType) -> None:
+        ir_types = ir_type_to_ir_types(value)
+        if len(ir_types) != len(self.values):
             raise InternalError(
-                f"expected {len(self.values)} value types, got {len(value_types)}",
-                self.source_location,
+                "expected value_type arity to match values arity", self.source_location
             )
 
-
     def _frozen_data(self) -> object:
-        return self.values, self.encoded_type
+        return self.values, self.value_type, self.encoding
 
     @property
     def types(self) -> Sequence[IRType]:
-        return (self.encoded_type,)
+        return (EncodedType(self.encoding),)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_value_encode(self)
@@ -551,15 +545,42 @@ class ValueEncode(Op, ValueProvider):
 class ValueDecode(Op, ValueProvider):
     """Decodes a value into a sequence of values"""
 
+    source_location: SourceLocation = attrs.field(eq=False)
     value: Value
     encoding: Encoding
-    types: tuple[IRType, ...] = attrs.field(converter=tuple[IRType, ...])
+    decoded_type: IRType = attrs.field()
+
+    @decoded_type.validator
+    def _decoded_type_validator(self, _: object, value: IRType) -> None:
+        _arity_matches(value, self.encoding, self.source_location)
 
     def _frozen_data(self) -> object:
-        return self.value, self.encoding, self.types
+        return self.value, self.encoding, self.decoded_type
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return ir_type_to_ir_types(self.decoded_type)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_value_decode(self)
+
+
+def _arity_matches(ir_type: IRType, encoding: Encoding, loc: SourceLocation) -> None:
+    match ir_type:
+        case AggregateIRType(elements=elements) if isinstance(encoding, TupleEncoding) and len(
+            elements
+        ) == len(encoding.elements):
+            for element, encoding_element in zip(elements, encoding.elements, strict=False):
+                _arity_matches(element, encoding_element, loc)
+        case AggregateIRType(elements=elements) if isinstance(
+            encoding, FixedArrayEncoding
+        ) and len(elements) == encoding.size:
+            for element in elements:
+                _arity_matches(element, encoding.element, loc)
+        case AggregateIRType():
+            raise InternalError("type arity does not match encoding arity", loc)
+        case _:
+            pass
 
 
 @attrs.define(eq=False)

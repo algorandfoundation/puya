@@ -17,8 +17,6 @@ from puya.ir.arc4 import (
     is_arc4_static_size,
 )
 from puya.ir.arc4_types import (
-    get_arc4_name,
-    is_equivalent_effective_array_encoding,
     maybe_wtype_to_arc4_wtype,
     wtype_to_arc4_wtype,
 )
@@ -47,27 +45,40 @@ from puya.ir.models import (
     InvokeSubroutine,
     Register,
     UInt64Constant,
+    Undefined,
     Value,
     ValueProvider,
     ValueTuple,
 )
+from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
+    AggregateIRType,
+    ArrayEncoding,
+    BoolEncoding,
     DynamicArrayEncoding,
+    EncodedType,
+    Encoding,
+    FixedArrayEncoding,
+    IRType,
     PrimitiveIRType,
+    TupleEncoding,
+    UIntEncoding,
+    get_type_arity,
     get_wtype_arity,
-    wtype_to_encoded_ir_type,
+    wtype_to_encoding,
+    wtype_to_ir_type,
 )
 from puya.parse import SourceLocation, sequential_source_locations_merge
-from puya.utils import bits_to_bytes, unique
+from puya.utils import bits_to_bytes
 
 logger = log.get_logger(__name__)
 
 
 def maybe_decode_arc4_value_provider(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     value_provider: ValueProvider,
-    arc4_wtype: wtypes.ARC4Type,
-    target_wtype: wtypes.WType,
+    encoding: Encoding,
+    target_type: IRType,
     loc: SourceLocation,
     *,
     temp_description: str = "tmp",
@@ -81,102 +92,71 @@ def maybe_decode_arc4_value_provider(
     So this function should only ever be called if target type is already arc4 type,
     or if the arc4 type can decode to the target type, any other situation results in a code error.
     """
-    if target_wtype == arc4_wtype:
+    if isinstance(target_type, EncodedType) and target_type.encoding == encoding:
         return value_provider
-    (value,) = context.visitor.materialise_value_provider(
-        value_provider, description=temp_description
-    )
-    return decode_arc4_value(
-        context, value, arc4_wtype=arc4_wtype, target_wtype=target_wtype, loc=loc
-    )
+    factory = OpFactory(context, loc)
+    value = factory.assign(value_provider, temp_description)
+    return decode_arc4_value(context, value, encoding, target_type, loc)
 
 
 class ARC4Codec(abc.ABC):
     @abc.abstractmethod
     def encode(
         self,
-        context: IRFunctionBuildContext,
+        context: IRRegisterContext,
         value_provider: ValueProvider,
-        target_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None: ...
 
     @abc.abstractmethod
     def decode(
         self,
-        context: IRFunctionBuildContext,
+        context: IRRegisterContext,
         value: Value,
-        source_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None: ...
 
 
 class NativeTupleCodec(ARC4Codec):
-    def __init__(self, native_type: wtypes.WTuple):
-        self.native_type: typing.Final = native_type
+    def __init__(self, native_type: AggregateIRType):
+        self.native_type = native_type
 
     @typing.override
     def encode(
         self,
-        context: IRFunctionBuildContext,
+        context: IRRegisterContext,
         value_provider: ValueProvider,
-        target_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        values = context.visitor.materialise_value_provider(
-            value_provider, description="elements_to_encode"
-        )
-        item_types = self.native_type.types
-        match target_type:
-            case wtypes.ARC4Tuple(types=target_types) if len(target_types) == len(item_types):
-                arc4_types = [wtype_to_arc4_wtype(t, loc) for t in target_types]
-                arc4_items = _encode_arc4_tuple_items(context, values, item_types, arc4_types, loc)
-                return _encode_arc4_values_as_tuple(context, arc4_items, arc4_types, loc)
-            case wtypes.ARC4Struct(types=target_types) if (
-                len(target_types) == len(item_types)
-                and (self.native_type.names is None or self.native_type.names == target_type.names)
-            ):
-                arc4_types = [wtype_to_arc4_wtype(t, loc) for t in target_types]
-                arc4_items = _encode_arc4_tuple_items(context, values, item_types, arc4_types, loc)
-                return _encode_arc4_values_as_tuple(context, arc4_items, arc4_types, loc)
-            case wtypes.ARC4Array(element_type=target_element_type) if (
-                len(unique(item_types)) <= 1  # only convert homogenous tuples
-            ):
-                arc4_element_type = wtype_to_arc4_wtype(target_element_type, loc)
-                arc4_types = [arc4_element_type] * len(item_types)
-                arc4_items = _encode_arc4_tuple_items(context, values, item_types, arc4_types, loc)
-                return _encode_arc4_values_as_array(context, target_type, arc4_items, loc)
+        factory = OpFactory(context, loc)
+        values = factory.materialise(value_provider, description="elements_to_encode")
+        item_types = self.native_type.elements
+        match encoding:
+            case TupleEncoding(elements=elements) if len(elements) == len(item_types):
+                arc4_items = _encode_arc4_tuple_items(context, values, item_types, encoding, loc)
+                return _encode_arc4_values_as_tuple(context, arc4_items, encoding, loc)
             case _:
                 return None
 
     @typing.override
     def decode(
         self,
-        context: IRFunctionBuildContext,
+        context: IRRegisterContext,
         value: Value,
-        source_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        item_types = self.native_type.types
-        match source_type:
-            case wtypes.ARC4Tuple(types=arc4_types) if (len(arc4_types) == len(item_types)):
-                arc4_tuple: wtypes.ARC4Struct | wtypes.ARC4Tuple = source_type
-            case wtypes.ARC4Struct(types=arc4_types) if (
-                len(arc4_types) == len(item_types)
-                and (self.native_type.names is None or self.native_type.names == source_type.names)
-            ):
-                arc4_tuple = source_type
-            # Can only decode statically sized arrays, since tuples are statically sized
-            case wtypes.ARC4StaticArray(
-                element_type=arc4_type, array_size=array_size
-            ) if array_size == len(item_types):
-                # A static array of N is the same encoding as a tuple[N, ...N] of the same arity,
-                # so we can use the equivalent ARC-4 tuple type as the decode source type
-                arc4_tuple = wtypes.ARC4Tuple(types=[arc4_type] * array_size)
+        item_types = self.native_type.elements
+        match encoding:
+            case TupleEncoding(elements=elements) if len(elements) == len(item_types):
+                pass
             case _:
                 return None
         return _decode_arc4_tuple_items(
-            context, arc4_tuple, value, target_wtype=self.native_type, source_location=loc
+            context, encoding, value, target_type=self.native_type, source_location=loc
         )
 
 
@@ -185,22 +165,21 @@ class ScalarCodec(ARC4Codec, abc.ABC):
     @typing.final
     def encode(
         self,
-        context: IRFunctionBuildContext,
+        context: IRRegisterContext,
         value_provider: ValueProvider,
-        target_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        (value,) = context.visitor.materialise_value_provider(
-            value_provider, description="to_encode"
-        )
-        return self.encode_value(context, value, target_type, loc)
+        factory = OpFactory(context, loc)
+        value = factory.assign(value_provider, "to_encode")
+        return self.encode_value(context, value, encoding, loc)
 
     @abc.abstractmethod
     def encode_value(
         self,
-        context: IRFunctionBuildContext,
+        context: IRRegisterContext,
         value: Value,
-        target_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None: ...
 
@@ -209,13 +188,13 @@ class BigUIntCodec(ScalarCodec):
     @typing.override
     def encode_value(
         self,
-        context: IRFunctionBuildContext,
+        context: IRRegisterContext,
         value: Value,
-        target_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        match target_type:
-            case wtypes.ARC4UIntN(n=bits):
+        match encoding:
+            case UIntEncoding(n=bits):
                 factory = OpFactory(context, loc)
                 num_bytes = bits // 8
                 return factory.to_fixed_size(
@@ -226,13 +205,13 @@ class BigUIntCodec(ScalarCodec):
     @typing.override
     def decode(
         self,
-        context: IRFunctionBuildContext,
+        context: IRRegisterContext,
         value: Value,
-        source_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        match source_type:
-            case wtypes.ARC4UIntN():
+        match encoding:
+            case UIntEncoding():
                 return value
         return None
 
@@ -241,13 +220,13 @@ class UInt64Codec(ScalarCodec):
     @typing.override
     def encode_value(
         self,
-        context: IRFunctionBuildContext,
+        context: IRRegisterContext,
         value: Value,
-        target_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        match target_type:
-            case wtypes.ARC4UIntN(n=bits):
+        match encoding:
+            case UIntEncoding(n=bits):
                 num_bytes = bits // 8
                 return _encode_native_uint64_to_arc4(context, value, num_bytes, loc)
         return None
@@ -255,17 +234,17 @@ class UInt64Codec(ScalarCodec):
     @typing.override
     def decode(
         self,
-        context: IRFunctionBuildContext,
+        context: IRRegisterContext,
         value: Value,
-        source_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        match source_type:
+        match encoding:
             # note that if bits were > 64, a runtime error would always occur, as btoi
             # will fail if input is more than 8 bytes.
             # if the need arose, we could handle the >64 case by asserting the value is in range
             # and then using extract_uint64
-            case wtypes.ARC4UIntN(n=bits) if bits <= 64:
+            case UIntEncoding(n=bits) if bits <= 64:
                 return Intrinsic(op=AVMOp.btoi, args=[value], source_location=loc)
         return None
 
@@ -274,15 +253,15 @@ class BoolCodec(ScalarCodec):
     @typing.override
     def encode_value(
         self,
-        context: IRFunctionBuildContext,
+        context: IRRegisterContext,
         value: Value,
-        target_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        match target_type:
+        match encoding:
             case wtypes.arc4_bool_wtype:
                 return _encode_arc4_bool(context, value, loc)
-            case wtypes.ARC4UIntN(n=bits):
+            case UIntEncoding(n=bits):
                 num_bytes = bits // 8
                 return _encode_native_uint64_to_arc4(context, value, num_bytes, loc)
         return None
@@ -290,20 +269,20 @@ class BoolCodec(ScalarCodec):
     @typing.override
     def decode(
         self,
-        context: IRFunctionBuildContext,
+        context: IRRegisterContext,
         value: Value,
-        source_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        match source_type:
-            case wtypes.arc4_bool_wtype:
+        match encoding:
+            case BoolEncoding():
                 return Intrinsic(
                     op=AVMOp.getbit,
                     args=[value, UInt64Constant(value=0, source_location=None)],
                     types=(PrimitiveIRType.bool,),
                     source_location=loc,
                 )
-            case wtypes.ARC4UIntN():
+            case UIntEncoding():
                 return Intrinsic(
                     op=AVMOp.neq_bytes,
                     args=[value, BigUIntConstant(value=0, source_location=None)],
@@ -317,20 +296,23 @@ class BytesCodec(ScalarCodec):
     @typing.override
     def encode_value(
         self,
-        context: IRFunctionBuildContext,
+        context: IRRegisterContext,
         value: Value,
-        target_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        if _is_known_alias(target_type, expected=wtypes.arc4_string_alias):
-            return None
+        # TODO: check for string when mapping?
+        # if _is_known_alias(target_type, expected=wtypes.arc4_string_alias):
+        #   return None
         factory = OpFactory(context, loc)
         length = factory.len(value, "length")
-        match target_type:
-            case wtypes.ARC4DynamicArray(element_type=wtypes.ARC4UIntN(n=8)):
+        match encoding:
+            case DynamicArrayEncoding(element=UIntEncoding(n=8), length_header=True):
                 length_uint16 = factory.as_u16_bytes(length, "length_uint16")
                 return factory.concat(length_uint16, value, "encoded_value")
-            case wtypes.ARC4StaticArray(element_type=wtypes.ARC4UIntN(n=8), array_size=num_bytes):
+            case DynamicArrayEncoding(element=UIntEncoding(n=8), length_header=False):
+                return value
+            case FixedArrayEncoding(element=UIntEncoding(n=8), size=num_bytes):
                 lengths_equal = factory.eq(length, num_bytes, "lengths_equal")
                 assert_value(
                     context, lengths_equal, error_message="invalid size", source_location=loc
@@ -341,30 +323,35 @@ class BytesCodec(ScalarCodec):
     @typing.override
     def decode(
         self,
-        context: IRFunctionBuildContext,
+        context: IRRegisterContext,
         value: Value,
-        source_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        if _is_known_alias(source_type, expected=wtypes.arc4_string_alias):
-            return None
-        match source_type:
-            case wtypes.ARC4DynamicArray(element_type=wtypes.ARC4UIntN(n=8)):
+        # TODO: check for string when mapping?
+        # if _is_known_alias(source_type, expected=wtypes.arc4_string_alias):
+        #    return None
+        match encoding:
+            case DynamicArrayEncoding(element=UIntEncoding(n=8), length_header=True):
                 return Intrinsic(
                     op=AVMOp.extract, immediates=[2, 0], args=[value], source_location=loc
                 )
+            case DynamicArrayEncoding(element=UIntEncoding(n=8), length_header=False):
+                return value
             case wtypes.ARC4StaticArray(element_type=wtypes.ARC4UIntN(n=8)):
                 return value
         return None
 
 
+# TODO: work out if we need these codecs
+"""
 class StringCodec(ScalarCodec):
     @typing.override
     def encode_value(
         self,
         context: IRFunctionBuildContext,
         value: Value,
-        target_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
         typing.assert_type(wtypes.arc4_string_alias, wtypes.ARC4DynamicArray)
@@ -380,7 +367,7 @@ class StringCodec(ScalarCodec):
         self,
         context: IRFunctionBuildContext,
         value: Value,
-        source_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
         typing.assert_type(wtypes.arc4_string_alias, wtypes.ARC4DynamicArray)
@@ -397,7 +384,7 @@ class AccountCodec(ARC4Codec):
         self,
         context: IRFunctionBuildContext,
         value_provider: ValueProvider,
-        target_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
         if _is_known_alias(target_type, expected=wtypes.arc4_address_alias):
@@ -409,39 +396,40 @@ class AccountCodec(ARC4Codec):
         self,
         context: IRFunctionBuildContext,
         value: Value,
-        source_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
         if _is_known_alias(source_type, expected=wtypes.arc4_address_alias):
             return value
         return None
+"""
 
 
 class StackArrayCodec(ARC4Codec):
-    def __init__(self, native_type: wtypes.StackArray):
+    def __init__(self, native_type: IRType):
         self.native_type: typing.Final = native_type
 
     @typing.override
     def encode(
         self,
-        context: IRFunctionBuildContext,
+        context: IRRegisterContext,
         value_provider: ValueProvider,
-        target_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        if is_equivalent_effective_array_encoding(self.native_type, target_type, loc):
+        if isinstance(self.native_type, EncodedType) and self.native_type.encoding == encoding:
             return value_provider
         return None
 
     @typing.override
     def decode(
         self,
-        context: IRFunctionBuildContext,
+        context: IRRegisterContext,
         value: Value,
-        source_type: wtypes.ARC4Type,
+        encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        if is_equivalent_effective_array_encoding(self.native_type, source_type, loc):
+        if isinstance(self.native_type, EncodedType) and self.native_type.encoding == encoding:
             return value
         return None
 
@@ -452,100 +440,93 @@ def _is_known_alias(wtype: wtypes.ARC4Type, *, expected: wtypes.ARC4Type) -> boo
     return wtype == expected and wtype.arc4_alias == expected.arc4_alias
 
 
-def _get_arc4_codec(native_type: wtypes.WType) -> ARC4Codec | None:
-    match native_type:
-        case wtypes.biguint_wtype:
+def _get_arc4_codec(ir_type: IRType) -> ARC4Codec | None:
+    match ir_type:
+        case AggregateIRType() as aggregate:
+            return NativeTupleCodec(aggregate)
+        case PrimitiveIRType.biguint:
             return BigUIntCodec()
-        case wtypes.uint64_wtype | wtypes.asset_wtype | wtypes.application_wtype:
-            return UInt64Codec()
-        case wtypes.bool_wtype:
+        case PrimitiveIRType.bool:
             return BoolCodec()
-        case wtypes.BytesWType():
-            return BytesCodec()
-        case wtypes.string_wtype:
-            return StringCodec()
-        case wtypes.account_wtype:
-            return AccountCodec()
-        case wtypes.WTuple():
-            return NativeTupleCodec(native_type)
         case wtypes.StackArray():
-            return StackArrayCodec(native_type)
+            return StackArrayCodec(ir_type)
+        # TODO: what about these types
+        # case wtypes.string_wtype:
+        #    return StringCodec()
+        case _ if ir_type.maybe_avm_type == AVMType.uint64:
+            return UInt64Codec()
+        case _ if ir_type.maybe_avm_type == AVMType.bytes:
+            return BytesCodec()
         case _:
             return None
 
 
 def decode_arc4_value(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     value: Value,
-    arc4_wtype: wtypes.ARC4Type,
-    target_wtype: wtypes.WType,
+    encoding: Encoding,
+    target_type: IRType,
     loc: SourceLocation,
 ) -> ValueProvider:
-    codec = _get_arc4_codec(target_wtype)
+    # TODO: migrate to ValueDecode
+
+    codec = _get_arc4_codec(target_type)
     if codec is not None:
-        result = codec.decode(context, value, arc4_wtype, loc)
+        result = codec.decode(context, value, encoding, loc)
         if result is not None:
             return result
-    arc4_wtype_arc4_name = get_arc4_name(arc4_wtype, use_alias=True)
     logger.error(
-        f"unsupported ARC-4 decode operation from type {arc4_wtype_arc4_name}",
+        f"unsupported ARC-4 decode operation from type {encoding.name}",
         location=loc,
     )
-    return undefined_value(target_wtype, loc)
+    return undefined_value(target_type, loc)
 
 
 def encode_arc4_struct(
-    context: IRFunctionBuildContext, expr: awst_nodes.NewStruct, wtype: wtypes.ARC4Struct
+    context: IRRegisterContext,
+    elements: Sequence[Value],
+    encoding: TupleEncoding,
+    ir_type: AggregateIRType,
+    loc: SourceLocation,
 ) -> ValueProvider:
-    assert expr.wtype == wtype
-    elements = [
-        element
-        for field_name in expr.wtype.fields
-        for element in context.visitor.visit_and_materialise(expr.values[field_name])
-    ]
-    arc4_types = [wtype_to_arc4_wtype(t, expr.source_location) for t in wtype.types]
-    encoded_elements = _encode_arc4_tuple_items(
-        context, elements, wtype.types, arc4_types, expr.source_location
-    )
-    return _encode_arc4_values_as_tuple(
-        context, encoded_elements, arc4_types, expr.source_location
-    )
+    encoded_elements = _encode_arc4_tuple_items(context, elements, ir_type.elements, encoding, loc)
+    return _encode_arc4_values_as_tuple(context, encoded_elements, encoding, loc)
 
 
 def encode_value_provider(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     value_provider: ValueProvider,
-    value_wtype: wtypes.WType,
-    arc4_wtype: wtypes.ARC4Type,
+    value_type: IRType,
+    encoding: Encoding,
     loc: SourceLocation,
 ) -> ValueProvider:
-    codec = _get_arc4_codec(value_wtype)
+    codec = _get_arc4_codec(value_type)
     if codec is not None:
-        result = codec.encode(context, value_provider, arc4_wtype, loc)
+        result = codec.encode(context, value_provider, encoding, loc)
         if result is not None:
             return result
-    arc4_wtype_arc4_name = get_arc4_name(arc4_wtype, use_alias=True)
-    logger.error(
-        f"unsupported ARC-4 encode operation to type {arc4_wtype_arc4_name}", location=loc
+    logger.error(f"unsupported ARC-4 encode operation for {encoding.name}", location=loc)
+    return Undefined(
+        ir_type=EncodedType(encoding),
+        source_location=loc,
     )
-    return undefined_value(arc4_wtype, loc)
 
 
 def _encode_arc4_tuple_items(
-    context: IRFunctionBuildContext,
-    elements: list[Value],
-    item_wtypes: Sequence[wtypes.WType],
-    arc4_item_wtypes: Sequence[wtypes.WType],
+    context: IRRegisterContext,
+    elements: Sequence[Value],
+    item_types: Sequence[IRType],
+    encoding: TupleEncoding,
     loc: SourceLocation,
 ) -> list[Value]:
-    arc4_items = []
-    for item_wtype, arc4_item_wtype in zip(item_wtypes, arc4_item_wtypes, strict=True):
-        arc4_item_wtype = wtype_to_arc4_wtype(arc4_item_wtype, loc)
-        item_arity = get_wtype_arity(item_wtype)
+    factory = OpFactory(context, loc)
+    encoded_items = list[Value]()
+    for item_type, item_encoding in zip(item_types, encoding.elements, strict=True):
+        item_arity = get_type_arity(item_type)
         item_elements = elements[:item_arity]
         elements = elements[item_arity:]
-        if item_wtype == arc4_item_wtype:
-            arc4_items.extend(item_elements)
+        if item_type == EncodedType(item_encoding):
+            encoded_items.extend(item_elements)
             continue
 
         item_value_provider = (
@@ -558,16 +539,16 @@ def _encode_arc4_tuple_items(
                 ),
             )
         )
-        arc4_item_vp = encode_value_provider(
+        encoded_item_vp = encode_value_provider(
             context,
             item_value_provider,
-            item_wtype,
-            arc4_item_wtype,
+            item_type,
+            item_encoding,
             item_value_provider.source_location or loc,
         )
-        (arc4_item,) = context.visitor.materialise_value_provider(arc4_item_vp, "arc4_item")
-        arc4_items.append(arc4_item)
-    return arc4_items
+        (encoded_item,) = factory.materialise(encoded_item_vp, "arc4_item")
+        encoded_items.append(encoded_item)
+    return encoded_items
 
 
 def encode_arc4_exprs_as_array(
@@ -636,23 +617,22 @@ def _encode_arc4_values_as_array(
 def arc4_array_index(
     context: IRFunctionBuildContext,
     *,
-    array_wtype: wtypes.ARC4Array,
+    array_encoding: ArrayEncoding,
+    item_type: IRType,
     array: Value,
     index: Value,
     source_location: SourceLocation,
     assert_bounds: bool = True,
 ) -> ValueProvider:
+    # TODO: migrate to ArrayReadIndex
     factory = OpFactory(context, source_location)
-    array_length_vp = get_arc4_array_length(array_wtype, array, source_location)
-    array_head_and_tail_vp = _get_arc4_array_head_and_tail(
-        context, array_wtype, array, source_location
-    )
+    array_length_vp = get_arc4_array_length(context, array_encoding, array, source_location)
+    array_head_and_tail_vp = _get_arc4_array_head_and_tail(array_encoding, array, source_location)
     array_head_and_tail = factory.assign(array_head_and_tail_vp, "array_head_and_tail")
-    item_wtype = array_wtype.element_type
-    arc4_item_wtype = wtype_to_arc4_wtype(item_wtype, source_location)
+    element_encoding = array_encoding.element
 
-    if is_arc4_dynamic_size(arc4_item_wtype):
-        inner_element_size = _maybe_get_inner_element_size(arc4_item_wtype)
+    if element_encoding.is_dynamic:
+        inner_element_size = element_encoding.num_bytes
         if inner_element_size is not None:
             if assert_bounds:
                 _assert_index_in_bounds(context, index, array_length_vp, source_location)
@@ -672,7 +652,7 @@ def arc4_array_index(
                 index=index,
                 source_location=source_location,
             )
-    elif arc4_item_wtype == wtypes.arc4_bool_wtype:
+    elif isinstance(element_encoding, BoolEncoding) and element_encoding.packable:
         if assert_bounds:
             # this catches the edge case of bit arrays that are not a multiple of 8
             # e.g. reading index 6 & 7 of an array that has a length of 6
@@ -684,17 +664,18 @@ def arc4_array_index(
             source_location=source_location,
         )
     else:
-        item_bit_size = get_arc4_static_bit_size(arc4_item_wtype)
+        item_num_bytes = element_encoding.checked_num_bytes
         # no _assert_index_in_bounds here as static items will error on read if past end of array
         item = _read_static_item_from_arc4_container(
             data=array_head_and_tail,
-            offset=factory.mul(index, item_bit_size // 8, "item_offset"),
-            item_wtype=arc4_item_wtype,
+            offset=factory.mul(index, item_num_bytes, "item_offset"),
+            encoding=element_encoding,
             source_location=source_location,
         )
-    if item_wtype != arc4_item_wtype:
+    # TODO: build ValueDecode instead
+    if item_type != EncodedType(element_encoding):
         item = factory.assign(item, "encoded")
-        return decode_arc4_value(context, item, arc4_item_wtype, item_wtype, source_location)
+        return decode_arc4_value(context, item, element_encoding, item_type, source_location)
     return item
 
 
@@ -702,54 +683,66 @@ def arc4_tuple_index(
     context: IRFunctionBuildContext,
     base: Value,
     index: int,
-    wtype: wtypes.ARC4Tuple | wtypes.ARC4Struct,
+    tuple_encoding: TupleEncoding,
+    tuple_type: AggregateIRType,
     source_location: SourceLocation,
 ) -> ValueProvider:
-    item_wtype = wtype.types[index]
+    item_encoding = tuple_encoding.elements[index]
+    item_ir_type = tuple_type.elements[index]
+
     result = _read_nth_item_of_arc4_heterogeneous_container(
         context,
         array_head_and_tail=base,
+        tuple_encoding=tuple_encoding,
         index=index,
-        tuple_type=wtype,
         source_location=source_location,
     )
-    encoded_wtype = wtype_to_arc4_wtype(item_wtype, source_location)
-    if item_wtype != encoded_wtype:
+    if item_ir_type != EncodedType(item_encoding):
         factory = OpFactory(context, source_location)
         encoded = factory.assign(result, "encoded")
-        result = decode_arc4_value(context, encoded, encoded_wtype, item_wtype, source_location)
+        result = decode_arc4_value(context, encoded, item_encoding, item_ir_type, source_location)
     return result
 
 
 def build_for_in_array(
     context: IRFunctionBuildContext,
-    array_wtype: wtypes.ARC4Array,
+    array_encoding: ArrayEncoding,
     array_expr: awst_nodes.Expression,
     source_location: SourceLocation,
 ) -> ArrayIterator:
+    array_wtype = array_expr.wtype
+    assert isinstance(array_wtype, wtypes.ARC4Array), "expected ARC-4 array type"
     if not array_wtype.element_type.immutable:
         raise InternalError(
             "Attempted iteration of an ARC-4 array of mutable objects", source_location
         )
     array = context.visitor.visit_and_materialise_single(array_expr)
-    length_vp = get_arc4_array_length(array_wtype, array, source_location)
+    length_vp = get_arc4_array_length(context, array_encoding, array, source_location)
     array_length = assign_temp(
         context,
         length_vp,
         temp_description="array_length",
         source_location=source_location,
     )
-    return ArrayIterator(
-        array_length=array_length,
-        get_value_at_index=lambda index: arc4_array_index(
+    item_type = wtype_to_ir_type(
+        array_wtype.element_type, source_location=source_location, allow_aggregate=True
+    )
+
+    def _read_and_decode(index: Value) -> ValueProvider:
+        assert isinstance(array_wtype, wtypes.ARC4Array), "expected ARC-4 array type"
+        # TODO: split this into a read and a decode
+        value = arc4_array_index(
             context,
-            array_wtype=array_wtype,
+            array_encoding=array_encoding,
+            item_type=item_type,
             array=array,
             index=index,
             source_location=source_location,
             assert_bounds=False,
-        ),
-    )
+        )
+        return value
+
+    return ArrayIterator(array_length=array_length, get_value_at_index=_read_and_decode)
 
 
 def handle_arc4_assign(
@@ -768,11 +761,18 @@ def handle_arc4_assign(
             ) as base_expr,
             index=index_value,
         ):
+            array_encoding = wtype_to_encoding(array_wtype)
+            assert isinstance(array_encoding, ArrayEncoding), "expected array encoding"
+            element_ir_type = wtype_to_ir_type(
+                array_wtype.element_type, source_location=source_location, allow_aggregate=True
+            )
+
             item = arc4_replace_array_item(
                 context,
                 base_expr=base_expr,
                 index_value_expr=index_value,
-                wtype=array_wtype,
+                array_encoding=array_encoding,
+                element_ir_type=element_ir_type,
                 value_vp=value,
                 source_location=source_location,
             )
@@ -919,7 +919,7 @@ def dynamic_array_concat_and_convert(
         invoke_name = "dynamic_array_concat_dynamic_element"
         invoke_args = list(
             factory.assign_multiple(
-                l_count=get_arc4_array_length(array_wtype, left, source_location),
+                l_count=get_arc4_array_length(context, array_encoding, left, source_location),
                 l_head_and_tail=_get_arc4_array_head_and_tail(
                     context, array_wtype, left, source_location
                 ),
@@ -1116,7 +1116,7 @@ ARC4_FALSE = 0b00000000.to_bytes(1, "big")
 
 
 def _encode_arc4_bool(
-    context: IRFunctionBuildContext, bit: Value, source_location: SourceLocation
+    context: IRRegisterContext, bit: Value, source_location: SourceLocation
 ) -> Value:
     factory = OpFactory(context, source_location)
     value = factory.constant(0x00.to_bytes(1, "big"))
@@ -1124,20 +1124,20 @@ def _encode_arc4_bool(
 
 
 def _decode_arc4_tuple_items(
-    context: IRFunctionBuildContext,
-    wtype: wtypes.ARC4Tuple | wtypes.ARC4Struct,
+    context: IRRegisterContext,
+    encoding: TupleEncoding,
     value: Value,
-    target_wtype: wtypes.WTuple,
+    target_type: AggregateIRType,
     source_location: SourceLocation,
 ) -> ValueProvider:
     items = list[Value]()
-    for index, (target_item_wtype, item_wtype) in enumerate(
-        zip(target_wtype.types, wtype.types, strict=True)
+    for index, (target_item_type, encoded_item_type) in enumerate(
+        zip(target_type.elements, encoding.elements, strict=True)
     ):
         item_value = _read_nth_item_of_arc4_heterogeneous_container(
             context,
             array_head_and_tail=value,
-            tuple_type=wtype,
+            encoding=encoding,
             index=index,
             source_location=source_location,
         )
@@ -1146,8 +1146,8 @@ def _decode_arc4_tuple_items(
         item_vp = maybe_decode_arc4_value_provider(
             context,
             item_value,
-            arc4_wtype=item_wtype,
-            target_wtype=target_item_wtype,
+            encoding=encoded_item_type,
+            target_type=target_item_type,
             temp_description=item_name,
             loc=source_location,
         )
@@ -1155,13 +1155,11 @@ def _decode_arc4_tuple_items(
     return ValueTuple(source_location=source_location, values=items)
 
 
-def _is_byte_length_header(wtype: wtypes.ARC4Type) -> bool:
-    if not isinstance(wtype, wtypes.ARC4DynamicArray):
+def _is_byte_length_header(encoding: Encoding) -> bool:
+    if not isinstance(encoding, DynamicArrayEncoding) or not encoding.length_header:
         return False
-    arc4_element_type = wtype_to_arc4_wtype(wtype.element_type, None)
-    return (
-        is_arc4_static_size(arc4_element_type) and get_arc4_static_bit_size(arc4_element_type) == 8
-    )
+    element = encoding.element
+    return element.num_bytes == 1
 
 
 def _maybe_get_inner_element_size(item_wtype: wtypes.ARC4Type) -> int | None:
@@ -1256,9 +1254,9 @@ def _read_dynamic_item_using_end_offset_from_arc4_container(
 
 
 def _encode_arc4_values_as_tuple(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     elements: Sequence[Value],
-    tuple_items: Sequence[wtypes.ARC4Type],
+    encoding: Encoding,
     expr_loc: SourceLocation,
 ) -> ValueProvider:
     header_size = get_arc4_tuple_head_size(tuple_items, round_end_result=True)
@@ -1426,13 +1424,11 @@ def _read_nth_item_of_arc4_heterogeneous_container(
     context: IRFunctionBuildContext,
     *,
     array_head_and_tail: Value,
-    tuple_type: wtypes.ARC4Tuple | wtypes.ARC4Struct,
+    tuple_encoding: TupleEncoding,
     index: int,
     source_location: SourceLocation,
 ) -> ValueProvider:
-    tuple_item_types = tuple_type.types
-
-    item_wtype = wtype_to_arc4_wtype(tuple_item_types[index], source_location)
+    item_encoding = tuple_encoding.elements[index]
     head_up_to_item = get_arc4_tuple_head_size(tuple_item_types[:index], round_end_result=False)
     if item_wtype == wtypes.arc4_bool_wtype:
         return _read_nth_bool_from_arc4_container(
@@ -1521,11 +1517,10 @@ def _read_static_item_from_arc4_container(
     *,
     data: Value,
     offset: Value,
-    item_wtype: wtypes.ARC4Type,
+    encoding: Encoding,
     source_location: SourceLocation,
 ) -> ValueProvider:
-    item_bit_size = get_arc4_static_bit_size(item_wtype)
-    item_length = UInt64Constant(value=item_bit_size // 8, source_location=source_location)
+    item_length = UInt64Constant(value=encoding.checked_num_bytes, source_location=source_location)
     return Intrinsic(
         op=AVMOp.extract3,
         args=[data, offset, item_length],
@@ -1609,7 +1604,7 @@ def _get_arc4_array_tail_data_and_item_count(
 
 
 def _encode_native_uint64_to_arc4(
-    context: IRFunctionBuildContext, value: Value, num_bytes: int, source_location: SourceLocation
+    context: IRRegisterContext, value: Value, num_bytes: int, source_location: SourceLocation
 ) -> ValueProvider:
     assert value.atype == AVMType.uint64, "function expects a native uint64 type to encode"
     factory = OpFactory(context, source_location)
@@ -1632,20 +1627,18 @@ def arc4_replace_array_item(
     *,
     base_expr: awst_nodes.Expression,
     index_value_expr: awst_nodes.Expression,
-    wtype: wtypes.ARC4Array,
+    array_encoding: ArrayEncoding,
+    element_ir_type: IRType,
     value_vp: ValueProvider,
     source_location: SourceLocation,
 ) -> Value:
-    assert type(wtype) in (wtypes.ARC4StaticArray, wtypes.ARC4DynamicArray)
-
     factory = OpFactory(context, source_location)
     base = context.visitor.visit_and_materialise_single(base_expr)
+    element_encoding = array_encoding.element
 
-    element_type = wtype.element_type
-    arc4_element_type = wtype_to_arc4_wtype(element_type, source_location)
-    if element_type != arc4_element_type:
+    if element_ir_type != EncodedType(element_encoding):
         encoded_vp = encode_value_provider(
-            context, value_vp, wtype.element_type, arc4_element_type, source_location
+            context, value_vp, element_ir_type, element_encoding, source_location
         )
         value: Value = factory.assign(encoded_vp, "encoded")
     else:
@@ -1662,23 +1655,23 @@ def arc4_replace_array_item(
         )
         return factory.assign(invoke, "updated_value")
 
-    if _is_byte_length_header(arc4_element_type):
-        if isinstance(wtype, wtypes.ARC4StaticArray):
+    if _is_byte_length_header(array_encoding):
+        if isinstance(array_encoding, FixedArrayEncoding):
             return updated_result(
-                "static_array_replace_byte_length_head", [base, value, index, wtype.array_size]
+                "static_array_replace_byte_length_head", [base, value, index, array_encoding.size]
             )
         else:
             return updated_result("dynamic_array_replace_byte_length_head", [base, value, index])
-    elif is_arc4_dynamic_size(arc4_element_type):
-        if isinstance(wtype, wtypes.ARC4StaticArray):
+    elif array_encoding.element.is_dynamic:
+        if isinstance(array_encoding, FixedArrayEncoding):
             return updated_result(
-                "static_array_replace_dynamic_element", [base, value, index, wtype.array_size]
+                "static_array_replace_dynamic_element", [base, value, index, array_encoding.size]
             )
-        else:
+        elif isinstance(array_encoding, DynamicArrayEncoding) and array_encoding.length_header:
             return updated_result("dynamic_array_replace_dynamic_element", [base, value, index])
     array_length = (
-        UInt64Constant(value=wtype.array_size, source_location=source_location)
-        if isinstance(wtype, wtypes.ARC4StaticArray)
+        UInt64Constant(value=array_encoding.size, source_location=source_location)
+        if isinstance(array_encoding, FixedArrayEncoding)
         else Intrinsic(
             source_location=source_location,
             op=AVMOp.extract_uint16,
@@ -1686,11 +1679,15 @@ def arc4_replace_array_item(
         )
     )
     _assert_index_in_bounds(context, index, array_length, source_location)
+    assert element_type.num_bytes is not None, "expected static element"
 
-    element_size = get_arc4_static_bit_size(arc4_element_type)
-    dynamic_offset = 0 if isinstance(wtype, wtypes.ARC4StaticArray) else 2
+    if isinstance(element_type, BoolEncoding) and element_type.packable:
+        element_size = 1
+    else:
+        element_size = element_type.num_bytes * 8
+    dynamic_offset = 0 if isinstance(encoding, FixedArrayEncoding) else 2
     if element_size == 1:
-        dynamic_offset *= 8
+        dynamic_offset *= 8  # convert offset to bits
         offset_per_item = element_size
     else:
         offset_per_item = element_size // 8
@@ -1764,11 +1761,11 @@ def _concat_dynamic_array_fixed_size(
                 expr_value = context.visitor.visit_and_materialise_single(expr)
                 return factory.extract_to_end(expr_value, 2, "expr_value_trimmed")
             case wtypes.WTuple(types=types):
-                element_type = wtype_to_encoded_ir_type(types[0])
+                element_encoding = wtype_to_encoding(types[0])
                 return get_array_encoded_items(
                     context,
                     expr,
-                    DynamicArrayEncoding(length_header=False, element=element_type.encoding),
+                    DynamicArrayEncoding(length_header=False, element=element_encoding),
                 )
             case _:
                 raise InternalError(
@@ -1854,14 +1851,15 @@ def _assert_index_in_bounds(
 
 
 def get_arc4_array_length(
-    wtype: wtypes.ARC4Array,
+    context: IRFunctionBuildContext,
+    encoding: ArrayEncoding,
     array: Value,
     source_location: SourceLocation,
 ) -> ValueProvider:
-    match wtype:
-        case wtypes.ARC4StaticArray(array_size=array_size):
-            return UInt64Constant(value=array_size, source_location=source_location)
-        case wtypes.ARC4DynamicArray():
+    match encoding:
+        case FixedArrayEncoding(size=size):
+            return UInt64Constant(value=size, source_location=source_location)
+        case DynamicArrayEncoding(length_header=True):
             return Intrinsic(
                 op=AVMOp.extract_uint16,
                 args=[
@@ -1870,22 +1868,25 @@ def get_arc4_array_length(
                 ],
                 source_location=source_location,
             )
+        case DynamicArrayEncoding(
+            length_header=False, element=element_encoding
+        ) if element_encoding.num_bytes is not None:
+            factory = OpFactory(context, source_location)
+            array_size = factory.len(array, "array_size")
+            return factory.div_floor(array_size, encoding.element.num_bytes)
         case _:
             raise InternalError("Unexpected ARC-4 array type", source_location)
 
 
 def _get_arc4_array_head_and_tail(
-    context: IRFunctionBuildContext,
-    wtype: wtypes.ARC4Array | wtypes.StackArray | wtypes.ReferenceArray,
+    encoding: ArrayEncoding,
     array: Value,
     source_location: SourceLocation,
 ) -> ValueProvider:
-    match wtype:
-        case wtypes.ARC4StaticArray():
+    match encoding:
+        case FixedArrayEncoding() | DynamicArrayEncoding(length_header=False):
             return array
-        case wtypes.ReferenceArray():
-            return read_slot(context, array, source_location)
-        case wtypes.ARC4DynamicArray() | wtypes.StackArray():
+        case DynamicArrayEncoding(length_header=True):
             return Intrinsic(
                 op=AVMOp.extract,
                 args=[array],
