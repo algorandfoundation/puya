@@ -14,11 +14,11 @@ from puya.ir.builder._utils import OpFactory, assign_intrinsic_op
 from puya.ir.builder.arc4 import ARC4_FALSE, ARC4_TRUE
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
-    ArrayType,
+    EncodedType,
+    Encoding,
+    FixedArrayEncoding,
     IRType,
     PrimitiveIRType,
-    encoded_ir_type_to_ir_types,
-    expand_encoded_type_and_group,
 )
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
@@ -61,7 +61,7 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
     def visit_array_read_index(self, read: ir.ArrayReadIndex) -> ir.ValueProvider:
         self.modified = True
         values = self._read_item(
-            read.array, read.index, read.array_type.element, read.source_location
+            read.array, read.index, read.array_encoding.element, read.types, read.source_location
         )
         value: ir.ValueProvider
         try:
@@ -73,19 +73,19 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
     @typing.override
     def visit_array_write_index(self, write: ir.ArrayWriteIndex) -> ir.Value:
         self.modified = True
-        element_type = write.array_type.element
-        element_size = _get_element_size(element_type, write.source_location)
+        element_encoding = write.array_encoding.element
+        element_size = _get_element_size(element_encoding, write.source_location)
 
         factory = OpFactory(self, write.source_location)
         bytes_index = factory.mul(write.index, element_size, "bytes_index")
-        item_bytes = _encode_array_item(self, write.value, element_type, write.source_location)
+        item_bytes = _encode_array_item(self, write.value, element_encoding, write.source_location)
         return factory.replace(write.array, bytes_index, item_bytes, "updated_array")
 
     @typing.override
     def visit_array_pop(self, pop: ir.ArrayPop) -> ir.ValueTuple:
         self.modified = True
-        element_type = pop.array_type.element
-        element_size = _get_element_size(element_type, pop.source_location)
+        element_encoding = pop.array_encoding.element
+        element_size = _get_element_size(element_encoding, pop.source_location)
 
         factory = OpFactory(self, pop.source_location)
         array_bytes_length = factory.len(pop.array, "array_bytes_length")
@@ -101,7 +101,9 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
             array_bytes_new_length,
             "array_contents",
         )
-        item = self._read_item(pop.array, array_new_length, element_type, pop.source_location)
+        item = self._read_item(
+            pop.array, array_new_length, element_encoding, pop.element_types, pop.source_location
+        )
         return ir.ValueTuple(values=(array_contents, *item), source_location=pop.source_location)
 
     @typing.override
@@ -131,8 +133,8 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
             args=[length.array],
             source_location=length.source_location,
         )
-        element_type = length.array_type.element
-        element_size = _get_element_size(element_type, length.source_location)
+        element_encoding = length.array_encoding.element
+        element_size = _get_element_size(element_encoding, length.source_location)
         array_len = assign_intrinsic_op(
             self,
             target="array_len",
@@ -146,14 +148,15 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
         self,
         array: ir.Value,
         index: ir.Value,
-        element_type: IRType,
+        encoding: Encoding,
+        types: Sequence[IRType],
         loc: SourceLocation | None,
     ) -> Sequence[ir.Value]:
         factory = OpFactory(self, loc)
-        element_size = _get_element_size(element_type, loc)
+        element_size = _get_element_size(encoding, loc)
         bytes_index = factory.mul(index, element_size, "bytes_index")
         item_bytes = factory.extract3(array, bytes_index, element_size, "value")
-        return _decode_array_item(self, item_bytes, element_type, loc)
+        return _decode_array_item(self, item_bytes, encoding, types, loc)
 
     # region IRRegisterContext
 
@@ -195,18 +198,22 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
     # endregion
 
 
-def _get_element_size(element_type: IRType, loc: SourceLocation | None) -> int:
-    if element_type.num_bytes is None:
+def _get_element_size(encoding: Encoding, loc: SourceLocation | None) -> int:
+    if encoding.num_bytes is None:
         raise CodeError("only immutable, static sized elements supported", loc)
-    return element_type.num_bytes
+    return encoding.num_bytes
 
 
 def _encode_array_items(context: IRRegisterContext, encode: ir.ArrayEncode) -> ir.Value:
     factory = OpFactory(context, source_location=encode.source_location)
     values = encode.values
-    array_type = encode.array_type
+    array_encoding = encode.array_encoding
+    array_type = EncodedType(encoding=array_encoding)
     data = factory.constant(b"", ir_type=array_type)
-    element_type = array_type.element
+    element_encoding = array_encoding.element
+    # TODO: how do we determine how many values to consume for encoding
+    #       probably need element wtype
+
     num_reg_per_element = len(encoded_ir_type_to_ir_types(element_type))
     while len(values) >= num_reg_per_element:
         item_values = values[:num_reg_per_element]
@@ -231,13 +238,13 @@ def _encode_array_items(context: IRRegisterContext, encode: ir.ArrayEncode) -> i
 def _encode_array_item(
     context: IRRegisterContext,
     item: ir.Value | ir.ValueTuple,
-    element_type: IRType,
+    encoding: Encoding,
     loc: SourceLocation | None,
 ) -> ir.Value:
     factory = OpFactory(context, loc)
     values = [item] if isinstance(item, ir.Value) else item.values
     # encoded items are essentially an array of size 1, so use that as the base type
-    array_type = ArrayType(element=element_type)
+    array_type = EncodedType(encoding=FixedArrayEncoding(element=encoding, size=1))
     encoded = factory.constant(b"", ir_type=array_type)
     last_type_and_group = None
     bit_packed_index = 0
@@ -301,7 +308,8 @@ def _encode_array_item(
 def _decode_array_item(
     context: IRRegisterContext,
     item_bytes: ir.Value,
-    element_type: IRType,
+    encoding: Encoding,
+    types: Sequence[IRType],
     loc: SourceLocation | None,
 ) -> Sequence[ir.Value]:
     factory = OpFactory(context, loc)
