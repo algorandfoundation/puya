@@ -27,6 +27,7 @@ from puya.ir.types_ import (
     IRType,
     PrimitiveIRType,
     SizedBytesType,
+    ir_type_to_ir_types,
     wtype_to_ir_types,
 )
 from puya.parse import SourceLocation
@@ -529,15 +530,30 @@ class OpFactory:
         )
         return result
 
+    def materialise(self, value_provider: ValueProvider, description: str) -> list[Register]:
+        targets: list[Register] = [
+            self.context.new_register(description, ir_type, self.source_location)
+            for ir_type in value_provider.types
+        ]
+        assign_targets(
+            self.context,
+            source=value_provider,
+            targets=targets,
+            assignment_location=self.source_location,
+        )
+        return targets
 
-def undefined_value(typ: wtypes.WType, loc: SourceLocation) -> ValueProvider:
+
+def undefined_value(typ: wtypes.WType | IRType, loc: SourceLocation) -> ValueProvider:
     """For a given WType, produce an "undefined" ValueProvider of the correct arity.
 
     It is invalid to request an "undefined" value of type void
     """
-    values = [
-        Undefined(ir_type=ir_type, source_location=loc) for ir_type in wtype_to_ir_types(typ, loc)
-    ]
+    if isinstance(typ, wtypes.WType):
+        ir_types = wtype_to_ir_types(typ, loc)
+    else:
+        ir_types = ir_type_to_ir_types(typ)
+    values = [Undefined(ir_type=ir_type, source_location=loc) for ir_type in ir_types]
     match values:
         case []:
             raise InternalError("unexpected void type", loc)
