@@ -68,8 +68,9 @@ from puya.ir.models import (
     WriteSlot,
 )
 from puya.ir.types_ import (
-    ArrayType,
+    ArrayEncoding,
     AVMBytesEncoding,
+    EncodedType,
     PrimitiveIRType,
     SizedBytesType,
     SlotType,
@@ -840,7 +841,12 @@ class FunctionIRBuilder(
                 )
         elif isinstance(indexable_wtype, wtypes.ReferenceArray):
             slot = mem.read_slot(self.context, base, expr.base.source_location)
-            return ArrayReadIndex(array=slot, index=index, source_location=expr.source_location)
+            return ArrayReadIndex(
+                array=slot,
+                types=wtype_to_ir_types(indexable_wtype.element_type, expr.source_location),
+                index=index,
+                source_location=expr.source_location,
+            )
         elif isinstance(indexable_wtype, wtypes.StackArray):
             arc4_array_type = effective_array_encoding(indexable_wtype, expr.base.source_location)
             encoded_read_vp = arc4.arc4_array_index(
@@ -963,11 +969,13 @@ class FunctionIRBuilder(
             array_slot_type = wtype_to_ir_type(expr.wtype, expr.source_location)
             assert isinstance(array_slot_type, SlotType)
             array_type = array_slot_type.contents
-            assert isinstance(array_type, ArrayType)
+            assert isinstance(array_type, EncodedType)
+            array_encoding = array_type.encoding
+            assert isinstance(array_encoding, ArrayEncoding)
             array_contents = arrays.get_array_encoded_items(
                 self.context,
                 awst_nodes.TupleExpression.from_items(expr.values, expr.source_location),
-                array_type=array_type,
+                array_encoding=array_encoding,
             )
             slot = mem.new_slot(self.context, array_slot_type, loc)
             mem.write_slot(self.context, slot, array_contents, loc)
@@ -1276,7 +1284,10 @@ class FunctionIRBuilder(
         elif isinstance(expr.base.wtype, wtypes.ReferenceArray):
             slot = self.context.visitor.visit_and_materialise_single(expr.base)
             contents = mem.read_slot(self.context, slot, expr.base.source_location)
-            contents, popped_item = arrays.pop_array(self.context, contents, expr.source_location)
+            element_wtype = expr.base.wtype.element_type
+            contents, popped_item = arrays.pop_array(
+                self.context, element_wtype, contents, expr.source_location
+            )
             self.context.add_op(
                 WriteSlot(
                     slot=slot,
@@ -1353,8 +1364,10 @@ class FunctionIRBuilder(
             array_slot_type = array_slot.ir_type
             assert isinstance(array_slot_type, SlotType)
             array_type = array_slot_type.contents
-            assert isinstance(array_type, ArrayType)
-            values = arrays.get_array_encoded_items(self.context, expr.other, array_type)
+            assert isinstance(array_type, EncodedType)
+            array_encoding = array_type.encoding
+            assert isinstance(array_encoding, ArrayEncoding)
+            values = arrays.get_array_encoded_items(self.context, expr.other, array_encoding)
             array_contents = mem.read_slot(self.context, array_slot, expr.source_location)
             array_contents = arrays.concat_arrays(
                 self.context, array_contents, values, expr.source_location

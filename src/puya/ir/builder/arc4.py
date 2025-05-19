@@ -51,7 +51,7 @@ from puya.ir.models import (
     ValueTuple,
 )
 from puya.ir.types_ import (
-    ArrayType,
+    DynamicArrayEncoding,
     PrimitiveIRType,
     get_wtype_arity,
     wtype_to_encoded_ir_type,
@@ -1757,16 +1757,18 @@ def _concat_dynamic_array_fixed_size(
             case wtypes.ReferenceArray():
                 slot = context.visitor.visit_and_materialise_single(expr)
                 return read_slot(context, slot, slot.source_location)
-            case wtypes.ARC4StaticArray():
+            case wtypes.ARC4StaticArray() | wtypes.ARC4Tuple():
                 return context.visitor.visit_and_materialise_single(expr)
             case wtypes.ARC4DynamicArray() | wtypes.StackArray():
                 expr_value = context.visitor.visit_and_materialise_single(expr)
                 return factory.extract_to_end(expr_value, 2, "expr_value_trimmed")
-            case wtypes.WTuple(types=types) | wtypes.ARC4Tuple(types=types):
-                element_type = wtype_to_encoded_ir_type(
-                    types[0], require_static_size=True, loc=expr.source_location
+            case wtypes.WTuple(types=types):
+                element_type = wtype_to_encoded_ir_type(types[0])
+                return get_array_encoded_items(
+                    context,
+                    expr,
+                    DynamicArrayEncoding(length_header=False, element=element_type.encoding),
                 )
-                return get_array_encoded_items(context, expr, ArrayType(element=element_type))
             case _:
                 raise InternalError(
                     f"Unexpected operand type for concatenation {expr.wtype}", source_location
