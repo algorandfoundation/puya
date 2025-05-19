@@ -175,9 +175,6 @@ class MemoryIRBuilder(IRVisitor[None]):
     def visit_array_concat(self, concat: ir.ArrayConcat) -> None:
         _unexpected_node(concat)
 
-    def visit_array_encode(self, encode: ir.ArrayEncode) -> None:
-        _unexpected_node(encode)
-
     def visit_value_encode(self, encode: ir.ValueEncode) -> None:
         _unexpected_node(encode)
 

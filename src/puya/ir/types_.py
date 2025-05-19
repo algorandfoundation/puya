@@ -248,10 +248,11 @@ class DynamicArrayEncoding(ArrayEncoding):
 
     @cached_property
     def name(self) -> str:
+        array = f"{self.element.name}[]"
         if self.length_header:
-            return f"(len,{self.element.name})"
+            return f"(len,{array})"
         else:
-            return self.element.name
+            return array
 
     @cached_property
     def layout(self) -> str:
@@ -508,18 +509,6 @@ def wtype_to_ir_type(
             return PrimitiveIRType.itxn_group_idx
         case wtypes.WInnerTransactionFields():
             return PrimitiveIRType.itxn_field_set
-        # note: these exclusions are to maintain parity with what is supported
-        #       between stack and reference arrays.
-        #       ideally WGroupTransaction would work with either, but not be persistable
-        #       inner transaction types are unlikely to be supported with current AVM restrictions
-        case (
-            wtypes.StackArray(element_type=element_type)
-            | wtypes.ReferenceArray(element_type=element_type)
-        ) if isinstance(
-            element_type,
-            wtypes.WGroupTransaction | wtypes.WInnerTransaction | wtypes.WInnerTransactionFields,
-        ):
-            raise CodeError("unsupported array element type", source_location)
         case wtypes.ReferenceArray():
             array_type = wtype_to_encoded_ir_type(wtype)
             return SlotType(array_type)
@@ -584,7 +573,7 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
         return DynamicArrayEncoding(element=wtype.element_type.accept(self), length_header=True)
 
     def visit_reference_array(self, wtype: wtypes.ReferenceArray) -> Encoding:
-        element = wtype.accept(self)
+        element = wtype.element_type.accept(self)
         # top level bools can't be bit packed, due to no length header
         # only nested bools supported come from statically sized elements i.e.
         # fixed arrays or tuples, which can support bit packed bools
