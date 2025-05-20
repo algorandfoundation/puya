@@ -441,6 +441,7 @@ def wtype_to_ir_type(
     /,
     *,
     source_location: SourceLocation | None = None,
+    allow_aggregate: bool = False,
 ) -> IRType: ...
 
 
@@ -514,11 +515,11 @@ def wtype_to_ir_type(
 class _WTypeToEncoding(WTypeVisitor[Encoding]):
     def visit_basic_type(self, wtype: wtypes.WType) -> Encoding:
         if wtype == wtypes.biguint_wtype:
-            return UIntEncoding(n=64)
+            return UIntEncoding(n=512)
         elif wtype == wtypes.bool_wtype:
             return BoolEncoding(packable=True)
         elif wtype == wtypes.account_wtype:
-            return UIntEncoding(n=32)
+            return wtypes.BytesWType(length=32).accept(self)
         if wtype.persistable:
             if wtype.scalar_type == AVMType.bytes:
                 return wtypes.bytes_wtype.accept(self)
@@ -542,7 +543,7 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
         if wtype.length is None:
             return DynamicArrayEncoding(element=element, length_header=True)
         else:
-            return TupleEncoding(elements=[element] * wtype.length)
+            return FixedArrayEncoding(element=element, size=wtype.length)
 
     def visit_stack_array(self, wtype: wtypes.StackArray) -> Encoding:
         return DynamicArrayEncoding(element=wtype.element_type.accept(self), length_header=True)
