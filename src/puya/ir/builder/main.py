@@ -189,14 +189,11 @@ class FunctionIRBuilder(
         return arc4.decode_arc4_value(self.context, value, encoding, ir_type, expr.source_location)
 
     def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> TExpression:
+        loc = expr.source_location
         value = self.visit_expr(expr.value)
-        ir_type = wtype_to_ir_type(
-            expr.value.wtype, source_location=expr.source_location, allow_aggregate=True
-        )
+        value_ir_type, value_encoding = wtype_to_ir_type_and_encoding(expr.value.wtype, loc)
         encoding = wtype_to_encoding(expr.wtype)
-        return arc4.encode_value_provider(
-            self.context, value, ir_type, encoding, expr.source_location
-        )
+        return arc4.encode_value_provider(self.context, value, value_ir_type, encoding, loc)
 
     def visit_size_of(self, size_of: awst_nodes.SizeOf) -> TExpression:
         wtype = size_of.size_wtype
