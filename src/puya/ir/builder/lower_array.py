@@ -6,7 +6,6 @@ from collections.abc import Iterator
 import attrs
 
 from puya import log
-from puya.errors import CodeError
 from puya.ir import (
     models,
     models as ir,

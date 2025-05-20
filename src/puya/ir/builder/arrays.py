@@ -82,14 +82,14 @@ def get_array_encoded_items(
                         encoding=element_encoding,
                         source_location=items.source_location,
                     )
-                    encoded_item = factory.assign(encoded_item_vp, "encoded_item")
+                    encoded_item = factory.materialise_single(encoded_item_vp, "encoded_item")
                 concat = ir.ArrayConcat(
                     array=encoded_array,
                     array_encoding=array_encoding,
                     other=encoded_item,
                     source_location=items.source_location,
                 )
-                encoded_array = factory.assign(concat, "encoded_array")
+                encoded_array = factory.materialise_single(concat, "encoded_array")
             assert encoded_array is not None, "empty loop should not be possible"
             return encoded_array
         case DynamicArrayEncoding(length_header=length_header):
@@ -155,7 +155,7 @@ def build_for_in_array(
     array_loc = array_expr.source_location
     array_contents = read_slot(context, array_slot, array_loc)
     array_length_vp = ir.ArrayLength(array=array_contents, source_location=array_loc)
-    array_length = factory.assign(array_length_vp, "array_length")
+    array_length = factory.materialise_single(array_length_vp, "array_length")
     array_wtype = array_expr.wtype
     assert isinstance(
         array_wtype, wtypes.StackArray | wtypes.ReferenceArray | wtypes.ARC4Array
@@ -176,7 +176,7 @@ def build_for_in_array(
             return read_item
         else:
             return ir.ValueDecode(
-                value=factory.assign(read_item, "read_item"),
+                value=factory.materialise_single(read_item, "read_item"),
                 encoding=element_encoding,
                 decoded_type=element_ir_type,
                 source_location=source_location,

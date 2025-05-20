@@ -873,7 +873,7 @@ class FunctionIRBuilder(
             element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
                 indexable_wtype.element_type, expr.source_location
             )
-            read_item = factory.assign(read_index, "encoded_item")
+            read_item = factory.materialise_single(read_index, "encoded_item")
             if type_has_encoding(element_ir_type, element_encoding):
                 return read_item
             else:
