@@ -729,6 +729,8 @@ class FunctionIRBuilder(
             tuple_ir_type, tuple_encoding = wtype_to_ir_type_and_encoding(
                 expr.base.wtype, expr.source_location
             )
+            assert isinstance(tuple_encoding, TupleEncoding), "expected tuple encoding"
+            assert isinstance(tuple_ir_type, AggregateIRType), "expected aggregate IR type"
             return arc4.arc4_tuple_index(
                 self.context,
                 base=base,
@@ -761,6 +763,8 @@ class FunctionIRBuilder(
             tuple_ir_type, tuple_encoding = wtype_to_ir_type_and_encoding(
                 expr.base.wtype, expr.source_location
             )
+            assert isinstance(tuple_encoding, TupleEncoding), "expected tuple encoding"
+            assert isinstance(tuple_ir_type, AggregateIRType), "expected aggregate IR type"
             return arc4.arc4_tuple_index(
                 self.context,
                 base=base,
@@ -880,9 +884,13 @@ class FunctionIRBuilder(
         elif isinstance(indexable_wtype, wtypes.StackArray | wtypes.ARC4Array):
             array_encoding = wtype_to_encoding(indexable_wtype)
             assert isinstance(array_encoding, ArrayEncoding)
+            element_ir_type, _ = wtype_to_ir_type_and_encoding(
+                indexable_wtype.element_type, expr.source_location
+            )
             encoded_read_vp = arc4.arc4_array_index(
                 self.context,
-                encoding=array_encoding,
+                array_encoding=array_encoding,
+                item_type=element_ir_type,
                 array=base,
                 index=index,
                 source_location=expr.source_location,
@@ -1266,9 +1274,11 @@ class FunctionIRBuilder(
         self, statement: awst_nodes.BytesAugmentedAssignment
     ) -> TStatement:
         if statement.target.wtype == wtypes.arc4_string_alias:
+            array_encoding = wtype_to_encoding(statement.target.wtype)
+            assert isinstance(array_encoding, ArrayEncoding), "expected array encoding"
             value: ValueProvider = arc4.dynamic_array_concat_and_convert(
                 self.context,
-                wtypes.arc4_string_alias,
+                array_encoding,
                 statement.target,
                 statement.value,
                 statement.source_location,
