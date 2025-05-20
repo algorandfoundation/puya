@@ -519,8 +519,8 @@ class ValueEncode(Op, ValueProvider):
 
     source_location: SourceLocation = attrs.field(eq=False)
     values: Sequence[Value]
-    value_type: IRType = attrs.field()
     encoding: Encoding
+    value_type: IRType = attrs.field()
 
     @value_type.validator
     def _value_type_validator(self, _: object, value: IRType) -> None:
@@ -529,6 +529,8 @@ class ValueEncode(Op, ValueProvider):
             raise InternalError(
                 "expected value_type arity to match values arity", self.source_location
             )
+        if value == EncodedType(self.encoding):
+            raise InternalError("nothing to encode", self.source_location)
 
     def _frozen_data(self) -> object:
         return self.values, self.value_type, self.encoding

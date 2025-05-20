@@ -17,9 +17,10 @@ from puya.ir.types_ import (
     DynamicArrayEncoding,
     EncodedType,
     FixedArrayEncoding,
+    SlotType,
     get_type_arity,
     ir_type_to_ir_types,
-    wtype_to_encoding,
+    type_has_encoding,
     wtype_to_ir_type_and_encoding,
 )
 from puya.parse import SourceLocation, sequential_source_locations_merge
@@ -33,18 +34,15 @@ class ArrayIterator:
 
 def get_array_length(
     context: IRFunctionBuildContext,
-    wtype: wtypes.StackArray | wtypes.ReferenceArray,
+    array_encoding: ArrayEncoding,
     array: Value,
     source_location: SourceLocation,
 ) -> ValueProvider:
-    from puya.ir.builder.arc4 import get_arc4_array_length
-
-    if isinstance(wtype, wtypes.ReferenceArray):
-        array_contents = read_slot(context, array, array.source_location)
-        return ir.ArrayLength(array=array_contents, source_location=source_location)
-    array_encoding = wtype_to_encoding(wtype)
-    assert isinstance(array_encoding, ArrayEncoding), "expected array encoding"
-    return get_arc4_array_length(context, array_encoding, array, source_location)
+    if isinstance(array.ir_type, SlotType):
+        array = read_slot(context, array, array.source_location)
+    return ir.ArrayLength(
+        array=array, array_encoding=array_encoding, source_location=source_location
+    )
 
 
 def get_array_encoded_items(
@@ -52,7 +50,61 @@ def get_array_encoded_items(
 ) -> ir.Value:
     factory = OpFactory(context, items.source_location)
     match array_encoding:
-        case FixedArrayEncoding():
+        case ArrayEncoding() if isinstance(items.wtype, wtypes.WTuple):
+            try:
+                (element_type,) = set(items.wtype.types)
+            except ValueError:
+                raise InternalError("expected homogenous tuple") from None
+            tuple_size = len(items.wtype.types)
+            if (
+                isinstance(array_encoding, FixedArrayEncoding)
+                and array_encoding.size != tuple_size
+            ):
+                raise InternalError("unexpected tuple size", items.source_location)
+            element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
+                element_type, items.source_location
+            )
+            num_values_per_item = get_type_arity(element_ir_type)
+            encoded_array = None
+            item_values = context.visitor.visit_and_materialise(items, "items")
+            # TODO: consolidate this and arc4.encode_n_items_as_arc4_items
+            #       both take materialized tuples and encode and concat multiple values
+            #       for concatenation
+            for _ in range(tuple_size):
+                encode_items = item_values[:num_values_per_item]
+                item_values = item_values[num_values_per_item:]
+                if type_has_encoding(element_ir_type, element_encoding):
+                    (encoded_item,) = encode_items
+                else:
+                    encoded_item_vp = ir.ValueEncode(
+                        values=encode_items,
+                        value_type=element_ir_type,
+                        encoding=element_encoding,
+                        source_location=items.source_location,
+                    )
+                    encoded_item = factory.assign(encoded_item_vp, "encoded_item")
+                if encoded_array is None:
+                    encoded_array = encoded_item
+                else:
+                    concat = ir.ArrayConcat(
+                        array=encoded_array,
+                        array_encoding=array_encoding,
+                        other=encoded_item,
+                        source_location=items.source_location,
+                    )
+                    encoded_array = factory.assign(concat, "encoded_array")
+            assert encoded_array is not None, "empty loop should not be possible"
+            return encoded_array
+        case DynamicArrayEncoding(length_header=length_header):
+            expr_value = context.visitor.visit_and_materialise_single(items)
+            if isinstance(expr_value.ir_type, SlotType):
+                expr_value = read_slot(context, expr_value, items.source_location)
+            if length_header:
+                expr_value = factory.extract_to_end(
+                    expr_value, 2, "expr_value_trimmed", ir_type=EncodedType(array_encoding)
+                )
+            return expr_value
+        case FixedArrayEncoding() if not isinstance(items.wtype, wtypes.WTuple):
             value = context.visitor.visit_and_materialise_single(items)
             # TODO: this might not be needed once everything uses EncodedType
             array_type = EncodedType(array_encoding)
@@ -71,53 +123,6 @@ def get_array_encoded_items(
                 )
                 value = target
             return value
-        case DynamicArrayEncoding(length_header=True):
-            expr_value = context.visitor.visit_and_materialise_single(items)
-            # TODO: can omit extract here and just return the correct EncodedType
-            #       i.e an array encoding with length header
-            return factory.extract_to_end(
-                expr_value, 2, "expr_value_trimmed", ir_type=EncodedType(array_encoding)
-            )
-        case wtypes.ARC4Tuple():
-            expr_value = context.visitor.visit_and_materialise_single(items)
-            assert expr_value.ir_type == EncodedType(
-                array_encoding
-            ), "expected tuple items to match array encoding"
-            return expr_value
-        case wtypes.ReferenceArray():
-            slot = context.visitor.visit_and_materialise_single(items)
-            return read_slot(context, slot, items.source_location)
-        case wtypes.WTuple(types=types):
-            try:
-                (element_type,) = set(types)
-            except ValueError:
-                raise InternalError("expected homogenous tuple") from None
-            element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
-                element_type, items.source_location
-            )
-            num_values_per_item = get_type_arity(element_ir_type)
-            encoded_array = None
-            item_values = context.visitor.visit_and_materialise(items, "items")
-            for _ in range(len(types)):
-                encode_items = item_values[:num_values_per_item]
-                item_values = item_values[num_values_per_item:]
-                encoded_item_vp = ir.ValueEncode(
-                    values=encode_items,
-                    value_type=element_ir_type,
-                    encoding=element_encoding,
-                    source_location=items.source_location,
-                )
-                encoded_item = factory.assign(encoded_item_vp, "encoded_item")
-                if encoded_array is None:
-                    encoded_array = encoded_item
-                else:
-                    encoded_array = ir.ArrayConcat(
-                        array=encoded_array,
-                        other=encoded_item,
-                        source_location=items.source_location,
-                    )
-            assert encoded_array is not None, "empty loop should not be possible"
-            return encoded_array
         case _:
             raise InternalError(
                 f"Unexpected operand type for concatenation {items.wtype}", items.source_location
