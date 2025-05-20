@@ -59,6 +59,7 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
 
     @typing.override
     def visit_value_encode(self, encode: models.ValueEncode) -> models.ValueProvider:
+        self.modified = True
         if len(encode.values) == 1:
             value_provider: models.ValueTuple | models.Value = encode.values[0]
         else:
@@ -75,6 +76,7 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
 
     @typing.override
     def visit_value_decode(self, decode: models.ValueDecode) -> models.ValueProvider:
+        self.modified = True
         return arc4.decode_arc4_value(
             self,
             decode.value,
@@ -94,7 +96,7 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
     def visit_array_write_index(self, write: ir.ArrayWriteIndex) -> ir.Value:
         self.modified = True
         element_encoding = write.array_encoding.element
-        element_size = _get_element_size(element_encoding, write.source_location)
+        element_size = element_encoding.checked_num_bytes
 
         factory = OpFactory(self, write.source_location)
         bytes_index = factory.mul(write.index, element_size, "bytes_index")
@@ -104,7 +106,7 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
     def visit_array_pop(self, pop: ir.ArrayPop) -> ir.ValueProvider:
         self.modified = True
         element_encoding = pop.array_encoding.element
-        element_size = _get_element_size(element_encoding, pop.source_location)
+        element_size = element_encoding.checked_num_bytes
 
         factory = OpFactory(self, pop.source_location)
         array_bytes_length = factory.len(pop.array, "array_bytes_length")
@@ -137,9 +139,9 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
 
     @typing.override
     def visit_array_length(self, length: ir.ArrayLength) -> ir.Value:
+        self.modified = True
         factory = OpFactory(self, length.source_location)
         array_encoding = length.array_encoding
-        self.modified = True
         if isinstance(array_encoding, FixedArrayEncoding):
             return factory.constant(array_encoding.size)
         elif isinstance(array_encoding, DynamicArrayEncoding) and array_encoding.length_header:
@@ -156,7 +158,7 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
         loc: SourceLocation | None,
     ) -> ir.Value:
         factory = OpFactory(self, loc)
-        element_size = _get_element_size(encoding, loc)
+        element_size = encoding.checked_num_bytes
         bytes_index = factory.mul(index, element_size, "bytes_index")
         item_bytes = factory.extract3(array, bytes_index, element_size, "value")
         return item_bytes
@@ -199,9 +201,3 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
         self.current_block_ops.append(op)
 
     # endregion
-
-
-def _get_element_size(encoding: Encoding, loc: SourceLocation | None) -> int:
-    if encoding.num_bytes is None:
-        raise CodeError("only immutable, static sized elements supported", loc)
-    return encoding.num_bytes
