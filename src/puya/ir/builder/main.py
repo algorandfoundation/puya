@@ -69,7 +69,6 @@ from puya.ir.models import (
     WriteSlot,
 )
 from puya.ir.types_ import (
-    AggregateIRType,
     ArrayEncoding,
     AVMBytesEncoding,
     EncodedType,
@@ -726,17 +725,17 @@ class FunctionIRBuilder(
             )
         elif isinstance(expr.base.wtype, wtypes.ARC4Tuple):
             base = self.visit_and_materialise_single(expr.base)
-            tuple_ir_type, tuple_encoding = wtype_to_ir_type_and_encoding(
-                expr.base.wtype, expr.source_location
+            tuple_encoding = wtype_to_encoding(expr.base.wtype)
+            expect(tuple_encoding, TupleEncoding)
+            item_ir_type = wtype_to_ir_type(
+                expr.base.wtype.types[expr.index], expr.source_location
             )
-            assert isinstance(tuple_encoding, TupleEncoding), "expected tuple encoding"
-            assert isinstance(tuple_ir_type, AggregateIRType), "expected aggregate IR type"
             return arc4.arc4_tuple_index(
                 self.context,
                 base=base,
                 index=expr.index,
                 tuple_encoding=tuple_encoding,
-                tuple_type=tuple_ir_type,
+                item_ir_type=item_ir_type,
                 source_location=expr.source_location,
             )
         else:
@@ -764,13 +763,13 @@ class FunctionIRBuilder(
                 expr.base.wtype, expr.source_location
             )
             assert isinstance(tuple_encoding, TupleEncoding), "expected tuple encoding"
-            assert isinstance(tuple_ir_type, AggregateIRType), "expected aggregate IR type"
+            item_ir_type = wtype_to_ir_type(expr.base.wtype.types[index], expr.source_location)
             return arc4.arc4_tuple_index(
                 self.context,
                 base=base,
                 index=index,
                 tuple_encoding=tuple_encoding,
-                tuple_type=tuple_ir_type,
+                item_ir_type=item_ir_type,
                 source_location=expr.source_location,
             )
         else:
@@ -783,6 +782,7 @@ class FunctionIRBuilder(
     def visit_intersection_slice_expression(
         self, expr: awst_nodes.IntersectionSliceExpression
     ) -> TExpression:
+        loc = expr.source_location
         sliceable_type = expr.base.wtype
         if isinstance(sliceable_type, wtypes.WTuple):
             return self._visit_tuple_slice(expr, sliceable_type)
@@ -794,19 +794,21 @@ class FunctionIRBuilder(
                     f"IntersectionSlice for {expr.wtype.name} currently only supports [:-1]",
                     expr.source_location,
                 )
-            arc4_array_type = effective_array_encoding(sliceable_type, expr.base.source_location)
             array = self.context.visitor.visit_and_materialise_single(expr.base)
+            element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
+                sliceable_type.element_type, loc
+            )
             _, data = arc4.invoke_arc4_array_pop(
                 self.context,
-                wtype_to_arc4_wtype(arc4_array_type.element_type, expr.source_location),
+                element_encoding,
                 array,
-                expr.source_location,
+                loc,
             )
             return data
         else:
             raise InternalError(
                 f"IntersectionSlice operation IR lowering not implemented for {expr.wtype.name}",
-                expr.source_location,
+                loc,
             )
 
     def visit_slice_expression(self, expr: awst_nodes.SliceExpression) -> TExpression:
@@ -992,9 +994,10 @@ class FunctionIRBuilder(
                 source_location=expr.source_location,
             )
             items_tuple = TupleExpression.from_items(expr.values, expr.source_location)
+            array_encoding = wtype_to_encoding(expr.wtype)
             return arc4.dynamic_array_concat_and_convert(
                 self.context,
-                array_wtype=encoded_type,
+                array_encoding=array_encoding,
                 array_expr=empty_array_expr,
                 iter_expr=items_tuple,
                 source_location=expr.source_location,
@@ -1005,8 +1008,8 @@ class FunctionIRBuilder(
             assert isinstance(array_slot_type, SlotType)
             array_type = array_slot_type.contents
             assert isinstance(array_type, EncodedType)
-            array_encoding = array_type.encoding
-            assert isinstance(array_encoding, ArrayEncoding)
+            array_encoding = wtype_to_encoding(expr.wtype)
+            assert array_encoding == array_type.encoding, "expected encodings to match"
             array_contents = arrays.get_array_encoded_items(
                 self.context,
                 awst_nodes.TupleExpression.from_items(expr.values, expr.source_location),
@@ -1308,17 +1311,19 @@ class FunctionIRBuilder(
         handle_for_in_loop(self.context, statement)
 
     def visit_new_struct(self, expr: awst_nodes.NewStruct) -> TExpression:
+        loc = expr.source_location
         elements = [
             element
             for field_name in expr.wtype.fields
             for element in self.context.visitor.visit_and_materialise(expr.values[field_name])
         ]
-        ir_type, encoding = wtype_to_ir_type_and_encoding(expr.wtype, expr.source_location)
-        assert isinstance(ir_type, AggregateIRType), "expected aggregate type"
-        assert isinstance(encoding, TupleEncoding), "expected tuple encoding"
-
+        encoding = wtype_to_encoding(expr.wtype)
+        ir_types = [
+            wtype_to_ir_type(t, allow_aggregate=True, source_location=loc)
+            for t in expr.wtype.types
+        ]
         return arc4.encode_arc4_struct(
-            self.context, elements, encoding, ir_type, expr.source_location
+            self.context, elements, encoding, ir_types, expr.source_location
         )
 
     def visit_array_pop(self, expr: awst_nodes.ArrayPop) -> TExpression:
@@ -1362,15 +1367,11 @@ class FunctionIRBuilder(
 
     def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> TExpression:
         assert expr.left.wtype == expr.wtype, "AWST validation requires result type == left type"
-        match expr.wtype:
-            case wtypes.ARC4DynamicArray() as arc4_array_wtype:
-                pass
-            case wtypes.StackArray():
-                arc4_array_wtype = effective_array_encoding(expr.wtype, expr.source_location)
+        array_encoding = wtype_to_encoding(expr.wtype)
 
         return arc4.dynamic_array_concat_and_convert(
             self.context,
-            array_wtype=arc4_array_wtype,
+            array_encoding=array_encoding,
             array_expr=expr.left,
             iter_expr=expr.right,
             source_location=expr.source_location,
@@ -1378,9 +1379,10 @@ class FunctionIRBuilder(
 
     def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> TExpression:
         if isinstance(expr.base.wtype, wtypes.ARC4DynamicArray):
+            array_encoding = wtype_to_encoding(expr.base.wtype)
             concat_result = arc4.dynamic_array_concat_and_convert(
                 self.context,
-                array_wtype=expr.base.wtype,
+                array_encoding=array_encoding,
                 array_expr=expr.base,
                 iter_expr=expr.other,
                 source_location=expr.source_location,
@@ -1404,8 +1406,8 @@ class FunctionIRBuilder(
             assert isinstance(array_slot_type, SlotType)
             array_type = array_slot_type.contents
             assert isinstance(array_type, EncodedType)
-            array_encoding = array_type.encoding
-            assert isinstance(array_encoding, ArrayEncoding)
+            array_encoding = wtype_to_encoding(expr.base.wtype)
+            assert array_encoding == array_type.encoding, "expected encodings to match"
             values = arrays.get_array_encoded_items(self.context, expr.other, array_encoding)
             array_contents = mem.read_slot(self.context, array_slot, expr.source_location)
             array_contents = arrays.concat_arrays(
@@ -1417,14 +1419,12 @@ class FunctionIRBuilder(
             raise InternalError("unsupported array type for ArrayExtend", expr.source_location)
 
     def visit_array_length(self, expr: awst_nodes.ArrayLength) -> TExpression:
-        array_or_slot = self.context.visitor.visit_and_materialise_single(expr.array)
-        encoding = wtype_to_encoding(expr.array.wtype)
-        if isinstance(encoding, ArrayEncoding):
-            return arc4.get_arc4_array_length(
-                self.context, encoding, array_or_slot, expr.source_location
-            )
-        else:
-            raise InternalError(f"Unexpected array type {expr.array.wtype}", expr.source_location)
+        value = self.context.visitor.visit_and_materialise_single(expr.array)
+        assert isinstance(
+            expr.array.wtype, wtypes.NativeArray | wtypes.ARC4Array
+        ), "expected array wtype"
+        array_encoding = wtype_to_encoding(expr.array.wtype)
+        return arrays.get_array_length(self.context, array_encoding, value, expr.source_location)
 
     def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> TExpression:
         root = self.context.root
@@ -1663,3 +1663,7 @@ def create_bytes_binary_op(
                 source_location=source_location,
             )
     raise InternalError("Unsupported BytesBinaryOperator: " + op)
+
+
+def expect(obj: object, typ: type) -> None:
+    assert isinstance(obj, typ), f"expected {typ.__name__}, got: {obj}"
