@@ -530,7 +530,17 @@ class OpFactory:
         )
         return result
 
-    def materialise(self, value_provider: ValueProvider, description: str) -> Sequence[Value]:
+    def materialise_value_or_tuple(
+        self, value_provider: ValueProvider, description: str
+    ) -> Value | ValueTuple:
+        if isinstance(value_provider, Value | ValueTuple):
+            return value_provider
+        values = self.materialise_values(value_provider, description)
+        return ValueTuple(values=values, source_location=self.source_location)
+
+    def materialise_values(
+        self, value_provider: ValueProvider, description: str
+    ) -> Sequence[Value]:
         if isinstance(value_provider, Value):
             return [value_provider]
         elif isinstance(value_provider, ValueTuple):

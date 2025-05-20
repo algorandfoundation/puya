@@ -28,6 +28,7 @@ from puya.ir.types_ import (
     TupleEncoding,
     UnionType,
     ir_type_to_ir_types,
+    type_has_encoding,
 )
 from puya.ir.visitor import IRVisitor
 from puya.parse import SourceLocation
@@ -503,7 +504,17 @@ class ArrayConcat(_ArrayOp):
 
     @other.validator
     def _other_validator(self, _attr: object, other: Value) -> None:
-        assert self.array.ir_type == other.ir_type
+        if (
+            type_has_encoding(other.ir_type, self.array_encoding)
+            or type_has_encoding(other.ir_type, self.array_encoding.element)
+            # TODO: can this be checked properly?
+            or other.ir_type.maybe_avm_type == AVMType.bytes
+        ):
+            pass
+        else:
+            raise InternalError(
+                f"expected compatible ir types, {self.array.ir_type=} != {other.ir_type=}"
+            )
 
     @property
     def types(self) -> Sequence[IRType]:
@@ -554,6 +565,10 @@ class ValueDecode(Op, ValueProvider):
 
     @decoded_type.validator
     def _decoded_type_validator(self, _: object, value: IRType) -> None:
+        if type_has_encoding(value, self.encoding):
+            raise InternalError(
+                f"redundant decode {value=}, {self.encoding=}", self.source_location
+            )
         _arity_matches(value, self.encoding, self.source_location)
 
     def _frozen_data(self) -> object:
