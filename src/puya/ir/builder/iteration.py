@@ -197,22 +197,11 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 statement.source_location,
             )
 
-            def read_and_decode(index: Value) -> ValueProvider:
-                item_vp = iterator.get_value_at_index(index)
-                return arc4.maybe_decode_arc4_value_provider(
-                    context,
-                    item_vp,
-                    element_encoding,
-                    element_ir_type,
-                    statement.source_location,
-                    temp_description="value_at_index",
-                )
-
             _iterate_indexable(
                 context,
                 loop_body=statement.loop_body,
                 indexable_size=iterator.array_length,
-                get_value_at_index=read_and_decode,
+                get_value_at_index=iterator.get_value_at_index,
                 assigner=assign_user_loop_vars,
                 statement_loc=statement.source_location,
                 reverse_index=reverse_index,

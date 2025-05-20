@@ -77,6 +77,7 @@ from puya.ir.types_ import (
     SlotType,
     TupleEncoding,
     bytes_enc_to_avm_bytes_enc,
+    type_has_encoding,
     wtype_to_encoding,
     wtype_to_ir_type,
     wtype_to_ir_type_and_encoding,
@@ -875,39 +876,32 @@ class FunctionIRBuilder(
             element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
                 indexable_wtype.element_type, expr.source_location
             )
-            encoded_item = factory.assign(read_index, "encoded_item")
-
-            return ValueDecode(
-                value=encoded_item,
-                encoding=element_encoding,
-                decoded_type=element_ir_type,
-                source_location=expr.source_location,
-            )
+            read_item = factory.assign(read_index, "encoded_item")
+            if type_has_encoding(element_ir_type, element_encoding):
+                return read_item
+            else:
+                return factory.materialise_value_or_tuple(
+                    ValueDecode(
+                        value=read_item,
+                        encoding=element_encoding,
+                        decoded_type=element_ir_type,
+                        source_location=expr.source_location,
+                    ),
+                    "decoded_item",
+                )
         elif isinstance(indexable_wtype, wtypes.StackArray | wtypes.ARC4Array):
             array_encoding = wtype_to_encoding(indexable_wtype)
             assert isinstance(array_encoding, ArrayEncoding)
             element_ir_type, _ = wtype_to_ir_type_and_encoding(
                 indexable_wtype.element_type, expr.source_location
             )
-            encoded_read_vp = arc4.arc4_array_index(
+            return arc4.arc4_array_index(
                 self.context,
                 array_encoding=array_encoding,
                 item_type=element_ir_type,
                 array=base,
                 index=index,
                 source_location=expr.source_location,
-            )
-            return arc4.maybe_decode_arc4_value_provider(
-                self.context,
-                encoded_read_vp,
-                array_encoding.element,
-                wtype_to_ir_type(
-                    indexable_wtype.element_type,
-                    source_location=expr.source_location,
-                    allow_aggregate=True,
-                ),
-                expr.source_location,
-                temp_description="arc4_item",
             )
         else:
             raise InternalError(
@@ -975,6 +969,7 @@ class FunctionIRBuilder(
         return storage.visit_state_exists(self.context, expr.field, expr.source_location)
 
     def visit_new_array(self, expr: awst_nodes.NewArray) -> TExpression:
+        factory = OpFactory(self.context, expr.source_location)
         # delegate for ARC-4 arrays
         if isinstance(expr.wtype, wtypes.ARC4Array):
             return arc4.encode_arc4_exprs_as_array(
@@ -1010,11 +1005,14 @@ class FunctionIRBuilder(
             assert isinstance(array_type, EncodedType)
             array_encoding = wtype_to_encoding(expr.wtype)
             assert array_encoding == array_type.encoding, "expected encodings to match"
-            array_contents = arrays.get_array_encoded_items(
-                self.context,
-                awst_nodes.TupleExpression.from_items(expr.values, expr.source_location),
-                array_encoding=array_encoding,
-            )
+            if expr.values:
+                array_contents = arrays.get_array_encoded_items(
+                    self.context,
+                    awst_nodes.TupleExpression.from_items(expr.values, expr.source_location),
+                    array_encoding=array_encoding,
+                )
+            else:
+                array_contents = factory.constant(b"", ir_type=array_type)
             slot = mem.new_slot(self.context, array_slot_type, loc)
             mem.write_slot(self.context, slot, array_contents, loc)
             return slot

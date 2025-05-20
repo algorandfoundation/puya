@@ -65,7 +65,7 @@ def get_array_encoded_items(
                 element_type, items.source_location
             )
             num_values_per_item = get_type_arity(element_ir_type)
-            encoded_array = None
+            encoded_array = factory.constant(b"", ir_type=EncodedType(array_encoding))
             item_values = context.visitor.visit_and_materialise(items, "items")
             # TODO: consolidate this and arc4.encode_n_items_as_arc4_items
             #       both take materialized tuples and encode and concat multiple values
@@ -83,16 +83,13 @@ def get_array_encoded_items(
                         source_location=items.source_location,
                     )
                     encoded_item = factory.assign(encoded_item_vp, "encoded_item")
-                if encoded_array is None:
-                    encoded_array = encoded_item
-                else:
-                    concat = ir.ArrayConcat(
-                        array=encoded_array,
-                        array_encoding=array_encoding,
-                        other=encoded_item,
-                        source_location=items.source_location,
-                    )
-                    encoded_array = factory.assign(concat, "encoded_array")
+                concat = ir.ArrayConcat(
+                    array=encoded_array,
+                    array_encoding=array_encoding,
+                    other=encoded_item,
+                    source_location=items.source_location,
+                )
+                encoded_array = factory.assign(concat, "encoded_array")
             assert encoded_array is not None, "empty loop should not be possible"
             return encoded_array
         case DynamicArrayEncoding(length_header=length_header):
@@ -175,12 +172,15 @@ def build_for_in_array(
             index=index,
             source_location=source_location,
         )
-        return ir.ValueDecode(
-            value=factory.assign(read_item, "read_item"),
-            encoding=element_encoding,
-            decoded_type=element_ir_type,
-            source_location=source_location,
-        )
+        if type_has_encoding(element_ir_type, element_encoding):
+            return read_item
+        else:
+            return ir.ValueDecode(
+                value=factory.assign(read_item, "read_item"),
+                encoding=element_encoding,
+                decoded_type=element_ir_type,
+                source_location=source_location,
+            )
 
     return ArrayIterator(
         array_length=array_length,

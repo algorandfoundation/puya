@@ -194,9 +194,9 @@ class BoolEncoding(Encoding):
     @cached_property
     def name(self) -> str:
         if self.packable:
-            return "bool_bit"
+            return "bool1"
         else:
-            return "bool"
+            return "bool8"
 
     @property
     def layout(self) -> str:
