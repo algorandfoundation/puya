@@ -113,6 +113,7 @@ class ARC4Codec(abc.ABC):
 class NativeTupleCodec(ARC4Codec):
     def __init__(self, native_type: AggregateIRType):
         self.native_type = native_type
+        self.homogenous = len(set(self.native_type.elements)) == 1
 
     @typing.override
     def encode(
@@ -127,8 +128,12 @@ class NativeTupleCodec(ARC4Codec):
         item_types = self.native_type.elements
         match encoding:
             case TupleEncoding(elements=elements) if len(elements) == len(item_types):
-                arc4_items = _encode_arc4_tuple_items(context, values, item_types, encoding, loc)
-                return _encode_arc4_values_as_tuple(context, arc4_items, encoding, loc)
+                items = _encode_arc4_tuple_items(context, values, item_types, encoding, loc)
+                return _encode_arc4_values_as_tuple(context, items, encoding, loc)
+            case ArrayEncoding(element=element) as array_encoding if self.homogenous:
+                items = _encode_n_items_as_arc4_items(context, values, item_types[0], element, loc)
+                # this will check the number of elements if the array is fixed
+                return _encode_arc4_values_as_array(context, array_encoding, items, loc)
             case _:
                 return None
 
@@ -185,11 +190,13 @@ class BigUIntCodec(ScalarCodec):
         loc: SourceLocation,
     ) -> ValueProvider | None:
         match encoding:
-            case UIntEncoding(n=bits):
+            case UIntEncoding():
                 factory = OpFactory(context, loc)
-                num_bytes = bits // 8
                 return factory.to_fixed_size(
-                    value, num_bytes=num_bytes, temp_desc="arc4_encoded", error_message="overflow"
+                    value,
+                    num_bytes=encoding.checked_num_bytes,
+                    temp_desc="arc4_encoded",
+                    error_message="overflow",
                 )
         return None
 
@@ -296,14 +303,15 @@ class BytesCodec(ScalarCodec):
         # if _is_known_alias(target_type, expected=wtypes.arc4_string_alias):
         #   return None
         factory = OpFactory(context, loc)
-        length = factory.len(value, "length")
         match encoding:
             case DynamicArrayEncoding(element=UIntEncoding(n=8), length_header=True):
+                length = factory.len(value, "length")
                 length_uint16 = factory.as_u16_bytes(length, "length_uint16")
                 return factory.concat(length_uint16, value, "encoded_value")
             case DynamicArrayEncoding(element=UIntEncoding(n=8), length_header=False):
                 return value
             case FixedArrayEncoding(element=UIntEncoding(n=8), size=num_bytes):
+                length = factory.len(value, "length")
                 lengths_equal = factory.eq(length, num_bytes, "lengths_equal")
                 assert_value(
                     context, lengths_equal, error_message="invalid size", source_location=loc
@@ -327,9 +335,7 @@ class BytesCodec(ScalarCodec):
                 return Intrinsic(
                     op=AVMOp.extract, immediates=[2, 0], args=[value], source_location=loc
                 )
-            case DynamicArrayEncoding(element=UIntEncoding(n=8), length_header=False):
-                return value
-            case wtypes.ARC4StaticArray(element_type=wtypes.ARC4UIntN(n=8)):
+            case ArrayEncoding(element=UIntEncoding(n=8)):
                 return value
         return None
 
@@ -408,7 +414,7 @@ class StackArrayCodec(ARC4Codec):
         encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        if isinstance(self.native_type, EncodedType) and self.native_type.encoding == encoding:
+        if type_has_encoding(self.native_type, encoding):
             return value_provider
         return None
 
@@ -420,7 +426,7 @@ class StackArrayCodec(ARC4Codec):
         encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        if isinstance(self.native_type, EncodedType) and self.native_type.encoding == encoding:
+        if type_has_encoding(self.native_type, encoding):
             return value
         return None
 
@@ -506,7 +512,7 @@ def encode_value_provider(
         f"unsupported ARC-4 encode operation for {value_type=!s}, {encoding=!s}", location=loc
     )
     return Undefined(
-        ir_type=value_type,
+        ir_type=PrimitiveIRType.bytes,
         source_location=loc,
     )
 
@@ -575,7 +581,7 @@ def encode_arc4_exprs_as_array(
 
 
 def _encode_arc4_values_as_array(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     array_encoding: ArrayEncoding,
     elements: Sequence[Value],
     loc: SourceLocation,
@@ -583,7 +589,10 @@ def _encode_arc4_values_as_array(
     element_encoding = array_encoding.element
     factory = OpFactory(context, loc)
     if isinstance(array_encoding, DynamicArrayEncoding):
-        len_prefix = len(elements).to_bytes(2, "big")
+        if array_encoding.length_header:
+            len_prefix = len(elements).to_bytes(2, "big")
+        else:
+            len_prefix = b""
     elif isinstance(array_encoding, FixedArrayEncoding):
         if len(elements) != array_encoding.size:
             logger.error(
@@ -592,7 +601,7 @@ def _encode_arc4_values_as_array(
             return undefined_value(EncodedType(array_encoding), loc)
         len_prefix = b""
     else:
-        raise InternalError("unhandled ARC-4 Array type", loc)
+        raise InternalError("unhandled array encoding", loc)
     if not _bit_packed_bool(element_encoding):
         array_head_and_tail = _arc4_items_as_arc4_tuple(context, element_encoding, elements, loc)
     else:
@@ -633,7 +642,9 @@ def arc4_array_index(
     element_encoding = array_encoding.element
 
     if element_encoding.is_dynamic:
-        inner_element_size = element_encoding.num_bytes
+        inner_element_size = None
+        if isinstance(element_encoding, ArrayEncoding) and not element_encoding.element.is_dynamic:
+            inner_element_size = element_encoding.element.checked_num_bytes
         if inner_element_size is not None:
             if assert_bounds:
                 _assert_index_in_bounds(context, index, array_length_vp, source_location)
@@ -1012,7 +1023,7 @@ def _get_iterable_element_wtype(
 
 
 def _encode_n_items_as_arc4_items(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     items: Sequence[Value],
     item_ir_type: IRType,
     item_encoding: Encoding,
@@ -1245,8 +1256,8 @@ def _encode_arc4_values_as_tuple(
     tuple_items = tuple_encoding.elements
     header_size = _get_arc4_tuple_head_size(tuple_items, round_end_result=True)
     factory = OpFactory(context, expr_loc)
-    current_tail_offset = factory.assign(factory.constant(header_size // 8), "current_tail_offset")
-    encoded_tuple_buffer = factory.assign(factory.constant(b""), "encoded_tuple_buffer")
+    current_tail_offset = factory.constant(header_size // 8)
+    encoded_tuple_buffer = factory.constant(b"")
 
     for index, (element, element_encoding) in enumerate(zip(elements, tuple_items, strict=True)):
         if _bit_packed_bool(element_encoding):
@@ -1763,7 +1774,7 @@ def _concat_dynamic_array_fixed_size(
 
 
 def _arc4_items_as_arc4_tuple(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     encoding: Encoding,
     items: Sequence[Value],
     source_location: SourceLocation,
@@ -1785,7 +1796,7 @@ def _arc4_items_as_arc4_tuple(
 
 
 def _assert_index_in_bounds(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     index: Value,
     length: ValueProvider,
     source_location: SourceLocation,
