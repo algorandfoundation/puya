@@ -76,6 +76,17 @@ contract Contract
     Box[BoxMapKey(prefix='box_map', key=box_key)].fixed_a: test_cases.mutable_native_types.contract.FixedStruct = GlobalState['nested'].fixed_a.copy()
   }
   
+  abimethod test_cases.mutable_native_types.contract.Contract.local_struct(): test_cases.mutable_native_types.contract.Payment
+  {
+    a: test_cases.mutable_native_types.contract.Payment = new test_cases.mutable_native_types.contract.Payment(receiver=txn<Sender>(), asset=reinterpret_cast<asset>(1234u), amt=567u)
+    (foo, bar, baz): tuple<account,asset,uint64> = (a.receiver, a.asset, a.amt)
+    assert(foo != global<ZeroAddress>(), comment="use foo")
+    assert(reinterpret_cast<bool>(bar), comment="use bar")
+    assert(baz != 0u, comment="use baz")
+    test_cases.mutable_native_types.contract.do_something(a)
+    return a
+  }
+  
   abimethod test_cases.mutable_native_types.contract.Contract.delete_storage(box_key: uint64): void
   {
     STATE_DELETE(GlobalState[hex<"70">])
@@ -129,6 +140,10 @@ contract Contract
 subroutine add(val: test_cases.mutable_native_types.contract.FixedStruct): uint64
 {
   return val.a + val.b
+}
+
+subroutine do_something(pay: test_cases.mutable_native_types.contract.Payment): void
+{
 }
 
 contract Case3WithStruct

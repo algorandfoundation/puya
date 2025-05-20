@@ -44,6 +44,11 @@ class Contract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
+    def local_struct(
+        self,
+    ) -> Payment: ...
+
+    @algopy.arc4.abimethod
     def delete_storage(
         self,
         box_key: algopy.arc4.UIntN[typing.Literal[64]],
