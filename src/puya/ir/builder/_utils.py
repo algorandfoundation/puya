@@ -530,7 +530,11 @@ class OpFactory:
         )
         return result
 
-    def materialise(self, value_provider: ValueProvider, description: str) -> list[Register]:
+    def materialise(self, value_provider: ValueProvider, description: str) -> Sequence[Value]:
+        if isinstance(value_provider, Value):
+            return [value_provider]
+        elif isinstance(value_provider, ValueTuple):
+            return value_provider.values
         targets: list[Register] = [
             self.context.new_register(description, ir_type, self.source_location)
             for ir_type in value_provider.types
