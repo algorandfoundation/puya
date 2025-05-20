@@ -125,6 +125,18 @@ class Contract(arc4.ARC4Contract):
         self.box_map[box_key].fixed_a = self.nested.fixed_a.copy()
 
     @arc4.abimethod()
+    def local_struct(self) -> Payment:
+        a = Payment(Txn.sender, Asset(1234), UInt64(567))
+        # python equivalent to typescript destructuring e.g.
+        # { foo, bar, baz } = a
+        (foo, bar, baz) = (a.receiver, a.asset, a.amt)
+        assert foo, "use foo"
+        assert bar, "use bar"
+        assert baz, "use baz"
+        do_something(a)
+        return a
+
+    @arc4.abimethod()
     def delete_storage(self, box_key: UInt64) -> None:
         del self.nested_proxy.value
         del self.nested_local[Txn.sender]
@@ -166,3 +178,8 @@ class Contract(arc4.ARC4Contract):
 @subroutine()
 def add(val: FixedStruct) -> UInt64:
     return val.a + val.b
+
+
+@subroutine(inline=False)
+def do_something(pay: Payment) -> None:
+    pass
