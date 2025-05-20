@@ -43,10 +43,10 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         goto block@2
     block@2: // after_if_else_L1
         let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@16
+        goto tmp%0#2 ? block@4 : block@17
     block@4: // abi_routing_L65
         let tmp%2#1: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#1 {method "fixed_initialize()void" => block@5, method "add_payment((address,uint64,uint64))void" => block@6, method "increment_payment(uint64,uint64)void" => block@7, method "create_storage(uint64)void" => block@8, method "delete_storage(uint64)void" => block@9, method "struct_arg(uint64,(uint64,uint64))void" => block@10, method "struct_return()(uint64,uint64)" => block@11, method "tup_return()(uint64,uint64)" => block@12, method "calculate_sum()uint64" => block@13, * => block@18}
+        switch tmp%2#1 {method "fixed_initialize()void" => block@5, method "add_payment((address,uint64,uint64))void" => block@6, method "increment_payment(uint64,uint64)void" => block@7, method "create_storage(uint64)void" => block@8, method "local_struct()(address,uint64,uint64)" => block@9, method "delete_storage(uint64)void" => block@10, method "struct_arg(uint64,(uint64,uint64))void" => block@11, method "struct_return()(uint64,uint64)" => block@12, method "tup_return()(uint64,uint64)" => block@13, method "calculate_sum()uint64" => block@14, * => block@19}
     block@5: // fixed_initialize_route_L89
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#1: bool = (! tmp%3#0)
@@ -55,7 +55,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (assert tmp%5#0) // can only call when not creating
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
-        goto block@19
+        goto block@20
     block@6: // add_payment_route_L109
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#1: bool = (! tmp%7#0)
@@ -78,7 +78,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (app_global_put "num_payments" materialized_values%0#1)
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
-        goto block@19
+        goto block@20
     block@7: // increment_payment_route_L115
         let tmp%11#0: uint64 = (txn OnCompletion)
         let tmp%12#0: bool = (! tmp%11#0)
@@ -96,18 +96,18 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let (maybe_value%1#1: bytes, maybe_exists%1#1: bool) = (app_global_get_ex 0u "payments")
         (assert maybe_exists%1#1) // check self.payments exists
         let item_offset%0#0: uint64 = (* index#0 48u)
-        let tmp%1#5: bytes = (extract3 maybe_value%1#1 item_offset%0#0 48u) // on error: Index access is out of bounds
-        let tmp%2#0: uint64 = (extract_uint64 tmp%1#5 40u)
+        let tmp%1#6: bytes = (extract3 maybe_value%1#1 item_offset%0#0 48u) // on error: Index access is out of bounds
+        let tmp%2#0: uint64 = (extract_uint64 tmp%1#6 40u)
         let assigned_value%0#2: uint64 = (+ tmp%2#0 amt#0)
         let val_as_bytes%0#0: bytes[8] = (itob assigned_value%0#2)
-        let updated_data%0#0: bytes = ((replace2 40) tmp%1#5 val_as_bytes%0#0)
+        let updated_data%0#0: bytes = ((replace2 40) tmp%1#6 val_as_bytes%0#0)
         let index_is_in_bounds%0#0: bool = (< index#0 8u)
         (assert index_is_in_bounds%0#0) // Index access is out of bounds
         let updated_target%0#0: bytes = (replace3 maybe_value%1#1 item_offset%0#0 updated_data%0#0)
         (app_global_put "payments" updated_target%0#0)
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
-        goto block@19
+        goto block@20
     block@8: // create_storage_route_L120
         let tmp%17#0: uint64 = (txn OnCompletion)
         let tmp%18#0: bool = (! tmp%17#0)
@@ -123,8 +123,8 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (assert maybe_exists%1#1) // check self.nested exists
         let tmp%0#5: bytes = (txn Sender)
         (app_local_put tmp%0#5 0x6c maybe_value%1#1)
-        let tmp%1#4: bool = (box_create "box" 2064u)
-        (assert tmp%1#4) // expected box to not exist
+        let tmp%1#5: bool = (box_create "box" 2064u)
+        (assert tmp%1#5) // expected box to not exist
         let tmp%2#1: bytes = ((extract 0 16) maybe_value%1#1) // on error: Index access is out of bounds
         let encoded_value%0#1: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#1)
@@ -134,13 +134,38 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (box_put box_prefixed_key%0#0 updated_data%0#0)
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
-        goto block@19
-    block@9: // delete_storage_route_L127
+        goto block@20
+    block@9: // local_struct_route_L127
         let tmp%22#0: uint64 = (txn OnCompletion)
         let tmp%23#0: bool = (! tmp%22#0)
         (assert tmp%23#0) // OnCompletion is not NoOp
         let tmp%24#0: uint64 = (txn ApplicationID)
         (assert tmp%24#0) // can only call when not creating
+        let tmp%0#5: bytes = (txn Sender)
+        let val_as_bytes%0#0: bytes[8] = (itob 1234u)
+        let val_as_bytes%1#0: bytes[8] = (itob 567u)
+        let encoded_tuple_buffer%2#0: bytes = (concat tmp%0#5 val_as_bytes%0#0)
+        let a#0: bytes[16] = (concat encoded_tuple_buffer%2#0 val_as_bytes%1#0)
+        let foo#0: bytes[32] = ((extract 0 32) a#0) // on error: Index access is out of bounds
+        let bar#0: uint64 = (extract_uint64 a#0 32u)
+        let baz#0: uint64 = (extract_uint64 a#0 40u)
+        let tmp%3#2: bytes[32] = (global ZeroAddress)
+        let tmp%4#1: bool = (!= foo#0 tmp%3#2)
+        (assert tmp%4#1) // use foo
+        (assert bar#0) // use bar
+        (assert baz#0) // use baz
+        let a#0: bytes[16] = test_cases.mutable_native_types.contract.do_something(a#0)
+        let tmp%27#0: bytes = (concat 0x151f7c75 a#0)
+        (log tmp%27#0)
+        let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
+        goto block@20
+    block@10: // delete_storage_route_L139
+        let tmp%28#0: uint64 = (txn OnCompletion)
+        let tmp%29#0: bool = (! tmp%28#0)
+        (assert tmp%29#0) // OnCompletion is not NoOp
+        let tmp%30#0: uint64 = (txn ApplicationID)
+        (assert tmp%30#0) // can only call when not creating
         let reinterpret_bytes[8]%3#0: bytes[8] = (txna ApplicationArgs 1)
         let box_key#0: uint64 = (btoi reinterpret_bytes[8]%3#0)
         (app_global_del 0x70)
@@ -152,13 +177,13 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (box_del box_prefixed_key%0#0)
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
-        goto block@19
-    block@10: // struct_arg_route_L136
-        let tmp%27#0: uint64 = (txn OnCompletion)
-        let tmp%28#0: bool = (! tmp%27#0)
-        (assert tmp%28#0) // OnCompletion is not NoOp
-        let tmp%29#0: uint64 = (txn ApplicationID)
-        (assert tmp%29#0) // can only call when not creating
+        goto block@20
+    block@11: // struct_arg_route_L148
+        let tmp%33#0: uint64 = (txn OnCompletion)
+        let tmp%34#0: bool = (! tmp%33#0)
+        (assert tmp%34#0) // OnCompletion is not NoOp
+        let tmp%35#0: uint64 = (txn ApplicationID)
+        (assert tmp%35#0) // can only call when not creating
         let reinterpret_bytes[8]%4#0: bytes[8] = (txna ApplicationArgs 1)
         let box_key#0: uint64 = (btoi reinterpret_bytes[8]%4#0)
         let a#0: bytes[16] = (txna ApplicationArgs 2)
@@ -187,27 +212,27 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (box_put box_prefixed_key%0#0 updated_data%4#0)
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
-        goto block@19
-    block@11: // struct_return_route_L146
-        let tmp%32#0: uint64 = (txn OnCompletion)
-        let tmp%33#0: bool = (! tmp%32#0)
-        (assert tmp%33#0) // OnCompletion is not NoOp
-        let tmp%34#0: uint64 = (txn ApplicationID)
-        (assert tmp%34#0) // can only call when not creating
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
-        (assert maybe_exists%0#0) // check self.nested exists
-        let tmp%0#5: bytes = ((extract 0 16) maybe_value%0#0) // on error: Index access is out of bounds
-        let tmp%37#0: bytes = (concat 0x151f7c75 tmp%0#5)
-        (log tmp%37#0)
-        let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
-        goto block@19
-    block@12: // tup_return_route_L150
+        goto block@20
+    block@12: // struct_return_route_L158
         let tmp%38#0: uint64 = (txn OnCompletion)
         let tmp%39#0: bool = (! tmp%38#0)
         (assert tmp%39#0) // OnCompletion is not NoOp
         let tmp%40#0: uint64 = (txn ApplicationID)
         (assert tmp%40#0) // can only call when not creating
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
+        (assert maybe_exists%0#0) // check self.nested exists
+        let tmp%0#5: bytes = ((extract 0 16) maybe_value%0#0) // on error: Index access is out of bounds
+        let tmp%43#0: bytes = (concat 0x151f7c75 tmp%0#5)
+        (log tmp%43#0)
+        let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
+        goto block@20
+    block@13: // tup_return_route_L162
+        let tmp%44#0: uint64 = (txn OnCompletion)
+        let tmp%45#0: bool = (! tmp%44#0)
+        (assert tmp%45#0) // OnCompletion is not NoOp
+        let tmp%46#0: uint64 = (txn ApplicationID)
+        (assert tmp%46#0) // can only call when not creating
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
         let encoded%0#0: bytes = ((extract 32 16) maybe_value%0#0) // on error: Index access is out of bounds
@@ -216,17 +241,17 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let val_as_bytes%0#0: bytes[8] = (itob item0%1#1)
         let val_as_bytes%1#0: bytes[8] = (itob item1%1#1)
         let encoded_tuple_buffer%2#0: bytes = (concat val_as_bytes%0#0 val_as_bytes%1#0)
-        let tmp%42#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%2#0)
-        (log tmp%42#0)
+        let tmp%48#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%2#0)
+        (log tmp%48#0)
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
-        goto block@19
-    block@13: // calculate_sum_route_L154
-        let tmp%43#0: uint64 = (txn OnCompletion)
-        let tmp%44#0: bool = (! tmp%43#0)
-        (assert tmp%44#0) // OnCompletion is not NoOp
-        let tmp%45#0: uint64 = (txn ApplicationID)
-        (assert tmp%45#0) // can only call when not creating
+        goto block@20
+    block@14: // calculate_sum_route_L166
+        let tmp%49#0: uint64 = (txn OnCompletion)
+        let tmp%50#0: bool = (! tmp%49#0)
+        (assert tmp%50#0) // OnCompletion is not NoOp
+        let tmp%51#0: uint64 = (txn ApplicationID)
+        (assert tmp%51#0) // can only call when not creating
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
         let fixed_a#0: bytes[16] = ((extract 0 16) maybe_value%0#0) // on error: Index access is out of bounds
@@ -236,12 +261,12 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let tmp%2#0: uint64 = (+ tmp%0#2 tmp%1#1)
         let tmp%0#2: uint64 = (extract_uint64 fixed_b#0 0u)
         let tmp%1#1: uint64 = (extract_uint64 fixed_b#0 8u)
-        let tmp%2#6: uint64 = (+ tmp%0#2 tmp%1#1)
-        let result#0: uint64 = (+ tmp%2#0 tmp%2#6)
+        let tmp%2#7: uint64 = (+ tmp%0#2 tmp%1#1)
+        let result#0: uint64 = (+ tmp%2#0 tmp%2#7)
         let tmp%2#2: bool = (< result#0 100u)
         let result#6: uint64 = result#0
-        goto tmp%2#2 ? block@14 : block@15
-    block@14: // if_body_L160
+        goto tmp%2#2 ? block@15 : block@16
+    block@15: // if_body_L172
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%2#0) // check self.nested exists
         let encoded%0#0: bytes = ((extract 32 16) maybe_value%2#0) // on error: Index access is out of bounds
@@ -250,28 +275,32 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let result#0: uint64 = (+ result#0 c#0)
         let result#0: uint64 = (+ result#0 d#0)
         let result#6: uint64 = result#0
-        goto block@15
-    block@15: // after_if_else_L159
+        goto block@16
+    block@16: // after_if_else_L171
         let result#0: uint64 = result#6
         let val_as_bytes%2#0: bytes[8] = (itob result#0)
-        let tmp%47#0: bytes = (concat 0x151f7c75 val_as_bytes%2#0)
-        (log tmp%47#0)
+        let tmp%53#0: bytes = (concat 0x151f7c75 val_as_bytes%2#0)
+        (log tmp%53#0)
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
-        goto block@19
-    block@16: // bare_routing_L65
-        let tmp%48#0: uint64 = (txn OnCompletion)
-        goto tmp%48#0 ? block@18 : block@17
-    block@17: // __algopy_default_create_L1
-        let tmp%49#0: uint64 = (txn ApplicationID)
-        let tmp%50#0: bool = (! tmp%49#0)
-        (assert tmp%50#0) // can only call when creating
+        goto block@20
+    block@17: // bare_routing_L65
+        let tmp%54#0: uint64 = (txn OnCompletion)
+        goto tmp%54#0 ? block@19 : block@18
+    block@18: // __algopy_default_create_L1
+        let tmp%55#0: uint64 = (txn ApplicationID)
+        let tmp%56#0: bool = (! tmp%55#0)
+        (assert tmp%56#0) // can only call when creating
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
-        goto block@19
-    block@18: // after_if_else_L65
+        goto block@20
+    block@19: // after_if_else_L65
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 0u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
-        goto block@19
-    block@19: // after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router___L1
+        goto block@20
+    block@20: // after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router___L1
         return tmp%0#0
+
+subroutine test_cases.mutable_native_types.contract.do_something(pay: bytes[48]) -> bytes[48]:
+    block@0: // L183
+        return pay#0
