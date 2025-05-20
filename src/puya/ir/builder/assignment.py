@@ -194,7 +194,7 @@ def handle_assignment(
                     encoding=encoding,
                     source_location=ix_expr.source_location,
                 )
-                encoded_element = factory.assign(value_encode, "encoded_element")
+                encoded_element = factory.materialise_single(value_encode, "encoded_element")
                 write_index = ir.ArrayWriteIndex(
                     array=array,
                     index=index,

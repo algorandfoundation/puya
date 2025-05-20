@@ -193,15 +193,6 @@ class OpFactory:
     context: IRRegisterContext
     source_location: SourceLocation | None
 
-    def assign(self, value: ValueProvider, temp_desc: str) -> Register:
-        register = assign_temp(
-            self.context, value, temp_description=temp_desc, source_location=self.source_location
-        )
-        return register
-
-    def assign_multiple(self, **values: ValueProvider) -> Sequence[Register]:
-        return [self.assign(value, desc) for desc, value in values.items()]
-
     def add(self, a: Value, b: Value | int, temp_desc: str) -> Register:
         result = assign_intrinsic_op(
             self.context,
@@ -536,7 +527,17 @@ class OpFactory:
         if isinstance(value_provider, Value | ValueTuple):
             return value_provider
         values = self.materialise_values(value_provider, description)
-        return ValueTuple(values=values, source_location=self.source_location)
+        if len(values) == 1:
+            return values[0]
+        else:
+            return ValueTuple(values=values, source_location=self.source_location)
+
+    def materialise_single(self, value_provider: ValueProvider, description: str) -> Value:
+        (single,) = self.materialise_values(value_provider, description)
+        return single
+
+    def materialise_values_by_name(self, **values: ValueProvider) -> Sequence[Value]:
+        return [self.materialise_single(value, desc) for desc, value in values.items()]
 
     def materialise_values(
         self, value_provider: ValueProvider, description: str
@@ -546,7 +547,9 @@ class OpFactory:
         elif isinstance(value_provider, ValueTuple):
             return value_provider.values
         targets: list[Register] = [
-            self.context.new_register(description, ir_type, self.source_location)
+            self.context.new_register(
+                self.context.next_tmp_name(description), ir_type, self.source_location
+            )
             for ir_type in value_provider.types
         ]
         assign_targets(

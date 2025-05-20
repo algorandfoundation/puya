@@ -463,7 +463,7 @@ class ArrayReadIndex(_ArrayOp):
 
     @property
     def types(self) -> Sequence[IRType]:
-        return (EncodedType(self.array_encoding),)
+        return (EncodedType(self.array_encoding.element),)
 
     def _frozen_data(self) -> object:
         return self.array, self.index, self.types
