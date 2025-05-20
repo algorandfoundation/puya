@@ -439,6 +439,7 @@ def bytes_enc_to_avm_bytes_enc(bytes_encoding: BytesEncoding) -> AVMBytesEncodin
 def wtype_to_ir_type(
     expr: awst_nodes.Expression,
     /,
+    *,
     source_location: SourceLocation | None = None,
 ) -> IRType: ...
 
@@ -448,6 +449,7 @@ def wtype_to_ir_type(
     wtype: wtypes.WType,
     /,
     source_location: SourceLocation,
+    *,
     allow_aggregate: bool = False,
 ) -> IRType: ...
 
@@ -456,6 +458,7 @@ def wtype_to_ir_type(
     expr_or_wtype: wtypes.WType | awst_nodes.Expression,
     /,
     source_location: SourceLocation | None = None,
+    *,
     allow_aggregate: bool = False,
 ) -> IRType:
     if isinstance(expr_or_wtype, awst_nodes.Expression):
