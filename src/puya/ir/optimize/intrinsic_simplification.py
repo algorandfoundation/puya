@@ -564,6 +564,8 @@ def _try_fold_intrinsic(
                 binary_array = [
                     x for xs in [bin(bb)[2:].zfill(8) for bb in byte_const.value] for x in xs
                 ]
+                if index >= len(binary_array):
+                    pass
                 the_bit = binary_array[index]
                 return models.UInt64Constant(source_location=op_loc, value=int(the_bit))
     elif intrinsic.op is AVMOp.setbit:
