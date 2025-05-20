@@ -33,7 +33,6 @@ from puya.ir.models import (
     BigUIntConstant,
     Intrinsic,
     InvokeSubroutine,
-    Register,
     UInt64Constant,
     Undefined,
     Value,
@@ -86,7 +85,7 @@ def maybe_decode_arc4_value_provider(
     if type_has_encoding(target_type, encoding):
         return value_provider
     factory = OpFactory(context, loc)
-    value = factory.assign(value_provider, temp_description)
+    value = factory.materialise_single(value_provider, temp_description)
     return decode_arc4_value(context, value, encoding, target_type, loc)
 
 
@@ -638,7 +637,7 @@ def arc4_array_index(
     factory = OpFactory(context, source_location)
     array_length_vp = get_array_length(context, array_encoding, array, source_location)
     array_head_and_tail_vp = _get_arc4_array_head_and_tail(array_encoding, array, source_location)
-    array_head_and_tail = factory.assign(array_head_and_tail_vp, "array_head_and_tail")
+    array_head_and_tail = factory.materialise_single(array_head_and_tail_vp, "array_head_and_tail")
     element_encoding = array_encoding.element
 
     if element_encoding.is_dynamic:
@@ -686,7 +685,7 @@ def arc4_array_index(
         )
     # TODO: use ValueDecode
     if not type_has_encoding(item_type, element_encoding):
-        item = factory.assign(item, "encoded")
+        item = factory.materialise_single(item, "encoded")
         return decode_arc4_value(context, item, element_encoding, item_type, source_location)
     return item
 
@@ -711,7 +710,7 @@ def arc4_tuple_index(
     # TODO: use ValueDecode
     if not type_has_encoding(item_ir_type, item_encoding):
         factory = OpFactory(context, source_location)
-        encoded = factory.assign(result, "encoded")
+        encoded = factory.materialise_single(result, "encoded")
         result = decode_arc4_value(context, encoded, item_encoding, item_ir_type, source_location)
     return result
 
@@ -937,7 +936,7 @@ def dynamic_array_concat_and_convert(
         )
         invoke_name = "dynamic_array_concat_dynamic_element"
         invoke_args = list(
-            factory.assign_multiple(
+            factory.materialise_values_by_name(
                 l_count=get_array_length(context, array_encoding, left, source_location),
                 l_head_and_tail=_get_arc4_array_head_and_tail(
                     array_encoding, left, source_location
@@ -954,7 +953,7 @@ def dynamic_array_concat_and_convert(
         args=invoke_args,
         source_location=source_location,
     )
-    return factory.assign(invoke, "concat_result")
+    return factory.materialise_single(invoke, "concat_result")
 
 
 def _bit_packed_bool(encoding: Encoding) -> bool:
@@ -1041,7 +1040,7 @@ def _encode_n_items_as_arc4_items(
             item_vp = encode_value_provider(
                 context, items[item_start_idx], item_ir_type, item_encoding, loc
             )
-            encoded_items.append(factory.assign(item_vp, "item"))
+            encoded_items.append(factory.materialise_single(item_vp, "item"))
         else:
             arc4_items = _encode_arc4_tuple_items(
                 context,
@@ -1051,7 +1050,7 @@ def _encode_n_items_as_arc4_items(
                 loc,
             )
             encoded_items.append(
-                factory.assign(
+                factory.materialise_single(
                     _encode_arc4_values_as_tuple(context, arc4_items, item_encoding, loc),
                     "encoded_tuple",
                 )
@@ -1204,13 +1203,13 @@ def _read_dynamic_item_using_end_offset_from_arc4_container(
         array_head_and_tail, item_offset_offset, "item_offset"
     )
 
-    array_length = factory.assign(array_length_vp, "array_length")
+    array_length = factory.materialise_single(array_length_vp, "array_length")
     next_item_index = factory.add(index, 1, "next_index")
     # three possible outcomes of this op will determine the end offset
     # next_item_index < array_length -> has_next is true, use next_item_offset
     # next_item_index == array_length -> has_next is false, use array_length
     # next_item_index > array_length -> op will fail, comment provides context to error
-    has_next = factory.assign(
+    has_next = factory.materialise_single(
         Intrinsic(
             op=AVMOp.sub,
             args=[array_length, next_item_index],
@@ -1335,7 +1334,7 @@ def _arc4_replace_tuple_item(
     factory = OpFactory(context, source_location)
     tuple_items = tuple_encoding.elements
     base = context.visitor.visit_and_materialise_single(base_expr)
-    value = factory.assign(value, "assigned_value")
+    value = factory.materialise_single(value, "assigned_value")
     element_encoding = tuple_items[index_int]
     header_up_to_item = _get_arc4_tuple_head_size(
         tuple_items[0:index_int],
@@ -1351,7 +1350,7 @@ def _arc4_replace_tuple_item(
             element_encoding,
             source_location,
         )
-        value = factory.assign(value_vp, "encoded")
+        value = factory.materialise_single(value_vp, "encoded")
     if _bit_packed_bool(element_encoding):
         # Use Set bit
         is_true = factory.get_bit(value, 0, "is_true")
@@ -1568,7 +1567,7 @@ def _get_arc4_array_tail_data_and_item_count(
     elif isinstance(wtype, wtypes.ARC4Array | wtypes.StackArray | wtypes.ReferenceArray):
         array_encoding = wtype_to_encoding(wtype)
         item_count_vp = get_array_length(context, array_encoding, stack_value, source_location)
-        item_count = factory.assign(item_count_vp, "array_length")
+        item_count = factory.materialise_single(item_count_vp, "array_length")
         if array_encoding.element != element_encoding:
             raise InternalError(
                 f"encodings do not match {array_encoding.element=}, {element_encoding=}",
@@ -1577,7 +1576,7 @@ def _get_arc4_array_tail_data_and_item_count(
         head_and_tail_vp = _get_arc4_array_head_and_tail(
             array_encoding, stack_value, source_location
         )
-        head_and_tail = factory.assign(head_and_tail_vp, "array_head_and_tail")
+        head_and_tail = factory.materialise_single(head_and_tail_vp, "array_head_and_tail")
     else:
         raise InternalError(f"Unsupported array type: {wtype}")
 
@@ -1629,20 +1628,20 @@ def arc4_replace_array_item(
         encoded_vp = encode_value_provider(
             context, value_vp, element_ir_type, element_encoding, source_location
         )
-        value: Value = factory.assign(encoded_vp, "encoded")
+        value: Value = factory.materialise_single(encoded_vp, "encoded")
     else:
         (value,) = context.visitor.materialise_value_provider(value_vp, "assigned_value")
 
     index = context.visitor.visit_and_materialise_single(index_value_expr)
 
-    def updated_result(method_name: str, args: list[Value | int | bytes]) -> Register:
+    def updated_result(method_name: str, args: list[Value | int | bytes]) -> Value:
         invoke = _invoke_puya_lib_subroutine(
             context,
             full_name=f"_puya_lib.arc4.{method_name}",
             args=args,
             source_location=source_location,
         )
-        return factory.assign(invoke, "updated_value")
+        return factory.materialise_single(invoke, "updated_value")
 
     if _is_byte_length_header(element_encoding):
         if isinstance(array_encoding, FixedArrayEncoding):
@@ -1659,7 +1658,7 @@ def arc4_replace_array_item(
         elif isinstance(array_encoding, DynamicArrayEncoding) and array_encoding.length_header:
             return updated_result("dynamic_array_replace_dynamic_element", [base, value, index])
     array_length_vp = get_array_length(context, array_encoding, base, source_location)
-    array_length = factory.assign(array_length_vp, "array_length")
+    array_length = factory.materialise_single(array_length_vp, "array_length")
     _assert_index_in_bounds(context, index, array_length, source_location)
     assert element_encoding.num_bytes is not None, "expected static element"
 
