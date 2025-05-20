@@ -66,6 +66,7 @@ from puya.ir.types_ import (
     get_wtype_arity,
     wtype_to_encoding,
     wtype_to_ir_type,
+    wtype_to_ir_type_and_encoding,
 )
 from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.utils import bits_to_bytes
@@ -848,7 +849,7 @@ def handle_arc4_assign(
 
 def dynamic_array_concat_and_convert(
     context: IRFunctionBuildContext,
-    array_wtype: wtypes.ARC4DynamicArray,
+    array_encoding: ArrayEncoding,
     array_expr: awst_nodes.Expression,
     iter_expr: awst_nodes.Expression,
     source_location: SourceLocation,
@@ -863,6 +864,7 @@ def dynamic_array_concat_and_convert(
 
     # check right is a valid type to concat
     right_wtype = iter_expr.wtype
+    right_element_ir_type, right_element_encoding = wtype_to_ir_type_and_encoding()
     right_encoded_element_type, right_element_type = _get_arc4_element_type(iter_expr)
     encoded_element_type = wtype_to_arc4_wtype(array_wtype.element_type, source_location)
 
@@ -985,7 +987,7 @@ def _extract_dynamic_element_count_head_and_tail(
 
 def _get_arc4_element_type(
     expr: awst_nodes.Expression,
-) -> tuple[wtypes.ARC4Type, wtypes.WType | None]:
+) -> tuple[Encoding, IRType | None]:
     right_wtype = expr.wtype
     loc = expr.source_location
     right_unencoded_type = None
@@ -1110,8 +1112,9 @@ def invoke_arc4_array_pop(
     return popped, data
 
 
-ARC4_TRUE = 0b10000000.to_bytes(1, "big")
-ARC4_FALSE = 0b00000000.to_bytes(1, "big")
+# packed bits are packed starting with the left most bit
+ARC4_TRUE = (1 << 7).to_bytes(1, "big")
+ARC4_FALSE = (0).to_bytes(1, "big")
 
 
 def _encode_arc4_bool(
@@ -1543,8 +1546,8 @@ def _get_any_array_length(
 def _get_arc4_array_tail_data_and_item_count(
     context: IRFunctionBuildContext,
     expr: awst_nodes.Expression,
-    arc4_element_type: wtypes.ARC4Type,
-    native_element_type: wtypes.WType | None,
+    element_encoding: Encoding,
+    element_ir_type: IRType | None,
     source_location: SourceLocation,
 ) -> tuple[Value, Value]:
     """
@@ -1557,7 +1560,7 @@ def _get_arc4_array_tail_data_and_item_count(
     wtype = expr.wtype
     if isinstance(wtype, wtypes.WTuple):
         native_values = context.visitor.visit_and_materialise(expr)
-        if native_element_type is None:
+        if element_ir_type is None:
             encoded_values = native_values
         else:
             encoded_values = _encode_n_items_as_arc4_items(
@@ -1580,7 +1583,7 @@ def _get_arc4_array_tail_data_and_item_count(
     elif isinstance(wtype, wtypes.ARC4Array | wtypes.StackArray | wtypes.ReferenceArray):
         item_count_vp = _get_any_array_length(context, wtype, stack_value, source_location)
         item_count = factory.assign(item_count_vp, "array_length")
-        if native_element_type is not None:
+        if element_ir_type is not None:
             logger.debug(
                 f"assuming {native_element_type} is already encoded as {arc4_element_type}",
                 location=source_location,
@@ -1678,18 +1681,18 @@ def arc4_replace_array_item(
         )
     )
     _assert_index_in_bounds(context, index, array_length, source_location)
-    assert element_type.num_bytes is not None, "expected static element"
+    assert element_encoding.num_bytes is not None, "expected static element"
 
-    if isinstance(element_type, BoolEncoding) and element_type.packable:
-        element_size = 1
+    if isinstance(element_encoding, BoolEncoding) and element_encoding.packable:
+        element_num_bits = 1
     else:
-        element_size = element_type.num_bytes * 8
-    dynamic_offset = 0 if isinstance(encoding, FixedArrayEncoding) else 2
-    if element_size == 1:
+        element_num_bits = element_encoding.num_bytes * 8
+    dynamic_offset = 0 if isinstance(array_encoding, FixedArrayEncoding) else 2
+    if element_num_bits == 1:
         dynamic_offset *= 8  # convert offset to bits
-        offset_per_item = element_size
+        offset_per_item = element_num_bits
     else:
-        offset_per_item = element_size // 8
+        offset_per_item = element_num_bits // 8
 
     if isinstance(index_value_expr, awst_nodes.IntegerConstant):
         write_offset: Value = UInt64Constant(
@@ -1713,7 +1716,7 @@ def arc4_replace_array_item(
                 source_location=source_location,
             )
 
-    if element_size == 1:
+    if element_num_bits == 1:
         is_true = assign_intrinsic_op(
             context,
             target="is_true",
@@ -1871,8 +1874,8 @@ def get_arc4_array_length(
             length_header=False, element=element_encoding
         ) if element_encoding.num_bytes is not None:
             factory = OpFactory(context, source_location)
-            array_size = factory.len(array, "array_size")
-            return factory.div_floor(array_size, encoding.element.num_bytes)
+            array_len = factory.len(array, "array_len")
+            return factory.div_floor(array_len, element_encoding.num_bytes, "array_size")
         case _:
             raise InternalError("Unexpected ARC-4 array type", source_location)
 
