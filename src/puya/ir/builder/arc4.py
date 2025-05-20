@@ -54,9 +54,10 @@ from puya.ir.types_ import (
     TupleEncoding,
     UIntEncoding,
     get_type_arity,
+    type_has_encoding,
     wtype_to_encoding,
     wtype_to_ir_type,
-    wtype_to_ir_type_and_encoding, type_has_encoding,
+    wtype_to_ir_type_and_encoding,
 )
 from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.utils import bits_to_bytes, round_bits_to_nearest_bytes
@@ -161,7 +162,7 @@ class ScalarCodec(ARC4Codec, abc.ABC):
         loc: SourceLocation,
     ) -> ValueProvider | None:
         factory = OpFactory(context, loc)
-        value, = factory.materialise(value_provider, "to_encode")
+        (value,) = factory.materialise(value_provider, "to_encode")
         return self.encode_value(context, value, encoding, loc)
 
     @abc.abstractmethod
@@ -483,6 +484,7 @@ def encode_arc4_struct(
     return _encode_arc4_values_as_tuple(context, encoded_elements, encoding, loc)
 
 
+# TODO: this becomes the lowering implementation for ir.ValueEncode
 def encode_value_provider(
     context: IRRegisterContext,
     value_provider: ValueProvider,
@@ -495,13 +497,13 @@ def encode_value_provider(
         result = codec.encode(context, value_provider, encoding, loc)
         if result is not None:
             return result
-    if value_type == EncodedType(encoding):
+    if type_has_encoding(value_type, encoding):
         raise InternalError("redundant encode", loc)
     logger.error(
         f"unsupported ARC-4 encode operation for {value_type=!s}, {encoding=!s}", location=loc
     )
     return Undefined(
-        ir_type=EncodedType(encoding),
+        ir_type=value_type,
         source_location=loc,
     )
 
@@ -519,10 +521,11 @@ def _encode_arc4_tuple_items(
         item_arity = get_type_arity(item_type)
         item_elements = elements[:item_arity]
         elements = elements[item_arity:]
-        if item_type == EncodedType(item_encoding):
+        if type_has_encoding(item_type, item_encoding):
             encoded_items.extend(item_elements)
             continue
 
+        # TODO: use ValueEncode
         item_value_provider = (
             item_elements[0]
             if item_arity == 1
@@ -555,7 +558,8 @@ def encode_arc4_exprs_as_array(
         element for value in values for element in context.visitor.visit_and_materialise(value)
     ]
     element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(wtype.element_type, loc)
-    if element_ir_type != EncodedType(element_encoding):
+    # TODO: use ValueEncode
+    if not type_has_encoding(element_ir_type, element_encoding):
         elements = _encode_n_items_as_arc4_items(
             context,
             elements,
@@ -666,8 +670,8 @@ def arc4_array_index(
             encoding=element_encoding,
             source_location=source_location,
         )
-    # TODO: build ValueDecode instead
-    if item_type != EncodedType(element_encoding):
+    # TODO: use ValueDecode
+    if not type_has_encoding(item_type, element_encoding):
         item = factory.assign(item, "encoded")
         return decode_arc4_value(context, item, element_encoding, item_type, source_location)
     return item
@@ -690,7 +694,8 @@ def arc4_tuple_index(
         index=index,
         source_location=source_location,
     )
-    if item_ir_type != EncodedType(item_encoding):
+    # TODO: use ValueDecode
+    if not type_has_encoding(item_ir_type, item_encoding):
         factory = OpFactory(context, source_location)
         encoded = factory.assign(result, "encoded")
         result = decode_arc4_value(context, encoded, item_encoding, item_ir_type, source_location)
@@ -957,7 +962,8 @@ def _extract_dynamic_element_count_head_and_tail(
         element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
             element_wtype, source_location
         )
-        if element_ir_type != EncodedType(element_encoding):
+        # TODO: use ValueEncode
+        if not type_has_encoding(element_ir_type, element_encoding):
             right_values = _encode_n_items_as_arc4_items(
                 context,
                 right_values,
@@ -1138,6 +1144,8 @@ def _decode_arc4_tuple_items(
 def _is_byte_length_header(encoding: Encoding) -> bool:
     if not isinstance(encoding, DynamicArrayEncoding) or not encoding.length_header:
         return False
+    if _bit_packed_bool(encoding):
+        return False
     return encoding.element.num_bytes == 1
 
 
@@ -1316,7 +1324,8 @@ def _arc4_replace_tuple_item(
         round_end_result=not _bit_packed_bool(element_encoding),
     )
 
-    if value_ir_type != EncodedType(element_encoding):
+    # TODO: use ValueEncode
+    if type_has_encoding(value_ir_type, element_encoding):
         value_vp = encode_value_provider(
             context,
             value,
@@ -1594,6 +1603,7 @@ def arc4_replace_array_item(
     base = context.visitor.visit_and_materialise_single(base_expr)
     element_encoding = array_encoding.element
 
+    # TODO: use ValueEncode
     if not type_has_encoding(element_ir_type, element_encoding):
         encoded_vp = encode_value_provider(
             context, value_vp, element_ir_type, element_encoding, source_location
@@ -1613,14 +1623,14 @@ def arc4_replace_array_item(
         )
         return factory.assign(invoke, "updated_value")
 
-    if _is_byte_length_header(array_encoding) and not _bit_packed_bool(element_encoding):
+    if _is_byte_length_header(element_encoding):
         if isinstance(array_encoding, FixedArrayEncoding):
             return updated_result(
                 "static_array_replace_byte_length_head", [base, value, index, array_encoding.size]
             )
         else:
             return updated_result("dynamic_array_replace_byte_length_head", [base, value, index])
-    elif array_encoding.element.is_dynamic:
+    elif element_encoding.is_dynamic:
         if isinstance(array_encoding, FixedArrayEncoding):
             return updated_result(
                 "static_array_replace_dynamic_element", [base, value, index, array_encoding.size]
@@ -1632,7 +1642,7 @@ def arc4_replace_array_item(
     _assert_index_in_bounds(context, index, array_length, source_location)
     assert element_encoding.num_bytes is not None, "expected static element"
 
-    if isinstance(element_encoding, BoolEncoding) and element_encoding.packable:
+    if _bit_packed_bool(element_encoding):
         element_num_bits = 1
     else:
         element_num_bits = element_encoding.num_bytes * 8
