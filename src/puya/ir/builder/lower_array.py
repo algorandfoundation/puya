@@ -11,12 +11,13 @@ from puya.ir import (
     models,
     models as ir,
 )
-from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4
-from puya.ir.builder._utils import OpFactory, assign_intrinsic_op
+from puya.ir.builder._utils import OpFactory
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
+    DynamicArrayEncoding,
     Encoding,
+    FixedArrayEncoding,
     IRType,
 )
 from puya.ir.visitor import IRTraverser
@@ -135,25 +136,17 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
         return array_contents
 
     @typing.override
-    def visit_array_length(self, length: ir.ArrayLength) -> ir.Register:
+    def visit_array_length(self, length: ir.ArrayLength) -> ir.Value:
+        factory = OpFactory(self, length.source_location)
+        array_encoding = length.array_encoding
         self.modified = True
-        bytes_len = assign_intrinsic_op(
-            self,
-            target="bytes_len",
-            op=AVMOp.len_,
-            args=[length.array],
-            source_location=length.source_location,
-        )
-        element_encoding = length.array_encoding.element
-        element_size = _get_element_size(element_encoding, length.source_location)
-        array_len = assign_intrinsic_op(
-            self,
-            target="array_len",
-            op=AVMOp.div_floor,
-            args=[bytes_len, element_size],
-            source_location=length.source_location,
-        )
-        return array_len
+        if isinstance(array_encoding, FixedArrayEncoding):
+            return factory.constant(array_encoding.size)
+        elif isinstance(array_encoding, DynamicArrayEncoding) and array_encoding.length_header:
+            return factory.extract_uint16(length.array, 0, "array_length")
+        assert isinstance(array_encoding, DynamicArrayEncoding), "expected dynamic array"
+        bytes_len = factory.len(length.array, "bytes_len")
+        return factory.div_floor(bytes_len, array_encoding.element.checked_num_bytes, "array_len")
 
     def _read_item(
         self,

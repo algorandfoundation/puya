@@ -14,6 +14,9 @@ from puya.ir.types_ import (
 )
 from puya.parse import SourceLocation
 
+# TODO: remove this
+# ruff: noqa: ARG002
+
 
 class ArrayBuilder(abc.ABC):
     # TODO: add slice abstraction here too?

@@ -565,34 +565,20 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
             length_header=True,
         )
 
-    def visit_tuple_type(self, wtype: wtypes.WTuple) -> Encoding:
-        return self._tuple_or_fixed_array(wtype)
-
-    def visit_arc4_tuple(self, wtype: wtypes.ARC4Tuple) -> Encoding:
-        return self._tuple_or_fixed_array(wtype)
-
-    def visit_arc4_struct(self, wtype: wtypes.ARC4Struct) -> Encoding:
-        return TupleEncoding(elements=[t.accept(self) for t in wtype.types])
-
-    def _tuple_or_fixed_array(
-        self, wtype: wtypes.WTuple | wtypes.ARC4Tuple | wtypes.ARC4Struct
-    ) -> Encoding:
-        try:
-            (homogenous_type,) = set(wtype.types)
-        except ValueError:
-            return TupleEncoding(elements=[t.accept(self) for t in wtype.types])
-        else:
-            # describe homogenous tuples as fixed arrays for consistency
-            return FixedArrayEncoding(
-                element=homogenous_type.accept(self),
-                size=len(wtype.types),
-            )
-
     def visit_arc4_static_array(self, wtype: wtypes.ARC4StaticArray) -> Encoding:
         return FixedArrayEncoding(
             element=wtype.element_type.accept(self),
             size=wtype.array_size,
         )
+
+    def visit_tuple_type(self, wtype: wtypes.WTuple) -> Encoding:
+        return TupleEncoding(elements=[t.accept(self) for t in wtype.types])
+
+    def visit_arc4_tuple(self, wtype: wtypes.ARC4Tuple) -> Encoding:
+        return TupleEncoding(elements=[t.accept(self) for t in wtype.types])
+
+    def visit_arc4_struct(self, wtype: wtypes.ARC4Struct) -> Encoding:
+        return TupleEncoding(elements=[t.accept(self) for t in wtype.types])
 
     def visit_enumeration_type(self, wtype: wtypes.WEnumeration) -> Encoding:
         self._unencodable(wtype)
@@ -613,16 +599,54 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
         raise InternalError(f"unencodable wtype: {wtype!s}")
 
 
-class IRTypeAndEncoding(typing.NamedTuple):
-    ir_type: IRType
-    encoding: Encoding
+def type_has_encoding(typ: IRType, encoding: Encoding) -> bool:
+    return isinstance(typ, EncodedType) and typ.encoding == encoding
 
 
-def wtype_to_ir_type_and_encoding(wtype: wtypes.WType, loc: SourceLocation) -> IRTypeAndEncoding:
-    return IRTypeAndEncoding(
-        ir_type=wtype_to_ir_type(wtype, source_location=loc, allow_aggregate=True),
-        encoding=wtype.accept(_WTypeToEncoding()),
-    )
+@typing.overload
+def wtype_to_ir_type_and_encoding(
+    wtype: wtypes.ARC4Array | wtypes.NativeArray, loc: SourceLocation
+) -> tuple[IRType, ArrayEncoding]: ...
+
+
+@typing.overload
+def wtype_to_ir_type_and_encoding(
+    wtype: wtypes.WTuple, loc: SourceLocation
+) -> tuple[AggregateIRType, TupleEncoding]: ...
+
+
+@typing.overload
+def wtype_to_ir_type_and_encoding(
+    wtype: wtypes.ARC4Tuple | wtypes.ARC4Struct, loc: SourceLocation
+) -> tuple[IRType, TupleEncoding]: ...
+
+
+@typing.overload
+def wtype_to_ir_type_and_encoding(
+    wtype: wtypes.WType, loc: SourceLocation
+) -> tuple[IRType, Encoding]: ...
+
+
+def wtype_to_ir_type_and_encoding(
+    wtype: wtypes.WType, loc: SourceLocation
+) -> tuple[IRType, Encoding]:
+    ir_type = wtype_to_ir_type(wtype, source_location=loc, allow_aggregate=True)
+    encoding = wtype.accept(_WTypeToEncoding())
+    return ir_type, encoding
+
+
+@typing.overload
+def wtype_to_encoding(wtype: wtypes.ARC4Array | wtypes.NativeArray) -> ArrayEncoding: ...
+
+
+@typing.overload
+def wtype_to_encoding(
+    wtype: wtypes.WTuple | wtypes.ARC4Tuple | wtypes.ARC4Struct,
+) -> TupleEncoding: ...
+
+
+@typing.overload
+def wtype_to_encoding(wtype: wtypes.WType) -> Encoding: ...
 
 
 def wtype_to_encoding(wtype: wtypes.WType) -> Encoding:
