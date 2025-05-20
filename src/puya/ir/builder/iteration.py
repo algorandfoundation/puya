@@ -6,7 +6,6 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import CodeError, InternalError
-from puya.ir.arc4_types import effective_array_encoding, wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, arrays
 from puya.ir.builder._tuple_util import build_tuple_registers, get_tuple_item_values
@@ -26,7 +25,12 @@ from puya.ir.models import (
     Value,
     ValueProvider,
 )
-from puya.ir.types_ import PrimitiveIRType
+from puya.ir.types_ import (
+    ArrayEncoding,
+    PrimitiveIRType,
+    wtype_to_encoding,
+    wtype_to_ir_type_and_encoding,
+)
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
 
@@ -180,31 +184,15 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_index=reverse_index,
                 reverse_items=reverse_items,
             )
-        case wtypes.ARC4Array() as arc4_array_wtype:
+        case (wtypes.ARC4Array() | wtypes.StackArray()) as array_wtype:
+            array_encoding = wtype_to_encoding(array_wtype)
+            element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
+                array_wtype.element_type, statement.source_location
+            )
+            assert isinstance(array_encoding, ArrayEncoding), "expected array encoding"
             iterator = arc4.build_for_in_array(
                 context,
-                arc4_array_wtype,
-                sequence,
-                statement.source_location,
-            )
-            _iterate_indexable(
-                context,
-                loop_body=statement.loop_body,
-                indexable_size=iterator.array_length,
-                get_value_at_index=iterator.get_value_at_index,
-                assigner=assign_user_loop_vars,
-                statement_loc=statement.source_location,
-                reverse_index=reverse_index,
-                reverse_items=reverse_items,
-            )
-        case wtypes.StackArray(element_type=element_type) as array_wtype:
-            arc4_encoding_wtype = effective_array_encoding(array_wtype, sequence.source_location)
-            arc4_element_type = wtype_to_arc4_wtype(
-                arc4_encoding_wtype.element_type, sequence.source_location
-            )
-            iterator = arc4.build_for_in_array(
-                context,
-                arc4_encoding_wtype,
+                array_encoding,
                 sequence,
                 statement.source_location,
             )
@@ -214,8 +202,8 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 return arc4.maybe_decode_arc4_value_provider(
                     context,
                     item_vp,
-                    arc4_element_type,
-                    element_type,
+                    element_encoding,
+                    element_ir_type,
                     statement.source_location,
                     temp_description="value_at_index",
                 )
