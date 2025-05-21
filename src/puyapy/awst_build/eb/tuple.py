@@ -132,6 +132,7 @@ class NamedTupleTypeBuilder(TypeBuilder[pytypes.NamedTupleType]):
         if any_missing:
             return dummy_value(pytype, location)
 
+        # TODO: need to evaluate values args in field_mapping order
         values = [
             expect.argument_of_type_else_dummy(field_mapping[field_name], field_type).resolve()
             for field_name, field_type in pytype.fields.items()
