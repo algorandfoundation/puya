@@ -1050,22 +1050,11 @@ def dynamic_array_concat_and_convert(
     of the array
     """
     factory = OpFactory(context, source_location)
-
-    # check right is a valid type to concat
-    right_element_wtype = _get_iterable_element_wtype(iter_expr, source_location)
-    right_element_ir_type, right_element_encoding = wtype_to_ir_type_and_encoding(
-        right_element_wtype, source_location
-    )
     element_encoding = array_encoding.element
 
-    if element_encoding == right_element_encoding:
-        # encodings are compatible
-        pass
-    elif _bit_packed_bool(element_encoding) and isinstance(right_element_encoding, BoolEncoding):
-        # bit packed bools can handle non bit packed bools
-        pass
-    else:
-        raise CodeError("unsupported element type for concatenation", iter_expr.source_location)
+    right_element_ir_type, right_element_encoding = _get_iterable_element_type_and_encoding(
+        iter_expr.wtype, array_encoding, source_location
+    )
 
     if not element_encoding.is_dynamic and not _bit_packed_bool(element_encoding):
         # TODO: ir.ArrayConcat
@@ -1141,7 +1130,6 @@ def _extract_dynamic_element_count_head_and_tail(
     iter_expr: awst_nodes.Expression,
     source_location: SourceLocation,
 ) -> tuple[ValueProvider, ValueProvider]:
-    element_encoding = array_encoding.element
     iter_wtype = iter_expr.wtype
     if isinstance(iter_wtype, wtypes.ARC4Array | wtypes.StackArray):
         right = context.visitor.visit_and_materialise_single(iter_expr)
@@ -1150,9 +1138,8 @@ def _extract_dynamic_element_count_head_and_tail(
     elif isinstance(iter_wtype, wtypes.WTuple):
         r_count_vp = UInt64Constant(value=len(iter_wtype.types), source_location=source_location)
         right_values = context.visitor.visit_and_materialise(iter_expr)
-        element_wtype = _get_iterable_element_wtype(iter_expr, source_location)
-        element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
-            element_wtype, source_location
+        element_ir_type, element_encoding = _get_iterable_element_type_and_encoding(
+            iter_wtype, array_encoding, source_location
         )
         # TODO: use ValueEncode
         if not type_has_encoding(element_ir_type, element_encoding):
@@ -1178,22 +1165,35 @@ def _extract_dynamic_element_count_head_and_tail(
     return r_count_vp, r_head_and_tail_vp
 
 
-def _get_iterable_element_wtype(
-    expr: awst_nodes.Expression,
+def _get_iterable_element_type_and_encoding(
+    iter_wtype: wtypes.WType,
+    array_encoding: ArrayEncoding,
     loc: SourceLocation,
-) -> wtypes.WType:
-    iter_wtype = expr.wtype
-    if isinstance(iter_wtype, wtypes.ARC4Array):
-        return iter_wtype.element_type
+) -> tuple[IRType, Encoding]:
+    if isinstance(iter_wtype, wtypes.ARC4Array | wtypes.NativeArray):
+        element_wtype = iter_wtype.element_type
+        element_ir_type = wtype_to_ir_type(element_wtype, loc, allow_aggregate=True)
+        # note: need to use iter wtype to determine encoding,
+        # as the aggregate type affects the encoding
+        element_encoding = wtype_to_encoding(iter_wtype).element
     elif isinstance(iter_wtype, wtypes.ARC4Tuple | wtypes.WTuple):
-        element_type, *other_arc4 = set(iter_wtype.types)
+        element_wtype, *other_arc4 = set(iter_wtype.types)
         if other_arc4:
             raise CodeError("only homogenous tuples can be iterated", loc)
-        return element_type
-    elif isinstance(iter_wtype, wtypes.NativeArray):
-        return iter_wtype.element_type
+        element_ir_type = wtype_to_ir_type(element_wtype, loc, allow_aggregate=True)
+        element_encoding = wtype_to_encoding(element_wtype)
     else:
         raise CodeError("unsupported type for iteration", loc)
+
+    if array_encoding.element == element_encoding:
+        # encodings are compatible
+        pass
+    elif _bit_packed_bool(array_encoding.element) and isinstance(element_encoding, BoolEncoding):
+        # bit packed bools can handle non bit packed bools
+        pass
+    else:
+        raise CodeError("unsupported element type for concatenation", loc)
+    return element_ir_type, element_encoding
 
 
 def _encode_n_items_as_arc4_items(
@@ -1242,8 +1242,8 @@ def pop_arc4_array(
     source_location = expr.source_location
 
     base = context.visitor.visit_and_materialise_single(expr.base)
-    element_encoding = wtype_to_encoding(array_wtype.element_type)
-    popped, data = invoke_arc4_array_pop(context, element_encoding, base, source_location)
+    array_encoding = wtype_to_encoding(array_wtype)
+    popped, data = invoke_arc4_array_pop(context, array_encoding, base, source_location)
     handle_arc4_assign(
         context,
         target=expr.base,
@@ -1257,10 +1257,11 @@ def pop_arc4_array(
 
 def invoke_arc4_array_pop(
     context: IRFunctionBuildContext,
-    element_encoding: Encoding,
+    array_encoding: DynamicArrayEncoding,
     base: Value,
     source_location: SourceLocation,
 ) -> tuple[Value, Value]:
+    element_encoding = array_encoding.element
     args: list[Value | int | bytes] = [base]
     if _bit_packed_bool(element_encoding):
         method_name = "dynamic_array_pop_bit"

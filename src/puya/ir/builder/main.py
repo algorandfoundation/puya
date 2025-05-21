@@ -796,12 +796,10 @@ class FunctionIRBuilder(
                     expr.source_location,
                 )
             array = self.context.visitor.visit_and_materialise_single(expr.base)
-            element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
-                sliceable_type.element_type, loc
-            )
+            array_encoding = wtype_to_encoding(sliceable_type)
             _, data = arc4.invoke_arc4_array_pop(
                 self.context,
-                element_encoding,
+                array_encoding,
                 array,
                 loc,
             )
