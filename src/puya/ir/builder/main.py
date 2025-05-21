@@ -69,6 +69,7 @@ from puya.ir.models import (
     WriteSlot,
 )
 from puya.ir.types_ import (
+    AggregateIRType,
     ArrayEncoding,
     AVMBytesEncoding,
     EncodedType,
@@ -761,7 +762,9 @@ class FunctionIRBuilder(
                 expr.base.wtype, expr.source_location
             )
             assert isinstance(tuple_encoding, TupleEncoding), "expected tuple encoding"
-            item_ir_type = wtype_to_ir_type(expr.base.wtype.types[index], expr.source_location)
+            item_ir_type = wtype_to_ir_type(
+                expr.base.wtype.types[index], expr.source_location, allow_aggregate=True
+            )
             return arc4.arc4_tuple_index(
                 self.context,
                 base=base,
@@ -1006,7 +1009,7 @@ class FunctionIRBuilder(
                 array_contents = arrays.get_array_encoded_items(
                     self.context,
                     awst_nodes.TupleExpression.from_items(expr.values, expr.source_location),
-                    array_encoding=array_encoding,
+                    element_encoding=array_encoding.element,
                 )
             else:
                 array_contents = factory.constant(b"", ir_type=array_type)
@@ -1312,13 +1315,14 @@ class FunctionIRBuilder(
             for field_name in expr.wtype.fields
             for element in self.context.visitor.visit_and_materialise(expr.values[field_name])
         ]
-        encoding = wtype_to_encoding(expr.wtype)
-        ir_types = [
-            wtype_to_ir_type(t, allow_aggregate=True, source_location=loc)
-            for t in expr.wtype.types
-        ]
-        return arc4.encode_arc4_struct(
-            self.context, elements, encoding, ir_types, expr.source_location
+
+        struct_value_provider = ValueTuple(values=elements, source_location=loc)
+        struct_encoding = wtype_to_encoding(expr.wtype)
+        struct_ir_type = AggregateIRType(
+            elements=[wtype_to_ir_type_and_encoding(t, loc)[0] for t in expr.wtype.fields.values()]
+        )
+        return arc4.encode_value_provider(
+            self.context, struct_value_provider, struct_ir_type, struct_encoding, loc
         )
 
     def visit_array_pop(self, expr: awst_nodes.ArrayPop) -> TExpression:
@@ -1403,7 +1407,9 @@ class FunctionIRBuilder(
             assert isinstance(array_type, EncodedType)
             array_encoding = wtype_to_encoding(expr.base.wtype)
             assert array_encoding == array_type.encoding, "expected encodings to match"
-            values = arrays.get_array_encoded_items(self.context, expr.other, array_encoding)
+            values = arrays.get_array_encoded_items(
+                self.context, expr.other, array_encoding.element
+            )
             array_contents = mem.read_slot(self.context, array_slot, expr.source_location)
             array_contents = arrays.concat_arrays(
                 self.context, array_contents, values, expr.source_location

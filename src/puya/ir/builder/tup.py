@@ -14,11 +14,11 @@ from puya.parse import SourceLocation
 class TupleBuilder(abc.ABC):
     @abc.abstractmethod
     def read_at_index(self, tup: ir.ValueProvider, index: int) -> ir.ValueProvider:
-        """Reads the value from the specified index"""
+        """Reads the value from the specified index and performs any decoding required"""
 
     @abc.abstractmethod
     def write_at_index(self, tup: ir.ValueProvider, index: int, value: ir.ValueProvider) -> None:
-        """Writes value to the specified index"""
+        """Encodes the value and writes to the specified index"""
 
 
 class StackTupleBuilder(TupleBuilder):
