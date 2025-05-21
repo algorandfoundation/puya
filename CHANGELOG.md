@@ -6,6 +6,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v4.9.0'></a>
+## v4.9.0 (2025-05-21)
+
+### Added
+
+- new `algopy.BoxMap.box()` function for getting a `algopy.Box` from an `algopy.BoxMap` with a key
+- new `algopy.Box.ref` property for getting a `algopy.BoxRef` from an `algopy.Box`
+
+### Changed
+
+- Global, Local and Box storage will now optimize repeated reads or unobserved writes
+
+- The optimiser will now catch more cases where the length of a bytes array can be statically determined.
+- Byes comparison optimisations now work for non-BigUInt types.
+
+### Fixed
+
+- Ensure unobserved write optimizations don't occur across subroutine boundaries
+- Fix critical error when an `algopy.Array` is returned from a function
+
+- The optimiser will no longer assume inputs such as transaction arguments or values from storage have the length indicated by their type.
+
 <a id='changelog-v4.8.1'></a>
 ## v4.8.1 (2025-05-08)
 
