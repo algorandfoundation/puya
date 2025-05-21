@@ -109,7 +109,7 @@ class ARC4Codec(abc.ABC):
     ) -> ValueProvider | None: ...
 
 
-class NativeFixedTupleCodec(ARC4Codec):
+class NewNativeTupleCodec(ARC4Codec):
     def __init__(self, native_type: AggregateIRType):
         self.native_type = native_type
         self.homogenous = len(set(self.native_type.elements)) == 1
@@ -122,8 +122,6 @@ class NativeFixedTupleCodec(ARC4Codec):
         encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        if encoding.is_dynamic:
-            raise InternalError("expected fixed size tuple encoding", loc)
         native_elements = self.native_type.elements
         match encoding:
             case TupleEncoding(elements=element_encodings) if len(element_encodings) == len(
@@ -134,15 +132,19 @@ class NativeFixedTupleCodec(ARC4Codec):
                 native_elements
             ):
                 element_encodings = [element_encoding] * size
-            # TODO: consider other array encodings
+            case DynamicArrayEncoding(element=element_encoding):
+                element_encodings = [element_encoding] * len(native_elements)
             case _:
                 return None
         factory = OpFactory(context, loc)
         bit_packed_index = 0
-        encoded_length = 0
+        current_head_offset = 0
         values = list(factory.materialise_values(value_provider, "to_encode"))
         encoded = factory.constant(b"")
+        tail = factory.constant(b"")
         processed_encodings = list[Encoding]()
+        header_size = _get_arc4_tuple_head_size(element_encodings, round_end_result=True)
+        current_tail_offset = factory.constant(header_size // 8)
         for native_element, element_encoding in zip(
             native_elements, element_encodings, strict=True
         ):
@@ -163,7 +165,7 @@ class NativeFixedTupleCodec(ARC4Codec):
                     bit_packed_index += 1
                     bit_index = bit_packed_index % 8
                     if bit_index:
-                        bit_index += (encoded_length - 1) * 8
+                        bit_index += (current_head_offset - 1) * 8
                     bytes_to_set = encoded if bit_index else ARC4_FALSE
                     value = factory.set_bit(value=bytes_to_set, index=bit_index, bit=value)
                     # if bit_index is not 0, then just update encoded and continue
@@ -192,7 +194,21 @@ class NativeFixedTupleCodec(ARC4Codec):
                     context, element_value_or_tuple, native_element, element_encoding, loc
                 )
                 value = factory.materialise_single(encoded_element_vp, "encoded_sub_item")
-            encoded_length += element_encoding.checked_num_bytes
+                if element_encoding.is_dynamic:
+                    # append value to tail
+                    tail = factory.concat(tail, value, "tail")
+
+                    # update offset
+                    data_length = factory.len(value, "data_length")
+                    new_current_tail_offset = factory.add(
+                        current_tail_offset, data_length, "current_tail_offset"
+                    )
+                    # value is tail offset
+                    value = factory.as_u16_bytes(current_tail_offset, "offset_as_uint16")
+                    current_tail_offset = new_current_tail_offset
+                    current_head_offset += 2
+            if not element_encoding.is_dynamic:
+                current_head_offset += element_encoding.checked_num_bytes
             processed_encodings.append(element_encoding)
             encoded_ir_type = EncodedType(TupleEncoding(processed_encodings))
             encoded = factory.concat(encoded, value, "encoded", ir_type=encoded_ir_type)
@@ -202,6 +218,10 @@ class NativeFixedTupleCodec(ARC4Codec):
                 f" {len(values)=}, {self.native_type=}, {encoding=}",
                 loc,
             )
+        encoded = factory.concat(encoded, tail, "encoded")
+        if isinstance(encoding, DynamicArrayEncoding) and encoding.length_header:
+            len_u16 = factory.as_u16_bytes(len(native_elements), "len_u16")
+            encoded = factory.concat(len_u16, encoded, "encoded", ir_type=EncodedType(encoding))
         return encoded
 
     @typing.override
@@ -212,8 +232,6 @@ class NativeFixedTupleCodec(ARC4Codec):
         encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        if encoding.is_dynamic:
-            raise InternalError("expected fixed size tuple encoding", loc)
         item_types = self.native_type.elements
         match encoding:
             case TupleEncoding(elements=elements) if len(elements) == len(item_types):
@@ -256,7 +274,7 @@ class NativeFixedTupleCodec(ARC4Codec):
         """
 
 
-class NativeDynamicTupleCodec(ARC4Codec):
+class NativeTupleCodec(ARC4Codec):
     def __init__(self, native_type: AggregateIRType):
         self.native_type = native_type
         self.homogenous = len(set(self.native_type.elements)) == 1
@@ -272,16 +290,21 @@ class NativeDynamicTupleCodec(ARC4Codec):
         if not encoding.is_dynamic:
             raise InternalError("expected dynamic tuple encoding", loc)
         factory = OpFactory(context, loc)
-        values = factory.materialise_values(value_provider, description="elements_to_encode")
         item_types = self.native_type.elements
         match encoding:
             case TupleEncoding(elements=elements) if len(elements) == len(item_types):
+                values = factory.materialise_values(
+                    value_provider, description="elements_to_encode"
+                )
                 items: Sequence[Value] = _encode_arc4_tuple_items(
                     context, values, item_types, encoding, loc
                 )
                 return _encode_arc4_values_as_tuple(context, items, encoding, loc)
             case ArrayEncoding(element=element_encoding) as array_encoding if self.homogenous:
                 element_ir_type = item_types[0]
+                values = factory.materialise_values(
+                    value_provider, description="elements_to_encode"
+                )
                 if type_has_encoding(element_ir_type, element_encoding):
                     items = values
                 else:
@@ -595,13 +618,10 @@ def _is_known_alias(wtype: wtypes.ARC4Type, *, expected: wtypes.ARC4Type) -> boo
     return wtype == expected and wtype.arc4_alias == expected.arc4_alias
 
 
-def _get_arc4_codec(ir_type: IRType, encoding: Encoding) -> ARC4Codec | None:
+def _get_arc4_codec(ir_type: IRType) -> ARC4Codec | None:
     match ir_type:
         case AggregateIRType() as aggregate:
-            if encoding.is_dynamic:
-                return NativeDynamicTupleCodec(aggregate)
-            else:
-                return NativeFixedTupleCodec(aggregate)
+            return NewNativeTupleCodec(aggregate)
         case PrimitiveIRType.biguint:
             return BigUIntCodec()
         case PrimitiveIRType.bool:
@@ -635,7 +655,7 @@ def decode_arc4_value(
             f"TODO: ignoring bool packing for {target_type=!s}, {encoding=!s}", location=loc
         )
         return value
-    codec = _get_arc4_codec(target_type, encoding)
+    codec = _get_arc4_codec(target_type)
     if codec is not None:
         result = codec.decode(context, value, encoding, loc)
         if result is not None:
@@ -665,7 +685,7 @@ def encode_value_provider(
             f"TODO: ignoring bool packing for {value_type=!s}, {encoding=!s}", location=loc
         )
         return value_provider
-    codec = _get_arc4_codec(value_type, encoding)
+    codec = _get_arc4_codec(value_type)
 
     if codec is not None:
         result = codec.encode(context, value_provider, encoding, loc)
