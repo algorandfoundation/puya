@@ -293,69 +293,6 @@ class NewNativeTupleCodec(ARC4Codec):
         """
 
 
-class NativeTupleCodec(ARC4Codec):
-    def __init__(self, native_type: AggregateIRType):
-        self.native_type = native_type
-        self.homogenous = len(set(self.native_type.elements)) == 1
-
-    @typing.override
-    def encode(
-        self,
-        context: IRRegisterContext,
-        value_provider: ValueProvider,
-        encoding: Encoding,
-        loc: SourceLocation,
-    ) -> ValueProvider | None:
-        if not encoding.is_dynamic:
-            raise InternalError("expected dynamic tuple encoding", loc)
-        factory = OpFactory(context, loc)
-        item_types = self.native_type.elements
-        match encoding:
-            case TupleEncoding(elements=elements) if len(elements) == len(item_types):
-                values = factory.materialise_values(
-                    value_provider, description="elements_to_encode"
-                )
-                items: Sequence[Value] = _encode_arc4_tuple_items(
-                    context, values, item_types, encoding, loc
-                )
-                return _encode_arc4_values_as_tuple(context, items, encoding, loc)
-            case ArrayEncoding(element=element_encoding) as array_encoding if self.homogenous:
-                element_ir_type = item_types[0]
-                values = factory.materialise_values(
-                    value_provider, description="elements_to_encode"
-                )
-                if type_has_encoding(element_ir_type, element_encoding):
-                    items = values
-                else:
-                    items = _encode_n_items_as_arc4_items(
-                        context, values, element_ir_type, element_encoding, loc
-                    )
-                # this will check the number of elements if the array is fixed
-                return _encode_arc4_values_as_array(context, array_encoding, items, loc)
-            case _:
-                return None
-
-    @typing.override
-    def decode(
-        self,
-        context: IRRegisterContext,
-        value: Value,
-        encoding: Encoding,
-        loc: SourceLocation,
-    ) -> ValueProvider | None:
-        if not encoding.is_dynamic:
-            raise InternalError("expected dynamic tuple encoding", loc)
-        item_types = self.native_type.elements
-        match encoding:
-            case TupleEncoding(elements=elements) if len(elements) == len(item_types):
-                pass
-            case _:
-                return None
-        return _decode_arc4_tuple_items(
-            context, encoding, value, target_type=self.native_type, source_location=loc
-        )
-
-
 class ScalarCodec(ARC4Codec, abc.ABC):
     @typing.override
     @typing.final
