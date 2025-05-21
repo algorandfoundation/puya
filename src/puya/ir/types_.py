@@ -594,6 +594,18 @@ def type_has_encoding(
 
 @typing.overload
 def wtype_to_ir_type_and_encoding(
+    wtype: wtypes.ARC4DynamicArray | wtypes.NativeArray, loc: SourceLocation
+) -> tuple[IRType, DynamicArrayEncoding]: ...
+
+
+@typing.overload
+def wtype_to_ir_type_and_encoding(
+    wtype: wtypes.ARC4StaticArray, loc: SourceLocation
+) -> tuple[IRType, FixedArrayEncoding]: ...
+
+
+@typing.overload
+def wtype_to_ir_type_and_encoding(
     wtype: wtypes.ARC4Array | wtypes.NativeArray, loc: SourceLocation
 ) -> tuple[IRType, ArrayEncoding]: ...
 
@@ -622,6 +634,16 @@ def wtype_to_ir_type_and_encoding(
     ir_type = wtype_to_ir_type(wtype, source_location=loc, allow_aggregate=True)
     encoding = wtype.accept(_WTypeToEncoding())
     return ir_type, encoding
+
+
+@typing.overload
+def wtype_to_encoding(
+    wtype: wtypes.ARC4DynamicArray | wtypes.NativeArray,
+) -> DynamicArrayEncoding: ...
+
+
+@typing.overload
+def wtype_to_encoding(wtype: wtypes.ARC4StaticArray) -> FixedArrayEncoding: ...
 
 
 @typing.overload
