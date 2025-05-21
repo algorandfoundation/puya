@@ -193,7 +193,7 @@ class OpFactory:
     context: IRRegisterContext
     source_location: SourceLocation | None
 
-    def add(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+    def add(self, a: Value, b: Value | int, temp_desc: str = "add") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -203,7 +203,7 @@ class OpFactory:
         )
         return result
 
-    def sub(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+    def sub(self, a: Value, b: Value | int, temp_desc: str = "sub") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -213,7 +213,7 @@ class OpFactory:
         )
         return result
 
-    def mul(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+    def mul(self, a: Value, b: Value | int, temp_desc: str = "mul") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -223,7 +223,7 @@ class OpFactory:
         )
         return result
 
-    def div_floor(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+    def div_floor(self, a: Value, b: Value | int, temp_desc: str = "div_floor") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -233,7 +233,7 @@ class OpFactory:
         )
         return result
 
-    def len(self, value: Value, temp_desc: str) -> Register:
+    def len(self, value: Value, temp_desc: str = "len") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -243,7 +243,7 @@ class OpFactory:
         )
         return result
 
-    def bitlen(self, value: Value, temp_desc: str) -> Register:
+    def bitlen(self, value: Value, temp_desc: str = "bitlen") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -253,7 +253,7 @@ class OpFactory:
         )
         return result
 
-    def btoi(self, value: Value, temp_desc: str) -> Register:
+    def btoi(self, value: Value, temp_desc: str = "btoi") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -263,7 +263,7 @@ class OpFactory:
         )
         return result
 
-    def eq(self, a: Value | int, b: Value | int, temp_desc: str) -> Register:
+    def eq(self, a: Value | int, b: Value | int, temp_desc: str = "eq") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -273,7 +273,7 @@ class OpFactory:
         )
         return result
 
-    def lte(self, a: Value | int, b: Value | int, temp_desc: str) -> Register:
+    def lte(self, a: Value | int, b: Value | int, temp_desc: str = "lte") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -289,7 +289,7 @@ class OpFactory:
         false: Value | int | bytes,
         true: Value | int | bytes,
         condition: Value,
-        temp_desc: str,
+        temp_desc: str = "select",
         ir_type: IRType,
     ) -> Register:
         result = assign_intrinsic_op(
@@ -302,7 +302,9 @@ class OpFactory:
         )
         return result
 
-    def extract_uint8(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+    def extract_uint8(
+        self, a: Value, b: Value | int, temp_desc: str = "extract_uint8"
+    ) -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -312,7 +314,9 @@ class OpFactory:
         )
         return result
 
-    def extract_uint16(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+    def extract_uint16(
+        self, a: Value, b: Value | int, temp_desc: str = "extract_uint16"
+    ) -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -322,7 +326,9 @@ class OpFactory:
         )
         return result
 
-    def extract_uint64(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+    def extract_uint64(
+        self, a: Value, b: Value | int, temp_desc: str = "extract_uint64"
+    ) -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -332,7 +338,7 @@ class OpFactory:
         )
         return result
 
-    def itob(self, value: Value | int, temp_desc: str) -> Register:
+    def itob(self, value: Value | int, temp_desc: str = "itob") -> Register:
         itob = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -343,7 +349,12 @@ class OpFactory:
         return itob
 
     def to_fixed_size(
-        self, value: Value, *, num_bytes: int, temp_desc: str, error_message: str | None = None
+        self,
+        value: Value,
+        *,
+        num_bytes: int,
+        temp_desc: str = "to_fixed_size",
+        error_message: str | None = None,
     ) -> Register:
         assert value.atype == AVMType.bytes, "function expects a bytes-backed value to convert"
         # note this excludes values that are valid when interpreted as big-endian values but may
@@ -359,7 +370,7 @@ class OpFactory:
         )
         return self._unsafe_pad_bytes(value, num_bytes=num_bytes, temp_desc=temp_desc)
 
-    def pad_bytes(self, value: Value, *, num_bytes: int, temp_desc: str) -> Register:
+    def pad_bytes(self, value: Value, *, num_bytes: int, temp_desc: str = "pad_bytes") -> Register:
         assert isinstance(value.ir_type, SizedBytesType) and value.ir_type.num_bytes <= num_bytes
         return self._unsafe_pad_bytes(value, num_bytes=num_bytes, temp_desc=temp_desc)
 
@@ -382,7 +393,7 @@ class OpFactory:
             source_location=self.source_location,
         )
 
-    def as_u16_bytes(self, a: Value | int, temp_desc: str) -> Register:
+    def as_u16_bytes(self, a: Value | int, temp_desc: str = "as_u16_bytes") -> Register:
         as_bytes = self.itob(a, "as_bytes")
         result = assign_intrinsic_op(
             self.context,
@@ -398,7 +409,7 @@ class OpFactory:
         self,
         a: Value | bytes,
         b: Value | bytes,
-        temp_desc: str,
+        temp_desc: str = "concat",
         *,
         ir_type: IRType | None = None,
         error_message: str | None = None,
@@ -430,7 +441,12 @@ class OpFactory:
             )
 
     def set_bit(
-        self, *, value: Value | bytes, index: Value | int, bit: Value | int, temp_desc: str
+        self,
+        *,
+        value: Value | bytes,
+        index: Value | int,
+        bit: Value | int,
+        temp_desc: str = "set_bit",
     ) -> Register:
         result = assign_intrinsic_op(
             self.context,
@@ -442,7 +458,7 @@ class OpFactory:
         )
         return result
 
-    def get_bit(self, value: Value, index: Value | int, temp_desc: str) -> Register:
+    def get_bit(self, value: Value, index: Value | int, temp_desc: str = "get_bit") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -453,7 +469,12 @@ class OpFactory:
         return result
 
     def extract_to_end(
-        self, value: Value, start: int | Value, temp_desc: str, *, ir_type: IRType | None = None
+        self,
+        value: Value,
+        start: int | Value,
+        temp_desc: str = "extract_to_end",
+        *,
+        ir_type: IRType | None = None,
     ) -> Register:
         if isinstance(start, int) and start <= 255:
             pass
@@ -478,7 +499,7 @@ class OpFactory:
         value: Value | bytes,
         start: Value | int,
         end_ex: Value | int,
-        temp_desc: str,
+        temp_desc: str = "substring3",
     ) -> Register:
         result = assign_intrinsic_op(
             self.context,
@@ -494,7 +515,7 @@ class OpFactory:
         value: Value | bytes,
         index: Value | int,
         replacement: Value | bytes,
-        temp_desc: str,
+        temp_desc: str = "replace",
     ) -> Register:
         result = assign_intrinsic_op(
             self.context,
@@ -510,7 +531,7 @@ class OpFactory:
         value: Value | bytes,
         index: Value | int,
         length: Value | int,
-        temp_desc: str,
+        temp_desc: str = "extract",
     ) -> Register:
         result = assign_intrinsic_op(
             self.context,
@@ -522,7 +543,7 @@ class OpFactory:
         return result
 
     def materialise_value_or_tuple(
-        self, value_provider: ValueProvider, description: str
+        self, value_provider: ValueProvider, description: str = "tmp"
     ) -> Value | ValueTuple:
         if isinstance(value_provider, Value | ValueTuple):
             return value_provider
@@ -532,7 +553,7 @@ class OpFactory:
         else:
             return ValueTuple(values=values, source_location=self.source_location)
 
-    def materialise_single(self, value_provider: ValueProvider, description: str) -> Value:
+    def materialise_single(self, value_provider: ValueProvider, description: str = "tmp") -> Value:
         (single,) = self.materialise_values(value_provider, description)
         return single
 
@@ -540,7 +561,7 @@ class OpFactory:
         return [self.materialise_single(value, desc) for desc, value in values.items()]
 
     def materialise_values(
-        self, value_provider: ValueProvider, description: str
+        self, value_provider: ValueProvider, description: str = "tmp"
     ) -> Sequence[Value]:
         if isinstance(value_provider, Value):
             return [value_provider]

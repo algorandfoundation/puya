@@ -18,6 +18,7 @@ from puya.ir.types_ import (
     AggregateIRType,
     ArrayEncoding,
     AVMBytesEncoding,
+    DynamicArrayEncoding,
     EncodedType,
     Encoding,
     FixedArrayEncoding,
@@ -498,23 +499,41 @@ class ArrayConcat(_ArrayOp):
     """Concats two array values"""
 
     other: Value = attrs.field()
+    other_encoding: Encoding = attrs.field(init=False)
 
     def _frozen_data(self) -> object:
         return self.array, self.other
 
-    @other.validator
-    def _other_validator(self, _attr: object, other: Value) -> None:
-        if (
-            type_has_encoding(other.ir_type, self.array_encoding)
-            or type_has_encoding(other.ir_type, self.array_encoding.element)
-            # TODO: can this be checked properly?
-            or other.ir_type.maybe_avm_type == AVMType.bytes
+    @other_encoding.default
+    def _other_encoding_factory(self) -> Encoding:
+        element_encoding = self.array_encoding.element
+        other_ir_type = self.other.ir_type
+        if isinstance(other_ir_type, EncodedType):
+            other_encoding = other_ir_type.encoding
+            if (
+                other_encoding == element_encoding  # append
+                or (
+                    isinstance(other_encoding, ArrayEncoding)
+                    and other_encoding.element == element_encoding
+                )  # extend with an array
+                or (
+                    isinstance(other_encoding, TupleEncoding)
+                    and set(other_encoding.elements) == {element_encoding}
+                )  # extend with a tuple
+            ):
+                return other_encoding
+        elif (
+            not element_encoding.is_dynamic
+            and isinstance(other_ir_type, SizedBytesType)
+            and (other_ir_type.num_bytes % element_encoding.checked_num_bytes == 0)
         ):
-            pass
-        else:
-            raise InternalError(
-                f"expected compatible ir types, {self.array.ir_type=} != {other.ir_type=}"
-            )
+            return DynamicArrayEncoding(element=element_encoding, length_header=False)
+        elif other_ir_type == PrimitiveIRType.bytes:
+            # if untyped then assume it is an unprefixed array
+            return DynamicArrayEncoding(element=element_encoding, length_header=False)
+        raise InternalError(
+            f"expected compatible ir types, {self.array_encoding=} can not concat {other_ir_type=}"
+        )
 
     @property
     def types(self) -> Sequence[IRType]:
