@@ -1308,6 +1308,10 @@ class FunctionIRBuilder(
 
     def visit_new_struct(self, expr: awst_nodes.NewStruct) -> TExpression:
         loc = expr.source_location
+        # ensure order of evaluation is correct
+        for value in expr.values.values():
+            self.context.visitor.visit_and_materialise(value)
+        # construct elements in correct layout
         elements = [
             element
             for field_name in expr.wtype.fields

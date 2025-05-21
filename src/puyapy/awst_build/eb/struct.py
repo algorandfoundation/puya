@@ -58,9 +58,9 @@ class StructTypeBuilder(TypeBuilder[pytypes.StructType]):
 
         values = {
             field_name: expect.argument_of_type_else_dummy(
-                field_mapping[field_name], field_type
+                field_mapping[field_name], pytype.fields[field_name]
             ).resolve()
-            for field_name, field_type in pytype.fields.items()
+            for field_name in field_mapping
         }
         assert isinstance(pytype.wtype, wtypes.ARC4Struct)
         expr = NewStruct(wtype=pytype.wtype, values=values, source_location=location)
