@@ -20,17 +20,18 @@ from puya.parse import SourceLocation
 
 class ArrayBuilder(abc.ABC):
     # TODO: add slice abstraction here too?
+
     @abc.abstractmethod
     def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.ValueProvider:
-        """Reads the value from the specified index"""
+        """Reads the value from the specified index and performs any decoding required"""
 
     @abc.abstractmethod
     def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.ValueProvider) -> None:
-        """Writes value to the specified index"""
+        """Encodes the value and writes to the specified index"""
 
     @abc.abstractmethod
     def length(self, array: ir.Value) -> ir.Value:
-        """Returns the number of elements in the aggregate"""
+        """Returns the number of elements in the array"""
 
 
 class BitPackedBoolArrayBuilder(ArrayBuilder):
@@ -94,11 +95,11 @@ def get_array_builder(
     array_ir_type, array_encoding = wtype_to_ir_type_and_encoding(array_type, loc)
     assert isinstance(array_encoding, ArrayEncoding), "expected array encoding"
     match array_encoding:
-        case DynamicArrayEncoding(element=BoolEncoding(packable=True), length_header=True):
+        case DynamicArrayEncoding(element=BoolEncoding(packed=True), length_header=True):
             return BitPackedBoolArrayBuilder(None, element_ir_type)
-        case FixedArrayEncoding(element=BoolEncoding(packable=True), size=array_size):
+        case FixedArrayEncoding(element=BoolEncoding(packed=True), size=array_size):
             return BitPackedBoolArrayBuilder(array_size, element_ir_type)
-        case ArrayEncoding(element=BoolEncoding(packable=True)):
+        case ArrayEncoding(element=BoolEncoding(packed=True)):
             # unsupported
             return None
         case ArrayEncoding(element=element) if element.is_dynamic:
@@ -167,9 +168,7 @@ def get_dynamic_array_builder(
     array_ir_type, array_encoding = wtype_to_ir_type_and_encoding(array_type, loc)
     assert isinstance(array_encoding, DynamicArrayEncoding), "expected dynamic array encoding"
     match array_encoding:
-        case DynamicArrayEncoding(
-            element=BoolEncoding(packable=True), length_header=length_header
-        ):
+        case DynamicArrayEncoding(element=BoolEncoding(packed=True), length_header=length_header):
             if length_header:
                 return BitPackedBoolDynamicArrayBuilder()
             else:
