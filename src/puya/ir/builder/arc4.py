@@ -157,16 +157,17 @@ class NewNativeTupleCodec(ARC4Codec):
             # and ARC-4 bools
             if _bit_packed_bool(element_encoding):
                 value = values.pop(0)
-                if type_has_encoding(native_element, BoolEncoding):
-                    value = factory.get_bit(value, 0)
-                elif value.atype != AVMType.uint64:
-                    raise InternalError(
-                        f"unexpected value for encoding bool,"
-                        f" {native_element=}, {element_encoding=}",
-                        loc,
-                    )
                 # sequential bits in the same tuple are bit-packed
                 if processed_encodings and processed_encodings[-1] == element_encoding:
+                    # ensure value is a bool
+                    if type_has_encoding(native_element, BoolEncoding):
+                        value = factory.get_bit(value, 0)
+                    elif value.atype != AVMType.uint64:
+                        raise InternalError(
+                            f"unexpected value for encoding bool,"
+                            f" {native_element=}, {element_encoding=}",
+                            loc,
+                        )
                     bit_packed_index += 1
                     bit_index = bit_packed_index % 8
                     if bit_index:
@@ -179,13 +180,26 @@ class NewNativeTupleCodec(ARC4Codec):
                         encoded = value
                         continue
                 else:
-                    value = factory.select(
-                        false=ARC4_FALSE,
-                        true=ARC4_TRUE,
-                        condition=value,
-                        ir_type=PrimitiveIRType.bytes,
-                        temp_desc="encoded_bit",
-                    )
+                    # value is already encoded, so do nothing
+                    if type_has_encoding(native_element, BoolEncoding):
+                        pass
+                    elif value.atype != AVMType.uint64:
+                        raise InternalError(
+                            f"unexpected value for encoding bool,"
+                            f" {native_element=}, {element_encoding=}",
+                            loc,
+                        )
+                    else:
+                        value = factory.set_bit(
+                            value=ARC4_FALSE, index=0, bit=value, temp_desc="encoded_bit"
+                        )
+                        # value = factory.select(
+                        #    false=ARC4_FALSE,
+                        #    true=ARC4_TRUE,
+                        #    condition=value,
+                        #    ir_type=PrimitiveIRType.bytes,
+                        #    temp_desc="encoded_bit",
+                        # )
                     bit_packed_index = 0
             else:
                 element_arity = get_type_arity(native_element)
