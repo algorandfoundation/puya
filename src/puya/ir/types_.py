@@ -140,7 +140,7 @@ class AggregateIRType(IRType):
     @property
     def name(self) -> str:
         inner = ",".join(e.name for e in self.elements)
-        return f"({inner})"
+        return f"({inner},)"
 
     @property
     def avm_type(self) -> AVMType:
@@ -165,13 +165,16 @@ class Encoding(abc.ABC):
     @abc.abstractmethod
     def name(self) -> str: ...
 
-    @property
-    @abc.abstractmethod
-    def layout(self) -> str: ...
+    @cached_property
+    def num_bytes(self) -> int | None:
+        bits = self.num_bits
+        if bits is None:
+            return None
+        return bits_to_bytes(bits)
 
     @property
     @abc.abstractmethod
-    def num_bytes(self) -> int | None: ...
+    def num_bits(self) -> int | None: ...
 
     @cached_property
     def is_dynamic(self) -> bool:
@@ -182,25 +185,36 @@ class Encoding(abc.ABC):
         assert self.num_bytes is not None, "expected statically sized type"
         return self.num_bytes
 
+    @cached_property
+    def checked_num_bits(self) -> int:
+        assert self.num_bits is not None, "expected statically sized type"
+        return self.num_bits
+
     def __str__(self) -> str:
         return self.name
 
 
 @attrs.frozen(str=False)
 class BoolEncoding(Encoding):
-    packable: bool
-    num_bytes: int = attrs.field(default=1, init=False)
+    packed: bool
+
+    @cached_property
+    def num_bytes(self) -> int:
+        return bits_to_bytes(self.num_bits)
+
+    @cached_property
+    def num_bits(self) -> int:
+        if self.packed:
+            return 1
+        else:
+            return 8
 
     @cached_property
     def name(self) -> str:
-        if self.packable:
+        if self.packed:
             return "bool1"
         else:
             return "bool8"
-
-    @property
-    def layout(self) -> str:
-        return self.name
 
 
 @attrs.frozen(str=False)
@@ -209,15 +223,15 @@ class UIntEncoding(Encoding):
 
     @cached_property
     def num_bytes(self) -> int:
-        return self.n // 8
+        return bits_to_bytes(self.num_bits)
+
+    @cached_property
+    def num_bits(self) -> int:
+        return self.n
 
     @cached_property
     def name(self) -> str:
         return f"uint{self.n}"
-
-    @property
-    def layout(self) -> str:
-        return self.name
 
 
 @attrs.frozen(str=False)
@@ -225,12 +239,12 @@ class TupleEncoding(Encoding):
     elements: Sequence[Encoding] = attrs.field(converter=tuple[Encoding, ...])
 
     @cached_property
-    def num_bytes(self) -> int | None:
+    def num_bits(self) -> int | None:
         total_bits = 0
         for element in self.elements:
             if element.num_bytes is None:
                 return None
-            if isinstance(element, BoolEncoding) and element.packable:
+            if isinstance(element, BoolEncoding) and element.packed:
                 total_bits += 1
             else:
                 # if not a bit packed bool, need to round up to byte boundary
@@ -238,24 +252,11 @@ class TupleEncoding(Encoding):
                 total_bits += element.num_bytes * 8
 
         total_bits = bits_to_bytes(total_bits) * 8
-        return bits_to_bytes(total_bits)
+        return total_bits
 
     @cached_property
     def name(self) -> str:
         inner = ",".join(e.name for e in self.elements)
-        return f"({inner})"
-
-    @cached_property
-    def layout(self) -> str:
-        head = []
-        tail = []
-        for element in self.elements:
-            if element.is_dynamic:
-                head.append("offset")
-                tail.append(element.layout)
-            else:
-                head.append(element.layout)
-        inner = ",".join((*head, *tail))
         return f"({inner})"
 
 
@@ -269,32 +270,20 @@ class DynamicArrayEncoding(ArrayEncoding):
     length_header: bool = attrs.field()
 
     @cached_property
-    def num_bytes(self) -> int | None:
+    def num_bytes(self) -> None:
+        return None
+
+    @cached_property
+    def num_bits(self) -> None:
         return None
 
     @cached_property
     def name(self) -> str:
         array = f"{self.element.name}[]"
         if self.length_header:
-            return f"(len,{array})"
+            return f"len+{array}"
         else:
             return array
-
-    @cached_property
-    def layout(self) -> str:
-        layouts = []
-        # len header
-        if self.length_header:
-            layouts.append("len")
-
-        # head
-        if self.element.is_dynamic:
-            layouts.append("offset[]")
-
-        # tail
-        layouts.append(f"{self.element.layout}[]")
-        inner = ",".join(layouts)
-        return f"({inner})"
 
 
 @attrs.frozen(str=False)
@@ -302,27 +291,14 @@ class FixedArrayEncoding(ArrayEncoding):
     size: int
 
     @cached_property
-    def num_bytes(self) -> int | None:
-        if self.element.num_bytes is None:
+    def num_bits(self) -> int | None:
+        if self.element.num_bits is None:
             return None
-        return self.element.num_bytes * self.size
+        return bits_to_bytes(self.element.num_bits * self.size) * 8
 
     @cached_property
     def name(self) -> str:
         return f"{self.element.name}[{self.size}]"
-
-    @cached_property
-    def layout(self) -> str:
-        layouts = []
-
-        # head
-        if self.element.is_dynamic:
-            layouts.append(f"offset[{self.size}]")
-
-        # tail
-        layouts.append(f"{self.element.layout}[{self.size}]")
-        inner = ",".join(layouts)
-        return f"({inner})"
 
 
 @attrs.frozen(str=False, order=False)
@@ -517,7 +493,8 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
         if wtype == wtypes.biguint_wtype:
             return UIntEncoding(n=512)
         elif wtype == wtypes.bool_wtype:
-            return BoolEncoding(packable=True)
+            # bools are only packable when in a tuple sequence or as an array element
+            return BoolEncoding(packed=False)
         elif wtype == wtypes.account_wtype:
             return wtypes.BytesWType(length=32).accept(self)
         if wtype.persistable:
@@ -529,7 +506,8 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
 
     def visit_basic_arc4_type(self, wtype: wtypes.ARC4Type) -> Encoding:
         if wtype == wtypes.arc4_bool_wtype:
-            return BoolEncoding(packable=True)
+            # bools are only packable when in a tuple sequence or as an array element
+            return BoolEncoding(packed=False)
         self._unencodable(wtype)
 
     def visit_arc4_uint(self, wtype: wtypes.ARC4UIntN) -> Encoding:
@@ -546,15 +524,12 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
             return FixedArrayEncoding(element=element, size=wtype.length)
 
     def visit_stack_array(self, wtype: wtypes.StackArray) -> Encoding:
-        return DynamicArrayEncoding(element=wtype.element_type.accept(self), length_header=True)
+        return DynamicArrayEncoding(
+            element=self._allow_packable_bool(wtype.element_type), length_header=True
+        )
 
     def visit_reference_array(self, wtype: wtypes.ReferenceArray) -> Encoding:
         element = wtype.element_type.accept(self)
-        # top level bools can't be bit packed, due to no length header
-        # only nested bools supported come from statically sized elements i.e.
-        # fixed arrays or tuples, which can support bit packed bools
-        if isinstance(element, BoolEncoding):
-            element = BoolEncoding(packable=False)
         if element.is_dynamic:
             # TODO: is this actually a CodeError?
             raise InternalError("reference arrays can't have dynamic elements")
@@ -562,24 +537,30 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
 
     def visit_arc4_dynamic_array(self, wtype: wtypes.ARC4DynamicArray) -> Encoding:
         return DynamicArrayEncoding(
-            element=wtype.element_type.accept(self),
+            element=self._allow_packable_bool(wtype.element_type),
             length_header=True,
         )
 
     def visit_arc4_static_array(self, wtype: wtypes.ARC4StaticArray) -> Encoding:
         return FixedArrayEncoding(
-            element=wtype.element_type.accept(self),
+            element=self._allow_packable_bool(wtype.element_type),
             size=wtype.array_size,
         )
 
     def visit_tuple_type(self, wtype: wtypes.WTuple) -> Encoding:
-        return TupleEncoding(elements=[t.accept(self) for t in wtype.types])
+        return TupleEncoding(elements=[self._allow_packable_bool(t) for t in wtype.types])
 
     def visit_arc4_tuple(self, wtype: wtypes.ARC4Tuple) -> Encoding:
-        return TupleEncoding(elements=[t.accept(self) for t in wtype.types])
+        return TupleEncoding(elements=[self._allow_packable_bool(t) for t in wtype.types])
 
     def visit_arc4_struct(self, wtype: wtypes.ARC4Struct) -> Encoding:
-        return TupleEncoding(elements=[t.accept(self) for t in wtype.types])
+        return TupleEncoding(elements=[self._allow_packable_bool(t) for t in wtype.types])
+
+    def _allow_packable_bool(self, wtype: wtypes.WType) -> Encoding:
+        encoding = wtype.accept(self)
+        if isinstance(encoding, BoolEncoding):
+            encoding = BoolEncoding(packed=True)
+        return encoding
 
     def visit_enumeration_type(self, wtype: wtypes.WEnumeration) -> Encoding:
         self._unencodable(wtype)
@@ -600,8 +581,15 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
         raise InternalError(f"unencodable wtype: {wtype!s}")
 
 
-def type_has_encoding(typ: IRType, encoding: Encoding) -> bool:
-    return isinstance(typ, EncodedType) and typ.encoding == encoding
+def type_has_encoding(
+    typ: IRType, encoding: Encoding | type[Encoding]
+) -> typing.TypeGuard[EncodedType]:
+    if not isinstance(typ, EncodedType):
+        return False
+    elif isinstance(encoding, type):
+        return isinstance(typ.encoding, encoding)
+    else:
+        return typ.encoding == encoding
 
 
 @typing.overload

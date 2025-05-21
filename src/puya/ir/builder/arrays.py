@@ -8,7 +8,7 @@ from puya.awst import (
 )
 from puya.errors import InternalError
 from puya.ir import models as ir
-from puya.ir.builder._utils import OpFactory, assign_targets, mktemp
+from puya.ir.builder._utils import OpFactory, assign_targets
 from puya.ir.builder.mem import read_slot
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import Value, ValueProvider
@@ -16,9 +16,9 @@ from puya.ir.types_ import (
     ArrayEncoding,
     DynamicArrayEncoding,
     EncodedType,
-    FixedArrayEncoding,
+    Encoding,
     SlotType,
-    get_type_arity,
+    TupleEncoding,
     ir_type_to_ir_types,
     type_has_encoding,
     wtype_to_ir_type_and_encoding,
@@ -46,84 +46,47 @@ def get_array_length(
 
 
 def get_array_encoded_items(
-    context: IRFunctionBuildContext, items: awst.Expression, array_encoding: ArrayEncoding
+    context: IRFunctionBuildContext, items: awst.Expression, element_encoding: Encoding
 ) -> ir.Value:
-    factory = OpFactory(context, items.source_location)
-    match array_encoding:
-        case ArrayEncoding() if isinstance(items.wtype, wtypes.WTuple):
-            try:
-                (element_type,) = set(items.wtype.types)
-            except ValueError:
-                raise InternalError("expected homogenous tuple") from None
-            tuple_size = len(items.wtype.types)
-            if (
-                isinstance(array_encoding, FixedArrayEncoding)
-                and array_encoding.size != tuple_size
-            ):
-                raise InternalError("unexpected tuple size", items.source_location)
-            element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
-                element_type, items.source_location
-            )
-            num_values_per_item = get_type_arity(element_ir_type)
-            encoded_array = factory.constant(b"", ir_type=EncodedType(array_encoding))
-            item_values = context.visitor.visit_and_materialise(items, "items")
-            # TODO: consolidate this and arc4.encode_n_items_as_arc4_items
-            #       both take materialized tuples and encode and concat multiple values
-            #       for concatenation
-            for _ in range(tuple_size):
-                encode_items = item_values[:num_values_per_item]
-                item_values = item_values[num_values_per_item:]
-                if type_has_encoding(element_ir_type, element_encoding):
-                    (encoded_item,) = encode_items
-                else:
-                    encoded_item_vp = ir.ValueEncode(
-                        values=encode_items,
-                        value_type=element_ir_type,
-                        encoding=element_encoding,
-                        source_location=items.source_location,
-                    )
-                    encoded_item = factory.materialise_single(encoded_item_vp, "encoded_item")
-                concat = ir.ArrayConcat(
-                    array=encoded_array,
-                    array_encoding=array_encoding,
-                    other=encoded_item,
-                    source_location=items.source_location,
-                )
-                encoded_array = factory.materialise_single(concat, "encoded_array")
-            assert encoded_array is not None, "empty loop should not be possible"
-            return encoded_array
-        case DynamicArrayEncoding(length_header=length_header):
-            expr_value = context.visitor.visit_and_materialise_single(items)
-            if isinstance(expr_value.ir_type, SlotType):
-                expr_value = read_slot(context, expr_value, items.source_location)
-            if length_header:
-                expr_value = factory.extract_to_end(
-                    expr_value, 2, "expr_value_trimmed", ir_type=EncodedType(array_encoding)
-                )
-            return expr_value
-        case FixedArrayEncoding() if not isinstance(items.wtype, wtypes.WTuple):
-            value = context.visitor.visit_and_materialise_single(items)
-            # TODO: this might not be needed once everything uses EncodedType
-            array_type = EncodedType(array_encoding)
-            if value.ir_type != array_type:
-                target = mktemp(
-                    context,
-                    array_type,
-                    description=f"reinterpret_{array_type.name}",
-                    source_location=value.source_location,
-                )
-                assign_targets(
-                    context,
-                    source=value,
-                    targets=[target],
-                    assignment_location=value.source_location,
-                )
-                value = target
-            return value
-        case _:
-            raise InternalError(
-                f"Unexpected operand type for concatenation {items.wtype}", items.source_location
-            )
+    """Returns a single encoded value representing an concatenation of all encoded items"""
+    from puya.ir.builder import arc4
+
+    loc = items.source_location
+    if element_encoding.is_dynamic:
+        raise InternalError("TODO: support dynamic elements", loc)
+
+    factory = OpFactory(context, loc)
+
+    array_vp = context.visitor.visit_expr(items)
+    value_ir_type, _ = wtype_to_ir_type_and_encoding(items.wtype, loc)
+    # read slot contents
+    if isinstance(value_ir_type, SlotType):
+        slot = factory.materialise_single(array_vp, "slot")
+        array_vp = read_slot(context, slot, loc)
+        value_ir_type = value_ir_type.contents
+    # handle already encoded array types
+    if isinstance(value_ir_type, EncodedType) and isinstance(
+        value_ir_type.encoding, ArrayEncoding | TupleEncoding
+    ):
+        array = factory.materialise_single(array_vp, "array")
+        if (
+            isinstance(value_ir_type.encoding, DynamicArrayEncoding)
+            and value_ir_type.encoding.length_header
+        ):
+            array = factory.extract_to_end(array, 2, "array_trimmed")
+        return array
+    else:
+        assert isinstance(
+            items.wtype, wtypes.WTuple
+        ), f"assuming this is a tuple of elements to concat: {items.wtype}"
+        encoded = arc4.encode_value_provider(
+            context,
+            array_vp,
+            value_ir_type,
+            DynamicArrayEncoding(element_encoding, length_header=False),
+            loc,
+        )
+        return factory.materialise_single(encoded, "encoded")
 
 
 def concat_arrays(
