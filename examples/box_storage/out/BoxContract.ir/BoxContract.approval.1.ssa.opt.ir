@@ -215,7 +215,7 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: byt
         (box_replace "box_large" 4096u 0x000000000000002a)
         let (b_value#0: bytes, maybe_exists%0#0: bool) = (box_get "b")
         (assert maybe_exists%0#0) // check self.box_b exists
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "b")
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (b_value#0, maybe_exists%0#0)
         (assert maybe_exists%1#0) // check self.box_b exists
         let tmp%1#0: uint64 = (extract_uint16 maybe_value%1#0 0u)
         let tmp%2#0: uint64 = (extract_uint16 b_value#0 0u)
@@ -354,7 +354,7 @@ subroutine examples.box_storage.contract.BoxContract.delete_boxes() -> void:
         let state_get%2#0: bytes = (select 0x00023432 maybe_value%2#0 maybe_exists%2#0)
         let tmp%3#0: bool = (== state_get%2#0 0x00023432)
         (assert tmp%3#0)
-        let (maybe_value%3#0: bytes, a_exists#0: bool) = (box_get "box_a")
+        let (maybe_value%3#0: bytes, a_exists#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
         let a#0: uint64 = (btoi maybe_value%3#0)
         let tmp%4#0: bool = (! a_exists#0)
         (assert tmp%4#0)
@@ -422,25 +422,25 @@ subroutine examples.box_storage.contract.BoxContract.arc4_box() -> void:
         let result%3#0: bytes = 0x00010203
         let array_data%0#0: bytes = 0x00010203
         (box_put 0x64 0x00010203)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get 0x64)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (0x00010203, 1u)
         (assert maybe_exists%0#0) // check Box exists
         let item_offset%0#0: uint64 = 0u
         let reinterpret_biguint%0#0: biguint = ((extract 0 1) maybe_value%0#0) // on error: Index access is out of bounds
         let tmp%0#0: bool = (b== reinterpret_biguint%0#0 0x00)
         (assert tmp%0#0)
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get 0x64)
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (0x00010203, 1u)
         (assert maybe_exists%1#0) // check Box exists
         let item_offset%1#0: uint64 = 1u
         let reinterpret_biguint%2#0: biguint = ((extract 1 1) maybe_value%1#0) // on error: Index access is out of bounds
         let tmp%1#0: bool = (b== reinterpret_biguint%2#0 0x01)
         (assert tmp%1#0)
-        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get 0x64)
+        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (0x00010203, 1u)
         (assert maybe_exists%2#0) // check Box exists
         let item_offset%2#0: uint64 = 2u
         let reinterpret_biguint%4#0: biguint = ((extract 2 1) maybe_value%2#0) // on error: Index access is out of bounds
         let tmp%2#0: bool = (b== reinterpret_biguint%4#0 0x02)
         (assert tmp%2#0)
-        let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get 0x64)
+        let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (0x00010203, 1u)
         (assert maybe_exists%3#0) // check Box exists
         let item_offset%3#0: uint64 = 3u
         let reinterpret_biguint%6#0: biguint = ((extract 3 1) maybe_value%3#0) // on error: Index access is out of bounds
@@ -487,7 +487,7 @@ subroutine examples.box_storage.contract.BoxContract.test_box_ref() -> void:
         (assert tmp%12#0)
         let tmp%13#0: bool = (== value#0 0x)
         (assert tmp%13#0)
-        let (maybe_value%1#0: bytes, maybe_exists%6#0: bool) = (box_get "blob")
+        let (maybe_value%1#0: bytes, maybe_exists%6#0: bool) = (value#0, exists#0)
         let state_get%0#0: bytes = (select sender_bytes#0 maybe_value%1#0 maybe_exists%6#0)
         let tmp%14#0: bool = (== state_get%0#0 sender_bytes#0)
         (assert tmp%14#0)
@@ -535,7 +535,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_test() -> void:
         let state_get%0#0: bytes = (select "default" maybe_value%0#0 maybe_exists%0#0)
         let tmp%5#0: bool = (== state_get%0#0 "default")
         (assert tmp%5#0)
-        let (value#1: bytes, exists#0: bool) = (box_get encoded_value%5#0)
+        let (value#1: bytes, exists#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
         let tmp%6#0: bool = (! exists#0)
         (assert tmp%6#0)
         let (_%0#0: uint64, maybe_exists%2#0: bool) = (box_len box_0#0)
@@ -544,7 +544,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_test() -> void:
         (box_del encoded_value%5#0)
         (box_put encoded_value%5#0 "hello")
         let materialized_values%0#0: uint64 = 1u
-        let (maybe_value%0#1: bytes, maybe_exists%0#1: bool) = (box_get encoded_value%5#0)
+        let (maybe_value%0#1: bytes, maybe_exists%0#1: bool) = ("hello", 1u)
         (assert maybe_exists%0#1) // check BoxMap entry exists
         let tmp%9#0: bool = (== maybe_value%0#1 "hello")
         (assert tmp%9#0)

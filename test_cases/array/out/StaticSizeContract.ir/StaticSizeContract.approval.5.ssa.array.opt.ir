@@ -324,7 +324,11 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_extend_from_arc4
     block@0: // L67
         let arr#0: bytes[16][]* = new()
         write(arr#0, some_more#0)
-        let concat_result%0#0: bytes = (concat 0x0002 some_more#0)
+        let byte_len%0#0: uint64 = (len some_more#0)
+        let len_%0#0: uint64 = (/ byte_len%0#0 16u)
+        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let concat_result%0#0: bytes = (concat len_16_bit%0#0 some_more#0)
         return concat_result%0#0
 
 subroutine test_cases.array.static_size.StaticSizeContract.test_bool_array(length: uint64) -> uint64:
@@ -463,14 +467,12 @@ subroutine test_cases.array.static_size.StaticSizeContract.xtra() -> <uint64, ui
         let materialized_values%0#0: uint64 = (+ maybe_value%0#0 1u)
         (app_global_put "count" materialized_values%0#0)
         let tmp%0#0: uint64 = (txn NumAppArgs)
-        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "count")
-        (assert maybe_exists%1#0) // check self.count exists
         let tmp%1#0: bytes[32] = (txn Sender)
         let tmp%2#0: bytes[16] = test_cases.array.static_size.StaticSizeContract.more()
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "count")
         (assert maybe_exists%2#0) // check self.count exists
         let tmp%3#0: biguint = (itob maybe_value%2#0)
-        return tmp%0#0 maybe_value%1#0 tmp%1#0 tmp%2#0 tmp%3#0
+        return tmp%0#0 materialized_values%0#0 tmp%1#0 tmp%2#0 tmp%3#0
 
 subroutine test_cases.array.static_size.StaticSizeContract.more() -> bytes[16]:
     block@0: // L129
@@ -478,11 +480,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.more() -> bytes[16]:
         (assert maybe_exists%0#0) // check self.count exists
         let to_encode%0#0: uint64 = (+ maybe_value%0#0 1u)
         let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
-        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "count")
-        (assert maybe_exists%1#0) // check self.count exists
-        let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "count")
-        (assert maybe_exists%2#0) // check self.count exists
-        let to_encode%1#0: uint64 = (* maybe_value%1#0 maybe_value%2#0)
+        let to_encode%1#0: uint64 = (* maybe_value%0#0 maybe_value%0#0)
         let val_as_bytes%1#0: bytes[8] = (itob to_encode%1#0)
         let encoded_tuple_buffer%2#0: bytes = (concat val_as_bytes%0#0 val_as_bytes%1#0)
         return encoded_tuple_buffer%2#0

@@ -656,8 +656,14 @@ debug: Simplified (+ 0u 1u) to 1u
 debug: Simplified (< 0u 10u) to 1u
 debug: Simplified (== 0u 0u) to 1u
 debug: Simplified (concat "found secret argument at idx=" "") to "found secret argument at idx="
+debug: Simplified (len tmp%10#0) to 8u
+debug: Simplified (- 8u 1u) to 7u
 debug: Simplified (concat tmp%14#0 "") to tmp%14#0
 debug: Simplified (concat tmp%16#0 "") to tmp%16#0
+debug: Simplified (len tmp%19#0) to 8u
+debug: Simplified (- 8u 1u) to 7u
+debug: Simplified (extract3 tmp%10#0 7u 1u) to ((extract 7 1) tmp%10#0)
+debug: Simplified (extract3 tmp%19#0 7u 1u) to ((extract 7 1) tmp%19#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -710,7 +716,7 @@ debug: Removing unreachable phi arguments: result#0 <- block@22
 debug: Replacing trivial Phi node: let result#4: uint64 = φ(result#3 <- block@26) (result#4) with result#3
 debug: Deleting Phi assignment: let result#4: uint64 = φ(result#3 <- block@26)
 debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Redundant Slot Op Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.loop_else.loop_else.test_empty_loop
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -742,7 +748,7 @@ debug: Optimizer: Remove Empty Blocks
 debug: Not removing empty block block@3 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Redundant Slot Op Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: removing unused subroutine test_cases.loop_else.loop_else.test_empty_loop
 debug: Unused subroutines removed
 debug: Begin optimization pass 2/100
@@ -764,6 +770,10 @@ debug: Removing unused variable result#3
 debug: Removing unused variable continue_looping%0#0
 debug: Removing unused variable tmp%2#0
 debug: Removing unused variable tmp%8#0
+debug: Removing unused variable tmp%11#0
+debug: Removing unused variable tmp%12#0
+debug: Removing unused variable tmp%20#0
+debug: Removing unused variable tmp%21#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== 1u 1u) to 1u
 debug: Optimizer: Inner Txn Field Replacer
@@ -777,7 +787,7 @@ debug: Merged linear block@27 into block@0
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Redundant Slot Op Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Begin optimization pass 3/100
 debug: Optimizing subroutine test_cases.loop_else.loop_else.LoopElseContract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
@@ -795,7 +805,7 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Redundant Slot Op Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Begin optimization pass 4/100
 debug: Optimizing subroutine test_cases.loop_else.loop_else.LoopElseContract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
@@ -812,7 +822,7 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Redundant Slot Op Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 4, ending loop
 debug: optimizing clear program of test_cases.loop_else.loop_else.LoopElseContract at level 2
 debug: Begin optimization pass 1/100
@@ -831,7 +841,7 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Redundant Slot Op Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 1, ending loop
 debug: lowering array IR nodes in approval program of test_cases.loop_else.loop_else.LoopElseContract
 debug: lowering array IR nodes in clear program of test_cases.loop_else.loop_else.LoopElseContract
@@ -852,7 +862,7 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Redundant Slot Op Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 1, ending loop
 debug: optimizing clear program of test_cases.loop_else.loop_else.LoopElseContract at level 2
 debug: Begin optimization pass 1/100
@@ -871,7 +881,7 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Redundant Slot Op Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 1, ending loop
 debug: removing local static slots in approval program of test_cases.loop_else.loop_else.LoopElseContract
 loop_else/loop_else.py:6 debug: auto reserving slots in test_cases.loop_else.loop_else.LoopElseContract.approval_program, []
@@ -921,32 +931,20 @@ debug: Inserted main_if_body@11.ops[3]: 'l-store-copy tmp%9#0 0'
 debug: Replaced main_if_body@11.ops[5]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
 debug: Inserted main_if_body@11.ops[7]: 'l-store-copy tmp%10#0 0'
 debug: Replaced main_if_body@11.ops[9]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
-debug: Inserted main_if_body@11.ops[11]: 'l-store-copy tmp%11#0 0'
-debug: Replaced main_if_body@11.ops[13]: 'v-load tmp%11#0' with 'l-load tmp%11#0'
-debug: Inserted main_if_body@11.ops[25]: 'l-store-copy tmp%14#0 0'
-debug: Replaced main_if_body@11.ops[27]: 'v-load tmp%14#0' with 'l-load tmp%14#0'
-debug: Inserted main_if_body@11.ops[34]: 'l-store-copy tmp%18#0 0'
-debug: Replaced main_if_body@11.ops[36]: 'v-load tmp%18#0' with 'l-load tmp%18#0'
-debug: Inserted main_if_body@11.ops[38]: 'l-store-copy tmp%19#0 0'
-debug: Replaced main_if_body@11.ops[40]: 'v-load tmp%19#0' with 'l-load tmp%19#0'
-debug: Inserted main_if_body@11.ops[42]: 'l-store-copy tmp%20#0 0'
-debug: Replaced main_if_body@11.ops[44]: 'v-load tmp%20#0' with 'l-load tmp%20#0'
-debug: Inserted main_if_body@11.ops[56]: 'l-store-copy tmp%23#0 0'
-debug: Replaced main_if_body@11.ops[58]: 'v-load tmp%23#0' with 'l-load tmp%23#0'
-debug: Inserted main_if_body@11.ops[16]: 'l-store-copy tmp%12#0 0'
-debug: Replaced main_if_body@11.ops[19]: 'v-load tmp%12#0' with 'l-load tmp%12#0'
-debug: Inserted main_if_body@11.ops[22]: 'l-store-copy tmp%13#0 0'
-debug: Replaced main_if_body@11.ops[25]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
-debug: Inserted main_if_body@11.ops[49]: 'l-store-copy tmp%21#0 0'
-debug: Replaced main_if_body@11.ops[52]: 'v-load tmp%21#0' with 'l-load tmp%21#0'
-debug: Inserted main_if_body@11.ops[55]: 'l-store-copy tmp%22#0 0'
-debug: Replaced main_if_body@11.ops[58]: 'v-load tmp%22#0' with 'l-load tmp%22#0'
-debug: Inserted main_if_body@11.ops[10]: 'l-store-copy tmp%10#0 0'
-debug: Replaced main_if_body@11.ops[19]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
-debug: Inserted main_if_body@11.ops[44]: 'l-store-copy tmp%19#0 0'
-debug: Replaced main_if_body@11.ops[53]: 'v-load tmp%19#0' with 'l-load tmp%19#0'
-debug: Inserted main_if_body@11.ops[33]: 'l-store-copy tmp%16#0 0'
-debug: Replaced main_if_body@11.ops[60]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
+debug: Inserted main_if_body@11.ops[15]: 'l-store-copy tmp%14#0 0'
+debug: Replaced main_if_body@11.ops[17]: 'v-load tmp%14#0' with 'l-load tmp%14#0'
+debug: Inserted main_if_body@11.ops[24]: 'l-store-copy tmp%18#0 0'
+debug: Replaced main_if_body@11.ops[26]: 'v-load tmp%18#0' with 'l-load tmp%18#0'
+debug: Inserted main_if_body@11.ops[28]: 'l-store-copy tmp%19#0 0'
+debug: Replaced main_if_body@11.ops[30]: 'v-load tmp%19#0' with 'l-load tmp%19#0'
+debug: Inserted main_if_body@11.ops[36]: 'l-store-copy tmp%23#0 0'
+debug: Replaced main_if_body@11.ops[38]: 'v-load tmp%23#0' with 'l-load tmp%23#0'
+debug: Inserted main_if_body@11.ops[11]: 'l-store-copy tmp%13#0 0'
+debug: Replaced main_if_body@11.ops[14]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
+debug: Inserted main_if_body@11.ops[33]: 'l-store-copy tmp%22#0 0'
+debug: Replaced main_if_body@11.ops[36]: 'v-load tmp%22#0' with 'l-load tmp%22#0'
+debug: Inserted main_if_body@11.ops[21]: 'l-store-copy tmp%16#0 0'
+debug: Replaced main_if_body@11.ops[36]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
 debug: Found 4 edge set/s for test_cases.loop_else.loop_else.LoopElseContract.approval_program
 debug: test_cases.loop_else.loop_else.LoopElseContract.approval_program f-stack entry: ['account_index#0', 'tmp%5#0']
 debug: test_cases.loop_else.loop_else.LoopElseContract.approval_program f-stack on first store: ['arg_idx#0']

@@ -1066,6 +1066,12 @@ test3_next_txn@16:
     //     app_p_16,
     // )
     itxn_submit
+    gitxn 0 TxID
+    gitxn 1 TxID
+    gitxn 2 TxID
+    cover 2
+    gitxn 3 TxID
+    cover 3
     // inner_transactions/contract.py:209
     // assert app1.logs(0) == b"1"
     intc_0 // 0
@@ -1178,6 +1184,21 @@ test3_next_txn@16:
     bytec 21 // 0x3136
     ==
     assert
+    // inner_transactions/contract.py:226
+    // assert app1.txn_id != app2.txn_id
+    !=
+    assert
+    // inner_transactions/contract.py:227
+    // assert app3.txn_id.length == 32
+    len
+    pushint 32 // 32
+    ==
+    assert
+    // inner_transactions/contract.py:228
+    // assert app4.txn_id != b""
+    pushbytes 0x
+    !=
+    assert
     retsub
 
 
@@ -1185,17 +1206,17 @@ test3_next_txn@16:
 test4:
 
 test4_block@0:
-    // inner_transactions/contract.py:228
+    // inner_transactions/contract.py:232
     // lots_of_bytes = op.bzero(2044)
     pushint 2044 // 2044
     bzero
-    // inner_transactions/contract.py:231-234
+    // inner_transactions/contract.py:235-238
     // Bytes(
     //     b"\x80"  # pushbytes
     //     b"\xfc\x0f"  # varuint 2044
     // )
     pushbytes 0x80fc0f
-    // inner_transactions/contract.py:231-235
+    // inner_transactions/contract.py:235-239
     // Bytes(
     //     b"\x80"  # pushbytes
     //     b"\xfc\x0f"  # varuint 2044
@@ -1203,10 +1224,10 @@ test4_block@0:
     // + lots_of_bytes
     swap
     concat
-    // inner_transactions/contract.py:236
+    // inner_transactions/contract.py:240
     // + Bytes(b"\x48")  # pop
     pushbytes 0x48
-    // inner_transactions/contract.py:231-236
+    // inner_transactions/contract.py:235-240
     // Bytes(
     //     b"\x80"  # pushbytes
     //     b"\xfc\x0f"  # varuint 2044
@@ -1214,7 +1235,7 @@ test4_block@0:
     // + lots_of_bytes
     // + Bytes(b"\x48")  # pop
     concat
-    // inner_transactions/contract.py:230-237
+    // inner_transactions/contract.py:234-241
     // approval_2 = (
     //     Bytes(
     //         b"\x80"  # pushbytes
@@ -1224,37 +1245,37 @@ test4_block@0:
     //     + Bytes(b"\x48")  # pop
     // )
     dupn 3
-    // inner_transactions/contract.py:239
+    // inner_transactions/contract.py:243
     // approval_program=(approval_1, approval_2, approval_2, approval_2),
     cover 2
     cover 2
-    // inner_transactions/contract.py:245
+    // inner_transactions/contract.py:249
     // app_1 = app_p_1.submit()
     itxn_begin
-    // inner_transactions/contract.py:243
+    // inner_transactions/contract.py:247
     // extra_program_pages=3,
     intc_3 // 3
     itxn_field ExtraProgramPages
-    // inner_transactions/contract.py:242
+    // inner_transactions/contract.py:246
     // app_args=(Bytes(b"1"),),
     bytec_3 // 0x31
     itxn_field ApplicationArgs
-    // inner_transactions/contract.py:241
+    // inner_transactions/contract.py:245
     // on_completion=OnCompleteAction.DeleteApplication,
     intc_2 // DeleteApplication
     itxn_field OnCompletion
-    // inner_transactions/contract.py:240
+    // inner_transactions/contract.py:244
     // clear_state_program=ALWAYS_APPROVE,
     bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    // inner_transactions/contract.py:229
+    // inner_transactions/contract.py:233
     // approval_1 = Bytes(ALWAYS_APPROVE)
     bytec_0 // 0x098101
     itxn_field ApprovalProgramPages
     itxn_field ApprovalProgramPages
     itxn_field ApprovalProgramPages
     itxn_field ApprovalProgramPages
-    // inner_transactions/contract.py:238
+    // inner_transactions/contract.py:242
     // app_p_1 = itxn.ApplicationCall(
     intc_1 // appl
     itxn_field TypeEnum
@@ -1262,7 +1283,7 @@ test4_block@0:
     itxn_field Fee
 
 test4_next_txn@1:
-    // inner_transactions/contract.py:245
+    // inner_transactions/contract.py:249
     // app_1 = app_p_1.submit()
     itxn_submit
     itxn ExtraProgramPages
@@ -1270,24 +1291,24 @@ test4_next_txn@1:
     swap
     itxn NumClearStateProgramPages
     cover 2
-    // inner_transactions/contract.py:246
+    // inner_transactions/contract.py:250
     // assert app_1.extra_program_pages == 3, "extra_pages == 3"
     intc_3 // 3
     ==
     assert // extra_pages == 3
-    // inner_transactions/contract.py:247
+    // inner_transactions/contract.py:251
     // assert app_1.num_approval_program_pages == 2, "approval_pages == 2"
     pushint 2 // 2
     ==
     assert // approval_pages == 2
-    // inner_transactions/contract.py:249
+    // inner_transactions/contract.py:253
     // app_1.approval_program_pages(0) == approval_1 + approval_2 + approval_2[:-3]
     intc_0 // 0
     itxnas ApprovalProgramPages
-    // inner_transactions/contract.py:229
+    // inner_transactions/contract.py:233
     // approval_1 = Bytes(ALWAYS_APPROVE)
     bytec_0 // 0x098101
-    // inner_transactions/contract.py:249
+    // inner_transactions/contract.py:253
     // app_1.approval_program_pages(0) == approval_1 + approval_2 + approval_2[:-3]
     uncover 3
     dup
@@ -1313,12 +1334,12 @@ test4_next_txn@1:
     concat
     uncover 2
     ==
-    // inner_transactions/contract.py:248-250
+    // inner_transactions/contract.py:252-254
     // assert (
     //     app_1.approval_program_pages(0) == approval_1 + approval_2 + approval_2[:-3]
     // ), "expected approval page 0"
     assert // expected approval page 0
-    // inner_transactions/contract.py:252
+    // inner_transactions/contract.py:256
     // app_1.approval_program_pages(1) == approval_2[-3:] + approval_2
     pushint 1 // 1
     itxnas ApprovalProgramPages
@@ -1342,17 +1363,17 @@ test4_next_txn@1:
     swap
     concat
     ==
-    // inner_transactions/contract.py:251-253
+    // inner_transactions/contract.py:255-257
     // assert (
     //     app_1.approval_program_pages(1) == approval_2[-3:] + approval_2
     // ), "expected approval page 1"
     assert // expected approval page 1
-    // inner_transactions/contract.py:254
+    // inner_transactions/contract.py:258
     // assert app_1.num_clear_state_program_pages == 1, "clear_state_pages == 1"
     pushint 1 // 1
     ==
     assert // clear_state_pages == 1
-    // inner_transactions/contract.py:255
+    // inner_transactions/contract.py:259
     // assert app_1.clear_state_program_pages(0) == ALWAYS_APPROVE, "expected clear_state_pages"
     intc_0 // 0
     itxnas ClearStateProgramPages

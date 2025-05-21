@@ -4,7 +4,7 @@
 // examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0 2 5
-    bytecblock 0x626c6f62 0x424f585f43 "box_d" "box_a" "b" 0x00 "box_large" 0x64 0x151f7c75 0x68656c6c6f "0" "box_ref" 0x00023432 "default"
+    bytecblock 0x424f585f43 0x626c6f62 "box_d" "box_a" "b" "box_large" 0x00 0x151f7c75 "0" 0x68656c6c6f "box_ref" 0x00023432 "default"
     txn NumAppArgs
     bz main_bare_routing@18
     pushbytess 0x7d37296e 0x33325d3d 0xd566c632 0xa6174812 0xf13dd937 0x04ef4971 0x23ecb32c 0xeef75816 0xb532913a 0xc29f1669 0x9c888c09 0xe6f68506 0x8ee2c364 // method "set_boxes(uint64,byte[],string)void", method "check_keys()void", method "delete_boxes()void", method "read_boxes()(uint64,byte[],string,uint64)", method "boxes_exist()(bool,bool,bool,bool)", method "slice_box()void", method "arc4_box()void", method "test_box_ref()void", method "box_map_test()void", method "box_map_set(uint64,string)void", method "box_map_get(uint64)string", method "box_map_del(uint64)void", method "box_map_exists(uint64)bool"
@@ -26,11 +26,11 @@ main_box_map_exists_route@17:
     itob
     box_len
     bury 1
-    bytec 5 // 0x00
+    bytec 6 // 0x00
     intc_1 // 0
     uncover 2
     setbit
-    bytec 8 // 0x151f7c75
+    bytec 7 // 0x151f7c75
     swap
     concat
     log
@@ -68,7 +68,7 @@ main_box_map_get_route@15:
     extract 6 2
     swap
     concat
-    bytec 8 // 0x151f7c75
+    bytec 7 // 0x151f7c75
     swap
     concat
     log
@@ -133,15 +133,13 @@ main_box_map_test_route@13:
     itob
     dup
     box_get
-    bytec 13 // "default"
-    cover 2
+    bytec 12 // "default"
+    uncover 2
+    dig 2
     select
-    bytec 13 // "default"
+    bytec 12 // "default"
     ==
     assert
-    dup
-    box_get
-    bury 1
     !
     assert
     swap
@@ -154,12 +152,6 @@ main_box_map_test_route@13:
     dup
     bytec 9 // "hello"
     box_put
-    dup
-    box_get
-    assert // check BoxMap entry exists
-    bytec 9 // "hello"
-    ==
-    assert
     box_del
     pop
     intc_0 // 1
@@ -171,53 +163,53 @@ main_test_box_ref_route@12:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    bytec_0 // "blob"
+    bytec_1 // "blob"
     box_len
     bury 1
     !
     assert // no data
-    bytec_0 // 0x626c6f62
+    bytec_1 // 0x626c6f62
     box_len
     bury 1
     !
     assert // no data
-    bytec_0 // 0x626c6f62
+    bytec_1 // 0x626c6f62
     box_len
     bury 1
     !
     assert // no data
-    bytec_0 // "blob"
+    bytec_1 // "blob"
     box_len
     bury 1
     !
     assert // no data
-    bytec_0 // "blob"
+    bytec_1 // "blob"
     pushint 32 // 32
     box_create
     assert
-    bytec_0 // "blob"
+    bytec_1 // "blob"
     box_len
     bury 1
     assert // has data
     txn Sender
     global CurrentApplicationAddress
-    bytec_0 // "blob"
+    bytec_1 // "blob"
     intc_1 // 0
     dig 3
     box_replace
-    bytec_0 // "blob"
+    bytec_1 // "blob"
     pushint 8000 // 8000
     box_resize
-    bytec_0 // "blob"
+    bytec_1 // "blob"
     intc_1 // 0
     dup
     dig 3
     box_splice
-    bytec_0 // "blob"
+    bytec_1 // "blob"
     pushint 64 // 64
     bytec 9 // 0x68656c6c6f
     box_replace
-    bytec_0 // "blob"
+    bytec_1 // "blob"
     intc_1 // 0
     pushint 69 // 69
     box_extract
@@ -228,18 +220,18 @@ main_test_box_ref_route@12:
     concat
     ==
     assert
-    bytec_0 // "blob"
+    bytec_1 // "blob"
     box_del
     assert
-    bytec_0 // "blob"
+    bytec_1 // "blob"
     box_get
+    dup
     !
     assert
+    dig 1
     pushbytes 0x
     ==
     assert
-    bytec_0 // "blob"
-    box_get
     dig 3
     cover 2
     select
@@ -247,34 +239,34 @@ main_test_box_ref_route@12:
     ==
     assert
     concat
-    bytec_0 // "blob"
+    bytec_1 // "blob"
     swap
     box_put
-    bytec_0 // "blob"
+    bytec_1 // "blob"
     box_len
     bury 1
     assert // Blob exists
-    bytec_0 // "blob"
+    bytec_1 // "blob"
     box_len
     assert // check BoxRef exists
     pushint 64 // 64
     ==
     assert
-    bytec_0 // "blob"
+    bytec_1 // "blob"
     box_len
     assert // check BoxRef exists
     pushint 64 // 64
     ==
     assert
-    bytec 11 // "box_ref"
+    bytec 10 // "box_ref"
     pushint 32 // 32
     box_create
     pop
-    bytec 11 // "box_ref"
+    bytec 10 // "box_ref"
     box_len
     bury 1
     assert // has data
-    bytec 11 // "box_ref"
+    bytec 10 // "box_ref"
     box_del
     pop
     intc_0 // 1
@@ -286,37 +278,8 @@ main_arc4_box_route@11:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    bytec 7 // 0x64
-    pushbytes 0x00010203
+    pushbytess 0x64 0x00010203 // 0x64, 0x00010203
     box_put
-    bytec 7 // 0x64
-    box_get
-    assert // check Box exists
-    extract 0 1 // on error: Index access is out of bounds
-    bytec 5 // 0x00
-    b==
-    assert
-    bytec 7 // 0x64
-    box_get
-    assert // check Box exists
-    extract 1 1 // on error: Index access is out of bounds
-    pushbytes 0x01
-    b==
-    assert
-    bytec 7 // 0x64
-    box_get
-    assert // check Box exists
-    extract 2 1 // on error: Index access is out of bounds
-    pushbytes 0x02
-    b==
-    assert
-    bytec 7 // 0x64
-    box_get
-    assert // check Box exists
-    extract 3 1 // on error: Index access is out of bounds
-    pushbytes 0x03
-    b==
-    assert
     intc_0 // 1
     return
 
@@ -326,13 +289,13 @@ main_slice_box_route@10:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    bytec 10 // "0"
+    bytec 8 // "0"
     box_del
     pop
-    bytec 10 // "0"
+    bytec 8 // "0"
     pushbytes 0x54657374696e672074657374696e6720313233
     box_put
-    bytec 10 // "0"
+    bytec 8 // "0"
     box_len
     pop
     dup
@@ -348,19 +311,19 @@ main_slice_box_route@10:
     select
     dig 1
     -
-    bytec 10 // "0"
+    bytec 8 // "0"
     cover 2
     box_extract
     pushbytes 0x54657374696e67
     ==
     assert
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_del
     pop
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     pushbytes 0x000548656c6c6f
     box_put
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_len
     pop
     intc_2 // 2
@@ -379,7 +342,7 @@ main_slice_box_route@10:
     select
     dig 1
     -
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     cover 2
     box_extract
     pushbytes 0x48656c6c6f
@@ -401,27 +364,27 @@ main_boxes_exist_route@9:
     box_len
     cover 2
     pop
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_len
     cover 3
     pop
-    bytec 6 // "box_large"
+    bytec 5 // "box_large"
     box_len
     cover 4
     pop
-    bytec 5 // 0x00
+    bytec 6 // 0x00
     intc_1 // 0
     uncover 2
     setbit
-    bytec 5 // 0x00
+    bytec 6 // 0x00
     intc_1 // 0
     uncover 3
     setbit
-    bytec 5 // 0x00
+    bytec 6 // 0x00
     intc_1 // 0
     uncover 4
     setbit
-    bytec 5 // 0x00
+    bytec 6 // 0x00
     intc_1 // 0
     uncover 5
     setbit
@@ -444,7 +407,7 @@ main_boxes_exist_route@9:
     pushint 3 // 3
     swap
     setbit
-    bytec 8 // 0x151f7c75
+    bytec 7 // 0x151f7c75
     swap
     concat
     log
@@ -457,7 +420,7 @@ main_read_boxes_route@8:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    bytec 6 // "box_large"
+    bytec 5 // "box_large"
     pushints 4096 8 // 4096, 8
     box_extract
     bytec_3 // "box_a"
@@ -472,7 +435,7 @@ main_read_boxes_route@8:
     box_get
     assert // check self.box_b exists
     extract 2 0
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_get
     assert // check self.box_c exists
     uncover 3
@@ -503,7 +466,7 @@ main_read_boxes_route@8:
     concat
     swap
     concat
-    bytec 8 // 0x151f7c75
+    bytec 7 // 0x151f7c75
     swap
     concat
     log
@@ -522,7 +485,7 @@ main_delete_boxes_route@7:
     bytec 4 // "b"
     box_del
     pop
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_del
     pop
     bytec_3 // "box_a"
@@ -530,39 +493,35 @@ main_delete_boxes_route@7:
     swap
     btoi
     pushint 42 // 42
-    swap
-    uncover 2
+    dig 1
+    dig 3
     select
     pushint 42 // 42
     ==
     assert
     bytec 4 // "b"
     box_get
-    bytec 12 // 0x00023432
+    bytec 11 // 0x00023432
     cover 2
     select
     extract 2 0
     pushbytes 0x3432
     ==
     assert
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_get
-    bytec 12 // 0x00023432
+    bytec 11 // 0x00023432
     cover 2
     select
-    bytec 12 // 0x00023432
+    bytec 11 // 0x00023432
     ==
     assert
-    bytec_3 // "box_a"
-    box_get
-    swap
-    btoi
     swap
     !
     assert
     !
     assert
-    bytec 6 // "box_large"
+    bytec 5 // "box_large"
     box_del
     pop
     intc_0 // 1
@@ -598,10 +557,10 @@ main_set_boxes_route@5:
     bytec 4 // "b"
     dig 2
     box_put
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_del
     pop
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     dig 1
     box_put
     dig 1
@@ -612,27 +571,18 @@ main_set_boxes_route@5:
     bytec_2 // "box_d"
     dig 1
     box_put
-    bytec 6 // "box_large"
+    bytec 5 // "box_large"
     pushint 6152 // 6152
     box_create
     pop
-    bytec 6 // "box_large"
+    bytec 5 // "box_large"
     pushint 4096 // 4096
     pushbytes 0x000000000000002a
     box_replace
     bytec 4 // "b"
     box_get
+    bury 1
     assert // check self.box_b exists
-    bytec 4 // "b"
-    box_get
-    assert // check self.box_b exists
-    intc_1 // 0
-    extract_uint16
-    swap
-    intc_1 // 0
-    extract_uint16
-    ==
-    assert // direct reference should match copy
     bytec_3 // "box_a"
     box_get
     assert // check self.box_a exists
@@ -656,7 +606,7 @@ main_set_boxes_route@5:
     len
     ==
     assert
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_len
     assert // check self.box_c exists
     dig 2
@@ -674,7 +624,7 @@ main_set_boxes_route@5:
     dig 1
     ==
     assert
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     intc_1 // 0
     intc_0 // 1
     box_extract
@@ -682,12 +632,12 @@ main_set_boxes_route@5:
     extract 0 1
     ==
     assert
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_len
     pop
     intc_0 // 1
     -
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     swap
     intc_0 // 1
     box_extract
@@ -700,7 +650,7 @@ main_set_boxes_route@5:
     extract3
     ==
     assert
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_len
     pop
     intc_0 // 1
@@ -711,7 +661,7 @@ main_set_boxes_route@5:
     uncover 2
     select
     -
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     intc_1 // 0
     uncover 2
     box_extract
@@ -731,7 +681,7 @@ main_set_boxes_route@5:
     substring3
     ==
     assert
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_len
     pop
     intc_2 // 2
@@ -740,7 +690,7 @@ main_set_boxes_route@5:
     intc_2 // 2
     swap
     select
-    bytec_1 // 0x424f585f43
+    bytec_0 // 0x424f585f43
     intc_1 // 0
     uncover 2
     box_extract
@@ -866,7 +816,7 @@ main_set_boxes_route@5:
     substring3
     ==
     assert
-    bytec 6 // "box_large"
+    bytec 5 // "box_large"
     box_len
     assert // check self.box_large exists
     pushint 6152 // 6152

@@ -4,12 +4,12 @@
 // test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 8 16 144
-    bytecblock "count" 0x151f7c75 0x 0x00 0x0000
+    bytecblock 0x151f7c75 "count" 0x 0x00 0x0000
     txn ApplicationID
     bnz main_after_if_else@2
     // array/static_size.py:39
     // self.count = UInt64(0)
-    bytec_0 // "count"
+    bytec_1 // "count"
     intc_0 // 0
     app_global_put
 
@@ -37,7 +37,7 @@ main_test_arc4_bool_route@11:
     txn ApplicationID
     assert // can only call when not creating
     callsub test_arc4_bool
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -59,7 +59,7 @@ main_sum_array_route@10:
     // @arc4.abimethod()
     callsub sum_array
     itob
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -81,7 +81,7 @@ main_test_arc4_conversion_route@9:
     // array/static_size.py:89
     // @arc4.abimethod()
     callsub test_arc4_conversion
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -104,7 +104,7 @@ main_test_bool_array_route@8:
     // @arc4.abimethod()
     callsub test_bool_array
     itob
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -125,7 +125,7 @@ main_test_extend_from_arc4_tuple_route@7:
     // array/static_size.py:67
     // @arc4.abimethod()
     callsub test_extend_from_arc4_tuple
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -150,7 +150,7 @@ main_test_extend_from_tuple_route@6:
     // array/static_size.py:57
     // @arc4.abimethod()
     callsub test_extend_from_tuple
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -177,7 +177,7 @@ main_test_array_route@5:
     // @arc4.abimethod()
     callsub test_array
     itob
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -297,7 +297,7 @@ test_array:
     dupn 5
     // array/static_size.py:43
     // self.count = UInt64(0)
-    bytec_0 // "count"
+    bytec_1 // "count"
     intc_0 // 0
     app_global_put
     // array/static_size.py:45
@@ -687,7 +687,12 @@ test_extend_from_arc4_tuple:
     pop
     // array/static_size.py:73
     // return arr.freeze()
-    pushbytes 0x0002
+    frame_dig -1
+    len
+    intc_3 // 16
+    /
+    itob
+    extract 6 2
     frame_dig -1
     concat
     retsub
@@ -974,23 +979,17 @@ xtra:
     // array/static_size.py:120
     // self.count += 1
     intc_0 // 0
-    bytec_0 // "count"
+    bytec_1 // "count"
     app_global_get_ex
     assert // check self.count exists
     intc_1 // 1
     +
-    bytec_0 // "count"
-    swap
+    bytec_1 // "count"
+    dig 1
     app_global_put
     // array/static_size.py:122
     // a=Txn.num_app_args,
     txn NumAppArgs
-    // array/static_size.py:123
-    // b=self.count,
-    intc_0 // 0
-    bytec_0 // "count"
-    app_global_get_ex
-    assert // check self.count exists
     // array/static_size.py:124
     // c=Txn.sender,
     txn Sender
@@ -1000,7 +999,7 @@ xtra:
     // array/static_size.py:126
     // e=BigUInt(self.count),
     intc_0 // 0
-    bytec_0 // "count"
+    bytec_1 // "count"
     app_global_get_ex
     assert // check self.count exists
     itob
@@ -1012,6 +1011,8 @@ xtra:
     //     d=self.more(),
     //     e=BigUInt(self.count),
     // )
+    uncover 3
+    cover 4
     retsub
 
 
@@ -1020,20 +1021,15 @@ more:
     // array/static_size.py:131
     // return More(foo=arc4.UInt64(self.count + 1), bar=arc4.UInt64(self.count * self.count))
     intc_0 // 0
-    bytec_0 // "count"
+    bytec_1 // "count"
     app_global_get_ex
     assert // check self.count exists
+    dup
     intc_1 // 1
     +
     itob
-    intc_0 // 0
-    bytec_0 // "count"
-    app_global_get_ex
-    assert // check self.count exists
-    intc_0 // 0
-    bytec_0 // "count"
-    app_global_get_ex
-    assert // check self.count exists
+    dig 1
+    uncover 2
     *
     itob
     concat

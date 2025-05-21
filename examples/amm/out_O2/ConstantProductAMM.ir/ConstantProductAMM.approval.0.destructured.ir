@@ -73,9 +73,7 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         (assert check%0#0) // asset exists
         let tmp%0#9: bytes = (concat 0x4450542d value%0#0)
         let tmp%1#7: bytes = (concat tmp%0#9 0x2d)
-        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "asset_b")
-        (assert maybe_exists%1#0) // check self.asset_b exists
-        let (value%1#0: bytes, check%1#0: bool) = ((asset_params_get AssetUnitName) maybe_value%1#0)
+        let (value%1#0: bytes, check%1#0: bool) = ((asset_params_get AssetUnitName) b_asset#0)
         (assert check%1#0) // asset exists
         let inner_txn_params%0%%param_ConfigAssetName_idx_0#0: bytes = (concat tmp%1#7 value%1#0)
         let inner_txn_params%0%%param_ConfigAssetManager_idx_0#0: bytes[32] = (global CurrentApplicationAddress)
@@ -93,15 +91,15 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         (app_global_put "pool_token" tmp%2#5)
         let (asset#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%1#0) // check self.asset_a exists
-        let tmp%0#12: bytes[32] = (global CurrentApplicationAddress)
-        examples.amm.contract.do_asset_transfer(tmp%0#12, asset#0, 0u)
-        let (asset#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "asset_b")
-        (assert maybe_exists%2#0) // check self.asset_b exists
-        let tmp%0#12: bytes[32] = (global CurrentApplicationAddress)
-        examples.amm.contract.do_asset_transfer(tmp%0#12, asset#0, 0u)
-        let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "pool_token")
-        (assert maybe_exists%3#0) // check self.pool_token exists
-        let val_as_bytes%0#0: bytes[8] = (itob maybe_value%3#0)
+        let tmp%0#9: bytes = (global CurrentApplicationAddress)
+        examples.amm.contract.do_asset_transfer(tmp%0#9, asset#0, 0u)
+        let (asset#0: uint64, maybe_exists%2#1: bool) = (app_global_get_ex 0u "asset_b")
+        (assert maybe_exists%2#1) // check self.asset_b exists
+        let tmp%0#9: bytes = (global CurrentApplicationAddress)
+        examples.amm.contract.do_asset_transfer(tmp%0#9, asset#0, 0u)
+        let (maybe_value%3#3: uint64, maybe_exists%3#3: bool) = (app_global_get_ex 0u "pool_token")
+        (assert maybe_exists%3#3) // check self.pool_token exists
+        let val_as_bytes%0#0: bytes[8] = (itob maybe_value%3#3)
         let tmp%18#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
         (log tmp%18#0)
         let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0: bool = 1u
@@ -135,17 +133,15 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "pool_token")
         (assert maybe_exists%0#0) // check self.pool_token exists
         (assert maybe_value%0#0) // bootstrap method needs to be called first
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "pool_token")
-        (assert maybe_exists%0#0) // check self.pool_token exists
         let tmp%0#0: bool = (== pool_asset#0 maybe_value%0#0)
         (assert tmp%0#0) // asset pool incorrect
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%1#0) // check self.asset_a exists
         let tmp%1#1: bool = (== a_asset#0 maybe_value%1#0)
         (assert tmp%1#1) // asset a incorrect
-        let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "asset_b")
-        (assert maybe_exists%2#0) // check self.asset_b exists
-        let tmp%2#2: bool = (== b_asset#0 maybe_value%2#0)
+        let (maybe_value%2#1: uint64, maybe_exists%2#1: bool) = (app_global_get_ex 0u "asset_b")
+        (assert maybe_exists%2#1) // check self.asset_b exists
+        let tmp%2#2: bool = (== b_asset#0 maybe_value%2#1)
         (assert tmp%2#2) // asset b incorrect
         let tmp%3#2: bytes[32] = ((gtxns Sender) a_xfer#0)
         let tmp%4#1: bytes[32] = (txn Sender)
@@ -160,9 +156,7 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let tmp%11#2: bool = (== tmp%9#3 tmp%10#1)
         (assert tmp%11#2) // receiver not app address
         let tmp%12#2: uint64 = ((gtxns XferAsset) a_xfer#0)
-        let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "asset_a")
-        (assert maybe_exists%3#0) // check self.asset_a exists
-        let tmp%13#2: bool = (== tmp%12#2 maybe_value%3#0)
+        let tmp%13#2: bool = (== tmp%12#2 maybe_value%1#0)
         (assert tmp%13#2) // asset a incorrect
         let a_amount#0: uint64 = ((gtxns AssetAmount) a_xfer#0)
         (assert a_amount#0) // amount minimum not met
@@ -171,9 +165,7 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let tmp%18#2: bool = (== tmp%16#2 tmp%17#1)
         (assert tmp%18#2) // receiver not app address
         let tmp%19#0: uint64 = ((gtxns XferAsset) b_xfer#0)
-        let (maybe_value%4#1: uint64, maybe_exists%4#0: bool) = (app_global_get_ex 0u "asset_b")
-        (assert maybe_exists%4#0) // check self.asset_b exists
-        let tmp%20#0: bool = (== tmp%19#0 maybe_value%4#1)
+        let tmp%20#0: bool = (== tmp%19#0 maybe_value%2#1)
         (assert tmp%20#0) // asset b incorrect
         let b_amount#0: uint64 = ((gtxns AssetAmount) b_xfer#0)
         (assert b_amount#0) // amount minimum not met
@@ -254,17 +246,15 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "pool_token")
         (assert maybe_exists%0#0) // check self.pool_token exists
         (assert maybe_value%0#0) // bootstrap method needs to be called first
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "pool_token")
-        (assert maybe_exists%0#0) // check self.pool_token exists
         let tmp%0#0: bool = (== pool_asset#0 maybe_value%0#0)
         (assert tmp%0#0) // asset pool incorrect
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%1#0) // check self.asset_a exists
         let tmp%1#1: bool = (== a_asset#0 maybe_value%1#0)
         (assert tmp%1#1) // asset a incorrect
-        let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "asset_b")
-        (assert maybe_exists%2#0) // check self.asset_b exists
-        let tmp%2#2: bool = (== b_asset#0 maybe_value%2#0)
+        let (maybe_value%2#1: uint64, maybe_exists%2#1: bool) = (app_global_get_ex 0u "asset_b")
+        (assert maybe_exists%2#1) // check self.asset_b exists
+        let tmp%2#2: bool = (== b_asset#0 maybe_value%2#1)
         (assert tmp%2#2) // asset b incorrect
         let tmp%3#2: bytes[32] = ((gtxns AssetReceiver) pool_xfer#0)
         let tmp%4#1: bytes[32] = (global CurrentApplicationAddress)
@@ -273,9 +263,7 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let amount#0: uint64 = ((gtxns AssetAmount) pool_xfer#0)
         (assert amount#0) // amount minimum not met
         let tmp%8#2: uint64 = ((gtxns XferAsset) pool_xfer#0)
-        let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "pool_token")
-        (assert maybe_exists%3#0) // check self.pool_token exists
-        let tmp%9#2: bool = (== tmp%8#2 maybe_value%3#0)
+        let tmp%9#2: bool = (== tmp%8#2 maybe_value%0#0)
         (assert tmp%9#2) // asset pool incorrect
         let tmp%10#1: bytes[32] = ((gtxns Sender) pool_xfer#0)
         let tmp%11#1: bytes[32] = (txn Sender)
@@ -294,10 +282,10 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let (maybe_value%4#1: uint64, maybe_exists%4#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%4#0) // check self.asset_a exists
         examples.amm.contract.do_asset_transfer(tmp%17#1, maybe_value%4#1, a_amt#0)
-        let tmp%18#1: bytes[32] = (txn Sender)
+        let tmp%18#0: bytes = (txn Sender)
         let (maybe_value%5#1: uint64, maybe_exists%5#0: bool) = (app_global_get_ex 0u "asset_b")
         (assert maybe_exists%5#0) // check self.asset_b exists
-        examples.amm.contract.do_asset_transfer(tmp%18#1, maybe_value%5#1, b_amt#0)
+        examples.amm.contract.do_asset_transfer(tmp%18#0, maybe_value%5#1, b_amt#0)
         examples.amm.contract.ConstantProductAMM._update_ratio()
         let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0
@@ -336,12 +324,8 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let tmp%5#1: bytes[32] = (txn Sender)
         let tmp%6#1: bool = (== tmp%4#1 tmp%5#1)
         (assert tmp%6#1) // sender invalid
-        let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "asset_a")
-        (assert maybe_exists%2#0) // check self.asset_a exists
-        let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "asset_b")
-        (assert maybe_exists%3#0) // check self.asset_b exists
         let tmp%7#0: uint64 = ((gtxns XferAsset) swap_xfer#0)
-        switch tmp%7#0 {maybe_value%2#0 => block@10, maybe_value%3#0 => block@11, * => block@12}
+        switch tmp%7#0 {maybe_value%0#0 => block@10, maybe_value%1#0 => block@11, * => block@12}
     block@10: // switch_case_0_L233
         let in_supply#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
         let out_supply#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()

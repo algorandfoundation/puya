@@ -348,6 +348,9 @@ class WTypeVisitor[T](ARC4WTypeVisitor[T]):
     def visit_inner_transaction_type(self, wtype: puya.awst.wtypes.WInnerTransaction) -> T: ...
 
     @abstractmethod
+    def visit_bytes_type(self, wtype: puya.awst.wtypes.BytesWType) -> T: ...
+
+    @abstractmethod
     def visit_inner_transaction_fields_type(
         self, wtype: puya.awst.wtypes.WInnerTransactionFields
     ) -> T: ...

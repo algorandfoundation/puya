@@ -70,6 +70,7 @@ from puya.ir.types_ import (
     ArrayType,
     AVMBytesEncoding,
     PrimitiveIRType,
+    SizedBytesType,
     SlotType,
     bytes_enc_to_avm_bytes_enc,
     wtype_to_ir_type,
@@ -439,7 +440,6 @@ class FunctionIRBuilder(
                 return BytesConstant(
                     value=(ARC4_TRUE if expr.value else ARC4_FALSE),
                     encoding=AVMBytesEncoding.base16,
-                    ir_type=PrimitiveIRType.bytes,
                     source_location=expr.source_location,
                 )
             case _:
@@ -450,10 +450,13 @@ class FunctionIRBuilder(
     def visit_bytes_constant(self, expr: awst_nodes.BytesConstant) -> BytesConstant:
         if len(expr.value) > algo_constants.MAX_BYTES_LENGTH:
             raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
+        ir_type = wtype_to_ir_type(expr)
+        if ir_type is PrimitiveIRType.bytes:
+            ir_type = SizedBytesType(num_bytes=len(expr.value))
         return BytesConstant(
             value=expr.value,
             encoding=bytes_enc_to_avm_bytes_enc(expr.encoding),
-            ir_type=wtype_to_ir_type(expr),
+            ir_type=ir_type,
             source_location=expr.source_location,
         )
 
@@ -757,7 +760,7 @@ class FunctionIRBuilder(
         sliceable_type = expr.base.wtype
         if isinstance(sliceable_type, wtypes.WTuple):
             return self._visit_tuple_slice(expr, sliceable_type)
-        elif sliceable_type == wtypes.bytes_wtype:
+        elif isinstance(sliceable_type, wtypes.BytesWType):
             return visit_bytes_intersection_slice_expression(self.context, expr)
         elif isinstance(sliceable_type, wtypes.StackArray):
             if expr.begin_index is not None or expr.end_index != -1:
@@ -781,7 +784,7 @@ class FunctionIRBuilder(
         """Slices an enumerable type."""
         if isinstance(expr.base.wtype, wtypes.WTuple):
             return self._visit_tuple_slice(expr, expr.base.wtype)
-        elif expr.base.wtype == wtypes.bytes_wtype:
+        elif isinstance(expr.base.wtype, wtypes.BytesWType):
             return visit_bytes_slice_expression(self.context, expr)
         else:
             raise InternalError(
@@ -810,7 +813,7 @@ class FunctionIRBuilder(
         base = self.visit_and_materialise_single(expr.base)
 
         indexable_wtype = expr.base.wtype
-        if indexable_wtype == wtypes.bytes_wtype:
+        if isinstance(indexable_wtype, wtypes.BytesWType):
             # note: the below works because Bytes is immutable, so this index expression
             # can never appear as an assignment target
             if isinstance(index, UInt64Constant) and index.value <= 255:

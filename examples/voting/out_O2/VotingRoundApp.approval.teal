@@ -4,7 +4,7 @@
 // examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 10 8
-    bytecblock "is_bootstrapped" "voter_count" "option_counts" "V" "vote_id" "close_time" "metadata_ipfs_cid" "quorum" "nft_image_url" "total_options" "snapshot_public_key" "start_time" "end_time" 0x068101 0x30313233343536373839
+    bytecblock "is_bootstrapped" "voter_count" "option_counts" "V" "close_time" "vote_id" "metadata_ipfs_cid" "quorum" "nft_image_url" "total_options" "snapshot_public_key" "start_time" "end_time" 0x068101 0x30313233343536373839
     intc_0 // 0
     dupn 6
     pushbytes ""
@@ -206,20 +206,20 @@ main_close_route@7:
     intc_0 // 0
     callsub ensure_budget
     intc_0 // 0
-    bytec 5 // "close_time"
+    bytec 4 // "close_time"
     app_global_get_ex
     bury 1
     !
     assert // Already closed
-    bytec 5 // "close_time"
+    bytec 4 // "close_time"
     global LatestTimestamp
     app_global_put
     intc_0 // 0
-    bytec 4 // "vote_id"
+    bytec 5 // "vote_id"
     app_global_get_ex
     assert // check self.vote_id exists
     pushbytes "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID "
-    swap
+    dig 1
     concat
     pushbytes ".\",\"properties\":{\"metadata\":\"ipfs://"
     concat
@@ -230,10 +230,7 @@ main_close_route@7:
     concat
     pushbytes "\",\"id\":\""
     concat
-    intc_0 // 0
-    bytec 4 // "vote_id"
-    app_global_get_ex
-    assert // check self.vote_id exists
+    swap
     concat
     pushbytes "\",\"quorum\":"
     concat
@@ -377,7 +374,7 @@ main_after_for@19:
     itxn_begin
     global MinTxnFee
     intc_0 // 0
-    bytec 4 // "vote_id"
+    bytec 5 // "vote_id"
     app_global_get_ex
     assert // check self.vote_id exists
     pushbytes "[VOTE RESULT] "
@@ -495,7 +492,7 @@ main_create_route@5:
     global LatestTimestamp
     >=
     assert // End time should be in the future
-    bytec 4 // "vote_id"
+    bytec 5 // "vote_id"
     uncover 8
     app_global_put
     bytec 10 // "snapshot_public_key"
@@ -645,7 +642,7 @@ voting_open:
     assert // check self.is_bootstrapped exists
     bz voting_open_bool_false@5
     intc_0 // 0
-    bytec 5 // "close_time"
+    bytec 4 // "close_time"
     app_global_get_ex
     bury 1
     bnz voting_open_bool_false@5

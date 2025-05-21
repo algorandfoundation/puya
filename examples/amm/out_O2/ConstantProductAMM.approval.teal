@@ -66,32 +66,27 @@ main_swap_route@9:
     app_global_get_ex
     assert // check self.asset_a exists
     uncover 2
+    dig 1
     ==
     assert // asset a incorrect
     intc_0 // 0
     bytec_1 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
+    uncover 2
+    dig 1
     ==
     assert // asset b incorrect
-    dup
+    dig 2
     gtxns AssetAmount
     dup
-    bury 6
+    bury 8
     assert // amount minimum not met
-    dup
+    dig 2
     gtxns Sender
     txn Sender
     ==
     assert // sender invalid
-    intc_0 // 0
-    bytec_0 // "asset_a"
-    app_global_get_ex
-    assert // check self.asset_a exists
-    intc_0 // 0
-    bytec_1 // "asset_b"
-    app_global_get_ex
-    assert // check self.asset_b exists
     uncover 2
     gtxns XferAsset
     match main_switch_case_0@10 main_switch_case_1@11
@@ -176,42 +171,38 @@ main_burn_route@8:
     bytec_2 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
+    dup
     assert // bootstrap method needs to be called first
-    intc_0 // 0
-    bytec_2 // "pool_token"
-    app_global_get_ex
-    assert // check self.pool_token exists
     uncover 3
+    dig 1
     ==
     assert // asset pool incorrect
     intc_0 // 0
     bytec_0 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
-    uncover 2
+    uncover 3
     ==
     assert // asset a incorrect
     intc_0 // 0
     bytec_1 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
+    uncover 2
     ==
     assert // asset b incorrect
-    dup
+    dig 1
     gtxns AssetReceiver
     global CurrentApplicationAddress
     ==
     assert // receiver not app address
-    dup
+    dig 1
     gtxns AssetAmount
     dup
     assert // amount minimum not met
-    dig 1
+    dig 2
     gtxns XferAsset
-    intc_0 // 0
-    bytec_2 // "pool_token"
-    app_global_get_ex
-    assert // check self.pool_token exists
+    uncover 2
     ==
     assert // asset pool incorrect
     swap
@@ -289,11 +280,8 @@ main_mint_route@7:
     bytec_2 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
+    dup
     assert // bootstrap method needs to be called first
-    intc_0 // 0
-    bytec_2 // "pool_token"
-    app_global_get_ex
-    assert // check self.pool_token exists
     uncover 3
     ==
     assert // asset pool incorrect
@@ -302,54 +290,51 @@ main_mint_route@7:
     app_global_get_ex
     assert // check self.asset_a exists
     uncover 2
+    dig 1
     ==
     assert // asset a incorrect
     intc_0 // 0
     bytec_1 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
+    uncover 2
+    dig 1
     ==
     assert // asset b incorrect
-    dig 1
+    dig 3
     gtxns Sender
     txn Sender
     ==
     assert // sender invalid
-    dup
+    dig 2
     gtxns Sender
     txn Sender
     ==
     assert // sender invalid
-    dig 1
+    dig 3
     gtxns AssetReceiver
     global CurrentApplicationAddress
     ==
     assert // receiver not app address
-    dig 1
+    dig 3
     gtxns XferAsset
-    intc_0 // 0
-    bytec_0 // "asset_a"
-    app_global_get_ex
-    assert // check self.asset_a exists
+    uncover 2
     ==
     assert // asset a incorrect
-    swap
+    uncover 2
     gtxns AssetAmount
     dup
-    bury 12
+    bury 13
     dup
     assert // amount minimum not met
-    dig 1
+    dig 2
     gtxns AssetReceiver
     global CurrentApplicationAddress
     ==
     assert // receiver not app address
-    dig 1
+    dig 2
     gtxns XferAsset
-    intc_0 // 0
-    bytec_1 // "asset_b"
-    app_global_get_ex
-    assert // check self.asset_b exists
+    uncover 2
     ==
     assert // asset b incorrect
     swap
@@ -488,7 +473,7 @@ main_bootstrap_route@6:
     uncover 2
     app_global_put
     bytec_1 // "asset_b"
-    swap
+    dig 1
     app_global_put
     itxn_begin
     intc_0 // 0
@@ -502,10 +487,7 @@ main_bootstrap_route@6:
     concat
     pushbytes 0x2d
     concat
-    intc_0 // 0
-    bytec_1 // "asset_b"
-    app_global_get_ex
-    assert // check self.asset_b exists
+    swap
     asset_params_get AssetUnitName
     assert // asset exists
     concat

@@ -208,12 +208,10 @@ subroutine examples.auction.contract.Auction.claim_asset(asset: uint64) -> void:
         itxn_begin
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
         (assert maybe_exists%1#0) // check self.previous_bidder exists
-        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "previous_bidder")
-        (assert maybe_exists%2#0) // check self.previous_bidder exists
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "asa_amount")
         (assert maybe_exists%3#0) // check self.asa_amount exists
         ((itxn_field AssetAmount) maybe_value%3#0)
-        ((itxn_field AssetReceiver) maybe_value%2#0)
+        ((itxn_field AssetReceiver) maybe_value%1#0)
         ((itxn_field AssetCloseTo) maybe_value%1#0)
         ((itxn_field XferAsset) asset#0)
         ((itxn_field TypeEnum) axfer)

@@ -4,11 +4,11 @@
 // test_cases.augmented_assignment.contract.Augmented.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1
-    bytecblock "counter" "my_uint" "global_uint" "global_bytes" "my_bytes"
+    bytecblock "my_uint" "counter" "global_uint" "global_bytes" "my_bytes"
     intc_0 // 0
     txn ApplicationID
     bnz main_after_if_else@2
-    bytec_0 // "counter"
+    bytec_1 // "counter"
     intc_0 // 0
     app_global_put
     bytec_2 // "global_uint"
@@ -26,7 +26,7 @@ main_after_if_else@2:
     ==
     bz main_after_if_else@5
     dupn 2
-    bytec_1 // "my_uint"
+    bytec_0 // "my_uint"
     intc_0 // 0
     app_local_put
     bytec 4 // "my_bytes"
@@ -43,13 +43,13 @@ main_after_if_else@5:
     dup
     cover 2
     intc_0 // 0
-    bytec_1 // "my_uint"
+    bytec_0 // "my_uint"
     app_local_get_ex
     assert // check self.my_uint exists for account
     dig 3
     +
     dig 2
-    bytec_1 // "my_uint"
+    bytec_0 // "my_uint"
     uncover 2
     app_local_put
     dig 1
@@ -81,28 +81,22 @@ main_after_if_else@5:
     bytec_3 // "global_bytes"
     swap
     app_global_put
-    bytec_0 // "counter"
+    bytec_1 // "counter"
     intc_0 // 0
     app_global_put
-    intc_0 // 0
-    bytec_0 // "counter"
-    app_global_get_ex
-    assert // check self.counter exists
-    !
-    assert
     callsub get_sender_with_side_effect
     dup
     intc_0 // 0
-    bytec_1 // "my_uint"
+    bytec_0 // "my_uint"
     app_local_get_ex
     assert // check self.my_uint exists for account
     intc_1 // 1
     +
-    bytec_1 // "my_uint"
+    bytec_0 // "my_uint"
     swap
     app_local_put
     intc_0 // 0
-    bytec_0 // "counter"
+    bytec_1 // "counter"
     app_global_get_ex
     assert // check self.counter exists
     intc_1 // 1
@@ -111,16 +105,16 @@ main_after_if_else@5:
     callsub get_sender_with_side_effect
     dup
     intc_0 // 0
-    bytec_1 // "my_uint"
+    bytec_0 // "my_uint"
     app_local_get_ex
     assert // check self.my_uint exists for account
     intc_1 // 1
     -
-    bytec_1 // "my_uint"
+    bytec_0 // "my_uint"
     swap
     app_local_put
     intc_0 // 0
-    bytec_0 // "counter"
+    bytec_1 // "counter"
     app_global_get_ex
     assert // check self.counter exists
     pushint 2 // 2
@@ -135,12 +129,12 @@ main_after_if_else@7:
 // test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect() -> bytes:
 get_sender_with_side_effect:
     intc_0 // 0
-    bytec_0 // "counter"
+    bytec_1 // "counter"
     app_global_get_ex
     assert // check self.counter exists
     intc_1 // 1
     +
-    bytec_0 // "counter"
+    bytec_1 // "counter"
     swap
     app_global_put
     txn Sender
