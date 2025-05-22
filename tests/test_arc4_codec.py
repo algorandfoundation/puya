@@ -4,18 +4,19 @@ import pytest
 from puya.awst import nodes, wtypes
 from puya.context import CompileContext
 from puya.errors import log_exceptions
-from puya.ir.arc4_types import get_arc4_name
 from puya.ir.main import awst_to_ir
+from puya.ir.types_ import wtype_to_encoding, wtype_to_ir_type
 from puya.log import LogLevel, logging_context
 from puya.options import PuyaOptions
 from puya.parse import SourceLocation
 
 
-def _arc4_name_or_str(wtype: wtypes.WType) -> str:
-    if isinstance(wtype, wtypes.ARC4Type):
-        return get_arc4_name(wtype, use_alias=True)
-    else:
-        return str(wtype)
+def _encoding_name(wtype: wtypes.WType) -> str:
+    return wtype_to_encoding(wtype, None).name
+
+
+def _ir_name(wtype: wtypes.WType) -> str:
+    return wtype_to_ir_type(wtype, SourceLocation(file=None, line=1), allow_aggregate=True).name
 
 
 uint8 = wtypes.ARC4UIntN(n=8)
@@ -25,6 +26,8 @@ uint8 = wtypes.ARC4UIntN(n=8)
     ("arc4_type", "target_type"),
     [
         (wtypes.arc4_address_alias, wtypes.account_wtype),
+        (wtypes.arc4_address_alias, wtypes.bytes_wtype),
+        (wtypes.arc4_string_alias, wtypes.string_wtype),
         (wtypes.ARC4UIntN(n=8), wtypes.bool_wtype),
         (
             wtypes.ARC4StaticArray(element_type=uint8, array_size=3),
@@ -39,7 +42,7 @@ uint8 = wtypes.ARC4UIntN(n=8)
             wtypes.WTuple(types=(wtypes.uint64_wtype,) * 3),
         ),
     ],
-    ids=_arc4_name_or_str,
+    ids=_ir_name,
 )
 def test_supported_decodes(arc4_type: wtypes.ARC4Type, target_type: wtypes.WType) -> None:
     func = _build_decode_function(arc4_type, target_type)
@@ -52,19 +55,18 @@ def test_supported_decodes(arc4_type: wtypes.ARC4Type, target_type: wtypes.WType
     [
         (wtypes.arc4_address_alias, wtypes.uint64_wtype),
         (wtypes.arc4_string_alias, wtypes.bytes_wtype),
+        (wtypes.ARC4DynamicArray(element_type=wtypes.arc4_byte_alias), wtypes.string_wtype),
         (
             wtypes.arc4_address_alias,
             wtypes.WTuple(types=(wtypes.uint64_wtype,) * 3),
         ),
     ],
-    ids=_arc4_name_or_str,
+    ids=_ir_name,
 )
 def test_unsupported_decodes(arc4_type: wtypes.ARC4Type, target_type: wtypes.WType) -> None:
     func = _build_decode_function(arc4_type, target_type)
     errors = _get_ir_build_errors(func)
-    assert errors == [
-        f"unsupported ARC-4 decode operation from type {_arc4_name_or_str(arc4_type)}"
-    ]
+    assert errors == [f"cannot decode from {_encoding_name(arc4_type)} to {_ir_name(target_type)}"]
 
 
 def _get_ir_build_errors(func: nodes.Subroutine) -> list[str]:

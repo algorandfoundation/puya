@@ -55,8 +55,10 @@ from puya.ir.types_ import (
     FixedArrayEncoding,
     IRType,
     PrimitiveIRType,
+    SizedBytesType,
     TupleEncoding,
     UIntEncoding,
+    UTF8Encoding,
     get_type_arity,
     type_has_encoding,
     wtype_to_encoding,
@@ -114,7 +116,7 @@ class ARC4Codec(abc.ABC):
     ) -> ValueProvider | None: ...
 
 
-class NewNativeTupleCodec(ARC4Codec):
+class NativeTupleCodec(ARC4Codec):
     def __init__(self, native_type: AggregateIRType):
         self.native_type = native_type
         self.homogenous = len(set(self.native_type.elements)) == 1
@@ -255,10 +257,12 @@ class NewNativeTupleCodec(ARC4Codec):
         match encoding:
             case TupleEncoding(elements=elements) if len(elements) == len(item_types):
                 pass
+            case FixedArrayEncoding(element=element, size=size) if size == len(item_types):
+                elements = [element] * size
             case _:
                 return None
         return _decode_arc4_tuple_items(
-            context, encoding, value, target_type=self.native_type, source_location=loc
+            context, elements, value, target_type=self.native_type, source_location=loc
         )
         # TODO: is this any better?
         """
@@ -428,6 +432,9 @@ class BoolCodec(ScalarCodec):
 
 
 class BytesCodec(ScalarCodec):
+    def __init__(self, element: UIntEncoding | UTF8Encoding):
+        self.element = element
+
     @typing.override
     def encode_value(
         self,
@@ -436,18 +443,19 @@ class BytesCodec(ScalarCodec):
         encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        # TODO: check for string when mapping?
-        # if _is_known_alias(target_type, expected=wtypes.arc4_string_alias):
-        #   return None
         factory = OpFactory(context, loc)
         match encoding:
-            case DynamicArrayEncoding(element=UIntEncoding(n=8), length_header=True):
+            case DynamicArrayEncoding(
+                element=element, length_header=True
+            ) if element == self.element:
                 length = factory.len(value, "length")
                 length_uint16 = factory.as_u16_bytes(length, "length_uint16")
                 return factory.concat(length_uint16, value, "encoded_value")
-            case DynamicArrayEncoding(element=UIntEncoding(n=8), length_header=False):
+            case DynamicArrayEncoding(
+                element=element, length_header=False
+            ) if element == self.element:
                 return value
-            case FixedArrayEncoding(element=UIntEncoding(n=8), size=num_bytes):
+            case FixedArrayEncoding(element=element, size=num_bytes) if element == self.element:
                 length = factory.len(value, "length")
                 lengths_equal = factory.eq(length, num_bytes, "lengths_equal")
                 assert_value(
@@ -464,54 +472,20 @@ class BytesCodec(ScalarCodec):
         encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        # TODO: check for string when mapping?
-        # if _is_known_alias(source_type, expected=wtypes.arc4_string_alias):
-        #    return None
         match encoding:
-            case DynamicArrayEncoding(element=UIntEncoding(n=8), length_header=True):
+            case DynamicArrayEncoding(
+                element=element, length_header=True
+            ) if element == self.element:
                 return Intrinsic(
                     op=AVMOp.extract, immediates=[2, 0], args=[value], source_location=loc
                 )
-            case ArrayEncoding(element=UIntEncoding(n=8)):
+            case ArrayEncoding(element=element) if element == self.element:
                 return value
         return None
 
 
 # TODO: work out if we need these codecs
 """
-class StringCodec(ScalarCodec):
-    @typing.override
-    def encode_value(
-        self,
-        context: IRFunctionBuildContext,
-        value: Value,
-        encoding: Encoding,
-        loc: SourceLocation,
-    ) -> ValueProvider | None:
-        typing.assert_type(wtypes.arc4_string_alias, wtypes.ARC4DynamicArray)
-        if _is_known_alias(target_type, expected=wtypes.arc4_string_alias):
-            factory = OpFactory(context, loc)
-            length = factory.len(value, "length")
-            length_uint16 = factory.as_u16_bytes(length, "length_uint16")
-            return factory.concat(length_uint16, value, "encoded_value")
-        return None
-
-    @typing.override
-    def decode(
-        self,
-        context: IRFunctionBuildContext,
-        value: Value,
-        encoding: Encoding,
-        loc: SourceLocation,
-    ) -> ValueProvider | None:
-        typing.assert_type(wtypes.arc4_string_alias, wtypes.ARC4DynamicArray)
-        if _is_known_alias(source_type, expected=wtypes.arc4_string_alias):
-            return Intrinsic(
-                op=AVMOp.extract, immediates=[2, 0], args=[value], source_location=loc
-            )
-        return None
-
-
 class AccountCodec(ARC4Codec):
     @typing.override
     def encode(
@@ -539,7 +513,7 @@ class AccountCodec(ARC4Codec):
 """
 
 
-class StackArrayCodec(ARC4Codec):
+class CheckedEncoding(ARC4Codec):
     def __init__(self, native_type: IRType):
         self.native_type: typing.Final = native_type
 
@@ -577,23 +551,21 @@ def _is_known_alias(wtype: wtypes.ARC4Type, *, expected: wtypes.ARC4Type) -> boo
 def _get_arc4_codec(ir_type: IRType) -> ARC4Codec | None:
     match ir_type:
         case AggregateIRType() as aggregate:
-            return NewNativeTupleCodec(aggregate)
+            return NativeTupleCodec(aggregate)
         case PrimitiveIRType.biguint:
             return BigUIntCodec()
         case PrimitiveIRType.bool:
             return BoolCodec()
+        case PrimitiveIRType.string:
+            return BytesCodec(UTF8Encoding())
         case EncodedType():
-            # already encoded?...
-            return None
-        case wtypes.StackArray():
-            return StackArrayCodec(ir_type)
-        # TODO: what about these types
-        # case wtypes.string_wtype:
-        #    return StringCodec()
+            # TODO: this is the equivalent to the old StackArray check
+            #       but probably isn't necessary any more
+            return CheckedEncoding(ir_type)
+        case PrimitiveIRType.bytes | SizedBytesType():
+            return BytesCodec(UIntEncoding(n=8))
         case _ if ir_type.maybe_avm_type == AVMType.uint64:
             return UInt64Codec()
-        case _ if ir_type.maybe_avm_type == AVMType.bytes:
-            return BytesCodec()
         case _:
             return None
 
@@ -608,7 +580,8 @@ def decode_arc4_value(
     # TODO: migrate to ValueDecode
     if type_has_encoding(target_type, BoolEncoding) and isinstance(encoding, BoolEncoding):
         logger.warning(
-            f"TODO: ignoring bool packing for {target_type=!s}, {encoding=!s}", location=loc
+            f"TODO: ignoring bool packing for {_encoding_or_name(target_type)}, {encoding=!s}",
+            location=loc,
         )
         return value
     codec = _get_arc4_codec(target_type)
@@ -617,10 +590,17 @@ def decode_arc4_value(
         if result is not None:
             return result
     logger.error(
-        f"unsupported ARC-4 decode operation from type {target_type=}, {encoding=}",
+        f"cannot decode from {encoding!s} to {_encoding_or_name(target_type)}",
         location=loc,
     )
     return undefined_value(target_type, loc)
+
+
+def _encoding_or_name(typ: IRType) -> str:
+    if isinstance(typ, EncodedType):
+        return typ.encoding.name
+    else:
+        return typ.name
 
 
 # TODO: this becomes the lowering implementation for ir.ValueEncode
@@ -633,12 +613,14 @@ def encode_value_provider(
 ) -> ValueProvider:
     if type_has_encoding(value_type, encoding):
         logger.debug(
-            f"redundant encode operation for {value_type=!s}, {encoding=!s}", location=loc
+            f"redundant encode operation from {_encoding_or_name(value_type)} to {encoding!s}",
+            location=loc,
         )
         return value_provider
     if type_has_encoding(value_type, BoolEncoding) and isinstance(encoding, BoolEncoding):
         logger.warning(
-            f"TODO: ignoring bool packing for {value_type=!s}, {encoding=!s}", location=loc
+            f"TODO: ignoring bool packing for {_encoding_or_name(value_type)}, {encoding=!s}",
+            location=loc,
         )
         return value_provider
     codec = _get_arc4_codec(value_type)
@@ -647,9 +629,7 @@ def encode_value_provider(
         result = codec.encode(context, value_provider, encoding, loc)
         if result is not None:
             return result
-    logger.error(
-        f"unsupported ARC-4 encode operation for {value_type=!s}, {encoding=!s}", location=loc
-    )
+    logger.error(f"cannot encode {_encoding_or_name(value_type)} to {encoding!s}", location=loc)
     return Undefined(
         ir_type=PrimitiveIRType.bytes,
         source_location=loc,
@@ -715,7 +695,7 @@ def encode_arc4_exprs_as_array(
             item_encoding=element_encoding,
             loc=loc,
         )
-    array_encoding = wtype_to_encoding(wtype)
+    array_encoding = wtype_to_encoding(wtype, loc)
     return _encode_arc4_values_as_array(context, array_encoding, elements, loc)
 
 
@@ -764,7 +744,7 @@ def _encode_arc4_values_as_array(
 
 
 def arc4_array_index(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     *,
     array_encoding: ArrayEncoding,
     item_type: IRType,
@@ -849,7 +829,7 @@ def arc4_tuple_index(
     result = _read_nth_item_of_arc4_heterogeneous_container(
         context,
         array_head_and_tail=base,
-        tuple_encoding=tuple_encoding,
+        tuple_item_types=tuple_encoding.elements,
         index=index,
         source_location=source_location,
     )
@@ -1281,7 +1261,7 @@ def _encode_arc4_bool(
 
 def _decode_arc4_tuple_items(
     context: IRRegisterContext,
-    encoding: TupleEncoding,
+    tuple_elements: Sequence[Encoding],
     value: Value,
     target_type: AggregateIRType,
     source_location: SourceLocation,
@@ -1289,12 +1269,12 @@ def _decode_arc4_tuple_items(
     factory = OpFactory(context, source_location)
     items = list[Value]()
     for index, (target_item_type, encoded_item_type) in enumerate(
-        zip(target_type.elements, encoding.elements, strict=True)
+        zip(target_type.elements, tuple_elements, strict=True)
     ):
         item_value = _read_nth_item_of_arc4_heterogeneous_container(
             context,
             array_head_and_tail=value,
-            tuple_encoding=encoding,
+            tuple_item_types=tuple_elements,
             index=index,
             source_location=source_location,
         )
@@ -1320,7 +1300,7 @@ def _is_byte_length_header(encoding: Encoding) -> bool:
 
 
 def _read_dynamic_item_using_length_from_arc4_container(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     *,
     array_head_and_tail: Value,
     inner_element_size: int,
@@ -1343,7 +1323,7 @@ def _read_dynamic_item_using_length_from_arc4_container(
 
 
 def _read_dynamic_item_using_end_offset_from_arc4_container(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     *,
     array_length_vp: ValueProvider,
     array_head_and_tail: Value,
@@ -1580,11 +1560,10 @@ def _read_nth_item_of_arc4_heterogeneous_container(
     context: IRRegisterContext,
     *,
     array_head_and_tail: Value,
-    tuple_encoding: TupleEncoding,
+    tuple_item_types: Sequence[Encoding],
     index: int,
     source_location: SourceLocation,
 ) -> ValueProvider:
-    tuple_item_types = tuple_encoding.elements
     item_encoding = tuple_item_types[index]
     head_up_to_item = _get_arc4_tuple_head_size(tuple_item_types[:index], round_end_result=False)
     if _bit_packed_bool(item_encoding):
