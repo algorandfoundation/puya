@@ -469,7 +469,7 @@ class _ARC4StorageCodec(StorageCodec):
         self._declared_type = wtype_to_ir_type(
             declared_type, source_location=loc, allow_aggregate=True
         )
-        self._encoded_type = wtype_to_encoded_ir_type(arc4_type)
+        self._encoded_type = wtype_to_encoded_ir_type(arc4_type, loc)
 
     @typing.override
     def encode(
