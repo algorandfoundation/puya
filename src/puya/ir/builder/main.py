@@ -46,7 +46,6 @@ from puya.ir.builder.itxn import InnerTransactionBuilder
 from puya.ir.context import IRBuildContext
 from puya.ir.models import (
     AddressConstant,
-    ArrayReadIndex,
     BigUIntConstant,
     BytesConstant,
     CompiledContractReference,
@@ -63,7 +62,6 @@ from puya.ir.models import (
     UInt64Constant,
     Undefined,
     Value,
-    ValueDecode,
     ValueProvider,
     ValueTuple,
     WriteSlot,
@@ -78,7 +76,6 @@ from puya.ir.types_ import (
     SlotType,
     TupleEncoding,
     bytes_enc_to_avm_bytes_enc,
-    type_has_encoding,
     wtype_to_encoding,
     wtype_to_ir_type,
     wtype_to_ir_type_and_encoding,
@@ -839,73 +836,16 @@ class FunctionIRBuilder(
         )
 
     def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> TExpression:
-        factory = OpFactory(self.context, expr.source_location)
+        from puya.ir.builder.arrays2 import get_array_builder
+
+        loc = expr.source_location
+        indexable_wtype = expr.base.wtype
+
         index = self.visit_and_materialise_single(expr.index)
         base = self.visit_and_materialise_single(expr.base)
 
-        indexable_wtype = expr.base.wtype
-        if isinstance(indexable_wtype, wtypes.BytesWType):
-            # note: the below works because Bytes is immutable, so this index expression
-            # can never appear as an assignment target
-            if isinstance(index, UInt64Constant) and index.value <= 255:
-                return Intrinsic(
-                    op=AVMOp.extract,
-                    args=[base],
-                    immediates=[index.value, 1],
-                    source_location=expr.source_location,
-                )
-            else:
-                return Intrinsic(
-                    op=AVMOp.extract3,
-                    args=[
-                        base,
-                        index,
-                        UInt64Constant(value=1, source_location=expr.source_location),
-                    ],
-                    source_location=expr.source_location,
-                )
-        elif isinstance(indexable_wtype, wtypes.ReferenceArray):
-            slot = mem.read_slot(self.context, base, expr.base.source_location)
-            read_index = ArrayReadIndex(
-                array=slot,
-                index=index,
-                source_location=expr.source_location,
-            )
-            element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
-                indexable_wtype.element_type, expr.source_location
-            )
-            read_item = factory.materialise_single(read_index, "encoded_item")
-            if type_has_encoding(element_ir_type, element_encoding):
-                return read_item
-            else:
-                return factory.materialise_value_or_tuple(
-                    ValueDecode(
-                        value=read_item,
-                        encoding=element_encoding,
-                        decoded_type=element_ir_type,
-                        source_location=expr.source_location,
-                    ),
-                    "decoded_item",
-                )
-        elif isinstance(indexable_wtype, wtypes.StackArray | wtypes.ARC4Array):
-            array_encoding = wtype_to_encoding(indexable_wtype)
-            assert isinstance(array_encoding, ArrayEncoding)
-            element_ir_type, _ = wtype_to_ir_type_and_encoding(
-                indexable_wtype.element_type, expr.source_location
-            )
-            return arc4.arc4_array_index(
-                self.context,
-                array_encoding=array_encoding,
-                item_type=element_ir_type,
-                array=base,
-                index=index,
-                source_location=expr.source_location,
-            )
-        else:
-            raise InternalError(
-                f"Indexing operation IR lowering not implemented for {expr.wtype.name}",
-                expr.source_location,
-            )
+        builder = get_array_builder(self.context, indexable_wtype, loc)
+        return builder.read_at_index(base, index)
 
     def visit_conditional_expression(self, expr: awst_nodes.ConditionalExpression) -> TExpression:
         return flow_control.handle_conditional_expression(self.context, expr)
