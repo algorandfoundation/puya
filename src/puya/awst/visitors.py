@@ -167,6 +167,7 @@ class ExpressionVisitor[T](ABC):
     def visit_inner_transaction_field(
         self, itxn_field: puya.awst.nodes.InnerTransactionField
     ) -> T: ...
+
     @abstractmethod
     def visit_assert_expression(self, statement: puya.awst.nodes.AssertExpression) -> T: ...
 
@@ -314,6 +315,9 @@ class ExpressionVisitor[T](ABC):
 
     @abstractmethod
     def visit_emit(self, emit: puya.awst.nodes.Emit) -> T: ...
+
+    @abstractmethod
+    def visit_comma_expression(self, expr: puya.awst.nodes.CommaExpression) -> T: ...
 
 
 class ARC4WTypeVisitor[T](ABC):

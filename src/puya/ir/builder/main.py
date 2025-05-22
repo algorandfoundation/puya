@@ -1405,6 +1405,10 @@ class FunctionIRBuilder(
     def visit_range(self, node: awst_nodes.Range) -> TExpression:
         raise CodeError("unexpected range location", node.source_location)
 
+    def visit_comma_expression(self, expr: awst_nodes.CommaExpression) -> TExpression:
+        results = [inner.accept(self) for inner in expr.expressions]
+        return results[-1]
+
     def visit_and_materialise_single(
         self, expr: awst_nodes.Expression, temp_description: str = "tmp"
     ) -> Value:

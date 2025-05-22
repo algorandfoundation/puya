@@ -774,6 +774,10 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
     def visit_reinterpret_cast(self, expr: awst_nodes.ReinterpretCast) -> list[_SourceAction]:
         return expr.expr.accept(self)
 
+    @typing.override
+    def visit_comma_expression(self, expr: awst_nodes.CommaExpression) -> list[_SourceAction]:
+        return expr.expressions[-1].accept(self)
+
     # region idc
     def _empty_actions_from_wtype(self, expr: awst_nodes.Expression) -> list[_SourceAction]:
         ir_types = wtype_to_ir_types(expr.wtype, source_location=expr.source_location)
