@@ -167,6 +167,9 @@ emitter_block@0:
     extract 6 2
     bytec_3 // 0x68656c6c6f31
     concat
+    bytec_0 // 0x
+    swap
+    concat
     pushint 3 // 3
     itob
     extract 6 2
@@ -197,6 +200,9 @@ emitter_block@0:
     extract 6 2
     bytec 5 // 0x68656c6c6f32
     concat
+    bytec_0 // 0x
+    swap
+    concat
     pushint 3 // 3
     itob
     extract 6 2
@@ -213,20 +219,27 @@ emitter_block@0:
     //     String("hello"),
     //     SharedStruct(foo=arc4.DynamicBytes(b"hello2"), bar=arc4.UInt8(42)),
     // )
+    bytec_0 // 0x
+    dig 2
+    concat
+    swap
+    uncover 2
+    len
+    pushint 4 // 4
+    +
     pushint 4 // 4
     itob
     extract 6 2
     bytec_0 // 0x
     swap
     concat
-    dig 2
-    len
-    pushint 4 // 4
-    +
+    uncover 3
+    uncover 3
+    concat
+    swap
+    uncover 2
     itob
     extract 6 2
-    concat
-    uncover 2
     concat
     swap
     concat
@@ -258,6 +271,8 @@ conditional_emit_if_body@1:
     concat
     pushbytes 0x000000000000002b
     concat
+    bytec_0 // 0x
+    concat
     // arc_56/contract.py:120
     // SharedStruct(foo=arc4.DynamicBytes(b"hello3"), bar=arc4.UInt8(42)),
     bytec 6 // 0x68656c6c6f33
@@ -265,6 +280,9 @@ conditional_emit_if_body@1:
     itob
     extract 6 2
     bytec 6 // 0x68656c6c6f33
+    concat
+    bytec_0 // 0x
+    swap
     concat
     pushint 3 // 3
     itob
@@ -285,6 +303,11 @@ conditional_emit_if_body@1:
     bytec_0 // 0x
     uncover 2
     concat
+    swap
+    bytec_0 // 0x
+    swap
+    concat
+    swap
     pushint 18 // 18
     itob
     extract 6 2
@@ -429,20 +452,24 @@ with_constant_defaults_bool_merge@8:
     assert
     // arc_56/contract.py:162
     // assert f[0] == "hi"
-    frame_dig -4
+    intc_0 // 0
+    pushint 2 // 2
+    <
+    assert // index access is out of bounds
     intc_0 // 0
     pushint 2 // 2
     *
-    dig 1
+    frame_dig -4
     swap
     extract_uint16
-    dup2
+    frame_dig -4
+    dig 1
     extract_uint16
     intc_1 // 1
     *
     pushint 2 // 2
     +
-    uncover 2
+    frame_dig -4
     uncover 2
     uncover 2
     extract3
@@ -618,15 +645,13 @@ approval_program_template_value_route@9:
     cover 3
     cover 2
     swap
-    cover 2
-    itob
-    cover 2
-    dup
-    len
-    itob
-    extract 6 2
-    swap
+    bytec_0 // 0x
+    dig 1
     concat
+    cover 3
+    len
+    pushint 13 // 13
+    +
     cover 2
     pushint 13 // 13
     itob
@@ -634,20 +659,25 @@ approval_program_template_value_route@9:
     bytec_0 // 0x
     swap
     concat
-    dig 1
-    len
-    pushint 13 // 13
-    +
-    swap
-    uncover 3
-    concat
     swap
     itob
+    concat
+    dig 1
+    len
+    itob
     extract 6 2
+    uncover 2
     concat
     uncover 3
-    concat
     swap
+    concat
+    uncover 2
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    uncover 2
     concat
     swap
     concat

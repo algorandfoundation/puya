@@ -1,0 +1,788 @@
+// Op                                                                                             Stack (out)
+// test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
+subroutine main:
+    main_block@0:
+        txn ApplicationID                                                                         tmp%0#0
+        bz main_call___init__@1 ; b main_after_if_else@2
+
+    main_call___init__@1:
+        // mutable_native_types/contract.py:69
+        // FixedStruct(a=Txn.num_app_args, b=Txn.num_app_args),
+        txn NumAppArgs                                                                            tmp%0#2
+        txn NumAppArgs                                                                            tmp%0#2,tmp%1#1
+        l-load tmp%0#2 1                                                                          tmp%1#1,tmp%0#2
+        itob                                                                                      tmp%1#1,val_as_bytes%0#0
+        l-load tmp%1#1 1                                                                          val_as_bytes%0#0,tmp%1#1
+        itob                                                                                      val_as_bytes%0#0,val_as_bytes%1#0
+        l-load val_as_bytes%0#0 1                                                                 val_as_bytes%1#0,val_as_bytes%0#0
+        l-load val_as_bytes%1#0 1                                                                 val_as_bytes%0#0,val_as_bytes%1#0
+        concat                                                                                    encoded%1#0
+        // mutable_native_types/contract.py:70
+        // FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
+        txn NumAppArgs                                                                            encoded%1#0,tmp%2#0
+        int 1                                                                                     encoded%1#0,tmp%2#0,1
+        +                                                                                         encoded%1#0,tmp%3#0
+        txn NumAppArgs                                                                            encoded%1#0,tmp%3#0,tmp%4#0
+        int 1                                                                                     encoded%1#0,tmp%3#0,tmp%4#0,1
+        +                                                                                         encoded%1#0,tmp%3#0,tmp%5#0
+        l-load tmp%3#0 1                                                                          encoded%1#0,tmp%5#0,tmp%3#0
+        itob                                                                                      encoded%1#0,tmp%5#0,val_as_bytes%2#0
+        l-load tmp%5#0 1                                                                          encoded%1#0,val_as_bytes%2#0,tmp%5#0
+        itob                                                                                      encoded%1#0,val_as_bytes%2#0,val_as_bytes%3#0
+        l-load val_as_bytes%2#0 1                                                                 encoded%1#0,val_as_bytes%3#0,val_as_bytes%2#0
+        l-load val_as_bytes%3#0 1                                                                 encoded%1#0,val_as_bytes%2#0,val_as_bytes%3#0
+        concat                                                                                    encoded%1#0,encoded%4#0
+        // mutable_native_types/contract.py:71
+        // NamedTup(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
+        txn NumAppArgs                                                                            encoded%1#0,encoded%4#0,tmp%6#0
+        int 1                                                                                     encoded%1#0,encoded%4#0,tmp%6#0,1
+        +                                                                                         encoded%1#0,encoded%4#0,tmp%7#0
+        txn NumAppArgs                                                                            encoded%1#0,encoded%4#0,tmp%7#0,tmp%8#0
+        int 1                                                                                     encoded%1#0,encoded%4#0,tmp%7#0,tmp%8#0,1
+        +                                                                                         encoded%1#0,encoded%4#0,tmp%7#0,tmp%9#0
+        // mutable_native_types/contract.py:68-72
+        // self.nested = NestedStruct(
+        //     FixedStruct(a=Txn.num_app_args, b=Txn.num_app_args),
+        //     FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
+        //     NamedTup(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
+        // )
+        l-load encoded%1#0 3                                                                      encoded%4#0,tmp%7#0,tmp%9#0,encoded%1#0
+        l-load encoded%4#0 3                                                                      tmp%7#0,tmp%9#0,encoded%1#0,encoded%4#0
+        concat                                                                                    tmp%7#0,tmp%9#0,encoded%7#0
+        l-load tmp%7#0 2                                                                          tmp%9#0,encoded%7#0,tmp%7#0
+        itob                                                                                      tmp%9#0,encoded%7#0,val_as_bytes%4#0
+        l-load tmp%9#0 2                                                                          encoded%7#0,val_as_bytes%4#0,tmp%9#0
+        itob                                                                                      encoded%7#0,val_as_bytes%4#0,val_as_bytes%5#0
+        l-load val_as_bytes%4#0 1                                                                 encoded%7#0,val_as_bytes%5#0,val_as_bytes%4#0
+        l-load val_as_bytes%5#0 1                                                                 encoded%7#0,val_as_bytes%4#0,val_as_bytes%5#0
+        concat                                                                                    encoded%7#0,encoded%9#0
+        l-load encoded%7#0 1                                                                      encoded%9#0,encoded%7#0
+        l-load encoded%9#0 1                                                                      encoded%7#0,encoded%9#0
+        concat                                                                                    encoded%11#0
+        // mutable_native_types/contract.py:68
+        // self.nested = NestedStruct(
+        byte "nested"                                                                             encoded%11#0,"nested"
+        // mutable_native_types/contract.py:68-72
+        // self.nested = NestedStruct(
+        //     FixedStruct(a=Txn.num_app_args, b=Txn.num_app_args),
+        //     FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
+        //     NamedTup(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
+        // )
+        l-load encoded%11#0 1                                                                     "nested",encoded%11#0
+        app_global_put
+        // mutable_native_types/contract.py:79
+        // a=Txn.num_app_args,
+        txn NumAppArgs                                                                            tmp%10#0
+        // mutable_native_types/contract.py:80
+        // b=Txn.num_app_args,
+        txn NumAppArgs                                                                            tmp%10#0,tmp%11#0
+        // mutable_native_types/contract.py:78-84
+        // self.dyn = DynamicStruct(
+        //     a=Txn.num_app_args,
+        //     b=Txn.num_app_args,
+        //     c=Bytes(),
+        //     d=String(),
+        //     e=NativeArray[arc4.Byte](),
+        // )
+        l-load tmp%10#0 1                                                                         tmp%11#0,tmp%10#0
+        itob                                                                                      tmp%11#0,val_as_bytes%6#0
+        l-load tmp%11#0 1                                                                         val_as_bytes%6#0,tmp%11#0
+        itob                                                                                      val_as_bytes%6#0,val_as_bytes%7#0
+        l-load val_as_bytes%6#0 1                                                                 val_as_bytes%7#0,val_as_bytes%6#0
+        l-load val_as_bytes%7#0 1                                                                 val_as_bytes%6#0,val_as_bytes%7#0
+        concat                                                                                    encoded%14#0
+        byte 0x0016                                                                               encoded%14#0,0x0016
+        concat                                                                                    encoded%15#0
+        byte 0x0018                                                                               encoded%15#0,0x0018
+        concat                                                                                    encoded%16#0
+        byte 0x001a                                                                               encoded%16#0,0x001a
+        concat                                                                                    encoded%17#0
+        byte 0x000000000000                                                                       encoded%17#0,0x000000000000
+        concat                                                                                    encoded%18#0
+        // mutable_native_types/contract.py:78
+        // self.dyn = DynamicStruct(
+        byte "dyn"                                                                                encoded%18#0,"dyn"
+        // mutable_native_types/contract.py:78-84
+        // self.dyn = DynamicStruct(
+        //     a=Txn.num_app_args,
+        //     b=Txn.num_app_args,
+        //     c=Bytes(),
+        //     d=String(),
+        //     e=NativeArray[arc4.Byte](),
+        // )
+        l-load encoded%18#0 1                                                                     "dyn",encoded%18#0
+        app_global_put
+        // mutable_native_types/contract.py:86
+        // self.num_payments = UInt64(0)
+        byte "num_payments"                                                                       "num_payments"
+        int 0                                                                                     "num_payments",0
+        app_global_put
+        // mutable_native_types/contract.py:87
+        // self.payments = zero_bytes(FixedArray[Payment, typing.Literal[8]])
+        int 384                                                                                   384
+        bzero                                                                                     materialized_values%0#0
+        byte "payments"                                                                           materialized_values%0#0,"payments"
+        l-load materialized_values%0#0 1                                                          "payments",materialized_values%0#0
+        app_global_put
+        b main_after_if_else@2
+
+    main_after_if_else@2:
+        // mutable_native_types/contract.py:65
+        // class Contract(arc4.ARC4Contract):
+        txn NumAppArgs                                                                            tmp%0#2
+        bz main_bare_routing@15 ; b main_abi_routing@4
+
+    main_abi_routing@4:
+        // mutable_native_types/contract.py:65
+        // class Contract(arc4.ARC4Contract):
+        txna ApplicationArgs 0                                                                    tmp%2#1
+        method fixed_initialize()void                                                             tmp%2#1,Method(fixed_initialize()void)
+        method add_payment((address,uint64,uint64))void                                           tmp%2#1,Method(fixed_initialize()void),Method(add_payment((address,uint64,uint64))void)
+        method increment_payment(uint64,uint64)void                                               tmp%2#1,Method(fixed_initialize()void),Method(add_payment((address,uint64,uint64))void),Method(increment_payment(uint64,uint64)void)
+        method create_storage(uint64)void                                                         tmp%2#1,Method(fixed_initialize()void),Method(add_payment((address,uint64,uint64))void),Method(increment_payment(uint64,uint64)void),Method(create_storage(uint64)void)
+        method local_struct()(address,uint64,uint64)                                              tmp%2#1,Method(fixed_initialize()void),Method(add_payment((address,uint64,uint64))void),Method(increment_payment(uint64,uint64)void),Method(create_storage(uint64)void),Method(local_struct()(address,uint64,uint64))
+        method delete_storage(uint64)void                                                         tmp%2#1,Method(fixed_initialize()void),Method(add_payment((address,uint64,uint64))void),Method(increment_payment(uint64,uint64)void),Method(create_storage(uint64)void),Method(local_struct()(address,uint64,uint64)),Method(delete_storage(uint64)void)
+        method struct_arg(uint64,(uint64,uint64))void                                             tmp%2#1,Method(fixed_initialize()void),Method(add_payment((address,uint64,uint64))void),Method(increment_payment(uint64,uint64)void),Method(create_storage(uint64)void),Method(local_struct()(address,uint64,uint64)),Method(delete_storage(uint64)void),Method(struct_arg(uint64,(uint64,uint64))void)
+        method struct_return()(uint64,uint64)                                                     tmp%2#1,Method(fixed_initialize()void),Method(add_payment((address,uint64,uint64))void),Method(increment_payment(uint64,uint64)void),Method(create_storage(uint64)void),Method(local_struct()(address,uint64,uint64)),Method(delete_storage(uint64)void),Method(struct_arg(uint64,(uint64,uint64))void),Method(struct_return()(uint64,uint64))
+        method tup_return()(uint64,uint64)                                                        tmp%2#1,Method(fixed_initialize()void),Method(add_payment((address,uint64,uint64))void),Method(increment_payment(uint64,uint64)void),Method(create_storage(uint64)void),Method(local_struct()(address,uint64,uint64)),Method(delete_storage(uint64)void),Method(struct_arg(uint64,(uint64,uint64))void),Method(struct_return()(uint64,uint64)),Method(tup_return()(uint64,uint64))
+        method calculate_sum()uint64                                                              tmp%2#1,Method(fixed_initialize()void),Method(add_payment((address,uint64,uint64))void),Method(increment_payment(uint64,uint64)void),Method(create_storage(uint64)void),Method(local_struct()(address,uint64,uint64)),Method(delete_storage(uint64)void),Method(struct_arg(uint64,(uint64,uint64))void),Method(struct_return()(uint64,uint64)),Method(tup_return()(uint64,uint64)),Method(calculate_sum()uint64)
+        l-load tmp%2#1 10                                                                         Method(fixed_initialize()void),Method(add_payment((address,uint64,uint64))void),Method(increment_payment(uint64,uint64)void),Method(create_storage(uint64)void),Method(local_struct()(address,uint64,uint64)),Method(delete_storage(uint64)void),Method(struct_arg(uint64,(uint64,uint64))void),Method(struct_return()(uint64,uint64)),Method(tup_return()(uint64,uint64)),Method(calculate_sum()uint64),tmp%2#1
+        match main_fixed_initialize_route@5 main_add_payment_route@6 main_increment_payment_route@7 main_create_storage_route@8 main_local_struct_route@9 main_delete_storage_route@10 main_struct_arg_route@11 main_struct_return_route@12 main_tup_return_route@13 main_calculate_sum_route@14 ; b main_after_if_else@17 
+
+    main_fixed_initialize_route@5:
+        // mutable_native_types/contract.py:89
+        // @arc4.abimethod()
+        txn OnCompletion                                                                          tmp%3#0
+        !                                                                                         tmp%4#1
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                         tmp%5#0
+        assert // can only call when not creating
+        int 1                                                                                     test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
+        x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@18 (𝕏) tmp%0#0 | 
+
+    main_add_payment_route@6:
+        // mutable_native_types/contract.py:109
+        // @arc4.abimethod()
+        txn OnCompletion                                                                          tmp%7#0
+        !                                                                                         tmp%8#1
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                         tmp%9#0
+        assert // can only call when not creating
+        // mutable_native_types/contract.py:65
+        // class Contract(arc4.ARC4Contract):
+        txna ApplicationArgs 1                                                                    reinterpret_Encoded((uint8[32],uint64,uint64))%0#0
+        // mutable_native_types/contract.py:109
+        // @arc4.abimethod()
+        callsub add_payment
+        int 1                                                                                     test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
+        x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@18 (𝕏) tmp%0#0 | 
+
+    main_increment_payment_route@7:
+        // mutable_native_types/contract.py:115
+        // @arc4.abimethod()
+        txn OnCompletion                                                                          tmp%11#0
+        !                                                                                         tmp%12#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                         tmp%13#0
+        assert // can only call when not creating
+        // mutable_native_types/contract.py:65
+        // class Contract(arc4.ARC4Contract):
+        txna ApplicationArgs 1                                                                    reinterpret_Encoded(uint64)%0#0
+        btoi                                                                                      tmp%15#0
+        txna ApplicationArgs 2                                                                    tmp%15#0,reinterpret_Encoded(uint64)%1#0
+        btoi                                                                                      tmp%15#0,tmp%16#0
+        // mutable_native_types/contract.py:115
+        // @arc4.abimethod()
+        l-load tmp%15#0 1                                                                         tmp%16#0,tmp%15#0
+        l-load tmp%16#0 1                                                                         tmp%15#0,tmp%16#0
+        callsub increment_payment
+        int 1                                                                                     test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
+        x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@18 (𝕏) tmp%0#0 | 
+
+    main_create_storage_route@8:
+        // mutable_native_types/contract.py:120
+        // @arc4.abimethod()
+        txn OnCompletion                                                                          tmp%17#0
+        !                                                                                         tmp%18#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                         tmp%19#0
+        assert // can only call when not creating
+        // mutable_native_types/contract.py:65
+        // class Contract(arc4.ARC4Contract):
+        txna ApplicationArgs 1                                                                    reinterpret_Encoded(uint64)%2#0
+        btoi                                                                                      tmp%21#0
+        // mutable_native_types/contract.py:120
+        // @arc4.abimethod()
+        callsub create_storage
+        int 1                                                                                     test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
+        x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@18 (𝕏) tmp%0#0 | 
+
+    main_local_struct_route@9:
+        // mutable_native_types/contract.py:127
+        // @arc4.abimethod()
+        txn OnCompletion                                                                          tmp%22#0
+        !                                                                                         tmp%23#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                         tmp%24#0
+        assert // can only call when not creating
+        callsub local_struct                                                                      tmp%26#0
+        byte 0x151f7c75                                                                           tmp%26#0,0x151f7c75
+        l-load tmp%26#0 1                                                                         0x151f7c75,tmp%26#0
+        concat                                                                                    tmp%27#0
+        log
+        int 1                                                                                     test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
+        x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@18 (𝕏) tmp%0#0 | 
+
+    main_delete_storage_route@10:
+        // mutable_native_types/contract.py:139
+        // @arc4.abimethod()
+        txn OnCompletion                                                                          tmp%28#0
+        !                                                                                         tmp%29#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                         tmp%30#0
+        assert // can only call when not creating
+        // mutable_native_types/contract.py:65
+        // class Contract(arc4.ARC4Contract):
+        txna ApplicationArgs 1                                                                    reinterpret_Encoded(uint64)%3#0
+        btoi                                                                                      tmp%32#0
+        // mutable_native_types/contract.py:139
+        // @arc4.abimethod()
+        callsub delete_storage
+        int 1                                                                                     test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
+        x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@18 (𝕏) tmp%0#0 | 
+
+    main_struct_arg_route@11:
+        // mutable_native_types/contract.py:148
+        // @arc4.abimethod()
+        txn OnCompletion                                                                          tmp%33#0
+        !                                                                                         tmp%34#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                         tmp%35#0
+        assert // can only call when not creating
+        // mutable_native_types/contract.py:65
+        // class Contract(arc4.ARC4Contract):
+        txna ApplicationArgs 1                                                                    reinterpret_Encoded(uint64)%4#0
+        btoi                                                                                      tmp%37#0
+        txna ApplicationArgs 2                                                                    tmp%37#0,reinterpret_Encoded((uint64,uint64))%0#0
+        // mutable_native_types/contract.py:148
+        // @arc4.abimethod()
+        l-load tmp%37#0 1                                                                         reinterpret_Encoded((uint64,uint64))%0#0,tmp%37#0
+        l-load reinterpret_Encoded((uint64,uint64))%0#0 1                                         tmp%37#0,reinterpret_Encoded((uint64,uint64))%0#0
+        callsub struct_arg
+        int 1                                                                                     test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
+        x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@18 (𝕏) tmp%0#0 | 
+
+    main_struct_return_route@12:
+        // mutable_native_types/contract.py:158
+        // @arc4.abimethod()
+        txn OnCompletion                                                                          tmp%38#0
+        !                                                                                         tmp%39#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                         tmp%40#0
+        assert // can only call when not creating
+        callsub struct_return                                                                     tmp%42#0
+        byte 0x151f7c75                                                                           tmp%42#0,0x151f7c75
+        l-load tmp%42#0 1                                                                         0x151f7c75,tmp%42#0
+        concat                                                                                    tmp%43#0
+        log
+        int 1                                                                                     test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
+        x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@18 (𝕏) tmp%0#0 | 
+
+    main_tup_return_route@13:
+        // mutable_native_types/contract.py:162
+        // @arc4.abimethod()
+        txn OnCompletion                                                                          tmp%44#0
+        !                                                                                         tmp%45#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                         tmp%46#0
+        assert // can only call when not creating
+        callsub tup_return                                                                        to_encode%0#0,to_encode%1#0
+        l-load to_encode%0#0 1                                                                    to_encode%1#0,to_encode%0#0
+        itob                                                                                      to_encode%1#0,val_as_bytes%0#0
+        l-load to_encode%1#0 1                                                                    val_as_bytes%0#0,to_encode%1#0
+        itob                                                                                      val_as_bytes%0#0,val_as_bytes%1#0
+        l-load val_as_bytes%0#0 1                                                                 val_as_bytes%1#0,val_as_bytes%0#0
+        l-load val_as_bytes%1#0 1                                                                 val_as_bytes%0#0,val_as_bytes%1#0
+        concat                                                                                    encoded%1#0
+        byte 0x151f7c75                                                                           encoded%1#0,0x151f7c75
+        l-load encoded%1#0 1                                                                      0x151f7c75,encoded%1#0
+        concat                                                                                    tmp%48#0
+        log
+        int 1                                                                                     test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
+        x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@18 (𝕏) tmp%0#0 | 
+
+    main_calculate_sum_route@14:
+        // mutable_native_types/contract.py:166
+        // @arc4.abimethod()
+        txn OnCompletion                                                                          tmp%49#0
+        !                                                                                         tmp%50#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                         tmp%51#0
+        assert // can only call when not creating
+        callsub calculate_sum                                                                     to_encode%2#0
+        itob                                                                                      val_as_bytes%2#0
+        byte 0x151f7c75                                                                           val_as_bytes%2#0,0x151f7c75
+        l-load val_as_bytes%2#0 1                                                                 0x151f7c75,val_as_bytes%2#0
+        concat                                                                                    tmp%53#0
+        log
+        int 1                                                                                     test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
+        x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@18 (𝕏) tmp%0#0 | 
+
+    main_bare_routing@15:
+        // mutable_native_types/contract.py:65
+        // class Contract(arc4.ARC4Contract):
+        txn OnCompletion                                                                          tmp%54#0
+        bz main___algopy_default_create@16 ; b main_after_if_else@17
+
+    main___algopy_default_create@16:
+        txn ApplicationID                                                                         tmp%55#0
+        !                                                                                         tmp%56#0
+        assert // can only call when creating
+        int 1                                                                                     test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
+        x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@18 (𝕏) tmp%0#0 | 
+
+    main_after_if_else@17:
+        // mutable_native_types/contract.py:65
+        // class Contract(arc4.ARC4Contract):
+        int 0                                                                                     test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
+        x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@18 (𝕏) tmp%0#0 | 
+
+    main_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@18: (𝕏) tmp%0#0 |
+        x-load tmp%0#0                                                                            tmp%0#0
+        return
+
+
+// test_cases.mutable_native_types.contract.do_something(pay: bytes) -> bytes:
+subroutine do_something:
+    do_something_block@0:                                                                         (𝕡) pay#0 |
+        p-load pay#0                                                                              (𝕡) pay#0 | pay#0 (copy)
+        retsub                                                                                    pay#0 (copy)
+
+
+// test_cases.mutable_native_types.contract.Contract.add_payment(pay: bytes) -> void:
+subroutine add_payment:
+    add_payment_block@0:                                                                          (𝕡) pay#0 |
+        // mutable_native_types/contract.py:111
+        // assert self.num_payments < self.payments.length, "too many payments"
+        int 0                                                                                     (𝕡) pay#0 | 0
+        byte "num_payments"                                                                       (𝕡) pay#0 | 0,"num_payments"
+        app_global_get_ex                                                                         (𝕡) pay#0 | maybe_value%0#0,maybe_exists%0#0
+        assert // check self.num_payments exists                                                  (𝕡) pay#0 | maybe_value%0#0
+        l-load-copy maybe_value%0#0 0                                                             (𝕡) pay#0 | maybe_value%0#0,maybe_value%0#0 (copy)
+        int 8                                                                                     (𝕡) pay#0 | maybe_value%0#0,maybe_value%0#0 (copy),8
+        <                                                                                         (𝕡) pay#0 | maybe_value%0#0,tmp%0#0
+        assert // too many payments                                                               (𝕡) pay#0 | maybe_value%0#0
+        // mutable_native_types/contract.py:112
+        // self.payments[self.num_payments] = pay.copy()
+        int 0                                                                                     (𝕡) pay#0 | maybe_value%0#0,0
+        byte "payments"                                                                           (𝕡) pay#0 | maybe_value%0#0,0,"payments"
+        app_global_get_ex                                                                         (𝕡) pay#0 | maybe_value%0#0,maybe_value%1#0,maybe_exists%1#0
+        assert // check self.payments exists                                                      (𝕡) pay#0 | maybe_value%0#0,maybe_value%1#0
+        l-load maybe_value%0#0 1                                                                  (𝕡) pay#0 | maybe_value%1#0,maybe_value%0#0
+        int 48                                                                                    (𝕡) pay#0 | maybe_value%1#0,maybe_value%0#0,48
+        *                                                                                         (𝕡) pay#0 | maybe_value%1#0,write_offset%0#0
+        l-load maybe_value%1#0 1                                                                  (𝕡) pay#0 | write_offset%0#0,maybe_value%1#0
+        l-load write_offset%0#0 1                                                                 (𝕡) pay#0 | maybe_value%1#0,write_offset%0#0
+        p-load pay#0                                                                              (𝕡) pay#0 | maybe_value%1#0,write_offset%0#0,pay#0 (copy)
+        replace3                                                                                  (𝕡) pay#0 | updated_target%0#0
+        byte "payments"                                                                           (𝕡) pay#0 | updated_target%0#0,"payments"
+        l-load updated_target%0#0 1                                                               (𝕡) pay#0 | "payments",updated_target%0#0
+        app_global_put                                                                            (𝕡) pay#0 |
+        // mutable_native_types/contract.py:113
+        // self.num_payments += 1
+        int 0                                                                                     (𝕡) pay#0 | 0
+        byte "num_payments"                                                                       (𝕡) pay#0 | 0,"num_payments"
+        app_global_get_ex                                                                         (𝕡) pay#0 | maybe_value%3#0,maybe_exists%3#0
+        assert // check self.num_payments exists                                                  (𝕡) pay#0 | maybe_value%3#0
+        l-load maybe_value%3#0 0                                                                  (𝕡) pay#0 | maybe_value%3#0
+        int 1                                                                                     (𝕡) pay#0 | maybe_value%3#0,1
+        +                                                                                         (𝕡) pay#0 | materialized_values%0#0
+        byte "num_payments"                                                                       (𝕡) pay#0 | materialized_values%0#0,"num_payments"
+        l-load materialized_values%0#0 1                                                          (𝕡) pay#0 | "num_payments",materialized_values%0#0
+        app_global_put                                                                            (𝕡) pay#0 |
+        retsub
+
+
+// test_cases.mutable_native_types.contract.Contract.increment_payment(index: uint64, amt: uint64) -> void:
+subroutine increment_payment:
+    increment_payment_block@0:                                                                    (𝕡) index#0,amt#0 |
+        // mutable_native_types/contract.py:117
+        // assert index < self.num_payments, "invalid payment index"
+        int 0                                                                                     (𝕡) index#0,amt#0 | 0
+        byte "num_payments"                                                                       (𝕡) index#0,amt#0 | 0,"num_payments"
+        app_global_get_ex                                                                         (𝕡) index#0,amt#0 | maybe_value%0#0,maybe_exists%0#0
+        assert // check self.num_payments exists                                                  (𝕡) index#0,amt#0 | maybe_value%0#0
+        p-load index#0                                                                            (𝕡) index#0,amt#0 | maybe_value%0#0,index#0 (copy)
+        l-load maybe_value%0#0 1                                                                  (𝕡) index#0,amt#0 | index#0 (copy),maybe_value%0#0
+        <                                                                                         (𝕡) index#0,amt#0 | tmp%0#0
+        assert // invalid payment index                                                           (𝕡) index#0,amt#0 |
+        // mutable_native_types/contract.py:118
+        // self.payments[index].amt += amt
+        int 0                                                                                     (𝕡) index#0,amt#0 | 0
+        byte "payments"                                                                           (𝕡) index#0,amt#0 | 0,"payments"
+        app_global_get_ex                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,maybe_exists%1#0
+        assert // check self.payments exists                                                      (𝕡) index#0,amt#0 | maybe_value%1#0
+        p-load index#0                                                                            (𝕡) index#0,amt#0 | maybe_value%1#0,index#0 (copy)
+        int 48                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,index#0 (copy),48
+        *                                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0
+        l-load-copy maybe_value%1#0 1                                                             (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,maybe_value%1#0 (copy)
+        l-load-copy bytes_offset%0#0 1                                                            (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,maybe_value%1#0 (copy),bytes_offset%0#0 (copy)
+        int 48                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,maybe_value%1#0 (copy),bytes_offset%0#0 (copy),48
+        extract3 // on error: index access is out of bounds                                       (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0
+        l-load-copy encoded_element%0#0 0                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,encoded_element%0#0 (copy)
+        int 40                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,encoded_element%0#0 (copy),40
+        extract_uint64                                                                            (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,tmp%1#0
+        p-load amt#0                                                                              (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,tmp%1#0,amt#0 (copy)
+        +                                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,assigned_value%0#0
+        itob                                                                                      (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,val_as_bytes%0#0
+        l-load encoded_element%0#0 1                                                              (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,val_as_bytes%0#0,encoded_element%0#0
+        l-load val_as_bytes%0#0 1                                                                 (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,val_as_bytes%0#0
+        replace2 40                                                                               (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,updated_data%0#0
+        p-load index#0                                                                            (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,updated_data%0#0,index#0 (copy)
+        int 8                                                                                     (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,updated_data%0#0,index#0 (copy),8
+        <                                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,updated_data%0#0,index_is_in_bounds%0#0
+        assert // Index access is out of bounds                                                   (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,updated_data%0#0
+        l-load maybe_value%1#0 2                                                                  (𝕡) index#0,amt#0 | bytes_offset%0#0,updated_data%0#0,maybe_value%1#0
+        l-load bytes_offset%0#0 2                                                                 (𝕡) index#0,amt#0 | updated_data%0#0,maybe_value%1#0,bytes_offset%0#0
+        l-load updated_data%0#0 2                                                                 (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,updated_data%0#0
+        replace3                                                                                  (𝕡) index#0,amt#0 | updated_target%0#0
+        byte "payments"                                                                           (𝕡) index#0,amt#0 | updated_target%0#0,"payments"
+        l-load updated_target%0#0 1                                                               (𝕡) index#0,amt#0 | "payments",updated_target%0#0
+        app_global_put                                                                            (𝕡) index#0,amt#0 |
+        retsub
+
+
+// test_cases.mutable_native_types.contract.Contract.create_storage(box_key: uint64) -> void:
+subroutine create_storage:
+    create_storage_block@0:                                                                       (𝕡) box_key#0 |
+        // mutable_native_types/contract.py:122
+        // self.nested_proxy.value = self.nested.copy()
+        int 0                                                                                     (𝕡) box_key#0 | 0
+        byte "nested"                                                                             (𝕡) box_key#0 | 0,"nested"
+        app_global_get_ex                                                                         (𝕡) box_key#0 | maybe_value%0#0,maybe_exists%0#0
+        assert // check self.nested exists                                                        (𝕡) box_key#0 | maybe_value%0#0
+        byte 0x70                                                                                 (𝕡) box_key#0 | maybe_value%0#0,0x70
+        l-load maybe_value%0#0 1                                                                  (𝕡) box_key#0 | 0x70,maybe_value%0#0
+        app_global_put                                                                            (𝕡) box_key#0 |
+        // mutable_native_types/contract.py:123
+        // self.nested_local[Txn.sender] = self.nested.copy()
+        int 0                                                                                     (𝕡) box_key#0 | 0
+        byte "nested"                                                                             (𝕡) box_key#0 | 0,"nested"
+        app_global_get_ex                                                                         (𝕡) box_key#0 | maybe_value%1#0,maybe_exists%1#0
+        assert // check self.nested exists                                                        (𝕡) box_key#0 | maybe_value%1#0
+        txn Sender                                                                                (𝕡) box_key#0 | maybe_value%1#0,tmp%0#0
+        byte 0x6c                                                                                 (𝕡) box_key#0 | maybe_value%1#0,tmp%0#0,0x6c
+        l-load-copy maybe_value%1#0 2                                                             (𝕡) box_key#0 | maybe_value%1#0,tmp%0#0,0x6c,maybe_value%1#0 (copy)
+        app_local_put                                                                             (𝕡) box_key#0 | maybe_value%1#0
+        // mutable_native_types/contract.py:124
+        // assert self.box.create(), "expected box to not exist"
+        byte "box"                                                                                (𝕡) box_key#0 | maybe_value%1#0,"box"
+        int 2064                                                                                  (𝕡) box_key#0 | maybe_value%1#0,"box",2064
+        box_create                                                                                (𝕡) box_key#0 | maybe_value%1#0,tmp%1#0
+        assert // expected box to not exist                                                       (𝕡) box_key#0 | maybe_value%1#0
+        // mutable_native_types/contract.py:125
+        // self.box_map[box_key].fixed_a = self.nested.fixed_a.copy()
+        l-load maybe_value%1#0 0                                                                  (𝕡) box_key#0 | maybe_value%1#0
+        extract 0 16 // on error: Index access is out of bounds                                   (𝕡) box_key#0 | tmp%2#0
+        p-load box_key#0                                                                          (𝕡) box_key#0 | tmp%2#0,box_key#0 (copy)
+        itob                                                                                      (𝕡) box_key#0 | tmp%2#0,encoded_value%0#0
+        byte "box_map"                                                                            (𝕡) box_key#0 | tmp%2#0,encoded_value%0#0,"box_map"
+        l-load encoded_value%0#0 1                                                                (𝕡) box_key#0 | tmp%2#0,"box_map",encoded_value%0#0
+        concat                                                                                    (𝕡) box_key#0 | tmp%2#0,box_prefixed_key%0#0
+        l-load-copy box_prefixed_key%0#0 0                                                        (𝕡) box_key#0 | tmp%2#0,box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
+        box_get                                                                                   (𝕡) box_key#0 | tmp%2#0,box_prefixed_key%0#0,maybe_value%3#0,maybe_exists%3#0
+        assert // check self.box_map entry exists                                                 (𝕡) box_key#0 | tmp%2#0,box_prefixed_key%0#0,maybe_value%3#0
+        l-load maybe_value%3#0 0                                                                  (𝕡) box_key#0 | tmp%2#0,box_prefixed_key%0#0,maybe_value%3#0
+        l-load tmp%2#0 2                                                                          (𝕡) box_key#0 | box_prefixed_key%0#0,maybe_value%3#0,tmp%2#0
+        replace2 0                                                                                (𝕡) box_key#0 | box_prefixed_key%0#0,updated_data%0#0
+        l-load box_prefixed_key%0#0 1                                                             (𝕡) box_key#0 | updated_data%0#0,box_prefixed_key%0#0
+        l-load updated_data%0#0 1                                                                 (𝕡) box_key#0 | box_prefixed_key%0#0,updated_data%0#0
+        box_put                                                                                   (𝕡) box_key#0 |
+        retsub
+
+
+// test_cases.mutable_native_types.contract.Contract.local_struct() -> bytes:
+subroutine local_struct:
+    local_struct_block@0:
+        // mutable_native_types/contract.py:129
+        // a = Payment(Txn.sender, Asset(1234), UInt64(567))
+        txn Sender                                                                                tmp%0#0
+        int 1234                                                                                  tmp%0#0,1234
+        itob                                                                                      tmp%0#0,val_as_bytes%0#0
+        l-load tmp%0#0 1                                                                          val_as_bytes%0#0,tmp%0#0
+        l-load val_as_bytes%0#0 1                                                                 tmp%0#0,val_as_bytes%0#0
+        concat                                                                                    encoded%1#0
+        int 567                                                                                   encoded%1#0,567
+        itob                                                                                      encoded%1#0,val_as_bytes%1#0
+        l-load encoded%1#0 1                                                                      val_as_bytes%1#0,encoded%1#0
+        l-load val_as_bytes%1#0 1                                                                 encoded%1#0,val_as_bytes%1#0
+        concat                                                                                    a#0
+        // mutable_native_types/contract.py:132
+        // (foo, bar, baz) = (a.receiver, a.asset, a.amt)
+        l-load-copy a#0 0                                                                         a#0,a#0 (copy)
+        extract 0 32 // on error: Index access is out of bounds                                   a#0,foo#0
+        l-load-copy a#0 1                                                                         a#0,foo#0,a#0 (copy)
+        int 32                                                                                    a#0,foo#0,a#0 (copy),32
+        extract_uint64                                                                            a#0,foo#0,bar#0
+        l-load-copy a#0 2                                                                         a#0,foo#0,bar#0,a#0 (copy)
+        int 40                                                                                    a#0,foo#0,bar#0,a#0 (copy),40
+        extract_uint64                                                                            a#0,foo#0,bar#0,baz#0
+        // mutable_native_types/contract.py:133
+        // assert foo, "use foo"
+        global ZeroAddress                                                                        a#0,foo#0,bar#0,baz#0,tmp%3#0
+        l-load foo#0 3                                                                            a#0,bar#0,baz#0,tmp%3#0,foo#0
+        l-load tmp%3#0 1                                                                          a#0,bar#0,baz#0,foo#0,tmp%3#0
+        !=                                                                                        a#0,bar#0,baz#0,tmp%4#0
+        assert // use foo                                                                         a#0,bar#0,baz#0
+        // mutable_native_types/contract.py:134
+        // assert bar, "use bar"
+        l-load bar#0 1                                                                            a#0,baz#0,bar#0
+        assert // use bar                                                                         a#0,baz#0
+        // mutable_native_types/contract.py:135
+        // assert baz, "use baz"
+        l-load baz#0 0                                                                            a#0,baz#0
+        assert // use baz                                                                         a#0
+        // mutable_native_types/contract.py:136
+        // do_something(a)
+        l-load a#0 0                                                                              a#0
+        callsub do_something                                                                      a#0
+        // mutable_native_types/contract.py:137
+        // return a
+        retsub                                                                                    a#0
+
+
+// test_cases.mutable_native_types.contract.Contract.delete_storage(box_key: uint64) -> void:
+subroutine delete_storage:
+    delete_storage_block@0:                                                                       (𝕡) box_key#0 |
+        // mutable_native_types/contract.py:141
+        // del self.nested_proxy.value
+        byte 0x70                                                                                 (𝕡) box_key#0 | 0x70
+        app_global_del                                                                            (𝕡) box_key#0 |
+        // mutable_native_types/contract.py:142
+        // del self.nested_local[Txn.sender]
+        txn Sender                                                                                (𝕡) box_key#0 | tmp%0#0
+        byte 0x6c                                                                                 (𝕡) box_key#0 | tmp%0#0,0x6c
+        app_local_del                                                                             (𝕡) box_key#0 |
+        // mutable_native_types/contract.py:143
+        // del self.box.value
+        byte "box"                                                                                (𝕡) box_key#0 | "box"
+        box_del                                                                                   (𝕡) box_key#0 | {box_del}
+        pop 1                                                                                     (𝕡) box_key#0 |
+        // mutable_native_types/contract.py:144
+        // del self.box_map[box_key]
+        p-load box_key#0                                                                          (𝕡) box_key#0 | box_key#0 (copy)
+        itob                                                                                      (𝕡) box_key#0 | encoded_value%0#0
+        byte "box_map"                                                                            (𝕡) box_key#0 | encoded_value%0#0,"box_map"
+        l-load encoded_value%0#0 1                                                                (𝕡) box_key#0 | "box_map",encoded_value%0#0
+        concat                                                                                    (𝕡) box_key#0 | box_prefixed_key%0#0
+        box_del                                                                                   (𝕡) box_key#0 | {box_del}
+        pop 1                                                                                     (𝕡) box_key#0 |
+        retsub
+
+
+// test_cases.mutable_native_types.contract.Contract.struct_arg(box_key: uint64, a: bytes) -> void:
+subroutine struct_arg:
+    struct_arg_block@0:                                                                           (𝕡) box_key#0,a#0 |
+        // mutable_native_types/contract.py:150
+        // self.nested.fixed_a = a
+        int 0                                                                                     (𝕡) box_key#0,a#0 | 0
+        byte "nested"                                                                             (𝕡) box_key#0,a#0 | 0,"nested"
+        app_global_get_ex                                                                         (𝕡) box_key#0,a#0 | maybe_value%0#0,maybe_exists%0#0
+        assert // check self.nested exists                                                        (𝕡) box_key#0,a#0 | maybe_value%0#0
+        l-load maybe_value%0#0 0                                                                  (𝕡) box_key#0,a#0 | maybe_value%0#0
+        p-load a#0                                                                                (𝕡) box_key#0,a#0 | maybe_value%0#0,a#0 (copy)
+        replace2 0                                                                                (𝕡) box_key#0,a#0 | updated_data%0#0
+        byte "nested"                                                                             (𝕡) box_key#0,a#0 | updated_data%0#0,"nested"
+        l-load updated_data%0#0 1                                                                 (𝕡) box_key#0,a#0 | "nested",updated_data%0#0
+        app_global_put                                                                            (𝕡) box_key#0,a#0 |
+        // mutable_native_types/contract.py:151
+        // self.nested_proxy.value.fixed_a = a
+        int 0                                                                                     (𝕡) box_key#0,a#0 | 0
+        byte 0x70                                                                                 (𝕡) box_key#0,a#0 | 0,0x70
+        app_global_get_ex                                                                         (𝕡) box_key#0,a#0 | maybe_value%1#0,maybe_exists%1#0
+        assert // check self.nested_proxy exists                                                  (𝕡) box_key#0,a#0 | maybe_value%1#0
+        l-load maybe_value%1#0 0                                                                  (𝕡) box_key#0,a#0 | maybe_value%1#0
+        p-load a#0                                                                                (𝕡) box_key#0,a#0 | maybe_value%1#0,a#0 (copy)
+        replace2 0                                                                                (𝕡) box_key#0,a#0 | updated_data%1#0
+        byte 0x70                                                                                 (𝕡) box_key#0,a#0 | updated_data%1#0,0x70
+        l-load updated_data%1#0 1                                                                 (𝕡) box_key#0,a#0 | 0x70,updated_data%1#0
+        app_global_put                                                                            (𝕡) box_key#0,a#0 |
+        // mutable_native_types/contract.py:152
+        // self.nested_local[Txn.sender].fixed_a = a
+        txn Sender                                                                                (𝕡) box_key#0,a#0 | tmp%0#0
+        l-load-copy tmp%0#0 0                                                                     (𝕡) box_key#0,a#0 | tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                                     (𝕡) box_key#0,a#0 | tmp%0#0,tmp%0#0 (copy),0
+        byte 0x6c                                                                                 (𝕡) box_key#0,a#0 | tmp%0#0,tmp%0#0 (copy),0,0x6c
+        app_local_get_ex                                                                          (𝕡) box_key#0,a#0 | tmp%0#0,maybe_value%2#0,maybe_exists%2#0
+        assert // check self.nested_local exists for account                                      (𝕡) box_key#0,a#0 | tmp%0#0,maybe_value%2#0
+        l-load maybe_value%2#0 0                                                                  (𝕡) box_key#0,a#0 | tmp%0#0,maybe_value%2#0
+        p-load a#0                                                                                (𝕡) box_key#0,a#0 | tmp%0#0,maybe_value%2#0,a#0 (copy)
+        replace2 0                                                                                (𝕡) box_key#0,a#0 | tmp%0#0,updated_data%2#0
+        l-load tmp%0#0 1                                                                          (𝕡) box_key#0,a#0 | updated_data%2#0,tmp%0#0
+        byte 0x6c                                                                                 (𝕡) box_key#0,a#0 | updated_data%2#0,tmp%0#0,0x6c
+        l-load updated_data%2#0 2                                                                 (𝕡) box_key#0,a#0 | tmp%0#0,0x6c,updated_data%2#0
+        app_local_put                                                                             (𝕡) box_key#0,a#0 |
+        // mutable_native_types/contract.py:153
+        // self.box.value.fixed_a = a
+        byte "box"                                                                                (𝕡) box_key#0,a#0 | "box"
+        box_get                                                                                   (𝕡) box_key#0,a#0 | maybe_value%3#0,maybe_exists%3#0
+        assert // check self.box exists                                                           (𝕡) box_key#0,a#0 | maybe_value%3#0
+        l-load maybe_value%3#0 0                                                                  (𝕡) box_key#0,a#0 | maybe_value%3#0
+        p-load a#0                                                                                (𝕡) box_key#0,a#0 | maybe_value%3#0,a#0 (copy)
+        replace2 0                                                                                (𝕡) box_key#0,a#0 | updated_data%3#0
+        byte "box"                                                                                (𝕡) box_key#0,a#0 | updated_data%3#0,"box"
+        l-load updated_data%3#0 1                                                                 (𝕡) box_key#0,a#0 | "box",updated_data%3#0
+        box_put                                                                                   (𝕡) box_key#0,a#0 |
+        // mutable_native_types/contract.py:154
+        // self.box_map[box_key].fixed_a = a
+        p-load box_key#0                                                                          (𝕡) box_key#0,a#0 | box_key#0 (copy)
+        itob                                                                                      (𝕡) box_key#0,a#0 | encoded_value%0#0
+        byte "box_map"                                                                            (𝕡) box_key#0,a#0 | encoded_value%0#0,"box_map"
+        l-load encoded_value%0#0 1                                                                (𝕡) box_key#0,a#0 | "box_map",encoded_value%0#0
+        concat                                                                                    (𝕡) box_key#0,a#0 | box_prefixed_key%0#0
+        l-load-copy box_prefixed_key%0#0 0                                                        (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
+        box_get                                                                                   (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,maybe_value%4#0,maybe_exists%4#0
+        assert // check self.box_map entry exists                                                 (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,maybe_value%4#0
+        l-load maybe_value%4#0 0                                                                  (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,maybe_value%4#0
+        p-load a#0                                                                                (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,maybe_value%4#0,a#0 (copy)
+        replace2 0                                                                                (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,updated_data%4#0
+        l-load box_prefixed_key%0#0 1                                                             (𝕡) box_key#0,a#0 | updated_data%4#0,box_prefixed_key%0#0
+        l-load updated_data%4#0 1                                                                 (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,updated_data%4#0
+        box_put                                                                                   (𝕡) box_key#0,a#0 |
+        retsub
+
+
+// test_cases.mutable_native_types.contract.Contract.struct_return() -> bytes:
+subroutine struct_return:
+    struct_return_block@0:
+        // mutable_native_types/contract.py:160
+        // return self.nested.fixed_a
+        int 0                                                                                     0
+        byte "nested"                                                                             0,"nested"
+        app_global_get_ex                                                                         maybe_value%0#0,maybe_exists%0#0
+        assert // check self.nested exists                                                        maybe_value%0#0
+        l-load maybe_value%0#0 0                                                                  maybe_value%0#0
+        extract 0 16 // on error: Index access is out of bounds                                   tmp%0#0
+        retsub                                                                                    tmp%0#0
+
+
+// test_cases.mutable_native_types.contract.Contract.tup_return() -> uint64, uint64:
+subroutine tup_return:
+    tup_return_block@0:
+        // mutable_native_types/contract.py:164
+        // return self.nested.tup
+        int 0                                                                                     0
+        byte "nested"                                                                             0,"nested"
+        app_global_get_ex                                                                         maybe_value%0#0,maybe_exists%0#0
+        assert // check self.nested exists                                                        maybe_value%0#0
+        l-load maybe_value%0#0 0                                                                  maybe_value%0#0
+        extract 32 16 // on error: Index access is out of bounds                                  encoded%0#0
+        l-load-copy encoded%0#0 0                                                                 encoded%0#0,encoded%0#0 (copy)
+        int 0                                                                                     encoded%0#0,encoded%0#0 (copy),0
+        extract_uint64                                                                            encoded%0#0,item0%1#0
+        l-load encoded%0#0 1                                                                      item0%1#0,encoded%0#0
+        int 8                                                                                     item0%1#0,encoded%0#0,8
+        extract_uint64                                                                            item0%1#0,item1%1#0
+        l-load item0%1#0 1                                                                        item1%1#0,item0%1#0
+        l-load item1%1#0 1                                                                        item0%1#0,item1%1#0
+        retsub                                                                                    item0%1#0,item1%1#0
+
+
+// test_cases.mutable_native_types.contract.Contract.calculate_sum() -> uint64:
+subroutine calculate_sum:
+    calculate_sum_block@0:
+        // mutable_native_types/contract.py:168
+        // fixed_a = self.nested.fixed_a
+        int 0                                                                                     0
+        byte "nested"                                                                             0,"nested"
+        app_global_get_ex                                                                         maybe_value%0#0,maybe_exists%0#0
+        assert // check self.nested exists                                                        maybe_value%0#0
+        l-load-copy maybe_value%0#0 0                                                             maybe_value%0#0,maybe_value%0#0 (copy)
+        extract 0 16 // on error: Index access is out of bounds                                   maybe_value%0#0,fixed_a#0
+        // mutable_native_types/contract.py:169
+        // fixed_b = self.nested.fixed_b
+        l-load maybe_value%0#0 1                                                                  fixed_a#0,maybe_value%0#0
+        extract 16 16 // on error: Index access is out of bounds                                  fixed_a#0,fixed_b#0
+        // mutable_native_types/contract.py:180
+        // return val.a + val.b
+        l-load-copy fixed_a#0 1                                                                   fixed_a#0,fixed_b#0,fixed_a#0 (copy)
+        int 0                                                                                     fixed_a#0,fixed_b#0,fixed_a#0 (copy),0
+        extract_uint64                                                                            fixed_a#0,fixed_b#0,tmp%0#1
+        l-load fixed_a#0 2                                                                        fixed_b#0,tmp%0#1,fixed_a#0
+        int 8                                                                                     fixed_b#0,tmp%0#1,fixed_a#0,8
+        extract_uint64                                                                            fixed_b#0,tmp%0#1,tmp%1#1
+        l-load tmp%0#1 1                                                                          fixed_b#0,tmp%1#1,tmp%0#1
+        l-load tmp%1#1 1                                                                          fixed_b#0,tmp%0#1,tmp%1#1
+        +                                                                                         fixed_b#0,tmp%2#1
+        l-load-copy fixed_b#0 1                                                                   fixed_b#0,tmp%2#1,fixed_b#0 (copy)
+        int 0                                                                                     fixed_b#0,tmp%2#1,fixed_b#0 (copy),0
+        extract_uint64                                                                            fixed_b#0,tmp%2#1,tmp%0#1
+        l-load fixed_b#0 2                                                                        tmp%2#1,tmp%0#1,fixed_b#0
+        int 8                                                                                     tmp%2#1,tmp%0#1,fixed_b#0,8
+        extract_uint64                                                                            tmp%2#1,tmp%0#1,tmp%1#1
+        l-load tmp%0#1 1                                                                          tmp%2#1,tmp%1#1,tmp%0#1
+        l-load tmp%1#1 1                                                                          tmp%2#1,tmp%0#1,tmp%1#1
+        +                                                                                         tmp%2#1,tmp%2#2
+        // mutable_native_types/contract.py:170
+        // result = add(fixed_a) + add(fixed_b)
+        l-load tmp%2#1 1                                                                          tmp%2#2,tmp%2#1
+        l-load tmp%2#2 1                                                                          tmp%2#1,tmp%2#2
+        +                                                                                         result#0
+        l-store-copy result#0 0                                                                   result#0,result#0 (copy)
+        v-store result#0                                                                          result#0
+        // mutable_native_types/contract.py:171
+        // if result < 100:
+        l-load-copy result#0 0                                                                    result#0,result#0 (copy)
+        int 100                                                                                   result#0,result#0 (copy),100
+        <                                                                                         result#0,tmp%2#0
+        l-load result#0 1                                                                         tmp%2#0,result#0
+        v-store result#6                                                                          tmp%2#0
+        l-load tmp%2#0 0                                                                          tmp%2#0
+        bz calculate_sum_after_if_else@2 ; b calculate_sum_if_body@1
+
+    calculate_sum_if_body@1:
+        // mutable_native_types/contract.py:172
+        // c, d = self.nested.tup
+        int 0                                                                                     0
+        byte "nested"                                                                             0,"nested"
+        app_global_get_ex                                                                         maybe_value%2#0,maybe_exists%2#0
+        assert // check self.nested exists                                                        maybe_value%2#0
+        l-load maybe_value%2#0 0                                                                  maybe_value%2#0
+        extract 32 16 // on error: Index access is out of bounds                                  encoded%0#0
+        l-load-copy encoded%0#0 0                                                                 encoded%0#0,encoded%0#0 (copy)
+        int 0                                                                                     encoded%0#0,encoded%0#0 (copy),0
+        extract_uint64                                                                            encoded%0#0,c#0
+        l-load encoded%0#0 1                                                                      c#0,encoded%0#0
+        int 8                                                                                     c#0,encoded%0#0,8
+        extract_uint64                                                                            c#0,d#0
+        // mutable_native_types/contract.py:173
+        // result += c
+        v-load result#0                                                                           c#0,d#0,result#0
+        l-load c#0 2                                                                              d#0,result#0,c#0
+        +                                                                                         d#0,result#0
+        // mutable_native_types/contract.py:174
+        // result += d
+        l-load d#0 1                                                                              result#0,d#0
+        +                                                                                         result#0
+        v-store result#6
+        b calculate_sum_after_if_else@2
+
+    calculate_sum_after_if_else@2:
+        v-load result#6                                                                           result#0
+        // mutable_native_types/contract.py:175
+        // return result
+        retsub                                                                                    result#0
+
+

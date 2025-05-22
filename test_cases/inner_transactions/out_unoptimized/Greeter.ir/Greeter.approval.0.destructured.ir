@@ -35,13 +35,13 @@ subroutine test_cases.inner_transactions.c2c.Greeter.bootstrap() -> uint64:
         (assert maybe_exists%1#0) // check self.hello_app exists
         return maybe_value%1#0
 
-subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) -> void:
+subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings(name: Encoded(len+utf8[])) -> void:
     block@0: // L23
         itxn_begin
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "hello_app")
         (assert maybe_exists%0#0) // check self.hello_app exists
         let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = maybe_value%0#0
-        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = name#0
+        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = name#0
         ((itxn_field ApplicationArgs) method "hello(string)string")
         ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_1#0)
         ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
@@ -51,11 +51,11 @@ subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) 
     block@1: // next_txn_L25
         itxn_submit
         let hello_call.LastLog#0: bytes = (itxn LastLog)
-        let tmp%0#0: bytes = ((extract 4 0) hello_call.LastLog#0)
+        let tmp%0#0: Encoded(len+utf8[]) = ((extract 4 0) hello_call.LastLog#0)
         let tmp%1#0: bytes = ((extract 0 4) hello_call.LastLog#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let greeting#0: bytes = tmp%0#0
+        let greeting#0: Encoded(len+utf8[]) = tmp%0#0
         let tmp%3#0: bytes = (concat "HelloWorld returned: " "")
         let tmp%4#0: bytes = ((extract 2 0) greeting#0)
         let tmp%5#0: bytes = (concat tmp%3#0 tmp%4#0)
@@ -93,8 +93,8 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (!= tmp%10#0 0u)
         (assert tmp%11#0) // can only call when not creating
-        let tmp%12#0: bytes = (txna ApplicationArgs 1)
-        test_cases.inner_transactions.c2c.Greeter.log_greetings(tmp%12#0)
+        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
+        test_cases.inner_transactions.c2c.Greeter.log_greetings(reinterpret_Encoded(len+utf8[])%0#0)
         let test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0
         goto block@14
@@ -103,12 +103,12 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@6: // switch_case_next_L6
         goto block@13
     block@7: // bare_routing_L6
-        let tmp%13#0: uint64 = (txn OnCompletion)
-        switch tmp%13#0 {0u => block@8, * => block@11}
+        let tmp%12#0: uint64 = (txn OnCompletion)
+        switch tmp%12#0 {0u => block@8, * => block@11}
     block@8: // __algopy_default_create_L1
-        let tmp%14#0: uint64 = (txn ApplicationID)
-        let tmp%15#0: bool = (== tmp%14#0 0u)
-        (assert tmp%15#0) // can only call when creating
+        let tmp%13#0: uint64 = (txn ApplicationID)
+        let tmp%14#0: bool = (== tmp%13#0 0u)
+        (assert tmp%14#0) // can only call when creating
         goto block@9
     block@9: // L1
         goto block@10

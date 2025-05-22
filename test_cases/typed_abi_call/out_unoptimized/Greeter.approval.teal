@@ -1062,6 +1062,8 @@ test_15plus_args_block@0:
     concat
     pushbytes 0xef
     concat
+    bytec_1 // 0x
+    concat
     // typed_abi_call/typed_c2c.py:97-102
     // 15,
     // 16,
@@ -1126,6 +1128,8 @@ test_15plus_args_block@0:
     // 18,
     // arc4.Tuple((arc4.UInt8(0xDE), arc4.UInt8(0xAD), arc4.UInt8(0xBE), arc4.UInt8(0xEF))),
     // 20,
+    concat
+    bytec_1 // 0x
     concat
     // typed_abi_call/typed_c2c.py:103
     // app_id=app,
@@ -1517,6 +1521,11 @@ test_account_to_address_block@0:
     // typed_abi_call/typed_c2c.py:139
     // Global.current_application_address,
     global CurrentApplicationAddress
+    dup
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
     // typed_abi_call/typed_c2c.py:140
     // app_id=app,
     frame_dig -1
@@ -3207,48 +3216,64 @@ test_nested_tuples_block@0:
     extract 6 2
     bytec 15 // 0x33
     concat
+    bytec_1 // 0x
+    bytec 7 // 0x00027331
+    concat
+    bytec 7 // 0x00027331
+    len
+    pushint 4 // 4
+    +
     pushint 4 // 4
     itob
     extract 6 2
     bytec_1 // 0x
     swap
     concat
-    bytec 7 // 0x00027331
-    len
-    pushint 4 // 4
-    +
+    uncover 2
+    bytec 29 // 0x00027332
+    concat
+    swap
+    uncover 2
     itob
     extract 6 2
     concat
-    bytec 7 // 0x00027331
+    swap
     concat
-    bytec 29 // 0x00027332
+    bytec_1 // 0x
+    dig 1
+    concat
+    swap
+    len
+    pushint 4 // 4
+    +
+    pushint 4 // 4
+    itob
+    extract 6 2
+    bytec_1 // 0x
+    swap
     concat
     bytec_1 // 0x
     bytec_3 // 0x0000000000000001
     concat
     bytec 13 // 0x0000000000000002
     concat
+    bytec_1 // 0x
+    uncover 5
+    concat
+    swap
     pushint 18 // 18
     itob
     extract 6 2
     concat
+    swap
+    concat
+    uncover 3
+    swap
+    concat
     uncover 2
-    concat
-    swap
-    pushint 4 // 4
     itob
     extract 6 2
-    bytec_1 // 0x
-    swap
-    concat
-    dig 1
-    len
-    pushint 4 // 4
-    +
-    itob
-    extract 6 2
-    concat
+    uncover 2
     swap
     concat
     swap
@@ -3411,60 +3436,74 @@ test_nested_tuples_next_txn@1:
     extract 6 2
     bytec 10 // "s1"
     concat
+    bytec_1 // 0x
+    dig 1
+    concat
+    swap
+    len
+    pushint 4 // 4
+    +
     pushint 4 // 4
     itob
     extract 6 2
     bytec_1 // 0x
     swap
     concat
+    uncover 2
+    bytec 29 // 0x00027332
+    concat
     swap
-    dup
+    uncover 2
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    bytec_1 // 0x
+    dig 1
+    concat
+    swap
     len
     pushint 4 // 4
     +
+    pushint 4 // 4
     itob
     extract 6 2
-    uncover 2
+    bytec_1 // 0x
     swap
-    concat
-    swap
-    concat
-    bytec 29 // 0x00027332
     concat
     intc_3 // 1
     itob
-    bytec 15 // 0x33
-    len
-    itob
-    extract 6 2
-    bytec 15 // 0x33
-    concat
-    swap
     bytec_1 // 0x
     swap
     concat
     bytec 13 // 0x0000000000000002
     concat
-    pushint 18 // 18
+    bytec 15 // 0x33
+    len
     itob
     extract 6 2
+    bytec 15 // 0x33
     concat
-    swap
-    concat
-    pushint 4 // 4
-    itob
-    extract 6 2
     bytec_1 // 0x
     swap
     concat
-    dig 2
-    len
-    pushint 4 // 4
-    +
+    pushint 18 // 18
     itob
     extract 6 2
+    uncover 2
+    swap
+    concat
+    swap
+    concat
+    uncover 3
+    swap
     concat
     uncover 2
+    itob
+    extract 6 2
+    uncover 2
+    swap
     concat
     swap
     concat
@@ -3625,22 +3664,28 @@ test_nested_tuples_next_txn@2:
     itxn_begin
     // typed_abi_call/typed_c2c.py:332
     // arc4.Tuple((arc4.String("s1b"), arc4.String("s2b"))),
+    bytec_1 // 0x
+    bytec 32 // 0x0003733162
+    concat
+    bytec 32 // 0x0003733162
+    len
+    pushint 4 // 4
+    +
     pushint 4 // 4
     itob
     extract 6 2
     bytec_1 // 0x
     swap
     concat
-    bytec 32 // 0x0003733162
-    len
-    pushint 4 // 4
-    +
+    uncover 2
+    pushbytes 0x0003733262
+    concat
+    swap
+    uncover 2
     itob
     extract 6 2
     concat
-    bytec 32 // 0x0003733162
-    concat
-    pushbytes 0x0003733262
+    swap
     concat
     // typed_abi_call/typed_c2c.py:333
     // arc4.Tuple((arc4.UInt64(11), arc4.UInt64(21), arc4.DynamicBytes(b"3b"))),
@@ -3655,6 +3700,11 @@ test_nested_tuples_next_txn@2:
     concat
     pushbytes 0x0000000000000015
     concat
+    swap
+    bytec_1 // 0x
+    swap
+    concat
+    swap
     pushint 18 // 18
     itob
     extract 6 2
@@ -3668,20 +3718,27 @@ test_nested_tuples_next_txn@2:
     //         arc4.Tuple((arc4.UInt64(11), arc4.UInt64(21), arc4.DynamicBytes(b"3b"))),
     //     )
     // ),
+    bytec_1 // 0x
+    dig 2
+    concat
+    swap
+    uncover 2
+    len
+    pushint 4 // 4
+    +
     pushint 4 // 4
     itob
     extract 6 2
     bytec_1 // 0x
     swap
     concat
-    dig 2
-    len
-    pushint 4 // 4
-    +
+    uncover 3
+    uncover 3
+    concat
+    swap
+    uncover 2
     itob
     extract 6 2
-    concat
-    uncover 2
     concat
     swap
     concat
@@ -3970,10 +4027,14 @@ test_named_tuples_block@0:
     extract 6 2
     bytec 11 // "log 1"
     concat
+    bytec_1 // 0x
+    uncover 2
+    concat
     swap
     bytec_1 // 0x
     swap
     concat
+    swap
     pushint 10 // 10
     itob
     extract 6 2
@@ -3990,10 +4051,14 @@ test_named_tuples_block@0:
     extract 6 2
     bytec 11 // "log 1"
     concat
+    bytec_1 // 0x
+    uncover 2
+    concat
     swap
     bytec_1 // 0x
     swap
     concat
+    swap
     pushint 10 // 10
     itob
     extract 6 2
@@ -4061,10 +4126,14 @@ test_named_tuples_next_txn@1:
     extract 6 2
     bytec 36 // "log 2"
     concat
+    bytec_1 // 0x
+    uncover 2
+    concat
     swap
     bytec_1 // 0x
     swap
     concat
+    swap
     pushint 10 // 10
     itob
     extract 6 2
@@ -4081,10 +4150,14 @@ test_named_tuples_next_txn@1:
     extract 6 2
     bytec 11 // "log 1"
     concat
+    bytec_1 // 0x
+    uncover 2
+    concat
     swap
     bytec_1 // 0x
     swap
     concat
+    swap
     pushint 10 // 10
     itob
     extract 6 2
@@ -4151,11 +4224,15 @@ test_arc4_struct_block@0:
     bytec_1 // 0x
     bytec_3 // 0x0000000000000001
     concat
+    bytec_1 // 0x
+    pushbytes 0x00056c6f672031
+    concat
+    swap
     pushint 10 // 10
     itob
     extract 6 2
     concat
-    pushbytes 0x00056c6f672031
+    swap
     concat
     dup
     // typed_abi_call/typed_c2c.py:375-379

@@ -109,8 +109,8 @@ subroutine main:
         assert // can only call when not creating
         // arc4_conversions/contract.py:22
         // class TestContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%0#0
-        int 0                                                                                        reinterpret_bytes[1]%0#0,0
+        txna ApplicationArgs 1                                                                       reinterpret_Encoded(bool8)%0#0
+        int 0                                                                                        reinterpret_Encoded(bool8)%0#0,0
         getbit                                                                                       tmp%31#0
         // arc4_conversions/contract.py:178
         // @arc4.abimethod
@@ -152,23 +152,23 @@ subroutine my_dyn_struct_arc4:
         // arc4.UInt64(value), arc4.Address(Txn.sender), arc4.DynamicBytes(Txn.sender.bytes)
         p-load value#0                                                                               (𝕡) value#0 | value#0 (copy)
         itob                                                                                         (𝕡) value#0 | val_as_bytes%0#0
-        txn Sender                                                                                   (𝕡) value#0 | val_as_bytes%0#0,tmp%0#0
-        txn Sender                                                                                   (𝕡) value#0 | val_as_bytes%0#0,tmp%0#0,to_encode%0#0
-        byte 0x0020                                                                                  (𝕡) value#0 | val_as_bytes%0#0,tmp%0#0,to_encode%0#0,0x0020
-        l-load to_encode%0#0 1                                                                       (𝕡) value#0 | val_as_bytes%0#0,tmp%0#0,0x0020,to_encode%0#0
-        concat                                                                                       (𝕡) value#0 | val_as_bytes%0#0,tmp%0#0,encoded_value%0#0
+        txn Sender                                                                                   (𝕡) value#0 | val_as_bytes%0#0,reinterpret_Encoded(uint8[32])%0#0
+        txn Sender                                                                                   (𝕡) value#0 | val_as_bytes%0#0,reinterpret_Encoded(uint8[32])%0#0,to_encode%0#0
+        byte 0x0020                                                                                  (𝕡) value#0 | val_as_bytes%0#0,reinterpret_Encoded(uint8[32])%0#0,to_encode%0#0,0x0020
+        l-load to_encode%0#0 1                                                                       (𝕡) value#0 | val_as_bytes%0#0,reinterpret_Encoded(uint8[32])%0#0,0x0020,to_encode%0#0
+        concat                                                                                       (𝕡) value#0 | val_as_bytes%0#0,reinterpret_Encoded(uint8[32])%0#0,encoded_value%0#0
         // arc4_conversions/contract.py:225-227
         // return MyDynStructARC4(
         //     arc4.UInt64(value), arc4.Address(Txn.sender), arc4.DynamicBytes(Txn.sender.bytes)
         // )
-        l-load val_as_bytes%0#0 2                                                                    (𝕡) value#0 | tmp%0#0,encoded_value%0#0,val_as_bytes%0#0
-        l-load tmp%0#0 2                                                                             (𝕡) value#0 | encoded_value%0#0,val_as_bytes%0#0,tmp%0#0
-        concat                                                                                       (𝕡) value#0 | encoded_value%0#0,encoded_tuple_buffer%2#0
-        byte 0x002a                                                                                  (𝕡) value#0 | encoded_value%0#0,encoded_tuple_buffer%2#0,0x002a
-        concat                                                                                       (𝕡) value#0 | encoded_value%0#0,encoded_tuple_buffer%3#0
-        l-load encoded_value%0#0 1                                                                   (𝕡) value#0 | encoded_tuple_buffer%3#0,encoded_value%0#0
-        concat                                                                                       (𝕡) value#0 | encoded_tuple_buffer%4#0
-        retsub                                                                                       encoded_tuple_buffer%4#0
+        l-load val_as_bytes%0#0 2                                                                    (𝕡) value#0 | reinterpret_Encoded(uint8[32])%0#0,encoded_value%0#0,val_as_bytes%0#0
+        l-load reinterpret_Encoded(uint8[32])%0#0 2                                                  (𝕡) value#0 | encoded_value%0#0,val_as_bytes%0#0,reinterpret_Encoded(uint8[32])%0#0
+        concat                                                                                       (𝕡) value#0 | encoded_value%0#0,encoded%1#0
+        byte 0x002a                                                                                  (𝕡) value#0 | encoded_value%0#0,encoded%1#0,0x002a
+        concat                                                                                       (𝕡) value#0 | encoded_value%0#0,encoded%2#0
+        l-load encoded_value%0#0 1                                                                   (𝕡) value#0 | encoded%2#0,encoded_value%0#0
+        concat                                                                                       (𝕡) value#0 | encoded%3#0
+        retsub                                                                                       encoded%3#0
 
 
 // test_cases.arc4_conversions.contract.TestContract.test_literal_encoding() -> void:
@@ -644,24 +644,24 @@ subroutine test_array_uint64_encoding:
         int 2                                                                                        app#0,tmp%0#0,tmp%2#0,tmp%3#0,2
         +                                                                                            app#0,tmp%0#0,tmp%2#0,tmp%4#0
         l-load tmp%0#0 2                                                                             app#0,tmp%2#0,tmp%4#0,tmp%0#0
-        itob                                                                                         app#0,tmp%2#0,tmp%4#0,array%sub_item%0#1
-        l-load tmp%2#0 2                                                                             app#0,tmp%4#0,array%sub_item%0#1,tmp%2#0
-        itob                                                                                         app#0,tmp%4#0,array%sub_item%0#1,array%sub_item%1#1
-        l-load array%sub_item%0#1 1                                                                  app#0,tmp%4#0,array%sub_item%1#1,array%sub_item%0#1
-        l-load array%sub_item%1#1 1                                                                  app#0,tmp%4#0,array%sub_item%0#1,array%sub_item%1#1
-        concat                                                                                       app#0,tmp%4#0,array%data%1#1
-        l-load tmp%4#0 1                                                                             app#0,array%data%1#1,tmp%4#0
-        itob                                                                                         app#0,array%data%1#1,array%sub_item%2#1
-        l-load array%data%1#1 1                                                                      app#0,array%sub_item%2#1,array%data%1#1
-        l-load array%sub_item%2#1 1                                                                  app#0,array%data%1#1,array%sub_item%2#1
-        concat                                                                                       app#0,array%data%2#1
-        l-load-copy array%data%2#1 0                                                                 app#0,array%data%2#1,array%data%2#1 (copy)
-        len                                                                                          app#0,array%data%2#1,byte_len%0#0
-        int 8                                                                                        app#0,array%data%2#1,byte_len%0#0,8
-        /                                                                                            app#0,array%data%2#1,len_%0#0
-        itob                                                                                         app#0,array%data%2#1,as_bytes%0#0
-        extract 6 2                                                                                  app#0,array%data%2#1,len_16_bit%0#0
-        l-load array%data%2#1 1                                                                      app#0,len_16_bit%0#0,array%data%2#1
+        itob                                                                                         app#0,tmp%2#0,tmp%4#0,val_as_bytes%0#0
+        l-load tmp%2#0 2                                                                             app#0,tmp%4#0,val_as_bytes%0#0,tmp%2#0
+        itob                                                                                         app#0,tmp%4#0,val_as_bytes%0#0,val_as_bytes%1#0
+        l-load val_as_bytes%0#0 1                                                                    app#0,tmp%4#0,val_as_bytes%1#0,val_as_bytes%0#0
+        l-load val_as_bytes%1#0 1                                                                    app#0,tmp%4#0,val_as_bytes%0#0,val_as_bytes%1#0
+        concat                                                                                       app#0,tmp%4#0,encoded%1#0
+        l-load tmp%4#0 1                                                                             app#0,encoded%1#0,tmp%4#0
+        itob                                                                                         app#0,encoded%1#0,val_as_bytes%2#0
+        l-load encoded%1#0 1                                                                         app#0,val_as_bytes%2#0,encoded%1#0
+        l-load val_as_bytes%2#0 1                                                                    app#0,encoded%1#0,val_as_bytes%2#0
+        concat                                                                                       app#0,encoded%2#0
+        l-load-copy encoded%2#0 0                                                                    app#0,encoded%2#0,encoded%2#0 (copy)
+        len                                                                                          app#0,encoded%2#0,byte_len%0#0
+        int 8                                                                                        app#0,encoded%2#0,byte_len%0#0,8
+        /                                                                                            app#0,encoded%2#0,len_%0#0
+        itob                                                                                         app#0,encoded%2#0,as_bytes%0#0
+        extract 6 2                                                                                  app#0,encoded%2#0,len_16_bit%0#0
+        l-load encoded%2#0 1                                                                         app#0,len_16_bit%0#0,encoded%2#0
         concat                                                                                       app#0,arr#0
         // arc4_conversions/contract.py:110
         // arc4.abi_call(CheckApp.check_dyn_array_uin64, arr, expected_bytes, app_id=app)
@@ -697,21 +697,22 @@ subroutine test_array_uint64_encoding:
         int 2                                                                                        app#0,tmp%13#0,tmp%15#0,tmp%16#0,2
         +                                                                                            app#0,tmp%13#0,tmp%15#0,tmp%17#0
         l-load tmp%13#0 2                                                                            app#0,tmp%15#0,tmp%17#0,tmp%13#0
-        itob                                                                                         app#0,tmp%15#0,tmp%17#0,val_as_bytes%0#0
-        l-load tmp%15#0 2                                                                            app#0,tmp%17#0,val_as_bytes%0#0,tmp%15#0
-        itob                                                                                         app#0,tmp%17#0,val_as_bytes%0#0,val_as_bytes%1#0
-        l-load tmp%17#0 2                                                                            app#0,val_as_bytes%0#0,val_as_bytes%1#0,tmp%17#0
-        itob                                                                                         app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0
-        l-load val_as_bytes%0#0 2                                                                    app#0,val_as_bytes%1#0,val_as_bytes%2#0,val_as_bytes%0#0
-        l-load val_as_bytes%1#0 2                                                                    app#0,val_as_bytes%2#0,val_as_bytes%0#0,val_as_bytes%1#0
-        concat                                                                                       app#0,val_as_bytes%2#0,result%1#0
-        l-load val_as_bytes%2#0 1                                                                    app#0,result%1#0,val_as_bytes%2#0
-        concat                                                                                       app#0,result%2#0
-        byte 0x0003                                                                                  app#0,result%2#0,0x0003
-        l-load result%2#0 1                                                                          app#0,0x0003,result%2#0
-        concat                                                                                       app#0,array_data%1#0
-        l-load-copy app#0 1                                                                          app#0,array_data%1#0,app#0 (copy)
-        itxn_field ApplicationID                                                                     app#0,array_data%1#0
+        itob                                                                                         app#0,tmp%15#0,tmp%17#0,val_as_bytes%3#0
+        l-load tmp%15#0 2                                                                            app#0,tmp%17#0,val_as_bytes%3#0,tmp%15#0
+        itob                                                                                         app#0,tmp%17#0,val_as_bytes%3#0,val_as_bytes%4#0
+        l-load val_as_bytes%3#0 1                                                                    app#0,tmp%17#0,val_as_bytes%4#0,val_as_bytes%3#0
+        l-load val_as_bytes%4#0 1                                                                    app#0,tmp%17#0,val_as_bytes%3#0,val_as_bytes%4#0
+        concat                                                                                       app#0,tmp%17#0,encoded%5#0
+        l-load tmp%17#0 1                                                                            app#0,encoded%5#0,tmp%17#0
+        itob                                                                                         app#0,encoded%5#0,val_as_bytes%5#0
+        l-load encoded%5#0 1                                                                         app#0,val_as_bytes%5#0,encoded%5#0
+        l-load val_as_bytes%5#0 1                                                                    app#0,encoded%5#0,val_as_bytes%5#0
+        concat                                                                                       app#0,encoded%6#0
+        byte 0x0003                                                                                  app#0,encoded%6#0,0x0003
+        l-load encoded%6#0 1                                                                         app#0,0x0003,encoded%6#0
+        concat                                                                                       app#0,encoded%8#0
+        l-load-copy app#0 1                                                                          app#0,encoded%8#0,app#0 (copy)
+        itxn_field ApplicationID                                                                     app#0,encoded%8#0
         // arc4_conversions/contract.py:111-116
         // arc4.abi_call(
         //     CheckApp.check_dyn_array_uin64,
@@ -719,9 +720,9 @@ subroutine test_array_uint64_encoding:
         //     expected_bytes,
         //     app_id=app,
         // )
-        method check_dyn_array_uin64(uint64[],byte[])void                                            app#0,array_data%1#0,Method(check_dyn_array_uin64(uint64[],byte[])void)
-        itxn_field ApplicationArgs                                                                   app#0,array_data%1#0
-        l-load array_data%1#0 0                                                                      app#0,array_data%1#0
+        method check_dyn_array_uin64(uint64[],byte[])void                                            app#0,encoded%8#0,Method(check_dyn_array_uin64(uint64[],byte[])void)
+        itxn_field ApplicationArgs                                                                   app#0,encoded%8#0
+        l-load encoded%8#0 0                                                                         app#0,encoded%8#0
         itxn_field ApplicationArgs                                                                   app#0
         // arc4_conversions/contract.py:114
         // expected_bytes,
@@ -757,18 +758,19 @@ subroutine test_array_uint64_encoding:
         int 2                                                                                        app#0,tmp%18#0,tmp%20#0,tmp%21#0,2
         +                                                                                            app#0,tmp%18#0,tmp%20#0,tmp%22#0
         l-load tmp%18#0 2                                                                            app#0,tmp%20#0,tmp%22#0,tmp%18#0
-        itob                                                                                         app#0,tmp%20#0,tmp%22#0,val_as_bytes%3#0
-        l-load tmp%20#0 2                                                                            app#0,tmp%22#0,val_as_bytes%3#0,tmp%20#0
-        itob                                                                                         app#0,tmp%22#0,val_as_bytes%3#0,val_as_bytes%4#0
-        l-load tmp%22#0 2                                                                            app#0,val_as_bytes%3#0,val_as_bytes%4#0,tmp%22#0
-        itob                                                                                         app#0,val_as_bytes%3#0,val_as_bytes%4#0,val_as_bytes%5#0
-        l-load val_as_bytes%3#0 2                                                                    app#0,val_as_bytes%4#0,val_as_bytes%5#0,val_as_bytes%3#0
-        l-load val_as_bytes%4#0 2                                                                    app#0,val_as_bytes%5#0,val_as_bytes%3#0,val_as_bytes%4#0
-        concat                                                                                       app#0,val_as_bytes%5#0,result%4#0
-        l-load val_as_bytes%5#0 1                                                                    app#0,result%4#0,val_as_bytes%5#0
-        concat                                                                                       app#0,result%5#0
-        l-load-copy app#0 1                                                                          app#0,result%5#0,app#0 (copy)
-        itxn_field ApplicationID                                                                     app#0,result%5#0
+        itob                                                                                         app#0,tmp%20#0,tmp%22#0,val_as_bytes%6#0
+        l-load tmp%20#0 2                                                                            app#0,tmp%22#0,val_as_bytes%6#0,tmp%20#0
+        itob                                                                                         app#0,tmp%22#0,val_as_bytes%6#0,val_as_bytes%7#0
+        l-load val_as_bytes%6#0 1                                                                    app#0,tmp%22#0,val_as_bytes%7#0,val_as_bytes%6#0
+        l-load val_as_bytes%7#0 1                                                                    app#0,tmp%22#0,val_as_bytes%6#0,val_as_bytes%7#0
+        concat                                                                                       app#0,tmp%22#0,encoded%10#0
+        l-load tmp%22#0 1                                                                            app#0,encoded%10#0,tmp%22#0
+        itob                                                                                         app#0,encoded%10#0,val_as_bytes%8#0
+        l-load encoded%10#0 1                                                                        app#0,val_as_bytes%8#0,encoded%10#0
+        l-load val_as_bytes%8#0 1                                                                    app#0,encoded%10#0,val_as_bytes%8#0
+        concat                                                                                       app#0,encoded%11#0
+        l-load-copy app#0 1                                                                          app#0,encoded%11#0,app#0 (copy)
+        itxn_field ApplicationID                                                                     app#0,encoded%11#0
         // arc4_conversions/contract.py:117-122
         // arc4.abi_call(
         //     CheckApp.check_static_array_uin64_3,
@@ -776,9 +778,9 @@ subroutine test_array_uint64_encoding:
         //     expected_bytes[2:],
         //     app_id=app,
         // )
-        method check_static_array_uin64_3(uint64[3],byte[])void                                      app#0,result%5#0,Method(check_static_array_uin64_3(uint64[3],byte[])void)
-        itxn_field ApplicationArgs                                                                   app#0,result%5#0
-        l-load result%5#0 0                                                                          app#0,result%5#0
+        method check_static_array_uin64_3(uint64[3],byte[])void                                      app#0,encoded%11#0,Method(check_static_array_uin64_3(uint64[3],byte[])void)
+        itxn_field ApplicationArgs                                                                   app#0,encoded%11#0
+        l-load encoded%11#0 0                                                                        app#0,encoded%11#0
         itxn_field ApplicationArgs                                                                   app#0
         // arc4_conversions/contract.py:120
         // expected_bytes[2:],
@@ -837,71 +839,71 @@ subroutine test_array_static_encoding:
         // arc4_conversions/contract.py:130
         // arr = ImmutableArray(my_struct(UInt64(1)), my_struct(UInt64(2)), my_struct(UInt64(3)))
         int 1                                                                                        app#0,tmp%0#1,tmp%0#2,tmp%0#3,1
-        itob                                                                                         app#0,tmp%0#1,tmp%0#2,tmp%0#3,array%sub_item%0#1
-        l-load-copy array%sub_item%0#1 0                                                             app#0,tmp%0#1,tmp%0#2,tmp%0#3,array%sub_item%0#1,array%sub_item%0#1 (copy)
-        l-load tmp%0#1 4                                                                             app#0,tmp%0#2,tmp%0#3,array%sub_item%0#1,array%sub_item%0#1 (copy),tmp%0#1
-        concat                                                                                       app#0,tmp%0#2,tmp%0#3,array%sub_item%0#1,array%encoded%1#1
-        int 2                                                                                        app#0,tmp%0#2,tmp%0#3,array%sub_item%0#1,array%encoded%1#1,2
-        itob                                                                                         app#0,tmp%0#2,tmp%0#3,array%sub_item%0#1,array%encoded%1#1,array%sub_item%1#1
-        l-load-copy array%sub_item%1#1 0                                                             app#0,tmp%0#2,tmp%0#3,array%sub_item%0#1,array%encoded%1#1,array%sub_item%1#1,array%sub_item%1#1 (copy)
-        l-load tmp%0#2 5                                                                             app#0,tmp%0#3,array%sub_item%0#1,array%encoded%1#1,array%sub_item%1#1,array%sub_item%1#1 (copy),tmp%0#2
-        concat                                                                                       app#0,tmp%0#3,array%sub_item%0#1,array%encoded%1#1,array%sub_item%1#1,array%encoded%3#1
-        l-load array%encoded%1#1 2                                                                   app#0,tmp%0#3,array%sub_item%0#1,array%sub_item%1#1,array%encoded%3#1,array%encoded%1#1
-        l-load array%encoded%3#1 1                                                                   app#0,tmp%0#3,array%sub_item%0#1,array%sub_item%1#1,array%encoded%1#1,array%encoded%3#1
-        concat                                                                                       app#0,tmp%0#3,array%sub_item%0#1,array%sub_item%1#1,array%data%1#1
-        int 3                                                                                        app#0,tmp%0#3,array%sub_item%0#1,array%sub_item%1#1,array%data%1#1,3
-        itob                                                                                         app#0,tmp%0#3,array%sub_item%0#1,array%sub_item%1#1,array%data%1#1,array%sub_item%2#1
-        l-load-copy array%sub_item%2#1 0                                                             app#0,tmp%0#3,array%sub_item%0#1,array%sub_item%1#1,array%data%1#1,array%sub_item%2#1,array%sub_item%2#1 (copy)
-        l-load tmp%0#3 5                                                                             app#0,array%sub_item%0#1,array%sub_item%1#1,array%data%1#1,array%sub_item%2#1,array%sub_item%2#1 (copy),tmp%0#3
-        concat                                                                                       app#0,array%sub_item%0#1,array%sub_item%1#1,array%data%1#1,array%sub_item%2#1,array%encoded%5#1
-        l-load array%data%1#1 2                                                                      app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,array%encoded%5#1,array%data%1#1
-        l-load array%encoded%5#1 1                                                                   app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,array%data%1#1,array%encoded%5#1
-        concat                                                                                       app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,array%data%2#1
-        l-load-copy array%data%2#1 0                                                                 app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,array%data%2#1,array%data%2#1 (copy)
-        len                                                                                          app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,array%data%2#1,byte_len%0#0
-        int 40                                                                                       app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,array%data%2#1,byte_len%0#0,40
-        /                                                                                            app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,array%data%2#1,len_%0#0
-        itob                                                                                         app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,array%data%2#1,as_bytes%0#0
-        extract 6 2                                                                                  app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,array%data%2#1,len_16_bit%0#0
-        l-load array%data%2#1 1                                                                      app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,len_16_bit%0#0,array%data%2#1
-        concat                                                                                       app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0
+        itob                                                                                         app#0,tmp%0#1,tmp%0#2,tmp%0#3,val_as_bytes%0#0
+        l-load-copy val_as_bytes%0#0 0                                                               app#0,tmp%0#1,tmp%0#2,tmp%0#3,val_as_bytes%0#0,val_as_bytes%0#0 (copy)
+        l-load tmp%0#1 4                                                                             app#0,tmp%0#2,tmp%0#3,val_as_bytes%0#0,val_as_bytes%0#0 (copy),tmp%0#1
+        concat                                                                                       app#0,tmp%0#2,tmp%0#3,val_as_bytes%0#0,encoded%1#0
+        int 2                                                                                        app#0,tmp%0#2,tmp%0#3,val_as_bytes%0#0,encoded%1#0,2
+        itob                                                                                         app#0,tmp%0#2,tmp%0#3,val_as_bytes%0#0,encoded%1#0,val_as_bytes%1#0
+        l-load-copy val_as_bytes%1#0 0                                                               app#0,tmp%0#2,tmp%0#3,val_as_bytes%0#0,encoded%1#0,val_as_bytes%1#0,val_as_bytes%1#0 (copy)
+        l-load tmp%0#2 5                                                                             app#0,tmp%0#3,val_as_bytes%0#0,encoded%1#0,val_as_bytes%1#0,val_as_bytes%1#0 (copy),tmp%0#2
+        concat                                                                                       app#0,tmp%0#3,val_as_bytes%0#0,encoded%1#0,val_as_bytes%1#0,encoded%5#0
+        l-load encoded%1#0 2                                                                         app#0,tmp%0#3,val_as_bytes%0#0,val_as_bytes%1#0,encoded%5#0,encoded%1#0
+        l-load encoded%5#0 1                                                                         app#0,tmp%0#3,val_as_bytes%0#0,val_as_bytes%1#0,encoded%1#0,encoded%5#0
+        concat                                                                                       app#0,tmp%0#3,val_as_bytes%0#0,val_as_bytes%1#0,encoded%7#0
+        int 3                                                                                        app#0,tmp%0#3,val_as_bytes%0#0,val_as_bytes%1#0,encoded%7#0,3
+        itob                                                                                         app#0,tmp%0#3,val_as_bytes%0#0,val_as_bytes%1#0,encoded%7#0,val_as_bytes%2#0
+        l-load-copy val_as_bytes%2#0 0                                                               app#0,tmp%0#3,val_as_bytes%0#0,val_as_bytes%1#0,encoded%7#0,val_as_bytes%2#0,val_as_bytes%2#0 (copy)
+        l-load tmp%0#3 5                                                                             app#0,val_as_bytes%0#0,val_as_bytes%1#0,encoded%7#0,val_as_bytes%2#0,val_as_bytes%2#0 (copy),tmp%0#3
+        concat                                                                                       app#0,val_as_bytes%0#0,val_as_bytes%1#0,encoded%7#0,val_as_bytes%2#0,encoded%9#0
+        l-load encoded%7#0 2                                                                         app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,encoded%9#0,encoded%7#0
+        l-load encoded%9#0 1                                                                         app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,encoded%7#0,encoded%9#0
+        concat                                                                                       app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,encoded%11#0
+        l-load-copy encoded%11#0 0                                                                   app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,encoded%11#0,encoded%11#0 (copy)
+        len                                                                                          app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,encoded%11#0,byte_len%0#0
+        int 40                                                                                       app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,encoded%11#0,byte_len%0#0,40
+        /                                                                                            app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,encoded%11#0,len_%0#0
+        itob                                                                                         app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,encoded%11#0,as_bytes%0#0
+        extract 6 2                                                                                  app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,encoded%11#0,len_16_bit%0#0
+        l-load encoded%11#0 1                                                                        app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,len_16_bit%0#0,encoded%11#0
+        concat                                                                                       app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0
         // arc4_conversions/contract.py:134
         // + Txn.sender.bytes
-        txn Sender                                                                                   app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,tmp%9#0
+        txn Sender                                                                                   app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,tmp%9#0
         // arc4_conversions/contract.py:132-133
         // b"\x00\x03"
         // + (op.bzero(7) + b"\x01")
-        byte 0x00030000000000000001                                                                  app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,tmp%9#0,0x00030000000000000001
+        byte 0x00030000000000000001                                                                  app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,tmp%9#0,0x00030000000000000001
         // arc4_conversions/contract.py:132-134
         // b"\x00\x03"
         // + (op.bzero(7) + b"\x01")
         // + Txn.sender.bytes
-        l-load tmp%9#0 1                                                                             app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,0x00030000000000000001,tmp%9#0
-        concat                                                                                       app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,tmp%10#0
+        l-load tmp%9#0 1                                                                             app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,0x00030000000000000001,tmp%9#0
+        concat                                                                                       app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,tmp%10#0
         // arc4_conversions/contract.py:135
         // + (op.bzero(7) + b"\x02")
-        byte 0x0000000000000002                                                                      app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,tmp%10#0,0x0000000000000002
+        byte 0x0000000000000002                                                                      app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,tmp%10#0,0x0000000000000002
         // arc4_conversions/contract.py:132-135
         // b"\x00\x03"
         // + (op.bzero(7) + b"\x01")
         // + Txn.sender.bytes
         // + (op.bzero(7) + b"\x02")
-        concat                                                                                       app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,tmp%13#0
+        concat                                                                                       app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,tmp%13#0
         // arc4_conversions/contract.py:136
         // + Txn.sender.bytes
-        txn Sender                                                                                   app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,tmp%13#0,tmp%14#0
+        txn Sender                                                                                   app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,tmp%13#0,tmp%14#0
         // arc4_conversions/contract.py:132-136
         // b"\x00\x03"
         // + (op.bzero(7) + b"\x01")
         // + Txn.sender.bytes
         // + (op.bzero(7) + b"\x02")
         // + Txn.sender.bytes
-        l-load tmp%13#0 1                                                                            app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,tmp%14#0,tmp%13#0
-        l-load tmp%14#0 1                                                                            app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,tmp%13#0,tmp%14#0
-        concat                                                                                       app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,tmp%15#0
+        l-load tmp%13#0 1                                                                            app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,tmp%14#0,tmp%13#0
+        l-load tmp%14#0 1                                                                            app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,tmp%13#0,tmp%14#0
+        concat                                                                                       app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,tmp%15#0
         // arc4_conversions/contract.py:137
         // + (op.bzero(7) + b"\x03")
-        byte 0x0000000000000003                                                                      app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,tmp%15#0,0x0000000000000003
+        byte 0x0000000000000003                                                                      app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,tmp%15#0,0x0000000000000003
         // arc4_conversions/contract.py:132-137
         // b"\x00\x03"
         // + (op.bzero(7) + b"\x01")
@@ -909,10 +911,10 @@ subroutine test_array_static_encoding:
         // + (op.bzero(7) + b"\x02")
         // + Txn.sender.bytes
         // + (op.bzero(7) + b"\x03")
-        concat                                                                                       app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,tmp%18#0
+        concat                                                                                       app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,tmp%18#0
         // arc4_conversions/contract.py:138
         // + Txn.sender.bytes
-        txn Sender                                                                                   app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,tmp%18#0,tmp%19#0
+        txn Sender                                                                                   app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,tmp%18#0,tmp%19#0
         // arc4_conversions/contract.py:131-139
         // expected_bytes = (
         //     b"\x00\x03"
@@ -923,8 +925,8 @@ subroutine test_array_static_encoding:
         //     + (op.bzero(7) + b"\x03")
         //     + Txn.sender.bytes
         // )
-        l-load tmp%18#0 1                                                                            app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,tmp%19#0,tmp%18#0
-        l-load tmp%19#0 1                                                                            app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,tmp%18#0,tmp%19#0
+        l-load tmp%18#0 1                                                                            app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,tmp%19#0,tmp%18#0
+        l-load tmp%19#0 1                                                                            app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,tmp%18#0,tmp%19#0
         // arc4_conversions/contract.py:132-138
         // b"\x00\x03"
         // + (op.bzero(7) + b"\x01")
@@ -933,30 +935,30 @@ subroutine test_array_static_encoding:
         // + Txn.sender.bytes
         // + (op.bzero(7) + b"\x03")
         // + Txn.sender.bytes
-        concat                                                                                       app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,expected_bytes#0
+        concat                                                                                       app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,expected_bytes#0
         // arc4_conversions/contract.py:140
         // arc4.abi_call(CheckApp.check_dyn_array_struct, arr, expected_bytes, app_id=app)
-        itxn_begin                                                                                   app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,expected_bytes#0
-        l-load-copy expected_bytes#0 0                                                               app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,expected_bytes#0,expected_bytes#0 (copy)
-        len                                                                                          app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,expected_bytes#0,length%0#0
-        l-load-copy length%0#0 0                                                                     app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,expected_bytes#0,length%0#0,length%0#0 (copy)
-        itob                                                                                         app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,expected_bytes#0,length%0#0,as_bytes%1#0
-        extract 6 2                                                                                  app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,expected_bytes#0,length%0#0,length_uint16%0#0
-        l-load-copy expected_bytes#0 2                                                               app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,expected_bytes#0,length%0#0,length_uint16%0#0,expected_bytes#0 (copy)
-        concat                                                                                       app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,expected_bytes#0,length%0#0,encoded_value%0#0
-        l-load-copy app#0 7                                                                          app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,expected_bytes#0,length%0#0,encoded_value%0#0,app#0 (copy)
-        itxn_field ApplicationID                                                                     app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,expected_bytes#0,length%0#0,encoded_value%0#0
-        method check_dyn_array_struct((uint64,address)[],byte[])void                                 app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,expected_bytes#0,length%0#0,encoded_value%0#0,Method(check_dyn_array_struct((uint64,address)[],byte[])void)
-        itxn_field ApplicationArgs                                                                   app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,arr#0,expected_bytes#0,length%0#0,encoded_value%0#0
-        l-load arr#0 3                                                                               app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,expected_bytes#0,length%0#0,encoded_value%0#0,arr#0
-        itxn_field ApplicationArgs                                                                   app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,expected_bytes#0,length%0#0,encoded_value%0#0
-        l-load encoded_value%0#0 0                                                                   app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,expected_bytes#0,length%0#0,encoded_value%0#0
-        itxn_field ApplicationArgs                                                                   app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,expected_bytes#0,length%0#0
-        int appl                                                                                     app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,expected_bytes#0,length%0#0,appl
-        itxn_field TypeEnum                                                                          app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,expected_bytes#0,length%0#0
-        int 0                                                                                        app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,expected_bytes#0,length%0#0,0
-        itxn_field Fee                                                                               app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,expected_bytes#0,length%0#0
-        itxn_submit                                                                                  app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,expected_bytes#0,length%0#0
+        itxn_begin                                                                                   app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,expected_bytes#0
+        l-load-copy expected_bytes#0 0                                                               app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,expected_bytes#0,expected_bytes#0 (copy)
+        len                                                                                          app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,expected_bytes#0,length%3#0
+        l-load-copy length%3#0 0                                                                     app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,expected_bytes#0,length%3#0,length%3#0 (copy)
+        itob                                                                                         app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,expected_bytes#0,length%3#0,as_bytes%1#0
+        extract 6 2                                                                                  app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,expected_bytes#0,length%3#0,length_uint16%0#0
+        l-load-copy expected_bytes#0 2                                                               app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,expected_bytes#0,length%3#0,length_uint16%0#0,expected_bytes#0 (copy)
+        concat                                                                                       app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,expected_bytes#0,length%3#0,encoded_value%0#0
+        l-load-copy app#0 7                                                                          app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,expected_bytes#0,length%3#0,encoded_value%0#0,app#0 (copy)
+        itxn_field ApplicationID                                                                     app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,expected_bytes#0,length%3#0,encoded_value%0#0
+        method check_dyn_array_struct((uint64,address)[],byte[])void                                 app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,expected_bytes#0,length%3#0,encoded_value%0#0,Method(check_dyn_array_struct((uint64,address)[],byte[])void)
+        itxn_field ApplicationArgs                                                                   app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,arr#0,expected_bytes#0,length%3#0,encoded_value%0#0
+        l-load arr#0 3                                                                               app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,expected_bytes#0,length%3#0,encoded_value%0#0,arr#0
+        itxn_field ApplicationArgs                                                                   app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,expected_bytes#0,length%3#0,encoded_value%0#0
+        l-load encoded_value%0#0 0                                                                   app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,expected_bytes#0,length%3#0,encoded_value%0#0
+        itxn_field ApplicationArgs                                                                   app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,expected_bytes#0,length%3#0
+        int appl                                                                                     app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,expected_bytes#0,length%3#0,appl
+        itxn_field TypeEnum                                                                          app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,expected_bytes#0,length%3#0
+        int 0                                                                                        app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,expected_bytes#0,length%3#0,0
+        itxn_field Fee                                                                               app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,expected_bytes#0,length%3#0
+        itxn_submit                                                                                  app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,expected_bytes#0,length%3#0
         // arc4_conversions/contract.py:141-146
         // arc4.abi_call(
         //     CheckApp.check_static_array_struct,
@@ -964,49 +966,50 @@ subroutine test_array_static_encoding:
         //     expected_bytes[2:],
         //     app_id=app,
         // )
-        itxn_begin                                                                                   app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,expected_bytes#0,length%0#0
+        itxn_begin                                                                                   app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,expected_bytes#0,length%3#0
         // arc4_conversions/contract.py:203
         // return MyStruct(value, Txn.sender)
-        txn Sender                                                                                   app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,expected_bytes#0,length%0#0,tmp%0#1
-        txn Sender                                                                                   app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,expected_bytes#0,length%0#0,tmp%0#1,tmp%0#2
-        txn Sender                                                                                   app#0,array%sub_item%0#1,array%sub_item%1#1,array%sub_item%2#1,expected_bytes#0,length%0#0,tmp%0#1,tmp%0#2,tmp%0#3
+        txn Sender                                                                                   app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,expected_bytes#0,length%3#0,tmp%0#1
+        txn Sender                                                                                   app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,expected_bytes#0,length%3#0,tmp%0#1,tmp%0#2
+        txn Sender                                                                                   app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,expected_bytes#0,length%3#0,tmp%0#1,tmp%0#2,tmp%0#3
         // arc4_conversions/contract.py:143
         // (my_struct(UInt64(1)), my_struct(UInt64(2)), my_struct(UInt64(3))),
-        l-load array%sub_item%0#1 7                                                                  app#0,array%sub_item%1#1,array%sub_item%2#1,expected_bytes#0,length%0#0,tmp%0#1,tmp%0#2,tmp%0#3,array%sub_item%0#1
-        l-load tmp%0#1 3                                                                             app#0,array%sub_item%1#1,array%sub_item%2#1,expected_bytes#0,length%0#0,tmp%0#2,tmp%0#3,array%sub_item%0#1,tmp%0#1
-        concat                                                                                       app#0,array%sub_item%1#1,array%sub_item%2#1,expected_bytes#0,length%0#0,tmp%0#2,tmp%0#3,encoded_tuple_buffer%2#0
-        l-load array%sub_item%1#1 6                                                                  app#0,array%sub_item%2#1,expected_bytes#0,length%0#0,tmp%0#2,tmp%0#3,encoded_tuple_buffer%2#0,array%sub_item%1#1
-        l-load tmp%0#2 3                                                                             app#0,array%sub_item%2#1,expected_bytes#0,length%0#0,tmp%0#3,encoded_tuple_buffer%2#0,array%sub_item%1#1,tmp%0#2
-        concat                                                                                       app#0,array%sub_item%2#1,expected_bytes#0,length%0#0,tmp%0#3,encoded_tuple_buffer%2#0,encoded_tuple_buffer%5#0
-        l-load array%sub_item%2#1 5                                                                  app#0,expected_bytes#0,length%0#0,tmp%0#3,encoded_tuple_buffer%2#0,encoded_tuple_buffer%5#0,array%sub_item%2#1
-        l-load tmp%0#3 3                                                                             app#0,expected_bytes#0,length%0#0,encoded_tuple_buffer%2#0,encoded_tuple_buffer%5#0,array%sub_item%2#1,tmp%0#3
-        concat                                                                                       app#0,expected_bytes#0,length%0#0,encoded_tuple_buffer%2#0,encoded_tuple_buffer%5#0,encoded_tuple_buffer%8#0
-        l-load encoded_tuple_buffer%2#0 2                                                            app#0,expected_bytes#0,length%0#0,encoded_tuple_buffer%5#0,encoded_tuple_buffer%8#0,encoded_tuple_buffer%2#0
-        l-load encoded_tuple_buffer%5#0 2                                                            app#0,expected_bytes#0,length%0#0,encoded_tuple_buffer%8#0,encoded_tuple_buffer%2#0,encoded_tuple_buffer%5#0
-        concat                                                                                       app#0,expected_bytes#0,length%0#0,encoded_tuple_buffer%8#0,result%1#0
-        l-load encoded_tuple_buffer%8#0 1                                                            app#0,expected_bytes#0,length%0#0,result%1#0,encoded_tuple_buffer%8#0
-        concat                                                                                       app#0,expected_bytes#0,length%0#0,result%2#0
+        l-load val_as_bytes%0#0 7                                                                    app#0,val_as_bytes%1#0,val_as_bytes%2#0,expected_bytes#0,length%3#0,tmp%0#1,tmp%0#2,tmp%0#3,val_as_bytes%0#0
+        l-load tmp%0#1 3                                                                             app#0,val_as_bytes%1#0,val_as_bytes%2#0,expected_bytes#0,length%3#0,tmp%0#2,tmp%0#3,val_as_bytes%0#0,tmp%0#1
+        concat                                                                                       app#0,val_as_bytes%1#0,val_as_bytes%2#0,expected_bytes#0,length%3#0,tmp%0#2,tmp%0#3,encoded%14#0
+        l-load val_as_bytes%1#0 6                                                                    app#0,val_as_bytes%2#0,expected_bytes#0,length%3#0,tmp%0#2,tmp%0#3,encoded%14#0,val_as_bytes%1#0
+        l-load tmp%0#2 3                                                                             app#0,val_as_bytes%2#0,expected_bytes#0,length%3#0,tmp%0#3,encoded%14#0,val_as_bytes%1#0,tmp%0#2
+        concat                                                                                       app#0,val_as_bytes%2#0,expected_bytes#0,length%3#0,tmp%0#3,encoded%14#0,encoded%18#0
+        l-load encoded%14#0 1                                                                        app#0,val_as_bytes%2#0,expected_bytes#0,length%3#0,tmp%0#3,encoded%18#0,encoded%14#0
+        l-load encoded%18#0 1                                                                        app#0,val_as_bytes%2#0,expected_bytes#0,length%3#0,tmp%0#3,encoded%14#0,encoded%18#0
+        concat                                                                                       app#0,val_as_bytes%2#0,expected_bytes#0,length%3#0,tmp%0#3,encoded%20#0
+        l-load val_as_bytes%2#0 4                                                                    app#0,expected_bytes#0,length%3#0,tmp%0#3,encoded%20#0,val_as_bytes%2#0
+        l-load tmp%0#3 2                                                                             app#0,expected_bytes#0,length%3#0,encoded%20#0,val_as_bytes%2#0,tmp%0#3
+        concat                                                                                       app#0,expected_bytes#0,length%3#0,encoded%20#0,encoded%22#0
+        l-load encoded%20#0 1                                                                        app#0,expected_bytes#0,length%3#0,encoded%22#0,encoded%20#0
+        l-load encoded%22#0 1                                                                        app#0,expected_bytes#0,length%3#0,encoded%20#0,encoded%22#0
+        concat                                                                                       app#0,expected_bytes#0,length%3#0,encoded%24#0
         // arc4_conversions/contract.py:144
         // expected_bytes[2:],
-        int 2                                                                                        app#0,expected_bytes#0,length%0#0,result%2#0,2
-        l-load-copy length%0#0 2                                                                     app#0,expected_bytes#0,length%0#0,result%2#0,2,length%0#0 (copy)
-        >=                                                                                           app#0,expected_bytes#0,length%0#0,result%2#0,is_out_of_bounds%0#0
-        int 2                                                                                        app#0,expected_bytes#0,length%0#0,result%2#0,is_out_of_bounds%0#0,2
-        l-load-copy length%0#0 3                                                                     app#0,expected_bytes#0,length%0#0,result%2#0,is_out_of_bounds%0#0,2,length%0#0 (copy)
-        l-load is_out_of_bounds%0#0 2                                                                app#0,expected_bytes#0,length%0#0,result%2#0,2,length%0#0 (copy),is_out_of_bounds%0#0
-        select                                                                                       app#0,expected_bytes#0,length%0#0,result%2#0,bounded_index%0#0
-        l-load expected_bytes#0 3                                                                    app#0,length%0#0,result%2#0,bounded_index%0#0,expected_bytes#0
-        l-load bounded_index%0#0 1                                                                   app#0,length%0#0,result%2#0,expected_bytes#0,bounded_index%0#0
-        l-load length%0#0 3                                                                          app#0,result%2#0,expected_bytes#0,bounded_index%0#0,length%0#0
-        substring3                                                                                   app#0,result%2#0,to_encode%0#0
-        l-load-copy to_encode%0#0 0                                                                  app#0,result%2#0,to_encode%0#0,to_encode%0#0 (copy)
-        len                                                                                          app#0,result%2#0,to_encode%0#0,length%2#0
-        itob                                                                                         app#0,result%2#0,to_encode%0#0,as_bytes%2#0
-        extract 6 2                                                                                  app#0,result%2#0,to_encode%0#0,length_uint16%1#0
-        l-load to_encode%0#0 1                                                                       app#0,result%2#0,length_uint16%1#0,to_encode%0#0
-        concat                                                                                       app#0,result%2#0,encoded_value%1#0
-        l-load-copy app#0 2                                                                          app#0,result%2#0,encoded_value%1#0,app#0 (copy)
-        itxn_field ApplicationID                                                                     app#0,result%2#0,encoded_value%1#0
+        int 2                                                                                        app#0,expected_bytes#0,length%3#0,encoded%24#0,2
+        l-load-copy length%3#0 2                                                                     app#0,expected_bytes#0,length%3#0,encoded%24#0,2,length%3#0 (copy)
+        >=                                                                                           app#0,expected_bytes#0,length%3#0,encoded%24#0,is_out_of_bounds%0#0
+        int 2                                                                                        app#0,expected_bytes#0,length%3#0,encoded%24#0,is_out_of_bounds%0#0,2
+        l-load-copy length%3#0 3                                                                     app#0,expected_bytes#0,length%3#0,encoded%24#0,is_out_of_bounds%0#0,2,length%3#0 (copy)
+        l-load is_out_of_bounds%0#0 2                                                                app#0,expected_bytes#0,length%3#0,encoded%24#0,2,length%3#0 (copy),is_out_of_bounds%0#0
+        select                                                                                       app#0,expected_bytes#0,length%3#0,encoded%24#0,bounded_index%0#0
+        l-load expected_bytes#0 3                                                                    app#0,length%3#0,encoded%24#0,bounded_index%0#0,expected_bytes#0
+        l-load bounded_index%0#0 1                                                                   app#0,length%3#0,encoded%24#0,expected_bytes#0,bounded_index%0#0
+        l-load length%3#0 3                                                                          app#0,encoded%24#0,expected_bytes#0,bounded_index%0#0,length%3#0
+        substring3                                                                                   app#0,encoded%24#0,to_encode%0#0
+        l-load-copy to_encode%0#0 0                                                                  app#0,encoded%24#0,to_encode%0#0,to_encode%0#0 (copy)
+        len                                                                                          app#0,encoded%24#0,to_encode%0#0,length%8#0
+        itob                                                                                         app#0,encoded%24#0,to_encode%0#0,as_bytes%2#0
+        extract 6 2                                                                                  app#0,encoded%24#0,to_encode%0#0,length_uint16%1#0
+        l-load to_encode%0#0 1                                                                       app#0,encoded%24#0,length_uint16%1#0,to_encode%0#0
+        concat                                                                                       app#0,encoded%24#0,encoded_value%1#0
+        l-load-copy app#0 2                                                                          app#0,encoded%24#0,encoded_value%1#0,app#0 (copy)
+        itxn_field ApplicationID                                                                     app#0,encoded%24#0,encoded_value%1#0
         // arc4_conversions/contract.py:141-146
         // arc4.abi_call(
         //     CheckApp.check_static_array_struct,
@@ -1014,9 +1017,9 @@ subroutine test_array_static_encoding:
         //     expected_bytes[2:],
         //     app_id=app,
         // )
-        method check_static_array_struct((uint64,address)[3],byte[])void                             app#0,result%2#0,encoded_value%1#0,Method(check_static_array_struct((uint64,address)[3],byte[])void)
-        itxn_field ApplicationArgs                                                                   app#0,result%2#0,encoded_value%1#0
-        l-load result%2#0 1                                                                          app#0,encoded_value%1#0,result%2#0
+        method check_static_array_struct((uint64,address)[3],byte[])void                             app#0,encoded%24#0,encoded_value%1#0,Method(check_static_array_struct((uint64,address)[3],byte[])void)
+        itxn_field ApplicationArgs                                                                   app#0,encoded%24#0,encoded_value%1#0
+        l-load encoded%24#0 1                                                                        app#0,encoded_value%1#0,encoded%24#0
         itxn_field ApplicationArgs                                                                   app#0,encoded_value%1#0
         l-load encoded_value%1#0 0                                                                   app#0,encoded_value%1#0
         itxn_field ApplicationArgs                                                                   app#0
@@ -1061,98 +1064,98 @@ subroutine test_array_dynamic_encoding:
         f-store app#0                                                                                (𝕗) app#0 |
         // arc4_conversions/contract.py:220
         // return MyDynStruct(value, Txn.sender, Txn.sender.bytes)
-        txn Sender                                                                                   (𝕗) app#0 | tmp%0#1
-        txn Sender                                                                                   (𝕗) app#0 | tmp%0#1,tmp%1#2
-        txn Sender                                                                                   (𝕗) app#0 | tmp%0#1,tmp%1#2,tmp%0#2
-        txn Sender                                                                                   (𝕗) app#0 | tmp%0#1,tmp%1#2,tmp%0#2,tmp%1#3
-        txn Sender                                                                                   (𝕗) app#0 | tmp%0#1,tmp%1#2,tmp%0#2,tmp%1#3,tmp%0#3
-        txn Sender                                                                                   (𝕗) app#0 | tmp%0#1,tmp%1#2,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4
+        txn Sender                                                                                   (𝕗) app#0 | tmp%0#2
+        txn Sender                                                                                   (𝕗) app#0 | tmp%0#2,tmp%1#2
+        txn Sender                                                                                   (𝕗) app#0 | tmp%0#2,tmp%1#2,tmp%0#3
+        txn Sender                                                                                   (𝕗) app#0 | tmp%0#2,tmp%1#2,tmp%0#3,tmp%1#3
+        txn Sender                                                                                   (𝕗) app#0 | tmp%0#2,tmp%1#2,tmp%0#3,tmp%1#3,tmp%0#4
+        txn Sender                                                                                   (𝕗) app#0 | tmp%0#2,tmp%1#2,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4
         // arc4_conversions/contract.py:155
         // my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3))
-        int 1                                                                                        (𝕗) app#0 | tmp%0#1,tmp%1#2,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,1
-        itob                                                                                         (𝕗) app#0 | tmp%0#1,tmp%1#2,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,val_as_bytes%0#0
-        l-store-copy val_as_bytes%0#0 0                                                              (𝕗) app#0 | tmp%0#1,tmp%1#2,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,val_as_bytes%0#0,val_as_bytes%0#0 (copy)
-        f-store val_as_bytes%0#0                                                                     (𝕗) app#0,val_as_bytes%0#0 | tmp%0#1,tmp%1#2,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,val_as_bytes%0#0
-        byte 0x0020                                                                                  (𝕗) app#0,val_as_bytes%0#0 | tmp%0#1,tmp%1#2,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,val_as_bytes%0#0,0x0020
-        l-load tmp%1#2 6                                                                             (𝕗) app#0,val_as_bytes%0#0 | tmp%0#1,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,val_as_bytes%0#0,0x0020,tmp%1#2
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0 | tmp%0#1,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,val_as_bytes%0#0,encoded_value%0#0
+        int 1                                                                                        (𝕗) app#0 | tmp%0#2,tmp%1#2,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,1
+        itob                                                                                         (𝕗) app#0 | tmp%0#2,tmp%1#2,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,val_as_bytes%0#0
+        l-store-copy val_as_bytes%0#0 0                                                              (𝕗) app#0 | tmp%0#2,tmp%1#2,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,val_as_bytes%0#0,val_as_bytes%0#0 (copy)
+        f-store val_as_bytes%0#0                                                                     (𝕗) app#0,val_as_bytes%0#0 | tmp%0#2,tmp%1#2,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,val_as_bytes%0#0
+        byte 0x0020                                                                                  (𝕗) app#0,val_as_bytes%0#0 | tmp%0#2,tmp%1#2,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,val_as_bytes%0#0,0x0020
+        l-load tmp%1#2 6                                                                             (𝕗) app#0,val_as_bytes%0#0 | tmp%0#2,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,val_as_bytes%0#0,0x0020,tmp%1#2
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0 | tmp%0#2,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,val_as_bytes%0#0,encoded_value%0#0
         // arc4_conversions/contract.py:154-156
         // arr = ImmutableArray(
         //     my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3))
         // )
-        l-load val_as_bytes%0#0 1                                                                    (𝕗) app#0,val_as_bytes%0#0 | tmp%0#1,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_value%0#0,val_as_bytes%0#0
-        l-load tmp%0#1 6                                                                             (𝕗) app#0,val_as_bytes%0#0 | tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_value%0#0,val_as_bytes%0#0,tmp%0#1
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0 | tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_value%0#0,encoded_tuple_buffer%2#0
-        byte 0x002a                                                                                  (𝕗) app#0,val_as_bytes%0#0 | tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_value%0#0,encoded_tuple_buffer%2#0,0x002a
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0 | tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_value%0#0,encoded_tuple_buffer%3#0
-        l-load encoded_value%0#0 1                                                                   (𝕗) app#0,val_as_bytes%0#0 | tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_tuple_buffer%3#0,encoded_value%0#0
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0 | tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0
+        l-load val_as_bytes%0#0 1                                                                    (𝕗) app#0,val_as_bytes%0#0 | tmp%0#2,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded_value%0#0,val_as_bytes%0#0
+        l-load tmp%0#2 6                                                                             (𝕗) app#0,val_as_bytes%0#0 | tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded_value%0#0,val_as_bytes%0#0,tmp%0#2
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0 | tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded_value%0#0,encoded_tuple_buffer%1#0
+        byte 0x002a                                                                                  (𝕗) app#0,val_as_bytes%0#0 | tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded_value%0#0,encoded_tuple_buffer%1#0,0x002a
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0 | tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded_value%0#0,encoded_tuple_buffer%2#0
+        l-load encoded_value%0#0 1                                                                   (𝕗) app#0,val_as_bytes%0#0 | tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded_tuple_buffer%2#0,encoded_value%0#0
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0 | tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0
         // arc4_conversions/contract.py:155
         // my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3))
-        int 2                                                                                        (𝕗) app#0,val_as_bytes%0#0 | tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,2
-        itob                                                                                         (𝕗) app#0,val_as_bytes%0#0 | tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,val_as_bytes%1#0
-        l-store-copy val_as_bytes%1#0 0                                                              (𝕗) app#0,val_as_bytes%0#0 | tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,val_as_bytes%1#0,val_as_bytes%1#0 (copy)
-        f-store val_as_bytes%1#0                                                                     (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,val_as_bytes%1#0
-        byte 0x0020                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,val_as_bytes%1#0,0x0020
-        l-load tmp%1#3 5                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#2,tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,val_as_bytes%1#0,0x0020,tmp%1#3
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#2,tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,val_as_bytes%1#0,encoded_value%1#0
+        int 2                                                                                        (𝕗) app#0,val_as_bytes%0#0 | tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,2
+        itob                                                                                         (𝕗) app#0,val_as_bytes%0#0 | tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,val_as_bytes%1#0
+        l-store-copy val_as_bytes%1#0 0                                                              (𝕗) app#0,val_as_bytes%0#0 | tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,val_as_bytes%1#0,val_as_bytes%1#0 (copy)
+        f-store val_as_bytes%1#0                                                                     (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,val_as_bytes%1#0
+        byte 0x0020                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,val_as_bytes%1#0,0x0020
+        l-load tmp%1#3 5                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#3,tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,val_as_bytes%1#0,0x0020,tmp%1#3
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#3,tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,val_as_bytes%1#0,encoded_value%1#0
         // arc4_conversions/contract.py:154-156
         // arr = ImmutableArray(
         //     my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3))
         // )
-        l-load val_as_bytes%1#0 1                                                                    (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#2,tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,encoded_value%1#0,val_as_bytes%1#0
-        l-load tmp%0#2 5                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,encoded_value%1#0,val_as_bytes%1#0,tmp%0#2
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,encoded_value%1#0,encoded_tuple_buffer%7#0
-        byte 0x002a                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,encoded_value%1#0,encoded_tuple_buffer%7#0,0x002a
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,encoded_value%1#0,encoded_tuple_buffer%8#0
-        l-load encoded_value%1#0 1                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,encoded_tuple_buffer%8#0,encoded_value%1#0
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0
+        l-load val_as_bytes%1#0 1                                                                    (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#3,tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,encoded_value%1#0,val_as_bytes%1#0
+        l-load tmp%0#3 5                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,encoded_value%1#0,val_as_bytes%1#0,tmp%0#3
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,encoded_value%1#0,encoded_tuple_buffer%5#0
+        byte 0x002a                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,encoded_value%1#0,encoded_tuple_buffer%5#0,0x002a
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,encoded_value%1#0,encoded_tuple_buffer%6#0
+        l-load encoded_value%1#0 1                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,encoded_tuple_buffer%6#0,encoded_value%1#0
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0
         // arc4_conversions/contract.py:155
         // my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3))
-        int 3                                                                                        (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,3
-        itob                                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,val_as_bytes%2#0
-        l-store-copy val_as_bytes%2#0 0                                                              (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,val_as_bytes%2#0,val_as_bytes%2#0 (copy)
-        f-store val_as_bytes%2#0                                                                     (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,val_as_bytes%2#0
-        byte 0x0020                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | tmp%0#3,tmp%1#4,encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,val_as_bytes%2#0,0x0020
-        l-load tmp%1#4 4                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | tmp%0#3,encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,val_as_bytes%2#0,0x0020,tmp%1#4
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | tmp%0#3,encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,val_as_bytes%2#0,encoded_value%2#0
+        int 3                                                                                        (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,3
+        itob                                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,val_as_bytes%2#0
+        l-store-copy val_as_bytes%2#0 0                                                              (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0 | tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,val_as_bytes%2#0,val_as_bytes%2#0 (copy)
+        f-store val_as_bytes%2#0                                                                     (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,val_as_bytes%2#0
+        byte 0x0020                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | tmp%0#4,tmp%1#4,encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,val_as_bytes%2#0,0x0020
+        l-load tmp%1#4 4                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | tmp%0#4,encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,val_as_bytes%2#0,0x0020,tmp%1#4
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | tmp%0#4,encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,val_as_bytes%2#0,encoded_value%2#0
         // arc4_conversions/contract.py:154-156
         // arr = ImmutableArray(
         //     my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3))
         // )
-        l-load val_as_bytes%2#0 1                                                                    (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | tmp%0#3,encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_value%2#0,val_as_bytes%2#0
-        l-load tmp%0#3 4                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_value%2#0,val_as_bytes%2#0,tmp%0#3
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_value%2#0,encoded_tuple_buffer%12#0
-        byte 0x002a                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_value%2#0,encoded_tuple_buffer%12#0,0x002a
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_value%2#0,encoded_tuple_buffer%13#0
-        l-load encoded_value%2#0 1                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%13#0,encoded_value%2#0
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0
-        l-load-copy encoded_tuple_buffer%4#0 2                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,encoded_tuple_buffer%4#0 (copy)
-        len                                                                                          (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,next_item_len%0#0
-        int 6                                                                                        (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,next_item_len%0#0,6
-        l-load next_item_len%0#0 1                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,6,next_item_len%0#0
-        +                                                                                            (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,tail_offset%0#0
-        l-load-copy tail_offset%0#0 0                                                                (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,tail_offset%0#0,tail_offset%0#0 (copy)
-        itob                                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,tail_offset%0#0,as_bytes%7#0
-        extract 6 2                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,tail_offset%0#0,next_item_head%1#0
-        byte 0x0006                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,tail_offset%0#0,next_item_head%1#0,0x0006
-        l-load next_item_head%1#0 1                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,tail_offset%0#0,0x0006,next_item_head%1#0
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,tail_offset%0#0,result%1#0
-        l-load-copy encoded_tuple_buffer%9#0 3                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,tail_offset%0#0,result%1#0,encoded_tuple_buffer%9#0 (copy)
-        len                                                                                          (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,tail_offset%0#0,result%1#0,next_item_len%1#0
-        l-load tail_offset%0#0 2                                                                     (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,result%1#0,next_item_len%1#0,tail_offset%0#0
-        l-load next_item_len%1#0 1                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,result%1#0,tail_offset%0#0,next_item_len%1#0
-        +                                                                                            (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,result%1#0,tail_offset%1#0
-        itob                                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,result%1#0,as_bytes%8#0
-        extract 6 2                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,result%1#0,next_item_head%2#0
-        l-load result%1#0 1                                                                          (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,next_item_head%2#0,result%1#0
-        l-load next_item_head%2#0 1                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,result%1#0,next_item_head%2#0
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%4#0,encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,result%2#0
-        l-load encoded_tuple_buffer%4#0 3                                                            (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,result%2#0,encoded_tuple_buffer%4#0
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%9#0,encoded_tuple_buffer%14#0,result%3#0
-        l-load encoded_tuple_buffer%9#0 2                                                            (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%14#0,result%3#0,encoded_tuple_buffer%9#0
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%14#0,result%4#0
-        l-load encoded_tuple_buffer%14#0 1                                                           (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | result%4#0,encoded_tuple_buffer%14#0
+        l-load val_as_bytes%2#0 1                                                                    (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | tmp%0#4,encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_value%2#0,val_as_bytes%2#0
+        l-load tmp%0#4 4                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_value%2#0,val_as_bytes%2#0,tmp%0#4
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_value%2#0,encoded_tuple_buffer%9#0
+        byte 0x002a                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_value%2#0,encoded_tuple_buffer%9#0,0x002a
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_value%2#0,encoded_tuple_buffer%10#0
+        l-load encoded_value%2#0 1                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%10#0,encoded_value%2#0
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0
+        l-load-copy encoded_tuple_buffer%3#0 2                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,encoded_tuple_buffer%3#0 (copy)
+        len                                                                                          (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,next_item_len%0#0
+        int 6                                                                                        (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,next_item_len%0#0,6
+        l-load next_item_len%0#0 1                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,6,next_item_len%0#0
+        +                                                                                            (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,tail_offset%0#0
+        l-load-copy tail_offset%0#0 0                                                                (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,tail_offset%0#0,tail_offset%0#0 (copy)
+        itob                                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,tail_offset%0#0,as_bytes%7#0
+        extract 6 2                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,tail_offset%0#0,next_item_head%1#0
+        byte 0x0006                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,tail_offset%0#0,next_item_head%1#0,0x0006
+        l-load next_item_head%1#0 1                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,tail_offset%0#0,0x0006,next_item_head%1#0
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,tail_offset%0#0,result%1#0
+        l-load-copy encoded_tuple_buffer%7#0 3                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,tail_offset%0#0,result%1#0,encoded_tuple_buffer%7#0 (copy)
+        len                                                                                          (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,tail_offset%0#0,result%1#0,next_item_len%1#0
+        l-load tail_offset%0#0 2                                                                     (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,result%1#0,next_item_len%1#0,tail_offset%0#0
+        l-load next_item_len%1#0 1                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,result%1#0,tail_offset%0#0,next_item_len%1#0
+        +                                                                                            (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,result%1#0,tail_offset%1#0
+        itob                                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,result%1#0,as_bytes%8#0
+        extract 6 2                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,result%1#0,next_item_head%2#0
+        l-load result%1#0 1                                                                          (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,next_item_head%2#0,result%1#0
+        l-load next_item_head%2#0 1                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,result%1#0,next_item_head%2#0
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%3#0,encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,result%2#0
+        l-load encoded_tuple_buffer%3#0 3                                                            (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,result%2#0,encoded_tuple_buffer%3#0
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%7#0,encoded_tuple_buffer%11#0,result%3#0
+        l-load encoded_tuple_buffer%7#0 2                                                            (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%11#0,result%3#0,encoded_tuple_buffer%7#0
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | encoded_tuple_buffer%11#0,result%4#0
+        l-load encoded_tuple_buffer%11#0 1                                                           (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | result%4#0,encoded_tuple_buffer%11#0
         concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0 | new_head_and_tail#0
         f-store new_head_and_tail#0                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0 |
         byte 0x                                                                                      (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0 | 0x
@@ -1285,7 +1288,7 @@ subroutine test_array_dynamic_encoding:
         // arc4.abi_call(CheckApp.check_dyn_array_dyn_struct, arr, expected_bytes, app_id=app)
         itxn_begin                                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | arr#0,expected_bytes#0
         l-load-copy expected_bytes#0 0                                                               (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | arr#0,expected_bytes#0,expected_bytes#0 (copy)
-        len                                                                                          (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | arr#0,expected_bytes#0,length%3#0
+        len                                                                                          (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | arr#0,expected_bytes#0,length%6#0
         itob                                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | arr#0,expected_bytes#0,as_bytes%12#0
         extract 6 2                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | arr#0,expected_bytes#0,length_uint16%3#0
         l-load expected_bytes#0 1                                                                    (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | arr#0,length_uint16%3#0,expected_bytes#0
@@ -1359,81 +1362,87 @@ subroutine test_array_dynamic_encoding:
         itxn_begin                                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0
         // arc4_conversions/contract.py:220
         // return MyDynStruct(value, Txn.sender, Txn.sender.bytes)
-        txn Sender                                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#1
-        txn Sender                                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#1,tmp%1#2
-        txn Sender                                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#1,tmp%1#2,tmp%0#2
-        txn Sender                                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#1,tmp%1#2,tmp%0#2,tmp%1#3
-        txn Sender                                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#1,tmp%1#2,tmp%0#2,tmp%1#3,tmp%0#3
-        txn Sender                                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#1,tmp%1#2,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4
+        txn Sender                                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#2
+        txn Sender                                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#2,tmp%1#2
+        txn Sender                                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#2,tmp%1#2,tmp%0#3
+        txn Sender                                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#2,tmp%1#2,tmp%0#3,tmp%1#3
+        txn Sender                                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#2,tmp%1#2,tmp%0#3,tmp%1#3,tmp%0#4
+        txn Sender                                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#2,tmp%1#2,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4
         // arc4_conversions/contract.py:171
         // (my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3))),
-        byte 0x0020                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#1,tmp%1#2,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,0x0020
-        l-load tmp%1#2 5                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#1,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,0x0020,tmp%1#2
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#1,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_value%4#0
-        f-load val_as_bytes%0#0                                                                      (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#1,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_value%4#0,val_as_bytes%0#0
-        l-load tmp%0#1 6                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_value%4#0,val_as_bytes%0#0,tmp%0#1
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_value%4#0,encoded_tuple_buffer%17#0
-        byte 0x002a                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_value%4#0,encoded_tuple_buffer%17#0,0x002a
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_value%4#0,encoded_tuple_buffer%18#0
-        l-load encoded_value%4#0 1                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_tuple_buffer%18#0,encoded_value%4#0
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_tuple_buffer%19#0
-        byte 0x0020                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#2,tmp%1#3,tmp%0#3,tmp%1#4,encoded_tuple_buffer%19#0,0x0020
-        l-load tmp%1#3 4                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#2,tmp%0#3,tmp%1#4,encoded_tuple_buffer%19#0,0x0020,tmp%1#3
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#2,tmp%0#3,tmp%1#4,encoded_tuple_buffer%19#0,encoded_value%5#0
-        f-load val_as_bytes%1#0                                                                      (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#2,tmp%0#3,tmp%1#4,encoded_tuple_buffer%19#0,encoded_value%5#0,val_as_bytes%1#0
-        l-load tmp%0#2 5                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#4,encoded_tuple_buffer%19#0,encoded_value%5#0,val_as_bytes%1#0,tmp%0#2
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#4,encoded_tuple_buffer%19#0,encoded_value%5#0,encoded_tuple_buffer%22#0
-        byte 0x002a                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#4,encoded_tuple_buffer%19#0,encoded_value%5#0,encoded_tuple_buffer%22#0,0x002a
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#4,encoded_tuple_buffer%19#0,encoded_value%5#0,encoded_tuple_buffer%23#0
-        l-load encoded_value%5#0 1                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#4,encoded_tuple_buffer%19#0,encoded_tuple_buffer%23#0,encoded_value%5#0
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#4,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0
-        byte 0x0020                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#4,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,0x0020
-        l-load tmp%1#4 3                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,0x0020,tmp%1#4
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_value%6#0
-        f-load val_as_bytes%2#0                                                                      (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_value%6#0,val_as_bytes%2#0
-        l-load tmp%0#3 4                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_value%6#0,val_as_bytes%2#0,tmp%0#3
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_value%6#0,encoded_tuple_buffer%27#0
-        byte 0x002a                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_value%6#0,encoded_tuple_buffer%27#0,0x002a
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_value%6#0,encoded_tuple_buffer%28#0
-        l-load encoded_value%6#0 1                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%28#0,encoded_value%6#0
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0
-        l-load-copy encoded_tuple_buffer%19#0 2                                                      (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,encoded_tuple_buffer%19#0 (copy)
-        len                                                                                          (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,next_item_len%9#0
-        int 6                                                                                        (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,next_item_len%9#0,6
-        l-load next_item_len%9#0 1                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,6,next_item_len%9#0
-        +                                                                                            (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,tail_offset%9#0
-        l-load-copy tail_offset%9#0 0                                                                (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,tail_offset%9#0,tail_offset%9#0 (copy)
-        itob                                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,tail_offset%9#0,as_bytes%23#0
-        extract 6 2                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,tail_offset%9#0,next_item_head%10#0
-        byte 0x0006                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,tail_offset%9#0,next_item_head%10#0,0x0006
-        l-load next_item_head%10#0 1                                                                 (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,tail_offset%9#0,0x0006,next_item_head%10#0
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,tail_offset%9#0,result%19#0
-        l-load-copy encoded_tuple_buffer%24#0 3                                                      (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,tail_offset%9#0,result%19#0,encoded_tuple_buffer%24#0 (copy)
-        len                                                                                          (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,tail_offset%9#0,result%19#0,next_item_len%10#0
-        l-load tail_offset%9#0 2                                                                     (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,result%19#0,next_item_len%10#0,tail_offset%9#0
-        l-load next_item_len%10#0 1                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,result%19#0,tail_offset%9#0,next_item_len%10#0
-        +                                                                                            (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,result%19#0,tail_offset%10#0
-        itob                                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,result%19#0,as_bytes%24#0
-        extract 6 2                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,result%19#0,next_item_head%11#0
-        l-load result%19#0 1                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,next_item_head%11#0,result%19#0
-        l-load next_item_head%11#0 1                                                                 (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,result%19#0,next_item_head%11#0
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%19#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,result%20#0
-        l-load encoded_tuple_buffer%19#0 3                                                           (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,result%20#0,encoded_tuple_buffer%19#0
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%24#0,encoded_tuple_buffer%29#0,result%21#0
-        l-load encoded_tuple_buffer%24#0 2                                                           (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%29#0,result%21#0,encoded_tuple_buffer%24#0
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded_tuple_buffer%29#0,result%22#0
-        l-load encoded_tuple_buffer%29#0 1                                                           (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,result%22#0,encoded_tuple_buffer%29#0
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,result%23#0
+        f-load val_as_bytes%0#0                                                                      (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#2,tmp%1#2,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,val_as_bytes%0#0
+        l-load tmp%0#2 6                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%1#2,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,val_as_bytes%0#0,tmp%0#2
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%1#2,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded%1#0
+        byte 0x0020                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%1#2,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded%1#0,0x0020
+        l-load tmp%1#2 6                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded%1#0,0x0020,tmp%1#2
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded%1#0,encoded_value%4#0
+        l-load encoded%1#0 1                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded_value%4#0,encoded%1#0
+        byte 0x002a                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded_value%4#0,encoded%1#0,0x002a
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded_value%4#0,encoded%2#0
+        l-load encoded_value%4#0 1                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded%2#0,encoded_value%4#0
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded%3#0
+        l-load-copy encoded%3#0 0                                                                    (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded%3#0,encoded%3#0 (copy)
+        len                                                                                          (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded%3#0,data_length%4#0
+        int 6                                                                                        (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded%3#0,data_length%4#0,6
+        l-load data_length%4#0 1                                                                     (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded%3#0,6,data_length%4#0
+        +                                                                                            (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded%3#0,current_tail_offset%4#0
+        f-load val_as_bytes%1#0                                                                      (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#3,tmp%1#3,tmp%0#4,tmp%1#4,encoded%3#0,current_tail_offset%4#0,val_as_bytes%1#0
+        l-load tmp%0#3 6                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%1#3,tmp%0#4,tmp%1#4,encoded%3#0,current_tail_offset%4#0,val_as_bytes%1#0,tmp%0#3
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%1#3,tmp%0#4,tmp%1#4,encoded%3#0,current_tail_offset%4#0,encoded%6#0
+        byte 0x0020                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%1#3,tmp%0#4,tmp%1#4,encoded%3#0,current_tail_offset%4#0,encoded%6#0,0x0020
+        l-load tmp%1#3 6                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,encoded%3#0,current_tail_offset%4#0,encoded%6#0,0x0020,tmp%1#3
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,encoded%3#0,current_tail_offset%4#0,encoded%6#0,encoded_value%5#0
+        l-load encoded%6#0 1                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,encoded%3#0,current_tail_offset%4#0,encoded_value%5#0,encoded%6#0
+        byte 0x002a                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,encoded%3#0,current_tail_offset%4#0,encoded_value%5#0,encoded%6#0,0x002a
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,encoded%3#0,current_tail_offset%4#0,encoded_value%5#0,encoded%7#0
+        l-load encoded_value%5#0 1                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,encoded%3#0,current_tail_offset%4#0,encoded%7#0,encoded_value%5#0
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,encoded%3#0,current_tail_offset%4#0,encoded%8#0
+        l-load encoded%3#0 2                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,current_tail_offset%4#0,encoded%8#0,encoded%3#0
+        l-load-copy encoded%8#0 1                                                                    (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,current_tail_offset%4#0,encoded%8#0,encoded%3#0,encoded%8#0 (copy)
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,current_tail_offset%4#0,encoded%8#0,tail%3#0
+        l-load encoded%8#0 1                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,current_tail_offset%4#0,tail%3#0,encoded%8#0
+        len                                                                                          (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,current_tail_offset%4#0,tail%3#0,data_length%6#0
+        l-load-copy current_tail_offset%4#0 2                                                        (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,current_tail_offset%4#0,tail%3#0,data_length%6#0,current_tail_offset%4#0 (copy)
+        l-load data_length%6#0 1                                                                     (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,current_tail_offset%4#0,tail%3#0,current_tail_offset%4#0 (copy),data_length%6#0
+        +                                                                                            (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,current_tail_offset%4#0,tail%3#0,current_tail_offset%6#0
+        l-load current_tail_offset%4#0 2                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,tail%3#0,current_tail_offset%6#0,current_tail_offset%4#0
+        itob                                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,tail%3#0,current_tail_offset%6#0,as_bytes%21#0
+        extract 6 2                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,tail%3#0,current_tail_offset%6#0,offset_as_uint16%6#0
+        byte 0x0006                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,tail%3#0,current_tail_offset%6#0,offset_as_uint16%6#0,0x0006
+        l-load offset_as_uint16%6#0 1                                                                (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,tail%3#0,current_tail_offset%6#0,0x0006,offset_as_uint16%6#0
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,tail%3#0,current_tail_offset%6#0,encoded%9#0
+        f-load val_as_bytes%2#0                                                                      (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%0#4,tmp%1#4,tail%3#0,current_tail_offset%6#0,encoded%9#0,val_as_bytes%2#0
+        l-load tmp%0#4 5                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%1#4,tail%3#0,current_tail_offset%6#0,encoded%9#0,val_as_bytes%2#0,tmp%0#4
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%1#4,tail%3#0,current_tail_offset%6#0,encoded%9#0,encoded%11#0
+        byte 0x0020                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tmp%1#4,tail%3#0,current_tail_offset%6#0,encoded%9#0,encoded%11#0,0x0020
+        l-load tmp%1#4 5                                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tail%3#0,current_tail_offset%6#0,encoded%9#0,encoded%11#0,0x0020,tmp%1#4
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tail%3#0,current_tail_offset%6#0,encoded%9#0,encoded%11#0,encoded_value%6#0
+        l-load encoded%11#0 1                                                                        (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tail%3#0,current_tail_offset%6#0,encoded%9#0,encoded_value%6#0,encoded%11#0
+        byte 0x002a                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tail%3#0,current_tail_offset%6#0,encoded%9#0,encoded_value%6#0,encoded%11#0,0x002a
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tail%3#0,current_tail_offset%6#0,encoded%9#0,encoded_value%6#0,encoded%12#0
+        l-load encoded_value%6#0 1                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tail%3#0,current_tail_offset%6#0,encoded%9#0,encoded%12#0,encoded_value%6#0
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tail%3#0,current_tail_offset%6#0,encoded%9#0,encoded%13#0
+        l-load tail%3#0 3                                                                            (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,current_tail_offset%6#0,encoded%9#0,encoded%13#0,tail%3#0
+        l-load encoded%13#0 1                                                                        (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,current_tail_offset%6#0,encoded%9#0,tail%3#0,encoded%13#0
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,current_tail_offset%6#0,encoded%9#0,tail%5#0
+        l-load current_tail_offset%6#0 2                                                             (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded%9#0,tail%5#0,current_tail_offset%6#0
+        itob                                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded%9#0,tail%5#0,as_bytes%24#0
+        extract 6 2                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded%9#0,tail%5#0,offset_as_uint16%8#0
+        l-load encoded%9#0 2                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tail%5#0,offset_as_uint16%8#0,encoded%9#0
+        l-load offset_as_uint16%8#0 1                                                                (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tail%5#0,encoded%9#0,offset_as_uint16%8#0
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,tail%5#0,encoded%14#0
+        l-load tail%5#0 1                                                                            (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded%14#0,tail%5#0
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded%15#0
         // arc4_conversions/contract.py:172
         // expected_bytes,
-        l-load-copy expected_bytes#0 1                                                               (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,result%23#0,expected_bytes#0 (copy)
-        len                                                                                          (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,result%23#0,length%7#0
-        itob                                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,result%23#0,as_bytes%25#0
-        extract 6 2                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,result%23#0,length_uint16%7#0
-        l-load expected_bytes#0 2                                                                    (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,result%23#0,length_uint16%7#0,expected_bytes#0
-        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,result%23#0,encoded_value%7#0
-        l-load-copy app#0 2                                                                          (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,result%23#0,encoded_value%7#0,app#0 (copy)
-        itxn_field ApplicationID                                                                     (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,result%23#0,encoded_value%7#0
+        l-load-copy expected_bytes#0 1                                                               (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded%15#0,expected_bytes#0 (copy)
+        len                                                                                          (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded%15#0,length%13#0
+        itob                                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded%15#0,as_bytes%25#0
+        extract 6 2                                                                                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,expected_bytes#0,encoded%15#0,length_uint16%7#0
+        l-load expected_bytes#0 2                                                                    (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,encoded%15#0,length_uint16%7#0,expected_bytes#0
+        concat                                                                                       (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,encoded%15#0,encoded_value%7#0
+        l-load-copy app#0 2                                                                          (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,encoded%15#0,encoded_value%7#0,app#0 (copy)
+        itxn_field ApplicationID                                                                     (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,encoded%15#0,encoded_value%7#0
         // arc4_conversions/contract.py:169-174
         // arc4.abi_call(
         //     CheckApp.check_static_array_dyn_struct,
@@ -1441,9 +1450,9 @@ subroutine test_array_dynamic_encoding:
         //     expected_bytes,
         //     app_id=app,
         // )
-        method check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,result%23#0,encoded_value%7#0,Method(check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void)
-        itxn_field ApplicationArgs                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,result%23#0,encoded_value%7#0
-        l-load result%23#0 1                                                                         (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,encoded_value%7#0,result%23#0
+        method check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void                  (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,encoded%15#0,encoded_value%7#0,Method(check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void)
+        itxn_field ApplicationArgs                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,encoded%15#0,encoded_value%7#0
+        l-load encoded%15#0 1                                                                        (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,encoded_value%7#0,encoded%15#0
         itxn_field ApplicationArgs                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,encoded_value%7#0
         l-load encoded_value%7#0 0                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,encoded_value%7#0
         itxn_field ApplicationArgs                                                                   (𝕗) app#0,val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0

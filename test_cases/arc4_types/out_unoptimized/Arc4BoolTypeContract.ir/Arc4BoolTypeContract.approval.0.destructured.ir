@@ -44,20 +44,20 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let is_true%9#0: uint64 = (getbit encoded_bool%14#0 0u)
         let array_head_and_tail%11#0: bytes = (setbit array_head_and_tail%10#0 11u is_true%9#0)
         let array_data%0#0: bytes = (concat 0x array_head_and_tail%11#0)
-        let static_boolean_array#0: bytes[2] = array_data%0#0
+        let static_boolean_array#0: Encoded(bool1[12]) = array_data%0#0
         let tmp%3#0: bool = (== static_boolean_array#0 0xfff0)
         (assert tmp%3#0)
-        let array_head_and_tail%12#0: bytes[2] = static_boolean_array#0
-        let is_true%10#0: uint64 = (getbit array_head_and_tail%12#0 0u)
+        let index_is_in_bounds%0#0: bool = (< 0u 12u)
+        (assert index_is_in_bounds%0#0) // Index access is out of bounds
+        let is_true%10#0: uint64 = (getbit static_boolean_array#0 0u)
         let encoded_bool%15#0: bytes[1] = (setbit 0x00 0u is_true%10#0)
         let encoded_bool%16#0: bytes[1] = (setbit 0x00 0u 1u)
         let tmp%4#0: bool = (== encoded_bool%15#0 encoded_bool%16#0)
         (assert tmp%4#0) // Single boolean can be unpacked
         let tmp%5#0: uint64 = (- 12u 1u)
-        let array_head_and_tail%13#0: bytes[2] = static_boolean_array#0
-        let index_is_in_bounds%0#0: bool = (< tmp%5#0 12u)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let is_true%11#0: uint64 = (getbit array_head_and_tail%13#0 tmp%5#0)
+        let index_is_in_bounds%1#0: bool = (< tmp%5#0 12u)
+        (assert index_is_in_bounds%1#0) // Index access is out of bounds
+        let is_true%11#0: uint64 = (getbit static_boolean_array#0 tmp%5#0)
         let encoded_bool%17#0: bytes[1] = (setbit 0x00 0u is_true%11#0)
         let encoded_bool%18#0: bytes[1] = (setbit 0x00 0u 1u)
         let tmp%6#0: bool = (== encoded_bool%17#0 encoded_bool%18#0)
@@ -65,16 +65,16 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let encoded_bool%19#0: bytes[1] = (setbit 0x00 0u 1u)
         let encoded_bool%20#0: bytes[1] = (setbit 0x00 0u 0u)
         let encoded_bool%21#0: bytes[1] = (setbit 0x00 0u 1u)
-        let array_head_and_tail%14#0: bytes = (concat 0x encoded_bool%19#0)
+        let array_head_and_tail%12#0: bytes = (concat 0x encoded_bool%19#0)
         let is_true%12#0: uint64 = (getbit encoded_bool%20#0 0u)
-        let array_head_and_tail%15#0: bytes = (setbit array_head_and_tail%14#0 1u is_true%12#0)
+        let array_head_and_tail%13#0: bytes = (setbit array_head_and_tail%12#0 1u is_true%12#0)
         let is_true%13#0: uint64 = (getbit encoded_bool%21#0 0u)
-        let array_head_and_tail%16#0: bytes = (setbit array_head_and_tail%15#0 2u is_true%13#0)
-        let array_data%1#0: bytes = (concat 0x0003 array_head_and_tail%16#0)
-        let dynamic_boolean_array#0: bytes = array_data%1#0
+        let array_head_and_tail%14#0: bytes = (setbit array_head_and_tail%13#0 2u is_true%13#0)
+        let array_data%1#0: bytes = (concat 0x0003 array_head_and_tail%14#0)
+        let dynamic_boolean_array#0: Encoded(len+bool1[]) = array_data%1#0
         let tmp%7#0: bool = (== dynamic_boolean_array#0 0x0003a0)
         (assert tmp%7#0)
-        let dynamic_boolean_array#0: bytes = test_cases.arc4_types.bool.get_arr()
+        let dynamic_boolean_array#0: Encoded(len+bool1[]) = test_cases.arc4_types.bool.get_arr()
         let encoded_bool%22#0: bytes[1] = (setbit 0x00 0u 1u)
         let encoded_bool%23#0: bytes[1] = (setbit 0x00 0u 0u)
         let encoded_bool%24#0: bytes[1] = (setbit 0x00 0u 1u)
@@ -86,7 +86,7 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let data%3#0: bytes = (concat data%2#0 encoded_bool%25#0)
         let data%4#0: bytes = (concat data%3#0 encoded_bool%26#0)
         let concat_result%0#0: bytes = _puya_lib.arc4.dynamic_array_concat_bits(dynamic_boolean_array#0, data%4#0, 5u, 8u)
-        let dynamic_boolean_array#0: bytes = concat_result%0#0
+        let dynamic_boolean_array#0: Encoded(len+bool1[]) = concat_result%0#0
         let tmp%8#0: bool = (== dynamic_boolean_array#0 0x0005a8)
         (assert tmp%8#0)
         let encoded_bool%27#0: bytes[1] = (setbit 0x00 0u 1u)
@@ -145,12 +145,12 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
     block@5: // after_while_L153
         return result#0
 
-subroutine test_cases.arc4_types.bool.get_arr() -> bytes:
+subroutine test_cases.arc4_types.bool.get_arr() -> Encoded(len+bool1[]):
     block@0: // L72
         let array_data%0#0: bytes = (concat 0x0000 0x)
         return array_data%0#0
 
-subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.test_stuff(true: bytes[1], false: bytes[1]) -> bool:
+subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.test_stuff(true: Encoded(bool8), false: Encoded(bool8)) -> bool:
     block@0: // L60
         let tmp%0#0: bool = (getbit true#0 0u)
         (assert tmp%0#0)

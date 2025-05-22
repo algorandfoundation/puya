@@ -63,18 +63,18 @@ main test_cases.loop_else.loop_else.LoopElseContract.approval_program:
         let tmp%10#0: bytes = (itob tmp%9#0)
         let tmp%11#0: uint64 = (len tmp%10#0)
         let tmp%12#0: uint64 = (- tmp%11#0 1u)
-        let tmp%13#0: bytes = (extract3 tmp%10#0 tmp%12#0 1u)
-        let tmp%14#0: bytes = (concat tmp%8#0 tmp%13#0)
-        let tmp%15#0: bytes = (concat tmp%14#0 "")
-        let tmp%16#0: bytes = (concat tmp%15#0 " and secret account at idx=")
-        let tmp%17#0: bytes = (concat tmp%16#0 "")
-        let tmp%18#0: uint64 = (+ account_index#1 48u)
-        let tmp%19#0: bytes = (itob tmp%18#0)
-        let tmp%20#0: uint64 = (len tmp%19#0)
-        let tmp%21#0: uint64 = (- tmp%20#0 1u)
-        let tmp%22#0: bytes = (extract3 tmp%19#0 tmp%21#0 1u)
-        let tmp%23#0: bytes = (concat tmp%17#0 tmp%22#0)
-        (log tmp%23#0)
+        let read_bytes%0#0: bytes = (extract3 tmp%10#0 tmp%12#0 1u) // on error: Index access is out of bounds
+        let tmp%13#0: bytes = (concat tmp%8#0 read_bytes%0#0)
+        let tmp%14#0: bytes = (concat tmp%13#0 "")
+        let tmp%15#0: bytes = (concat tmp%14#0 " and secret account at idx=")
+        let tmp%16#0: bytes = (concat tmp%15#0 "")
+        let tmp%17#0: uint64 = (+ account_index#1 48u)
+        let tmp%18#0: bytes = (itob tmp%17#0)
+        let tmp%19#0: uint64 = (len tmp%18#0)
+        let tmp%20#0: uint64 = (- tmp%19#0 1u)
+        let read_bytes%1#0: bytes = (extract3 tmp%18#0 tmp%20#0 1u) // on error: Index access is out of bounds
+        let tmp%21#0: bytes = (concat tmp%16#0 read_bytes%1#0)
+        (log tmp%21#0)
         return 1u
 
 subroutine test_cases.loop_else.loop_else.test_empty_loop(count: uint64) -> void:

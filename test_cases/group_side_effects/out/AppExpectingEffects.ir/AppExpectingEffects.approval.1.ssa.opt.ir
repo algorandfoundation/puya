@@ -23,12 +23,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%1#0)
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 appl)
         (assert gtxn_type_matches%1#0) // transaction type is appl
-        let (elements_to_encode%0#0: uint64, elements_to_encode%1#0: uint64) = test_cases.group_side_effects.contract.AppExpectingEffects.create_group(gtxn_idx%0#0, gtxn_idx%1#0)
-        let val_as_bytes%0#0: bytes[8] = (itob elements_to_encode%0#0)
-        let val_as_bytes%1#0: bytes[8] = (itob elements_to_encode%1#0)
-        let encoded_tuple_buffer%1#0: bytes = val_as_bytes%0#0
-        let encoded_tuple_buffer%2#0: bytes = (concat val_as_bytes%0#0 val_as_bytes%1#0)
-        let tmp%9#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%2#0)
+        let (to_encode%0#0: uint64, to_encode%1#0: uint64) = test_cases.group_side_effects.contract.AppExpectingEffects.create_group(gtxn_idx%0#0, gtxn_idx%1#0)
+        let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
+        let encoded%0#0: Encoded((uint64)) = val_as_bytes%0#0
+        let val_as_bytes%1#0: bytes[8] = (itob to_encode%1#0)
+        let encoded%1#0: Encoded((uint64,uint64)) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
+        let encoded%2#0: bytes = encoded%1#0
+        let tmp%9#0: bytes = (concat 0x151f7c75 encoded%1#0)
         (log tmp%9#0)
         let test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#0: bool = 1u
         goto block@12
@@ -91,7 +92,7 @@ subroutine test_cases.group_side_effects.contract.AppExpectingEffects.log_group(
         let tmp%3#0: bool = (== tmp%2#0 1u)
         (assert tmp%3#0) // expected logs
         let awst_tmp%0#0: bytes = ((gtxns LastLog) app_call#0)
-        let tmp%4#0: bytes[8] = ((extract 4 0) awst_tmp%0#0)
+        let tmp%4#0: Encoded(uint64) = ((extract 4 0) awst_tmp%0#0)
         let tmp%5#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%6#0: bool = (== tmp%5#0 0x151f7c75)
         (assert tmp%6#0) // application log value is not the result of an ABI return
