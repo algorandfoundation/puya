@@ -756,7 +756,7 @@ def correct_array_positional() -> None:
 
 @subroutine
 def incorrect_array_positional() -> None:
-    arc4.abi_call(Client.check, ImmutableArray((True, UInt64())), app_id=1234) ## E: unsupported ARC-4 encode operation to type (uint64,bool)[]
+    arc4.abi_call(Client.check, ImmutableArray((True, UInt64())), app_id=1234) ## E: cannot encode len+(bool1,uint64)[] to len+(uint64,bool1)[]
 
 
 ## case: array_encoding
@@ -771,7 +771,7 @@ class Client(arc4.ARC4Client, typing.Protocol):
 @subroutine
 def stack_uint64_to_arc4_uint8() -> None:
     arr = ImmutableArray[UInt64]()
-    arc4.abi_call(Client.take_arc4_uint8, arr, app_id=1234) ## E: unsupported ARC-4 encode operation to type uint8[]
+    arc4.abi_call(Client.take_arc4_uint8, arr, app_id=1234) ## E: cannot encode len+uint64[] to len+uint8[]
 
 ## case: abimethod_reference_type_in_tuple
 from algopy import *
