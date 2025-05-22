@@ -536,14 +536,14 @@ subroutine _log_with_index:
         // log(digits[idx], value, sep="=")
         p-load idx#0                                                    (𝕡) idx#0,value#0 | 0x30313233343536373839,idx#0 (copy)
         int 1                                                           (𝕡) idx#0,value#0 | 0x30313233343536373839,idx#0 (copy),1
-        extract3                                                        (𝕡) idx#0,value#0 | tmp%0#0
+        extract3 // on error: Index access is out of bounds             (𝕡) idx#0,value#0 | read_bytes%0#0
+        l-load read_bytes%0#0 0                                         (𝕡) idx#0,value#0 | read_bytes%0#0
+        byte "="                                                        (𝕡) idx#0,value#0 | read_bytes%0#0,"="
+        concat                                                          (𝕡) idx#0,value#0 | tmp%0#0
         l-load tmp%0#0 0                                                (𝕡) idx#0,value#0 | tmp%0#0
-        byte "="                                                        (𝕡) idx#0,value#0 | tmp%0#0,"="
+        p-load value#0                                                  (𝕡) idx#0,value#0 | tmp%0#0,value#0 (copy)
         concat                                                          (𝕡) idx#0,value#0 | tmp%1#0
         l-load tmp%1#0 0                                                (𝕡) idx#0,value#0 | tmp%1#0
-        p-load value#0                                                  (𝕡) idx#0,value#0 | tmp%1#0,value#0 (copy)
-        concat                                                          (𝕡) idx#0,value#0 | tmp%2#0
-        l-load tmp%2#0 0                                                (𝕡) idx#0,value#0 | tmp%2#0
         log                                                             (𝕡) idx#0,value#0 |
         retsub
 

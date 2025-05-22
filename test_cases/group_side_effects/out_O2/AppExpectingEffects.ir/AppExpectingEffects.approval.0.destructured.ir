@@ -35,8 +35,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%11#0) // expected correct app id
         let val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
         let val_as_bytes%1#0: bytes[8] = (itob tmp%6#2)
-        let encoded_tuple_buffer%2#0: bytes = (concat val_as_bytes%0#0 val_as_bytes%1#0)
-        let tmp%9#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%2#0)
+        let encoded%1#0: Encoded((uint64,uint64)) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
+        let tmp%9#0: bytes = (concat 0x151f7c75 encoded%1#0)
         (log tmp%9#0)
         let test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#0
@@ -59,7 +59,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%3#1: bool = (== tmp%2#1 1u)
         (assert tmp%3#1) // expected logs
         let awst_tmp%0#0: bytes = ((gtxns LastLog) app_call#0)
-        let tmp%4#1: bytes[8] = ((extract 4 0) awst_tmp%0#0)
+        let tmp%4#1: Encoded(uint64) = ((extract 4 0) awst_tmp%0#0)
         let tmp%5#1: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%6#1: bool = (== tmp%5#1 0x151f7c75)
         (assert tmp%6#1) // application log value is not the result of an ABI return

@@ -117,19 +117,19 @@ subroutine test_cases.literals.folding.tuples() -> void:
         let result%1#0: bytes = (concat result%0#0 0x0000000000000062)
         let result%2#0: bytes = (concat result%1#0 0x0000000000000063)
         let array_data%0#0: bytes = (concat 0x result%2#0)
-        let array_head_and_tail%0#0: bytes = array_data%0#0
-        let item_offset%0#0: uint64 = (* 0u 8u)
-        let reinterpret_biguint%0#0: biguint = (extract3 array_head_and_tail%0#0 item_offset%0#0 8u) // on error: Index access is out of bounds
+        let bytes_offset%0#0: uint64 = (* 0u 8u)
+        let encoded_element%0#0: bytes = (extract3 array_data%0#0 bytes_offset%0#0 8u) // on error: index access is out of bounds
+        let reinterpret_biguint%0#0: biguint = encoded_element%0#0
         let tmp%5#0: bool = (b== reinterpret_biguint%0#0 0x0000000000000061)
-        let array_head_and_tail%1#0: bytes = array_data%0#0
-        let item_offset%1#0: uint64 = (* 1u 8u)
-        let reinterpret_biguint%2#0: biguint = (extract3 array_head_and_tail%1#0 item_offset%1#0 8u) // on error: Index access is out of bounds
+        let bytes_offset%1#0: uint64 = (* 1u 8u)
+        let encoded_element%1#0: bytes = (extract3 array_data%0#0 bytes_offset%1#0 8u) // on error: index access is out of bounds
+        let reinterpret_biguint%2#0: biguint = encoded_element%1#0
         let tmp%6#0: biguint = (itob 98u)
         let tmp%7#0: bool = (b== reinterpret_biguint%2#0 tmp%6#0)
         let tmp%8#0: bool = (&& tmp%5#0 tmp%7#0)
-        let array_head_and_tail%2#0: bytes = array_data%0#0
-        let item_offset%2#0: uint64 = (* 2u 8u)
-        let reinterpret_biguint%3#0: biguint = (extract3 array_head_and_tail%2#0 item_offset%2#0 8u) // on error: Index access is out of bounds
+        let bytes_offset%2#0: uint64 = (* 2u 8u)
+        let encoded_element%2#0: bytes = (extract3 array_data%0#0 bytes_offset%2#0 8u) // on error: index access is out of bounds
+        let reinterpret_biguint%3#0: biguint = encoded_element%2#0
         let tmp%9#0: bool = (b== reinterpret_biguint%3#0 0x0000000000000063)
         let tmp%10#0: bool = (&& tmp%8#0 tmp%9#0)
         (assert tmp%10#0)

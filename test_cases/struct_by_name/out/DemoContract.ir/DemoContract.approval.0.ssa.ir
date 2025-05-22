@@ -18,12 +18,11 @@ subroutine test_cases.struct_by_name.contract.DemoContract.__puya_arc4_router__(
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
-        let (elements_to_encode%0#0: bytes[1], elements_to_encode%1#0: bytes[1]) = test_cases.struct_by_name.contract.DemoContract.get_one()
-        let current_tail_offset%0#0: uint64 = 2u
-        let encoded_tuple_buffer%0#0: bytes[0] = 0x
-        let encoded_tuple_buffer%1#0: bytes = (concat encoded_tuple_buffer%0#0 elements_to_encode%0#0)
-        let encoded_tuple_buffer%2#0: bytes = (concat encoded_tuple_buffer%1#0 elements_to_encode%1#0)
-        let tmp%7#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%2#0)
+        let (to_encode%0#0: Encoded(uint8), to_encode%1#0: Encoded(uint8)) = test_cases.struct_by_name.contract.DemoContract.get_one()
+        let encoded%0#0: Encoded((uint8)) = (concat 0x to_encode%0#0)
+        let encoded%1#0: Encoded((uint8,uint8)) = (concat encoded%0#0 to_encode%1#0)
+        let encoded%2#0: bytes = (concat encoded%1#0 0x)
+        let tmp%7#0: bytes = (concat 0x151f7c75 encoded%2#0)
         (log tmp%7#0)
         return 1u
     block@3: // get_two_route_L32
@@ -33,12 +32,11 @@ subroutine test_cases.struct_by_name.contract.DemoContract.__puya_arc4_router__(
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (!= tmp%10#0 0u)
         (assert tmp%11#0) // can only call when not creating
-        let (elements_to_encode%2#0: bytes[1], elements_to_encode%3#0: bytes[1]) = test_cases.struct_by_name.contract.DemoContract.get_two()
-        let current_tail_offset%1#0: uint64 = 2u
-        let encoded_tuple_buffer%3#0: bytes[0] = 0x
-        let encoded_tuple_buffer%4#0: bytes = (concat encoded_tuple_buffer%3#0 elements_to_encode%2#0)
-        let encoded_tuple_buffer%5#0: bytes = (concat encoded_tuple_buffer%4#0 elements_to_encode%3#0)
-        let tmp%12#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%5#0)
+        let (to_encode%2#0: Encoded(uint8), to_encode%3#0: Encoded(uint8)) = test_cases.struct_by_name.contract.DemoContract.get_two()
+        let encoded%3#0: Encoded((uint8)) = (concat 0x to_encode%2#0)
+        let encoded%4#0: Encoded((uint8,uint8)) = (concat encoded%3#0 to_encode%3#0)
+        let encoded%5#0: bytes = (concat encoded%4#0 0x)
+        let tmp%12#0: bytes = (concat 0x151f7c75 encoded%5#0)
         (log tmp%12#0)
         return 1u
     block@4: // get_three_route_L39
@@ -48,12 +46,11 @@ subroutine test_cases.struct_by_name.contract.DemoContract.__puya_arc4_router__(
         let tmp%15#0: uint64 = (txn ApplicationID)
         let tmp%16#0: bool = (!= tmp%15#0 0u)
         (assert tmp%16#0) // can only call when not creating
-        let (elements_to_encode%4#0: bytes[1], elements_to_encode%5#0: bytes[1]) = test_cases.struct_by_name.contract.DemoContract.get_three()
-        let current_tail_offset%2#0: uint64 = 2u
-        let encoded_tuple_buffer%6#0: bytes[0] = 0x
-        let encoded_tuple_buffer%7#0: bytes = (concat encoded_tuple_buffer%6#0 elements_to_encode%4#0)
-        let encoded_tuple_buffer%8#0: bytes = (concat encoded_tuple_buffer%7#0 elements_to_encode%5#0)
-        let tmp%17#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%8#0)
+        let (to_encode%4#0: Encoded(uint8), to_encode%5#0: Encoded(uint8)) = test_cases.struct_by_name.contract.DemoContract.get_three()
+        let encoded%6#0: Encoded((uint8)) = (concat 0x to_encode%4#0)
+        let encoded%7#0: Encoded((uint8,uint8)) = (concat encoded%6#0 to_encode%5#0)
+        let encoded%8#0: bytes = (concat encoded%7#0 0x)
+        let tmp%17#0: bytes = (concat 0x151f7c75 encoded%8#0)
         (log tmp%17#0)
         return 1u
     block@5: // compare_route_L46
@@ -63,8 +60,8 @@ subroutine test_cases.struct_by_name.contract.DemoContract.__puya_arc4_router__(
         let tmp%20#0: uint64 = (txn ApplicationID)
         let tmp%21#0: bool = (!= tmp%20#0 0u)
         (assert tmp%21#0) // can only call when not creating
-        let to_encode%0#0: bool = test_cases.struct_by_name.contract.DemoContract.compare()
-        let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u to_encode%0#0)
+        let to_encode%6#0: bool = test_cases.struct_by_name.contract.DemoContract.compare()
+        let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u to_encode%6#0)
         let tmp%22#0: bytes = (concat 0x151f7c75 encoded_bool%0#0)
         (log tmp%22#0)
         return 1u
@@ -88,23 +85,23 @@ subroutine test_cases.struct_by_name.contract.DemoContract.__puya_arc4_router__(
     block@12: // after_if_else_L18
         return 0u
 
-subroutine test_cases.struct_by_name.contract.DemoContract.get_one() -> <bytes[1], bytes[1]>:
+subroutine test_cases.struct_by_name.contract.DemoContract.get_one() -> <Encoded(uint8), Encoded(uint8)>:
     block@0: // L25
         return 0x01 0x01
 
-subroutine test_cases.struct_by_name.contract.DemoContract.get_two() -> <bytes[1], bytes[1]>:
+subroutine test_cases.struct_by_name.contract.DemoContract.get_two() -> <Encoded(uint8), Encoded(uint8)>:
     block@0: // L32
         return 0x01 0x01
 
-subroutine test_cases.struct_by_name.contract.DemoContract.get_three() -> <bytes[1], bytes[1]>:
+subroutine test_cases.struct_by_name.contract.DemoContract.get_three() -> <Encoded(uint8), Encoded(uint8)>:
     block@0: // L39
         return 0x01 0x01
 
 subroutine test_cases.struct_by_name.contract.DemoContract.compare() -> bool:
     block@0: // L46
-        let (awst_tmp%0#0: bytes[1], awst_tmp%1#0: bytes[1]) = test_cases.struct_by_name.contract.DemoContract.get_one()
+        let (awst_tmp%0#0: Encoded(uint8), awst_tmp%1#0: Encoded(uint8)) = test_cases.struct_by_name.contract.DemoContract.get_one()
         let reinterpret_biguint%0#0: biguint = awst_tmp%0#0
-        let (awst_tmp%2#0: bytes[1], awst_tmp%3#0: bytes[1]) = test_cases.struct_by_name.contract.DemoContract.get_two()
+        let (awst_tmp%2#0: Encoded(uint8), awst_tmp%3#0: Encoded(uint8)) = test_cases.struct_by_name.contract.DemoContract.get_two()
         let reinterpret_biguint%1#0: biguint = awst_tmp%2#0
         let tmp%0#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
         let reinterpret_biguint%2#0: biguint = awst_tmp%1#0
@@ -113,9 +110,9 @@ subroutine test_cases.struct_by_name.contract.DemoContract.compare() -> bool:
         let tmp%2#0: bool = (&& tmp%0#0 tmp%1#0)
         goto tmp%2#0 ? block@1 : block@3
     block@1: // and_contd_L48
-        let (awst_tmp%4#0: bytes[1], awst_tmp%5#0: bytes[1]) = test_cases.struct_by_name.contract.DemoContract.get_two()
+        let (awst_tmp%4#0: Encoded(uint8), awst_tmp%5#0: Encoded(uint8)) = test_cases.struct_by_name.contract.DemoContract.get_two()
         let reinterpret_biguint%4#0: biguint = awst_tmp%4#0
-        let (awst_tmp%6#0: bytes[1], awst_tmp%7#0: bytes[1]) = test_cases.struct_by_name.contract.DemoContract.get_three()
+        let (awst_tmp%6#0: Encoded(uint8), awst_tmp%7#0: Encoded(uint8)) = test_cases.struct_by_name.contract.DemoContract.get_three()
         let reinterpret_biguint%5#0: biguint = awst_tmp%6#0
         let tmp%3#0: bool = (b== reinterpret_biguint%4#0 reinterpret_biguint%5#0)
         let reinterpret_biguint%6#0: biguint = awst_tmp%5#0

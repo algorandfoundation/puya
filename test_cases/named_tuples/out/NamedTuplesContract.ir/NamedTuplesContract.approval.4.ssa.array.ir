@@ -11,66 +11,66 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
-        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 1)
-        let a#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let a#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let b#0: biguint = (txna ApplicationArgs 2)
-        let tmp%8#0: bytes = (txna ApplicationArgs 3)
-        let c#0: bytes = ((extract 2 0) tmp%8#0)
-        let tmp%10#0: bytes = (txna ApplicationArgs 4)
-        let d#0: bytes = ((extract 2 0) tmp%10#0)
+        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 3)
+        let c#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
+        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 4)
+        let d#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
         let val_as_bytes%0#0: bytes[8] = (itob a#0)
         let value_len%0#0: uint64 = (len b#0)
         let len_ok%0#0: bool = (<= value_len%0#0 64u)
         (assert len_ok%0#0) // overflow
         let bzero%0#0: bytes = (bzero 64u)
         let arc4_encoded%0#0: bytes[64] = (b| b#0 bzero%0#0)
+        let encoded%1#0: Encoded((uint64,uint512)) = (concat val_as_bytes%0#0 arc4_encoded%0#0)
         let length%0#0: uint64 = (len c#0)
         let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 c#0)
-        let length%1#0: uint64 = (len d#0)
-        let as_bytes%1#0: bytes[8] = (itob length%1#0)
-        let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let encoded_value%1#0: bytes = (concat length_uint16%1#0 d#0)
-        let encoded_tuple_buffer%2#0: bytes = (concat val_as_bytes%0#0 arc4_encoded%0#0)
-        let encoded_tuple_buffer%3#0: bytes = (concat encoded_tuple_buffer%2#0 0x004c)
         let data_length%0#0: uint64 = (len encoded_value%0#0)
-        let current_tail_offset%1#0: uint64 = (+ 76u data_length%0#0)
-        let as_bytes%3#0: bytes[8] = (itob current_tail_offset%1#0)
+        let current_tail_offset%0#0: uint64 = (+ 76u data_length%0#0)
+        let encoded%2#0: Encoded((uint64,uint512,len+utf8[])) = (concat encoded%1#0 0x004c)
+        let length%1#0: uint64 = (len d#0)
+        let as_bytes%2#0: bytes[8] = (itob length%1#0)
+        let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%2#0)
+        let encoded_value%1#0: bytes = (concat length_uint16%1#0 d#0)
+        let tail%1#0: bytes = (concat encoded_value%0#0 encoded_value%1#0)
+        let as_bytes%3#0: bytes[8] = (itob current_tail_offset%0#0)
         let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%3#0)
-        let encoded_tuple_buffer%4#0: bytes = (concat encoded_tuple_buffer%3#0 offset_as_uint16%1#0)
-        let encoded_tuple_buffer%5#0: bytes = (concat encoded_tuple_buffer%4#0 encoded_value%0#0)
-        let encoded_tuple_buffer%6#0: bytes = (concat encoded_tuple_buffer%5#0 encoded_value%1#0)
-        let tmp%12#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%6#0)
-        (log tmp%12#0)
+        let encoded%3#0: Encoded((uint64,uint512,len+utf8[],len+uint8[])) = (concat encoded%2#0 offset_as_uint16%1#0)
+        let encoded%4#0: bytes = (concat encoded%3#0 tail%1#0)
+        let tmp%10#0: bytes = (concat 0x151f7c75 encoded%4#0)
+        (log tmp%10#0)
         let test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0: bool = 1u
         goto block@12
     block@4: // test_tuple_route_L31
-        let tmp%13#0: uint64 = (txn OnCompletion)
-        let tmp%14#0: bool = (! tmp%13#0)
-        (assert tmp%14#0) // OnCompletion is not NoOp
-        let tmp%15#0: uint64 = (txn ApplicationID)
-        (assert tmp%15#0) // can only call when not creating
-        let tmp%17#0: bytes = (txna ApplicationArgs 1)
-        let item0%1#0: uint64 = (extract_uint64 tmp%17#0 0u)
-        let item1%0#0: bytes = ((extract 8 64) tmp%17#0) // on error: Index access is out of bounds
-        let item_start_offset%0#0: uint64 = (extract_uint16 tmp%17#0 72u)
-        let item_end_offset%0#0: uint64 = (extract_uint16 tmp%17#0 74u)
-        let item2%0#0: bytes = (substring3 tmp%17#0 item_start_offset%0#0 item_end_offset%0#0)
+        let tmp%11#0: uint64 = (txn OnCompletion)
+        let tmp%12#0: bool = (! tmp%11#0)
+        (assert tmp%12#0) // OnCompletion is not NoOp
+        let tmp%13#0: uint64 = (txn ApplicationID)
+        (assert tmp%13#0) // can only call when not creating
+        let reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0: Encoded((uint64,uint512,len+utf8[],len+uint8[])) = (txna ApplicationArgs 1)
+        let item0%1#0: uint64 = (extract_uint64 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 0u)
+        let item1%0#0: bytes = ((extract 8 64) reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0) // on error: Index access is out of bounds
+        let item_start_offset%0#0: uint64 = (extract_uint16 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 72u)
+        let item_end_offset%0#0: uint64 = (extract_uint16 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 74u)
+        let item2%0#0: bytes = (substring3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 item_start_offset%0#0 item_end_offset%0#0)
         let item2%1#0: bytes = ((extract 2 0) item2%0#0)
-        let item_end_offset%1#0: uint64 = (len tmp%17#0)
-        let item3%0#0: bytes = (substring3 tmp%17#0 item_end_offset%0#0 item_end_offset%1#0)
+        let item_end_offset%1#0: uint64 = (len reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0)
+        let item3%0#0: bytes = (substring3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 item_end_offset%0#0 item_end_offset%1#0)
         let item3%1#0: bytes = ((extract 2 0) item3%0#0)
         test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(item0%1#0, item1%0#0, item2%1#0, item3%1#0)
         let test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#1: bool = 1u
         goto block@12
     block@7: // bare_routing_L15
-        let tmp%18#0: uint64 = (txn OnCompletion)
-        goto tmp%18#0 ? block@11 : block@8
+        let tmp%15#0: uint64 = (txn OnCompletion)
+        goto tmp%15#0 ? block@11 : block@8
     block@8: // __algopy_default_create_L1
-        let tmp%19#0: uint64 = (txn ApplicationID)
-        let tmp%20#0: bool = (! tmp%19#0)
-        (assert tmp%20#0) // can only call when creating
+        let tmp%16#0: uint64 = (txn ApplicationID)
+        let tmp%17#0: bool = (! tmp%16#0)
+        (assert tmp%17#0) // can only call when creating
         let test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#2: bool = 1u
         goto block@12
     block@11: // after_if_else_L15
@@ -80,7 +80,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#0: bool = φ(test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0 <- block@3, test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#1 <- block@4, test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#2 <- block@8, test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#3 <- block@11)
         return tmp%0#0
 
-subroutine test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(value.a: uint64, value.b: biguint, value.c: bytes, value.d: bytes) -> void:
+subroutine test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(value.a: uint64, value.b: biguint, value.c: string, value.d: bytes) -> void:
     block@0: // L31
         let tmp%0#0: bool = (< value.a#0 1000u)
         (assert tmp%0#0)

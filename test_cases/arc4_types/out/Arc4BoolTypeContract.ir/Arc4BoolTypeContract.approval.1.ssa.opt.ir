@@ -1,7 +1,7 @@
 main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
     block@0: // L12
-        let true#0: bytes[1] = 0x80
-        let false#0: bytes[1] = 0x00
+        let true#0: Encoded(bool8) = 0x80
+        let false#0: Encoded(bool8) = 0x00
         let tmp%0#1: bool = 1u
         let tmp%1#1: bool = 0u
         let tmp%2#1: bool = 1u
@@ -51,14 +51,19 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let array_head_and_tail%10#0: bytes = 0xffe0
         let is_true%9#0: uint64 = 1u
         let array_head_and_tail%11#0: bytes = 0xfff0
-        let static_boolean_array#0: bytes[2] = 0xfff0
+        let static_boolean_array#0: Encoded(bool1[12]) = 0xfff0
         let tmp%3#0: bool = 1u
+        let array_length%0#0: uint64 = 0xfff0.length
+        let index_is_in_bounds%0#0: bool = (< 0u array_length%0#0)
+        (assert array_length%0#0) // Index access is out of bounds
         let is_true%10#0: uint64 = 1u
         let encoded_bool%15#0: bytes[1] = 0x80
         let encoded_bool%16#0: bytes[1] = 0x80
         let tmp%4#0: bool = 1u
         let tmp%5#0: uint64 = 11u
-        let index_is_in_bounds%0#0: bool = 1u
+        let array_length%1#0: uint64 = 0xfff0.length
+        let index_is_in_bounds%1#0: bool = (< 11u array_length%1#0)
+        (assert index_is_in_bounds%1#0) // Index access is out of bounds
         let is_true%11#0: uint64 = 1u
         let encoded_bool%17#0: bytes[1] = 0x80
         let encoded_bool%18#0: bytes[1] = 0x80
@@ -66,14 +71,14 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let encoded_bool%19#0: bytes[1] = 0x80
         let encoded_bool%20#0: bytes[1] = 0x00
         let encoded_bool%21#0: bytes[1] = 0x80
-        let array_head_and_tail%14#0: bytes = 0x80
+        let array_head_and_tail%12#0: bytes = 0x80
         let is_true%12#0: uint64 = 0u
-        let array_head_and_tail%15#0: bytes = 0x80
+        let array_head_and_tail%13#0: bytes = 0x80
         let is_true%13#0: uint64 = 1u
-        let array_head_and_tail%16#0: bytes = 0xa0
-        let dynamic_boolean_array#0: bytes = 0x0003a0
+        let array_head_and_tail%14#0: bytes = 0xa0
+        let dynamic_boolean_array#0: Encoded(len+bool1[]) = 0x0003a0
         let tmp%7#0: bool = 1u
-        let dynamic_boolean_array#1: bytes = test_cases.arc4_types.bool.get_arr()
+        let dynamic_boolean_array#1: Encoded(len+bool1[]) = test_cases.arc4_types.bool.get_arr()
         let encoded_bool%22#0: bytes[1] = 0x80
         let encoded_bool%23#0: bytes[1] = 0x00
         let encoded_bool%24#0: bytes[1] = 0x80
@@ -135,7 +140,7 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let tmp%16#0: bool = 1u
         return 1u
 
-subroutine test_cases.arc4_types.bool.get_arr() -> bytes:
+subroutine test_cases.arc4_types.bool.get_arr() -> Encoded(len+bool1[]):
     block@0: // L72
         let array_data%0#0: bytes = 0x0000
         return 0x0000

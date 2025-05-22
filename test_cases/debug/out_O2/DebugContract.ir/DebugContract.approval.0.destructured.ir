@@ -11,12 +11,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
-        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 1)
-        let x#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
-        let reinterpret_bytes[8]%1#0: bytes[8] = (txna ApplicationArgs 2)
-        let y#0: uint64 = (btoi reinterpret_bytes[8]%1#0)
-        let reinterpret_bytes[8]%2#0: bytes[8] = (txna ApplicationArgs 3)
-        let z#0: uint64 = (btoi reinterpret_bytes[8]%2#0)
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let x#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let y#0: uint64 = (btoi reinterpret_Encoded(uint64)%1#0)
+        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 3)
+        let z#0: uint64 = (btoi reinterpret_Encoded(uint64)%2#0)
         let a#0: uint64 = (* x#0 TemplateVar[uint64](TMPL_A_MULT))
         let b#0: uint64 = (+ x#0 y#0)
         let c#0: uint64 = (* b#0 z#0)
@@ -138,12 +138,12 @@ subroutine test_cases.debug.contract.itoa(i: uint64) -> bytes:
         let tmp%0#0: bool = (< i#0 10u)
         goto tmp%0#0 ? block@1 : block@2
     block@1: // if_body_L57
-        let tmp%1#0: bytes = (extract3 0x30313233343536373839 i#0 1u)
-        return tmp%1#0
+        let read_bytes%0#0: bytes = (extract3 0x30313233343536373839 i#0 1u) // on error: Index access is out of bounds
+        return read_bytes%0#0
     block@2: // after_if_else_L56
-        let tmp%2#0: uint64 = (/ i#0 10u)
-        let tmp%3#0: bytes = test_cases.debug.contract.itoa(tmp%2#0)
-        let tmp%4#0: uint64 = (% i#0 10u)
-        let tmp%5#0: bytes = (extract3 0x30313233343536373839 tmp%4#0 1u)
-        let tmp%6#0: bytes = (concat tmp%3#0 tmp%5#0)
-        return tmp%6#0
+        let tmp%1#0: uint64 = (/ i#0 10u)
+        let tmp%2#0: bytes = test_cases.debug.contract.itoa(tmp%1#0)
+        let tmp%3#0: uint64 = (% i#0 10u)
+        let read_bytes%1#0: bytes = (extract3 0x30313233343536373839 tmp%3#0 1u) // on error: Index access is out of bounds
+        let tmp%4#0: bytes = (concat tmp%2#0 read_bytes%1#0)
+        return tmp%4#0

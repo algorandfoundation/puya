@@ -41,8 +41,8 @@ subroutine itoa:
         // return digits[i]
         p-load i#0                                           (𝕡) i#0 | 0x30313233343536373839,i#0 (copy)
         int 1                                                (𝕡) i#0 | 0x30313233343536373839,i#0 (copy),1
-        extract3                                             (𝕡) i#0 | tmp%1#0
-        retsub                                               tmp%1#0
+        extract3 // on error: Index access is out of bounds  (𝕡) i#0 | read_bytes%0#0
+        retsub                                               read_bytes%0#0
 
     itoa_after_if_else@2:                                    (𝕡) i#0 |
         // with_reentrancy/contract.py:22
@@ -53,27 +53,27 @@ subroutine itoa:
         int 10                                               (𝕡) i#0 | i#0 (copy),10
         // with_reentrancy/contract.py:22
         // return itoa(i // radix) + digits[i % radix]
-        /                                                    (𝕡) i#0 | tmp%2#0
-        callsub itoa                                         (𝕡) i#0 | tmp%3#0
-        p-load i#0                                           (𝕡) i#0 | tmp%3#0,i#0 (copy)
+        /                                                    (𝕡) i#0 | tmp%1#0
+        callsub itoa                                         (𝕡) i#0 | tmp%2#0
+        p-load i#0                                           (𝕡) i#0 | tmp%2#0,i#0 (copy)
         // with_reentrancy/contract.py:19
         // radix = digits.length
-        int 10                                               (𝕡) i#0 | tmp%3#0,i#0 (copy),10
+        int 10                                               (𝕡) i#0 | tmp%2#0,i#0 (copy),10
         // with_reentrancy/contract.py:22
         // return itoa(i // radix) + digits[i % radix]
-        %                                                    (𝕡) i#0 | tmp%3#0,tmp%4#0
+        %                                                    (𝕡) i#0 | tmp%2#0,tmp%3#0
         // with_reentrancy/contract.py:18
         // digits = Bytes(b"0123456789")
-        byte 0x30313233343536373839                          (𝕡) i#0 | tmp%3#0,tmp%4#0,0x30313233343536373839
+        byte 0x30313233343536373839                          (𝕡) i#0 | tmp%2#0,tmp%3#0,0x30313233343536373839
         // with_reentrancy/contract.py:22
         // return itoa(i // radix) + digits[i % radix]
-        l-load tmp%4#0 1                                     (𝕡) i#0 | tmp%3#0,0x30313233343536373839,tmp%4#0
-        int 1                                                (𝕡) i#0 | tmp%3#0,0x30313233343536373839,tmp%4#0,1
-        extract3                                             (𝕡) i#0 | tmp%3#0,tmp%5#0
-        l-load tmp%3#0 1                                     (𝕡) i#0 | tmp%5#0,tmp%3#0
-        l-load tmp%5#0 1                                     (𝕡) i#0 | tmp%3#0,tmp%5#0
-        concat                                               (𝕡) i#0 | tmp%6#0
-        retsub                                               tmp%6#0
+        l-load tmp%3#0 1                                     (𝕡) i#0 | tmp%2#0,0x30313233343536373839,tmp%3#0
+        int 1                                                (𝕡) i#0 | tmp%2#0,0x30313233343536373839,tmp%3#0,1
+        extract3 // on error: Index access is out of bounds  (𝕡) i#0 | tmp%2#0,read_bytes%1#0
+        l-load tmp%2#0 1                                     (𝕡) i#0 | read_bytes%1#0,tmp%2#0
+        l-load read_bytes%1#0 1                              (𝕡) i#0 | tmp%2#0,read_bytes%1#0
+        concat                                               (𝕡) i#0 | tmp%4#0
+        retsub                                               tmp%4#0
 
 
 // test_cases.with_reentrancy.contract.fibonacci(n: uint64) -> uint64:

@@ -30,15 +30,15 @@ subroutine main:
         assert // can only call when not creating
         // named_tuples/contract.py:15
         // class NamedTuplesContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[8]%0#0
-        l-load reinterpret_bytes[8]%0#0 0                                                            reinterpret_bytes[8]%0#0
+        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
+        l-load reinterpret_Encoded(uint64)%0#0 0                                                     reinterpret_Encoded(uint64)%0#0
         btoi                                                                                         a#0
         txna ApplicationArgs 2                                                                       a#0,b#0
-        txna ApplicationArgs 3                                                                       a#0,b#0,tmp%8#0
-        l-load tmp%8#0 0                                                                             a#0,b#0,tmp%8#0
+        txna ApplicationArgs 3                                                                       a#0,b#0,reinterpret_Encoded(len+utf8[])%0#0
+        l-load reinterpret_Encoded(len+utf8[])%0#0 0                                                 a#0,b#0,reinterpret_Encoded(len+utf8[])%0#0
         extract 2 0                                                                                  a#0,b#0,c#0
-        txna ApplicationArgs 4                                                                       a#0,b#0,c#0,tmp%10#0
-        l-load tmp%10#0 0                                                                            a#0,b#0,c#0,tmp%10#0
+        txna ApplicationArgs 4                                                                       a#0,b#0,c#0,reinterpret_Encoded(len+uint8[])%0#0
+        l-load reinterpret_Encoded(len+uint8[])%0#0 0                                                a#0,b#0,c#0,reinterpret_Encoded(len+uint8[])%0#0
         extract 2 0                                                                                  a#0,b#0,c#0,d#0
         // named_tuples/contract.py:16
         // @arc4.abimethod()
@@ -56,52 +56,52 @@ subroutine main:
         l-load b#0 4                                                                                 c#0,d#0,val_as_bytes%0#0,bzero%0#0,b#0
         l-load bzero%0#0 1                                                                           c#0,d#0,val_as_bytes%0#0,b#0,bzero%0#0
         b|                                                                                           c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0
-        l-load-copy c#0 3                                                                            c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0,c#0 (copy)
-        len                                                                                          c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0,length%0#0
-        l-load length%0#0 0                                                                          c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0,length%0#0
-        itob                                                                                         c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0,as_bytes%0#0
-        l-load as_bytes%0#0 0                                                                        c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0,as_bytes%0#0
-        extract 6 2                                                                                  c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0,length_uint16%0#0
-        l-load length_uint16%0#0 0                                                                   c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0,length_uint16%0#0
-        l-load c#0 4                                                                                 d#0,val_as_bytes%0#0,arc4_encoded%0#0,length_uint16%0#0,c#0
-        concat                                                                                       d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0
-        l-load-copy d#0 3                                                                            d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,d#0 (copy)
-        len                                                                                          d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,length%1#0
-        l-load length%1#0 0                                                                          d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,length%1#0
-        itob                                                                                         d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,as_bytes%1#0
-        l-load as_bytes%1#0 0                                                                        d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,as_bytes%1#0
-        extract 6 2                                                                                  d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,length_uint16%1#0
-        l-load length_uint16%1#0 0                                                                   d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,length_uint16%1#0
-        l-load d#0 4                                                                                 val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,length_uint16%1#0,d#0
-        concat                                                                                       val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,encoded_value%1#0
-        l-load val_as_bytes%0#0 3                                                                    arc4_encoded%0#0,encoded_value%0#0,encoded_value%1#0,val_as_bytes%0#0
-        l-load arc4_encoded%0#0 3                                                                    encoded_value%0#0,encoded_value%1#0,val_as_bytes%0#0,arc4_encoded%0#0
-        concat                                                                                       encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%2#0
-        l-load encoded_tuple_buffer%2#0 0                                                            encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%2#0
-        byte 0x004c                                                                                  encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%2#0,0x004c
-        concat                                                                                       encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%3#0
-        l-load-copy encoded_value%0#0 2                                                              encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%3#0,encoded_value%0#0 (copy)
-        len                                                                                          encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%3#0,data_length%0#0
-        int 76                                                                                       encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%3#0,data_length%0#0,76
-        l-load data_length%0#0 1                                                                     encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%3#0,76,data_length%0#0
-        +                                                                                            encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%3#0,current_tail_offset%1#0
-        l-load current_tail_offset%1#0 0                                                             encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%3#0,current_tail_offset%1#0
-        itob                                                                                         encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%3#0,as_bytes%3#0
-        l-load as_bytes%3#0 0                                                                        encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%3#0,as_bytes%3#0
-        extract 6 2                                                                                  encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%3#0,offset_as_uint16%1#0
-        l-load encoded_tuple_buffer%3#0 1                                                            encoded_value%0#0,encoded_value%1#0,offset_as_uint16%1#0,encoded_tuple_buffer%3#0
-        l-load offset_as_uint16%1#0 1                                                                encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%3#0,offset_as_uint16%1#0
-        concat                                                                                       encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%4#0
-        l-load encoded_tuple_buffer%4#0 0                                                            encoded_value%0#0,encoded_value%1#0,encoded_tuple_buffer%4#0
-        l-load encoded_value%0#0 2                                                                   encoded_value%1#0,encoded_tuple_buffer%4#0,encoded_value%0#0
-        concat                                                                                       encoded_value%1#0,encoded_tuple_buffer%5#0
-        l-load encoded_tuple_buffer%5#0 0                                                            encoded_value%1#0,encoded_tuple_buffer%5#0
-        l-load encoded_value%1#0 1                                                                   encoded_tuple_buffer%5#0,encoded_value%1#0
-        concat                                                                                       encoded_tuple_buffer%6#0
-        byte 0x151f7c75                                                                              encoded_tuple_buffer%6#0,0x151f7c75
-        l-load encoded_tuple_buffer%6#0 1                                                            0x151f7c75,encoded_tuple_buffer%6#0
-        concat                                                                                       tmp%12#0
-        l-load tmp%12#0 0                                                                            tmp%12#0
+        l-load val_as_bytes%0#0 1                                                                    c#0,d#0,arc4_encoded%0#0,val_as_bytes%0#0
+        l-load arc4_encoded%0#0 1                                                                    c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0
+        concat                                                                                       c#0,d#0,encoded%1#0
+        l-load-copy c#0 2                                                                            c#0,d#0,encoded%1#0,c#0 (copy)
+        len                                                                                          c#0,d#0,encoded%1#0,length%0#0
+        l-load length%0#0 0                                                                          c#0,d#0,encoded%1#0,length%0#0
+        itob                                                                                         c#0,d#0,encoded%1#0,as_bytes%0#0
+        l-load as_bytes%0#0 0                                                                        c#0,d#0,encoded%1#0,as_bytes%0#0
+        extract 6 2                                                                                  c#0,d#0,encoded%1#0,length_uint16%0#0
+        l-load length_uint16%0#0 0                                                                   c#0,d#0,encoded%1#0,length_uint16%0#0
+        l-load c#0 3                                                                                 d#0,encoded%1#0,length_uint16%0#0,c#0
+        concat                                                                                       d#0,encoded%1#0,encoded_value%0#0
+        l-load-copy encoded_value%0#0 0                                                              d#0,encoded%1#0,encoded_value%0#0,encoded_value%0#0 (copy)
+        len                                                                                          d#0,encoded%1#0,encoded_value%0#0,data_length%0#0
+        int 76                                                                                       d#0,encoded%1#0,encoded_value%0#0,data_length%0#0,76
+        l-load data_length%0#0 1                                                                     d#0,encoded%1#0,encoded_value%0#0,76,data_length%0#0
+        +                                                                                            d#0,encoded%1#0,encoded_value%0#0,current_tail_offset%0#0
+        l-load encoded%1#0 2                                                                         d#0,encoded_value%0#0,current_tail_offset%0#0,encoded%1#0
+        byte 0x004c                                                                                  d#0,encoded_value%0#0,current_tail_offset%0#0,encoded%1#0,0x004c
+        concat                                                                                       d#0,encoded_value%0#0,current_tail_offset%0#0,encoded%2#0
+        l-load-copy d#0 3                                                                            d#0,encoded_value%0#0,current_tail_offset%0#0,encoded%2#0,d#0 (copy)
+        len                                                                                          d#0,encoded_value%0#0,current_tail_offset%0#0,encoded%2#0,length%1#0
+        l-load length%1#0 0                                                                          d#0,encoded_value%0#0,current_tail_offset%0#0,encoded%2#0,length%1#0
+        itob                                                                                         d#0,encoded_value%0#0,current_tail_offset%0#0,encoded%2#0,as_bytes%2#0
+        l-load as_bytes%2#0 0                                                                        d#0,encoded_value%0#0,current_tail_offset%0#0,encoded%2#0,as_bytes%2#0
+        extract 6 2                                                                                  d#0,encoded_value%0#0,current_tail_offset%0#0,encoded%2#0,length_uint16%1#0
+        l-load length_uint16%1#0 0                                                                   d#0,encoded_value%0#0,current_tail_offset%0#0,encoded%2#0,length_uint16%1#0
+        l-load d#0 4                                                                                 encoded_value%0#0,current_tail_offset%0#0,encoded%2#0,length_uint16%1#0,d#0
+        concat                                                                                       encoded_value%0#0,current_tail_offset%0#0,encoded%2#0,encoded_value%1#0
+        l-load encoded_value%0#0 3                                                                   current_tail_offset%0#0,encoded%2#0,encoded_value%1#0,encoded_value%0#0
+        l-load encoded_value%1#0 1                                                                   current_tail_offset%0#0,encoded%2#0,encoded_value%0#0,encoded_value%1#0
+        concat                                                                                       current_tail_offset%0#0,encoded%2#0,tail%1#0
+        l-load current_tail_offset%0#0 2                                                             encoded%2#0,tail%1#0,current_tail_offset%0#0
+        itob                                                                                         encoded%2#0,tail%1#0,as_bytes%3#0
+        l-load as_bytes%3#0 0                                                                        encoded%2#0,tail%1#0,as_bytes%3#0
+        extract 6 2                                                                                  encoded%2#0,tail%1#0,offset_as_uint16%1#0
+        l-load encoded%2#0 2                                                                         tail%1#0,offset_as_uint16%1#0,encoded%2#0
+        l-load offset_as_uint16%1#0 1                                                                tail%1#0,encoded%2#0,offset_as_uint16%1#0
+        concat                                                                                       tail%1#0,encoded%3#0
+        l-load encoded%3#0 0                                                                         tail%1#0,encoded%3#0
+        l-load tail%1#0 1                                                                            encoded%3#0,tail%1#0
+        concat                                                                                       encoded%4#0
+        byte 0x151f7c75                                                                              encoded%4#0,0x151f7c75
+        l-load encoded%4#0 1                                                                         0x151f7c75,encoded%4#0
+        concat                                                                                       tmp%10#0
+        l-load tmp%10#0 0                                                                            tmp%10#0
         log
         int 1                                                                                        1
         l-store test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0 0 test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0
@@ -112,39 +112,39 @@ subroutine main:
     main_test_tuple_route@4:
         // named_tuples/contract.py:31
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%13#0
-        l-load tmp%13#0 0                                                                            tmp%13#0
-        !                                                                                            tmp%14#0
-        l-load tmp%14#0 0                                                                            tmp%14#0
+        txn OnCompletion                                                                             tmp%11#0
+        l-load tmp%11#0 0                                                                            tmp%11#0
+        !                                                                                            tmp%12#0
+        l-load tmp%12#0 0                                                                            tmp%12#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%15#0
-        l-load tmp%15#0 0                                                                            tmp%15#0
+        txn ApplicationID                                                                            tmp%13#0
+        l-load tmp%13#0 0                                                                            tmp%13#0
         assert // can only call when not creating
         // named_tuples/contract.py:15
         // class NamedTuplesContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                       tmp%17#0
-        l-load-copy tmp%17#0 0                                                                       tmp%17#0,tmp%17#0 (copy)
-        int 0                                                                                        tmp%17#0,tmp%17#0 (copy),0
-        extract_uint64                                                                               tmp%17#0,item0%1#0
-        l-load-copy tmp%17#0 1                                                                       tmp%17#0,item0%1#0,tmp%17#0 (copy)
-        extract 8 64 // on error: Index access is out of bounds                                      tmp%17#0,item0%1#0,item1%0#0
-        l-load-copy tmp%17#0 2                                                                       tmp%17#0,item0%1#0,item1%0#0,tmp%17#0 (copy)
-        int 72                                                                                       tmp%17#0,item0%1#0,item1%0#0,tmp%17#0 (copy),72
-        extract_uint16                                                                               tmp%17#0,item0%1#0,item1%0#0,item_start_offset%0#0
-        l-load-copy tmp%17#0 3                                                                       tmp%17#0,item0%1#0,item1%0#0,item_start_offset%0#0,tmp%17#0 (copy)
-        int 74                                                                                       tmp%17#0,item0%1#0,item1%0#0,item_start_offset%0#0,tmp%17#0 (copy),74
-        extract_uint16                                                                               tmp%17#0,item0%1#0,item1%0#0,item_start_offset%0#0,item_end_offset%0#0
-        l-load-copy tmp%17#0 4                                                                       tmp%17#0,item0%1#0,item1%0#0,item_start_offset%0#0,item_end_offset%0#0,tmp%17#0 (copy)
-        l-load item_start_offset%0#0 2                                                               tmp%17#0,item0%1#0,item1%0#0,item_end_offset%0#0,tmp%17#0 (copy),item_start_offset%0#0
-        l-load-copy item_end_offset%0#0 2                                                            tmp%17#0,item0%1#0,item1%0#0,item_end_offset%0#0,tmp%17#0 (copy),item_start_offset%0#0,item_end_offset%0#0 (copy)
-        substring3                                                                                   tmp%17#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%0#0
-        l-load item2%0#0 0                                                                           tmp%17#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%0#0
-        extract 2 0                                                                                  tmp%17#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%1#0
-        l-load-copy tmp%17#0 4                                                                       tmp%17#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%1#0,tmp%17#0 (copy)
-        len                                                                                          tmp%17#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%1#0,item_end_offset%1#0
-        l-load tmp%17#0 5                                                                            item0%1#0,item1%0#0,item_end_offset%0#0,item2%1#0,item_end_offset%1#0,tmp%17#0
-        l-load item_end_offset%0#0 3                                                                 item0%1#0,item1%0#0,item2%1#0,item_end_offset%1#0,tmp%17#0,item_end_offset%0#0
-        l-load item_end_offset%1#0 2                                                                 item0%1#0,item1%0#0,item2%1#0,tmp%17#0,item_end_offset%0#0,item_end_offset%1#0
+        txna ApplicationArgs 1                                                                       reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0
+        l-load-copy reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 0               reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 (copy)
+        int 0                                                                                        reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 (copy),0
+        extract_uint64                                                                               reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item0%1#0
+        l-load-copy reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 1               reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item0%1#0,reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 (copy)
+        extract 8 64 // on error: Index access is out of bounds                                      reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item0%1#0,item1%0#0
+        l-load-copy reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 2               reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item0%1#0,item1%0#0,reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 (copy)
+        int 72                                                                                       reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item0%1#0,item1%0#0,reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 (copy),72
+        extract_uint16                                                                               reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item0%1#0,item1%0#0,item_start_offset%0#0
+        l-load-copy reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 3               reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item0%1#0,item1%0#0,item_start_offset%0#0,reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 (copy)
+        int 74                                                                                       reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item0%1#0,item1%0#0,item_start_offset%0#0,reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 (copy),74
+        extract_uint16                                                                               reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item0%1#0,item1%0#0,item_start_offset%0#0,item_end_offset%0#0
+        l-load-copy reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 4               reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item0%1#0,item1%0#0,item_start_offset%0#0,item_end_offset%0#0,reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 (copy)
+        l-load item_start_offset%0#0 2                                                               reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item0%1#0,item1%0#0,item_end_offset%0#0,reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 (copy),item_start_offset%0#0
+        l-load-copy item_end_offset%0#0 2                                                            reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item0%1#0,item1%0#0,item_end_offset%0#0,reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 (copy),item_start_offset%0#0,item_end_offset%0#0 (copy)
+        substring3                                                                                   reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%0#0
+        l-load item2%0#0 0                                                                           reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%0#0
+        extract 2 0                                                                                  reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%1#0
+        l-load-copy reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 4               reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%1#0,reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 (copy)
+        len                                                                                          reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%1#0,item_end_offset%1#0
+        l-load reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 5                    item0%1#0,item1%0#0,item_end_offset%0#0,item2%1#0,item_end_offset%1#0,reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0
+        l-load item_end_offset%0#0 3                                                                 item0%1#0,item1%0#0,item2%1#0,item_end_offset%1#0,reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item_end_offset%0#0
+        l-load item_end_offset%1#0 2                                                                 item0%1#0,item1%0#0,item2%1#0,reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0,item_end_offset%0#0,item_end_offset%1#0
         substring3                                                                                   item0%1#0,item1%0#0,item2%1#0,item3%0#0
         l-load item3%0#0 0                                                                           item0%1#0,item1%0#0,item2%1#0,item3%0#0
         extract 2 0                                                                                  item0%1#0,item1%0#0,item2%1#0,item3%1#0
@@ -164,15 +164,15 @@ subroutine main:
     main_bare_routing@7:
         // named_tuples/contract.py:15
         // class NamedTuplesContract(arc4.ARC4Contract):
-        txn OnCompletion                                                                             tmp%18#0
-        l-load tmp%18#0 0                                                                            tmp%18#0
+        txn OnCompletion                                                                             tmp%15#0
+        l-load tmp%15#0 0                                                                            tmp%15#0
         bz main___algopy_default_create@8 ; b main_after_if_else@11
 
     main___algopy_default_create@8:
-        txn ApplicationID                                                                            tmp%19#0
-        l-load tmp%19#0 0                                                                            tmp%19#0
-        !                                                                                            tmp%20#0
-        l-load tmp%20#0 0                                                                            tmp%20#0
+        txn ApplicationID                                                                            tmp%16#0
+        l-load tmp%16#0 0                                                                            tmp%16#0
+        !                                                                                            tmp%17#0
+        l-load tmp%17#0 0                                                                            tmp%17#0
         assert // can only call when creating
         int 1                                                                                        1
         l-store test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0 0 test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0

@@ -4,15 +4,14 @@ main test_cases.arc4_types.structs2.Arc4StructsFromAnotherModule.approval_progra
         let encoded_bool%1#0: bytes[1] = (setbit 0x00 0u 0u)
         let encoded_bool%2#0: bytes[1] = (setbit 0x00 0u 1u)
         let encoded_bool%3#0: bytes[1] = (setbit 0x00 0u 0u)
-        let current_tail_offset%0#0: uint64 = 1u
-        let encoded_tuple_buffer%0#0: bytes[0] = 0x
-        let encoded_tuple_buffer%1#0: bytes = (concat encoded_tuple_buffer%0#0 encoded_bool%0#0)
-        let is_true%0#0: uint64 = (getbit encoded_bool%1#0 0u)
-        let encoded_tuple_buffer%2#0: bytes = (setbit encoded_tuple_buffer%1#0 1u is_true%0#0)
-        let is_true%1#0: uint64 = (getbit encoded_bool%2#0 0u)
-        let encoded_tuple_buffer%3#0: bytes = (setbit encoded_tuple_buffer%2#0 2u is_true%1#0)
-        let is_true%2#0: uint64 = (getbit encoded_bool%3#0 0u)
-        let encoded_tuple_buffer%4#0: bytes = (setbit encoded_tuple_buffer%3#0 3u is_true%2#0)
-        let flags#0: bytes[1] = encoded_tuple_buffer%4#0
+        let encoded%0#0: Encoded((bool1)) = (concat 0x encoded_bool%0#0)
+        let get_bit%0#0: uint64 = (getbit encoded_bool%1#0 0u)
+        let set_bit%0#0: Encoded((bool1)) = (setbit encoded%0#0 1u get_bit%0#0)
+        let get_bit%1#0: uint64 = (getbit encoded_bool%2#0 0u)
+        let set_bit%1#0: Encoded((bool1)) = (setbit set_bit%0#0 2u get_bit%1#0)
+        let get_bit%2#0: uint64 = (getbit encoded_bool%3#0 0u)
+        let set_bit%2#0: Encoded((bool1)) = (setbit set_bit%1#0 3u get_bit%2#0)
+        let encoded%1#0: bytes = (concat set_bit%2#0 0x)
+        let flags#0: Encoded((bool1,bool1,bool1,bool1)) = encoded%1#0
         (log flags#0)
         return 1u

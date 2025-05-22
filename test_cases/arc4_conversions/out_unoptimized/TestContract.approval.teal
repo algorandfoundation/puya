@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 6 2 1
-    bytecblock 0x 0x000b48656c6c6f20576f726c64 base64(CoEBQw==) base64(CiACAAExGyITQQG1NhoAgAQzs0megASNdi/fgAQtMp7hgARqTd9zgATW4Le8gATlys0GgASJr1V7gARG4Za9gATzOIbagAQllblagAQ/VSZrgAR9JAlFgAQDUaneTw2ODQE0ARoBAADmAMwAsgCYAH4AZABKADAAFgACIkMxGSISRDEYIhNENhoBiAG3I0L/6zEZIhJEMRgiE0Q2GgE2GgJXAgCIAZMjQv/RMRkiEkQxGCITRDYaATYaAlcCAIgBbyNC/7cxGSISRDEYIhNENhoBNhoCVwIAiAFLI0L/nTEZIhJEMRgiE0Q2GgE2GgJXAgCIAScjQv+DMRkiEkQxGCITRDYaATYaAlcCAIgBAyNC/2kxGSISRDEYIhNENhoBNhoCVwIAiADfI0L/TzEZIhJEMRgiE0Q2GgE2GgJXAgCIALsjQv81MRkiEkQxGCITRDYaATYaAlcCAIgAlyNC/xsxGSISRDEYIhNENhoBNhoCVwIAiABzI0L/ATEZIhJEMRgiE0Q2GgE2GgJXAgCIAE8jQv7nMRkiEkQxGCITRDYaATYaAlcCAIgAKyNC/s0xGYEFEkQxGCITRIgAGCNC/rsxGSJMjgEAA0L+rzEYIhJEI0L+p4mKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoBADEAi/8SRIk=) 0x80 0x33b3499e 0x48656c6c6f20576f726c64 0x0003 0x8d762fdf 0x2d329ee1 0x6a4ddf73 0xd6e0b7bc 0xe5cacd06 0x0000 0x0000000000000000 0x0004 0x89af557b
+    bytecblock 0x 0x000b48656c6c6f20576f726c64 base64(CoEBQw==) base64(CiACAAExGyITQQG1NhoAgAQzs0megASNdi/fgAQtMp7hgARqTd9zgATW4Le8gATlys0GgASJr1V7gARG4Za9gATzOIbagAQllblagAQ/VSZrgAR9JAlFgAQDUaneTw2ODQE0ARoBAADmAMwAsgCYAH4AZABKADAAFgACIkMxGSISRDEYIhNENhoBiAG3I0L/6zEZIhJEMRgiE0Q2GgE2GgJXAgCIAZMjQv/RMRkiEkQxGCITRDYaATYaAlcCAIgBbyNC/7cxGSISRDEYIhNENhoBNhoCVwIAiAFLI0L/nTEZIhJEMRgiE0Q2GgE2GgJXAgCIAScjQv+DMRkiEkQxGCITRDYaATYaAlcCAIgBAyNC/2kxGSISRDEYIhNENhoBNhoCVwIAiADfI0L/TzEZIhJEMRgiE0Q2GgE2GgJXAgCIALsjQv81MRkiEkQxGCITRDYaATYaAlcCAIgAlyNC/xsxGSISRDEYIhNENhoBNhoCVwIAiABzI0L/ATEZIhJEMRgiE0Q2GgE2GgJXAgCIAE8jQv7nMRkiEkQxGCITRDYaATYaAlcCAIgAKyNC/s0xGYEFEkQxGCITRIgAGCNC/rsxGSJMjgEAA0L+rzEYIhJEI0L+p4mKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoBADEAi/8SRIk=) 0x80 0x33b3499e 0x48656c6c6f20576f726c64 0x8d762fdf 0x2d329ee1 0x6a4ddf73 0xd6e0b7bc 0xe5cacd06 0x0000 0x0003 0x0000000000000000 0x0004 0x89af557b
 
 main_block@0:
 
@@ -359,16 +359,20 @@ my_dyn_struct_arc4_block@0:
     extract 6 2
     swap
     concat
-    swap
     // arc4_conversions/contract.py:225-227
     // return MyDynStructARC4(
     //     arc4.UInt64(value), arc4.Address(Txn.sender), arc4.DynamicBytes(Txn.sender.bytes)
     // )
     bytec_0 // 0x
-    swap
+    uncover 2
     concat
     uncover 2
     concat
+    swap
+    bytec_0 // 0x
+    swap
+    concat
+    swap
     pushint 42 // 42
     itob
     extract 6 2
@@ -434,7 +438,7 @@ test_literal_encoding_next_txn@1:
     concat
     swap
     itxn_field ApplicationID
-    bytec 8 // method "check_uint64(uint64,byte[])void"
+    bytec 7 // method "check_uint64(uint64,byte[])void"
     itxn_field ApplicationArgs
     bytec 14 // 0x0000000000000000
     itxn_field ApplicationArgs
@@ -477,7 +481,7 @@ test_literal_encoding_next_txn@2:
     // arc4.abi_call(
     //     CheckApp.check_dynamic_bytes, b"Hello World", b"\x00\x0bHello World", app_id=app
     // )
-    bytec 9 // method "check_dynamic_bytes(byte[],byte[])void"
+    bytec 8 // method "check_dynamic_bytes(byte[],byte[])void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
@@ -505,7 +509,7 @@ test_literal_encoding_next_txn@3:
     concat
     frame_dig 0
     itxn_field ApplicationID
-    bytec 10 // method "check_string(string,byte[])void"
+    bytec 9 // method "check_string(string,byte[])void"
     itxn_field ApplicationArgs
     bytec_1 // 0x000b48656c6c6f20576f726c64
     itxn_field ApplicationArgs
@@ -544,7 +548,7 @@ test_literal_encoding_next_txn@4:
     swap
     frame_dig 0
     itxn_field ApplicationID
-    bytec 11 // method "check_biguint(uint512,byte[])void"
+    bytec 10 // method "check_biguint(uint512,byte[])void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
@@ -570,7 +574,7 @@ test_literal_encoding_next_txn@5:
     concat
     frame_dig 0
     itxn_field ApplicationID
-    bytec 12 // method "check_bool(bool,byte[])void"
+    bytec 11 // method "check_bool(bool,byte[])void"
     itxn_field ApplicationArgs
     bytec 4 // 0x80
     itxn_field ApplicationArgs
@@ -667,7 +671,7 @@ test_native_encoding_next_txn@1:
     swap
     uncover 2
     itxn_field ApplicationID
-    bytec 8 // method "check_uint64(uint64,byte[])void"
+    bytec 7 // method "check_uint64(uint64,byte[])void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
@@ -724,7 +728,7 @@ test_native_encoding_next_txn@2:
     //     b"\x00\x04" + Txn.application_args(0),
     //     app_id=app,
     // )
-    bytec 9 // method "check_dynamic_bytes(byte[],byte[])void"
+    bytec 8 // method "check_dynamic_bytes(byte[],byte[])void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
@@ -771,7 +775,7 @@ test_native_encoding_next_txn@3:
     // arc4.abi_call(
     //     CheckApp.check_string, String("Hello World"), b"\x00\x0bHello World", app_id=app
     // )
-    bytec 10 // method "check_string(string,byte[])void"
+    bytec 9 // method "check_string(string,byte[])void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
@@ -811,7 +815,7 @@ test_native_encoding_next_txn@4:
     swap
     frame_dig 0
     itxn_field ApplicationID
-    bytec 11 // method "check_biguint(uint512,byte[])void"
+    bytec 10 // method "check_biguint(uint512,byte[])void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
@@ -845,7 +849,7 @@ test_native_encoding_next_txn@5:
     swap
     frame_dig 0
     itxn_field ApplicationID
-    bytec 12 // method "check_bool(bool,byte[])void"
+    bytec 11 // method "check_bool(bool,byte[])void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
@@ -936,7 +940,7 @@ test_arc4_encoding_next_txn@1:
     concat
     swap
     itxn_field ApplicationID
-    bytec 8 // method "check_uint64(uint64,byte[])void"
+    bytec 7 // method "check_uint64(uint64,byte[])void"
     itxn_field ApplicationArgs
     bytec 14 // 0x0000000000000000
     itxn_field ApplicationArgs
@@ -994,7 +998,7 @@ test_arc4_encoding_next_txn@2:
     //     b"\x00\x04" + Txn.application_args(0),
     //     app_id=app,
     // )
-    bytec 9 // method "check_dynamic_bytes(byte[],byte[])void"
+    bytec 8 // method "check_dynamic_bytes(byte[],byte[])void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
@@ -1034,7 +1038,7 @@ test_arc4_encoding_next_txn@3:
     // arc4.abi_call(
     //     CheckApp.check_string, arc4.String("Hello World"), b"\x00\x0bHello World", app_id=app
     // )
-    bytec 10 // method "check_string(string,byte[])void"
+    bytec 9 // method "check_string(string,byte[])void"
     itxn_field ApplicationArgs
     // arc4_conversions/contract.py:91
     // CheckApp.check_string, arc4.String("Hello World"), b"\x00\x0bHello World", app_id=app
@@ -1072,7 +1076,7 @@ test_arc4_encoding_next_txn@4:
     concat
     frame_dig 0
     itxn_field ApplicationID
-    bytec 11 // method "check_biguint(uint512,byte[])void"
+    bytec 10 // method "check_biguint(uint512,byte[])void"
     itxn_field ApplicationArgs
     pushbytes 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
     itxn_field ApplicationArgs
@@ -1107,7 +1111,7 @@ test_arc4_encoding_next_txn@5:
     swap
     frame_dig 0
     itxn_field ApplicationID
-    bytec 12 // method "check_bool(bool,byte[])void"
+    bytec 11 // method "check_bool(bool,byte[])void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
@@ -1187,7 +1191,7 @@ test_array_uint64_encoding_next_txn@1:
     frame_bury 1
     // arc4_conversions/contract.py:106
     // arr = ImmutableArray(Txn.num_app_args, Txn.num_app_args + 1, Txn.num_app_args + 2)
-    bytec 13 // 0x0000
+    bytec 12 // 0x0000
     bytec_0 // 0x
     concat
     extract 2 0
@@ -1204,20 +1208,13 @@ test_array_uint64_encoding_next_txn@1:
     bytec_0 // 0x
     swap
     concat
-    bytec_0 // 0x
     swap
+    itob
     concat
     swap
     itob
+    concat
     bytec_0 // 0x
-    swap
-    concat
-    concat
-    swap
-    itob
-    bytec_0 // 0x
-    swap
-    concat
     concat
     concat
     dup
@@ -1232,7 +1229,7 @@ test_array_uint64_encoding_next_txn@1:
     // b"\x00\x03" + op.bzero(7) + b"\x01" + op.bzero(7) + b"\x02" + op.bzero(7) + b"\x03"
     pushint 7 // 7
     bzero
-    bytec 7 // 0x0003
+    bytec 13 // 0x0003
     swap
     concat
     pushbytes 0x01
@@ -1292,25 +1289,26 @@ test_array_uint64_encoding_next_txn@2:
     dup
     intc_3 // 1
     +
+    swap
     txn NumAppArgs
     intc_2 // 2
     +
-    uncover 2
-    itob
-    swap
-    uncover 2
-    itob
     cover 2
     itob
-    cover 2
     bytec_0 // 0x
     swap
     concat
     swap
+    itob
     concat
     swap
+    itob
     concat
-    bytec 7 // 0x0003
+    bytec_0 // 0x
+    concat
+    pushint 3 // 3
+    itob
+    extract 6 2
     swap
     concat
     // arc4_conversions/contract.py:114
@@ -1366,26 +1364,22 @@ test_array_uint64_encoding_next_txn@3:
     dup
     intc_3 // 1
     +
+    swap
     txn NumAppArgs
     intc_2 // 2
     +
-    uncover 2
-    itob
-    swap
-    uncover 2
-    itob
     cover 2
     itob
-    cover 2
     bytec_0 // 0x
     swap
     concat
     swap
+    itob
     concat
     swap
+    itob
     concat
     bytec_0 // 0x
-    swap
     concat
     // arc4_conversions/contract.py:120
     // expected_bytes[2:],
@@ -1504,7 +1498,7 @@ test_array_static_encoding_next_txn@1:
     frame_bury 0
     // arc4_conversions/contract.py:130
     // arr = ImmutableArray(my_struct(UInt64(1)), my_struct(UInt64(2)), my_struct(UInt64(3)))
-    bytec 13 // 0x0000
+    bytec 12 // 0x0000
     bytec_0 // 0x
     concat
     extract 2 0
@@ -1523,7 +1517,14 @@ test_array_static_encoding_next_txn@1:
     bytec_0 // 0x
     swap
     concat
+    dig 1
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
     swap
+    concat
+    bytec_0 // 0x
     concat
     bytec_0 // 0x
     swap
@@ -1533,7 +1534,14 @@ test_array_static_encoding_next_txn@1:
     bytec_0 // 0x
     swap
     concat
+    dig 2
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
     uncover 2
+    concat
+    bytec_0 // 0x
     concat
     concat
     swap
@@ -1541,8 +1549,17 @@ test_array_static_encoding_next_txn@1:
     bytec_0 // 0x
     swap
     concat
+    dig 2
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
     uncover 2
     concat
+    bytec_0 // 0x
+    concat
+    concat
+    bytec_0 // 0x
     concat
     concat
     dup
@@ -1561,7 +1578,7 @@ test_array_static_encoding_next_txn@1:
     concat
     // arc4_conversions/contract.py:132
     // b"\x00\x03"
-    bytec 7 // 0x0003
+    bytec 13 // 0x0003
     // arc4_conversions/contract.py:132-133
     // b"\x00\x03"
     // + (op.bzero(7) + b"\x01")
@@ -1676,40 +1693,58 @@ test_array_static_encoding_next_txn@2:
     intc_2 // 2
     callsub my_struct
     cover 3
-    swap
+    cover 2
     pushint 3 // 3
     callsub my_struct
     cover 5
-    cover 3
+    cover 4
     itob
     bytec_0 // 0x
     swap
     concat
+    dig 1
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
+    swap
+    concat
+    bytec_0 // 0x
+    concat
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    itob
+    bytec_0 // 0x
+    swap
+    concat
+    dig 2
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
     uncover 2
     concat
-    cover 2
-    itob
     bytec_0 // 0x
-    swap
     concat
-    uncover 3
     concat
     swap
     itob
     bytec_0 // 0x
     swap
     concat
-    uncover 3
-    concat
-    bytec_0 // 0x
-    uncover 3
-    concat
+    dig 2
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
     uncover 2
     concat
-    swap
+    bytec_0 // 0x
+    concat
     concat
     bytec_0 // 0x
-    swap
     concat
     // arc4_conversions/contract.py:144
     // expected_bytes[2:],
@@ -1830,7 +1865,7 @@ test_array_dynamic_encoding_next_txn@1:
     // arr = ImmutableArray(
     //     my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3))
     // )
-    bytec 13 // 0x0000
+    bytec 12 // 0x0000
     bytec_0 // 0x
     concat
     // arc4_conversions/contract.py:155
@@ -1838,31 +1873,36 @@ test_array_dynamic_encoding_next_txn@1:
     intc_3 // 1
     callsub my_dyn_struct
     cover 2
-    cover 2
+    swap
     intc_2 // 2
     callsub my_dyn_struct
     cover 5
-    cover 5
+    cover 4
     cover 3
     pushint 3 // 3
     callsub my_dyn_struct
     cover 8
-    cover 8
+    cover 7
     cover 6
     itob
-    dig 1
+    swap
+    dup
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
+    dig 2
     len
     itob
     extract 6 2
-    uncover 2
+    uncover 3
     concat
-    swap
     // arc4_conversions/contract.py:154-156
     // arr = ImmutableArray(
     //     my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3))
     // )
     bytec_0 // 0x
-    swap
+    uncover 3
     concat
     uncover 2
     concat
@@ -1878,17 +1918,21 @@ test_array_dynamic_encoding_next_txn@1:
     itob
     dig 1
     len
+    pushint 32 // 32
+    ==
+    assert // invalid size
+    dig 2
+    len
     itob
     extract 6 2
-    uncover 2
+    uncover 3
     concat
-    swap
     // arc4_conversions/contract.py:154-156
     // arr = ImmutableArray(
     //     my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3))
     // )
     bytec_0 // 0x
-    swap
+    uncover 2
     concat
     uncover 2
     concat
@@ -1904,19 +1948,23 @@ test_array_dynamic_encoding_next_txn@1:
     itob
     dig 2
     len
+    pushint 32 // 32
+    ==
+    assert // invalid size
+    dig 4
+    len
     itob
     extract 6 2
-    uncover 3
+    uncover 5
     concat
-    swap
     // arc4_conversions/contract.py:154-156
     // arr = ImmutableArray(
     //     my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3))
     // )
     bytec_0 // 0x
-    swap
+    uncover 2
     concat
-    uncover 4
+    uncover 3
     concat
     pushint 42 // 42
     itob
@@ -1956,11 +2004,8 @@ test_array_dynamic_encoding_next_txn@1:
     dig 1
     intc_0 // 0
     extract_uint16
-    swap
     uncover 2
     extract 2 0
-    uncover 2
-    swap
     pushint 3 // 3
     uncover 3
     callsub dynamic_array_concat_dynamic_element
@@ -2013,7 +2058,7 @@ test_array_dynamic_encoding_next_txn@1:
     concat
     swap
     concat
-    bytec 7 // 0x0003
+    bytec 13 // 0x0003
     swap
     concat
     // arc4_conversions/contract.py:162
@@ -2106,106 +2151,140 @@ test_array_dynamic_encoding_next_txn@2:
     intc_3 // 1
     callsub my_dyn_struct
     cover 2
-    cover 2
+    swap
     intc_2 // 2
     callsub my_dyn_struct
     cover 5
-    cover 5
+    cover 4
     cover 3
     pushint 3 // 3
     callsub my_dyn_struct
     cover 8
-    cover 8
+    cover 7
     cover 6
     itob
+    bytec_0 // 0x
+    swap
+    concat
+    dig 1
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
+    swap
+    concat
     dig 1
     len
     itob
     extract 6 2
     uncover 2
     concat
-    swap
     bytec_0 // 0x
     swap
-    concat
-    uncover 2
     concat
     pushint 42 // 42
     itob
     extract 6 2
+    uncover 2
+    swap
     concat
     swap
     concat
-    cover 5
-    itob
+    bytec_0 // 0x
     dig 1
-    len
-    itob
-    extract 6 2
-    uncover 2
     concat
     swap
+    len
+    intc_1 // 6
+    +
+    swap
+    intc_1 // 6
+    itob
+    extract 6 2
     bytec_0 // 0x
     swap
     concat
-    uncover 2
-    concat
-    pushint 42 // 42
-    itob
-    extract 6 2
-    concat
-    swap
-    concat
-    swap
-    itob
-    dig 2
-    len
-    itob
-    extract 6 2
+    cover 2
     uncover 3
-    concat
-    swap
+    itob
     bytec_0 // 0x
     swap
     concat
+    dig 4
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
     uncover 4
     concat
+    dig 4
+    len
+    itob
+    extract 6 2
+    uncover 5
+    concat
+    bytec_0 // 0x
+    swap
+    concat
     pushint 42 // 42
     itob
     extract 6 2
-    concat
-    swap
-    concat
-    intc_1 // 6
-    itob
-    extract 6 2
-    bytec_0 // 0x
-    swap
-    concat
-    dig 3
-    len
-    intc_1 // 6
-    +
-    dup
-    itob
-    extract 6 2
     uncover 2
     swap
     concat
     swap
-    dig 3
+    concat
+    swap
+    dig 1
+    concat
+    cover 3
     len
+    dig 1
     +
+    swap
     itob
     extract 6 2
+    uncover 2
+    swap
     concat
     uncover 3
+    itob
+    bytec_0 // 0x
+    swap
     concat
+    dig 4
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
+    uncover 4
+    concat
+    dig 4
+    len
+    itob
+    extract 6 2
+    uncover 5
+    concat
+    bytec_0 // 0x
+    swap
+    concat
+    pushint 42 // 42
+    itob
+    extract 6 2
     uncover 2
+    swap
     concat
     swap
     concat
-    bytec_0 // 0x
+    uncover 3
+    swap
+    concat
+    uncover 2
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
     swap
     concat
     // arc4_conversions/contract.py:172
