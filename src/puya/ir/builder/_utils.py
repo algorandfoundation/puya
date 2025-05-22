@@ -532,6 +532,7 @@ class OpFactory:
         index: Value | int,
         length: Value | int,
         temp_desc: str = "extract",
+        error_message: str | None = None,
     ) -> Register:
         result = assign_intrinsic_op(
             self.context,
@@ -539,6 +540,7 @@ class OpFactory:
             op=AVMOp.extract3,
             args=[value, index, length],
             source_location=self.source_location,
+            error_message=error_message,
         )
         return result
 
