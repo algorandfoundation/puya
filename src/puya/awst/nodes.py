@@ -1223,6 +1223,32 @@ class AssignmentExpression(Expression):
         return visitor.visit_assignment_expression(self)
 
 
+@attrs.frozen
+class CommaExpression(Expression):
+    """
+    Supports comma expressions as seen in JavaScript or C.
+
+    Each inner expression is evaluated, in order, and the result of the overall expression
+    is the last expression.
+
+    Functionally equivalent to a TupleExpression wrapped with a TupleItemExpression and index -1,
+    but with support for void expressions.
+    """
+
+    expressions: Sequence[Expression] = attrs.field(
+        converter=tuple[Expression, ...],
+        validator=attrs.validators.min_len(1),
+    )
+    wtype: WType = attrs.field(init=False)
+
+    @wtype.default
+    def _wtype(self) -> WType:
+        return self.expressions[-1].wtype
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_comma_expression(self)
+
+
 class EqualityComparison(enum.StrEnum):
     eq = "=="
     ne = "!="
