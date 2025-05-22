@@ -12,6 +12,7 @@ from puya.ir.builder._utils import OpFactory, assign_targets
 from puya.ir.builder.mem import read_slot
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import Value, ValueProvider
+from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
     ArrayEncoding,
     DynamicArrayEncoding,
@@ -33,7 +34,7 @@ class ArrayIterator:
 
 
 def get_array_length(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     array_encoding: ArrayEncoding,
     array: Value,
     source_location: SourceLocation,
