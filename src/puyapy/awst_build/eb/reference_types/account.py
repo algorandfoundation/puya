@@ -44,9 +44,7 @@ class AccountTypeBuilder(BytesBackedTypeBuilder, LiteralConvertingTypeBuilder):
         super().__init__(pytypes.AccountType, location)
 
     @typing.override
-    def try_convert_literal(
-        self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder | None:
+    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
         match literal.value:
             case str(str_value):
                 if not utils.valid_address(str_value):
@@ -58,7 +56,7 @@ class AccountTypeBuilder(BytesBackedTypeBuilder, LiteralConvertingTypeBuilder):
                 expr = AddressConstant(
                     value=str_value,
                     wtype=wtypes.account_wtype,
-                    source_location=location,
+                    source_location=self.source_location,
                 )
                 return AccountExpressionBuilder(expr)
         return None

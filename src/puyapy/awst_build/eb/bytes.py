@@ -55,9 +55,7 @@ class BytesTypeBuilder(TypeBuilder, LiteralConvertingTypeBuilder):
         super().__init__(pytypes.BytesType, location)
 
     @typing.override
-    def try_convert_literal(
-        self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder | None:
+    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
         match literal.value:
             case bytes(literal_value):
                 if len(literal_value) > algo_constants.MAX_BYTES_LENGTH:
@@ -66,7 +64,9 @@ class BytesTypeBuilder(TypeBuilder, LiteralConvertingTypeBuilder):
                     )
 
                 expr = BytesConstant(
-                    value=literal_value, encoding=BytesEncoding.unknown, source_location=location
+                    value=literal_value,
+                    encoding=BytesEncoding.unknown,
+                    source_location=self.source_location,
                 )
                 return BytesExpressionBuilder(expr)
         return None

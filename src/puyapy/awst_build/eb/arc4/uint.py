@@ -46,9 +46,7 @@ class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType], LiteralConverting
         super().__init__(pytype, location)
 
     @typing.override
-    def try_convert_literal(
-        self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder | None:
+    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
         pytype = self.produces()
         match literal.value:
             case int(int_value):
@@ -56,7 +54,7 @@ class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType], LiteralConverting
                     logger.error(f"invalid {pytype} value", location=literal.source_location)
                 # take int() of the value since it could match a bool also
                 expr = IntegerConstant(
-                    value=int(int_value), wtype=pytype.wtype, source_location=location
+                    value=int(int_value), wtype=pytype.wtype, source_location=self.source_location
                 )
                 return UIntNExpressionBuilder(expr, pytype)
         return None

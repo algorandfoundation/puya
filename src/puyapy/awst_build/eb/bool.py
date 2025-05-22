@@ -35,12 +35,10 @@ class BoolTypeBuilder(TypeBuilder, LiteralConvertingTypeBuilder):
         super().__init__(pytypes.BoolType, location)
 
     @typing.override
-    def try_convert_literal(
-        self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder | None:
+    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
         match literal.value:
             case bool(literal_value):
-                expr = BoolConstant(value=literal_value, source_location=location)
+                expr = BoolConstant(value=literal_value, source_location=self.source_location)
                 return BoolExpressionBuilder(expr)
         return None
 

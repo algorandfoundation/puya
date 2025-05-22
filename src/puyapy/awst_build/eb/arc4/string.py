@@ -46,9 +46,7 @@ class ARC4StringTypeBuilder(ARC4TypeBuilder, LiteralConvertingTypeBuilder):
         super().__init__(pytypes.ARC4StringType, location)
 
     @typing.override
-    def try_convert_literal(
-        self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder | None:
+    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
         match literal.value:
             case str(literal_value):
                 try:
@@ -64,7 +62,7 @@ class ARC4StringTypeBuilder(ARC4TypeBuilder, LiteralConvertingTypeBuilder):
                             "encoded string exceeds max byte array length",
                             location=literal.source_location,
                         )
-                return _arc4_str_literal(literal_value, location)
+                return _arc4_str_literal(literal_value, self.source_location)
         return None
 
     @typing.override

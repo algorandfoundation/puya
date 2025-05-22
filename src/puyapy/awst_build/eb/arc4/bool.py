@@ -31,14 +31,14 @@ class ARC4BoolTypeBuilder(ARC4TypeBuilder, LiteralConvertingTypeBuilder):
         super().__init__(pytypes.ARC4BoolType, location)
 
     @typing.override
-    def try_convert_literal(
-        self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder | None:
+    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
         match literal.value:
             case bool(bool_literal):
                 return ARC4BoolExpressionBuilder(
                     BoolConstant(
-                        value=bool_literal, source_location=location, wtype=wtypes.arc4_bool_wtype
+                        value=bool_literal,
+                        wtype=wtypes.arc4_bool_wtype,
+                        source_location=self.source_location,
                     ),
                 )
         return None

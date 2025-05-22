@@ -33,9 +33,7 @@ class DynamicBytesTypeBuilder(
         super().__init__(pytypes.ARC4DynamicBytesType, location)
 
     @typing.override
-    def try_convert_literal(
-        self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder | None:
+    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
         match literal.value:
             case bytes(bytes_literal):
                 if len(bytes_literal) > (algo_constants.MAX_BYTES_LENGTH - 2):
@@ -44,9 +42,11 @@ class DynamicBytesTypeBuilder(
                     )
 
                 bytes_expr = BytesConstant(
-                    value=bytes_literal, encoding=BytesEncoding.unknown, source_location=location
+                    value=bytes_literal,
+                    encoding=BytesEncoding.unknown,
+                    source_location=self.source_location,
                 )
-                return self._from_bytes_expr(bytes_expr, location)
+                return self._from_bytes_expr(bytes_expr, self.source_location)
         return None
 
     @typing.override

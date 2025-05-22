@@ -46,15 +46,13 @@ class BigUIntTypeBuilder(BytesBackedTypeBuilder, LiteralConvertingTypeBuilder):
         super().__init__(pytypes.BigUIntType, location)
 
     @typing.override
-    def try_convert_literal(
-        self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder | None:
+    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
         match literal.value:
             case int(int_value):
                 pytype = self.produces()
                 if int_value < 0 or int_value.bit_length() > algo_constants.MAX_BIGUINT_BITS:
                     logger.error(f"invalid {pytype} value", location=literal.source_location)
-                expr = BigUIntConstant(value=int(int_value), source_location=location)
+                expr = BigUIntConstant(value=int(int_value), source_location=self.source_location)
                 return BigUIntExpressionBuilder(expr)
         return None
 

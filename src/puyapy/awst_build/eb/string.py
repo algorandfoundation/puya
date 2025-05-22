@@ -48,9 +48,7 @@ class StringTypeBuilder(BytesBackedTypeBuilder, LiteralConvertingTypeBuilder):
         super().__init__(pytypes.StringType, location)
 
     @typing.override
-    def try_convert_literal(
-        self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder | None:
+    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
         match literal.value:
             case str(value):
                 try:
@@ -66,7 +64,7 @@ class StringTypeBuilder(BytesBackedTypeBuilder, LiteralConvertingTypeBuilder):
                             "string constant exceeds max byte array length",
                             location=literal.source_location,
                         )
-                expr = StringConstant(value=value, source_location=location)
+                expr = StringConstant(value=value, source_location=self.source_location)
                 return StringExpressionBuilder(expr)
         return None
 

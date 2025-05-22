@@ -270,18 +270,12 @@ class LiteralBuilder(InstanceBuilder, abc.ABC):
     ) -> LiteralBuilder: ...
 
 
-class LiteralConverter(_Locatable, abc.ABC):
+class LiteralConverter(abc.ABC):
     @abc.abstractmethod
-    def convert_literal(
-        self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder: ...
+    def convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder: ...
 
     @abc.abstractmethod
-    def try_convert_literal(
-        self,
-        literal: LiteralBuilder,
-        location: SourceLocation,
-    ) -> InstanceBuilder | None:
+    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
         """
         If the type of `literal.value` is correct, return a new instance, otherwise return `None`.
         If the value is out of range or otherwise invalid, an error is logged,

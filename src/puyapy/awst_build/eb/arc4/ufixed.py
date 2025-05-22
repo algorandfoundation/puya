@@ -41,13 +41,13 @@ logger = log.get_logger(__name__)
 
 class UFixedNxMTypeBuilder(ARC4TypeBuilder, LiteralConvertingTypeBuilder):
     @typing.override
-    def try_convert_literal(
-        self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder | None:
+    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
         match literal.value:
             case str(literal_value):
                 result = self._str_to_decimal_constant(
-                    literal_value, error_location=literal.source_location, location=location
+                    literal_value,
+                    error_location=literal.source_location,
+                    location=self.source_location,
                 )
                 return UFixedNxMExpressionBuilder(result, self.produces())
         return None

@@ -37,9 +37,7 @@ class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType], LiteralConve
         super().__init__(pytypes.ARC4AddressType, location)
 
     @typing.override
-    def try_convert_literal(
-        self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder | None:
+    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
         match literal.value:
             case str(str_value):
                 if not utils.valid_address(str_value):
@@ -51,7 +49,7 @@ class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType], LiteralConve
                 expr = AddressConstant(
                     value=str_value,
                     wtype=wtypes.arc4_address_alias,
-                    source_location=location,
+                    source_location=self.source_location,
                 )
                 return AddressExpressionBuilder(expr)
         return None

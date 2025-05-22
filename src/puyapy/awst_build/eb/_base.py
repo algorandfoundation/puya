@@ -99,16 +99,15 @@ class LiteralConvertingTypeBuilder(LiteralConverter, abc.ABC):
 
     @typing.override
     @typing.final
-    def convert_literal(
-        self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder:
-        result = self.try_convert_literal(literal, location)
+    def convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder:
+        result = self.try_convert_literal(literal)
         if result is not None:
             return result
         logger.error(
             f"can't covert literal to {self.produces()}", location=literal.source_location
         )
-        return dummy_value(self.produces(), location)
+        source_location = getattr(self, "source_location", literal.source_location)
+        return dummy_value(self.produces(), source_location)
 
 
 class GenericTypeBuilder(CallableBuilder, abc.ABC):

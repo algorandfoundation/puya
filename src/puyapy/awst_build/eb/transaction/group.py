@@ -24,9 +24,7 @@ class GroupTransactionTypeBuilder(
     TypeBuilder[pytypes.GroupTransactionType], LiteralConvertingTypeBuilder
 ):
     @typing.override
-    def try_convert_literal(
-        self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder | None:
+    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
         match literal.value:
             case int(int_value):
                 if int_value < 0:
@@ -41,9 +39,9 @@ class GroupTransactionTypeBuilder(
                         location=literal.source_location,
                     )
                 typ = self.produces()
-                group_index = UInt64Constant(value=int_value, source_location=location)
+                group_index = UInt64Constant(value=int_value, source_location=self.source_location)
                 txn = GroupTransactionReference(
-                    index=group_index, wtype=typ.wtype, source_location=location
+                    index=group_index, wtype=typ.wtype, source_location=self.source_location
                 )
                 return GroupTransactionExpressionBuilder(txn, typ)
         return None
